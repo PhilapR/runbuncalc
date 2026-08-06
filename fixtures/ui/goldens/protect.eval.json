@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "kind": "evaluate-actions",
+  "fixtureId": "protect",
+  "options": {
+    "sideId": "ai",
+    "includeSwitches": false
+  },
+  "evaluations": [
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Shadow Sneak",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 11,
+      "outcomes": [
+        {
+          "score": 11,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "not the highest damaging move",
+        "priority survival bonus"
+      ],
+      "facts": {
+        "moveCategory": "Physical",
+        "moveType": "Ghost",
+        "priority": 1,
+        "attackerSpeed": 72,
+        "defenderSpeed": 134,
+        "attackerSpecies": "Aegislash-Shield",
+        "defenderSpecies": "Garchomp",
+        "isImmune": false,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 166,
+        "defenderIncapacitated": false,
+        "damage": {
+          "min": 33,
+          "max": 39,
+          "targetHp": 170,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Flash Cannon",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 8,
+      "outcomes": [
+        {
+          "score": 6,
+          "probability": 0.8
+        },
+        {
+          "score": 8,
+          "probability": 0.2
+        }
+      ],
+      "reasons": [
+        "highest damaging move or a move that can KO"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Steel",
+        "priority": 0,
+        "attackerSpeed": 72,
+        "defenderSpeed": 134,
+        "attackerSpecies": "Aegislash-Shield",
+        "defenderSpecies": "Garchomp",
+        "isImmune": false,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 166,
+        "defenderIncapacitated": false,
+        "damage": {
+          "min": 76,
+          "max": 91,
+          "targetHp": 170,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Shadow Ball",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 8,
+      "outcomes": [
+        {
+          "score": 6,
+          "probability": 0.8
+        },
+        {
+          "score": 8,
+          "probability": 0.2
+        }
+      ],
+      "reasons": [
+        "highest damaging move or a move that can KO"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Ghost",
+        "priority": 0,
+        "attackerSpeed": 72,
+        "defenderSpeed": 134,
+        "attackerSpecies": "Aegislash-Shield",
+        "defenderSpecies": "Garchomp",
+        "isImmune": false,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 166,
+        "defenderIncapacitated": false,
+        "damage": {
+          "min": 76,
+          "max": 91,
+          "targetHp": 170,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "King's Shield",
+        "targetIds": [
+          "ai-1"
+        ]
+      },
+      "score": 6,
+      "outcomes": [
+        {
+          "score": -20,
+          "probability": 0.5
+        },
+        {
+          "score": 6,
+          "probability": 0.5
+        }
+      ],
+      "reasons": [
+        "Protect scoring rule",
+        "50% repeat-Protect penalty"
+      ],
+      "facts": {
+        "moveCategory": "Status",
+        "moveType": "Steel",
+        "priority": 4,
+        "attackerSpeed": 72,
+        "defenderSpeed": 72,
+        "attackerSpecies": "Aegislash-Shield",
+        "defenderSpecies": "Aegislash-Shield",
+        "isImmune": true,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 166,
+        "damage": {
+          "min": 0,
+          "max": 0,
+          "targetHp": 45,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    }
+  ]
+}

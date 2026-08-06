@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "kind": "evaluate-actions",
+  "fixtureId": "sleep-target",
+  "options": {
+    "sideId": "ai",
+    "includeSwitches": false
+  },
+  "evaluations": [
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Nasty Plot",
+        "targetIds": [
+          "ai-1"
+        ]
+      },
+      "score": 9,
+      "outcomes": [
+        {
+          "score": 9,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "default non-damaging move score"
+      ],
+      "facts": {
+        "moveCategory": "Status",
+        "moveType": "Dark",
+        "priority": 0,
+        "attackerSpeed": 87,
+        "defenderSpeed": 87,
+        "attackerSpecies": "Hypno",
+        "defenderSpecies": "Hypno",
+        "isImmune": true,
+        "isSuperEffective": true,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": false,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 98,
+        "damage": {
+          "min": 0,
+          "max": 0,
+          "targetHp": 150,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Shadow Ball",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 8,
+      "outcomes": [
+        {
+          "score": 6,
+          "probability": 0.8
+        },
+        {
+          "score": 8,
+          "probability": 0.2
+        }
+      ],
+      "reasons": [
+        "highest damaging move or a move that can KO"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Ghost",
+        "priority": 0,
+        "attackerSpeed": 87,
+        "defenderSpeed": 178,
+        "attackerSpecies": "Hypno",
+        "defenderSpecies": "Dragapult",
+        "defenderStatus": "slp",
+        "isImmune": false,
+        "isSuperEffective": true,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": false,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 98,
+        "defenderIncapacitated": true,
+        "damage": {
+          "min": 66,
+          "max": 78,
+          "targetHp": 140,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Psychic",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 0,
+      "outcomes": [
+        {
+          "score": 0,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "not the highest damaging move"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Psychic",
+        "priority": 0,
+        "attackerSpeed": 87,
+        "defenderSpeed": 178,
+        "attackerSpecies": "Hypno",
+        "defenderSpecies": "Dragapult",
+        "defenderStatus": "slp",
+        "isImmune": false,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": false,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 98,
+        "defenderIncapacitated": true,
+        "damage": {
+          "min": 55,
+          "max": 66,
+          "targetHp": 140,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Focus Blast",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": -20,
+      "outcomes": [
+        {
+          "score": -20,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "not the highest damaging move",
+        "target is immune"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Fighting",
+        "priority": 0,
+        "attackerSpeed": 87,
+        "defenderSpeed": 178,
+        "attackerSpecies": "Hypno",
+        "defenderSpecies": "Dragapult",
+        "defenderStatus": "slp",
+        "isImmune": true,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": false,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 98,
+        "defenderIncapacitated": true,
+        "damage": {
+          "min": 0,
+          "max": 0,
+          "targetHp": 140,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    }
+  ]
+}

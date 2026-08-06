@@ -6,80 +6,171 @@
     {
       "id": "sample",
       "label": "Sample Singles (Pikachu vs Gyarados)",
-      "tags": ["sample", "singles", "gen8"],
+      "tags": [
+        "sample",
+        "singles",
+        "gen8"
+      ],
       "file": "sample.json",
       "golden": "goldens/sample.eval.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      }
     },
     {
       "id": "doubles-sample",
       "label": "Sample Doubles (2v2 field layout)",
-      "tags": ["sample", "doubles", "gen8", "dbl-01"],
+      "tags": [
+        "sample",
+        "doubles",
+        "gen8",
+        "dbl-01"
+      ],
       "file": "doubles-sample.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      },
+      "golden": "goldens/doubles-sample.eval.json"
     },
     {
       "id": "setup",
       "label": "Setup race (Dragon Dance vs Calm Mind)",
-      "tags": ["setup", "singles", "gen8"],
+      "tags": [
+        "setup",
+        "singles",
+        "gen8"
+      ],
       "file": "setup.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      },
+      "golden": "goldens/setup.eval.json"
     },
     {
       "id": "hazard",
       "label": "Hazard lead (Stealth Rock available)",
-      "tags": ["hazard", "singles", "gen8"],
+      "tags": [
+        "hazard",
+        "singles",
+        "gen8"
+      ],
       "file": "hazard.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      },
+      "golden": "goldens/hazard.eval.json"
     },
     {
       "id": "forced-switch",
       "label": "Forced switch (active fainted)",
-      "tags": ["forced-switch", "singles", "gen8"],
+      "tags": [
+        "forced-switch",
+        "singles",
+        "gen8"
+      ],
       "file": "forced-switch.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": true}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": true
+      },
+      "golden": "goldens/forced-switch.eval.json"
     },
     {
       "id": "status-par",
-      "label": "Status pressure (Thunder Wave / Toxic)",
-      "tags": ["status", "singles", "gen8"],
+      "label": "Status immunity (Thunder Wave / Toxic vs Ground/Steel)",
+      "tags": [
+        "status",
+        "singles",
+        "gen8"
+      ],
       "file": "status-par.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      },
+      "golden": "goldens/status-par.eval.json"
     },
     {
       "id": "ko-threat",
       "label": "KO threat (low HP, opponent can KO)",
-      "tags": ["ko-threat", "protect", "singles", "gen8"],
+      "tags": [
+        "ko-threat",
+        "protect",
+        "singles",
+        "gen8"
+      ],
       "file": "ko-threat.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      },
+      "golden": "goldens/ko-threat.eval.json"
     },
     {
       "id": "pivot",
       "label": "Pivot (U-turn with bench)",
-      "tags": ["pivot", "switch", "singles", "gen8"],
+      "tags": [
+        "pivot",
+        "switch",
+        "singles",
+        "gen8"
+      ],
       "file": "pivot.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": true}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": true
+      },
+      "golden": "goldens/pivot.eval.json"
     },
     {
       "id": "protect",
       "label": "Protect context (repeat / survival)",
-      "tags": ["protect", "singles", "gen8"],
+      "tags": [
+        "protect",
+        "singles",
+        "gen8"
+      ],
       "file": "protect.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      },
+      "golden": "goldens/protect.eval.json"
     },
     {
       "id": "burn-status",
       "label": "Burned attacker (status on self)",
-      "tags": ["status", "singles", "gen8"],
+      "tags": [
+        "status",
+        "singles",
+        "gen8"
+      ],
       "file": "burn-status.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      },
+      "golden": "goldens/burn-status.eval.json"
     },
     {
       "id": "sleep-target",
-      "label": "Sleeping target (Dream Eater / Wake-Up Slap era kit)",
-      "tags": ["status", "sleep", "singles", "gen8"],
+      "label": "Sleeping target (setup vs a sleeping Dragapult)",
+      "tags": [
+        "status",
+        "sleep",
+        "singles",
+        "gen8"
+      ],
       "file": "sleep-target.json",
-      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+      "defaultOptions": {
+        "sideId": "ai",
+        "includeSwitches": false
+      },
+      "golden": "goldens/sleep-target.eval.json"
     }
   ]
 }

@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "kind": "evaluate-actions",
+  "fixtureId": "hazard",
+  "options": {
+    "sideId": "ai",
+    "includeSwitches": false
+  },
+  "evaluations": [
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Stealth Rock",
+        "targetIds": []
+      },
+      "score": 9,
+      "outcomes": [
+        {
+          "score": 8,
+          "probability": 0.25
+        },
+        {
+          "score": 9,
+          "probability": 0.75
+        }
+      ],
+      "reasons": [
+        "default non-damaging move score"
+      ],
+      "facts": {
+        "moveCategory": "Status",
+        "moveType": "Rock",
+        "priority": 0,
+        "attackerSpeed": 97,
+        "attackerSpecies": "Heatran",
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 352,
+        "isFirstTurnOut": true
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Magma Storm",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 8,
+      "outcomes": [
+        {
+          "score": 6,
+          "probability": 0.8
+        },
+        {
+          "score": 8,
+          "probability": 0.2
+        }
+      ],
+      "reasons": [
+        "not the highest damaging move",
+        "trapping move base score"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Fire",
+        "priority": 0,
+        "attackerSpeed": 97,
+        "defenderSpeed": 122,
+        "attackerSpecies": "Heatran",
+        "defenderSpecies": "Landorus-Therian",
+        "isImmune": false,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 352,
+        "defenderIncapacitated": false,
+        "isFirstTurnOut": true,
+        "damage": {
+          "min": 93,
+          "max": 111,
+          "targetHp": 165,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Toxic",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 6,
+      "outcomes": [
+        {
+          "score": 6,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "default non-damaging move score"
+      ],
+      "facts": {
+        "moveCategory": "Status",
+        "moveType": "Poison",
+        "priority": 0,
+        "attackerSpeed": 97,
+        "defenderSpeed": 122,
+        "attackerSpecies": "Heatran",
+        "defenderSpecies": "Landorus-Therian",
+        "isImmune": true,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 352,
+        "defenderIncapacitated": false,
+        "isFirstTurnOut": true,
+        "damage": {
+          "min": 0,
+          "max": 0,
+          "targetHp": 165,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Earth Power",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": -20,
+      "outcomes": [
+        {
+          "score": -20,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "highest damaging move or a move that can KO",
+        "target is immune"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Ground",
+        "priority": 0,
+        "attackerSpeed": 97,
+        "defenderSpeed": 122,
+        "attackerSpecies": "Heatran",
+        "defenderSpecies": "Landorus-Therian",
+        "isImmune": true,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 352,
+        "defenderIncapacitated": false,
+        "isFirstTurnOut": true,
+        "damage": {
+          "min": 0,
+          "max": 0,
+          "targetHp": 165,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    }
+  ]
+}

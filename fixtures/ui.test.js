@@ -90,20 +90,32 @@ test('every UI fixture evaluates, not just validates', () => {
 	}
 });
 
-test('sample golden evaluate snapshot matches current evaluate-actions', () => {
+test('every declared golden matches current evaluate-actions', () => {
+	// Every scenario declares a golden, so scoring drift shows up as a reviewable
+	// diff rather than going unnoticed. Regenerate deliberately:
+	//   node scripts/regen-ui-golden.js <fixtureId>
 	const manifest = readJson(manifestPath);
-	const scenario = manifest.scenarios.find(entry => entry.id === 'sample');
-	assert.ok(scenario && scenario.golden, 'sample must declare a golden');
-	const state = readJson(path.join(uiDir, scenario.file));
-	const options = scenario.defaultOptions || {sideId: 'ai', includeSwitches: false};
-	const sideId = options.sideId === 'player' ? 'player' : 'ai';
-	const evaluations = ai.evaluateActions(state, ai.calculateActionFacts, sideId, {
-		includeSwitches: !!options.includeSwitches,
-	});
-	const actual = toSnapshot(evaluations, {fixtureId: 'sample', options: options});
-	const expected = readJson(path.join(uiDir, scenario.golden));
-	const result = compareSnapshots(expected, actual);
-	assert.ok(result.ok, result.summary + '\n' + formatDiffs(result.diffs));
+	const withGolden = manifest.scenarios.filter(entry => entry.golden);
+	assert.equal(
+		withGolden.length,
+		manifest.scenarios.length,
+		'every scenario should declare a golden'
+	);
+	for (const scenario of withGolden) {
+		const state = readJson(path.join(uiDir, scenario.file));
+		const options = scenario.defaultOptions || {sideId: 'ai', includeSwitches: false};
+		const sideId = options.sideId === 'player' ? 'player' : 'ai';
+		const evaluations = ai.evaluateActions(state, ai.calculateActionFacts, sideId, {
+			includeSwitches: !!options.includeSwitches,
+		});
+		const actual = toSnapshot(evaluations, {fixtureId: scenario.id, options: options});
+		const expected = readJson(path.join(uiDir, scenario.golden));
+		const result = compareSnapshots(expected, actual);
+		assert.ok(
+			result.ok,
+			scenario.id + ': ' + result.summary + '\n' + formatDiffs(result.diffs)
+		);
+	}
 });
 
 test('zero-EV overlays are present on UI fixtures that declare natures', () => {

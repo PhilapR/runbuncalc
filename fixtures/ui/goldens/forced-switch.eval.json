@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "kind": "evaluate-actions",
+  "fixtureId": "forced-switch",
+  "options": {
+    "sideId": "ai",
+    "includeSwitches": true
+  },
+  "evaluations": [
+    {
+      "action": {
+        "kind": "switch",
+        "actorId": "ai-1",
+        "replacementId": "ai-2",
+        "forced": true
+      },
+      "score": 0,
+      "outcomes": [
+        {
+          "score": 0,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "forced replacement; no matchup score supplied, tie-randomized"
+      ],
+      "facts": {}
+    },
+    {
+      "action": {
+        "kind": "switch",
+        "actorId": "ai-1",
+        "replacementId": "ai-3",
+        "forced": true
+      },
+      "score": 0,
+      "outcomes": [
+        {
+          "score": 0,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "forced replacement; no matchup score supplied, tie-randomized"
+      ],
+      "facts": {}
+    }
+  ]
+}

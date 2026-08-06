@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "kind": "evaluate-actions",
+  "fixtureId": "status-par",
+  "options": {
+    "sideId": "ai",
+    "includeSwitches": false
+  },
+  "evaluations": [
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Hydro Pump",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 11,
+      "outcomes": [
+        {
+          "score": 9,
+          "probability": 0.8
+        },
+        {
+          "score": 11,
+          "probability": 0.2
+        }
+      ],
+      "reasons": [
+        "highest damaging move or a move that can KO",
+        "can KO the target"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Water",
+        "priority": 0,
+        "attackerSpeed": 106,
+        "defenderSpeed": 118,
+        "attackerSpecies": "Rotom-Wash",
+        "defenderSpecies": "Excadrill",
+        "isImmune": false,
+        "isSuperEffective": true,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 198,
+        "defenderIncapacitated": false,
+        "damage": {
+          "min": 186,
+          "max": 218,
+          "targetHp": 150,
+          "possibleKO": true,
+          "guaranteedKO": true
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Volt Switch",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": -20,
+      "outcomes": [
+        {
+          "score": -20,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "not the highest damaging move",
+        "target is immune"
+      ],
+      "facts": {
+        "moveCategory": "Special",
+        "moveType": "Electric",
+        "priority": 0,
+        "attackerSpeed": 106,
+        "defenderSpeed": 118,
+        "attackerSpecies": "Rotom-Wash",
+        "defenderSpecies": "Excadrill",
+        "isImmune": true,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 198,
+        "defenderIncapacitated": false,
+        "damage": {
+          "min": 0,
+          "max": 0,
+          "targetHp": 150,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    }
+  ]
+}

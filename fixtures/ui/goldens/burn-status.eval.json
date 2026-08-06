@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "kind": "evaluate-actions",
+  "fixtureId": "burn-status",
+  "options": {
+    "sideId": "ai",
+    "includeSwitches": false
+  },
+  "evaluations": [
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Mach Punch",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 11,
+      "outcomes": [
+        {
+          "score": 11,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "not the highest damaging move",
+        "priority survival bonus"
+      ],
+      "facts": {
+        "moveCategory": "Physical",
+        "moveType": "Fighting",
+        "priority": 1,
+        "attackerSpeed": 65,
+        "defenderSpeed": 87,
+        "attackerSpecies": "Conkeldurr",
+        "defenderSpecies": "Corviknight",
+        "attackerStatus": "brn",
+        "isImmune": false,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 152,
+        "defenderIncapacitated": false,
+        "damage": {
+          "min": 43,
+          "max": 52,
+          "targetHp": 150,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Drain Punch",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 8,
+      "outcomes": [
+        {
+          "score": 6,
+          "probability": 0.8
+        },
+        {
+          "score": 8,
+          "probability": 0.2
+        }
+      ],
+      "reasons": [
+        "highest damaging move or a move that can KO"
+      ],
+      "facts": {
+        "moveCategory": "Physical",
+        "moveType": "Fighting",
+        "priority": 0,
+        "attackerSpeed": 65,
+        "defenderSpeed": 87,
+        "attackerSpecies": "Conkeldurr",
+        "defenderSpecies": "Corviknight",
+        "attackerStatus": "brn",
+        "isImmune": false,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 152,
+        "defenderIncapacitated": false,
+        "damage": {
+          "min": 82,
+          "max": 97,
+          "targetHp": 150,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Knock Off",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "score": 0,
+      "outcomes": [
+        {
+          "score": 0,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "not the highest damaging move"
+      ],
+      "facts": {
+        "moveCategory": "Physical",
+        "moveType": "Dark",
+        "priority": 0,
+        "attackerSpeed": 65,
+        "defenderSpeed": 87,
+        "attackerSpecies": "Conkeldurr",
+        "defenderSpecies": "Corviknight",
+        "attackerStatus": "brn",
+        "isImmune": false,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 152,
+        "defenderIncapacitated": false,
+        "damage": {
+          "min": 71,
+          "max": 84,
+          "targetHp": 150,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    },
+    {
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Bulk Up",
+        "targetIds": [
+          "ai-1"
+        ]
+      },
+      "score": -20,
+      "outcomes": [
+        {
+          "score": -20,
+          "probability": 1
+        }
+      ],
+      "reasons": [
+        "the opponent can KO before setup pays off"
+      ],
+      "facts": {
+        "moveCategory": "Status",
+        "moveType": "Fighting",
+        "priority": 0,
+        "attackerSpeed": 65,
+        "defenderSpeed": 65,
+        "attackerSpecies": "Conkeldurr",
+        "defenderSpecies": "Conkeldurr",
+        "attackerStatus": "brn",
+        "defenderStatus": "brn",
+        "isImmune": true,
+        "isSuperEffective": false,
+        "isHighCrit": false,
+        "isMultiHit": false,
+        "opponentCanKO": true,
+        "opponentCan2HKO": true,
+        "opponentMaxDamage": 152,
+        "damage": {
+          "min": 0,
+          "max": 0,
+          "targetHp": 150,
+          "possibleKO": false,
+          "guaranteedKO": false
+        }
+      }
+    }
+  ]
+}
