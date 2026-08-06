@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "description": "Named Gen 8 Singles BattleState scenarios for AI Debug / Battle (FIX-01).",
+  "defaultId": "sample",
+  "scenarios": [
+    {
+      "id": "sample",
+      "label": "Sample Singles (Pikachu vs Gyarados)",
+      "tags": ["sample", "singles", "gen8"],
+      "file": "sample.json",
+      "golden": "goldens/sample.eval.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    },
+    {
+      "id": "setup",
+      "label": "Setup race (Dragon Dance vs Calm Mind)",
+      "tags": ["setup", "singles", "gen8"],
+      "file": "setup.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    },
+    {
+      "id": "hazard",
+      "label": "Hazard lead (Stealth Rock available)",
+      "tags": ["hazard", "singles", "gen8"],
+      "file": "hazard.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    },
+    {
+      "id": "forced-switch",
+      "label": "Forced switch (active fainted)",
+      "tags": ["forced-switch", "singles", "gen8"],
+      "file": "forced-switch.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": true}
+    },
+    {
+      "id": "status-par",
+      "label": "Status pressure (Thunder Wave / Toxic)",
+      "tags": ["status", "singles", "gen8"],
+      "file": "status-par.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    },
+    {
+      "id": "ko-threat",
+      "label": "KO threat (low HP, opponent can KO)",
+      "tags": ["ko-threat", "protect", "singles", "gen8"],
+      "file": "ko-threat.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    },
+    {
+      "id": "pivot",
+      "label": "Pivot (U-turn with bench)",
+      "tags": ["pivot", "switch", "singles", "gen8"],
+      "file": "pivot.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": true}
+    },
+    {
+      "id": "protect",
+      "label": "Protect context (repeat / survival)",
+      "tags": ["protect", "singles", "gen8"],
+      "file": "protect.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    },
+    {
+      "id": "burn-status",
+      "label": "Burned attacker (status on self)",
+      "tags": ["status", "singles", "gen8"],
+      "file": "burn-status.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    },
+    {
+      "id": "sleep-target",
+      "label": "Sleeping target (Dream Eater / Wake-Up Slap era kit)",
+      "tags": ["status", "sleep", "singles", "gen8"],
+      "file": "sleep-target.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "generation": 8,
+  "mode": "Singles",
+  "turn": 2,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1"],
+      "party": [{
+        "id": "ai-1",
+        "species": "Rotom-Wash",
+        "level": 50,
+        "hp": {"current": 140, "max": 140},
+        "ability": "Levitate",
+        "item": "Leftovers",
+        "nature": "Bold",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Thunder Wave"},
+          {"name": "Toxic"},
+          {"name": "Volt Switch"},
+          {"name": "Hydro Pump"}
+        ]
+      }]
+    },
+    "player": {
+      "activeIds": ["player-1"],
+      "party": [{
+        "id": "player-1",
+        "species": "Excadrill",
+        "level": 50,
+        "hp": {"current": 150, "max": 150},
+        "ability": "Mold Breaker",
+        "item": "Life Orb",
+        "nature": "Jolly",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Earthquake"},
+          {"name": "Iron Head"},
+          {"name": "Rock Slide"},
+          {"name": "Swords Dance"}
+        ]
+      }]
+    }
+  }
+}
