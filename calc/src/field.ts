@@ -8,6 +8,9 @@ export class Field implements State.Field {
   isMagicRoom: boolean;
   isWonderRoom: boolean;
   isGravity: boolean;
+  isWaterSport: boolean;
+  isMudSport: boolean;
+  isIonDeluge: boolean;
   isAuraBreak?: boolean;
   isFairyAura?: boolean;
   isDarkAura?: boolean;
@@ -25,6 +28,9 @@ export class Field implements State.Field {
     this.isMagicRoom = !!field.isMagicRoom;
     this.isWonderRoom = !!field.isWonderRoom;
     this.isGravity = !!field.isGravity;
+    this.isWaterSport = !!field.isWaterSport;
+    this.isMudSport = !!field.isMudSport;
+    this.isIonDeluge = !!field.isIonDeluge;
     this.isAuraBreak = field.isAuraBreak || false;
     this.isFairyAura = field.isFairyAura || false;
     this.isDarkAura = field.isDarkAura || false;
@@ -58,6 +64,9 @@ export class Field implements State.Field {
       isMagicRoom: this.isMagicRoom,
       isWonderRoom: this.isWonderRoom,
       isGravity: this.isGravity,
+      isWaterSport: this.isWaterSport,
+      isMudSport: this.isMudSport,
+      isIonDeluge: this.isIonDeluge,
       attackerSide: this.attackerSide,
       defenderSide: this.defenderSide,
       isAuraBreak: this.isAuraBreak,
@@ -84,13 +93,16 @@ export class Side implements State.Side {
   isProtected: boolean;
   isSeeded: boolean;
   isForesight: boolean;
+  isMiracleEye: boolean;
   isTailwind: boolean;
   isHelpingHand: boolean;
   isFlowerGift: boolean;
   isFriendGuard: boolean;
   isAuroraVeil: boolean;
+  isLuckyChant: boolean;
   isBattery: boolean;
   isPowerSpot: boolean;
+  isPledgeSwamp: boolean;
   isSwitching?: 'out' | 'in';
 
   constructor(side: State.Side = {}) {
@@ -106,13 +118,16 @@ export class Side implements State.Side {
     this.isProtected = !!side.isProtected;
     this.isSeeded = !!side.isSeeded;
     this.isForesight = !!side.isForesight;
+    this.isMiracleEye = !!side.isMiracleEye;
     this.isTailwind = !!side.isTailwind;
     this.isHelpingHand = !!side.isHelpingHand;
     this.isFlowerGift = !!side.isFlowerGift;
     this.isFriendGuard = !!side.isFriendGuard;
     this.isAuroraVeil = !!side.isAuroraVeil;
+    this.isLuckyChant = !!side.isLuckyChant;
     this.isBattery = !!side.isBattery;
     this.isPowerSpot = !!side.isPowerSpot;
+    this.isPledgeSwamp = !!side.isPledgeSwamp;
     this.isSwitching = side.isSwitching;
   }
 

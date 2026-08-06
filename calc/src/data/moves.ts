@@ -4752,6 +4752,16 @@ const SV: {[name: string]: MoveData} = extend(true, {}, SS, SV_PATCH);
 
 export const MOVES = [{}, RBY, GSC, ADV, DPP, BW, XY, SM, SS, SV];
 
+const HEALING_MOVE_IDS = new Set([
+  'absorb', 'bouncybubble', 'drainingkiss', 'drainpunch', 'dreameater',
+  'floralhealing', 'gigadrain', 'healingwish', 'healorder', 'healpulse',
+  'hornleech', 'junglehealing', 'leechlife', 'lifedew', 'lunarblessing',
+  'lunardance', 'megadrain', 'milkdrink', 'moonlight', 'morningsun',
+  'oblivionwing', 'paraboliccharge', 'purify', 'recover', 'rest', 'roost',
+  'shoreup', 'slackoff', 'softboiled', 'strengthsap', 'swallow', 'synthesis',
+  'wish',
+]);
+
 export class Moves implements I.Moves {
   private readonly gen: I.GenerationNum;
 
@@ -4835,6 +4845,7 @@ class Move implements I.Move {
     if (data.isPulse) this.flags.pulse = 1;
     if (data.isSlicing) this.flags.slicing = 1;
     if (data.isWind) this.flags.wind = 1;
+    if (HEALING_MOVE_IDS.has(this.id)) this.flags.heal = 1;
 
     assignWithout(this, data, Move.FLAGS);
 

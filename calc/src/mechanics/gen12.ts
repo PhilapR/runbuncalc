@@ -43,9 +43,15 @@ export function calculateRBYGSC(
   }
 
   const type1Effectiveness =
-    getMoveEffectiveness(gen, move, defender.types[0], field.defenderSide.isForesight);
+    getMoveEffectiveness(
+      gen, move, defender.types[0], field.defenderSide.isForesight, undefined, undefined,
+      field.defenderSide.isMiracleEye
+    );
   const type2Effectiveness = defender.types[1]
-    ? getMoveEffectiveness(gen, move, defender.types[1], field.defenderSide.isForesight)
+    ? getMoveEffectiveness(
+      gen, move, defender.types[1], field.defenderSide.isForesight, undefined, undefined,
+      field.defenderSide.isMiracleEye
+    )
     : 1;
   const typeEffectiveness = type1Effectiveness * type2Effectiveness;
 
@@ -97,10 +103,6 @@ export function calculateRBYGSC(
   if (ignoreMods) {
     at = attacker.rawStats[attackStat]!;
     df = defender.rawStats[defenseStat]!;
-    if (gen.num === 1) {
-      lv *= 2;
-      desc.isCritical = true;
-    }
   } else {
     if (attacker.boosts[attackStat] !== 0) desc.attackBoost = attacker.boosts[attackStat];
     if (defender.boosts[defenseStat] !== 0) desc.defenseBoost = defender.boosts[defenseStat];
@@ -158,9 +160,8 @@ export function calculateRBYGSC(
     Math.floor((Math.floor((2 * lv) / 5 + 2) * Math.max(1, at) * move.bp) / Math.max(1, df)) / 50
   );
 
-  // Gen 1 handles move.isCrit above by doubling level
-  if (gen.num === 2 && move.isCrit) {
-    baseDamage *= 2;
+  if (move.isCrit) {
+    baseDamage = Math.floor(baseDamage * 1.5);
     desc.isCritical = true;
   }
 
@@ -213,7 +214,7 @@ export function calculateRBYGSC(
 
   result.damage = [];
   for (let i = 217; i <= 255; i++) {
-    if (gen.num === 2) { // in gen 2 damage is always rounded up to 1. TODO ADD TESTS
+    if (gen.num === 2) { // in Gen II damage is always rounded up to 1.
       result.damage[i - 217] = Math.max(1, Math.floor((baseDamage * i) / 255));
     } else {
       if (baseDamage === 1) { // in gen 1 the random factor multiplication is skipped if damage = 1

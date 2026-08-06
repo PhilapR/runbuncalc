@@ -216,6 +216,7 @@ class Move implements I.Move {
     }
     if (dex.gen >= 3) {
       if (move.flags.contact) this.flags.contact = move.flags.contact;
+      if (move.flags.heal) this.flags.heal = move.flags.heal;
       if (move.flags.sound) this.flags.sound = move.flags.sound;
 
       if (['allAdjacent', 'allAdjacentFoes'].includes(move.target)) {

@@ -6,15 +6,23 @@ export namespace State {
     level?: number;
     ability?: I.AbilityName;
     abilityOn?: boolean;
+    /** Set false to model an intact Disguise; omitted preserves calculator compatibility. */
+    disguiseBroken?: boolean;
     isDynamaxed?: boolean;
     isSaltCure?: boolean;
+    /** Explicit grounding override for battle-engine volatiles such as Magnet Rise or Roost. */
+    isGrounded?: boolean;
     alliesFainted?: number;
     item?: I.ItemName;
+    /** Preserve held-item identity for presence moves while suppressing effects. */
+    itemSuppressed?: boolean;
     gender?: I.GenderName;
     nature?: I.NatureName;
     ivs?: Partial<I.StatsTable>;
     evs?: Partial<I.StatsTable>;
     boosts?: Partial<I.StatsTable>;
+    /** Explicit raw battle-stat inputs used by stateful stat-transform moves. */
+    statOverrides?: Partial<I.StatsTable>;
     originalCurHP?: number;
     status?: I.StatusName | '';
     teraType?: I.TypeName;
@@ -25,6 +33,8 @@ export namespace State {
 
   export interface Move {
     name: I.MoveName;
+    /** Treat a combined Pledge move as receiving ordinary STAB. */
+    forceSTAB?: boolean;
     useZ?: boolean;
     useMax?: boolean;
     isCrit?: boolean;
@@ -41,6 +51,9 @@ export namespace State {
     isMagicRoom?: boolean;
     isWonderRoom?: boolean;
     isGravity?: boolean;
+    isWaterSport?: boolean;
+    isMudSport?: boolean;
+    isIonDeluge?: boolean;
     isAuraBreak?: boolean;
     isFairyAura?: boolean;
     isDarkAura?: boolean;
@@ -65,13 +78,17 @@ export namespace State {
     isProtected?: boolean;
     isSeeded?: boolean;
     isForesight?: boolean;
+    isMiracleEye?: boolean;
     isTailwind?: boolean;
     isHelpingHand?: boolean;
     isFlowerGift?: boolean;
     isFriendGuard?: boolean;
     isAuroraVeil?: boolean;
+    isLuckyChant?: boolean;
     isBattery?: boolean;
     isPowerSpot?: boolean;
+    /** The opposing side is affected by the Grass+Water Pledge swamp. */
+    isPledgeSwamp?: boolean;
     isSwitching?: 'out' | 'in';
   }
 }

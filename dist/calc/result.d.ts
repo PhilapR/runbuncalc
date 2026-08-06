@@ -23,6 +23,7 @@ export declare class Result {
     };
     recoil(notation?: string): {
         recoil: number | [number, number];
+        recoilHP: number | [number, number];
         text: string;
     };
     kochance(err?: boolean): {
@@ -30,9 +31,9 @@ export declare class Result {
         n: number;
         text: string;
     } | {
+        chance?: undefined;
         n: number;
         text: string;
-        chance?: undefined;
     };
 }
 export declare function damageRange(damage: Damage): [number, number] | [[number, number], [number, number]];

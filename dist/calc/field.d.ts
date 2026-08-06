@@ -7,6 +7,9 @@ export declare class Field implements State.Field {
     isMagicRoom: boolean;
     isWonderRoom: boolean;
     isGravity: boolean;
+    isWaterSport: boolean;
+    isMudSport: boolean;
+    isIonDeluge: boolean;
     isAuraBreak?: boolean;
     isFairyAura?: boolean;
     isDarkAura?: boolean;
@@ -35,13 +38,16 @@ export declare class Side implements State.Side {
     isProtected: boolean;
     isSeeded: boolean;
     isForesight: boolean;
+    isMiracleEye: boolean;
     isTailwind: boolean;
     isHelpingHand: boolean;
     isFlowerGift: boolean;
     isFriendGuard: boolean;
     isAuroraVeil: boolean;
+    isLuckyChant: boolean;
     isBattery: boolean;
     isPowerSpot: boolean;
+    isPledgeSwamp: boolean;
     isSwitching?: 'out' | 'in';
     constructor(side?: State.Side);
     clone(): Side;

@@ -91,6 +91,14 @@ export function calculateSMSSSV(
 
   const result = new Result(gen, attacker, defender, move, field, 0, desc);
 
+  // Priority-granting status moves return before the damaging-move path below,
+  // so apply Triage and Gale Wings before that early exit as well.
+  if ((attacker.hasAbility('Triage') && move.flags.heal) ||
+      (attacker.hasAbility('Gale Wings') && move.hasType('Flying'))) {
+    move.priority = 1;
+    desc.attackerAbility = attacker.ability;
+  }
+
   if (move.category === 'Status' && !move.named('Nature Power')) {
     return result;
   }
@@ -134,7 +142,8 @@ export function calculateSMSSSV(
 
   // Merciless does not ignore Shell Armor, damage dealt to a poisoned Pokemon with Shell Armor
   // will not be a critical hit (UltiMario)
-  const isCritical = !defender.hasAbility('Battle Armor', 'Shell Armor') &&
+  const isCritical = !field.defenderSide.isLuckyChant &&
+    !defender.hasAbility('Battle Armor', 'Shell Armor', 'Magma Armor') &&
     (move.isCrit || (attacker.hasAbility('Merciless') && defender.hasStatus('psn', 'tox'))) &&
     move.timesUsed === 1;
 
@@ -231,17 +240,19 @@ export function calculateSMSSSV(
     }
   }
 
+  if (gen.num === 7 && field.isIonDeluge && type === 'Normal') {
+    type = 'Electric';
+    desc.moveType = type;
+  }
+
   if (move.named('Tera Blast') && attacker.teraType) {
     type = attacker.teraType;
   }
 
   move.type = type;
 
-  // FIXME: this is incorrect, should be move.flags.heal, not move.drain
-  if ((attacker.hasAbility('Triage') && move.drain) ||
-      (attacker.hasAbility('Gale Wings') &&
-       move.hasType('Flying') &&
-       attacker.curHP() === attacker.maxHP())) {
+  if ((attacker.hasAbility('Triage') && move.flags.heal) ||
+      (attacker.hasAbility('Gale Wings') && move.hasType('Flying'))) {
     move.priority = 1;
     desc.attackerAbility = attacker.ability;
   }
@@ -256,7 +267,8 @@ export function calculateSMSSSV(
     defender.types[0],
     isGhostRevealed,
     field.isGravity,
-    isRingTarget
+    isRingTarget,
+    field.defenderSide.isMiracleEye
   );
   const type2Effectiveness = defender.types[1]
     ? getMoveEffectiveness(
@@ -265,7 +277,8 @@ export function calculateSMSSSV(
       defender.types[1],
       isGhostRevealed,
       field.isGravity,
-      isRingTarget
+      isRingTarget,
+      field.defenderSide.isMiracleEye
     )
     : 1;
   let typeEffectiveness = type1Effectiveness * type2Effectiveness;
@@ -277,8 +290,16 @@ export function calculateSMSSSV(
       defender.teraType,
       isGhostRevealed,
       field.isGravity,
-      isRingTarget
+      isRingTarget,
+      field.defenderSide.isMiracleEye
     );
+  }
+
+  if (typeEffectiveness === 0 && move.hasType('Ground') && isGrounded(defender, field)) {
+    typeEffectiveness = defender.teraType
+      ? 1
+      : (type1Effectiveness === 0 ? 1 : type1Effectiveness) *
+        (type2Effectiveness === 0 ? 1 : type2Effectiveness);
   }
 
   if (typeEffectiveness === 0 && move.hasType('Ground') &&
@@ -301,7 +322,7 @@ export function calculateSMSSSV(
       (move.named('Dream Eater') &&
         (!(defender.hasStatus('slp') || defender.hasAbility('Comatose')))) ||
       (move.named('Steel Roller') && !field.terrain) ||
-      (move.named('Poltergeist') && !defender.item)
+      (move.named('Poltergeist') && !defender.item && !defender.heldItem)
   ) {
     return result;
   }
@@ -326,9 +347,8 @@ export function calculateSMSSSV(
       (move.hasType('Water') && defender.hasAbility('Dry Skin', 'Storm Drain', 'Water Absorb')) ||
       (move.hasType('Electric') &&
         defender.hasAbility('Lightning Rod', 'Motor Drive', 'Volt Absorb')) ||
-      (move.hasType('Ground') &&
-        !field.isGravity && !move.named('Thousand Arrows') &&
-        !defender.hasItem('Iron Ball') && defender.hasAbility('Levitate')) ||
+      (move.hasType('Ground') && !move.named('Thousand Arrows') &&
+        !isGrounded(defender, field)) ||
       (move.flags.bullet && defender.hasAbility('Bulletproof')) ||
       (move.flags.sound && !move.named('Clangorous Soul') && defender.hasAbility('Soundproof')) ||
       (move.priority > 0 && defender.hasAbility('Queenly Majesty', 'Dazzling', 'Armor Tail')) ||
@@ -336,12 +356,6 @@ export function calculateSMSSSV(
       (move.flags.wind && defender.hasAbility('Wind Rider'))
   ) {
     desc.defenderAbility = defender.ability;
-    return result;
-  }
-
-  if (move.hasType('Ground') && !move.named('Thousand Arrows') &&
-      !field.isGravity && defender.hasItem('Air Balloon')) {
-    desc.defenderItem = defender.item;
     return result;
   }
 
@@ -357,9 +371,14 @@ export function calculateSMSSSV(
 
   desc.HPEVs = `${defender.ivs.hp} HP`;
 
+  if (defender.hasAbility('Disguise') && !defender.disguiseBroken) {
+    desc.defenderAbility = defender.ability;
+    return result;
+  }
+
   const fixedDamage = handleFixedDamageMoves(attacker, move, defender);
   if (fixedDamage) {
-    if (attacker.hasAbility('Parental Bond')) {
+    if (attacker.hasAbility('Parental Bond') && attacker.abilityOn) {
       result.damage = [fixedDamage, fixedDamage];
       desc.attackerAbility = attacker.ability;
     } else {
@@ -494,7 +513,7 @@ export function calculateSMSSSV(
   // the random factor is applied between the crit mod and the stab mod, so don't apply anything
   // below this until we're inside the loop
   let stabMod = 4096;
-  if (attacker.hasOriginalType(move.type)) {
+  if (move.forceSTAB || attacker.hasOriginalType(move.type)) {
     stabMod += 2048;
   } else if (attacker.hasAbility('Protean', 'Libero') && !attacker.teraType) {
     stabMod += 2048;
@@ -537,7 +556,7 @@ export function calculateSMSSSV(
   const finalMod = chainMods(finalMods, 41, 131072);
 
   let childDamage: number[] | undefined;
-  if (attacker.hasAbility('Parental Bond') && move.hits === 1 && !isSpread) {
+  if (attacker.hasAbility('Parental Bond') && attacker.abilityOn && move.hits === 1 && !isSpread) {
     const child = attacker.clone();
     child.ability = 'Parental Bond (Child)' as AbilityName;
     checkMultihitBoost(gen, child, defender, move, field, desc);
@@ -836,6 +855,9 @@ export function calculateBPModsSMSSSV(
 ) {
   const bpMods = [];
 
+  if (gen.num === 7 && field.isWaterSport && move.hasType('Fire')) bpMods.push(1352);
+  if (gen.num === 7 && field.isMudSport && move.hasType('Electric')) bpMods.push(1352);
+
   // Move effects
 
   let resistedKnockOffDamage =
@@ -896,7 +918,8 @@ export function calculateBPModsSMSSSV(
       defender.types[0],
       isGhostRevealed,
       field.isGravity,
-      isRingTarget
+      isRingTarget,
+      field.defenderSide.isMiracleEye
     );
     const type2Effectiveness = defender.types[1] ? getMoveEffectiveness(
       gen,
@@ -904,7 +927,8 @@ export function calculateBPModsSMSSSV(
       defender.types[0],
       isGhostRevealed,
       field.isGravity,
-      isRingTarget
+      isRingTarget,
+      field.defenderSide.isMiracleEye
     ) : 1;
     if (type1Effectiveness * type2Effectiveness >= 2) {
       bpMods.push(5461);
@@ -1259,8 +1283,7 @@ export function calculateAtModsSMSSSV(
     // Choice Band/Scarf/Specs move lock and stat boosts are ignored during Dynamax (Anubis)
   } else if (!move.isZ && !move.isMax &&
     ((attacker.hasItem('Choice Band') && move.category === 'Physical') ||
-      (attacker.hasItem('Choice Specs') && move.category === 'Special') ||
-      attacker.hasItem("Soul Dew") && move.category === 'Special' && attacker.named('Latios', 'Latias', 'Latios-Mega', 'Latias-Mega'))
+      (attacker.hasItem('Choice Specs') && move.category === 'Special'))
   ) {
     atMods.push(6144);
     desc.attackerItem = attacker.item;
@@ -1374,7 +1397,7 @@ export function calculateDfModsSMSSSV(
     dfMods.push(3072);
   }
 
-  if (move.named('Explosion', 'Self-Destruct', 'Misty Explosion')){
+  if (move.named('Explosion', 'Self-Destruct', 'Misty Explosion')) {
     dfMods.push(2048);
   }
 
@@ -1394,8 +1417,7 @@ export function calculateDfModsSMSSSV(
   }
 
   if ((defender.hasItem('Eviolite') && gen.species.get(toID(defender.name))?.nfe) ||
-      (!hitsPhysical && defender.hasItem('Assault Vest') )||
-      (defender.hasItem("Soul Dew") && move.category === 'Special' && defender.named('Latios', 'Latias', 'Latios-Mega', 'Latias-Mega'))) {
+      (!hitsPhysical && defender.hasItem('Assault Vest'))) {
     dfMods.push(6144);
     desc.defenderItem = defender.item;
   } else if (

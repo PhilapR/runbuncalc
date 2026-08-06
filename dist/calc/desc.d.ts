@@ -54,6 +54,7 @@ export declare function getRecovery(gen: Generation, attacker: Pokemon, defender
 };
 export declare function getRecoil(gen: Generation, attacker: Pokemon, defender: Pokemon, move: Move, damage: Damage, notation?: string): {
     recoil: number | [number, number];
+    recoilHP: number | [number, number];
     text: string;
 };
 export declare function getKOChance(gen: Generation, attacker: Pokemon, defender: Pokemon, move: Move, field: Field, damage: Damage, err?: boolean): {
@@ -61,7 +62,7 @@ export declare function getKOChance(gen: Generation, attacker: Pokemon, defender
     n: number;
     text: string;
 } | {
+    chance?: undefined;
     n: number;
     text: string;
-    chance?: undefined;
 };

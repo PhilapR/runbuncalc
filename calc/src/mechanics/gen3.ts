@@ -14,6 +14,7 @@ import {
   checkForecast,
   checkIntimidate,
   handleFixedDamageMoves,
+  isGrounded,
 } from './util';
 
 export function calculateADV(
@@ -66,10 +67,13 @@ export function calculateADV(
     gen,
     move,
     defender.types[0],
-    field.defenderSide.isForesight
+    field.defenderSide.isForesight, undefined, undefined, field.defenderSide.isMiracleEye
   );
   const type2Effectiveness = defender.types[1]
-    ? getMoveEffectiveness(gen, move, defender.types[1], field.defenderSide.isForesight)
+    ? getMoveEffectiveness(
+      gen, move, defender.types[1], field.defenderSide.isForesight, undefined, undefined,
+      field.defenderSide.isMiracleEye
+    )
     : 1;
   const typeEffectiveness = type1Effectiveness * type2Effectiveness;
 
@@ -78,7 +82,7 @@ export function calculateADV(
   }
 
   if ((defender.hasAbility('Flash Fire') && move.hasType('Fire')) ||
-      (defender.hasAbility('Levitate') && move.hasType('Ground')) ||
+      (!isGrounded(defender, field) && move.hasType('Ground')) ||
       (defender.hasAbility('Volt Absorb') && move.hasType('Electric')) ||
       (defender.hasAbility('Water Absorb') && move.hasType('Water')) ||
       (defender.hasAbility('Wonder Guard') && !move.hasType('???') && typeEffectiveness <= 1) ||
@@ -133,6 +137,9 @@ export function calculateADV(
     bp = move.bp;
   }
 
+  if (field.isWaterSport && move.hasType('Fire')) bp = Math.floor(bp / 2);
+  if (field.isMudSport && move.hasType('Electric')) bp = Math.floor(bp / 2);
+
   if (bp === 0) {
     return result;
   }
@@ -157,10 +164,7 @@ export function calculateADV(
   } else if (attacker.hasItem('Sea Incense') && move.hasType('Water')) {
     at = Math.floor(at * 1.05);
     desc.attackerItem = attacker.item;
-  } else if (
-    (isPhysical && attacker.hasItem('Choice Band')) ||
-    (!isPhysical && attacker.hasItem('Soul Dew') && attacker.named('Latios', 'Latias'))
-  ) {
+  } else if (isPhysical && attacker.hasItem('Choice Band')) {
     at = Math.floor(at * 1.5);
     desc.attackerItem = attacker.item;
   } else if (
@@ -172,10 +176,7 @@ export function calculateADV(
     desc.attackerItem = attacker.item;
   }
 
-  if (!isPhysical && defender.hasItem('Soul Dew') && defender.named('Latios', 'Latias')) {
-    df = Math.floor(df * 1.5);
-    desc.defenderItem = defender.item;
-  } else if (
+  if (
     (!isPhysical && defender.hasItem('Deep Sea Scale') && defender.named('Clamperl')) ||
     (isPhysical && defender.hasItem('Metal Powder') && defender.named('Ditto'))
   ) {
@@ -211,7 +212,9 @@ export function calculateADV(
     df = Math.floor(df / 2);
   }
 
-  const isCritical = move.isCrit && !defender.hasAbility('Battle Armor', 'Shell Armor');
+  const isCritical = move.isCrit && !defender.hasAbility(
+    'Battle Armor', 'Shell Armor', 'Magma Armor'
+  );
 
   const attackBoost = attacker.boosts[attackStat];
   const defenseBoost = defender.boosts[defenseStat];
@@ -273,7 +276,7 @@ export function calculateADV(
   baseDamage = (move.category === 'Physical' ? Math.max(1, baseDamage) : baseDamage) + 2;
 
   if (isCritical) {
-    baseDamage *= 2;
+    baseDamage = Math.floor(baseDamage * 1.5);
     desc.isCritical = true;
   }
 

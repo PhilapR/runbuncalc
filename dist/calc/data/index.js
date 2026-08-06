@@ -1,22 +1,20 @@
+(function () {
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 
-var abilities_1 = require("./abilities");
-var items_1 = require("./items");
-var moves_1 = require("./moves");
-var species_1 = require("./species");
-var types_1 = require("./types");
-var natures_1 = require("./natures");
-exports.Generations = new ((function () {
-    function class_1() {
-    }
-    class_1.prototype.get = function (gen) {
+const abilities_1 = require("./abilities");
+const items_1 = require("./items");
+const moves_1 = require("./moves");
+const species_1 = require("./species");
+const types_1 = require("./types");
+const natures_1 = require("./natures");
+exports.Generations = new (class {
+    get(gen) {
         return new Generation(gen);
-    };
-    return class_1;
-}()))();
-var Generation = (function () {
-    function Generation(num) {
+    }
+})();
+class Generation {
+    constructor(num) {
         this.num = num;
         this.abilities = new abilities_1.Abilities(num);
         this.items = new items_1.Items(num);
@@ -25,6 +23,6 @@ var Generation = (function () {
         this.types = new types_1.Types(num);
         this.natures = new natures_1.Natures();
     }
-    return Generation;
-}());
+}
 //# sourceMappingURL=index.js.map
+})();

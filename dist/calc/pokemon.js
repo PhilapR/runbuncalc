@@ -1,55 +1,40 @@
+(function () {
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 
-var stats_1 = require("./stats");
-var util_1 = require("./util");
-var STATS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
-var SPC = new Set(['spc']);
-var Pokemon = (function () {
-    function Pokemon(gen, name, options) {
-        var e_1, _a;
-        if (options === void 0) { options = {}; }
-        var _b;
+const stats_1 = require("./stats");
+const util_1 = require("./util");
+const STATS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+const SPC = new Set(['spc']);
+class Pokemon {
+    constructor(gen, name, options = {}) {
+        var _a, _b, _c;
         this.species = (0, util_1.extend)(true, {}, gen.species.get((0, util_1.toID)(name)), options.overrides);
         this.gen = gen;
         this.name = options.name || name;
-        this.types = this.species.types;
+        this.types = ((_a = options.overrides) === null || _a === void 0 ? void 0 : _a.types) || this.species.types;
         this.weightkg = this.species.weightkg;
         this.level = options.level || 100;
         this.gender = options.gender || this.species.gender || 'M';
         this.ability = options.ability || ((_b = this.species.abilities) === null || _b === void 0 ? void 0 : _b[0]) || undefined;
         this.abilityOn = !!options.abilityOn;
+        this.disguiseBroken = options.disguiseBroken !== false;
         this.isDynamaxed = !!options.isDynamaxed;
         this.isSaltCure = !!options.isSaltCure;
+        this.isGrounded = options.isGrounded;
         this.alliesFainted = options.alliesFainted;
         this.teraType = options.teraType;
         this.item = options.item;
+        this.itemSuppressed = options.itemSuppressed;
         this.nature = options.nature || 'Serious';
         this.ivs = Pokemon.withDefault(gen, options.ivs, 31);
         this.evs = Pokemon.withDefault(gen, options.evs, gen.num >= 3 ? 0 : 252);
         this.boosts = Pokemon.withDefault(gen, options.boosts, 0, false);
+        this.statOverrides = options.statOverrides ? Object.assign({}, options.statOverrides) : undefined;
+        if (!options.soulDewApplied && this.item === 'Soul Dew' && this.named('Latias', 'Latios')) {
+            this.boosts.spa = Math.min(6, this.boosts.spa + 1);
+            this.boosts.spd = Math.min(6, this.boosts.spd + 1);
+        }
         if (this.weightkg === 0 && !this.isDynamaxed && this.species.baseSpecies) {
             this.weightkg = gen.species.get((0, util_1.toID)(this.species.baseSpecies)).weightkg;
         }
@@ -58,147 +43,99 @@ var Pokemon = (function () {
                 atk: this.ivs.atk,
                 def: this.ivs.def,
                 spe: this.ivs.spe,
-                spc: this.ivs.spa
+                spc: this.ivs.spa,
             }));
         }
         this.rawStats = {};
         this.stats = {};
-        try {
-            for (var STATS_1 = __values(STATS), STATS_1_1 = STATS_1.next(); !STATS_1_1.done; STATS_1_1 = STATS_1.next()) {
-                var stat = STATS_1_1.value;
-                var val = this.calcStat(gen, stat);
-                this.rawStats[stat] = val;
-                this.stats[stat] = val;
+        for (const stat of STATS) {
+            const val = this.calcStat(gen, stat);
+            this.rawStats[stat] = val;
+            this.stats[stat] = val;
+            const override = (_c = this.statOverrides) === null || _c === void 0 ? void 0 : _c[stat];
+            if (override !== undefined) {
+                this.rawStats[stat] = override;
+                this.stats[stat] = override;
             }
         }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (STATS_1_1 && !STATS_1_1.done && (_a = STATS_1["return"])) _a.call(STATS_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        var curHP = options.curHP || options.originalCurHP;
+        const curHP = options.curHP || options.originalCurHP;
         this.originalCurHP = curHP && curHP <= this.rawStats.hp ? curHP : this.rawStats.hp;
         this.status = options.status || '';
         this.toxicCounter = options.toxicCounter || 0;
         this.moves = options.moves || [];
     }
-    Pokemon.prototype.maxHP = function (original) {
-        if (original === void 0) { original = false; }
+    maxHP(original = false) {
         return !original && this.isDynamaxed && this.species.baseStats.hp !== 1
             ? this.rawStats.hp * 2
             : this.rawStats.hp;
-    };
-    Pokemon.prototype.curHP = function (original) {
-        if (original === void 0) { original = false; }
+    }
+    curHP(original = false) {
         return !original && this.isDynamaxed && this.species.baseStats.hp !== 1
             ? this.originalCurHP * 2
             : this.originalCurHP;
-    };
-    Pokemon.prototype.hasAbility = function () {
-        var abilities = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            abilities[_i] = arguments[_i];
-        }
+    }
+    hasAbility(...abilities) {
         return !!(this.ability && abilities.includes(this.ability));
-    };
-    Pokemon.prototype.hasItem = function () {
-        var items = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            items[_i] = arguments[_i];
-        }
+    }
+    hasItem(...items) {
         return !!(this.item && items.includes(this.item));
-    };
-    Pokemon.prototype.hasStatus = function () {
-        var statuses = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            statuses[_i] = arguments[_i];
-        }
+    }
+    hasStatus(...statuses) {
         return !!(this.status && statuses.includes(this.status));
-    };
-    Pokemon.prototype.hasType = function () {
-        var e_2, _a;
-        var types = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            types[_i] = arguments[_i];
-        }
-        try {
-            for (var types_1 = __values(types), types_1_1 = types_1.next(); !types_1_1.done; types_1_1 = types_1.next()) {
-                var type = types_1_1.value;
-                if (this.teraType ? this.teraType === type : this.types.includes(type))
-                    return true;
-            }
-        }
-        catch (e_2_1) { e_2 = { error: e_2_1 }; }
-        finally {
-            try {
-                if (types_1_1 && !types_1_1.done && (_a = types_1["return"])) _a.call(types_1);
-            }
-            finally { if (e_2) throw e_2.error; }
+    }
+    hasType(...types) {
+        for (const type of types) {
+            if (this.teraType ? this.teraType === type : this.types.includes(type))
+                return true;
         }
         return false;
-    };
-    Pokemon.prototype.hasOriginalType = function () {
-        var e_3, _a;
-        var types = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            types[_i] = arguments[_i];
-        }
-        try {
-            for (var types_2 = __values(types), types_2_1 = types_2.next(); !types_2_1.done; types_2_1 = types_2.next()) {
-                var type = types_2_1.value;
-                if (this.types.includes(type))
-                    return true;
-            }
-        }
-        catch (e_3_1) { e_3 = { error: e_3_1 }; }
-        finally {
-            try {
-                if (types_2_1 && !types_2_1.done && (_a = types_2["return"])) _a.call(types_2);
-            }
-            finally { if (e_3) throw e_3.error; }
+    }
+    hasOriginalType(...types) {
+        for (const type of types) {
+            if (this.types.includes(type))
+                return true;
         }
         return false;
-    };
-    Pokemon.prototype.named = function () {
-        var names = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            names[_i] = arguments[_i];
-        }
+    }
+    named(...names) {
         return names.includes(this.name);
-    };
-    Pokemon.prototype.clone = function () {
+    }
+    clone() {
         return new Pokemon(this.gen, this.name, {
             level: this.level,
             ability: this.ability,
             abilityOn: this.abilityOn,
+            disguiseBroken: this.disguiseBroken,
             isDynamaxed: this.isDynamaxed,
             isSaltCure: this.isSaltCure,
+            isGrounded: this.isGrounded,
             alliesFainted: this.alliesFainted,
             item: this.item,
+            itemSuppressed: this.itemSuppressed,
             gender: this.gender,
             nature: this.nature,
             ivs: (0, util_1.extend)(true, {}, this.ivs),
             evs: (0, util_1.extend)(true, {}, this.evs),
             boosts: (0, util_1.extend)(true, {}, this.boosts),
+            statOverrides: (0, util_1.extend)(true, {}, this.statOverrides),
+            soulDewApplied: true,
             originalCurHP: this.originalCurHP,
             status: this.status,
             teraType: this.teraType,
             toxicCounter: this.toxicCounter,
             moves: this.moves.slice(),
-            overrides: this.species
+            overrides: Object.assign(Object.assign({}, this.species), { types: this.types }),
         });
-    };
-    Pokemon.prototype.calcStat = function (gen, stat) {
+    }
+    calcStat(gen, stat) {
         return stats_1.Stats.calcStat(gen, stat, this.species.baseStats[stat], this.ivs[stat], this.evs[stat], this.level, this.nature);
-    };
-    Pokemon.getForme = function (gen, speciesName, item, moveName) {
-        var species = gen.species.get((0, util_1.toID)(speciesName));
+    }
+    static getForme(gen, speciesName, item, moveName) {
+        const species = gen.species.get((0, util_1.toID)(speciesName));
         if (!(species === null || species === void 0 ? void 0 : species.otherFormes)) {
             return speciesName;
         }
-        var i = 0;
+        let i = 0;
         if ((item &&
             ((item.includes('ite') && !item.includes('ite Y')) ||
                 (speciesName === 'Groudon' && item === 'Red Orb') ||
@@ -211,10 +148,9 @@ var Pokemon = (function () {
             i = 2;
         }
         return i ? species.otherFormes[i - 1] : species.name;
-    };
-    Pokemon.withDefault = function (gen, current, val, match) {
-        if (match === void 0) { match = true; }
-        var cur = {};
+    }
+    static withDefault(gen, current, val, match = true) {
+        const cur = {};
         if (current) {
             (0, util_1.assignWithout)(cur, current, SPC);
             if (current.spc) {
@@ -225,9 +161,9 @@ var Pokemon = (function () {
                 throw new Error('Special Attack and Special Defense must match before Gen 3');
             }
         }
-        return __assign({ hp: val, atk: val, def: val, spa: val, spd: val, spe: val }, cur);
-    };
-    return Pokemon;
-}());
+        return Object.assign({ hp: val, atk: val, def: val, spa: val, spd: val, spe: val }, cur);
+    }
+}
 exports.Pokemon = Pokemon;
 //# sourceMappingURL=pokemon.js.map
+})();

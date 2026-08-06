@@ -1,34 +1,10 @@
+(function () {
 "use strict";
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-exports.__esModule = true;
-
-var items_1 = require("../items");
-var result_1 = require("../result");
-var util_1 = require("./util");
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.calculateDPP = calculateDPP;
+const items_1 = require("../items");
+const result_1 = require("../result");
+const util_1 = require("./util");
 function calculateDPP(gen, attacker, defender, move, field) {
     (0, util_1.checkAirLock)(attacker, field);
     (0, util_1.checkAirLock)(defender, field);
@@ -42,12 +18,12 @@ function calculateDPP(gen, attacker, defender, move, field) {
     (0, util_1.checkDownload)(defender, attacker);
     attacker.stats.spe = (0, util_1.getFinalSpeed)(gen, attacker, field, field.attackerSide);
     defender.stats.spe = (0, util_1.getFinalSpeed)(gen, defender, field, field.defenderSide);
-    var desc = {
+    const desc = {
         attackerName: attacker.name,
         moveName: move.name,
-        defenderName: defender.name
+        defenderName: defender.name,
     };
-    var result = new result_1.Result(gen, attacker, defender, move, field, 0, desc);
+    const result = new result_1.Result(gen, attacker, defender, move, field, 0, desc);
     if (move.category === 'Status' && !move.named('Nature Power')) {
         return result;
     }
@@ -59,8 +35,8 @@ function calculateDPP(gen, attacker, defender, move, field) {
         defender.ability = '';
         desc.attackerAbility = attacker.ability;
     }
-    var isCritical = move.isCrit && !defender.hasAbility('Battle Armor', 'Shell Armor');
-    var basePower = move.bp;
+    const isCritical = move.isCrit && !field.defenderSide.isLuckyChant && !defender.hasAbility('Battle Armor', 'Shell Armor', 'Magma Armor');
+    let basePower = move.bp;
     if (move.named('Weather Ball')) {
         if (field.hasWeather('Sun')) {
             move.type = 'Fire';
@@ -89,7 +65,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
         move.type = (0, items_1.getItemBoostType)(attacker.item);
     }
     else if (move.named('Natural Gift') && attacker.item && attacker.item.includes('Berry')) {
-        var gift = (0, items_1.getNaturalGift)(gen, attacker.item);
+        const gift = (0, items_1.getNaturalGift)(gen, attacker.item);
         move.type = gift.t;
         move.bp = gift.p;
         desc.attackerItem = attacker.item;
@@ -100,12 +76,12 @@ function calculateDPP(gen, attacker, defender, move, field) {
         move.type = 'Normal';
         desc.attackerAbility = attacker.ability;
     }
-    var isGhostRevealed = attacker.hasAbility('Scrappy') || field.defenderSide.isForesight;
-    var type1Effectiveness = (0, util_1.getMoveEffectiveness)(gen, move, defender.types[0], isGhostRevealed, field.isGravity);
-    var type2Effectiveness = defender.types[1]
-        ? (0, util_1.getMoveEffectiveness)(gen, move, defender.types[1], isGhostRevealed, field.isGravity)
+    const isGhostRevealed = attacker.hasAbility('Scrappy') || field.defenderSide.isForesight;
+    let type1Effectiveness = (0, util_1.getMoveEffectiveness)(gen, move, defender.types[0], isGhostRevealed, field.isGravity, undefined, field.defenderSide.isMiracleEye);
+    let type2Effectiveness = defender.types[1]
+        ? (0, util_1.getMoveEffectiveness)(gen, move, defender.types[1], isGhostRevealed, field.isGravity, undefined, field.defenderSide.isMiracleEye)
         : 1;
-    var typeEffectiveness = type1Effectiveness * type2Effectiveness;
+    let typeEffectiveness = type1Effectiveness * type2Effectiveness;
     if (typeEffectiveness === 0 && move.hasType('Ground') && defender.hasItem('Iron Ball')) {
         if (type1Effectiveness === 0) {
             type1Effectiveness = 1;
@@ -118,19 +94,18 @@ function calculateDPP(gen, attacker, defender, move, field) {
     if (typeEffectiveness === 0) {
         return result;
     }
-    var ignoresWonderGuard = move.hasType('???') || move.named('Fire Fang');
+    const ignoresWonderGuard = move.hasType('???') || move.named('Fire Fang');
     if ((!ignoresWonderGuard && defender.hasAbility('Wonder Guard') && typeEffectiveness <= 1) ||
         (move.hasType('Fire') && defender.hasAbility('Flash Fire')) ||
         (move.hasType('Water') && defender.hasAbility('Dry Skin', 'Water Absorb')) ||
         (move.hasType('Electric') && defender.hasAbility('Motor Drive', 'Volt Absorb')) ||
-        (move.hasType('Ground') && !field.isGravity &&
-            !defender.hasItem('Iron Ball') && defender.hasAbility('Levitate')) ||
+        (move.hasType('Ground') && !(0, util_1.isGrounded)(defender, field)) ||
         (move.flags.sound && defender.hasAbility('Soundproof'))) {
         desc.defenderAbility = defender.ability;
         return result;
     }
-    desc.HPEVs = "".concat(defender.evs.hp, " HP");
-    var fixedDamage = (0, util_1.handleFixedDamageMoves)(attacker, move, defender);
+    desc.HPEVs = `${defender.evs.hp} HP`;
+    const fixedDamage = (0, util_1.handleFixedDamageMoves)(attacker, move, defender);
     if (fixedDamage) {
         result.damage = fixedDamage;
         return result;
@@ -138,7 +113,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
     if (move.hits > 1) {
         desc.hits = move.hits;
     }
-    var turnOrder = attacker.stats.spe > defender.stats.spe ? 'first' : 'last';
+    const turnOrder = attacker.stats.spe > defender.stats.spe ? 'first' : 'last';
     switch (move.name) {
         case 'Brine':
             if (defender.curHP() <= defender.maxHP() / 2) {
@@ -159,7 +134,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
             break;
         case 'Flail':
         case 'Reversal':
-            var p = Math.floor((64 * attacker.curHP()) / attacker.maxHP());
+            const p = Math.floor((64 * attacker.curHP()) / attacker.maxHP());
             basePower = p <= 1 ? 200 : p <= 5 ? 150 : p <= 12 ? 100 : p <= 21 ? 80 : p <= 42 ? 40 : 20;
             desc.moveBP = basePower;
             break;
@@ -170,7 +145,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
             break;
         case 'Grass Knot':
         case 'Low Kick':
-            var w = defender.weightkg;
+            const w = defender.weightkg;
             basePower = w >= 200 ? 120 : w >= 100 ? 100 : w >= 50 ? 80 : w >= 25 ? 60 : w >= 10 ? 40 : 20;
             desc.moveBP = basePower;
             break;
@@ -208,6 +183,10 @@ function calculateDPP(gen, attacker, defender, move, field) {
         default:
             basePower = move.bp;
     }
+    if (field.isWaterSport && move.hasType('Fire'))
+        basePower = Math.floor(basePower / 2);
+    if (field.isMudSport && move.hasType('Electric'))
+        basePower = Math.floor(basePower / 2);
     if (basePower === 0) {
         return result;
     }
@@ -215,7 +194,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
         basePower = Math.floor(basePower * 1.5);
         desc.isHelpingHand = true;
     }
-    var isPhysical = move.category === 'Physical';
+    const isPhysical = move.category === 'Physical';
     if ((attacker.hasItem('Muscle Band') && isPhysical) ||
         (attacker.hasItem('Wise Glasses') && !isPhysical)) {
         basePower = Math.floor(basePower * 1.1);
@@ -257,11 +236,11 @@ function calculateDPP(gen, attacker, defender, move, field) {
         basePower = Math.floor(basePower * 1.25);
         desc.defenderAbility = defender.ability;
     }
-    var attackStat = isPhysical ? 'atk' : 'spa';
+    const attackStat = isPhysical ? 'atk' : 'spa';
     desc.attackEVs = (0, util_1.getEVDescriptionText)(gen, attacker, attackStat, attacker.nature);
-    var attack;
-    var attackBoost = attacker.boosts[attackStat];
-    var rawAttack = attacker.rawStats[attackStat];
+    let attack;
+    const attackBoost = attacker.boosts[attackStat];
+    const rawAttack = attacker.rawStats[attackStat];
     if (attackBoost === 0 || (isCritical && attackBoost < 0)) {
         attack = rawAttack;
     }
@@ -303,8 +282,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
         attack = Math.floor(attack / 2);
         desc.attackerAbility = attacker.ability;
     }
-    if ((isPhysical ? attacker.hasItem('Choice Band') : attacker.hasItem('Choice Specs')) ||
-        (!isPhysical && attacker.hasItem('Soul Dew') && attacker.named('Latios', 'Latias'))) {
+    if (isPhysical ? attacker.hasItem('Choice Band') : attacker.hasItem('Choice Specs')) {
         attack = Math.floor(attack * 1.5);
         desc.attackerItem = attacker.item;
     }
@@ -314,11 +292,11 @@ function calculateDPP(gen, attacker, defender, move, field) {
         attack *= 2;
         desc.attackerItem = attacker.item;
     }
-    var defenseStat = isPhysical ? 'def' : 'spd';
+    const defenseStat = isPhysical ? 'def' : 'spd';
     desc.defenseEVs = (0, util_1.getEVDescriptionText)(gen, defender, defenseStat, defender.nature);
-    var defense;
-    var defenseBoost = defender.boosts[defenseStat];
-    var rawDefense = defender.rawStats[defenseStat];
+    let defense;
+    const defenseBoost = defender.boosts[defenseStat];
+    const rawDefense = defender.rawStats[defenseStat];
     if (defenseBoost === 0 || (isCritical && defenseBoost > 0)) {
         defense = rawDefense;
     }
@@ -349,11 +327,7 @@ function calculateDPP(gen, attacker, defender, move, field) {
         desc.weather = field.weather;
         desc.isFlowerGiftDefender = true;
     }
-    if (defender.hasItem('Soul Dew') && defender.named('Latios', 'Latias') && !isPhysical) {
-        defense = Math.floor(defense * 1.5);
-        desc.defenderItem = defender.item;
-    }
-    else if ((defender.hasItem('Deep Sea Scale') && defender.named('Clamperl') && !isPhysical) ||
+    if ((defender.hasItem('Deep Sea Scale') && defender.named('Clamperl') && !isPhysical) ||
         (defender.hasItem('Metal Powder') && defender.named('Ditto') && isPhysical)) {
         defense *= 2;
         desc.defenderItem = defender.item;
@@ -368,13 +342,13 @@ function calculateDPP(gen, attacker, defender, move, field) {
     if (defense < 1) {
         defense = 1;
     }
-    var baseDamage = Math.floor(Math.floor((Math.floor((2 * attacker.level) / 5 + 2) * basePower * attack) / 50) / defense);
+    let baseDamage = Math.floor(Math.floor((Math.floor((2 * attacker.level) / 5 + 2) * basePower * attack) / 50) / defense);
     if (attacker.hasStatus('brn') && isPhysical && !attacker.hasAbility('Guts')) {
         baseDamage = Math.floor(baseDamage * 0.5);
         desc.isBurned = true;
     }
     if (!isCritical) {
-        var screenMultiplier = field.gameType !== 'Singles' ? 2 / 3 : 1 / 2;
+        const screenMultiplier = field.gameType !== 'Singles' ? 2 / 3 : 1 / 2;
         if (isPhysical && field.defenderSide.isReflect) {
             baseDamage = Math.floor(baseDamage * screenMultiplier);
             desc.isReflect = true;
@@ -406,11 +380,11 @@ function calculateDPP(gen, attacker, defender, move, field) {
     baseDamage += 2;
     if (isCritical) {
         if (attacker.hasAbility('Sniper')) {
-            baseDamage *= 3;
+            baseDamage = Math.floor(baseDamage * 1.5 * 1.5);
             desc.attackerAbility = attacker.ability;
         }
         else {
-            baseDamage *= 2;
+            baseDamage = Math.floor(baseDamage * 1.5);
         }
         desc.isCritical = isCritical;
     }
@@ -427,8 +401,8 @@ function calculateDPP(gen, attacker, defender, move, field) {
             desc.isSwitching = 'out';
         }
     }
-    var stabMod = 1;
-    if (move.hasType.apply(move, __spreadArray([], __read(attacker.types), false))) {
+    let stabMod = 1;
+    if (move.hasType(...attacker.types)) {
         if (attacker.hasAbility('Adaptability')) {
             stabMod = 2;
             desc.attackerAbility = attacker.ability;
@@ -437,29 +411,29 @@ function calculateDPP(gen, attacker, defender, move, field) {
             stabMod = 1.5;
         }
     }
-    var filterMod = 1;
+    let filterMod = 1;
     if (defender.hasAbility('Filter', 'Solid Rock') && typeEffectiveness > 1) {
         filterMod = 0.75;
         desc.defenderAbility = defender.ability;
     }
-    var ebeltMod = 1;
+    let ebeltMod = 1;
     if (attacker.hasItem('Expert Belt') && typeEffectiveness > 1) {
         ebeltMod = 1.2;
         desc.attackerItem = attacker.item;
     }
-    var tintedMod = 1;
+    let tintedMod = 1;
     if (attacker.hasAbility('Tinted Lens') && typeEffectiveness < 1) {
         tintedMod = 2;
         desc.attackerAbility = attacker.ability;
     }
-    var berryMod = 1;
+    let berryMod = 1;
     if (move.hasType((0, items_1.getBerryResistType)(defender.item)) &&
         (typeEffectiveness > 1 || move.hasType('Normal'))) {
         berryMod = 0.5;
         desc.defenderItem = defender.item;
     }
-    var damage = [];
-    for (var i = 0; i < 16; i++) {
+    const damage = [];
+    for (let i = 0; i < 16; i++) {
         damage[i] = Math.floor((baseDamage * (85 + i)) / 100);
         damage[i] = Math.floor(damage[i] * stabMod);
         damage[i] = Math.floor(damage[i] * type1Effectiveness);
@@ -473,11 +447,11 @@ function calculateDPP(gen, attacker, defender, move, field) {
     result.damage = damage;
     return result;
 }
-exports.calculateDPP = calculateDPP;
 function getSimpleModifiedStat(stat, mod) {
-    var simpleMod = Math.min(6, Math.max(-6, mod * 2));
+    const simpleMod = Math.min(6, Math.max(-6, mod * 2));
     return simpleMod > 0
         ? Math.floor((stat * (2 + simpleMod)) / 2)
         : simpleMod < 0 ? Math.floor((stat * 2) / (2 - simpleMod)) : stat;
 }
 //# sourceMappingURL=gen4.js.map
+})();

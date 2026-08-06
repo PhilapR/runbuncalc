@@ -63,8 +63,10 @@ export function display(
   err = true
 ) {
   const [minDamage, maxDamage] = damageRange(damage);
-  const min = (typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1]) * move.hits;
-  const max = (typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1]) * move.hits;
+  const minDamageValue = typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1];
+  const maxDamageValue = typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1];
+  const min = minDamageValue * move.hits;
+  const max = maxDamageValue * move.hits;
 
   const minDisplay = toDisplay(notation, min, defender.maxHP());
   const maxDisplay = toDisplay(notation, max, defender.maxHP());
@@ -146,7 +148,6 @@ export function getRecovery(
   return {recovery, text};
 }
 
-// TODO: return recoil damage as exact HP
 export function getRecoil(
   gen: Generation,
   attacker: Pokemon,
@@ -156,13 +157,16 @@ export function getRecoil(
   notation = '%'
 ) {
   const [minDamage, maxDamage] = damageRange(damage);
-  const min = (typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1]) * move.hits;
-  const max = (typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1]) * move.hits;
+  const minDamageValue = typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1];
+  const maxDamageValue = typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1];
+  const min = minDamageValue * move.hits;
+  const max = maxDamageValue * move.hits;
 
   let recoil: [number, number] | number = [0, 0];
+  let recoilHP: [number, number] | number = [0, 0];
   let text = '';
 
-  const damageOverflow = minDamage > defender.curHP() || maxDamage > defender.curHP();
+  const damageOverflow = minDamageValue > defender.curHP() || maxDamageValue > defender.curHP();
   if (move.recoil) {
     const mod = (move.recoil[0] / move.recoil[1]) * 100;
     let minRecoilDamage, maxRecoilDamage;
@@ -181,6 +185,10 @@ export function getRecoil(
     }
     if (!attacker.hasAbility('Rock Head')) {
       recoil = [minRecoilDamage, maxRecoilDamage];
+      recoilHP = [
+        Math.floor(Math.min(min, defender.curHP()) * move.recoil[0] / move.recoil[1]),
+        Math.floor(Math.min(max, defender.curHP()) * move.recoil[0] / move.recoil[1]),
+      ];
       text = `${minRecoilDamage} - ${maxRecoilDamage}${notation} recoil damage`;
     }
   } else if (move.hasCrashDamage) {
@@ -202,9 +210,18 @@ export function getRecoil(
     }
 
     recoil = [minRecoilDamage, maxRecoilDamage];
+    const minCrashDamage = damageOverflow && gen.num !== 2
+      ? defender.curHP() : Math.min(min, defender.maxHP());
+    const maxCrashDamage = damageOverflow && gen.num !== 2
+      ? defender.curHP() : Math.min(max, defender.maxHP());
+    recoilHP = [
+      Math.floor(minCrashDamage * genMultiplier / 100),
+      Math.floor(maxCrashDamage * genMultiplier / 100),
+    ];
     switch (gen.num) {
     case 1:
       recoil = toDisplay(notation, 1, attacker.maxHP());
+      recoilHP = 1;
       text = '1hp damage on miss';
       break;
     case 2: case 3: case 4:
@@ -212,9 +229,11 @@ export function getRecoil(
         if (gen.num === 4) {
           const gen4CrashDamage = Math.floor(((defender.maxHP() * 0.5) / attacker.maxHP()) * 100);
           recoil = notation === '%' ? gen4CrashDamage : Math.floor((gen4CrashDamage / 100) * 48);
+          recoilHP = Math.floor(defender.maxHP() * 0.5);
           text = `${gen4CrashDamage}% crash damage`;
         } else {
           recoil = 0;
+          recoilHP = 0;
           text = 'no crash damage on Ghost types';
         }
       } else {
@@ -223,20 +242,23 @@ export function getRecoil(
       break;
     default:
       recoil = notation === '%' ? 24 : 50;
+      recoilHP = Math.floor(attacker.maxHP() / 2);
       text = '50% crash damage';
     }
   } else if (move.struggleRecoil) {
     recoil = notation === '%' ? 12 : 25;
+    recoilHP = Math.floor(attacker.maxHP() / 4);
     text = '25% struggle damage';
     // Struggle recoil is actually rounded down in Gen 4 per DaWoblefet's research, but until we
     // return recoil damage as exact HP the best we can do is add some more text to this effect
     if (gen.num === 4) text += ' (rounded down)';
   } else if (move.mindBlownRecoil) {
     recoil = notation === '%' ? 24 : 50;
+    recoilHP = Math.floor(attacker.maxHP() / 2);
     text = '50% recoil damage';
   }
 
-  return {recoil, text};
+  return {recoil, recoilHP, text};
 }
 
 export function getKOChance(
