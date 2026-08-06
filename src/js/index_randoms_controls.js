@@ -372,7 +372,7 @@ function calcTrigger() {
 			performCalculations();
 		} else {
 			if (monRow1 != activeMon && monRow2 != activeMon) {
-				if (document.querySelectorAll(`[data-id="${activeMon}"]`)[0].parentNode.id=="trainer-pok-list-opposing"){
+				if (document.querySelectorAll(`[data-id="${activeMon}"]`)[0].parentNode.id == "trainer-pok-list-opposing") {
 					performCalculations();
 					$('.opposing').val(monRow2);
 					$('.opposing').change();

@@ -1,0 +1,1075 @@
+/**
+ * Run & Bun product shell + full-page visual unify.
+ * Frames modes (UI-V1/V2) and retokens calc columns / results / import
+ * so the page reads as one product. Density and control IDs stay intact.
+ * Loaded after dark-theme.css so stadium tokens win the cascade.
+ */
+
+/* —— Skip link —— */
+.rb-skip {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 1000;
+	padding: 0.5em 0.75em;
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	border: 2px solid var(--rb-focus);
+}
+
+.rb-skip:focus {
+	left: 0.5em;
+	top: 0.5em;
+}
+
+/* —— Sticky product shell —— */
+.rb-shell {
+	position: sticky;
+	top: 0;
+	z-index: 50;
+	background: var(--rb-surface);
+	border-bottom: 1px solid var(--rb-stroke);
+	color: var(--rb-ink);
+	font-family: var(--rb-font-body);
+	font-size: 0.875rem;
+	line-height: 1.4;
+	box-shadow: 0 1px 0 rgba(26, 34, 40, 0.04);
+}
+
+.rb-shell-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: var(--rb-space-sm) var(--rb-space-lg);
+	max-width: var(--rb-page-max);
+	margin: 0 auto;
+	padding: var(--rb-space-sm) var(--rb-space-lg) var(--rb-space-xs);
+}
+
+.rb-shell-brand {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 10em;
+}
+
+.rb-wordmark {
+	font-family: var(--rb-font-brand);
+	font-weight: 700;
+	font-size: 1.45rem;
+	line-height: 1.15;
+	color: var(--rb-brand);
+	letter-spacing: 0.01em;
+}
+
+.rb-tagline {
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+}
+
+.rb-mode-nav {
+	flex: 1 1 16em;
+	min-width: 0;
+}
+
+.rb-mode-tablist {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.15rem 0.35rem;
+	border-bottom: 1px solid var(--rb-stroke);
+}
+
+.rb-mode-tab {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -1px;
+	padding: 0.45rem 0.65rem;
+	font-family: var(--rb-font-body);
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: var(--rb-ink-muted);
+	text-decoration: none;
+	cursor: pointer;
+	border-radius: var(--rb-radius) var(--rb-radius) 0 0;
+}
+
+.rb-mode-tab:hover {
+	color: var(--rb-ink);
+}
+
+.rb-mode-tab:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+}
+
+.rb-mode-tab[aria-selected="true"],
+.rb-mode-tab[aria-current="page"] {
+	color: var(--rb-brand);
+	border-bottom-color: var(--rb-brand);
+	font-weight: 600;
+}
+
+.rb-context {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--rb-space-xs) var(--rb-space-sm);
+	width: 100%;
+	max-width: var(--rb-page-max);
+	margin: 0 auto;
+	padding: var(--rb-space-xs) var(--rb-space-lg) var(--rb-space-sm);
+	font-size: 0.82rem;
+	color: var(--rb-ink-muted);
+}
+
+.rb-context-note {
+	flex: 1 1 12em;
+	min-width: 0;
+}
+
+.rb-chip {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.15em 0.5em;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	font-size: 0.78rem;
+	font-weight: 600;
+	line-height: 1.3;
+	white-space: nowrap;
+}
+
+.rb-chip-brand {
+	background: var(--rb-brand-soft);
+	border-color: var(--rb-brand);
+	color: var(--rb-brand-ink, var(--rb-brand));
+}
+
+.rb-chip-oracle {
+	background: transparent;
+	border-color: var(--rb-oracle);
+	color: var(--rb-oracle);
+}
+
+.rb-chip-warn {
+	background: var(--rb-warn-soft);
+	border-color: var(--rb-warn);
+	color: var(--rb-warn-ink, var(--rb-warn));
+}
+
+.rb-mode-region {
+	scroll-margin-top: var(--rb-shell-sticky-offset);
+}
+
+.rb-mode-region.rb-mode-active {
+	outline: 1px solid transparent;
+}
+
+#calc.rb-mode-active .title-block .title-text,
+#ai-panel.rb-mode-active .ai-panel-title,
+#runbun-battle.rb-mode-active .runbun-battle-title,
+#sets-bridge.rb-mode-active .ai-panel-bridge-title {
+	color: var(--rb-brand);
+}
+
+/* —— Page surface (calc + rails share one field) —— */
+html,
+body {
+	background-color: var(--rb-surface);
+	color: var(--rb-ink);
+	font-family: var(--rb-font-calc);
+	color-scheme: light;
+}
+
+[data-rb-theme="dark"] {
+	color-scheme: dark;
+}
+
+#rb-mode-content {
+	padding-top: var(--rb-space-sm);
+}
+
+.wrapper {
+	max-width: var(--rb-page-max);
+	margin: 0 auto;
+	padding: 0 var(--rb-space-lg) var(--rb-space-md);
+	background-color: transparent;
+	color: var(--rb-ink);
+}
+
+.credits {
+	clear: both;
+	max-width: var(--rb-page-max);
+	margin: 0 auto;
+	padding: var(--rb-space-lg) var(--rb-space-lg) var(--rb-space-xl);
+	color: var(--rb-ink-muted);
+	font-family: var(--rb-font-body);
+	font-size: 0.85rem;
+	line-height: 1.45;
+	border-top: 1px solid var(--rb-stroke);
+}
+
+.credits a {
+	color: var(--rb-action);
+}
+
+.credits a:hover {
+	color: var(--rb-action-hover);
+}
+
+.credits .rb-footer-note {
+	margin: 0.5em 0 0;
+	font-size: 0.82em;
+	color: var(--rb-ink-muted);
+}
+
+.credits #sets {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem 0.85rem;
+	margin-top: var(--rb-space-md);
+}
+
+.credits #sets > a,
+.credits #sets > button {
+	font-family: var(--rb-font-body);
+	font-size: 0.82rem;
+}
+
+/* —— Calc mode header / toolbar —— */
+#calc > [role="region"][aria-label="Settings"] {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: var(--rb-space-sm) var(--rb-space-md);
+	margin-bottom: var(--rb-space-sm);
+	padding-bottom: var(--rb-space-sm);
+	border-bottom: 1px solid var(--rb-stroke);
+}
+
+#calc .title-block {
+	margin: 0;
+	max-width: 26em;
+	flex: 1 1 16em;
+}
+
+#calc .title-text {
+	font-family: var(--rb-font-brand);
+	font-weight: 700;
+	font-size: 1.35rem;
+	line-height: 1.2;
+	color: var(--rb-ink);
+	margin: 0;
+	top: 0;
+}
+
+#calc .title-subtext {
+	margin-top: 0.25em;
+	font-family: var(--rb-font-body);
+	font-size: 0.78rem;
+	line-height: 1.35;
+	color: var(--rb-ink-muted);
+	opacity: 1;
+}
+
+#calc .genSelection,
+#calc .notationSelection,
+#calc .modeSelection {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	position: static;
+	top: auto;
+	gap: 0;
+	margin-top: 0.15rem;
+}
+
+#calc hr {
+	display: none;
+}
+
+#calc #screen-calc {
+	margin: 0.15rem 0 0;
+	padding: 0.35em 0.65em;
+	font-family: var(--rb-font-body);
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+	background: var(--rb-surface-raised);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	cursor: pointer;
+	float: none;
+}
+
+#calc #screen-calc:hover {
+	color: var(--rb-ink);
+	border-color: var(--rb-stroke-strong);
+}
+
+/* —— Buttons (geometry preserved; stadium colors) —— */
+.btn {
+	color: var(--rb-ink);
+	background: var(--rb-surface-raised);
+	border: solid 1px var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	text-shadow: none;
+	box-shadow: none;
+}
+
+.visually-hidden:focus + .btn,
+.btn:hover {
+	z-index: 10;
+	border-color: var(--rb-stroke-strong);
+	background: var(--rb-surface-sunken);
+	color: var(--rb-ink);
+}
+
+.visually-hidden:checked + .btn {
+	font-weight: 600;
+	color: var(--rb-ink);
+	background: var(--rb-oracle-soft);
+	border-color: var(--rb-oracle);
+}
+
+.visually-hidden:disabled + .btn {
+	color: var(--rb-ink-muted);
+	opacity: 0.65;
+}
+
+.locked-move:checked + .btn {
+	background: var(--rb-warn-soft);
+	border-color: var(--rb-warn);
+	color: var(--rb-ink);
+}
+
+.rb-btn-primary.btn,
+.ai-panel .rb-btn-primary.btn,
+#runbun-battle .rb-btn-primary.btn {
+	background: var(--rb-action);
+	border-color: var(--rb-action);
+	color: #fff;
+	text-shadow: none;
+	box-shadow: none;
+}
+
+.rb-btn-primary.btn:hover,
+.ai-panel .rb-btn-primary.btn:hover,
+#runbun-battle .rb-btn-primary.btn:hover {
+	background: var(--rb-action-hover);
+	border-color: var(--rb-action-hover);
+	color: #fff;
+}
+
+.rb-btn-secondary.btn,
+.ai-panel .rb-btn-secondary.btn,
+#runbun-battle .rb-btn-secondary.btn {
+	background: var(--rb-surface-raised);
+	border-color: var(--rb-stroke-strong);
+	color: var(--rb-ink);
+	text-shadow: none;
+	box-shadow: none;
+}
+
+.rb-btn-ghost.btn,
+.ai-panel .rb-btn-ghost.btn,
+#runbun-battle .rb-btn-ghost.btn {
+	background: transparent;
+	border-color: var(--rb-stroke);
+	color: var(--rb-ink-muted);
+	text-shadow: none;
+	box-shadow: none;
+}
+
+.ai-panel .btn:focus-visible,
+#sets-bridge .btn:focus-visible,
+#runbun-battle .btn:focus-visible,
+#calc .btn:focus-visible,
+.rb-mode-tab:focus-visible,
+#calc #screen-calc:focus-visible,
+.ai-panel-result-row:focus-visible,
+.runbun-battle-action-row:focus-visible,
+.rb-mode-region:focus-visible,
+#rb-mode-content:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+}
+
+#sets-bridge a.btn,
+.ai-panel a.btn,
+#runbun-battle a.btn {
+	text-decoration: none;
+	display: inline-block;
+	box-sizing: border-box;
+	line-height: 1.3;
+	padding: 0.45em 0.65em;
+}
+
+.ai-panel-toolbar-label {
+	flex: 0 0 100%;
+	margin: 0.15em 0 0;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--rb-ink-muted);
+}
+
+.ai-panel-controls + .ai-panel-controls .ai-panel-toolbar-label,
+.runbun-battle-controls + .runbun-battle-controls .ai-panel-toolbar-label {
+	margin-top: 0.1em;
+}
+
+/* —— Fieldsets / panels / legends —— */
+fieldset {
+	background-color: var(--rb-surface-raised);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	color: var(--rb-ink);
+	box-sizing: border-box;
+}
+
+legend {
+	font-family: var(--rb-font-body);
+	font-weight: 600;
+	color: var(--rb-ink);
+	padding: 0 0.35em;
+}
+
+#calc .poke-info,
+#calc .field-info,
+#calc .poke-import {
+	box-shadow: none;
+	padding: var(--rb-space-xs) var(--rb-space-sm) var(--rb-space-sm);
+}
+
+#calc .poke-info > legend,
+#calc .field-info > legend {
+	font-family: var(--rb-font-brand);
+	font-size: 0.95rem;
+	color: var(--rb-oracle);
+}
+
+#calc .panel-group > .panel {
+	margin-bottom: var(--rb-space-sm);
+}
+
+
+/* —— Results block —— */
+#calc .move-result-group {
+	margin: var(--rb-space-md) 0 11.5em;
+	padding: var(--rb-space-sm) 0 0;
+}
+
+#calc .result-move-header {
+	font-family: var(--rb-font-body);
+	font-size: 0.78rem;
+	font-weight: 600;
+	color: var(--rb-ink-muted);
+	letter-spacing: 0.01em;
+	margin: 0 0 0.4em;
+}
+
+#calc .move-result-group .btn {
+	margin-right: 0.75em;
+}
+
+#calc .main-result-group {
+	margin: var(--rb-space-md) 0 var(--rb-space-sm);
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	background: var(--rb-surface-raised);
+	border: 1px solid var(--rb-stroke);
+	border-left: 3px solid var(--rb-oracle);
+	border-radius: var(--rb-radius);
+	/* keep in normal flow under move rows; do not clear floats (would open a void) */
+}
+
+#calc .big-text {
+	font-family: var(--rb-font-body);
+	font-size: 1.05rem;
+	color: var(--rb-ink);
+	margin: 0.35em 0;
+}
+
+#calc .small-text {
+	color: var(--rb-ink-muted);
+}
+
+/* —— Form controls inside calc —— */
+#calc select,
+#calc input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]),
+#calc textarea {
+	background-color: var(--rb-surface-sunken);
+	color: var(--rb-ink);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+}
+
+#calc select:focus,
+#calc input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]):focus,
+#calc textarea:focus {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 1px;
+	border-color: var(--rb-focus);
+}
+
+#calc label:not(.btn) {
+	color: var(--rb-ink);
+}
+
+#calc .import-team-text,
+#calc .import-name-text {
+	background: var(--rb-surface-sunken);
+	color: var(--rb-ink);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	font-family: var(--rb-font-mono);
+	font-size: 0.82rem;
+}
+
+#calc .poke-import {
+	text-align: center;
+}
+
+#calc .poke-import legend {
+	color: var(--rb-oracle);
+}
+
+#calc .trainer-poks-label {
+	font-family: var(--rb-font-body);
+	font-weight: 600;
+	color: var(--rb-ink-muted);
+	font-size: 0.82rem;
+	margin: 0 0 var(--rb-space-xs);
+}
+
+#calc .trainer-pok:hover,
+#calc .opposite-pok:hover {
+	outline: 2px solid var(--rb-action);
+	outline-offset: 1px;
+}
+
+/* —— Trainer Wheel (opposing party + trainer browse) —— */
+#calc .trainer-wheel-region {
+	margin-top: var(--rb-space-xs);
+}
+
+#calc .trainer-wheel {
+	padding: var(--rb-space-xs) var(--rb-space-sm) var(--rb-space-sm);
+}
+
+#calc .trainer-wheel > legend {
+	font-family: var(--rb-font-brand);
+	font-size: 0.95rem;
+	color: var(--rb-brand);
+}
+
+#calc .trainer-wheel-controls {
+	display: flex;
+	align-items: stretch;
+	gap: var(--rb-space-xs);
+	margin: 0 0 var(--rb-space-sm);
+}
+
+#calc .trainer-wheel-nav,
+#calc .trainer-wheel-truck {
+	appearance: none;
+	font-family: var(--rb-font-body);
+	font-size: 0.82rem;
+	font-weight: 600;
+	color: var(--rb-ink);
+	background: var(--rb-surface-sunken);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	cursor: pointer;
+	padding: 0.45em 0.7em;
+	min-height: 2.25rem;
+}
+
+#calc .trainer-wheel-nav {
+	flex: 0 0 auto;
+	align-self: center;
+}
+
+#calc .trainer-wheel-nav:hover,
+#calc .trainer-wheel-truck:hover {
+	border-color: var(--rb-stroke-strong);
+	background: var(--rb-surface);
+	color: var(--rb-ink);
+}
+
+#calc .trainer-wheel-nav:focus-visible,
+#calc .trainer-wheel-truck:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+}
+
+#calc .trainer-wheel-identity {
+	flex: 1 1 auto;
+	min-width: 0;
+	text-align: center;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	background: var(--rb-brand-soft);
+	border: 1px solid var(--rb-brand);
+	border-radius: var(--rb-radius);
+}
+
+#calc .trainer-wheel-eyebrow {
+	display: block;
+	font-family: var(--rb-font-body);
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--rb-ink-muted);
+	margin-bottom: 0.15em;
+}
+
+#calc .trainer-wheel-name {
+	font-family: var(--rb-font-brand);
+	font-size: 1.05rem;
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--rb-brand-ink, var(--rb-brand));
+	word-break: break-word;
+}
+
+#calc .trainer-wheel-party-wrap {
+	margin: 0 0 var(--rb-space-xs);
+}
+
+/* Fixed 2×3 party board — always reserves up to 6 slots */
+#calc .trainer-wheel-party {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-rows: repeat(2, minmax(5rem, auto));
+	gap: var(--rb-space-sm);
+	align-items: stretch;
+	justify-content: center;
+	width: 100%;
+	max-width: none;
+	margin: 0;
+	min-height: 0;
+	padding: var(--rb-space-sm);
+	background: var(--rb-surface-sunken);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	box-sizing: border-box;
+}
+
+/* Legacy dropzone::before would consume a grid cell and break 2×3 */
+#calc .trainer-wheel-party.dropzone::before {
+	content: none;
+	display: none;
+}
+
+#calc .trainer-wheel-slot {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.2rem;
+	min-width: 0;
+	width: 100%;
+	min-height: 5rem;
+	margin: 0;
+	padding: 0.4rem 0.3rem;
+	cursor: pointer;
+	box-sizing: border-box;
+	background: var(--rb-surface-raised);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+}
+
+#calc .trainer-wheel-slot:focus {
+	outline: none;
+}
+
+#calc .trainer-wheel-slot:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+}
+
+#calc .trainer-wheel-slot img {
+	width: 40px;
+	height: 40px;
+	object-fit: contain;
+	pointer-events: none;
+	flex: 0 0 auto;
+}
+
+#calc .trainer-wheel-species {
+	font-family: var(--rb-font-body);
+	font-size: 0.68rem;
+	line-height: 1.15;
+	text-align: center;
+	color: var(--rb-ink);
+	align-self: stretch;
+	width: 100%;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+#calc .trainer-wheel-slot.is-empty {
+	cursor: default;
+	pointer-events: none;
+	background: var(--rb-surface);
+	border-style: dashed;
+	border-color: var(--rb-stroke);
+	color: var(--rb-ink-muted);
+}
+
+#calc .trainer-wheel-empty-label {
+	font-family: var(--rb-font-body);
+	font-size: 0.68rem;
+	line-height: 1.2;
+	color: var(--rb-ink-muted);
+}
+
+#calc .trainer-wheel-slot.is-active {
+	border: 2px solid var(--rb-action);
+	background: var(--rb-oracle-soft);
+	padding: calc(0.4rem - 1px) calc(0.35rem - 1px);
+}
+
+#calc .trainer-wheel-slot:not(.is-empty):hover {
+	outline: 2px solid var(--rb-action);
+	outline-offset: 1px;
+}
+
+#calc .trainer-wheel > hr {
+	display: block;
+	margin: var(--rb-space-sm) 0;
+	border: 0;
+	border-top: 1px solid var(--rb-stroke);
+}
+
+#calc .trainer-wheel-truck {
+	width: 100%;
+	color: var(--rb-ink-muted);
+}
+
+/* —— Field toggle density (weather / terrain / screens) —— */
+#calc .field-info .btn {
+	font-size: 0.78em;
+	padding: 2px 3px;
+	margin: -1px -2px 0;
+	min-height: 0;
+	line-height: 1.25;
+	border-radius: var(--rb-radius);
+}
+
+#calc .field-info table.field td {
+	padding: 1px 2px;
+}
+
+/* —— Select2 (dense; stadium surfaces) —— */
+.select2-container .select2-choice {
+	background: var(--rb-surface-sunken);
+	background-image: none;
+	color: var(--rb-ink);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	box-shadow: none;
+	text-shadow: none;
+	height: 26px;
+	line-height: 26px;
+	font-family: var(--rb-font-calc);
+	font-size: 0.9em;
+}
+
+.select2-container .select2-choice .select2-chosen {
+	color: var(--rb-ink);
+	margin-right: 28px;
+}
+
+.select2-container .select2-choice .select2-arrow {
+	background: transparent;
+	border-left: 1px solid var(--rb-stroke);
+	width: 22px;
+	border-radius: 0 var(--rb-radius) var(--rb-radius) 0;
+}
+
+.select2-container .select2-choice .select2-arrow b {
+	opacity: 0.7;
+}
+
+.select2-dropdown-open .select2-choice {
+	box-shadow: none;
+	background-image: none;
+	border-color: var(--rb-focus);
+}
+
+.select2-drop {
+	background-color: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	border: 1px solid var(--rb-stroke);
+	border-top-color: var(--rb-focus);
+	border-radius: 0 0 var(--rb-radius) var(--rb-radius);
+	box-shadow: none;
+	font-family: var(--rb-font-calc);
+}
+
+.select2-results {
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+}
+
+.select2-results .select2-result-label {
+	color: var(--rb-ink);
+}
+
+.select2-results .select2-highlighted {
+	background: var(--rb-oracle-soft);
+	color: var(--rb-ink);
+}
+
+.select2-results .select2-no-results,
+.select2-results .select2-searching {
+	color: var(--rb-ink-muted);
+	background: transparent;
+}
+
+.select2-search input {
+	background-color: var(--rb-surface-sunken) !important;
+	color: var(--rb-ink);
+	border: 1px solid var(--rb-stroke) !important;
+	border-radius: var(--rb-radius);
+	font-family: var(--rb-font-calc);
+	box-shadow: none !important;
+}
+
+.select2-container-active .select2-choice,
+.select2-dropdown-open.select2-drop-above .select2-choice {
+	border-color: var(--rb-focus);
+	box-shadow: none;
+}
+
+/* —— R&B mode panels: align to calc page width —— */
+.ai-panel,
+#sets-bridge.ai-panel-bridge,
+#runbun-battle.runbun-battle {
+	clear: both;
+	max-width: var(--rb-page-max);
+	margin: var(--rb-space-lg) auto;
+	padding: var(--rb-space-md) var(--rb-space-lg);
+	border: 1px solid var(--rb-stroke);
+	border-top: 3px solid var(--rb-brand);
+	border-radius: var(--rb-radius);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	font-family: var(--rb-font-body);
+	box-sizing: border-box;
+}
+
+/* Calc column strip: ensure three floated fieldsets stay on one band */
+#calc .panel {
+	box-sizing: border-box;
+}
+
+#calc fieldset.poke-info,
+#calc fieldset.field-info,
+#calc fieldset.poke-import {
+	margin: 0 var(--rb-space-xs) var(--rb-space-sm) 0;
+}
+
+#calc .panel-group {
+	margin-top: var(--rb-space-xs);
+}
+
+.ai-panel-title,
+.ai-panel-bridge-title,
+#runbun-battle .runbun-battle-title {
+	font-family: var(--rb-font-brand);
+	font-size: 1.2rem;
+	font-weight: 600;
+	color: var(--rb-ink);
+	margin: 0 0 var(--rb-space-xs);
+}
+
+#sets-bridge .ai-panel-bridge-help {
+	margin: 0 0 var(--rb-space-sm);
+	font-size: 0.9em;
+	line-height: 1.4;
+	color: var(--rb-ink-muted);
+}
+
+.sets-bridge-preview {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--rb-space-sm);
+	margin-top: var(--rb-space-sm);
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	background: var(--rb-surface-sunken);
+}
+
+.sets-bridge-preview-empty {
+	grid-column: 1 / -1;
+	margin: 0;
+	font-size: 0.85em;
+	color: var(--rb-ink-muted);
+}
+
+.sets-bridge-preview-side-label {
+	font-size: 0.72rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--rb-ink-muted);
+	margin-bottom: 0.25em;
+}
+
+.sets-bridge-preview-row {
+	font-family: var(--rb-font-mono);
+	font-size: 0.78em;
+	line-height: 1.35;
+	color: var(--rb-ink);
+	padding: 0.15em 0;
+}
+
+.sets-bridge-preview-row.is-active {
+	color: var(--rb-brand);
+	font-weight: 600;
+}
+
+.sets-bridge-preview-row.is-empty {
+	color: var(--rb-ink-muted);
+	font-family: var(--rb-font-body);
+}
+
+.ai-panel-controls,
+#runbun-battle .runbun-battle-controls {
+	gap: var(--rb-space-xs) var(--rb-space-sm);
+	padding: var(--rb-space-xs) 0;
+	border-bottom: 1px solid transparent;
+	margin-bottom: var(--rb-space-sm);
+}
+
+.ai-panel-toolbar-load,
+.ai-panel-toolbar-decide,
+.ai-panel-toolbar-step,
+#runbun-battle .runbun-battle-controls {
+	margin-bottom: var(--rb-space-sm);
+	padding-bottom: var(--rb-space-sm);
+	border-bottom: 1px solid var(--rb-stroke);
+}
+
+.ai-panel-controls:last-of-type {
+	border-bottom: none;
+	margin-bottom: var(--rb-space-xs);
+}
+
+.ai-panel-help,
+#runbun-battle .runbun-battle-help {
+	margin: 0 0 var(--rb-space-sm);
+}
+
+.ai-panel-scope {
+	margin: 0 0 var(--rb-space-md);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+}
+
+.ai-panel-editor {
+	margin-bottom: var(--rb-space-md);
+}
+
+/* —— Utility / floating frames —— */
+.box-frame,
+#note-box-frame {
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	border-color: var(--rb-stroke);
+}
+
+.box-frame-header > legend {
+	color: var(--rb-ink);
+}
+
+.close-frame {
+	background-color: var(--rb-danger);
+	border-color: var(--rb-stroke-strong);
+}
+
+.mdiv,
+.md {
+	background-color: #fff;
+}
+
+#dark-theme-toggle,
+#side-arrow-toggle,
+#double-legacy-mode {
+	font-family: var(--rb-font-body);
+	font-size: 0.82rem;
+	padding: 0.35em 0.65em;
+	color: var(--rb-ink);
+	background: var(--rb-surface-raised);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	cursor: pointer;
+}
+
+#dark-theme-toggle:hover,
+#side-arrow-toggle:hover,
+#double-legacy-mode:hover {
+	border-color: var(--rb-stroke-strong);
+	background: var(--rb-surface-sunken);
+}
+
+/* —— Responsive —— */
+@media (max-width: 700px) {
+	.rb-mode-tablist {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.rb-mode-tab {
+		flex: 0 0 auto;
+	}
+
+	.rb-wordmark {
+		font-size: 1.3rem;
+	}
+
+	.wrapper,
+	.ai-panel,
+	#sets-bridge.ai-panel-bridge,
+	#runbun-battle.runbun-battle,
+	.credits {
+		padding-left: var(--rb-space-md);
+		padding-right: var(--rb-space-md);
+	}
+
+	.sets-bridge-preview {
+		grid-template-columns: 1fr;
+	}
+
+	#runbun-battle .runbun-battle-field {
+		grid-template-columns: 1fr;
+	}
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

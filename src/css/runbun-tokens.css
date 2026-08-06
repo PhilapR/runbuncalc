@@ -1,0 +1,80 @@
+/**
+ * Run & Bun UI tokens (UI-V0 + page-unify spacing).
+ * Canonical roles/specs: ../../RUNBUN_UI_DESIGN.md
+ *
+ * Link after main.css. Theme follows [data-rb-theme] on <html>
+ * (set by dark-theme-toggle / runbun_shell).
+ * Do not hand-edit dist/; regenerate via `node build view`.
+ */
+
+:root,
+[data-rb-theme="light"] {
+	--rb-ink: #1a2228;
+	--rb-ink-muted: #5a6670;
+	--rb-surface: #f4f6f7;
+	--rb-surface-raised: #ffffff;
+	--rb-surface-sunken: #e8ecef;
+	--rb-stroke: #c5ced6;
+	--rb-stroke-strong: #8a969f;
+	--rb-brand: #c45c26;
+	/* Darker ink for brand/warn text on soft fills (≥4.5:1 vs soft surfaces). */
+	--rb-brand-ink: #8f3f14;
+	--rb-brand-soft: #f3e0d4;
+	--rb-action: #0b7a78;
+	--rb-action-hover: #096664;
+	--rb-warn: #a67c00;
+	--rb-warn-ink: #6b4f00;
+	--rb-warn-soft: #fff4d6;
+	--rb-danger: #b42318;
+	--rb-danger-soft: #fee4e2;
+	--rb-ok: #1b7a3d;
+	--rb-ok-soft: #e6f4ea;
+	--rb-hp-high: #2f9e44;
+	--rb-hp-mid: #e67700;
+	--rb-hp-low: #c92a2a;
+	--rb-oracle: #3d5a80;
+	--rb-oracle-soft: #e4ebf2;
+	--rb-focus: #0b7a78;
+	--rb-font-brand: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+	--rb-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+	--rb-font-mono: "IBM Plex Mono", Consolas, Monaco, monospace;
+	--rb-font-calc: "IBM Plex Sans", Verdana, "Segoe UI", sans-serif;
+	--rb-radius: 2px;
+	--rb-radius-control: 6px;
+	--rb-space-xs: 0.35rem;
+	--rb-space-sm: 0.55rem;
+	--rb-space-md: 0.85rem;
+	--rb-space-lg: 1.25rem;
+	--rb-space-xl: 1.75rem;
+	/* Match legacy calc column total (~P1 + Field + P2); em is too narrow at 10pt body */
+	--rb-page-max: 1285px;
+	--rb-shell-sticky-offset: 6.25rem;
+}
+
+[data-rb-theme="dark"] {
+	--rb-ink: #e8eef2;
+	--rb-ink-muted: #9aa8b2;
+	--rb-surface: #12171b;
+	--rb-surface-raised: #1c242b;
+	--rb-surface-sunken: #0d1114;
+	--rb-stroke: #2e3a44;
+	--rb-stroke-strong: #4a5a66;
+	--rb-brand: #e07a3a;
+	--rb-brand-ink: #f0a46a;
+	--rb-brand-soft: #3a2418;
+	--rb-action: #2bb5b1;
+	--rb-action-hover: #3fccc8;
+	--rb-warn: #e0b84a;
+	--rb-warn-ink: #f0c96a;
+	--rb-warn-soft: #3a3014;
+	--rb-danger: #f97066;
+	--rb-danger-soft: #3b1511;
+	--rb-ok: #3ddc7a;
+	--rb-ok-soft: #163022;
+	--rb-hp-high: #3ddc7a;
+	--rb-hp-mid: #ffa94d;
+	--rb-hp-low: #ff6b6b;
+	--rb-oracle: #7ba3c9;
+	--rb-oracle-soft: #1a2836;
+	--rb-focus: #2bb5b1;
+}

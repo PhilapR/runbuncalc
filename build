@@ -28,7 +28,38 @@ function makeCachebuster(template, output) {
 	console.log("DONE");
 }
 
-function cpdir(src, dest) {
+// Adapt TypeScript CommonJS emit for the calculator UI's classic <script>
+// loader. That loader shares one global `exports` object and stubs
+// `require()` to return it, so modules are not truly isolated.
+function prepareBrowserCalcModule(contents, {isCalcRootIndex = false} = {}) {
+	contents = contents.replace(/^exports.* = void 0;$/gm, '');
+
+	// Re-export getters become infinite loops when `mod === exports`
+	// (`get() { return calc_1.calculate }` reads the getter itself).
+	contents = contents.replace(
+		/Object\.defineProperty\(exports, "([^"]+)", \{ enumerable: true, get: function \(\) \{ return (\w+)\.\1; \} \}\);/g,
+		'exports.$1 = $2.$1;'
+	);
+
+	// `export function calculate` emits `exports.calculate = calculate` before
+	// the adaptable import snapshot. Defer those assignments until after
+	// `Acalculate` is captured so the wrapper does not call itself.
+	if (isCalcRootIndex) {
+		contents = contents
+			.replace(/^exports\.calculate = calculate;\r?\n/m, '')
+			.replace(/^exports\.calcStat = calcStat;\r?\n/m, '');
+		if (/const Acalculate = A\.calculate;/.test(contents)) {
+			contents = contents.replace(
+				/(const Acalculate = A\.calculate;\r?\n)/,
+				'$1exports.calculate = calculate;\nexports.calcStat = calcStat;\n'
+			);
+		}
+	}
+
+	return '(function () {\n' + contents + '\n})();\n';
+}
+
+function cpdir(src, dest, options = {}) {
 	console.log("Copying `" + src + "` to `" + dest + "`");
 	try {
 		fs.mkdirSync(dest, '0755');
@@ -38,12 +69,22 @@ function cpdir(src, dest) {
 	for (const file of fs.readdirSync(src)) {
 		var current = fs.lstatSync(path.join(src, file));
 		if (current.isDirectory()) {
-			cpdir(path.join(src, file), path.join(dest, file));
+			cpdir(path.join(src, file), path.join(dest, file), options);
 		} else if (current.isSymbolicLink()) {
 			var symlink = fs.readlinkSync(path.join(src, file));
 			fs.symlinkSync(symlink, path.join(dest, file));
 		} else if (file.endsWith('.js')) {
-			const contents = fs.readFileSync(path.join(src, file), 'utf8').replace(/^exports.* = void 0;$/gm, '');
+			let contents = fs.readFileSync(path.join(src, file), 'utf8');
+			const srcPath = src.replace(/\\/g, '/');
+			const wrapCommonJs = options.wrapCommonJs &&
+				!file.endsWith('.min.js') &&
+				!srcPath.includes('/test');
+			if (wrapCommonJs) {
+				const isCalcRootIndex = file === 'index.js' && /(?:^|\/)calc\/dist$/.test(srcPath);
+				contents = prepareBrowserCalcModule(contents, {isCalcRootIndex});
+			} else {
+				contents = contents.replace(/^exports.* = void 0;$/gm, '');
+			}
 			fs.writeFileSync(path.join(dest, file), contents);
 		} else {
 			fs.copyFileSync(path.join(src, file),path.join(dest, file));
@@ -56,7 +97,7 @@ if (process.argv[2] !== 'view') {
 }
 
 cpdir('src', 'dist');
-cpdir('calc/dist', 'dist/calc');
+cpdir('calc/dist', 'dist/calc', {wrapCommonJs: true});
 makeCachebuster('dist/honkalculate.template.html', 'dist/honkalculate.html');
 makeCachebuster('dist/index.template.html', 'dist/index.html');
 makeCachebuster('dist/randoms.template.html', 'dist/randoms.html');
