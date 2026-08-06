@@ -94,7 +94,7 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Deeper Explain (EXP-01/02) | **Shipped** — side-by-side engine ↔ policy doc; citation map audit |
 | Singles Battle turn viewer | **Shipped (MVP)** (`#runbun-battle`) |
 | Replay scrubber (RPL-01) | **Shipped (MVP)** (`#runbun-replay`, `fixtures/ui/replays/`) |
-| Browser UI smoke | **16/16 PASS** (incl. no `util_1` / Abilities console errors; Gen 8 default) |
+| Browser UI smoke | **Manual check — not in `npm test`.** Last ad-hoc run 16/16 (incl. no `util_1` / Abilities console errors; Gen 8 default). Evidence is session screenshots under the ignored `_ui_smoke_test/`; re-run by hand after touching AI Debug / Battle panels |
 | Accuracy: Wonder Skin / Illuminate (+ Mold Breaker path) | **Shipped** |
 | `secondaryRolls` / derive-resolution smoke | **Shipped** (HTTP smoke asserts trace) |
 | R&B branding + Gen 8 default | **Shipped** |
@@ -216,7 +216,7 @@ Treat these as **shipped baselines**. Re-break only with intent and tests.
 - [x] Invalid Action 400 prefix distinct from Invalid BattleState
 - [x] Stable HTTP `{error, code}` contract; resolution/options → Action; AI domain Errors → 400
 - [x] Modeled-slice honesty copy in AI Debug and Battle
-- [x] UI smoke **16/16 PASS**
+- [x] UI smoke 16/16 on its last ad-hoc run — **manual, not a gated baseline** (see §1)
 
 ### Docs
 
@@ -478,7 +478,8 @@ fix that before product chrome (today: none open).
 | [`VALIDATION.md`](VALIDATION.md) | What’s tested; Policy B; engine/product backlog (same ranks) |
 | [`AI_DATA_MODEL.md`](AI_DATA_MODEL.md) | Serializable contracts |
 | [`FORK_MAP.md`](FORK_MAP.md) | Where a change belongs; intentional calc deltas |
-| [`AGENTS.md`](AGENTS.md) | Agent/contributor architecture rules |
+| [`AGENTS.md`](AGENTS.md) | Agent/contributor architecture rules; index of the engine data rules |
+| [`docs/engine-rules/`](docs/engine-rules/) | Normative per-domain engine data rules (state, resolution, order, items, residuals, entry) |
 | [`ai/README.md`](ai/README.md) | HTTP endpoints and browser client notes |
 | [`README.md`](README.md) | Install, build, high-level entry |
 | [`../MECHANICS.MD`](../MECHANICS.MD) | R&B mechanic source (Gen 8 default) |

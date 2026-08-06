@@ -5,3 +5,13 @@ eslint-cache/
 Thumbs.db
 pnpm-debug.log
 npm-debug.log
+
+# Ad-hoc session scratch dirs (screenshots, capture scripts, run reports).
+# These are manual-run artifacts, not part of the `npm test` gate.
+_ai_panel_test/
+_datamodel_usage_test/
+_ui_design_pass/
+_ui_replay_show/
+_ui_smoke_test/
+_ui_spacing_pass/
+_ui_trainer_wheel/
