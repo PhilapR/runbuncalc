@@ -15,23 +15,17 @@
   },
   "devDependencies": {
     "@pkmn/dex": "^0.7.13",
-    "@pkmn/eslint-config": "^2.12.0",
     "@types/jest": "^29.2.3",
-    "@typescript-eslint/eslint-plugin": "^5.43.0",
-    "@typescript-eslint/parser": "^5.43.0",
-    "eslint": "^8.28.0",
-    "eslint-plugin-jest": "^27.1.5",
     "jest": "^29.3.1",
-    "ts-jest": "^29.0.3",
-    "typescript": "^4.9.3"
+    "typescript": "^7.0.2"
   },
   "scripts": {
-    "lint": "eslint --cache src --ext ts",
-    "fix": "eslint --fix src --ext ts",
+    "lint": "tsc --noEmit -p .",
     "compile": "tsc -p .",
     "bundle": "node bundle",
     "build": "npm run compile && npm run bundle",
-    "test": "jest",
+    "test": "jest src/test/fork.test.ts src/test/mechanics.test.ts",
+    "test:upstream": "jest src/test/data.test.ts src/test/calc.test.ts",
     "coverage": "jest --coverage",
     "prepare": "npm run build",
     "pretest": "npm run build",

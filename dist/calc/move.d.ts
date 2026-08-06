@@ -3,6 +3,7 @@ import { State } from './state';
 export declare class Move implements State.Move {
     gen: I.Generation;
     name: I.MoveName;
+    forceSTAB: boolean;
     originalName: string;
     ability?: I.AbilityName;
     item?: I.ItemName;

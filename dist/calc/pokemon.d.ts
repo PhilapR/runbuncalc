@@ -10,15 +10,20 @@ export declare class Pokemon implements State.Pokemon {
     gender?: I.GenderName;
     ability?: I.AbilityName;
     abilityOn?: boolean;
+    disguiseBroken: boolean;
     isDynamaxed?: boolean;
     isSaltCure?: boolean;
+    isGrounded?: boolean;
     alliesFainted?: number;
     item?: I.ItemName;
+    heldItem?: I.ItemName;
+    itemSuppressed?: boolean;
     teraType?: I.TypeName;
     nature: I.NatureName;
     ivs: I.StatsTable;
     evs: I.StatsTable;
     boosts: I.StatsTable;
+    statOverrides?: Partial<I.StatsTable>;
     rawStats: I.StatsTable;
     stats: I.StatsTable;
     originalCurHP: number;
@@ -36,6 +41,7 @@ export declare class Pokemon implements State.Pokemon {
         boosts?: Partial<I.StatsTable> & {
             spc?: number;
         };
+        soulDewApplied?: boolean;
     });
     maxHP(original?: boolean): number;
     curHP(original?: boolean): number;

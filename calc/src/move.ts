@@ -7,6 +7,7 @@ const SPECIAL = ['Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Psychic', 'Dark',
 export class Move implements State.Move {
   gen: I.Generation;
   name: I.MoveName;
+  forceSTAB: boolean;
 
   originalName: string;
   ability?: I.AbilityName;
@@ -106,6 +107,7 @@ export class Move implements State.Move {
     }
     this.gen = gen;
     this.name = data.name;
+    this.forceSTAB = !!options.forceSTAB;
     this.ability = options.ability;
     this.item = options.item;
     this.useZ = options.useZ;
@@ -173,6 +175,7 @@ export class Move implements State.Move {
       ability: this.ability,
       item: this.item,
       species: this.species,
+      forceSTAB: this.forceSTAB,
       useZ: this.useZ,
       useMax: this.useMax,
       isCrit: this.isCrit,

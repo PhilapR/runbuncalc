@@ -3,11 +3,17 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Pok&eacute;mon Damage Calculator</title>
+    <title>Run &amp; Bun Damage Calc</title>
     <link type="text/css" rel="stylesheet" href="./js/vendor/select2/select2.css" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?bab98f2f" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?af4bce0f" />
+    <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
+    <!-- Shell + full-page unify after dark-theme so stadium tokens win the cascade -->
+    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?48a2c613" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-3"></script>
     <script>
@@ -30,33 +36,70 @@
         * It will be truey and incorrectly cause the
         * dark theme to load.
         */
-        if (localStorage.getItem('darkTheme') !== 'true') {
-            document.getElementById('dark-theme-styles').disabled = true;
-        }
+        (function () {
+            var darkOn = localStorage.getItem('darkTheme') === 'true' ||
+                (localStorage.getItem('darkTheme') === null &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (!darkOn) {
+                document.getElementById('dark-theme-styles').disabled = true;
+            }
+            document.documentElement.setAttribute('data-rb-theme', darkOn ? 'dark' : 'light');
+        })();
     </script>
 </head>
 
 <body class="dark-theme">
 
-<div class="wrapper">
+<a class="rb-skip" href="#rb-mode-content">Skip to mode content</a>
+<header id="rb-shell" class="rb-shell" role="banner">
+    <div class="rb-shell-inner">
+        <div class="rb-shell-brand">
+            <span class="rb-wordmark">Run &amp; Bun</span>
+            <span class="rb-tagline">Stadium ink · Gen&nbsp;8 policy · thin HTTP client</span>
+        </div>
+        <nav class="rb-mode-nav" aria-label="Product modes">
+            <div class="rb-mode-tablist" role="tablist" aria-label="Product modes">
+                <a class="rb-mode-tab" role="tab" id="rb-tab-calc" href="#calc" aria-controls="calc" aria-selected="true">Calc</a>
+                <a class="rb-mode-tab" role="tab" id="rb-tab-sets" href="#sets-bridge" aria-controls="sets-bridge" aria-selected="false" tabindex="-1">Sets / Bridge</a>
+                <a class="rb-mode-tab" role="tab" id="rb-tab-ai-debug" href="#ai-panel" aria-controls="ai-panel" aria-selected="false" tabindex="-1">AI Debug</a>
+                <a class="rb-mode-tab" role="tab" id="rb-tab-battle" href="#runbun-battle" aria-controls="runbun-battle" aria-selected="false" tabindex="-1">Singles Battle</a>
+            </div>
+        </nav>
+    </div>
+    <div id="rb-context-bar" class="rb-context" role="status" aria-live="polite"></div>
+</header>
+
+<div id="rb-mode-content" tabindex="-1">
+<div id="calc" class="wrapper rb-mode-region" role="tabpanel" aria-labelledby="rb-tab-calc" tabindex="-1">
 
     <div aria-label="Settings" role="region">
-        <span class="title-text">Pok&eacute;mon Damage Calculator</span>
-        <span class="genSelection" aria-labelledby="selectGenInstruction" role="radiogroup" title="Select the generation.">
-            <span class="visually-hidden" id="selectGenInstruction">Select the generation.</span>
-            <input class="gen visually-hidden" type="radio" name="gen" value="8" id="gen8" checked="checked" />
+        <span class="title-block">
+            <span class="title-text">Run &amp; Bun Damage Calc</span>
+            <span class="title-subtext">Multi-gen oracle with Run &amp; Bun overlays; defaults to Gen&nbsp;8 (S/S). Product modes above frame Sets, AI Debug, and Battle.</span>
+        </span>
+        <span class="genSelection" aria-labelledby="selectGenInstruction" role="radiogroup" title="Select the generation. Run &amp; Bun assumes Generation 8 unless a mechanic overrides it.">
+            <span class="visually-hidden" id="selectGenInstruction">Select the generation. Run and Bun assumes Generation 8 unless a mechanic overrides it.</span>
+            <input class="gen visually-hidden" type="radio" name="gen" value="1" id="gen1" /><label class="btn btn-small btn-left" for="gen1">RBY</label>
+            <input class="gen visually-hidden" type="radio" name="gen" value="2" id="gen2" /><label class="btn btn-small btn-mid" for="gen2">GSC</label>
+            <input class="gen visually-hidden" type="radio" name="gen" value="3" id="gen3" /><label class="btn btn-small btn-mid" for="gen3">ADV</label>
+            <input class="gen visually-hidden" type="radio" name="gen" value="4" id="gen4" /><label class="btn btn-small btn-mid" for="gen4">DPP</label>
+            <input class="gen visually-hidden" type="radio" name="gen" value="5" id="gen5" /><label class="btn btn-small btn-mid" for="gen5">B/W</label>
+            <input class="gen visually-hidden" type="radio" name="gen" value="6" id="gen6" /><label class="btn btn-small btn-mid" for="gen6">X/Y</label>
+            <input class="gen visually-hidden" type="radio" name="gen" value="7" id="gen7" /><label class="btn btn-small btn-mid" for="gen7">S/M</label>
+            <input class="gen visually-hidden" type="radio" name="gen" value="8" id="gen8" checked="checked" /><label class="btn btn-small btn-mid" for="gen8">S/S</label>
+            <input class="gen visually-hidden" type="radio" name="gen" value="9" id="gen9" /><label class="btn btn-small btn-right" for="gen9">S/V</label>
         </span>
         <span class="notationSelection" aria-labelledby="selectNotationInstruction" role="radiogroup" title="Select the output notation.">
             <span class="visually-hidden" id="selectNotationInstruction">Select the output notation.</span>
-            <input class="notation visually-hidden" type="radio" name="notation" id="pixels" value="px" />
-            <input class="notation visually-hidden" type="radio" name="notation" id="percentage" value="%" />
+            <input class="notation visually-hidden" type="radio" name="notation" id="pixels" value="px" /><label class="btn btn-small btn-left" for="pixels">48th</label>
+            <input class="notation visually-hidden" type="radio" name="notation" id="percentage" value="%" /><label class="btn btn-small btn-right" for="percentage">100%</label>
         </span>
         <span class="modeSelection" aria-labelledby="selectModeInstruction" role="radiogroup" title="Select the calculator's mode of function.">
             <span class="visually-hidden" id="selectModeInstruction">Select the calculator's mode of function.</span>
-            <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-one" checked="checked" />
-            <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-all" />
-            <input class="mode visually-hidden" type="radio" name="mode" id="all-vs-one" />
-            <input class="mode visually-hidden" type="radio" name="mode" id="randoms" />
+            <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-one" checked="checked" /><label class="btn btn-left" for="one-vs-one">One vs One</label>
+            <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-all" /><label class="btn btn-mid" for="one-vs-all">One vs All</label>
+            <input class="mode visually-hidden" type="radio" name="mode" id="all-vs-one" /><label class="btn btn-mid" for="all-vs-one">All vs One</label>
+            <input class="mode visually-hidden" type="radio" name="mode" id="randoms" /><label class="btn btn-right" for="randoms">Random Battles</label>
         </span>
         <button id="screen-calc">
             put this calculation in a grabbable window
@@ -726,7 +769,7 @@
             </fieldset>
         </div>
         <div aria-label="trainer-poks" role="region">
-            <fieldset class="poke-info" id="trainer-mons">
+            <fieldset class="poke-info" id="team-box-mons">
                 <legend align="center">Team/Box</legend>
                 <div>
                     <legend class="dropzone" align="center">Team</legend>
@@ -1683,23 +1726,28 @@
                 </div>
             </fieldset>
         </div>
-        <div aria-label="trainer-poks" role="region">
-            <fieldset class="poke-info" id="trainer-mons">
-                <legend align="center"> OPPOSING TEAM</legend>
-                <div class="trainer-poks">
-                    <div id="trainer-pok-list-opposing" class="trainer-pok-list-opposing dropzone calc-trigger">
+        <div aria-label="Trainer Wheel" role="region" class="trainer-wheel-region">
+            <fieldset class="poke-info trainer-wheel" id="trainer-mons">
+                <legend align="center" id="trainer-wheel-legend">Trainer Wheel</legend>
+                <div class="trainer-wheel-controls" role="group" aria-labelledby="trainer-wheel-legend" aria-label="Browse opposing trainers">
+                    <button type="button" id="previous-trainer" class="trainer-wheel-nav" aria-label="Previous trainer" title="Previous trainer (←)">‹ Prev</button>
+                    <div class="trainer-wheel-identity">
+                        <span class="trainer-wheel-eyebrow" id="trainer-wheel-opponent-label">Opponent</span>
+                        <div id="trainer-wheel-name" class="trainer-wheel-name" role="status" aria-live="polite" aria-atomic="true">Youngster Calvin</div>
                     </div>
-                    <div id="trainer-pok-list-opposing2" class="dropzone calc-trigger" 
+                    <button type="button" id="next-trainer" class="trainer-wheel-nav" aria-label="Next trainer" title="Next trainer (→)">Next ›</button>
+                </div>
+                <div class="trainer-poks trainer-wheel-party-wrap">
+                    <div class="trainer-poks-label" id="trainer-wheel-party-label">Party</div>
+                    <div id="trainer-pok-list-opposing" class="trainer-pok-list-opposing trainer-wheel-party dropzone calc-trigger" role="list" aria-labelledby="trainer-wheel-party-label">
+                    </div>
+                    <div id="trainer-pok-list-opposing2" class="dropzone calc-trigger"
                     data-placeholder=" For doubles you can drag & drop the opposing pokemons here,
                      only the first one off each row will be calculated against. Top left always top calc and Bot left always bot calc" hidden>
                     </div>
                 </div>
-                <!--hr>
-                <button id="set-double-opp">Set in doubles</button-->
                 <hr>
-                <button type="button" id="previous-trainer"> Previous Trainer</button>
-                <button type="button" id="next-trainer"> Next Trainer</button>
-                <button type="button" id="reset-trainer">Truck</button>
+                <button type="button" id="reset-trainer" class="trainer-wheel-truck" aria-label="Truck: reset imports and return to Youngster Calvin" title="Reset imports and return to Youngster Calvin">Truck</button>
             </fieldset>
         </div>
     </div>
@@ -1860,9 +1908,9 @@
         var calc = exports = {};
         function require() { return exports };
     </script>
-    <script type="text/javascript" src="./calc/util.js?51463f0d"></script>
-    <script type="text/javascript" src="./calc/stats.js?a9e37d1a"></script>
-    <script type="text/javascript" src="./calc/data/species.js?7800cd5a"></script>
+    <script type="text/javascript" src="./calc/util.js?6010b720"></script>
+    <script type="text/javascript" src="./calc/stats.js?411daade"></script>
+    <script type="text/javascript" src="./calc/data/species.js?aab873c4"></script>
 	<script type="text/javascript" src="./js/data/sets/gen9.js?f8c3f5c9"></script>
     <script type="text/javascript" src="./js/data/sets/gen8.js?a4158c72"></script>
     <script type="text/javascript" src="./js/data/sets/gen7.js?5f5ba850"></script>
@@ -1873,43 +1921,250 @@
     <script type="text/javascript" src="./js/data/sets/gen2.js?8534fa4a"></script>
     <script type="text/javascript" src="./js/data/sets/gen1.js?6b6723b2"></script>
     <script type="text/javascript" src="./js/data/truck.js"></script>
-    <script type="text/javascript" src="./calc/data/types.js?3267f790"></script>
-    <script type="text/javascript" src="./calc/data/natures.js?28612810"></script>
-    <script type="text/javascript" src="./calc/data/abilities.js?38448e91"></script>
-    <script type="text/javascript" src="./calc/data/moves.js?2902d42e"></script>
-    <script type="text/javascript" src="./calc/data/items.js?0409f13e"></script>
-    <script type="text/javascript" src="./calc/data/index.js?abecbd82"></script>
-    <script type="text/javascript" src="./calc/move.js?57ab9f0a"></script>
-    <script type="text/javascript" src="./calc/pokemon.js?1cd9f7fb"></script>
-    <script type="text/javascript" src="./calc/field.js?bbf04408"></script>
-    <script type="text/javascript" src="./calc/items.js?10064fda"></script>
-    <script type="text/javascript" src="./calc/mechanics/util.js?7ed156b5"></script>
-    <script type="text/javascript" src="./calc/mechanics/gen789.js?a29fed4e"></script>
-    <script type="text/javascript" src="./calc/mechanics/gen56.js?7ba8f5e6"></script>
-    <script type="text/javascript" src="./calc/mechanics/gen4.js?c352a0ef"></script>
-    <script type="text/javascript" src="./calc/mechanics/gen3.js?1b8c8afc"></script>
-    <script type="text/javascript" src="./calc/mechanics/gen12.js?15338dfc"></script>
-    <script type="text/javascript" src="./calc/calc.js?40a2d9b1"></script>
-    <script type="text/javascript" src="./calc/desc.js?edafb82b"></script>
-    <script type="text/javascript" src="./calc/result.js?9f8881b5"></script>
-    <script type="text/javascript" src="./calc/adaptable.js?92e49194"></script>
-    <script type="text/javascript" src="./calc/index.js?0b1745b9"></script>
-    <script type="text/javascript" src="./js/shared_controls.js?89ed3199"></script>
-    <script type="text/javascript" src="./js/index_randoms_controls.js?0a0407ae"></script>
-    <script type="text/javascript" src="./js/moveset_import.js?3b053890"></script>
+    <script type="text/javascript" src="./calc/data/types.js?f9379878"></script>
+    <script type="text/javascript" src="./calc/data/natures.js?5d9b445a"></script>
+    <script type="text/javascript" src="./calc/data/abilities.js?47cfe2df"></script>
+    <script type="text/javascript" src="./calc/data/moves.js?01db831e"></script>
+    <script type="text/javascript" src="./calc/data/items.js?edc6d467"></script>
+    <script type="text/javascript" src="./calc/data/index.js?47a89ba2"></script>
+    <script type="text/javascript" src="./calc/move.js?a141ea35"></script>
+    <script type="text/javascript" src="./calc/pokemon.js?c91f41de"></script>
+    <script type="text/javascript" src="./calc/field.js?ce8738d9"></script>
+    <script type="text/javascript" src="./calc/items.js?a25529a3"></script>
+    <script type="text/javascript" src="./calc/mechanics/util.js?28073d16"></script>
+    <script type="text/javascript" src="./calc/mechanics/gen789.js?568232df"></script>
+    <script type="text/javascript" src="./calc/mechanics/gen56.js?3fcef283"></script>
+    <script type="text/javascript" src="./calc/mechanics/gen4.js?7b23ab73"></script>
+    <script type="text/javascript" src="./calc/mechanics/gen3.js?8e2aad56"></script>
+    <script type="text/javascript" src="./calc/mechanics/gen12.js?ec0e0c9f"></script>
+    <script type="text/javascript" src="./calc/calc.js?5bc69082"></script>
+    <script type="text/javascript" src="./calc/desc.js?12a6d315"></script>
+    <script type="text/javascript" src="./calc/result.js?de0d540e"></script>
+    <script type="text/javascript" src="./calc/adaptable.js?5117162d"></script>
+    <script type="text/javascript" src="./calc/index.js?78a38a99"></script>
+    <script type="text/javascript" src="./js/shared_controls.js?aa36d0f6"></script>
+    <script type="text/javascript" src="./js/index_randoms_controls.js?fbfd954d"></script>
+    <script type="text/javascript" src="./js/moveset_import.js?7e5848e1"></script>
+    <script type="text/javascript" src="./js/sets_to_battle_state.js?ac404a20"></script>
+    <script type="text/javascript" src="./js/golden_eval.js?961a5a37"></script>
+    <script type="text/javascript" src="./js/ai_panel.js?81487a68"></script>
+    <script type="text/javascript" src="./js/battle_turn_viewer.js?8795c5cb"></script>
+    <script type="text/javascript" src="./js/runbun_shell.js?867ab1ac"></script>
 </div>
 
-<div class="credits">Modification by ForwardFeed Originaly Created by Honko, maintained by Austin and Kris, Special thanks to Hzla
+<section id="sets-bridge" class="ai-panel-bridge rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-sets" tabindex="-1" aria-label="Sets to BattleState bridge">
+    <h2 class="ai-panel-bridge-title" id="sets-bridge-heading">Sets → BattleState</h2>
+    <p class="ai-panel-bridge-help">
+        Build a validated Gen&nbsp;8 <code>BattleState</code> from the current
+        calc panels (<code>#p1</code> = player, <code>#p2</code> = ai).
+        Optional benches come from Team / opposing trainer sets already
+        loaded above. Result is written into AI Debug for evaluate / choose.
+    </p>
+    <div id="ai-panel-bridge-callouts" class="ai-panel-callouts" aria-live="polite">
+        <div class="ai-panel-callout ai-panel-callout-warn">
+            <strong>Gen 8 only.</strong> Loaded BattleState is always generation&nbsp;8,
+            even when the calc UI generation selector differs.
+        </div>
+        <div class="ai-panel-callout ai-panel-callout-warn">
+            <strong>Zero EVs.</strong> R&amp;B AI projections force all EVs to 0
+            (HP and stats rebuild under that rule). Panel EV spreads are ignored
+            for AI — do not assume calc damage equals AI facts.
+        </div>
+    </div>
+    <div class="ai-panel-controls">
+        <label class="ai-panel-checkbox">
+            <input type="checkbox" id="ai-panel-include-player-team" checked />
+            Include player Team bench
+        </label>
+        <label class="ai-panel-checkbox">
+            <input type="checkbox" id="ai-panel-include-trainer-party" checked />
+            Include opposing trainer party
+        </label>
+        <button type="button" id="ai-panel-load-calc" class="btn btn-wide rb-btn-primary">Load from calc panels</button>
+        <button type="button" id="ai-panel-validate" class="btn btn-wide rb-btn-secondary">Validate state</button>
+        <a class="btn btn-wide rb-btn-ghost" href="#ai-panel">Open AI Debug</a>
+    </div>
+    <div id="sets-bridge-preview" class="sets-bridge-preview" aria-live="polite">
+        <p class="sets-bridge-preview-empty">No bridged party yet — load from calc panels.</p>
+    </div>
+</section>
+
+<div id="ai-panel" class="ai-panel rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-ai-debug" tabindex="-1" aria-label="Run and Bun AI">
+    <h2 class="ai-panel-title" id="ai-panel-heading">Run &amp; Bun AI Debug</h2>
+    <p class="ai-panel-help">
+        Gen&nbsp;8 decision policy (+ documented Run &amp; Bun overlays) over
+        <code>node server.js</code>. This panel is a thin HTTP client:
+        scores and transitions come from
+        <code>/ai/evaluate-actions</code>, <code>/ai/choose-action</code>,
+        and derive/apply/advance — it does not reimplement battle logic.
+        The multi-gen damage controls above remain the calculator oracle.
+        Use <a href="#sets-bridge">Sets / Bridge</a> to build state from calc panels.
+    </p>
+    <p class="ai-panel-scope" role="note">
+        <strong>Modeled slice, not a full sim.</strong>
+        Choose / derive / apply / advance cover the documented AI policy and
+        common move transitions. Residual ordering edge cases, uncommon
+        accuracy interactions, and unmodeled Showdown events stay
+        <em>caller-owned</em> (external engine or you). Gaps are intentional —
+        this is not a complete Pokémon Showdown battle simulator.
+    </p>
+    <div class="ai-panel-controls ai-panel-toolbar-load">
+        <div class="ai-panel-toolbar-label">Load</div>
+        <label for="ai-panel-scenario">Named fixture
+            <select id="ai-panel-scenario"></select>
+        </label>
+        <button type="button" id="ai-panel-load-scenario" class="btn btn-wide rb-btn-secondary">Load fixture</button>
+        <label class="ai-panel-file-label" for="ai-panel-fixture-file">Load local JSON
+            <input type="file" id="ai-panel-fixture-file" accept="application/json,.json" />
+        </label>
+        <button type="button" id="ai-panel-export-state" class="btn btn-wide rb-btn-ghost">Export state JSON</button>
+        <button type="button" id="ai-panel-reset" class="btn btn-wide rb-btn-ghost">Reset sample</button>
+    </div>
+    <div class="ai-panel-controls ai-panel-toolbar-decide">
+        <div class="ai-panel-toolbar-label">Decide</div>
+        <label for="ai-panel-side">Side
+            <select id="ai-panel-side">
+                <option value="ai" selected>ai</option>
+                <option value="player">player</option>
+            </select>
+        </label>
+        <label class="ai-panel-checkbox">
+            <input type="checkbox" id="ai-panel-include-switches" />
+            Include switches
+        </label>
+        <button type="button" id="ai-panel-evaluate" class="btn btn-wide rb-btn-primary">Evaluate</button>
+        <button type="button" id="ai-panel-compare-golden" class="btn btn-wide rb-btn-secondary">Compare golden</button>
+        <button type="button" id="ai-panel-choose" class="btn btn-wide rb-btn-primary">Choose</button>
+    </div>
+    <div class="ai-panel-controls ai-panel-toolbar-step">
+        <div class="ai-panel-toolbar-label">Step</div>
+        <button type="button" id="ai-panel-debug-loop" class="btn btn-wide rb-btn-primary">Derive → Apply → Advance</button>
+    </div>
+    <div class="ai-panel-editor">
+        <div class="ai-panel-editor-title">Structured fields</div>
+        <p class="ai-panel-editor-help">
+            Edit common BattleState fields without pasting JSON. Changes sync into
+            the raw editor below; validate still uses
+            <code>POST /ai/validate-battle-state</code>.
+        </p>
+        <div class="ai-panel-editor-grid">
+            <label for="ai-panel-field-generation">Generation
+                <input type="number" id="ai-panel-field-generation" min="1" max="9" step="1" />
+            </label>
+            <label for="ai-panel-field-mode">Mode
+                <select id="ai-panel-field-mode">
+                    <option value="Singles">Singles</option>
+                    <option value="Doubles">Doubles</option>
+                </select>
+            </label>
+            <label for="ai-panel-field-turn">Turn
+                <input type="number" id="ai-panel-field-turn" min="1" step="1" />
+            </label>
+        </div>
+        <div class="ai-panel-editor-actives">
+            <div class="ai-panel-editor-active">
+                <div class="ai-panel-editor-active-label">AI active</div>
+                <div id="ai-panel-ai-species" class="ai-panel-species">—</div>
+                <label for="ai-panel-ai-hp-current">HP
+                    <span class="ai-panel-hp-inputs">
+                        <input type="number" id="ai-panel-ai-hp-current" min="0" step="1" aria-label="AI current HP" />
+                        <span>/</span>
+                        <input type="number" id="ai-panel-ai-hp-max" min="1" step="1" aria-label="AI max HP" />
+                    </span>
+                </label>
+            </div>
+            <div class="ai-panel-editor-active">
+                <div class="ai-panel-editor-active-label">Player active</div>
+                <div id="ai-panel-player-species" class="ai-panel-species">—</div>
+                <label for="ai-panel-player-hp-current">HP
+                    <span class="ai-panel-hp-inputs">
+                        <input type="number" id="ai-panel-player-hp-current" min="0" step="1" aria-label="Player current HP" />
+                        <span>/</span>
+                        <input type="number" id="ai-panel-player-hp-max" min="1" step="1" aria-label="Player max HP" />
+                    </span>
+                </label>
+            </div>
+        </div>
+        <div class="ai-panel-controls">
+            <button type="button" id="ai-panel-apply-fields" class="btn btn-wide rb-btn-secondary">Apply fields → JSON</button>
+            <button type="button" id="ai-panel-sync-fields" class="btn btn-wide rb-btn-ghost">JSON → fields</button>
+        </div>
+    </div>
+    <label class="ai-panel-state-label" for="ai-panel-state">BattleState JSON (raw)</label>
+    <textarea id="ai-panel-state" class="ai-panel-state ai-panel-panel-sunken" rows="14" spellcheck="false"></textarea>
+    <div id="ai-panel-status" class="ai-panel-status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div id="ai-panel-golden-status" class="ai-panel-golden-status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div class="ai-panel-results-header" id="ai-panel-results-heading">Ranked actions <span class="ai-panel-results-hint">(click or Enter a row for Explain: engine ↔ policy doc; ↑↓ to move)</span></div>
+    <div id="ai-panel-results" class="ai-panel-results" role="list" aria-labelledby="ai-panel-results-heading"></div>
+</div>
+
+<section id="runbun-battle" class="runbun-battle rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-battle" tabindex="-1" aria-label="Run and Bun Singles Battle Turn Viewer">
+    <h2 class="runbun-battle-title" id="runbun-battle-heading">Singles Battle Turn Viewer</h2>
+    <p class="runbun-battle-help">
+        Practice-vs-policy surface for Gen&nbsp;8 Singles. Thin client over the same AI HTTP
+        as Debug: <code>/ai/evaluate-actions</code>, <code>/ai/choose-action</code>,
+        <code>/ai/derive-resolution</code>, <code>/ai/apply-action</code>,
+        <code>/ai/advance-turn</code>, <code>/ai/validate-battle-state</code>.
+        The browser holds display state only — it does not invent mechanics.
+        <strong>Modeled slice:</strong> choose / derive / apply / advance-turn residuals &amp; timers.
+        <strong>External:</strong> unmodeled residual order, accuracy edge cases, and live game
+        events stay caller-owned and are not faked here.
+    </p>
+    <div id="runbun-battle-summary" class="runbun-battle-summary" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div class="runbun-battle-field" aria-live="polite">
+        <div id="runbun-battle-ai" class="runbun-battle-active"></div>
+        <div id="runbun-battle-player" class="runbun-battle-active"></div>
+    </div>
+    <div id="runbun-battle-forced" class="runbun-battle-forced" hidden></div>
+    <div class="runbun-battle-controls">
+        <div class="ai-panel-toolbar-label">Load</div>
+        <button type="button" id="runbun-battle-load-sample" class="btn btn-wide rb-btn-secondary">Load sample</button>
+        <button type="button" id="runbun-battle-load-forced" class="btn btn-wide rb-btn-secondary">Load forced-switch sample</button>
+        <button type="button" id="runbun-battle-load-ai-panel" class="btn btn-wide rb-btn-secondary">Import from AI Debug</button>
+        <button type="button" id="runbun-battle-load-bridge" class="btn btn-wide rb-btn-primary">Load from calc panels</button>
+        <button type="button" id="runbun-battle-refresh" class="btn btn-wide rb-btn-ghost">Refresh field</button>
+        <button type="button" id="runbun-battle-validate" class="btn btn-wide rb-btn-secondary">Validate</button>
+    </div>
+    <div class="runbun-battle-controls">
+        <div class="ai-panel-toolbar-label">Decide / Step</div>
+        <label for="runbun-battle-side">Side
+            <select id="runbun-battle-side">
+                <option value="ai" selected>ai</option>
+                <option value="player">player</option>
+            </select>
+        </label>
+        <label class="runbun-battle-checkbox">
+            <input type="checkbox" id="runbun-battle-include-switches" />
+            Include switches
+        </label>
+        <button type="button" id="runbun-battle-evaluate" class="btn btn-wide rb-btn-primary">Evaluate</button>
+        <button type="button" id="runbun-battle-choose" class="btn btn-wide rb-btn-primary">Choose</button>
+        <button type="button" id="runbun-battle-apply" class="btn btn-wide rb-btn-primary">Apply selected</button>
+        <button type="button" id="runbun-battle-advance" class="btn btn-wide rb-btn-primary">Advance turn</button>
+        <button type="button" id="runbun-battle-loop" class="btn btn-wide rb-btn-primary">Choose → Apply → Advance</button>
+    </div>
+    <div class="runbun-battle-actions-header" id="runbun-battle-actions-heading">Legal actions <span class="runbun-battle-hint">(click or Enter to pick + Explain; ↑↓ to move)</span></div>
+    <div id="runbun-battle-actions" class="runbun-battle-actions" role="list" aria-labelledby="runbun-battle-actions-heading"></div>
+    <details class="runbun-battle-json-details">
+        <summary class="runbun-battle-state-label" id="runbun-battle-state-label">BattleState JSON (Gen 8)</summary>
+        <textarea id="runbun-battle-state" class="runbun-battle-state" rows="12" spellcheck="false" aria-labelledby="runbun-battle-state-label" aria-label="BattleState JSON"></textarea>
+    </details>
+    <div id="runbun-battle-status" class="runbun-battle-status" role="status" aria-live="polite" aria-atomic="true"></div>
+</section>
+</div><!-- /#rb-mode-content -->
+
+<div class="credits">Run &amp; Bun fork (modification by ForwardFeed). Originally created by Honko; maintained upstream by Austin and Kris. Special thanks to Hzla.
+    <p class="rb-footer-note">Not a full sim — modeled AI slice over HTTP. Calc density above is the multi-gen oracle.</p>
     <ul>
-        <li><a href="https://github.com/ForwardFeed/runbuncalc" class="links-lighten" target="_blank">Modification Repository</a></li>
+        <li><a href="https://github.com/ForwardFeed/runbuncalc" class="links-lighten" target="_blank">Run &amp; Bun calc repository</a></li>
         <br>
         <li><a href="https://github.com/smogon/damage-calc/contributors" class="links-lighten" target="_blank">Smogon Contributors</a></li>
         <li><a href="https://www.smogon.com/forums/threads/pok%C3%A9mon-showdown-damage-calculator.3593546/" class="links-lighten" target="_blank">Smogon Bug Reports</a></li>
-        <li><a href="https://github.com/smogon/damage-calc" class="links-lighten" target="_blank">Smogon GitHub repository</a></li>
+        <li><a href="https://github.com/smogon/damage-calc" class="links-lighten" target="_blank">Upstream Smogon GitHub</a></li>
     </ul>
     <div id="sets">
         <button type="button" id="dark-theme-toggle"></button>
-        <script type="text/javascript" src="./js/dark-theme-toggle.js?be118517"></script>
+        <script type="text/javascript" src="./js/dark-theme-toggle.js?e7f57f1b"></script>
         <button id="side-arrow-toggle" data-id="true">Show Side Arrows</button>
         <button id="double-legacy-mode">Doubles Modern</button>
         <a href="runandbun_script_imports.lua" download="lua_script_for_export">Download Lua Script</a>

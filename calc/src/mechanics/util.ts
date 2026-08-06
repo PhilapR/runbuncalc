@@ -28,10 +28,12 @@ const EV_ITEMS = [
 ];
 
 export function isGrounded(pokemon: Pokemon, field: Field) {
-  return (field.isGravity || pokemon.hasItem('Iron Ball') ||
+  if (field.isGravity) return true;
+  if (pokemon.isGrounded !== undefined) return pokemon.isGrounded;
+  return pokemon.hasItem('Iron Ball') ||
     (!pokemon.hasType('Flying') &&
       !pokemon.hasAbility('Levitate') &&
-      !pokemon.hasItem('Air Balloon')));
+      !pokemon.hasItem('Air Balloon'));
 }
 
 export function getModifiedStat(stat: number, mod: number, gen?: Generation) {
@@ -96,8 +98,7 @@ export function getFinalSpeed(gen: Generation, pokemon: Pokemon, field: Field, s
   const speedMods = [];
 
   if (side.isTailwind) speedMods.push(8192);
-  // Pledge swamp would get applied here when implemented
-  // speedMods.push(1024);
+  if (side.isPledgeSwamp) speedMods.push(1024);
 
   if ((pokemon.hasAbility('Unburden') && pokemon.abilityOn) ||
       (pokemon.hasAbility('Chlorophyll') && weather.includes('Sun')) ||
@@ -145,8 +146,12 @@ export function getMoveEffectiveness(
   isGhostRevealed?: boolean,
   isGravity?: boolean,
   isRingTarget?: boolean,
+  isMiracleEye?: boolean,
 ) {
-  if ((isRingTarget || isGhostRevealed) && type === 'Ghost' && move.hasType('Normal', 'Fighting')) {
+  if (isMiracleEye && type === 'Dark' && move.hasType('Psychic')) {
+    return 1;
+  } else if ((isRingTarget || isGhostRevealed) && type === 'Ghost' &&
+      move.hasType('Normal', 'Fighting')) {
     return 1;
   } else if ((isRingTarget || isGravity) && type === 'Flying' && move.hasType('Ground')) {
     return 1;
@@ -190,6 +195,10 @@ export function checkForecast(pokemon: Pokemon, weather?: Weather) {
 }
 
 export function checkItem(pokemon: Pokemon, magicRoomActive?: boolean) {
+  if (pokemon.itemSuppressed && pokemon.item) {
+    pokemon.heldItem = pokemon.item;
+    pokemon.item = '' as ItemName;
+  }
   if (
     pokemon.hasAbility('Klutz') && !EV_ITEMS.includes(pokemon.item!) ||
       magicRoomActive
@@ -491,7 +500,7 @@ export function handleFixedDamageMoves(attacker: Pokemon, move: Move, defender: 
     return 40;
   } else if (move.named('Sonic Boom')) {
     return 20;
-  } else if (move.named('Super Fang')){
+  } else if (move.named('Super Fang')) {
     return Math.floor(defender.originalCurHP / 2) > 0 ? Math.floor(defender.originalCurHP / 2) : 1;
   }
   return 0;

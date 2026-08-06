@@ -5,15 +5,19 @@ export declare namespace State {
         level?: number;
         ability?: I.AbilityName;
         abilityOn?: boolean;
+        disguiseBroken?: boolean;
         isDynamaxed?: boolean;
         isSaltCure?: boolean;
+        isGrounded?: boolean;
         alliesFainted?: number;
         item?: I.ItemName;
+        itemSuppressed?: boolean;
         gender?: I.GenderName;
         nature?: I.NatureName;
         ivs?: Partial<I.StatsTable>;
         evs?: Partial<I.StatsTable>;
         boosts?: Partial<I.StatsTable>;
+        statOverrides?: Partial<I.StatsTable>;
         originalCurHP?: number;
         status?: I.StatusName | '';
         teraType?: I.TypeName;
@@ -23,6 +27,7 @@ export declare namespace State {
     }
     interface Move {
         name: I.MoveName;
+        forceSTAB?: boolean;
         useZ?: boolean;
         useMax?: boolean;
         isCrit?: boolean;
@@ -38,6 +43,9 @@ export declare namespace State {
         isMagicRoom?: boolean;
         isWonderRoom?: boolean;
         isGravity?: boolean;
+        isWaterSport?: boolean;
+        isMudSport?: boolean;
+        isIonDeluge?: boolean;
         isAuraBreak?: boolean;
         isFairyAura?: boolean;
         isDarkAura?: boolean;
@@ -61,13 +69,16 @@ export declare namespace State {
         isProtected?: boolean;
         isSeeded?: boolean;
         isForesight?: boolean;
+        isMiracleEye?: boolean;
         isTailwind?: boolean;
         isHelpingHand?: boolean;
         isFlowerGift?: boolean;
         isFriendGuard?: boolean;
         isAuroraVeil?: boolean;
+        isLuckyChant?: boolean;
         isBattery?: boolean;
         isPowerSpot?: boolean;
+        isPledgeSwamp?: boolean;
         isSwitching?: 'out' | 'in';
     }
 }

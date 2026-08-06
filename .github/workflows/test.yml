@@ -28,6 +28,11 @@ jobs:
     - run: npm run test
       env:
         CI: true
+    - name: Validate import generator
+      working-directory: import
+      run: |
+        npm ci
+        npm test
 
   publish:
     if: ${{ github.repository == 'smogon/damage-calc' && github.event_name == 'push' }}

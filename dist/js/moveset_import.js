@@ -7,7 +7,7 @@ function placeBsBtn() {
 		var name = "Custom Set";
 		addSets(pokes, name);
 		//erase the import text area
-		document.getElementsByClassName("import-team-text")[0].value="";
+		document.getElementsByClassName("import-team-text")[0].value = "";
 	});
 }
 
@@ -15,10 +15,10 @@ function placeBsBtn() {
 /*
 	for now only save the current trainer #p1
 */
-function saveTrainerPokemon(){
+function saveTrainerPokemon() {
 	$('#save-change').attr("hidden", true);
 	ExportPokemon($("#p1"));
-	$("#import.bs-btn").click()
+	$("#import.bs-btn").click();
 }
 
 function ExportPokemon(pokeInfo) {
@@ -284,18 +284,18 @@ function updateDex(customsets) {
 			SETDEX_GSC[pokemon][moveset] = customsets[pokemon][moveset];
 			if (!SETDEX_RBY[pokemon]) SETDEX_RBY[pokemon] = {};
 			SETDEX_RBY[pokemon][moveset] = customsets[pokemon][moveset];
-			var poke = {name: pokemon, nameProp: moveset};	
+			var poke = {name: pokemon, nameProp: moveset};
 			addBoxed(poke);
 		}
 	}
 	localStorage.customsets = JSON.stringify(customsets);
 }
-function sortImports (a,b){
-	var sorted = [a.name, b.name].sort()[0]
-	if (sorted == b.name){
-		return 1
+function sortImports(a, b) {
+	var sorted = [a.name, b.name].sort()[0];
+	if (sorted == b.name) {
+		return 1;
 	}
-	return -1
+	return -1;
 }
 
 function addSets(pokes, name) {
@@ -303,7 +303,7 @@ function addSets(pokes, name) {
 	var currentRow;
 	var currentPoke;
 	var addedpokes = 0;
-	var pokelist = []
+	var pokelist = [];
 	for (var i = 0; i < rows.length; i++) {
 		currentRow = rows[i].split(/[()@]/);
 		for (var j = 0; j < currentRow.length; j++) {
@@ -323,18 +323,16 @@ function addSets(pokes, name) {
 				currentPoke = getStats(currentPoke, rows, i + 1);
 				currentPoke = getMoves(currentPoke, rows, i);
 				if (currentPoke.nature == "-") {
-					console.log(currentPoke.nature)
 					currentPoke.nature = "Serious";
 				}
-				console.log(currentPoke.nature)
 				pokelist.push(currentPoke);
 				addedpokes++;
 				break;
 			}
 		}
 	}
-	pokelist.sort(sortImports)
-	for(var i=0 ; i<pokelist.length; i++){
+	pokelist.sort(sortImports);
+	for (var i = 0; i < pokelist.length; i++) {
 		addToDex(pokelist[i]);
 	}
 	if (addedpokes > 0) {
@@ -387,15 +385,15 @@ function checkExeptions(poke) {
 }
 
 $("#clearSets").click(function () {
-	var yes = confirm("Do you really wish to delete all your mons?")
-	if (!yes){
-		return
+	var yes = confirm("Do you really wish to delete all your mons?");
+	if (!yes) {
+		return;
 	}
 	localStorage.removeItem("customsets");
 	$(allPokemon("#importedSetsOptions")).hide();
 	loadDefaultLists();
-	for (let zone of document.getElementsByClassName("dropzone")){
-		zone.innerHTML="";
+	for (let zone of document.getElementsByClassName("dropzone")) {
+		zone.innerHTML = "";
 	}
 
 });

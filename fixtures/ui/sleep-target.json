@@ -1,0 +1,47 @@
+{
+  "generation": 8,
+  "mode": "Singles",
+  "turn": 2,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1"],
+      "party": [{
+        "id": "ai-1",
+        "species": "Hypno",
+        "level": 50,
+        "hp": {"current": 150, "max": 150},
+        "ability": "Insomnia",
+        "item": "Leftovers",
+        "nature": "Modest",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Psychic"},
+          {"name": "Shadow Ball"},
+          {"name": "Focus Blast"},
+          {"name": "Nasty Plot"}
+        ]
+      }]
+    },
+    "player": {
+      "activeIds": ["player-1"],
+      "party": [{
+        "id": "player-1",
+        "species": "Dragapult",
+        "level": 50,
+        "hp": {"current": 140, "max": 140},
+        "ability": "Infiltrator",
+        "nature": "Timid",
+        "status": "slp",
+        "statusTurns": 2,
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Shadow Ball"},
+          {"name": "Dragon Pulse"},
+          {"name": "Flamethrower"},
+          {"name": "U-turn"}
+        ]
+      }]
+    }
+  }
+}

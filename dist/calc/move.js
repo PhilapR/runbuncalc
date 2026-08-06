@@ -1,41 +1,43 @@
+(function () {
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 
-var util_1 = require("./util");
-var SPECIAL = ['Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Psychic', 'Dark', 'Dragon'];
-var Move = (function () {
-    function Move(gen, name, options) {
-        if (options === void 0) { options = {}; }
+exports.getZMoveName = getZMoveName;
+exports.getMaxMoveName = getMaxMoveName;
+const util_1 = require("./util");
+const SPECIAL = ['Fire', 'Water', 'Grass', 'Electric', 'Ice', 'Psychic', 'Dark', 'Dragon'];
+class Move {
+    constructor(gen, name, options = {}) {
         var _a, _b;
         name = options.name || name;
         this.originalName = name;
-        var data = (0, util_1.extend)(true, { name: name }, gen.moves.get((0, util_1.toID)(name)), options.overrides);
+        let data = (0, util_1.extend)(true, { name }, gen.moves.get((0, util_1.toID)(name)), options.overrides);
         this.hits = 1;
         if (options.useMax && data.maxMove) {
-            var maxMoveName_1 = getMaxMoveName(data.type, options.species, !!(data.category === 'Status'), options.ability);
-            var maxMove_1 = gen.moves.get((0, util_1.toID)(maxMoveName_1));
-            var maxPower = function () {
-                if (['G-Max Drum Solo', 'G-Max Fire Ball', 'G-Max Hydrosnipe'].includes(maxMoveName_1)) {
+            const maxMoveName = getMaxMoveName(data.type, options.species, !!(data.category === 'Status'), options.ability);
+            const maxMove = gen.moves.get((0, util_1.toID)(maxMoveName));
+            const maxPower = () => {
+                if (['G-Max Drum Solo', 'G-Max Fire Ball', 'G-Max Hydrosnipe'].includes(maxMoveName)) {
                     return 160;
                 }
-                if (maxMove_1.basePower === 10 || maxMoveName_1 === 'Max Flare') {
+                if (maxMove.basePower === 10 || maxMoveName === 'Max Flare') {
                     return data.maxMove.basePower;
                 }
-                return maxMove_1.basePower;
+                return maxMove.basePower;
             };
-            data = (0, util_1.extend)(true, {}, maxMove_1, {
-                name: maxMoveName_1,
+            data = (0, util_1.extend)(true, {}, maxMove, {
+                name: maxMoveName,
                 basePower: maxPower(),
-                category: data.category
+                category: data.category,
             });
         }
         if (options.useZ && ((_a = data.zMove) === null || _a === void 0 ? void 0 : _a.basePower)) {
-            var zMoveName = getZMoveName(data.name, data.type, options.item);
-            var zMove = gen.moves.get((0, util_1.toID)(zMoveName));
+            const zMoveName = getZMoveName(data.name, data.type, options.item);
+            const zMove = gen.moves.get((0, util_1.toID)(zMoveName));
             data = (0, util_1.extend)(true, {}, zMove, {
                 name: zMoveName,
                 basePower: zMove.basePower === 1 ? data.zMove.basePower : zMove.basePower,
-                category: data.category
+                category: data.category,
             });
         }
         else {
@@ -56,6 +58,7 @@ var Move = (function () {
         }
         this.gen = gen;
         this.name = data.name;
+        this.forceSTAB = !!options.forceSTAB;
         this.ability = options.ability;
         this.item = options.item;
         this.useZ = options.useZ;
@@ -63,12 +66,12 @@ var Move = (function () {
         this.overrides = options.overrides;
         this.species = options.species;
         this.bp = data.basePower;
-        var typelessDamage = (gen.num >= 2 && data.id === 'struggle') ||
+        const typelessDamage = (gen.num >= 2 && data.id === 'struggle') ||
             (gen.num <= 4 && ['futuresight', 'doomdesire'].includes(data.id));
         this.type = typelessDamage ? '???' : data.type;
         this.category = data.category ||
             (gen.num < 4 ? (SPECIAL.includes(data.type) ? 'Special' : 'Physical') : 'Status');
-        var stat = this.category === 'Special' ? 'spa' : 'atk';
+        const stat = this.category === 'Special' ? 'spa' : 'atk';
         if (((_b = data.self) === null || _b === void 0 ? void 0 : _b.boosts) && data.self.boosts[stat] && data.self.boosts[stat] < 0) {
             this.dropsStats = Math.abs(data.self.boosts[stat]);
         }
@@ -98,36 +101,28 @@ var Move = (function () {
             }
         }
     }
-    Move.prototype.named = function () {
-        var names = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            names[_i] = arguments[_i];
-        }
+    named(...names) {
         return names.includes(this.name);
-    };
-    Move.prototype.hasType = function () {
-        var types = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            types[_i] = arguments[_i];
-        }
+    }
+    hasType(...types) {
         return types.includes(this.type);
-    };
-    Move.prototype.clone = function () {
+    }
+    clone() {
         return new Move(this.gen, this.originalName, {
             ability: this.ability,
             item: this.item,
             species: this.species,
+            forceSTAB: this.forceSTAB,
             useZ: this.useZ,
             useMax: this.useMax,
             isCrit: this.isCrit,
             hits: this.hits,
             timesUsed: this.timesUsed,
             timesUsedWithMetronome: this.timesUsedWithMetronome,
-            overrides: this.overrides
+            overrides: this.overrides,
         });
-    };
-    return Move;
-}());
+    }
+}
 exports.Move = Move;
 function getZMoveName(moveName, moveType, item) {
     item = item || '';
@@ -171,8 +166,7 @@ function getZMoveName(moveName, moveType, item) {
     }
     return ZMOVES_TYPING[moveType];
 }
-exports.getZMoveName = getZMoveName;
-var ZMOVES_TYPING = {
+const ZMOVES_TYPING = {
     Bug: 'Savage Spin-Out',
     Dark: 'Black Hole Eclipse',
     Dragon: 'Devastating Drake',
@@ -190,7 +184,7 @@ var ZMOVES_TYPING = {
     Psychic: 'Shattered Psyche',
     Rock: 'Continental Crush',
     Steel: 'Corkscrew Crash',
-    Water: 'Hydro Vortex'
+    Water: 'Hydro Vortex',
 };
 function getMaxMoveName(moveType, pokemonSpecies, isStatus, pokemonAbility) {
     if (isStatus)
@@ -290,8 +284,7 @@ function getMaxMoveName(moveType, pokemonSpecies, isStatus, pokemonAbility) {
         return 'G-Max Snooze';
     return 'Max ' + MAXMOVES_TYPING[moveType];
 }
-exports.getMaxMoveName = getMaxMoveName;
-var MAXMOVES_TYPING = {
+const MAXMOVES_TYPING = {
     Bug: 'Flutterby',
     Dark: 'Darkness',
     Dragon: 'Wyrmwind',
@@ -309,6 +302,7 @@ var MAXMOVES_TYPING = {
     Psychic: 'Mindstorm',
     Rock: 'Rockfall',
     Steel: 'Steelspike',
-    Water: 'Geyser'
+    Water: 'Geyser',
 };
 //# sourceMappingURL=move.js.map
+})();

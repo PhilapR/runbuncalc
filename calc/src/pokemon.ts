@@ -19,16 +19,22 @@ export class Pokemon implements State.Pokemon {
   gender?: I.GenderName;
   ability?: I.AbilityName;
   abilityOn?: boolean;
+  disguiseBroken: boolean;
   isDynamaxed?: boolean;
   isSaltCure?: boolean;
+  isGrounded?: boolean;
   alliesFainted?: number;
   item?: I.ItemName;
+  /** Held item retained only for presence checks such as Poltergeist after suppression. */
+  heldItem?: I.ItemName;
+  itemSuppressed?: boolean;
   teraType?: I.TypeName;
 
   nature: I.NatureName;
   ivs: I.StatsTable;
   evs: I.StatsTable;
   boosts: I.StatsTable;
+  statOverrides?: Partial<I.StatsTable>;
   rawStats: I.StatsTable;
   stats: I.StatsTable;
 
@@ -46,29 +52,38 @@ export class Pokemon implements State.Pokemon {
       ivs?: Partial<I.StatsTable> & {spc?: number};
       evs?: Partial<I.StatsTable> & {spc?: number};
       boosts?: Partial<I.StatsTable> & {spc?: number};
+      soulDewApplied?: boolean;
     } = {}
   ) {
     this.species = extend(true, {}, gen.species.get(toID(name)), options.overrides);
 
     this.gen = gen;
     this.name = options.name || name as I.SpeciesName;
-    this.types = this.species.types;
+    this.types = options.overrides?.types || this.species.types;
     this.weightkg = this.species.weightkg;
 
     this.level = options.level || 100;
     this.gender = options.gender || this.species.gender || 'M';
     this.ability = options.ability || this.species.abilities?.[0] || undefined;
     this.abilityOn = !!options.abilityOn;
+    this.disguiseBroken = options.disguiseBroken !== false;
 
     this.isDynamaxed = !!options.isDynamaxed;
     this.isSaltCure = !!options.isSaltCure;
+    this.isGrounded = options.isGrounded;
     this.alliesFainted = options.alliesFainted;
     this.teraType = options.teraType;
     this.item = options.item;
+    this.itemSuppressed = options.itemSuppressed;
     this.nature = options.nature || ('Serious' as I.NatureName);
     this.ivs = Pokemon.withDefault(gen, options.ivs, 31);
     this.evs = Pokemon.withDefault(gen, options.evs, gen.num >= 3 ? 0 : 252);
     this.boosts = Pokemon.withDefault(gen, options.boosts, 0, false);
+    this.statOverrides = options.statOverrides ? {...options.statOverrides} : undefined;
+    if (!options.soulDewApplied && this.item === 'Soul Dew' && this.named('Latias', 'Latios')) {
+      this.boosts.spa = Math.min(6, this.boosts.spa + 1);
+      this.boosts.spd = Math.min(6, this.boosts.spd + 1);
+    }
 
     // Gigantamax 'forms' inherit weight from their base species when not dynamaxed
     // TODO: clean this up with proper Gigantamax support
@@ -93,6 +108,11 @@ export class Pokemon implements State.Pokemon {
       const val = this.calcStat(gen, stat);
       this.rawStats[stat] = val;
       this.stats[stat] = val;
+      const override = this.statOverrides?.[stat];
+      if (override !== undefined) {
+        this.rawStats[stat] = override;
+        this.stats[stat] = override;
+      }
     }
 
     const curHP = options.curHP || options.originalCurHP;
@@ -152,21 +172,26 @@ export class Pokemon implements State.Pokemon {
       level: this.level,
       ability: this.ability,
       abilityOn: this.abilityOn,
+      disguiseBroken: this.disguiseBroken,
       isDynamaxed: this.isDynamaxed,
       isSaltCure: this.isSaltCure,
+      isGrounded: this.isGrounded,
       alliesFainted: this.alliesFainted,
       item: this.item,
+      itemSuppressed: this.itemSuppressed,
       gender: this.gender,
       nature: this.nature,
       ivs: extend(true, {}, this.ivs),
       evs: extend(true, {}, this.evs),
       boosts: extend(true, {}, this.boosts),
+      statOverrides: extend(true, {}, this.statOverrides),
+      soulDewApplied: true,
       originalCurHP: this.originalCurHP,
       status: this.status,
       teraType: this.teraType,
       toxicCounter: this.toxicCounter,
       moves: this.moves.slice(),
-      overrides: this.species,
+      overrides: {...this.species, types: this.types},
     });
   }
 

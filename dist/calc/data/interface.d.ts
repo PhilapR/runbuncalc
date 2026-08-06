@@ -69,6 +69,7 @@ export interface MoveFlags {
     contact?: 1 | 0;
     bite?: 1 | 0;
     sound?: 1 | 0;
+    heal?: 1 | 0;
     punch?: 1 | 0;
     bullet?: 1 | 0;
     pulse?: 1 | 0;

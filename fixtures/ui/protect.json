@@ -1,0 +1,49 @@
+{
+  "generation": 8,
+  "mode": "Singles",
+  "turn": 5,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1"],
+      "party": [{
+        "id": "ai-1",
+        "species": "Aegislash",
+        "level": 50,
+        "hp": {"current": 45, "max": 130},
+        "ability": "Stance Change",
+        "item": "Leftovers",
+        "nature": "Quiet",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "King's Shield"},
+          {"name": "Shadow Ball"},
+          {"name": "Flash Cannon"},
+          {"name": "Shadow Sneak"}
+        ]
+      }]
+    },
+    "player": {
+      "activeIds": ["player-1"],
+      "party": [{
+        "id": "player-1",
+        "species": "Garchomp",
+        "level": 50,
+        "hp": {"current": 170, "max": 180},
+        "ability": "Rough Skin",
+        "item": "Life Orb",
+        "nature": "Jolly",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Earthquake"},
+          {"name": "Outrage"},
+          {"name": "Stone Edge"},
+          {"name": "Swords Dance"}
+        ]
+      }]
+    }
+  },
+  "lastMoveByPokemon": {
+    "ai-1": "King's Shield"
+  }
+}

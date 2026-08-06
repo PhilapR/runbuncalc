@@ -17,6 +17,7 @@ import {
   checkDownload,
   countBoosts,
   handleFixedDamageMoves,
+  isGrounded,
 } from './util';
 
 export function calculateDPP(
@@ -63,7 +64,9 @@ export function calculateDPP(
     desc.attackerAbility = attacker.ability;
   }
 
-  const isCritical = move.isCrit && !defender.hasAbility('Battle Armor', 'Shell Armor');
+  const isCritical = move.isCrit && !field.defenderSide.isLuckyChant && !defender.hasAbility(
+    'Battle Armor', 'Shell Armor', 'Magma Armor'
+  );
 
   let basePower = move.bp;
   if (move.named('Weather Ball')) {
@@ -104,9 +107,13 @@ export function calculateDPP(
 
   const isGhostRevealed = attacker.hasAbility('Scrappy') || field.defenderSide.isForesight;
   let type1Effectiveness =
-    getMoveEffectiveness(gen, move, defender.types[0], isGhostRevealed, field.isGravity);
+    getMoveEffectiveness(gen, move, defender.types[0], isGhostRevealed, field.isGravity, undefined,
+      field.defenderSide.isMiracleEye);
   let type2Effectiveness = defender.types[1]
-    ? getMoveEffectiveness(gen, move, defender.types[1], isGhostRevealed, field.isGravity)
+    ? getMoveEffectiveness(
+      gen, move, defender.types[1], isGhostRevealed, field.isGravity, undefined,
+      field.defenderSide.isMiracleEye
+    )
     : 1;
 
   let typeEffectiveness = type1Effectiveness * type2Effectiveness;
@@ -130,8 +137,7 @@ export function calculateDPP(
       (move.hasType('Fire') && defender.hasAbility('Flash Fire')) ||
       (move.hasType('Water') && defender.hasAbility('Dry Skin', 'Water Absorb')) ||
       (move.hasType('Electric') && defender.hasAbility('Motor Drive', 'Volt Absorb')) ||
-      (move.hasType('Ground') && !field.isGravity &&
-        !defender.hasItem('Iron Ball') && defender.hasAbility('Levitate')) ||
+      (move.hasType('Ground') && !isGrounded(defender, field)) ||
       (move.flags.sound && defender.hasAbility('Soundproof'))
   ) {
     desc.defenderAbility = defender.ability;
@@ -223,6 +229,9 @@ export function calculateDPP(
   default:
     basePower = move.bp;
   }
+
+  if (field.isWaterSport && move.hasType('Fire')) basePower = Math.floor(basePower / 2);
+  if (field.isMudSport && move.hasType('Electric')) basePower = Math.floor(basePower / 2);
 
   if (basePower === 0) {
     return result;
@@ -324,8 +333,7 @@ export function calculateDPP(
     desc.attackerAbility = attacker.ability;
   }
 
-  if ((isPhysical ? attacker.hasItem('Choice Band') : attacker.hasItem('Choice Specs')) ||
-      (!isPhysical && attacker.hasItem('Soul Dew') && attacker.named('Latios', 'Latias'))) {
+  if (isPhysical ? attacker.hasItem('Choice Band') : attacker.hasItem('Choice Specs')) {
     attack = Math.floor(attack * 1.5);
     desc.attackerItem = attacker.item;
   } else if (
@@ -372,10 +380,7 @@ export function calculateDPP(
     desc.isFlowerGiftDefender = true;
   }
 
-  if (defender.hasItem('Soul Dew') && defender.named('Latios', 'Latias') && !isPhysical) {
-    defense = Math.floor(defense * 1.5);
-    desc.defenderItem = defender.item;
-  } else if (
+  if (
     (defender.hasItem('Deep Sea Scale') && defender.named('Clamperl') && !isPhysical) ||
     (defender.hasItem('Metal Powder') && defender.named('Ditto') && isPhysical)
   ) {
@@ -446,10 +451,10 @@ export function calculateDPP(
 
   if (isCritical) {
     if (attacker.hasAbility('Sniper')) {
-      baseDamage *= 3;
+      baseDamage = Math.floor(baseDamage * 1.5 * 1.5);
       desc.attackerAbility = attacker.ability;
     } else {
-      baseDamage *= 2;
+      baseDamage = Math.floor(baseDamage * 1.5);
     }
     desc.isCritical = isCritical;
   }

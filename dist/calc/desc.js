@@ -1,65 +1,50 @@
+(function () {
 "use strict";
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-exports.__esModule = true;
-
-var result_1 = require("./result");
-var util_1 = require("./util");
-var util_2 = require("./mechanics/util");
-function display(gen, attacker, defender, move, field, damage, rawDesc, notation, err) {
-    if (notation === void 0) { notation = '%'; }
-    if (err === void 0) { err = true; }
-    var _a = __read((0, result_1.damageRange)(damage), 2), minDamage = _a[0], maxDamage = _a[1];
-    var min = (typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1]) * move.hits;
-    var max = (typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1]) * move.hits;
-    var minDisplay = toDisplay(notation, min, defender.maxHP());
-    var maxDisplay = toDisplay(notation, max, defender.maxHP());
-    var desc = buildDescription(rawDesc, attacker, defender);
-    var damageText = "".concat(min, "-").concat(max, " (").concat(minDisplay, " - ").concat(maxDisplay).concat(notation, ")");
-    if (move.category === 'Status' && !move.named('Nature Power'))
-        return "".concat(desc, ": ").concat(damageText);
-    var koChanceText = getKOChance(gen, attacker, defender, move, field, damage, err).text;
-    return koChanceText ? "".concat(desc, ": ").concat(damageText, " -- ").concat(koChanceText) : "".concat(desc, ": ").concat(damageText);
-}
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.display = display;
-function displayMove(gen, attacker, defender, move, damage, notation) {
-    if (notation === void 0) { notation = '%'; }
-    var _a = __read((0, result_1.damageRange)(damage), 2), minDamage = _a[0], maxDamage = _a[1];
-    var min = (typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1]) * move.hits;
-    var max = (typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1]) * move.hits;
-    var minDisplay = toDisplay(notation, min, defender.maxHP());
-    var maxDisplay = toDisplay(notation, max, defender.maxHP());
-    var recoveryText = getRecovery(gen, attacker, defender, move, damage, notation).text;
-    var recoilText = getRecoil(gen, attacker, defender, move, damage, notation).text;
-    return "".concat(minDisplay, " - ").concat(maxDisplay).concat(notation).concat(recoveryText &&
-        " (".concat(recoveryText, ")")).concat(recoilText && " (".concat(recoilText, ")"));
-}
 exports.displayMove = displayMove;
-function getRecovery(gen, attacker, defender, move, damage, notation) {
-    if (notation === void 0) { notation = '%'; }
-    var _a = __read((0, result_1.damageRange)(damage), 2), minDamage = _a[0], maxDamage = _a[1];
-    var minD = typeof minDamage === 'number' ? [minDamage] : minDamage;
-    var maxD = typeof maxDamage === 'number' ? [maxDamage] : maxDamage;
-    var recovery = [0, 0];
-    var text = '';
-    var ignoresShellBell = gen.num === 3 && move.named('Doom Desire', 'Future Sight');
+exports.getRecovery = getRecovery;
+exports.getRecoil = getRecoil;
+exports.getKOChance = getKOChance;
+const result_1 = require("./result");
+const util_1 = require("./util");
+const util_2 = require("./mechanics/util");
+function display(gen, attacker, defender, move, field, damage, rawDesc, notation = '%', err = true) {
+    const [minDamage, maxDamage] = (0, result_1.damageRange)(damage);
+    const minDamageValue = typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1];
+    const maxDamageValue = typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1];
+    const min = minDamageValue * move.hits;
+    const max = maxDamageValue * move.hits;
+    const minDisplay = toDisplay(notation, min, defender.maxHP());
+    const maxDisplay = toDisplay(notation, max, defender.maxHP());
+    const desc = buildDescription(rawDesc, attacker, defender);
+    const damageText = `${min}-${max} (${minDisplay} - ${maxDisplay}${notation})`;
+    if (move.category === 'Status' && !move.named('Nature Power'))
+        return `${desc}: ${damageText}`;
+    const koChanceText = getKOChance(gen, attacker, defender, move, field, damage, err).text;
+    return koChanceText ? `${desc}: ${damageText} -- ${koChanceText}` : `${desc}: ${damageText}`;
+}
+function displayMove(gen, attacker, defender, move, damage, notation = '%') {
+    const [minDamage, maxDamage] = (0, result_1.damageRange)(damage);
+    const min = (typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1]) * move.hits;
+    const max = (typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1]) * move.hits;
+    const minDisplay = toDisplay(notation, min, defender.maxHP());
+    const maxDisplay = toDisplay(notation, max, defender.maxHP());
+    const recoveryText = getRecovery(gen, attacker, defender, move, damage, notation).text;
+    const recoilText = getRecoil(gen, attacker, defender, move, damage, notation).text;
+    return `${minDisplay} - ${maxDisplay}${notation}${recoveryText &&
+        ` (${recoveryText})`}${recoilText && ` (${recoilText})`}`;
+}
+function getRecovery(gen, attacker, defender, move, damage, notation = '%') {
+    const [minDamage, maxDamage] = (0, result_1.damageRange)(damage);
+    const minD = typeof minDamage === 'number' ? [minDamage] : minDamage;
+    const maxD = typeof maxDamage === 'number' ? [maxDamage] : maxDamage;
+    const recovery = [0, 0];
+    let text = '';
+    const ignoresShellBell = gen.num === 3 && move.named('Doom Desire', 'Future Sight');
     if (attacker.hasItem('Shell Bell') && !ignoresShellBell) {
-        var max = Math.round(defender.maxHP() / 8);
-        for (var i = 0; i < minD.length; i++) {
+        const max = Math.round(defender.maxHP() / 8);
+        for (let i = 0; i < minD.length; i++) {
             recovery[0] += Math.min(Math.round(minD[i] * move.hits / 8), max);
             recovery[1] += Math.min(Math.round(maxD[i] * move.hits / 8), max);
         }
@@ -68,32 +53,33 @@ function getRecovery(gen, attacker, defender, move, damage, notation) {
         recovery[0] = recovery[1] = Math.round(attacker.maxHP() / 6);
     }
     if (move.drain) {
-        var percentHealed = move.drain[0] / move.drain[1];
-        var max = Math.round(defender.maxHP() * percentHealed);
-        for (var i = 0; i < minD.length; i++) {
+        const percentHealed = move.drain[0] / move.drain[1];
+        const max = Math.round(defender.maxHP() * percentHealed);
+        for (let i = 0; i < minD.length; i++) {
             recovery[0] += Math.min(Math.round(minD[i] * move.hits * percentHealed), max);
             recovery[1] += Math.min(Math.round(maxD[i] * move.hits * percentHealed), max);
         }
     }
     if (recovery[1] === 0)
-        return { recovery: recovery, text: text };
-    var minHealthRecovered = toDisplay(notation, recovery[0], attacker.maxHP());
-    var maxHealthRecovered = toDisplay(notation, recovery[1], attacker.maxHP());
-    text = "".concat(minHealthRecovered, " - ").concat(maxHealthRecovered).concat(notation, " recovered");
-    return { recovery: recovery, text: text };
+        return { recovery, text };
+    const minHealthRecovered = toDisplay(notation, recovery[0], attacker.maxHP());
+    const maxHealthRecovered = toDisplay(notation, recovery[1], attacker.maxHP());
+    text = `${minHealthRecovered} - ${maxHealthRecovered}${notation} recovered`;
+    return { recovery, text };
 }
-exports.getRecovery = getRecovery;
-function getRecoil(gen, attacker, defender, move, damage, notation) {
-    if (notation === void 0) { notation = '%'; }
-    var _a = __read((0, result_1.damageRange)(damage), 2), minDamage = _a[0], maxDamage = _a[1];
-    var min = (typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1]) * move.hits;
-    var max = (typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1]) * move.hits;
-    var recoil = [0, 0];
-    var text = '';
-    var damageOverflow = minDamage > defender.curHP() || maxDamage > defender.curHP();
+function getRecoil(gen, attacker, defender, move, damage, notation = '%') {
+    const [minDamage, maxDamage] = (0, result_1.damageRange)(damage);
+    const minDamageValue = typeof minDamage === 'number' ? minDamage : minDamage[0] + minDamage[1];
+    const maxDamageValue = typeof maxDamage === 'number' ? maxDamage : maxDamage[0] + maxDamage[1];
+    const min = minDamageValue * move.hits;
+    const max = maxDamageValue * move.hits;
+    let recoil = [0, 0];
+    let recoilHP = [0, 0];
+    let text = '';
+    const damageOverflow = minDamageValue > defender.curHP() || maxDamageValue > defender.curHP();
     if (move.recoil) {
-        var mod = (move.recoil[0] / move.recoil[1]) * 100;
-        var minRecoilDamage = void 0, maxRecoilDamage = void 0;
+        const mod = (move.recoil[0] / move.recoil[1]) * 100;
+        let minRecoilDamage, maxRecoilDamage;
         if (damageOverflow) {
             minRecoilDamage =
                 toDisplay(notation, defender.curHP() * mod, attacker.maxHP(), 100);
@@ -106,12 +92,16 @@ function getRecoil(gen, attacker, defender, move, damage, notation) {
         }
         if (!attacker.hasAbility('Rock Head')) {
             recoil = [minRecoilDamage, maxRecoilDamage];
-            text = "".concat(minRecoilDamage, " - ").concat(maxRecoilDamage).concat(notation, " recoil damage");
+            recoilHP = [
+                Math.floor(Math.min(min, defender.curHP()) * move.recoil[0] / move.recoil[1]),
+                Math.floor(Math.min(max, defender.curHP()) * move.recoil[0] / move.recoil[1]),
+            ];
+            text = `${minRecoilDamage} - ${maxRecoilDamage}${notation} recoil damage`;
         }
     }
     else if (move.hasCrashDamage) {
-        var genMultiplier = gen.num === 2 ? 12.5 : gen.num >= 3 ? 50 : 1;
-        var minRecoilDamage = void 0, maxRecoilDamage = void 0;
+        const genMultiplier = gen.num === 2 ? 12.5 : gen.num >= 3 ? 50 : 1;
+        let minRecoilDamage, maxRecoilDamage;
         if (damageOverflow && gen.num !== 2) {
             minRecoilDamage =
                 toDisplay(notation, defender.curHP() * genMultiplier, attacker.maxHP(), 100);
@@ -123,9 +113,18 @@ function getRecoil(gen, attacker, defender, move, damage, notation) {
             maxRecoilDamage = toDisplay(notation, Math.min(max, defender.maxHP()) * genMultiplier, attacker.maxHP(), 100);
         }
         recoil = [minRecoilDamage, maxRecoilDamage];
+        const minCrashDamage = damageOverflow && gen.num !== 2
+            ? defender.curHP() : Math.min(min, defender.maxHP());
+        const maxCrashDamage = damageOverflow && gen.num !== 2
+            ? defender.curHP() : Math.min(max, defender.maxHP());
+        recoilHP = [
+            Math.floor(minCrashDamage * genMultiplier / 100),
+            Math.floor(maxCrashDamage * genMultiplier / 100),
+        ];
         switch (gen.num) {
             case 1:
                 recoil = toDisplay(notation, 1, attacker.maxHP());
+                recoilHP = 1;
                 text = '1hp damage on miss';
                 break;
             case 2:
@@ -133,39 +132,42 @@ function getRecoil(gen, attacker, defender, move, damage, notation) {
             case 4:
                 if (defender.hasType('Ghost')) {
                     if (gen.num === 4) {
-                        var gen4CrashDamage = Math.floor(((defender.maxHP() * 0.5) / attacker.maxHP()) * 100);
+                        const gen4CrashDamage = Math.floor(((defender.maxHP() * 0.5) / attacker.maxHP()) * 100);
                         recoil = notation === '%' ? gen4CrashDamage : Math.floor((gen4CrashDamage / 100) * 48);
-                        text = "".concat(gen4CrashDamage, "% crash damage");
+                        recoilHP = Math.floor(defender.maxHP() * 0.5);
+                        text = `${gen4CrashDamage}% crash damage`;
                     }
                     else {
                         recoil = 0;
+                        recoilHP = 0;
                         text = 'no crash damage on Ghost types';
                     }
                 }
                 else {
-                    text = "".concat(minRecoilDamage, " - ").concat(maxRecoilDamage).concat(notation, " crash damage on miss");
+                    text = `${minRecoilDamage} - ${maxRecoilDamage}${notation} crash damage on miss`;
                 }
                 break;
             default:
                 recoil = notation === '%' ? 24 : 50;
+                recoilHP = Math.floor(attacker.maxHP() / 2);
                 text = '50% crash damage';
         }
     }
     else if (move.struggleRecoil) {
         recoil = notation === '%' ? 12 : 25;
+        recoilHP = Math.floor(attacker.maxHP() / 4);
         text = '25% struggle damage';
         if (gen.num === 4)
             text += ' (rounded down)';
     }
     else if (move.mindBlownRecoil) {
         recoil = notation === '%' ? 24 : 50;
+        recoilHP = Math.floor(attacker.maxHP() / 2);
         text = '50% recoil damage';
     }
-    return { recoil: recoil, text: text };
+    return { recoil, recoilHP, text };
 }
-exports.getRecoil = getRecoil;
-function getKOChance(gen, attacker, defender, move, field, damage, err) {
-    if (err === void 0) { err = true; }
+function getKOChance(gen, attacker, defender, move, field, damage, err = true) {
     damage = combine(damage);
     if (isNaN(damage[0])) {
         (0, util_1.error)(err, 'damage[0] must be a number.');
@@ -182,75 +184,75 @@ function getKOChance(gen, attacker, defender, move, field, damage, err) {
     if (damage[0] >= defender.maxHP() && move.timesUsed === 1 && move.timesUsedWithMetronome === 1) {
         return { chance: 1, n: 1, text: 'guaranteed OHKO' };
     }
-    var hazards = getHazards(gen, defender, field.defenderSide);
-    var eot = getEndOfTurn(gen, attacker, defender, move, field);
-    var toxicCounter = defender.hasStatus('tox') && !defender.hasAbility('Magic Guard') ? defender.toxicCounter : 0;
-    var qualifier = '';
+    const hazards = getHazards(gen, defender, field.defenderSide);
+    const eot = getEndOfTurn(gen, attacker, defender, move, field);
+    const toxicCounter = defender.hasStatus('tox') && !defender.hasAbility('Magic Guard') ? defender.toxicCounter : 0;
+    let qualifier = '';
     if (move.hits > 1) {
         qualifier = 'approx. ';
         damage = squashMultihit(gen, damage, move.hits, err);
     }
-    var hazardsText = hazards.texts.length > 0
+    const hazardsText = hazards.texts.length > 0
         ? ' after ' + serializeText(hazards.texts)
         : '';
-    var afterText = hazards.texts.length > 0 || eot.texts.length > 0
+    const afterText = hazards.texts.length > 0 || eot.texts.length > 0
         ? ' after ' + serializeText(hazards.texts.concat(eot.texts))
         : '';
     if ((move.timesUsed === 1 && move.timesUsedWithMetronome === 1) || move.isZ) {
-        var chance = computeKOChance(damage, defender.curHP() - hazards.damage, 0, 1, 1, defender.maxHP(), toxicCounter);
+        const chance = computeKOChance(damage, defender.curHP() - hazards.damage, 0, 1, 1, defender.maxHP(), toxicCounter);
         if (chance === 1) {
-            return { chance: chance, n: 1, text: "guaranteed OHKO".concat(hazardsText) };
+            return { chance, n: 1, text: `guaranteed OHKO${hazardsText}` };
         }
         else if (chance > 0) {
             return {
-                chance: chance,
+                chance,
                 n: 1,
-                text: qualifier + Math.round(chance * 1000) / 10 + "% chance to OHKO".concat(hazardsText)
+                text: qualifier + Math.round(chance * 1000) / 10 + `% chance to OHKO${hazardsText}`,
             };
         }
         if (damage.length === 256) {
             qualifier = 'approx. ';
         }
-        for (var i = 2; i <= 4; i++) {
-            var chance_1 = computeKOChance(damage, defender.curHP() - hazards.damage, eot.damage, i, 1, defender.maxHP(), toxicCounter);
-            if (chance_1 === 1) {
-                return { chance: chance_1, n: i, text: "".concat(qualifier || 'guaranteed ').concat(i, "HKO").concat(afterText) };
+        for (let i = 2; i <= 4; i++) {
+            const chance = computeKOChance(damage, defender.curHP() - hazards.damage, eot.damage, i, 1, defender.maxHP(), toxicCounter);
+            if (chance === 1) {
+                return { chance, n: i, text: `${qualifier || 'guaranteed '}${i}HKO${afterText}` };
             }
-            else if (chance_1 > 0) {
+            else if (chance > 0) {
                 return {
-                    chance: chance_1,
+                    chance,
                     n: i,
-                    text: qualifier + Math.round(chance_1 * 1000) / 10 + "% chance to ".concat(i, "HKO").concat(afterText)
+                    text: qualifier + Math.round(chance * 1000) / 10 + `% chance to ${i}HKO${afterText}`,
                 };
             }
         }
-        for (var i = 5; i <= 9; i++) {
+        for (let i = 5; i <= 9; i++) {
             if (predictTotal(damage[0], eot.damage, i, 1, toxicCounter, defender.maxHP()) >=
                 defender.curHP() - hazards.damage) {
-                return { chance: 1, n: i, text: "".concat(qualifier || 'guaranteed ').concat(i, "HKO").concat(afterText) };
+                return { chance: 1, n: i, text: `${qualifier || 'guaranteed '}${i}HKO${afterText}` };
             }
             else if (predictTotal(damage[damage.length - 1], eot.damage, i, 1, toxicCounter, defender.maxHP()) >=
                 defender.curHP() - hazards.damage) {
-                return { n: i, text: qualifier + "possible ".concat(i, "HKO").concat(afterText) };
+                return { n: i, text: qualifier + `possible ${i}HKO${afterText}` };
             }
         }
     }
     else {
-        var chance = computeKOChance(damage, defender.maxHP() - hazards.damage, eot.damage, move.hits || 1, move.timesUsed || 1, defender.maxHP(), toxicCounter);
+        const chance = computeKOChance(damage, defender.maxHP() - hazards.damage, eot.damage, move.hits || 1, move.timesUsed || 1, defender.maxHP(), toxicCounter);
         if (chance === 1) {
             return {
-                chance: chance,
+                chance,
                 n: move.timesUsed,
-                text: "".concat(qualifier || 'guaranteed ', "KO in ").concat(move.timesUsed, " turns").concat(afterText)
+                text: `${qualifier || 'guaranteed '}KO in ${move.timesUsed} turns${afterText}`,
             };
         }
         else if (chance > 0) {
             return {
-                chance: chance,
+                chance,
                 n: move.timesUsed,
                 text: qualifier +
                     Math.round(chance * 1000) / 10 +
-                    "% chance to ".concat(move.timesUsed, "HKO").concat(afterText)
+                    `% chance to ${move.timesUsed}HKO${afterText}`,
             };
         }
         if (predictTotal(damage[0], eot.damage, move.hits, move.timesUsed, toxicCounter, defender.maxHP()) >=
@@ -258,21 +260,20 @@ function getKOChance(gen, attacker, defender, move, field, damage, err) {
             return {
                 chance: 1,
                 n: move.timesUsed,
-                text: "".concat(qualifier || 'guaranteed ', "KO in ").concat(move.timesUsed, " turns").concat(afterText)
+                text: `${qualifier || 'guaranteed '}KO in ${move.timesUsed} turns${afterText}`,
             };
         }
         else if (predictTotal(damage[damage.length - 1], eot.damage, move.hits, move.timesUsed, toxicCounter, defender.maxHP()) >=
             defender.curHP() - hazards.damage) {
             return {
                 n: move.timesUsed,
-                text: qualifier + "possible KO in ".concat(move.timesUsed, " turns").concat(afterText)
+                text: qualifier + `possible KO in ${move.timesUsed} turns${afterText}`,
             };
         }
         return { n: move.timesUsed, text: qualifier + 'not a KO' };
     }
     return { chance: 0, n: 0, text: '' };
 }
-exports.getKOChance = getKOChance;
 function combine(damage) {
     if (typeof damage === 'number')
         return [damage];
@@ -284,35 +285,35 @@ function combine(damage) {
     if (typeof damage[0] === 'number' && typeof damage[1] === 'number') {
         return [damage[0] + damage[1]];
     }
-    var d = damage;
-    var combined = [];
-    for (var i = 0; i < d[0].length; i++) {
-        for (var j = 0; j < d[1].length; j++) {
+    const d = damage;
+    const combined = [];
+    for (let i = 0; i < d[0].length; i++) {
+        for (let j = 0; j < d[1].length; j++) {
             combined.push(d[0][i] + d[1][j]);
         }
     }
     return combined.sort();
 }
-var TRAPPING = [
+const TRAPPING = [
     'Bind', 'Clamp', 'Fire Spin', 'Infestation', 'Magma Storm', 'Sand Tomb',
     'Thunder Cage', 'Whirlpool', 'Wrap', 'G-Max Sandblast', 'G-Max Centiferno',
 ];
 function getHazards(gen, defender, defenderSide) {
-    var damage = 0;
-    var texts = [];
+    let damage = 0;
+    const texts = [];
     if (defender.hasItem('Heavy-Duty Boots')) {
-        return { damage: damage, texts: texts };
+        return { damage, texts };
     }
     if (defenderSide.isSR && !defender.hasAbility('Magic Guard', 'Mountaineer')) {
-        var rockType = gen.types.get('rock');
-        var effectiveness = rockType.effectiveness[defender.types[0]] *
+        const rockType = gen.types.get('rock');
+        const effectiveness = rockType.effectiveness[defender.types[0]] *
             (defender.types[1] ? rockType.effectiveness[defender.types[1]] : 1);
         damage += Math.floor((effectiveness * defender.maxHP()) / 8);
         texts.push('Stealth Rock');
     }
     if (defenderSide.steelsurge && !defender.hasAbility('Magic Guard', 'Mountaineer')) {
-        var steelType = gen.types.get('steel');
-        var effectiveness = steelType.effectiveness[defender.types[0]] *
+        const steelType = gen.types.get('steel');
+        const effectiveness = steelType.effectiveness[defender.types[0]] *
             (defender.types[1] ? steelType.effectiveness[defender.types[1]] : 1);
         damage += Math.floor((effectiveness * defender.maxHP()) / 8);
         texts.push('Steelsurge');
@@ -341,11 +342,11 @@ function getHazards(gen, defender, defenderSide) {
     if (isNaN(damage)) {
         damage = 0;
     }
-    return { damage: damage, texts: texts };
+    return { damage, texts };
 }
 function getEndOfTurn(gen, attacker, defender, move, field) {
-    var damage = 0;
-    var texts = [];
+    let damage = 0;
+    const texts = [];
     if (field.hasWeather('Sun', 'Harsh Sunshine')) {
         if (defender.hasAbility('Dry Skin', 'Solar Power')) {
             damage -= Math.floor(defender.maxHP() / 8);
@@ -383,7 +384,7 @@ function getEndOfTurn(gen, attacker, defender, move, field) {
             texts.push('hail damage');
         }
     }
-    var loseItem = move.named('Knock Off') && !defender.hasAbility('Sticky Hold');
+    const loseItem = move.named('Knock Off') && !defender.hasAbility('Sticky Hold');
     if (defender.hasItem('Leftovers') && !loseItem) {
         damage += Math.floor(defender.maxHP() / 16);
         texts.push('Leftovers recovery');
@@ -470,7 +471,7 @@ function getEndOfTurn(gen, attacker, defender, move, field) {
         }
     }
     if (defender.isSaltCure && !defender.hasAbility('Magic Guard')) {
-        var isWaterOrSteel = defender.hasType('Water', 'Steel') ||
+        const isWaterOrSteel = defender.hasType('Water', 'Steel') ||
             (defender.teraType && ['Water', 'Steel'].includes(defender.teraType));
         damage -= Math.floor(defender.maxHP() / (isWaterOrSteel ? 4 : 8));
         texts.push('Salt Cure');
@@ -500,12 +501,12 @@ function getEndOfTurn(gen, attacker, defender, move, field) {
         damage -= Math.floor(defender.maxHP() / 6);
         texts.push('Volcalith damage');
     }
-    return { damage: damage, texts: texts };
+    return { damage, texts };
 }
 function computeKOChance(damage, hp, eot, hits, timesUsed, maxHP, toxicCounter) {
-    var n = damage.length;
+    const n = damage.length;
     if (hits === 1) {
-        for (var i = 0; i < n; i++) {
+        for (let i = 0; i < n; i++) {
             if (damage[n - 1] < hp)
                 return 0;
             if (damage[i] >= hp) {
@@ -513,15 +514,15 @@ function computeKOChance(damage, hp, eot, hits, timesUsed, maxHP, toxicCounter) 
             }
         }
     }
-    var toxicDamage = 0;
+    let toxicDamage = 0;
     if (toxicCounter > 0) {
         toxicDamage = Math.floor((toxicCounter * maxHP) / 16);
         toxicCounter++;
     }
-    var sum = 0;
-    var lastc = 0;
-    for (var i = 0; i < n; i++) {
-        var c = void 0;
+    let sum = 0;
+    let lastc = 0;
+    for (let i = 0; i < n; i++) {
+        let c;
         if (i === 0 || damage[i] !== damage[i - 1]) {
             c = computeKOChance(damage, hp - damage[i] + eot - toxicDamage, eot, hits - 1, timesUsed, maxHP, toxicCounter);
         }
@@ -540,13 +541,13 @@ function computeKOChance(damage, hp, eot, hits, timesUsed, maxHP, toxicCounter) 
     return sum / n;
 }
 function predictTotal(damage, eot, hits, timesUsed, toxicCounter, maxHP) {
-    var toxicDamage = 0;
+    let toxicDamage = 0;
     if (toxicCounter > 0) {
-        for (var i = 0; i < hits - 1; i++) {
+        for (let i = 0; i < hits - 1; i++) {
             toxicDamage += Math.floor(((toxicCounter + i) * maxHP) / 16);
         }
     }
-    var total = 0;
+    let total = 0;
     if (hits > 1 && timesUsed === 1) {
         total = damage * hits - eot * (hits - 1) + toxicDamage;
     }
@@ -555,14 +556,13 @@ function predictTotal(damage, eot, hits, timesUsed, toxicCounter, maxHP) {
     }
     return total;
 }
-function squashMultihit(gen, d, hits, err) {
-    if (err === void 0) { err = true; }
+function squashMultihit(gen, d, hits, err = true) {
     if (d.length === 1) {
         return [d[0] * hits];
     }
     else if (gen.num === 1) {
-        var r = [];
-        for (var i = 0; i < d.length; i++) {
+        const r = [];
+        for (let i = 0; i < d.length; i++) {
             r[i] = d[i] * hits;
         }
         return r;
@@ -606,7 +606,7 @@ function squashMultihit(gen, d, hits, err) {
                     10 * d[15],
                 ];
             default:
-                (0, util_1.error)(err, "Unexpected # of hits: ".concat(hits));
+                (0, util_1.error)(err, `Unexpected # of hits: ${hits}`);
                 return d;
         }
     }
@@ -644,18 +644,18 @@ function squashMultihit(gen, d, hits, err) {
                     10 * d[23], 10 * d[25], 10 * d[27], 10 * d[38],
                 ];
             default:
-                (0, util_1.error)(err, "Unexpected # of hits: ".concat(hits));
+                (0, util_1.error)(err, `Unexpected # of hits: ${hits}`);
                 return d;
         }
     }
     else if (d.length === 256) {
         if (hits > 1) {
-            (0, util_1.error)(err, "Unexpected # of hits for Parental Bond: ".concat(hits));
+            (0, util_1.error)(err, `Unexpected # of hits for Parental Bond: ${hits}`);
         }
-        var r = [];
-        for (var i = 0; i < 16; i++) {
-            var val = 0;
-            for (var j = 0; j < 16; j++) {
+        const r = [];
+        for (let i = 0; i < 16; i++) {
+            let val = 0;
+            for (let j = 0; j < 16; j++) {
                 val += d[i + j];
             }
             r[i] = Math.round(val / 16);
@@ -663,13 +663,13 @@ function squashMultihit(gen, d, hits, err) {
         return r;
     }
     else {
-        (0, util_1.error)(err, "Unexpected # of possible damage values: ".concat(d.length));
+        (0, util_1.error)(err, `Unexpected # of possible damage values: ${d.length}`);
         return d;
     }
 }
 function buildDescription(description, attacker, defender) {
-    var _a = __read(getDescriptionLevels(attacker, defender), 2), attackerLevel = _a[0], defenderLevel = _a[1];
-    var output = '';
+    const [attackerLevel, defenderLevel] = getDescriptionLevels(attacker, defender);
+    let output = '';
     if (description.attackBoost) {
         if (description.attackBoost > 0) {
             output += '+';
@@ -686,10 +686,10 @@ function buildDescription(description, attacker, defender) {
     }
     if (description.alliesFainted) {
         output += Math.min(5, description.alliesFainted) +
-            " ".concat(description.alliesFainted === 1 ? 'ally' : 'allies', " fainted ");
+            ` ${description.alliesFainted === 1 ? 'ally' : 'allies'} fainted `;
     }
     if (description.attackerTera) {
-        output += "Tera ".concat(description.attackerTera, " ");
+        output += `Tera ${description.attackerTera} `;
     }
     if (description.isBeadsOfRuin) {
         output += 'Beads of Ruin ';
@@ -754,7 +754,7 @@ function buildDescription(description, attacker, defender) {
         output += 'Dynamax ';
     }
     if (description.defenderTera) {
-        output += "Tera ".concat(description.defenderTera, " ");
+        output += `Tera ${description.defenderTera} `;
     }
     output += description.defenderName;
     if (description.weather && description.terrain) {
@@ -791,12 +791,12 @@ function buildDescription(description, attacker, defender) {
 function getDescriptionLevels(attacker, defender) {
     if (attacker.level !== defender.level) {
         return [
-            attacker.level === 100 ? '' : "Lvl ".concat(attacker.level),
-            defender.level === 100 ? '' : "Lvl ".concat(defender.level),
+            attacker.level === 100 ? '' : `Lvl ${attacker.level}`,
+            defender.level === 100 ? '' : `Lvl ${defender.level}`,
         ];
     }
-    var elide = [100, 50, 5].includes(attacker.level);
-    var level = elide ? '' : "Lvl ".concat(attacker.level);
+    const elide = [100, 50, 5].includes(attacker.level);
+    const level = elide ? '' : `Lvl ${attacker.level}`;
     return [level, level];
 }
 function serializeText(arr) {
@@ -810,18 +810,18 @@ function serializeText(arr) {
         return arr[0] + ' and ' + arr[1];
     }
     else {
-        var text = '';
-        for (var i = 0; i < arr.length - 1; i++) {
+        let text = '';
+        for (let i = 0; i < arr.length - 1; i++) {
             text += arr[i] + ', ';
         }
         return text + 'and ' + arr[arr.length - 1];
     }
 }
 function appendIfSet(str, toAppend) {
-    return toAppend ? "".concat(str).concat(toAppend, " ") : str;
+    return toAppend ? `${str}${toAppend} ` : str;
 }
-function toDisplay(notation, a, b, f) {
-    if (f === void 0) { f = 1; }
+function toDisplay(notation, a, b, f = 1) {
     return notation === '%' ? Math.floor((a * (1000 / f)) / b) / 10 : Math.floor((a * (48 / f)) / b);
 }
 //# sourceMappingURL=desc.js.map
+})();

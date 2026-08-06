@@ -1,0 +1,64 @@
+{
+  "generation": 8,
+  "mode": "Singles",
+  "turn": 2,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1"],
+      "party": [
+        {
+          "id": "ai-1",
+          "species": "Landorus-Therian",
+          "level": 50,
+          "hp": {"current": 140, "max": 165},
+          "ability": "Intimidate",
+          "item": "Leftovers",
+          "nature": "Jolly",
+          "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+          "moves": [
+            {"name": "U-turn"},
+            {"name": "Earthquake"},
+            {"name": "Stone Edge"},
+            {"name": "Stealth Rock"}
+          ]
+        },
+        {
+          "id": "ai-2",
+          "species": "Heatran",
+          "level": 50,
+          "hp": {"current": 160, "max": 160},
+          "ability": "Flash Fire",
+          "item": "Leftovers",
+          "nature": "Modest",
+          "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+          "moves": [
+            {"name": "Magma Storm"},
+            {"name": "Earth Power"},
+            {"name": "Flash Cannon"},
+            {"name": "Toxic"}
+          ]
+        }
+      ]
+    },
+    "player": {
+      "activeIds": ["player-1"],
+      "party": [{
+        "id": "player-1",
+        "species": "Toxapex",
+        "level": 50,
+        "hp": {"current": 140, "max": 140},
+        "ability": "Regenerator",
+        "item": "Black Sludge",
+        "nature": "Bold",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Scald"},
+          {"name": "Recover"},
+          {"name": "Haze"},
+          {"name": "Toxic"}
+        ]
+      }]
+    }
+  }
+}

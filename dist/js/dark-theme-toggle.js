@@ -16,13 +16,20 @@
 var prefersDarkTheme = localStorage.getItem('darkTheme') ? localStorage.getItem('darkTheme') === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
 var darkThemeButton = document.getElementById('dark-theme-toggle');
 darkThemeButton.innerText = prefersDarkTheme ? 'Click for Light Theme' : 'Click for Dark Theme';
+
+function syncRbThemeAttr(isDark) {
+	document.documentElement.setAttribute('data-rb-theme', isDark ? 'dark' : 'light');
+}
+
 if (prefersDarkTheme) {
 	var darkStyles = document.getElementById('dark-theme-styles');
 	if (darkStyles.disabled) {
 		darkStyles.disabled = !darkStyles.disabled;
 	}
+	syncRbThemeAttr(true);
 } else {
 	document.documentElement.style.setProperty("--fieldset-color", "white");
+	syncRbThemeAttr(false);
 }
 
 /*
@@ -41,6 +48,7 @@ function toggleTheme() {
 
 	localStorage.setItem('darkTheme', prefersDarkTheme);
 	darkThemeButton.innerText = prefersDarkTheme ? 'Click for Light Theme' : 'Click for Dark Theme';
+	syncRbThemeAttr(prefersDarkTheme);
 }
 
 darkThemeButton.addEventListener('click', toggleTheme);
