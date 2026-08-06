@@ -1303,10 +1303,51 @@ table.field {
     color: var(--rb-warn-ink, var(--rb-warn, #a67c00));
 }
 #runbun-battle .runbun-battle-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65em;
+    margin-bottom: 0.75em;
+}
+#runbun-battle .runbun-battle-field-singles .runbun-battle-side-row {
+    display: contents;
+}
+#runbun-battle .runbun-battle-field-singles .runbun-battle-row-label {
+    display: none;
+}
+#runbun-battle .runbun-battle-field-singles .runbun-battle-slots {
+    display: contents;
+}
+#runbun-battle .runbun-battle-field-singles {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.75em;
-    margin-bottom: 0.75em;
+}
+#runbun-battle .runbun-battle-field-doubles .runbun-battle-side-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+    padding: 0.45em 0.5em 0.55em;
+    border: 1px solid var(--rb-stroke, #cccccc);
+    border-radius: 2px;
+    background: var(--rb-surface-sunken, #fafafa);
+}
+#runbun-battle .runbun-battle-field-doubles .runbun-battle-side-ai {
+    border-left: 3px solid var(--rb-oracle, #3d5a80);
+}
+#runbun-battle .runbun-battle-field-doubles .runbun-battle-side-player {
+    border-left: 3px solid var(--rb-action, #0b7a78);
+}
+#runbun-battle .runbun-battle-row-label {
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--rb-ink-muted, #666666);
+    font-weight: 600;
+}
+#runbun-battle .runbun-battle-slots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55em;
 }
 #runbun-battle .runbun-battle-active {
     border: 1px solid var(--rb-stroke, #cccccc);
@@ -1317,8 +1358,12 @@ table.field {
     border-radius: 2px;
     box-shadow: none;
 }
-#runbun-battle #runbun-battle-player.runbun-battle-active {
+#runbun-battle .runbun-battle-active-player {
     border-left-color: var(--rb-action, #0b7a78);
+}
+#runbun-battle .runbun-battle-active-empty {
+    opacity: 0.72;
+    background: var(--rb-surface-sunken, #f0f0f0);
 }
 #runbun-battle .runbun-battle-side-label {
     font-size: 0.72em;
@@ -1515,7 +1560,10 @@ table.field {
     color: var(--rb-ink-muted, #666);
 }
 @media (max-width: 640px) {
-    #runbun-battle .runbun-battle-field {
+    #runbun-battle .runbun-battle-field-singles {
+        grid-template-columns: 1fr;
+    }
+    #runbun-battle .runbun-battle-slots {
         grid-template-columns: 1fr;
     }
 }

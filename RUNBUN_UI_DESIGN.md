@@ -414,7 +414,7 @@ JSON; explain MVP (expand row).
 | P2 | UI-V3 | Mobile: JSON `<details>` closed by default |
 | P2 | ACC-01 | ~~A11y: focus order, not color-only forced-switch~~ **Done** |
 | P3 | BAT-01 | “Open in AI Debug” reverse import |
-| P2 | DBL-01 | Doubles layout sketch (separate mode; keep Singles path) |
+| P2 | DBL-01 | ~~Doubles layout sketch (Battle viewer; keep Singles path)~~ **Done** |
 | P3 | DBL-02 | Doubles targeting + smoke |
 | P3 | RPL-01 | Replay scrubber (not Battle MVP) |
 | Park | PARK-07 | Live ladder / Showdown protocol look-and-feel |

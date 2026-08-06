@@ -1050,7 +1050,11 @@ legend {
 		grid-template-columns: 1fr;
 	}
 
-	#runbun-battle .runbun-battle-field {
+	#runbun-battle .runbun-battle-field-singles {
+		grid-template-columns: 1fr;
+	}
+
+	#runbun-battle .runbun-battle-slots {
 		grid-template-columns: 1fr;
 	}
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "Named Gen 8 Singles BattleState scenarios for AI Debug / Battle (FIX-01).",
+  "description": "Named Gen 8 BattleState scenarios for AI Debug / Battle (FIX-01; DBL-01 Doubles sample).",
   "defaultId": "sample",
   "scenarios": [
     {
@@ -9,6 +9,13 @@
       "tags": ["sample", "singles", "gen8"],
       "file": "sample.json",
       "golden": "goldens/sample.eval.json",
+      "defaultOptions": {"sideId": "ai", "includeSwitches": false}
+    },
+    {
+      "id": "doubles-sample",
+      "label": "Sample Doubles (2v2 field layout)",
+      "tags": ["sample", "doubles", "gen8", "dbl-01"],
+      "file": "doubles-sample.json",
       "defaultOptions": {"sideId": "ai", "includeSwitches": false}
     },
     {

@@ -8,12 +8,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?af4bce0f" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?692c2a12" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
     <!-- Shell + full-page unify after dark-theme so stadium tokens win the cascade -->
-    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?48a2c613" />
+    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?992fc439" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-3"></script>
     <script>
@@ -1948,8 +1948,8 @@
     <script type="text/javascript" src="./js/sets_to_battle_state.js?ac404a20"></script>
     <script type="text/javascript" src="./js/golden_eval.js?961a5a37"></script>
     <script type="text/javascript" src="./js/ai_panel.js?81487a68"></script>
-    <script type="text/javascript" src="./js/battle_turn_viewer.js?8795c5cb"></script>
-    <script type="text/javascript" src="./js/runbun_shell.js?867ab1ac"></script>
+    <script type="text/javascript" src="./js/battle_turn_viewer.js?e6b9bb33"></script>
+    <script type="text/javascript" src="./js/runbun_shell.js?3df9cd26"></script>
 </div>
 
 <section id="sets-bridge" class="ai-panel-bridge rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-sets" tabindex="-1" aria-label="Sets to BattleState bridge">
@@ -2098,27 +2098,27 @@
     <div id="ai-panel-results" class="ai-panel-results" role="list" aria-labelledby="ai-panel-results-heading"></div>
 </div>
 
-<section id="runbun-battle" class="runbun-battle rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-battle" tabindex="-1" aria-label="Run and Bun Singles Battle Turn Viewer">
-    <h2 class="runbun-battle-title" id="runbun-battle-heading">Singles Battle Turn Viewer</h2>
+<section id="runbun-battle" class="runbun-battle rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-battle" tabindex="-1" aria-label="Run and Bun Battle Turn Viewer">
+    <h2 class="runbun-battle-title" id="runbun-battle-heading">Battle Turn Viewer</h2>
     <p class="runbun-battle-help">
-        Practice-vs-policy surface for Gen&nbsp;8 Singles. Thin client over the same AI HTTP
-        as Debug: <code>/ai/evaluate-actions</code>, <code>/ai/choose-action</code>,
-        <code>/ai/derive-resolution</code>, <code>/ai/apply-action</code>,
-        <code>/ai/advance-turn</code>, <code>/ai/validate-battle-state</code>.
+        Practice-vs-policy surface for Gen&nbsp;8 Singles and Doubles (display layout). Thin client
+        over the same AI HTTP as Debug: <code>/ai/evaluate-actions</code>,
+        <code>/ai/choose-action</code>, <code>/ai/derive-resolution</code>,
+        <code>/ai/apply-action</code>, <code>/ai/advance-turn</code>,
+        <code>/ai/validate-battle-state</code>.
         The browser holds display state only — it does not invent mechanics.
+        Field layout follows <code>BattleState.mode</code> (Singles vs Doubles slots).
         <strong>Modeled slice:</strong> choose / derive / apply / advance-turn residuals &amp; timers.
         <strong>External:</strong> unmodeled residual order, accuracy edge cases, and live game
-        events stay caller-owned and are not faked here.
+        events stay caller-owned and are not faked here. Doubles targeting UX is a later pass (DBL-02).
     </p>
     <div id="runbun-battle-summary" class="runbun-battle-summary" role="status" aria-live="polite" aria-atomic="true"></div>
-    <div class="runbun-battle-field" aria-live="polite">
-        <div id="runbun-battle-ai" class="runbun-battle-active"></div>
-        <div id="runbun-battle-player" class="runbun-battle-active"></div>
-    </div>
+    <div id="runbun-battle-field" class="runbun-battle-field" aria-live="polite" data-mode="singles"></div>
     <div id="runbun-battle-forced" class="runbun-battle-forced" hidden></div>
     <div class="runbun-battle-controls">
         <div class="ai-panel-toolbar-label">Load</div>
         <button type="button" id="runbun-battle-load-sample" class="btn btn-wide rb-btn-secondary">Load sample</button>
+        <button type="button" id="runbun-battle-load-doubles" class="btn btn-wide rb-btn-secondary">Load Doubles sample</button>
         <button type="button" id="runbun-battle-load-forced" class="btn btn-wide rb-btn-secondary">Load forced-switch sample</button>
         <button type="button" id="runbun-battle-load-ai-panel" class="btn btn-wide rb-btn-secondary">Import from AI Debug</button>
         <button type="button" id="runbun-battle-load-bridge" class="btn btn-wide rb-btn-primary">Load from calc panels</button>

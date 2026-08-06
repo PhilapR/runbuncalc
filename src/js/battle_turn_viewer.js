@@ -1,7 +1,8 @@
 /* eslint-env browser, es6 */
 /**
- * Singles Battle turn viewer MVP — thin HTTP client over Run & Bun AI endpoints.
+ * Battle turn viewer — thin HTTP client over Run & Bun AI endpoints.
  * Display state → evaluate/choose → apply (derive→apply) → advance.
+ * Singles and Doubles field layouts follow BattleState.mode (DBL-01 display only).
  * Does not reimplement scoring or battle transitions in the browser.
  */
 (function () {
@@ -61,6 +62,76 @@
 			},
 		},
 		firstTurnOutIds: ['ai-1', 'player-1'],
+	};
+
+	var DOUBLES_SAMPLE_STATE = {
+		generation: 8,
+		mode: 'Doubles',
+		turn: 1,
+		field: {},
+		sides: {
+			ai: {
+				activeIds: ['ai-1', 'ai-2'],
+				party: [{
+					id: 'ai-1',
+					species: 'Pikachu',
+					level: 100,
+					hp: {current: 100, max: 100},
+					ability: 'Static',
+					item: 'Light Ball',
+					moves: [
+						{name: 'Thunderbolt'},
+						{name: 'Fake Out'},
+						{name: 'Protect'},
+						{name: 'Helping Hand'},
+					],
+				}, {
+					id: 'ai-2',
+					species: 'Togekiss',
+					level: 100,
+					hp: {current: 180, max: 180},
+					ability: 'Serene Grace',
+					item: 'Leftovers',
+					moves: [
+						{name: 'Air Slash'},
+						{name: 'Dazzling Gleam'},
+						{name: 'Follow Me'},
+						{name: 'Protect'},
+					],
+				}],
+			},
+			player: {
+				activeIds: ['player-1', 'player-2'],
+				party: [{
+					id: 'player-1',
+					species: 'Gyarados',
+					level: 100,
+					hp: {current: 200, max: 200},
+					ability: 'Intimidate',
+					item: 'Life Orb',
+					moves: [
+						{name: 'Waterfall'},
+						{name: 'Earthquake'},
+						{name: 'Dragon Dance'},
+						{name: 'Protect'},
+					],
+				}, {
+					id: 'player-2',
+					species: 'Rillaboom',
+					level: 100,
+					hp: {current: 190, max: 190},
+					ability: 'Grassy Surge',
+					item: 'Assault Vest',
+					moves: [
+						{name: 'Grassy Glide'},
+						{name: 'Wood Hammer'},
+						{name: 'U-turn'},
+						{name: 'Fake Out'},
+					],
+				}],
+			},
+		},
+		firstTurnOutIds: ['ai-1', 'ai-2', 'player-1', 'player-2'],
 	};
 
 	var FORCED_SWITCH_SAMPLE = {
@@ -137,6 +208,7 @@
 			'runbun-battle-loop',
 			'runbun-battle-validate',
 			'runbun-battle-load-sample',
+			'runbun-battle-load-doubles',
 			'runbun-battle-load-forced',
 			'runbun-battle-load-ai-panel',
 			'runbun-battle-load-bridge',
@@ -214,10 +286,23 @@
 		return null;
 	}
 
-	function activePokemon(state, sideId) {
+	function isDoublesState(state) {
+		if (!state) return false;
+		if (state.mode === 'Doubles') return true;
+		if (state.format === 'Doubles') return true;
+		return false;
+	}
+
+	function activeSlotIds(state, sideId) {
 		var side = state && state.sides && state.sides[sideId];
-		if (!side || !Array.isArray(side.activeIds) || !side.activeIds.length) return null;
-		return findPokemon(state, side.activeIds[0]);
+		var ids = side && Array.isArray(side.activeIds) ? side.activeIds.filter(Boolean) : [];
+		var slots = isDoublesState(state) ? 2 : 1;
+		var out = [];
+		var i;
+		for (i = 0; i < slots; i++) {
+			out.push(ids[i] || null);
+		}
+		return out;
 	}
 
 	function hpText(pokemon) {
@@ -233,10 +318,12 @@
 		return pct;
 	}
 
-	function renderActiveCard(containerId, label, pokemon) {
-		var el = $(containerId);
-		if (!el) return;
+	function fillActiveCard(el, label, pokemon, options) {
+		var opts = options || {};
 		el.innerHTML = '';
+		el.className = 'runbun-battle-active' +
+			(opts.sideClass ? ' ' + opts.sideClass : '') +
+			(pokemon ? '' : ' runbun-battle-active-empty');
 		var title = document.createElement('div');
 		title.className = 'runbun-battle-side-label';
 		title.textContent = label;
@@ -244,7 +331,7 @@
 		if (!pokemon) {
 			var empty = document.createElement('div');
 			empty.className = 'runbun-battle-species';
-			empty.textContent = '(no active)';
+			empty.textContent = opts.emptyText || '(empty slot)';
 			el.appendChild(empty);
 			return;
 		}
@@ -257,7 +344,7 @@
 		var bar = document.createElement('div');
 		bar.className = 'runbun-battle-hp-bar';
 		bar.setAttribute('role', 'meter');
-		bar.setAttribute('aria-label', 'HP');
+		bar.setAttribute('aria-label', (pokemon.species || 'Pokémon') + ' HP');
 		bar.setAttribute('aria-valuemin', '0');
 		bar.setAttribute('aria-valuemax', String(pokemon.hp.max));
 		bar.setAttribute('aria-valuenow', String(pokemon.hp.current));
@@ -276,15 +363,45 @@
 		hp.className = 'runbun-battle-hp-text';
 		hp.textContent = 'HP ' + hpText(pokemon);
 		el.appendChild(hp);
-		if (pokemon.ability || pokemon.item) {
+		if (pokemon.id || pokemon.ability || pokemon.item) {
 			var meta = document.createElement('div');
 			meta.className = 'runbun-battle-meta';
 			var bits = [];
+			if (pokemon.id) bits.push(pokemon.id);
 			if (pokemon.ability) bits.push(pokemon.ability);
 			if (pokemon.item) bits.push(pokemon.item);
 			meta.textContent = bits.join(' · ');
 			el.appendChild(meta);
 		}
+	}
+
+	function renderSideRow(field, state, sideId, rowLabel, sideClass) {
+		var row = document.createElement('div');
+		row.className = 'runbun-battle-side-row runbun-battle-side-' + sideId;
+		row.setAttribute('role', 'group');
+		row.setAttribute('aria-label', rowLabel);
+		var heading = document.createElement('div');
+		heading.className = 'runbun-battle-row-label';
+		heading.textContent = rowLabel;
+		row.appendChild(heading);
+		var slots = document.createElement('div');
+		slots.className = 'runbun-battle-slots';
+		var doubles = isDoublesState(state);
+		var ids = activeSlotIds(state, sideId);
+		ids.forEach(function (id, index) {
+			var card = document.createElement('div');
+			var slotLabel = doubles ?
+				(sideId === 'ai' ? 'Foe' : 'Ally') + ' slot ' + (index + 1) :
+				(sideId === 'ai' ? 'AI active' : 'Player active');
+			var pokemon = id ? findPokemon(state, id) : null;
+			fillActiveCard(card, slotLabel, pokemon, {
+				sideClass: sideClass,
+				emptyText: doubles ? '(empty Doubles slot)' : '(no active)',
+			});
+			slots.appendChild(card);
+		});
+		row.appendChild(slots);
+		field.appendChild(row);
 	}
 
 	function renderForced(state) {
@@ -337,26 +454,49 @@
 		});
 	}
 
+	function syncShellModeChip(state) {
+		var bar = $('rb-context-bar');
+		if (!bar) return;
+		var brand = bar.querySelector('.rb-chip-brand');
+		if (!brand) return;
+		var gen = state && state.generation != null ? state.generation : 8;
+		var mode = isDoublesState(state) ? 'Doubles' : 'Singles';
+		brand.textContent = 'Gen ' + gen + ' ' + mode;
+	}
+
 	function renderField(state) {
 		renderSummaryChips(state);
-		renderActiveCard('runbun-battle-ai', 'AI active', activePokemon(state, 'ai'));
-		renderActiveCard('runbun-battle-player', 'Player active', activePokemon(state, 'player'));
+		syncShellModeChip(state);
+		var field = $('runbun-battle-field');
+		if (!field) {
+			renderForced(state);
+			return;
+		}
+		var doubles = isDoublesState(state);
+		field.innerHTML = '';
+		field.setAttribute('data-mode', doubles ? 'doubles' : 'singles');
+		field.className = 'runbun-battle-field' +
+			(doubles ? ' runbun-battle-field-doubles' : ' runbun-battle-field-singles');
+		// Doubles sketch: foes (AI) on top, allies (Player) below — no slot adjacency invented.
+		renderSideRow(field, state, 'ai', doubles ? 'Opposing (AI)' : 'AI', 'runbun-battle-active-ai');
+		renderSideRow(field, state, 'player', doubles ? 'Allies (Player)' : 'Player', 'runbun-battle-active-player');
 		renderForced(state);
 	}
 
 	function formatAction(action) {
 		if (!action) return '(none)';
+		var actor = action.actorId ? action.actorId + ': ' : '';
 		if (action.kind === 'switch') {
 			var flags = [];
 			if (action.forced) flags.push('forced');
 			if (action.batonPass) flags.push('baton pass');
 			if (action.preserveSubstitute) flags.push('shed tail');
-			return 'switch → ' + action.replacementId +
+			return actor + 'switch → ' + action.replacementId +
 				(flags.length ? ' (' + flags.join(', ') + ')' : '');
 		}
 		if (action.kind === 'move') {
 			var targets = (action.targetIds || []).join(', ');
-			return action.moveName + (targets ? ' → ' + targets : '');
+			return actor + action.moveName + (targets ? ' → ' + targets : '');
 		}
 		return JSON.stringify(action);
 	}
@@ -485,6 +625,14 @@
 		renderActions([]);
 		setStatus('Loaded sample Singles state (Gen 8). Modeled slice only — ' +
 			'external residuals / unmodeled events stay caller-owned.');
+	}
+
+	function loadDoublesSample() {
+		selectedAction = null;
+		writeState(DOUBLES_SAMPLE_STATE);
+		renderActions([]);
+		setStatus('Loaded sample Doubles state (Gen 8, 2v2 slots). Display layout only — ' +
+			'targeting UX is DBL-02; same HTTP loop as Singles.');
 	}
 
 	function loadForcedSample() {
@@ -773,6 +921,7 @@
 		}
 		loadSample();
 		bind('runbun-battle-load-sample', loadSample);
+		bind('runbun-battle-load-doubles', loadDoublesSample);
 		bind('runbun-battle-load-forced', loadForcedSample);
 		bind('runbun-battle-load-ai-panel', loadFromAiPanel);
 		bind('runbun-battle-load-bridge', loadFromBridge);

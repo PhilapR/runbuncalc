@@ -17,12 +17,13 @@ function readJson(filePath) {
 	return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
-test('UI fixture manifest lists 8–12 Gen 8 Singles scenarios', () => {
+test('UI fixture manifest lists 8–12 Gen 8 Singles/Doubles scenarios', () => {
 	const manifest = readJson(manifestPath);
 	assert.equal(manifest.schemaVersion, 1);
 	assert.ok(Array.isArray(manifest.scenarios));
 	assert.ok(manifest.scenarios.length >= 8 && manifest.scenarios.length <= 12);
 	const ids = new Set();
+	let singles = 0;
 	for (const scenario of manifest.scenarios) {
 		assert.ok(scenario.id && typeof scenario.id === 'string');
 		assert.ok(!ids.has(scenario.id), 'duplicate scenario id: ' + scenario.id);
@@ -32,8 +33,29 @@ test('UI fixture manifest lists 8–12 Gen 8 Singles scenarios', () => {
 		assert.ok(fs.existsSync(path.join(uiDir, scenario.file)), scenario.file);
 		const state = readJson(path.join(uiDir, scenario.file));
 		assert.equal(state.generation, 8, scenario.id + ' should be Gen 8');
-		assert.equal(state.mode, 'Singles', scenario.id + ' should be Singles');
+		assert.ok(
+			state.mode === 'Singles' || state.mode === 'Doubles',
+			scenario.id + ' mode must be Singles or Doubles'
+		);
+		if (state.mode === 'Singles') {
+			singles += 1;
+			assert.ok(
+				(scenario.tags || []).includes('singles'),
+				scenario.id + ' Singles fixture should tag singles'
+			);
+		} else {
+			assert.ok(
+				(scenario.tags || []).includes('doubles'),
+				scenario.id + ' Doubles fixture should tag doubles'
+			);
+			assert.ok(
+				state.sides.ai.activeIds.length === 2 &&
+					state.sides.player.activeIds.length === 2,
+				scenario.id + ' Doubles sample should expose two actives per side'
+			);
+		}
 	}
+	assert.ok(singles >= 8, 'keep at least 8 Singles scenarios');
 });
 
 test('every UI fixture validates via validateBattleState', () => {
