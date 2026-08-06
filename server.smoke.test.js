@@ -421,6 +421,68 @@ test('AI action endpoints reject malformed action contracts as JSON 400s', async
 	assert.match(invalidItemRolls.body.error, /itemRollsByPokemon/);
 });
 
+test('Doubles evaluate exposes per-actor targets and supports apply → advance', async () => {
+	const fixtureResponse = await fetch(`${baseUrl}/fixtures/ui/doubles-sample.json`);
+	assert.equal(fixtureResponse.status, 200);
+	const doubles = await fixtureResponse.json();
+	assert.equal(doubles.mode, 'Doubles');
+
+	const validated = await requestJson('/ai/validate-battle-state', {state: doubles});
+	assert.equal(validated.status, 200);
+
+	const evaluated = await requestJson('/ai/evaluate-actions', {
+		state: doubles,
+		options: {sideId: 'ai'},
+	});
+	assert.equal(evaluated.status, 200);
+	const evaluations = evaluated.body.evaluations;
+	assert.ok(Array.isArray(evaluations));
+	assert.ok(evaluations.length > 0);
+
+	const actors = new Set(evaluations.map(entry => entry.action.actorId));
+	assert.ok(actors.has('ai-1'));
+	assert.ok(actors.has('ai-2'));
+
+	const thunderbolts = evaluations.filter(entry =>
+		entry.action.kind === 'move' &&
+		entry.action.actorId === 'ai-1' &&
+		entry.action.moveName === 'Thunderbolt');
+	assert.equal(thunderbolts.length, 2);
+	const thunderTargets = new Set(thunderbolts.flatMap(entry => entry.action.targetIds));
+	assert.deepEqual([...thunderTargets].sort(), ['player-1', 'player-2']);
+
+	const helpingHand = evaluations.find(entry =>
+		entry.action.kind === 'move' &&
+		entry.action.actorId === 'ai-1' &&
+		entry.action.moveName === 'Helping Hand');
+	assert.ok(helpingHand);
+	assert.deepEqual(helpingHand.action.targetIds, ['ai-2']);
+
+	const gleam = evaluations.find(entry =>
+		entry.action.kind === 'move' &&
+		entry.action.actorId === 'ai-2' &&
+		entry.action.moveName === 'Dazzling Gleam');
+	assert.ok(gleam);
+	assert.deepEqual([...gleam.action.targetIds].sort(), ['player-1', 'player-2']);
+
+	const action = thunderbolts.find(entry =>
+		entry.action.targetIds.length === 1 &&
+		entry.action.targetIds[0] === 'player-1').action;
+	const derived = await requestJson('/ai/derive-resolution', {state: doubles, action});
+	assert.equal(derived.status, 200);
+	const applied = await requestJson('/ai/apply-action', {
+		state: doubles,
+		action,
+		resolution: derived.body,
+	});
+	assert.equal(applied.status, 200);
+	assert.equal(applied.body.mode, 'Doubles');
+	const advanced = await requestJson('/ai/advance-turn', {state: applied.body});
+	assert.equal(advanced.status, 200);
+	assert.equal(advanced.body.mode, 'Doubles');
+	assert.ok(advanced.body.turn > doubles.turn);
+});
+
 test('UI fixture browser assets are served under /fixtures/ui', async () => {
 	const manifestResponse = await fetch(`${baseUrl}/fixtures/ui/manifest.json`);
 	assert.equal(manifestResponse.status, 200);

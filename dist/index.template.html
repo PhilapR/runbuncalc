@@ -2101,16 +2101,18 @@
 <section id="runbun-battle" class="runbun-battle rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-battle" tabindex="-1" aria-label="Run and Bun Battle Turn Viewer">
     <h2 class="runbun-battle-title" id="runbun-battle-heading">Battle Turn Viewer</h2>
     <p class="runbun-battle-help">
-        Practice-vs-policy surface for Gen&nbsp;8 Singles and Doubles (display layout). Thin client
+        Practice-vs-policy surface for Gen&nbsp;8 Singles and Doubles. Thin client
         over the same AI HTTP as Debug: <code>/ai/evaluate-actions</code>,
         <code>/ai/choose-action</code>, <code>/ai/derive-resolution</code>,
         <code>/ai/apply-action</code>, <code>/ai/advance-turn</code>,
         <code>/ai/validate-battle-state</code>.
         The browser holds display state only — it does not invent mechanics.
-        Field layout follows <code>BattleState.mode</code> (Singles vs Doubles slots).
+        Field layout follows <code>BattleState.mode</code>; Doubles targeting filters
+        legal <code>actorId</code>/<code>targetIds</code> rows from evaluate (no browser legality engine).
+        Click a same-side active card or use Actor to focus one Pokémon; picked actions highlight targets on the field.
         <strong>Modeled slice:</strong> choose / derive / apply / advance-turn residuals &amp; timers.
         <strong>External:</strong> unmodeled residual order, accuracy edge cases, and live game
-        events stay caller-owned and are not faked here. Doubles targeting UX is a later pass (DBL-02).
+        events stay caller-owned and are not faked here.
     </p>
     <div id="runbun-battle-summary" class="runbun-battle-summary" role="status" aria-live="polite" aria-atomic="true"></div>
     <div id="runbun-battle-field" class="runbun-battle-field" aria-live="polite" data-mode="singles"></div>
@@ -2133,6 +2135,12 @@
                 <option value="player">player</option>
             </select>
         </label>
+        <label for="runbun-battle-actor">Actor
+            <select id="runbun-battle-actor" aria-describedby="runbun-battle-actor-hint">
+                <option value="">All actives</option>
+            </select>
+        </label>
+        <span id="runbun-battle-actor-hint" class="runbun-battle-hint">Filters evaluate rows; HTTP still scores the whole side.</span>
         <label class="runbun-battle-checkbox">
             <input type="checkbox" id="runbun-battle-include-switches" />
             Include switches
@@ -2143,7 +2151,7 @@
         <button type="button" id="runbun-battle-advance" class="btn btn-wide rb-btn-primary">Advance turn</button>
         <button type="button" id="runbun-battle-loop" class="btn btn-wide rb-btn-primary">Choose → Apply → Advance</button>
     </div>
-    <div class="runbun-battle-actions-header" id="runbun-battle-actions-heading">Legal actions <span class="runbun-battle-hint">(click or Enter to pick + Explain; ↑↓ to move)</span></div>
+    <div class="runbun-battle-actions-header" id="runbun-battle-actions-heading">Legal actions <span class="runbun-battle-hint">(click or Enter to pick + Explain; ↑↓ to move; Doubles rows show foe/ally/spread/self)</span></div>
     <div id="runbun-battle-actions" class="runbun-battle-actions" role="list" aria-labelledby="runbun-battle-actions-heading"></div>
     <details class="runbun-battle-json-details">
         <summary class="runbun-battle-state-label" id="runbun-battle-state-label">BattleState JSON (Gen 8)</summary>

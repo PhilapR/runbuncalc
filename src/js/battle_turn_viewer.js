@@ -2,7 +2,9 @@
 /**
  * Battle turn viewer — thin HTTP client over Run & Bun AI endpoints.
  * Display state → evaluate/choose → apply (derive→apply) → advance.
- * Singles and Doubles field layouts follow BattleState.mode (DBL-01 display only).
+ * Singles and Doubles field layouts follow BattleState.mode.
+ * Doubles targeting (DBL-02): filter/display actorId + targetIds from evaluate;
+ * no browser-side legality reinvention.
  * Does not reimplement scoring or battle transitions in the browser.
  */
 (function () {
@@ -190,9 +192,15 @@
 
 	var selectedAction = null;
 	var lastEvaluations = [];
+	var selectedActorId = '';
+	var lastRenderedState = null;
 
 	function $(id) {
 		return document.getElementById(id);
+	}
+
+	function selectedSideId() {
+		return ($('runbun-battle-side') && $('runbun-battle-side').value) || 'ai';
 	}
 
 	function setBusy(busy) {
@@ -265,12 +273,98 @@
 
 	function requestOptions() {
 		return {
-			sideId: ($('runbun-battle-side') && $('runbun-battle-side').value) || 'ai',
+			sideId: selectedSideId(),
 			includeSwitches: !!(
 				$('runbun-battle-include-switches') &&
 				$('runbun-battle-include-switches').checked
 			),
 		};
+	}
+
+	function pokemonLabel(state, id) {
+		var pokemon = findPokemon(state, id);
+		if (!pokemon) return id || '?';
+		return pokemon.species ? (pokemon.species + ' (' + id + ')') : id;
+	}
+
+	function sideOfPokemon(state, id) {
+		if (!state || !state.sides || !id) return null;
+		if (state.sides.ai && Array.isArray(state.sides.ai.party) &&
+			state.sides.ai.party.some(function (p) { return p && p.id === id; })) {
+			return 'ai';
+		}
+		if (state.sides.player && Array.isArray(state.sides.player.party) &&
+			state.sides.player.party.some(function (p) { return p && p.id === id; })) {
+			return 'player';
+		}
+		return null;
+	}
+
+	function targetRole(state, actorId, targetIds) {
+		var ids = Array.isArray(targetIds) ? targetIds.filter(Boolean) : [];
+		if (!ids.length) return 'none';
+		if (ids.length === 1 && ids[0] === actorId) return 'self';
+		var actorSide = sideOfPokemon(state, actorId);
+		var roles = {};
+		ids.forEach(function (tid) {
+			if (tid === actorId) {
+				roles.self = true;
+				return;
+			}
+			var tSide = sideOfPokemon(state, tid);
+			if (tSide && actorSide && tSide === actorSide) roles.ally = true;
+			else if (tSide) roles.foe = true;
+			else roles.other = true;
+		});
+		if (ids.length > 1 && (roles.foe || roles.ally || roles.self)) return 'spread';
+		if (roles.ally && !roles.foe) return 'ally';
+		if (roles.foe && !roles.ally) return 'foe';
+		if (roles.self && !roles.foe && !roles.ally) return 'self';
+		return 'mixed';
+	}
+
+	function syncActorFilter(state) {
+		var select = $('runbun-battle-actor');
+		if (!select) return;
+		var sideId = selectedSideId();
+		var ids = activeSlotIds(state, sideId).filter(Boolean);
+		var previous = selectedActorId;
+		select.innerHTML = '';
+		var allOpt = document.createElement('option');
+		allOpt.value = '';
+		allOpt.textContent = 'All actives';
+		select.appendChild(allOpt);
+		ids.forEach(function (id) {
+			var opt = document.createElement('option');
+			opt.value = id;
+			opt.textContent = pokemonLabel(state, id);
+			select.appendChild(opt);
+		});
+		if (previous && ids.indexOf(previous) >= 0) {
+			select.value = previous;
+			selectedActorId = previous;
+		} else {
+			select.value = '';
+			selectedActorId = '';
+		}
+		select.disabled = ids.length <= 1 && !isDoublesState(state);
+	}
+
+	function setSelectedActor(actorId, options) {
+		var opts = options || {};
+		selectedActorId = actorId || '';
+		var select = $('runbun-battle-actor');
+		if (select && select.value !== selectedActorId) select.value = selectedActorId;
+		if (lastRenderedState) renderField(lastRenderedState);
+		if (!opts.skipActions) renderActions(lastEvaluations, null);
+		if (opts.status !== false) {
+			if (selectedActorId) {
+				setStatus('Actor filter: ' + pokemonLabel(lastRenderedState, selectedActorId) +
+					'. Showing evaluate rows for that actor only (HTTP still scores the whole side).');
+			} else if (opts.clearStatus) {
+				setStatus('Actor filter cleared — showing all legal actions for the side.');
+			}
+		}
 	}
 
 	function findPokemon(state, id) {
@@ -318,12 +412,42 @@
 		return pct;
 	}
 
+	function highlightSets() {
+		var actorIds = {};
+		var targetIds = {};
+		var targetRoles = {};
+		if (selectedActorId) actorIds[selectedActorId] = true;
+		if (selectedAction && selectedAction.actorId) {
+			actorIds[selectedAction.actorId] = true;
+			var role = targetRole(lastRenderedState, selectedAction.actorId, selectedAction.targetIds);
+			(selectedAction.targetIds || []).forEach(function (tid) {
+				if (!tid) return;
+				targetIds[tid] = true;
+				targetRoles[tid] = tid === selectedAction.actorId ? 'self' : role;
+			});
+		}
+		return {actorIds: actorIds, targetIds: targetIds, targetRoles: targetRoles};
+	}
+
 	function fillActiveCard(el, label, pokemon, options) {
 		var opts = options || {};
 		el.innerHTML = '';
-		el.className = 'runbun-battle-active' +
-			(opts.sideClass ? ' ' + opts.sideClass : '') +
-			(pokemon ? '' : ' runbun-battle-active-empty');
+		var classes = ['runbun-battle-active'];
+		if (opts.sideClass) classes.push(opts.sideClass);
+		if (!pokemon) classes.push('runbun-battle-active-empty');
+		if (opts.isActor) classes.push('runbun-battle-active-actor');
+		if (opts.isTarget) {
+			classes.push('runbun-battle-active-target');
+			if (opts.targetRole === 'ally' || opts.targetRole === 'self') {
+				classes.push('runbun-battle-active-target-ally');
+			} else if (opts.targetRole === 'foe' || opts.targetRole === 'spread') {
+				classes.push('runbun-battle-active-target-foe');
+			}
+		}
+		if (opts.clickable) classes.push('runbun-battle-active-selectable');
+		el.className = classes.join(' ');
+		if (pokemon && pokemon.id) el.setAttribute('data-pokemon-id', pokemon.id);
+		else el.removeAttribute('data-pokemon-id');
 		var title = document.createElement('div');
 		title.className = 'runbun-battle-side-label';
 		title.textContent = label;
@@ -373,9 +497,20 @@
 			meta.textContent = bits.join(' · ');
 			el.appendChild(meta);
 		}
+		if (opts.isActor || opts.isTarget) {
+			var badge = document.createElement('div');
+			badge.className = 'runbun-battle-role-badge';
+			badge.setAttribute('aria-hidden', 'true');
+			if (opts.isActor && opts.isTarget) badge.textContent = 'actor · target';
+			else if (opts.isActor) badge.textContent = 'actor';
+			else badge.textContent = opts.targetRole === 'ally' ? 'ally target' :
+				opts.targetRole === 'self' ? 'self' :
+					opts.targetRole === 'spread' ? 'spread target' : 'foe target';
+			el.appendChild(badge);
+		}
 	}
 
-	function renderSideRow(field, state, sideId, rowLabel, sideClass) {
+	function renderSideRow(field, state, sideId, rowLabel, sideClass, highlights) {
 		var row = document.createElement('div');
 		row.className = 'runbun-battle-side-row runbun-battle-side-' + sideId;
 		row.setAttribute('role', 'group');
@@ -388,15 +523,32 @@
 		slots.className = 'runbun-battle-slots';
 		var doubles = isDoublesState(state);
 		var ids = activeSlotIds(state, sideId);
+		var choiceSide = selectedSideId();
 		ids.forEach(function (id, index) {
-			var card = document.createElement('div');
+			var pokemon = id ? findPokemon(state, id) : null;
+			var clickable = !!(pokemon && sideId === choiceSide && doubles);
 			var slotLabel = doubles ?
 				(sideId === 'ai' ? 'Foe' : 'Ally') + ' slot ' + (index + 1) :
 				(sideId === 'ai' ? 'AI active' : 'Player active');
-			var pokemon = id ? findPokemon(state, id) : null;
+			var card = clickable ? document.createElement('button') : document.createElement('div');
+			if (clickable) {
+				card.type = 'button';
+				card.setAttribute('aria-pressed', id === selectedActorId ? 'true' : 'false');
+				card.setAttribute('aria-label',
+					'Filter actions for ' + (pokemon.species || id) +
+					(id === selectedActorId ? ' (selected)' : ''));
+				card.addEventListener('click', function () {
+					if (selectedActorId === id) setSelectedActor('', {clearStatus: true});
+					else setSelectedActor(id);
+				});
+			}
 			fillActiveCard(card, slotLabel, pokemon, {
 				sideClass: sideClass,
 				emptyText: doubles ? '(empty Doubles slot)' : '(no active)',
+				clickable: clickable,
+				isActor: !!(id && highlights.actorIds[id]),
+				isTarget: !!(id && highlights.targetIds[id]),
+				targetRole: id ? highlights.targetRoles[id] : null,
 			});
 			slots.appendChild(card);
 		});
@@ -465,38 +617,53 @@
 	}
 
 	function renderField(state) {
+		lastRenderedState = state || null;
 		renderSummaryChips(state);
 		syncShellModeChip(state);
+		syncActorFilter(state);
 		var field = $('runbun-battle-field');
 		if (!field) {
 			renderForced(state);
 			return;
 		}
 		var doubles = isDoublesState(state);
+		var highlights = highlightSets();
 		field.innerHTML = '';
 		field.setAttribute('data-mode', doubles ? 'doubles' : 'singles');
 		field.className = 'runbun-battle-field' +
 			(doubles ? ' runbun-battle-field-doubles' : ' runbun-battle-field-singles');
-		// Doubles sketch: foes (AI) on top, allies (Player) below — no slot adjacency invented.
-		renderSideRow(field, state, 'ai', doubles ? 'Opposing (AI)' : 'AI', 'runbun-battle-active-ai');
-		renderSideRow(field, state, 'player', doubles ? 'Allies (Player)' : 'Player', 'runbun-battle-active-player');
+		// Doubles: foes (AI) on top, allies (Player) below — no slot adjacency invented.
+		renderSideRow(field, state, 'ai', doubles ? 'Opposing (AI)' : 'AI',
+			'runbun-battle-active-ai', highlights);
+		renderSideRow(field, state, 'player', doubles ? 'Allies (Player)' : 'Player',
+			'runbun-battle-active-player', highlights);
 		renderForced(state);
 	}
 
-	function formatAction(action) {
+	function formatAction(action, state) {
 		if (!action) return '(none)';
-		var actor = action.actorId ? action.actorId + ': ' : '';
+		var view = state || lastRenderedState;
+		var actor = action.actorId ?
+			(view ? pokemonLabel(view, action.actorId) : action.actorId) + ': ' : '';
 		if (action.kind === 'switch') {
 			var flags = [];
 			if (action.forced) flags.push('forced');
 			if (action.batonPass) flags.push('baton pass');
 			if (action.preserveSubstitute) flags.push('shed tail');
-			return actor + 'switch → ' + action.replacementId +
+			var replacement = action.replacementId ?
+				(view ? pokemonLabel(view, action.replacementId) : action.replacementId) :
+				'?';
+			return actor + 'switch → ' + replacement +
 				(flags.length ? ' (' + flags.join(', ') + ')' : '');
 		}
 		if (action.kind === 'move') {
-			var targets = (action.targetIds || []).join(', ');
-			return actor + action.moveName + (targets ? ' → ' + targets : '');
+			var ids = action.targetIds || [];
+			var role = targetRole(view, action.actorId, ids);
+			var targets = ids.map(function (tid) {
+				return view ? pokemonLabel(view, tid) : tid;
+			}).join(', ');
+			var roleTag = role && role !== 'none' ? ' [' + role + ']' : '';
+			return actor + action.moveName + (targets ? ' → ' + targets : '') + roleTag;
 		}
 		return JSON.stringify(action);
 	}
@@ -552,17 +719,31 @@
 		});
 	}
 
+	function filteredEvaluations(evaluations) {
+		var list = Array.isArray(evaluations) ? evaluations : [];
+		if (!selectedActorId) return list;
+		return list.filter(function (evaluation) {
+			return evaluation && evaluation.action && evaluation.action.actorId === selectedActorId;
+		});
+	}
+
 	function renderActions(evaluations, highlight) {
 		var list = $('runbun-battle-actions');
 		if (!list) return;
 		list.innerHTML = '';
 		bindActionListKeyboard(list);
-		lastEvaluations = Array.isArray(evaluations) ? evaluations : [];
+		if (Array.isArray(evaluations)) lastEvaluations = evaluations;
+		var visible = filteredEvaluations(lastEvaluations);
 		if (!lastEvaluations.length) {
 			list.textContent = 'No legal actions yet. Load state, then Evaluate or Choose.';
 			return;
 		}
-		var ranked = lastEvaluations.slice().sort(function (left, right) {
+		if (!visible.length) {
+			list.textContent = 'No legal actions for actor filter ' + selectedActorId +
+				'. Clear Actor or Evaluate again.';
+			return;
+		}
+		var ranked = visible.slice().sort(function (left, right) {
 			return bestScore(right) - bestScore(left);
 		});
 		ranked.forEach(function (evaluation, index) {
@@ -572,6 +753,10 @@
 			var row = document.createElement('button');
 			row.type = 'button';
 			row.className = 'runbun-battle-action-row';
+			var role = evaluation.action && evaluation.action.kind === 'move' ?
+				targetRole(lastRenderedState, evaluation.action.actorId, evaluation.action.targetIds) :
+				'';
+			if (role && role !== 'none') row.className += ' runbun-battle-action-role-' + role;
 			var actionLabel = formatAction(evaluation.action);
 			var scoreText = formatScore(evaluation);
 			row.setAttribute('aria-label',
@@ -602,9 +787,10 @@
 			row.appendChild(score);
 			row.addEventListener('click', function () {
 				selectedAction = evaluation.action;
+				if (lastRenderedState) renderField(lastRenderedState);
 				renderActions(lastEvaluations, null);
 				setStatus('Picked ' + formatAction(selectedAction) +
-					'. Explain below uses evaluate-actions facts/reasons. Apply or Advance next.');
+					'. Field highlights actor/targets from action.targetIds. Apply or Advance next.');
 			});
 			block.appendChild(row);
 			if (isActive && window.RunBunExplain &&
@@ -619,8 +805,15 @@
 		});
 	}
 
-	function loadSample() {
+	function resetSelection() {
 		selectedAction = null;
+		selectedActorId = '';
+		var actorSelect = $('runbun-battle-actor');
+		if (actorSelect) actorSelect.value = '';
+	}
+
+	function loadSample() {
+		resetSelection();
 		writeState(SAMPLE_STATE);
 		renderActions([]);
 		setStatus('Loaded sample Singles state (Gen 8). Modeled slice only — ' +
@@ -628,15 +821,15 @@
 	}
 
 	function loadDoublesSample() {
-		selectedAction = null;
+		resetSelection();
 		writeState(DOUBLES_SAMPLE_STATE);
 		renderActions([]);
-		setStatus('Loaded sample Doubles state (Gen 8, 2v2 slots). Display layout only — ' +
-			'targeting UX is DBL-02; same HTTP loop as Singles.');
+		setStatus('Loaded sample Doubles state (Gen 8, 2v2). Click an AI active or set Actor, ' +
+			'then Evaluate — rows keep legal targetIds (foe / ally / spread / self). Same HTTP loop.');
 	}
 
 	function loadForcedSample() {
-		selectedAction = null;
+		resetSelection();
 		writeState(FORCED_SWITCH_SAMPLE);
 		renderActions([]);
 		setStatus('Loaded forced-switch sample. pendingForcedSwitchIds is shown above; ' +
@@ -651,7 +844,7 @@
 		}
 		try {
 			var state = JSON.parse(source.value);
-			selectedAction = null;
+			resetSelection();
 			writeState(state);
 			renderActions([]);
 			setStatus('Imported BattleState from AI Debug panel.');
@@ -679,7 +872,7 @@
 				(error && error.message ? error.message : error), true);
 			return;
 		}
-		selectedAction = null;
+		resetSelection();
 		writeState(state);
 		renderActions([]);
 		postAi('/ai/validate-battle-state', {state: state}).then(function (result) {
@@ -748,9 +941,14 @@
 				return;
 			}
 			selectedAction = null;
-			renderActions(result.body.evaluations || []);
-			setStatus('Evaluated ' + ((result.body.evaluations || []).length) +
-				' legal action(s). Click a row to pick, or Choose for policy sample.');
+			var evaluations = result.body.evaluations || [];
+			renderActions(evaluations);
+			var visible = filteredEvaluations(evaluations).length;
+			var filterNote = selectedActorId ?
+				' (' + visible + ' shown for ' + selectedActorId + ')' : '';
+			setStatus('Evaluated ' + evaluations.length +
+				' legal action(s)' + filterNote +
+				'. Click a row to pick targets; field highlights actor/targets.');
 		}).catch(function (error) {
 			setStatus('Request failed. Is node server.js running? ' +
 				(error && error.message ? error.message : error), true);
@@ -776,10 +974,15 @@
 			}
 			selectedAction = result.body.action || null;
 			renderActions(result.body.evaluations || [], selectedAction);
+			if (lastRenderedState) renderField(lastRenderedState);
 			var score = typeof result.body.selectedScore === 'number' ?
 				' (score ' + result.body.selectedScore + ')' : '';
+			var filterNote = '';
+			if (selectedActorId && selectedAction && selectedAction.actorId !== selectedActorId) {
+				filterNote = ' (policy chose another actor; clear Actor filter to see it ranked)';
+			}
 			setStatus('Chose ' + formatAction(selectedAction) + score +
-				'. Apply selected to derive→apply that action.');
+				'. Apply selected to derive→apply that action.' + filterNote);
 		}).catch(function (error) {
 			setStatus('Request failed. Is node server.js running? ' +
 				(error && error.message ? error.message : error), true);
@@ -932,6 +1135,22 @@
 		bind('runbun-battle-apply', runApplySelected);
 		bind('runbun-battle-advance', runAdvanceTurn);
 		bind('runbun-battle-loop', runChooseApplyAdvance);
+		var sideSelect = $('runbun-battle-side');
+		if (sideSelect) {
+			sideSelect.addEventListener('change', function () {
+				selectedActorId = '';
+				if (lastRenderedState) renderField(lastRenderedState);
+				renderActions(lastEvaluations, null);
+				setStatus('Side set to ' + selectedSideId() +
+					'. Actor filter reset; Evaluate/Choose use this side over HTTP.');
+			});
+		}
+		var actorSelect = $('runbun-battle-actor');
+		if (actorSelect) {
+			actorSelect.addEventListener('change', function () {
+				setSelectedActor(actorSelect.value || '', {clearStatus: !actorSelect.value});
+			});
+		}
 	}
 
 	if (document.readyState === 'loading') {

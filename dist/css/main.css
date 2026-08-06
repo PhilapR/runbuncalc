@@ -1357,6 +1357,20 @@ table.field {
     min-height: 6em;
     border-radius: 2px;
     box-shadow: none;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    display: block;
+    position: relative;
+}
+#runbun-battle button.runbun-battle-active {
+    cursor: pointer;
+}
+#runbun-battle button.runbun-battle-active:focus-visible {
+    outline: 2px solid var(--rb-focus, var(--rb-action, #0b7a78));
+    outline-offset: 2px;
 }
 #runbun-battle .runbun-battle-active-player {
     border-left-color: var(--rb-action, #0b7a78);
@@ -1364,6 +1378,27 @@ table.field {
 #runbun-battle .runbun-battle-active-empty {
     opacity: 0.72;
     background: var(--rb-surface-sunken, #f0f0f0);
+}
+#runbun-battle .runbun-battle-active-actor {
+    border-color: var(--rb-action, #0b7a78);
+    box-shadow: inset 0 0 0 1px var(--rb-action, #0b7a78);
+    background: var(--rb-brand-soft, #e8f4ff);
+}
+#runbun-battle .runbun-battle-active-target-foe {
+    border-color: var(--rb-warn, #c9a227);
+    background: var(--rb-warn-soft, #fff8e1);
+}
+#runbun-battle .runbun-battle-active-target-ally {
+    border-color: var(--rb-ok, #2f9e44);
+    background: var(--rb-ok-soft, #eef6ee);
+}
+#runbun-battle .runbun-battle-role-badge {
+    margin-top: 0.35em;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    color: var(--rb-ink-muted, #555555);
 }
 #runbun-battle .runbun-battle-side-label {
     font-size: 0.72em;
@@ -1440,6 +1475,13 @@ table.field {
     align-items: center;
     gap: 0.35em;
 }
+#runbun-battle #runbun-battle-actor,
+#runbun-battle #runbun-battle-side {
+    min-height: 36px;
+}
+#runbun-battle #runbun-battle-actor-hint {
+    flex: 1 1 12em;
+}
 #runbun-battle .runbun-battle-actions-header {
     font-weight: bold;
     margin: 0.35em 0 0.35em;
@@ -1448,6 +1490,24 @@ table.field {
     font-weight: normal;
     color: var(--rb-ink-muted, #666666);
     font-size: 0.85em;
+}
+#runbun-battle .runbun-battle-action-role-ally .runbun-battle-action-label::after,
+#runbun-battle .runbun-battle-action-role-foe .runbun-battle-action-label::after,
+#runbun-battle .runbun-battle-action-role-spread .runbun-battle-action-label::after,
+#runbun-battle .runbun-battle-action-role-self .runbun-battle-action-label::after {
+    content: none;
+}
+#runbun-battle .runbun-battle-action-role-ally {
+    border-left-color: var(--rb-ok, #2f9e44);
+}
+#runbun-battle .runbun-battle-action-role-foe {
+    border-left-color: var(--rb-warn, #c9a227);
+}
+#runbun-battle .runbun-battle-action-role-spread {
+    border-left-color: var(--rb-oracle, #3d5a80);
+}
+#runbun-battle .runbun-battle-action-role-self {
+    border-left-color: var(--rb-ink-muted, #888888);
 }
 #runbun-battle .runbun-battle-actions {
     border: 1px solid var(--rb-stroke, #cccccc);
