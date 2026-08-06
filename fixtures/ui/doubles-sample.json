@@ -1,0 +1,77 @@
+{
+  "generation": 8,
+  "mode": "Doubles",
+  "turn": 1,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1", "ai-2"],
+      "party": [{
+        "id": "ai-1",
+        "species": "Pikachu",
+        "level": 100,
+        "hp": {"current": 100, "max": 100},
+        "ability": "Static",
+        "item": "Light Ball",
+        "nature": "Timid",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Thunderbolt"},
+          {"name": "Fake Out"},
+          {"name": "Protect"},
+          {"name": "Helping Hand"}
+        ]
+      }, {
+        "id": "ai-2",
+        "species": "Togekiss",
+        "level": 100,
+        "hp": {"current": 180, "max": 180},
+        "ability": "Serene Grace",
+        "item": "Leftovers",
+        "nature": "Timid",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Air Slash"},
+          {"name": "Dazzling Gleam"},
+          {"name": "Follow Me"},
+          {"name": "Protect"}
+        ]
+      }]
+    },
+    "player": {
+      "activeIds": ["player-1", "player-2"],
+      "party": [{
+        "id": "player-1",
+        "species": "Gyarados",
+        "level": 100,
+        "hp": {"current": 200, "max": 200},
+        "ability": "Intimidate",
+        "item": "Life Orb",
+        "nature": "Jolly",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Waterfall"},
+          {"name": "Earthquake"},
+          {"name": "Dragon Dance"},
+          {"name": "Protect"}
+        ]
+      }, {
+        "id": "player-2",
+        "species": "Rillaboom",
+        "level": 100,
+        "hp": {"current": 190, "max": 190},
+        "ability": "Grassy Surge",
+        "item": "Assault Vest",
+        "nature": "Adamant",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Grassy Glide"},
+          {"name": "Wood Hammer"},
+          {"name": "U-turn"},
+          {"name": "Fake Out"}
+        ]
+      }]
+    }
+  },
+  "firstTurnOutIds": ["ai-1", "ai-2", "player-1", "player-2"]
+}

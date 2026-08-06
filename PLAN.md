@@ -50,7 +50,7 @@ Shipped MVP items are in §4 (not listed again). There is **no open engine P0**.
 | P2 | EXP-01 | ~~Deeper Explain: side-by-side doc cite vs reasons / ActionFacts~~ **Done** | UI | Explain MVP; FIX-02 strongly preferred | One scored action shows matching doc section + machine facts together |
 | P2 | EXP-02 | ~~Citation map audit for top score-reason phrases~~ **Done** | docs | EXP-01 or Explain MVP | Gaps filled for high-traffic reason keywords |
 | P2 | UI-V3 | ~~Battle field polish: active cards, summary chips, forced banner, mobile JSON collapse~~ **Done** (cards + chips + collapsible JSON; forced banner retained) | UI | UI-V2 | Singles viewer reads as match UI; still thin client |
-| P2 | DBL-01 | Doubles Battle layout sketch (display only, same HTTP) | UI | Singles MVP stable; FIX-02 Doubles cases preferred | Two actives/side readable; Singles path unchanged |
+| P2 | DBL-01 | ~~Doubles Battle layout sketch (display only, same HTTP)~~ **Done** | UI | Singles MVP stable; FIX-02 Doubles cases preferred | Two actives/side readable; Singles path unchanged |
 | P2 | SET-01 | ~~Sets/Bridge preview polish (party IDs / species / HP) + elevated `#sets-bridge` IA~~ **Done** (standalone mode panel + party preview) | UI | UI-V1 | Bridge is a first-class mode target; empty/error states explicit |
 | P2 | ACC-01 | ~~A11y pass on shell/nav/status/forced-switch (focus, live regions, contrast)~~ **Done** | UI | UI-V1 | Checklist in `RUNBUN_UI_DESIGN.md` §7 satisfied for R&B rails |
 | P3 | DBL-02 | Doubles target selection UX + evaluate for selected actor + smoke | UI | DBL-01 | Load Doubles Gen 8 → evaluate → apply → advance via HTTP; targeting clear |
@@ -71,9 +71,9 @@ Shipped MVP items are in §4 (not listed again). There is **no open engine P0**.
 | Park | PARK-10 | Dedicated set builder + R&B set packs (beyond bridge) | UI | SET-01 | Reopen when bridge preview is solid and authors demand packs |
 
 **Near-term “start here”:** FIX-01…FIX-04, UI-V0…V2b, TW-01, UI-SP-01, SET-01,
-UI-V3, EXP-01, EXP-02, and ACC-01 are shipped. Next: repro-backed
-**ENG-01/02**, or DBL-01. Do not start DBL-02 / RPL-01 ahead of a Doubles
-consumer unless needed. Full phase write-ups: §6; session chunks: §7; UI
+UI-V3, EXP-01, EXP-02, ACC-01, and DBL-01 are shipped. Next: repro-backed
+**ENG-01/02**, or DBL-02 when a Doubles consumer needs targeting. Do not
+start RPL-01 ahead of need. Full phase write-ups: §6; session chunks: §7; UI
 rollout detail: [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) §9.
 
 ---
@@ -104,9 +104,9 @@ rollout detail: [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) §9.
 | Docs sync (UX / validation / README / ai README) | **Current** |
 
 **Bottom line:** The decision-useful engine, thin product MVP, fixture
-browser/goldens, Sets bridge, Singles Battle polish, deeper Explain, and
-ACC-01 a11y pass are in place. **Next:** repro-backed ENG-01/02 or DBL-01.
-No open engine P0. Not a second battle simulator — see §0.
+browser/goldens, Sets bridge, Singles/Doubles Battle field layout, deeper
+Explain, and ACC-01 a11y pass are in place. **Next:** repro-backed ENG-01/02
+or DBL-02 targeting. No open engine P0. Not a second battle simulator — see §0.
 
 ---
 
@@ -327,7 +327,7 @@ still over the same HTTP AI loop. **IDs:** DBL-01, DBL-02.
 
 | Priority | Task | Owner | ID |
 | --- | --- | --- | --- |
-| P2 | Extend Battle viewer for two actives per side (layout sketch) | `src/` | DBL-01 |
+| P2 | ~~Extend Battle viewer for two actives per side (layout sketch)~~ **Done** | `src/` | DBL-01 |
 | P3 | Target selection UX for single-target vs spread | `src/` | DBL-02 |
 | P3 | Ally support actions (Helping Hand, Follow Me, etc.) shown honestly | `src/` (display) / `ai/` (already modeled) | DBL-02 |
 | P3 | Keep Singles path unchanged; label modeled vs external | `src/` | DBL-02 |
@@ -420,7 +420,7 @@ Priorities match §0.
 | 6 | P1 | UI-V1 | Shell mode nav + `#sets-bridge` + context chips | UI design | `src/` |
 | 7 | P2 | EXP-01 | ~~Explain side-by-side panel for one expanded action row~~ **Done** | C | `src/` |
 | 8 | P2 | EXP-02 | ~~Citation map audit: gaps for top score-reason phrases~~ **Done** | C | `src/` + docs |
-| 9 | P2 | DBL-01 | Doubles Battle layout sketch (display only, still HTTP) | D | `src/` |
+| 9 | P2 | DBL-01 | ~~Doubles Battle layout sketch (display only, still HTTP)~~ **Done** | D | `src/` |
 | 10 | P3 | DBL-02 | Doubles target pick + evaluate for selected actor | D | `src/` |
 | 11 | P0 | HYG-01 | UI smoke cases for fixture browser (extend for Doubles when DBL-02) | A/B/D | `src/` |
 | 12 | P1 | ENG-01 | One engine fill from a real bug (facts + fixture + score if needed) | F | `ai/` / `calc/` |
@@ -491,6 +491,6 @@ When priorities change: update **§0 first**, then §6–§7, the phase table in
 2. ~~**P0** FIX-01 → FIX-02~~ **Done** — `fixtures/ui/` + AI Debug load/validate.
 3. ~~**P1** FIX-03/04~~ **Done** — golden snapshot + in-panel compare.
 4. ~~UI-V0/V1/V2~~ **Done** (sibling track).
-5. ~~**P2+** Explain depth (EXP-01), Battle polish (UI-V3)~~ **Done**; Doubles sketch still open.
-6. **P1** ENG-01/02 only with a repro; **P3 / Park** stay out of the critical
-   path. Policy B and “no browser engine” untouched.
+5. ~~**P2+** Explain depth (EXP-01), Battle polish (UI-V3), Doubles layout (DBL-01)~~ **Done**.
+6. **P1** ENG-01/02 only with a repro; **P3** DBL-02 / RPL-01 and **Park** stay
+   out of the critical path until needed. Policy B and “no browser engine” untouched.

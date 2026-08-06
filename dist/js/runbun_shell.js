@@ -41,7 +41,7 @@
 				{text: 'Gen 8 Singles', kind: 'brand'},
 				{text: 'Modeled slice', kind: 'warn'}
 			],
-			note: 'Practice-vs-policy turn loop over the same HTTP as AI Debug.'
+			note: 'Practice-vs-policy turn loop over the same HTTP as AI Debug. Doubles field layout follows BattleState.mode (DBL-01).'
 		}
 	};
 
