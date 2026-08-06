@@ -60,7 +60,7 @@ unranked “next”).
 | `battle` | **Singles Battle** | Human-readable turn loop over same HTTP | **Gen 8 Singles / Doubles** | MVP yes | UI-V3 + DBL-01/02 in same panel; P3 BAT-01 reverse hop |
 | `explain` | **Explain** *(later top-level)* | Doc ↔ facts side-by-side | Gen 8 | Nested under AI Debug (EXP-01) | P3 UI-V4 top-level chrome |
 | `doubles` | **Doubles Battle** *(later top-level)* | Targeting / ally chrome | Gen 8 Doubles | In Battle panel (DBL-01/02) | P3 UI-V4 dedicated mode chrome |
-| `replay` | **Replay** *(later)* | Scrub apply/advance traces | Gen 8 | No | P3 RPL-01 + UI-V4 |
+| `replay` | **Replay** | Scrub apply/advance traces | Gen 8 | MVP yes (`#runbun-replay`) | RPL-01 shipped; P3 UI-V4 polish |
 
 Headless **API** is not a nav mode; document in `ai/README.md` only.
 
@@ -416,7 +416,7 @@ JSON; explain MVP (expand row).
 | P3 | BAT-01 | “Open in AI Debug” reverse import |
 | P2 | DBL-01 | ~~Doubles layout sketch (Battle viewer; keep Singles path)~~ **Done** |
 | P3 | DBL-02 | ~~Doubles targeting + smoke~~ **Done** |
-| P3 | RPL-01 | Replay scrubber (not Battle MVP) |
+| P3 | RPL-01 | ~~Replay scrubber~~ **Done** (`#runbun-replay`) |
 | Park | PARK-07 | Live ladder / Showdown protocol look-and-feel |
 
 **Forced switch:** Banner lists pending IDs; restrict visible actions to legal

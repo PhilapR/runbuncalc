@@ -1627,3 +1627,155 @@ table.field {
         grid-template-columns: 1fr;
     }
 }
+
+/* Replay scrubber (#runbun-replay) — RPL-01 */
+#runbun-replay.runbun-replay {
+    margin: var(--rb-space-4, 1rem) auto;
+    max-width: 72rem;
+    padding: var(--rb-space-3, 0.75rem) var(--rb-space-4, 1rem);
+}
+#runbun-replay .runbun-replay-title {
+    margin: 0 0 0.35em;
+    font-size: 1.35em;
+}
+#runbun-replay .runbun-replay-help {
+    margin: 0 0 0.75em;
+    color: var(--rb-ink-muted, #555);
+    max-width: 60rem;
+}
+#runbun-replay .runbun-replay-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em 0.6em;
+    align-items: flex-start;
+    margin: 0 0 0.75em;
+    padding: 0.55em 0.65em;
+    border: 1px solid var(--rb-stroke, #ccc);
+    border-radius: 2px;
+    background: var(--rb-surface-raised, #fff);
+}
+#runbun-replay .runbun-replay-chip {
+    display: inline-block;
+    padding: 0.15em 0.45em;
+    border-radius: 2px;
+    font-size: 0.85em;
+    background: var(--rb-surface-sunken, #f3f3f3);
+    color: var(--rb-ink, #222);
+}
+#runbun-replay .runbun-replay-field-lines {
+    flex: 1 1 100%;
+    white-space: pre-wrap;
+    font-family: var(--rb-font-mono, Consolas, Monaco, monospace);
+    font-size: 0.9em;
+}
+#runbun-replay .runbun-replay-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45em 0.55em;
+    align-items: center;
+    margin: 0 0 0.65em;
+}
+#runbun-replay .runbun-replay-file-label,
+#runbun-replay .runbun-replay-scrubber-label {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35em;
+    align-items: center;
+    font-size: 0.9em;
+}
+#runbun-replay .runbun-replay-scrubber-label input[type="range"] {
+    min-width: 12rem;
+}
+#runbun-replay .runbun-replay-position {
+    font-variant-numeric: tabular-nums;
+    color: var(--rb-ink-muted, #555);
+    font-size: 0.9em;
+}
+#runbun-replay .runbun-replay-step {
+    margin: 0 0 0.65em;
+    min-height: 1.25em;
+    color: var(--rb-ink, #222);
+}
+#runbun-replay .runbun-replay-actions-header {
+    margin: 0.35em 0;
+    font-weight: 600;
+}
+#runbun-replay .runbun-replay-hint {
+    font-weight: 400;
+    color: var(--rb-ink-muted, #666);
+    font-size: 0.9em;
+}
+#runbun-replay .runbun-replay-actions {
+    border: 1px solid var(--rb-stroke, #ccc);
+    border-radius: 2px;
+    background: var(--rb-surface-raised, #fff);
+    margin: 0 0 0.75em;
+    max-height: 14em;
+    overflow: auto;
+}
+#runbun-replay .runbun-replay-action-row {
+    display: grid;
+    grid-template-columns: 2rem 1fr 4rem;
+    gap: 0.35em;
+    padding: 0.35em 0.55em;
+    border-bottom: 1px solid var(--rb-stroke, #ececec);
+    font-size: 0.92em;
+}
+#runbun-replay .runbun-replay-action-row:last-child {
+    border-bottom: none;
+}
+#runbun-replay .runbun-replay-rank {
+    color: var(--rb-ink-muted, #666);
+}
+#runbun-replay .runbun-replay-score {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+#runbun-replay .runbun-replay-empty {
+    margin: 0.55em;
+    color: var(--rb-ink-muted, #666);
+}
+#runbun-replay .runbun-replay-json-details {
+    margin: 0.65em 0;
+    border: 1px solid var(--rb-stroke, #cccccc);
+    border-radius: 2px;
+    background: var(--rb-surface-raised, #fff);
+    padding: 0.35em 0.55em 0.55em;
+}
+#runbun-replay .runbun-replay-state-label {
+    display: list-item;
+    margin-bottom: 0.35em;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--rb-ink-muted, #555555);
+}
+#runbun-replay .runbun-replay-state {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--rb-font-mono, Consolas, Monaco, monospace);
+    font-size: 0.85em;
+    min-height: 9em;
+    background: var(--rb-surface-sunken, #fff);
+    color: var(--rb-ink, inherit);
+    border: 1px solid var(--rb-stroke, #ccc);
+}
+#runbun-replay .runbun-replay-status {
+    margin: 0.5em 0 0;
+    min-height: 1.25em;
+    font-size: 0.9em;
+    color: var(--rb-ink-muted, inherit);
+}
+#runbun-replay .runbun-replay-status:not(:empty):not(.runbun-replay-error) {
+    color: var(--rb-ok, #1b7a3d);
+    background: var(--rb-ok-soft, transparent);
+    padding: 0.25em 0.4em;
+    border-radius: 2px;
+}
+#runbun-replay .runbun-replay-error {
+    color: var(--rb-danger, #a40000);
+    background: var(--rb-danger-soft, transparent);
+    padding: 0.25em 0.4em;
+    border-radius: 2px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

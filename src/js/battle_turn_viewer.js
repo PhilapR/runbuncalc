@@ -5,6 +5,7 @@
  * Singles and Doubles field layouts follow BattleState.mode.
  * Doubles targeting (DBL-02): filter/display actorId + targetIds from evaluate;
  * no browser-side legality reinvention.
+ * Session recording feeds RPL-01 shareable apply/advance traces (stored resolutions).
  * Does not reimplement scoring or battle transitions in the browser.
  */
 (function () {
@@ -194,9 +195,23 @@
 	var lastEvaluations = [];
 	var selectedActorId = '';
 	var lastRenderedState = null;
+	var sessionRecorder = null;
 
 	function $(id) {
 		return document.getElementById(id);
+	}
+
+	function beginRecording(state) {
+		if (!window.RunBunReplayTrace ||
+			typeof window.RunBunReplayTrace.createRecorder !== 'function') {
+			sessionRecorder = null;
+			return;
+		}
+		try {
+			sessionRecorder = window.RunBunReplayTrace.createRecorder(state);
+		} catch (error) {
+			sessionRecorder = null;
+		}
 	}
 
 	function selectedSideId() {
@@ -220,6 +235,7 @@
 			'runbun-battle-load-forced',
 			'runbun-battle-load-ai-panel',
 			'runbun-battle-load-bridge',
+			'runbun-battle-export-replay',
 		].forEach(function (id) {
 			var btn = $(id);
 			if (btn) btn.disabled = !!busy;
@@ -815,6 +831,7 @@
 	function loadSample() {
 		resetSelection();
 		writeState(SAMPLE_STATE);
+		beginRecording(SAMPLE_STATE);
 		renderActions([]);
 		setStatus('Loaded sample Singles state (Gen 8). Modeled slice only — ' +
 			'external residuals / unmodeled events stay caller-owned.');
@@ -823,6 +840,7 @@
 	function loadDoublesSample() {
 		resetSelection();
 		writeState(DOUBLES_SAMPLE_STATE);
+		beginRecording(DOUBLES_SAMPLE_STATE);
 		renderActions([]);
 		setStatus('Loaded sample Doubles state (Gen 8, 2v2). Click an AI active or set Actor, ' +
 			'then Evaluate — rows keep legal targetIds (foe / ally / spread / self). Same HTTP loop.');
@@ -831,6 +849,7 @@
 	function loadForcedSample() {
 		resetSelection();
 		writeState(FORCED_SWITCH_SAMPLE);
+		beginRecording(FORCED_SWITCH_SAMPLE);
 		renderActions([]);
 		setStatus('Loaded forced-switch sample. pendingForcedSwitchIds is shown above; ' +
 			'Evaluate returns only legal replacements for that side.');
@@ -846,6 +865,7 @@
 			var state = JSON.parse(source.value);
 			resetSelection();
 			writeState(state);
+			beginRecording(state);
 			renderActions([]);
 			setStatus('Imported BattleState from AI Debug panel.');
 		} catch (error) {
@@ -874,6 +894,7 @@
 		}
 		resetSelection();
 		writeState(state);
+		beginRecording(state);
 		renderActions([]);
 		postAi('/ai/validate-battle-state', {state: state}).then(function (result) {
 			if (result.status >= 400) {
@@ -998,7 +1019,11 @@
 				if (applied.status >= 400) {
 					throw Object.assign(new Error(formatHttpError(applied) + ' (apply-action)'), {http: true});
 				}
-				return {state: applied.body, note: 'Applied switch ' + formatAction(action) + '.'};
+				return {
+					state: applied.body,
+					resolution: null,
+					note: 'Applied switch ' + formatAction(action) + '.',
+				};
 			});
 		}
 		if (action.kind !== 'move') {
@@ -1018,11 +1043,65 @@
 				}
 				return {
 					state: applied.body,
+					resolution: derived.body,
 					note: 'Derived + applied ' + formatAction(action) +
 						' (modeled resolution slice).',
 				};
 			});
 		});
+	}
+
+	function recordApplyResult(action, result, evaluations) {
+		if (!sessionRecorder || !action) return;
+		try {
+			sessionRecorder.recordApply({
+				action: action,
+				resolution: result.resolution || undefined,
+				stateAfter: result.state,
+				sideId: selectedSideId(),
+				evaluations: evaluations || lastEvaluations || [],
+			});
+		} catch (error) {
+			/* keep battle loop usable even if recorder rejects */
+		}
+	}
+
+	function recordAdvanceResult(stateAfter) {
+		if (!sessionRecorder || !stateAfter) return;
+		try {
+			sessionRecorder.recordAdvance(stateAfter);
+		} catch (error) {
+			/* ignore recorder failures */
+		}
+	}
+
+	function exportSessionReplay(meta) {
+		if (!sessionRecorder) {
+			throw new Error('No session recorder. Load a BattleState first (requires replay_trace.js).');
+		}
+		return sessionRecorder.toReplay(meta || {
+			id: 'battle-session',
+			label: 'Battle Turn Viewer session',
+		});
+	}
+
+	function runExportReplay() {
+		try {
+			var replay = exportSessionReplay();
+			var blob = new Blob([JSON.stringify(replay, null, 2)], {type: 'application/json'});
+			var url = URL.createObjectURL(blob);
+			var anchor = document.createElement('a');
+			anchor.href = url;
+			anchor.download = (replay.id || 'battle-session') + '.json';
+			document.body.appendChild(anchor);
+			anchor.click();
+			document.body.removeChild(anchor);
+			URL.revokeObjectURL(url);
+			setStatus('Exported session replay (' + replay.steps.length +
+				' step(s)). Open Replay to scrub without re-rolling.');
+		} catch (error) {
+			setStatus(error && error.message ? error.message : String(error), true);
+		}
 	}
 
 	function runApplySelected() {
@@ -1034,9 +1113,12 @@
 			setStatus(error.message, true);
 			return;
 		}
+		if (!sessionRecorder) beginRecording(state);
+		var action = selectedAction;
 		setBusy(true);
-		applyActionPath(selectedAction, state).then(function (result) {
+		applyActionPath(action, state).then(function (result) {
 			selectedAction = null;
+			recordApplyResult(action, result);
 			writeState(result.state);
 			renderActions([]);
 			setStatus(result.note +
@@ -1056,6 +1138,7 @@
 			setStatus(error.message, true);
 			return;
 		}
+		if (!sessionRecorder) beginRecording(state);
 		setBusy(true);
 		postAi('/ai/advance-turn', {state: state}).then(function (result) {
 			if (result.status >= 400) {
@@ -1063,6 +1146,7 @@
 				return;
 			}
 			selectedAction = null;
+			recordAdvanceResult(result.body);
 			writeState(result.body);
 			renderActions([]);
 			setStatus('Advanced turn (modeled residual / timer slice). ' +
@@ -1082,6 +1166,7 @@
 			setStatus(error.message, true);
 			return;
 		}
+		if (!sessionRecorder) beginRecording(state);
 		setBusy(true);
 		postAi('/ai/choose-action', {state: state, options: requestOptions()}).then(function (choice) {
 			if (choice.status >= 400) {
@@ -1090,8 +1175,10 @@
 			}
 			var action = choice.body.action;
 			selectedAction = action;
-			renderActions(choice.body.evaluations || [], action);
+			var evaluations = choice.body.evaluations || [];
+			renderActions(evaluations, action);
 			return applyActionPath(action, state).then(function (applied) {
+				recordApplyResult(action, applied, evaluations);
 				return postAi('/ai/advance-turn', {state: applied.state}).then(function (advanced) {
 					if (advanced.status >= 400) {
 						writeState(applied.state);
@@ -1099,6 +1186,7 @@
 						return;
 					}
 					selectedAction = null;
+					recordAdvanceResult(advanced.body);
 					writeState(advanced.body);
 					renderActions([]);
 					setStatus('Full step: chose ' + formatAction(action) +
@@ -1115,6 +1203,13 @@
 		var el = $(id);
 		if (el) el.addEventListener('click', handler);
 	}
+
+	window.RunBunBattleReplay = {
+		exportSession: exportSessionReplay,
+		stepCount: function () {
+			return sessionRecorder ? sessionRecorder.stepCount() : 0;
+		},
+	};
 
 	function init() {
 		if (!$('runbun-battle')) return;
@@ -1135,6 +1230,7 @@
 		bind('runbun-battle-apply', runApplySelected);
 		bind('runbun-battle-advance', runAdvanceTurn);
 		bind('runbun-battle-loop', runChooseApplyAdvance);
+		bind('runbun-battle-export-replay', runExportReplay);
 		var sideSelect = $('runbun-battle-side');
 		if (sideSelect) {
 			sideSelect.addEventListener('change', function () {

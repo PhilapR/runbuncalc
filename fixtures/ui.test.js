@@ -6,6 +6,7 @@ const path = require('node:path');
 const test = require('node:test');
 const ai = require('../ai');
 const goldenEval = require('./ui/golden_eval');
+const replayTrace = require('./ui/replay_trace');
 const toSnapshot = goldenEval.toSnapshot;
 const compareSnapshots = goldenEval.compareSnapshots;
 const formatDiffs = goldenEval.formatDiffs;
@@ -94,4 +95,57 @@ test('zero-EV overlays are present on UI fixtures that declare natures', () => {
 			}
 		}
 	}
+});
+
+test('sample apply-advance replay loads, scrubs, and validates without re-derive', () => {
+	const replayPath = path.join(uiDir, 'replays', 'sample.json');
+	assert.ok(fs.existsSync(replayPath), 'fixtures/ui/replays/sample.json');
+	const raw = readJson(replayPath);
+	const replay = replayTrace.validateReplayWithAi(raw, ai);
+	assert.equal(replay.kind, 'apply-advance-trace');
+	assert.equal(replayTrace.frameCount(replay), replay.steps.length + 1);
+	const initial = replayTrace.getFrame(replay, 0);
+	assert.equal(initial.state.turn, replay.initialState.turn);
+	assert.ok(initial.evaluations.length >= 1, 'sample stores ranked actions on first apply');
+	const afterApply = replayTrace.getFrame(replay, 1);
+	assert.equal(afterApply.step.type, 'apply');
+	assert.ok(afterApply.step.resolution, 'apply step must store resolution');
+	assert.equal(afterApply.step.action.moveName, 'Thunderbolt');
+	const afterAdvance = replayTrace.getFrame(replay, 2);
+	assert.equal(afterAdvance.step.type, 'advance');
+	assert.ok(afterAdvance.state.turn > replay.initialState.turn);
+
+	assert.throws(
+		() => replayTrace.parseReplay({schemaVersion: 1, kind: 'nope'}),
+		/kind must be/
+	);
+	assert.throws(
+		() => replayTrace.parseReplay({
+			schemaVersion: 1,
+			kind: 'apply-advance-trace',
+			initialState: replay.initialState,
+			steps: [{type: 'apply', action: {kind: 'move'}, stateAfter: replay.initialState}],
+		}),
+		/action must be a move or switch|resolution is required/
+	);
+});
+
+test('replay recorder exports a scrubbable shareable trace', () => {
+	const state = readJson(path.join(uiDir, 'sample.json'));
+	const recorder = replayTrace.createRecorder(state);
+	const action = {
+		kind: 'move',
+		actorId: 'ai-1',
+		moveName: 'Protect',
+		targetIds: ['ai-1'],
+	};
+	const resolution = ai.deriveMoveResolution(state, action, ai.calculateActionFacts, () => 0.99);
+	const after = ai.applyAction(state, action, resolution);
+	recorder.recordApply({action, resolution, stateAfter: after, evaluations: []});
+	const advanced = ai.advanceTurn(after);
+	recorder.recordAdvance(advanced);
+	const exported = recorder.toReplay({id: 'unit', label: 'unit'});
+	const validated = replayTrace.validateReplayWithAi(exported, ai);
+	assert.equal(validated.steps.length, 2);
+	assert.equal(replayTrace.getFrame(validated, 1).step.action.moveName, 'Protect');
 });
