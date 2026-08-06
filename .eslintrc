@@ -1,7 +1,7 @@
 {
     "root": true,
     "parserOptions": {
-        "ecmaVersion": 5,
+        "ecmaVersion": 2020,
         "sourceType": "script"
     },
     "env": {
@@ -24,6 +24,9 @@
         "lastAutoStatus": false,
         "startsWith": false,
         "notation": true,
+        "setdex": true,
+        "CURRENT_TRAINER_POKS": true,
+        "RunBunSetsBridge": false,
         "SETDEX_SV": false,
         "SETDEX_SS": false,
         "SETDEX_SM": false,
@@ -49,7 +52,14 @@
         "loadDefaultLists": false,
         "pokedex": true,
         "createField": false,
-        "createPokemon": false
+        "createPokemon": false,
+        "addBoxed": false,
+        "selectFirstMon": false,
+        "setupSideCollapsers": false,
+        "TRUCK_MESSAGES": false,
+        "calculationsColors": false,
+        "interact": false,
+        "saveTrainerPokemon": false
     },
     "extends": "eslint:recommended",
     "rules": {

@@ -1,0 +1,33 @@
+{
+  "name": "runbuncalc-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Run & Bun AI state and decision-policy layer",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@pkmn/dex": "^0.7.13",
+    "@smogon/calc": "file:../calc"
+  },
+  "scripts": {
+    "lint": "tsc --noEmit -p .",
+    "compile": "tsc -p .",
+    "build": "npm run compile",
+    "test-burning-jealousy": "npm run compile && node dist/test/burning-jealousy.test.js",
+    "test-gigaton-hammer": "npm run compile && node dist/test/gigaton-hammer.test.js",
+    "test-scale-shot": "npm run compile && node dist/test/scale-shot.test.js",
+    "test-echoed-voice": "npm run compile && node dist/test/echoed-voice.test.js",
+    "test-fury-cutter": "npm run compile && node dist/test/fury-cutter.test.js",
+    "test-typeless-moves": "npm run compile && node dist/test/typeless-moves.test.js",
+    "test-relic-song": "npm run compile && node dist/test/relic-song.test.js",
+    "test-fling-effects": "npm run compile && node dist/test/fling-effects.test.js",
+    "test-rage-fist-last-respects": "npm run compile && node dist/test/rage-fist-last-respects.test.js",
+    "test-pledge": "npm run compile && node dist/test/pledge.test.js",
+    "test-evs": "npm run compile && node dist/test/evs.test.js",
+    "test": "npm run compile && node test-runner.js"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "typescript": "^7.0.2"
+  }
+}

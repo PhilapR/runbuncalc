@@ -11,9 +11,11 @@
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es3",
+    "target": "es2015",
+    "types": ["node"],
     "removeComments": true,
   }
 }
