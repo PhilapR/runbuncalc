@@ -203,6 +203,70 @@ model. Invalid payloads surface the API's JSON HTTP 400 body in the status line.
 Smoke coverage: `npm run test:server` (includes validate-battle-state and the
 critical AI routes above).
 
+## External adapters (ADP-01)
+
+An external caller — a Lua bridge, a Showdown adapter, a script — drives the
+same loop the browser panels do. There is no privileged path.
+
+### The adapter pattern: external events become validated state patches
+
+The engine models a slice, not a whole simulator. An adapter owns the outside
+world and hands the engine explicit state, in one direction:
+
+```text
+  external event            adapter                     ai/
+  ─────────────────         ───────────────────         ─────────────────────
+  "Gyarados used            build a state PATCH         validate-battle-state
+   Waterfall, 42 dmg"  ──►  on your own copy      ──►   evaluate / choose
+                            of BattleState              derive-resolution
+                                                        apply-action
+  "turn ended"        ──►   advance-turn          ──►   next BattleState
+```
+
+Rules that keep an adapter honest:
+
+1. **Patch state, do not re-derive it.** When the external engine already
+   decided what happened, write the outcome into `BattleState` and re-validate.
+   Do not ask `derive-resolution` to invent a result you already know.
+2. **Validate at every hop.** Round-trip through
+   `/ai/validate-battle-state` after each patch. A rejected patch is a bug in
+   the adapter, and the `{error, code}` 400 names the offending field.
+3. **Unmodeled events stay inject-only.** Anything outside the modeled slice
+   (exact residual interleaving, uncommon accuracy) is applied by the adapter as
+   an HP/status/field patch. The engine will not guess it — see PLAN.md §5.
+4. **Stable IDs are the contract.** Party membership is keyed by `id`, never by
+   array position. Keep your IDs stable across the whole battle.
+5. **Zero EVs in, zero EVs out.** Run & Bun removes EVs from battle math; send
+   an explicit zero EV map rather than relying on defaults.
+
+Move actions **require** a `resolution`; switch actions **must omit** it. That
+single rule catches most adapter mistakes.
+
+### Batch evaluate CLI
+
+`scripts/eval-fixtures.js` scores many states headlessly and compares each
+against its declared golden — the offline counterpart to the AI Debug panel:
+
+```sh
+npm run eval:fixtures                        # every named scenario
+node scripts/eval-fixtures.js --tag doubles  # filter by tag
+node scripts/eval-fixtures.js sample pivot   # filter by id
+node scripts/eval-fixtures.js --json         # machine-readable report
+node scripts/eval-fixtures.js --list         # ids + which declare a golden
+```
+
+Exit code `0` means every selected scenario evaluated and every declared golden
+matched; `1` means a mismatch or an evaluation failure; `2` is a usage error.
+The report prints each scenario's action count, top-ranked action, and score.
+
+Goldens are **not** written by this command. Regeneration stays deliberate:
+
+```sh
+node scripts/regen-ui-golden.js <fixtureId>
+```
+
+Point it at your own scenarios by adding them to `fixtures/ui/manifest.json`.
+
 ## Ownership
 
 Keep generic damage mechanics in `calc/`, Run & Bun policy and transitions in

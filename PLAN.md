@@ -57,7 +57,7 @@ Shipped MVP items are in §4 (not listed again). There is **no open engine P0**.
 | P3 | EXP-03 | Optional quiz / “spot the score” scenarios | UI | FIX-02, EXP-01 | At least one teachable scenario using goldens/fixtures |
 | P3 | RPL-01 | ~~Replay scrubber + shareable apply/advance traces~~ **Done** (`#runbun-replay`, `fixtures/ui/replays/`) | UI | FIX-04 useful; DBL optional | Saved replay reloads/steps; invalid → 400 clarity |
 | P3 | UI-V4 | Later mode chrome: Explain top-level, Doubles, Replay visuals | UI | EXP-01, DBL-02, RPL-01 as each lands | Per mode done-when in UI design §9 |
-| P3 | ADP-01 | Fixture batch CLI + adapter pattern docs (+ optional OpenAPI-ish freeze) | docs | Stable HTTP (shipped); real consumer | External caller can validate→evaluate→derive→apply→advance headless — **partial:** HTTP `{error,code}` + BattleState/Action prefixes frozen in `ai/README.md` / smoke |
+| P3 | ADP-01 | Fixture batch CLI + adapter pattern docs (+ optional OpenAPI-ish freeze) | docs | Stable HTTP (shipped); real consumer | External caller can validate→evaluate→derive→apply→advance headless — **batch CLI + adapter docs done** (`scripts/eval-fixtures.js`, `ai/README.md`); only the optional OpenAPI-ish freeze remains |
 | P3 | BAT-01 | Battle → AI Debug reverse import (“Open in AI Debug”) | UI | Battle + AI Debug MVP | Explicit hop copies validated JSON both ways |
 | Park | PARK-01 | Exact PS residual / event-queue interleaving | engine | — | Reopen if external adapter needs a specific residual ordering contract |
 | Park | PARK-02 | Full ability / volatile encyclopedia sweep | engine | — | Reopen on bug report with reproducible `BattleState` |
@@ -193,6 +193,11 @@ Treat these as **shipped baselines**. Re-break only with intent and tests.
 - [x] Full HTTP surface + `npm run test:server` (incl. validate-battle-state)
 - [x] `secondaryRolls` / derive-resolution trace coverage in smoke
 - [x] Policy B documented (upstream inventory buckets in `VALIDATION.md`)
+- [x] Species names validated against the target generation's dex — an unknown
+      species is now an explicit `Invalid BattleState` 400 instead of an
+      internal calculator `TypeError` (`species-validation.test.ts`)
+- [x] Headless batch evaluate CLI + adapter pattern docs (ADP-01)
+- [x] All 11 named UI fixtures are evaluated in the gate, not just validated
 
 ### Product / UI
 
@@ -398,9 +403,9 @@ sweep of “all abilities.”
 
 | Priority | Task | Owner | ID |
 | --- | --- | --- | --- |
-| P3 | Fixture batch runner CLI (evaluate many states) | scripts / `ai/` | ADP-01 |
-| P3 | Document adapter pattern: external events → validated state patches | docs | ADP-01 |
-| P3 | Optional OpenAPI-ish freeze of endpoint schemas | docs / `ai/README.md` | ADP-01 |
+| P3 | ~~Fixture batch runner CLI (evaluate many states)~~ **Done** (`scripts/eval-fixtures.js`, `npm run eval:fixtures`) | scripts / `ai/` | ADP-01 |
+| P3 | ~~Document adapter pattern: external events → validated state patches~~ **Done** (`ai/README.md` "External adapters") | docs | ADP-01 |
+| P3 | Optional OpenAPI-ish freeze of endpoint schemas — still open | docs / `ai/README.md` | ADP-01 |
 | Park | Auth only if ever hosted | — | (no ID until hosting is in scope) |
 
 **Done when:** An external caller can validate → evaluate → derive → apply →

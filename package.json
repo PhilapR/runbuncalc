@@ -42,6 +42,7 @@
     "build": "npm run build --prefix calc && npm run build --prefix ai && node build view",
     "test": "npm run test --prefix calc && npm run test --prefix ai && npm run build && npm run test:server && eslint --cache src --ext js",
     "test:server": "node --test server.smoke.test.js sets_to_battle_state.test.js fixtures/ui.test.js",
+    "eval:fixtures": "node scripts/eval-fixtures.js",
     "postinstall": "subpkg install"
   },
   "subPackages": [

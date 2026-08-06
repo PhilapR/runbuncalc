@@ -8,7 +8,7 @@
       "activeIds": ["ai-1"],
       "party": [{
         "id": "ai-1",
-        "species": "Aegislash",
+        "species": "Aegislash-Shield",
         "level": 50,
         "hp": {"current": 45, "max": 130},
         "ability": "Stance Change",

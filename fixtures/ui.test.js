@@ -67,6 +67,29 @@ test('every UI fixture validates via validateBattleState', () => {
 	}
 });
 
+test('every UI fixture evaluates, not just validates', () => {
+	// Regression: only `sample` was ever evaluated, so `protect` sat in the
+	// manifest with a non-dex species ("Aegislash") that validated fine and then
+	// threw from inside the calculator on the first evaluate. Score every
+	// scenario the batch CLI would (scripts/eval-fixtures.js).
+	const manifest = readJson(manifestPath);
+	for (const scenario of manifest.scenarios) {
+		const state = readJson(path.join(uiDir, scenario.file));
+		const options = scenario.defaultOptions || {sideId: 'ai', includeSwitches: false};
+		const sideId = options.sideId === 'player' ? 'player' : 'ai';
+		let evaluations;
+		assert.doesNotThrow(() => {
+			evaluations = ai.evaluateActions(state, ai.calculateActionFacts, sideId, {
+				includeSwitches: !!options.includeSwitches,
+			});
+		}, scenario.id + ' must evaluate without throwing');
+		assert.ok(
+			Array.isArray(evaluations) && evaluations.length >= 1,
+			scenario.id + ' should produce at least one scored action'
+		);
+	}
+});
+
 test('sample golden evaluate snapshot matches current evaluate-actions', () => {
 	const manifest = readJson(manifestPath);
 	const scenario = manifest.scenarios.find(entry => entry.id === 'sample');

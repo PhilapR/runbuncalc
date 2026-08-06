@@ -1,6 +1,25 @@
+import * as Calc from '@smogon/calc';
 import {Action, ActionFacts, BattleState, DelayedMoveState, EndTurnResolution, MoveAction, MoveResolution, ResolutionTrace, SideEffects, SideId, StatBoosts, SwitchAction, SwitchEntryResolution, VolatileState} from './model';
 import {getMoveMetadata} from './move-metadata';
 import {pledgeElement} from './pledge';
+
+/**
+ * A species name must resolve in the target generation's calculator dex.
+ *
+ * Every calculator projection ultimately builds a `Calc.Pokemon`, and even the
+ * `baseStatsOverride` path reads the canonical species' base stats first, so an
+ * unknown name has no working custom path -- it throws deep inside the
+ * calculator. Catching it here keeps an invalid payload an explicit client
+ * error (HTTP 400) instead of an accidental internal failure.
+ */
+function speciesExists(generation: number, species: string): boolean {
+  try {
+    const id = species.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return !!Calc.Generations.get(generation as never).species.get(id as never);
+  } catch {
+    return false;
+  }
+}
 
 const STATUS_NAMES = new Set(['', 'slp', 'psn', 'brn', 'frz', 'par', 'tox']);
 const STAT_NAMES = new Set(['hp', 'atk', 'def', 'spa', 'spd', 'spe', 'acc', 'eva']);
@@ -1027,9 +1046,15 @@ function validateMoveArray(pokemonId: string, moves: unknown, label: string) {
   }
 }
 
-function validatePokemon(pokemon: BattleState['sides'][SideId]['party'][number]) {
+function validatePokemon(
+  pokemon: BattleState['sides'][SideId]['party'][number],
+  generation: BattleState['generation'],
+) {
   if (!pokemon.id || typeof pokemon.id !== 'string') invalid('Pokémon IDs must be non-empty strings');
   if (!pokemon.species || typeof pokemon.species !== 'string') invalid(`${pokemon.id} species is required`);
+  if (!speciesExists(generation, pokemon.species)) {
+    invalid(`${pokemon.id} species ${pokemon.species} is not a Generation ${generation} species`);
+  }
   requireInteger(pokemon.level, `${pokemon.id} level`, 1, 100);
   if (!pokemon.hp || typeof pokemon.hp !== 'object') invalid(`${pokemon.id} HP is required`);
   requireInteger(pokemon.hp.max, `${pokemon.id} max HP`, 1);
@@ -1094,9 +1119,13 @@ function validatePokemon(pokemon: BattleState['sides'][SideId]['party'][number])
   if (pokemon.abilitySuppressed !== undefined && typeof pokemon.abilitySuppressed !== 'boolean') {
     invalid(`${pokemon.id} abilitySuppressed must be boolean`);
   }
-  if (pokemon.speciesOverride !== undefined &&
-    (typeof pokemon.speciesOverride !== 'string' || !pokemon.speciesOverride)) {
-    invalid(`${pokemon.id} speciesOverride must be a non-empty species name`);
+  if (pokemon.speciesOverride !== undefined) {
+    if (typeof pokemon.speciesOverride !== 'string' || !pokemon.speciesOverride) {
+      invalid(`${pokemon.id} speciesOverride must be a non-empty species name`);
+    }
+    if (!speciesExists(generation, pokemon.speciesOverride)) {
+      invalid(`${pokemon.id} speciesOverride ${pokemon.speciesOverride} is not a Generation ${generation} species`);
+    }
   }
   if (pokemon.lastConsumedItem !== undefined &&
     (typeof pokemon.lastConsumedItem !== 'string' || !pokemon.lastConsumedItem)) {
@@ -1207,7 +1236,7 @@ export function validateBattleState(state: BattleState): void {
       activeIds.add(activeId);
     }
     for (const pokemon of side.party) {
-      validatePokemon(pokemon);
+      validatePokemon(pokemon, state.generation);
       if (partyIds.has(pokemon.id)) invalid(`duplicate Pokémon ID ${pokemon.id}`);
       partyIds.add(pokemon.id);
     }
