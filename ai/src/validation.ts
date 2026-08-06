@@ -43,14 +43,33 @@ const SIDE_EFFECT_NAMES = new Set([
 const FIELD_NAMES = new Set(['weather', 'terrain', ...FIELD_BOOLEAN_NAMES, 'durations']);
 const ACTION_FAILURE_NAMES = new Set(['flinch', 'paralysis', 'sleep', 'freeze', 'confusion', 'infatuation', 'protect', 'truant']);
 
-function clientError(kind: 'BattleState' | 'Action', message: string): never {
-  const error = new Error(`Invalid ${kind}: ${message}`) as Error & {statusCode: number};
+type ClientErrorKind = 'BattleState' | 'Action';
+
+/** Active kind for shared helpers; Action wraps resolution / engine-option paths. */
+let clientErrorKind: ClientErrorKind = 'BattleState';
+
+function clientError(kind: ClientErrorKind, message: string): never {
+  const error = new Error(`Invalid ${kind}: ${message}`) as Error & {
+    statusCode: number;
+    code: 'InvalidBattleState' | 'InvalidAction';
+  };
   error.statusCode = 400;
+  error.code = kind === 'BattleState' ? 'InvalidBattleState' : 'InvalidAction';
   throw error;
 }
 
+function withClientErrorKind<T>(kind: ClientErrorKind, fn: () => T): T {
+  const previous = clientErrorKind;
+  clientErrorKind = kind;
+  try {
+    return fn();
+  } finally {
+    clientErrorKind = previous;
+  }
+}
+
 function invalid(message: string): never {
-  return clientError('BattleState', message);
+  return clientError(clientErrorKind, message);
 }
 
 function invalidAction(message: string): never {
@@ -399,6 +418,20 @@ export function validateMoveResolution(
   action: MoveAction,
   resolution: unknown,
 ): asserts resolution is MoveResolution {
+  const previous = clientErrorKind;
+  clientErrorKind = 'Action';
+  try {
+    validateMoveResolutionBody(state, action, resolution);
+  } finally {
+    clientErrorKind = previous;
+  }
+}
+
+function validateMoveResolutionBody(
+  state: BattleState,
+  action: MoveAction,
+  resolution: unknown,
+): asserts resolution is MoveResolution {
   if (!resolution || typeof resolution !== 'object' || Array.isArray(resolution)) invalid('resolution must be an object');
   const candidate = resolution as Record<string, unknown>;
   const allowed = new Set([
@@ -543,6 +576,19 @@ export function validateEndTurnResolution(
   state: BattleState,
   resolution: unknown,
 ): asserts resolution is EndTurnResolution {
+  const previous = clientErrorKind;
+  clientErrorKind = 'Action';
+  try {
+    validateEndTurnResolutionBody(state, resolution);
+  } finally {
+    clientErrorKind = previous;
+  }
+}
+
+function validateEndTurnResolutionBody(
+  state: BattleState,
+  resolution: unknown,
+): asserts resolution is EndTurnResolution {
   if (!resolution || typeof resolution !== 'object' || Array.isArray(resolution)) invalid('end-turn resolution must be an object');
   const candidate = resolution as Record<string, unknown>;
   const allowed = new Set([
@@ -582,6 +628,20 @@ export function validateEndTurnResolution(
 
 /** Validate the serializable shape of a caller-supplied switch-entry outcome. */
 export function validateSwitchEntryResolution(
+  state: BattleState,
+  action: SwitchAction,
+  resolution: unknown,
+): asserts resolution is SwitchEntryResolution {
+  const previous = clientErrorKind;
+  clientErrorKind = 'Action';
+  try {
+    validateSwitchEntryResolutionBody(state, action, resolution);
+  } finally {
+    clientErrorKind = previous;
+  }
+}
+
+function validateSwitchEntryResolutionBody(
   state: BattleState,
   action: SwitchAction,
   resolution: unknown,
@@ -680,83 +740,85 @@ export function validateMoveEngineOptions(
   action: MoveAction,
   options: unknown,
 ): void {
-  if (!options || typeof options !== 'object' || Array.isArray(options)) invalid('move-engine options must be an object');
-  const candidate = options as Record<string, unknown>;
-  if (candidate.hit !== undefined && typeof candidate.hit !== 'boolean') invalid('move-engine hit must be boolean');
-  if (candidate.accuracy !== undefined && candidate.accuracy !== true) {
-    requireFinite(candidate.accuracy, 'move-engine accuracy');
-    if (candidate.accuracy < 0 || candidate.accuracy > 100) invalid('move-engine accuracy must be from 0 to 100');
-  }
-  if (candidate.secondaryEffects !== undefined) validateSecondaryEffects(candidate.secondaryEffects, 'move-engine secondaryEffects');
-  if (candidate.facts === undefined) return;
-  if (!candidate.facts || typeof candidate.facts !== 'object' || Array.isArray(candidate.facts)) invalid('move-engine facts must be an object');
-  const facts = candidate.facts as Record<string, unknown>;
-  const allowed = new Set<keyof ActionFacts>([
-    'damage', 'damageByTarget', 'confusionDamage', 'moveCategory', 'moveType', 'fieldTerrain', 'moveAccuracy', 'isMultiHit',
-    'secondaryEffects', 'battleMode', 'priority', 'attackerSpeed', 'attackerCriticalHitStage',
-    'criticalHitGuaranteed', 'criticalHit', 'attackerHp', 'attackerHpPercent', 'defenderSpeed', 'opponentSpeeds',
-    'attackerAbility', 'attackerPartnerAbility', 'attackerPartnerItem', 'attackerPartnerTypes', 'attackerPartnerMoves',
-    'attackerPartnerSpeed', 'attackerPartnerGroundImmune', 'attackerPartnerHasMagnetRise',
-    'defenderAbility', 'defenderTypes', 'attackerSpecies', 'defenderSpecies', 'attackerItem', 'defenderItem',
-    'attackerStatus', 'defenderStatus', 'defenderIncapacitated', 'defenderConfused', 'defenderInfatuated', 'attackerBoosts', 'defenderBoosts', 'attackerMoves', 'defenderMoves',
-    'attackerHasPhysicalMove', 'attackerHasSpecialMove', 'attackerHasFlinchMove', 'defenderHasPhysicalMove', 'defenderHasSpecialMove',
-    'defenderHasStatusMove', 'defenderHasSoundMove', 'defenderSeeded', 'attackerSubstitute',
-    'attackerHelpingHand', 'defenderSubstitute', 'lastMoveUsed', 'attackerPartyAliveCount',
-    'defenderPartyAliveCount', 'defenderHpPercent', 'defenderLastMoveUsed', 'defenderLastMoveIsStatus',
-    'isFirstTurnOut', 'opponentCanKO', 'opponentCan2HKO', 'opponentMaxDamage', 'isSuperEffective',
-    'isHighCrit', 'isImmune',
-  ]);
-  for (const key of Object.keys(facts)) if (!allowed.has(key as keyof ActionFacts)) invalid(`move-engine facts has an unsupported property ${key}`);
-  validateDamageFacts(state, action, facts.damageByTarget, 'move-engine facts.damageByTarget');
-  if (facts.damage !== undefined) validateDamageFacts(state, action, {[action.targetIds[0] || action.actorId]: facts.damage}, 'move-engine facts.damage');
-  if (facts.confusionDamage !== undefined) validateDamageFact(facts.confusionDamage, 'move-engine facts.confusionDamage');
-  if (facts.moveAccuracy !== undefined && facts.moveAccuracy !== true) {
-    requireFinite(facts.moveAccuracy, 'move-engine facts.moveAccuracy');
-    if (facts.moveAccuracy < 0 || facts.moveAccuracy > 100) invalid('move-engine facts.moveAccuracy must be from 0 to 100');
-  }
-  if (facts.secondaryEffects !== undefined) validateSecondaryEffects(facts.secondaryEffects, 'move-engine facts.secondaryEffects');
-  if (facts.moveCategory !== undefined && !['Physical', 'Special', 'Status'].includes(facts.moveCategory as string)) invalid('move-engine facts.moveCategory is invalid');
-  if (facts.moveType !== undefined && (typeof facts.moveType !== 'string' || !facts.moveType)) invalid('move-engine facts.moveType is invalid');
-  if (facts.fieldTerrain !== undefined && !TERRAIN_NAMES.has(facts.fieldTerrain as string)) invalid('move-engine facts.fieldTerrain is invalid');
-  if (facts.battleMode !== undefined && facts.battleMode !== 'Singles' && facts.battleMode !== 'Doubles') invalid('move-engine facts.battleMode is invalid');
-  const numericFields = [
-    'priority', 'attackerSpeed', 'attackerCriticalHitStage', 'attackerHp', 'attackerHpPercent', 'defenderSpeed',
-    'attackerPartnerSpeed', 'defenderHpPercent', 'attackerPartyAliveCount', 'defenderPartyAliveCount', 'opponentMaxDamage',
-  ];
-  for (const field of numericFields) if (facts[field] !== undefined) requireFinite(facts[field], `move-engine facts.${field}`);
-  for (const field of ['attackerHpPercent', 'defenderHpPercent']) {
-    if (facts[field] !== undefined && ((facts[field] as number) < 0 || (facts[field] as number) > 100)) {
-      invalid(`move-engine facts.${field} must be from 0 to 100`);
+  withClientErrorKind('Action', () => {
+    if (!options || typeof options !== 'object' || Array.isArray(options)) invalid('move-engine options must be an object');
+    const candidate = options as Record<string, unknown>;
+    if (candidate.hit !== undefined && typeof candidate.hit !== 'boolean') invalid('move-engine hit must be boolean');
+    if (candidate.accuracy !== undefined && candidate.accuracy !== true) {
+      requireFinite(candidate.accuracy, 'move-engine accuracy');
+      if (candidate.accuracy < 0 || candidate.accuracy > 100) invalid('move-engine accuracy must be from 0 to 100');
     }
-  }
-  for (const field of [
-    'criticalHitGuaranteed', 'criticalHit', 'attackerPartnerGroundImmune', 'attackerPartnerHasMagnetRise', 'attackerHasPhysicalMove',
-    'attackerHasSpecialMove', 'attackerHasFlinchMove', 'defenderHasPhysicalMove', 'defenderHasSpecialMove', 'defenderHasStatusMove',
-    'defenderHasSoundMove', 'defenderSeeded', 'attackerSubstitute', 'attackerHelpingHand', 'defenderSubstitute', 'defenderIncapacitated',
-    'defenderLastMoveIsStatus', 'defenderConfused', 'defenderInfatuated', 'isFirstTurnOut', 'opponentCanKO', 'opponentCan2HKO', 'isSuperEffective', 'isHighCrit', 'isImmune',
-  ]) if (facts[field] !== undefined && typeof facts[field] !== 'boolean') invalid(`move-engine facts.${field} must be boolean`);
-  for (const field of [
-    'attackerAbility', 'attackerPartnerAbility', 'attackerPartnerItem', 'defenderAbility', 'attackerSpecies',
-    'defenderSpecies', 'attackerItem', 'defenderItem', 'lastMoveUsed', 'defenderLastMoveUsed',
-  ]) if (facts[field] !== undefined && (typeof facts[field] !== 'string' || !facts[field])) invalid(`move-engine facts.${field} must be a non-empty string`);
-  for (const field of ['attackerStatus', 'defenderStatus']) {
-    if (facts[field] !== undefined && (typeof facts[field] !== 'string' || !STATUS_NAMES.has(facts[field] as string))) invalid(`move-engine facts.${field} is invalid`);
-  }
-  for (const field of ['attackerBoosts', 'defenderBoosts']) {
-    if (facts[field] !== undefined) validateResolutionBoostMap(state, {[action.actorId]: facts[field]}, `move-engine facts.${field}`);
-  }
-  for (const field of ['opponentSpeeds']) {
-    const speeds = facts[field];
-    if (speeds !== undefined && (!Array.isArray(speeds) || speeds.some((speed: unknown) => typeof speed !== 'number' || !Number.isFinite(speed)))) {
-      invalid(`move-engine facts.${field} must contain finite numbers`);
+    if (candidate.secondaryEffects !== undefined) validateSecondaryEffects(candidate.secondaryEffects, 'move-engine secondaryEffects');
+    if (candidate.facts === undefined) return;
+    if (!candidate.facts || typeof candidate.facts !== 'object' || Array.isArray(candidate.facts)) invalid('move-engine facts must be an object');
+    const facts = candidate.facts as Record<string, unknown>;
+    const allowed = new Set<keyof ActionFacts>([
+      'damage', 'damageByTarget', 'confusionDamage', 'moveCategory', 'moveType', 'fieldTerrain', 'moveAccuracy', 'isMultiHit',
+      'secondaryEffects', 'battleMode', 'priority', 'attackerSpeed', 'attackerCriticalHitStage',
+      'criticalHitGuaranteed', 'criticalHit', 'attackerHp', 'attackerHpPercent', 'defenderSpeed', 'opponentSpeeds',
+      'attackerAbility', 'attackerPartnerAbility', 'attackerPartnerItem', 'attackerPartnerTypes', 'attackerPartnerMoves',
+      'attackerPartnerSpeed', 'attackerPartnerGroundImmune', 'attackerPartnerHasMagnetRise',
+      'defenderAbility', 'defenderTypes', 'attackerSpecies', 'defenderSpecies', 'attackerItem', 'defenderItem',
+      'attackerStatus', 'defenderStatus', 'defenderIncapacitated', 'defenderConfused', 'defenderInfatuated', 'attackerBoosts', 'defenderBoosts', 'attackerMoves', 'defenderMoves',
+      'attackerHasPhysicalMove', 'attackerHasSpecialMove', 'attackerHasFlinchMove', 'defenderHasPhysicalMove', 'defenderHasSpecialMove',
+      'defenderHasStatusMove', 'defenderHasSoundMove', 'defenderSeeded', 'attackerSubstitute',
+      'attackerHelpingHand', 'defenderSubstitute', 'lastMoveUsed', 'attackerPartyAliveCount',
+      'defenderPartyAliveCount', 'defenderHpPercent', 'defenderLastMoveUsed', 'defenderLastMoveIsStatus',
+      'isFirstTurnOut', 'opponentCanKO', 'opponentCan2HKO', 'opponentMaxDamage', 'isSuperEffective',
+      'isHighCrit', 'isImmune',
+    ]);
+    for (const key of Object.keys(facts)) if (!allowed.has(key as keyof ActionFacts)) invalid(`move-engine facts has an unsupported property ${key}`);
+    validateDamageFacts(state, action, facts.damageByTarget, 'move-engine facts.damageByTarget');
+    if (facts.damage !== undefined) validateDamageFacts(state, action, {[action.targetIds[0] || action.actorId]: facts.damage}, 'move-engine facts.damage');
+    if (facts.confusionDamage !== undefined) validateDamageFact(facts.confusionDamage, 'move-engine facts.confusionDamage');
+    if (facts.moveAccuracy !== undefined && facts.moveAccuracy !== true) {
+      requireFinite(facts.moveAccuracy, 'move-engine facts.moveAccuracy');
+      if (facts.moveAccuracy < 0 || facts.moveAccuracy > 100) invalid('move-engine facts.moveAccuracy must be from 0 to 100');
     }
-  }
-  for (const field of ['attackerPartnerTypes', 'attackerPartnerMoves', 'attackerMoves', 'defenderTypes', 'defenderMoves']) {
-    const values = facts[field];
-    if (values !== undefined && (!Array.isArray(values) || values.some((value: unknown) => typeof value !== 'string' || !value))) {
-      invalid(`move-engine facts.${field} must contain non-empty strings`);
+    if (facts.secondaryEffects !== undefined) validateSecondaryEffects(facts.secondaryEffects, 'move-engine facts.secondaryEffects');
+    if (facts.moveCategory !== undefined && !['Physical', 'Special', 'Status'].includes(facts.moveCategory as string)) invalid('move-engine facts.moveCategory is invalid');
+    if (facts.moveType !== undefined && (typeof facts.moveType !== 'string' || !facts.moveType)) invalid('move-engine facts.moveType is invalid');
+    if (facts.fieldTerrain !== undefined && !TERRAIN_NAMES.has(facts.fieldTerrain as string)) invalid('move-engine facts.fieldTerrain is invalid');
+    if (facts.battleMode !== undefined && facts.battleMode !== 'Singles' && facts.battleMode !== 'Doubles') invalid('move-engine facts.battleMode is invalid');
+    const numericFields = [
+      'priority', 'attackerSpeed', 'attackerCriticalHitStage', 'attackerHp', 'attackerHpPercent', 'defenderSpeed',
+      'attackerPartnerSpeed', 'defenderHpPercent', 'attackerPartyAliveCount', 'defenderPartyAliveCount', 'opponentMaxDamage',
+    ];
+    for (const field of numericFields) if (facts[field] !== undefined) requireFinite(facts[field], `move-engine facts.${field}`);
+    for (const field of ['attackerHpPercent', 'defenderHpPercent']) {
+      if (facts[field] !== undefined && ((facts[field] as number) < 0 || (facts[field] as number) > 100)) {
+        invalid(`move-engine facts.${field} must be from 0 to 100`);
+      }
     }
-  }
+    for (const field of [
+      'criticalHitGuaranteed', 'criticalHit', 'attackerPartnerGroundImmune', 'attackerPartnerHasMagnetRise', 'attackerHasPhysicalMove',
+      'attackerHasSpecialMove', 'attackerHasFlinchMove', 'defenderHasPhysicalMove', 'defenderHasSpecialMove', 'defenderHasStatusMove',
+      'defenderHasSoundMove', 'defenderSeeded', 'attackerSubstitute', 'attackerHelpingHand', 'defenderSubstitute', 'defenderIncapacitated',
+      'defenderLastMoveIsStatus', 'defenderConfused', 'defenderInfatuated', 'isFirstTurnOut', 'opponentCanKO', 'opponentCan2HKO', 'isSuperEffective', 'isHighCrit', 'isImmune',
+    ]) if (facts[field] !== undefined && typeof facts[field] !== 'boolean') invalid(`move-engine facts.${field} must be boolean`);
+    for (const field of [
+      'attackerAbility', 'attackerPartnerAbility', 'attackerPartnerItem', 'defenderAbility', 'attackerSpecies',
+      'defenderSpecies', 'attackerItem', 'defenderItem', 'lastMoveUsed', 'defenderLastMoveUsed',
+    ]) if (facts[field] !== undefined && (typeof facts[field] !== 'string' || !facts[field])) invalid(`move-engine facts.${field} must be a non-empty string`);
+    for (const field of ['attackerStatus', 'defenderStatus']) {
+      if (facts[field] !== undefined && (typeof facts[field] !== 'string' || !STATUS_NAMES.has(facts[field] as string))) invalid(`move-engine facts.${field} is invalid`);
+    }
+    for (const field of ['attackerBoosts', 'defenderBoosts']) {
+      if (facts[field] !== undefined) validateResolutionBoostMap(state, {[action.actorId]: facts[field]}, `move-engine facts.${field}`);
+    }
+    for (const field of ['opponentSpeeds']) {
+      const speeds = facts[field];
+      if (speeds !== undefined && (!Array.isArray(speeds) || speeds.some((speed: unknown) => typeof speed !== 'number' || !Number.isFinite(speed)))) {
+        invalid(`move-engine facts.${field} must contain finite numbers`);
+      }
+    }
+    for (const field of ['attackerPartnerTypes', 'attackerPartnerMoves', 'attackerMoves', 'defenderTypes', 'defenderMoves']) {
+      const values = facts[field];
+      if (values !== undefined && (!Array.isArray(values) || values.some((value: unknown) => typeof value !== 'string' || !value))) {
+        invalid(`move-engine facts.${field} must contain non-empty strings`);
+      }
+    }
+  });
 }
 
 function requireFinite(value: unknown, label: string): asserts value is number {

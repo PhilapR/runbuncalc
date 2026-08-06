@@ -19,7 +19,7 @@ const calculateHandler = (req, res, next) => {
 	const input = req.method === "GET" ? req.query : (req.body || {});
 	const genNumber = Number(typeof input.gen === 'undefined' ? 9 : input.gen);
 	if (!Number.isInteger(genNumber) || genNumber < 1 || genNumber > 9) {
-		return res.status(400).json({error: "gen must be an integer from 1 through 9"});
+		return jsonError(res, 400, "gen must be an integer from 1 through 9");
 	}
 	const gen = calc.Generations.get(genNumber);
 	let error = "";
@@ -30,7 +30,7 @@ const calculateHandler = (req, res, next) => {
 	if (typeof input.moveName !== 'string' || !gen.moves.get(calc.toID(input.moveName)))
 		error += "moveName must exist and have a valid move name\n";
 	if (error) {
-		return res.status(400).json({error});
+		return jsonError(res, 400, error.trim());
 	}
 	const result = calc.calculate(
 		gen,
@@ -45,9 +45,24 @@ const calculateHandler = (req, res, next) => {
 app.get("/calculate", calculateHandler);
 app.post("/calculate", calculateHandler);
 
+function errorCodeForMessage(message, status) {
+	if (/^Invalid BattleState:/.test(message)) return "InvalidBattleState";
+	if (/^Invalid Action:/.test(message)) return "InvalidAction";
+	if (status >= 500) return "InternalError";
+	return "BadRequest";
+}
+
+function jsonError(res, status, message) {
+	return res.status(status).json({
+		error: message,
+		code: errorCodeForMessage(message, status),
+	});
+}
+
 function badOption(message) {
-	const error = new Error(message);
+	const error = new Error(`Invalid Action: ${message}`);
 	error.statusCode = 400;
+	error.code = "InvalidAction";
 	throw error;
 }
 
@@ -157,7 +172,7 @@ app.post("/ai/validate-battle-state", (req, res, next) => {
 		const payload = req.body || {};
 		const state = payload.state || payload;
 		if (!state || !state.sides) {
-			return res.status(400).json({error: "BattleState with sides is required"});
+			return jsonError(res, 400, "Invalid BattleState: BattleState with sides is required");
 		}
 		ai.validateBattleState(state);
 		return res.json({ok: true});
@@ -172,10 +187,10 @@ app.post("/ai/choose-action", (req, res, next) => {
 		const state = payload.state || payload;
 		const options = payload.options === undefined ? {} : payload.options;
 		if (!state || !state.sides) {
-			return res.status(400).json({error: "BattleState with sides is required"});
+			return jsonError(res, 400, "Invalid BattleState: BattleState with sides is required");
 		}
 		if (!options || typeof options !== "object" || Array.isArray(options)) {
-			return res.status(400).json({error: "options must be an object"});
+			return jsonError(res, 400, "Invalid Action: options must be an object");
 		}
 		const sideId = getChoiceSideId(options);
 		ai.validateBattleState(state);
@@ -203,10 +218,10 @@ app.post("/ai/evaluate-actions", (req, res, next) => {
 		const state = payload.state || payload;
 		const options = payload.options === undefined ? {} : payload.options;
 		if (!state || !state.sides) {
-			return res.status(400).json({error: "BattleState with sides is required"});
+			return jsonError(res, 400, "Invalid BattleState: BattleState with sides is required");
 		}
 		if (!options || typeof options !== "object" || Array.isArray(options)) {
-			return res.status(400).json({error: "options must be an object"});
+			return jsonError(res, 400, "Invalid Action: options must be an object");
 		}
 		const sideId = getChoiceSideId(options);
 		ai.validateBattleState(state);
@@ -222,16 +237,19 @@ app.post("/ai/evaluate-actions", (req, res, next) => {
 app.post("/ai/apply-action", (req, res, next) => {
 	try {
 		const payload = req.body || {};
-		if (!payload.state || !payload.state.sides || !payload.action) {
-			return res.status(400).json({error: "state with sides and action are required"});
+		if (!payload.state || !payload.state.sides) {
+			return jsonError(res, 400, "Invalid BattleState: state with sides is required");
+		}
+		if (!payload.action) {
+			return jsonError(res, 400, "Invalid Action: action is required");
 		}
 		ai.validateBattleState(payload.state);
 		ai.validateAction(payload.state, payload.action);
 		if (payload.action.kind === "move" && payload.resolution === undefined) {
-			return res.status(400).json({error: "move actions require a resolution"});
+			return jsonError(res, 400, "Invalid Action: move actions require a resolution");
 		}
 		if (payload.action.kind === "switch" && payload.resolution !== undefined) {
-			return res.status(400).json({error: "switch actions do not accept a resolution"});
+			return jsonError(res, 400, "Invalid Action: switch actions do not accept a resolution");
 		}
 		if (payload.action.kind === "move") {
 			ai.validateMoveResolution(payload.state, payload.action, payload.resolution);
@@ -247,13 +265,16 @@ app.post("/ai/apply-action", (req, res, next) => {
 app.post("/ai/derive-switch-entry", (req, res, next) => {
 	try {
 		const payload = req.body || {};
-		if (!payload.state || !payload.state.sides || !payload.action) {
-			return res.status(400).json({error: "state with sides and switch action are required"});
+		if (!payload.state || !payload.state.sides) {
+			return jsonError(res, 400, "Invalid BattleState: state with sides is required");
+		}
+		if (!payload.action) {
+			return jsonError(res, 400, "Invalid Action: switch action is required");
 		}
 		ai.validateBattleState(payload.state);
 		ai.validateAction(payload.state, payload.action);
 		if (payload.action.kind !== "switch") {
-			return res.status(400).json({error: "action.kind must be switch"});
+			return jsonError(res, 400, "Invalid Action: action.kind must be switch");
 		}
 		const resolution = ai.deriveSwitchEntryResolution(payload.state, payload.action);
 		ai.validateSwitchEntryResolution(payload.state, payload.action, resolution);
@@ -268,11 +289,11 @@ app.post("/ai/forced-switch-actions", (req, res, next) => {
 		const payload = req.body || {};
 		const state = payload.state || payload;
 		if (!state || !state.sides) {
-			return res.status(400).json({error: "BattleState with sides is required"});
+			return jsonError(res, 400, "Invalid BattleState: BattleState with sides is required");
 		}
 		const sideId = payload.sideId === undefined ? "ai" : payload.sideId;
 		if (sideId !== "ai" && sideId !== "player") {
-			return res.status(400).json({error: "sideId must be ai or player"});
+			return jsonError(res, 400, "Invalid Action: sideId must be ai or player");
 		}
 		ai.validateBattleState(state);
 		return res.json({actions: ai.enumerateForcedSwitchActions(state, sideId)});
@@ -284,13 +305,16 @@ app.post("/ai/forced-switch-actions", (req, res, next) => {
 app.post("/ai/derive-resolution", (req, res, next) => {
 	try {
 		const payload = req.body || {};
-		if (!payload.state || !payload.state.sides || !payload.action) {
-			return res.status(400).json({error: "state with sides and action are required"});
+		if (!payload.state || !payload.state.sides) {
+			return jsonError(res, 400, "Invalid BattleState: state with sides is required");
+		}
+		if (!payload.action) {
+			return jsonError(res, 400, "Invalid Action: action is required");
 		}
 		ai.validateBattleState(payload.state);
 		ai.validateAction(payload.state, payload.action);
 		if (payload.action.kind !== "move") {
-			return res.status(400).json({error: "action.kind must be move"});
+			return jsonError(res, 400, "Invalid Action: action.kind must be move");
 		}
 		ai.validateMoveEngineOptions(payload.state, payload.action, {
 			facts: payload.facts,
@@ -317,7 +341,7 @@ app.post("/ai/derive-end-turn", (req, res, next) => {
 		const payload = req.body || {};
 		const state = payload.state || payload;
 		if (!state || !state.sides) {
-			return res.status(400).json({error: "BattleState with sides is required"});
+			return jsonError(res, 400, "Invalid BattleState: BattleState with sides is required");
 		}
 		ai.validateBattleState(state);
 		const resolution = ai.deriveEndTurnResolution(state);
@@ -333,7 +357,7 @@ app.post("/ai/advance-turn", (req, res, next) => {
 		const payload = req.body || {};
 		const state = payload.state || payload;
 		if (!state || !state.sides) {
-			return res.status(400).json({error: "BattleState with sides is required"});
+			return jsonError(res, 400, "Invalid BattleState: BattleState with sides is required");
 		}
 		ai.validateBattleState(state);
 		const nextState = ai.advanceTurn(state);
@@ -348,8 +372,11 @@ app.post("/ai/order-actions", (req, res, next) => {
 	try {
 		const payload = req.body || {};
 		const state = payload.state;
-		if (!state || !state.sides || !Array.isArray(payload.actions)) {
-			return res.status(400).json({error: "state with sides and actions are required"});
+		if (!state || !state.sides) {
+			return jsonError(res, 400, "Invalid BattleState: state with sides is required");
+		}
+		if (!Array.isArray(payload.actions)) {
+			return jsonError(res, 400, "Invalid Action: actions are required");
 		}
 		ai.validateBattleState(state);
 		for (const action of payload.actions) ai.validateAction(state, action);
@@ -371,13 +398,30 @@ app.use((error, req, res, next) => {
 		status = error.status;
 	} else if (error?.type === "entity.parse.failed") {
 		status = 400;
+	} else if (
+		typeof req.path === "string" &&
+		req.path.startsWith("/ai/") &&
+		error instanceof Error &&
+		!(error instanceof TypeError) &&
+		!(error instanceof RangeError)
+	) {
+		// AI domain Errors after boundary validation are client contract failures
+		// (illegal action, transition rejection), not unexpected server faults.
+		status = 400;
 	}
 	let message = error?.message || "Internal server error";
 	if (error?.type === "entity.parse.failed") {
 		message = "request body must contain valid JSON";
+	} else if (status < 500 && status >= 400 && !/^Invalid (BattleState|Action):/.test(message) &&
+		message !== "request body must contain valid JSON") {
+		const kind = error?.code === "InvalidBattleState" ? "BattleState" : "Action";
+		message = `Invalid ${kind}: ${message}`;
 	}
-	return res.status(status >= 400 && status < 600 ? status : 500).json({
-		error: status >= 500 ? "Internal server error" : message,
+	const finalStatus = status >= 400 && status < 600 ? status : 500;
+	const bodyMessage = finalStatus >= 500 ? "Internal server error" : message;
+	return res.status(finalStatus).json({
+		error: bodyMessage,
+		code: error?.code || errorCodeForMessage(bodyMessage, finalStatus),
 	});
 });
 

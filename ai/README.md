@@ -46,10 +46,33 @@ for a UI, replay tool, or external decision layer.
 
 After the repository build, `node server.js` exposes the same policy through
 JSON endpoints and serves the built calculator UI from `dist/`. Invalid
-payloads return JSON `{error: string}` with HTTP **400**. Unexpected failures
-return HTTP **500**.
+payloads return JSON with HTTP **400**. Unexpected failures return HTTP **500**
+with a generic message (no stack traces).
 
 Also available: `GET|POST /calculate` (damage oracle; not an AI route).
+
+### Error contract
+
+Every error response is stable JSON:
+
+```json
+{"error": "Invalid BattleState: …", "code": "InvalidBattleState"}
+```
+
+| `code` | When | `error` prefix |
+| --- | --- | --- |
+| `InvalidBattleState` | Missing/malformed `BattleState` (validate / choose / evaluate / …) | `Invalid BattleState:` |
+| `InvalidAction` | Bad `action`, `options`, `resolution`, move-engine facts, or illegal transition after shape validation | `Invalid Action:` |
+| `BadRequest` | Other 400s (malformed JSON body, `/calculate` input) | none required |
+| `InternalError` | Unexpected server failure | message is always `Internal server error` |
+
+Quirks worth knowing:
+
+- Bare `BattleState` bodies (without `{state}`) remain accepted on several routes; prefer `{state}` for new clients.
+- Move `apply` requires `resolution`; switch `apply` must omit it.
+- Resolution / move-engine option validation uses **`Invalid Action`**, not BattleState — even when the detail mentions Pokémon IDs or HP deltas.
+- On `/ai/*`, domain `Error`s from the AI package (for example illegal move apply) are mapped to **400** `InvalidAction`. `TypeError` / `RangeError` stay **500**.
+- `secondaryRolls` keys are `pokemonId:effectIndex` (optional `:hitN`); they are not plain party IDs.
 
 ### Endpoint list
 
