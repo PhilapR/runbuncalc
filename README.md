@@ -1,16 +1,22 @@
-# Pokémon Damage Calculator
+# Run & Bun Damage Calc
 
 ![Test Status](https://github.com/smogon/damage-calc/workflows/Tests/badge.svg)
 [![npm version](https://img.shields.io/npm/v/@smogon/calc.svg)](https://www.npmjs.com/package/@smogon/calc)&nbsp;
 
-Damage calculator for all generations of Pokémon battling.
+Fork of the [Smogon / Pokémon Showdown damage calculator][0] aimed at **Run & Bun**
+accuracy: Gen&nbsp;8 mechanics by default (see the workspace `MECHANICS.MD`), plus
+documented calculator overlays and a serializable Run & Bun AI policy layer.
 
-If you are currently looking at [smogon/damage-calc][0] and not
-a fork, this is the official repository for the Pokémon Showdown! damage calculator:
-https://calc.pokemonshowdown.com.
+The inherited `@smogon/calc` library and browser UI still expose generations 1–9
+as a multi-gen damage oracle. That is intentional calculator capability, not a
+claim that every generation is fully Run & Bun–sim accurate. Prefer Gen&nbsp;8
+(S/S) for Run & Bun work; the UI and AI sample state default there.
 
-This repository houses both the package implementing the core damage formula mechanics in each
-generation ([`@smogon/calc`][1]) as well as [logic and markup for the official UI][2].
+Upstream Showdown calc: https://calc.pokemonshowdown.com.
+
+This repository houses the core damage formula package ([`@smogon/calc`][1]),
+the browser UI ([`src/`][2]), and the Run & Bun AI package (`ai/`). Ownership
+boundaries are in [`FORK_MAP.md`](FORK_MAP.md).
 
 ## `@smogon/calc`
 
@@ -129,31 +135,32 @@ use an alternative data layer such as [`@pkmn/data`][9]. You must load your data
 
 ## UI
 
-The [UI layer][2] is currently is written in vanilla JavaScript and HTML. To view the UI locally you
-first must install dependencies by running `npm install` at the top level and without `calc/`. This
-should create a `node_modules/` folder under both the root directory and under `calc/`:
+The [UI layer][2] is currently is written in vanilla JavaScript and HTML. The repository root owns
+the calculator and Run & Bun AI subpackages, so install from the top level:
 
 ```sh
 $ npm install
-$ cd calc && npm install
 ```
 
-Next, run `node build` from the root directory of your clone of this repository. This should
-run `npm run compile` in the `calc/` subdirectory to compile the `@smogon/calc` package from
-TypeScript to JavaScript that can be run in the browser, and then compile the 'templated' HTML
-and copy everything into the top-level `dist/` folder. To then view the UI, open `dist/index.html` -
+The root `postinstall` step provisions the `calc/` and `ai/` subpackages through `subpkg`.
+Avoid installing those packages independently unless you are deliberately working on an
+isolated package.
+
+Next, run `npm run build` from the root directory. This compiles both `@smogon/calc` and
+`runbuncalc-ai`, then compiles the templated HTML and copies everything into the top-level `dist/`
+folder. To then view the UI, open `dist/index.html` -
 simply double-clicking on the file from your operating system's file manager UI should open it in
 your default browser.
 
 ```sh
-$ node build
+$ npm run build
 $ open dist/index.html # open works on macOS, simply double-clicking the file on Windows/macOS works
 ```
 
-**If you make changes to anything in `calc/`, you must run `node build` from the top level to
+**If you make changes to anything in `calc/` or `ai/`, you must run `npm run build` from the top level to
 compile the files and copy them into `dist/` again. If you make changes to the HTML or JavaScript in
-`src/`you must run `node build view` before the changes will become visible in your browser**
-(`node build` also works, but it is slower, as it will compile `calc/` as well, which is
+`src/` you must run `node build view` before the changes will become visible in your browser**
+(`npm run build` also works, but it is slower, as it will compile `calc/` and `ai/` as well, which is
 unnecessary if you did not make any changes to that directory).
 
 Before opening up a Pull Request, please ensure `npm test` passes:
@@ -162,11 +169,148 @@ Before opening up a Pull Request, please ensure `npm test` passes:
 $ npm test
 ```
 
+### Run & Bun AI
+
+The `ai/` subpackage contains the serializable Run & Bun battle model and
+decision policy. It treats `@smogon/calc` as a read-only damage oracle and can
+be used directly from TypeScript or through the local server endpoint:
+
+Package-level API usage, the full HTTP endpoint list (including
+`POST /ai/validate-battle-state`), and Gen&nbsp;8 / zero-EV notes are in
+[`ai/README.md`](ai/README.md).
+
+The OSS/custom ownership map is recorded in [`FORK_MAP.md`](FORK_MAP.md), with
+the data-model and validation contracts in [`AGENTS.md`](AGENTS.md),
+[`AI_DATA_MODEL.md`](AI_DATA_MODEL.md), and [`VALIDATION.md`](VALIDATION.md).
+Product surfaces and phase status (calc, AI debug, sets bridge, Singles Battle,
+explain, API) are mapped in [`RUNBUN_UX.md`](RUNBUN_UX.md). UI design (shell,
+tokens, screen specs, prioritized V0–V4 rollout) lives in
+[`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md). The **master prioritized backlog**
+(P0–P3 / Park) plus roadmap, session chunks, and non-goals live in
+[`PLAN.md`](PLAN.md) §0.
+
+```sh
+POST /ai/choose-action
+Content-Type: application/json
+
+{ "generation": 8, "mode": "Singles", "turn": 1, "field": {}, "sides": { ... } }
+```
+
+Start the local endpoint after compiling with `node server.js`. The automated
+HTTP smoke gate is `npm run test:server`; it uses an ephemeral port and does
+not leave a server running. The built UI is served from `dist/` by the same
+process; open the main calculator page and use the **Run & Bun AI Debug**
+panel to load calc panels into a Gen 8 zero-EV `BattleState`, validate via
+`POST /ai/validate-battle-state`, evaluate/choose, and optionally
+derive→apply→advance against the live HTTP API without embedding a second
+battle model in the browser.
+
+`POST /ai/evaluate-actions` accepts the same `{state, options}` shape as
+`/ai/choose-action` and returns the deterministic legal action evaluations
+without sampling a selected action. Use `/ai/choose-action` when a caller also
+wants the policy's sampled choice. `POST /ai/validate-battle-state` accepts
+`{state}` (or a bare `BattleState`) and returns `{ok: true}` or HTTP 400.
+
+The calculator endpoint accepts either `GET /calculate` query parameters or
+`POST /calculate` JSON; AI endpoints use JSON POST requests.
+Invalid calculator input and malformed JSON receive a JSON `400` response;
+unexpected server failures receive a JSON `500` response.
+AI action payloads are validated against the same party-ID contract as the
+state; malformed AI state or action payloads receive JSON `400` responses.
+AI state endpoints validate IDs, active slots, HP, move resources, boosts,
+timers, hazards, and per-Pokémon volatile state before processing a request.
+
+The response contains the selected action and scored candidate evaluations.
+When `includeSwitches` is enabled, callers may provide
+`replacementViability` entries with `faster`, `notOHKOd`, and `not2HKOd`.
+The optional replacement-ID and score maps, as well as `itemRollsByPokemon`,
+are shape-, party-ID-, and range-validated at the HTTP boundary.
+`evaluateActions()` derives those conservative Singles viability checks from
+hypothetical entry states and opposing legal move facts by default; caller
+values override them, and `deriveReplacementViability: false` disables the
+automatic derivation.
+If an active Pokémon has no legal move left, the AI action contract exposes
+canonical `Struggle` and applies its recoil through the transition boundary.
+Shell Trap is represented as a one-turn armed state and only produces its
+canonical reaction damage after a damaging contact hit.
+When `replacementScores` is supplied, its score is used for the successful
+branch of an eligible voluntary switch as well as for forced replacements;
+otherwise that branch remains an explicit score-0 tie before the 50% switch
+roll.
+`recordMoveAction()` can persist legal move bookkeeping (including PP and the
+last move), and `applyDamageAction()` can apply a caller-selected damage roll
+to legal targets. `resolveMoveAction()` applies a complete, already-resolved
+serializable outcome atomically. `deriveMoveResolution()` uses explicit move
+metadata when present, otherwise canonical dex data plus the Run & Bun move
+overlay, and records the sampled rolls. The calculator adapter applies the
+overlay's documented move type and base power, while PP lookup also honors the
+Run & Bun values. Common accuracy modifiers are included;
+turn order and unsupported mechanics remain the responsibility of the battle engine.
+
+The policy layer includes dedicated Run & Bun scoring for common doubles support
+and control cases such as Fling, Role Play, Coaching, Trick/Switcheroo, Encore,
+Counter/Mirror Coat, and critical-hit setup; focused fixtures live in
+`ai/src/test/model.test.ts`.
+The AI transition layer also models Endure as a one-turn direct-damage floor
+distinct from Protect, including its consecutive-use lifecycle.
+Roost is tracked as a one-turn temporary grounding/type effect when it heals
+the user, so terrain and Ground-type eligibility see the same turn-local state.
+Miracle Eye is tracked as a Generation IV+ target volatile; it restores Psychic
+damage against Dark targets and ignores their evasion changes while active.
+
+`deriveMoveResolution()` provides the first deterministic engine slice for
+common hazards, screens, weather/terrain, setup, status, recovery, Substitute,
+recoil/drain, and self-fainting moves. It resolves known move accuracy and
+supported secondary effects, sequential calculator-backed multi-hit damage,
+and common target eligibility, while leaving uncertain-state interactions,
+immunities, and unsupported
+move-specific rules to the caller.
+
+The transition boundary is also available through `POST /ai/apply-action` with
+`{state, action, resolution}`. Switches omit `resolution`; move actions require
+the already-resolved outcome. Switches apply common Stealth Rock, G-Max
+Steelsurge, Spikes, Toxic Spikes, Sticky Web, Heavy-Duty Boots, grounding, and
+immunity rules. Use
+`POST /ai/derive-switch-entry` to inspect those consequences without applying them.
+Voluntary switches and post-faint replacements use the same transition shape,
+but forced replacements carry `forced: true`; `POST /ai/forced-switch-actions`
+enumerates legal replacements. If a chooser receives a fainted active with no
+move actions, it evaluates those forced replacements automatically; callers
+may provide `options.replacementScores` to rank them, otherwise they tie
+explicitly.
+An explicit switch with `batonPass: true` preserves the outgoing modeled stat
+stages and Substitute on the replacement; ordinary and forced switches do not.
+`POST /ai/derive-resolution` accepts
+`{state, action, facts?, hit?}` and returns the deterministic engine outcome.
+`POST /ai/derive-end-turn` returns residual/status progression, including
+modeled Shed Skin, Healer, and Harvest outcomes, while
+`POST /ai/advance-turn` applies it and advances modeled timers.
+Future Sight and Doom Desire store sampled damage in serializable delayed state,
+and Wish stores a delayed healing fraction against the original active slot;
+all resolve at the due turn boundary. Sleep, paralysis, freeze, flinch, and
+confusion action gates are recorded in the move resolution. Destiny Bond is
+consumed when a direct damaging resolution KOs its holder.
+Healing Wish and Lunar Dance carry a one-shot full-heal flag into the next
+replacement entry; PP restoration remains an external simulator event.
+Laser Focus is passed into the calculator as a guaranteed critical-hit state
+for the holder's next damage calculation; defender critical-hit blockers still
+apply. Focus Energy remains a probabilistic crit-stage input for the battle
+engine, exposed through `ActionFacts.attackerCriticalHitStage`.
+`POST /ai/order-actions` orders simultaneous intents by switch/move priority,
+common ability/item modifiers including sampled Quick Claw and the Custap Berry
+25%-HP threshold, Magic Room/Klutz held-item suppression, effective speed, and
+Trick Room.
+Move resolution also normalizes common action gates such as Generation III+
+Truant, and common stat-change abilities such as Contrary,
+Simple, and Clear Body. `advanceTurn()` handles the modeled weather, status,
+item, ability, and G-Max residual effects;
+unmodeled simulator events remain external inputs.
+
 ### Import
 
 This repository also houses an internal package under `import/` which is used for populating the
 Pokémon sets data (as well as data about random battle options) used by the UI. Before making
-changes here you must run `npm install` from under the `import/` directory to install its
+changes here you must run `npm ci` from under the `import/` directory to install its
 dependencies as they are not installed by default. [`TASKS.md`][4] contains more information on
 how to programmatically update sets.
 
