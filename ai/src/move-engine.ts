@@ -29,35 +29,17 @@ import {
   RECHARGE_MOVE_MIN_GENERATION,
   PARTIAL_TRAPPING_MOVES,
   PROTECTION_MOVE_MIN_GENERATION,
-  SEMI_INVULNERABLE_BYPASS_MOVES,
   SEMI_INVULNERABLE_CHARGE_MOVES,
   UPROAR_MOVE_MIN_GENERATION,
 } from './move-metadata';
-import {getActionOrderFacts, getEffectivePokemonSpeed} from './order';
+import {getEffectivePokemonSpeed} from './order';
 import {sampleDamageFact, sampleDamageResolution} from './resolution';
 import {getCalcSpeciesOverrides, getEffectiveSpecies, getRawStats} from './stat-transforms';
 import {isMimicryActive, mimicryTypeOverride} from './mimicry';
-import {hasPureAbilityEffect, PURE_ABILITY_MOVE_IDS} from './ability-legality';
-import {COPY_BLOCKED_MOVES, hasMoveCopyEffect, PURE_MOVE_COPY_IDS} from './copy-legality';
-import {ASSIST_BLOCKED_MOVES, hasCallMoveEffect, ME_FIRST_BLOCKED_MOVES, PURE_CALL_MOVE_IDS} from './call-legality';
-import {hasPureTypeEffect, PURE_TYPE_MOVE_IDS} from './type-legality';
-import {hasInstructEffect} from './instruct-legality';
-import {canRemoveHeldItem, hasPureItemTransferEffect, PURE_ITEM_TRANSFER_MOVE_IDS} from './item-legality';
-import {hasSelfStageEffect} from './setup-legality';
-import {PURE_STATUS_EFFECTS} from './status-legality';
-import {
-  hasMixedTargetStageEffect,
-  hasTargetStageBoostEffect,
-  hasTargetStageEffect,
-  hasTargetStageResetEffect,
-  MIXED_TARGET_STAGE_MOVE_IDS,
-  PURE_TARGET_STAGE_BOOST_IDS,
-  PURE_TARGET_STAGE_DROP_IDS,
-  PURE_TARGET_STAGE_RESET_MOVE_IDS,
-} from './stage-legality';
-import {PURE_CONFUSION_MOVE_IDS} from './volatile-legality';
-import {hasPureStatTransferEffect, PURE_STAT_TRANSFER_MOVE_IDS} from './stat-transfer-legality';
-import {getLastMoveState, getPurePPLoss, hasPurePPEffect, PURE_PP_MOVE_IDS} from './pp-legality';
+import {COPY_BLOCKED_MOVES} from './copy-legality';
+import {ASSIST_BLOCKED_MOVES, ME_FIRST_BLOCKED_MOVES} from './call-legality';
+import {canRemoveHeldItem} from './item-legality';
+import {getLastMoveState, getPurePPLoss, PURE_PP_MOVE_IDS} from './pp-legality';
 import {getTypeChangeResolution} from './type-changes';
 import {weatherFormSpeciesOverride} from './weather-forms';
 import {confusionBerryDislikesNature, statusBerryCures} from './berry-effects';
@@ -79,12 +61,117 @@ import {
   StatusName,
   SecondaryEffect,
   Terrain,
-  TimedFieldName,
   TimedSideEffectName,
   VolatileState,
   VolatileStatusName,
   Weather,
 } from './model';
+import {
+  eligibleTargetIds,
+  moveMakesContact,
+  movePriorityForProtection,
+  sampleAccuracy,
+} from './move-engine-targeting';
+import {
+  addField,
+  addFieldDuration,
+  addSideEffectDuration,
+  clearEntryHazards,
+  clearSubstitutes,
+  courtChangeSideEffects,
+  extendedFieldDuration,
+} from './move-engine-field';
+import {
+  fieldMoveFailure,
+  itemMoveFailure,
+  selfMoveFailure,
+  targetMoveFailure,
+} from './move-engine-failures';
+import {
+  canChangeAbility,
+  hasAbility,
+  hasActiveAlly,
+  hasMagicGuard,
+  hasSubstitute,
+  isBerry,
+  isIceFaceActive,
+  moveId,
+  otherSide,
+} from './move-engine-utils';
+import {
+  adjustFirstDirectSequentialHit,
+  adjustFirstFatalDirectSequentialHit,
+  adjustFirstFatalFirstDirectSequentialHit,
+  crashDamageOnMiss,
+  directDamageTakenByPokemon,
+  directDamageTotal,
+  hasDirectMoveHitAfterSubstitute,
+  hasSurvivingDirectHit,
+  sequentialDamageOutcome,
+  totalDamage,
+} from './move-engine-damage';
+import {
+  addHpDelta,
+  addSideEffects,
+  addSubstituteHp,
+  resetBoosts,
+  setAbilityOverride,
+  setAbilitySuppressed,
+  setBoosts,
+  setCalledMove,
+  setCalledMoveExternal,
+  setCalledMoveModifiers,
+  setCalledMoveTargets,
+  setCopyMove,
+  setForcedSwitch,
+  setItem,
+  setItemCorroded,
+  setMoves,
+  setNoAbility,
+  setPendingFullHeal,
+  setSaltCure,
+  setSpeciesOverride,
+  setStatOverrides,
+  setStatusTurns,
+  setTypeChangeUsed,
+  setTypeOverride,
+} from './move-engine-writers';
+import {
+  CONSECUTIVE_PROTECTIVE_MOVES,
+  DELAYED_DAMAGE_MOVES,
+  DRAIN,
+  FIRST_TURN_MOVE_MIN_GENERATION,
+  FLING_CONFUSION_BERRIES,
+  FLING_ITEM_STATUSES,
+  FLING_ITEM_VOLATILES,
+  FLING_RANDOM_BOOST_STATS,
+  FLING_STAT_BERRIES,
+  HEAL_BLOCKED_MOVES,
+  INSTRUCT_BLOCKED_MOVES,
+  MENTAL_HERB_VOLATILES,
+  PROTECT_BYPASS_MOVES,
+  PROTECTIVE_MOVES,
+  RAMPAGE_MOVES,
+  REACTIVE_DAMAGE_BERRIES,
+  REACTIVE_STAT_BERRIES,
+  RECOIL,
+  RECOVERY_MOVES,
+  RESIST_BERRY_TYPES,
+  SECONDARY_BOOST_MOVES,
+  SELF_BOOSTS,
+  SELF_STAT_CHANGES,
+  SHELL_TRAP_MIN_GENERATION,
+  STAGE_IDS,
+  STAT_STAGE_MOVE_GENERATIONS,
+  STATUS_BY_MOVE,
+  TARGET_BOOSTS,
+  GENERATION_NUMERALS,
+  MOVE_MIN_GENERATION,
+  TERRAIN_BY_SETTER,
+  TERRAIN_SEEDS,
+  WEATHER_BY_SETTER,
+  WEATHER_SETTER_MIN_GENERATION,
+} from './move-engine-tables';
 
 export interface MoveEngineOptions {
   facts?: ActionFacts;
@@ -93,30 +180,6 @@ export interface MoveEngineOptions {
   secondaryEffects?: SecondaryEffect[];
   random?: () => number;
 }
-
-const WEATHER_BY_SETTER: Record<string, Weather> = {
-  raindance: 'Rain', sunnyday: 'Sun', sandstorm: 'Sand', hail: 'Hail', snowscape: 'Snow', chillyreception: 'Snow',
-};
-const TERRAIN_BY_SETTER: Record<string, Terrain> = {
-  electricterrain: 'Electric', grassyterrain: 'Grassy', psychicterrain: 'Psychic', mistyterrain: 'Misty',
-};
-const WEATHER_SETTER_MIN_GENERATION: Record<string, number> = {
-  raindance: 2, sunnyday: 2, sandstorm: 2, hail: 3, snowscape: 9, chillyreception: 9,
-};
-const FLING_ITEM_STATUSES: Record<string, StatusName> = {
-  flameorb: 'brn', lightball: 'par', poisonbarb: 'psn', toxicorb: 'tox',
-};
-const FLING_ITEM_VOLATILES: Record<string, VolatileStatusName> = {
-  kingsrock: 'flinch', razorfang: 'flinch',
-};
-const FLING_CONFUSION_BERRIES = new Set(['aguavberry', 'figyberry', 'iapapaberry', 'magoberry', 'wikiberry']);
-const FLING_STAT_BERRIES: Record<string, keyof StatBoosts> = {
-  liechiberry: 'atk', ganlonberry: 'def', salacberry: 'spe', petayaberry: 'spa', apicotberry: 'spd',
-};
-const FLING_RANDOM_BOOST_STATS: Array<keyof StatBoosts> = ['atk', 'def', 'spa', 'spd', 'spe'];
-const MENTAL_HERB_VOLATILES: VolatileStatusName[] = [
-  'infatuated', 'taunt', 'encore', 'torment', 'disable', 'healBlock',
-];
 
 export function fieldSetterNoOpReason(state: BattleState, moveName: string): string | undefined {
   const id = moveId(moveName);
@@ -138,74 +201,6 @@ export function fieldSetterNoOpReason(state: BattleState, moveName: string): str
   }
   return undefined;
 }
-
-const SELF_BOOSTS: Record<string, StatBoosts> = {
-  acidarmor: {def: 2}, agility: {spe: 2}, amnesia: {spd: 2}, autotomize: {spe: 2}, barrier: {def: 2},
-  bulkup: {atk: 1, def: 1}, calmmind: {spa: 1, spd: 1}, chargebeam: {spa: 1},
-  charge: {spd: 1}, coil: {atk: 1, def: 1, acc: 1}, cosmicpower: {def: 1, spd: 1}, cottonguard: {def: 3},
-  defensecurl: {def: 1}, doubleteam: {eva: 1},
-  dragondance: {atk: 1, spe: 1}, growth: {atk: 1, spa: 1}, harden: {def: 1}, howl: {atk: 1},
-  honeclaws: {atk: 1, acc: 1}, irondefense: {def: 2}, meditate: {atk: 1}, nastyplot: {spa: 2},
-  minimize: {eva: 2},
-  poweruppunch: {atk: 1}, quiverdance: {spa: 1, spd: 1, spe: 1}, rockpolish: {spe: 2},
-  sharpen: {atk: 1}, shiftgear: {atk: 1, spe: 2}, swordsdance: {atk: 2}, tailglow: {spa: 3},
-  withdraw: {def: 1}, workup: {atk: 1, spa: 1}, stockpile: {def: 1, spd: 1}, shelter: {def: 2},
-  takeheart: {spa: 1, spd: 1}, defendorder: {def: 1, spd: 1},
-  extremeevoboost: {atk: 2, def: 2, spa: 2, spd: 2, spe: 2},
-};
-
-const STAT_STAGE_MOVE_GENERATIONS: Record<string, number> = {
-  charge: 3, sweetscent: 2, sweetspore: 2, scaryface: 2, cottonspore: 2,
-  featherdance: 3, metalsound: 3, tickle: 3, captivate: 4, babydolleyes: 6,
-  confide: 6, nobleroar: 6, playnice: 6, toxicthread: 7, tearfullook: 7, tarshot: 8,
-  shelter: 9, takeheart: 9, spicyextract: 9, defendorder: 4, extremeevoboost: 7, aromaticmist: 6,
-};
-
-const TARGET_BOOSTS: Record<string, StatBoosts> = {
-  babydolleyes: {atk: -1}, captivate: {spa: -2}, confide: {spa: -1}, cottonspore: {spe: -2},
-  growl: {atk: -1}, leer: {def: -1},
-  tailwhip: {def: -1}, charm: {atk: -2},
-  scaryface: {spe: -2}, sandattack: {acc: -1}, smokescreen: {acc: -1}, flash: {acc: -1},
-  kinesis: {acc: -1}, sweetscent: {eva: -2}, sweetspore: {eva: -2}, featherdance: {atk: -2}, metalsound: {spd: -2},
-  stringshot: {spe: -2}, tickle: {atk: -1, def: -1}, tearfullook: {atk: -1, spa: -1},
-  nobleroar: {atk: -1, spa: -1}, playnice: {atk: -1}, toxicthread: {spe: -1}, tarshot: {spe: -1},
-  faketears: {spd: -2}, screech: {def: -2}, eerieimpulse: {spa: -2},
-  snarl: {spa: -1}, strugglebug: {spa: -1}, skittersmack: {spa: -1},
-  tropkick: {atk: -1}, lunge: {atk: -1}, breakingswipe: {atk: -1}, icywind: {spe: -1},
-  electroweb: {spe: -1}, rocktomb: {spe: -1}, mudshot: {spe: -1}, lowsweep: {spe: -1},
-  acidspray: {spd: -2},
-  swagger: {atk: 2}, flatter: {spa: 1}, spicyextract: {atk: 2, def: -2}, aromaticmist: {spd: 1},
-};
-
-const STATUS_BY_MOVE: Record<string, StatusName> = {
-  toxic: 'tox', poisonpowder: 'psn', poisongas: 'psn', toxicthread: 'psn', willowisp: 'brn', thunderwave: 'par', glare: 'par',
-  nuzzle: 'par', stunspore: 'par', spore: 'slp', sleeppowder: 'slp', hypnosis: 'slp',
-  sing: 'slp', lovelykiss: 'slp', darkvoid: 'slp', grasswhistle: 'slp',
-};
-
-const RECOVERY_MOVES = new Set([
-  'healorder', 'milkdrink', 'moonlight', 'morningsun', 'recover', 'roost', 'shoreup',
-  'slackoff', 'softboiled', 'synthesis',
-]);
-const HEAL_BLOCKED_MOVES = new Set([
-  'floralhealing', 'healorder', 'healingwish', 'healpulse', 'junglehealing', 'lifedew',
-  'lunardance', 'milkdrink', 'moonlight', 'morningsun', 'purify', 'recover', 'rest',
-  'roost', 'shoreup', 'slackoff', 'softboiled', 'strengthsap', 'swallow', 'synthesis', 'wish',
-]);
-
-const DELAYED_DAMAGE_MOVES = new Set(['futuresight', 'doomdesire']);
-const RAMPAGE_MOVES = new Set(['outrage', 'thrash', 'petaldance', 'ragingfury']);
-const SHELL_TRAP_MIN_GENERATION = 7;
-const PROTECTIVE_MOVES = new Set([
-  'protect', 'detect', 'kingsshield', 'wideguard', 'quickguard', 'matblock',
-  'banefulbunker', 'spikyshield', 'silktrap', 'obstruct', 'burningbulwark',
-  'maxguard',
-]);
-const CONSECUTIVE_PROTECTIVE_MOVES = new Set(Array.from(PROTECTIVE_MOVES).concat('endure'));
-const FIRST_TURN_MOVE_MIN_GENERATION: Record<string, number> = {
-  fakeout: 3,
-  firstimpression: 7,
-};
 
 function isFirstTurnMoveAvailable(state: BattleState, actor: PokemonState, moveIdValue: string): boolean {
   const minimumGeneration = FIRST_TURN_MOVE_MIN_GENERATION[moveIdValue];
@@ -246,18 +241,6 @@ function currentAttackStat(state: BattleState, pokemon: BattleState['sides'][Sid
   }).stats.atk;
 }
 
-const RECOIL: Record<string, [number, number]> = {
-  bravebird: [33, 100], doubleedge: [33, 100], flareblitz: [33, 100], headsmash: [1, 2],
-  submission: [1, 4], takedown: [1, 4], volttackle: [1, 3], wildcharge: [1, 4],
-  woodhammer: [1, 3], struggle: [1, 4],
-};
-
-const DRAIN: Record<string, [number, number]> = {
-  absorb: [1, 2], drainpunch: [1, 2], dreameater: [1, 2], gigadrain: [1, 2],
-  hornleech: [1, 2], leechlife: [1, 2], megadrain: [1, 2], oblivionwing: [3, 4],
-  drainingkiss: [3, 4],
-};
-
 function getMoveHpEffects(generation: BattleState['generation'], moveName: string) {
   const id = moveId(moveName);
   let canonical: Calc.Move | undefined;
@@ -274,52 +257,6 @@ function getMoveHpEffects(generation: BattleState['generation'], moveName: strin
     crashDamage: canonical?.hasCrashDamage || false,
     drain: canonical?.drain || DRAIN[id],
   };
-}
-
-const SELF_STAT_CHANGES: Record<string, StatBoosts> = {
-  closecombat: {def: -1, spd: -1}, dracometeor: {spa: -2}, fleurcannon: {spa: -2},
-  hammerarm: {spe: -1}, leafstorm: {spa: -2}, makeitrain: {spa: -1}, overheat: {spa: -2},
-  psychoboost: {spa: -2}, spinout: {spe: -2}, superpower: {atk: -1, def: -1},
-  vcreate: {def: -1, spd: -1, spe: -1}, hyperspacefury: {def: -1},
-  armorcannon: {def: -1, spd: -1},
-  dragonascent: {def: -1, spd: -1}, headlongrush: {def: -1, spd: -1}, icehammer: {spe: -1},
-  scaleshot: {def: -1, spe: 1},
-};
-
-const STAGE_IDS = ['atk', 'def', 'spa', 'spd', 'spe', 'acc', 'eva'] as const;
-
-const SECONDARY_BOOST_MOVES = new Set([
-  'chargebeam', 'poweruppunch', 'growl', 'leer', 'tailwhip', 'charm', 'faketears',
-  'screech', 'eerieimpulse', 'snarl', 'strugglebug', 'skittersmack', 'tropkick',
-  'lunge', 'breakingswipe', 'icywind', 'electroweb', 'rocktomb', 'mudshot', 'lowsweep',
-  'acidspray',
-]);
-
-const PROTECT_BYPASS_MOVES = new Set([
-  'feint', 'hyperspacefury', 'hyperspacehole', 'mightycleave', 'phantomforce',
-  'shadowforce',
-]);
-
-const INSTRUCT_BLOCKED_MOVES = new Set([
-  'assist', 'beakblast', 'bide', 'bounce', 'counter', 'copycat', 'dig', 'dive', 'fly',
-  'focuspunch', 'metronome', 'mimic', 'mirrormove', 'naturepower', 'phantomforce',
-  'shelltrap', 'shadowforce', 'sketch', 'skydrop', 'sleeptalk', 'struggle', 'transform',
-  'metalburst', 'mirrorcoat',
-]);
-
-const ABILITY_CHANGE_IMMUNITIES = new Set([
-  'asoneglastrier', 'asonespectrier', 'battlebond', 'comatose', 'commander', 'disguise',
-  'gulpmissile', 'iceface', 'lingeringaroma', 'mummy', 'multitype', 'powerconstruct',
-  'rkssystem', 'rksystem', 'schooling', 'shieldsdown', 'stancechange', 'terashift', 'zenmode',
-  'zerotohero',
-]);
-
-function canChangeAbility(ability: string | undefined): boolean {
-  return !!ability && !ABILITY_CHANGE_IMMUNITIES.has(moveId(ability));
-}
-
-function moveId(name: string | undefined): string {
-  return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 function isTruantActive(state: BattleState, pokemon: PokemonState): boolean {
@@ -374,80 +311,12 @@ function snatchEffectTargets(
   return [snatcher.id];
 }
 
-function otherSide(sideId: SideId): SideId {
-  return sideId === 'ai' ? 'player' : 'ai';
-}
-
-function hasActiveAlly(state: BattleState, pokemon: PokemonState): boolean {
-  const sideId = sideForPokemon(state, pokemon.id);
-  return state.mode === 'Doubles' && state.sides[sideId].activeIds.some(id =>
-    id !== pokemon.id && (getPokemon(state, id)?.hp.current || 0) > 0);
-}
-
 function hasFlowerVeilProtection(state: BattleState, pokemon: PokemonState): boolean {
   if (state.generation < 6 || state.mode !== 'Doubles' ||
     !getEffectiveTypes(state, pokemon.id).some(type => moveId(type) === 'grass')) return false;
   return activePokemonForSide(state, sideForPokemon(state, pokemon.id))
     .some(ally => ally.id !== pokemon.id && hasAbility(state, ally, 'flowerveil'));
 }
-
-function addHpDelta(resolution: MoveResolution, pokemonId: string, delta: number) {
-  if (!Number.isFinite(delta) || delta === 0) return;
-  resolution.hpDeltaByPokemon = {...(resolution.hpDeltaByPokemon || {})};
-  resolution.hpDeltaByPokemon[pokemonId] = (resolution.hpDeltaByPokemon[pokemonId] || 0) + delta;
-}
-
-function setItem(resolution: MoveResolution, pokemonId: string, item: string | null) {
-  resolution.itemByPokemon = {
-    ...(resolution.itemByPokemon || {}),
-    [pokemonId]: item,
-  };
-}
-
-function setItemCorroded(resolution: MoveResolution, pokemonId: string, corroded: boolean | null) {
-  resolution.itemCorrodedByPokemon = {
-    ...(resolution.itemCorrodedByPokemon || {}),
-    [pokemonId]: corroded,
-  };
-}
-
-const TERRAIN_SEEDS: Record<string, {terrain: Terrain; stat: keyof StatBoosts}> = {
-  electricseed: {terrain: 'Electric', stat: 'def'},
-  grassyseed: {terrain: 'Grassy', stat: 'def'},
-  mistyseed: {terrain: 'Misty', stat: 'spd'},
-  psychicseed: {terrain: 'Psychic', stat: 'spd'},
-};
-
-const RESIST_BERRY_TYPES: Record<string, string> = {
-  occaberry: 'fire',
-  passhoberry: 'water',
-  wacanberry: 'electric',
-  rindoberry: 'grass',
-  yacheberry: 'ice',
-  chopleberry: 'fighting',
-  kebiaberry: 'poison',
-  shucaberry: 'ground',
-  cobaberry: 'flying',
-  payapaberry: 'psychic',
-  tangaberry: 'bug',
-  chartiberry: 'rock',
-  kasibberry: 'ghost',
-  habanberry: 'dragon',
-  colburberry: 'dark',
-  babiriberry: 'steel',
-  roseliberry: 'fairy',
-  chilanberry: 'normal',
-};
-
-const REACTIVE_STAT_BERRIES: Record<string, {category: MoveCategory; stat: keyof StatBoosts}> = {
-  keeberry: {category: 'Physical', stat: 'def'},
-  marangaberry: {category: 'Special', stat: 'spd'},
-};
-
-const REACTIVE_DAMAGE_BERRIES: Record<string, MoveCategory> = {
-  jabocaberry: 'Physical',
-  rowapberry: 'Special',
-};
 
 function activateTerrainSeeds(resolution: MoveResolution, state: BattleState, terrain: Terrain) {
   if (state.generation < 7) return;
@@ -462,27 +331,6 @@ function activateTerrainSeeds(resolution: MoveResolution, state: BattleState, te
       resolution.trace!.notes!.push(`${pokemon.item} activated for ${pokemon.id} in ${terrain} Terrain`);
     }
   }
-}
-
-function setSaltCure(resolution: MoveResolution, pokemonId: string, active: boolean | null) {
-  resolution.isSaltCureByPokemon = {
-    ...(resolution.isSaltCureByPokemon || {}),
-    [pokemonId]: active,
-  };
-}
-
-function setTypeOverride(resolution: MoveResolution, pokemonId: string, types: string[] | null) {
-  resolution.typeOverrideByPokemon = {
-    ...(resolution.typeOverrideByPokemon || {}),
-    [pokemonId]: types,
-  };
-}
-
-function setTypeChangeUsed(resolution: MoveResolution, pokemonId: string, used: boolean | null) {
-  resolution.typeChangeUsedByPokemon = {
-    ...(resolution.typeChangeUsedByPokemon || {}),
-    [pokemonId]: used,
-  };
 }
 
 function applyMimicry(
@@ -522,34 +370,6 @@ function applyForecast(
   }
 }
 
-function setAbilityOverride(resolution: MoveResolution, pokemonId: string, ability: string | null) {
-  resolution.abilityOverrideByPokemon = {
-    ...(resolution.abilityOverrideByPokemon || {}),
-    [pokemonId]: ability,
-  };
-}
-
-function setNoAbility(resolution: MoveResolution, pokemonId: string) {
-  resolution.noAbilityByPokemon = {
-    ...(resolution.noAbilityByPokemon || {}),
-    [pokemonId]: true,
-  };
-}
-
-function setAbilitySuppressed(resolution: MoveResolution, pokemonId: string, suppressed: boolean | null) {
-  resolution.abilitySuppressedByPokemon = {
-    ...(resolution.abilitySuppressedByPokemon || {}),
-    [pokemonId]: suppressed,
-  };
-}
-
-function setSpeciesOverride(resolution: MoveResolution, pokemonId: string, species: string | null) {
-  resolution.speciesOverrideByPokemon = {
-    ...(resolution.speciesOverrideByPokemon || {}),
-    [pokemonId]: species,
-  };
-}
-
 function stanceChangeSpecies(
   state: BattleState,
   actor: PokemonState,
@@ -567,63 +387,6 @@ function stanceChangeSpecies(
   return moveId(moveName) === 'kingsshield' ? 'Aegislash-Shield' : 'Aegislash-Blade';
 }
 
-function setStatOverrides(
-  resolution: MoveResolution,
-  pokemonId: string,
-  stats: Partial<Record<'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe', number>> | null,
-) {
-  resolution.statOverridesByPokemon = {
-    ...(resolution.statOverridesByPokemon || {}),
-    [pokemonId]: stats,
-  };
-}
-
-function setMoves(resolution: MoveResolution, pokemonId: string, moves: PokemonState['moves'] | null) {
-  resolution.movesByPokemon = {
-    ...(resolution.movesByPokemon || {}),
-    [pokemonId]: moves,
-  };
-}
-
-function setCopyMove(resolution: MoveResolution, pokemonId: string, moveName: string | null) {
-  resolution.copyMoveByPokemon = {
-    ...(resolution.copyMoveByPokemon || {}),
-    [pokemonId]: moveName,
-  };
-}
-
-function setCalledMove(resolution: MoveResolution, pokemonId: string, moveName: string | null) {
-  resolution.calledMoveByPokemon = {
-    ...(resolution.calledMoveByPokemon || {}),
-    [pokemonId]: moveName,
-  };
-}
-
-function setCalledMoveModifiers(
-  resolution: MoveResolution,
-  pokemonId: string,
-  modifiers: {powerMultiplier?: number; bypassAccuracy?: boolean},
-) {
-  resolution.calledMoveModifiersByPokemon = {
-    ...(resolution.calledMoveModifiersByPokemon || {}),
-    [pokemonId]: modifiers,
-  };
-}
-
-function setCalledMoveTargets(resolution: MoveResolution, pokemonId: string, targetIds: string[]) {
-  resolution.calledMoveTargetIdsByPokemon = {
-    ...(resolution.calledMoveTargetIdsByPokemon || {}),
-    [pokemonId]: [...targetIds],
-  };
-}
-
-function setCalledMoveExternal(resolution: MoveResolution, pokemonId: string) {
-  resolution.calledMoveExternalByPokemon = {
-    ...(resolution.calledMoveExternalByPokemon || {}),
-    [pokemonId]: true,
-  };
-}
-
 function getNaturePowerMove(state: BattleState): string {
   if (state.generation <= 3) return 'Swift';
   if (state.generation <= 5) return 'Tri Attack';
@@ -635,13 +398,6 @@ function getNaturePowerMove(state: BattleState): string {
   };
   const terrain = state.field.terrain;
   return (terrain && terrainMoves[terrain]) || 'Tri Attack';
-}
-
-function setForcedSwitch(resolution: MoveResolution, pokemonId: string, forced = true) {
-  resolution.forcedSwitchByPokemon = {
-    ...(resolution.forcedSwitchByPokemon || {}),
-    [pokemonId]: forced,
-  };
 }
 
 export function canRequestMoveSwitch(state: BattleState, actor: PokemonState): boolean {
@@ -711,11 +467,6 @@ function consumeItem(
   };
 }
 
-function hasAbility(state: BattleState, pokemon: PokemonState, ability: string): boolean {
-  return isAbilityActive(pokemon, state) && isAbilityAvailable(state.generation, ability) &&
-    moveId(getEffectiveAbility(pokemon)) === ability;
-}
-
 function isBerryUseSuppressedByUnnerve(
   state: BattleState,
   actorId: string,
@@ -729,15 +480,6 @@ function isBerryUseSuppressedByUnnerve(
   });
 }
 
-function hasMagicGuard(state: BattleState, pokemon: PokemonState): boolean {
-  return state.generation >= 4 && hasAbility(state, pokemon, 'magicguard');
-}
-
-function isIceFaceActive(state: BattleState, pokemon: PokemonState): boolean {
-  return state.generation >= 8 && hasAbility(state, pokemon, 'iceface') &&
-    moveId(getEffectiveSpecies(pokemon)) === 'eiscue';
-}
-
 function applyCheekPouch(
   resolution: MoveResolution,
   state: BattleState,
@@ -748,10 +490,6 @@ function applyCheekPouch(
     !consumer.volatile?.healBlock && hasAbility(state, consumer, 'cheekpouch')) {
     addHpDelta(resolution, consumer.id, Math.floor(consumer.hp.max / 3));
   }
-}
-
-function isBerry(item: string | undefined): boolean {
-  return moveId(item).endsWith('berry');
 }
 
 function armCudChew(
@@ -786,37 +524,6 @@ function resolvedItem(
     return item === null ? undefined : item;
   }
   return pokemon.item;
-}
-
-function moveMakesContact(
-  state: BattleState,
-  moveName: string,
-  actor?: PokemonState,
-  action?: Pick<MoveAction, 'useZ' | 'useMax'>,
-): boolean {
-  const moveState = actor?.moves.find(move => move.name === moveName);
-  const moveMetadata = moveState
-    ? getEffectiveMoveMetadata(moveState, state.generation)
-    : getMoveMetadata(moveName, state.generation);
-  try {
-    const move = new Calc.Move(Calc.Generations.get(state.generation), moveName, {
-      ability: actor ? getCalculatorAbility(state, actor) : undefined,
-      item: actor && isItemEffectActive(state, actor) ? actor.item : undefined,
-      species: actor ? getEffectiveSpecies(actor) : undefined,
-      useZ: action?.useZ,
-      useMax: action?.useMax,
-    });
-    if (!(moveMetadata.contact ?? !!move.flags.contact)) return false;
-    if (actor && state.generation >= 7 && isAbilityActive(actor, state) &&
-      moveId(getEffectiveAbility(actor)) === 'longreach') return false;
-    if (actor && state.generation >= 7 && isItemEffectActive(state, actor) &&
-      moveId(actor.item) === 'protectivepads') return false;
-    if (actor && state.generation >= 9 && isItemEffectActive(state, actor) &&
-      moveId(actor.item) === 'punchingglove' && (moveMetadata.punch ?? !!move.flags.punch)) return false;
-    return true;
-  } catch {
-    return moveMetadata.contact === true;
-  }
 }
 
 function moveBreaksProtection(state: BattleState, moveName: string): boolean {
@@ -859,13 +566,6 @@ function clearMajorStatus(resolution: MoveResolution, state: BattleState, pokemo
   }
 }
 
-function setStatusTurns(resolution: MoveResolution, pokemonId: string, turns: number | null) {
-  resolution.statusTurnsByPokemon = {
-    ...(resolution.statusTurnsByPokemon || {}),
-    [pokemonId]: turns,
-  };
-}
-
 function sampleActionRoll(random: () => number, label: string): number {
   const roll = random();
   if (!Number.isFinite(roll)) throw new Error(`${label} sampler must return a finite number`);
@@ -900,365 +600,6 @@ function actionFailure(
     if (sampleActionRoll(random, 'Protect') >= 1 / 3) return {failure: 'protect'};
   }
   return {};
-}
-
-function addSubstituteHp(resolution: MoveResolution, pokemonId: string, hp: number) {
-  resolution.substituteHpByPokemon = {
-    ...(resolution.substituteHpByPokemon || {}),
-    [pokemonId]: hp,
-  };
-}
-
-function hasSubstitute(state: BattleState, pokemonId: string): boolean {
-  return (getPokemon(state, pokemonId)?.substituteHp || 0) > 0;
-}
-
-function itemMoveFailure(
-  state: BattleState,
-  actor: PokemonState,
-  target: PokemonState | undefined,
-  id: string,
-): string | undefined {
-  if (id === 'trick' || id === 'switcheroo') {
-    if (!target) return `${id} requires a target`;
-    if (!actor.item && !target.item) return `${id} failed because neither Pokémon is holding an item`;
-    if (hasSubstitute(state, target.id)) return `${id} failed because the target is behind a Substitute`;
-    if (!canRemoveHeldItem(state, target) && target.item) {
-      return `${id} failed because Sticky Hold protected the target item`;
-    }
-  }
-  if (id === 'bestow') {
-    if (!target || !actor.item || target.item) return 'Bestow failed because the item transfer was not possible';
-  }
-  if (id === 'thief' || id === 'covet') {
-    if (!target || actor.item || !target.item || !canRemoveHeldItem(state, target)) {
-      return `${id} failed because the target item could not be stolen`;
-    }
-  }
-  if (PURE_ITEM_TRANSFER_MOVE_IDS.has(id) && !hasPureItemTransferEffect(state, actor, target, id)) {
-    return `${actionNameForId(id)} failed because the held-item transfer was not possible`;
-  }
-  if (id === 'recycle' && (state.generation < 3 || actor.item || !actor.lastConsumedItem)) {
-    return 'Recycle failed because no consumed item can be restored';
-  }
-  if (id === 'belch' && (state.generation < 6 || !isBerry(actor.lastConsumedItem))) {
-    return 'Belch failed because the actor has not consumed a Berry';
-  }
-  if (id === 'stuffcheeks' && (state.generation < 8 || !isBerry(actor.item) ||
-    actor.itemCorroded || actor.volatile?.embargo)) {
-    return 'Stuff Cheeks failed because the actor has no usable held Berry';
-  }
-  if (id === 'lastresort' && (actor.moves.length <= 1 || actor.moves.some(move =>
-    moveId(move.name) !== 'lastresort' && (move.timesUsed || 0) < 1))) {
-    return 'Last Resort failed because not all other moves have been used';
-  }
-  return undefined;
-}
-
-function selfMoveFailure(
-  state: BattleState,
-  actor: PokemonState,
-  id: string,
-): string | undefined {
-  const stockpileCount = actor.volatile?.stockpile?.stacks || 0;
-  if (id === 'stockpile' && stockpileCount >= 3) return 'Stockpile failed because its stack limit was reached';
-  if ((id === 'swallow' || id === 'spitup') && stockpileCount === 0) {
-    return `${id === 'swallow' ? 'Swallow' : 'Spit Up'} failed because no Stockpile energy was available`;
-  }
-  if (id === 'swallow' && actor.hp.current >= actor.hp.max) return 'Swallow failed because the actor was at full HP';
-  if (id === 'rest' && actor.hp.current >= actor.hp.max) return 'Rest failed because the actor was at full HP';
-  if (id === 'rest' && !canApplyMajorStatus(state, actor.id, actor.id, 'slp', undefined, false, true)) {
-    return 'Rest failed because sleep was blocked';
-  }
-  if (id === 'bellydrum' && actor.hp.current <= Math.floor(actor.hp.max / 2)) {
-    return 'Belly Drum failed because the actor lacked more than half HP';
-  }
-  if (id === 'clangoroussoul' && state.generation >= 8 && actor.hp.current <= Math.floor(actor.hp.max / 3)) {
-    return 'Clangorous Soul failed because the actor lacked more than one-third HP';
-  }
-  if (id === 'filletaway' && state.generation >= 9 && actor.hp.current <= Math.floor(actor.hp.max / 2)) {
-    return 'Fillet Away failed because the actor lacked more than half HP';
-  }
-  if (id === 'substitute' && (actor.substituteHp || 0) > 0) return 'Substitute failed because one was already active';
-  if (id === 'substitute' && actor.hp.current <= Math.floor(actor.hp.max / 4)) {
-    return 'Substitute failed because the actor lacked enough HP';
-  }
-  if (id === 'noretreat' && actor.volatile?.trapped) return 'No Retreat failed because the actor was already trapped';
-  if (id === 'aquaring' && actor.volatile?.aquaRing) return 'Aqua Ring failed because it was already active';
-  if (id === 'ingrain' && actor.volatile?.ingrain) return 'Ingrain failed because it was already active';
-  if (id === 'magnetrise' && actor.volatile?.magnetRise) return 'Magnet Rise failed because it was already active';
-  if (id === 'psychoshift' && !actor.status) return 'Psycho Shift failed because the actor had no major status';
-  if (id === 'magiccoat' && state.generation >= 4 && state.generation < 8 && actor.volatile?.magicCoat) {
-    return 'Magic Coat failed because it was already active';
-  }
-  if (id === 'snatch' && state.generation >= 3 && state.generation < 8 && actor.volatile?.snatch) {
-    return 'Snatch failed because it was already active';
-  }
-  if (id === 'grudge' && state.generation >= 3 && actor.volatile?.grudge) {
-    return 'Grudge failed because it was already active';
-  }
-  if (id === 'grudge' && state.generation < 3) return 'Grudge failed because it is unavailable in this generation';
-  if (id === 'gigatonhammer' && moveId(state.lastMoveUsedByPokemon?.[actor.id]) === id) {
-    return 'Gigaton Hammer failed because it cannot be used twice in a row';
-  }
-  if (id === 'burnup' && !getEffectiveTypes(state, actor.id).some(type => moveId(type) === 'fire')) {
-    return 'Burn Up failed because the actor was not Fire-type';
-  }
-  if (id === 'doubleshock' && !getEffectiveTypes(state, actor.id).some(type => moveId(type) === 'electric')) {
-    return 'Double Shock failed because the actor was not Electric-type';
-  }
-  if (id === 'geomancy' && moveId(actor.volatile?.charge?.moveName) === id) return undefined;
-  if (id === 'takeheart' && !actor.status && !hasSelfStageEffect(actor.boosts, id)) {
-    return 'Take Heart failed because it would have no effect';
-  }
-  if (id !== 'takeheart' && !hasSelfStageEffect(actor.boosts, id)) {
-    return `${actionNameForId(id)} failed because its affected stages were already maxed`;
-  }
-  if (new Set([
-    'healorder', 'milkdrink', 'moonlight', 'morningsun', 'recover', 'rest', 'roost',
-    'shoreup', 'slackoff', 'softboiled', 'synthesis',
-  ]).has(id) && actor.hp.current >= actor.hp.max) {
-    return `${actionNameForId(id)} failed because the actor was at full HP`;
-  }
-  return undefined;
-}
-
-function actionNameForId(id: string): string {
-  return id.replace(/(^|[a-z])([a-z])/g, (match, prefix: string, letter: string) =>
-    `${prefix ? `${prefix} ` : ''}${letter.toUpperCase()}`).trim();
-}
-
-function targetMoveFailure(
-  state: BattleState,
-  actor: PokemonState,
-  id: string,
-  targetIds: string[],
-): string | undefined {
-  if (id === 'revivalblessing') {
-    const targetId = targetIds[0];
-    const target = targetId ? getPokemon(state, targetId) : undefined;
-    if (state.generation < 9 || !target || target.id === actor.id || target.hp.current > 0 ||
-      sideForPokemon(state, target.id) !== sideForPokemon(state, actor.id)) {
-      return 'Revival Blessing failed because it did not target a fainted ally';
-    }
-    return undefined;
-  }
-  const targets = targetIds
-    .map(targetId => getPokemon(state, targetId))
-    .filter((target): target is PokemonState => !!target && target.hp.current > 0);
-  if (id === 'teatime' && (state.generation !== 8 || !targets.some(target => isBerry(target.item)))) {
-    return 'Teatime failed because no active target held a Berry';
-  }
-  if (id === 'flowershield' && (state.generation < 6 || state.generation > 8 || !targets.some(target =>
-    getEffectiveTypes(state, target.id).some(type => moveId(type) === 'grass') && (target.boosts?.def || 0) < 6))) {
-    return 'Flower Shield failed because no Grass target could gain Defense';
-  }
-  if (id === 'rototiller' && (state.generation < 6 || state.generation > 7 || !targets.some(target =>
-    isGrounded(state, target.id) && getEffectiveTypes(state, target.id).some(type => moveId(type) === 'grass') &&
-    ((target.boosts?.atk || 0) < 6 || (target.boosts?.spa || 0) < 6)))) {
-    return 'Rototiller failed because no grounded Grass target could gain stages';
-  }
-  if (id === 'lunarblessing' && targets.every(target => target.hp.current >= target.hp.max &&
-    !target.status && !target.toxicCounter)) {
-    return 'Lunar Blessing failed because all allies were already healed';
-  }
-  if (MIXED_TARGET_STAGE_MOVE_IDS.has(id) && targets.every(target =>
-    !hasMixedTargetStageEffect(target.boosts, id))) {
-    return `${actionNameForId(id)} failed because the target had no affected stage to change`;
-  }
-  if (id === 'tarshot' && targets.length && targets.every(target =>
-    !hasTargetStageEffect(target.boosts, id) &&
-    !canApplyVolatile(state, target.id, 'tarShot', actor.id, true, 'Status'))) {
-    return 'Tar Shot failed because no target could gain its effects';
-  }
-  if (PURE_TARGET_STAGE_BOOST_IDS.has(id) && targets.every(target =>
-    !hasTargetStageBoostEffect(target.boosts, id))) {
-    return `${actionNameForId(id)} failed because the target could not gain another affected stage`;
-  }
-  const pureStatus = PURE_STATUS_EFFECTS[id];
-  if (pureStatus && targets.length && targets.every(target => !canApplyMajorStatus(
-    state, actor.id, target.id, pureStatus.status, pureStatus.moveType, true,
-  ))) {
-    return `${actionNameForId(id)} failed because no target was eligible for its status`;
-  }
-  const target = targets[0];
-  if (!target) return undefined;
-  if (PURE_ITEM_TRANSFER_MOVE_IDS.has(id) && !hasPureItemTransferEffect(state, actor, target, id)) {
-    return `${actionNameForId(id)} failed because the held-item transfer was not possible`;
-  }
-  if (PURE_ABILITY_MOVE_IDS.has(id) && !hasPureAbilityEffect(state, actor, target, id)) {
-    return `${actionNameForId(id)} failed because it would not change an ability`;
-  }
-  if (PURE_PP_MOVE_IDS.has(id) && !hasPurePPEffect(state, target, id)) {
-    return `${actionNameForId(id)} failed because the target had no tracked PP to reduce`;
-  }
-  if (PURE_STAT_TRANSFER_MOVE_IDS.has(id) && !hasPureStatTransferEffect(state, actor, target, id)) {
-    return `${actionNameForId(id)} failed because it would not change the modeled stats`;
-  }
-  if (id === 'instruct' && !hasInstructEffect(state, target)) {
-    return 'Instruct failed because the target had no callable last move';
-  }
-  if (PURE_MOVE_COPY_IDS.has(id) && !hasMoveCopyEffect(state, actor, target, id)) {
-    return `${actionNameForId(id)} failed because no legal move was available to copy`;
-  }
-  if (PURE_CALL_MOVE_IDS.has(id) && !hasCallMoveEffect(state, actor, target, id)) {
-    return `${actionNameForId(id)} failed because no legal candidate move was available`;
-  }
-  if (PURE_TYPE_MOVE_IDS.has(id) && !hasPureTypeEffect(
-    state, actor, target, id, pokemonId => getEffectiveTypes(state, pokemonId),
-  )) {
-    return `${actionNameForId(id)} failed because the type change had no effect`;
-  }
-  if (PURE_CONFUSION_MOVE_IDS.has(id) && targets.every(candidate =>
-    !canApplyVolatile(state, candidate.id, 'confusion', actor.id, true))) {
-    return `${actionNameForId(id)} failed because no target was eligible for confusion`;
-  }
-  if (PURE_TARGET_STAGE_RESET_MOVE_IDS.has(id) && targets.every(candidate =>
-    !hasTargetStageResetEffect(candidate.boosts, id))) {
-    return `${actionNameForId(id)} failed because no target had stages to reset`;
-  }
-  if (PURE_TARGET_STAGE_DROP_IDS.has(id) && id !== 'tarshot' && (!hasTargetStageEffect(target.boosts, id) ||
-    (id === 'captivate' && actor.gender && actor.gender !== 'N' && target.gender && target.gender !== 'N' && actor.gender === target.gender))) {
-    return `${actionNameForId(id)} failed because the target could not lose another affected stage`;
-  }
-  if (id === 'attract' && (target.volatile?.infatuated ||
-    !canApplyVolatile(state, target.id, 'infatuated', actor.id, true, 'Status'))) {
-    return 'Attract failed because the target was not eligible';
-  }
-  if (id === 'yawn' && (target.volatile?.yawn || !canApplyMajorStatus(state, actor.id, target.id, 'slp', undefined, true))) {
-    return 'Yawn failed because the target was not eligible for sleep';
-  }
-  if (id === 'leechseed' && !canApplyVolatile(state, target.id, 'leechSeed', actor.id, true, 'Status')) {
-    return 'Leech Seed failed because the target was not eligible';
-  }
-  if (id === 'telekinesis' && (state.field.gravity ||
-    !canApplyVolatile(state, target.id, 'telekinesis', actor.id, true, 'Status'))) {
-    return 'Telekinesis failed because the target was not eligible';
-  }
-  if (id === 'nightmare' && !canApplyVolatile(state, target.id, 'nightmare', actor.id, true, 'Status')) {
-    return 'Nightmare failed because the target was not eligible';
-  }
-  if (id === 'acupressure' && ['atk', 'def', 'spa', 'spd', 'spe'].every(stat =>
-    (target.boosts?.[stat as keyof NonNullable<PokemonState['boosts']>] || 0) >= 6)) {
-    return 'Acupressure failed because all target stats were already maxed';
-  }
-  if (id === 'psychup' && ['atk', 'def', 'spa', 'spd', 'spe'].every(stat =>
-    (actor.boosts?.[stat as keyof NonNullable<PokemonState['boosts']>] || 0) ===
-    (target.boosts?.[stat as keyof NonNullable<PokemonState['boosts']>] || 0))) {
-    return 'Psych Up failed because it would not change the user\'s stat stages';
-  }
-  const swapStats = id === 'guardswap' ? ['def', 'spd'] : id === 'powerswap' ? ['atk', 'spa'] : [];
-  if (swapStats.length && swapStats.every(stat =>
-    (actor.boosts?.[stat as keyof NonNullable<PokemonState['boosts']>] || 0) ===
-    (target.boosts?.[stat as keyof NonNullable<PokemonState['boosts']>] || 0))) {
-    return `${id === 'guardswap' ? 'Guard Swap' : 'Power Swap'} failed because the stages were already equal`;
-  }
-  if (id === 'encore' && (!state.lastMoveByPokemon?.[target.id] ||
-    state.firstTurnOutIds?.includes(target.id) || target.volatile?.encore)) {
-    return 'Encore failed because the target had no eligible move history';
-  }
-  if (id === 'disable' && (!state.lastMoveByPokemon?.[target.id] || target.volatile?.disable)) {
-    return 'Disable failed because the target had no eligible move';
-  }
-  if (id === 'taunt' && target.volatile?.taunt) return 'Taunt failed because the target was already Taunted';
-  if (id === 'torment' && target.volatile?.torment) return 'Torment failed because the target was already Tormented';
-  if (id === 'leechseed' && target.volatile?.leechSeed) return 'Leech Seed failed because the target was already seeded';
-  if (id === 'perishsong' && targets.length && targets.every(candidate => candidate.volatile?.perishSong)) {
-    return 'Perish Song failed because every target was already under Perish Song';
-  }
-  if ((id === 'foresight' || id === 'odorsleuth') && target.volatile?.foresight) {
-    return `${actionNameForId(id)} failed because the target was already identified`;
-  }
-  if (id === 'electrify' && target.volatile?.electrified) return 'Electrify failed because the target was already Electrified';
-  if (id === 'octolock' && (target.volatile?.octolock || target.volatile?.trapped)) {
-    return 'Octolock failed because the target was already trapped';
-  }
-  if (id === 'miracleeye' && target.volatile?.miracleEye) return 'Miracle Eye failed because it was already active';
-  if (id === 'gastroacid' && preventsAbilityChange(state, target)) {
-    return 'Gastro Acid failed because the target ability was protected by Ability Shield';
-  }
-  if (id === 'gastroacid' && target.abilitySuppressed) return 'Gastro Acid failed because the target ability was already suppressed';
-  if (id === 'embargo' && target.volatile?.embargo) return 'Embargo failed because the target was already under Embargo';
-  if (id === 'healblock' && target.volatile?.healBlock) return 'Heal Block failed because it was already active';
-  if (['block', 'meanlook', 'spiderweb'].includes(id) && target.volatile?.trapped) {
-    return `${id === 'block' ? 'Block' : id === 'meanlook' ? 'Mean Look' : 'Spider Web'} failed because the target was already trapped`;
-  }
-  if (id === 'refresh' && !actor.status && !actor.toxicCounter) return 'Refresh failed because the actor had no major status';
-  if (id === 'purify' && !target.status && !target.toxicCounter) return 'Purify failed because the target had no major status';
-  if (id === 'painsplit' && actor.hp.current === target.hp.current) {
-    return 'Pain Split failed because both HP totals were equal';
-  }
-  if (['floralhealing', 'healpulse', 'pollenpuff'].includes(id) &&
-    sideForPokemon(state, target.id) === sideForPokemon(state, actor.id) && target.hp.current >= target.hp.max) {
-    return `${actionNameForId(id)} failed because the ally was at full HP`;
-  }
-  if (id === 'lifedew' && targets.every(candidate => candidate.hp.current >= candidate.hp.max)) {
-    return 'Life Dew failed because all allies were at full HP';
-  }
-  if ((id === 'junglehealing' || id === 'lunarblessing') && targets.every(candidate => candidate.hp.current >= candidate.hp.max &&
-    !candidate.status && !candidate.toxicCounter)) {
-    return 'Jungle Healing failed because all allies were already healed';
-  }
-  if ((id === 'aromatherapy' || id === 'healbell') && targets.every(candidate =>
-    sideForPokemon(state, candidate.id) !== sideForPokemon(state, actor.id) ||
-    (!candidate.status && !candidate.toxicCounter))) {
-    return `${actionNameForId(id)} failed because no ally had a major status`;
-  }
-  return undefined;
-}
-
-function fieldMoveFailure(state: BattleState, actor: PokemonState, id: string): string | undefined {
-  const sideId = sideForPokemon(state, actor.id);
-  const ownEffects = state.sides[sideId].effects || {};
-  const foeEffects = state.sides[sideId === 'ai' ? 'player' : 'ai'].effects || {};
-  const fail = (move: string, reason: string) => `${move} failed because ${reason}`;
-  if (id === 'stealthrock' && foeEffects.stealthRock) return fail('Stealth Rock', 'it was already active');
-  if (id === 'spikes' && (foeEffects.spikes || 0) >= 3) return fail('Spikes', 'three layers were already active');
-  if (id === 'toxicspikes' && (foeEffects.toxicSpikes || 0) >= 2) return fail('Toxic Spikes', 'two layers were already active');
-  if (id === 'stickyweb' && foeEffects.stickyWeb) return fail('Sticky Web', 'it was already active');
-  const sideMoveEffects: Record<string, keyof SideEffects> = {
-    reflect: 'reflect', lightscreen: 'lightScreen', auroraveil: 'auroraVeil', tailwind: 'tailwind',
-    mist: 'mist', luckychant: 'luckyChant', craftyshield: 'craftyShield',
-  };
-  const sideEffect = sideMoveEffects[id];
-  if (sideEffect && ownEffects[sideEffect]) return fail(actionNameForId(id), 'it was already active');
-  if (id === 'auroraveil' && state.field.weather !== 'Hail' && state.field.weather !== 'Snow') {
-    return fail('Aurora Veil', 'hail or snow was not active');
-  }
-  if (id === 'fairylock' && state.field.fairyLock) return fail('Fairy Lock', 'it was already active');
-  if (id === 'watersport') {
-    if (state.generation < 3 || state.generation >= 8) return fail('Water Sport', 'it had no effect in this generation');
-    if (state.generation <= 5 ? actor.volatile?.waterSport : state.field.waterSport) {
-      return fail('Water Sport', 'it was already active');
-    }
-  }
-  if (id === 'mudsport') {
-    if (state.generation < 3 || state.generation >= 8) return fail('Mud Sport', 'it had no effect in this generation');
-    if (state.generation <= 5 ? actor.volatile?.mudSport : state.field.mudSport) {
-      return fail('Mud Sport', 'it was already active');
-    }
-  }
-  if (id === 'iondeluge') {
-    if (state.generation < 6 || state.generation > 7) return fail('Ion Deluge', 'it had no effect in this generation');
-    if (state.field.ionDeluge) return fail('Ion Deluge', 'it was already active');
-  }
-  const hasHazards = (effects: SideEffects) => !!effects.stealthRock || !!effects.spikes ||
-    !!effects.toxicSpikes || !!effects.stickyWeb;
-  const hasScreens = (effects: SideEffects) => !!effects.reflect || !!effects.lightScreen ||
-    !!effects.auroraVeil || !!effects.safeguard;
-  if (id === 'defog' && (!hasHazards(state.sides.ai.effects || {}) && !hasHazards(state.sides.player.effects || {}) &&
-    !hasScreens(state.sides[sideId === 'ai' ? 'player' : 'ai'].effects || {}))) {
-    return 'Defog failed because there were no hazards or target-side screens';
-  }
-  if (id === 'courtchange') {
-    const hasPersistentSideEffect = (effects: SideEffects) => hasHazards(effects) || hasScreens(effects) ||
-      !!effects.mist || !!effects.luckyChant || !!effects.craftyShield || !!effects.tailwind;
-    if (!hasPersistentSideEffect(state.sides.ai.effects || {}) && !hasPersistentSideEffect(state.sides.player.effects || {})) {
-      return 'Court Change failed because there were no side conditions to swap';
-    }
-  }
-  if (id === 'steelroller' && !state.field.terrain) return 'Steel Roller failed because no Terrain was active';
-  return undefined;
 }
 
 function addBoosts(
@@ -1445,19 +786,6 @@ function applyDancer(
   }
 }
 
-function resetBoosts(resolution: MoveResolution, pokemonIds: string[]) {
-  if (!pokemonIds.length) return;
-  resolution.resetBoostsByPokemon = {...(resolution.resetBoostsByPokemon || {})};
-  for (const pokemonId of pokemonIds) resolution.resetBoostsByPokemon[pokemonId] = true;
-}
-
-function setBoosts(resolution: MoveResolution, pokemonId: string, boosts: StatBoosts) {
-  resolution.setBoostsByPokemon = {
-    ...(resolution.setBoostsByPokemon || {}),
-    [pokemonId]: {...(resolution.setBoostsByPokemon?.[pokemonId] || {}), ...boosts},
-  };
-}
-
 function allBoostStages(pokemon: BattleState['sides'][SideId]['party'][number]): StatBoosts {
   return Object.fromEntries(STAGE_IDS.map(stat => [stat, pokemon.boosts?.[stat] || 0]));
 }
@@ -1486,21 +814,6 @@ function randomFlingBoostStat(
   return available[Math.floor(sampleActionRoll(random, 'Starf Berry stat') * available.length)];
 }
 
-function addSideEffects(resolution: MoveResolution, sideId: SideId, effects: Partial<SideEffects>) {
-  resolution.sideEffectsBySide = {...(resolution.sideEffectsBySide || {})};
-  resolution.sideEffectsBySide[sideId] = {
-    ...(resolution.sideEffectsBySide[sideId] || {}),
-    ...effects,
-  };
-}
-
-function setPendingFullHeal(resolution: MoveResolution, sideId: SideId) {
-  resolution.pendingFullHealBySide = {
-    ...(resolution.pendingFullHealBySide || {}),
-    [sideId]: true,
-  };
-}
-
 function heldItemEffectsActive(state: BattleState, pokemon: PokemonState): boolean {
   return isItemEffectActive(state, pokemon);
 }
@@ -1525,79 +838,6 @@ function liquidOozeApplies(
 ): boolean {
   if (state.generation < 3 || !target || !hasAbility(state, target, 'liquidooze')) return false;
   return moveId(moveName) !== 'dreameater' || state.generation >= 5;
-}
-
-function clearEntryHazards(resolution: MoveResolution, sideId: SideId) {
-  addSideEffects(resolution, sideId, {
-    stealthRock: false,
-    steelsurge: false,
-    spikes: 0,
-    toxicSpikes: 0,
-    stickyWeb: false,
-  });
-  addSideEffectDuration(resolution, sideId, 'steelsurge', null);
-}
-
-function clearSubstitutes(resolution: MoveResolution, pokemonIds: string[]) {
-  if (!pokemonIds.length) return;
-  resolution.substituteHpByPokemon = {...(resolution.substituteHpByPokemon || {})};
-  for (const pokemonId of pokemonIds) resolution.substituteHpByPokemon[pokemonId] = null;
-}
-
-function courtChangeSideEffects(source: SideEffects): Partial<SideEffects> {
-  return {
-    stealthRock: !!source.stealthRock,
-    steelsurge: !!source.steelsurge,
-    spikes: source.spikes || 0,
-    toxicSpikes: source.toxicSpikes || 0,
-    stickyWeb: !!source.stickyWeb,
-    reflect: !!source.reflect,
-    lightScreen: !!source.lightScreen,
-    auroraVeil: !!source.auroraVeil,
-    safeguard: !!source.safeguard,
-    mist: !!source.mist,
-    luckyChant: !!source.luckyChant,
-    craftyShield: !!source.craftyShield,
-    tailwind: !!source.tailwind,
-    wideGuard: !!source.wideGuard,
-    quickGuard: !!source.quickGuard,
-    matBlock: !!source.matBlock,
-  };
-}
-
-function addSideEffectDuration(
-  resolution: MoveResolution,
-  sideId: SideId,
-  effect: TimedSideEffectName,
-  turns: number | null,
-) {
-  resolution.sideEffectDurationsBySide = {...(resolution.sideEffectDurationsBySide || {})};
-  resolution.sideEffectDurationsBySide[sideId] = {
-    ...(resolution.sideEffectDurationsBySide[sideId] || {}),
-    [effect]: turns,
-  };
-}
-
-function addField(resolution: MoveResolution, field: Partial<BattleState['field']>) {
-  resolution.field = {...(resolution.field || {}), ...field};
-}
-
-function addFieldDuration(resolution: MoveResolution, field: TimedFieldName, turns: number | null) {
-  resolution.fieldDurations = {...(resolution.fieldDurations || {}), [field]: turns};
-}
-
-function extendedFieldDuration(
-  state: BattleState,
-  pokemon: PokemonState,
-  field: 'screen' | 'weather' | 'terrain',
-): number {
-  if (!isItemEffectActive(state, pokemon)) return 5;
-  const item = moveId(pokemon.item);
-  if (field === 'screen' && state.generation >= 4 && item === 'lightclay') return 8;
-  if (field === 'weather' && state.generation >= 4 &&
-    ['heatrock', 'damprock', 'smoothrock', 'icyrock'].includes(item)) return 8;
-  if (field === 'terrain' && state.generation >= 7 && item === 'terrainextender') return 8;
-  return 5;
 }
 
 function addVolatile(
@@ -1935,109 +1175,6 @@ function resolveFlingBerryEffect(
   }
 }
 
-function totalDamage(resolution: MoveResolution): number {
-  let total = 0;
-  for (const targetId of Object.keys(resolution.damageByTarget || {})) {
-    total += resolution.damageByTarget![targetId];
-  }
-  return total;
-}
-
-function setSequentialDamage(resolution: MoveResolution, targetId: string, hits: number[]): void {
-  if (!resolution.hitDamageByTarget) return;
-  const aggregateDamage = hits.reduce((total, hit) => total + hit, 0);
-  resolution.hitDamageByTarget[targetId] = hits;
-  resolution.damageByTarget = {
-    ...(resolution.damageByTarget || {}),
-    [targetId]: aggregateDamage,
-  };
-  if (resolution.trace?.damageRollsByTarget) {
-    resolution.trace.damageRollsByTarget[targetId] = aggregateDamage;
-  }
-  if (resolution.trace?.hitDamageRollsByTarget) {
-    resolution.trace.hitDamageRollsByTarget[targetId] = hits;
-  }
-}
-
-interface SequentialDamageOutcome {
-  directDamage: number;
-  hitCount: number;
-  fainted: boolean;
-}
-
-function sequentialDamageOutcome(
-  target: PokemonState,
-  hits: number[] | undefined,
-  aggregateDamage: number,
-): SequentialDamageOutcome {
-  if (!hits) {
-    const damageAfterSubstitute = Math.max(0, aggregateDamage - (target.substituteHp || 0));
-    const directDamage = damageAfterSubstitute > 0
-      ? target.volatile?.endure
-        ? Math.min(damageAfterSubstitute, Math.max(0, target.hp.current - 1))
-        : Math.min(damageAfterSubstitute, target.hp.current)
-      : 0;
-    return {
-      directDamage,
-      hitCount: directDamage > 0 ? 1 : 0,
-      fainted: directDamage >= target.hp.current && directDamage > 0 && !target.volatile?.endure,
-    };
-  }
-
-  let hp = target.hp.current;
-  let substituteHp = Math.max(0, target.substituteHp || 0);
-  let directDamage = 0;
-  let hitCount = 0;
-  for (const hit of hits) {
-    if (hp <= 0) break;
-    if (hit <= 0) continue;
-    if (substituteHp > 0) {
-      substituteHp = Math.max(0, substituteHp - hit);
-      continue;
-    }
-    hitCount += 1;
-    const actualDamage = target.volatile?.endure
-      ? Math.min(hit, Math.max(0, hp - 1))
-      : Math.min(hit, hp);
-    directDamage += actualDamage;
-    hp -= actualDamage;
-  }
-  return {directDamage, hitCount, fainted: hp <= 0};
-}
-
-function directDamageTotal(
-  state: BattleState,
-  resolution: MoveResolution,
-  actorId: string,
-): number {
-  let total = 0;
-  for (const [targetId, aggregateDamage] of Object.entries(resolution.damageByTarget || {})) {
-    if (targetId === actorId) continue;
-    const target = getPokemon(state, targetId);
-    if (!target) continue;
-    total += sequentialDamageOutcome(
-      target,
-      resolution.hitDamageByTarget?.[targetId],
-      aggregateDamage,
-    ).directDamage;
-  }
-  return total;
-}
-
-function directDamageTakenByPokemon(
-  state: BattleState,
-  resolution: MoveResolution,
-  pokemon: PokemonState,
-): number {
-  const aggregateDamage = resolution.damageByTarget?.[pokemon.id] || 0;
-  if (!aggregateDamage) return 0;
-  return sequentialDamageOutcome(
-    pokemon,
-    resolution.hitDamageByTarget?.[pokemon.id],
-    aggregateDamage,
-  ).directDamage;
-}
-
 function applyBerryJuiceAfterMove(
   resolution: MoveResolution,
   state: BattleState,
@@ -2094,286 +1231,6 @@ function applyMentalHerbAfterMove(resolution: MoveResolution, state: BattleState
       moveId(resolvedItem(state, resolution, pokemon)) !== 'mentalherb') continue;
     clearMentalHerbVolatiles(resolution, pokemon, true);
   }
-}
-
-function hasSurvivingDirectHit(
-  target: PokemonState,
-  hits: number[] | undefined,
-  aggregateDamage: number,
-): boolean {
-  if (!hits) {
-    const damageAfterSubstitute = Math.max(0, aggregateDamage - (target.substituteHp || 0));
-    if (damageAfterSubstitute <= 0) return false;
-    const actualDamage = target.volatile?.endure
-      ? Math.min(damageAfterSubstitute, Math.max(0, target.hp.current - 1))
-      : Math.min(damageAfterSubstitute, target.hp.current);
-    return actualDamage > 0 && actualDamage < target.hp.current;
-  }
-
-  let hp = target.hp.current;
-  let substituteHp = Math.max(0, target.substituteHp || 0);
-  for (const hit of hits) {
-    if (hit <= 0) continue;
-    if (substituteHp > 0) {
-      substituteHp = Math.max(0, substituteHp - hit);
-      continue;
-    }
-    const actualDamage = target.volatile?.endure
-      ? Math.min(hit, Math.max(0, hp - 1))
-      : Math.min(hit, hp);
-    if (actualDamage > 0 && actualDamage < hp) return true;
-    hp -= actualDamage;
-    if (hp <= 0) return false;
-  }
-  return false;
-}
-
-function hasDirectMoveHitAfterSubstitute(
-  target: PokemonState,
-  hits: number[] | undefined,
-  aggregateDamage: number,
-): boolean {
-  if (!hits) return !(target.substituteHp && aggregateDamage <= target.substituteHp);
-  let substituteHp = Math.max(0, target.substituteHp || 0);
-  for (const hit of hits) {
-    if (substituteHp > 0) {
-      if (hit > 0) substituteHp = Math.max(0, substituteHp - hit);
-      continue;
-    }
-    return true;
-  }
-  return false;
-}
-
-function adjustFirstSequentialHit(
-  resolution: MoveResolution,
-  targetId: string,
-  adjust: (damage: number) => number,
-): boolean {
-  const hits = resolution.hitDamageByTarget?.[targetId];
-  if (!hits || !hits.length || hits[0] <= 0) return false;
-  const nextHits = [...hits];
-  nextHits[0] = Math.max(0, adjust(nextHits[0]));
-  setSequentialDamage(resolution, targetId, nextHits);
-  return true;
-}
-
-function adjustFirstDirectSequentialHit(
-  resolution: MoveResolution,
-  target: PokemonState,
-  targetId: string,
-  adjust: (damage: number) => number,
-): boolean {
-  const hits = resolution.hitDamageByTarget?.[targetId];
-  if (!hits || !hits.length) return false;
-  let substituteHp = Math.max(0, target.substituteHp || 0);
-  const nextHits = [...hits];
-  for (let index = 0; index < nextHits.length; index += 1) {
-    const hit = nextHits[index];
-    if (hit <= 0) continue;
-    if (substituteHp > 0) {
-      substituteHp = Math.max(0, substituteHp - hit);
-      continue;
-    }
-    nextHits[index] = Math.max(0, adjust(hit));
-    setSequentialDamage(resolution, targetId, nextHits);
-    return true;
-  }
-  return false;
-}
-
-function adjustFirstFatalDirectSequentialHit(
-  resolution: MoveResolution,
-  target: PokemonState,
-  targetId: string,
-  adjust: (damage: number, remainingHp: number) => number,
-): boolean {
-  const hits = resolution.hitDamageByTarget?.[targetId];
-  if (!hits || !hits.length) return false;
-  let hp = target.hp.current;
-  let substituteHp = Math.max(0, target.substituteHp || 0);
-  const nextHits = [...hits];
-  for (let index = 0; index < nextHits.length; index += 1) {
-    const hit = nextHits[index];
-    if (hit <= 0) continue;
-    if (substituteHp > 0) {
-      substituteHp = Math.max(0, substituteHp - hit);
-      continue;
-    }
-    if (!target.volatile?.endure && hit >= hp) {
-      nextHits[index] = Math.max(0, adjust(hit, hp));
-      setSequentialDamage(resolution, targetId, nextHits);
-      return true;
-    }
-    hp = Math.max(0, hp - hit);
-    if (hp <= 0) break;
-  }
-  return false;
-}
-
-function adjustFirstFatalFirstDirectSequentialHit(
-  resolution: MoveResolution,
-  target: PokemonState,
-  targetId: string,
-  adjust: (damage: number) => number,
-): boolean {
-  const hits = resolution.hitDamageByTarget?.[targetId];
-  if (!hits || !hits.length) return false;
-  let substituteHp = Math.max(0, target.substituteHp || 0);
-  const nextHits = [...hits];
-  for (let index = 0; index < nextHits.length; index += 1) {
-    const hit = nextHits[index];
-    if (hit <= 0) continue;
-    if (substituteHp > 0) {
-      substituteHp = Math.max(0, substituteHp - hit);
-      continue;
-    }
-    if (target.volatile?.endure || hit < target.hp.current) return false;
-    nextHits[index] = Math.max(0, adjust(hit));
-    setSequentialDamage(resolution, targetId, nextHits);
-    return true;
-  }
-  return false;
-}
-
-function crashDamageOnMiss(
-  state: BattleState,
-  actor: PokemonState,
-  action: MoveAction,
-  facts: ActionFacts | undefined,
-  resolution: MoveResolution,
-  random: () => number,
-): number {
-  if (state.generation === 1) return 1;
-  if (state.generation === 2) return Math.max(1, Math.floor(actor.hp.max / 8));
-  if (state.generation >= 5) return Math.max(1, Math.floor(actor.hp.max / 2));
-
-  const target = action.targetIds[0] ? getPokemon(state, action.targetIds[0]) : undefined;
-  if (target && isGhostType(state, target.id)) return 0;
-
-  const sampled = totalDamage(resolution) || (facts
-    ? totalDamage(sampleDamageResolution(action, facts, random))
-    : 0);
-  return Math.floor(sampled / 2);
-}
-
-function sampleAccuracy(
-  accuracy: number | true,
-  random: () => number,
-): {hit: boolean; roll?: number; threshold: number} {
-  const threshold = accuracy === true ? 1 : accuracy / 100;
-  if (accuracy !== true && (!Number.isFinite(accuracy) || accuracy < 0 || accuracy > 100)) {
-    throw new Error('Move accuracy must be true or a percentage from 0 to 100');
-  }
-  const roll = random();
-  if (!Number.isFinite(roll)) throw new Error('Accuracy sampler must return a finite number');
-  const bounded = Math.max(0, Math.min(0.999999999999, roll));
-  return {hit: accuracy === true || bounded < threshold, roll, threshold};
-}
-
-function moveTargetForProtection(state: BattleState, action: MoveAction): MoveTarget | undefined {
-  const actor = getPokemon(state, action.actorId);
-  const moveState = actor?.moves.find(move => move.name === action.moveName);
-  if (moveState?.target) return moveState.target;
-  try {
-    return new Calc.Move(Calc.Generations.get(state.generation), action.moveName).target as MoveTarget;
-  } catch {
-    return undefined;
-  }
-}
-
-function moveCategoryForProtection(
-  state: BattleState,
-  action: MoveAction,
-  facts?: ActionFacts,
-): MoveCategory | undefined {
-  if (facts?.moveCategory) return facts.moveCategory;
-  try {
-    return new Calc.Move(Calc.Generations.get(state.generation), action.moveName).category;
-  } catch {
-    return undefined;
-  }
-}
-
-function movePriorityForProtection(state: BattleState, action: MoveAction, facts?: ActionFacts): number {
-  try {
-    return getActionOrderFacts(state, action).priority;
-  } catch {
-    return facts?.priority || 0;
-  }
-}
-
-function isProtectedTarget(
-  state: BattleState,
-  targetId: string,
-  attackMoveId: string,
-  action: MoveAction,
-  facts?: ActionFacts,
-): boolean {
-  if (PROTECT_BYPASS_MOVES.has(attackMoveId)) return false;
-  const target = getPokemon(state, targetId);
-  if (!target) return false;
-  const side = sideForPokemon(state, target.id);
-  const actorSide = sideForPokemon(state, action.actorId);
-  const opposing = side !== actorSide;
-  const sideEffects = state.sides[side].effects;
-  const moveTarget = moveTargetForProtection(state, action);
-  const moveCategory = moveCategoryForProtection(state, action, facts);
-  const attacker = getPokemon(state, action.actorId);
-  const protectedMoveId = moveId(target.volatile?.protected?.moveName || '');
-  const unseenFistBypassesProtection = state.generation >= 8 && opposing &&
-    !!attacker && moveMakesContact(state, action.moveName, attacker, action) && isAbilityActive(attacker, state) &&
-    moveId(getEffectiveAbility(attacker) || '') === 'unseenfist' &&
-    protectedMoveId !== 'maxguard';
-  const wideGuardBlocks = opposing && !!sideEffects?.wideGuard &&
-    ['all', 'allAdjacent', 'allAdjacentFoes'].includes(moveTarget || '') &&
-    (state.generation >= 7 || moveCategory !== 'Status');
-  const quickGuardBlocks = opposing && !!sideEffects?.quickGuard &&
-    movePriorityForProtection(state, action, facts) > 0;
-  const matBlockBlocks = opposing && !!sideEffects?.matBlock && moveCategory !== 'Status';
-  const craftShieldBlocks = attackMoveId === 'conversion2' && state.generation >= 6 &&
-    opposing && !!sideEffects?.craftyShield;
-  const priorityBlocked = opposing && isPriorityBlocked(
-    state, action.actorId, target.id, movePriorityForProtection(state, action, facts), moveCategory,
-  );
-  const personalProtectionBlocks = (!!target.volatile?.protected || !!sideEffects?.protected) &&
-    !unseenFistBypassesProtection;
-  return priorityBlocked || personalProtectionBlocks || (wideGuardBlocks && !unseenFistBypassesProtection) ||
-    (quickGuardBlocks && !unseenFistBypassesProtection) ||
-    (matBlockBlocks && !unseenFistBypassesProtection) || craftShieldBlocks;
-}
-
-function isDamageImmuneTarget(
-  state: BattleState,
-  action: MoveAction,
-  targetId: string,
-  facts: ActionFacts | undefined,
-): boolean {
-  const target = getPokemon(state, targetId);
-  const chargeMove = target?.volatile?.charge?.moveName;
-  if (chargeMove && SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(chargeMove)) &&
-    !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(action.moveName))) return true;
-  if (!facts || facts.moveCategory === 'Status') return false;
-  if (action.targetIds.length === 1) return facts.isImmune === true;
-  return facts.damageByTarget?.[targetId]?.max === 0;
-}
-
-function eligibleTargetIds(
-  state: BattleState,
-  action: MoveAction,
-  moveId: string,
-  facts: ActionFacts | undefined,
-  missedIds: string[] = [],
-): {targetIds: string[]; protectedIds: string[]; immuneIds: string[]} {
-  const protectedIds = action.targetIds.filter(targetId => isProtectedTarget(state, targetId, moveId, action, facts));
-  const immuneIds = action.targetIds.filter(targetId =>
-    !protectedIds.includes(targetId) && !missedIds.includes(targetId) && isDamageImmuneTarget(state, action, targetId, facts));
-  const excluded = new Set([...protectedIds, ...immuneIds, ...missedIds]);
-  return {
-    targetIds: action.targetIds.filter(targetId => !excluded.has(targetId)),
-    protectedIds,
-    immuneIds,
-  };
 }
 
 function resolveSecondaryEffects(
@@ -2531,193 +1388,14 @@ export function deriveMoveResolution(
   const startsPledge = state.generation >= 5 && !pendingPledge && !!partnerIntent &&
     !action.useZ && !action.useMax && !partnerIntent.useZ && !partnerIntent.useMax &&
     !!pledgeCombination(action.moveName, partnerIntent.moveName);
-  if (id === 'ragingfury' && state.generation < 9) {
+  const minimumGeneration = MOVE_MIN_GENERATION[id];
+  if (minimumGeneration !== undefined && state.generation < minimumGeneration) {
     return {
       hit: false,
       trace: {
         source: 'battle-engine',
         hit: false,
-        notes: [`${action.moveName} is unavailable before Generation IX`],
-      },
-    };
-  }
-  if (id === 'geomancy' && state.generation < 6) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VI`],
-      },
-    };
-  }
-  if (id === 'electroshot' && state.generation < 9) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation IX`],
-      },
-    };
-  }
-  if (id === 'vcreate' && state.generation < 5) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation V`],
-      },
-    };
-  }
-  if (id === 'hyperspacefury' && state.generation < 6) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VI`],
-      },
-    };
-  }
-  if (id === 'diamondstorm' && state.generation < 6) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VI`],
-      },
-    };
-  }
-  if (id === 'tarshot' && state.generation < 8) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VIII`],
-      },
-    };
-  }
-  if (id === 'orderup' && state.generation < 9) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation IX`],
-      },
-    };
-  }
-  if ((id === 'anchorshot' || id === 'spiritshackle') && state.generation < 7) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VII`],
-      },
-    };
-  }
-  if (id === 'throatchop' && state.generation < 7) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VII`],
-      },
-    };
-  }
-  if (id === 'burningjealousy' && state.generation < 8) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VIII`],
-      },
-    };
-  }
-  if (id === 'gigatonhammer' && state.generation < 9) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation IX`],
-      },
-    };
-  }
-  if (id === 'scaleshot' && state.generation < 8) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VIII`],
-      },
-    };
-  }
-  if (id === 'echoedvoice' && state.generation < 5) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation V`],
-      },
-    };
-  }
-  if (id === 'furycutter' && state.generation < 2) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation II`],
-      },
-    };
-  }
-  if (id === 'burnup' && state.generation < 7) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation VII`],
-      },
-    };
-  }
-  if (id === 'doubleshock' && state.generation < 9) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation IX`],
-      },
-    };
-  }
-  if (id === 'relicsong' && state.generation < 5) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation V`],
-      },
-    };
-  }
-  if (id === 'glaiverush' && state.generation < 9) {
-    return {
-      hit: false,
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${action.moveName} is unavailable before Generation IX`],
+        notes: [`${action.moveName} is unavailable before Generation ${GENERATION_NUMERALS[minimumGeneration]}`],
       },
     };
   }
