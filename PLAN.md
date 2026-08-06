@@ -57,7 +57,7 @@ Shipped MVP items are in §4 (not listed again). There is **no open engine P0**.
 | P3 | EXP-03 | Optional quiz / “spot the score” scenarios | UI | FIX-02, EXP-01 | At least one teachable scenario using goldens/fixtures |
 | P3 | RPL-01 | ~~Replay scrubber + shareable apply/advance traces~~ **Done** (`#runbun-replay`, `fixtures/ui/replays/`) | UI | FIX-04 useful; DBL optional | Saved replay reloads/steps; invalid → 400 clarity |
 | P3 | UI-V4 | Later mode chrome: Explain top-level, Doubles, Replay visuals | UI | EXP-01, DBL-02, RPL-01 as each lands | Per mode done-when in UI design §9 |
-| P3 | ADP-01 | Fixture batch CLI + adapter pattern docs (+ optional OpenAPI-ish freeze) | docs | Stable HTTP (shipped); real consumer | External caller can validate→evaluate→derive→apply→advance headless |
+| P3 | ADP-01 | Fixture batch CLI + adapter pattern docs (+ optional OpenAPI-ish freeze) | docs | Stable HTTP (shipped); real consumer | External caller can validate→evaluate→derive→apply→advance headless — **partial:** HTTP `{error,code}` + BattleState/Action prefixes frozen in `ai/README.md` / smoke |
 | P3 | BAT-01 | Battle → AI Debug reverse import (“Open in AI Debug”) | UI | Battle + AI Debug MVP | Explicit hop copies validated JSON both ways |
 | Park | PARK-01 | Exact PS residual / event-queue interleaving | engine | — | Reopen if external adapter needs a specific residual ordering contract |
 | Park | PARK-02 | Full ability / volatile encyclopedia sweep | engine | — | Reopen on bug report with reproducible `BattleState` |
@@ -84,7 +84,7 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | --- | --- |
 | Multi-gen damage calculator (`calc/`) + R&B overlays | **Shipped** — Gen 8 UI default; Magma Armor / 1.5× crit / Soul Dew / etc. |
 | AI policy + transitions (`ai/`) | **Shipped** — decision-useful Gen 8 scope; no open engine P0 |
-| HTTP AI API (`server.js`) | **Shipped** — choose / evaluate / validate / derive / apply / advance / order |
+| HTTP AI API (`server.js`) | **Shipped** — choose / evaluate / validate / derive / apply / advance / order; stable `{error,code}` 400s |
 | Root validation gate (`npm test`) | **Green path** — calc → AI → build → `test:server` → UI lint |
 | Upstream audit (`npm run test:upstream`) | **Policy B** — intentional fails (~75/63); not part of root gate |
 | Sets → Gen 8 zero-EV `BattleState` bridge | **Shipped** (`sets_to_battle_state.js`) |
@@ -214,6 +214,7 @@ Treat these as **shipped baselines**. Re-break only with intent and tests.
 - [x] Doubles field layout (DBL-01) + actor/target UX over evaluate rows (DBL-02)
 - [x] Replay scrubber + shareable `apply-advance-trace` JSON (RPL-01)
 - [x] Invalid Action 400 prefix distinct from Invalid BattleState
+- [x] Stable HTTP `{error, code}` contract; resolution/options → Action; AI domain Errors → 400
 - [x] Modeled-slice honesty copy in AI Debug and Battle
 - [x] UI smoke **16/16 PASS**
 

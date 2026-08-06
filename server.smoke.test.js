@@ -87,7 +87,10 @@ test('calculator endpoint rejects invalid input as JSON', async () => {
 
 	const malformed = await requestRaw('/calculate', '{"gen":9,');
 	assert.equal(malformed.status, 400);
-	assert.deepEqual(malformed.body, {error: 'request body must contain valid JSON'});
+	assert.deepEqual(malformed.body, {
+		error: 'request body must contain valid JSON',
+		code: 'BadRequest',
+	});
 });
 
 test('AI validate-battle-state accepts valid state and rejects invalid payloads', async () => {
@@ -97,13 +100,17 @@ test('AI validate-battle-state accepts valid state and rejects invalid payloads'
 
 	const missing = await requestJson('/ai/validate-battle-state', {});
 	assert.equal(missing.status, 400);
+	assert.match(missing.body.error, /^Invalid BattleState:/);
 	assert.match(missing.body.error, /BattleState with sides/);
+	assert.equal(missing.body.code, 'InvalidBattleState');
 
 	const invalid = state();
 	invalid.sides.ai.party[0].hp.current = -1;
 	const bad = await requestJson('/ai/validate-battle-state', {state: invalid});
 	assert.equal(bad.status, 400);
-	assert.match(bad.body.error, /Invalid BattleState|current HP/i);
+	assert.match(bad.body.error, /^Invalid BattleState:/);
+	assert.match(bad.body.error, /current HP/i);
+	assert.equal(bad.body.code, 'InvalidBattleState');
 });
 
 test('AI choice endpoint validates state and returns a legal action', async () => {
@@ -300,29 +307,35 @@ test('AI action endpoints reject malformed action contracts as JSON 400s', async
 	assert.equal(invalidKind.status, 400);
 	assert.match(invalidKind.body.error, /^Invalid Action:/);
 	assert.match(invalidKind.body.error, /action.kind/);
+	assert.equal(invalidKind.body.code, 'InvalidAction');
 
 	const invalidChoiceSide = await requestJson('/ai/choose-action', {
 		state: state(), options: {sideId: 'spectator'},
 	});
 	assert.equal(invalidChoiceSide.status, 400);
+	assert.match(invalidChoiceSide.body.error, /^Invalid Action:/);
 	assert.match(invalidChoiceSide.body.error, /sideId/);
+	assert.equal(invalidChoiceSide.body.code, 'InvalidAction');
 
 	const invalidChoiceOptions = await requestJson('/ai/choose-action', {
 		state: state(), options: {viableReplacementIds: 'ai-1'},
 	});
 	assert.equal(invalidChoiceOptions.status, 400);
+	assert.match(invalidChoiceOptions.body.error, /^Invalid Action:/);
 	assert.match(invalidChoiceOptions.body.error, /viableReplacementIds/);
 
 	const invalidReplacementScore = await requestJson('/ai/choose-action', {
 		state: state(), options: {replacementScores: {'ai-1': 'best'}},
 	});
 	assert.equal(invalidReplacementScore.status, 400);
+	assert.match(invalidReplacementScore.body.error, /^Invalid Action:/);
 	assert.match(invalidReplacementScore.body.error, /replacementScores/);
 
 	const invalidForcedSide = await requestJson('/ai/forced-switch-actions', {
 		state: state(), sideId: 'spectator',
 	});
 	assert.equal(invalidForcedSide.status, 400);
+	assert.match(invalidForcedSide.body.error, /^Invalid Action:/);
 	assert.match(invalidForcedSide.body.error, /sideId/);
 
 	const invalidTarget = await requestJson('/ai/apply-action', {
@@ -343,30 +356,36 @@ test('AI action endpoints reject malformed action contracts as JSON 400s', async
 	invalidMoveState.sides.ai.party[0].moves[0].accuracy = 'not-a-number';
 	const invalidState = await requestJson('/ai/choose-action', {state: invalidMoveState});
 	assert.equal(invalidState.status, 400);
+	assert.match(invalidState.body.error, /^Invalid BattleState:/);
 	assert.match(invalidState.body.error, /accuracy/);
+	assert.equal(invalidState.body.code, 'InvalidBattleState');
 
 	const invalidTargetState = state();
 	invalidTargetState.sides.ai.party[0].moves[0].target = 'not-a-target';
 	const invalidTargetStateResponse = await requestJson('/ai/choose-action', {state: invalidTargetState});
 	assert.equal(invalidTargetStateResponse.status, 400);
+	assert.match(invalidTargetStateResponse.body.error, /^Invalid BattleState:/);
 	assert.match(invalidTargetStateResponse.body.error, /target/);
 
 	const invalidMoveFlagState = state();
 	invalidMoveFlagState.sides.ai.party[0].moves[0].sound = 'yes';
 	const invalidMoveFlag = await requestJson('/ai/choose-action', {state: invalidMoveFlagState});
 	assert.equal(invalidMoveFlag.status, 400);
+	assert.match(invalidMoveFlag.body.error, /^Invalid BattleState:/);
 	assert.match(invalidMoveFlag.body.error, /sound/);
 
 	const invalidIvState = state();
 	invalidIvState.sides.ai.party[0].ivs = {atk: 32};
 	const invalidIv = await requestJson('/ai/choose-action', {state: invalidIvState});
 	assert.equal(invalidIv.status, 400);
+	assert.match(invalidIv.body.error, /^Invalid BattleState:/);
 	assert.match(invalidIv.body.error, /IVs/);
 
 	const invalidBasePowerState = state();
 	invalidBasePowerState.sides.ai.party[0].moves[0].basePower = -1;
 	const invalidBasePower = await requestJson('/ai/choose-action', {state: invalidBasePowerState});
 	assert.equal(invalidBasePower.status, 400);
+	assert.match(invalidBasePower.body.error, /^Invalid BattleState:/);
 	assert.match(invalidBasePower.body.error, /base power/);
 
 	const invalidResolution = await requestJson('/ai/apply-action', {
@@ -375,13 +394,16 @@ test('AI action endpoints reject malformed action contracts as JSON 400s', async
 		resolution: {hit: true, hpDeltaByPokemon: {'player-1': 'twenty'}},
 	});
 	assert.equal(invalidResolution.status, 400);
+	assert.match(invalidResolution.body.error, /^Invalid Action:/);
 	assert.match(invalidResolution.body.error, /hpDeltaByPokemon/);
+	assert.equal(invalidResolution.body.code, 'InvalidAction');
 
 	const missingResolution = await requestJson('/ai/apply-action', {
 		state: state(),
 		action: {kind: 'move', actorId: 'ai-1', moveName: 'Tackle', targetIds: ['player-1']},
 	});
 	assert.equal(missingResolution.status, 400);
+	assert.match(missingResolution.body.error, /^Invalid Action:/);
 	assert.match(missingResolution.body.error, /require a resolution/);
 
 	const switchWithResolutionState = state();
@@ -395,6 +417,7 @@ test('AI action endpoints reject malformed action contracts as JSON 400s', async
 		resolution: {hit: true},
 	});
 	assert.equal(switchWithResolution.status, 400);
+	assert.match(switchWithResolution.body.error, /^Invalid Action:/);
 	assert.match(switchWithResolution.body.error, /do not accept/);
 
 	const invalidDamageTarget = await requestJson('/ai/apply-action', {
@@ -403,6 +426,7 @@ test('AI action endpoints reject malformed action contracts as JSON 400s', async
 		resolution: {hit: true, damageByTarget: {'ai-1': 20}},
 	});
 	assert.equal(invalidDamageTarget.status, 400);
+	assert.match(invalidDamageTarget.body.error, /^Invalid Action:/);
 	assert.match(invalidDamageTarget.body.error, /not a target/);
 
 	const invalidFacts = await requestJson('/ai/derive-resolution', {
@@ -411,13 +435,25 @@ test('AI action endpoints reject malformed action contracts as JSON 400s', async
 		facts: {attackerSpeed: 'fast'},
 	});
 	assert.equal(invalidFacts.status, 400);
+	assert.match(invalidFacts.body.error, /^Invalid Action:/);
 	assert.match(invalidFacts.body.error, /attackerSpeed/);
+	assert.equal(invalidFacts.body.code, 'InvalidAction');
+
+	const illegalMove = await requestJson('/ai/apply-action', {
+		state: state(),
+		action: {kind: 'move', actorId: 'ai-1', moveName: 'Splash', targetIds: ['ai-1']},
+		resolution: {hit: true},
+	});
+	assert.equal(illegalMove.status, 400);
+	assert.match(illegalMove.body.error, /^Invalid Action:/);
+	assert.equal(illegalMove.body.code, 'InvalidAction');
 
 	const invalidItemRolls = await requestJson('/ai/order-actions', {
 		state: state(), actions: [{kind: 'move', actorId: 'ai-1', moveName: 'Tackle', targetIds: ['player-1']}],
 		itemRollsByPokemon: {'ai-1': 1},
 	});
 	assert.equal(invalidItemRolls.status, 400);
+	assert.match(invalidItemRolls.body.error, /^Invalid Action:/);
 	assert.match(invalidItemRolls.body.error, /itemRollsByPokemon/);
 });
 
@@ -481,6 +517,32 @@ test('Doubles evaluate exposes per-actor targets and supports apply → advance'
 	assert.equal(advanced.status, 200);
 	assert.equal(advanced.body.mode, 'Doubles');
 	assert.ok(advanced.body.turn > doubles.turn);
+
+	const ordered = await requestJson('/ai/order-actions', {
+		state: doubles,
+		actions: [
+			thunderbolts.find(entry => entry.action.targetIds[0] === 'player-1').action,
+			gleam.action,
+		],
+	});
+	assert.equal(ordered.status, 200);
+	assert.equal(ordered.body.actions.length, 2);
+
+	const forcedDoubles = structuredClone(doubles);
+	forcedDoubles.sides.ai.party[0].hp.current = 0;
+	forcedDoubles.sides.ai.party.push({
+		id: 'ai-3', species: 'Clefairy', level: 100,
+		hp: {current: 120, max: 120}, moves: [{name: 'Moonblast'}],
+	});
+	const forced = await requestJson('/ai/forced-switch-actions', {
+		state: forcedDoubles, sideId: 'ai',
+	});
+	assert.equal(forced.status, 200);
+	assert.ok(forced.body.actions.some(action =>
+		action.kind === 'switch' &&
+		action.forced === true &&
+		action.actorId === 'ai-1' &&
+		action.replacementId === 'ai-3'));
 });
 
 test('UI fixture browser assets are served under /fixtures/ui', async () => {
@@ -526,19 +588,26 @@ test('Replay sample trace is served and each frame validates over HTTP', async (
 		const step = replay.steps[i];
 		const validated = await requestJson('/ai/validate-battle-state', {state: step.stateAfter});
 		assert.equal(validated.status, 200, 'steps[' + i + '].stateAfter');
+		const prior = i === 0 ? replay.initialState : replay.steps[i - 1].stateAfter;
 		if (step.type === 'apply') {
 			assert.ok(step.action);
 			assert.ok(step.resolution, 'stored resolution avoids re-derive');
 			const applied = await requestJson('/ai/apply-action', {
-				state: i === 0 ? replay.initialState : replay.steps[i - 1].stateAfter,
+				state: prior,
 				action: step.action,
 				resolution: step.resolution,
 			});
 			assert.equal(applied.status, 200, 'replayed apply steps[' + i + ']');
+			assert.equal(applied.body.turn, step.stateAfter.turn);
+		} else if (step.type === 'advance') {
+			const advanced = await requestJson('/ai/advance-turn', {state: prior});
+			assert.equal(advanced.status, 200, 'replayed advance steps[' + i + ']');
+			assert.equal(advanced.body.turn, step.stateAfter.turn);
 		}
 	}
 
 	const bad = await requestJson('/ai/validate-battle-state', {state: {generation: 8}});
 	assert.equal(bad.status, 400);
-	assert.match(bad.body.error, /BattleState|sides/i);
+	assert.match(bad.body.error, /^Invalid BattleState:/);
+	assert.equal(bad.body.code, 'InvalidBattleState');
 });

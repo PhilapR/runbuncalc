@@ -276,8 +276,11 @@ smoke-tests `POST /calculate`, `POST /ai/validate-battle-state`,
 `POST /ai/apply-action`, `POST /ai/advance-turn`, and `POST /ai/order-actions`
 after the packages are built. It also verifies that missing and unknown
 calculator inputs and malformed AI actions / invalid battle state are returned
-as JSON `400` responses. Endpoint shapes live in [`ai/README.md`](ai/README.md);
-product phase status in [`RUNBUN_UX.md`](RUNBUN_UX.md).
+as JSON `400` responses with stable `{error, code}` bodies
+(`InvalidBattleState` vs `InvalidAction`), including Doubles order/forced-switch
+and replay apply/advance revalidation. Endpoint shapes live in
+[`ai/README.md`](ai/README.md); product phase status in
+[`RUNBUN_UX.md`](RUNBUN_UX.md).
 The HTTP choice smoke also evaluates the player side and verifies that incoming
 KO and maximum-damage facts survive the public `sideId: "player"` boundary.
 The calculator test
