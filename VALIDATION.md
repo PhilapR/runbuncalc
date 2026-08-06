@@ -910,7 +910,7 @@ PLAN §0. Do not leave unranked “next” / “later” rows here.
 | P1 | ENG-02 | Calc overlays for new R&B damage identity | calc-overlay | Only when oracle wrong; `fork.test.ts` |
 | P2 | EXP-01 / EXP-02 | Deeper Explain + citation audit | product | Facts-driven only |
 | P2 | UI-V3 / SET-01 / ACC-01 / DBL-01 | ~~Battle/Sets polish + ACC-01~~ **Done**; Doubles layout sketch (DBL-01) open | product | After fixtures feel solid |
-| P3 | DBL-02 / EXP-03 / RPL-01 / UI-V4 / ADP-01 / BAT-01 | Doubles targeting, quiz, replay, later chrome, adapter CLI, reverse hop | product | See PLAN §0 |
+| P3 | EXP-03 / UI-V4 / ADP-01 / BAT-01 | Quiz, later chrome, adapter CLI, reverse hop (DBL-02 + RPL-01 shipped) | product | See PLAN §0 |
 | Park | PARK-03 | Remaining uncommon accuracy (OHKO niches, rare items) | engine | Else caller `hit`; reopen if policy needs |
 | Park | PARK-01 | Exact PS residual / event-queue interleaving | caller-owned | Collapsed `advanceTurn()` enough |
 | Park | PARK-02 | Full volatile / ability encyclopedia | engine | Module per bug with repro |

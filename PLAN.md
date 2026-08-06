@@ -55,7 +55,7 @@ Shipped MVP items are in §4 (not listed again). There is **no open engine P0**.
 | P2 | ACC-01 | ~~A11y pass on shell/nav/status/forced-switch (focus, live regions, contrast)~~ **Done** | UI | UI-V1 | Checklist in `RUNBUN_UI_DESIGN.md` §7 satisfied for R&B rails |
 | P3 | DBL-02 | ~~Doubles target selection UX + evaluate for selected actor + smoke~~ **Done** | UI | DBL-01 | Load Doubles Gen 8 → evaluate → apply → advance via HTTP; targeting clear |
 | P3 | EXP-03 | Optional quiz / “spot the score” scenarios | UI | FIX-02, EXP-01 | At least one teachable scenario using goldens/fixtures |
-| P3 | RPL-01 | Replay scrubber + shareable apply/advance traces | UI | FIX-04 useful; DBL optional | Saved replay reloads/steps; invalid → 400 clarity |
+| P3 | RPL-01 | ~~Replay scrubber + shareable apply/advance traces~~ **Done** (`#runbun-replay`, `fixtures/ui/replays/`) | UI | FIX-04 useful; DBL optional | Saved replay reloads/steps; invalid → 400 clarity |
 | P3 | UI-V4 | Later mode chrome: Explain top-level, Doubles, Replay visuals | UI | EXP-01, DBL-02, RPL-01 as each lands | Per mode done-when in UI design §9 |
 | P3 | ADP-01 | Fixture batch CLI + adapter pattern docs (+ optional OpenAPI-ish freeze) | docs | Stable HTTP (shipped); real consumer | External caller can validate→evaluate→derive→apply→advance headless |
 | P3 | BAT-01 | Battle → AI Debug reverse import (“Open in AI Debug”) | UI | Battle + AI Debug MVP | Explicit hop copies validated JSON both ways |
@@ -71,9 +71,9 @@ Shipped MVP items are in §4 (not listed again). There is **no open engine P0**.
 | Park | PARK-10 | Dedicated set builder + R&B set packs (beyond bridge) | UI | SET-01 | Reopen when bridge preview is solid and authors demand packs |
 
 **Near-term “start here”:** FIX-01…FIX-04, UI-V0…V2b, TW-01, UI-SP-01, SET-01,
-UI-V3, EXP-01, EXP-02, ACC-01, DBL-01, and DBL-02 are shipped. Next: repro-backed
-**ENG-01/02**, or P3 RPL-01 / EXP-03 when needed. Do not start RPL-01 ahead of
-need. Full phase write-ups: §6; session chunks: §7; UI rollout detail:
+UI-V3, EXP-01, EXP-02, ACC-01, DBL-01, DBL-02, and RPL-01 are shipped. Next:
+repro-backed **ENG-01/02**, or P3 EXP-03 / UI-V4 / BAT-01 / ADP-01. Full phase
+write-ups: §6; session chunks: §7; UI rollout detail:
 [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) §9.
 
 ---
@@ -93,6 +93,7 @@ need. Full phase write-ups: §6; session chunks: §7; UI rollout detail:
 | Light explain + doc citations | **Shipped (MVP)** → superseded by EXP-01 |
 | Deeper Explain (EXP-01/02) | **Shipped** — side-by-side engine ↔ policy doc; citation map audit |
 | Singles Battle turn viewer | **Shipped (MVP)** (`#runbun-battle`) |
+| Replay scrubber (RPL-01) | **Shipped (MVP)** (`#runbun-replay`, `fixtures/ui/replays/`) |
 | Browser UI smoke | **16/16 PASS** (incl. no `util_1` / Abilities console errors; Gen 8 default) |
 | Accuracy: Wonder Skin / Illuminate (+ Mold Breaker path) | **Shipped** |
 | `secondaryRolls` / derive-resolution smoke | **Shipped** (HTTP smoke asserts trace) |
@@ -105,9 +106,9 @@ need. Full phase write-ups: §6; session chunks: §7; UI rollout detail:
 
 **Bottom line:** The decision-useful engine, thin product MVP, fixture
 browser/goldens, Sets bridge, Singles/Doubles Battle field + targeting UX,
-deeper Explain, and ACC-01 a11y pass are in place. **Next:** repro-backed
-ENG-01/02 or later P3 (RPL-01 / EXP-03). No open engine P0. Not a second
-battle simulator — see §0.
+Replay scrubber (RPL-01), deeper Explain, and ACC-01 a11y pass are in place.
+**Next:** repro-backed ENG-01/02 or later P3 (EXP-03 / UI-V4 / BAT-01 /
+ADP-01). No open engine P0. Not a second battle simulator — see §0.
 
 ---
 
@@ -211,6 +212,7 @@ Treat these as **shipped baselines**. Re-break only with intent and tests.
 - [x] Singles Battle viewer on main page (`battle_turn_viewer.js`)
 - [x] Battle field polish: active cards, summary chips, collapsible JSON (UI-V3)
 - [x] Doubles field layout (DBL-01) + actor/target UX over evaluate rows (DBL-02)
+- [x] Replay scrubber + shareable `apply-advance-trace` JSON (RPL-01)
 - [x] Invalid Action 400 prefix distinct from Invalid BattleState
 - [x] Modeled-slice honesty copy in AI Debug and Battle
 - [x] UI smoke **16/16 PASS**
@@ -241,7 +243,7 @@ unless a real playthrough / scoring bug forces a focused module. IDs match §0.
 | Park | PARK-10 | Dedicated set builder + R&B set packs | Bridge MVP enough for now | After SET-01; author demand |
 
 **Not Park — scheduled later:** Doubles chrome DBL-01/DBL-02 **shipped**;
-Replay scrubber = **P3** RPL-01; golden fixture browser = **P0–P1** FIX-*
+Replay scrubber RPL-01 **shipped**; golden fixture browser = **P0–P1** FIX-*
 (shipped). Do not leave open work as unranked “later” without an ID in §0.
 
 ---
@@ -350,16 +352,16 @@ block Doubles sketch on replay.
 
 ---
 
-### Phase E — Replay scrubber & shareable traces (**P3**)
+### Phase E — Replay scrubber & shareable traces (**P3**) ✅ shipped
 
 **Goal:** Step through apply/advance traces for teaching and bug reports.
-**ID:** RPL-01.
+**ID:** RPL-01 (**Done**).
 
 | Priority | Task | Owner | ID |
 | --- | --- | --- | --- |
-| P3 | Record sequence: state₀ → action → resolution → state₁ → … | `src/` + maybe export schema in docs | RPL-01 |
-| P3 | Scrubber UI: scrub turns, show ranked actions at each step | `src/` | RPL-01 |
-| P3 | Shareable JSON replay (validated shapes only) | docs + `src/` | RPL-01 |
+| P3 | ~~Record sequence: state₀ → action → resolution → state₁ → …~~ **Done** | `src/` + `fixtures/ui/replays/` | RPL-01 |
+| P3 | ~~Scrubber UI: scrub turns, show ranked actions at each step~~ **Done** (`#runbun-replay`) | `src/` | RPL-01 |
+| P3 | ~~Shareable JSON replay (validated shapes only)~~ **Done** (`apply-advance-trace`) | docs + `src/` | RPL-01 |
 
 **Done when:** A saved replay reloads and steps without re-deriving random
 rolls unless the file stores them; invalid files get HTTP/client 400 clarity.
@@ -494,5 +496,7 @@ When priorities change: update **§0 first**, then §6–§7, the phase table in
 3. ~~**P1** FIX-03/04~~ **Done** — golden snapshot + in-panel compare.
 4. ~~UI-V0/V1/V2~~ **Done** (sibling track).
 5. ~~**P2+** Explain depth (EXP-01), Battle polish (UI-V3), Doubles layout (DBL-01), targeting (DBL-02)~~ **Done**.
-6. **P1** ENG-01/02 only with a repro; **P3** RPL-01 / EXP-03 / UI-V4 and **Park**
-   stay out of the critical path until needed. Policy B and “no browser engine” untouched.
+6. ~~**P3** RPL-01~~ **Done** — `#runbun-replay` + `fixtures/ui/replays/`.
+7. **P1** ENG-01/02 only with a repro; **P3** EXP-03 / UI-V4 / BAT-01 / ADP-01 and
+   **Park** stay out of the critical path until needed. Policy B and “no browser
+   engine” untouched.

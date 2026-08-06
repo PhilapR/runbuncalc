@@ -63,6 +63,7 @@
                 <a class="rb-mode-tab" role="tab" id="rb-tab-sets" href="#sets-bridge" aria-controls="sets-bridge" aria-selected="false" tabindex="-1">Sets / Bridge</a>
                 <a class="rb-mode-tab" role="tab" id="rb-tab-ai-debug" href="#ai-panel" aria-controls="ai-panel" aria-selected="false" tabindex="-1">AI Debug</a>
                 <a class="rb-mode-tab" role="tab" id="rb-tab-battle" href="#runbun-battle" aria-controls="runbun-battle" aria-selected="false" tabindex="-1">Singles Battle</a>
+                <a class="rb-mode-tab" role="tab" id="rb-tab-replay" href="#runbun-replay" aria-controls="runbun-replay" aria-selected="false" tabindex="-1">Replay</a>
             </div>
         </nav>
     </div>
@@ -1948,7 +1949,9 @@
     <script type="text/javascript" src="./js/sets_to_battle_state.js?"></script>
     <script type="text/javascript" src="./js/golden_eval.js?"></script>
     <script type="text/javascript" src="./js/ai_panel.js?"></script>
+    <script type="text/javascript" src="./js/replay_trace.js?"></script>
     <script type="text/javascript" src="./js/battle_turn_viewer.js?"></script>
+    <script type="text/javascript" src="./js/replay_viewer.js?"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?"></script>
 </div>
 
@@ -2157,7 +2160,56 @@
         <summary class="runbun-battle-state-label" id="runbun-battle-state-label">BattleState JSON (Gen 8)</summary>
         <textarea id="runbun-battle-state" class="runbun-battle-state" rows="12" spellcheck="false" aria-labelledby="runbun-battle-state-label" aria-label="BattleState JSON"></textarea>
     </details>
+    <div class="runbun-battle-controls">
+        <div class="ai-panel-toolbar-label">Replay</div>
+        <button type="button" id="runbun-battle-export-replay" class="btn btn-wide rb-btn-secondary">Export session replay</button>
+        <a class="btn btn-wide rb-btn-ghost" href="#runbun-replay">Open Replay</a>
+    </div>
     <div id="runbun-battle-status" class="runbun-battle-status" role="status" aria-live="polite" aria-atomic="true"></div>
+</section>
+
+<section id="runbun-replay" class="runbun-replay rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-replay" tabindex="-1" aria-label="Run and Bun Replay Scrubber">
+    <h2 class="runbun-replay-title" id="runbun-replay-heading">Replay Scrubber</h2>
+    <p class="runbun-replay-help">
+        Step through a shareable <code>apply-advance-trace</code> JSON without re-deriving
+        random rolls. Each apply step stores the server <code>derive-resolution</code>
+        output plus <code>stateAfter</code>; advance steps store the post-residual state.
+        Invalid shapes fail client-side with 400-style messages; Validate checks each
+        frame via <code>POST /ai/validate-battle-state</code>.
+    </p>
+    <div id="runbun-replay-summary" class="runbun-replay-summary" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div class="runbun-replay-controls">
+        <div class="ai-panel-toolbar-label">Load</div>
+        <button type="button" id="runbun-replay-load-sample" class="btn btn-wide rb-btn-secondary">Load sample replay</button>
+        <button type="button" id="runbun-replay-import-battle" class="btn btn-wide rb-btn-secondary">Import Battle session</button>
+        <label class="runbun-replay-file-label" for="runbun-replay-file">Load local JSON
+            <input type="file" id="runbun-replay-file" accept="application/json,.json" />
+        </label>
+        <button type="button" id="runbun-replay-parse" class="btn btn-wide rb-btn-ghost">Parse editor</button>
+        <button type="button" id="runbun-replay-validate" class="btn btn-wide rb-btn-primary">Validate</button>
+        <button type="button" id="runbun-replay-export" class="btn btn-wide rb-btn-ghost">Export JSON</button>
+    </div>
+    <div class="runbun-replay-controls runbun-replay-scrub-controls">
+        <div class="ai-panel-toolbar-label">Scrub</div>
+        <button type="button" id="runbun-replay-prev" class="btn btn-wide rb-btn-secondary">Previous</button>
+        <button type="button" id="runbun-replay-next" class="btn btn-wide rb-btn-secondary">Next</button>
+        <label class="runbun-replay-scrubber-label" for="runbun-replay-scrubber">Frame
+            <input type="range" id="runbun-replay-scrubber" min="0" max="0" value="0" />
+        </label>
+        <span id="runbun-replay-position" class="runbun-replay-position">Frame 0 / 0</span>
+    </div>
+    <p id="runbun-replay-step" class="runbun-replay-step" aria-live="polite"></p>
+    <div class="runbun-replay-actions-header" id="runbun-replay-actions-heading">Ranked actions at frame <span class="runbun-replay-hint">(stored with the apply step when present)</span></div>
+    <div id="runbun-replay-actions" class="runbun-replay-actions" role="list" aria-labelledby="runbun-replay-actions-heading"></div>
+    <details class="runbun-replay-json-details" open>
+        <summary class="runbun-replay-state-label">Frame BattleState JSON</summary>
+        <textarea id="runbun-replay-state" class="runbun-replay-state" rows="10" spellcheck="false" aria-label="Frame BattleState JSON" readonly></textarea>
+    </details>
+    <details class="runbun-replay-json-details">
+        <summary class="runbun-replay-state-label">Replay JSON (shareable trace)</summary>
+        <textarea id="runbun-replay-json" class="runbun-replay-state" rows="12" spellcheck="false" aria-label="Replay JSON"></textarea>
+    </details>
+    <div id="runbun-replay-status" class="runbun-replay-status" role="status" aria-live="polite" aria-atomic="true"></div>
 </section>
 </div><!-- /#rb-mode-content -->
 

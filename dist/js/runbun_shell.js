@@ -42,10 +42,20 @@
 				{text: 'Modeled slice', kind: 'warn'}
 			],
 			note: 'Practice-vs-policy turn loop over the same HTTP as AI Debug. Doubles field layout follows BattleState.mode (DBL-01).'
+		},
+		replay: {
+			hash: '#runbun-replay',
+			label: 'Replay',
+			chips: [
+				{text: 'Gen 8', kind: 'brand'},
+				{text: 'Stored rolls', kind: 'warn'},
+				{text: 'Thin client', kind: 'muted'}
+			],
+			note: 'Scrub recorded apply/advance traces. Resolutions are stored — scrubbing does not re-derive random rolls.'
 		}
 	};
 
-	var MODE_ORDER = ['calc', 'sets', 'ai-debug', 'battle'];
+	var MODE_ORDER = ['calc', 'sets', 'ai-debug', 'battle', 'replay'];
 
 	function $(id) {
 		return document.getElementById(id);
@@ -61,6 +71,7 @@
 		if (h === '#sets-bridge' || h === '#sets') return 'sets';
 		if (h === '#ai-panel' || h === '#ai-debug') return 'ai-debug';
 		if (h === '#runbun-battle' || h === '#battle') return 'battle';
+		if (h === '#runbun-replay' || h === '#replay') return 'replay';
 		if (h === '#calc' || h === '' || h === '#') return 'calc';
 		return 'calc';
 	}
@@ -69,6 +80,7 @@
 		if (modeId === 'sets') return 'sets-bridge';
 		if (modeId === 'ai-debug') return 'ai-panel';
 		if (modeId === 'battle') return 'runbun-battle';
+		if (modeId === 'replay') return 'runbun-replay';
 		return 'calc';
 	}
 

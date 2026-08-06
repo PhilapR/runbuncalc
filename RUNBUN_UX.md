@@ -41,7 +41,7 @@ capability, not a claim of full R&B sim fidelity. AI projections force
 | Visual shell / tokens | **Shipped** | P2 polish | UI-V0…UI-V2 done; UI-V3 next |
 | Doubles Battle chrome | **Open** | **P2 → P3** | DBL-01 sketch then DBL-02 targeting |
 | Deeper Explain / quiz | **Open** | **P2 → P3** | EXP-01…EXP-03 |
-| Replay scrubber | **Open** | **P3** | RPL-01 |
+| Replay scrubber | **Shipped (MVP)** | **P3** | RPL-01 |
 | External adapter / batch CLI | **Open** | **P3** | ADP-01 |
 | PS residual / event-queue parity | **Park** | **Park** | PARK-01 — caller-owned |
 
@@ -138,7 +138,7 @@ builder UX should make that explicit when targeting AI/battle modes.
 | **Depends on** | Mature choose + derive/apply/advance; external sim adapter **P3** ADP-01 |
 | **MVP** | `#runbun-battle` Singles turn viewer (`battle_turn_viewer.js`): show state → evaluate → pick/apply → advance; forced switches; import from AI Debug / calc panels; modeled-slice copy |
 | **Next** | **P2** UI-V3 field polish; **P2** DBL-01 Doubles layout sketch |
-| **Later** | **P3** DBL-02 targeting + smoke; **P3** BAT-01 reverse import; **P3** RPL-01 replay |
+| **Later** | ~~**P3** DBL-02 / RPL-01~~ **Done**; **P3** BAT-01 reverse import |
 | **Park** | PARK-07 Showdown protocol / live ladder |
 | **Do not put here** | A browser battle engine; Showdown protocol; guessing unmodeled mechanics |
 
@@ -188,7 +188,7 @@ honest gaps over fake completeness.
 | **MVP** | Load scenario / fixture file + export current state in AI Debug (shipped) |
 | **Shipped** | Named `fixtures/ui/` browser + golden evaluate snapshots (FIX-01…04) |
 | **Next** | More goldens / quiz scenarios (EXP-03); optional adapter CLI (ADP-01) |
-| **Later** | **P3** RPL-01 shareable replay JSON / scrubber |
+| **Later** | ~~**P3** RPL-01 shareable replay JSON / scrubber~~ **Done** (`#runbun-replay`) |
 | **Do not put here** | Production admin for multiplayer; hand-edited `dist/` |
 
 ---
@@ -205,7 +205,7 @@ Decision-useful first; rich UI last-ish; no Showdown clone.
 6. **Battle turn viewer** — **Singles MVP done** — `#runbun-battle` over the same HTTP loop; Doubles **P2→P3** (DBL-*).
 7. **Fixture browser / goldens** — **Shipped** FIX-01…04 (`fixtures/ui/`, golden compare).
 8. **Polish / rebrand** — [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) **P0** UI-V0 → **P1** UI-V1/V2 → **P2** UI-V3; calc density stays upstream-like.
-9. **Replay / deeper Explain / adapter** — **P2–P3** EXP-*, RPL-01, ADP-01 per [`PLAN.md`](PLAN.md) §0.
+9. **Deeper Explain / adapter / quiz** — **P3** EXP-03, UI-V4, ADP-01, BAT-01 per [`PLAN.md`](PLAN.md) §0 (RPL-01 shipped).
 
 Stop conditions for “battle UI”: if a feature needs unmodeled residual order,
 accuracy edge cases, or full PS mechanics, keep it caller/external — surface

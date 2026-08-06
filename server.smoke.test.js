@@ -509,3 +509,36 @@ test('UI fixture browser assets are served under /fixtures/ui', async () => {
 	assert.equal(golden.kind, 'evaluate-actions');
 	assert.ok(Array.isArray(golden.evaluations));
 });
+
+test('Replay sample trace is served and each frame validates over HTTP', async () => {
+	const response = await fetch(`${baseUrl}/fixtures/ui/replays/sample.json`);
+	assert.equal(response.status, 200);
+	const replay = await response.json();
+	assert.equal(replay.kind, 'apply-advance-trace');
+	assert.equal(replay.schemaVersion, 1);
+	assert.ok(Array.isArray(replay.steps));
+	assert.ok(replay.steps.length >= 2);
+
+	const initial = await requestJson('/ai/validate-battle-state', {state: replay.initialState});
+	assert.equal(initial.status, 200);
+
+	for (let i = 0; i < replay.steps.length; i++) {
+		const step = replay.steps[i];
+		const validated = await requestJson('/ai/validate-battle-state', {state: step.stateAfter});
+		assert.equal(validated.status, 200, 'steps[' + i + '].stateAfter');
+		if (step.type === 'apply') {
+			assert.ok(step.action);
+			assert.ok(step.resolution, 'stored resolution avoids re-derive');
+			const applied = await requestJson('/ai/apply-action', {
+				state: i === 0 ? replay.initialState : replay.steps[i - 1].stateAfter,
+				action: step.action,
+				resolution: step.resolution,
+			});
+			assert.equal(applied.status, 200, 'replayed apply steps[' + i + ']');
+		}
+	}
+
+	const bad = await requestJson('/ai/validate-battle-state', {state: {generation: 8}});
+	assert.equal(bad.status, 400);
+	assert.match(bad.body.error, /BattleState|sides/i);
+});
