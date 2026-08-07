@@ -30,11 +30,16 @@ P0–P3 / Park rank and an ID that appears (or rolls up) in §0.
 ## 0. Master prioritized backlog
 
 Sorted **P0 → P1 → P2 → P3 → Park**. IDs are stable cross-doc references.
-Shipped MVP items are in §4 (not listed again). There is **no open engine P0**.
+Shipped MVP items are in §4 (not listed again). **GEN9-02 is an open engine
+P0**: Run & Bun ports selected Gen 9 elements, and at the fork's Gen 8 default
+those elements can resolve as damage while their defining effects silently
+no-op. See `GEN9_AUDIT.md`.
 
 | Priority | ID | Item | Area | Depends on | Done-when |
 | --- | --- | --- | --- | --- | --- |
 | P0 | HYG-01 | ~~Keep root floor green (`npm test`, UI smoke on panel touches, Policy B notes when overlays change)~~ **Ongoing** — ESLint Promise/globals + Invalid Action prefix fixed this session; keep green before merge | docs | — | Root gate green; smoke regressions caught before merge |
+| P0 | GEN9-01 | ~~Audit Gen 9 elements vs the Gen 8 baseline across calc data / move metadata / effect gates~~ **Done** (`GEN9_AUDIT.md`, `scripts/audit-gen9-coverage.js`) | engine | — | Generated coverage report exists; regen is deliberate |
+| P0 | GEN9-02 | Vendor the R&B source docs, fill the audit's `R&B?` column, then fix every ported element that silently no-ops at gen 8 | engine | GEN9-01; `MECHANICS.MD` / `MOVE_CHANGES.MD` in-repo | Each R&B-ported Gen 9 element is either modelled at gen 8 or explicitly recorded as out-of-scope |
 | P0 | FIX-01 | ~~Inventory 8–12 AI fixtures as named UI scenarios~~ **Done** (`fixtures/ui/`) | docs | HYG-01 | Curated list of scenario IDs/names ready for browser load |
 | P0 | FIX-02 | ~~Fixture browser MVP: list/dropdown → load into AI Debug → validate~~ **Done** | UI | FIX-01 | Author opens a named scenario, validates, evaluates without hand-pasting JSON |
 | P0 | UI-V0 | ~~Link `runbun-tokens.css`; CSS variables on `:root` / theme (no calc-guts rewrite)~~ **Done** | UI | — | Tokens wired; light/dark pairs usable by shell/panels |
@@ -72,7 +77,8 @@ Shipped MVP items are in §4 (not listed again). There is **no open engine P0**.
 
 **Near-term “start here”:** FIX-01…FIX-04, UI-V0…V2b, TW-01, UI-SP-01, SET-01,
 UI-V3, EXP-01, EXP-02, ACC-01, DBL-01, DBL-02, and RPL-01 are shipped. Next:
-repro-backed **ENG-01/02**, or P3 EXP-03 / UI-V4 / BAT-01 / ADP-01. Full phase
+**GEN9-02** (blocked only on vendoring the R&B source docs), then repro-backed
+**ENG-01/02**, or P3 EXP-03 / UI-V4 / BAT-01 / ADP-01. Full phase
 write-ups: §6; session chunks: §7; UI rollout detail:
 [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) §9.
 
@@ -83,7 +89,7 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Area | Status |
 | --- | --- |
 | Multi-gen damage calculator (`calc/`) + R&B overlays | **Shipped** — Gen 8 UI default; Magma Armor / 1.5× crit / Soul Dew / etc. |
-| AI policy + transitions (`ai/`) | **Shipped** — decision-useful Gen 8 scope; no open engine P0 |
+| AI policy + transitions (`ai/`) | **Shipped** — decision-useful Gen 8 scope; **GEN9-02 open** for Gen 9 ports |
 | HTTP AI API (`server.js`) | **Shipped** — choose / evaluate / validate / derive / apply / advance / order |
 | Root validation gate (`npm test`) | **Green path** — calc → AI → build → `test:server` → UI lint |
 | Upstream audit (`npm run test:upstream`) | **Policy B** — intentional fails (~75/63); not part of root gate |
@@ -107,8 +113,10 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 **Bottom line:** The decision-useful engine, thin product MVP, fixture
 browser/goldens, Sets bridge, Singles/Doubles Battle field + targeting UX,
 Replay scrubber (RPL-01), deeper Explain, and ACC-01 a11y pass are in place.
-**Next:** repro-backed ENG-01/02 or later P3 (EXP-03 / UI-V4 / BAT-01 /
-ADP-01). No open engine P0. Not a second battle simulator — see §0.
+**Next:** GEN9-02, then repro-backed ENG-01/02 or later P3 (EXP-03 / UI-V4 /
+BAT-01 / ADP-01). GEN9-02 is the open engine P0: the fork is a standalone Run &
+Bun tool, and R&B ports selected Gen 9 elements that the Gen 8 baseline drops
+silently. Not a second battle simulator — see §0.
 
 ---
 
