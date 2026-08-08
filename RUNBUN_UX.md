@@ -84,7 +84,7 @@ external battle events → validated state patches only.
 | **Purpose** | Answer “what damage does this action deal?” for arbitrary gen/sets |
 | **Primary user** | Player mid-run; set theory; R&B overlay checks |
 | **Data contract** | Calc `Pokemon` / `Move` / `Field` / `Result` (browser or `GET|POST /calculate`) |
-| **Depends on** | `calc/`, UI set data (`import/` → `src/js/data/`), R&B fork overlays |
+| **Depends on** | `calc/`, authored set data (`src/js/data/sets/`), R&B fork overlays |
 | **MVP** | Existing UI; Gen 8 default; clear R&B fork callouts |
 | **Next** | **P0** UI-V0 tokens; **P1** UI-V1 oracle chip / shell framing |
 | **Park** | PARK-09 full Smogon visual rewrite |

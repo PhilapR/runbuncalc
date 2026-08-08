@@ -84,9 +84,11 @@ against data already in the repository; it does not track any upstream fork.
 - `server.js` owns the local HTTP adapter for calculator and AI endpoints. It
   validates incoming state/actions/resolutions and validates derived or applied
   battle state before serialization; it does not become a second battle model.
-- `import/` is an auxiliary set-data generator, not a runtime dependency of the
-  calculator or AI server. Its generated output belongs under `src/js/data/`;
-  import changes require the separate `import/` dependency and validation gate.
+- `src/js/data/sets/gen8.js` holds the authored Run & Bun trainer parties and is
+  fork-owned product data, not generated output. The inherited `import/`
+  generator that overwrote it from `@smogon/sets` has been removed;
+  `runbun_sets.test.js` guards the data against being regenerated. See
+  `TASKS.md`.
 - `AGENTS.md`, `AI_DATA_MODEL.md`, and `VALIDATION.md` define the contracts and
   evidence for these additions.
 

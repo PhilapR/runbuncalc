@@ -39,6 +39,7 @@ damage for the same move with nothing failing.
 | --- | --- | --- | --- | --- | --- |
 | P0 | HYG-01 | ~~Keep root floor green (`npm test`, UI smoke on panel touches, Policy B notes when overlays change)~~ **Ongoing** — ESLint Promise/globals + Invalid Action prefix fixed this session; keep green before merge | docs | — | Root gate green; smoke regressions caught before merge |
 | P0 | DATA-01 | ~~Make the R&B overlay outrank inherited calc data; gate the disagreement~~ **Done** (`ai/src/test/runbun-data.test.ts`; Misty Explosion 100→200) | engine | — | Inherited base power / type contradicting the overlay fails the build |
+| P0 | DATA-02 | ~~Remove the `import/` set generator that overwrote authored R&B trainer parties; guard the data~~ **Done** (`runbun_sets.test.js`; CI step dropped) | engine | DATA-01 | Root gate is the whole CI job; regenerating gen 8 sets fails the build |
 | P0 | GEN9-01 | ~~Audit Gen 9 elements vs the Gen 8 baseline across calc data / move metadata / effect gates~~ **Done** (`GEN9_AUDIT.md`, `scripts/audit-gen9-coverage.js`) | engine | — | Generated coverage report exists; regen is deliberate |
 | P0 | FIX-01 | ~~Inventory 8–12 AI fixtures as named UI scenarios~~ **Done** (`fixtures/ui/`) | docs | HYG-01 | Curated list of scenario IDs/names ready for browser load |
 | P0 | FIX-02 | ~~Fixture browser MVP: list/dropdown → load into AI Debug → validate~~ **Done** | UI | FIX-01 | Author opens a named scenario, validates, evaluates without hand-pasting JSON |
@@ -472,7 +473,7 @@ fix that before product chrome (today: none open).
 | Legality, score, resolve, residual, switch entry | `ai/` | focused `ai/src/test/*.ts` |
 | HTTP shapes / 400 behavior | `server.js` | `server.smoke.test.js` |
 | Panels, battle chrome, citations UI | `src/` | UI smoke + lint |
-| Set data generation | `import/` | separate `npm test` in `import/` |
+| R&B trainer set data | `src/js/data/sets/gen8.js` (authored) | `runbun_sets.test.js` |
 | Product roadmap / phase status | `PLAN.md` + `RUNBUN_UX.md` | this file |
 | Rule source (not code) | `../MECHANICS.MD`, `../run_and_bun_ai.MD` | mirrored into code + tests |
 

@@ -14,12 +14,12 @@ npm run lint
 npm test
 ```
 
-The root gate intentionally does not install or execute the auxiliary
-`import/` generator. For import-pipeline changes, run `npm ci` and
-`npm test` from `import/` separately; its generated set files are UI data, not
-AI or calculator source. The importer compiles and lint-checks through its
-TypeScript 7 `tsc` gate. The GitHub Actions test job runs that separate import
-install/test step after the root gate.
+The inherited `import/` set generator has been removed. It regenerated all nine
+`src/js/data/sets/gen*.js` files from `@smogon/sets`, which overwrote the
+authored Run & Bun trainer parties in `gen8.js` with Smogon competitive usage
+sets. `runbun_sets.test.js` runs in the root gate and fails if that data is ever
+replaced by generated content. The GitHub Actions test job is now the root gate
+alone.
 
 The AI test command discovers every compiled `dist/test/*.test.js` fixture, so
 new focused fixtures are included automatically. The decision fixture also

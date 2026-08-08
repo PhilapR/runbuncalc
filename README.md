@@ -1,7 +1,6 @@
 # Run & Bun Damage Calc
 
-![Test Status](https://github.com/smogon/damage-calc/workflows/Tests/badge.svg)
-[![npm version](https://img.shields.io/npm/v/@smogon/calc.svg)](https://www.npmjs.com/package/@smogon/calc)&nbsp;
+![Test Status](https://github.com/PhilapR/runbuncalc/actions/workflows/test.yml/badge.svg)
 
 Fork of the [Smogon / Pokémon Showdown damage calculator][0] aimed at **Run & Bun**
 accuracy: Gen&nbsp;8 mechanics by default (see the workspace `MECHANICS.MD`), plus
@@ -306,13 +305,14 @@ Simple, and Clear Body. `advanceTurn()` handles the modeled weather, status,
 item, ability, and G-Max residual effects;
 unmodeled simulator events remain external inputs.
 
-### Import
+### Set data
 
-This repository also houses an internal package under `import/` which is used for populating the
-Pokémon sets data (as well as data about random battle options) used by the UI. Before making
-changes here you must run `npm ci` from under the `import/` directory to install its
-dependencies as they are not installed by default. [`TASKS.md`][4] contains more information on
-how to programmatically update sets.
+`src/js/data/sets/gen8.js` holds the Run & Bun trainer parties — authored data
+keyed by trainer name, read by the Trainer Wheel. It is edited by hand, never
+generated. The upstream `import/` package that regenerated set data from
+`@smogon/sets` has been removed, because it overwrote those trainer parties with
+Smogon competitive usage sets. [`TASKS.md`][4] covers how to change set data
+safely; `runbun_sets.test.js` enforces it.
 
 ## Credits
 
@@ -336,7 +336,7 @@ This package is distributed under the terms of the [MIT License][3].
   [1]: https://github.com/smogon/damage-calc/tree/master/calc
   [2]: https://github.com/smogon/damage-calc/tree/master/src
   [3]: https://github.com/smogon/damage-calc/blob/master/LICENSE
-  [4]: https://github.com/smogon/damage-calc/blob/master/TASKS.md
+  [4]: TASKS.md
   [5]: https://unpkg.com/
   [6]: https://webpack.js.org/
   [7]: https://rollupjs.org/
