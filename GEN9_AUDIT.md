@@ -25,7 +25,24 @@ The `R&B?` column is intentionally unresolved. Nothing here asserts what
 Run & Bun actually ports; that requires the R&B source docs
 (`MECHANICS.MD` / `MOVE_CHANGES.MD`), which are cited by `README.md` and
 `ai/src/move-metadata.ts` but are **not in this repository**. Fill the column
-once those are vendored, then triage only the ported rows.
+if a future Run & Bun version ports Gen 9 content, then triage those rows.
+
+## Why GEN9-02 is Parked
+
+Current evidence says Run & Bun is a Gen 8 game with no Gen 9 ports, so the
+rows below are dormant engine capability rather than active bugs:
+
+- **Zero** of the 72 Gen 9-only moves appear anywhere in the fork's
+  Run & Bun move overlay (`CUSTOM_ACCURACY` / `CUSTOM_BASE_POWER` /
+  `CUSTOM_MAX_PP` / `CUSTOM_TYPE` in `ai/src/move-metadata.ts`), which is the
+  transcription of the Run & Bun move-change documentation.
+- The Run & Bun community calculators carry ability and item data byte-identical
+  to upstream, with no Gen 9 additions at gen 8.
+- Those calculators default to generation 8, same as this fork.
+
+This audit is kept as the check that stays honest if that ever changes:
+regenerate it against a newer Run & Bun release and the dormant rows become a
+work list. Reopen GEN9-02 on evidence, not on suspicion.
 
 ## Summary
 

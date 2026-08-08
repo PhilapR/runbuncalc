@@ -38,6 +38,7 @@ The current intentional deltas are:
 | Surface | Fork behavior | Source and fixture |
 | --- | --- | --- |
 | Move data | Super Fang is Dark-type | `calc/src/data/moves.ts`; `fork.test.ts` |
+| Move data | Misty Explosion is 200 base power (upstream Gen 8 is 100) | `calc/src/data/moves.ts`; `fork.test.ts`; `ai/src/test/runbun-data.test.ts` |
 | Species data | Azumarill has 65 base Attack | `calc/src/data/species.ts`; `fork.test.ts` |
 | Descriptions | Damage descriptions use IV values for the displayed stat labels | `calc/src/mechanics/util.ts` and generation mechanics; `fork.test.ts` |
 | Modern terrain | Psychic Terrain uses the fork's modern damage scaling | `calc/src/mechanics/gen56.ts` and `gen789.ts`; `fork.test.ts` |
@@ -59,6 +60,21 @@ overrides, while PP changes feed canonical maximum-PP lookup and Transform.
 Serializable `MoveState` also permits caller-defined type, category, priority,
 target, accuracy, secondary-effect, and move-flag overrides; the AI metadata,
 order, calculator, and move-engine boundaries preserve those fields.
+
+### The overlay outranks the inherited data
+
+`calc/` is inherited source material; the Run & Bun overlay is fork-owned and
+**authoritative**. Both are read at runtime by different surfaces — the AI
+pushes the overlay through `calc-adapter.ts`, while the browser damage
+calculator reads `calc/src/data/moves.ts` directly — so a disagreement makes the
+two halves of the product report different damage for the same move, silently.
+
+`ai/src/test/runbun-data.test.ts` is the gate for that: any inherited base power
+or move type contradicting the overlay fails the build. When it fires, change
+the inherited data to the Run & Bun value and add a row above. Only add a
+documented exception when the two consumers legitimately differ (friendship-
+scaled Return and Frustration are the current pair). The gate runs offline
+against data already in the repository; it does not track any upstream fork.
 
 ## Run & Bun application code
 

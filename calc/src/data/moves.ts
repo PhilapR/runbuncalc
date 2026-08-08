@@ -3457,7 +3457,8 @@ const SS_PATCH: {[name: string]: DeepPartial<MoveData>} = {
     maxPower: 140,
   },
   'Misty Explosion': {
-    bp: 100,
+    // Run & Bun raises this to 200; upstream Gen 8 is 100. See FORK_MAP.md.
+    bp: 200,
     type: 'Fairy',
     category: 'Special',
     target: 'allAdjacent',

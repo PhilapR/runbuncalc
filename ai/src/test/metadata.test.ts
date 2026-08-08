@@ -131,11 +131,17 @@ const mistyExplosionFacts = calculateActionFacts(adapterState, mistyExplosionAct
 const gen = Calc.Generations.get(9);
 const attacker = new Calc.Pokemon(gen, 'Pikachu', {level: 100});
 const defender = new Calc.Pokemon(gen, 'Rattata', {level: 100});
-const upstreamMistyExplosion = Calc.calculate(
+const calculatorMistyExplosion = Calc.calculate(
   gen, attacker, defender, new Calc.Move(gen, 'Misty Explosion'), new Calc.Field(),
 );
-const upstreamMaximum = Math.max(...(upstreamMistyExplosion.damage as number[]));
-assert.ok(mistyExplosionFacts.damage && mistyExplosionFacts.damage.max > upstreamMaximum);
+const calculatorMaximum = Math.max(...(calculatorMistyExplosion.damage as number[]));
+// This assertion used to require the AI to *exceed* the calculator, because the
+// overlay carried Run & Bun's 200 base power while the inherited data still said
+// 100. That gap was the bug (DATA-01): the browser calculator and the AI reported
+// different damage for the same move. Now that both sides carry 200, the two
+// surfaces must agree exactly. See `runbun-data.test.ts` for the general gate.
+assert.ok(mistyExplosionFacts.damage);
+assert.equal(mistyExplosionFacts.damage!.max, calculatorMaximum);
 
 const callerDefinedState: BattleState = {...adapterState, sides: {
   ...adapterState.sides,
