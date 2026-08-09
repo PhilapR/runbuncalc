@@ -159,7 +159,7 @@ const CUSTOM_ACCURACY: Record<string, number> = {
   megahorn: 90, metalclaw: 100, metalsound: 100, meteorbeam: 100, meteormash: 100,
   mirrorshot: 100, mudbomb: 100, muddywater: 95, naturesmadness: 100, nightdaze: 100,
   octazooka: 100, originpulse: 100, overheat: 100, pinmissile: 100, playrough: 100,
-  poisonpowder: 90, powerwhip: 90, precipiceblades: 100, precicipeblades: 100,
+  poisonpowder: 90, powerwhip: 90, precipiceblades: 100,
   psychoboost: 100, razorleaf: 100, razorshell: 100, roaroftime: 100,
   rockblast: 100, rockclimb: 95, rockslide: 100, rockthrow: 100, rockwrecker: 100,
   rollingkick: 100, sacredfire: 100, sandtomb: 100, scaleshot: 100, screech: 100,
@@ -224,6 +224,22 @@ const CUSTOM_TYPE: Record<string, string> = {
   covet: 'Fairy',
   superfang: 'Dark',
 };
+
+/**
+ * Every move id named by a Run & Bun overlay table.
+ *
+ * Exported so the data gate can assert each one resolves to a real move. A
+ * mistyped key is invisible at runtime — `getMoveMetadata` simply finds no
+ * override and falls through to the canonical value, so the Run & Bun
+ * correction is dropped with no error and no failing comparison.
+ */
+export const OVERLAY_MOVE_IDS: string[] = Array.from(new Set([
+  ...Object.keys(CUSTOM_ACCURACY),
+  ...Object.keys(CUSTOM_BASE_POWER),
+  ...Object.keys(CUSTOM_MAX_PP),
+  ...Object.keys(CUSTOM_SECONDARY_CHANCE),
+  ...Object.keys(CUSTOM_TYPE),
+])).sort();
 
 const SUPPORTED_STAT_IDS = new Set(['hp', 'atk', 'def', 'spa', 'spd', 'spe']);
 const SUPPORTED_STATUS_NAMES = new Set<StatusName>(['slp', 'psn', 'brn', 'frz', 'par', 'tox']);

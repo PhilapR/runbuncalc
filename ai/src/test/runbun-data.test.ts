@@ -21,7 +21,7 @@
 import * as Calc from '@smogon/calc';
 import assert from 'node:assert/strict';
 import {GenerationNum} from '../model';
-import {getMoveMetadata} from '../move-metadata';
+import {OVERLAY_MOVE_IDS, getMoveMetadata} from '../move-metadata';
 
 /** The generation the Run & Bun product targets. */
 const RUNBUN_GEN: GenerationNum = 8;
@@ -90,6 +90,24 @@ for (const [id, reason] of BASE_POWER_EXCEPTIONS) {
     `BASE_POWER_EXCEPTIONS entry '${id}' (${reason}) no longer has an overlay override; remove it`
   );
 }
+
+// Every overlay key must name a real move.
+//
+// The drift comparison above cannot catch a mistyped key: it walks the
+// calculator's move table and only compares where an override exists, so a key
+// spelled wrong yields no override, no comparison, and a green build — while
+// the Run & Bun correction it was meant to apply is silently dropped. That is
+// the same shape as the Misty Explosion split this file exists to prevent, one
+// typo away. `precicipeblades` sat beside `precipiceblades` until this check
+// was added.
+const unknownOverlayKeys = OVERLAY_MOVE_IDS.filter(id => !gen.moves.get(Calc.toID(id)));
+assert.deepEqual(
+  unknownOverlayKeys,
+  [],
+  `Run & Bun overlay tables name moves that do not exist in generation ${RUNBUN_GEN}: ` +
+  `${unknownOverlayKeys.join(', ')}. A key that resolves to nothing applies no override, ` +
+  'so the Run & Bun value is silently dropped. Fix the spelling or remove the entry.'
+);
 
 // Misty Explosion is the case that motivated this gate; assert it directly so a
 // regression names itself instead of surfacing as a generic drift list.

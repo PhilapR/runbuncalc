@@ -79,3 +79,41 @@ test('Run & Bun trainer sets carry the party index the Trainer Wheel relies on',
 		`only ${withIndex}/${total} gen 8 sets carry a party index; expected nearly all`
 	);
 });
+
+test('the trainer progression index is a dense, globally unique ordering', () => {
+	const setdex = loadSetdex(GEN8_SETS, 'SETDEX_SS');
+	const indices = [];
+	for (const species of Object.keys(setdex)) {
+		for (const label of Object.keys(setdex[species])) {
+			const index = setdex[species][label].index;
+			if (typeof index === 'number') indices.push(index);
+		}
+	}
+
+	// `index` is not a per-party slot number. It is a single global sequence
+	// encoding authored Run & Bun playthrough order across every trainer, and it
+	// is the sole ordering key for Trainer Wheel navigation. It can be
+	// reconstructed from no upstream source.
+	//
+	// The count check above passes for any numeric values, so a renumber, a
+	// collapse to a constant, or a shuffle would all slip through it. These
+	// assertions pin the shape that makes the ordering meaningful.
+	const unique = new Set(indices);
+	assert.equal(
+		unique.size,
+		indices.length,
+		`trainer progression indices must be globally unique; ${indices.length - unique.size} duplicates found`
+	);
+
+	const min = Math.min.apply(null, indices);
+	const max = Math.max.apply(null, indices);
+	assert.equal(min, 0, 'the progression ordering should start at 0');
+
+	// Dense: the sequence spans its range with only a couple of gaps. A shuffle
+	// keeps density, but a renumber into buckets or a partial rewrite does not.
+	const span = max - min + 1;
+	assert.ok(
+		indices.length > span * 0.99,
+		`progression indices are sparse: ${indices.length} values across a span of ${span}`
+	);
+});
