@@ -33,13 +33,19 @@ fork deltas here and in `VALIDATION.md`; promote an upstream baseline only with
 an explicit fixture change. Do not silently rewrite inherited expectations to
 force the audit green.
 
-The current intentional deltas are:
+The current intentional deltas are. This table was reconciled against a pristine
+`@smogon/calc@0.7.0` — the version the fork carries — so it reflects the real Gen
+8 delta set rather than a partial recollection of it.
 
 | Surface | Fork behavior | Source and fixture |
 | --- | --- | --- |
-| Move data | Super Fang is Dark-type | `calc/src/data/moves.ts`; `fork.test.ts` |
+| Move data | Super Fang is Dark-type; Covet is Fairy-type | `calc/src/data/moves.ts`; `fork.test.ts`; `ai/src/test/runbun-data.test.ts` |
 | Move data | Misty Explosion is 200 base power (upstream Gen 8 is 100) | `calc/src/data/moves.ts`; `fork.test.ts`; `ai/src/test/runbun-data.test.ts` |
-| Species data | Azumarill has 65 base Attack | `calc/src/data/species.ts`; `fork.test.ts` |
+| Move data | Base power changes: Absorb 40, Astonish 40, Charge Beam 40, Lick 40, Mega Drain 60, Octazooka 80 | `calc/src/data/moves.ts`; `ai/src/test/runbun-data.test.ts` |
+| Species data | Azumarill has 65 base Attack and 90 base Sp. Atk; Diggersby has 71 base Attack | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Species data | Stantler and Ursaring are not fully evolved (they gain Legends: Arceus evolutions) | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Species data | 30 species absent from upstream Gen 8 are present: Hisuian forms, Legends: Arceus additions, and the Run & Bun original **Saharascal** | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Item data | Energy Powder is removed | `calc/src/data/items.ts`; `runbun_species.test.js` |
 | Descriptions | Damage descriptions use IV values for the displayed stat labels | `calc/src/mechanics/util.ts` and generation mechanics; `fork.test.ts` |
 | Modern terrain | Psychic Terrain uses the fork's modern damage scaling | `calc/src/mechanics/gen56.ts` and `gen789.ts`; `fork.test.ts` |
 | Priority and protection | Gale Wings is not full-HP gated; intact Disguise blocks the first hit | `calc/src/mechanics/gen56.ts` and `gen789.ts`; `fork.test.ts` |
