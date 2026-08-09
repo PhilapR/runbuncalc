@@ -14,20 +14,6 @@
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
     <!-- Shell + full-page unify after dark-theme so stadium tokens win the cascade -->
     <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?992fc439" />
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-3"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'UA-26211653-3');
-
-        window.onerror = function(err, uri, line) {
-            gtag('event', 'exception', {'description': uri + ':' + line + ': ' + err});
-            return false;
-        };
-    </script>
     <!-- Immediately loads the dark theme in order to reduce FOIT -->
     <script>
         /*
@@ -100,7 +86,6 @@
             <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-one" checked="checked" /><label class="btn btn-left" for="one-vs-one">One vs One</label>
             <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-all" /><label class="btn btn-mid" for="one-vs-all">One vs All</label>
             <input class="mode visually-hidden" type="radio" name="mode" id="all-vs-one" /><label class="btn btn-mid" for="all-vs-one">All vs One</label>
-            <input class="mode visually-hidden" type="radio" name="mode" id="randoms" /><label class="btn btn-right" for="randoms">Random Battles</label>
         </span>
         <button id="screen-calc">
             put this calculation in a grabbable window
@@ -1943,8 +1928,8 @@
     <script type="text/javascript" src="./calc/result.js?de0d540e"></script>
     <script type="text/javascript" src="./calc/adaptable.js?5117162d"></script>
     <script type="text/javascript" src="./calc/index.js?78a38a99"></script>
-    <script type="text/javascript" src="./js/shared_controls.js?aa36d0f6"></script>
-    <script type="text/javascript" src="./js/index_randoms_controls.js?fbfd954d"></script>
+    <script type="text/javascript" src="./js/shared_controls.js?e89ad14e"></script>
+    <script type="text/javascript" src="./js/index_randoms_controls.js?562e8ee3"></script>
     <script type="text/javascript" src="./js/moveset_import.js?7e5848e1"></script>
     <script type="text/javascript" src="./js/sets_to_battle_state.js?ac404a20"></script>
     <script type="text/javascript" src="./js/golden_eval.js?961a5a37"></script>

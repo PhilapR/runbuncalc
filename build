@@ -100,4 +100,3 @@ cpdir('src', 'dist');
 cpdir('calc/dist', 'dist/calc', {wrapCommonJs: true});
 makeCachebuster('dist/honkalculate.template.html', 'dist/honkalculate.html');
 makeCachebuster('dist/index.template.html', 'dist/index.html');
-makeCachebuster('dist/randoms.template.html', 'dist/randoms.html');

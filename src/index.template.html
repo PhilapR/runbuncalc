@@ -14,20 +14,6 @@
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
     <!-- Shell + full-page unify after dark-theme so stadium tokens win the cascade -->
     <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?" />
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-3"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'UA-26211653-3');
-
-        window.onerror = function(err, uri, line) {
-            gtag('event', 'exception', {'description': uri + ':' + line + ': ' + err});
-            return false;
-        };
-    </script>
     <!-- Immediately loads the dark theme in order to reduce FOIT -->
     <script>
         /*
@@ -100,7 +86,6 @@
             <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-one" checked="checked" /><label class="btn btn-left" for="one-vs-one">One vs One</label>
             <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-all" /><label class="btn btn-mid" for="one-vs-all">One vs All</label>
             <input class="mode visually-hidden" type="radio" name="mode" id="all-vs-one" /><label class="btn btn-mid" for="all-vs-one">All vs One</label>
-            <input class="mode visually-hidden" type="radio" name="mode" id="randoms" /><label class="btn btn-right" for="randoms">Random Battles</label>
         </span>
         <button id="screen-calc">
             put this calculation in a grabbable window

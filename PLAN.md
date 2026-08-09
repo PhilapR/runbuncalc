@@ -104,7 +104,7 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Deeper Explain (EXP-01/02) | **Shipped** — side-by-side engine ↔ policy doc; citation map audit |
 | Singles Battle turn viewer | **Shipped (MVP)** (`#runbun-battle`) |
 | Replay scrubber (RPL-01) | **Shipped (MVP)** (`#runbun-replay`, `fixtures/ui/replays/`) |
-| Browser UI smoke | **16/16 PASS** (incl. no `util_1` / Abilities console errors; Gen 8 default) |
+| Browser UI smoke | **Not automated** — no browser harness exists in the repo. `browser_calc_load.test.js` gates that the calculator loads and is callable in the page's script environment; everything above that (panels, nav, rendering) is unverified |
 | Accuracy: Wonder Skin / Illuminate (+ Mold Breaker path) | **Shipped** |
 | `secondaryRolls` / derive-resolution smoke | **Shipped** (HTTP smoke asserts trace) |
 | R&B branding + Gen 8 default | **Shipped** |
@@ -228,7 +228,10 @@ Treat these as **shipped baselines**. Re-break only with intent and tests.
 - [x] Replay scrubber + shareable `apply-advance-trace` JSON (RPL-01)
 - [x] Invalid Action 400 prefix distinct from Invalid BattleState
 - [x] Modeled-slice honesty copy in AI Debug and Battle
-- [x] UI smoke **16/16 PASS**
+- [x] Browser calculator load gate (`browser_calc_load.test.js`) — the calculator
+      is callable in the page's script environment. No wider UI smoke is
+      automated; a previous "16/16 PASS" here recorded a manual pass with no
+      checked-in case list behind it.
 
 ### Docs
 

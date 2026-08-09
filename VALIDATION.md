@@ -899,7 +899,7 @@ PLAN §0. Do not leave unranked “next” / “later” rows here.
 
 | Priority | ID | Item | Tag | Notes / done-when |
 | --- | --- | --- | --- | --- |
-| P0 | HYG-01 | Keep root `npm test` + UI smoke / Policy B notes green | product | Continuous floor (`fixtures/ui.test.js` in `test:server`) |
+| P0 | HYG-01 | Keep root `npm test` + Policy B notes green | product | Continuous floor (`test:server`; `fixtures/ui.test.js` is JSON-fixture only and touches no DOM) |
 | P0 | FIX-01 | ~~Inventory 8–12 fixtures as named UI scenarios~~ **Done** | product | `fixtures/ui/manifest.json` (10 Gen 8 Singles) |
 | P0 | FIX-02 | ~~Fixture browser MVP → AI Debug → validate~~ **Done** | product | `/fixtures/ui` + AI Debug Load fixture |
 | P0 | UI-V0 | ~~Wire `runbun-tokens.css` (no calc guts rewrite)~~ **Done** | product | Tokens usable |
