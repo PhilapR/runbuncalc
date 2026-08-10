@@ -2,25 +2,21 @@
 'use strict';
 
 /**
- * Run & Bun species and item identity gate.
+ * Profile conformance gate for species and item data.
  *
- * `calc/src/data/` is inherited from the upstream Smogon calculator, but the
- * fork's copy is not a pristine one: Run & Bun changes base stats, adds species
- * that upstream Gen 8 does not have, changes which species are fully evolved,
- * and drops an item. Those edits are the product, yet nothing asserted them —
- * `FORK_MAP.md` listed a single species delta (Azumarill) while the Gen 8 data
- * actually carries 54.
+ * The profile in `profiles/run-and-bun/` is the authority: it declares what
+ * Run & Bun's content is. This asserts the calculator's data actually matches
+ * that declaration.
  *
- * This file is the fork-owned statement of that identity. It is authored to
- * express intent, not snapshotted from the data, so regenerating it cannot
- * silently bless a regression. Everything below was verified once against a
- * pristine `@smogon/calc@0.7.0` — the same version the fork carries — so the
- * list is the real delta set rather than upstream version drift.
+ * Two properties, and the difference between them matters. The first is that
+ * the data has not been LOST — the earlier version of this file only checked
+ * that ported species existed by name. The second is that the data is RIGHT.
+ * Zoroark-Hisui shipped with the wrong base stats and passed the existence
+ * check for weeks, because existence is not correctness. The profile pins full
+ * stat lines so that class of error cannot recur.
  *
- * Move-level Run & Bun data is deliberately NOT duplicated here. That surface
- * is owned by the overlay in `ai/src/move-metadata.ts` and gated by
- * `ai/src/test/runbun-data.test.ts`; adding a second source of truth for it
- * would create exactly the split those files exist to prevent.
+ * Profile values were reconciled against `dekzeh/calc`, the hack author's own
+ * calculator, which is the source of truth for Run & Bun content.
  */
 
 const assert = require('node:assert/strict');
@@ -28,101 +24,103 @@ const test = require('node:test');
 
 // Assert the data tables directly rather than through `Generations.get()`. The
 // runtime wrapper renames base stats (`at` -> `atk`) and does not surface
-// `nfe`, and it is the tables themselves that a bad regeneration would damage.
+// `nfe`, and it is the tables themselves a bad regeneration would damage.
 const SPECIES = require('./calc/dist/data/species.js').SPECIES;
 const ITEMS = require('./calc/dist/data/items.js').ITEMS;
+const getProfile = require('./profiles').getProfile;
 
-/** The generation the Run & Bun product targets. */
-const RUNBUN_GEN = 8;
+const profile = getProfile('run-and-bun');
+const species = SPECIES[profile.baseGeneration];
+const items = ITEMS[profile.baseGeneration];
 
-/**
- * Base stats Run & Bun changes on species that already exist upstream.
- * Only the changed stats are listed; everything else must stay upstream.
- */
-const BASE_STAT_CHANGES = {
-  Azumarill: {at: 65, sa: 90},
-  Diggersby: {at: 71},
-};
-
-/**
- * Species Run & Bun treats as not-fully-evolved that upstream Gen 8 does not.
- * Both gained evolutions in Legends: Arceus (Wyrdeer, Ursaluna), which Run &
- * Bun carries.
- */
-const NOT_FULLY_EVOLVED = ['Stantler', 'Ursaring'];
-
-/**
- * Species present in the fork's Gen 8 data but absent from upstream Gen 8.
- *
- * Almost all are Hisuian forms and Legends: Arceus additions. `Saharascal` is
- * not from any official game — it is Run & Bun original content, and the most
- * irreplaceable single entry in this file.
- */
-const PORTED_SPECIES = [
-  'Arcanine-Hisui', 'Avalugg-Hisui', 'Basculegion', 'Basculegion-F',
-  'Basculin-White-Striped', 'Braviary-Hisui', 'Decidueye-Hisui', 'Dialga-Origin',
-  'Electrode-Hisui', 'Enamorus', 'Enamorus-Therian', 'Floette-Eternal',
-  'Goodra-Hisui', 'Growlithe-Hisui', 'Kleavor', 'Lilligant-Hisui', 'Overqwil',
-  'Palkia-Origin', 'Qwilfish-Hisui', 'Saharascal', 'Samurott-Hisui',
-  'Sliggoo-Hisui', 'Sneasel-Hisui', 'Sneasler', 'Typhlosion-Hisui', 'Ursaluna',
-  'Voltorb-Hisui', 'Wyrdeer', 'Zoroark-Hisui', 'Zorua-Hisui',
-];
-
-/** Run & Bun original species: assert the full stat line, not just presence. */
-const SAHARASCAL = {
-  types: ['Ground'],
-  bs: {hp: 50, at: 80, df: 65, sa: 45, sd: 90, sp: 70},
-  abilities: {0: 'Water Absorb'},
-  nfe: true,
-};
-
-/** Items upstream Gen 8 has that Run & Bun does not. */
-const REMOVED_ITEMS = ['Energy Powder'];
-
-const species = SPECIES[RUNBUN_GEN];
-const items = ITEMS[RUNBUN_GEN];
+test('the profile is well formed and declares its base generation', () => {
+	assert.equal(profile.id, 'run-and-bun');
+	assert.equal(profile.baseGeneration, 8);
+	assert.ok(profile.data, 'profile declares no data layer');
+});
 
 test('Run & Bun base stat changes are present', () => {
-  for (const name of Object.keys(BASE_STAT_CHANGES)) {
-    assert.ok(species[name], `${name} is missing from Gen ${RUNBUN_GEN} species data`);
-    for (const stat of Object.keys(BASE_STAT_CHANGES[name])) {
-      assert.equal(
-        species[name].bs[stat],
-        BASE_STAT_CHANGES[name][stat],
-        `${name} base ${stat} is not the Run & Bun value`
-      );
-    }
-  }
+	for (const name of Object.keys(profile.data.BASE_STAT_CHANGES)) {
+		assert.ok(species[name], `${name} is missing from Gen ${profile.baseGeneration} species data`);
+		for (const stat of Object.keys(profile.data.BASE_STAT_CHANGES[name])) {
+			assert.equal(
+				species[name].bs[stat],
+				profile.data.BASE_STAT_CHANGES[name][stat],
+				`${name} base ${stat} does not match the Run & Bun profile`
+			);
+		}
+	}
 });
 
 test('Run & Bun evolution changes are present', () => {
-  for (const name of NOT_FULLY_EVOLVED) {
-    assert.ok(species[name], `${name} is missing from Gen ${RUNBUN_GEN} species data`);
-    assert.equal(species[name].nfe, true, `${name} should be not-fully-evolved in Run & Bun`);
-  }
+	for (const name of profile.data.NOT_FULLY_EVOLVED) {
+		assert.ok(species[name], `${name} is missing from Gen ${profile.baseGeneration} species data`);
+		assert.equal(species[name].nfe, true, `${name} should be not-fully-evolved in Run & Bun`);
+	}
 });
 
-test('Species Run & Bun ports into Gen 8 are present', () => {
-  const missing = PORTED_SPECIES.filter(name => !species[name]);
-  assert.deepEqual(
-    missing,
-    [],
-    `Run & Bun species missing from Gen ${RUNBUN_GEN} data: ${missing.join(', ')}. ` +
-    'These are not upstream content; if they are gone the fork data has been ' +
-    'overwritten from an upstream source.'
-  );
+test('every species the profile ports in is present with the declared stat line', () => {
+	const ported = profile.data.PORTED_SPECIES;
+	const missing = Object.keys(ported).filter(name => !species[name]);
+	assert.deepEqual(
+		missing,
+		[],
+		`Run & Bun species missing from Gen ${profile.baseGeneration} data: ${missing.join(', ')}. ` +
+		'These are not upstream content; if they are gone the fork data has been ' +
+		'overwritten from an upstream source.'
+	);
+
+	// The correctness half. An existence check passes on a wrong stat line.
+	const wrong = [];
+	for (const name of Object.keys(ported)) {
+		const declared = ported[name];
+		const actual = species[name];
+		if (JSON.stringify(actual.types) !== JSON.stringify(declared.types)) {
+			wrong.push(`${name} types: data ${JSON.stringify(actual.types)}, profile ${JSON.stringify(declared.types)}`);
+		}
+		for (const stat of Object.keys(declared.bs)) {
+			if (actual.bs[stat] !== declared.bs[stat]) {
+				wrong.push(`${name} base ${stat}: data ${actual.bs[stat]}, profile ${declared.bs[stat]}`);
+			}
+		}
+		if (declared.ability && actual.abilities && actual.abilities[0] !== declared.ability) {
+			wrong.push(`${name} ability: data ${actual.abilities[0]}, profile ${declared.ability}`);
+		}
+	}
+	assert.deepEqual(
+		wrong,
+		[],
+		`calculator data contradicts the Run & Bun profile:\n  ${wrong.join('\n  ')}\n` +
+		'The profile is the authority. Fix calc/src/data/species.ts, or change the ' +
+		'profile deliberately if the game data itself was wrong.'
+	);
 });
 
 test('Saharascal keeps its Run & Bun original stat line', () => {
-  const saharascal = species['Saharascal'];
-  assert.ok(saharascal, 'Saharascal is missing — this species exists in no official game');
-  assert.deepEqual(saharascal.types, SAHARASCAL.types);
-  assert.deepEqual(saharascal.bs, SAHARASCAL.bs);
-  assert.equal(saharascal.abilities[0], SAHARASCAL.abilities[0]);
-  assert.equal(saharascal.nfe, SAHARASCAL.nfe);
+	// Called out separately from the loop above because it exists in no official
+	// game: it is Run & Bun original content and reconstructible from nothing.
+	const declared = profile.data.PORTED_SPECIES['Saharascal'];
+	assert.ok(declared, 'the profile no longer declares Saharascal');
+	const actual = species['Saharascal'];
+	assert.ok(actual, 'Saharascal is missing — this species exists in no official game');
+	assert.deepEqual(actual.bs, declared.bs);
+	assert.equal(actual.nfe, declared.nfe);
 });
 
-test('Items Run & Bun removes stay absent', () => {
-  const present = REMOVED_ITEMS.filter(item => items.includes(item));
-  assert.deepEqual(present, [], `items removed by Run & Bun are back: ${present.join(', ')}`);
+test('items the profile removes stay absent', () => {
+	const present = profile.data.REMOVED_ITEMS.filter(item => items.includes(item));
+	assert.deepEqual(present, [], `items removed by Run & Bun are back: ${present.join(', ')}`);
+});
+
+test('every profile claim carries a provenance tag', () => {
+	// Untagged claims default to `inferred`, the weakest tag. This asserts the
+	// data layer is actually backed by the source of truth rather than silently
+	// falling through to that default.
+	for (const key of Object.keys(profile.data)) {
+		assert.equal(
+			profile.provenanceOf(`data.${key}`),
+			'source-of-truth',
+			`data.${key} is not tagged source-of-truth; it was reconciled against dekzeh/calc`
+		);
+	}
 });

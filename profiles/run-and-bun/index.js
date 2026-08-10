@@ -1,0 +1,89 @@
+/* eslint-env node, es6 */
+'use strict';
+
+/**
+ * Run & Bun — a Pokémon Emerald difficulty hack by dekzeh, on Generation 8
+ * mechanics.
+ *
+ * This is the reference profile: the first game described through the profile
+ * contract, and the worked example for adding another. See `profiles/README.md`
+ * for the layering model.
+ *
+ * Layers filled today:
+ *   data       — species / item deltas (this file's `data`)
+ *   mechanics  — declared, and cross-referenced to where each rule lives
+ *
+ * Layers not yet filled:
+ *   policy     — the Run & Bun AI scoring model still lives in `ai/src/scoring.ts`
+ *   encounters — the ~362 authored trainer parties still live in
+ *                `src/js/data/sets/gen8.js`
+ *
+ * Both are real content that belongs here eventually. They are listed as absent
+ * rather than quietly omitted, because a profile that looks complete when it is
+ * not is worse than one that states its own edges.
+ */
+
+const defineProfile = require('../profile.js').defineProfile;
+const data = require('./data.js');
+
+module.exports = defineProfile({
+	id: 'run-and-bun',
+	name: 'Run & Bun',
+
+	// Run & Bun is a Gen 8-mechanics game. It ports in Hisuian forms and
+	// Legends: Arceus species, which are also Gen 8 content — earlier
+	// investigation confirmed it ports no Generation 9 content.
+	baseGeneration: 8,
+
+	data,
+
+	/**
+   * Rule deltas against stock Generation 8.
+   *
+   * Declarative here, implemented in `calc/src/mechanics/` and gated by
+   * `calc/src/test/fork.test.ts`. This block is the readable statement of what
+   * the game does differently; it is not yet what the engine branches on.
+   */
+	mechanics: {
+		criticalHitMultiplier: 1.5,
+		magmaArmorBlocksCriticalHits: true,
+		galeWingsRequiresFullHp: false,
+		attractIsGenderIndependent: true,
+		psychicTerrainUsesModernScaling: true,
+		superFangType: 'Dark',
+		covetType: 'Fairy',
+	},
+
+	/**
+   * How each claim above is known.
+   *
+   * Reconciled one time against `dekzeh/calc` — the hack author's own
+   * calculator — and corroborated against `SylmarDev/syl-rnb-calc` where they
+   * overlap. `calc/src/data/` species, items and abilities are byte-identical
+   * to the author's data; moves differ only by this fork's own additions.
+   *
+   * The mechanics entries are weaker. They were transcribed from community
+   * documentation (`MECHANICS.MD`) that is not in this repository and that
+   * nobody working on the project has read. They are implemented and regression
+   * tested, so they are stable — but stability is not correctness, and they are
+   * tagged for what they are.
+   */
+	provenance: {
+		'data.BASE_STAT_CHANGES': 'source-of-truth',
+		'data.NOT_FULLY_EVOLVED': 'source-of-truth',
+		'data.PORTED_SPECIES': 'source-of-truth',
+		'data.REMOVED_ITEMS': 'source-of-truth',
+		'mechanics.criticalHitMultiplier': 'transcribed',
+		'mechanics.magmaArmorBlocksCriticalHits': 'transcribed',
+		'mechanics.galeWingsRequiresFullHp': 'transcribed',
+		'mechanics.attractIsGenderIndependent': 'transcribed',
+		'mechanics.psychicTerrainUsesModernScaling': 'transcribed',
+		'mechanics.superFangType': 'source-of-truth',
+		'mechanics.covetType': 'source-of-truth',
+	},
+
+	sources: {
+		'source-of-truth': 'https://github.com/dekzeh/calc',
+		corroboration: 'https://github.com/SylmarDev/syl-rnb-calc',
+	},
+});
