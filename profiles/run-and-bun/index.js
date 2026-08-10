@@ -109,8 +109,12 @@ module.exports = defineProfile({
 		// raise these to `observed`.
 		'policy.SCORE_ROLL': 'transcribed',
 		'policy.SETUP': 'transcribed',
-		'policy.DOCUMENTED_SCORES': 'transcribed',
-		'policy.DOCUMENTED_SWITCH': 'transcribed',
+		// DOCUMENTED_SCORES and DOCUMENTED_SWITCH are deliberately not tagged.
+		// They are the document's own text, quoted as the evidence for the two
+		// claims above — not further claims about the game. Tagging them would
+		// count one belief twice and make the project look less verified than it
+		// is for the act of citing its sources.
+
 		'mechanics.criticalHitMultiplier': 'transcribed',
 		// Corroborated by the author's own in-ROM ability text. Vanilla Magma Armor
 		// reads "Prevents freezing."; Run & Bun's reads "Blocks criticals and
