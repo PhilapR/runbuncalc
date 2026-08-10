@@ -85,6 +85,8 @@ module.exports = defineProfile({
 		// equivalent, so no external source can corroborate them. They came from
 		// the community-maintained calculator lineage this fork descends from.
 		'encounters.INVARIANTS': 'transcribed',
+		'encounters.KNOWN_GAPS': 'transcribed',
+		'encounters.COVERAGE': 'transcribed',
 		// No published Run & Bun AI simulator exists, so nothing external can
 		// corroborate opponent behaviour. Only in-game observation can raise these.
 		'policy.SCORE_ROLL': 'transcribed',

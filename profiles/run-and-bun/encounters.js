@@ -90,10 +90,49 @@ const INVARIANTS = {
  * They are declared rather than quietly tolerated so the density check cannot
  * report a complete run map while two party members are absent.
  */
+/**
+ * Trainers the run map does not cover at all.
+ *
+ * The run map holds the mandatory progression: gyms, the Elite Four, rivals
+ * (all three starter variants at each of three locations), admins and leaders.
+ * It does NOT hold every optional trainer.
+ *
+ * Compared against an independent community transcription of the Run & Bun
+ * trainer-battle document, roughly 69 trainers appear there with no counterpart
+ * anywhere in this data — about 189 party members. The pattern is unambiguous:
+ * 39 are Swimmers, and the rest are Sailors, Fishermen, Tubers, Triathletes and
+ * similar route filler, almost all fielding two or three Pokemon. These are the
+ * avoidable water-route encounters, not story battles.
+ *
+ * Where the two sources DO overlap the data agrees closely: 221 of the 222
+ * trainers matched by name have identical party sizes, and 246 of our 362
+ * battles match a dump party exactly on species and level. The gap is coverage,
+ * not correctness.
+ *
+ * The counts are approximate on purpose. The dump uses a `~` continuation
+ * marker inside long parties and names double-battle partners inside brackets,
+ * so any automated count of it carries parse error. Treat these as the shape of
+ * the gap, not a precise inventory.
+ *
+ * Not filled from that dump: it is a community transcription, and this project
+ * does not take community sources as authoritative for values. Recorded so a
+ * consumer knows the run map is a progression spine rather than a complete
+ * trainer census — a planner built on it should not claim to cover every battle
+ * a player can pick.
+ */
+const COVERAGE = {
+	coversMandatoryProgression: true,
+	completeTrainerCensus: false,
+	approximateTrainersAbsent: 69,
+	approximatePartyMembersAbsent: 189,
+	absentKind: 'optional route trainers, overwhelmingly Swimmers and other water-route filler',
+	comparedAgainst: 'community transcription of the Run & Bun trainer-battle document',
+};
+
 const KNOWN_GAPS = {
 	indices: [789, 790],
 	trainer: 'Bug Maniac Jeffrey',
 	note: 'two of three Vivillon lost to a [species][label] key collision',
 };
 
-module.exports = {GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS};
+module.exports = {GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE};

@@ -111,6 +111,42 @@ test('the run map matches the profile\'s declared encounter invariants', () => {
 	);
 });
 
+test('the run map declares itself a progression spine, not a full trainer census', () => {
+	// The run map covers the mandatory progression — gyms, Elite Four, rivals in
+	// all three starter variants, admins and leaders — but roughly 69 optional
+	// route trainers (overwhelmingly Swimmers) have no entry at all.
+	//
+	// This is asserted rather than left implicit because a planner built on this
+	// data must not claim to cover every battle a player can pick. If someone
+	// imports the missing trainers, this flag is what they have to change, which
+	// forces the claim to be revisited deliberately.
+	const encounters = require('./profiles').getProfile('run-and-bun').encounters;
+	assert.equal(encounters.COVERAGE.completeTrainerCensus, false);
+	assert.ok(encounters.COVERAGE.coversMandatoryProgression);
+
+	// The mandatory spine must actually be present. These are the battles a run
+	// cannot avoid; losing one is a different failure from missing route filler.
+	const setdex = loadSetdex(GEN8_SETS, 'SETDEX_SS');
+	const labels = new Set();
+	for (const species of Object.keys(setdex)) {
+		for (const label of Object.keys(setdex[species])) {
+			labels.add(setdex[species][label].trainer || label);
+		}
+	}
+	const spine = ['Elite Four Glacia', 'Elite Four Sidney', 'Elite Four Phoebe', 'Elite Four Drake'];
+	const missingSpine = spine.filter(t => !labels.has(t));
+	assert.deepEqual(missingSpine, [], `mandatory battles missing: ${missingSpine.join(', ')}`);
+
+	// All three starter variants of each rival battle must survive together —
+	// dropping one would silently give a player the wrong opponent for their run.
+	const rivals = [...labels].filter(t => /^Trainer Rival /.test(t));
+	assert.equal(rivals.length, 9, `expected 9 rival battles (3 locations x 3 starters), found ${rivals.length}`);
+	for (const starter of ['Blaziken', 'Sceptile', 'Swampert']) {
+		const n = rivals.filter(t => t.endsWith(starter)).length;
+		assert.equal(n, 3, `expected 3 rival battles for the ${starter} route, found ${n}`);
+	}
+});
+
 test('no entry key encodes meaning in whitespace', () => {
 	// Duplicate-species entries were once keyed by prefixing the trainer name with
 	// spaces. Nothing declared that convention, and `getTrainerOrder` grouped on
