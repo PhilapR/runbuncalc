@@ -30,10 +30,10 @@ P0–P3 / Park rank and an ID that appears (or rolls up) in §0.
 ## 0. Master prioritized backlog
 
 Sorted **P0 → P1 → P2 → P3 → Park**. IDs are stable cross-doc references.
-Shipped MVP items are in §4 (not listed again). **DATA-01 is the open engine
-P0**: the inherited calculator data and the fork-owned Run & Bun overlay can
-disagree, and when they do the browser calculator and the AI report different
-damage for the same move with nothing failing.
+Shipped MVP items are in §4 (not listed again). **There is no open engine P0.**
+Every content layer is verified against the hack author's own ROM data dump and
+gated; the planner is built and reachable over HTTP. What remains is either a
+declared, gated gap (see DATA-09/ENC-01) or platform work for a second game.
 
 | Priority | ID | Item | Area | Depends on | Done-when |
 | --- | --- | --- | --- | --- | --- |
@@ -41,10 +41,20 @@ damage for the same move with nothing failing.
 | P0 | DATA-01 | ~~Make the R&B overlay outrank inherited calc data; gate the disagreement~~ **Done** (`ai/src/test/runbun-data.test.ts`; Misty Explosion 100→200) | engine | — | Inherited base power / type contradicting the overlay fails the build |
 | P0 | DATA-02 | ~~Remove the `import/` set generator that overwrote authored R&B trainer parties; guard the data~~ **Done** (`runbun_sets.test.js`; CI step dropped) | engine | DATA-01 | Root gate is the whole CI job; regenerating gen 8 sets fails the build |
 | P0 | DATA-03 | ~~Reconcile the Policy B inventory against pristine upstream; gate species/item identity~~ **Done** (`runbun_species.test.js`; `FORK_MAP.md` completed — 54 Gen 8 species deltas, 1 documented before) | engine | DATA-02 | Every Gen 8 data delta is documented and asserted; losing one fails the build |
+| P0 | DATA-04 | ~~Verify the ~166-entry move overlay (accuracy / base power / PP) against the author's ROM data~~ **Done** — 166 checked, 166 agreed; counts sealed in the profile | engine | DATA-03 | Overlay entry counts pinned; a new entry must be re-verified |
+| P0 | DATA-05 | ~~Verify all Gen 8 species base stats against the ROM dump~~ **Done** — 1006/1006 agree after fixing Marill (20/20→35/35) and Kleavor (130/75→135/70) | engine | DATA-04 | Species stats match `species/base_stats.h` |
+| P0 | DATA-06 | ~~Apply the Run & Bun ability-slot overlay~~ **Done** — 125 species led with the wrong ability; 998/998 now agree (`RUNBUN_ABILITIES`) | engine | DATA-05 | Every species' default ability matches the ROM |
+| P0 | DATA-07 | ~~Audit the AI policy against the document it transcribes~~ **Done** — Croven's 1.07 AI document, two byte-identical mirrors; scores, kill bonuses, Explosion bands, switch routine and Protect decay all match | engine | — | Policy values pinned to the document's stated numbers |
+| P0 | AUD-01 | ~~Close three silent-failure holes~~ **Done** — browser calc load gate, overlay key validation, trainer index invariants | engine | — | Each failure mode fails the build instead of shipping green |
+| P0 | AUD-02 | ~~Delete Random Battles, drop inherited analytics, reskin honkalculate~~ **Done** | UI | — | No Showdown branding or unpinned remote scripts in a shipped page |
 | P0 | GEN9-01 | ~~Audit Gen 9 elements vs the Gen 8 baseline across calc data / move metadata / effect gates~~ **Done** (`GEN9_AUDIT.md`, `scripts/audit-gen9-coverage.js`) | engine | — | Generated coverage report exists; regen is deliberate |
 | P0 | FIX-01 | ~~Inventory 8–12 AI fixtures as named UI scenarios~~ **Done** (`fixtures/ui/`) | docs | HYG-01 | Curated list of scenario IDs/names ready for browser load |
 | P0 | FIX-02 | ~~Fixture browser MVP: list/dropdown → load into AI Debug → validate~~ **Done** | UI | FIX-01 | Author opens a named scenario, validates, evaluates without hand-pasting JSON |
 | P0 | UI-V0 | ~~Link `runbun-tokens.css`; CSS variables on `:root` / theme (no calc-guts rewrite)~~ **Done** | UI | — | Tokens wired; light/dark pairs usable by shell/panels |
+| P1 | PLAT-01 | ~~Introduce game profiles as the platform seam~~ **Done** (`profiles/`) | engine | DATA-03 | A game is declarative; provenance tagged per claim |
+| P1 | PLAT-05 | ~~Validate encounter coverage against an independent battle dump~~ **Done** — 221/222 matched trainers agree on party size | engine | PLAT-01 | Coverage declared rather than implied |
+| P1 | PLAT-06 | ~~Build the fight planner (L5)~~ **Done** (`planner.js`) | engine | PLAT-05 | Run map + team → ranked opponent actions with a decision margin |
+| P1 | PLAT-09 | ~~Expose the planner over HTTP~~ **Done** — `/planner/fights`, `/upcoming`, `/fight`, `/predict` | engine | PLAT-06 | The planner is reachable by a client, not only by Node |
 | P1 | FIX-03 | ~~Golden eval snapshot format + regenerate one golden + clear fail message~~ **Done** (`fixtures/ui/goldens/`, `scripts/regen-ui-golden.js`) | engine | FIX-02 | Deterministic evaluate snapshot exists; regen is deliberate |
 | P1 | FIX-04 | ~~Wire golden compare into AI Debug status (facts/reasons only)~~ **Done** | UI | FIX-03 | Pass/fail vs golden visible in-page or documented CLI; no `kochance` parsing |
 | P1 | UI-V1 | ~~Product shell: brand row, mode tablist, context chips, hash `#calc` / `#sets-bridge` / `#ai-panel` / `#runbun-battle`~~ **Done** | UI | UI-V0 | Modes feel framed; Calc stays dense; Bridge has stable `id` |
@@ -54,12 +64,16 @@ damage for the same move with nothing failing.
 | P1 | UI-SP-01 | ~~Spacing rhythm pass (`--rb-space-*`) across shell / calc / AI / Battle / Wheel~~ **Done** | UI | TW-01 | Uneven gaps tightened; IDs/nav preserved |
 | P1 | ENG-01 | Bug-driven engine fill: scoring wrong because facts missing → facts then score | engine | Repro `BattleState` | Focused fixture; `VALIDATION.md` row closed or re-Parked |
 | P1 | ENG-02 | Bug-driven calc overlay only when damage identity ≠ `MECHANICS.MD` | engine | Repro + `FORK_MAP` | `fork.test.ts` + Policy B inventory note |
+| P2 | DATA-09 | Restore Bug Maniac Jeffrey's two lost Vivillon (indices 789, 790) | engine | — | Requires a decision on importing community-sourced party values; gap declared and gated meanwhile |
+| P2 | ENC-01 | Import the ~69 optional route trainers absent from the run map | engine | DATA-09 | Same decision; `encounters.COVERAGE` declares the gap today |
+| P2 | UI-P1 | Surface the planner in the browser as a first-class mode | UI | PLAT-09 | A player can pick a fight and see the prediction without curl |
 | P2 | EXP-01 | ~~Deeper Explain: side-by-side doc cite vs reasons / ActionFacts~~ **Done** | UI | Explain MVP; FIX-02 strongly preferred | One scored action shows matching doc section + machine facts together |
 | P2 | EXP-02 | ~~Citation map audit for top score-reason phrases~~ **Done** | docs | EXP-01 or Explain MVP | Gaps filled for high-traffic reason keywords |
 | P2 | UI-V3 | ~~Battle field polish: active cards, summary chips, forced banner, mobile JSON collapse~~ **Done** (cards + chips + collapsible JSON; forced banner retained) | UI | UI-V2 | Singles viewer reads as match UI; still thin client |
 | P2 | DBL-01 | ~~Doubles Battle layout sketch (display only, same HTTP)~~ **Done** | UI | Singles MVP stable; FIX-02 Doubles cases preferred | Two actives/side readable; Singles path unchanged |
 | P2 | SET-01 | ~~Sets/Bridge preview polish (party IDs / species / HP) + elevated `#sets-bridge` IA~~ **Done** (standalone mode panel + party preview) | UI | UI-V1 | Bridge is a first-class mode target; empty/error states explicit |
 | P2 | ACC-01 | ~~A11y pass on shell/nav/status/forced-switch (focus, live regions, contrast)~~ **Done** | UI | UI-V1 | Checklist in `RUNBUN_UI_DESIGN.md` §7 satisfied for R&B rails |
+| P3 | PLAT-10 | Make `mechanics` / `policy` load-bearing; prove portability with a second profile | engine | PLAT-01 | Two profiles, one engine, provably different output |
 | P3 | DBL-02 | ~~Doubles target selection UX + evaluate for selected actor + smoke~~ **Done** | UI | DBL-01 | Load Doubles Gen 8 → evaluate → apply → advance via HTTP; targeting clear |
 | P3 | EXP-03 | Optional quiz / “spot the score” scenarios | UI | FIX-02, EXP-01 | At least one teachable scenario using goldens/fixtures |
 | P3 | RPL-01 | ~~Replay scrubber + shareable apply/advance traces~~ **Done** (`#runbun-replay`, `fixtures/ui/replays/`) | UI | FIX-04 useful; DBL optional | Saved replay reloads/steps; invalid → 400 clarity |
@@ -94,6 +108,15 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Multi-gen damage calculator (`calc/`) + R&B overlays | **Shipped** — Gen 8 UI default; Magma Armor / 1.5× crit / Soul Dew / etc. |
 | AI policy + transitions (`ai/`) | **Shipped** — decision-useful Gen 8 scope; Gen 9 ports Parked (GEN9-02) |
 | R&B overlay vs inherited calc data | **Gated** — `ai/src/test/runbun-data.test.ts` fails the build on disagreement |
+| Species base stats | **ROM-verified** — 1006/1006 vs `dekzeh/runandbundex` |
+| Ability slots | **ROM-verified** — 998/998; 125 species carried the wrong default before |
+| Move overlay (accuracy / BP / PP) | **ROM-verified** — 166/166; counts sealed in the profile |
+| Items | **Matches the author's data** |
+| AI policy | **Audited** against Croven's 1.07 AI document; values pinned to its text. Still `transcribed` — only observation can raise it |
+| Trainer run map | **Validated** — 221/222 matched trainers agree with an independent dump; coverage gap declared |
+| Game profiles (`profiles/`) | **Shipped** — R&B declarative, provenance tagged per claim (10 verified / 8 transcribed, gated) |
+| Fight planner (`planner.js`) | **Shipped** — run map + team → ranked opponent actions with a decision margin |
+| Planner HTTP API | **Shipped** — `/planner/fights`, `/upcoming`, `/fight`, `/predict` |
 | HTTP AI API (`server.js`) | **Shipped** — choose / evaluate / validate / derive / apply / advance / order |
 | Root validation gate (`npm test`) | **Green path** — calc → AI → build → `test:server` → UI lint |
 | Upstream audit (`npm run test:upstream`) | **Policy B** — intentional fails (~75/63); not part of root gate |
@@ -113,6 +136,16 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Singles Battle polish (UI-V3) | **Shipped** — active cards, summary chips, collapsible JSON |
 | A11y pass (ACC-01) | **Shipped** — shell/nav/status/forced-switch; §7 checklist |
 | Docs sync (UX / validation / README / ai README) | **Current** |
+
+**Run & Bun content is finished.** Every layer the game supplies — species base
+stats, ability slots, move accuracy/power/PP, items — is verified against the
+author's own ROM data dump and gated so it cannot silently regress. 1.07 is the
+final release, so that verification is durable rather than a snapshot. The AI
+policy is audited against the community document it transcribes and pinned to
+its stated numbers. Two gaps remain and both are declared and gated rather than
+silently carried: Bug Maniac Jeffrey's two lost Vivillon (DATA-09) and ~69
+optional route trainers (ENC-01), each needing a decision on importing
+community-sourced party values.
 
 **Bottom line:** The decision-useful engine, thin product MVP, fixture
 browser/goldens, Sets bridge, Singles/Doubles Battle field + targeting UX,
