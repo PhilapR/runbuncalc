@@ -40,7 +40,7 @@
     "bundle": "subpkg run bundle",
     "build": "npm run build --prefix calc && npm run build --prefix ai && node build view",
     "test": "npm run test --prefix calc && npm run test --prefix ai && npm run build && npm run test:server && eslint --cache src profiles --ext js",
-    "test:server": "node --test server.smoke.test.js sets_to_battle_state.test.js runbun_sets.test.js runbun_species.test.js browser_calc_load.test.js fixtures/ui.test.js",
+    "test:server": "node --test server.smoke.test.js runbun_policy.test.js sets_to_battle_state.test.js runbun_sets.test.js runbun_species.test.js browser_calc_load.test.js fixtures/ui.test.js",
     "postinstall": "subpkg install"
   },
   "subPackages": [

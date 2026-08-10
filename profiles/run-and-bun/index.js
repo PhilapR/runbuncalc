@@ -14,16 +14,19 @@
  *   mechanics  — declared, and cross-referenced to where each rule lives
  *   encounters — shape and invariants of the authored trainer run map
  *
- * Layers not yet filled:
- *   policy     — the Run & Bun AI scoring model still lives in `ai/src/scoring.ts`
+ *   policy     — score-roll weights and setup baselines used by the AI
  *
- * It is listed as absent rather than quietly omitted, because a profile that
- * looks complete when it is not is worse than one that states its own edges.
+ * All four layers are declared. Two are load-bearing: `data` is read by the
+ * conformance gate, and `encounters` invariants are asserted against the run
+ * map. `mechanics` and `policy` are declared and gated for drift, but the
+ * engine does not yet read from them — that inversion is the remaining work,
+ * and saying so is better than implying a seam that is not carrying weight.
  */
 
 const defineProfile = require('../profile.js').defineProfile;
 const data = require('./data.js');
 const encounters = require('./encounters.js');
+const policy = require('./policy.js');
 
 module.exports = defineProfile({
 	id: 'run-and-bun',
@@ -36,6 +39,7 @@ module.exports = defineProfile({
 
 	data,
 	encounters,
+	policy,
 
 	/**
    * Rule deltas against stock Generation 8.
@@ -77,6 +81,10 @@ module.exports = defineProfile({
 		// equivalent, so no external source can corroborate them. They came from
 		// the community-maintained calculator lineage this fork descends from.
 		'encounters.INVARIANTS': 'transcribed',
+		// No published Run & Bun AI simulator exists, so nothing external can
+		// corroborate opponent behaviour. Only in-game observation can raise these.
+		'policy.SCORE_ROLL': 'transcribed',
+		'policy.SETUP': 'transcribed',
 		'mechanics.criticalHitMultiplier': 'transcribed',
 		'mechanics.magmaArmorBlocksCriticalHits': 'transcribed',
 		'mechanics.galeWingsRequiresFullHp': 'transcribed',
