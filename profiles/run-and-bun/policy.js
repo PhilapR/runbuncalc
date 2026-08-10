@@ -58,4 +58,62 @@ const SETUP = {
  */
 const KIND = 'scoring';
 
-module.exports = {KIND, SCORE_ROLL, SETUP};
+/**
+ * The document this policy transcribes.
+ *
+ * "Pokemon Run and Bun (1.07) AI document", by Croven, crediting Dekzeh among
+ * others. Two independent GitHub mirrors carry it byte-identically after
+ * newline normalisation, which is why the checksum is recorded: it identifies
+ * *which* document a later reader should compare against, rather than leaving
+ * "the AI doc" as an unresolvable reference.
+ *
+ * It stays `transcribed`, not `source-of-truth`. It is a community document —
+ * careful, credited, and the best available, but not the author's own
+ * publication the way the ROM dump is. What changed is that the transcription
+ * has now been audited against it rather than merely assumed faithful.
+ *
+ * `runbun_policy.test.js` pins the values below to the document's stated
+ * numbers so the implementation cannot drift from the text it claims to encode.
+ */
+const SOURCE_DOCUMENT = {
+	title: 'Pokemon Run and Bun (1.07) AI document',
+	author: 'Croven',
+	mirrors: [
+		'github.com/beninburley/run_and_bun_calc — ai_logic.txt',
+		'github.com/beninburley/nuzlocke_finder — public/run&bunAI.txt',
+	],
+	md5AfterNewlineNormalisation: '4e1bbd283d8189c58e049753d7a9d96f',
+};
+
+/**
+ * Documented score outcomes, quoted so the gate can assert against the text.
+ *
+ * Straight from the document's "Common scores to be aware of" table. The AI
+ * rolls: mostly the low score, sometimes two points higher.
+ */
+const DOCUMENTED_SCORES = {
+	/** "Highest damaging move: +6 (80%), +8 (20%)" */
+	highestDamagingMove: {low: 6, high: 8},
+	/** "Slow kill (AI kills but is slower than target): +9 (80%), +11 (20%)" */
+	slowKill: {low: 9, high: 11},
+	/** "Fast kill (AI kills and is faster than target): +12 (80%), +14 (20%)" */
+	fastKill: {low: 12, high: 14},
+	/** "AI sees speed ties as them being faster than the player" */
+	speedTiesCountAsFaster: true,
+	/** Moxie / Beast Boost / Chilling Neigh / Grim Neigh: "Additional +1" */
+	koBoostAbilityBonus: 1,
+};
+
+/** The documented hard-switch routine, Singles only. */
+const DOCUMENTED_SWITCH = {
+	/** "the AI must only be able to use ineffective moves (score <= -5)" */
+	ineffectiveThreshold: -5,
+	/** "the AI mon must not be below 50% health already" */
+	minimumHealthFraction: 0.5,
+	/** "then the AI has a 50% chance to switch" */
+	switchProbability: 0.5,
+	/** "In Double Battles, the AI never switches unless in niche situations" */
+	singlesOnly: true,
+};
+
+module.exports = {KIND, SCORE_ROLL, SETUP, SOURCE_DOCUMENT, DOCUMENTED_SCORES, DOCUMENTED_SWITCH};

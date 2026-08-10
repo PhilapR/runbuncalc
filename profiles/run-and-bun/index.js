@@ -102,10 +102,15 @@ module.exports = defineProfile({
 		'encounters.INVARIANTS': 'transcribed',
 		'encounters.KNOWN_GAPS': 'transcribed',
 		'encounters.COVERAGE': 'transcribed',
-		// No published Run & Bun AI simulator exists, so nothing external can
-		// corroborate opponent behaviour. Only in-game observation can raise these.
+		// The community AI document (Croven, crediting Dekzeh) is the best available
+		// authority on opponent behaviour, and the transcription has been audited
+		// against it rather than assumed faithful — but it is still a community
+		// document, not the author's own publication. Only in-game observation can
+		// raise these to `observed`.
 		'policy.SCORE_ROLL': 'transcribed',
 		'policy.SETUP': 'transcribed',
+		'policy.DOCUMENTED_SCORES': 'transcribed',
+		'policy.DOCUMENTED_SWITCH': 'transcribed',
 		'mechanics.criticalHitMultiplier': 'transcribed',
 		// Corroborated by the author's own in-ROM ability text. Vanilla Magma Armor
 		// reads "Prevents freezing."; Run & Bun's reads "Blocks criticals and
@@ -129,5 +134,8 @@ module.exports = defineProfile({
 		// which the author edited where he changed an ability's behaviour.
 		'source-of-truth-ability-text': 'https://github.com/dekzeh/runandbundex/blob/main/abilities/abilities.h',
 		corroboration: 'https://github.com/SylmarDev/syl-rnb-calc',
+		// The AI document the policy layer transcribes, mirrored byte-identically
+		// in two independent repositories.
+		'ai-document': 'https://github.com/beninburley/run_and_bun_calc — ai_logic.txt',
 	},
 });
