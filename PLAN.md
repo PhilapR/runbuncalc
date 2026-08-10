@@ -66,7 +66,7 @@ declared, gated gap (see DATA-09/ENC-01) or platform work for a second game.
 | P1 | ENG-02 | Bug-driven calc overlay only when damage identity ≠ `MECHANICS.MD` | engine | Repro + `FORK_MAP` | `fork.test.ts` + Policy B inventory note |
 | P2 | DATA-09 | Restore Bug Maniac Jeffrey's two lost Vivillon (indices 789, 790) | engine | — | Requires a decision on importing community-sourced party values; gap declared and gated meanwhile |
 | P2 | ENC-01 | Import the ~69 optional route trainers absent from the run map | engine | DATA-09 | Same decision; `encounters.COVERAGE` declares the gap today |
-| P2 | UI-P1 | Surface the planner in the browser as a first-class mode | UI | PLAT-09 | A player can pick a fight and see the prediction without curl |
+| P2 | UI-P1 | ~~Surface the planner in the browser as a first-class mode~~ **Done** — `#runbun-planner`, browser-tested | UI | PLAT-09 | A player can pick a fight and see the prediction without curl |
 | P2 | EXP-01 | ~~Deeper Explain: side-by-side doc cite vs reasons / ActionFacts~~ **Done** | UI | Explain MVP; FIX-02 strongly preferred | One scored action shows matching doc section + machine facts together |
 | P2 | EXP-02 | ~~Citation map audit for top score-reason phrases~~ **Done** | docs | EXP-01 or Explain MVP | Gaps filled for high-traffic reason keywords |
 | P2 | UI-V3 | ~~Battle field polish: active cards, summary chips, forced banner, mobile JSON collapse~~ **Done** (cards + chips + collapsible JSON; forced banner retained) | UI | UI-V2 | Singles viewer reads as match UI; still thin client |
@@ -117,6 +117,7 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Game profiles (`profiles/`) | **Shipped** — R&B declarative, provenance tagged per claim (10 verified / 8 transcribed, gated) |
 | Fight planner (`planner.js`) | **Shipped** — run map + team → ranked opponent actions with a decision margin |
 | Planner HTTP API | **Shipped** — `/planner/fights`, `/upcoming`, `/fight`, `/predict` |
+| Fight Planner UI | **Shipped** — `#runbun-planner` mode; browser-tested end to end |
 | HTTP AI API (`server.js`) | **Shipped** — choose / evaluate / validate / derive / apply / advance / order |
 | Root validation gate (`npm test`) | **Green path** — calc → AI → build → `test:server` → UI lint |
 | Upstream audit (`npm run test:upstream`) | **Policy B** — intentional fails (~75/63); not part of root gate |
@@ -127,7 +128,7 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Deeper Explain (EXP-01/02) | **Shipped** — side-by-side engine ↔ policy doc; citation map audit |
 | Singles Battle turn viewer | **Shipped (MVP)** (`#runbun-battle`) |
 | Replay scrubber (RPL-01) | **Shipped (MVP)** (`#runbun-replay`, `fixtures/ui/replays/`) |
-| Browser UI smoke | **Not automated** — no browser harness exists in the repo. `browser_calc_load.test.js` gates that the calculator loads and is callable in the page's script environment; everything above that (panels, nav, rendering) is unverified |
+| Browser UI smoke | **Partially automated** — `browser_calc_load.test.js` gates the calculator's load path, and `browser_planner.test.js` drives the shipped page in Chromium end to end for the Fight Planner. Other panels (AI Debug, Battle, Replay, Sets) are still unverified in a browser |
 | Accuracy: Wonder Skin / Illuminate (+ Mold Breaker path) | **Shipped** |
 | `secondaryRolls` / derive-resolution smoke | **Shipped** (HTTP smoke asserts trace) |
 | R&B branding + Gen 8 default | **Shipped** |

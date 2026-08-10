@@ -49,6 +49,7 @@
                 <a class="rb-mode-tab" role="tab" id="rb-tab-sets" href="#sets-bridge" aria-controls="sets-bridge" aria-selected="false" tabindex="-1">Sets / Bridge</a>
                 <a class="rb-mode-tab" role="tab" id="rb-tab-ai-debug" href="#ai-panel" aria-controls="ai-panel" aria-selected="false" tabindex="-1">AI Debug</a>
                 <a class="rb-mode-tab" role="tab" id="rb-tab-battle" href="#runbun-battle" aria-controls="runbun-battle" aria-selected="false" tabindex="-1">Singles Battle</a>
+                <a class="rb-mode-tab" role="tab" id="rb-tab-planner" href="#runbun-planner" aria-controls="runbun-planner" aria-selected="false" tabindex="-1">Fight Planner</a>
                 <a class="rb-mode-tab" role="tab" id="rb-tab-replay" href="#runbun-replay" aria-controls="runbun-replay" aria-selected="false" tabindex="-1">Replay</a>
             </div>
         </nav>
@@ -1937,6 +1938,7 @@
     <script type="text/javascript" src="./js/replay_trace.js?"></script>
     <script type="text/javascript" src="./js/battle_turn_viewer.js?"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?"></script>
+    <script type="text/javascript" src="./js/planner_panel.js?"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?"></script>
 </div>
 
@@ -2151,6 +2153,43 @@
         <a class="btn btn-wide rb-btn-ghost" href="#runbun-replay">Open Replay</a>
     </div>
     <div id="runbun-battle-status" class="runbun-battle-status" role="status" aria-live="polite" aria-atomic="true"></div>
+</section>
+
+<section id="runbun-planner" class="runbun-planner rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-planner" tabindex="-1" aria-label="Run and Bun Fight Planner">
+    <h2 class="runbun-planner-title" id="runbun-planner-heading">Fight Planner</h2>
+    <p class="runbun-planner-help">
+        Pick the trainer you are about to fight, enter the team you are bringing, and see
+        what the Run &amp; Bun AI is expected to do. Fights come from the authored run map
+        in playthrough order. Scores come from the AI policy; a narrow margin means the
+        opponent's move is close to a coin flip and the plan has to survive both.
+        This is a thin client over <code>/planner/*</code> — start the local server first.
+    </p>
+    <div id="runbun-planner-coverage" class="runbun-planner-coverage" role="note"></div>
+    <div class="runbun-planner-controls">
+        <div class="ai-panel-toolbar-label">Fight</div>
+        <button type="button" id="runbun-planner-load" class="btn btn-wide rb-btn-primary">Load run map</button>
+        <button type="button" id="runbun-planner-prev" class="btn btn-wide rb-btn-secondary">Previous</button>
+        <label class="runbun-planner-select-label" for="runbun-planner-trainer">Trainer
+            <select id="runbun-planner-trainer" class="runbun-planner-select"></select>
+        </label>
+        <button type="button" id="runbun-planner-next" class="btn btn-wide rb-btn-secondary">Next</button>
+    </div>
+    <div class="runbun-planner-columns">
+        <div class="runbun-planner-column">
+            <div class="runbun-planner-section-label" id="runbun-planner-party-heading">Their party</div>
+            <ul id="runbun-planner-party" class="runbun-planner-party" aria-labelledby="runbun-planner-party-heading"></ul>
+        </div>
+        <div class="runbun-planner-column">
+            <label class="runbun-planner-section-label" for="runbun-planner-team">Your team — one per line, as <code>Species (Set Label)</code></label>
+            <textarea id="runbun-planner-team" class="runbun-planner-team" rows="6" spellcheck="false"
+                placeholder="Azumarill (Leader Norman)&#10;Gyarados (Rich Boy Dawson)"></textarea>
+            <button type="button" id="runbun-planner-predict" class="btn btn-wide rb-btn-primary">Predict their turn</button>
+        </div>
+    </div>
+    <div id="runbun-planner-verdict" class="runbun-planner-verdict" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div class="runbun-planner-section-label" id="runbun-planner-actions-heading">Ranked opponent actions</div>
+    <div id="runbun-planner-actions" class="runbun-planner-actions" role="list" aria-labelledby="runbun-planner-actions-heading"></div>
+    <div id="runbun-planner-status" class="runbun-planner-status" role="status" aria-live="polite" aria-atomic="true"></div>
 </section>
 
 <section id="runbun-replay" class="runbun-replay rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-replay" tabindex="-1" aria-label="Run and Bun Replay Scrubber">

@@ -1779,3 +1779,143 @@ table.field {
     white-space: pre-wrap;
     word-break: break-word;
 }
+/* Fight planner (#runbun-planner) — UI-P1 */
+#runbun-planner.runbun-planner {
+	display: grid;
+	gap: var(--rb-space-md);
+}
+#runbun-planner .runbun-planner-title {
+	font-family: var(--rb-font-brand);
+	color: var(--rb-brand);
+	margin: 0;
+}
+#runbun-planner .runbun-planner-help {
+	color: var(--rb-ink-muted);
+	margin: 0;
+	max-width: 76ch;
+}
+/* The coverage note is warned, not muted: it states what the run map does not
+   contain, and a player should not have to go looking for that. */
+#runbun-planner .runbun-planner-coverage:not(:empty) {
+	border-left: 3px solid var(--rb-warn);
+	background: var(--rb-warn-soft);
+	color: var(--rb-ink);
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-radius: var(--rb-radius-control);
+}
+#runbun-planner .runbun-planner-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: var(--rb-space-sm);
+}
+#runbun-planner .runbun-planner-select-label {
+	display: grid;
+	gap: var(--rb-space-xs);
+	color: var(--rb-ink-muted);
+	flex: 1 1 22rem;
+}
+#runbun-planner .runbun-planner-select {
+	width: 100%;
+	font-family: var(--rb-font-mono);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-columns {
+	display: grid;
+	gap: var(--rb-space-md);
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+#runbun-planner .runbun-planner-section-label {
+	font-family: var(--rb-font-brand);
+	color: var(--rb-ink-muted);
+	margin-bottom: var(--rb-space-xs);
+	display: block;
+}
+#runbun-planner .runbun-planner-party {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: var(--rb-space-xs);
+}
+#runbun-planner .runbun-planner-mon {
+	display: grid;
+	gap: 2px;
+	padding: var(--rb-space-sm);
+	background: var(--rb-surface-sunken);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+}
+#runbun-planner .runbun-planner-mon-name {
+	font-family: var(--rb-font-brand);
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-mon-kit,
+#runbun-planner .runbun-planner-mon-moves {
+	color: var(--rb-ink-muted);
+	font-size: 0.9em;
+}
+#runbun-planner .runbun-planner-team {
+	width: 100%;
+	font-family: var(--rb-font-mono);
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	margin-bottom: var(--rb-space-sm);
+}
+/* The verdict is the answer the player came for, so it reads louder than the
+   list beneath it — and contested is coloured differently from decided because
+   they call for different preparation. */
+#runbun-planner .runbun-planner-verdict:not(:empty) {
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-radius: var(--rb-radius-control);
+	border: 1px solid var(--rb-stroke-strong);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	font-family: var(--rb-font-brand);
+}
+#runbun-planner .runbun-planner-verdict[data-confidence="contested"] {
+	border-color: var(--rb-warn);
+	background: var(--rb-warn-soft);
+}
+#runbun-planner .runbun-planner-verdict[data-confidence="decided"] {
+	border-color: var(--rb-oracle);
+	background: var(--rb-oracle-soft);
+}
+#runbun-planner .runbun-planner-actions {
+	display: grid;
+	gap: var(--rb-space-xs);
+}
+#runbun-planner .runbun-planner-action {
+	display: grid;
+	grid-template-columns: 5rem 1fr;
+	gap: var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface);
+}
+#runbun-planner .runbun-planner-action.is-top {
+	border-color: var(--rb-brand);
+	background: var(--rb-brand-soft);
+}
+#runbun-planner .runbun-planner-action-score {
+	font-family: var(--rb-font-mono);
+	text-align: right;
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-action-label {
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-status[data-kind="error"] {
+	color: var(--rb-danger);
+}
+#runbun-planner .runbun-planner-status[data-kind="ok"] {
+	color: var(--rb-ink-muted);
+}
