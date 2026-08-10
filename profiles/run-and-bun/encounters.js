@@ -135,4 +135,22 @@ const KNOWN_GAPS = {
 	note: 'two of three Vivillon lost to a [species][label] key collision',
 };
 
-module.exports = {GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE};
+/**
+ * Which battles are story milestones, as a filter over trainer names.
+ *
+ * This is a VIEW, not a value claim: it asserts nothing about the game beyond
+ * the naming convention the run map already uses ("Leader Brawly", "Elite Four
+ * Sidney"). A consumer walking all 362 battles gets a wall of route filler; a
+ * consumer walking the milestones gets the shape of a playthrough.
+ *
+ * Kept in the profile rather than in the tool that uses it because the
+ * convention is the game's, not the tool's — another game names its majors
+ * differently and declares its own pattern here.
+ *
+ * `Double` variants of Elite Four members are the same trainer fought a second
+ * time in the double-battle branch, so they are milestones too.
+ */
+const MILESTONE_PATTERN =
+	/^(Leader |Elite Four |Champion |Trainer Rival |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven )/;
+
+module.exports = {GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE, MILESTONE_PATTERN};

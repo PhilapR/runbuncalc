@@ -67,6 +67,7 @@ declared, gated gap (see DATA-09/ENC-01) or platform work for a second game.
 | P2 | DATA-09 | Restore Bug Maniac Jeffrey's two lost Vivillon (indices 789, 790) | engine | — | Requires a decision on importing community-sourced party values; gap declared and gated meanwhile |
 | P2 | ENC-01 | Import the ~69 optional route trainers absent from the run map | engine | DATA-09 | Same decision; `encounters.COVERAGE` declares the gap today |
 | P2 | UI-P1 | ~~Surface the planner in the browser as a first-class mode~~ **Done** — `#runbun-planner`, browser-tested | UI | PLAT-09 | A player can pick a fight and see the prediction without curl |
+| P2 | PLAT-11 | ~~Simulate a run: walk a team through a stretch of the map~~ **Done** (`simulate.js`, `npm run simulate`) | engine | PLAT-06 | One row per fight plus an aggregate — which fights are coin flips, where the team is under-levelled |
 | P2 | EXP-01 | ~~Deeper Explain: side-by-side doc cite vs reasons / ActionFacts~~ **Done** | UI | Explain MVP; FIX-02 strongly preferred | One scored action shows matching doc section + machine facts together |
 | P2 | EXP-02 | ~~Citation map audit for top score-reason phrases~~ **Done** | docs | EXP-01 or Explain MVP | Gaps filled for high-traffic reason keywords |
 | P2 | UI-V3 | ~~Battle field polish: active cards, summary chips, forced banner, mobile JSON collapse~~ **Done** (cards + chips + collapsible JSON; forced banner retained) | UI | UI-V2 | Singles viewer reads as match UI; still thin client |
@@ -118,6 +119,7 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Fight planner (`planner.js`) | **Shipped** — run map + team → ranked opponent actions with a decision margin |
 | Planner HTTP API | **Shipped** — `/planner/fights`, `/upcoming`, `/fight`, `/predict` |
 | Fight Planner UI | **Shipped** — `#runbun-planner` mode; browser-tested end to end |
+| Run simulation (`simulate.js`) | **Shipped** — `npm run simulate -- --team "…" --milestones` walks the 34-fight spine; reports coin flips and level deltas |
 | HTTP AI API (`server.js`) | **Shipped** — choose / evaluate / validate / derive / apply / advance / order |
 | Root validation gate (`npm test`) | **Green path** — calc → AI → build → `test:server` → UI lint |
 | Upstream audit (`npm run test:upstream`) | **Policy B** — intentional fails (~75/63); not part of root gate |
