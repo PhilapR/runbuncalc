@@ -1570,8 +1570,13 @@ function getTrainerOrder() {
 	var all_poks = SETDEX_SS;
 	for (var pok_name in all_poks) {
 		var poks = all_poks[pok_name];
-		for (var trainer in poks) {
-			var idx = poks[trainer].index;
+		for (var label in poks) {
+			// A party can hold more than one of the same species. Those entries need
+			// distinct keys, so they carry an explicit `trainer` naming the trainer
+			// they belong to. Group on that, or the wheel shows one navigation stop
+			// per entry instead of per trainer and "next" re-renders the same party.
+			var trainer = poks[label].trainer || label;
+			var idx = poks[label].index;
 			if (byName[trainer] == null || idx < byName[trainer].minIndex) {
 				byName[trainer] = {
 					name: trainer,

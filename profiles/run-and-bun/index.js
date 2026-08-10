@@ -10,21 +10,20 @@
  * for the layering model.
  *
  * Layers filled today:
- *   data       — species / item deltas (this file's `data`)
+ *   data       — species / item deltas
  *   mechanics  — declared, and cross-referenced to where each rule lives
+ *   encounters — shape and invariants of the authored trainer run map
  *
  * Layers not yet filled:
  *   policy     — the Run & Bun AI scoring model still lives in `ai/src/scoring.ts`
- *   encounters — the ~362 authored trainer parties still live in
- *                `src/js/data/sets/gen8.js`
  *
- * Both are real content that belongs here eventually. They are listed as absent
- * rather than quietly omitted, because a profile that looks complete when it is
- * not is worse than one that states its own edges.
+ * It is listed as absent rather than quietly omitted, because a profile that
+ * looks complete when it is not is worse than one that states its own edges.
  */
 
 const defineProfile = require('../profile.js').defineProfile;
 const data = require('./data.js');
+const encounters = require('./encounters.js');
 
 module.exports = defineProfile({
 	id: 'run-and-bun',
@@ -36,6 +35,7 @@ module.exports = defineProfile({
 	baseGeneration: 8,
 
 	data,
+	encounters,
 
 	/**
    * Rule deltas against stock Generation 8.
@@ -73,6 +73,10 @@ module.exports = defineProfile({
 		'data.NOT_FULLY_EVOLVED': 'source-of-truth',
 		'data.PORTED_SPECIES': 'source-of-truth',
 		'data.REMOVED_ITEMS': 'source-of-truth',
+		// The trainer parties are authored Run & Bun content with no upstream
+		// equivalent, so no external source can corroborate them. They came from
+		// the community-maintained calculator lineage this fork descends from.
+		'encounters.INVARIANTS': 'transcribed',
 		'mechanics.criticalHitMultiplier': 'transcribed',
 		'mechanics.magmaArmorBlocksCriticalHits': 'transcribed',
 		'mechanics.galeWingsRequiresFullHp': 'transcribed',

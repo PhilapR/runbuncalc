@@ -80,6 +80,73 @@ test('Run & Bun trainer sets carry the party index the Trainer Wheel relies on',
 	);
 });
 
+test('the run map matches the profile\'s declared encounter invariants', () => {
+	const encounters = require('./profiles').getProfile('run-and-bun').encounters;
+	const setdex = loadSetdex(GEN8_SETS, 'SETDEX_SS');
+
+	const labels = new Set();
+	const trainers = new Set();
+	let duplicates = 0;
+	for (const species of Object.keys(setdex)) {
+		for (const label of Object.keys(setdex[species])) {
+			const entry = setdex[species][label];
+			labels.add(label);
+			trainers.add(entry.trainer || label);
+			if (entry.trainer) duplicates++;
+		}
+	}
+
+	assert.equal(trainers.size, encounters.INVARIANTS.trainerCount, 'distinct trainer count');
+	assert.equal(labels.size, encounters.INVARIANTS.labelCount, 'raw entry key count');
+	assert.equal(duplicates, encounters.INVARIANTS.duplicateEntries, 'duplicate-species entries');
+});
+
+test('no entry key encodes meaning in whitespace', () => {
+	// Duplicate-species entries were once keyed by prefixing the trainer name with
+	// spaces. Nothing declared that convention, and `getTrainerOrder` grouped on
+	// the raw key, so the Trainer Wheel produced one navigation stop per entry
+	// instead of per trainer and "next" re-rendered an identical party. Duplicates
+	// now carry an explicit `trainer` field instead.
+	const setdex = loadSetdex(GEN8_SETS, 'SETDEX_SS');
+	const whitespaceKeyed = [];
+	for (const species of Object.keys(setdex)) {
+		for (const label of Object.keys(setdex[species])) {
+			if (label !== label.trim()) whitespaceKeyed.push(`${species}: ${JSON.stringify(label)}`);
+		}
+	}
+	assert.deepEqual(
+		whitespaceKeyed,
+		[],
+		'entry keys must not depend on leading or trailing whitespace; ' +
+		'give the entry an explicit `trainer` field instead:\n  ' + whitespaceKeyed.join('\n  ')
+	);
+});
+
+test('every duplicate-species entry names a trainer that exists on its own', () => {
+	const setdex = loadSetdex(GEN8_SETS, 'SETDEX_SS');
+	const labels = new Set();
+	const duplicates = [];
+	for (const species of Object.keys(setdex)) {
+		for (const label of Object.keys(setdex[species])) {
+			labels.add(label);
+			const entry = setdex[species][label];
+			if (entry.trainer) duplicates.push({label, trainer: entry.trainer, copy: entry.copy});
+		}
+	}
+	for (const dup of duplicates) {
+		// A duplicate is an extra copy of a species in a party that already exists,
+		// so the trainer it points at must be a real entry key somewhere.
+		assert.ok(
+			labels.has(dup.trainer),
+			`${JSON.stringify(dup.label)} names trainer ${JSON.stringify(dup.trainer)}, which is not an entry key`
+		);
+		assert.ok(
+			typeof dup.copy === 'number' && dup.copy >= 2,
+			`${JSON.stringify(dup.label)} must carry a copy ordinal of 2 or more, got ${dup.copy}`
+		);
+	}
+});
+
 test('the trainer progression index is a dense, globally unique ordering', () => {
 	const setdex = loadSetdex(GEN8_SETS, 'SETDEX_SS');
 	const indices = [];
