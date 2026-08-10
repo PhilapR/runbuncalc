@@ -37,6 +37,21 @@ module.exports = defineProfile({
 	// investigation confirmed it ports no Generation 9 content.
 	baseGeneration: 8,
 
+	/**
+	 * The game release this profile describes.
+	 *
+	 * 1.07 is the final version — the hack is finished, and any further release
+	 * would be small bug fixes rather than content. That makes the ROM-verified
+	 * layers durable rather than a snapshot: species, ability slots, and the move
+	 * overlay were checked against the author's own data and will not silently
+	 * fall out of date.
+	 *
+	 * Pinned anyway, because "verified against the author's data" is only a
+	 * meaningful claim if the version that data describes is named.
+	 */
+	gameVersion: '1.07',
+	gameVersionIsFinal: true,
+
 	data,
 	encounters,
 	policy,

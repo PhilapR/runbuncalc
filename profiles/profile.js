@@ -32,6 +32,13 @@ function defineProfile(profile) {
 	if (!id || typeof id !== 'string') fail(id, 'must declare a string id');
 	if (!profile.name) fail(id, 'must declare a display name');
 
+	// A profile that names no game version cannot make a meaningful
+	// "verified against the author's data" claim: the claim is only as precise
+	// as the release it refers to.
+	if (profile.gameVersion !== undefined && typeof profile.gameVersion !== 'string') {
+		fail(id, 'gameVersion must be a string when present');
+	}
+
 	const base = profile.baseGeneration;
 	if (!Number.isInteger(base) || base < 1 || base > 9) {
 		fail(id, `baseGeneration must be a generation number, got ${JSON.stringify(base)}`);

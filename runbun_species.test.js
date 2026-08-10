@@ -173,6 +173,43 @@ test('the Run & Bun ability-slot overlay is intact', () => {
 	assert.equal(species['Buneary'].abilities[0], 'Cute Charm');
 });
 
+test('the profile names the game version its verification refers to', () => {
+	// Run & Bun 1.07 is the final release, so the ROM-verified layers are durable
+	// rather than a snapshot. That is only a meaningful claim if the version is
+	// named: "verified against the author's data" says nothing without it.
+	assert.equal(profile.gameVersion, '1.07');
+	assert.equal(profile.gameVersionIsFinal, true);
+});
+
+test('verified claims outnumber unverified ones, and do not regress', () => {
+	// The honest measure of this project is how much of it is KNOWN versus
+	// BELIEVED. Counting it by hand each time invites drift and flattery, so it
+	// is asserted: a claim may only move toward source-of-truth or observed, and
+	// the ratio may not fall.
+	//
+	// Floors, not exact counts — adding a well-evidenced claim should not fail
+	// the build, but quietly downgrading evidence should.
+	const counts = {};
+	for (const key of Object.keys(profile.provenance)) {
+		const tag = profile.provenance[key];
+		counts[tag] = (counts[tag] || 0) + 1;
+	}
+	const verified = (counts['source-of-truth'] || 0) + (counts['observed'] || 0);
+	const unverified = (counts['transcribed'] || 0) + (counts['inferred'] || 0);
+
+	assert.ok(
+		verified >= 10,
+		`verified claims fell to ${verified}; they were 10 when this floor was set. ` +
+		'Something was downgraded, or a claim lost its citation.'
+	);
+	assert.ok(
+		verified > unverified,
+		`more claims are unverified (${unverified}) than verified (${verified}); ` +
+		'the project should be moving the other way'
+	);
+	assert.equal(counts['inferred'] || 0, 0, 'no claim should rest on our own unchecked inference');
+});
+
 test('every profile claim carries a provenance tag', () => {
 	// Untagged claims default to `inferred`, the weakest tag. This asserts the
 	// data layer is actually backed by the source of truth rather than silently
