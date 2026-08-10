@@ -138,8 +138,16 @@ const CANONICAL_FALLBACK_MIN_GENERATION: Record<string, GenerationNum> = {
   electroshot: 9,
 };
 
-// These are the accuracy changes in MOVE_CHANGES.MD. They are kept as a
-// versioned overlay instead of reading the parent markdown file at runtime.
+// Run & Bun accuracy changes.
+//
+// Originally transcribed from the community MOVE_CHANGES document. Since
+// verified entry by entry against `dekzeh/runandbundex`, the hack author's own
+// pokeemerald-format data dump, which carries per-move `.accuracy` and `.pp` —
+// the game's numbers rather than a description of them. All 166 entries across
+// this table, CUSTOM_BASE_POWER and CUSTOM_MAX_PP agreed.
+//
+// `profiles/run-and-bun/data.js` seals the entry counts so a new entry cannot
+// inherit that confidence without being checked too.
 const CUSTOM_ACCURACY: Record<string, number> = {
   aeroblast: 100, aircutter: 100, airslash: 100, aquatail: 95, barrage: 100,
   belch: 100, bind: 100, blazekick: 100, blizzard: 80, blueflare: 90,

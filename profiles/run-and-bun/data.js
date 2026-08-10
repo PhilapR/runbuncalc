@@ -75,4 +75,36 @@ const PORTED_SPECIES = {
 /** Items upstream Gen 8 has that Run & Bun does not. */
 const REMOVED_ITEMS = ['Energy Powder'];
 
-module.exports = {BASE_STAT_CHANGES, NOT_FULLY_EVOLVED, PORTED_SPECIES, REMOVED_ITEMS};
+/**
+ * Seal on the Run & Bun move overlay in `ai/src/move-metadata.ts`.
+ *
+ * Those tables were long the least verifiable thing in the project: the
+ * calculator's move data carries no accuracy or PP field, so nothing internal
+ * could check them, and they were transcribed from a community document nobody
+ * here has read.
+ *
+ * They are now verified. `dekzeh/runandbundex` is a pokeemerald-format data
+ * dump published by the hack's author, carrying `.power`, `.accuracy` and `.pp`
+ * per move — the game's own numbers rather than a description of them. All 166
+ * overlay entries were compared against it and every one agreed.
+ *
+ * The counts below are the seal. Adding an overlay entry changes a count and
+ * fails the gate, which forces the new entry to be verified rather than
+ * inheriting the confidence of the ones already checked.
+ */
+const MOVE_OVERLAY = {
+	accuracyChanges: 136,
+	basePowerChanges: 9,
+	maxPpChanges: 21,
+	/** Entries compared against the author's ROM data, all in agreement. */
+	verifiedEntries: 166,
+	verifiedAgainst: 'github.com/dekzeh/runandbundex — moves/battle_moves.h',
+};
+
+module.exports = {
+	BASE_STAT_CHANGES,
+	NOT_FULLY_EVOLVED,
+	PORTED_SPECIES,
+	REMOVED_ITEMS,
+	MOVE_OVERLAY,
+};

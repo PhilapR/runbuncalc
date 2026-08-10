@@ -112,6 +112,43 @@ test('items the profile removes stay absent', () => {
 	assert.deepEqual(present, [], `items removed by Run & Bun are back: ${present.join(', ')}`);
 });
 
+test('the move overlay still matches the size it was verified at', () => {
+	// All 166 entries of the Run & Bun move overlay were compared against
+	// `dekzeh/runandbundex` — the author's own ROM data dump, which unlike his
+	// calculator carries per-move accuracy and PP — and every one agreed.
+	//
+	// Nothing in the repository can re-run that comparison offline, so the
+	// counts are the seal. Adding, removing, or renaming an overlay entry moves
+	// a count and fails here, which forces the change to be verified against the
+	// ROM data rather than inheriting the confidence of the entries already
+	// checked. Re-verify, then update the profile deliberately.
+	const fs = require('node:fs');
+	const source = fs.readFileSync(require('node:path').join(__dirname, 'ai', 'src', 'move-metadata.ts'), 'utf8');
+
+	function tableSize(name) {
+		const match = source.match(new RegExp('const ' + name + '[^{]*\\{([\\s\\S]*?)\\n\\};'));
+		assert.ok(match, `${name} not found in ai/src/move-metadata.ts`);
+		return Object.keys(Object.fromEntries(
+			Array.from(match[1].matchAll(/([a-z0-9]+)\s*:\s*(-?\d+)/g)).map(m => [m[1], m[2]])
+		)).length;
+	}
+
+	const overlay = profile.data.MOVE_OVERLAY;
+	const accuracy = tableSize('CUSTOM_ACCURACY');
+	const basePower = tableSize('CUSTOM_BASE_POWER');
+	const maxPp = tableSize('CUSTOM_MAX_PP');
+
+	assert.equal(accuracy, overlay.accuracyChanges, 'CUSTOM_ACCURACY entry count');
+	assert.equal(basePower, overlay.basePowerChanges, 'CUSTOM_BASE_POWER entry count');
+	assert.equal(maxPp, overlay.maxPpChanges, 'CUSTOM_MAX_PP entry count');
+	assert.equal(
+		accuracy + basePower + maxPp,
+		overlay.verifiedEntries,
+		`the overlay holds ${accuracy + basePower + maxPp} entries but ${overlay.verifiedEntries} were verified ` +
+		`against ${overlay.verifiedAgainst}`
+	);
+});
+
 test('every profile claim carries a provenance tag', () => {
 	// Untagged claims default to `inferred`, the weakest tag. This asserts the
 	// data layer is actually backed by the source of truth rather than silently

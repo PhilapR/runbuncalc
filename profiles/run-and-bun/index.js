@@ -77,6 +77,9 @@ module.exports = defineProfile({
 		'data.NOT_FULLY_EVOLVED': 'source-of-truth',
 		'data.PORTED_SPECIES': 'source-of-truth',
 		'data.REMOVED_ITEMS': 'source-of-truth',
+		// The move overlay (accuracy / base power / PP) was verified entry by entry
+		// against the author's own ROM data dump: 166 checked, 166 in agreement.
+		'data.MOVE_OVERLAY': 'source-of-truth',
 		// The trainer parties are authored Run & Bun content with no upstream
 		// equivalent, so no external source can corroborate them. They came from
 		// the community-maintained calculator lineage this fork descends from.
@@ -96,6 +99,10 @@ module.exports = defineProfile({
 
 	sources: {
 		'source-of-truth': 'https://github.com/dekzeh/calc',
+		// The author's pokeemerald-format data dump. Unlike the calculator, it
+		// carries per-move accuracy and PP, which is what made the move overlay
+		// verifiable at all.
+		'source-of-truth-rom-data': 'https://github.com/dekzeh/runandbundex',
 		corroboration: 'https://github.com/SylmarDev/syl-rnb-calc',
 	},
 });
