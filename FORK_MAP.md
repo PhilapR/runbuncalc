@@ -42,7 +42,7 @@ The current intentional deltas are. This table was reconciled against a pristine
 | Move data | Super Fang is Dark-type; Covet is Fairy-type | `calc/src/data/moves.ts`; `fork.test.ts`; `ai/src/test/runbun-data.test.ts` |
 | Move data | Misty Explosion is 200 base power (upstream Gen 8 is 100) | `calc/src/data/moves.ts`; `fork.test.ts`; `ai/src/test/runbun-data.test.ts` |
 | Move data | Base power changes: Absorb 40, Astonish 40, Charge Beam 40, Lick 40, Mega Drain 60, Octazooka 80 | `calc/src/data/moves.ts`; `ai/src/test/runbun-data.test.ts` |
-| Species data | Azumarill has 65 base Attack and 90 base Sp. Atk; Diggersby has 71 base Attack | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Species data | Run & Bun buffs the Azumarill line: Marill 35 Atk / 35 Sp. Atk, Azumarill 65 Atk / 90 Sp. Atk; Diggersby has 71 base Attack | `calc/src/data/species.ts`; `runbun_species.test.js` |
 | Species data | Stantler and Ursaring are not fully evolved (they gain Legends: Arceus evolutions) | `calc/src/data/species.ts`; `runbun_species.test.js` |
 | Species data | 30 species absent from upstream Gen 8 are present: Hisuian forms, Legends: Arceus additions, and the Run & Bun original **Saharascal** | `calc/src/data/species.ts`; `runbun_species.test.js` |
 | Item data | Energy Powder is removed | `calc/src/data/items.ts`; `runbun_species.test.js` |

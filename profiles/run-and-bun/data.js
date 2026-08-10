@@ -4,11 +4,16 @@
 /**
  * Run & Bun — species and content deltas against Generation 8.
  *
- * Values here were reconciled one time against `dekzeh/calc`, the hack author's
- * own calculator, and independently corroborated against `SylmarDev/syl-rnb-calc`
- * where the two overlap. That reconciliation is complete: `calc/src/data/`
- * species, items and abilities are byte-identical to the author's data, and
- * moves differ only by this fork's own documented additions.
+ * Values here are reconciled against `dekzeh/runandbundex`, the hack author's own
+ * pokeemerald-format ROM data dump — the game's numbers rather than a
+ * description of them. All 1006 Generation 8 species whose names map cleanly
+ * were compared against `species/base_stats.h` and every one agreed.
+ *
+ * That check is stronger than the earlier one against `dekzeh/calc`, and it
+ * caught two errors the calculator comparison could not: Marill kept vanilla
+ * 20/20 offences when Run & Bun buffs the whole Azumarill line to 35/35, and
+ * Kleavor was ported in with 130 Attack / 75 Sp. Def against the ROM's 135/70.
+ * The calculator agreed with us on both, so only the ROM data could settle them.
  *
  * This file is the DECLARATION of those deltas, not a copy kept in sync. It is
  * authored, not generated — regenerating it from `calc/src/data/` would make it
@@ -19,6 +24,8 @@
 
 /** Species that exist upstream but whose stats Run & Bun changes. */
 const BASE_STAT_CHANGES = {
+	// Run & Bun buffs the whole Azumarill line, not just the evolution.
+	Marill: {at: 35, sa: 35},
 	Azumarill: {at: 65, sa: 90},
 	Diggersby: {at: 71},
 };
@@ -54,7 +61,7 @@ const PORTED_SPECIES = {
 	'Floette-Eternal': {types: ['Fairy'], bs: {hp: 74, at: 65, df: 67, sa: 125, sd: 128, sp: 92}, ability: 'Flower Veil'},
 	'Goodra-Hisui': {types: ['Steel', 'Dragon'], bs: {hp: 80, at: 100, df: 100, sa: 110, sd: 150, sp: 60}, ability: 'Sap Sipper'},
 	'Growlithe-Hisui': {types: ['Fire', 'Rock'], bs: {hp: 60, at: 75, df: 45, sa: 65, sd: 50, sp: 55}, ability: 'Intimidate', nfe: true},
-	'Kleavor': {types: ['Bug', 'Rock'], bs: {hp: 70, at: 130, df: 95, sa: 45, sd: 75, sp: 85}, ability: 'Swarm'},
+	'Kleavor': {types: ['Bug', 'Rock'], bs: {hp: 70, at: 135, df: 95, sa: 45, sd: 70, sp: 85}, ability: 'Swarm'},
 	'Lilligant-Hisui': {types: ['Grass', 'Fighting'], bs: {hp: 70, at: 105, df: 75, sa: 50, sd: 75, sp: 105}, ability: 'Chlorophyll'},
 	'Overqwil': {types: ['Dark', 'Poison'], bs: {hp: 85, at: 115, df: 95, sa: 65, sd: 65, sp: 85}, ability: 'Poison Point'},
 	'Palkia-Origin': {types: ['Water', 'Dragon'], bs: {hp: 90, at: 100, df: 100, sa: 150, sd: 120, sp: 120}, ability: 'Pressure'},

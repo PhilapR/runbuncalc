@@ -1179,7 +1179,7 @@ const GSC_PATCH = {
     },
     Marill: {
         types: ['Water'],
-        bs: { hp: 70, at: 20, df: 50, sa: 20, sd: 50, sp: 40 },
+        bs: { hp: 70, at: 35, df: 50, sa: 35, sd: 50, sp: 40 },
         weightkg: 8.5,
         nfe: true,
     },
@@ -8821,7 +8821,7 @@ const PLA_PATCH = {
     },
     Kleavor: {
         types: ['Bug', 'Rock'],
-        bs: { hp: 70, at: 130, df: 95, sa: 45, sd: 75, sp: 85 },
+        bs: { hp: 70, at: 135, df: 95, sa: 45, sd: 70, sp: 85 },
         weightkg: 89,
         abilities: { 0: 'Swarm' },
     },
