@@ -4,6 +4,7 @@ const path = require("path");
 const express = require("express");
 const calc = require("@smogon/calc");
 const ai = require("./ai");
+const planner = require("./planner");
 const app = express();
 
 function startServer(port = 3000) {
@@ -356,6 +357,111 @@ app.post("/ai/order-actions", (req, res, next) => {
 		validateItemRolls(state, payload.itemRollsByPokemon);
 		return res.json({actions: ai.orderActions(state, payload.actions, {itemRollsByPokemon: payload.itemRollsByPokemon})});
 	} catch (error) {
+		next(error);
+	}
+});
+
+// ---------------------------------------------------------------- planner
+//
+// The AI endpoints above all take a caller-supplied BattleState: they answer
+// "given this position, what happens". The planner answers the question a
+// player actually has mid-run — "I am about to fight X with this team" — by
+// building the position from the authored run map itself.
+//
+// Kept thin on purpose. Every one of these delegates to `planner.js`, which
+// delegates to the layers beneath it; the server adds HTTP and nothing else.
+
+app.get("/planner/fights", (req, res, next) => {
+	try {
+		const listed = planner.listFights(req.query.profile);
+		// The coverage caveat travels with the list rather than being available
+		// separately, so a client cannot present the run map as a complete
+		// trainer census without having been told otherwise.
+		return res.json({
+			coverage: listed.coverage,
+			fights: listed.fights.map(fight => ({
+				trainer: fight.trainer,
+				order: fight.order,
+				isDouble: fight.isDouble,
+				partySize: fight.party.length,
+			})),
+		});
+	} catch (error) {
+		next(error);
+	}
+});
+
+app.get("/planner/fight", (req, res, next) => {
+	try {
+		if (!req.query.trainer) {
+			return res.status(400).json({error: "trainer is required"});
+		}
+		return res.json({fight: planner.getFight(req.query.trainer, req.query.profile)});
+	} catch (error) {
+		// An unknown trainer is a client mistake, not a server fault, and the
+		// planner's message already carries the near-misses worth showing.
+		return res.status(400).json({error: error.message, code: "UnknownTrainer"});
+	}
+});
+
+app.get("/planner/upcoming", (req, res, next) => {
+	try {
+		const after = req.query.after === undefined ? undefined : Number(req.query.after);
+		if (after !== undefined && !Number.isFinite(after)) {
+			return res.status(400).json({error: "after must be a number when supplied"});
+		}
+		const count = req.query.count === undefined ? 5 : Number(req.query.count);
+		if (!Number.isInteger(count) || count < 1 || count > 50) {
+			return res.status(400).json({error: "count must be an integer from 1 through 50"});
+		}
+		const fights = planner.upcoming(after, count, req.query.profile).map(fight => ({
+			trainer: fight.trainer,
+			order: fight.order,
+			partySize: fight.party.length,
+		}));
+		return res.json({fights});
+	} catch (error) {
+		next(error);
+	}
+});
+
+app.post("/planner/predict", (req, res, next) => {
+	try {
+		const payload = req.body || {};
+		if (!payload.trainer) {
+			return res.status(400).json({error: "trainer is required"});
+		}
+		if (!Array.isArray(payload.playerParty) || !payload.playerParty.length) {
+			return res.status(400).json({
+				error: "playerParty is required: the planner cannot plan a fight with no team",
+			});
+		}
+		const result = planner.predict({
+			trainer: payload.trainer,
+			playerParty: payload.playerParty,
+			field: payload.field,
+			profileId: payload.profile,
+		});
+		// The state is omitted by default: it is large, and a client asking what
+		// the opponent will do rarely wants the whole position back.
+		return res.json({
+			trainer: result.trainer,
+			order: result.order,
+			confidence: result.confidence,
+			margin: result.margin,
+			actions: result.actions.map(action => ({
+				label: action.label,
+				score: action.score,
+				action: action.action,
+			})),
+			...(payload.includeState ? {state: result.state} : {}),
+		});
+	} catch (error) {
+		// Unknown trainers and unknown sets are client input problems; the
+		// planner's messages name the near-misses or the bad set directly.
+		if (/^no fight named|^Unknown set:|playerParty is required/.test(error.message || "")) {
+			return res.status(400).json({error: error.message, code: "InvalidPlannerRequest"});
+		}
 		next(error);
 	}
 });

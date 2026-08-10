@@ -33,11 +33,20 @@ wants.
 | **L4 — Encounters** | "What does this specific trainer have, and where am I in the run?" | L3 + a profile's `encounters` |
 | **L5 — Planner** | "What line survives this fight?" | L4 + search over L3 |
 
-L5 exists as `planner.js`: it loads the run map in progression order, builds a
-`BattleState` for a named fight from a player's team, and returns the opponent's
-ranked actions with a decision margin. It owns no rules — parties come from the
-run map, damage from the calculator, decisions from the policy — so a wrong
-answer there is a bug in a layer beneath it.
+L5 exists as `planner.js`, reachable over HTTP:
+
+| Endpoint | Answers |
+| --- | --- |
+| `GET /planner/fights` | the whole run map, in order, with its coverage caveat |
+| `GET /planner/upcoming?after=&count=` | what is next from a point in the run |
+| `GET /planner/fight?trainer=` | one trainer's party |
+| `POST /planner/predict` | the opponent's ranked actions and a decision margin |
+
+It owns no rules — parties come from the run map, damage from the calculator,
+decisions from the policy — so a wrong answer there is a bug in a layer beneath
+it. The `/ai/*` endpoints all take a caller-supplied `BattleState` and answer
+"given this position, what happens"; the planner builds the position from the
+run map itself, which is the question a player mid-run actually has.
 
 L0–L1 is a calculator. L3 is an opponent oracle. L4–L5 is a fight planner. The
 same primitives serve a player who wants one number and a tool that wants to

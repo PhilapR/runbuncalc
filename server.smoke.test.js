@@ -36,6 +36,11 @@ async function requestJson(path, body) {
 	return {status: response.status, body: await response.json()};
 }
 
+async function getJson(path) {
+	const response = await fetch(`${baseUrl}${path}`);
+	return {status: response.status, body: await response.json()};
+}
+
 async function requestRaw(path, body) {
 	const response = await fetch(`${baseUrl}${path}`, {
 		method: 'POST',
@@ -541,4 +546,82 @@ test('Replay sample trace is served and each frame validates over HTTP', async (
 	const bad = await requestJson('/ai/validate-battle-state', {state: {generation: 8}});
 	assert.equal(bad.status, 400);
 	assert.match(bad.body.error, /BattleState|sides/i);
+});
+
+test('planner lists the run map and carries its coverage caveat', async () => {
+	const {status, body} = await getJson('/planner/fights');
+	assert.equal(status, 200);
+	assert.equal(body.fights.length, 362);
+	// The caveat travels with the list. A client that only reads `fights` would
+	// otherwise present a progression spine as a complete trainer census.
+	assert.equal(body.coverage.completeTrainerCensus, false);
+	assert.ok(body.coverage.coversMandatoryProgression);
+	assert.equal(body.fights[0].trainer, 'Youngster Calvin');
+});
+
+test('planner reports what is next from a point in the run', async () => {
+	const {status, body} = await getJson('/planner/upcoming?after=0&count=3');
+	assert.equal(status, 200);
+	assert.equal(body.fights.length, 3);
+	assert.equal(body.fights[0].trainer, 'Bug Catcher Rick');
+	for (const fight of body.fights) assert.ok(fight.order > 0);
+});
+
+test('planner rejects a bad count rather than clamping it silently', async () => {
+	const {status, body} = await getJson('/planner/upcoming?count=999');
+	assert.equal(status, 400);
+	assert.match(body.error, /count must be an integer/);
+});
+
+test('an unknown trainer is a client error and suggests the real name', async () => {
+	const {status, body} = await getJson('/planner/fight?trainer=Calvin');
+	assert.equal(status, 400);
+	assert.equal(body.code, 'UnknownTrainer');
+	assert.match(body.error, /did you mean.*Youngster Calvin/s);
+});
+
+test('planner predicts an opponent turn with ranked actions and a margin', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Youngster Calvin',
+		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
+	});
+	assert.equal(status, 200);
+	assert.equal(body.trainer, 'Youngster Calvin');
+	assert.ok(body.actions.length > 1);
+	for (let i = 1; i < body.actions.length; i++) {
+		assert.ok(body.actions[i - 1].score >= body.actions[i].score, 'actions must be ranked');
+	}
+	for (const action of body.actions) {
+		assert.ok(action.label && !/undefined/.test(action.label), `unresolved label: ${action.label}`);
+	}
+	assert.ok(['decided', 'contested', 'only-option'].includes(body.confidence));
+	// The position is large and rarely wanted; it is opt-in.
+	assert.equal(body.state, undefined);
+});
+
+test('planner returns the position only when asked', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Youngster Calvin',
+		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
+		includeState: true,
+	});
+	assert.equal(status, 200);
+	assert.equal(body.state.generation, 8);
+	assert.equal(body.state.sides.ai.party.length, 3);
+});
+
+test('planning without a team is a 400, not a guess', async () => {
+	const {status, body} = await requestJson('/planner/predict', {trainer: 'Youngster Calvin'});
+	assert.equal(status, 400);
+	assert.match(body.error, /playerParty is required/);
+});
+
+test('an unknown set is a client error rather than a 500', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Youngster Calvin',
+		playerParty: [{species: 'Azumarill', setLabel: 'Not A Real Set'}],
+	});
+	assert.equal(status, 400);
+	assert.equal(body.code, 'InvalidPlannerRequest');
+	assert.match(body.error, /Unknown set/);
 });
