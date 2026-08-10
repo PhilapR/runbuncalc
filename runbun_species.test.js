@@ -149,6 +149,30 @@ test('the move overlay still matches the size it was verified at', () => {
 	);
 });
 
+test('the Run & Bun ability-slot overlay is intact', () => {
+	// Run & Bun changes which ability a species leads with. The calculator uses
+	// slot 0 as the default on species selection, so losing this overlay makes it
+	// compute with abilities the game does not grant — silently, since nothing
+	// about the output looks wrong.
+	const fs = require('node:fs');
+	const source = fs.readFileSync(
+		require('node:path').join(__dirname, 'calc', 'src', 'data', 'species.ts'), 'utf8');
+	const match = source.match(/const RUNBUN_ABILITIES[^{]*\{([\s\S]*?)\n\};/);
+	assert.ok(match, 'the RUNBUN_ABILITIES overlay is missing from calc/src/data/species.ts');
+	const entries = Array.from(match[1].matchAll(/abilities: \{0:/g)).length;
+	assert.equal(
+		entries,
+		profile.data.ABILITY_SLOT_CHANGES.speciesChanged,
+		`the ability overlay declares ${profile.data.ABILITY_SLOT_CHANGES.speciesChanged} species ` +
+		`but holds ${entries}; re-verify against ${profile.data.ABILITY_SLOT_CHANGES.verifiedAgainst}`
+	);
+
+	// Spot-check species whose default ability changes damage or field state.
+	assert.equal(species['Tyranitar'].abilities[0], 'Unnerve');
+	assert.equal(species['Diglett'].abilities[0], 'Arena Trap');
+	assert.equal(species['Buneary'].abilities[0], 'Cute Charm');
+});
+
 test('every profile claim carries a provenance tag', () => {
 	// Untagged claims default to `inferred`, the weakest tag. This asserts the
 	// data layer is actually backed by the source of truth rather than silently

@@ -45,6 +45,7 @@ The current intentional deltas are. This table was reconciled against a pristine
 | Species data | Run & Bun buffs the Azumarill line: Marill 35 Atk / 35 Sp. Atk, Azumarill 65 Atk / 90 Sp. Atk; Diggersby has 71 base Attack | `calc/src/data/species.ts`; `runbun_species.test.js` |
 | Species data | Stantler and Ursaring are not fully evolved (they gain Legends: Arceus evolutions) | `calc/src/data/species.ts`; `runbun_species.test.js` |
 | Species data | 30 species absent from upstream Gen 8 are present: Hisuian forms, Legends: Arceus additions, and the Run & Bun original **Saharascal** | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Species data | 125 species lead with a different ability than upstream (Tyranitar Unnerve, Diglett Arena Trap, Ponyta Flame Body, …) — `RUNBUN_ABILITIES` overlay | `calc/src/data/species.ts`; `runbun_species.test.js` |
 | Item data | Energy Powder is removed | `calc/src/data/items.ts`; `runbun_species.test.js` |
 | Descriptions | Damage descriptions use IV values for the displayed stat labels | `calc/src/mechanics/util.ts` and generation mechanics; `fork.test.ts` |
 | Modern terrain | Psychic Terrain uses the fork's modern damage scaling | `calc/src/mechanics/gen56.ts` and `gen789.ts`; `fork.test.ts` |

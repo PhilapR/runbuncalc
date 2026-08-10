@@ -80,6 +80,7 @@ module.exports = defineProfile({
 		// The move overlay (accuracy / base power / PP) was verified entry by entry
 		// against the author's own ROM data dump: 166 checked, 166 in agreement.
 		'data.MOVE_OVERLAY': 'source-of-truth',
+		'data.ABILITY_SLOT_CHANGES': 'source-of-truth',
 		// The trainer parties are authored Run & Bun content with no upstream
 		// equivalent, so no external source can corroborate them. They came from
 		// the community-maintained calculator lineage this fork descends from.
