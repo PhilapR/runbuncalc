@@ -92,8 +92,12 @@ module.exports = defineProfile({
 		'policy.SCORE_ROLL': 'transcribed',
 		'policy.SETUP': 'transcribed',
 		'mechanics.criticalHitMultiplier': 'transcribed',
-		'mechanics.magmaArmorBlocksCriticalHits': 'transcribed',
-		'mechanics.galeWingsRequiresFullHp': 'transcribed',
+		// Corroborated by the author's own in-ROM ability text. Vanilla Magma Armor
+		// reads "Prevents freezing."; Run & Bun's reads "Blocks criticals and
+		// freeze." Vanilla Gale Wings gives Flying priority only at full HP; Run &
+		// Bun's reads "Flying moves go first." with no HP condition.
+		'mechanics.magmaArmorBlocksCriticalHits': 'source-of-truth',
+		'mechanics.galeWingsRequiresFullHp': 'source-of-truth',
 		'mechanics.attractIsGenderIndependent': 'transcribed',
 		'mechanics.psychicTerrainUsesModernScaling': 'transcribed',
 		'mechanics.superFangType': 'source-of-truth',
@@ -106,6 +110,9 @@ module.exports = defineProfile({
 		// carries per-move accuracy and PP, which is what made the move overlay
 		// verifiable at all.
 		'source-of-truth-rom-data': 'https://github.com/dekzeh/runandbundex',
+		// `abilities/abilities.h` in that dump carries the in-game ability text,
+		// which the author edited where he changed an ability's behaviour.
+		'source-of-truth-ability-text': 'https://github.com/dekzeh/runandbundex/blob/main/abilities/abilities.h',
 		corroboration: 'https://github.com/SylmarDev/syl-rnb-calc',
 	},
 });
