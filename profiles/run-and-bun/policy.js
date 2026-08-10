@@ -47,4 +47,15 @@ const SETUP = {
 	incapacitatedBonus: 3,
 };
 
-module.exports = {SCORE_ROLL, SETUP};
+/**
+ * How this policy decides, not just what it decides with.
+ *
+ * Run & Bun scores candidate moves and rolls. Other games script decision trees,
+ * and some use the vanilla AI unchanged — so a consumer must be able to ask what
+ * kind of policy it was handed rather than assuming scoring. Declaring it now
+ * costs a line; retrofitting it once a second game exists means changing every
+ * caller that guessed.
+ */
+const KIND = 'scoring';
+
+module.exports = {KIND, SCORE_ROLL, SETUP};

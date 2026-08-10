@@ -56,8 +56,9 @@ useful profile.
   baseGeneration: 8,        // the generation whose mechanics this game inherits
   data: { ... },            // content deltas vs that generation
   mechanics: { ... },       // rule deltas (optional)
-  policy: { ... },          // AI scoring model (optional)
+  policy: { KIND, ... },    // opponent decision model; KIND says how it decides
   encounters: { ... },      // trainers / run map (optional)
+  // learnsets: { ... },    // not modelled yet — see "Designing for a second game"
   provenance: { ... },      // how each claim is known
 }
 ```
@@ -81,6 +82,81 @@ That distinction has a limit worth stating plainly: it applies to **values**.
 For **behavior** — what the AI actually does — there is no published authority,
 because no such simulator exists upstream. There, observation is the evidence,
 and `observed` is the strongest tag available.
+
+## Designing for a second game
+
+Run & Bun is one shape of ROM hack. Radical Red, the Kaizo family and others sit
+in the same space but vary in ways this contract has to absorb. Nothing here is
+built yet — the point is to know which parts are *shape* (stable across games)
+and which are *content* (varies), so a second game costs a profile plus perhaps
+an adapter, not a fork.
+
+### What is shape, and already holds
+
+These carry across games unchanged, and are the reason a second profile is
+plausible at all:
+
+- **`BattleState` is game-agnostic.** Serializable, no Run & Bun in it.
+- **The engine is generation-parameterised.** `ai/` keys behaviour off
+  `state.generation`, and the generation literals inside it are canonical
+  Pokemon gates — Teatime is Generation 8, Nightmare is pre-Generation 8 — not
+  Run & Bun rules. A FireRed-based hack running Gen 8 mechanics gets the right
+  behaviour from the same code.
+- **The layer split.** oracle → data → state → policy → encounters → planner is
+  a decomposition of the problem, not of this game.
+- **Provenance.** Every game has an author, community docs of varying quality,
+  and things only observation settles. The tags mean the same thing everywhere.
+
+### What varies, and how the contract must bend
+
+**Pokedex — delta versus replacement.** Run & Bun's `data` is a small delta: 3
+stat changes, 30 ported species, 125 ability-slot swaps. A hack that rebuilds
+the roster wholesale makes "delta against a base generation" the wrong frame —
+the profile should be able to declare a *replacement* dex instead of a patch,
+and the conformance gate should check whichever was declared. Same contract,
+two modes.
+
+**Learnsets — missing entirely.** No layer models them, and nothing in the
+repository knows what a species can learn. Run & Bun does not expose the gap
+because moves are chosen by hand and trainer parties come with their moves
+listed. A planner in a game that heavily rewrites learnsets needs them: to
+validate a player's team, and to reason about what an opponent *could* carry
+rather than only what a set says. This is the clearest missing layer.
+
+**Stat tweaks — same model, different volume.** The delta approach holds; only
+the size changes. Worth noting the ROM-verification method transfers too: any
+hack published as a pokeemerald-format dump can be checked the same way this one
+was.
+
+**Trainer decision profiles — one AI is a Run & Bun assumption.** `policy` is
+currently a single model for the whole game. Elsewhere, difficulty modes select
+different AIs, and boss trainers often think differently from route filler. The
+shape that absorbs this is *named policies* on the profile, with `encounters`
+naming which policy a trainer uses and a default for the rest.
+
+**Move decision trees — `policy` should not assume scoring.** Run & Bun's AI
+scores candidate moves and rolls. Other hacks script decision trees, and some
+use the vanilla AI unchanged. So a policy needs a `kind` that says how to
+evaluate it — scoring, tree, vanilla — and the planner should ask the policy for
+ranked actions without knowing which it got. Today the planner reaches straight
+into the scoring evaluator, which works for one game and would not survive the
+second.
+
+### Known leaks to fix when a second game arrives
+
+Found by auditing rather than assumed. Each is a game rule currently living in
+engine code:
+
+- `RUN_AND_BUN_EVS` in `ai/src/model.ts` — a zero-EV map, because Run & Bun
+  removes EVs. That is a *game rule*, and a game with EVs cannot use this engine
+  correctly until it moves into `mechanics` as a stat model.
+- `RUN_AND_BUN_GENERATION` in `src/js/sets_to_battle_state.js` — the bridge
+  pins Generation 8 while already reading the trainer table location from the
+  profile. Half-abstracted.
+- `planner.js` assumes a scoring policy, as above.
+
+None of these block Run & Bun, and none are worth fixing speculatively. They are
+recorded so the second game is a known quantity rather than a discovery.
 
 ## Adding a game
 

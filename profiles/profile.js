@@ -56,6 +56,13 @@ function defineProfile(profile) {
 		fail(id, 'declares no layers; a profile must fill at least one of ' + layers.join(', '));
 	}
 
+	// A policy must say how it decides. The planner ranks actions by asking the
+	// policy, and a consumer that assumes scoring will silently misread a game
+	// whose AI is a decision tree or stock vanilla.
+	if (profile.policy && !profile.policy.KIND) {
+		fail(id, 'policy must declare a KIND (e.g. scoring, decision-tree, vanilla)');
+	}
+
 	const provenance = profile.provenance || {};
 	for (const key of Object.keys(provenance)) {
 		if (!PROVENANCE_TAGS.includes(provenance[key])) {

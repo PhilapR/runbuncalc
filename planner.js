@@ -180,6 +180,17 @@ function buildFightState(options) {
  */
 function predict(options) {
 	const built = buildFightState(options);
+	const profile = getProfile(options && options.profileId);
+	// The planner ranks actions by asking the policy. Run & Bun scores and rolls;
+	// another game may script a decision tree or use stock vanilla AI, and those
+	// need a different evaluator. Fail loudly rather than silently ranking a
+	// policy this code cannot actually read.
+	if (profile.policy && profile.policy.KIND !== 'scoring') {
+		throw new Error(
+			`planner cannot rank a '${profile.policy.KIND}' policy yet; ` +
+			'only scoring policies are supported. See profiles/README.md.'
+		);
+	}
 	const evaluations = ai.evaluateActions(
 		built.state, ai.calculateActionFacts, 'ai', {includeSwitches: true});
 	const nameById = {};
