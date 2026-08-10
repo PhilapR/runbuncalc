@@ -45,9 +45,25 @@ const SOURCE = 'src/js/data/sets/gen8.js';
  * planner layer.
  */
 const INVARIANTS = {
-	/** Distinct trainers, grouping duplicate-species entries by `trainer`. */
-	trainerCount: 362,
-	/** Raw entry keys, which exceed trainerCount by the number of duplicates. */
+	/**
+	 * Battles, not trainers.
+	 *
+	 * Each entry is keyed by a battle label. 46 of those labels are double
+	 * battles naming two trainers at once ("Cool Trainer Hope & Albert"), so the
+	 * number of human trainers is materially higher than the number of battles:
+	 * 316 solo + 46 paired = 408 trainer slots, of which four are Elite Four
+	 * double-battle variants duplicating a trainer who also appears alone,
+	 * giving roughly 404 distinct trainers.
+	 *
+	 * This was previously named `trainerCount`, which was wrong and understated
+	 * the roster by about a sixth.
+	 */
+	battleCount: 362,
+	/** Battle labels naming two trainers at once. */
+	pairedBattles: 46,
+	/** Solo + (paired x 2). Not the distinct-trainer count; see above. */
+	trainerSlots: 408,
+	/** Raw entry keys, which exceed battleCount by the number of duplicates. */
 	labelCount: 365,
 	/** Entries carrying an explicit `trainer` because they are extra copies. */
 	duplicateEntries: 3,
@@ -57,4 +73,27 @@ const INVARIANTS = {
 	indexUnique: true,
 };
 
-module.exports = {GLOBAL, SOURCE, INVARIANTS};
+/**
+ * Party members known to be missing from the run map.
+ *
+ * The progression sequence is otherwise dense, so a gap is evidence of loss
+ * rather than of a deliberately sparse numbering. These two indices sit
+ * immediately before Bug Maniac Jeffrey's surviving Vivillon at 791.
+ *
+ * Jeffrey fields three Vivillon. Because entries are keyed [species][label],
+ * three of one species under one trainer collide, and only the last survived —
+ * the same collision the space-prefix hack worked around for Fisherman Phil and
+ * Fisherman Darian, which nobody applied here. The explicit `trainer`/`copy`
+ * shape now used for duplicates is what these entries need in order to be
+ * restored.
+ *
+ * They are declared rather than quietly tolerated so the density check cannot
+ * report a complete run map while two party members are absent.
+ */
+const KNOWN_GAPS = {
+	indices: [789, 790],
+	trainer: 'Bug Maniac Jeffrey',
+	note: 'two of three Vivillon lost to a [species][label] key collision',
+};
+
+module.exports = {GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS};

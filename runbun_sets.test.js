@@ -96,9 +96,19 @@ test('the run map matches the profile\'s declared encounter invariants', () => {
 		}
 	}
 
-	assert.equal(trainers.size, encounters.INVARIANTS.trainerCount, 'distinct trainer count');
+	assert.equal(trainers.size, encounters.INVARIANTS.battleCount, 'battle count');
 	assert.equal(labels.size, encounters.INVARIANTS.labelCount, 'raw entry key count');
 	assert.equal(duplicates, encounters.INVARIANTS.duplicateEntries, 'duplicate-species entries');
+
+	// Battles are not trainers: paired labels name two trainers at once, so the
+	// roster is materially larger than the battle count.
+	const paired = [...trainers].filter(t => t.includes('&')).length;
+	assert.equal(paired, encounters.INVARIANTS.pairedBattles, 'paired (double-battle) labels');
+	assert.equal(
+		(trainers.size - paired) + paired * 2,
+		encounters.INVARIANTS.trainerSlots,
+		'trainer slots implied by solo + paired battles'
+	);
 });
 
 test('no entry key encodes meaning in whitespace', () => {
@@ -178,9 +188,18 @@ test('the trainer progression index is a dense, globally unique ordering', () =>
 
 	// Dense: the sequence spans its range with only a couple of gaps. A shuffle
 	// keeps density, but a renumber into buckets or a partial rewrite does not.
-	const span = max - min + 1;
-	assert.ok(
-		indices.length > span * 0.99,
-		`progression indices are sparse: ${indices.length} values across a span of ${span}`
+	// Density is asserted against the DECLARED gaps rather than a tolerance. A
+	// percentage threshold hides exactly what a gap means here: the sequence is
+	// authored and dense, so a missing index is a lost party member, not slack.
+	const encounters = require('./profiles').getProfile('run-and-bun').encounters;
+	const present = new Set(indices);
+	const gaps = [];
+	for (let i = min; i <= max; i++) if (!present.has(i)) gaps.push(i);
+	assert.deepEqual(
+		gaps,
+		encounters.KNOWN_GAPS.indices,
+		`progression gaps changed. Declared missing: ${encounters.KNOWN_GAPS.indices.join(', ')} ` +
+		`(${encounters.KNOWN_GAPS.trainer} — ${encounters.KNOWN_GAPS.note}). Found: ${gaps.join(', ') || 'none'}. ` +
+		'A new gap means a party member was lost; a closed gap means one was restored — update KNOWN_GAPS deliberately.'
 	);
 });
