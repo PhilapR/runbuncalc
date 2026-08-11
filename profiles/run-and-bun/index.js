@@ -13,6 +13,7 @@
  *   data       — species / item deltas
  *   mechanics  — declared, and cross-referenced to where each rule lives
  *   encounters — shape and invariants of the authored trainer run map
+ *   oracle     — wild encounters, evolutions and learnsets, straight from the ROM
  *
  *   policy     — score-roll weights and setup baselines used by the AI
  *
@@ -27,6 +28,7 @@ const defineProfile = require('../profile.js').defineProfile;
 const data = require('./data.js');
 const encounters = require('./encounters.js');
 const policy = require('./policy.js');
+const oracle = require('./oracle.js');
 
 module.exports = defineProfile({
 	id: 'run-and-bun',
@@ -55,6 +57,18 @@ module.exports = defineProfile({
 	data,
 	encounters,
 	policy,
+
+	/**
+	 * Wild encounters, evolutions and learnsets, imported from the author's ROM
+	 * decomp by `scripts/import-oracle.js`.
+	 *
+	 * This is the layer that turns the project from a calculator into a
+	 * companion: it is what lets a catch be checked against the route it was
+	 * claimed on, an evolution against the table, and a move against the
+	 * learnset. Everything in it is the decomp's own data, transformed only by
+	 * name mapping.
+	 */
+	oracle,
 
 	/**
    * Rule deltas against stock Generation 8.
@@ -96,6 +110,15 @@ module.exports = defineProfile({
 		// against the author's own ROM data dump: 166 checked, 166 in agreement.
 		'data.MOVE_OVERLAY': 'source-of-truth',
 		'data.ABILITY_SLOT_CHANGES': 'source-of-truth',
+		// Generated from the decomp itself rather than read off it by hand, so the
+		// mapping from ROM constant to calculator name is reviewable and the import
+		// fails rather than dropping a row it cannot resolve.
+		'oracle.encounters': 'source-of-truth',
+		'oracle.evolutions': 'source-of-truth',
+		'oracle.learnsets': 'source-of-truth',
+		// What the oracle does not cover. A declared limit, not a claim about game
+		// content: gifts, statics and trades are scripted and have no wild table.
+		'oracle.LIMITS': 'observed',
 		// The trainer parties are authored Run & Bun content with no upstream
 		// equivalent, so no external source can corroborate them. They came from
 		// the community-maintained calculator lineage this fork descends from.
