@@ -357,6 +357,16 @@ test('audit regressions: routes dedupe, family components, growth via macros, ep
 			{kind: 'catch', species: 'Muk-Alola', map: 'Abandoned Ship Rooms B1f', level: 50}),
 		/dupe of Grimer-Alola/);
 
+	// The regional-form ruling, pinned as convention: separate families where
+	// the game keeps them separate (matching the dominant community tracker),
+	// merged only where Run & Bun itself connects the lines (plain Grimer
+	// evolves into Muk-Alola by Dusk Stone in this hack).
+	const oracle2 = require('./profiles').getProfile('run-and-bun').oracle;
+	assert.notEqual(oracle2.familyOf('Sandshrew'), oracle2.familyOf('Sandshrew-Alola'));
+	assert.notEqual(oracle2.familyOf('Zigzagoon'), oracle2.familyOf('Zigzagoon-Galar'));
+	assert.equal(oracle2.familyOf('Grimer'), oracle2.familyOf('Muk-Alola'));
+	assert.equal(oracle2.familyOf('Basculin'), oracle2.familyOf('Basculin-Blue-Striped'));
+
 	// Macro-defined growth rates import: Pikachu answers, like everything wild.
 	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
 	assert.equal(oracle.growthRateOf('Pikachu'), 'medium-fast');
@@ -418,6 +428,28 @@ test('the routes view knows what is spent and what is still out there', () => {
 	const plain = run.unusedRoutes(run.apply(fresh(), {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}));
 	const r101 = plain.routes.find(route => route.name === 'Route101');
 	assert.equal(r101.best[0].chance, 20);
+});
+
+test('the shiny clause: a natural shiny is keepable over the route rule and the dupes clause', () => {
+	let state = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+
+	// Both rules would refuse this catch; the shiny claim exempts it, and the
+	// claim is recorded on the mon rather than vanishing into the exemption.
+	state = run.apply(state,
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 2, shiny: true});
+	assert.equal(state.box.length, 2);
+	assert.equal(run.findMon(state, 'mon-2').shiny, true);
+	assert.equal(run.findMon(state, 'mon-1').shiny, undefined);
+
+	// The exemption is per-claim, not a switch: the next plain catch still
+	// answers to both rules.
+	assert.throws(() => run.apply(state, {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}),
+		/already used its one Route101 encounter/);
+
+	// And the round trip holds: a shiny in the log replays byte-identically.
+	const replayed = run.undo(run.apply(state, {kind: 'nickname', id: 'mon-2', nickname: 'Star'}));
+	assert.deepEqual(replayed, state);
 });
 
 test('the split sheet is the gauntlet with its caps, and it moves with the run', () => {

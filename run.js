@@ -707,7 +707,11 @@ const COMMANDS = {
 
 		// The nuzlocke encounter rules, on wild catches only — a gift, static or
 		// trade (no map) is not the route's random encounter and stays exempt.
-		if (run.rules.permadeath && origin.map) {
+		// So is a shiny: the community shiny clause says a naturally-encountered
+		// shiny is always keepable, over both the route rule and the dupes
+		// clause. The claim is recorded on the mon, so the box shows which
+		// catches rode the exemption.
+		if (run.rules.permadeath && origin.map && !command.shiny) {
 			const prior = routeCatch(run, profile, origin.map);
 			if (prior) {
 				throw new Error(`catch: this run already used its one ${origin.mapName} ` +
@@ -775,6 +779,8 @@ const COMMANDS = {
 			moves,
 			ivs: command.ivs || {},
 			status: 'boxed',
+			// Recorded because it carries a rules exemption, not as flavor.
+			...(command.shiny ? {shiny: true} : {}),
 			origin: Object.assign({at: run.position}, origin),
 		};
 		run.nextId += 1;

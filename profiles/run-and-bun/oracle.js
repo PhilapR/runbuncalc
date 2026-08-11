@@ -163,6 +163,16 @@ let familyIndex = null;
  * a run could legally hold both halves of one line. A family is the connected
  * component of the evolution graph, named by its alphabetically first member —
  * derived from the table, not from which key happened to be read first.
+ *
+ * On regional forms this lands exactly on the community convention. The
+ * dominant tracker (nuzlocke.app) encodes regional lines as separate families
+ * — Grimer [88,89] vs Alolan Grimer [-88,-89] — which is what a component walk
+ * over VANILLA data produces, since vanilla never connects them. Run & Bun
+ * does connect some: plain Grimer evolves into Muk-Alola by Dusk Stone, and
+ * both Basculin forms evolve into Basculegion, so those are one family HERE
+ * because they are one line in this game. Sandshrew/Sandshrew-Alola,
+ * Zigzagoon/Zigzagoon-Galar and every other unconnected pair stay separate.
+ * The rule is one sentence: dupes follow the game's own evolution graph.
  */
 function familyOf(species) {
 	if (!familyIndex) {

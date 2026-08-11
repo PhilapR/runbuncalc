@@ -289,6 +289,9 @@ const SUBCOMMANDS = {
 				nature: args.flags.nature,
 				ability: args.flags.ability,
 				item: args.flags.item,
+				// The shiny clause: a natural shiny is keepable over the route
+				// rule and the dupes clause, and the exemption is recorded.
+				shiny: args.flags.shiny === true || undefined,
 				moves: args.flags.moves ? String(args.flags.moves).split(',').map(m => m.trim()) : undefined,
 			},
 		};
@@ -497,7 +500,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   status / box                                    the box, party, bag and position
   where <map>                                     what can be caught there
   find <species>                                  everywhere it can be caught
-  catch <species> --level N [--map M] [--name N]  add to the box
+  catch <species> --level N [--map M] [--name N] [--shiny]  add to the box
   level <id> <n|cap>                              raise a level; 'cap' is free, over-cap spends Rare Candy
   evolve <id> [--into S]                          evolve
   learn <id>                                      what it can learn, now and later

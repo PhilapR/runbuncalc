@@ -679,7 +679,13 @@
 				level: Number($('#runbun-run-catch-level').val()),
 				map: $('#runbun-run-map').val() || undefined,
 				nickname: $('#runbun-run-catch-name').val() || undefined,
+				// The shiny clause: keepable over the route rule and the dupes
+				// clause, and recorded on the mon. One-shot like the epitaph —
+				// left checked it would silently exempt the NEXT catch too.
+				shiny: $('#runbun-run-catch-shiny').is(':checked') || undefined,
 				moves: moves.length ? moves : undefined,
+			}).then(function (accepted) {
+				if (accepted) $('#runbun-run-catch-shiny').prop('checked', false);
 			});
 		});
 

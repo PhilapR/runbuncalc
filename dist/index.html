@@ -1940,7 +1940,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
-    <script type="text/javascript" src="./js/run_panel.js?8708766a"></script>
+    <script type="text/javascript" src="./js/run_panel.js?35d44aff"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2273,6 +2273,10 @@
                 </div>
                 <div class="runbun-run-row">
                     <input type="text" id="runbun-run-catch-moves" placeholder="Moves (optional, comma-separated)" spellcheck="false">
+                    <label class="runbun-run-check runbun-run-shiny" title="The shiny clause: a natural shiny is keepable over the route rule and the dupes clause">
+                        <input type="checkbox" id="runbun-run-catch-shiny">
+                        <span>Shiny</span>
+                    </label>
                     <button type="button" id="runbun-run-catch" class="btn btn-wide rb-btn-primary">Catch</button>
                 </div>
                 <p id="runbun-run-limits" class="runbun-run-limits"></p>
