@@ -47,9 +47,23 @@ function load(name) {
 	return cache[name];
 }
 
-/** Every map with a wild encounter table, in decomp order. */
+/**
+ * Every map with a wild encounter table, in decomp order — ONE entry per map
+ * constant. The decomp declares Altering Cave nine times under one constant
+ * (nine alternate rosters, of which the game activates only the first); every
+ * lookup here is by name or constant and can only ever reach the first
+ * declaration, so exposing all nine as separate maps made the routes view
+ * count one physical room as nine unspent encounters. First declaration wins,
+ * matching `getMap`; the alternates stay in the data file, unclaimed rather
+ * than misclaimed.
+ */
 function maps() {
-	return load('encounters').maps;
+	if (!cache.uniqueMaps) {
+		const seen = new Set();
+		cache.uniqueMaps = load('encounters').maps.filter(m =>
+			seen.has(m.map) ? false : seen.add(m.map));
+	}
+	return cache.uniqueMaps;
 }
 
 /** One map by its `MAP_*` constant or by its readable name, case-insensitively. */
@@ -137,6 +151,44 @@ function lineageOf(species) {
 		current = preEvolutionOf(current);
 	}
 	return line;
+}
+
+let familyIndex = null;
+
+/**
+ * The evolution FAMILY a species belongs to — the identity the dupes clause
+ * compares. Walking pre-evolutions is not enough: the table declares Muk-Alola
+ * under both Grimer and Grimer-Alola, and a first-key-wins walk filed the
+ * Alolan line under plain Grimer while Grimer-Alola stayed its own family, so
+ * a run could legally hold both halves of one line. A family is the connected
+ * component of the evolution graph, named by its alphabetically first member —
+ * derived from the table, not from which key happened to be read first.
+ */
+function familyOf(species) {
+	if (!familyIndex) {
+		const parent = {};
+		const find = name => parent[name] === name ? name : (parent[name] = find(parent[name]));
+		const ensure = name => {
+			if (!(name in parent)) parent[name] = name;
+			return name;
+		};
+		const table = load('evolutions');
+		for (const from of Object.keys(table)) {
+			for (const step of table[from]) {
+				const rootA = find(ensure(from));
+				const rootB = find(ensure(step.into));
+				if (rootA !== rootB) parent[rootB] = rootA;
+			}
+		}
+		const canonical = {};
+		for (const name of Object.keys(parent)) {
+			const root = find(name);
+			if (!canonical[root] || name < canonical[root]) canonical[root] = name;
+		}
+		familyIndex = {};
+		for (const name of Object.keys(parent)) familyIndex[name] = canonical[find(name)];
+	}
+	return familyIndex[species] || species;
 }
 
 /** Level-up moves as `[level, move]` pairs, in the order the game lists them. */
@@ -285,7 +337,7 @@ const LIMITS = {
 
 module.exports = {
 	maps, getMap, encountersOn, whereToFind,
-	evolutionsOf, preEvolutionOf, lineageOf,
+	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp,
 	coverage, LIMITS,

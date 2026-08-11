@@ -1,4 +1,4 @@
-/* eslint-env browser, jquery */
+/* eslint-env browser, jquery, es6 */
 /**
  * Run panel — a playthrough in the page.
  *
@@ -106,12 +106,18 @@
 	function mutate(work) {
 		if (busy) {
 			status('One change at a time — the last one is still in flight.', 'error');
-			return;
+			// A promise, not undefined: callers chain on the result.
+			return Promise.resolve(false);
 		}
 		busy = true;
 		function release() { busy = false; }
 		// Released on both paths: one failure must never wedge the panel shut.
-		return work().then(release, function (error) {
+		// The work's resolved value passes through, so `command` can report
+		// success to callers with one-shot form fields.
+		return work().then(function (value) {
+			release();
+			return value;
+		}, function (error) {
 			release();
 			status(error.message, 'error');
 		});
@@ -407,7 +413,11 @@
 		});
 	}
 
-	/** Send one command; on success save and redraw, on refusal change nothing. */
+	/**
+	 * Send one command; on success save and redraw, on refusal change nothing.
+	 * Resolves `true` on success and `false` on refusal, so a caller with
+	 * one-shot form fields (the Faint epitaph) knows when they were consumed.
+	 */
 	function command(body) {
 		return mutate(function () {
 			status('Working…', '');
@@ -415,7 +425,7 @@
 				state = payload.run;
 				persist();
 				status(payload.summary, 'ok');
-				return render();
+				return render().then(function () { return true; });
 			}).catch(function (error) {
 				// The refusal message is the feature: it says why this could not have
 				// happened in the game, not merely that the form was wrong.
@@ -423,7 +433,7 @@
 				// A refusal still has to redraw: staging built for the refused command
 				// is now describing a run the server never accepted. `render` resyncs
 				// it from the authoritative state and leaves this message standing.
-				return render();
+				return render().then(function () { return false; });
 			});
 		});
 	}
@@ -733,12 +743,21 @@
 		$('#runbun-run-faint').on('click', function () {
 			// The epitaph travels with the loss: who did it (checked against the
 			// run map server-side) and with what (free text). Both optional — a
-			// loss can be recorded first and mourned later.
+			// loss can be recorded first and mourned later. The fields are
+			// ONE-SHOT: cleared the moment a faint consumes them, because stale
+			// text silently became the next loss's cause of death — a fabricated
+			// entry in the one ledger whose point is the record. A refusal keeps
+			// the text so a misspelled trainer can be fixed and resubmitted.
 			command({
 				kind: 'faint',
 				id: $('#runbun-run-selected').val(),
 				to: $('#runbun-run-died-to').val() || undefined,
 				move: $('#runbun-run-died-move').val() || undefined,
+			}).then(function (accepted) {
+				if (accepted) {
+					$('#runbun-run-died-to').val('');
+					$('#runbun-run-died-move').val('');
+				}
 			});
 		});
 		$('#runbun-run-release').on('click', function () {

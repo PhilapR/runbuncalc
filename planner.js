@@ -163,6 +163,19 @@ function playerStateFromEntry(bridge_, mon, id) {
 	}
 	if (!mon || !mon.species) throw new Error(`${id}: needs a species`);
 	if (!mon.moves || !mon.moves.length) throw new Error(`${id} (${mon.species}): needs at least one move`);
+	// The run layer deliberately lets a bag hold anything a player types, so an
+	// unknown held item (or nature) first meets reality here. Refusing with the
+	// mon named beats the alternative — the calculator dying mid-grid turned a
+	// whole matrix into HTTP 500 with no hint of which entry was at fault.
+	const gen = calc.Generations.get(8);
+	if (mon.item && !gen.items.get(calc.toID(mon.item))) {
+		throw new Error(`${mon.species} (${id}) holds ${JSON.stringify(mon.item)}, ` +
+			'which is not an item this game can hold in battle — fix or take the item');
+	}
+	if (mon.nature && !gen.natures.get(calc.toID(mon.nature))) {
+		throw new Error(`${mon.species} (${id}) has nature ${JSON.stringify(mon.nature)}, ` +
+			'which is not a nature this game knows');
+	}
 	// `rebuildZeroEvPokemon` is the same seam the set path uses, so a declared
 	// Pokemon goes through the identical zero-EV Gen 8 projection rather than a
 	// parallel construction that could drift from it.

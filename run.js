@@ -368,11 +368,16 @@ function milestones(run) {
 
 /** What can be caught on a map, with what the run already holds marked. */
 /**
- * The base form a species' evolution line is named for — the identity the
- * dupes clause compares. A Mightyena is a dupe of a caught Poochyena and the
- * other way around, because they are the same line.
+ * The evolution family a species belongs to — the identity the dupes clause
+ * compares. A Mightyena is a dupe of a caught Poochyena and the other way
+ * around. The oracle owns the derivation (a connected component of the
+ * evolution graph, not a pre-evolution walk) because a first-key-wins walk
+ * filed Muk-Alola under plain Grimer and let a run keep both halves of the
+ * Alolan line. A profile without the derivation falls back to the lineage
+ * walk, which is right for unbranched lines.
  */
 function familyOf(profile, species) {
+	if (profile.oracle.familyOf) return profile.oracle.familyOf(species);
 	const line = profile.oracle.lineageOf(species);
 	return line.length ? line[line.length - 1] : species;
 }
@@ -974,6 +979,12 @@ const COMMANDS = {
 		const mon = requireMon(run, command.id);
 		if (!run.rules.permadeath) {
 			return `${mon.species} (${mon.id}) fainted; permadeath is off, so nothing changed`;
+		}
+		// A second faint would re-run the handler and overwrite the epitaph —
+		// with nothing, if the command names no cause. A death is written once.
+		if (mon.status === 'dead') {
+			throw new Error(`faint: ${mon.species} (${mon.id}) is already gone` +
+				(mon.died && mon.died.to ? ` — ${mon.died.to} took it` : ''));
 		}
 		mon.status = 'dead';
 		run.party = run.party.filter(id => id !== mon.id);

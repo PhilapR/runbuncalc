@@ -58,9 +58,9 @@ Trainer fights in the run map: 362
 
 Oracle datasets:
 - `encounters.json`: 131 maps
-- `evolutions.json`: 436 species
-- `growth.json`: 1016 species
-- `learnsets.json`: 1115 species
+- `evolutions.json`: 435 species
+- `growth.json`: 1114 species
+- `learnsets.json`: 1114 species
 
 ## Test files
 `browser_calc_load.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `run.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js`

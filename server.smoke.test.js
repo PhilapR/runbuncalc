@@ -753,6 +753,39 @@ test('the split sheet travels with status and answers on its own endpoint', asyn
 	assert.equal(sheet.body.gauntlet[3].cap, 21);
 });
 
+test('audit regressions: the new endpoints refuse with reasons, never 500', async () => {
+	// A mistyped trainer in the faint epitaph is the most likely user mistake
+	// on that control; it must come back as the crafted message, not a 500.
+	const created = await newRun({name: 'Refusals', permadeath: true});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	const badFaint = await requestJson('/run/apply', {
+		run: caught.body.run, command: {kind: 'faint', id: 'mon-1', to: 'Calvin'},
+	});
+	assert.equal(badFaint.status, 400);
+	assert.match(badFaint.body.error, /no fight named "Calvin"/);
+
+	// A typo'd held item surfaces as a 400 naming the mon, not a dead board.
+	const held = await requestJson('/run/apply', {
+		run: caught.body.run,
+		command: {kind: 'catch', species: 'Marill', map: 'Route114', level: 40, item: 'Lefovers'},
+	});
+	assert.equal(held.status, 200);
+	const matrix = await requestJson('/run/matrix', {run: held.body.run, trainer: 'Leader Brawly'});
+	assert.equal(matrix.status, 400);
+	assert.match(matrix.body.error, /Marill .*Lefovers.* is not an item/);
+
+	// A finished run map is an ordinary state: the matrix says so with a 400
+	// reason, exactly like /run/plan, rather than a 500.
+	let done = caught.body.run;
+	done = (await requestJson('/run/apply', {run: done, command: {kind: 'party', ids: ['mon-1']}})).body.run;
+	done = (await requestJson('/run/apply', {run: done, command: {kind: 'beat', trainer: 'Champion Wallace'}})).body.run;
+	const after = await requestJson('/run/matrix', {run: done});
+	assert.equal(after.status, 400);
+	assert.match(after.body.error, /nothing ahead/);
+	const plan = await requestJson('/run/plan', {run: done});
+	assert.equal(plan.status, 400);
+});
+
 test('the routes view answers over HTTP with the spent and the still-open', async () => {
 	const created = await newRun({name: 'Routes', permadeath: true});
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
@@ -907,7 +940,9 @@ test('the map list is served without a run, and states its own limits', async ()
 	const response = await fetch(`${baseUrl}/run/maps`);
 	assert.equal(response.status, 200);
 	const body = await response.json();
-	assert.equal(body.maps.length, 131);
+	// 123 unique maps — the decomp's nine duplicate Altering Cave declarations
+	// collapse to the one roster any lookup can reach.
+	assert.equal(body.maps.length, 123);
 	assert.ok(body.maps.every(map => map.name && map.map && map.methods.length));
 	// Gifts, statics and trades have no wild table; a client offering this list
 	// must be able to say so rather than implying it is every Pokemon in the game.

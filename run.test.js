@@ -330,6 +330,47 @@ test('permadeath is a declared rule, not the default', () => {
 		/has fainted for good/);
 });
 
+test('audit regressions: routes dedupe, family components, growth via macros, epitaphs write once', () => {
+	// The decomp declares Altering Cave nine times under one constant; only the
+	// first is reachable by any lookup, so the routes view gets ONE row for it.
+	const state = fresh({permadeath: true});
+	const routes = run.unusedRoutes(state).routes;
+	assert.equal(routes.filter(route => route.map === 'MAP_ALTERING_CAVE').length, 1);
+	const ids = routes.map(route => route.map);
+	assert.equal(new Set(ids).size, ids.length, 'one row per canonical map');
+
+	// Flabébé is one species again: a single 50% row, and the dupes clause
+	// holds against itself.
+	const soo = run.encountersOn(state, 'Sootopolis City');
+	const flab = soo.mons.filter(mon => /^Flab/.test(mon.species));
+	assert.equal(flab.length, 1);
+	assert.equal(flab[0].chance, 50);
+	const caught = run.apply(state, {kind: 'catch', species: 'Flabebe', map: 'Sootopolis City', level: 20});
+	assert.equal(run.encountersOn(caught, 'Sootopolis City')
+		.mons.find(mon => mon.species === 'Flabebe').dupe, true);
+
+	// The Alolan Grimer line is ONE family: both halves cannot be kept.
+	const grimer = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Grimer-Alola', map: 'Route117', level: 5, method: 'surf'});
+	assert.throws(
+		() => run.apply(grimer,
+			{kind: 'catch', species: 'Muk-Alola', map: 'Abandoned Ship Rooms B1f', level: 50}),
+		/dupe of Grimer-Alola/);
+
+	// Macro-defined growth rates import: Pikachu answers, like everything wild.
+	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	assert.equal(oracle.growthRateOf('Pikachu'), 'medium-fast');
+	assert.equal(oracle.expForLevel('Pikachu', 50), 125000);
+
+	// A death is written once: re-fainting is refused, the epitaph survives.
+	let lost = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'faint', id: 'mon-1', to: 'Leader Brawly', move: 'Drain Punch'},
+	]);
+	assert.throws(() => run.apply(lost, {kind: 'faint', id: 'mon-1'}), /already gone/);
+	assert.equal(run.findMon(lost, 'mon-1').died.move, 'Drain Punch');
+});
+
 test('a loss carries its epitaph, and the trainer named must be real', () => {
 	let state = run.applyAll(fresh({permadeath: true}), [
 		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},

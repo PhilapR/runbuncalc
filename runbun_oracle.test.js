@@ -27,11 +27,17 @@ const oracle = require('./profiles').getProfile().oracle;
 
 test('the oracle carries the whole decomp, not a truncated read of it', () => {
 	const coverage = oracle.coverage();
-	assert.equal(coverage.maps, 131, 'wild encounter maps');
-	assert.equal(coverage.encounterSlots, 1462, 'distinct encounter slots');
-	assert.equal(coverage.evolvingSpecies, 436);
-	assert.equal(coverage.levelUpSpecies, 1115);
-	assert.equal(coverage.teachableSpecies, 1115);
+	// 131 map DECLARATIONS in the decomp; `maps()` serves 123 — Altering Cave
+	// is declared nine times under one constant and only the first roster is
+	// reachable by any name or constant lookup.
+	assert.equal(coverage.maps, 131, 'wild encounter map declarations');
+	assert.equal(oracle.maps().length, 123, 'unique reachable maps');
+	// One fewer of each than the first import: the accented 'Flabébé' duplicate
+	// collapsed into the ASCII 'Flabebe' the rest of the tables always used.
+	assert.equal(coverage.encounterSlots, 1461, 'distinct encounter slots');
+	assert.equal(coverage.evolvingSpecies, 435);
+	assert.equal(coverage.levelUpSpecies, 1114);
+	assert.equal(coverage.teachableSpecies, 1114);
 	assert.equal(coverage.eggSpecies, 370);
 });
 
@@ -275,5 +281,7 @@ test('growth rates come from the decomp, and the curves are the Gen 3 functions'
 	// Unknown species answer null, never a guess.
 	assert.equal(oracle.growthRateOf('MissingNo'), null);
 	assert.equal(oracle.expForLevel('MissingNo', 50), null);
-	assert.equal(oracle.coverage().growthRatedSpecies, 1016);
+	// 1114, up from 1016: ninety-nine species had macro-defined growth rates
+	// (PIKACHU_BASE_STATS-style) the first importer silently skipped.
+	assert.equal(oracle.coverage().growthRatedSpecies, 1114);
 });

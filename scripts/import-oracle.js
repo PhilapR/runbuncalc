@@ -110,6 +110,13 @@ const SPECIES_ALIASES = {
 	SPECIES_FLOETTE_ETERNAL_FLOWER: 'Floette-Eternal',
 	SPECIES_PICHU_SPIKY_EARED: 'Pichu',
 	SPECIES_MINIOR_METEOR: 'Minior-Meteor',
+	// The calc's canonical name is the accented 'Flabébé', but every flower
+	// variant collapses to the ASCII family name below — leaving the plain
+	// constant on the accented spelling split one species into two: Sootopolis
+	// showed 'Flabébé 10%' AND 'Flabebe 40%' where the game has one 50% mon,
+	// and the dupes clause treated them as different lines. One spelling, the
+	// ASCII one the learnset and evolution tables already use.
+	SPECIES_FLABEBE: 'Flabebe',
 };
 
 /** Cosmetic form families: `PREFIX_*` collapses to the named base species. */
@@ -569,24 +576,61 @@ const GROWTH_NAMES = {
 	GROWTH_SLOW: 'slow',
 };
 
+/**
+ * Growth rates declared inside `#define X_BASE_STATS(...)` macro bodies.
+ *
+ * 216 species entries are written as macro calls — `[SPECIES_PIKACHU] =
+ * PIKACHU_BASE_STATS(...)` — with the growth rate living in the macro
+ * definition, sometimes one hop further (COSPLAY_PIKACHU_BASE_STATS expands to
+ * PIKACHU_BASE_STATS). Silently skipping them left 99 species — Pikachu among
+ * them — answering null to `growthRateOf`, the same answer a typo gets.
+ */
+function macroBodies(source) {
+	const bodies = {};
+	// A macro body runs while lines end in a continuation backslash.
+	const pattern = /#define\s+(\w+)\s*(?:\([^)]*\))?((?:[^\n]*\\\n)*[^\n]*)/g;
+	for (let match; (match = pattern.exec(source));) bodies[match[1]] = match[2];
+	return bodies;
+}
+
+/**
+ * Find a growth rate in a text, expanding any known macro it mentions —
+ * `PIKACHU_BASE_STATS(...)` calls, bare `PUMKPABOO_MISC_STATS` struct
+ * fragments, and one macro deferring to another all resolve the same way.
+ */
+function findGrowthRate(bodies, text, seen) {
+	if (!text) return null;
+	const direct = text.match(/\.growthRate\s*=\s*(GROWTH_[A-Z_]+)/);
+	if (direct) return direct[1];
+	for (const token of text.match(/[A-Z][A-Z0-9_]{3,}/g) || []) {
+		if (!bodies[token] || seen.has(token)) continue;
+		seen.add(token);
+		const found = findGrowthRate(bodies, bodies[token], seen);
+		if (found) return found;
+	}
+	return null;
+}
+
 function importGrowth(decomp, problems) {
 	const source = fs.readFileSync(
 		path.join(decomp, 'species', 'base_stats.h'), 'utf8').replace(/\r/g, '');
 	const heads = [...source.matchAll(/\[(SPECIES_[A-Z0-9_]+)\]\s*=/g)];
+	const bodies = macroBodies(source);
 	const rates = {};
 	heads.forEach((head, i) => {
 		const species = resolveSpecies(head[1]);
 		if (!species) return;
 		const body = source.slice(head.index, i + 1 < heads.length ? heads[i + 1].index : undefined);
-		const match = body.match(/\.growthRate\s*=\s*(GROWTH_[A-Z_]+)/);
-		if (!match) {
-			// Entries defined via macros (OMANYTE_MISC etc.) inherit a shared
-			// growthRate; only a species with NO resolvable rate is a problem.
+		const constant = findGrowthRate(bodies, body, new Set());
+		if (!constant) {
+			// A species with NO resolvable rate is a real gap, not a shrug —
+			// silence here is how Pikachu spent a release answering null.
+			problems.push(`base_stats.h: no growth rate found for ${head[1]}`);
 			return;
 		}
-		const rate = GROWTH_NAMES[match[1]];
+		const rate = GROWTH_NAMES[constant];
 		if (!rate) {
-			problems.push(`base_stats.h: unknown growth rate ${match[1]} on ${head[1]}`);
+			problems.push(`base_stats.h: unknown growth rate ${constant} on ${head[1]}`);
 			return;
 		}
 		if (!rates[species]) rates[species] = rate;
