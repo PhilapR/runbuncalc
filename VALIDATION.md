@@ -14,6 +14,30 @@ npm run lint
 npm test
 ```
 
+## The ROM band gate
+
+Every other gate in this repository compares the repository against itself. One
+does not: `rom-band.test.js` grades `calc.calculate()` against 1,727 damage
+observations captured from the running Run & Bun ROM by an emulator that has
+never read this code. The corpus is vendored at
+`profiles/run-and-bun/fidelity/` — provenance, hashes and coverage limits in its
+README — so the gate needs no external clone.
+
+Each observation is checked for membership in the 16-roll set this calculator
+predicts for the move that was actually clicked, with the fixture's injected
+stats fed in through `statOverrides` and detected crits checked against the crit
+band only. Membership, not a range check: it fails a wrong rounding *order*, not
+just a wrong magnitude.
+
+Measured 2026-08-11: **1,727/1,727 = 100.00%**, all three fixtures, 67 censored
+(lethal, HP-truncated) observations excluded. The capturing engine scored 88.65%
+on the same corpus; the two rounding-order bugs it had — a non-floored
+`2·level/5 + 2` term and a roll applied after all modifiers — this fork does not
+have. Run `node scripts/rom-band-check.js` for the standalone report.
+
+What it does not cover is the corpus's own scope: 1v1, no abilities, no items,
+no stat stages, no weather or terrain, no multi-hit moves.
+
 The inherited `import/` set generator has been removed. It regenerated all nine
 `src/js/data/sets/gen*.js` files from `@smogon/sets`, which overwrote the
 authored Run & Bun trainer parties in `gen8.js` with Smogon competitive usage

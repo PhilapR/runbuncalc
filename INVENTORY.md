@@ -63,7 +63,7 @@ Oracle datasets:
 - `learnsets.json`: 1114 species
 
 ## Test files
-`browser_calc_load.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `run.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js`
+`browser_calc_load.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `rom-band.test.js` · `run.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js`
 
 ## Prior art elsewhere (from ECOSYSTEM.json)
 
@@ -73,7 +73,7 @@ Verification: all claim paths verified
 
 - **Heart Scale = set one IV to 31 (Run & Bun mechanic) — SOUND, PORT THIS** — `engines/rlm/src/pokemon_rlm/simulator/inventory.py`<br>use_heart_scale(bag, pokemon, stat): refuses at 31, consumes from bag, recalculates stats. heart_scales_to_max, iv_quality_rating. Not shop-buyable, sell 100. Graded 2026-08-11: small, correct, and the one genuinely unique capability in engines/rlm — validated by execution.
 
-- **Cross-engine evidence tier — GRADE runbuncalc WITH IT, NEVER MERGE IT IN** — `contracts/cross-engine`, `engines/rab/backend/tests/rom-band-acceptance.test.ts`<br>1,727 emulator-captured damage observations (fidelity/events-f*.json, self-describing, ROM-free) + a provider-agnostic engine contract. The plan of record: runbuncalc becomes a provider and is graded from outside. Its value is exactly that it is external — an engine that grades itself cannot catch a shared-wrong value (see rab's FINDINGS.md PP=10 episode).
+- **Cross-engine evidence tier — GRADE runbuncalc WITH IT, NEVER MERGE IT IN** — `contracts/cross-engine`, `engines/rab/backend/tests/rom-band-acceptance.test.ts`<br>1,727 emulator-captured damage observations (fidelity/events-f*.json, self-describing, ROM-free) + a provider-agnostic engine contract. Its value is exactly that it is external — an engine that grades itself cannot catch a shared-wrong value (see rab's FINDINGS.md PP=10 episode). CASHED 2026-08-11: the three event files are vendored at profiles/run-and-bun/fidelity/ (mono commit be6570d, hashes in that README) so the gate runs without this clone, and rom-band.test.js grades this calculator against them — 1,727/1,727 = 100.00% in band, crits included. The corpus stays read-only prior art; nothing else was merged in.
 
 - **In-battle consumable selection** — `engines/rlm/src/pokemon_rlm/agents/battle_items.py`<br>Best HP heal for a deficit, best status cure, best ball.
 
