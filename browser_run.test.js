@@ -92,6 +92,11 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.check('#runbun-run-new-cap');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	// The start form has to actually go away. It was setting `hidden` correctly
+	// and staying on screen anyway: a `display: flex` rule in this panel's own CSS
+	// outranks the UA stylesheet's `[hidden] {display:none}` on specificity.
+	assert.equal(await page.isVisible('#runbun-run-empty'), false,
+		'the start form should be gone once a run exists');
 
 	// The cap is computed from the run map, not typed by anyone.
 	const cap = await page.textContent('#runbun-run-cap');

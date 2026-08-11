@@ -2096,12 +2096,20 @@ table.field {
 	align-items: center;
 	font-size: 0.9rem;
 }
-#runbun-run .runbun-run-empty {
+/* `:not([hidden])` is load-bearing, not decoration. A bare `display: flex` here
+   outranks the UA stylesheet's `[hidden] {display: none}` on specificity, so the
+   panel set `hidden` correctly and the start form stayed on screen underneath a
+   live run anyway. */
+#runbun-run .runbun-run-empty:not([hidden]) {
 	display: flex;
 	flex-direction: column;
 	gap: var(--rb-space-sm);
 	align-items: flex-start;
 	max-width: 32rem;
+}
+/* Same hazard for anything else in this panel that toggles `hidden`. */
+#runbun-run [hidden] {
+	display: none;
 }
 #runbun-run .runbun-run-selected {
 	font-family: var(--rb-font-mono);

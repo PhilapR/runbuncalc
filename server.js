@@ -684,7 +684,11 @@ app.use((error, req, res, next) => {
 // Named UI BattleState fixtures + goldens for AI Debug (FIX-01/02/03).
 app.use('/fixtures', express.static(path.join(__dirname, 'fixtures')));
 
-app.use(express.static('dist'));
+// Resolved against this file, not the working directory. A bare "dist" made the
+// whole shipped page depend on being started from the repository root: run from
+// anywhere else and every request fell through to a 404, with the page loading
+// enough to look alive and no panel on it.
+app.use(express.static(path.join(__dirname, 'dist')));
 
 if (require.main === module) {
 	startServer();
