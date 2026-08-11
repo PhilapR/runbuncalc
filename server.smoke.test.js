@@ -739,6 +739,22 @@ test('a run is created, advanced and summarized entirely through the request', a
 	assert.equal(clamped.body.upcoming.length, 20);
 });
 
+test('a late-game run document still fits through the request body', async () => {
+	// Every /run/* command posts the whole save, and a full playthrough's log
+	// projects past express.json's stock 100kb limit — which would turn the run
+	// panel into HTTP 413s exactly when a run is furthest along and most worth
+	// keeping. Inflate a real run's log past that line and expect a real answer.
+	const good = await newRun({name: 'Marathon'});
+	const entry = {
+		at: '2026-08-11T00:00:00.000Z',
+		command: {kind: 'nickname', id: 'mon-1', name: 'a mid-run annotation of realistic length'},
+	};
+	const big = {...good, log: Array.from({length: 2000}, () => entry)};
+	assert.ok(Buffer.byteLength(JSON.stringify(big)) > 150 * 1024, 'probe must exceed the stock limit');
+	const {status} = await requestJson('/run/status', {run: big});
+	assert.equal(status, 200, 'a long-running save must not be refused for its size');
+});
+
 test('a command that could not have happened is a 400 with the reason', async () => {
 	const created = await newRun();
 	const refused = await requestJson('/run/apply', {

@@ -71,6 +71,12 @@ test.after(async () => {
 /** A fresh context each time, so one test's saved run cannot leak into another. */
 async function open() {
 	const context = await browser.newContext();
+	// The Google Fonts stylesheet is render-blocking, and in a proxied sandbox
+	// the request can hang for many seconds before failing — stalling every
+	// classic script (and DOMContentLoaded) behind it. No test asserts on the
+	// font, so fail it instantly. Scoped to the font hosts only, so a genuinely
+	// new external dependency still fails loudly instead of being masked.
+	await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
 	const page = await context.newPage();
 	const errors = [];
 	page.on('pageerror', error => errors.push(String(error)));

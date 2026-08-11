@@ -67,8 +67,21 @@ test.after(async () => {
 		server.close(error => error ? reject(error) : resolve()));
 });
 
-test('the planner panel loads the run map and predicts a real fight', {skip}, async () => {
+/**
+ * The Google Fonts stylesheet is render-blocking, and in a proxied sandbox the
+ * request can hang for many seconds before failing — stalling every classic
+ * script (and DOMContentLoaded) behind it. No test asserts on the font, so
+ * fail it instantly. Scoped to the font hosts only, so a genuinely new
+ * external dependency still fails loudly instead of being masked.
+ */
+async function newPage() {
 	const page = await browser.newPage();
+	await page.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
+	return page;
+}
+
+test('the planner panel loads the run map and predicts a real fight', {skip}, async () => {
+	const page = await newPage();
 	const consoleErrors = [];
 	page.on('pageerror', error => consoleErrors.push(String(error)));
 
@@ -146,7 +159,7 @@ test('the planner panel loads the run map and predicts a real fight', {skip}, as
 });
 
 test('a team borrowed from trainer sets is flagged on screen', {skip}, async () => {
-	const page = await browser.newPage();
+	const page = await newPage();
 	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-planner');
 	await page.click('#runbun-planner-load');
@@ -177,7 +190,7 @@ test('a team borrowed from trainer sets is flagged on screen', {skip}, async () 
 });
 
 test('a malformed team is refused in the client without a round trip', {skip}, async () => {
-	const page = await browser.newPage();
+	const page = await newPage();
 	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-planner');
 	await page.click('#runbun-planner-load');

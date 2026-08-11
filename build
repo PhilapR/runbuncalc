@@ -94,6 +94,10 @@ function cpdir(src, dest, options = {}) {
 
 if (process.argv[2] !== 'view') {
 	require('child_process').execSync('npm --prefix calc/ run compile', {stdio: 'inherit'});
+} else if (!fs.existsSync(path.join(__dirname, 'calc', 'dist', 'index.js'))) {
+	// 'view' trusts an existing calc/dist (the gate relies on calc's own
+	// pretest having built it); a missing one must fail here, not ship stale.
+	throw new Error('build view: calc/dist is missing — build calc first (npm run build --prefix calc)');
 }
 
 cpdir('src', 'dist');

@@ -15,8 +15,11 @@ function startServer(port = 3000) {
 	});
 }
 
-// parse application/json
-app.use(express.json());
+// parse application/json. The default 100kb body limit is smaller than a
+// late-game run document (every /run/* command posts the whole save, and a
+// full playthrough's log projects to ~150-300KB), so a stock limit would turn
+// the run panel into HTTP 413s mid-game.
+app.use(express.json({limit: '5mb'}));
 
 const calculateHandler = (req, res, next) => {
 	const input = req.method === "GET" ? req.query : (req.body || {});
