@@ -599,6 +599,10 @@ app.post("/run/status", (req, res, next) => {
 				order: fight.order,
 				partySize: fight.party.length,
 				topLevel: Math.max(...fight.party.map(mon => mon.level)),
+				// 'boss' ends a split, 'story' is a mandatory fight that sets the
+				// cap, null is route filler a client may render quietly.
+				tier: runtime.fightTier(
+					require("./profiles").getProfile(state.profileId), fight.trainer),
 			})),
 		});
 	} catch (error) {

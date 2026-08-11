@@ -75,6 +75,9 @@ function renderStatus(state) {
 	const summary = runtime.summarize(state);
 	const lines = [];
 	lines.push(`${summary.name} — ${summary.profileId}`);
+	if (summary.split) {
+		lines.push(`split ${summary.split.index} / ${summary.split.of} — ${summary.split.boss}`);
+	}
 	lines.push(summary.next ?
 		`next: #${summary.next.order} ${summary.next.trainer}` :
 		'next: the run map is finished');
@@ -319,10 +322,13 @@ const SUBCOMMANDS = {
 	next(state, args) {
 		const count = args.flags.count ? Number(args.flags.count) : 5;
 		const ahead = runtime.upcoming(state, count);
-		return {message: ahead.map(fight =>
-			`  #${String(fight.order).padStart(4)}  ${fight.trainer.padEnd(38)} ` +
-			`${fight.party.length} mons, up to L${Math.max(...fight.party.map(m => m.level))}`
-		).join('\n')};
+		const profile = getProfile(state.profileId);
+		return {message: ahead.map(fight => {
+			const tier = runtime.fightTier(profile, fight.trainer);
+			return `  #${String(fight.order).padStart(4)}  ${fight.trainer.padEnd(38)} ` +
+				`${fight.party.length} mons, up to L${Math.max(...fight.party.map(m => m.level))}` +
+				(tier ? `  [${tier}]` : '');
+		}).join('\n')};
 	},
 
 	/** The whole stack: this box, this position, what the next trainer does. */

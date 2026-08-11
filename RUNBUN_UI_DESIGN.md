@@ -433,7 +433,8 @@ those scales it serves.
 
 | Component | Serves | Design |
 | --- | --- | --- |
-| Story spine | 362 battles → 34 milestones | One tick per milestone; beaten = brand fill, next = action outline; names in tooltips, note line names only the next. "Where am I" answered without reading. |
+| Story spine | 362 battles → 34 milestones | One tick per milestone; beaten = brand fill, next = action outline, split-ending bosses taller than story bosses; names in tooltips, note line names only the next. "Where am I" answered without reading. |
+| Boss tiers & caps | Hardcap pacing | Three profile-declared patterns: `BOSS` (badges/E4/Champion — end splits, name the header's "Brawly split (1/18)"), `STORY_BOSS` (rivals, every Aqua/Magma fight, Archie, Maxie, Wally, Steven). The level cap is the ace of the next fight in EITHER tier — a fresh run caps at 12 (Petalburg Woods grunt's Croagunk), not Brawly's 21. Road-ahead rows badge `boss`/`story`; filler is unbadged. |
 | Road ahead | 25 fights between gyms | Bordered list (same grammar as ranked actions); any row markable **Beaten**, which moves the run past everything before it — one click per route, not per trainer. Per-row **Plan**. |
 | Party strip | Lead order matters | Six visible slots, lead first; built by clicking (+/−) in the box, reordered with ▲. Click order IS lead order. A `<select multiple>` cannot express order — jQuery returns DOM order — which made the lead silently always the earliest catch. Never reintroduce it. |
 | Box | 60+ entries, permadeath | Counts bar (`N alive · M lost`), substring filter (a view, never a command), party pinned on top in lead order, the lost below a `lost` divider — in the record, out of the working set. `at cap` chip when a mon meets the run's cap. |

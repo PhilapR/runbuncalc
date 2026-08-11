@@ -98,9 +98,13 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.equal(await page.isVisible('#runbun-run-empty'), false,
 		'the start form should be gone once a run exists');
 
-	// The cap is computed from the run map, not typed by anyone.
+	// The cap is computed from the run map, not typed by anyone — and it is the
+	// next STORY BOSS's ace, not the next badge's: 12 from the Petalburg Woods
+	// grunt's Croagunk, not Brawly's 21 two story fights later.
 	const cap = await page.textContent('#runbun-run-cap');
-	assert.match(cap, /Level cap \d+ — Leader Brawly's/);
+	assert.match(cap, /Level cap 12 — Team Aqua Grunt Petalburg Woods's Croagunk/);
+	// And the split leads the position line.
+	assert.match(await page.textContent('#runbun-run-position'), /Brawly split \(1\/18\)/);
 
 	// Picking a route lists what actually lives there.
 	await page.selectOption('#runbun-run-map', 'Route101');

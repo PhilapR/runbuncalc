@@ -172,20 +172,37 @@ test('a level-up move is not available before its level', () => {
 	assert.ok(run.apply(state, {kind: 'teach', id: 'mon-1', move: now[0].move}));
 });
 
-test('the level cap comes from the next story fight, and names it', () => {
+test('the level cap follows boss tiers, not badges', () => {
 	const capped = fresh({levelCap: 'next-milestone-ace'});
+	// A fresh run is capped by the FIRST story-boss fight — the Petalburg Woods
+	// grunt's Croagunk at 12 — not by Brawly's 21 two story fights later. The
+	// whole sequence is read out of the run map, never transcribed.
 	const cap = run.levelCap(capped);
-	// Computed from the run map, not a number somebody typed: the cap is the
-	// highest level in the next milestone party.
-	assert.equal(cap.trainer, 'Leader Brawly');
-	assert.ok(cap.cap > 0);
-	assert.ok(cap.ace, 'the cap should name the Pokemon that sets it');
+	assert.equal(cap.trainer, 'Team Aqua Grunt Petalburg Woods');
+	assert.equal(cap.cap, 12);
+	assert.equal(cap.ace, 'Croagunk');
+	assert.equal(cap.tier, 'story');
+
+	// The cap walks the Brawly split: 12 → 16 → 16 → 21, then the next badge.
+	const walk = [
+		['Team Aqua Grunt Petalburg Woods', 16, 'story'],
+		['Team Aqua Grunt Museum #1', 16, 'story'],
+		['Team Aqua Grunt Museum #2', 21, 'boss'],
+		['Leader Brawly', 25, 'boss'],
+	];
+	let walked = capped;
+	for (const step of walk) {
+		walked = run.apply(walked, {kind: 'beat', trainer: step[0]});
+		const at = run.levelCap(walked);
+		assert.equal(at.cap, step[1], `after ${step[0]}`);
+		assert.equal(at.tier, step[2], `after ${step[0]}`);
+	}
 
 	let state = run.apply(capped, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
 	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: cap.cap});
 	assert.equal(state.box[0].level, cap.cap);
 	assert.throws(() => run.apply(state, {kind: 'levelUp', id: 'mon-1', to: cap.cap + 1}),
-		/the cap is \d+ \(Leader Brawly's .*\)/);
+		/the cap is 12 \(Team Aqua Grunt Petalburg Woods's Croagunk\)/);
 
 	// Off by default, because a hard cap is a self-imposed rule and enforcing it
 	// for everyone would refuse levels that are legal in the game.
@@ -348,7 +365,9 @@ test('the summary states where the run has got to', () => {
 	assert.equal(summary.party[0].species, 'Azumarill');
 	assert.deepEqual(summary.bag, {Leftovers: 1});
 	assert.equal(summary.commands, 5);
-	assert.equal(summary.levelCap.trainer, 'Leader Brawly');
+	// Fight #0 is beaten, so the cap fight is still the first story boss ahead.
+	assert.equal(summary.levelCap.trainer, 'Team Aqua Grunt Petalburg Woods');
+	assert.equal(summary.split.boss, 'Leader Brawly');
 	state = run.apply(state, {kind: 'release', id: 'mon-1'});
 	assert.equal(run.summarize(state).boxed, 0);
 });
@@ -368,6 +387,39 @@ test('the story spine derives beaten from position, not from bookkeeping', () =>
 	assert.equal(after.filter(m => m.beaten).length, 7);
 	assert.equal(after.filter(m => m.beaten).pop().trainer, 'Leader Norman');
 	assert.equal(after.filter(m => !m.beaten)[0].trainer, 'Magma Leader Maxie Mt Chimney');
+	// Milestones carry their tier so the spine can draw badges taller than
+	// story bosses.
+	assert.equal(after[0].tier, 'boss');
+	assert.equal(after.find(m => m.trainer === 'Magma Leader Maxie Mt Chimney').tier, 'story');
+});
+
+test('the run is narrated in splits, ended by badges', () => {
+	const state = fresh();
+	const at = run.split(state);
+	// 18 split-enders: nine badge battles (Tate and Liza are separate fights),
+	// eight Elite Four rounds counting double variants, and the Champion.
+	assert.equal(at.of, 18);
+	assert.equal(at.index, 1);
+	assert.equal(at.boss, 'Leader Brawly');
+	assert.equal(at.finished, false);
+
+	// Beating story fights does not advance the split; beating the badge does.
+	const grunts = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'});
+	assert.equal(run.split(grunts).index, 1);
+	const badge = run.apply(grunts, {kind: 'beat', trainer: 'Leader Brawly'});
+	assert.equal(run.split(badge).index, 2);
+	assert.equal(run.split(badge).boss, 'Leader Roxanne');
+
+	// The tier classifier itself: boss ends splits, story sets caps, filler is null.
+	const profile = require('./profiles').getProfile();
+	assert.equal(run.fightTier(profile, 'Leader Brawly'), 'boss');
+	assert.equal(run.fightTier(profile, 'Elite Four SidneyDouble'), 'boss');
+	assert.equal(run.fightTier(profile, 'Champion Wallace'), 'boss');
+	assert.equal(run.fightTier(profile, 'Team Aqua Grunt Petalburg Woods'), 'story');
+	assert.equal(run.fightTier(profile, 'Trainer Rival Cycling Road Swampert'), 'story');
+	assert.equal(run.fightTier(profile, 'Aqua Leader Archie Mt Pyre'), 'story');
+	assert.equal(run.fightTier(profile, 'Youngster Calvin'), null);
+	assert.equal(run.fightTier(profile, 'Winstrate Victor'), null);
 });
 
 test('a catch can never create a Pokemon with no moves', () => {

@@ -124,7 +124,8 @@ test('status renders the party in order, then the box', () => {
 
 	const status = cli('status');
 	assert.match(status, /next: #0 Youngster Calvin/);
-	assert.match(status, /level cap: \d+ \(Leader Brawly's/);
+	assert.match(status, /split 1 \/ 18 — Leader Brawly/);
+	assert.match(status, /level cap: 12 \(Team Aqua Grunt Petalburg Woods's/);
 	// Nicknames are the point of a box feeling like yours.
 	assert.match(status, /Scout the Lillipup L3/);
 	// Party first and in party order, then everything else.

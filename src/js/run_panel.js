@@ -103,6 +103,7 @@
 			$spine.append($('<li></li>')
 				.attr('title', '#' + milestone.order + '  ' + milestone.trainer)
 				.toggleClass('is-beaten', milestone.beaten)
+				.toggleClass('is-boss', milestone.tier === 'boss')
 				.toggleClass('is-next', !milestone.beaten && milestone === next));
 		});
 		var done = spine.filter(function (m) { return m.beaten; }).length;
@@ -220,6 +221,11 @@
 			var $row = $('<li class="runbun-run-up"></li>').toggleClass('is-next', index === 0);
 			$row.append($('<span class="runbun-run-up-order"></span>').text('#' + fight.order));
 			$row.append($('<span class="runbun-run-up-name"></span>').text(fight.trainer));
+			if (fight.tier) {
+				$row.append($('<span class="runbun-run-up-tier"></span>')
+					.addClass(fight.tier === 'boss' ? 'is-boss' : 'is-story')
+					.text(fight.tier));
+			}
 			$row.append($('<span class="runbun-run-up-meta"></span>')
 				.text(fight.partySize + ' mons · to L' + fight.topLevel));
 			$row.append($('<span class="runbun-run-up-actions"></span>')
@@ -247,9 +253,15 @@
 			stagedParty = state.party.slice();
 			var summary = payload.status;
 			$('#runbun-run-name').text(summary.name);
-			$('#runbun-run-position').text(summary.next ?
-				'Next: #' + summary.next.order + ' ' + summary.next.trainer :
-				'The run map is finished.');
+			// The split is how a player narrates a run — "the Brawly split" — so it
+			// leads the position line rather than trailing it.
+			$('#runbun-run-position').text(
+				(summary.split && !summary.split.finished ?
+					summary.split.boss.replace(/^Leader /, '') + ' split (' +
+						summary.split.index + '/' + summary.split.of + ') · ' : '') +
+				(summary.next ?
+					'Next: #' + summary.next.order + ' ' + summary.next.trainer :
+					'The run map is finished.'));
 			$('#runbun-run-cap').text(summary.levelCap.cap === null ?
 				'' :
 				'Level cap ' + summary.levelCap.cap + ' — ' + summary.levelCap.trainer +

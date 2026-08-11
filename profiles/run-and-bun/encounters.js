@@ -136,21 +136,42 @@ const KNOWN_GAPS = {
 };
 
 /**
- * Which battles are story milestones, as a filter over trainer names.
+ * Boss tiers, as filters over trainer names.
  *
- * This is a VIEW, not a value claim: it asserts nothing about the game beyond
- * the naming convention the run map already uses ("Leader Brawly", "Elite Four
- * Sidney"). A consumer walking all 362 battles gets a wall of route filler; a
- * consumer walking the milestones gets the shape of a playthrough.
+ * These are VIEWS, not value claims: they assert nothing about the game beyond
+ * the naming convention the run map already uses ("Leader Brawly", "Team Aqua
+ * Grunt Petalburg Woods"). Kept in the profile rather than in the tools that
+ * use them because the convention is the game's, not the tool's — another game
+ * names its majors differently and declares its own patterns here.
  *
- * Kept in the profile rather than in the tool that uses it because the
- * convention is the game's, not the tool's — another game names its majors
- * differently and declares its own pattern here.
+ * Three tiers, because they answer three different questions:
+ *
+ *   BOSS_PATTERN         split-enders: badges, the Elite Four gauntlet, the
+ *                        Champion. A run is narrated in these — "the Brawly
+ *                        split" is everything up to and including #77.
+ *   STORY_BOSS_PATTERN   mandatory story fights inside a split: rivals, every
+ *                        Team Aqua/Magma battle, Archie, Maxie, Wally, Steven.
+ *                        Together with bosses these SET THE LEVEL CAP — the
+ *                        cap is the ace of the next fight in either tier, so a
+ *                        fresh run is capped at 12 by the Petalburg Woods
+ *                        grunt's Croagunk, not at 21 by Brawly two story
+ *                        fights later.
+ *   MILESTONE_PATTERN    the narrative spine: bosses plus the NAMED story
+ *                        bosses. Grunts are story fights but not landmarks —
+ *                        34 ticks is a glanceable spine, 70 is noise.
  *
  * `Double` variants of Elite Four members are the same trainer fought a second
- * time in the double-battle branch, so they are milestones too.
+ * time in the double-battle branch, so they are bosses too.
  */
+const BOSS_PATTERN = /^(Leader |Elite Four |Champion )/;
+
+const STORY_BOSS_PATTERN =
+	/^(Trainer Rival |Team Aqua Grunt |Team Magma Grunt |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven )/;
+
 const MILESTONE_PATTERN =
 	/^(Leader |Elite Four |Champion |Trainer Rival |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven )/;
 
-module.exports = {GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE, MILESTONE_PATTERN};
+module.exports = {
+	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,
+	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN,
+};

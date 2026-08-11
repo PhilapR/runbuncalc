@@ -139,21 +139,46 @@ function requireMon(run, id) {
 }
 
 /**
+ * Which boss tier a fight belongs to, per the profile's declared patterns.
+ *
+ * 'boss' ends a split; 'story' is a mandatory fight inside one. Both set the
+ * level cap. Null is route filler. Falls back to the milestone pattern for a
+ * profile that has not declared tiers, so a second game degrades gracefully
+ * rather than losing its cap.
+ */
+function fightTier(profile, trainer) {
+	const boss = profile.encounters.BOSS_PATTERN;
+	const story = profile.encounters.STORY_BOSS_PATTERN;
+	if (boss || story) {
+		if (boss && boss.test(trainer)) return 'boss';
+		if (story && story.test(trainer)) return 'story';
+		return null;
+	}
+	const milestone = profile.encounters.MILESTONE_PATTERN;
+	return milestone && milestone.test(trainer) ? 'boss' : null;
+}
+
+/**
  * The level ceiling this run is playing under, and where it comes from.
  *
- * Returned with the fight that sets it, not as a bare number: "capped at 20" is
- * a rule, "capped at 20 by Leader Brawly's Kubfu" is a reason, and a player
- * arguing with the cap needs the reason.
+ * The cap is the ace of the next BOSS-TIER fight of either kind — which is the
+ * game's actual pacing, not the next badge's. A fresh run is capped at 12 by
+ * the Petalburg Woods grunt's Croagunk; Brawly's 21 only applies once the two
+ * story fights before him are cleared. Deriving it this way keeps every cap a
+ * value read out of the run map rather than a number somebody transcribed.
+ *
+ * Returned with the fight that sets it, not as a bare number: "capped at 12"
+ * is a rule, "capped at 12 by the Petalburg Woods grunt's Croagunk" is a
+ * reason, and a player arguing with the cap needs the reason.
  */
 function levelCap(run) {
 	if (run.rules.levelCap === 'none') return {cap: null, mode: 'none'};
 	const profile = getProfile(run.profileId);
-	const pattern = profile.encounters.MILESTONE_PATTERN;
 	const planner = require('./planner');
 	const fights = planner.loadRunMap(run.profileId)
 		.filter(f => f.order > run.position)
-		.filter(f => !pattern || pattern.test(f.trainer));
-	if (!fights.length) return {cap: null, mode: run.rules.levelCap, reason: 'no milestone ahead'};
+		.filter(f => fightTier(profile, f.trainer) !== null);
+	if (!fights.length) return {cap: null, mode: run.rules.levelCap, reason: 'no boss ahead'};
 	const next = fights[0];
 	const ace = next.party.reduce((top, mon) => mon.level > top.level ? mon : top, next.party[0]);
 	return {
@@ -162,6 +187,30 @@ function levelCap(run) {
 		trainer: next.trainer,
 		order: next.order,
 		ace: ace.species,
+		tier: fightTier(profile, next.trainer),
+	};
+}
+
+/**
+ * Which split the run is in: the next split-ending boss, and how many are
+ * behind it. "Split 1 of 15 — Leader Brawly" is how a player narrates a run;
+ * the position integer is how the map stores it.
+ */
+function split(run) {
+	const profile = getProfile(run.profileId);
+	const boss = profile.encounters.BOSS_PATTERN || profile.encounters.MILESTONE_PATTERN;
+	if (!boss) return null;
+	const bosses = require('./planner').loadRunMap(run.profileId)
+		.filter(fight => boss.test(fight.trainer));
+	if (!bosses.length) return null;
+	const beaten = bosses.filter(fight => fight.order <= run.position).length;
+	const current = bosses[Math.min(beaten, bosses.length - 1)];
+	return {
+		index: Math.min(beaten + 1, bosses.length),
+		of: bosses.length,
+		boss: current.trainer,
+		order: current.order,
+		finished: beaten === bosses.length,
 	};
 }
 
@@ -192,6 +241,7 @@ function milestones(run) {
 			trainer: fight.trainer,
 			order: fight.order,
 			beaten: fight.order <= run.position,
+			tier: fightTier(profile, fight.trainer),
 		}));
 }
 
@@ -632,6 +682,7 @@ function summarize(run) {
 		name: run.name,
 		profileId: run.profileId,
 		position: run.position,
+		split: split(run),
 		next: ahead.length ? {trainer: ahead[0].trainer, order: ahead[0].order} : null,
 		levelCap: cap,
 		boxed: alive.length,
@@ -651,6 +702,6 @@ function summarize(run) {
 module.exports = {
 	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
 	createRun, apply, applyAll, undo,
-	findMon, levelCap, upcoming, milestones, encountersOn, learnable, partySpecs, planNext,
-	summarize,
+	findMon, levelCap, upcoming, milestones, split, fightTier, encountersOn, learnable,
+	partySpecs, planNext, summarize,
 };

@@ -713,8 +713,11 @@ test('a run is created, advanced and summarized entirely through the request', a
 	assert.equal(caught.status, 200);
 	assert.match(caught.body.summary, /caught Lillipup \(mon-1\) at level 3 on Route101/);
 	assert.equal(caught.body.status.boxed, 1);
-	// The level cap is derived from the run map and names the fight that sets it.
-	assert.equal(caught.body.status.levelCap.trainer, 'Leader Brawly');
+	// The level cap is derived from the run map and names the fight that sets
+	// it — the next story boss of any tier, not the next badge.
+	assert.equal(caught.body.status.levelCap.trainer, 'Team Aqua Grunt Petalburg Woods');
+	assert.equal(caught.body.status.levelCap.cap, 12);
+	assert.equal(caught.body.status.split.boss, 'Leader Brawly');
 
 	// The original run is untouched: the server returned a new document rather
 	// than mutating anything it was given.

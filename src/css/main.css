@@ -2615,3 +2615,30 @@ table.field {
 	margin-top: var(--rb-space-sm);
 	margin-bottom: 0;
 }
+/* Boss ticks stand taller on the spine: the eight badges, the Elite Four and
+   the Champion are the split-enders a run is narrated in; the named story
+   bosses between them stay short. */
+#runbun-run .runbun-run-spine li.is-boss {
+	height: 20px;
+}
+/* Tier badges on the road ahead: a boss ends a split, a story fight sets the
+   cap. Route filler carries no badge at all. */
+#runbun-run .runbun-run-up-tier {
+	font-family: var(--rb-font-mono);
+	font-size: 0.68rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 0 5px;
+	border-radius: var(--rb-radius-control);
+	border: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-up-tier.is-boss {
+	color: var(--rb-brand-ink);
+	background: var(--rb-brand-soft);
+	border-color: var(--rb-brand);
+}
+#runbun-run .runbun-run-up-tier.is-story {
+	color: var(--rb-oracle);
+	background: var(--rb-oracle-soft);
+	border-color: var(--rb-oracle);
+}
