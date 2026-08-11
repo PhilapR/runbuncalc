@@ -536,6 +536,9 @@
 		$('#runbun-run-evolve').on('click', function () {
 			command({kind: 'evolve', id: $('#runbun-run-selected').val()});
 		});
+		$('#runbun-run-level-cap').on('click', function () {
+			command({kind: 'levelUp', id: $('#runbun-run-selected').val(), to: 'cap'});
+		});
 		$('#runbun-run-level').on('click', function () {
 			command({kind: 'levelUp', id: $('#runbun-run-selected').val(),
 				to: Number($('#runbun-run-level-to').val())});

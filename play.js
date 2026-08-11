@@ -167,9 +167,9 @@ const SUBCOMMANDS = {
 		}
 		const created = runtime.createRun({
 			name: args.flags.name || path.basename(file, '.json'),
-			// `--cap` turns on the level cap most Run & Bun players actually play
-			// under. Off by default because it is a self-imposed rule.
-			levelCap: args.flags.cap ? 'next-milestone-ace' : 'none',
+			// The caps are the game's own (hardcoded, candy-gated), so they are on
+			// by default; --no-cap is the escape hatch for free editing.
+			levelCap: args.flags['no-cap'] ? 'none' : 'next-milestone-ace',
 			permadeath: !!args.flags.nuzlocke,
 			// Named for the rival's ace, which the starter choice fixes. Without it
 			// all three variants of each rival fight stay visible.
@@ -241,7 +241,8 @@ const SUBCOMMANDS = {
 	},
 
 	level(state, args) {
-		return {command: {kind: 'levelUp', id: args.positional[0], to: Number(args.positional[1])}};
+		const to = args.positional[1] === 'cap' ? 'cap' : Number(args.positional[1]);
+		return {command: {kind: 'levelUp', id: args.positional[0], to}};
 	},
 
 	evolve(state, args) {
@@ -360,12 +361,12 @@ const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'p
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
-  new [--name N] [--cap] [--nuzlocke] [--rival Swampert] [--force]   start a run
+  new [--name N] [--no-cap] [--nuzlocke] [--rival Swampert] [--force]   start a run (game caps on by default)
   status / box                                    the box, party, bag and position
   where <map>                                     what can be caught there
   find <species>                                  everywhere it can be caught
   catch <species> --level N [--map M] [--name N]  add to the box
-  level <id> <n>                                  raise a level
+  level <id> <n|cap>                              raise a level; 'cap' is free, over-cap spends Rare Candy
   evolve <id> [--into S]                          evolve
   learn <id>                                      what it can learn, now and later
   teach <id> <move> [--replace M]                 teach a move

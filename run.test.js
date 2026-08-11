@@ -225,13 +225,35 @@ test('the level cap follows boss tiers, not badges', () => {
 	assert.throws(() => run.apply(state, {kind: 'levelUp', id: 'mon-1', to: cap.cap + 1}),
 		/the cap is 12 \(Team Aqua Grunt Petalburg Woods's Croagunk\)/);
 
-	// Off by default, because a hard cap is a self-imposed rule and enforcing it
-	// for everyone would refuse levels that are legal in the game.
-	assert.equal(run.levelCap(fresh()).cap, null);
+	// On by default: the caps are hardcoded in the game, not a player rule.
+	// 'none' is the escape hatch for free editing.
+	assert.equal(run.levelCap(fresh()).cap, 12);
+	assert.equal(run.levelCap(fresh({levelCap: 'none'})).cap, null);
 	const free = run.apply(
-		run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
+		run.apply(fresh({levelCap: 'none'}), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
 		{kind: 'levelUp', id: 'mon-1', to: 100});
 	assert.equal(free.box[0].level, 100);
+});
+
+test('to-cap is free, and each level over the cap spends a Rare Candy', () => {
+	// The game's economy: an infinite candy reaches the cap, the limited candies
+	// found through the run are the only way past it.
+	let state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
+	assert.equal(state.box[0].level, 12);
+	assert.throws(() => run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 14}),
+		/each level above it costs a Rare Candy — need 2, the bag has 0/);
+	state = run.apply(state, {kind: 'acquire', item: 'Rare Candy', count: 3});
+	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 14});
+	assert.equal(state.box[0].level, 14);
+	assert.deepEqual(state.bag, {'Rare Candy': 1}, 'two candies spent, one left');
+	assert.match(state.log[state.log.length - 1].summary, /2 Rare Candy over the cap/);
+	// A capless run has no cap to level to.
+	assert.throws(
+		() => run.apply(run.apply(fresh({levelCap: 'none'}),
+			{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
+		{kind: 'levelUp', id: 'mon-1', to: 'cap'}),
+		/no cap — give a number/);
 });
 
 test('levels do not go down', () => {

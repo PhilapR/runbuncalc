@@ -70,22 +70,23 @@ const PARTY_LIMIT = 6;
 /**
  * Level caps.
  *
- * `next-milestone-ace` is the convention most Run & Bun players actually use:
- * you may not exceed the level of the highest Pokemon in the next story fight.
- * It is computed from the run map rather than declared, which means it is real
- * data rather than a number somebody typed.
+ * Run & Bun's caps are HARDCODED IN THE GAME: EXP-based play stops at the cap,
+ * an infinite Rare Candy levels anything straight to it (so the whole box is
+ * always playable at cap, grind-free), and the only way past it is spending
+ * the limited Rare Candies found through the game. The cap is a mechanic, not
+ * a player convention — which is why it is on by default here and 'none' is
+ * the escape hatch, not the other way round.
  *
- * `none` is the honest default. A hard cap is a self-imposed rule, and turning
- * it on for everyone would refuse levels that are perfectly legal in the game.
+ * `next-milestone-ace` is the stored mode name for how the VALUES are
+ * obtained: the published decomp carries no cap table, so the caps are derived
+ * as the ace of the next boss-tier fight — a derivation that reproduces the
+ * game's known caps (12, 16, 21, 25...). If the hardcoded table ever surfaces,
+ * it becomes an import and this derivation becomes a cross-check.
  *
- * Run & Bun's cap is effectively LOCKED: play levels you to the cap and stops,
- * and the only way over it is spending limited Rare Candies — so the
- * refuse-above-cap model here matches how the game is actually played, and EXP
- * projection is a curiosity, not a planning tool. A game with a SOFT cap
- * (overlevel allowed at a penalty, or EXP keeps flowing past the wall) would
- * need a new mode where the interesting question becomes EXP management —
- * which is what the oracle's growth curves exist for. Add a mode here rather
- * than bending 'next-milestone-ace'; the modes are the portability seam.
+ * Going OVER the cap consumes Rare Candy from the bag, one per level above
+ * it — the same economy the game runs. A soft-cap game (overlevel freely, or
+ * EXP keeps flowing) should arrive as a NEW mode; the modes are the
+ * portability seam.
  */
 const LEVEL_CAP_MODES = new Set(['none', 'next-milestone-ace']);
 
@@ -104,7 +105,7 @@ function createRun(options) {
 	const opts = options || {};
 	const profileId = opts.profileId || undefined;
 	const profile = getProfile(profileId);
-	const mode = opts.levelCap || 'none';
+	const mode = opts.levelCap || 'next-milestone-ace';
 	if (!LEVEL_CAP_MODES.has(mode)) {
 		throw new Error(`unknown level cap mode ${JSON.stringify(mode)}`);
 	}
@@ -487,25 +488,46 @@ const COMMANDS = {
 			(origin.mapName ? ` on ${origin.mapName}` : ' — declared, no wild table');
 	},
 
-	/** Set a Pokemon's level, respecting the run's cap. */
+	/**
+	 * Set a Pokemon's level.
+	 *
+	 * `to: 'cap'` levels straight to the current cap — the game's infinite Rare
+	 * Candy makes that free, so the tool makes it one word. Levels ABOVE the cap
+	 * cost one Rare Candy from the bag each, which is the game's own economy:
+	 * the candies found through the run are the only way over.
+	 */
 	levelUp(run, command) {
 		const mon = requireMon(run, command.id);
-		const to = Number(command.to);
+		const cap = levelCap(run);
+		let to = command.to;
+		if (to === 'cap') {
+			if (cap.cap === null) throw new Error('levelUp: this run has no cap — give a number');
+			to = cap.cap;
+		}
+		to = Number(to);
 		if (!Number.isInteger(to) || to < 1 || to > 100) {
-			throw new Error('levelUp: to must be an integer from 1 to 100');
+			throw new Error('levelUp: to must be an integer from 1 to 100, or "cap"');
 		}
 		if (to < mon.level) {
 			throw new Error(`levelUp: ${mon.species} is already level ${mon.level}; ` +
 				'levels do not go down');
 		}
-		const cap = levelCap(run);
+		let spent = 0;
 		if (cap.cap !== null && to > cap.cap) {
-			throw new Error(`levelUp: the cap is ${cap.cap} ` +
-				`(${cap.trainer}'s ${cap.ace}); ${to} is over it`);
+			spent = to - Math.max(cap.cap, mon.level);
+			const candies = run.bag['Rare Candy'] || 0;
+			if (candies < spent) {
+				throw new Error(`levelUp: the cap is ${cap.cap} ` +
+					`(${cap.trainer}'s ${cap.ace}); each level above it costs a Rare Candy — ` +
+					`need ${spent}, the bag has ${candies}`);
+			}
+			run.bag['Rare Candy'] -= spent;
+			if (!run.bag['Rare Candy']) delete run.bag['Rare Candy'];
 		}
 		const from = mon.level;
 		mon.level = to;
-		return `${mon.species} (${mon.id}) ${from} → ${to}`;
+		return `${mon.species} (${mon.id}) ${from} → ${to}` +
+			(spent ? ` (${spent} Rare Candy over the cap)` : '');
 	},
 
 	/** Evolve a Pokemon, checked against the evolution table. */

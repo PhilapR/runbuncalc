@@ -107,16 +107,17 @@ test('a missing save file says how to start one', () => {
 	assert.throws(() => cli('status'), /no run at .*; start one with: node play\.js new/);
 });
 
-test('the level cap is opt-in at creation', () => {
+test('the caps are the game\'s: on by default, --no-cap is the escape hatch', () => {
 	cli('new');
-	assert.equal(read().rules.levelCap, 'none');
-	cli('new', '--force', '--cap', '--nuzlocke');
 	assert.equal(read().rules.levelCap, 'next-milestone-ace');
+	cli('new', '--force', '--no-cap', '--nuzlocke');
+	assert.equal(read().rules.levelCap, 'none');
+	// Permadeath stays opt-in — that one IS a player rule, not a game mechanic.
 	assert.equal(read().rules.permadeath, true);
 });
 
 test('status renders the party in order, then the box', () => {
-	cli('new', '--cap');
+	cli('new');
 	cli('catch', 'Lillipup', '--map', 'Route101', '--level', '3', '--name', 'Scout');
 	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
 	cli('catch', 'Skitty', '--map', 'Route101', '--level', '2');

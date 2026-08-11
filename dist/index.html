@@ -1940,7 +1940,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
-    <script type="text/javascript" src="./js/run_panel.js?2455f88f"></script>
+    <script type="text/javascript" src="./js/run_panel.js?a15625af"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2210,8 +2210,8 @@
             <input type="text" id="runbun-run-new-name" value="My run" spellcheck="false">
         </label>
         <label class="runbun-run-check">
-            <input type="checkbox" id="runbun-run-new-cap">
-            <span>Level cap at the next story fight&rsquo;s ace</span>
+            <input type="checkbox" id="runbun-run-new-cap" checked>
+            <span>Game level caps (Run &amp; Bun hardcodes these; uncheck for free editing)</span>
         </label>
         <label class="runbun-run-check">
             <input type="checkbox" id="runbun-run-new-nuzlocke">
@@ -2285,6 +2285,7 @@
                     <button type="button" id="runbun-run-evolve" class="btn btn-wide">Evolve</button>
                     <input type="number" id="runbun-run-level-to" placeholder="Lv" min="1" max="100">
                     <button type="button" id="runbun-run-level" class="btn btn-wide">Set level</button>
+                    <button type="button" id="runbun-run-level-cap" class="btn btn-wide" title="The infinite candy makes this free">To cap</button>
                 </div>
                 <div class="runbun-run-row">
                     <input type="text" id="runbun-run-move" placeholder="Move" spellcheck="false">
