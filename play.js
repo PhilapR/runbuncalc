@@ -196,6 +196,26 @@ function renderMatrix(matrix) {
  * defender's HP summed across the fight, so a `+1.5` is a move that adds one
  * and a half health bars of hurt over the whole trainer.
  */
+function renderRanking(ranking) {
+	const lines = [`${ranking.trainer} (#${ranking.order}) — ` +
+		`${ranking.combinations} sixes from a box of ${ranking.boxSize}`];
+	if (ranking.projection.applied && ranking.projection.from === 'projected') {
+		lines.push(`  box at the cap it is fought under: L${ranking.projection.cap}`);
+	}
+	for (const party of ranking.parties) {
+		const names = party.members.map(member =>
+			member.id === party.lead ? `[${member.species}]` : member.species);
+		lines.push(`  ${String(party.score).padStart(7)}  ${names.join(' ')}` +
+			(party.label && party.label !== 'top' ? `  (${party.label})` : '') +
+			(party.leadCollapse ? '  lead-sensitive' : ''));
+		if (party.unanswered.length) {
+			lines.push(`           unanswered: ${party.unanswered.join(', ')}`);
+		}
+	}
+	lines.push('  [brackets] mark the lead; the score assumes free switches, priced by the entry hit.');
+	return lines.join('\n');
+}
+
 function renderAdvice(advice) {
 	const lines = [`${advice.trainer} (#${advice.order}) — ${advice.considered} single changes weighed`];
 	if (advice.projection.applied && advice.projection.from === 'projected') {
@@ -547,6 +567,12 @@ const SUBCOMMANDS = {
 			args.positional.length ? args.positional.join(' ') : undefined))};
 	},
 
+	/** Every possible six from the alive box, ranked against a fight. */
+	rank(state, args) {
+		return {message: renderRanking(runtime.rankParties(state,
+			args.positional.length ? args.positional.join(' ') : undefined))};
+	},
+
 	undo(state) {
 		const undone = runtime.undo(state);
 		const dropped = state.log[state.log.length - 1];
@@ -563,7 +589,7 @@ const SUBCOMMANDS = {
 
 /** Subcommands that never write, so they can run against a save freely. */
 const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
-	'advise', 'log', 'milestones', 'split', 'routes', 'graveyard']);
+	'advise', 'rank', 'log', 'milestones', 'split', 'routes', 'graveyard']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -588,6 +614,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   beat <trainer>                                  move the run forward
   next [--count N] / plan [trainer]               what is ahead, and what it does
   matrix [trainer]                                the whole box against theirs, both ways
+  rank [trainer]                                  every six from the box, ranked for a fight
   advise [trainer]                                the single changes that most move that board
   routes [--all]                                  routes still holding an encounter
   split                                           this split: boss, cap, gauntlet, filler

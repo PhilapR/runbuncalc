@@ -154,6 +154,51 @@ test('evolution follows the table, including when it is not due yet', () => {
 		/does not become Beautifly/);
 });
 
+test('the ranker ranks the box the player will field, never the one they hold today', () => {
+	// The non-negotiable from the co-design: a ranking at current levels ranks
+	// a team that will never exist. Same box, caps on vs off, against Wattson
+	// (fought under cap 35): the projections differ AND the ordering differs.
+	const catches = [
+		{kind: 'catch', species: 'Breloom', level: 24},
+		{kind: 'catch', species: 'Kadabra', level: 24},
+		{kind: 'catch', species: 'Marshtomp', level: 24},
+		{kind: 'catch', species: 'Camerupt', level: 24},
+		{kind: 'catch', species: 'Manectric', level: 24},
+		{kind: 'catch', species: 'Swellow', level: 24, moves: ['Fly', 'Hurricane']},
+		{kind: 'catch', species: 'Pelipper', level: 24, moves: ['Surf', 'Hurricane']},
+	];
+	const capped = run.rankParties(
+		run.applyAll(fresh(), catches), 'Leader Wattson');
+	const uncapped = run.rankParties(
+		run.applyAll(fresh({levelCap: 'none'}), catches), 'Leader Wattson');
+	assert.deepEqual(capped.projection, {applied: true, cap: 35, from: 'projected'});
+	assert.deepEqual(uncapped.projection, {applied: false, cap: null, from: 'current'});
+	assert.notDeepEqual(
+		capped.parties.map(party => party.members.map(member => member.id)),
+		uncapped.parties.map(party => party.members.map(member => member.id)),
+		'projection must be able to change the ordering, not just the scores');
+
+	// Deterministic: the same question twice is the same answer, byte for byte.
+	assert.deepEqual(run.rankParties(run.applyAll(fresh(), catches), 'Leader Wattson'), capped);
+
+	// The shortlist is exhaustive over C(7,6) = 7 sixes, top plus diversity.
+	assert.equal(capped.combinations, 7);
+	assert.equal(capped.parties[0].label, 'top');
+	assert.ok(capped.parties[0].perEnemy.length >= 6, 'the assignment travels with the six');
+	assert.ok(capped.caveats.some(text => /assumes you can always switch/.test(text)));
+});
+
+test('the ranker finishes a box of 30 in interactive time', () => {
+	const catches = [];
+	for (let i = 0; i < 30; i++) catches.push({kind: 'catch', species: 'Poochyena', level: 20});
+	const state = run.applyAll(fresh({levelCap: 'none'}), catches);
+	const started = process.hrtime.bigint();
+	const ranking = run.rankParties(state, 'Leader Brawly');
+	const ms = Number(process.hrtime.bigint() - started) / 1e6;
+	assert.equal(ranking.combinations, 593775, 'C(30,6), exhaustively');
+	assert.ok(ms < 5000, `ranking took ${ms.toFixed(0)}ms; the budget is 5s`);
+});
+
 test('a named replace is honored below four moves too', () => {
 	// Found live: a Skrelp with two moves taught 'Hydro Pump over Water Gun'
 	// KEPT Water Gun — the replace was silently dropped because a free slot

@@ -43,6 +43,7 @@ L5 exists as `planner.js`, reachable over HTTP:
 | `GET /planner/fight?trainer=` | one trainer's party |
 | `POST /planner/predict` | the opponent's ranked actions and a decision margin |
 | `POST /run/matrix` | every alive box mon vs every mon in a fight, both directions |
+| `POST /run/rank` | every possible six from the alive box, ranked against a fight |
 | `POST /run/advise` | the single changes that most improve the party's own rows of that board |
 
 It owns no rules — parties come from the run map, damage from the calculator,

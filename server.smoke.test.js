@@ -802,6 +802,21 @@ test('audit regressions: the new endpoints refuse with reasons, never 500', asyn
 	assert.equal(plan.status, 400);
 });
 
+test('the ranker answers over HTTP, and refuses what it cannot rank', async () => {
+	const created = await newRun({name: 'Rank'});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	const {status, body} = await requestJson('/run/rank', {run: caught.body.run});
+	assert.equal(status, 200);
+	assert.equal(body.trainer, 'Youngster Calvin');
+	assert.equal(body.parties[0].label, 'top');
+	assert.ok(body.caveats.length >= 2);
+
+	// An empty box is a 400 with the reason, exactly like the matrix.
+	const empty = await requestJson('/run/rank', {run: created});
+	assert.equal(empty.status, 400);
+	assert.match(empty.body.error, /catch something first/);
+});
+
 test('the routes view answers over HTTP with the spent and the still-open', async () => {
 	const created = await newRun({name: 'Routes', permadeath: true});
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});

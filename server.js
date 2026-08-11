@@ -730,6 +730,17 @@ app.post("/run/routes", (req, res, next) => {
 	}
 });
 
+/** Every possible six from the alive box, ranked against a fight. */
+app.post("/run/rank", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		return res.json(runtime.rankParties(state, (req.body || {}).trainer));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
 /** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
 app.post("/run/split", (req, res, next) => {
 	const state = requireRun(req.body, res);

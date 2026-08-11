@@ -1543,6 +1543,199 @@ function undo(run) {
 	return rebuilt;
 }
 
+/**
+ * Rank every possible six from the alive box against a fight.
+ *
+ * The design decision this rides on, measured before it was believed: a grid
+ * cell does not depend on which other five you bring — `planner.matchup`
+ * builds each cell as its own benchless 1v1 — so the expensive part (the
+ * box-wide grid) is computed once through `boxMatrix`, and scoring every
+ * C(box,6) six off the cached cells is nearly free. Exhaustive, no pruning.
+ *
+ * The score is explicit and decomposable, per the co-design: for each enemy,
+ * take the six's best answer and sum. An answer is
+ *
+ *   offense − danger/2 − entry
+ *
+ *   offense  our best hit as a fraction of their bar (capped at 1) plus a
+ *            bonus for a guaranteed KO (+0.5), a possible KO (+0.2), and a
+ *            guaranteed KO from the faster side (+0.25 — they may never move)
+ *   danger   the same reading of their best hit back, half-weighted
+ *   entry    the hit taken on the switch-in turn (them.max, capped at 1) —
+ *            bringing your best answer is priced, not free. The LEAD pays no
+ *            entry against the enemy's lead: it starts on the field.
+ *
+ * An enemy no member answers above zero is UNANSWERED: named in the result
+ * and charged one point, rather than hidden inside a sum.
+ *
+ * The lead is marginalised with max, not average — the player picks it with
+ * full information — and the argmax lead is reported, with a collapse flag
+ * when the choice of lead swings the six by more than 0.75: a six that only
+ * works led correctly should say so.
+ *
+ * L6 on purpose, next to `boxMatrix`, whose projection it inherits verbatim:
+ * there is NO party argument, because a caller handing in current levels
+ * would rank a team the player will never field. The box comes from the run
+ * or the function does not run.
+ */
+function rankParties(run, trainer, options) {
+	const opts = options || {};
+	const matrix = boxMatrix(run, trainer);
+	const members = matrix.box;
+	const enemies = matrix.grid.map(cell => cell.enemy);
+	const clamp1 = value => Math.min(value, 1);
+
+	// answers[m][e] with the entry cost in; answersLead[m] for the enemy-lead
+	// column with it out. Rounded so ordering cannot ride floating dust.
+	const round = value => Math.round(value * 1000) / 1000;
+	const answers = members.map((member, m) => enemies.map((enemy, e) => {
+		const cell = matrix.grid[e].versus[m];
+		const offense = clamp1(cell.us.max) +
+			(cell.us.guaranteedKO ? 0.5 : cell.us.possibleKO ? 0.2 : 0) +
+			(cell.us.guaranteedKO && cell.speed === 'faster' ? 0.25 : 0);
+		const danger = clamp1(cell.them.max) +
+			(cell.them.guaranteedKO ? 0.5 : cell.them.possibleKO ? 0.2 : 0);
+		return {
+			withEntry: round(offense - danger / 2 - clamp1(cell.them.max)),
+			leadFree: round(offense - danger / 2),
+		};
+	}));
+
+	const size = Math.min(PARTY_LIMIT, members.length);
+	const star = members.reduce((best, member, m) => {
+		const total = answers[m].reduce((sum, cell) => sum + cell.withEntry, 0);
+		return best === null || total > best.total ? {m, total} : best;
+	}, null).m;
+
+	const collapseThreshold = 0.75;
+	function scoreSix(picks) {
+		// Base: per-enemy best answer with entry priced everywhere.
+		let base = 0;
+		const unanswered = [];
+		const columnMax = enemies.map((enemy, e) => {
+			let top = -Infinity;
+			for (const m of picks) top = Math.max(top, answers[m][e].withEntry);
+			if (top <= 0) unanswered.push(enemy.species);
+			return top;
+		});
+		base = columnMax.reduce((sum, value) => sum + value, 0) - unanswered.length;
+		// The lead only moves the enemy-lead column, so marginalising over six
+		// leads is six one-column deltas, not six rescores.
+		let best = null;
+		let worst = null;
+		for (const lead of picks) {
+			let leadColumn = -Infinity;
+			for (const m of picks) {
+				leadColumn = Math.max(leadColumn,
+					m === lead ? answers[m][0].leadFree : answers[m][0].withEntry);
+			}
+			const total = round(base - columnMax[0] + leadColumn);
+			if (best === null || total > best.total) best = {lead, total};
+			if (worst === null || total < worst.total) worst = {lead, total};
+		}
+		return {
+			score: best.total,
+			lead: best.lead,
+			leadCollapse: best.total - worst.total > collapseThreshold,
+			unanswered,
+		};
+	}
+
+	// One pass over every combination: top N, the best six without the star
+	// member, and the best six per argmax lead (for the different-lead pick).
+	const keep = opts.top || 10;
+	const top = [];
+	let withoutStar = null;
+	const bestPerLead = new Map();
+	const picks = Array.from({length: size}, (unused, i) => i);
+	const key = list => list.join(',');
+	for (;;) {
+		const scored = Object.assign({picks: picks.slice()}, scoreSix(picks));
+		top.push(scored);
+		if (top.length > keep * 4) {
+			top.sort((a, b) => b.score - a.score || key(a.picks).localeCompare(key(b.picks)));
+			top.length = keep;
+		}
+		if (!picks.includes(star) && (!withoutStar || scored.score > withoutStar.score)) {
+			withoutStar = scored;
+		}
+		const perLead = bestPerLead.get(scored.lead);
+		if (!perLead || scored.score > perLead.score) bestPerLead.set(scored.lead, scored);
+		// Next combination in lexicographic order.
+		let i = size - 1;
+		while (i >= 0 && picks[i] === members.length - size + i) i--;
+		if (i < 0) break;
+		picks[i]++;
+		for (let j = i + 1; j < size; j++) picks[j] = picks[j - 1] + 1;
+	}
+	top.sort((a, b) => b.score - a.score || key(a.picks).localeCompare(key(b.picks)));
+	top.length = Math.min(top.length, keep);
+
+	function present(scored, label) {
+		// The per-enemy assignment: which member answers which — the next thing
+		// a player does with a six is decide who takes what.
+		const perEnemy = enemies.map((enemy, e) => {
+			let bestMember = null;
+			let bestValue = -Infinity;
+			for (const m of scored.picks) {
+				const value = e === 0 && m === scored.lead ?
+					answers[m][0].leadFree : answers[m][e].withEntry;
+				if (value > bestValue) { bestValue = value; bestMember = m; }
+			}
+			return {enemy: enemy.species, answeredBy: members[bestMember].id,
+				answers: round(bestValue)};
+		});
+		return {
+			label,
+			score: scored.score,
+			members: scored.picks.map(m => ({id: members[m].id,
+				species: members[m].species, nickname: members[m].nickname,
+				level: members[m].level})),
+			lead: members[scored.lead].id,
+			leadCollapse: scored.leadCollapse,
+			unanswered: scored.unanswered,
+			perEnemy,
+		};
+	}
+
+	const parties = top.map((scored, i) => present(scored, i === 0 ? 'top' : null));
+	if (withoutStar && !top.some(t => key(t.picks) === key(withoutStar.picks))) {
+		parties.push(present(withoutStar, `diversity: without ${members[star].species}`));
+	}
+	const topLead = top.length ? top[0].lead : null;
+	let otherLead = null;
+	for (const scored of bestPerLead.values()) {
+		if (scored.lead !== topLead && (!otherLead || scored.score > otherLead.score)) {
+			otherLead = scored;
+		}
+	}
+	if (otherLead && !top.some(t => key(t.picks) === key(otherLead.picks)) &&
+		(!withoutStar || key(otherLead.picks) !== key(withoutStar.picks))) {
+		parties.push(present(otherLead, 'diversity: different lead'));
+	}
+
+	return {
+		trainer: matrix.trainer,
+		order: matrix.order,
+		projection: matrix.projection,
+		boxSize: members.length,
+		combinations: top.length ? countCombinations(members.length, size) : 0,
+		caveats: [
+			'the set score assumes you can always switch to the chosen answer; the entry cost prices the switch-in hit, not a blocked switch',
+			'a cell reports the best DAMAGING action; the opponent may prefer a status move it scores higher',
+			...(matrix.grid.length && require('./planner').getFight(matrix.trainer, run.profileId).isDouble ?
+				['this is a double battle, planned as Singles — see plannedAsSingles'] : []),
+		],
+		parties,
+	};
+}
+
+function countCombinations(n, k) {
+	let result = 1;
+	for (let i = 0; i < k; i++) result = result * (n - i) / (i + 1);
+	return Math.round(result);
+}
+
 /** A readable statement of where the run has got to. */
 function summarize(run) {
 	const cap = levelCap(run);
@@ -1580,5 +1773,5 @@ module.exports = {
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
-	adviseUpgrades, summarize,
+	adviseUpgrades, rankParties, summarize,
 };

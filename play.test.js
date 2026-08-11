@@ -124,6 +124,18 @@ test('the preset survives a single override, and --shiny takes on/off', () => {
 	assert.equal(onDisk.box[0].shiny, true);
 });
 
+test('rank is read-only and renders the shortlist with its lead', () => {
+	cli('new');
+	cli('catch', 'Lillipup', '--map', 'Route101', '--level', '3');
+	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
+	const before = fs.readFileSync(file, 'utf8');
+	const ranked = cli('rank');
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'rank must not write');
+	assert.match(ranked, /Youngster Calvin \(#0\)/);
+	assert.match(ranked, /\[\w+\]/, 'the lead is bracketed');
+	assert.match(ranked, /assumes free switches/);
+});
+
 test('the caps are the game\'s: on by default, --no-cap is the escape hatch', () => {
 	cli('new');
 	assert.equal(read().rules.levelCap, 'next-milestone-ace');
