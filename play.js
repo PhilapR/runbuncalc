@@ -561,5 +561,5 @@ if (require.main === module) {
 
 module.exports = {
 	main, parseArgs, renderStatus, renderEncounters, renderPlan, renderMatrix,
-	SUBCOMMANDS, USAGE,
+	SUBCOMMANDS, READ_ONLY, USAGE,
 };

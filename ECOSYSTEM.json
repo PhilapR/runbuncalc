@@ -1,0 +1,99 @@
+{
+	"comment": [
+		"The registry of prior art OUTSIDE this repository. This exists because",
+		"the Heart Scale mechanic was rediscovered by accident: the operator had",
+		"already modeled it in pokemon-mono, and nothing here pointed there.",
+		"Every claim carries a repo, a commit it was verified at, and the paths",
+		"that prove it — `npm run inventory` re-verifies the paths whenever the",
+		"clone is present locally, and INVENTORY.md renders the result. A claim",
+		"nobody can point at does not belong in this file."
+	],
+	"sources": [
+		{
+			"repo": "PhilapR/pokemon-mono",
+			"role": "The operator's primary monorepo — four earlier repos subtree-imported (see its RECEIPTS-MAP.md). Read-only prior art for this project.",
+			"verifiedAt": "shallow clone 2026-08-11",
+			"localPath": "/workspace/pokemon-mono",
+			"capabilities": [
+				{
+					"name": "Heart Scale = set one IV to 31 (Run & Bun mechanic)",
+					"paths": ["engines/rlm/src/pokemon_rlm/simulator/inventory.py"],
+					"notes": "use_heart_scale(bag, pokemon, stat): refuses at 31, consumes from bag, recalculates stats. heart_scales_to_max, iv_quality_rating. Not shop-buyable, sell 100."
+				},
+				{
+					"name": "In-battle consumable selection",
+					"paths": ["engines/rlm/src/pokemon_rlm/agents/battle_items.py"],
+					"notes": "Best HP heal for a deficit, best status cure, best ball."
+				},
+				{
+					"name": "Budget-constrained shop optimizer",
+					"paths": ["engines/rlm/src/pokemon_rlm/simulator/shops.py"],
+					"notes": "optimize_purchase(budget, needs)."
+				},
+				{
+					"name": "MDP battle solver: deathless probability, expected deaths",
+					"paths": ["engines/rlm/src/pokemon_rlm/analytics/mdp/mdp.py"],
+					"notes": "Value iteration over battle states. A previously-chosen objective function relevant to the party ranker."
+				},
+				{
+					"name": "Trainer database and team planning scaffolding",
+					"paths": ["engines/rlm/src/pokemon_rlm/agents/team_planner.py"],
+					"notes": "Locations, level bands, opponent type profiles."
+				},
+				{
+					"name": "Community research-notes pipeline (Optimal Moveset extraction)",
+					"paths": ["engines/rlm/src/pokemon_rlm/data/runandbun_research.py"],
+					"notes": "Structured extraction from community docs; provenance transcribed, not source-of-truth."
+				},
+				{
+					"name": "Run & Bun battle agent with cross-engine gates and calibration receipts",
+					"paths": ["engines/rab"],
+					"notes": "Subtree of rab-battle-agent. Cross-engine diff gates, ROM-band acceptance tests, calibration observation logs. Unswept in detail."
+				},
+				{
+					"name": "ROM ground truth engine",
+					"paths": ["groundtruth/pykemon"],
+					"notes": "Subtree of pykemon. Unswept in detail."
+				},
+				{
+					"name": "RL environment",
+					"paths": ["learners/rl-env"],
+					"notes": "Subtree of pokemon-rl-env. Unswept in detail."
+				},
+				{
+					"name": "Doc-drift tooling worth copying",
+					"paths": ["tools/check-doc-authority.py", "docs/authority.json"],
+					"notes": "Rejects volatile test-count snapshots in authoritative docs via a manifest. This repo's inventory gate is the same idea, applied here."
+				}
+			]
+		},
+		{
+			"repo": "PhilapR/platinum-kaizo-agent",
+			"role": "Another-game agent. Unswept — listed so it is not rediscovered by accident.",
+			"verifiedAt": "not yet cloned in this environment",
+			"localPath": null,
+			"capabilities": []
+		},
+		{
+			"repo": "PhilapR/pk-workspace",
+			"role": "Workspace repo, contents unknown. Unswept — listed so it is not rediscovered by accident.",
+			"verifiedAt": "not yet cloned in this environment",
+			"localPath": null,
+			"capabilities": []
+		},
+		{
+			"repo": "PokemonLinePlanner (local copy; upstream unknown)",
+			"role": "Turn-by-turn fight planner with snapshots — the design ancestor of this repo's Fight Planner. MatchupFinder computes best-known-move both directions.",
+			"verifiedAt": "local copy in session scratchpad 2026-08-11",
+			"localPath": null,
+			"capabilities": []
+		},
+		{
+			"repo": "PokemonRunAndBunHelper (local copy; upstream unknown)",
+			"role": "Python battle helper: find_best_move depth-3 search over a battle state.",
+			"verifiedAt": "local copy in session scratchpad 2026-08-11",
+			"localPath": null,
+			"capabilities": []
+		}
+	]
+}
