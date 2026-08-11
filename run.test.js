@@ -59,6 +59,23 @@ test('apply does not touch the run it was given', () => {
 	assert.equal(before.box.length, 0);
 });
 
+test('apply copies the command, so a caller can never reach back into a run', () => {
+	// Handlers park pieces of the command in the document (`catch` stores `ivs`).
+	// Handed the raw object, the caller kept a live reference into a run already
+	// returned: mutating it edited the run while the log's separate copy did not
+	// move, and undo — which replays the log — then rebuilt a different history
+	// than the one on screen.
+	const command = {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+		ivs: {hp: 31}};
+	const state = run.apply(fresh(), command);
+	command.ivs.hp = 0;
+
+	assert.deepEqual(state.box[0].ivs, {hp: 31}, 'the run must not follow the caller');
+	assert.deepEqual(state.log[0].command.ivs, {hp: 31}, 'the log must agree with the run');
+	assert.deepEqual(run.partySpecs(run.apply(state, {kind: 'party', ids: ['mon-1']}))[0].ivs,
+		{hp: 31}, 'and the planner must see what the box says');
+});
+
 test('the same commands always produce the same run', () => {
 	// Determinism is not a nicety here: undo replays the log, so a hidden clock or
 	// any other ambient input would make undo quietly wrong.
@@ -183,12 +200,16 @@ test('the level cap follows boss tiers, not badges', () => {
 	assert.equal(cap.ace, 'Croagunk');
 	assert.equal(cap.tier, 'story');
 
-	// The cap walks the Brawly split: 12 → 16 → 16 → 21, then the next badge.
+	// The cap walks the Brawly split: 12 → 16 → 16 → 21, then the next badge —
+	// and past Roxanne it is Chelle's Rhydon at 32, not Wattson's 35, because
+	// her Daycare fight (#181) sits between the two badges.
 	const walk = [
 		['Team Aqua Grunt Petalburg Woods', 16, 'story'],
 		['Team Aqua Grunt Museum #1', 16, 'story'],
 		['Team Aqua Grunt Museum #2', 21, 'boss'],
 		['Leader Brawly', 25, 'boss'],
+		['Leader Roxanne', 32, 'story'],
+		['Trainer Chelle Daycare', 35, 'boss'],
 	];
 	let walked = capped;
 	for (const step of walk) {
@@ -318,6 +339,38 @@ test('undo replays the log without its last entry', () => {
 	assert.throws(() => run.undo(back), /nothing to undo/);
 });
 
+test('undo rebuilds the exact document, on the path that passes no clock', () => {
+	// The shipped browser panel posts no `now`, so `apply` inherits `updatedAt`
+	// and logs `at: null`. Undo used to patch `updatedAt` from the last log
+	// entry's `at` — null — and undo(apply(r, c)) came back unequal to r on the
+	// one path every real user takes. Replaying each entry under its own `at`
+	// makes the rebuild exact by construction, so this asserts the whole
+	// document at every step rather than the fields anyone thought to name.
+	const commands = [
+		MARILL,
+		{kind: 'evolve', id: 'mon-1'},
+		{kind: 'acquire', item: 'Leftovers', count: 2},
+		{kind: 'give', id: 'mon-1', item: 'Leftovers'},
+		{kind: 'party', ids: ['mon-1']},
+		{kind: 'beat', trainer: 'Youngster Calvin'},
+	];
+	const states = [fresh()];
+	for (const command of commands) {
+		states.push(run.apply(states[states.length - 1], command));
+	}
+
+	let back = states[states.length - 1];
+	for (let i = commands.length - 1; i >= 0; i--) {
+		back = run.undo(back);
+		assert.equal(JSON.stringify(back), JSON.stringify(states[i]),
+			`undoing ${commands[i].kind} must reproduce the document before it`);
+	}
+	// A `now` that IS supplied has to survive the round trip just as exactly.
+	const stamped = run.apply(fresh(), MARILL, {now: 't1'});
+	assert.equal(run.undo(run.apply(stamped, {kind: 'evolve', id: 'mon-1'}, {now: 't2'}))
+		.updatedAt, 't1');
+});
+
 test('the run plans the next fight with the party it actually has', () => {
 	let state = run.apply(fresh(), MARILL);
 	assert.throws(() => run.planNext(state), /the party is empty/);
@@ -375,9 +428,10 @@ test('the summary states where the run has got to', () => {
 test('the story spine derives beaten from position, not from bookkeeping', () => {
 	const state = fresh();
 	const spine = run.milestones(state);
-	// 41: nine badge battles, eight Elite Four rounds, the Champion, nine rival
-	// battles, seven admin battles, four team-leader battles, Wally and Steven.
-	assert.equal(spine.length, 41, 'every milestone fight in the map');
+	// 44: nine badge battles, eight Elite Four rounds, the Champion, nine rival
+	// battles, seven admin battles, five team-leader battles, Wally, Steven, both
+	// Chelle fights and Dumbass Soupercell.
+	assert.equal(spine.length, 44, 'every milestone fight in the map');
 	assert.equal(spine[0].trainer, 'Leader Brawly');
 	assert.equal(spine[spine.length - 1].trainer, 'Champion Wallace');
 	assert.ok(spine.every(m => !m.beaten), 'a fresh run has beaten nothing');
@@ -386,7 +440,7 @@ test('the story spine derives beaten from position, not from bookkeeping', () =>
 	// both rounds of rivals included — with no per-trainer bookkeeping.
 	const later = run.apply(state, {kind: 'beat', trainer: 'Leader Norman'});
 	const after = run.milestones(later);
-	assert.equal(after.filter(m => m.beaten).length, 7);
+	assert.equal(after.filter(m => m.beaten).length, 8);
 	assert.equal(after.filter(m => m.beaten).pop().trainer, 'Leader Norman');
 	assert.equal(after.filter(m => !m.beaten)[0].trainer, 'Magma Admin Tabitha Mt Chimney');
 	// Milestones carry their tier so the spine can draw badges taller than
@@ -427,6 +481,14 @@ test('the run is narrated in splits, ended by badges', () => {
 	assert.equal(run.fightTier(profile, 'Aqua Admin Shelly Weather Institute'), 'story');
 	assert.equal(run.fightTier(profile, 'Aqua Admin ShellySeafloorCavern'), 'story');
 	assert.equal(run.fightTier(profile, 'Magma Admin Courtney Space center'), 'story');
+	// Chelle carries no team or title prefix but follows the same Name+Location
+	// convention, and Soupercell is the one-off L100 Victory Road capstone.
+	assert.equal(run.fightTier(profile, 'Trainer Chelle Daycare'), 'story');
+	assert.equal(run.fightTier(profile, 'Trainer Chelle Mt Pyre'), 'story');
+	assert.equal(run.fightTier(profile, 'Dumbass Soupercell'), 'story');
+	// The anchor is exact: a route trainer whose name merely contains "chelle" is
+	// still filler.
+	assert.equal(run.fightTier(profile, 'Cool Trainer Michelle'), null);
 	// Gauntlet grunts are the road TO the boss, not bosses: no tier, no cap.
 	assert.equal(run.fightTier(profile, 'Team Aqua Grunt Weather Inst #1'), null);
 	assert.equal(run.fightTier(profile, 'Team Magma Grunt Magma Hideout #4teen'), null);
@@ -474,12 +536,59 @@ test('explicit catch moves are checked, not trusted', () => {
 	);
 });
 
+test('a catch of more than four moves is refused, not quietly trimmed', () => {
+	// The trim ran BEFORE the legality check, so a fifth move — the obvious place
+	// to hide one the species cannot hold — was dropped without a word, which is
+	// exactly the bypass around `teach` that checking explicit moves exists to
+	// close. Four is the game's limit; which four is the player's call.
+	assert.throws(
+		() => run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101',
+			level: 3, moves: ['Tackle', 'Sand Attack', 'Bite', 'Crunch', 'Dragon Dance']}),
+		/Poochyena knows four moves, not 5 \(.*Dragon Dance\) — name four/
+	);
+	// Legal or not, a fifth is still a fifth — the refusal is about the count.
+	assert.throws(
+		() => run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101',
+			level: 3, moves: ['Tackle', 'Sand Attack', 'Bite', 'Crunch', 'Howl']}),
+		/knows four moves, not 5/
+	);
+	// And with the trim gone, every one of the four named is still checked.
+	assert.throws(
+		() => run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101',
+			level: 3, moves: ['Tackle', 'Sand Attack', 'Bite', 'Dragon Dance']}),
+		/Poochyena cannot know Dragon Dance/
+	);
+	const four = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101',
+		level: 3, moves: ['Tackle', 'Sand Attack', 'Bite', 'Crunch']});
+	assert.deepEqual(four.box[0].moves, ['Tackle', 'Sand Attack', 'Bite', 'Crunch']);
+});
+
+test('a catch that names the wrong method is refused, not silently corrected', () => {
+	// Marill comes out of Route 114 on the Super Rod and nowhere else on that map.
+	// Picking another slot for a player who claimed `walk` would store 'fish' as
+	// though they had said it — an assertion the oracle invented, which is the one
+	// thing the origin record exists to rule out.
+	assert.throws(
+		() => run.apply(fresh(), {kind: 'catch', species: 'Marill', map: 'Route114',
+			level: 40, method: 'walk'}),
+		/Marill on Route114 at level 40 is not caught by walk; it is caught by: fish/
+	);
+	// The true claim still passes, and still carries the rod.
+	const caught = run.apply(fresh(), MARILL);
+	assert.equal(caught.box[0].origin.method, 'fish');
+	assert.equal(caught.box[0].origin.rod, 'Super Rod');
+	// Claiming nothing is not claiming wrongly: the slot still names the method.
+	const unclaimed = run.apply(fresh(),
+		{kind: 'catch', species: 'Marill', map: 'Route114', level: 40});
+	assert.equal(unclaimed.box[0].origin.method, 'fish');
+});
+
 test('a declared rival collapses the variant fights to the ones this run can see', () => {
 	// The three variants of each rival location are one story event with
 	// identical ace levels; a run faces exactly one, fixed by its starter.
 	const declared = fresh({rival: 'Swampert'});
 	const spine = run.milestones(declared);
-	assert.equal(spine.length, 35, '41 minus the six variants this run never sees');
+	assert.equal(spine.length, 38, '44 minus the six variants this run never sees');
 	assert.deepEqual(
 		spine.filter(m => /Rival/.test(m.trainer)).map(m => m.trainer),
 		['Trainer Rival Cycling Road Swampert', 'Trainer Rival Bridge Swampert',
@@ -502,7 +611,7 @@ test('a declared rival collapses the variant fights to the ones this run can see
 	assert.equal(cap.cap, 38);
 
 	// Undeclared stays honest: everything visible, nothing refused.
-	assert.equal(run.milestones(fresh()).length, 41);
+	assert.equal(run.milestones(fresh()).length, 44);
 	assert.ok(run.apply(fresh(), {kind: 'beat', trainer: 'Trainer Rival Cycling Road Sceptile'}));
 
 	// Undo replays with the rule intact.

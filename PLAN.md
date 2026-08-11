@@ -69,12 +69,12 @@ declared, gated gap (see DATA-09/ENC-01) or platform work for a second game.
 | P2 | UI-P1 | ~~Surface the planner in the browser as a first-class mode~~ **Done** — `#runbun-planner`, browser-tested | UI | PLAT-09 | A player can pick a fight and see the prediction without curl |
 | P2 | PLAT-11 | ~~Simulate a run: walk a team through a stretch of the map~~ **Done** (`simulate.js`, `npm run simulate`) | engine | PLAT-06 | One row per fight plus an aggregate — which fights are coin flips, where the team is under-levelled |
 | P1 | PLAT-12 | ~~Player teams are declared, not borrowed from trainer sets~~ **Done** (`team.js`, `playerPaste`) | engine | PLAT-11 | A Showdown paste builds the player side; any borrowed trainer build is flagged in CLI, API and UI |
-| P2 | DATA-10 | ~~Learnsets + availability from the decomp~~ **Done** (`scripts/import-oracle.js`, `profiles/run-and-bun/oracle/`) | engine | PLAT-12 | 131 encounter maps, 435 evolutions, 1114 learnsets + 370 egg lists, ROM-verified; move legality walks the evolution line |
+| P2 | DATA-10 | ~~Learnsets + availability from the decomp~~ **Done** (`scripts/import-oracle.js`, `profiles/run-and-bun/oracle/`) | engine | PLAT-12 | 131 encounter maps, 436 evolving species, 1115 learnsets + 370 egg lists, ROM-verified; move legality walks the evolution line |
 | P1 | RUN-01 | ~~Formalize the playthrough: box, party, bag, position, rules~~ **Done** (`run.js`) | engine | DATA-10 | Pure command engine; catches checked against real encounter tables; undo by replay |
 | P1 | RUN-02 | ~~Play a run from the terminal~~ **Done** (`play.js`, `npm run play`) | engine | RUN-01 | A JSON save file; read-only subcommands never write; a refusal never corrupts it |
 | P1 | RUN-03 | ~~Expose the run over HTTP, statelessly~~ **Done** — `/run/new`, `/apply`, `/undo`, `/status`, `/where`, `/learnable`, `/plan`, `/maps` | engine | RUN-01 | The run travels in the request; the server stores no save files |
 | P1 | RUN-04 | ~~My Run browser panel~~ **Done** — `#runbun-run`, localStorage, browser-tested | UI | RUN-03 | Start a run, catch off a real route, set a party, plan the next fight; survives reload |
-| P1 | UI-P3 | ~~Scale My Run to the whole game: spine, road ahead, party strip, box filter~~ **Done** — lead-order bug fixed (multi-select returned DOM order) | UI | RUN-04 | Mid-game state is navigable: 34-tick spine, bulk beat, click-order party, filterable box |
+| P1 | UI-P3 | ~~Scale My Run to the whole game: spine, road ahead, party strip, box filter~~ **Done** — lead-order bug fixed (multi-select returned DOM order) | UI | RUN-04 | Mid-game state is navigable: milestone spine, bulk beat, click-order party, filterable box |
 | P2 | RUN-05 | EXP and growth rates, so levelling can be projected rather than declared | engine | DATA-10 | Growth-rate tables are not imported; the run records the level a player states |
 | P2 | RUN-06 | Item locations and Mart stock | engine | DATA-10 | The bag counts what a player says they have; nothing claims where it came from |
 | P2 | EXP-01 | ~~Deeper Explain: side-by-side doc cite vs reasons / ActionFacts~~ **Done** | UI | Explain MVP; FIX-02 strongly preferred | One scored action shows matching doc section + machine facts together |
@@ -104,9 +104,10 @@ declared, gated gap (see DATA-09/ENC-01) or platform work for a second game.
 
 **Near-term “start here”:** FIX-01…FIX-04, UI-V0…V2b, TW-01, UI-SP-01, SET-01,
 UI-V3, EXP-01, EXP-02, ACC-01, DBL-01, DBL-02, RPL-01, DATA-01, and GEN9-01 are
-shipped. Next: repro-backed **ENG-01/02**, or P3 EXP-03 / UI-V4 / BAT-01 /
-ADP-01. Full phase
-write-ups: §6; session chunks: §7; UI rollout detail:
+shipped, as is the platform/run track: PLAT-01/05/06/09/11/12, DATA-10,
+RUN-01…04, UI-P1 and UI-P3 (PLAT-10 stays P3 until a second profile exists).
+Next: repro-backed **ENG-01/02**, or P3 EXP-03 / UI-V4 / BAT-01 / ADP-01. Full
+phase write-ups: §6; session chunks: §7; UI rollout detail:
 [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) §9.
 
 ---
@@ -128,9 +129,9 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Fight planner (`planner.js`) | **Shipped** — run map + team → ranked opponent actions with a decision margin |
 | Planner HTTP API | **Shipped** — `/planner/fights`, `/upcoming`, `/fight`, `/predict` |
 | Fight Planner UI | **Shipped** — `#runbun-planner` mode; browser-tested end to end |
-| Run simulation (`simulate.js`) | **Shipped** — `npm run simulate -- --team-file examples/team.txt --milestones` walks the 34-fight spine; reports coin flips and level deltas |
+| Run simulation (`simulate.js`) | **Shipped** — `npm run simulate -- --team-file examples/team.txt --milestones` walks the milestone spine; reports coin flips and level deltas |
 | Player teams (`team.js`) | **Shipped** — Showdown paste → player side, validated against the game's own species/move/ability/item data. Borrowed trainer builds still reachable via `--borrow`, flagged everywhere |
-| Oracle layer (`profiles/run-and-bun/oracle/`) | **ROM-verified** — 131 encounter maps / 1512 slots, 435 evolutions, 1114 level-up + 1114 teachable + 370 egg learnsets, regenerable via `npm run import-oracle` |
+| Oracle layer (`profiles/run-and-bun/oracle/`) | **ROM-verified** — 131 encounter maps / 1462 slots, 436 evolving species, 1115 level-up + 1115 teachable + 370 egg learnsets, regenerable via `npm run import-oracle` (which prints the counts it wrote) |
 | Move legality | **Shipped** — level-up, TM/tutor and egg moves inherited down the evolution line, with the source of the claim attached |
 | The run (`run.js`) | **Shipped** — box, party, bag, position, rules; pure commands; catches checked against the game's own tables; undo by replay |
 | Run CLI (`play.js`) | **Shipped** — `npm run play -- <command>` over a JSON save file |
@@ -159,9 +160,10 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Docs sync (UX / validation / README / ai README) | **Current** |
 
 **Run & Bun content is finished.** Every layer the game supplies — species base
-stats, ability slots, move accuracy/power/PP, items — is verified against the
-author's own ROM data dump and gated so it cannot silently regress. 1.07 is the
-final release, so that verification is durable rather than a snapshot. The AI
+stats, ability slots, move accuracy/power/PP, items, and the oracle tables (wild
+encounters, evolutions, learnsets) — is verified against the author's own ROM
+data dump and gated so it cannot silently regress. 1.07 is the final release, so
+that verification is durable rather than a snapshot. The AI
 policy is audited against the community document it transcribes and pinned to
 its stated numbers. Two gaps remain and both are declared and gated rather than
 silently carried: Bug Maniac Jeffrey's two lost Vivillon (DATA-09) and ~69
@@ -170,7 +172,8 @@ community-sourced party values.
 
 **Bottom line:** The decision-useful engine, thin product MVP, fixture
 browser/goldens, Sets bridge, Singles/Doubles Battle field + targeting UX,
-Replay scrubber (RPL-01), deeper Explain, and ACC-01 a11y pass are in place.
+Replay scrubber (RPL-01), deeper Explain, ACC-01 a11y pass, and the run layer
+(oracle → `run.js` → CLI / HTTP / My Run panel) are in place.
 **Next:** repro-backed ENG-01/02 or later P3 (EXP-03 / UI-V4 / BAT-01 /
 ADP-01). DATA-01 closed the open engine P0: this is a standalone Run & Bun
 tool, so the fork-owned overlay now outranks the inherited calculator data and

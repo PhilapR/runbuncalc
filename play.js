@@ -23,8 +23,9 @@
  * The file defaults to `run.json` in the working directory, so the common case
  * needs no `--file` at all.
  *
- * Read-only subcommands (`status`, `where`, `box`, `learn`, `plan`, `next`) do
- * not write, so they are safe to run mid-thought without perturbing the save.
+ * Read-only subcommands (`status`, `box`, `where`, `find`, `learn`, `next`,
+ * `plan`, `log`, `milestones`) do not write, so they are safe to run mid-thought
+ * without perturbing the save. `READ_ONLY` below is the list that enforces it.
  */
 
 const fs = require('node:fs');
@@ -360,7 +361,7 @@ const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'p
 const USAGE = `node play.js <command> [args] [--file run.json]
 
   new [--name N] [--cap] [--nuzlocke] [--rival Swampert] [--force]   start a run
-  status                                          the box, party, bag and position
+  status / box                                    the box, party, bag and position
   where <map>                                     what can be caught there
   find <species>                                  everywhere it can be caught
   catch <species> --level N [--map M] [--name N]  add to the box
@@ -374,7 +375,8 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   nickname <id> <name>                            rename
   faint <id> / release <id>                       lose one
   beat <trainer>                                  move the run forward
-  next [--count N] / plan [trainer]               what is ahead, and what it does\n  milestones                                      the story spine, beaten and ahead
+  next [--count N] / plan [trainer]               what is ahead, and what it does
+  milestones                                      the story spine, beaten and ahead
   log [--count N] / undo                          history`;
 
 function main(argv) {

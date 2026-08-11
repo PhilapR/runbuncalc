@@ -114,6 +114,15 @@ const INVARIANTS = {
  * so any automated count of it carries parse error. Treat these as the shape of
  * the gap, not a precise inventory.
  *
+ * One absence is NOT route filler and is left explicitly unresolved: vanilla
+ * Emerald's mandatory pre-Wattson Wally fight and the early rival fights before
+ * Cycling Road have no counterpart anywhere in this map — the only Wally here is
+ * Victory Road, and the earliest rival is Cycling Road. Whether Run & Bun cut
+ * them or whether they were lost on the way into this data cannot be settled
+ * from the decomp, which carries no trainer parties at all. Recorded as unknown
+ * rather than asserted either way, because "dekzeh removed them" and "we lost
+ * them" are different claims and nothing available distinguishes the two.
+ *
  * Not filled from that dump: it is a community transcription, and this project
  * does not take community sources as authoritative for values. Recorded so a
  * consumer knows the run map is a progression spine rather than a complete
@@ -127,6 +136,10 @@ const COVERAGE = {
 	approximatePartyMembersAbsent: 189,
 	absentKind: 'optional route trainers, overwhelmingly Swimmers and other water-route filler',
 	comparedAgainst: 'community transcription of the Run & Bun trainer-battle document',
+	// Not filler, and not decidable: vanilla's mandatory pre-Wattson Wally and the
+	// early rival fights are absent, and the decomp has no trainer data to say
+	// whether the hack cut them or this data lost them.
+	earlyStoryFightsUnverified: ['pre-Wattson Wally', 'early rival fights'],
 };
 
 const KNOWN_GAPS = {
@@ -151,26 +164,40 @@ const KNOWN_GAPS = {
  *                        split" is everything up to and including #77.
  *   STORY_BOSS_PATTERN   the mini-bosses: rivals, the seven Aqua/Magma ADMIN
  *                        battles (Tabitha x3, Shelly x2, Matt, Courtney),
- *                        Archie, Maxie, Wally, Steven — plus the two
- *                        standalone grunt fights that ARE walls in their own
- *                        right, Petalburg Woods and the Museum pair. Together
- *                        with bosses these SET THE LEVEL CAP: the cap is the
- *                        ace of the next fight in either tier, so a fresh run
- *                        is capped at 12 by the Petalburg Woods grunt's
- *                        Croagunk, not at 21 by Brawly two story fights later.
+ *                        Archie, Maxie, Wally, Steven, both Chelle fights and
+ *                        Dumbass Soupercell — plus the two standalone grunt
+ *                        fights that ARE walls in their own right, Petalburg
+ *                        Woods and the Museum pair. Together with bosses these
+ *                        SET THE LEVEL CAP: the cap is the ace of the next
+ *                        fight in either tier, so a fresh run is capped at 12
+ *                        by the Petalburg Woods grunt's Croagunk, not at 21 by
+ *                        Brawly two story fights later.
+ *
+ *                        Chelle follows the same Name+Location convention the
+ *                        admins do, and her two fights slot monotonically into
+ *                        the cap walk (Roxanne 25 → Chelle 32 → Wattson 35;
+ *                        Archie 77 → Chelle 77 → Tabitha 79) — a wall between
+ *                        badges, not filler between them. Dumbass Soupercell
+ *                        is a one-off trainer fielding a full L100 party as
+ *                        the Victory Road capstone; it moves no cap (Sidney
+ *                        aces 100 too) but a run is narrated through it.
  *
  *                        GAUNTLET grunts are deliberately NOT here. The
- *                        Weather Institute, Mt Pyre, both hideouts, the Space
- *                        Center and the Seafloor Cavern are corridors of
- *                        grunts ending at an admin or a team leader — the
- *                        road TO the boss, not bosses. The cap through a
- *                        gauntlet is the admin's ace at the end of it
- *                        (Shelly's 65 through the Weather Institute), which
- *                        falls out of the tiering with no per-grunt caps.
+ *                        Weather Institute, Mt Chimney, Mt Pyre, both
+ *                        hideouts, the Space Center and the Seafloor Cavern
+ *                        are corridors of grunts ending at an admin or a team
+ *                        leader — the road TO the boss, not bosses. The cap
+ *                        through a gauntlet is the ace at the end of it
+ *                        (Shelly's 65 through the Weather Institute, Tabitha
+ *                        and Maxie closing Mt Chimney), which falls out of the
+ *                        tiering with no per-grunt caps. The Space Center is
+ *                        the one corridor that does not read cleanly: it has
+ *                        no grunt #4 label, and Courtney sits mid-corridor
+ *                        with grunts still after her rather than at its end.
  *   MILESTONE_PATTERN    the narrative spine: bosses plus the NAMED story
- *                        bosses — rivals, admins, team leaders, Wally,
- *                        Steven. 41 ticks. Grunt fights are story but not
- *                        landmarks, even the two that set caps.
+ *                        bosses — rivals, admins, team leaders, Wally, Steven,
+ *                        Chelle, Soupercell. 44 ticks. Grunt fights are story
+ *                        but not landmarks, even the two that set caps.
  *
  * `Double` variants of Elite Four members are the same trainer fought a second
  * time in the double-battle branch, so they are bosses too. One admin battle
@@ -194,11 +221,16 @@ const BOSS_PATTERN = /^(Leader |Elite Four |Champion )/;
  */
 const RIVAL_VARIANT_PATTERN = /^Trainer Rival .* (Sceptile|Blaziken|Swampert)$/;
 
+/**
+ * Two story fights carry no team or title prefix to anchor on, so they are named
+ * outright. "Trainer Chelle " matches her two fights and nothing else — the only
+ * other Chelle-ish label is "Cool Trainer Michelle", which the anchor rules out.
+ */
 const STORY_BOSS_PATTERN =
-	/^(Trainer Rival |Aqua Admin |Magma Admin |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven |Team Aqua Grunt (Petalburg Woods|Museum))/;
+	/^(Trainer Rival |Aqua Admin |Magma Admin |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven |Trainer Chelle |Dumbass Soupercell$|Team Aqua Grunt (Petalburg Woods|Museum))/;
 
 const MILESTONE_PATTERN =
-	/^(Leader |Elite Four |Champion |Trainer Rival |Aqua Admin |Magma Admin |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven )/;
+	/^(Leader |Elite Four |Champion |Trainer Rival |Aqua Admin |Magma Admin |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven |Trainer Chelle |Dumbass Soupercell$)/;
 
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,

@@ -1940,7 +1940,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
-    <script type="text/javascript" src="./js/run_panel.js?4c430cdf"></script>
+    <script type="text/javascript" src="./js/run_panel.js?2455f88f"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2310,16 +2310,19 @@
         </div>
         <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>
         <div id="runbun-run-plan-actions" class="runbun-run-plan-actions" role="list"></div>
-
-        <details class="runbun-run-transfer">
-            <summary>Export / import</summary>
-            <textarea id="runbun-run-transfer" rows="6" spellcheck="false"></textarea>
-            <div class="runbun-run-row">
-                <button type="button" id="runbun-run-export" class="btn btn-wide">Export</button>
-                <button type="button" id="runbun-run-import" class="btn btn-wide">Import</button>
-            </div>
-        </details>
     </div>
+
+    <!-- Outside the live block on purpose: importing a run and recovering a
+         damaged save are exactly the cases where there is no run yet, and the
+         live block is hidden then. -->
+    <details class="runbun-run-transfer">
+        <summary>Export / import</summary>
+        <textarea id="runbun-run-transfer" rows="6" spellcheck="false"></textarea>
+        <div class="runbun-run-row">
+            <button type="button" id="runbun-run-export" class="btn btn-wide">Export</button>
+            <button type="button" id="runbun-run-import" class="btn btn-wide">Import</button>
+        </div>
+    </details>
 
     <div id="runbun-run-status" class="runbun-run-status" role="status" aria-live="polite" aria-atomic="true"></div>
 </section>

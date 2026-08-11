@@ -28,10 +28,10 @@ const oracle = require('./profiles').getProfile().oracle;
 test('the oracle carries the whole decomp, not a truncated read of it', () => {
 	const coverage = oracle.coverage();
 	assert.equal(coverage.maps, 131, 'wild encounter maps');
-	assert.equal(coverage.encounterSlots, 1512, 'distinct encounter slots');
-	assert.equal(coverage.evolvingSpecies, 435);
-	assert.equal(coverage.levelUpSpecies, 1114);
-	assert.equal(coverage.teachableSpecies, 1114);
+	assert.equal(coverage.encounterSlots, 1462, 'distinct encounter slots');
+	assert.equal(coverage.evolvingSpecies, 436);
+	assert.equal(coverage.levelUpSpecies, 1115);
+	assert.equal(coverage.teachableSpecies, 1115);
 	assert.equal(coverage.eggSpecies, 370);
 });
 
@@ -71,15 +71,18 @@ test('encounter method is carried, because how you catch it is half the answer',
 			assert.ok(spot.rod, `a fishing slot must name the rod it needs (${spot.name})`);
 		}
 	}
-	// Rods come from a slot-index convention, so all three must actually appear
-	// somewhere rather than every slot collapsing to Old Rod.
+	// Run & Bun's wild_encounters.json declares ONE fishing group, `super_rod`,
+	// covering all ten slots: there is no old- or good-rod fishing in the hack.
+	// Vanilla pokeemerald splits those slots 0-1/2-4/5-9 across three rods, so an
+	// Old Rod appearing here means the import went back to assuming vanilla
+	// instead of reading the group the hack declares.
 	const rods = new Set();
 	for (const map of oracle.maps()) {
 		for (const table of map.tables) {
 			for (const mon of table.mons) if (mon.rod) rods.add(mon.rod);
 		}
 	}
-	assert.deepEqual([...rods].sort(), ['Good Rod', 'Old Rod', 'Super Rod']);
+	assert.deepEqual([...rods], ['Super Rod']);
 });
 
 test('evolutions carry their terms, not just their target', () => {
@@ -95,6 +98,46 @@ test('evolutions carry their terms, not just their target', () => {
 	assert.equal(jolteon.item, 'Thunder Stone');
 	// A fully evolved species evolves into nothing, and says so as an empty list.
 	assert.deepEqual(oracle.evolutionsOf('Azumarill'), []);
+});
+
+test('an entry wrapped in #if blocks does not swallow the entry after it', () => {
+	// Eevee's decomp entry puts its Gen 4 and Gen 6 branches behind #if guards and
+	// closes with a lone `}`, so a parser that looks for a closing `}}` runs past
+	// it into Porygon's entry. The two ends of that failure are pinned together:
+	// Porygon keeps its own evolution, and Eevee does not borrow it.
+	assert.deepEqual(oracle.evolutionsOf('Porygon'),
+		[{into: 'Porygon2', method: 'item', item: 'Up-Grade'}]);
+
+	const eevee = oracle.evolutionsOf('Eevee');
+	assert.deepEqual(eevee.map(e => e.into), [
+		'Jolteon', 'Vaporeon', 'Flareon', 'Espeon', 'Umbreon',
+		'Leafeon', 'Leafeon', 'Glaceon', 'Glaceon', 'Sylveon',
+	]);
+	// Leafeon and Glaceon appear twice on purpose: Run & Bun keeps the vanilla
+	// location trigger and adds a stone, and both are real ways to get there.
+	assert.deepEqual(eevee.filter(e => e.into === 'Leafeon').map(e => e.method),
+		['location', 'item']);
+});
+
+test('a form alias does not overwrite the base species it collapses onto', () => {
+	// SPECIES_ROCKRUFF_OWN_TEMPO is the Dusk-form Rockruff, mapped onto plain
+	// Rockruff, and its row comes LATER in evolution.h than the base species'. If
+	// the later row wins, Rockruff's three stones become one level-25 dusk step and
+	// two Lycanroc forms become unreachable.
+	assert.deepEqual(oracle.evolutionsOf('Rockruff'), [
+		{into: 'Lycanroc', method: 'item', item: 'Sun Stone'},
+		{into: 'Lycanroc-Midnight', method: 'item', item: 'Moon Stone'},
+		{into: 'Lycanroc-Dusk', method: 'item', item: 'Dusk Stone'},
+	]);
+});
+
+test('SPECIES_AEGISLASH is the shield form, because that is the stat block it carries', () => {
+	// base_stats.h gives SPECIES_AEGISLASH 50 Atk / 140 Def / 140 SpD — Aegislash's
+	// shield stance. Mapping it to Aegislash-Blade would hand a freshly evolved
+	// Doublade the 140-attack blade block and overstate every calculation it feeds.
+	assert.deepEqual(oracle.evolutionsOf('Doublade'),
+		[{into: 'Aegislash-Shield', method: 'item', item: 'Dusk Stone'}]);
+	assert.deepEqual(oracle.lineageOf('Aegislash-Shield'), ['Doublade', 'Honedge']);
 });
 
 test('mega evolution is not an evolution a box entry can undergo', () => {

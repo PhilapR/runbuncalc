@@ -730,7 +730,7 @@ test('a run is created, advanced and summarized entirely through the request', a
 
 	// The story spine travels with every status, and how far ahead to look is
 	// the client's call, bounded.
-	assert.equal(status.body.milestones.length, 41);
+	assert.equal(status.body.milestones.length, 44);
 	assert.equal(status.body.milestones[0].trainer, 'Leader Brawly');
 	assert.equal(status.body.milestones[0].beaten, false);
 	const wide = await requestJson('/run/status', {run: caught.body.run, upcomingCount: 8});
@@ -767,6 +767,44 @@ test('a run of the wrong version is refused rather than half-read', async () => 
 	assert.equal(stale.status, 400);
 	assert.equal(stale.body.code, 'RunVersionMismatch');
 	assert.match(stale.body.error, /version 99; this server reads version \d+/);
+});
+
+test('a run of the right version but the wrong shape is a 400 naming the field', async () => {
+	// The run layer reads these fields without re-checking them, so a document
+	// that only carries the version stamp used to reach summarize and 500. Every
+	// endpoint inherits this check, and /run/status is where it first bit.
+	const good = await newRun();
+	const shapes = [
+		[{...good, rules: undefined}, /rules/],
+		[{...good, rules: 'strict'}, /rules/],
+		[{...good, rules: []}, /rules/],
+		[{...good, rules: {}}, /levelCap/],
+		[{...good, box: {}}, /box/],
+		[{...good, log: 'nothing yet'}, /log/],
+		[{...good, party: {}}, /party/],
+		[{...good, party: [{id: 'mon-1'}]}, /party/],
+		[{...good, bag: []}, /bag/],
+		[{...good, position: 'start'}, /position/],
+		[{...good, nextId: null}, /nextId/],
+	];
+	for (const [run, field] of shapes) {
+		const {status, body} = await requestJson('/run/status', {run});
+		assert.equal(status, 400, `malformed run must not 500: ${JSON.stringify(run).slice(0, 80)}`);
+		assert.equal(body.code, 'InvalidRun');
+		assert.match(body.error, field);
+	}
+
+	// The panel's import box accepts pasted JSON, and this is what a curious
+	// player types into it first.
+	const bare = await requestJson('/run/status', {run: {version: 1}});
+	assert.equal(bare.status, 400);
+	assert.equal(bare.body.code, 'InvalidRun');
+
+	// The gate admits a real run untouched; a shape check that refuses those
+	// would pass every case above and still be broken.
+	const ok = await requestJson('/run/status', {run: good});
+	assert.equal(ok.status, 200);
+	assert.equal(ok.body.status.name, good.name);
 });
 
 test('the run plans the next fight with its own party, never a borrowed build', async () => {

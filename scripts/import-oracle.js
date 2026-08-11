@@ -76,14 +76,15 @@ const FORM_SUFFIXES = {
  * Two kinds, and they are not the same claim:
  *
  *   - real battle forms the calculator names differently
- *     (`SPECIES_AEGISLASH` is `Aegislash-Blade`; the decomp's base form is the
- *     blade form, and the calculator has no bare `Aegislash`)
+ *     (`SPECIES_AEGISLASH` carries the SHIELD form's stats — 50/140/140 — so it
+ *     is `Aegislash-Shield`; `SPECIES_AEGISLASH_BLADE` is the blade form and
+ *     resolves on its own, and the calculator has no bare `Aegislash`)
  *   - COSMETIC forms the calculator does not model, collapsed to their base.
  *     This loses nothing in battle: a Sandstorm Vivillon and a Polar Vivillon
  *     have identical stats, types, abilities and movepool.
  */
 const SPECIES_ALIASES = {
-	SPECIES_AEGISLASH: 'Aegislash-Blade',
+	SPECIES_AEGISLASH: 'Aegislash-Shield',
 	SPECIES_MEOWSTIC_FEMALE: 'Meowstic-F',
 	SPECIES_INDEEDEE_FEMALE: 'Indeedee-F',
 	SPECIES_URSHIFU_RAPID_STRIKE_STYLE: 'Urshifu-Rapid-Strike',
@@ -206,15 +207,27 @@ const ENCOUNTER_METHODS = {
 };
 
 /**
- * Fishing tables pack three rods into one array — old rod first, then good,
- * then super. The split is a pokeemerald convention, not something the JSON
- * states, so it is named here rather than left as a magic slice.
+ * Which rod reaches which fishing slot, read from the encounter group's own
+ * `fields` declaration rather than assumed.
+ *
+ * Vanilla pokeemerald splits the ten fishing slots three ways — 0-1 old, 2-4
+ * good, 5-9 super — but that split is a property of the data, not of the format,
+ * and a hack is free to declare otherwise. Run & Bun does: it declares a single
+ * `super_rod` group covering all ten slots, so there is no old- or good-rod
+ * fishing in the game at all. Hardcoding vanilla's boundaries here would invent
+ * two rods the hack does not have.
  */
-const FISHING_RODS = [
-	{rod: 'Old Rod', from: 0, to: 2},
-	{rod: 'Good Rod', from: 2, to: 5},
-	{rod: 'Super Rod', from: 5, to: 10},
-];
+function fishingRods(fields) {
+	const declared = (fields || []).find(f => f.type === 'fishing_mons');
+	const groups = declared && declared.groups;
+	if (!groups) throw new Error('wild_encounters.json: fishing_mons declares no rod groups');
+	const byIndex = new Map();
+	for (const name of Object.keys(groups)) {
+		const rod = name.toUpperCase().split('_').map(titleCase).join(' ');
+		for (const index of groups[name]) byIndex.set(index, rod);
+	}
+	return byIndex;
+}
 
 function mapLabel(map) {
 	return map.replace(/^MAP_/, '').split('_').map(titleCase).join(' ');
@@ -225,6 +238,7 @@ function importEncounters(decomp, problems) {
 		fs.readFileSync(path.join(decomp, 'locations', 'wild_encounters.json'), 'utf8'));
 	const group = raw.wild_encounter_groups.find(g => g.label === 'gWildMonHeaders');
 	if (!group) throw new Error('wild_encounters.json has no gWildMonHeaders group');
+	const rodByIndex = fishingRods(group.fields);
 
 	const maps = [];
 	for (const entry of group.encounters) {
@@ -248,10 +262,12 @@ function importEncounters(decomp, problems) {
 					problems.push(`${entry.map}/${key}[${index}]: cannot resolve ${mon.species}`);
 					return;
 				}
-				const rods = method === 'fish' ?
-					FISHING_RODS.filter(r => index >= r.from && index < r.to).map(r => r.rod) :
-					[];
-				const key2 = `${species}|${mon.min_level}|${mon.max_level}|${rods.join(',')}`;
+				const rod = method === 'fish' ? rodByIndex.get(index) : null;
+				if (method === 'fish' && !rod) {
+					problems.push(`${entry.map}/${key}[${index}]: no rod group declares slot ${index}`);
+					return;
+				}
+				const key2 = `${species}|${mon.min_level}|${mon.max_level}|${rod || ''}`;
 				const found = grouped.get(key2);
 				if (found) {
 					found.slots += 1;
@@ -262,7 +278,7 @@ function importEncounters(decomp, problems) {
 					minLevel: mon.min_level,
 					maxLevel: mon.max_level,
 					slots: 1,
-					...(rods.length ? {rod: rods[0]} : {}),
+					...(rod ? {rod} : {}),
 				});
 			});
 
@@ -338,27 +354,29 @@ function importEvolutions(decomp, problems) {
 	const source = fs.readFileSync(
 		path.join(decomp, 'species', 'evolution.h'), 'utf8').replace(/\r/g, '');
 	const byFrom = {};
-	// The table is one `[SPECIES_X] = {{...},{...}}` entry per line group. Matched
-	// per entry rather than with one regex over the file, because a pattern that
-	// can span entries silently pairs a species with the next one's evolution —
-	// the same failure that produced seven phantom move mismatches in an earlier
-	// pass.
-	const entries = source.match(/\[SPECIES_[A-Z0-9_]+\]\s*=\s*\{[\s\S]*?\}\},?\n/g) || [];
-	for (const entry of entries) {
-		const head = entry.match(/\[(SPECIES_[A-Z0-9_]+)\]/);
-		if (!head) continue;
-		const from = resolveSpecies(head[1]);
+	// An entry runs from its own `[SPECIES_X] =` to the next one's, and is never
+	// recognised by how it closes. Its closing shape is not reliable: Eevee's entry
+	// wraps branches in `#if P_GEN_*_POKEMON` blocks and ends with a lone `}` on
+	// its own line, so a pattern anchored on `}}` runs straight past it and eats
+	// the following entry — which is exactly how Porygon lost its evolution and
+	// Eevee gained a phantom Porygon2 branch.
+	const heads = [...source.matchAll(/\[(SPECIES_[A-Z0-9_]+)\]\s*=/g)];
+	for (let i = 0; i < heads.length; i++) {
+		const constant = heads[i][1];
+		const entry = source.slice(heads[i].index + heads[i][0].length,
+			i + 1 < heads.length ? heads[i + 1].index : source.length);
+		const from = resolveSpecies(constant);
 		if (!from) continue;
 		const evos = [];
 		for (const evo of entry.matchAll(/\{(EVO_[A-Z0-9_]+),\s*([A-Z0-9_]+),\s*(SPECIES_[A-Z0-9_]+)\}/g)) {
 			const method = EVO_METHODS[evo[1]];
 			if (!method) {
-				problems.push(`evolution.h: unknown method ${evo[1]} on ${head[1]}`);
+				problems.push(`evolution.h: unknown method ${evo[1]} on ${constant}`);
 				continue;
 			}
 			const into = resolveSpecies(evo[3]);
 			if (!into) {
-				problems.push(`evolution.h: cannot resolve ${evo[3]} (from ${head[1]})`);
+				problems.push(`evolution.h: cannot resolve ${evo[3]} (from ${constant})`);
 				continue;
 			}
 			const step = {into, method};
@@ -374,7 +392,12 @@ function importEvolutions(decomp, problems) {
 		// permanently turn a Charizard into a Charizard-Mega-X.
 		const permanent = evos.filter(e => e.method !== 'mega' && e.method !== 'mega-move' &&
 			e.method !== 'primal');
-		if (permanent.length) byFrom[from] = permanent;
+		// First resolution wins, as in the learnset importer: the base constant's
+		// row is the species' own, and every later constant that resolves to the
+		// same name is a form collapsed onto it. Letting the last write win would
+		// replace Rockruff's three stone branches with SPECIES_ROCKRUFF_OWN_TEMPO's
+		// single level-dusk step.
+		if (permanent.length && !byFrom[from]) byFrom[from] = permanent;
 	}
 	return byFrom;
 }

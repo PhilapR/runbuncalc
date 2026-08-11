@@ -22,7 +22,7 @@
  *   - 362 battles: the road ahead is a list where any fight can be marked
  *     beaten, which moves the run past everything before it — one click per
  *     route, not one per trainer
- *   - 34 milestones: the spine strip is "where am I" at a glance
+ *   - 40+ milestones: the spine strip is "where am I" at a glance
  *
  * The one thing this file owns is persistence: read on load, write only what
  * the server accepted, never write a run the server refused.
@@ -39,6 +39,10 @@
 	var lastStatus = null;
 	/** Party being assembled, in lead order. Committed only by "Set party". */
 	var stagedParty = [];
+	/** True while a run-changing call is in flight. See `mutate`. */
+	var busy = false;
+	/** Raw text of a save that would not parse, held until the player deals with it. */
+	var corruptSave = null;
 
 	function status(message, kind) {
 		$('#runbun-run-status').text(message || '').attr('data-kind', kind || '');
@@ -70,12 +74,47 @@
 	}
 
 	function restore() {
+		var saved;
 		try {
-			var saved = window.localStorage.getItem(STORAGE_KEY);
-			return saved ? JSON.parse(saved) : null;
+			saved = window.localStorage.getItem(STORAGE_KEY);
 		} catch (error) {
+			status('Could not read this browser\'s storage: ' + error.message, 'error');
 			return null;
 		}
+		if (!saved) return null;
+		try {
+			return JSON.parse(saved);
+		} catch (error) {
+			// This string is the player's only copy of the run, so it is kept, not
+			// dropped: it goes into the transfer box on load to be repaired by hand,
+			// and "Start a run" refuses to write over it until the player decides.
+			corruptSave = saved;
+			return null;
+		}
+	}
+
+	/**
+	 * One run-changing call at a time.
+	 *
+	 * Every mutation posts the run in `state` and adopts the run that comes back,
+	 * so two in flight share one base: the second reply overwrites the first, and
+	 * a command the player saw acknowledged and persisted vanishes. Refusing the
+	 * second click loses nothing — the run it would have been built on does not
+	 * exist yet — but it has to SAY so, because a button that silently does
+	 * nothing reads as a broken button.
+	 */
+	function mutate(work) {
+		if (busy) {
+			status('One change at a time — the last one is still in flight.', 'error');
+			return;
+		}
+		busy = true;
+		function release() { busy = false; }
+		// Released on both paths: one failure must never wedge the panel shut.
+		return work().then(release, function (error) {
+			release();
+			status(error.message, 'error');
+		});
 	}
 
 	function monLabel(mon) {
@@ -91,8 +130,9 @@
 
 	/**
 	 * The story spine: one tick per milestone, beaten filled, the next one
-	 * accented. 34 ticks is glanceable where 34 names would be a wall; the name
-	 * lives in the tooltip and the note line names only the one that matters.
+	 * accented. Ticks stay glanceable at a count where the same many names would
+	 * be a wall; the name lives in the tooltip and the note line names only the
+	 * one that matters.
 	 */
 	function renderSpine(payload) {
 		var spine = payload.milestones || [];
@@ -243,57 +283,84 @@
 
 	// ------------------------------------------------------------------ render
 
-	function render() {
+	/** The start form and the run are never both on screen. */
+	function showRun() {
 		$('#runbun-run-empty').prop('hidden', !!state);
 		$('#runbun-run-live').prop('hidden', !state);
+	}
+
+	/**
+	 * Draw one `/run/status` payload. Split out from `render` so an import can
+	 * paint the answer it already had to fetch to validate the run, rather than
+	 * asking the same question twice.
+	 */
+	function paint(payload) {
+		lastStatus = payload;
+		stagedParty = state.party.slice();
+		var summary = payload.status;
+		$('#runbun-run-name').text(summary.name);
+		// The split is how a player narrates a run — "the Brawly split" — so it
+		// leads the position line rather than trailing it.
+		$('#runbun-run-position').text(
+			(summary.split && !summary.split.finished ?
+				summary.split.boss.replace(/^Leader /, '') + ' split (' +
+					summary.split.index + '/' + summary.split.of + ') · ' : '') +
+			(summary.next ?
+				'Next: #' + summary.next.order + ' ' + summary.next.trainer :
+				'The run map is finished.'));
+		$('#runbun-run-cap').text(summary.levelCap.cap === null ?
+			'' :
+			'Level cap ' + summary.levelCap.cap + ' — ' + summary.levelCap.trainer +
+				"'s " + summary.levelCap.ace);
+
+		renderSpine(payload);
+		renderBox(payload);
+		renderPartyStrip();
+		renderUpcoming(payload);
+
+		var bag = Object.keys(summary.bag);
+		$('#runbun-run-bag').text(bag.length ?
+			bag.map(function (item) { return item + ' x' + summary.bag[item]; }).join(', ') :
+			'Bag is empty.');
+		return payload;
+	}
+
+	function render() {
+		showRun();
 		if (!state) return;
 
-		return api('/run/status', {run: state, upcomingCount: 8}).then(function (payload) {
-			lastStatus = payload;
-			stagedParty = state.party.slice();
-			var summary = payload.status;
-			$('#runbun-run-name').text(summary.name);
-			// The split is how a player narrates a run — "the Brawly split" — so it
-			// leads the position line rather than trailing it.
-			$('#runbun-run-position').text(
-				(summary.split && !summary.split.finished ?
-					summary.split.boss.replace(/^Leader /, '') + ' split (' +
-						summary.split.index + '/' + summary.split.of + ') · ' : '') +
-				(summary.next ?
-					'Next: #' + summary.next.order + ' ' + summary.next.trainer :
-					'The run map is finished.'));
-			$('#runbun-run-cap').text(summary.levelCap.cap === null ?
-				'' :
-				'Level cap ' + summary.levelCap.cap + ' — ' + summary.levelCap.trainer +
-					"'s " + summary.levelCap.ace);
-
-			renderSpine(payload);
-			renderBox(payload);
-			renderPartyStrip();
-			renderUpcoming(payload);
-
-			var bag = Object.keys(summary.bag);
-			$('#runbun-run-bag').text(bag.length ?
-				bag.map(function (item) { return item + ' x' + summary.bag[item]; }).join(', ') :
-				'Bag is empty.');
-			return payload;
-		}).catch(function (error) {
+		return api('/run/status', {run: state, upcomingCount: 8}).then(paint).catch(function (error) {
 			status(error.message, 'error');
+			// The payload is what feeds staging, so a failed status leaves
+			// `stagedParty` describing a run that may no longer exist — undone mons
+			// still carrying a "−" and "Set party" ready to stage their ids. The
+			// committed party is the only thing still known to be true.
+			stagedParty = state.party.slice();
+			if (lastStatus) {
+				renderBox(lastStatus);
+				renderPartyStrip();
+			}
 		});
 	}
 
 	/** Send one command; on success save and redraw, on refusal change nothing. */
 	function command(body) {
-		status('Working…', '');
-		return api('/run/apply', {run: state, command: body}).then(function (payload) {
-			state = payload.run;
-			persist();
-			status(payload.summary, 'ok');
-			return render();
-		}).catch(function (error) {
-			// The refusal message is the feature: it says why this could not have
-			// happened in the game, not merely that the form was wrong.
-			status(error.message, 'error');
+		return mutate(function () {
+			status('Working…', '');
+			return api('/run/apply', {run: state, command: body}).then(function (payload) {
+				state = payload.run;
+				persist();
+				status(payload.summary, 'ok');
+				return render();
+			}).catch(function (error) {
+				// The refusal message is the feature: it says why this could not have
+				// happened in the game, not merely that the form was wrong.
+				status(error.message, 'error');
+				// A refusal still has to redraw: staging built for the refused command
+				// is now describing a run the server never accepted. `render` resyncs
+				// it from the authoritative state and leaves this message standing.
+				return render();
+			});
 		});
 	}
 
@@ -354,23 +421,41 @@
 		});
 	}
 
+	/**
+	 * A save that would not parse is still the player's only copy, and starting a
+	 * run persists over it. It blocks only while its raw text is on screen exactly
+	 * as it was read: repairing that text, or emptying the box, IS the decision.
+	 */
+	function damagedSaveUnhandled() {
+		return corruptSave !== null && $('#runbun-run-transfer').val() === corruptSave;
+	}
+
 	function bind() {
 		$('#runbun-run-new').on('click', function () {
-			api('/run/new', {
-				name: $('#runbun-run-new-name').val() || 'My run',
-				levelCap: $('#runbun-run-new-cap').is(':checked') ? 'next-milestone-ace' : 'none',
-				permadeath: $('#runbun-run-new-nuzlocke').is(':checked'),
-				// Declaring the rival removes the other two variants of every rival
-				// fight from the spine, the road ahead and the caps.
-				rival: $('#runbun-run-new-rival').val() || undefined,
-				now: new Date().toISOString(),
-			}).then(function (payload) {
-				state = payload.run;
-				persist();
-				status('Started ' + state.name + '.', 'ok');
-				return render();
-			}).catch(function (error) {
-				status(error.message, 'error');
+			if (damagedSaveUnhandled()) {
+				status('The damaged save from this browser is in the transfer box below ' +
+					'and starting a run would write over it. Repair it and press Import, ' +
+					'or clear that box to start fresh.', 'error');
+				return;
+			}
+			mutate(function () {
+				return api('/run/new', {
+					name: $('#runbun-run-new-name').val() || 'My run',
+					levelCap: $('#runbun-run-new-cap').is(':checked') ? 'next-milestone-ace' : 'none',
+					permadeath: $('#runbun-run-new-nuzlocke').is(':checked'),
+					// Declaring the rival removes the other two variants of every rival
+					// fight from the spine, the road ahead and the caps.
+					rival: $('#runbun-run-new-rival').val() || undefined,
+					now: new Date().toISOString(),
+				}).then(function (payload) {
+					state = payload.run;
+					corruptSave = null;
+					persist();
+					status('Started ' + state.name + '.', 'ok');
+					return render();
+				}).catch(function (error) {
+					status(error.message, 'error');
+				});
 			});
 		});
 
@@ -483,32 +568,64 @@
 		$('#runbun-run-plan').on('click', function () { plan(null); });
 
 		$('#runbun-run-undo').on('click', function () {
-			api('/run/undo', {run: state}).then(function (payload) {
-				state = payload.run;
-				persist();
-				status('Undone.', 'ok');
-				return render();
-			}).catch(function (error) {
-				status(error.message, 'error');
+			mutate(function () {
+				return api('/run/undo', {run: state}).then(function (payload) {
+					state = payload.run;
+					persist();
+					// An export made before the undo still contains the undone command.
+					// Left sitting in the box it is one Import away from reinstating
+					// exactly what the player just took back, so it goes.
+					var hadExport = !!$('#runbun-run-transfer').val();
+					if (hadExport) $('#runbun-run-transfer').val('');
+					status('Undone.' + (hadExport ?
+						' Cleared the transfer box — it held the undone command.' : ''), 'ok');
+					return render();
+				}).catch(function (error) {
+					status(error.message, 'error');
+				});
 			});
 		});
 		$('#runbun-run-export').on('click', function () {
+			// Reachable with no run, since import has to be: "null" in the box would
+			// only be something to paste back later and be refused.
+			if (!state) {
+				status('There is no run to export yet.', 'error');
+				return;
+			}
 			$('#runbun-run-transfer').val(JSON.stringify(state, null, '\t'));
 			status('Exported. Copy this to keep or move the run.', 'ok');
 		});
 		$('#runbun-run-import').on('click', function () {
+			var incoming;
 			try {
-				var incoming = JSON.parse($('#runbun-run-transfer').val());
-				if (!incoming || typeof incoming !== 'object' || !incoming.version) {
-					throw new Error('that is not a run');
-				}
-				state = incoming;
-				persist();
-				status('Imported.', 'ok');
-				render();
+				incoming = JSON.parse($('#runbun-run-transfer').val());
 			} catch (error) {
 				status('Could not import: ' + error.message, 'error');
+				return;
 			}
+			if (!incoming || typeof incoming !== 'object') {
+				status('Could not import: that is not a run', 'error');
+				return;
+			}
+			mutate(function () {
+				// The server is the only thing that can tell a run from a shape that
+				// merely looks like one, so it is asked BEFORE anything is adopted.
+				// Checking a field here and persisting on faith wrote junk over a real
+				// save permanently — the panel writes only what the server accepted,
+				// and an import is no different from a command in that.
+				return api('/run/status', {run: incoming, upcomingCount: 8}).then(function (payload) {
+					state = incoming;
+					corruptSave = null;
+					persist();
+					showRun();
+					paint(payload);
+					status('Imported.', 'ok');
+				}).catch(function (error) {
+					// `state` and the save are untouched: the run on screen is still the
+					// one that was there before the paste.
+					status('Could not import: ' + error.message, 'error');
+				});
+			});
 		});
 	}
 
@@ -517,6 +634,14 @@
 		bind();
 		state = restore();
 		loadMaps().then(render).then(function () {
+			if (corruptSave) {
+				$('#runbun-run-transfer').val(corruptSave)
+					.closest('details').prop('open', true);
+				status('The run saved in this browser is damaged and could not be read. ' +
+					'Its raw text is in the transfer box below — repair it and press ' +
+					'Import to get the run back, or clear the box to start over.', 'error');
+				return;
+			}
 			if (state) status('Loaded ' + state.name + ' from this browser.', 'ok');
 		});
 	});

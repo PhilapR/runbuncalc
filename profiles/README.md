@@ -32,6 +32,7 @@ wants.
 | **L3 — Policy** | "What will the opponent do?" | L2 + a profile's `policy` |
 | **L4 — Encounters** | "What does this specific trainer have, and where am I in the run?" | L3 + a profile's `encounters` |
 | **L5 — Planner** | "What line survives this fight?" | L4 + search over L3 |
+| **L6 — The run** | "What is in my box, what can it learn, and where am I in the story?" | L5 + a profile's `oracle` |
 
 L5 exists as `planner.js`, reachable over HTTP:
 
@@ -48,13 +49,19 @@ it. The `/ai/*` endpoints all take a caller-supplied `BattleState` and answer
 "given this position, what happens"; the planner builds the position from the
 run map itself, which is the question a player mid-run actually has.
 
-L0–L1 is a calculator. L3 is an opponent oracle. L4–L5 is a fight planner. The
-same primitives serve a player who wants one number and a tool that wants to
-plan a whole battle.
+L6 exists as `run.js` — the first layer that remembers anything, since every
+layer below it answers a question about a position and forgets. It is the layer
+the profile's `oracle` serves: a catch is checked against the map's real
+encounter table, an evolution against the real evolution line, a taught move
+against the real learnset, so a run is verified rather than merely recorded.
+
+L0–L1 is a calculator. L3 is an opponent oracle. L4–L5 is a fight planner. L6 is
+a playthrough. The same primitives serve a player who wants one number and a
+tool that wants to plan a whole battle.
 
 A profile does not have to fill every layer. A profile with only `data` gives
 accurate numbers for a hack and nothing more, and that is a legitimate,
-useful profile.
+useful profile. Without `oracle`, L6 has no tables to check a run against.
 
 ## Shape
 
@@ -67,7 +74,7 @@ useful profile.
   mechanics: { ... },       // rule deltas (optional)
   policy: { KIND, ... },    // opponent decision model; KIND says how it decides
   encounters: { ... },      // trainers / run map (optional)
-  // learnsets: { ... },    // not modelled yet — see "Designing for a second game"
+  oracle: { ... },          // wild encounters, evolutions, learnsets (optional)
   provenance: { ... },      // how each claim is known
 }
 ```
@@ -82,10 +89,13 @@ every claim in a profile is known the same way, and the difference matters:
 | `transcribed` | Copied from community documentation, unverified |
 | `inferred` | Derived by us; nobody has checked it |
 
-For Run & Bun the source of truth is [`dekzeh/calc`](https://github.com/dekzeh/calc),
-the hack author's own calculator. Community documentation is valuable for
-approach and colloquial knowledge — how the game is understood and played — but
-it is not a source for values. Where the two disagree, the author's data wins.
+For Run & Bun the source of truth is the hack author's own published data:
+[`dekzeh/calc`](https://github.com/dekzeh/calc) for the calculator values, and
+his pokeemerald-format dump [`dekzeh/runandbundex`](https://github.com/dekzeh/runandbundex)
+for everything the calculator does not carry — per-move accuracy and PP, and the
+`oracle` tables. Community documentation is valuable for approach and colloquial
+knowledge — how the game is understood and played — but it is not a source for
+values. Where the two disagree, the author's data wins.
 
 That distinction has a limit worth stating plainly: it applies to **values**.
 For **behavior** — what the AI actually does — there is no published authority,
@@ -95,10 +105,10 @@ and `observed` is the strongest tag available.
 ## Designing for a second game
 
 Run & Bun is one shape of ROM hack. Radical Red, the Kaizo family and others sit
-in the same space but vary in ways this contract has to absorb. Nothing here is
-built yet — the point is to know which parts are *shape* (stable across games)
-and which are *content* (varies), so a second game costs a profile plus perhaps
-an adapter, not a fork.
+in the same space but vary in ways this contract has to absorb. None of the
+bending described below is built yet — the point is to know which parts are
+*shape* (stable across games) and which are *content* (varies), so a second game
+costs a profile plus perhaps an adapter, not a fork.
 
 ### What is shape, and already holds
 
@@ -125,12 +135,15 @@ the profile should be able to declare a *replacement* dex instead of a patch,
 and the conformance gate should check whichever was declared. Same contract,
 two modes.
 
-**Learnsets — missing entirely.** No layer models them, and nothing in the
-repository knows what a species can learn. Run & Bun does not expose the gap
-because moves are chosen by hand and trainer parties come with their moves
-listed. A planner in a game that heavily rewrites learnsets needs them: to
-validate a player's team, and to reason about what an opponent *could* carry
-rather than only what a set says. This is the clearest missing layer.
+**Availability — imported per decomp format.** The `oracle` key closed what used
+to be the clearest missing layer: `profiles/run-and-bun/oracle/` carries wild
+encounter tables, evolutions, and level-up / teachable / egg learnsets, and
+`legalMoves` walks the evolution line so a Breloom can claim Shroomish's egg
+moves. What does not carry to a second game is the *import*:
+`scripts/import-oracle.js` reads pokeemerald-format headers, so a hack published
+in another format needs its own importer behind the same shape. A hack that
+changes how moves are acquired at all — no TM reuse, move tutors gated on
+progress — puts that rule in `mechanics`, not in the tables.
 
 **Stat tweaks — same model, different volume.** The delta approach holds; only
 the size changes. Worth noting the ROM-verification method transfers too: any

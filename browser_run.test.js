@@ -9,14 +9,18 @@
  * at a route, catch something off it, set a party, and plan the next fight —
  * with the whole run living in `localStorage` and the server holding nothing.
  *
- * Two properties are specific to this layer and cannot be tested below it:
+ * These properties are specific to this layer and cannot be tested below it:
  *
  *   - a refusal must not corrupt the save. The panel writes only what the
  *     server accepted, so a rejected catch has to leave `localStorage` byte for
- *     byte as it was.
+ *     byte as it was — and a pasted run is a refusal like any other, which is
+ *     why it has to be validated by the server BEFORE it is adopted.
  *   - the run must survive a reload. A playthrough that evaporates on refresh is
  *     not a playthrough, and the legacy Team/Box grid on this same page has had
  *     exactly that bug for its whole life.
+ *   - one change at a time. Every call posts the whole run and adopts what comes
+ *     back, so two in flight share one base run and the later reply drops the
+ *     earlier command without a word.
  *
  * Skips rather than fails without Chromium, so the suite still runs headless.
  */
@@ -141,9 +145,9 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		null, {timeout: 10000});
 
 	// The story spine renders one tick per milestone, none beaten yet.
-	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 41);
+	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 44);
 	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 0);
-	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 41 milestones/);
+	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 44 milestones/);
 
 	await page.click('#runbun-run-plan');
 	await page.waitForFunction(
@@ -288,6 +292,12 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 10000});
 
+	// Export first. That text is the run WITH the catch in it, so leaving it in
+	// the box after an undo leaves a silent redo one click away.
+	await page.click('.runbun-run-transfer summary');
+	await page.click('#runbun-run-export');
+	assert.match(await page.inputValue('#runbun-run-transfer'), /Poochyena/);
+
 	await page.click('#runbun-run-undo');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 0,
@@ -295,6 +305,133 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 	const state = await savedRun(page);
 	assert.equal(state.box.length, 0);
 	assert.equal(state.log.length, 0);
+	assert.equal(await page.inputValue('#runbun-run-transfer'), '',
+		'the export that still holds the undone catch outlived the undo');
+
+	await session.context.close();
+});
+
+test('a pasted run the server cannot read is refused, and the save survives it', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.fill('#runbun-run-new-name', 'Keeper');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	// The first status render is what finishes the save; compare only after it.
+	await page.waitForFunction(
+		() => /Keeper/.test(document.querySelector('#runbun-run-name').textContent),
+		null, {timeout: 15000});
+	const before = await page.evaluate(() => window.localStorage.getItem('runbun.run.v1'));
+
+	await page.click('.runbun-run-transfer summary');
+	// This clears every check the panel could make on its own — it parses, it is
+	// an object, it carries a version — and it is still not a run. Only the
+	// server can tell the difference, so only the server gets to decide.
+	await page.fill('#runbun-run-transfer', '{"version":1}');
+	await page.click('#runbun-run-import');
+	await page.waitForFunction(
+		() => /^Could not import:/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');
+
+	// Byte for byte. A paste the server refused is a refusal like any other, and
+	// this one used to overwrite the save permanently — reload included.
+	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), before,
+		'a refused import wrote to the save');
+	assert.equal(await page.textContent('#runbun-run-name'), 'Keeper');
+	assert.equal(await page.isVisible('#runbun-run-empty'), false,
+		'the refused import should not have taken the run off screen');
+
+	// And the panel is still a panel: the run it holds is the one it always
+	// held, and the in-flight guard released when the import failed.
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.fill('#runbun-run-catch-species', 'Poochyena');
+	await page.fill('#runbun-run-catch-level', '3');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 10000});
+	assert.equal((await savedRun(page)).name, 'Keeper');
+
+	assert.deepEqual(session.errors, [], `page raised errors: ${session.errors.join('; ')}`);
+	await session.context.close();
+});
+
+test('a damaged save is handed back for repair, not quietly replaced', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	// A write that was cut off half way — quota, a closed tab. The panel used to
+	// swallow the parse error and treat the browser as empty, and the next
+	// "Start a run" wrote over the only copy the player had.
+	const damaged = '{"version":1,"name":"Half a run","box":[{"id":"mon-1","spec';
+	await page.evaluate(raw => window.localStorage.setItem('runbun.run.v1', raw), damaged);
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForFunction(
+		() => /damaged/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 15000});
+	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');
+	// Handed back verbatim, in an open box: recovery by hand is the only recovery
+	// there is, and it needs the text.
+	assert.equal(await page.inputValue('#runbun-run-transfer'), damaged);
+
+	await page.click('#runbun-run-new');
+	await page.waitForFunction(
+		() => /starting a run would write over it/.test(
+			document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), damaged,
+		'starting a run wrote over a save the player had not dealt with');
+
+	// Clearing the box IS dealing with it, and then a run starts as usual.
+	await page.fill('#runbun-run-transfer', '');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.waitForFunction(
+		() => /"box"/.test(window.localStorage.getItem('runbun.run.v1') || ''),
+		null, {timeout: 15000});
+
+	await session.context.close();
+});
+
+test('a change asked for while another is in flight is refused, not merged', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+
+	// Held open long enough that a second click lands while the first call is
+	// still out. Both would post the same base run, and whichever replied last
+	// would be persisted over the other — losing a command the player was told
+	// had happened.
+	await page.route('**/run/apply', async route => {
+		await new Promise(resolve => setTimeout(resolve, 1500));
+		await route.continue();
+	});
+
+	await page.fill('#runbun-run-catch-species', 'Poochyena');
+	await page.fill('#runbun-run-catch-level', '3');
+	await page.click('#runbun-run-catch');
+	await page.click('#runbun-run-undo');
+	// Refused out loud: a button that quietly does nothing reads as broken.
+	assert.match(await page.textContent('#runbun-run-status'), /One change at a time/);
+	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');
+
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 15000});
+	const saved = await savedRun(page);
+	assert.equal(saved.box.length, 1, 'the catch that was in flight still has to land');
+	assert.equal(saved.log.length, 1, 'the refused undo must not have run behind it');
 
 	await session.context.close();
 });

@@ -507,20 +507,60 @@ app.post("/planner/predict", (req, res, next) => {
 // The cost is that every call carries the whole run. At a few kilobytes for a
 // full box that is cheaper than the alternative.
 
-/** Shared shape check, so every endpoint refuses a missing run the same way. */
+function invalidRun(res, message) {
+	res.status(400).json({error: message, code: "InvalidRun"});
+	return null;
+}
+
+function isRecord(value) {
+	return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+/**
+ * Shared shape check, so every endpoint refuses a malformed run the same way.
+ *
+ * A version stamp is not a document. `run.js` reads `rules.levelCap`, iterates
+ * `box`, `party` and `log` and clones `bag` without re-checking any of it —
+ * correctly, because it is handed runs it built itself. Over HTTP the run
+ * arrives from a client, so a hand-written `{"version":1}` or a truncated save
+ * pasted into the panel's import box used to reach `summarize` and come out a
+ * 500. Every field the run layer assumes is checked here, once, and the failure
+ * names the field: a malformed run is the caller's mistake to fix.
+ */
 function requireRun(payload, res) {
 	if (!payload || typeof payload.run !== "object" || payload.run === null) {
-		res.status(400).json({error: "run is required", code: "InvalidRun"});
-		return null;
+		return invalidRun(res, "run is required");
 	}
-	if (payload.run.version !== runtime.VERSION) {
+	const run = payload.run;
+	if (run.version !== runtime.VERSION) {
 		res.status(400).json({
-			error: `run is version ${payload.run.version}; this server reads version ${runtime.VERSION}`,
+			error: `run is version ${run.version}; this server reads version ${runtime.VERSION}`,
 			code: "RunVersionMismatch",
 		});
 		return null;
 	}
-	return payload.run;
+	if (!isRecord(run.rules) || typeof run.rules.levelCap !== "string") {
+		return invalidRun(res, "run.rules must be an object with a levelCap string");
+	}
+	for (const field of ["box", "log"]) {
+		if (!Array.isArray(run[field])) {
+			return invalidRun(res, `run.${field} must be an array`);
+		}
+	}
+	// The party holds ids into the box, not Pokemon; anything else makes the
+	// lookup in `summarize` read a property of null.
+	if (!Array.isArray(run.party) || run.party.some(id => typeof id !== "string")) {
+		return invalidRun(res, "run.party must be an array of box ids");
+	}
+	if (!isRecord(run.bag)) {
+		return invalidRun(res, "run.bag must be an object");
+	}
+	for (const field of ["position", "nextId"]) {
+		if (typeof run[field] !== "number" || !Number.isFinite(run[field])) {
+			return invalidRun(res, `run.${field} must be a number`);
+		}
+	}
+	return run;
 }
 
 /**

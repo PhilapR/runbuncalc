@@ -226,7 +226,7 @@ function levelCap(run) {
 
 /**
  * Which split the run is in: the next split-ending boss, and how many are
- * behind it. "Split 1 of 15 — Leader Brawly" is how a player narrates a run;
+ * behind it. "Split 1 of 18 — Leader Brawly" is how a player narrates a run;
  * the position integer is how the map stores it.
  */
 function split(run) {
@@ -386,9 +386,20 @@ function checkEncounter(profile, command) {
 		throw new Error(
 			`${command.species} on ${found.name} is level ${ranges}, not ${command.level}`);
 	}
-	const slot = command.method ?
-		byLevel.find(s => s.method === command.method) || byLevel[0] :
-		byLevel[0];
+	// A named method is a claim about how the catch happened, so a wrong one is a
+	// wrong catch. Falling back to another slot would silently rewrite the claim
+	// and store 'fish' under a player who said 'walk' — an asserted fact turned
+	// into a fabricated one, which is the opposite of what the oracle is for.
+	if (command.method) {
+		const named = byLevel.find(s => s.method === command.method);
+		if (!named) {
+			const methods = [...new Set(byLevel.map(s => s.method))].join(', ');
+			throw new Error(`${command.species} on ${found.name} at level ` +
+				`${command.level} is not caught by ${command.method}; it is caught by: ${methods}`);
+		}
+		return {method: named.method, map: found.map, mapName: found.name, rod: named.rod};
+	}
+	const slot = byLevel[0];
 	return {method: slot.method, map: found.map, mapName: found.name, rod: slot.rod};
 }
 
@@ -416,7 +427,15 @@ const COMMANDS = {
 		// would be a bypass around everything `teach` enforces.
 		let moves;
 		if (command.moves && command.moves.length) {
-			moves = command.moves.slice(0, 4);
+			// Trimming to four silently dropped the surplus BEFORE it was checked, so
+			// an illegal fifth move raised nothing at all — the one hole in the wall
+			// `teach` builds. Refuse the list instead: four is the game's limit, and
+			// which four is the player's call, not this module's.
+			if (command.moves.length > 4) {
+				throw new Error(`catch: ${command.species} knows four moves, not ` +
+					`${command.moves.length} (${command.moves.join(', ')}) — name four`);
+			}
+			moves = command.moves.slice();
 			for (const move of moves) {
 				if (!profile.oracle.canLearn(command.species, move).legal) {
 					throw new Error(`catch: ${command.species} cannot know ${move} — ` +
@@ -674,9 +693,17 @@ function apply(run, command, options) {
 			`known: ${Object.keys(COMMANDS).join(', ')}`);
 	}
 	const next = clone(run);
-	const summary = handler(next, command);
+	// The boundary owns the copy, not the handlers. Handlers park pieces of a
+	// command straight in the document — `ivs`, `moves`, `ids` — so a raw command
+	// leaves the caller holding a reference INTO a run that has already been
+	// returned; mutating it afterwards edits the run, and the log's separate copy
+	// then disagrees with the live document, so undo replays a different history
+	// than the one on screen. One clone here, handed to both the handler and the
+	// log, means no handler can leak caller structure whatever it decides to store.
+	const owned = clone(command);
+	const summary = handler(next, owned);
 	next.updatedAt = opts.now || run.updatedAt;
-	next.log.push({command: clone(command), summary, at: opts.now || null});
+	next.log.push({command: owned, summary, at: opts.now || null});
 	return next;
 }
 
@@ -705,10 +732,16 @@ function undo(run) {
 		permadeath: run.rules.permadeath,
 		rival: run.rules.rival,
 	});
-	const replay = run.log.slice(0, -1);
-	const rebuilt = applyAll(fresh, replay.map(entry => entry.command));
-	rebuilt.log = clone(replay);
-	rebuilt.updatedAt = replay.length ? replay[replay.length - 1].at : run.createdAt;
+	// Each entry replays under the timestamp it was applied with, one `now` per
+	// command rather than one for the batch, so the rebuilt document reproduces
+	// the original by construction — log entries and `updatedAt` included. The
+	// old patch-up wrote `updatedAt` from the last entry's `at`, which is null on
+	// the shipped browser path (the panel posts no `now`, so `apply` inherits
+	// `updatedAt` and logs null), and undo(apply(r, c)) came back unequal to r.
+	let rebuilt = fresh;
+	for (const entry of run.log.slice(0, -1)) {
+		rebuilt = apply(rebuilt, entry.command, {now: entry.at});
+	}
 	return rebuilt;
 }
 
