@@ -425,6 +425,24 @@ behavior; **P2** UI-V3 polish)
 
 ---
 
+### 4.5 My Run (playthrough)
+
+The panel is designed for the run's END STATE, not its first route: a box of
+60+, several lost, 34 milestones, 362 battles. Every component states which of
+those scales it serves.
+
+| Component | Serves | Design |
+| --- | --- | --- |
+| Story spine | 362 battles → 34 milestones | One tick per milestone; beaten = brand fill, next = action outline; names in tooltips, note line names only the next. "Where am I" answered without reading. |
+| Road ahead | 25 fights between gyms | Bordered list (same grammar as ranked actions); any row markable **Beaten**, which moves the run past everything before it — one click per route, not per trainer. Per-row **Plan**. |
+| Party strip | Lead order matters | Six visible slots, lead first; built by clicking (+/−) in the box, reordered with ▲. Click order IS lead order. A `<select multiple>` cannot express order — jQuery returns DOM order — which made the lead silently always the earliest catch. Never reintroduce it. |
+| Box | 60+ entries, permadeath | Counts bar (`N alive · M lost`), substring filter (a view, never a command), party pinned on top in lead order, the lost below a `lost` divider — in the record, out of the working set. `at cap` chip when a mon meets the run's cap. |
+| Catch flow | One per route | Encounter click fills the form, never catches — a misclick must not become a box entry. Refusals quote the route's real roster. |
+
+Rules the panel keeps: thin client (all rules server-side), persist only what
+the server accepted, `hidden` attribute + `#runbun-run [hidden]` guard (two
+bugs have come from fighting it), and the run lives in `localStorage` only.
+
 ## 5. Interaction flows
 
 ### 5.1 Evaluate → choose → apply → advance

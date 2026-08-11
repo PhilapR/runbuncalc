@@ -214,3 +214,14 @@ test('items move between bag and holder through the CLI', () => {
 	cli('take', 'mon-1');
 	assert.deepEqual(read().bag, {'Sitrus Berry': 2});
 });
+
+test('milestones prints the spine without writing', () => {
+	cli('new');
+	cli('beat', 'Leader', 'Brawly');
+	const before = fs.readFileSync(file, 'utf8');
+	const spine = cli('milestones');
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'milestones wrote to the save');
+	assert.match(spine, /1 \/ 34 milestones/);
+	assert.match(spine, /✓ # {2}77 {2}Leader Brawly/);
+	assert.match(spine, /· # 139 {2}Leader Roxanne/);
+});

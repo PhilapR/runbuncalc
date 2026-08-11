@@ -170,6 +170,31 @@ function upcoming(run, count) {
 	return require('./planner').upcoming(run.position, count || 5, run.profileId);
 }
 
+/**
+ * The story spine: every milestone fight, with whether the run is past it.
+ *
+ * This is what "where am I" means over a 362-battle map. The position integer
+ * answers it precisely and uselessly; a player thinks in badges and admins,
+ * and those are exactly the fights the profile's MILESTONE_PATTERN names.
+ *
+ * `beaten` is derived from position, not stored — beating fight #337 means the
+ * run is past #253 whether or not each rival variant was ever named in a
+ * command. That is also what makes bulk progress cheap: marking the last fight
+ * of a route beaten moves the spine, no per-trainer bookkeeping required.
+ */
+function milestones(run) {
+	const profile = getProfile(run.profileId);
+	const pattern = profile.encounters.MILESTONE_PATTERN;
+	if (!pattern) return [];
+	return require('./planner').loadRunMap(run.profileId)
+		.filter(fight => pattern.test(fight.trainer))
+		.map(fight => ({
+			trainer: fight.trainer,
+			order: fight.order,
+			beaten: fight.order <= run.position,
+		}));
+}
+
 /** What can be caught on a map, with what the run already holds marked. */
 function encountersOn(run, map) {
 	const profile = getProfile(run.profileId);
@@ -302,12 +327,34 @@ const COMMANDS = {
 		// level. A caught Pokemon arrives with moves; making the player type four
 		// of them before the entry is usable would make catching feel like data
 		// entry rather than playing.
-		const moves = command.moves && command.moves.length ?
-			command.moves.slice(0, 4) :
-			profile.oracle.levelUpMoves(command.species)
+		//
+		// Explicit moves are checked for legality, because an unchecked list here
+		// would be a bypass around everything `teach` enforces.
+		let moves;
+		if (command.moves && command.moves.length) {
+			moves = command.moves.slice(0, 4);
+			for (const move of moves) {
+				if (!profile.oracle.canLearn(command.species, move).legal) {
+					throw new Error(`catch: ${command.species} cannot know ${move} — ` +
+						'not by level-up, TM, tutor, or an egg move inherited down its line');
+				}
+			}
+		} else {
+			moves = profile.oracle.levelUpMoves(command.species)
 				.filter(pair => pair[0] <= level)
 				.slice(-4)
 				.map(pair => pair[1]);
+		}
+		// A movesless entry is a time bomb: the box stores it happily and the
+		// planner detonates on it later. It is also real — Run & Bun gives some
+		// species (Skarmory) NO level-up moves at all, so the default can
+		// legitimately come up empty and the moves must be named.
+		if (!moves.length) {
+			const teachable = profile.oracle.teachableMoves(command.species).slice(0, 6);
+			throw new Error(`catch: ${command.species} at level ${level} has no ` +
+				'level-up moves in this game — name its moves' +
+				(teachable.length ? `; it can be taught: ${teachable.join(', ')}` : ''));
+		}
 
 		const mon = {
 			id: `mon-${run.nextId}`,
@@ -604,5 +651,6 @@ function summarize(run) {
 module.exports = {
 	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
 	createRun, apply, applyAll, undo,
-	findMon, levelCap, upcoming, encountersOn, learnable, partySpecs, planNext, summarize,
+	findMon, levelCap, upcoming, milestones, encountersOn, learnable, partySpecs, planNext,
+	summarize,
 };

@@ -724,6 +724,16 @@ test('a run is created, advanced and summarized entirely through the request', a
 	assert.equal(status.status, 200);
 	assert.equal(status.body.box.length, 1);
 	assert.equal(status.body.upcoming[0].trainer, 'Youngster Calvin');
+
+	// The story spine travels with every status, and how far ahead to look is
+	// the client's call, bounded.
+	assert.equal(status.body.milestones.length, 34);
+	assert.equal(status.body.milestones[0].trainer, 'Leader Brawly');
+	assert.equal(status.body.milestones[0].beaten, false);
+	const wide = await requestJson('/run/status', {run: caught.body.run, upcomingCount: 8});
+	assert.equal(wide.body.upcoming.length, 8);
+	const clamped = await requestJson('/run/status', {run: caught.body.run, upcomingCount: 999});
+	assert.equal(clamped.body.upcoming.length, 20);
 });
 
 test('a command that could not have happened is a 400 with the reason', async () => {

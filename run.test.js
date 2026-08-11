@@ -124,7 +124,9 @@ test('evolution follows the table, including when it is not due yet', () => {
 		/becomes Mightyena at level \d+; it is 3/);
 
 	// A branching line has to be told which branch.
-	const wurmple = run.apply(fresh(), {kind: 'catch', species: 'Wurmple', level: 10});
+	// Wurmple is another species this hack gives no level-up moves, so the
+	// catch names one of its two tutor moves.
+	const wurmple = run.apply(fresh(), {kind: 'catch', species: 'Wurmple', level: 10, moves: ['Bug Bite']});
 	assert.throws(() => run.apply(wurmple, {kind: 'evolve', id: 'mon-1'}),
 		/more than one evolution — pick one of/);
 	assert.equal(
@@ -349,4 +351,45 @@ test('the summary states where the run has got to', () => {
 	assert.equal(summary.levelCap.trainer, 'Leader Brawly');
 	state = run.apply(state, {kind: 'release', id: 'mon-1'});
 	assert.equal(run.summarize(state).boxed, 0);
+});
+
+test('the story spine derives beaten from position, not from bookkeeping', () => {
+	const state = fresh();
+	const spine = run.milestones(state);
+	assert.equal(spine.length, 34, 'every milestone fight in the map');
+	assert.equal(spine[0].trainer, 'Leader Brawly');
+	assert.equal(spine[spine.length - 1].trainer, 'Champion Wallace');
+	assert.ok(spine.every(m => !m.beaten), 'a fresh run has beaten nothing');
+
+	// Beating Norman (#337) implies the run is past every earlier milestone —
+	// both rounds of rivals included — with no per-trainer bookkeeping.
+	const later = run.apply(state, {kind: 'beat', trainer: 'Leader Norman'});
+	const after = run.milestones(later);
+	assert.equal(after.filter(m => m.beaten).length, 7);
+	assert.equal(after.filter(m => m.beaten).pop().trainer, 'Leader Norman');
+	assert.equal(after.filter(m => !m.beaten)[0].trainer, 'Magma Leader Maxie Mt Chimney');
+});
+
+test('a catch can never create a Pokemon with no moves', () => {
+	// Run & Bun's own data gives Skarmory an empty level-up learnset —
+	// LEVEL_UP_MOVE(1, MOVE_NONE) in the decomp. Without this refusal the box
+	// stores a movesless entry and the planner detonates on it later, far from
+	// the command that caused it.
+	assert.throws(
+		() => run.apply(fresh(), {kind: 'catch', species: 'Skarmory', level: 28}),
+		/Skarmory at level 28 has no level-up moves in this game — name its moves; it can be taught:/
+	);
+	const named = run.apply(fresh(),
+		{kind: 'catch', species: 'Skarmory', level: 28, moves: ['Body Press', 'Smart Strike']});
+	assert.deepEqual(named.box[0].moves, ['Body Press', 'Smart Strike']);
+});
+
+test('explicit catch moves are checked, not trusted', () => {
+	// Without this, `catch` with a moves list is a bypass around everything
+	// `teach` enforces.
+	assert.throws(
+		() => run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101',
+			level: 3, moves: ['Dragon Dance']}),
+		/Poochyena cannot know Dragon Dance/
+	);
 });

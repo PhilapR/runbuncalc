@@ -2226,18 +2226,28 @@
             <span id="runbun-run-position" class="runbun-run-position"></span>
             <span id="runbun-run-cap" class="runbun-run-cap"></span>
         </div>
+        <div class="runbun-run-spine-wrap">
+            <ol id="runbun-run-spine" class="runbun-run-spine" aria-label="Story milestones"></ol>
+            <div id="runbun-run-spine-note" class="runbun-run-spine-note"></div>
+        </div>
 
         <div class="runbun-run-columns">
             <div class="runbun-run-column">
                 <div class="runbun-run-section-label" id="runbun-run-box-heading">Box</div>
+                <div class="runbun-run-box-bar">
+                    <span id="runbun-run-box-counts" class="runbun-run-box-counts"></span>
+                    <input type="search" id="runbun-run-box-filter" placeholder="Filter" spellcheck="false" aria-label="Filter the box">
+                </div>
                 <ul id="runbun-run-box" class="runbun-run-box" aria-labelledby="runbun-run-box-heading"></ul>
+                <div class="runbun-run-section-label runbun-run-bag-label">Bag</div>
                 <div id="runbun-run-bag" class="runbun-run-bag"></div>
 
-                <label class="runbun-run-field">
-                    <span>Party &mdash; up to six, in lead order. Ctrl-click to pick several.</span>
-                    <select id="runbun-run-party-picker" multiple size="6"></select>
-                </label>
-                <button type="button" id="runbun-run-set-party" class="btn btn-xwide">Set party</button>
+                <div class="runbun-run-section-label" id="runbun-run-party-heading">Party &mdash; lead first</div>
+                <ol id="runbun-run-party-strip" class="runbun-run-party-strip" aria-labelledby="runbun-run-party-heading"></ol>
+                <div class="runbun-run-row">
+                    <button type="button" id="runbun-run-set-party" class="btn btn-xwide">Set party</button>
+                    <span class="runbun-run-party-hint">Add from the box; &#9652; moves toward lead.</span>
+                </div>
             </div>
 
             <div class="runbun-run-column">
@@ -2251,6 +2261,9 @@
                     <input type="text" id="runbun-run-catch-species" placeholder="Species" spellcheck="false">
                     <input type="number" id="runbun-run-catch-level" placeholder="Lv" min="1" max="100">
                     <input type="text" id="runbun-run-catch-name" placeholder="Nickname" spellcheck="false">
+                </div>
+                <div class="runbun-run-row">
+                    <input type="text" id="runbun-run-catch-moves" placeholder="Moves (optional, comma-separated)" spellcheck="false">
                     <button type="button" id="runbun-run-catch" class="btn btn-wide rb-btn-primary">Catch</button>
                 </div>
                 <p id="runbun-run-limits" class="runbun-run-limits"></p>
@@ -2277,9 +2290,13 @@
             </div>
         </div>
 
+        <div class="runbun-run-ahead">
+            <div class="runbun-run-section-label" id="runbun-run-ahead-heading">The road ahead</div>
+            <p class="runbun-run-ahead-hint">Marking a fight beaten moves the run past everything before it &mdash; clear a route, mark its last trainer.</p>
+            <ul id="runbun-run-upcoming" class="runbun-run-upcoming" aria-labelledby="runbun-run-ahead-heading"></ul>
+        </div>
         <div class="runbun-run-row runbun-run-actions-row">
             <button type="button" id="runbun-run-plan" class="btn btn-xxwide rb-btn-primary">Plan the next fight</button>
-            <button type="button" id="runbun-run-beat" class="btn btn-xxwide">Beat it &mdash; move on</button>
             <button type="button" id="runbun-run-undo" class="btn btn-wide">Undo</button>
         </div>
         <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>

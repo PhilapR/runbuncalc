@@ -127,11 +127,19 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	// Where it came from travels with it, which is what makes the box a record.
 	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-kit'), /walk · Route101/);
 
-	await page.selectOption('#runbun-run-party-picker', ['mon-1']);
+	// The party is built by clicking, because click order IS lead order — the
+	// multi-select this replaced returned selections in DOM order, so the lead
+	// was silently always the earliest catch.
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
 		() => document.querySelector('#runbun-run-box .runbun-run-mon.is-party') !== null,
 		null, {timeout: 10000});
+
+	// The story spine renders one tick per milestone, none beaten yet.
+	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 34);
+	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 0);
+	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 34 milestones/);
 
 	await page.click('#runbun-run-plan');
 	await page.waitForFunction(
@@ -203,6 +211,58 @@ test('the run survives a reload, because a playthrough that does not is not one'
 		null, {timeout: 15000});
 	assert.equal(await page.textContent('#runbun-run-name'), 'Persisted');
 	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Poochyena/);
+
+	await session.context.close();
+});
+
+test('lead order is click order, and marking a fight beaten moves the run', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	for (const species of ['Poochyena', 'Lillipup']) {
+		await page.fill('#runbun-run-catch-species', species);
+		await page.fill('#runbun-run-catch-level', '3');
+		await page.click('#runbun-run-catch');
+		await page.waitForFunction(
+			expected => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === expected,
+			species === 'Poochyena' ? 1 : 2, {timeout: 10000});
+	}
+
+	// mon-2 added FIRST, then mon-1: the committed party must keep that order.
+	// This is the exact case the old multi-select could not express.
+	await page.click('.runbun-run-mon[data-id="mon-2"] .runbun-run-add');
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 2,
+		null, {timeout: 10000});
+	const saved = await savedRun(page);
+	assert.deepEqual(saved.party, ['mon-2', 'mon-1'],
+		'lead order must be the order the player added, not catch order');
+
+	// The road ahead: mark the first fight beaten and the run moves past it.
+	const firstRow = await page.textContent('#runbun-run-upcoming .runbun-run-up.is-next');
+	assert.match(firstRow, /Youngster Calvin/);
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(
+		() => /Bug Catcher Rick/.test(
+			document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+		null, {timeout: 10000});
+	assert.equal((await savedRun(page)).position, 0);
+
+	// The box filter narrows without touching the document.
+	await page.fill('#runbun-run-box-filter', 'pooch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 5000});
+	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Poochyena/);
+	assert.equal((await savedRun(page)).box.length, 2, 'filtering is a view, not a command');
 
 	await session.context.close();
 });

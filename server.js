@@ -583,10 +583,18 @@ app.post("/run/status", (req, res, next) => {
 	const state = requireRun(req.body, res);
 	if (!state) return undefined;
 	try {
+		// How far ahead to look is the client's call — a panel showing the road
+		// ahead wants more than a CLI status line — but bounded, because upcoming
+		// parties are heavy and nobody plans 50 fights out.
+		const wanted = Number((req.body || {}).upcomingCount);
+		const count = Number.isInteger(wanted) ? Math.min(Math.max(wanted, 1), 20) : 5;
 		return res.json({
 			status: runtime.summarize(state),
 			box: state.box,
-			upcoming: runtime.upcoming(state, 5).map(fight => ({
+			// The story spine travels with every status: "where am I" over a
+			// 362-battle map is answered in milestones, not a position integer.
+			milestones: runtime.milestones(state),
+			upcoming: runtime.upcoming(state, count).map(fight => ({
 				trainer: fight.trainer,
 				order: fight.order,
 				partySize: fight.party.length,

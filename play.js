@@ -304,6 +304,17 @@ const SUBCOMMANDS = {
 		return {command: {kind: 'beat', trainer: args.positional.join(' ')}};
 	},
 
+	/** The story spine: milestones beaten and ahead. Where "where am I" lives. */
+	milestones(state) {
+		const spine = runtime.milestones(state);
+		const done = spine.filter(m => m.beaten).length;
+		const lines = [`${done} / ${spine.length} milestones`];
+		for (const m of spine) {
+			lines.push(`  ${m.beaten ? '\u2713' : '\u00b7'} #${String(m.order).padStart(4)}  ${m.trainer}`);
+		}
+		return {message: lines.join('\n')};
+	},
+
 	/** The fights ahead of where the run has got to. */
 	next(state, args) {
 		const count = args.flags.count ? Number(args.flags.count) : 5;
@@ -335,7 +346,7 @@ const SUBCOMMANDS = {
 };
 
 /** Subcommands that never write, so they can run against a save freely. */
-const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'log']);
+const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'log', 'milestones']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -354,7 +365,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   nickname <id> <name>                            rename
   faint <id> / release <id>                       lose one
   beat <trainer>                                  move the run forward
-  next [--count N] / plan [trainer]               what is ahead, and what it does
+  next [--count N] / plan [trainer]               what is ahead, and what it does\n  milestones                                      the story spine, beaten and ahead
   log [--count N] / undo                          history`;
 
 function main(argv) {
