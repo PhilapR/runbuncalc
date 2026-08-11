@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?7f917edd" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?d21c6812" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1938,7 +1938,7 @@
     <script type="text/javascript" src="./js/replay_trace.js?80270e49"></script>
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
-    <script type="text/javascript" src="./js/planner_panel.js?910148bc"></script>
+    <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?0ccfea71"></script>
 </div>
 
@@ -2180,12 +2180,13 @@
             <ul id="runbun-planner-party" class="runbun-planner-party" aria-labelledby="runbun-planner-party-heading"></ul>
         </div>
         <div class="runbun-planner-column">
-            <label class="runbun-planner-section-label" for="runbun-planner-team">Your team — one per line, as <code>Species (Set Label)</code></label>
-            <textarea id="runbun-planner-team" class="runbun-planner-team" rows="6" spellcheck="false"
-                placeholder="Azumarill (Leader Norman)&#10;Gyarados (Rich Boy Dawson)"></textarea>
+            <label class="runbun-planner-section-label" for="runbun-planner-team">Your team — paste it from Showdown. <code>Species (Set Label)</code> per line still works, but borrows a trainer's build.</label>
+            <textarea id="runbun-planner-team" class="runbun-planner-team" rows="10" spellcheck="false"
+                placeholder="Swampert @ Leftovers&#10;Ability: Torrent&#10;Level: 45&#10;Adamant Nature&#10;- Earthquake&#10;- Waterfall&#10;- Ice Punch&#10;- Rock Slide"></textarea>
             <button type="button" id="runbun-planner-predict" class="btn btn-wide rb-btn-primary">Predict their turn</button>
         </div>
     </div>
+    <ul id="runbun-planner-caveats" class="runbun-planner-caveats" role="status" aria-live="polite"></ul>
     <div id="runbun-planner-verdict" class="runbun-planner-verdict" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="runbun-planner-section-label" id="runbun-planner-actions-heading">Ranked opponent actions</div>
     <div id="runbun-planner-actions" class="runbun-planner-actions" role="list" aria-labelledby="runbun-planner-actions-heading"></div>

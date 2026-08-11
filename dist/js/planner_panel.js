@@ -35,21 +35,42 @@
 		});
 	}
 
-	/** Team entries are `Species (Set Label)` — the same shape the set dropdowns use. */
-	function parseTeam(text) {
+	/**
+	 * Read the team box.
+	 *
+	 * Two forms, and the panel has to keep them apart. A Showdown paste is the
+	 * player's own box — declared, and what a plan should be built on. The older
+	 * `Species (Set Label)` form is a lookup into the trainer table, which puts a
+	 * TRAINER'S build on the player's side: Steven's level 89 Metagross with his
+	 * Life Orb and his 0 Speed IV. The AI scores against whatever is across from
+	 * it, so that choice changes the ranking, and the panel says so rather than
+	 * presenting it as a plan.
+	 *
+	 * Only the borrowed form is parsed here. A paste goes to the server as text,
+	 * because the parser has to check species, moves, abilities and items against
+	 * the game's own data, and that data lives there.
+	 */
+	function readTeam(text) {
+		var source = String(text || '').trim();
+		if (!source) throw new Error('enter a team — a Showdown paste, or "Species (Set Label)" per line');
+		// A paste always has a move line; the borrowed form never does. That is the
+		// only signal needed, and it cannot be confused by a nickname or an item.
+		if (/^\s*-\s*\S/m.test(source)) return {playerPaste: source};
+
 		var party = [];
-		var lines = String(text || '').split('\n');
+		var lines = source.split('\n');
 		for (var i = 0; i < lines.length; i++) {
 			var line = lines[i].trim();
 			if (!line) continue;
 			var match = line.match(/^(.*?)\s*\((.*)\)\s*$/);
 			if (!match) {
-				throw new Error('line ' + (i + 1) + ': expected "Species (Set Label)", got "' + line + '"');
+				throw new Error('line ' + (i + 1) + ': expected a Showdown paste, or ' +
+					'"Species (Set Label)", got "' + line + '"');
 			}
 			party.push({species: match[1].trim(), setLabel: match[2].trim()});
 		}
-		if (!party.length) throw new Error('enter at least one Pokémon as "Species (Set Label)"');
-		return party;
+		if (!party.length) throw new Error('enter at least one Pokémon');
+		return {playerParty: party};
 	}
 
 	function renderFightOptions() {
@@ -92,6 +113,22 @@
 	}
 
 	function renderPrediction(result) {
+		// A plan built on a trainer's Pokemon is not a plan for the player's team.
+		// On screen rather than in the response only, because a player reading a
+		// clean ranking has no other way to know which team it answered for.
+		var caveats = (result.notes || []).slice();
+		if (result.borrowedPlayerBuild) {
+			caveats.unshift('This team uses trainer sets. Those are not builds a player can ' +
+				'obtain — the level, item, nature and IVs are the trainer\'s — and the AI ' +
+				'scores against them, so this ranking is not a plan for your box.');
+		}
+		$('#runbun-planner-caveats')
+			.empty()
+			.toggleClass('is-warning', !!result.borrowedPlayerBuild);
+		for (var c = 0; c < caveats.length; c++) {
+			$('#runbun-planner-caveats').append($('<li></li>').text(caveats[c]));
+		}
+
 		$('#runbun-planner-verdict')
 			.attr('data-confidence', result.confidence)
 			.text(
@@ -137,19 +174,22 @@
 
 	function predict() {
 		var trainer = $('#runbun-planner-trainer').val();
-		var party;
+		var team;
 		try {
-			party = parseTeam($('#runbun-planner-team').val());
+			team = readTeam($('#runbun-planner-team').val());
 		} catch (error) {
 			// A malformed team is the user's typo, not a server round trip.
 			status(error.message, 'error');
 			return;
 		}
 		status('Predicting…', '');
+		var body = {trainer: trainer};
+		if (team.playerPaste) body.playerPaste = team.playerPaste;
+		else body.playerParty = team.playerParty;
 		api('/planner/predict', {
 			method: 'POST',
 			headers: {'content-type': 'application/json'},
-			body: JSON.stringify({trainer: trainer, playerParty: party}),
+			body: JSON.stringify(body),
 		}).then(function (result) {
 			renderPrediction(result);
 			status('Predicted ' + result.trainer + '.', 'ok');

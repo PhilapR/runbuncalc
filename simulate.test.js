@@ -24,7 +24,7 @@ const getProfile = require('./profiles').getProfile;
 
 test('a team is read as Species (Set Label), commas and all', () => {
 	assert.deepEqual(
-		simulate.parseTeam('Gyarados (Rich Boy Dawson), Breloom (Black Belt Takao)'),
+		simulate.parseBorrowedTeam('Gyarados (Rich Boy Dawson), Breloom (Black Belt Takao)'),
 		[
 			{species: 'Gyarados', setLabel: 'Rich Boy Dawson'},
 			{species: 'Breloom', setLabel: 'Black Belt Takao'},
@@ -33,17 +33,17 @@ test('a team is read as Species (Set Label), commas and all', () => {
 	// Labels are trainer names, and trainer names carry punctuation the naive
 	// "split on comma" reading would break on.
 	assert.deepEqual(
-		simulate.parseTeam('Milotic (Cool Trainer Carolina & Cory)'),
+		simulate.parseBorrowedTeam('Milotic (Cool Trainer Carolina & Cory)'),
 		[{species: 'Milotic', setLabel: 'Cool Trainer Carolina & Cory'}]
 	);
 });
 
 test('a team missing its set label is refused, not guessed at', () => {
-	assert.throws(() => simulate.parseTeam('Azumarill'), /Species \(Set Label\)/);
-	assert.throws(() => simulate.parseTeam(''), /at least one Pokemon/);
+	assert.throws(() => simulate.parseBorrowedTeam('Azumarill'), /Species \(Set Label\)/);
+	assert.throws(() => simulate.parseBorrowedTeam(''), /at least one Pokemon/);
 	// Trailing junk after a valid entry must not be silently dropped.
 	assert.throws(
-		() => simulate.parseTeam('Azumarill (Leader Norman) and also Gyarados'),
+		() => simulate.parseBorrowedTeam('Azumarill (Leader Norman) and also Gyarados'),
 		/could not read/
 	);
 });
@@ -156,4 +156,110 @@ test('the rendering carries the numbers a reader plans against', () => {
 	// A confidence report with no level context reads as a clean plan while the
 	// team is unplayably short, so the delta has to survive rendering.
 	assert.match(text, /you L\d+ \((\+\d+|-\d+|level)\)/);
+});
+
+// --------------------------------------------------------- declared vs borrowed
+//
+// The distinction these cases defend: a run planned against a trainer's build is
+// not a plan for a team the player owns, and the difference is not cosmetic —
+// the AI scores against whatever is across from it, so the ranking changes.
+
+const PLAYER_TEAM = [
+	'Swampert @ Leftovers',
+	'Ability: Torrent',
+	'Level: 45',
+	'Adamant Nature',
+	'- Earthquake',
+	'- Waterfall',
+	'- Ice Punch',
+].join('\n');
+
+test('a declared team reaches the BattleState as the player typed it', () => {
+	const parsed = require('./team').parseTeam(PLAYER_TEAM);
+	const party = parsed.party;
+	const built = require('./planner').buildFightState({
+		trainer: 'Leader Norman',
+		playerParty: party,
+	});
+	const mon = built.state.sides.player.party[0];
+	assert.equal(mon.species, 'Swampert');
+	assert.equal(mon.level, 45);
+	assert.equal(mon.item, 'Leftovers');
+	assert.equal(mon.ability, 'Torrent');
+	assert.equal(mon.nature, 'Adamant');
+	assert.deepEqual(mon.moves.map(m => m.name), ['Earthquake', 'Waterfall', 'Ice Punch']);
+	assert.equal(built.borrowed, false);
+});
+
+test('borrowing a trainer build changes the answer, and says so', () => {
+	const planner = require('./planner');
+	const declared = require('./team').parseTeam(PLAYER_TEAM).party;
+
+	const own = planner.predict({trainer: 'Leader Norman', playerParty: declared});
+	const borrowed = planner.predict({
+		trainer: 'Leader Norman',
+		playerParty: [{species: 'Metagross', setLabel: 'Trainer Steven Space Center'}],
+	});
+
+	assert.equal(own.borrowedPlayerBuild, false);
+	assert.equal(borrowed.borrowedPlayerBuild, true);
+	// Steven's Metagross is level 89 with his item, nature and a 0 Speed IV. It is
+	// not a Pokemon a player can hold, and Norman's Porygon2 answers it
+	// differently — which is the whole reason the flag exists.
+	assert.equal(borrowed.state.sides.player.party[0].level, 89);
+	assert.notEqual(own.actions[0].label, borrowed.actions[0].label);
+});
+
+test('a run built from trainer sets carries the warning through to the page', () => {
+	const run = simulate.simulate({
+		party: [{species: 'Metagross', setLabel: 'Trainer Steven Space Center'}],
+		from: 337,
+		count: 1,
+	});
+	assert.equal(run.summary.borrowedPlayerBuild, true);
+	assert.match(simulate.format(run), /not player-obtainable/);
+
+	const parsed = require('./team').parseTeam(PLAYER_TEAM);
+	const party = parsed.party;
+	const notes = parsed.notes;
+	const real = simulate.simulate({party, notes, from: 337, count: 1});
+	assert.equal(real.summary.borrowedPlayerBuild, false);
+	assert.doesNotMatch(simulate.format(real), /not player-obtainable/);
+	// A declared team renders by what it is, not by a set label it does not have.
+	assert.match(simulate.format(real), /Swampert L45 @ Leftovers/);
+});
+
+test('exactly one team form is accepted', () => {
+	assert.throws(() => simulate.resolveParty({}), /a team is required/);
+	assert.throws(
+		() => simulate.resolveParty({teamPaste: PLAYER_TEAM, borrow: 'Azumarill (Leader Norman)'}),
+		/pass one of/
+	);
+	assert.equal(simulate.resolveParty({teamPaste: PLAYER_TEAM}).party[0].level, 45);
+	assert.equal(
+		simulate.resolveParty({borrow: 'Azumarill (Leader Norman)'}).party[0].setLabel,
+		'Leader Norman'
+	);
+	assert.equal(
+		simulate.resolveParty({teamFile: require('node:path').join(__dirname, 'examples', 'team.txt')})
+			.party.length,
+		6
+	);
+});
+
+test('a declared mon with no moves is refused before it reaches the calculator', () => {
+	assert.throws(
+		() => require('./planner').buildFightState({
+			trainer: 'Leader Norman',
+			playerParty: [{species: 'Swampert', level: 45}],
+		}),
+		/at least one move/
+	);
+	assert.throws(
+		() => require('./planner').buildFightState({
+			trainer: 'Leader Norman',
+			playerParty: [{level: 45, moves: ['Earthquake']}],
+		}),
+		/needs a species/
+	);
 });

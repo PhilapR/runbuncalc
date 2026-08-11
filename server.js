@@ -5,6 +5,7 @@ const express = require("express");
 const calc = require("@smogon/calc");
 const ai = require("./ai");
 const planner = require("./planner");
+const playerTeam = require("./team");
 const app = express();
 
 function startServer(port = 3000) {
@@ -431,14 +432,32 @@ app.post("/planner/predict", (req, res, next) => {
 		if (!payload.trainer) {
 			return res.status(400).json({error: "trainer is required"});
 		}
-		if (!Array.isArray(payload.playerParty) || !payload.playerParty.length) {
+		// Two ways to name a team, and the difference matters. `playerPaste` is a
+		// Showdown paste — the player's own box, declared. `playerParty` is the
+		// structured form, which also admits `{species, setLabel}`: a TRAINER'S
+		// build, which the AI scores against and which therefore changes the
+		// ranking. Both are served; the response says which was used.
+		let playerParty = payload.playerParty;
+		let notes = [];
+		if (typeof payload.playerPaste === "string") {
+			if (playerParty) {
+				return res.status(400).json({
+					error: "send playerPaste or playerParty, not both",
+					code: "InvalidPlannerRequest",
+				});
+			}
+			const parsed = playerTeam.parseTeam(payload.playerPaste);
+			playerParty = parsed.party;
+			notes = parsed.notes;
+		}
+		if (!Array.isArray(playerParty) || !playerParty.length) {
 			return res.status(400).json({
 				error: "playerParty is required: the planner cannot plan a fight with no team",
 			});
 		}
 		const result = planner.predict({
 			trainer: payload.trainer,
-			playerParty: payload.playerParty,
+			playerParty,
 			field: payload.field,
 			profileId: payload.profile,
 		});
@@ -449,6 +468,10 @@ app.post("/planner/predict", (req, res, next) => {
 			order: result.order,
 			confidence: result.confidence,
 			margin: result.margin,
+			// Travels with every prediction so a client cannot present a plan built
+			// on a trainer's Pokemon as a plan for the player's team.
+			borrowedPlayerBuild: result.borrowedPlayerBuild,
+			notes,
 			actions: result.actions.map(action => ({
 				label: action.label,
 				score: action.score,
@@ -457,9 +480,10 @@ app.post("/planner/predict", (req, res, next) => {
 			...(payload.includeState ? {state: result.state} : {}),
 		});
 	} catch (error) {
-		// Unknown trainers and unknown sets are client input problems; the
-		// planner's messages name the near-misses or the bad set directly.
-		if (/^no fight named|^Unknown set:|playerParty is required/.test(error.message || "")) {
+		// Unknown trainers, unknown sets and unreadable pastes are all client input
+		// problems; the messages name the near-miss, the bad set or the exact line.
+		if (/^no fight named|^Unknown set:|playerParty is required|^Pokemon \d+|^empty team|^a party holds six|needs a species|needs at least one move/
+			.test(error.message || "")) {
 			return res.status(400).json({error: error.message, code: "InvalidPlannerRequest"});
 		}
 		next(error);

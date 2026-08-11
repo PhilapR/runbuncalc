@@ -1803,6 +1803,27 @@ table.field {
 	padding: var(--rb-space-sm) var(--rb-space-md);
 	border-radius: var(--rb-radius-control);
 }
+/* Caveats about the team the plan was built for. Styled as a warning only when
+   the build is borrowed from a trainer, because that one is not a footnote:
+   the ranking above it answers for a Pokemon the player cannot obtain. */
+#runbun-planner .runbun-planner-caveats:not(:empty) {
+	list-style: none;
+	margin: var(--rb-space-sm) 0 0;
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-left: 3px solid var(--rb-stroke);
+	background: var(--rb-surface-sunken);
+	color: var(--rb-ink-muted);
+	border-radius: var(--rb-radius-control);
+	max-width: 76ch;
+}
+#runbun-planner .runbun-planner-caveats.is-warning {
+	border-left-color: var(--rb-warn);
+	background: var(--rb-warn-soft);
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-caveats li + li {
+	margin-top: var(--rb-space-xs);
+}
 #runbun-planner .runbun-planner-controls {
 	display: flex;
 	flex-wrap: wrap;

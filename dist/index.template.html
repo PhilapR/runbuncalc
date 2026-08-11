@@ -2180,12 +2180,13 @@
             <ul id="runbun-planner-party" class="runbun-planner-party" aria-labelledby="runbun-planner-party-heading"></ul>
         </div>
         <div class="runbun-planner-column">
-            <label class="runbun-planner-section-label" for="runbun-planner-team">Your team — one per line, as <code>Species (Set Label)</code></label>
-            <textarea id="runbun-planner-team" class="runbun-planner-team" rows="6" spellcheck="false"
-                placeholder="Azumarill (Leader Norman)&#10;Gyarados (Rich Boy Dawson)"></textarea>
+            <label class="runbun-planner-section-label" for="runbun-planner-team">Your team — paste it from Showdown. <code>Species (Set Label)</code> per line still works, but borrows a trainer's build.</label>
+            <textarea id="runbun-planner-team" class="runbun-planner-team" rows="10" spellcheck="false"
+                placeholder="Swampert @ Leftovers&#10;Ability: Torrent&#10;Level: 45&#10;Adamant Nature&#10;- Earthquake&#10;- Waterfall&#10;- Ice Punch&#10;- Rock Slide"></textarea>
             <button type="button" id="runbun-planner-predict" class="btn btn-wide rb-btn-primary">Predict their turn</button>
         </div>
     </div>
+    <ul id="runbun-planner-caveats" class="runbun-planner-caveats" role="status" aria-live="polite"></ul>
     <div id="runbun-planner-verdict" class="runbun-planner-verdict" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="runbun-planner-section-label" id="runbun-planner-actions-heading">Ranked opponent actions</div>
     <div id="runbun-planner-actions" class="runbun-planner-actions" role="list" aria-labelledby="runbun-planner-actions-heading"></div>

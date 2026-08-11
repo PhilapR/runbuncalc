@@ -138,11 +138,58 @@ function upcoming(after, count, profileId) {
 }
 
 /**
+ * Turn one player-party entry into a `PokemonState`.
+ *
+ * Two shapes are accepted, and the difference is not cosmetic:
+ *
+ *   {species, setLabel}                  — BORROWED: a trainer's build
+ *   {species, level, moves, ability, …}  — DECLARED: the player's own box
+ *
+ * The borrowed form is the older one and it is a trap on the player's side of
+ * the field. `Metagross (Trainer Steven Space Center)` is Steven's level 89
+ * Metagross carrying his Life Orb, his Brave nature and his 0 Speed IV for
+ * Trick Room. No player has that Pokemon, and the AI scores its actions against
+ * whatever is across from it — so a borrowed build does not merely mislabel the
+ * player's team, it changes the ranking the planner reports.
+ *
+ * It is kept, because scoring against a specific trainer's Pokemon is a real
+ * question ("what does Norman's Slaking do into Norman's own Azumarill"), and
+ * because the whole run map is reachable that way with no typing. It is no
+ * longer the default and callers are told which one they used.
+ */
+function playerStateFromEntry(bridge_, mon, id) {
+	if (mon && mon.setLabel) {
+		return {state: bridge_.pokemonStateFromSet(mon.species, mon.setLabel, id), borrowed: true};
+	}
+	if (!mon || !mon.species) throw new Error(`${id}: needs a species`);
+	if (!mon.moves || !mon.moves.length) throw new Error(`${id} (${mon.species}): needs at least one move`);
+	// `rebuildZeroEvPokemon` is the same seam the set path uses, so a declared
+	// Pokemon goes through the identical zero-EV Gen 8 projection rather than a
+	// parallel construction that could drift from it.
+	const built = bridge_.rebuildZeroEvPokemon({
+		name: mon.species,
+		level: mon.level || 100,
+		ability: mon.ability,
+		abilityOn: true,
+		item: mon.item,
+		nature: mon.nature,
+		gender: mon.gender,
+		ivs: Object.assign({hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31}, mon.ivs || {}),
+		moves: mon.moves,
+		teraType: mon.teraType,
+		boosts: mon.boosts || {},
+		status: mon.status || '',
+	}, typeof mon.hpRatio === 'number' ? mon.hpRatio : 1);
+	return {state: bridge_.pokemonStateFromCalcPokemon(built, id), borrowed: false};
+}
+
+/**
  * Build a serializable BattleState for a fight.
  *
- * `playerParty` is a list of `{species, setLabel}` drawn from the same set data,
- * which keeps the planner honest: it plans with sets the project can actually
- * describe rather than inventing Pokemon.
+ * The opposing party always comes from the run map. The player's party is the
+ * caller's, in either of the shapes `playerStateFromEntry` describes; whether
+ * any of it was borrowed from a trainer travels back with the state so a
+ * consumer can say so rather than presenting a trainer's build as a plan.
  */
 function buildFightState(options) {
 	const opts = options || {};
@@ -156,8 +203,10 @@ function buildFightState(options) {
 
 	const aiParty = fight.party.map((mon, i) =>
 		b.pokemonStateFromSet(mon.species, mon.setLabel, `ai-${i + 1}`));
-	const playerParty = opts.playerParty.map((mon, i) =>
-		b.pokemonStateFromSet(mon.species, mon.setLabel, `player-${i + 1}`));
+	const built = opts.playerParty.map((mon, i) =>
+		playerStateFromEntry(b, mon, `player-${i + 1}`));
+	const playerParty = built.map(entry => entry.state);
+	const borrowed = built.some(entry => entry.borrowed);
 
 	const state = b.buildBattleState({
 		aiActive: aiParty[0],
@@ -168,7 +217,7 @@ function buildFightState(options) {
 		field: opts.field || {},
 	});
 	ai.validateBattleState(state);
-	return {fight, state};
+	return {fight, state, borrowed};
 }
 
 /**
@@ -219,6 +268,11 @@ function predict(options) {
 		trainer: built.fight.trainer,
 		order: built.fight.order,
 		state: built.state,
+		// True when any player slot was filled from a trainer's set. The ranking
+		// below is an answer about THAT Pokemon, not about a team a player could
+		// field, and a consumer that hides this is reporting a plan for a box
+		// nobody owns.
+		borrowedPlayerBuild: built.borrowed,
 		actions: scored,
 		// The margin is the planning signal. A wide gap means the opponent's move
 		// is effectively fixed; a narrow one means the plan has to survive both.
@@ -228,4 +282,7 @@ function predict(options) {
 	};
 }
 
-module.exports = {loadRunMap, listFights, getFight, upcoming, buildFightState, predict};
+module.exports = {
+	loadRunMap, listFights, getFight, upcoming, buildFightState, predict,
+	playerStateFromEntry,
+};

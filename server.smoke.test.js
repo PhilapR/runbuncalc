@@ -625,3 +625,66 @@ test('an unknown set is a client error rather than a 500', async () => {
 	assert.equal(body.code, 'InvalidPlannerRequest');
 	assert.match(body.error, /Unknown set/);
 });
+
+const PLAYER_PASTE = [
+	'Swampert @ Leftovers',
+	'Ability: Torrent',
+	'Level: 45',
+	'Adamant Nature',
+	'- Earthquake',
+	'- Waterfall',
+].join('\n');
+
+test('a Showdown paste is a first-class way to name the player team', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: PLAYER_PASTE,
+		includeState: true,
+	});
+	assert.equal(status, 200);
+	const mon = body.state.sides.player.party[0];
+	assert.equal(mon.species, 'Swampert');
+	assert.equal(mon.level, 45);
+	assert.equal(mon.item, 'Leftovers');
+	// The player declared this box, so nothing was borrowed.
+	assert.equal(body.borrowedPlayerBuild, false);
+	assert.deepEqual(body.notes, []);
+});
+
+test('a borrowed trainer build is reported as such on every prediction', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerParty: [{species: 'Metagross', setLabel: 'Trainer Steven Space Center'}],
+	});
+	assert.equal(status, 200);
+	// Steven's level 89 Metagross is not a box any player holds, and the AI scores
+	// against it. A client that cannot tell will present it as a plan.
+	assert.equal(body.borrowedPlayerBuild, true);
+});
+
+test('a paste and a party at once is refused rather than silently preferred', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: PLAYER_PASTE,
+		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
+	});
+	assert.equal(status, 400);
+	assert.match(body.error, /not both/);
+});
+
+test('an unreadable paste is a 400 naming the line, not a 500', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: 'Swampertt\n- Earthquake',
+	});
+	assert.equal(status, 400);
+	assert.equal(body.code, 'InvalidPlannerRequest');
+	assert.match(body.error, /Pokemon 1 \(Swampertt\): unknown species/);
+
+	const move = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: 'Swampert\n- Earthquak',
+	});
+	assert.equal(move.status, 400);
+	assert.match(move.body.error, /unknown move "Earthquak"/);
+});

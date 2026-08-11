@@ -103,8 +103,18 @@ test('the planner panel loads the run map and predicts a real fight', {skip}, as
 		els => els.map(el => el.textContent));
 	assert.deepEqual(party, ['Poochyena Lv5', 'Lillipup Lv6', 'Rookidee Lv6']);
 
-	// The whole point of the panel: a team in, a ranked prediction out.
-	await page.fill('#runbun-planner-team', 'Azumarill (Leader Norman)');
+	// The whole point of the panel: a team in, a ranked prediction out. The team
+	// is a Showdown paste — the player's own box, not a trainer's build.
+	await page.fill('#runbun-planner-team', [
+		'Swampert @ Leftovers',
+		'Ability: Torrent',
+		'Level: 45',
+		'Adamant Nature',
+		'- Earthquake',
+		'- Waterfall',
+		'- Ice Punch',
+		'- Rock Slide',
+	].join('\n'));
 	await page.click('#runbun-planner-predict');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-planner-action, .runbun-planner-action').length > 1,
@@ -127,7 +137,42 @@ test('the planner panel loads the run map and predicts a real fight', {skip}, as
 	const verdict = await page.textContent('#runbun-planner-verdict');
 	assert.match(verdict, /Decided|Contested|Only one/);
 
+	// A declared team is the player's own, so there is nothing to warn about.
+	const caveats = await page.textContent('#runbun-planner-caveats');
+	assert.doesNotMatch(caveats || '', /trainer sets/);
+
 	assert.deepEqual(consoleErrors, [], `page raised errors: ${consoleErrors.join('; ')}`);
+	await page.close();
+});
+
+test('a team borrowed from trainer sets is flagged on screen', {skip}, async () => {
+	const page = await browser.newPage();
+	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-planner');
+	await page.click('#runbun-planner-load');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-planner-trainer option').length > 300,
+		null,
+		{timeout: 15000}
+	);
+	await page.selectOption('#runbun-planner-trainer', 'Leader Norman');
+
+	// `Species (Set Label)` reaches into the trainer table. Steven's Metagross is
+	// level 89 with his item, nature and a 0 Speed IV — not a box a player can
+	// hold — and the AI scores against it, so the ranking is not a plan. The
+	// player has no way to know that unless the panel says so.
+	await page.fill('#runbun-planner-team', 'Metagross (Trainer Steven Space Center)');
+	await page.click('#runbun-planner-predict');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-planner-caveats li').length > 0,
+		null,
+		{timeout: 15000}
+	);
+	const caveats = await page.textContent('#runbun-planner-caveats');
+	assert.match(caveats, /not builds a player can obtain/);
+	const warned = await page.$eval('#runbun-planner-caveats',
+		el => el.classList.contains('is-warning'));
+	assert.ok(warned, 'a borrowed build is a warning, not a footnote');
 	await page.close();
 });
 
@@ -142,10 +187,12 @@ test('a malformed team is refused in the client without a round trip', {skip}, a
 		{timeout: 15000}
 	);
 
+	// No move line, so this is read as the borrowed form — and it is not valid
+	// there either. The refusal happens in the client, before any round trip.
 	await page.fill('#runbun-planner-team', 'Azumarill');
 	await page.click('#runbun-planner-predict');
 	await page.waitForFunction(
-		() => /expected "Species \(Set Label\)"/.test(
+		() => /expected a Showdown paste/.test(
 			document.querySelector('#runbun-planner-status').textContent),
 		null,
 		{timeout: 5000}

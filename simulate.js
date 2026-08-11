@@ -25,22 +25,36 @@
  * every row for that reason: a contested fight against a team twenty levels
  * down is not a coin flip, it is a loss.
  *
+ * The team is the player's, declared as a Showdown paste (`team.js`). It used to
+ * be `Species (Set Label)` — a lookup into the trainer table — which put a
+ * TRAINER'S build on the player's side and quietly changed the answer: Norman's
+ * Porygon2 reads `contested by 1.1` across from Steven's level 89 Metagross and
+ * `decided by 6.4` across from a level 45 Swampert a player could actually own.
+ * That path survives as `--borrow`, flagged on every row that uses it.
+ *
  * CLI:
- *   node simulate.js --team "Metagross (Trainer Steven Space Center)" --milestones
- *   node simulate.js --team "Azumarill (Leader Norman)" --from 0 --count 10
- *   node simulate.js --team "..." --milestones --json
+ *   node simulate.js --team-file team.txt --milestones
+ *   node simulate.js --team-file team.txt --from 0 --count 10 --json
+ *   node simulate.js --borrow "Azumarill (Leader Norman)" --from 0 --count 5
  */
 
+const fs = require('node:fs');
+
 const planner = require('./planner');
+const playerTeam = require('./team');
 const getProfile = require('./profiles').getProfile;
 
 /**
- * `Species (Set Label)`, the same shape the browser panel and the set dropdowns
- * use. Parsed here rather than shared with `planner_panel.js` because that file
- * is a classic browser script with no module boundary to import across; the
- * grammar is one line and duplicating it beats bridging two loaders.
+ * `Species (Set Label)` — the BORROWED form. Kept for the question it genuinely
+ * answers ("what does this trainer do into that trainer's Pokemon") and for
+ * reaching any build in the run map without typing it out. Not a player team;
+ * see `team.js`.
+ *
+ * Parsed here rather than shared with `planner_panel.js` because that file is a
+ * classic browser script with no module boundary to import across; the grammar
+ * is one line and duplicating it beats bridging two loaders.
  */
-function parseTeam(text) {
+function parseBorrowedTeam(text) {
 	const party = [];
 	// Scanned rather than split on commas: set labels are trainer names, and a
 	// trainer name is free to contain a comma. Consuming `Species (Label)` groups
@@ -126,6 +140,7 @@ function simulate(options) {
 				.map(a => ({label: a.label, score: Number(a.score.toFixed(2))}));
 			step.playerLevel = result.state.sides.player.party[0].level;
 			step.levelDelta = step.playerLevel - step.opponentLevel;
+			step.borrowedPlayerBuild = result.borrowedPlayerBuild;
 		} catch (error) {
 			step.error = error.message;
 		}
@@ -135,8 +150,13 @@ function simulate(options) {
 	const planned = steps.filter(s => !s.error);
 	return {
 		party,
+		notes: opts.notes || [],
 		steps,
 		summary: {
+			// A run planned against a trainer's build is not a plan for a team the
+			// player owns. Carried on the result rather than left to the CLI, so a
+			// JSON consumer cannot present it as one either.
+			borrowedPlayerBuild: planned.some(s => s.borrowedPlayerBuild),
 			fights: steps.length,
 			planned: planned.length,
 			failed: steps.length - planned.length,
@@ -162,7 +182,17 @@ function simulate(options) {
 /** Human-readable rendering. `--json` skips this entirely. */
 function format(run) {
 	const lines = [];
-	lines.push(`team: ${run.party.map(m => `${m.species} (${m.setLabel})`).join(', ')}`);
+	lines.push('team: ' + run.party
+		.map(m => m.setLabel ?
+			`${m.species} (${m.setLabel})` :
+			`${m.species} L${m.level}${m.item ? ` @ ${m.item}` : ''}`)
+		.join(', '));
+	if (run.summary.borrowedPlayerBuild) {
+		lines.push('WARNING: this team is built from trainer sets. Those are not player-' +
+			'obtainable builds — levels, items, natures and IVs are the trainer\'s, and ' +
+			'the AI scores against them, so the ranking below is not a plan for a real box.');
+	}
+	for (const note of run.notes) lines.push(`note: ${note}`);
 	lines.push('');
 	for (const step of run.steps) {
 		const head = `#${String(step.order).padStart(4)}  ${step.trainer}`;
@@ -203,7 +233,9 @@ function parseArgs(argv) {
 		const arg = argv[i];
 		if (arg === '--milestones') opts.milestones = true;
 		else if (arg === '--json') opts.json = true;
-		else if (arg === '--team') opts.team = argv[++i];
+		else if (arg === '--team-file') opts.teamFile = argv[++i];
+		else if (arg === '--team') opts.teamPaste = argv[++i];
+		else if (arg === '--borrow') opts.borrow = argv[++i];
 		else if (arg === '--profile') opts.profileId = argv[++i];
 		else if (arg === '--from') opts.from = Number(argv[++i]);
 		else if (arg === '--to') opts.to = Number(argv[++i]);
@@ -214,13 +246,37 @@ function parseArgs(argv) {
 	return opts;
 }
 
+/**
+ * Resolve whichever team form the caller used into `{party, notes}`.
+ *
+ * Exactly one form, always. Accepting two and silently preferring one would
+ * mean a caller who passes both plans with a team they did not intend, and the
+ * two forms are precisely the ones whose difference changes the answer.
+ */
+function resolveParty(opts) {
+	const given = ['teamFile', 'teamPaste', 'borrow'].filter(key => opts[key] !== undefined);
+	if (given.length > 1) {
+		throw new Error(`pass one of --team-file, --team, --borrow — got ${given.length}`);
+	}
+	if (opts.borrow !== undefined) return {party: parseBorrowedTeam(opts.borrow), notes: []};
+	if (opts.teamFile !== undefined) {
+		return playerTeam.parseTeam(fs.readFileSync(opts.teamFile, 'utf8'));
+	}
+	if (opts.teamPaste !== undefined) return playerTeam.parseTeam(opts.teamPaste);
+	throw new Error(
+		'a team is required:\n' +
+		'  --team-file team.txt      a Showdown paste — the player\'s own box\n' +
+		'  --team "Swampert @ …"     the same paste, inline\n' +
+		'  --borrow "Species (Set)"  a trainer\'s build, for asking about that build'
+	);
+}
+
 if (require.main === module) {
 	try {
 		const opts = parseArgs(process.argv.slice(2));
-		if (!opts.team) {
-			throw new Error('--team "Species (Set Label), Species (Set Label)" is required');
-		}
-		opts.party = parseTeam(opts.team);
+		const resolved = resolveParty(opts);
+		opts.party = resolved.party;
+		opts.notes = resolved.notes;
 		const run = simulate(opts);
 		console.log(opts.json ? JSON.stringify(run, null, 2) : format(run));
 	} catch (error) {
@@ -229,4 +285,4 @@ if (require.main === module) {
 	}
 }
 
-module.exports = {parseTeam, selectFights, simulate, format};
+module.exports = {parseBorrowedTeam, resolveParty, selectFights, simulate, format};
