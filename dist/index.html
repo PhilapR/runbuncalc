@@ -1940,7 +1940,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
-    <script type="text/javascript" src="./js/run_panel.js?3bf8318c"></script>
+    <script type="text/javascript" src="./js/run_panel.js?4c430cdf"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2216,6 +2216,15 @@
         <label class="runbun-run-check">
             <input type="checkbox" id="runbun-run-new-nuzlocke">
             <span>Permadeath (nuzlocke)</span>
+        </label>
+        <label class="runbun-run-field">
+            <span>Rival &mdash; named for their ace, fixed by your starter</span>
+            <select id="runbun-run-new-rival">
+                <option value="">Not chosen yet &mdash; show all variants</option>
+                <option>Sceptile</option>
+                <option>Blaziken</option>
+                <option>Swampert</option>
+            </select>
         </label>
         <button type="button" id="runbun-run-new" class="btn btn-wide rb-btn-primary">Start a run</button>
     </div>

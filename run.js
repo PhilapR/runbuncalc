@@ -99,6 +99,11 @@ function createRun(options) {
 	if (!LEVEL_CAP_MODES.has(mode)) {
 		throw new Error(`unknown level cap mode ${JSON.stringify(mode)}`);
 	}
+	if (opts.rival !== undefined && opts.rival !== null &&
+		!['Sceptile', 'Blaziken', 'Swampert'].includes(opts.rival)) {
+		throw new Error(`unknown rival ${JSON.stringify(opts.rival)}; ` +
+			'the rival is named for their ace: Sceptile, Blaziken or Swampert');
+	}
 	return {
 		version: VERSION,
 		profileId: profile.id,
@@ -113,6 +118,10 @@ function createRun(options) {
 			// Permadeath is the nuzlocke rule, off by default. When on, a fainted
 			// Pokemon can never re-enter the party.
 			permadeath: !!opts.permadeath,
+			// Which rival variant this run faces — fixed by the starter choice at
+			// the top of the game. Null means undeclared: all variants stay
+			// visible, which is honest but counts three playthroughs at once.
+			rival: opts.rival || null,
 		},
 		nextId: 1,
 		box: [],
@@ -136,6 +145,31 @@ function requireMon(run, id) {
 			(known ? `; the box holds: ${known}` : '; the box is empty'));
 	}
 	return mon;
+}
+
+/**
+ * Is this fight a rival variant this run can never face?
+ *
+ * The three variants of a rival location are one story event; a run that has
+ * declared its rival faces exactly one of them. A run that has not declared
+ * one sees all three — honest, but a count of three playthroughs at once.
+ */
+function isExcludedVariant(run, trainer) {
+	if (!run.rules.rival) return false;
+	const pattern = getProfile(run.profileId).encounters.RIVAL_VARIANT_PATTERN;
+	if (!pattern) return false;
+	const match = pattern.exec(trainer);
+	return !!match && match[1] !== run.rules.rival;
+}
+
+/**
+ * The run map as THIS run experiences it: rival variants the declared starter
+ * choice rules out are not fights, and every view below — upcoming, caps,
+ * milestones, the planner — reads through this one choke point.
+ */
+function visibleFights(run) {
+	return require('./planner').loadRunMap(run.profileId)
+		.filter(fight => !isExcludedVariant(run, fight.trainer));
 }
 
 /**
@@ -174,8 +208,7 @@ function fightTier(profile, trainer) {
 function levelCap(run) {
 	if (run.rules.levelCap === 'none') return {cap: null, mode: 'none'};
 	const profile = getProfile(run.profileId);
-	const planner = require('./planner');
-	const fights = planner.loadRunMap(run.profileId)
+	const fights = visibleFights(run)
 		.filter(f => f.order > run.position)
 		.filter(f => fightTier(profile, f.trainer) !== null);
 	if (!fights.length) return {cap: null, mode: run.rules.levelCap, reason: 'no boss ahead'};
@@ -200,8 +233,7 @@ function split(run) {
 	const profile = getProfile(run.profileId);
 	const boss = profile.encounters.BOSS_PATTERN || profile.encounters.MILESTONE_PATTERN;
 	if (!boss) return null;
-	const bosses = require('./planner').loadRunMap(run.profileId)
-		.filter(fight => boss.test(fight.trainer));
+	const bosses = visibleFights(run).filter(fight => boss.test(fight.trainer));
 	if (!bosses.length) return null;
 	const beaten = bosses.filter(fight => fight.order <= run.position).length;
 	const current = bosses[Math.min(beaten, bosses.length - 1)];
@@ -216,7 +248,9 @@ function split(run) {
 
 /** The fights immediately ahead of where the run has got to. */
 function upcoming(run, count) {
-	return require('./planner').upcoming(run.position, count || 5, run.profileId);
+	return visibleFights(run)
+		.filter(fight => fight.order > run.position)
+		.slice(0, count || 5);
 }
 
 /**
@@ -235,7 +269,7 @@ function milestones(run) {
 	const profile = getProfile(run.profileId);
 	const pattern = profile.encounters.MILESTONE_PATTERN;
 	if (!pattern) return [];
-	return require('./planner').loadRunMap(run.profileId)
+	return visibleFights(run)
 		.filter(fight => pattern.test(fight.trainer))
 		.map(fight => ({
 			trainer: fight.trainer,
@@ -577,6 +611,10 @@ const COMMANDS = {
 	beat(run, command) {
 		const planner = require('./planner');
 		const fight = planner.getFight(command.trainer, run.profileId);
+		if (isExcludedVariant(run, fight.trainer)) {
+			throw new Error(`beat: this run faces the ${run.rules.rival} rival; ` +
+				`${fight.trainer} is a fight it can never see`);
+		}
 		if (fight.order <= run.position) {
 			throw new Error(`beat: ${fight.trainer} is at ${fight.order}, ` +
 				`already behind the run at ${run.position}`);
@@ -665,6 +703,7 @@ function undo(run) {
 		now: run.createdAt,
 		levelCap: run.rules.levelCap,
 		permadeath: run.rules.permadeath,
+		rival: run.rules.rival,
 	});
 	const replay = run.log.slice(0, -1);
 	const rebuilt = applyAll(fresh, replay.map(entry => entry.command));
@@ -702,6 +741,6 @@ function summarize(run) {
 module.exports = {
 	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
 	createRun, apply, applyAll, undo,
-	findMon, levelCap, upcoming, milestones, split, fightTier, encountersOn, learnable,
-	partySpecs, planNext, summarize,
+	findMon, levelCap, upcoming, milestones, split, fightTier, isExcludedVariant,
+	encountersOn, learnable, partySpecs, planNext, summarize,
 };

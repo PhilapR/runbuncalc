@@ -170,6 +170,9 @@ const SUBCOMMANDS = {
 			// under. Off by default because it is a self-imposed rule.
 			levelCap: args.flags.cap ? 'next-milestone-ace' : 'none',
 			permadeath: !!args.flags.nuzlocke,
+			// Named for the rival's ace, which the starter choice fixes. Without it
+			// all three variants of each rival fight stay visible.
+			rival: args.flags.rival || null,
 			now: now(),
 		});
 		return {state: created, message: `started ${created.name} at ${file}`};
@@ -356,7 +359,7 @@ const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'p
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
-  new [--name N] [--cap] [--nuzlocke] [--force]   start a run
+  new [--name N] [--cap] [--nuzlocke] [--rival Swampert] [--force]   start a run
   status                                          the box, party, bag and position
   where <map>                                     what can be caught there
   find <species>                                  everywhere it can be caught

@@ -545,6 +545,7 @@ app.post("/run/new", (req, res, next) => {
 				name: payload.name,
 				levelCap: payload.levelCap,
 				permadeath: payload.permadeath,
+				rival: payload.rival || null,
 				now: payload.now || null,
 			}),
 		});

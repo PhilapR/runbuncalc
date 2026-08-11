@@ -179,6 +179,21 @@ const KNOWN_GAPS = {
  */
 const BOSS_PATTERN = /^(Leader |Elite Four |Champion )/;
 
+/**
+ * Rival battles come in three variants per location, named for the RIVAL'S ace
+ * — which one a run actually faces is fixed by the player's starter choice at
+ * the top of the game. The three variants of one location are the SAME story
+ * event: dekzeh balanced them to identical ace levels (38/38/38 at Cycling
+ * Road, 66x3 at the Bridge, 73x3 at Lilycove), so the level cap is indifferent
+ * to the choice — but a run fights exactly one of each triplet, and a model
+ * that counts all nine is describing three playthroughs at once.
+ *
+ * The Elite Four `Double` battles are NOT variants of this kind: Phoebe and
+ * PhoebeDouble field different parties (Crobat lead vs Decidueye-Hisui lead)
+ * and both are fought. They stay real.
+ */
+const RIVAL_VARIANT_PATTERN = /^Trainer Rival .* (Sceptile|Blaziken|Swampert)$/;
+
 const STORY_BOSS_PATTERN =
 	/^(Trainer Rival |Aqua Admin |Magma Admin |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven |Team Aqua Grunt (Petalburg Woods|Museum))/;
 
@@ -187,5 +202,5 @@ const MILESTONE_PATTERN =
 
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,
-	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN,
+	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN,
 };

@@ -226,3 +226,10 @@ test('milestones prints the spine without writing', () => {
 	assert.match(spine, /✓ # {2}77 {2}Leader Brawly/);
 	assert.match(spine, /· # 139 {2}Leader Roxanne/);
 });
+
+test('the rival is declared at creation and stored', () => {
+	cli('new', '--rival', 'Swampert');
+	assert.equal(read().rules.rival, 'Swampert');
+	assert.throws(() => cli('beat', 'Trainer', 'Rival', 'Cycling', 'Road', 'Sceptile'),
+		/faces the Swampert rival/);
+});

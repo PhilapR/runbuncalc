@@ -360,6 +360,9 @@
 				name: $('#runbun-run-new-name').val() || 'My run',
 				levelCap: $('#runbun-run-new-cap').is(':checked') ? 'next-milestone-ace' : 'none',
 				permadeath: $('#runbun-run-new-nuzlocke').is(':checked'),
+				// Declaring the rival removes the other two variants of every rival
+				// fight from the spine, the road ahead and the caps.
+				rival: $('#runbun-run-new-rival').val() || undefined,
 				now: new Date().toISOString(),
 			}).then(function (payload) {
 				state = payload.run;

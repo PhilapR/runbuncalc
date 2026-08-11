@@ -473,3 +473,41 @@ test('explicit catch moves are checked, not trusted', () => {
 		/Poochyena cannot know Dragon Dance/
 	);
 });
+
+test('a declared rival collapses the variant fights to the ones this run can see', () => {
+	// The three variants of each rival location are one story event with
+	// identical ace levels; a run faces exactly one, fixed by its starter.
+	const declared = fresh({rival: 'Swampert'});
+	const spine = run.milestones(declared);
+	assert.equal(spine.length, 35, '41 minus the six variants this run never sees');
+	assert.deepEqual(
+		spine.filter(m => /Rival/.test(m.trainer)).map(m => m.trainer),
+		['Trainer Rival Cycling Road Swampert', 'Trainer Rival Bridge Swampert',
+			'Trainer Rival Lilycove Swampert']
+	);
+
+	// A fight the run can never see cannot be beaten.
+	assert.throws(
+		() => run.apply(declared, {kind: 'beat', trainer: 'Trainer Rival Cycling Road Sceptile'}),
+		/this run faces the Swampert rival; Trainer Rival Cycling Road Sceptile is a fight it can never see/
+	);
+	assert.ok(run.apply(declared, {kind: 'beat', trainer: 'Trainer Rival Cycling Road Swampert'}));
+
+	// The cap is indifferent to the choice — dekzeh balanced the variants to the
+	// same ace — but the fight that sets it is now the right one.
+	const afterWattson = run.apply(fresh({rival: 'Blaziken', levelCap: 'next-milestone-ace'}),
+		{kind: 'beat', trainer: 'Leader Wattson'});
+	const cap = run.levelCap(afterWattson);
+	assert.equal(cap.trainer, 'Trainer Rival Cycling Road Blaziken');
+	assert.equal(cap.cap, 38);
+
+	// Undeclared stays honest: everything visible, nothing refused.
+	assert.equal(run.milestones(fresh()).length, 41);
+	assert.ok(run.apply(fresh(), {kind: 'beat', trainer: 'Trainer Rival Cycling Road Sceptile'}));
+
+	// Undo replays with the rule intact.
+	const undone = run.undo(run.apply(declared, {kind: 'beat', trainer: 'Leader Brawly'}));
+	assert.equal(undone.rules.rival, 'Swampert');
+
+	assert.throws(() => run.createRun({rival: 'Pikachu'}), /unknown rival "Pikachu"/);
+});
