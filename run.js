@@ -1609,18 +1609,20 @@ function rankParties(run, trainer, options) {
 
 	const collapseThreshold = 0.75;
 	function scoreSix(picks) {
-		// Base: per-enemy best answer with entry priced everywhere.
-		let base = 0;
-		const unanswered = [];
-		const columnMax = enemies.map((enemy, e) => {
+		// Every column past the enemy lead is lead-invariant: best answer with
+		// the entry cost priced in, and a point charged when nobody clears zero.
+		let tailSum = 0;
+		const tailUnanswered = [];
+		for (let e = 1; e < enemies.length; e++) {
 			let top = -Infinity;
 			for (const m of picks) top = Math.max(top, answers[m][e].withEntry);
-			if (top <= 0) unanswered.push(enemy.species);
-			return top;
-		});
-		base = columnMax.reduce((sum, value) => sum + value, 0) - unanswered.length;
-		// The lead only moves the enemy-lead column, so marginalising over six
-		// leads is six one-column deltas, not six rescores.
+			tailSum += top;
+			if (top <= 0) tailUnanswered.push(enemies[e].species);
+		}
+		// The enemy-lead column moves with the lead choice — including its
+		// unanswered penalty. An enemy the chosen lead answers for free is
+		// ANSWERED, and marking it unanswered off the entry-priced column was
+		// exactly the pessimism the lead marginalisation exists to remove.
 		let best = null;
 		let worst = null;
 		for (const lead of picks) {
@@ -1629,15 +1631,19 @@ function rankParties(run, trainer, options) {
 				leadColumn = Math.max(leadColumn,
 					m === lead ? answers[m][0].leadFree : answers[m][0].withEntry);
 			}
-			const total = round(base - columnMax[0] + leadColumn);
-			if (best === null || total > best.total) best = {lead, total};
+			const total = round(tailSum + leadColumn -
+				tailUnanswered.length - (leadColumn <= 0 ? 1 : 0));
+			if (best === null || total > best.total) {
+				best = {lead, total, leadUnanswered: leadColumn <= 0};
+			}
 			if (worst === null || total < worst.total) worst = {lead, total};
 		}
 		return {
 			score: best.total,
 			lead: best.lead,
 			leadCollapse: best.total - worst.total > collapseThreshold,
-			unanswered,
+			unanswered: best.leadUnanswered ?
+				[enemies[0].species, ...tailUnanswered] : tailUnanswered,
 		};
 	}
 
