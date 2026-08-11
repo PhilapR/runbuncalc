@@ -710,6 +710,17 @@ app.post("/run/plan", (req, res, next) => {
  * projection travels with it so the panel can say "at the cap you will legally
  * have" rather than presenting raised levels as the box.
  */
+/** Every wild-table map, used or not, with each unused route's best prospects. */
+app.post("/run/routes", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		return res.json(runtime.unusedRoutes(state));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
 /** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
 app.post("/run/split", (req, res, next) => {
 	const state = requireRun(req.body, res);

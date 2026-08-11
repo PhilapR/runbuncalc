@@ -330,6 +330,28 @@ test('permadeath is a declared rule, not the default', () => {
 		/has fainted for good/);
 });
 
+test('the routes view knows what is spent and what is still out there', () => {
+	const state = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	const all = run.unusedRoutes(state);
+	assert.equal(all.order, 'declaration');
+
+	const spent = all.routes.find(route => route.name === 'Route101');
+	assert.deepEqual(spent.used, {species: 'Poochyena', level: 3});
+	// Its best rows exclude the dupe line and carry re-roll odds, best first.
+	assert.ok(spent.best.every(mon => mon.species !== 'Poochyena'));
+	assert.equal(spent.best[0].chance, Math.round(20 / 90 * 1000) / 10);
+
+	const open = all.routes.find(route => route.name === 'Route102');
+	assert.equal(open.used, undefined);
+	assert.ok(open.best.length === 3 && open.best[0].chance >= open.best[1].chance);
+
+	// Without the ruleset the same view still answers, on raw table chance.
+	const plain = run.unusedRoutes(run.apply(fresh(), {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}));
+	const r101 = plain.routes.find(route => route.name === 'Route101');
+	assert.equal(r101.best[0].chance, 20);
+});
+
 test('the split sheet is the gauntlet with its caps, and it moves with the run', () => {
 	const state = fresh({rival: 'Swampert'});
 	const prep = run.splitPrep(state);

@@ -366,6 +366,32 @@ const SUBCOMMANDS = {
 		return {command: {kind: 'beat', trainer: args.positional.join(' ')}};
 	},
 
+	/**
+	 * The routes still holding an unspent encounter, best prospects first.
+	 * `--all` includes the spent ones. Order is the decomp's declaration order —
+	 * roughly geography, NOT unlock order, which is not data this profile has.
+	 */
+	routes(state, args) {
+		const all = runtime.unusedRoutes(state);
+		const unused = all.routes.filter(route => !route.used);
+		const used = all.routes.filter(route => route.used);
+		const lines = [`${unused.length} routes still hold an encounter (${used.length} used)` +
+			' — declaration order, not unlock order'];
+		for (const route of unused) {
+			const best = route.best
+				.map(mon => `${mon.species} ${mon.chance}%${mon.method === 'walk' ? '' : ` ${mon.method}`}`)
+				.join(', ');
+			lines.push(`  ${route.name.padEnd(34)} ${best || '(everything here is a dupe)'}`);
+		}
+		if (args.flags.all && used.length) {
+			lines.push('  used:');
+			for (const route of used) {
+				lines.push(`    ${route.name.padEnd(32)} gave ${route.used.species} L${route.used.level}`);
+			}
+		}
+		return {message: lines.join('\n')};
+	},
+
 	/** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
 	split(state) {
 		const prep = runtime.splitPrep(state);
@@ -439,7 +465,7 @@ const SUBCOMMANDS = {
 
 /** Subcommands that never write, so they can run against a save freely. */
 const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
-	'log', 'milestones', 'split']);
+	'log', 'milestones', 'split', 'routes']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -460,6 +486,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   beat <trainer>                                  move the run forward
   next [--count N] / plan [trainer]               what is ahead, and what it does
   matrix [trainer]                                the whole box against theirs, both ways
+  routes [--all]                                  routes still holding an encounter
   split                                           this split: boss, cap, gauntlet, filler
   milestones                                      the story spine, beaten and ahead
   log [--count N] / undo                          history`;

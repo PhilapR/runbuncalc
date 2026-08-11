@@ -753,6 +753,17 @@ test('the split sheet travels with status and answers on its own endpoint', asyn
 	assert.equal(sheet.body.gauntlet[3].cap, 21);
 });
 
+test('the routes view answers over HTTP with the spent and the still-open', async () => {
+	const created = await newRun({name: 'Routes', permadeath: true});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	const {status, body} = await requestJson('/run/routes', {run: caught.body.run});
+	assert.equal(status, 200);
+	assert.ok(body.routes.length > 100, 'every wild-table map answers');
+	const spent = body.routes.find(route => route.name === 'Route101');
+	assert.equal(spent.used.species, 'Lillipup');
+	assert.ok(spent.best.length > 0 && spent.best[0].chance > 0);
+});
+
 test('a late-game run document still fits through the request body', async () => {
 	// Every /run/* command posts the whole save, and a full playthrough's log
 	// projects past express.json's stock 100kb limit — which would turn the run

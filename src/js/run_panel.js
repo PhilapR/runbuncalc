@@ -362,6 +362,21 @@
 		renderSplit(payload);
 		renderUpcoming(payload);
 
+		// Mark maps whose one encounter is spent, right in the Where dropdown —
+		// display only, from the log's own catch entries; the server still owns
+		// the rule. The option VALUE stays the bare name the server resolves.
+		var usedMaps = {};
+		(state.log || []).forEach(function (entry) {
+			if (entry.command && entry.command.kind === 'catch' && entry.command.map) {
+				usedMaps[entry.command.map] = true;
+			}
+		});
+		$('#runbun-run-map option').each(function () {
+			var name = this.value;
+			if (!name) return;
+			this.textContent = usedMaps[name] ? name + ' — used' : name;
+		});
+
 		var bag = Object.keys(summary.bag);
 		$('#runbun-run-bag').text(bag.length ?
 			bag.map(function (item) { return item + ' x' + summary.bag[item]; }).join(', ') :

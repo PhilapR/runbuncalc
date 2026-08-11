@@ -422,6 +422,53 @@ function encountersOn(run, map) {
 	return answer;
 }
 
+/**
+ * Every map with a wild table, and whether this run has spent its catch there.
+ *
+ * The catch planner's wide view: under the nuzlocke rules each map is one
+ * random encounter for the whole run, so the question "where can I still get
+ * something" is a real resource question. Each unused route carries its best
+ * prospects — top odds rows, dupes excluded — so the list reads as "what is
+ * still out there", not just "where".
+ *
+ * Honesty note: the list is in the decomp's declaration order, which is
+ * roughly the region's geography, NOT the order routes unlock. When a route
+ * becomes reachable is not data this profile has (ENC-02), and guessing would
+ * be worse than saying so.
+ */
+function unusedRoutes(run) {
+	const profile = getProfile(run.profileId);
+	const routes = [];
+	for (const map of profile.oracle.maps()) {
+		const here = encountersOn(run, map.name);
+		const entry = {map: here.map, name: here.name};
+		// Where a catch happened is a fact of the log, not of the ruleset, so it
+		// is reported for every run — only its consequences are nuzlocke-gated.
+		const used = routeCatch(run, profile, here.map);
+		if (used) entry.used = {species: used.species, level: used.level};
+		// Best prospects: what a re-roll can actually keep, best odds first.
+		// Ties broken by table order, which is the game's own slot order.
+		entry.best = here.mons
+			.filter(mon => !mon.dupe)
+			.sort((a, b) => (b.odds !== undefined ? b.odds : b.chance) -
+				(a.odds !== undefined ? a.odds : a.chance))
+			.slice(0, 3)
+			.map(mon => ({
+				species: mon.species,
+				method: mon.method,
+				minLevel: mon.minLevel,
+				maxLevel: mon.maxLevel,
+				chance: mon.odds !== undefined ? mon.odds : mon.chance,
+				...(mon.rod ? {rod: mon.rod} : {}),
+			}));
+		routes.push(entry);
+	}
+	return {
+		order: 'declaration',
+		routes,
+	};
+}
+
 /** What a box entry could be taught, split by whether it can be taught NOW. */
 function learnable(run, id) {
 	const mon = requireMon(run, id);
@@ -1049,5 +1096,5 @@ module.exports = {
 	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
-	encountersOn, learnable, partySpecs, planNext, boxMatrix, summarize,
+	encountersOn, unusedRoutes, learnable, partySpecs, planNext, boxMatrix, summarize,
 };
