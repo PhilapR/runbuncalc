@@ -573,7 +573,7 @@ function requireRun(payload, res) {
  * the feature.
  */
 function runError(error, res, next) {
-	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^unknown command|^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
+	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
 		return res.status(400).json({error: error.message, code: "InvalidRunCommand"});
 	}
 	return next(error);
@@ -588,6 +588,11 @@ app.post("/run/new", (req, res, next) => {
 				name: payload.name,
 				levelCap: payload.levelCap,
 				permadeath: payload.permadeath,
+				// The encounter rules, each its own toggle; omitted they follow
+				// the permadeath flag as the nuzlocke preset.
+				onePerRoute: payload.onePerRoute,
+				dupesClause: payload.dupesClause,
+				shinyClause: payload.shinyClause,
 				rival: payload.rival || null,
 				now: payload.now || null,
 			}),

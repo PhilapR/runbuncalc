@@ -299,6 +299,31 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	await session.context.close();
 });
 
+test('the rule toggles are individual, and the preset only drives the controls', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	// The preset hand sets all four controls...
+	await page.check('#runbun-run-new-nuzlocke');
+	assert.equal(await page.isChecked('#runbun-run-new-permadeath'), true);
+	assert.equal(await page.isChecked('#runbun-run-new-route'), true);
+	assert.equal(await page.inputValue('#runbun-run-new-dupes'), 'line');
+	// ...and any of them can be adjusted after — the form is what is sent.
+	await page.uncheck('#runbun-run-new-route');
+	await page.selectOption('#runbun-run-new-dupes', 'species');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+
+	const saved = await savedRun(page);
+	assert.equal(saved.rules.permadeath, true);
+	assert.equal(saved.rules.onePerRoute, false);
+	assert.equal(saved.rules.dupesClause, 'species');
+	assert.equal(saved.rules.shinyClause, true);
+
+	assert.deepEqual(session.errors, [], `page raised errors: ${session.errors.join('; ')}`);
+	await session.context.close();
+});
+
 test('undo rewinds the saved run one command', {skip}, async () => {
 	const session = await open();
 	const page = session.page;

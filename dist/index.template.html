@@ -2215,8 +2215,31 @@
         </label>
         <label class="runbun-run-check">
             <input type="checkbox" id="runbun-run-new-nuzlocke">
-            <span>Nuzlocke rules (permadeath &middot; one random catch per route &middot; no dupes)</span>
+            <span>Nuzlocke preset &mdash; sets the four rules below; each stays adjustable</span>
         </label>
+        <div class="runbun-run-rules-detail">
+            <label class="runbun-run-check">
+                <input type="checkbox" id="runbun-run-new-permadeath">
+                <span>Permadeath &mdash; a faint is forever</span>
+            </label>
+            <label class="runbun-run-check">
+                <input type="checkbox" id="runbun-run-new-route">
+                <span>One random catch per route</span>
+            </label>
+            <label class="runbun-run-check">
+                <input type="checkbox" id="runbun-run-new-shiny-clause">
+                <span>Shiny clause &mdash; a natural shiny is always keepable</span>
+            </label>
+            <label class="runbun-run-field">
+                <span>Dupes clause</span>
+                <select id="runbun-run-new-dupes">
+                    <option value="off">Off</option>
+                    <option value="species">Same species only</option>
+                    <option value="line">Evolution line (the game's own graph)</option>
+                    <option value="forms">Line + all regional forms</option>
+                </select>
+            </label>
+        </div>
         <label class="runbun-run-field">
             <span>Rival &mdash; named for their ace, fixed by your starter</span>
             <select id="runbun-run-new-rival">

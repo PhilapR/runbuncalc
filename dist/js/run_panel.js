@@ -634,7 +634,12 @@
 				return api('/run/new', {
 					name: $('#runbun-run-new-name').val() || 'My run',
 					levelCap: $('#runbun-run-new-cap').is(':checked') ? 'next-milestone-ace' : 'none',
-					permadeath: $('#runbun-run-new-nuzlocke').is(':checked'),
+					// Each rule travels as its own toggle; the preset checkbox only
+					// drives the controls, so what the form shows is what is sent.
+					permadeath: $('#runbun-run-new-permadeath').is(':checked'),
+					onePerRoute: $('#runbun-run-new-route').is(':checked'),
+					shinyClause: $('#runbun-run-new-shiny-clause').is(':checked'),
+					dupesClause: $('#runbun-run-new-dupes').val(),
 					// Declaring the rival removes the other two variants of every rival
 					// fight from the spine, the road ahead and the caps.
 					rival: $('#runbun-run-new-rival').val() || undefined,
@@ -649,6 +654,17 @@
 					status(error.message, 'error');
 				});
 			});
+		});
+
+		// The preset checkbox is a hand on the four controls, not a fifth rule:
+		// it sets the common nuzlocke table, and any control can be adjusted
+		// after. Unchecking clears them all.
+		$('#runbun-run-new-nuzlocke').on('change', function () {
+			var on = this.checked;
+			$('#runbun-run-new-permadeath').prop('checked', on);
+			$('#runbun-run-new-route').prop('checked', on);
+			$('#runbun-run-new-shiny-clause').prop('checked', on);
+			$('#runbun-run-new-dupes').val(on ? 'line' : 'off');
 		});
 
 		$('#runbun-run-map').on('change', showEncounters);

@@ -101,6 +101,34 @@ function clone(value) {
  * own timestamps cannot be tested for equality and cannot be replayed, and this
  * document's whole value is that applying the same commands gives the same run.
  */
+const DUPES_MODES = new Set(['off', 'species', 'line', 'forms']);
+
+function dupesMode(opts) {
+	if (opts.dupesClause === undefined) return opts.permadeath ? 'line' : 'off';
+	if (!DUPES_MODES.has(opts.dupesClause)) {
+		throw new Error(`unknown dupes clause ${JSON.stringify(opts.dupesClause)}; ` +
+			`the modes are: ${[...DUPES_MODES].join(', ')}`);
+	}
+	return opts.dupesClause;
+}
+
+/**
+ * The encounter rules in force, normalized. Saves written before the rules
+ * became individual toggles carry only `permadeath`; they keep the behavior
+ * they were played under — the bundle — rather than silently losing it.
+ */
+function encounterRules(run) {
+	const rules = run.rules;
+	return {
+		onePerRoute: rules.onePerRoute !== undefined ?
+			!!rules.onePerRoute : !!rules.permadeath,
+		dupes: rules.dupesClause !== undefined ?
+			rules.dupesClause : rules.permadeath ? 'line' : 'off',
+		shiny: rules.shinyClause !== undefined ?
+			!!rules.shinyClause : !!rules.permadeath,
+	};
+}
+
 function createRun(options) {
 	const opts = options || {};
 	const profileId = opts.profileId || undefined;
@@ -125,13 +153,24 @@ function createRun(options) {
 		position: -1,
 		rules: {
 			levelCap: mode,
-			// The nuzlocke ruleset, off by default. When on: a fainted Pokemon can
-			// never re-enter the party, a map's wild table gives ONE catch for the
-			// whole run (the encounter is random — the player reports what came up),
-			// and a species whose evolution line is already in the box does not
-			// count (the dupes clause: re-roll and report the non-dupe). Kept under
-			// its historical field name so older saves stay readable.
+			// Permadeath: a fainted Pokemon can never re-enter the party. Also
+			// the nuzlocke PRESET: the three encounter toggles below default to
+			// match it, because that is the common table — but each stands alone
+			// once stated, because nuzlocke tables vary rule by rule.
 			permadeath: !!opts.permadeath,
+			// One wild catch per map for the whole run. The encounter is random;
+			// the player reports what came up.
+			onePerRoute: opts.onePerRoute !== undefined ?
+				!!opts.onePerRoute : !!opts.permadeath,
+			// What counts as a dupe: 'off', 'species' (the exact species only),
+			// 'line' (the game's own evolution graph — regionals separate unless
+			// this hack connects them, which it does for Grimer/Muk-Alola and
+			// Basculin/Basculegion), or 'forms' (line plus every regional form
+			// of it — the strictest common table rule).
+			dupesClause: dupesMode(opts),
+			// A naturally-encountered shiny is keepable over both rules above.
+			shinyClause: opts.shinyClause !== undefined ?
+				!!opts.shinyClause : !!opts.permadeath,
 			// Which rival variant this run faces — fixed by the starter choice at
 			// the top of the game. Null means undeclared: all variants stay
 			// visible, which is honest but counts three playthroughs at once.
@@ -382,6 +421,32 @@ function familyOf(profile, species) {
 	return line.length ? line[line.length - 1] : species;
 }
 
+let calcSpecies = null;
+
+/** A form's base species per the calculator's dex — Grimer-Alola → Grimer. */
+function baseForm(species) {
+	if (!calcSpecies) {
+		const calc = require('@smogon/calc');
+		calcSpecies = {gen: calc.Generations.get(8), toID: calc.toID};
+	}
+	const found = calcSpecies.gen.species.get(calcSpecies.toID(species));
+	return (found && found.baseSpecies) || species;
+}
+
+/**
+ * The identity a catch is compared under, per the run's dupes mode — or null
+ * when the clause is off. 'forms' collapses to the base form FIRST, then the
+ * graph: Sandshrew-Alola → Sandshrew → its whole line, so every regional
+ * branch of a line lands on one key.
+ */
+function dupeKey(run, profile, species) {
+	const mode = encounterRules(run).dupes;
+	if (mode === 'off') return null;
+	if (mode === 'species') return species;
+	if (mode === 'forms') return familyOf(profile, baseForm(species));
+	return familyOf(profile, species);
+}
+
 /**
  * The catch this run already made on a map, if any — from the log, because the
  * box forgets: releasing or losing the catch does not refund the route.
@@ -403,16 +468,18 @@ function encountersOn(run, map) {
 	const mons = found.mons.map(mon => Object.assign({owned: owned.has(mon.species)}, mon));
 	const answer = {map: found.map, name: found.name, mons};
 
-	// Under the nuzlocke rules the list is not a menu, it is a forecast: the
-	// encounter is random, so each row carries its table odds, dupes are marked
-	// (they do not count — the player re-rolls), and `odds` renormalizes the
-	// chance over what can actually be kept. Per method, because walking and
-	// fishing are separate dice.
-	if (run.rules.permadeath) {
-		const families = new Set(run.box.map(mon => familyOf(profile, mon.species)));
+	// Under the encounter rules the list is not a menu, it is a forecast: the
+	// encounter is random, so each row carries its table odds; under a dupes
+	// clause the dupes are marked (they do not count — the player re-rolls)
+	// and `odds` renormalizes the chance over what can actually be kept, per
+	// method, because walking and fishing are separate dice. Each decoration
+	// follows its own toggle.
+	const rules = encounterRules(run);
+	if (rules.dupes !== 'off') {
+		const keys = new Set(run.box.map(mon => dupeKey(run, profile, mon.species)));
 		const liveByMethod = {};
 		for (const mon of mons) {
-			mon.dupe = families.has(familyOf(profile, mon.species));
+			mon.dupe = keys.has(dupeKey(run, profile, mon.species));
 			if (!mon.dupe) {
 				liveByMethod[mon.method] = (liveByMethod[mon.method] || 0) + mon.chance;
 			}
@@ -421,6 +488,8 @@ function encountersOn(run, map) {
 			mon.odds = mon.dupe || !liveByMethod[mon.method] ? 0 :
 				Math.round(mon.chance / liveByMethod[mon.method] * 1000) / 10;
 		}
+	}
+	if (rules.onePerRoute) {
 		const used = routeCatch(run, profile, found.map);
 		if (used) answer.used = {species: used.species, level: used.level};
 	}
@@ -705,25 +774,28 @@ const COMMANDS = {
 		}
 		const origin = checkEncounter(profile, Object.assign({}, command, {level}));
 
-		// The nuzlocke encounter rules, on wild catches only — a gift, static or
-		// trade (no map) is not the route's random encounter and stays exempt.
-		// So is a shiny: the community shiny clause says a naturally-encountered
-		// shiny is always keepable, over both the route rule and the dupes
-		// clause. The claim is recorded on the mon, so the box shows which
-		// catches rode the exemption.
-		if (run.rules.permadeath && origin.map && !command.shiny) {
+		// The encounter rules, each its own toggle, on wild catches only — a
+		// gift, static or trade (no map) is not the route's random encounter
+		// and stays exempt. A shiny claim exempts a catch from both rules when
+		// the shiny clause is on; the claim is recorded on the mon, so the box
+		// shows which catches rode the exemption.
+		const rules = encounterRules(run);
+		const shinyExempt = command.shiny && rules.shiny;
+		if (rules.onePerRoute && origin.map && !shinyExempt) {
 			const prior = routeCatch(run, profile, origin.map);
 			if (prior) {
 				throw new Error(`catch: this run already used its one ${origin.mapName} ` +
 					`encounter on ${prior.species} — a route gives one random catch, ` +
 					'and releasing or losing it does not refund it');
 			}
-			const family = familyOf(profile, command.species);
-			const dupe = run.box.find(mon => familyOf(profile, mon.species) === family);
+		}
+		if (rules.dupes !== 'off' && origin.map && !shinyExempt) {
+			const key = dupeKey(run, profile, command.species);
+			const dupe = run.box.find(mon => dupeKey(run, profile, mon.species) === key);
 			if (dupe) {
 				throw new Error(`catch: ${command.species} is a dupe of ${dupe.species} ` +
-					`(${dupe.id}) — same evolution line, so it does not count; ` +
-					're-roll and report what came up instead');
+					`(${dupe.id}) under the ${JSON.stringify(rules.dupes)} dupes clause, ` +
+					'so it does not count; re-roll and report what came up instead');
 			}
 		}
 
@@ -1086,9 +1158,12 @@ function undo(run) {
 		name: run.name,
 		now: run.createdAt,
 		levelCap: run.rules.levelCap,
-		permadeath: run.rules.permadeath,
-		rival: run.rules.rival,
 	});
+	// The rules travel VERBATIM, not through createRun's options: createRun
+	// writes today's rule fields, and a save from before a rule existed must
+	// come back from undo byte-identical, not silently upgraded. The readers
+	// normalize old shapes (`encounterRules`), so preserving them is safe.
+	fresh.rules = JSON.parse(JSON.stringify(run.rules));
 	// Each entry replays under the timestamp it was applied with, one `now` per
 	// command rather than one for the batch, so the rebuilt document reproduces
 	// the original by construction — log entries and `updatedAt` included. The
@@ -1111,6 +1186,12 @@ function summarize(run) {
 		name: run.name,
 		profileId: run.profileId,
 		position: run.position,
+		// The rules in force, normalized: what a client shows and what an old
+		// save actually plays under, whichever vintage wrote it.
+		rules: Object.assign({
+			permadeath: !!run.rules.permadeath,
+			rival: run.rules.rival || null,
+		}, encounterRules(run)),
 		split: split(run),
 		next: ahead.length ? {trainer: ahead[0].trainer, order: ahead[0].order} : null,
 		levelCap: cap,
@@ -1132,5 +1213,5 @@ module.exports = {
 	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
-	encountersOn, unusedRoutes, learnable, partySpecs, planNext, boxMatrix, summarize,
+	encountersOn, unusedRoutes, encounterRules, learnable, partySpecs, planNext, boxMatrix, summarize,
 };

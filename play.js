@@ -187,6 +187,12 @@ function renderMatrix(matrix) {
 	return lines.join('\n');
 }
 
+/** A bare `--flag` and `--flag on` both mean on; only `--flag off` means off. */
+function onOff(flag, fallback) {
+	if (flag === undefined) return fallback;
+	return flag === true || flag === 'on';
+}
+
 // ------------------------------------------------------------------ subcommands
 
 /**
@@ -224,7 +230,12 @@ const SUBCOMMANDS = {
 			// The caps are the game's own (hardcoded, candy-gated), so they are on
 			// by default; --no-cap is the escape hatch for free editing.
 			levelCap: args.flags['no-cap'] ? 'none' : 'next-milestone-ace',
-			permadeath: !!args.flags.nuzlocke,
+			// --nuzlocke is the preset; each rule also stands alone as its own
+			// flag, stated as on/off so any preset choice can be overridden.
+			permadeath: onOff(args.flags.permadeath, !!args.flags.nuzlocke),
+			onePerRoute: onOff(args.flags.route, undefined),
+			dupesClause: args.flags.dupes,
+			shinyClause: onOff(args.flags['shiny-clause'], undefined),
 			// Named for the rival's ace, which the starter choice fixes. Without it
 			// all three variants of each rival fight stay visible.
 			rival: args.flags.rival || null,
@@ -497,6 +508,7 @@ const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'p
 const USAGE = `node play.js <command> [args] [--file run.json]
 
   new [--name N] [--no-cap] [--nuzlocke] [--rival Swampert] [--force]   start a run (game caps on by default)
+      [--permadeath on|off] [--route on|off] [--shiny-clause on|off] [--dupes off|species|line|forms]
   status / box                                    the box, party, bag and position
   where <map>                                     what can be caught there
   find <species>                                  everywhere it can be caught

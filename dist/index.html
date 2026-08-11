@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?a2f7a3b0" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?16b745b1" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1940,7 +1940,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
-    <script type="text/javascript" src="./js/run_panel.js?35d44aff"></script>
+    <script type="text/javascript" src="./js/run_panel.js?ea36833c"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2215,8 +2215,31 @@
         </label>
         <label class="runbun-run-check">
             <input type="checkbox" id="runbun-run-new-nuzlocke">
-            <span>Nuzlocke rules (permadeath &middot; one random catch per route &middot; no dupes)</span>
+            <span>Nuzlocke preset &mdash; sets the four rules below; each stays adjustable</span>
         </label>
+        <div class="runbun-run-rules-detail">
+            <label class="runbun-run-check">
+                <input type="checkbox" id="runbun-run-new-permadeath">
+                <span>Permadeath &mdash; a faint is forever</span>
+            </label>
+            <label class="runbun-run-check">
+                <input type="checkbox" id="runbun-run-new-route">
+                <span>One random catch per route</span>
+            </label>
+            <label class="runbun-run-check">
+                <input type="checkbox" id="runbun-run-new-shiny-clause">
+                <span>Shiny clause &mdash; a natural shiny is always keepable</span>
+            </label>
+            <label class="runbun-run-field">
+                <span>Dupes clause</span>
+                <select id="runbun-run-new-dupes">
+                    <option value="off">Off</option>
+                    <option value="species">Same species only</option>
+                    <option value="line">Evolution line (the game's own graph)</option>
+                    <option value="forms">Line + all regional forms</option>
+                </select>
+            </label>
+        </div>
         <label class="runbun-run-field">
             <span>Rival &mdash; named for their ace, fixed by your starter</span>
             <select id="runbun-run-new-rival">

@@ -2234,6 +2234,15 @@ table.field {
 	align-items: center;
 	font-size: 0.9rem;
 }
+/* The individual rule toggles sit indented under the preset that drives them,
+   reading as its expansion rather than four more unrelated settings. */
+#runbun-run .runbun-run-rules-detail {
+	margin: var(--rb-space-xs) 0 var(--rb-space-xs) var(--rb-space-lg);
+	padding-left: var(--rb-space-sm);
+	border-left: 2px solid var(--rb-stroke);
+	display: grid;
+	gap: var(--rb-space-xs);
+}
 #runbun-run .runbun-run-empty:not([hidden]) {
 	display: flex;
 	flex-direction: column;

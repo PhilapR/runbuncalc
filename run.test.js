@@ -430,6 +430,63 @@ test('the routes view knows what is spent and what is still out there', () => {
 	assert.equal(r101.best[0].chance, 20);
 });
 
+test('every encounter rule is its own toggle, and old saves keep their bundle', () => {
+	// 'species' scope: the exact species is a dupe, its evolution is not.
+	const bySpecies = run.apply(fresh({onePerRoute: false, dupesClause: 'species'}),
+		{kind: 'catch', species: 'Buizel', map: 'Route104', level: 5, method: 'fish'});
+	assert.throws(() => run.apply(bySpecies,
+		{kind: 'catch', species: 'Buizel', map: 'Route104', level: 5, method: 'fish'}),
+	/dupe of Buizel .*"species"/);
+	const evolved = run.apply(bySpecies, {kind: 'catch', species: 'Floatzel', map: 'Route102', level: 50});
+	assert.equal(evolved.box.length, 2);
+
+	// 'forms' scope: a regional branch of a caught line is a dupe even though
+	// the game never connects the two Geodude lines — under 'line' (the
+	// default) the same second catch is legal, which is the toggle's point.
+	// Both Geodude lines have EMPTY level-up learnsets in this hack, so the
+	// catches name their moves, as the engine requires.
+	const geodude = {kind: 'catch', species: 'Geodude', map: 'Magma Hideout 3f 2r', level: 27,
+		moves: ['Rock Blast']};
+	const alolan = {kind: 'catch', species: 'Geodude-Alola', map: 'Route111', level: 20,
+		method: 'rock-smash', moves: ['Rock Blast']};
+	const byForms = run.apply(fresh({dupesClause: 'forms', permadeath: true}), geodude);
+	assert.throws(() => run.apply(byForms, alolan), /dupe of Geodude/);
+	const byLine = run.apply(run.apply(fresh({dupesClause: 'line', permadeath: true}), geodude), alolan);
+	assert.equal(byLine.box.length, 2);
+
+	// Route rule alone: a dupe is fine, a second catch on the same map is not.
+	const routeOnly = run.apply(fresh({onePerRoute: true, dupesClause: 'off'}),
+		{kind: 'catch', species: 'Buizel', map: 'Route104', level: 5, method: 'fish'});
+	assert.throws(() => run.apply(routeOnly, {kind: 'catch', species: 'Paras', map: 'Route104', level: 5}),
+		/already used its one Route104 encounter/);
+	const dupeFine = run.apply(routeOnly, {kind: 'catch', species: 'Floatzel', map: 'Route102', level: 50});
+	assert.equal(dupeFine.box.length, 2);
+
+	// Shiny clause off: the claim is recorded but exempts nothing.
+	const noShiny = run.apply(fresh({permadeath: true, shinyClause: false}),
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	assert.throws(() => run.apply(noShiny,
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 2, shiny: true}),
+	/already used its one Route101 encounter/);
+
+	// A save from before the toggles existed carries only `permadeath: true`
+	// and keeps the whole bundle it was played under.
+	const legacy = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Buizel', map: 'Route104', level: 5, method: 'fish'});
+	delete legacy.rules.onePerRoute;
+	delete legacy.rules.dupesClause;
+	delete legacy.rules.shinyClause;
+	assert.deepEqual(run.encounterRules(legacy),
+		{onePerRoute: true, dupes: 'line', shiny: true});
+	assert.throws(() => run.apply(legacy, {kind: 'catch', species: 'Floatzel', map: 'Route102', level: 50}),
+		/dupe of Buizel/);
+	// And undo hands back the legacy rules verbatim, not an upgraded shape.
+	assert.deepEqual(Object.keys(run.undo(legacy).rules).sort(), Object.keys(legacy.rules).sort());
+
+	// A mode nobody defined is refused at creation, with the list.
+	assert.throws(() => fresh({dupesClause: 'strict'}), /unknown dupes clause "strict"/);
+});
+
 test('the shiny clause: a natural shiny is keepable over the route rule and the dupes clause', () => {
 	let state = run.apply(fresh({permadeath: true}),
 		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
