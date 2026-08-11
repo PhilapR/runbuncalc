@@ -330,6 +330,30 @@ test('permadeath is a declared rule, not the default', () => {
 		/has fainted for good/);
 });
 
+test('the split sheet is the gauntlet with its caps, and it moves with the run', () => {
+	const state = fresh({rival: 'Swampert'});
+	const prep = run.splitPrep(state);
+	assert.equal(prep.split.boss, 'Leader Brawly');
+	assert.equal(prep.split.index, 1);
+	// The gauntlet is every remaining boss-tier fight in the split, boss last,
+	// each under the cap in force when it is fought — the Museum pair shares 16.
+	assert.deepEqual(prep.gauntlet.map(f => [f.trainer, f.tier, f.cap]), [
+		['Team Aqua Grunt Petalburg Woods', 'story', 12],
+		['Team Aqua Grunt Museum #1', 'story', 16],
+		['Team Aqua Grunt Museum #2', 'story', 16],
+		['Leader Brawly', 'boss', 21],
+	]);
+	assert.equal(prep.fightsAhead - prep.filler, prep.gauntlet.length);
+
+	// Beating the boss moves the sheet to the next split, gauntlet rebuilt.
+	const onward = run.apply(state, {kind: 'beat', trainer: 'Leader Brawly'});
+	const next = run.splitPrep(onward);
+	assert.equal(next.split.index, 2);
+	assert.notEqual(next.split.boss, 'Leader Brawly');
+	assert.ok(next.gauntlet.length >= 1, 'a split ends at its boss, so the gauntlet is never empty');
+	assert.equal(next.gauntlet[next.gauntlet.length - 1].trainer, next.split.boss);
+});
+
 test('nuzlocke: one random catch per route, and dupes do not count', () => {
 	// Without the ruleset, a second catch on the same route stays legal.
 	let free = run.apply(fresh(), {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3});

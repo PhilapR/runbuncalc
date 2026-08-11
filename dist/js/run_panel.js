@@ -247,6 +247,47 @@
 		}
 	}
 
+	// -------------------------------------------------------------- split sheet
+
+	/**
+	 * The split as one sheet: the boss it ends at, the cap on the way, and the
+	 * boss-tier gauntlet between here and it — each row plannable and boardable
+	 * like the road ahead, because the gauntlet IS the road that matters.
+	 */
+	function renderSplit(payload) {
+		var prep = payload.splitPrep;
+		var $summary = $('#runbun-run-split-summary').empty();
+		var $list = $('#runbun-run-split-gauntlet').empty();
+		if (!prep) return;
+		if (prep.split.finished) {
+			$summary.text('The run map is finished — no split ahead.');
+			return;
+		}
+		$summary.text(
+			prep.split.boss.replace(/^Leader /, '') + ' split (' + prep.split.index + '/' +
+			prep.split.of + ') · ' + prep.fightsAhead + ' fights left, ' +
+			prep.filler + ' filler' +
+			(prep.cap.cap !== null ? ' · cap ' + prep.cap.cap : ''));
+		prep.gauntlet.forEach(function (fight) {
+			var $row = $('<li class="runbun-run-split-fight"></li>')
+				.toggleClass('is-boss-row', fight.tier === 'boss');
+			$row.append($('<span class="runbun-run-up-order"></span>').text('#' + fight.order));
+			$row.append($('<span class="runbun-run-up-name"></span>').text(fight.trainer));
+			$row.append($('<span class="runbun-run-up-tier"></span>')
+				.addClass(fight.tier === 'boss' ? 'is-boss' : 'is-story')
+				.text(fight.tier));
+			$row.append($('<span class="runbun-run-up-meta"></span>')
+				.text(fight.partySize + ' mons' +
+					(fight.cap !== undefined ? ' · cap ' + fight.cap : '')));
+			$row.append($('<span class="runbun-run-up-actions"></span>')
+				.append($('<button type="button" class="runbun-run-up-plan"></button>')
+					.attr('data-trainer', fight.trainer).text('Plan'))
+				.append($('<button type="button" class="runbun-run-up-board"></button>')
+					.attr('data-trainer', fight.trainer).text('Board')));
+			$list.append($row);
+		});
+	}
+
 	// -------------------------------------------------------------- road ahead
 
 	/**
@@ -318,6 +359,7 @@
 		renderSpine(payload);
 		renderBox(payload);
 		renderPartyStrip();
+		renderSplit(payload);
 		renderUpcoming(payload);
 
 		var bag = Object.keys(summary.bag);
@@ -686,6 +728,15 @@
 			plan($(this).attr('data-trainer'));
 		});
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-board', function () {
+			board($(this).attr('data-trainer'));
+		});
+		// The gauntlet rows plan and board like the road ahead. No Beaten button
+		// there on purpose: marking a distant boss beaten silently skips every
+		// fight before it, which is a road-ahead decision, made in that context.
+		$('#runbun-run-split-gauntlet').on('click', '.runbun-run-up-plan', function () {
+			plan($(this).attr('data-trainer'));
+		});
+		$('#runbun-run-split-gauntlet').on('click', '.runbun-run-up-board', function () {
 			board($(this).attr('data-trainer'));
 		});
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-beat', function () {

@@ -739,6 +739,20 @@ test('a run is created, advanced and summarized entirely through the request', a
 	assert.equal(clamped.body.upcoming.length, 20);
 });
 
+test('the split sheet travels with status and answers on its own endpoint', async () => {
+	const created = await newRun({name: 'Sheet', rival: 'Swampert'});
+	const status = await requestJson('/run/status', {run: created});
+	assert.equal(status.status, 200);
+	assert.equal(status.body.splitPrep.split.boss, 'Leader Brawly');
+	assert.equal(status.body.splitPrep.gauntlet.length, 4);
+
+	const sheet = await requestJson('/run/split', {run: created});
+	assert.equal(sheet.status, 200);
+	assert.equal(sheet.body.split.index, 1);
+	assert.equal(sheet.body.gauntlet[3].trainer, 'Leader Brawly');
+	assert.equal(sheet.body.gauntlet[3].cap, 21);
+});
+
 test('a late-game run document still fits through the request body', async () => {
 	// Every /run/* command posts the whole save, and a full playthrough's log
 	// projects past express.json's stock 100kb limit — which would turn the run

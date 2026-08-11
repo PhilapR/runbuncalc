@@ -150,6 +150,11 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		() => document.querySelector('#runbun-run-box .runbun-run-mon.is-party') !== null,
 		null, {timeout: 10000});
 
+	// The split sheet names the boss the run is working toward and its gauntlet.
+	assert.match(await page.textContent('#runbun-run-split-summary'), /Brawly split \(1\/18\)/);
+	assert.ok(await page.$$eval('#runbun-run-split-gauntlet .runbun-run-split-fight',
+		els => els.length) >= 4, 'the gauntlet lists the boss-tier fights');
+
 	// The story spine renders one tick per milestone, none beaten yet.
 	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 44);
 	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 0);
@@ -168,7 +173,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	// same page. One box mon against Calvin's party: every enemy is a column in
 	// each of the two tables, every cell carries a percent, and the note names
 	// the fight so the tables cannot be read against the wrong trainer.
-	await page.click('.runbun-run-up-board');
+	await page.click('#runbun-run-upcoming .runbun-run-up-board');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-matrix table').length === 2,
 		null, {timeout: 15000});

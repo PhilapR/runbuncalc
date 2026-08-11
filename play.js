@@ -366,6 +366,27 @@ const SUBCOMMANDS = {
 		return {command: {kind: 'beat', trainer: args.positional.join(' ')}};
 	},
 
+	/** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
+	split(state) {
+		const prep = runtime.splitPrep(state);
+		if (!prep) return {message: 'this profile declares no splits'};
+		if (prep.split.finished) return {message: 'the run map is finished — no split ahead'};
+		const lines = [
+			`${prep.split.boss.replace(/^Leader /, '')} split (${prep.split.index}/${prep.split.of})` +
+				` — boss #${prep.split.order} ${prep.split.boss}`,
+			prep.cap.cap === null ? '  no level cap' :
+				`  cap now ${prep.cap.cap} (${prep.cap.trainer}'s ${prep.cap.ace})`,
+			`  ${prep.fightsAhead} fights left in the split, ${prep.filler} of them filler`,
+			'  gauntlet:',
+		];
+		for (const fight of prep.gauntlet) {
+			lines.push(`    #${String(fight.order).padStart(4)}  ${fight.trainer.padEnd(34)}` +
+				`${fight.tier.padEnd(6)} ${fight.partySize} mons` +
+				(fight.cap !== undefined ? `  cap ${fight.cap}` : ''));
+		}
+		return {message: lines.join('\n')};
+	},
+
 	/** The story spine: milestones beaten and ahead. Where "where am I" lives. */
 	milestones(state) {
 		const spine = runtime.milestones(state);
@@ -418,7 +439,7 @@ const SUBCOMMANDS = {
 
 /** Subcommands that never write, so they can run against a save freely. */
 const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
-	'log', 'milestones']);
+	'log', 'milestones', 'split']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -439,6 +460,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   beat <trainer>                                  move the run forward
   next [--count N] / plan [trainer]               what is ahead, and what it does
   matrix [trainer]                                the whole box against theirs, both ways
+  split                                           this split: boss, cap, gauntlet, filler
   milestones                                      the story spine, beaten and ahead
   log [--count N] / undo                          history`;
 

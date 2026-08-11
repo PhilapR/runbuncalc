@@ -638,6 +638,9 @@ app.post("/run/status", (req, res, next) => {
 			// The story spine travels with every status: "where am I" over a
 			// 362-battle map is answered in milestones, not a position integer.
 			milestones: runtime.milestones(state),
+			// And so does the split sheet — it is how the run is narrated, and
+			// small (boss-tier fights only), so every redraw stays current.
+			splitPrep: runtime.splitPrep(state),
 			upcoming: runtime.upcoming(state, count).map(fight => ({
 				trainer: fight.trainer,
 				order: fight.order,
@@ -707,6 +710,17 @@ app.post("/run/plan", (req, res, next) => {
  * projection travels with it so the panel can say "at the cap you will legally
  * have" rather than presenting raised levels as the box.
  */
+/** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
+app.post("/run/split", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		return res.json(runtime.splitPrep(state));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
 app.post("/run/matrix", (req, res, next) => {
 	const state = requireRun(req.body, res);
 	if (!state) return undefined;

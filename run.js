@@ -293,6 +293,46 @@ function split(run) {
 	};
 }
 
+/**
+ * The split as one sheet: the unit a run is actually narrated in.
+ *
+ * "The Wattson split" is a boss, the cap that holds on the way, the mandatory
+ * story fights between here and it, and how much filler is left. Every number
+ * is assembled from views that already exist — split, capAt, fightTier — so a
+ * prep sheet cannot drift from the tiers and caps the rest of the product
+ * shows.
+ */
+function splitPrep(run) {
+	const here = split(run);
+	if (!here) return null;
+	const profile = getProfile(run.profileId);
+	const ahead = here.finished ? [] : visibleFights(run)
+		.filter(fight => fight.order > run.position && fight.order <= here.order);
+	// The gauntlet: every remaining boss-tier fight in the split, the boss
+	// last, each with the cap in force when it is fought.
+	const gauntlet = [];
+	let filler = 0;
+	for (const fight of ahead) {
+		const tier = fightTier(profile, fight.trainer);
+		if (!tier) { filler++; continue; }
+		const cap = capAt(run, fight.order);
+		gauntlet.push({
+			trainer: fight.trainer,
+			order: fight.order,
+			tier,
+			partySize: fight.party.length,
+			...(cap !== null ? {cap} : {}),
+		});
+	}
+	return {
+		split: here,
+		cap: levelCap(run),
+		gauntlet,
+		fightsAhead: ahead.length,
+		filler,
+	};
+}
+
 /** The fights immediately ahead of where the run has got to. */
 function upcoming(run, count) {
 	return visibleFights(run)
@@ -1008,6 +1048,6 @@ function summarize(run) {
 module.exports = {
 	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
 	createRun, apply, applyAll, undo,
-	findMon, levelCap, capAt, upcoming, milestones, split, fightTier, isExcludedVariant,
+	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, learnable, partySpecs, planNext, boxMatrix, summarize,
 };
