@@ -233,3 +233,12 @@ test('the rival is declared at creation and stored', () => {
 	assert.throws(() => cli('beat', 'Trainer', 'Rival', 'Cycling', 'Road', 'Sceptile'),
 		/faces the Swampert rival/);
 });
+
+test('every subcommand appears in the usage text', () => {
+	// The contract that would have caught the missing 'box': a verb that exists
+	// but is not in the help is a verb nobody finds.
+	for (const name of Object.keys(play.SUBCOMMANDS)) {
+		assert.match(play.USAGE, new RegExp(`(^|[\\s/])${name}([\\s/]|$)`, 'm'),
+			`subcommand "${name}" missing from usage`);
+	}
+});

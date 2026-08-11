@@ -75,7 +75,7 @@ declared, gated gap (see DATA-09/ENC-01) or platform work for a second game.
 | P1 | RUN-03 | ~~Expose the run over HTTP, statelessly~~ **Done** — `/run/new`, `/apply`, `/undo`, `/status`, `/where`, `/learnable`, `/plan`, `/maps` | engine | RUN-01 | The run travels in the request; the server stores no save files |
 | P1 | RUN-04 | ~~My Run browser panel~~ **Done** — `#runbun-run`, localStorage, browser-tested | UI | RUN-03 | Start a run, catch off a real route, set a party, plan the next fight; survives reload |
 | P1 | UI-P3 | ~~Scale My Run to the whole game: spine, road ahead, party strip, box filter~~ **Done** — lead-order bug fixed (multi-select returned DOM order) | UI | RUN-04 | Mid-game state is navigable: milestone spine, bulk beat, click-order party, filterable box |
-| P2 | RUN-05 | EXP and growth rates, so levelling can be projected rather than declared | engine | DATA-10 | Growth-rate tables are not imported; the run records the level a player states |
+| P2 | RUN-05 | ~~Growth rates imported; EXP curves in the oracle~~ **Done** (`growth.json`, `expForLevel`/`levelFromExp`) — UI projection deliberately unbuilt pending design | engine | DATA-10 | 1016 species rated from `base_stats.h`; curve totals pinned; levels stay player-declared until the projection UX is designed |
 | P2 | RUN-06 | Item locations and Mart stock | engine | DATA-10 | The bag counts what a player says they have; nothing claims where it came from |
 | P2 | EXP-01 | ~~Deeper Explain: side-by-side doc cite vs reasons / ActionFacts~~ **Done** | UI | Explain MVP; FIX-02 strongly preferred | One scored action shows matching doc section + machine facts together |
 | P2 | EXP-02 | ~~Citation map audit for top score-reason phrases~~ **Done** | docs | EXP-01 or Explain MVP | Gaps filled for high-traffic reason keywords |
@@ -137,7 +137,7 @@ phase write-ups: §6; session chunks: §7; UI rollout detail:
 | Run CLI (`play.js`) | **Shipped** — `npm run play -- <command>` over a JSON save file |
 | Run HTTP API | **Shipped** — `/run/new`, `/apply`, `/undo`, `/status`, `/where`, `/learnable`, `/plan`, `/maps`; stateless |
 | My Run UI | **Shipped** — `#runbun-run`; saved in the browser, browser-tested end to end. Scaled for the full game: milestone spine, markable road ahead, lead-ordered party strip, filterable box (UI-P3) |
-| EXP / growth rates | **Not claimed** — levels are declared by the player, never projected (RUN-05) |
+| EXP / growth rates | **Imported** — per-species curves from the decomp + Gen 3 formulas in the oracle; levels stay player-declared until projection UX is designed |
 | Item locations / Mart stock | **Not claimed** — the bag counts what the player says they have (RUN-06) |
 | HTTP AI API (`server.js`) | **Shipped** — choose / evaluate / validate / derive / apply / advance / order |
 | Root validation gate (`npm test`) | **Green path** — calc → AI → build → `test:server` → UI lint |

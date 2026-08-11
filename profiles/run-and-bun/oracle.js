@@ -202,6 +202,52 @@ function canLearn(species, move) {
 		{legal: false, sources: []};
 }
 
+/** Which EXP curve a species grows on, from the decomp's base_stats.h. */
+function growthRateOf(species) {
+	return load('growth')[species] || null;
+}
+
+/**
+ * Total EXP at a level, per curve.
+ *
+ * The curve assignment is hack data; these formulas are the standard Gen 3
+ * growth functions the GROWTH_* constants have named since Ruby — mechanics,
+ * not per-game values, which is why they live here as code rather than in the
+ * generated JSON.
+ */
+const GROWTH_FORMULAS = {
+	'medium-fast': n => n * n * n,
+	fast: n => Math.floor(4 * n * n * n / 5),
+	slow: n => Math.floor(5 * n * n * n / 4),
+	'medium-slow': n => Math.floor(6 * n * n * n / 5) - 15 * n * n + 100 * n - 140,
+	erratic: n =>
+		n < 50 ? Math.floor(n * n * n * (100 - n) / 50) :
+			n < 68 ? Math.floor(n * n * n * (150 - n) / 100) :
+				n < 98 ? Math.floor(n * n * n * Math.floor((1911 - 10 * n) / 3) / 500) :
+					Math.floor(n * n * n * (160 - n) / 100),
+	fluctuating: n =>
+		n < 15 ? Math.floor(n * n * n * (Math.floor((n + 1) / 3) + 24) / 50) :
+			n < 36 ? Math.floor(n * n * n * (n + 14) / 50) :
+				Math.floor(n * n * n * (Math.floor(n / 2) + 32) / 50),
+};
+
+/** Total EXP a species has at a level. Null when the species has no rate. */
+function expForLevel(species, level) {
+	const rate = growthRateOf(species);
+	if (!rate || level < 1) return null;
+	if (level === 1) return 0;
+	return GROWTH_FORMULAS[rate](level);
+}
+
+/** The level a species sits at with a given EXP total. */
+function levelFromExp(species, exp) {
+	const rate = growthRateOf(species);
+	if (!rate || exp < 0) return null;
+	let level = 1;
+	while (level < 100 && GROWTH_FORMULAS[rate](level + 1) <= exp) level++;
+	return level;
+}
+
 /** Counts, for gates and for a consumer wanting to state coverage. */
 function coverage() {
 	const encounters = load('encounters');
@@ -214,6 +260,7 @@ function coverage() {
 		levelUpSpecies: Object.keys(learnsets.levelUp).length,
 		teachableSpecies: Object.keys(learnsets.teachable).length,
 		eggSpecies: Object.keys(learnsets.egg).length,
+		growthRatedSpecies: Object.keys(load('growth')).length,
 	};
 }
 
@@ -240,5 +287,6 @@ module.exports = {
 	maps, getMap, encountersOn, whereToFind,
 	evolutionsOf, preEvolutionOf, lineageOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
+	growthRateOf, expForLevel, levelFromExp,
 	coverage, LIMITS,
 };

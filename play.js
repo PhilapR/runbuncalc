@@ -421,4 +421,4 @@ if (require.main === module) {
 	}
 }
 
-module.exports = {main, parseArgs, renderStatus, renderEncounters, renderPlan, SUBCOMMANDS};
+module.exports = {main, parseArgs, renderStatus, renderEncounters, renderPlan, SUBCOMMANDS, USAGE};

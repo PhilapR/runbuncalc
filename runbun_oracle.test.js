@@ -223,3 +223,36 @@ test('every encounter species is a species the calculator knows', () => {
 	// mislabelled.
 	assert.deepEqual([...unknown], []);
 });
+
+test('growth rates come from the decomp, and the curves are the Gen 3 functions', () => {
+	// The rate assignment is hack data; the curve totals are the standard growth
+	// functions those constants have named since Ruby. L100 totals pin both at
+	// once — a wrong rate or a wrong formula lands on a different number.
+	assert.equal(oracle.growthRateOf('Mudkip'), 'medium-slow');
+	assert.equal(oracle.expForLevel('Mudkip', 100), 1059860);
+	assert.equal(oracle.growthRateOf('Rayquaza'), 'slow');
+	assert.equal(oracle.expForLevel('Rayquaza', 100), 1250000);
+	assert.equal(oracle.growthRateOf('Azumarill'), 'fast');
+	assert.equal(oracle.expForLevel('Azumarill', 100), 800000);
+	assert.equal(oracle.growthRateOf('Zigzagoon-Galar'), 'medium-fast');
+	assert.equal(oracle.expForLevel('Zigzagoon-Galar', 100), 1000000);
+	// The piecewise pair, at a boundary inside each curve.
+	const erratic = Object.keys(JSON.parse(require('node:fs').readFileSync(
+		'./profiles/run-and-bun/oracle/growth.json', 'utf8')))
+		.find(s => oracle.growthRateOf(s) === 'erratic');
+	assert.ok(erratic, 'some species must be on the erratic curve');
+	assert.equal(oracle.expForLevel(erratic, 100), 600000);
+	const fluctuating = Object.keys(JSON.parse(require('node:fs').readFileSync(
+		'./profiles/run-and-bun/oracle/growth.json', 'utf8')))
+		.find(s => oracle.growthRateOf(s) === 'fluctuating');
+	assert.equal(oracle.expForLevel(fluctuating, 100), 1640000);
+
+	// Level 1 is zero EXP by definition, and levelFromExp inverts expForLevel.
+	assert.equal(oracle.expForLevel('Mudkip', 1), 0);
+	assert.equal(oracle.levelFromExp('Mudkip', oracle.expForLevel('Mudkip', 36)), 36);
+	assert.equal(oracle.levelFromExp('Mudkip', oracle.expForLevel('Mudkip', 36) - 1), 35);
+	// Unknown species answer null, never a guess.
+	assert.equal(oracle.growthRateOf('MissingNo'), null);
+	assert.equal(oracle.expForLevel('MissingNo', 50), null);
+	assert.equal(oracle.coverage().growthRatedSpecies, 1016);
+});

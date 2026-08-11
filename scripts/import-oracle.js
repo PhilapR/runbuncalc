@@ -515,6 +515,53 @@ function importLearnsets(decomp, problems) {
 	return {levelUp, teachable, egg};
 }
 
+// ---------------------------------------------------------------- growth rates
+
+/**
+ * Each species' EXP growth curve, from `base_stats.h`.
+ *
+ * The rate NAME is per-species hack data (this hack reassigns none, but that is
+ * a finding, not an assumption). The curve FORMULAS the names refer to are
+ * standard Gen 3 mechanics and live in the oracle layer, not here — this
+ * import records only which curve each species is on.
+ *
+ * Entries are delimited by `[SPECIES_` head positions, the same
+ * preprocessor-proof approach the evolution importer uses.
+ */
+const GROWTH_NAMES = {
+	GROWTH_MEDIUM_FAST: 'medium-fast',
+	GROWTH_ERRATIC: 'erratic',
+	GROWTH_FLUCTUATING: 'fluctuating',
+	GROWTH_MEDIUM_SLOW: 'medium-slow',
+	GROWTH_FAST: 'fast',
+	GROWTH_SLOW: 'slow',
+};
+
+function importGrowth(decomp, problems) {
+	const source = fs.readFileSync(
+		path.join(decomp, 'species', 'base_stats.h'), 'utf8').replace(/\r/g, '');
+	const heads = [...source.matchAll(/\[(SPECIES_[A-Z0-9_]+)\]\s*=/g)];
+	const rates = {};
+	heads.forEach((head, i) => {
+		const species = resolveSpecies(head[1]);
+		if (!species) return;
+		const body = source.slice(head.index, i + 1 < heads.length ? heads[i + 1].index : undefined);
+		const match = body.match(/\.growthRate\s*=\s*(GROWTH_[A-Z_]+)/);
+		if (!match) {
+			// Entries defined via macros (OMANYTE_MISC etc.) inherit a shared
+			// growthRate; only a species with NO resolvable rate is a problem.
+			return;
+		}
+		const rate = GROWTH_NAMES[match[1]];
+		if (!rate) {
+			problems.push(`base_stats.h: unknown growth rate ${match[1]} on ${head[1]}`);
+			return;
+		}
+		if (!rates[species]) rates[species] = rate;
+	});
+	return rates;
+}
+
 // ------------------------------------------------------------------------ main
 
 function write(name, value, summary) {
@@ -536,6 +583,7 @@ function main(argv) {
 	const encounters = importEncounters(decomp, problems);
 	const evolutions = importEvolutions(decomp, problems);
 	const learnsets = importLearnsets(decomp, problems);
+	const growth = importGrowth(decomp, problems);
 
 	// A partial import is worse than none: a short encounter table is
 	// indistinguishable from a route with fewer Pokemon on it.
@@ -554,6 +602,7 @@ function main(argv) {
 		`${Object.keys(learnsets.levelUp).length} level-up, ` +
 		`${Object.keys(learnsets.teachable).length} teachable, ` +
 		`${Object.keys(learnsets.egg).length} egg`);
+	write('growth.json', growth, `${Object.keys(growth).length} species rated`);
 }
 
 if (require.main === module) {
@@ -566,4 +615,4 @@ if (require.main === module) {
 }
 
 module.exports = {resolveSpecies, resolveMove, resolveItem, importEncounters,
-	importEvolutions, importLearnsets};
+	importEvolutions, importLearnsets, importGrowth};
