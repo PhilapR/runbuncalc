@@ -458,11 +458,24 @@ function matchup(options) {
 	};
 }
 
+/**
+ * Can a Pokemon hold this, as far as the calculator is concerned?
+ *
+ * A bag holds whatever the player says it holds — Rare Candy, Heart Scales,
+ * a bike — and most of it is not a held item. A caller building candidate
+ * builds asks here first, because the alternative is discovering it as the
+ * refusal `playerStateFromEntry` throws halfway through a grid. Same gen and
+ * same lookup as that check, so the two can never disagree.
+ */
+function holdableItem(name) {
+	return !!(name && calc.Generations.get(8).items.get(calc.toID(name)));
+}
+
 function clone(value) {
 	return JSON.parse(JSON.stringify(value));
 }
 
 module.exports = {
 	loadRunMap, listFights, getFight, upcoming, buildFightState, predict,
-	playerStateFromEntry, matchup,
+	playerStateFromEntry, matchup, holdableItem,
 };

@@ -2779,3 +2779,68 @@ table.field {
 	font-size: 0.62rem;
 	opacity: 0.85;
 }
+
+/* The upgrade advisor: ten one-line changes, ranked. A grid rather than a
+   table because every row is the same five fields and the player is choosing
+   one, not reading across — and the numbers hold their columns so the ranking
+   is visible without reading a single figure. */
+#runbun-run .runbun-run-advice-block {
+	margin-top: var(--rb-space-md);
+}
+#runbun-run .runbun-run-advice-note {
+	margin: 0 0 var(--rb-space-xs);
+	color: var(--rb-ink-muted);
+	font-size: 0.78rem;
+}
+#runbun-run .runbun-run-advice {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 46rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	overflow: hidden;
+}
+#runbun-run .runbun-run-advice-row {
+	display: grid;
+	grid-template-columns: minmax(7rem, 1fr) 4.5rem minmax(8rem, 2fr) 4rem 3.5rem;
+	gap: var(--rb-space-sm);
+	align-items: baseline;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-advice-row + .runbun-run-advice-row {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-advice-row:first-child {
+	background: var(--rb-brand-soft);
+	font-weight: 600;
+}
+#runbun-run .runbun-run-advice-who,
+#runbun-run .runbun-run-advice-what {
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-advice-kind {
+	color: var(--rb-ink-muted);
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+#runbun-run .runbun-run-advice-ko,
+#runbun-run .runbun-run-advice-damage {
+	font-family: var(--rb-font-mono);
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+	color: var(--rb-ink-muted);
+}
+/* A flipped cell is the whole point of the list, so it is the one thing on the
+   row that carries colour. */
+#runbun-run .runbun-run-advice-ko.is-ko {
+	color: var(--rb-danger);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-advice-empty {
+	padding: var(--rb-space-sm);
+	color: var(--rb-ink-muted);
+	font-size: 0.8rem;
+}

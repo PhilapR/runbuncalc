@@ -182,6 +182,42 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.ok(cells.length >= 2, 'both directions should render cells');
 	assert.ok(cells.every(text => /%|—/.test(text)), 'every cell is a percent or an honest dash');
 
+	// The Heart Scale button is never disabled, so the refusal is what a player
+	// with an empty bag reads — and it has to name which of the two reasons
+	// stopped it, or a greyed-out button would have said more.
+	await page.click('.runbun-run-mon[data-id="mon-1"]');
+	await page.selectOption('#runbun-run-iv-stat', 'spe');
+	await page.click('#runbun-run-heartscale');
+	await page.waitForFunction(
+		() => /no shop sells them/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+
+	// With one in the bag it spends, and the box records the IV.
+	await page.fill('#runbun-run-acquire-item', 'Heart Scale');
+	await page.click('#runbun-run-acquire');
+	await page.waitForFunction(
+		() => /Heart Scale x1/.test(document.querySelector('#runbun-run-bag').textContent),
+		null, {timeout: 10000});
+	await page.click('#runbun-run-heartscale');
+	await page.waitForFunction(
+		() => /Speed IV unrecorded → 31/.test(
+			document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	assert.equal((await savedRun(page)).box[0].ivs.spe, 31);
+
+	// The advisor: the same board, read as "what do I change about it".
+	await page.click('#runbun-run-advise');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-advice .runbun-run-advice-row').length > 0,
+		null, {timeout: 30000});
+	assert.match(await page.textContent('#runbun-run-advice-note'),
+		/Youngster Calvin \(#0\) · \d+ single changes weighed/);
+	const rows = await page.$$eval('#runbun-run-advice .runbun-run-advice-row',
+		els => els.map(el => el.textContent));
+	assert.ok(rows.length <= 10, 'the advisor offers a shortlist, not a catalogue');
+	assert.ok(/Scout/.test(rows[0]), 'each row names the Pokemon it would change');
+	assert.ok(rows.some(text => /KO/.test(text)), 'a flipped cell is why the list is ordered');
+
 	assert.deepEqual(session.errors, [], `page raised errors: ${session.errors.join('; ')}`);
 	await session.context.close();
 });

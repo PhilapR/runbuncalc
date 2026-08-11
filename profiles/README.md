@@ -43,6 +43,7 @@ L5 exists as `planner.js`, reachable over HTTP:
 | `GET /planner/fight?trainer=` | one trainer's party |
 | `POST /planner/predict` | the opponent's ranked actions and a decision margin |
 | `POST /run/matrix` | every alive box mon vs every mon in a fight, both directions |
+| `POST /run/advise` | the single changes that most improve the party's own rows of that board |
 
 It owns no rules — parties come from the run map, damage from the calculator,
 decisions from the policy — so a wrong answer there is a bug in a layer beneath
@@ -66,6 +67,13 @@ the other side: it grades every pair through the policy's own damage facts, so
 its KO and speed calls agree by construction with every other number the
 product shows, and `run.boxMatrix` is the thin L6 wrapper that feeds it the
 projected box.
+
+`run.adviseUpgrades` is the rule at its sharpest. Ranking changes needs a
+learnset, a bag and an IV table — three things the planner must never learn
+about — so the candidate builds are enumerated at L6 and each is handed DOWN as
+an ordinary one-mon `playerParty`. The planner sees a party spec, exactly as it
+would from a hypothetical team nobody owns, and every score in the shortlist is
+a `planner.matchup` row rather than a heuristic about types or base stats.
 
 L0–L1 is a calculator. L3 is an opponent oracle. L4–L5 is a fight planner. L6 is
 a playthrough. The same primitives serve a player who wants one number and a

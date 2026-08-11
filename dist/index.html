@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?16b745b1" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?49bb09b4" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1940,7 +1940,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
-    <script type="text/javascript" src="./js/run_panel.js?2e7c6d73"></script>
+    <script type="text/javascript" src="./js/run_panel.js?e9ad9918"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2273,6 +2273,14 @@
                 <ul id="runbun-run-box" class="runbun-run-box" aria-labelledby="runbun-run-box-heading"></ul>
                 <div class="runbun-run-section-label runbun-run-bag-label">Bag</div>
                 <div id="runbun-run-bag" class="runbun-run-bag"></div>
+                <!-- The bag was read-only here, which left the panel unable to
+                     record the two items the game's economies run on: Rare
+                     Candy over the cap, and Heart Scales for IVs. -->
+                <div class="runbun-run-row">
+                    <input type="text" id="runbun-run-acquire-item" placeholder="Item found" spellcheck="false">
+                    <input type="number" id="runbun-run-acquire-count" placeholder="x" min="1" value="1">
+                    <button type="button" id="runbun-run-acquire" class="btn btn-wide">Add to bag</button>
+                </div>
 
                 <div class="runbun-run-section-label" id="runbun-run-party-heading">Party &mdash; lead first</div>
                 <ol id="runbun-run-party-strip" class="runbun-run-party-strip" aria-labelledby="runbun-run-party-heading"></ol>
@@ -2319,6 +2327,21 @@
                     <input type="text" id="runbun-run-replace" placeholder="Replace" spellcheck="false">
                     <button type="button" id="runbun-run-teach" class="btn btn-wide">Teach</button>
                 </div>
+                <!-- The IV economy: a Heart Scale is found, never sold, and sets
+                     exactly one IV to 31. The button is always live — the server
+                     names the reason (no scale in the bag, that IV already 31),
+                     and the reason is the thing worth reading. -->
+                <div class="runbun-run-row">
+                    <select id="runbun-run-iv-stat" aria-label="Which IV a Heart Scale would set to 31">
+                        <option value="hp">HP</option>
+                        <option value="atk">Attack</option>
+                        <option value="def">Defense</option>
+                        <option value="spa">Sp. Atk</option>
+                        <option value="spd">Sp. Def</option>
+                        <option value="spe">Speed</option>
+                    </select>
+                    <button type="button" id="runbun-run-heartscale" class="btn btn-xwide" title="One Heart Scale from the bag sets that IV to 31">Heart Scale</button>
+                </div>
                 <div class="runbun-run-row">
                     <input type="text" id="runbun-run-died-to" placeholder="To (trainer, optional)" spellcheck="false">
                     <input type="text" id="runbun-run-died-move" placeholder="By (move, optional)" spellcheck="false">
@@ -2348,10 +2371,17 @@
         </div>
         <div class="runbun-run-row runbun-run-actions-row">
             <button type="button" id="runbun-run-plan" class="btn btn-xxwide rb-btn-primary">Plan the next fight</button>
+            <button type="button" id="runbun-run-advise" class="btn btn-xxwide" title="Every teachable move, bag item and recorded IV, priced against that fight">Advise</button>
             <button type="button" id="runbun-run-undo" class="btn btn-wide">Undo</button>
         </div>
         <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>
         <div id="runbun-run-plan-actions" class="runbun-run-plan-actions" role="list"></div>
+
+        <div class="runbun-run-advice-block">
+            <div class="runbun-run-section-label" id="runbun-run-advice-heading">What to change</div>
+            <p id="runbun-run-advice-note" class="runbun-run-advice-note">Press Advise to price every teachable move, every bag item and every recorded IV against the fight ahead.</p>
+            <ol id="runbun-run-advice" class="runbun-run-advice" aria-labelledby="runbun-run-advice-heading"></ol>
+        </div>
 
         <div class="runbun-run-matrix-block">
             <div class="runbun-run-section-label" id="runbun-run-matrix-heading">Matchup board</div>

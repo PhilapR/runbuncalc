@@ -521,6 +521,62 @@
 		});
 	}
 
+	// --------------------------------------------------------- upgrade advisor
+
+	/**
+	 * The shortlist, one row per change.
+	 *
+	 * Compact on purpose: the player is choosing between ten one-line options,
+	 * not reading a report. KO delta leads because it is what decides the
+	 * fight; the damage figure is bars of HP summed across the trainer, so it
+	 * only breaks ties between changes that flip the same number of cells.
+	 */
+	function renderAdvice(payload) {
+		var byId = {};
+		payload.party.forEach(function (mon) { byId[mon.id] = mon; });
+		$('#runbun-run-advice-note').text(
+			payload.trainer + ' (#' + payload.order + ') · ' +
+			payload.considered + ' single changes weighed' +
+			(payload.projection.applied && payload.projection.from === 'projected' ?
+				' · party at cap ' + payload.projection.cap : ''));
+		var $list = $('#runbun-run-advice').empty();
+		if (!payload.upgrades.length) {
+			$list.append($('<li class="runbun-run-advice-empty"></li>')
+				.text('Nothing in the party, the bag or its learnsets moves this board.'));
+			return;
+		}
+		payload.upgrades.forEach(function (entry) {
+			var mon = byId[entry.id] || {};
+			var net = entry.delta.koGained - entry.delta.koConceded;
+			$list.append($('<li class="runbun-run-advice-row"></li>')
+				.append($('<span class="runbun-run-advice-who"></span>')
+					.text((mon.nickname || mon.species || entry.id) + ' ' + entry.id))
+				.append($('<span class="runbun-run-advice-kind"></span>').text(entry.kind))
+				.append($('<span class="runbun-run-advice-what"></span>').text(entry.detail))
+				.append($('<span class="runbun-run-advice-ko"></span>')
+					.toggleClass('is-ko', net > 0)
+					.text(net > 0 ? '+' + net + ' KO' : ''))
+				.append($('<span class="runbun-run-advice-damage"></span>')
+					.attr('title', 'bars of HP, summed across the fight' +
+						(entry.delta.koConceded ?
+							' · ' + entry.delta.koConceded + ' KO conceded' : ''))
+					.text((entry.delta.damage >= 0 ? '+' : '') +
+						entry.delta.damage.toFixed(2))));
+		});
+	}
+
+	function advise(trainer) {
+		status('Pricing every change against that fight…', '');
+		var body = {run: state};
+		if (trainer) body.trainer = trainer;
+		api('/run/advise', body).then(function (payload) {
+			renderAdvice(payload);
+			status('', '');
+		}).catch(function (error) {
+			status(error.message, 'error');
+		});
+	}
+
 	// ---------------------------------------------------------- matchup board
 
 	/**
@@ -791,6 +847,27 @@
 				}
 			});
 		});
+		$('#runbun-run-acquire').on('click', function () {
+			// One-shot like the catch fields: an item name left in the box is one
+			// stray click away from a bag that says the run found it twice.
+			command({
+				kind: 'acquire',
+				item: $('#runbun-run-acquire-item').val(),
+				count: Number($('#runbun-run-acquire-count').val()) || 1,
+			}).then(function (accepted) {
+				if (accepted) {
+					$('#runbun-run-acquire-item').val('');
+					$('#runbun-run-acquire-count').val(1);
+				}
+			});
+		});
+		$('#runbun-run-heartscale').on('click', function () {
+			// No client-side guard on the bag or the current IV: the server's
+			// refusal names which of the two stopped it, and that sentence is
+			// more use than a greyed-out button.
+			command({kind: 'heartScale', id: $('#runbun-run-selected').val(),
+				stat: $('#runbun-run-iv-stat').val()});
+		});
 		$('#runbun-run-release').on('click', function () {
 			command({kind: 'release', id: $('#runbun-run-selected').val()});
 		});
@@ -827,6 +904,10 @@
 			command({kind: 'beat', trainer: $(this).attr('data-trainer')});
 		});
 		$('#runbun-run-plan').on('click', function () { plan(null); });
+		// Next fight only, unlike Plan and Board which sit on every row ahead:
+		// this call prices hundreds of candidate builds through the policy, and
+		// a button on 362 rows would invite it once per row.
+		$('#runbun-run-advise').on('click', function () { advise(null); });
 
 		$('#runbun-run-undo').on('click', function () {
 			mutate(function () {

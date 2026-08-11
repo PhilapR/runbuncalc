@@ -292,3 +292,44 @@ test('matrix renders the whole box against a trainer, both directions', () => {
 	assert.match(brawly, / KO\b/);
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'matrix wrote to the save');
 });
+
+test('heartscale spends from the bag and refuses with the reason', () => {
+	cli('new');
+	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
+	// The IV has to be recorded before a scale can be spent on it — the bag
+	// refusal comes first, so this is the empty-bag path.
+	assert.throws(() => cli('heartscale', 'mon-1', 'spe'),
+		/no shop sells them — need 1, the bag has 0/);
+	assert.deepEqual(read().bag, {});
+
+	cli('acquire', 'Heart', 'Scale', '--count', '2');
+	assert.equal(cli('heartscale', 'mon-1', 'spe'),
+		'Poochyena (mon-1) Speed IV unrecorded → 31 (Heart Scale spent, 1 left)');
+	assert.equal(read().box[0].ivs.spe, 31);
+	assert.deepEqual(read().bag, {'Heart Scale': 1});
+
+	// A second scale on the same stat buys nothing, and the save is untouched.
+	const before = fs.readFileSync(file, 'utf8');
+	assert.throws(() => cli('heartscale', 'mon-1', 'spe'),
+		/already has a 31 Speed IV/);
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'a refusal must not write');
+
+	cli('undo');
+	assert.deepEqual(read().bag, {'Heart Scale': 2}, 'undo puts the scale back');
+	assert.deepEqual(read().box[0].ivs, {});
+});
+
+test('advise ranks single changes against a fight without writing', () => {
+	cli('new');
+	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
+	cli('party', 'mon-1');
+	const before = fs.readFileSync(file, 'utf8');
+
+	const advice = cli('advise');
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'advise wrote to the save');
+	assert.match(advice, /Youngster Calvin \(#0\) — \d+ single changes weighed/);
+	assert.match(advice, /party at the cap it is fought under: L12/);
+	// Poochyena knows only Tackle; Play Rough is the change that flips a cell,
+	// and it leads the list with the KO it gains.
+	assert.match(advice, /^ {2}mon-1 {3}Poochyena {5}teach {7}Play Rough.*\+1 KO {2}\+\d+\.\d\d bars$/m);
+});

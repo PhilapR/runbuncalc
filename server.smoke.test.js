@@ -991,3 +991,54 @@ test('the box matrix is served whole, and an unknown trainer is a 400', async ()
 	assert.equal(empty.status, 400);
 	assert.match(empty.body.error, /no Pokemon in the box to compare/);
 });
+
+test('the advisor answers over HTTP, and refuses with the reason', async () => {
+	let run = await newRun();
+	run = (await requestJson('/run/apply',
+		{run, command: {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}})).body.run;
+
+	// An empty party is a refusal, not a 500: nothing has been chosen to improve.
+	const noParty = await requestJson('/run/advise', {run});
+	assert.equal(noParty.status, 400);
+	assert.equal(noParty.body.code, 'InvalidRunCommand');
+	assert.match(noParty.body.error, /the party is empty/);
+
+	run = (await requestJson('/run/apply',
+		{run, command: {kind: 'party', ids: ['mon-1']}})).body.run;
+
+	const advice = await requestJson('/run/advise', {run});
+	assert.equal(advice.status, 200);
+	assert.equal(advice.body.trainer, 'Youngster Calvin');
+	assert.equal(advice.body.order, 0);
+	assert.ok(advice.body.considered > 0);
+	// The same projection the board sends, because these are the board's numbers.
+	assert.deepEqual(advice.body.projection, {applied: true, cap: 12, from: 'projected'});
+	assert.deepEqual(advice.body.party, [{id: 'mon-1', species: 'Poochyena', nickname: null,
+		level: 12, from: 3}]);
+	// The shortlist arrives whole — ten one-line changes IS the answer.
+	assert.ok(advice.body.upgrades.length > 0 && advice.body.upgrades.length <= 10);
+	const top = advice.body.upgrades[0];
+	assert.equal(top.kind, 'teach');
+	assert.equal(top.id, 'mon-1');
+	assert.equal(top.detail, 'Play Rough');
+	assert.deepEqual(Object.keys(top.delta).sort(), ['damage', 'koConceded', 'koGained']);
+	assert.equal(top.delta.koGained, 1);
+
+	// A misnamed trainer keeps its near-misses, like every other run endpoint.
+	const unknown = await requestJson('/run/advise', {run, trainer: 'Brawly'});
+	assert.equal(unknown.status, 400);
+	assert.match(unknown.body.error, /no fight named "Brawly".*did you mean: Leader Brawly/s);
+
+	// And a Heart Scale spent over HTTP comes back in the run, out of the bag.
+	const held = (await requestJson('/run/apply',
+		{run, command: {kind: 'acquire', item: 'Heart Scale'}})).body.run;
+	const spent = await requestJson('/run/apply',
+		{run: held, command: {kind: 'heartScale', id: 'mon-1', stat: 'spd'}});
+	assert.equal(spent.status, 200);
+	assert.deepEqual(spent.body.run.box[0].ivs, {spd: 31});
+	assert.deepEqual(spent.body.run.bag, {});
+	const empty = await requestJson('/run/apply',
+		{run: spent.body.run, command: {kind: 'heartScale', id: 'mon-1', stat: 'spa'}});
+	assert.equal(empty.status, 400);
+	assert.match(empty.body.error, /need 1, the bag has 0/);
+});

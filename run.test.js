@@ -1117,3 +1117,136 @@ test('the box matrix leaves out Pokemon that are gone for good', () => {
 	// An empty box is refused with a reason rather than compared to nothing.
 	assert.throws(() => run.boxMatrix(fresh()), /no Pokemon in the box to compare/);
 });
+
+test('a Heart Scale sets one IV to 31, out of a bag that has one', () => {
+	// The game's other economy. Rare Candy buys levels over the cap; a Heart
+	// Scale buys one perfect stat, from a supply the map hands out and no Mart
+	// stocks — so it is spent, not assumed.
+	let state = run.apply(fresh(),
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, ivs: {spe: 5, atk: 31}});
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', stat: 'spe'}),
+		/no shop sells them — need 1, the bag has 0/);
+
+	state = run.apply(state, {kind: 'acquire', item: 'Heart Scale', count: 2});
+	// A perfect IV is refused BEFORE the bag is touched, and names the value:
+	// spending a scarce item on nothing is the mistake worth refusing.
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', stat: 'atk'}),
+		/already has a 31 Attack IV; a Heart Scale would buy nothing/);
+	assert.deepEqual(state.bag, {'Heart Scale': 2}, 'a refusal must not spend');
+	// The stat is an `ivs` key, because that is what the box stores and what the
+	// calculator reads; a display name is not one.
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', stat: 'speed'}),
+		/stat must be one of hp, atk, def, spa, spd, spe; got "speed"/);
+
+	const spent = run.apply(state, {kind: 'heartScale', id: 'mon-1', stat: 'spe'});
+	assert.equal(spent.box[0].ivs.spe, 31);
+	assert.deepEqual(spent.bag, {'Heart Scale': 1}, 'one scale spent, one left');
+	assert.equal(spent.log[spent.log.length - 1].summary,
+		'Poochyena (mon-1) Speed IV 5 → 31 (Heart Scale spent, 1 left)');
+	// The last scale leaves the bag rather than sitting there as a zero.
+	assert.deepEqual(run.apply(spent, {kind: 'heartScale', id: 'mon-1', stat: 'spa'}).bag, {});
+
+	// An IV the box never recorded already reaches the calculator as 31, so
+	// scaling it records a fact rather than buying a stat. Allowed, and said.
+	assert.match(run.apply(state, {kind: 'heartScale', id: 'mon-1', stat: 'def'})
+		.log.slice(-1)[0].summary, /Defense IV unrecorded → 31/);
+
+	// Undo is the log replayed without its last entry, so a command that spends
+	// from the bag has to come back byte-identical or the economy drifts.
+	assert.equal(JSON.stringify(run.undo(spent)), JSON.stringify(state));
+	assert.deepEqual(JSON.parse(JSON.stringify(spent)), spent, 'a run must survive JSON');
+});
+
+test('the advisor prices single changes by what they do to the board', () => {
+	const state = run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, ivs: {spe: 5}},
+		{kind: 'party', ids: ['mon-1']},
+		{kind: 'acquire', item: 'Heart Scale'},
+		{kind: 'acquire', item: 'Rare Candy', count: 3},
+		{kind: 'acquire', item: 'Choice Band'},
+	]);
+	const before = JSON.stringify(state);
+	const advice = run.adviseUpgrades(state);
+	assert.equal(JSON.stringify(state), before, 'asking a question must not move the run');
+	assert.equal(advice.trainer, 'Youngster Calvin');
+	assert.equal(advice.order, 0);
+	// The board's projection, because it is the board's numbers: a level 3 catch
+	// stands in front of that grunt at 12.
+	assert.deepEqual(advice.projection, {applied: true, cap: 12, from: 'projected'});
+	assert.deepEqual(advice.party, [{id: 'mon-1', species: 'Poochyena', nickname: null,
+		level: 12, from: 3}]);
+
+	// The candidate set is every move it can learn NOW, every HOLDABLE bag item,
+	// and one scale per recorded sub-31 IV. Rare Candy and the Heart Scale are
+	// both in the bag and in neither list: the calculator cannot hold them, so a
+	// build made of them is not a build.
+	const teachable = run.learnable(state, 'mon-1').now.length;
+	assert.equal(advice.considered, teachable + 1 + 1);
+
+	// The deterministic case. Poochyena knows only Tackle, which leaves the
+	// grunt's own Poochyena standing; Play Rough turns that cell into a
+	// guaranteed KO, and the advisor has to find it without being told.
+	const top = advice.upgrades[0];
+	assert.deepEqual({kind: top.kind, id: top.id, detail: top.detail},
+		{kind: 'teach', id: 'mon-1', detail: 'Play Rough'});
+	assert.equal(top.delta.koGained, 1);
+	assert.equal(top.delta.koConceded, 0);
+	assert.ok(top.delta.damage > 0, 'a flipped cell also moves the damage');
+
+	// And the claim is the BOARD's claim, cell for cell — the advisor scores by
+	// rebuilding the row through the planner, so an upgrade can never disagree
+	// with the grid a player reads next to it.
+	const planner = require('./planner');
+	const specs = run.partySpecs(state, {atOrder: 0});
+	const ko = payload => payload.grid.filter(cell => cell.versus[0].us.guaranteedKO).length;
+	assert.equal(ko(planner.matchup({trainer: 'Youngster Calvin', playerParty: specs,
+		profileId: state.profileId})), 0);
+	assert.equal(ko(planner.matchup({trainer: 'Youngster Calvin', profileId: state.profileId,
+		playerParty: [Object.assign({}, specs[0],
+			{moves: specs[0].moves.concat(['Play Rough'])})]})), 1);
+
+	// Best first, capped at ten, and nothing in it that changes nothing: a
+	// shortlist padded with moves worth zero has told the player nothing.
+	assert.ok(advice.upgrades.length <= 10);
+	const net = advice.upgrades.map(e => e.delta.koGained - e.delta.koConceded);
+	assert.deepEqual(net.slice().sort((a, b) => b - a), net);
+	for (const entry of advice.upgrades) {
+		assert.ok(net[advice.upgrades.indexOf(entry)] > 0 || entry.delta.damage > 0,
+			`${entry.detail} improves nothing and should not be listed`);
+	}
+	// Deterministic: the same run must produce the same shortlist twice.
+	assert.deepEqual(run.adviseUpgrades(state).upgrades, advice.upgrades);
+});
+
+test('the advisor only offers a Heart Scale it can pay for and price', () => {
+	const box = {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, ivs: {spe: 5}};
+	const teachable = run.learnable(
+		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), 'mon-1').now.length;
+
+	// No scale in the bag, no scale candidate: the advisor ranks changes a
+	// player can make today, not ones they could make after finding an item.
+	assert.equal(run.adviseUpgrades(
+		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}])).considered, teachable);
+
+	// An IV the box never recorded is not a candidate either. It already reaches
+	// the calculator as 31, so scaling it would score a flat zero and read as
+	// "this does nothing" when the truth is "nobody has told this run what that
+	// IV is".
+	assert.equal(run.adviseUpgrades(run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+		{kind: 'acquire', item: 'Heart Scale'},
+	])).considered, teachable);
+});
+
+test('the advisor refuses what it cannot answer, with the reason', () => {
+	// The party, not the box: six mons times their learnsets is already hundreds
+	// of policy evaluations, and which six is the board's question, not this one.
+	assert.throws(() => run.adviseUpgrades(fresh()),
+		/the party is empty: add Pokemon to the party/);
+	const state = run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+	assert.throws(() => run.adviseUpgrades(state, 'Leader Brawley'), /no fight named/);
+});

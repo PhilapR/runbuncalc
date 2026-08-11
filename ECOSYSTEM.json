@@ -16,9 +16,9 @@
 			"localPath": "/workspace/pokemon-mono",
 			"capabilities": [
 				{
-					"name": "Heart Scale = set one IV to 31 (Run & Bun mechanic) — SOUND, PORT THIS",
+					"name": "Heart Scale = set one IV to 31 (Run & Bun mechanic) — SOUND, PORTED",
 					"paths": ["engines/rlm/src/pokemon_rlm/simulator/inventory.py"],
-					"notes": "use_heart_scale(bag, pokemon, stat): refuses at 31, consumes from bag, recalculates stats. heart_scales_to_max, iv_quality_rating. Not shop-buyable, sell 100. Graded 2026-08-11: small, correct, and the one genuinely unique capability in engines/rlm — validated by execution."
+					"notes": "use_heart_scale(bag, pokemon, stat): refuses at 31, consumes from bag, recalculates stats. heart_scales_to_max, iv_quality_rating. Not shop-buyable, sell 100. Graded 2026-08-11: small, correct, and the one genuinely unique capability in engines/rlm — validated by execution. Ported 2026-08-11 as the run command `heartScale`: same three refusals, spent from run.bag, and the IV feeds the planner directly because the box already stores calc spat keys."
 				},
 				{
 					"name": "Cross-engine evidence tier — GRADE runbuncalc WITH IT, NEVER MERGE IT IN",

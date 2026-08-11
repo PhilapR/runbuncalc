@@ -24,7 +24,7 @@
  * needs no `--file` at all.
  *
  * Read-only subcommands (`status`, `box`, `where`, `find`, `learn`, `next`,
- * `plan`, `matrix`, `log`, `milestones`) do not write, so they are safe to run
+ * `plan`, `matrix`, `advise`, `log`, `milestones`) do not write, so they are safe to run
  * mid-thought without perturbing the save. `READ_ONLY` below is the list that
  * enforces it.
  */
@@ -183,6 +183,35 @@ function renderMatrix(matrix) {
 				`${`${name} L${row.level}`.padEnd(28)}` +
 				`${renderMatchupSide(row.us).padEnd(26)}${renderMatchupSide(row.them)}`);
 		});
+	}
+	return lines.join('\n');
+}
+
+/**
+ * The advisor's shortlist: one line per change, best first.
+ *
+ * KOs lead because that is what decides a fight — a cell flipping to a
+ * guaranteed KO takes a Pokemon off the board, and chip only makes the same
+ * exchange closer. The damage column is the tie-break, in bars of the
+ * defender's HP summed across the fight, so a `+1.5` is a move that adds one
+ * and a half health bars of hurt over the whole trainer.
+ */
+function renderAdvice(advice) {
+	const lines = [`${advice.trainer} (#${advice.order}) — ${advice.considered} single changes weighed`];
+	if (advice.projection.applied && advice.projection.from === 'projected') {
+		lines.push(`  party at the cap it is fought under: L${advice.projection.cap}`);
+	}
+	if (!advice.upgrades.length) {
+		lines.push('  nothing in the party, the bag or its learnsets moves this board');
+		return lines.join('\n');
+	}
+	for (const entry of advice.upgrades) {
+		const mon = advice.party.find(member => member.id === entry.id);
+		const net = entry.delta.koGained - entry.delta.koConceded;
+		lines.push(`  ${entry.id.padEnd(7)} ${(mon ? mon.species : '?').padEnd(14)}` +
+			`${entry.kind.padEnd(11)} ${entry.detail.padEnd(32)}` +
+			`${(net > 0 ? `+${net} KO` : '').padStart(6)}  ` +
+			`${entry.delta.damage >= 0 ? '+' : ''}${entry.delta.damage.toFixed(2)} bars`);
 	}
 	return lines.join('\n');
 }
@@ -348,6 +377,18 @@ const SUBCOMMANDS = {
 		return {command: {kind: 'take', id: args.positional[0]}};
 	},
 
+	/**
+	 * Spend a Heart Scale on one IV. The stat is an `ivs` key, not a display
+	 * name, because that is what the box stores and what the calculator reads.
+	 */
+	heartscale(state, args) {
+		return {command: {
+			kind: 'heartScale',
+			id: args.positional[0],
+			stat: args.positional[1],
+		}};
+	},
+
 	acquire(state, args) {
 		return {
 			command: {
@@ -491,6 +532,15 @@ const SUBCOMMANDS = {
 			args.positional.length ? args.positional.join(' ') : undefined))};
 	},
 
+	/**
+	 * What to change before a fight: one move, one item or one Heart Scale,
+	 * ranked by what it does to the party's own rows of the board.
+	 */
+	advise(state, args) {
+		return {message: renderAdvice(runtime.adviseUpgrades(state,
+			args.positional.length ? args.positional.join(' ') : undefined))};
+	},
+
 	undo(state) {
 		const undone = runtime.undo(state);
 		const dropped = state.log[state.log.length - 1];
@@ -507,7 +557,7 @@ const SUBCOMMANDS = {
 
 /** Subcommands that never write, so they can run against a save freely. */
 const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
-	'log', 'milestones', 'split', 'routes', 'graveyard']);
+	'advise', 'log', 'milestones', 'split', 'routes', 'graveyard']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -522,6 +572,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   learn <id>                                      what it can learn, now and later
   teach <id> <move> [--replace M]                 teach a move
   give <id> <item> / take <id>                    hold items
+  heartscale <id> <stat>                          spend one: sets an IV (hp/atk/def/spa/spd/spe) to 31
   acquire <item> [--count N]                      add to the bag
   party <id> [<id>...]                            set the party, in order
   nickname <id> <name>                            rename
@@ -531,6 +582,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   beat <trainer>                                  move the run forward
   next [--count N] / plan [trainer]               what is ahead, and what it does
   matrix [trainer]                                the whole box against theirs, both ways
+  advise [trainer]                                the single changes that most move that board
   routes [--all]                                  routes still holding an encounter
   split                                           this split: boss, cap, gauntlet, filler
   milestones                                      the story spine, beaten and ahead
@@ -579,6 +631,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-	main, parseArgs, renderStatus, renderEncounters, renderPlan, renderMatrix,
+	main, parseArgs, renderStatus, renderEncounters, renderPlan, renderMatrix, renderAdvice,
 	SUBCOMMANDS, READ_ONLY, USAGE,
 };

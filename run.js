@@ -24,7 +24,7 @@
  * never mutates the old one. That is what makes undo a one-liner and what lets
  * the UI show a change before committing it. The command list is deliberately
  * small and concrete — `catch`, `evolve`, `teach`, `levelUp`, `give`, `take`,
- * `party`, `beat`, `faint`, `release` — because a playthrough really is that
+ * `heartScale`, `party`, `beat`, `faint`, `release` — because a playthrough really is that
  * short a list of verbs, and a generic "edit this field" command would give up
  * every check below.
  *
@@ -41,6 +41,10 @@
  *   teach    the move must be legal for the species by level-up, TM, tutor or
  *            an egg move inherited down the line
  *   levelUp  respects the level cap when the run declares one
+ *
+ * The two scarce items are checked the same way, because in this game they are
+ * rules rather than inventory: levels over the cap cost Rare Candy from the
+ * bag, and a Heart Scale sets exactly one IV to 31 and is gone.
  *
  * A catch with no map is still allowed, and that is not laziness: starters,
  * gifts, statics and trades are scripted events with no wild table anywhere in
@@ -89,6 +93,25 @@ const PARTY_LIMIT = 6;
  * portability seam.
  */
 const LEVEL_CAP_MODES = new Set(['none', 'next-milestone-ace']);
+
+/**
+ * The IV keys the box stores, with the names a log line wants.
+ *
+ * These are the calculator's own spat keys, so an IV set here reaches the
+ * planner without a translation table in between — the reason the box picked
+ * them in the first place.
+ */
+const IV_STATS = {
+	hp: 'HP', atk: 'Attack', def: 'Defense',
+	spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed',
+};
+
+/**
+ * Heart Scales are the game's IV economy: one scale sets ONE IV to 31, they
+ * are found rather than sold, and nothing refunds them. Named once because
+ * the bag key, the refusal and the advisor all have to agree on the spelling.
+ */
+const HEART_SCALE = 'Heart Scale';
 
 function clone(value) {
 	return JSON.parse(JSON.stringify(value));
@@ -783,6 +806,215 @@ function boxMatrix(run, trainer) {
 	return matrix;
 }
 
+// -------------------------------------------------------------- upgrade advisor
+
+/** How many changes the advisor reports. A shortlist, not a catalogue. */
+const ADVICE_LIMIT = 10;
+
+/** Guaranteed-KO cells on one side of a row, and the summed damage on it. */
+function countKO(row, side) {
+	return row.filter(cell => cell[side].guaranteedKO).length;
+}
+function sumMax(row, side) {
+	return row.reduce((total, cell) => total + cell[side].max, 0);
+}
+
+/**
+ * What a candidate did to one mon's row of the board.
+ *
+ * KOs first and damage only as a tie-break, because that is the order the
+ * fight decides things in: a cell that flips to a guaranteed KO removes a
+ * Pokemon from the fight, while chip damage only makes the same exchange
+ * closer. Both sides count — an item that gains us a KO and hands them two is
+ * not an upgrade, and a scoring function that only looked at our column would
+ * happily recommend it.
+ *
+ * The damage figure is rounded to a thousandth of a bar so float noise cannot
+ * decide the order of two otherwise identical candidates; the list has to come
+ * out the same on every call for the same run.
+ */
+function upgradeDelta(base, row) {
+	const gained = (sumMax(row, 'us') - sumMax(base, 'us')) -
+		(sumMax(row, 'them') - sumMax(base, 'them'));
+	return {
+		koGained: countKO(row, 'us') - countKO(base, 'us'),
+		koConceded: countKO(row, 'them') - countKO(base, 'them'),
+		damage: Math.round(gained * 1000) / 1000,
+	};
+}
+
+/**
+ * Which of four known moves a taught move would replace.
+ *
+ * The advisor has to name one to score one: the game gives four slots, so a
+ * fifth move is not a candidate, it is a different question. The move picked
+ * is the one THIS fight leans on least — never the best hit against any of the
+ * trainer's Pokemon, and failing that best against the fewest of them.
+ *
+ * The heuristic only chooses which candidate to price. The price is measured:
+ * the row is rebuilt with the four moves that survive, so whatever the swap
+ * costs shows up in the delta rather than being assumed away.
+ */
+function leastUsedMove(moves, base) {
+	const uses = new Map(moves.map(move => [move, 0]));
+	for (const cell of base) {
+		if (cell.us.move && uses.has(cell.us.move)) {
+			uses.set(cell.us.move, uses.get(cell.us.move) + 1);
+		}
+	}
+	// `reduce` keeps the earlier move on a tie, so the choice is stable.
+	return moves.reduce((worst, move) => uses.get(move) < uses.get(worst) ? move : worst, moves[0]);
+}
+
+/**
+ * Every single change one party member could make before this fight.
+ *
+ * Single is the whole point: a player between two fights teaches one move,
+ * hands over one item, spends one scale. Ranking combinations would rank
+ * plans nobody can execute in the time they have, and the search would be the
+ * product of three lists instead of their sum.
+ *
+ * Each candidate carries the SPEC it would produce, because the score is not
+ * estimated from the change — the row is rebuilt with it.
+ */
+function upgradeCandidates(run, mon, spec, base) {
+	const planner = require('./planner');
+	const list = [];
+
+	for (const entry of learnable(run, mon.id).now) {
+		const moves = spec.moves.slice();
+		let detail = entry.move;
+		if (moves.length >= 4) {
+			const dropped = leastUsedMove(moves, base);
+			moves[moves.indexOf(dropped)] = entry.move;
+			detail = `${entry.move} over ${dropped}`;
+		} else {
+			moves.push(entry.move);
+		}
+		list.push({kind: 'teach', detail, spec: Object.assign({}, spec, {moves})});
+	}
+
+	for (const item of Object.keys(run.bag).sort()) {
+		// Most of a bag is not a held item — Rare Candy, Heart Scales, repels —
+		// and handing one to the calculator is a refusal, not a build. Asking L5
+		// what it can hold beats discovering it as a thrown error mid-board.
+		if (!planner.holdableItem(item)) continue;
+		if (item === spec.item) continue;
+		list.push({
+			kind: 'give',
+			detail: spec.item ? `${item} over ${spec.item}` : item,
+			spec: Object.assign({}, spec, {item}),
+		});
+	}
+
+	// One scale in the bag is enough to make every stat a candidate: these are
+	// alternatives, and the player spends it on one of them.
+	if (run.bag[HEART_SCALE]) {
+		const ivs = mon.ivs || {};
+		for (const stat of Object.keys(IV_STATS)) {
+			// Only an IV the box RECORDS can be priced. An unrecorded one already
+			// reaches the calculator as 31, so a scale on it would score a flat
+			// zero and read as "this does nothing" when the truth is "nobody has
+			// told this run what that IV is".
+			if (typeof ivs[stat] !== 'number' || ivs[stat] === 31) continue;
+			list.push({
+				kind: 'heartScale',
+				detail: `${IV_STATS[stat]} IV ${ivs[stat]} → 31`,
+				spec: Object.assign({}, spec, {ivs: Object.assign({}, spec.ivs, {[stat]: 31})}),
+			});
+		}
+	}
+	return list;
+}
+
+/**
+ * The single changes that most improve the party against a fight.
+ *
+ * The board says which of your Pokemon beat which of theirs. This answers the
+ * question a player asks straight after reading it: what can I do about the
+ * cells that are red. Every answer is scored the same way the board is scored,
+ * by rebuilding the affected mon's row through `planner.matchup` with the
+ * change applied — so an upgrade's claim is the same claim the grid next to it
+ * makes, and never a heuristic about type charts or base stats.
+ *
+ * THE PARTY, not the box. Six mons times their learnsets, the bag and six IVs
+ * is already hundreds of policy evaluations; the box would be thousands, and a
+ * tool a player waits a minute for is a report, not an advisor. Which six is
+ * the board's question anyway — this one starts once that is settled.
+ *
+ * Candidates and specs are built HERE and handed down. `planner.matchup` is
+ * given a one-mon party and never learns that a bag, a learnset or a run
+ * exists, which is the same layering rule `boxMatrix` and `planNext` follow.
+ *
+ * Changes that do not improve anything are dropped rather than listed with a
+ * zero: an advisor whose top ten is padded with moves that change nothing has
+ * told the player nothing. An empty list is a real answer — nothing in reach
+ * moves this board.
+ */
+function adviseUpgrades(run, trainer) {
+	const planner = require('./planner');
+	if (!run.party.length) {
+		throw new Error('the party is empty: add Pokemon to the party before asking what to change');
+	}
+	const ahead = upcoming(run, 1);
+	const named = trainer || (ahead.length ? ahead[0].trainer : null);
+	if (!named) throw new Error('nothing ahead in the run map to improve against');
+	const fight = planner.getFight(named, run.profileId);
+	const cap = capAt(run, fight.order);
+	const specs = partySpecs(run, {atOrder: fight.order});
+
+	const baseline = planner.matchup({
+		trainer: named,
+		playerParty: specs,
+		profileId: run.profileId,
+	});
+
+	const upgrades = [];
+	let considered = 0;
+	run.party.forEach((id, slot) => {
+		const mon = requireMon(run, id);
+		const base = baseline.grid.map(cell => cell.versus[slot]);
+		for (const candidate of upgradeCandidates(run, mon, specs[slot], base)) {
+			considered += 1;
+			const row = planner.matchup({
+				trainer: named,
+				playerParty: [candidate.spec],
+				profileId: run.profileId,
+			}).grid.map(cell => cell.versus[0]);
+			const delta = upgradeDelta(base, row);
+			if (delta.koGained - delta.koConceded <= 0 && delta.damage <= 0) continue;
+			upgrades.push({kind: candidate.kind, id, detail: candidate.detail, delta});
+		}
+	});
+
+	upgrades.sort((a, b) =>
+		(b.delta.koGained - b.delta.koConceded) - (a.delta.koGained - a.delta.koConceded) ||
+		b.delta.damage - a.delta.damage ||
+		// Never a coin flip: the same run must produce the same shortlist twice.
+		a.id.localeCompare(b.id) || a.kind.localeCompare(b.kind) ||
+		a.detail.localeCompare(b.detail));
+
+	return {
+		trainer: fight.trainer,
+		order: fight.order,
+		considered,
+		party: run.party.map((id, slot) => {
+			const mon = requireMon(run, id);
+			return {
+				id, species: mon.species, nickname: mon.nickname,
+				level: specs[slot].level, from: mon.level,
+			};
+		}),
+		projection: {
+			applied: cap !== null,
+			cap,
+			from: run.party.some((id, slot) => specs[slot].level > requireMon(run, id).level) ?
+				'projected' : 'current',
+		},
+		upgrades: upgrades.slice(0, ADVICE_LIMIT),
+	};
+}
+
 // -------------------------------------------------------------------- commands
 
 /**
@@ -1071,6 +1303,48 @@ const COMMANDS = {
 		return `took ${item} from ${mon.species} (${mon.id})`;
 	},
 
+	/**
+	 * Spend a Heart Scale: one IV to 31.
+	 *
+	 * The other half of the game's own economy. Rare Candy buys levels over the
+	 * cap; a Heart Scale buys a single perfect IV, one stat at a time, from a
+	 * supply the map hands out and no Mart stocks. That scarcity is the whole
+	 * mechanic, so the scale is spent from the bag here rather than assumed
+	 * infinite — a run that could max six IVs for free would plan fights it
+	 * cannot actually field.
+	 *
+	 * An IV the box has not recorded is not a refusal. The box stores only the
+	 * IVs a player stated and the calculator reads a missing one as 31, so
+	 * scaling one records a fact rather than buying a stat — which is also why
+	 * `adviseUpgrades` cannot price it and never offers it.
+	 */
+	heartScale(run, command) {
+		const mon = requireMon(run, command.id);
+		if (!Object.prototype.hasOwnProperty.call(IV_STATS, command.stat)) {
+			throw new Error('heartScale: stat must be one of ' +
+				`${Object.keys(IV_STATS).join(', ')}; got ${JSON.stringify(command.stat)}`);
+		}
+		if (!mon.ivs) mon.ivs = {};
+		const current = mon.ivs[command.stat];
+		// Checked before the bag, so a player is never sent to look for a scale
+		// that would buy nothing.
+		if (current === 31) {
+			throw new Error(`heartScale: ${mon.species} (${mon.id}) already has a 31 ` +
+				`${IV_STATS[command.stat]} IV; a Heart Scale would buy nothing`);
+		}
+		const held = run.bag[HEART_SCALE] || 0;
+		if (!held) {
+			throw new Error('heartScale: one Heart Scale sets one IV to 31 and no shop ' +
+				`sells them — need 1, the bag has ${held}`);
+		}
+		run.bag[HEART_SCALE] = held - 1;
+		if (!run.bag[HEART_SCALE]) delete run.bag[HEART_SCALE];
+		mon.ivs[command.stat] = 31;
+		return `${mon.species} (${mon.id}) ${IV_STATS[command.stat]} IV ` +
+			`${current === undefined ? 'unrecorded' : current} → 31 ` +
+			`(Heart Scale spent, ${held - 1} left)`;
+	},
+
 	/** Add items to the bag. Nothing claims where they came from. */
 	acquire(run, command) {
 		if (!command.item) throw new Error('acquire: item is required');
@@ -1284,8 +1558,9 @@ function summarize(run) {
 }
 
 module.exports = {
-	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
+	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS, IV_STATS, HEART_SCALE,
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
-	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix, summarize,
+	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
+	adviseUpgrades, summarize,
 };

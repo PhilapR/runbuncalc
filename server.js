@@ -573,7 +573,7 @@ function requireRun(payload, res) {
  * the feature.
  */
 function runError(error, res, next) {
-	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
+	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^heartScale:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
 		return res.status(400).json({error: error.message, code: "InvalidRunCommand"});
 	}
 	return next(error);
@@ -742,6 +742,24 @@ app.post("/run/matrix", (req, res, next) => {
 	if (!state) return undefined;
 	try {
 		return res.json(runtime.boxMatrix(state, (req.body || {}).trainer));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+/**
+ * The upgrade advisor: the single changes that most move the board.
+ *
+ * The heaviest call the run layer serves — every teachable move, every bag
+ * item and every recorded IV is priced by rebuilding a matchup row through the
+ * policy. Scoped to the party for exactly that reason, and answered whole,
+ * because a shortlist of ten IS the answer.
+ */
+app.post("/run/advise", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		return res.json(runtime.adviseUpgrades(state, (req.body || {}).trainer));
 	} catch (error) {
 		return runError(error, res, next);
 	}
