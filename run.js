@@ -77,6 +77,15 @@ const PARTY_LIMIT = 6;
  *
  * `none` is the honest default. A hard cap is a self-imposed rule, and turning
  * it on for everyone would refuse levels that are perfectly legal in the game.
+ *
+ * Run & Bun's cap is effectively LOCKED: play levels you to the cap and stops,
+ * and the only way over it is spending limited Rare Candies — so the
+ * refuse-above-cap model here matches how the game is actually played, and EXP
+ * projection is a curiosity, not a planning tool. A game with a SOFT cap
+ * (overlevel allowed at a penalty, or EXP keeps flowing past the wall) would
+ * need a new mode where the interesting question becomes EXP management —
+ * which is what the oracle's growth curves exist for. Add a mode here rather
+ * than bending 'next-milestone-ace'; the modes are the portability seam.
  */
 const LEVEL_CAP_MODES = new Set(['none', 'next-milestone-ace']);
 

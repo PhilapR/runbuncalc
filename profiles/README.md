@@ -104,6 +104,16 @@ and `observed` is the strongest tag available.
 
 ## Designing for a second game
 
+**Level-cap shape is a per-game design axis, not a constant.** Run & Bun's cap
+is locked — you level to the cap and stop, and only limited Rare Candies go
+over it — so the run layer's refuse-above-cap mode mirrors real play and EXP
+projection stays a low-priority curiosity. A soft-cap game (overlevel with a
+penalty, or free EXP flow) inverts that: XP management becomes the planning
+problem, the oracle's growth curves become load-bearing, and it should arrive
+as a new `LEVEL_CAP_MODES` entry in the run layer rather than a bend of
+`next-milestone-ace`.
+
+
 Run & Bun is one shape of ROM hack. Radical Red, the Kaizo family and others sit
 in the same space but vary in ways this contract has to absorb. None of the
 bending described below is built yet — the point is to know which parts are
