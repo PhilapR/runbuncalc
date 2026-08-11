@@ -202,10 +202,15 @@
 					.toggleClass('is-staged', staged)
 					.text(staged ? '−' : '+'));
 			}
+			// A lost row's kit line is its epitaph — who did it beats where it came
+			// from, because the graveyard is read as a story, not an inventory.
 			$row.append($('<span class="runbun-run-mon-kit"></span>')
-				.text([mon.item, mon.origin && mon.origin.mapName ?
-					mon.origin.method + ' · ' + mon.origin.mapName : 'declared']
-					.filter(Boolean).join(' · ')));
+				.text(mon.status === 'dead' && mon.died && mon.died.to ?
+					'killed by ' + mon.died.to +
+						(mon.died.move ? "'s " + mon.died.move : '') :
+					[mon.item, mon.origin && mon.origin.mapName ?
+						mon.origin.method + ' · ' + mon.origin.mapName : 'declared']
+						.filter(Boolean).join(' · ')));
 			$row.append($('<span class="runbun-run-mon-moves"></span>').text(mon.moves.join(', ')));
 			return $row;
 		}
@@ -724,6 +729,20 @@
 			command({kind: 'teach', id: $('#runbun-run-selected').val(),
 				move: $('#runbun-run-move').val(),
 				replace: $('#runbun-run-replace').val() || undefined});
+		});
+		$('#runbun-run-faint').on('click', function () {
+			// The epitaph travels with the loss: who did it (checked against the
+			// run map server-side) and with what (free text). Both optional — a
+			// loss can be recorded first and mourned later.
+			command({
+				kind: 'faint',
+				id: $('#runbun-run-selected').val(),
+				to: $('#runbun-run-died-to').val() || undefined,
+				move: $('#runbun-run-died-move').val() || undefined,
+			});
+		});
+		$('#runbun-run-release').on('click', function () {
+			command({kind: 'release', id: $('#runbun-run-selected').val()});
 		});
 		$('#runbun-run-learnable').on('click', function () {
 			api('/run/learnable', {run: state, id: $('#runbun-run-selected').val()})

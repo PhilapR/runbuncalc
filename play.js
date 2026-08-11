@@ -355,7 +355,31 @@ const SUBCOMMANDS = {
 	},
 
 	faint(state, args) {
-		return {command: {kind: 'faint', id: args.positional[0]}};
+		return {command: {
+			kind: 'faint',
+			id: args.positional[0],
+			// The epitaph: who did it, and with what. `--to` is checked against
+			// the run map; `--move` is free text.
+			...(args.flags.to ? {to: args.flags.to} : {}),
+			...(args.flags.move ? {move: args.flags.move} : {}),
+		}};
+	},
+
+	/** The graveyard: every loss, with its epitaph. */
+	graveyard(state) {
+		const lost = state.box.filter(mon => mon.status === 'dead');
+		if (!lost.length) return {message: 'nobody lost yet'};
+		const lines = [`${lost.length} lost`];
+		for (const mon of lost) {
+			const name = mon.nickname ? `${mon.nickname} the ${mon.species}` : mon.species;
+			const from = mon.origin && mon.origin.mapName ? ` — from ${mon.origin.mapName}` : '';
+			const died = mon.died && mon.died.to ?
+				`  killed by ${mon.died.to}${mon.died.move ? `'s ${mon.died.move}` : ''} (#${mon.died.order})` :
+				'  cause unrecorded';
+			lines.push(`  ${name} L${mon.level}${from}`);
+			lines.push(died);
+		}
+		return {message: lines.join('\n')};
 	},
 
 	release(state, args) {
@@ -465,7 +489,7 @@ const SUBCOMMANDS = {
 
 /** Subcommands that never write, so they can run against a save freely. */
 const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
-	'log', 'milestones', 'split', 'routes']);
+	'log', 'milestones', 'split', 'routes', 'graveyard']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -482,7 +506,9 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   acquire <item> [--count N]                      add to the bag
   party <id> [<id>...]                            set the party, in order
   nickname <id> <name>                            rename
-  faint <id> / release <id>                       lose one
+  faint <id> [--to Trainer] [--move M]            lose one, with its epitaph
+  release <id>                                    let one go
+  graveyard                                       the lost, and what did it
   beat <trainer>                                  move the run forward
   next [--count N] / plan [trainer]               what is ahead, and what it does
   matrix [trainer]                                the whole box against theirs, both ways

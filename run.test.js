@@ -330,6 +330,33 @@ test('permadeath is a declared rule, not the default', () => {
 		/has fainted for good/);
 });
 
+test('a loss carries its epitaph, and the trainer named must be real', () => {
+	let state = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+
+	// A named killer must be a fight this run can see, spelled as the map spells it.
+	assert.throws(() => run.apply(state, {kind: 'faint', id: 'mon-1', to: 'Brawly'}),
+		/no fight named "Brawly"/);
+
+	state = run.apply(state, {kind: 'faint', id: 'mon-1',
+		to: 'Leader Brawly', move: 'Drain Punch'});
+	const mon = run.findMon(state, 'mon-1');
+	assert.equal(mon.status, 'dead');
+	assert.equal(mon.died.to, 'Leader Brawly');
+	assert.equal(mon.died.move, 'Drain Punch');
+	assert.equal(mon.died.order, 77);
+	assert.match(state.log[state.log.length - 1].summary, /Leader Brawly's Drain Punch/);
+
+	// The epitaph is optional: a bare faint still records that it happened here.
+	let plain = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'faint', id: 'mon-1'},
+	]);
+	assert.deepEqual(run.findMon(plain, 'mon-1').died, {at: -1});
+});
+
 test('the routes view knows what is spent and what is still out there', () => {
 	const state = run.apply(fresh({permadeath: true}),
 		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});

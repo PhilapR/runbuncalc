@@ -977,6 +977,25 @@ const COMMANDS = {
 		}
 		mon.status = 'dead';
 		run.party = run.party.filter(id => id !== mon.id);
+		// The cause is the mon's epitaph, checked like any other claim: a named
+		// trainer must be a fight this run can see. The move is free text — the
+		// game does not constrain what killed you, only who.
+		if (command.to) {
+			const fight = visibleFights(run).find(f => f.trainer === command.to);
+			if (!fight) {
+				throw new Error(`faint: no fight named ${JSON.stringify(command.to)} ` +
+					'in this run\'s map — name the trainer as the run map spells it');
+			}
+			mon.died = {
+				to: command.to,
+				order: fight.order,
+				...(command.move ? {move: command.move} : {}),
+				at: run.position,
+			};
+			return `${mon.species} (${mon.id}) is gone — ${command.to}` +
+				(command.move ? `'s ${command.move}` : '');
+		}
+		mon.died = {at: run.position};
 		return `${mon.species} (${mon.id}) is gone`;
 	},
 
