@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?17a0620f" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?ce255307" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1940,7 +1940,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
-    <script type="text/javascript" src="./js/run_panel.js?a15625af"></script>
+    <script type="text/javascript" src="./js/run_panel.js?6180c01e"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2311,6 +2311,12 @@
         </div>
         <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>
         <div id="runbun-run-plan-actions" class="runbun-run-plan-actions" role="list"></div>
+
+        <div class="runbun-run-matrix-block">
+            <div class="runbun-run-section-label" id="runbun-run-matrix-heading">Matchup board</div>
+            <p id="runbun-run-matrix-note" class="runbun-run-matrix-note">Press Board on a fight above to grade every box mon against it, both directions.</p>
+            <div id="runbun-run-matrix" class="runbun-run-matrix" aria-labelledby="runbun-run-matrix-heading"></div>
+        </div>
     </div>
 
     <!-- Outside the live block on purpose: importing a run and recovering a

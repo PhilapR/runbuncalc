@@ -2642,3 +2642,78 @@ table.field {
 	background: var(--rb-oracle-soft);
 	border-color: var(--rb-oracle);
 }
+
+/* The matchup board: two single-hue heat tables, our box down the side and
+   the trainer's party across the top. Cell fills are set inline by the panel
+   (fill and label ink travel as validated pairs, identical on both themes,
+   because a filled cell brings its own ground); everything else themes
+   normally. Wide fights scroll inside the block, never the page. */
+#runbun-run .runbun-run-matrix-block {
+	margin-top: var(--rb-space-md);
+}
+#runbun-run .runbun-run-matrix-note {
+	margin: 0 0 var(--rb-space-xs);
+	color: var(--rb-ink-muted);
+	font-size: 0.78rem;
+}
+#runbun-run .runbun-run-matrix {
+	overflow-x: auto;
+	display: grid;
+	/* Grid items stretch by default, which turns a content-sized table into a
+	   full-width one and its cells into bars. */
+	justify-items: start;
+	gap: var(--rb-space-md);
+}
+#runbun-run .runbun-run-matrix-table {
+	/* Hug the content: a global table rule stretches to the column, and a
+	   percent in a 200px cell reads as a bar, not a cell. */
+	width: auto;
+	max-width: 100%;
+	border-collapse: separate;
+	border-spacing: 2px;
+	font-family: var(--rb-font-mono);
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+}
+#runbun-run .runbun-run-matrix-table caption {
+	text-align: left;
+	font-family: var(--rb-font-body);
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--rb-ink-muted);
+	padding-bottom: 3px;
+}
+#runbun-run .runbun-run-matrix-table th {
+	font-family: var(--rb-font-body);
+	font-weight: 600;
+	font-size: 0.72rem;
+	color: var(--rb-ink);
+	text-align: left;
+	padding: 2px 6px 2px 0;
+	white-space: nowrap;
+}
+#runbun-run .runbun-run-matrix-table thead th {
+	vertical-align: bottom;
+	text-align: center;
+	padding: 0 4px 3px;
+}
+#runbun-run .runbun-run-matrix-table td {
+	position: relative;
+	min-width: 52px;
+	padding: 6px 14px 6px 6px;
+	text-align: center;
+	border-radius: var(--rb-radius);
+}
+/* The guaranteed-KO ring is an outline, not a fill: the fill already carries
+   magnitude and may not repaint to say "lethal". */
+#runbun-run .runbun-run-matrix-table td.is-ko {
+	box-shadow: inset 0 0 0 2px var(--rb-danger);
+}
+#runbun-run .runbun-run-matrix-speed {
+	position: absolute;
+	top: 2px;
+	right: 3px;
+	font-size: 0.62rem;
+	opacity: 0.85;
+}

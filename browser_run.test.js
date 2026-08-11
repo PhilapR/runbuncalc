@@ -164,6 +164,19 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.match(verdict, /Youngster Calvin/);
 	assert.match(verdict, /decided by|contested by|only one action/);
 
+	// The matchup board grades the box against a fight, both directions, in the
+	// same page. One box mon against Calvin's party: every enemy is a column in
+	// each of the two tables, every cell carries a percent, and the note names
+	// the fight so the tables cannot be read against the wrong trainer.
+	await page.click('.runbun-run-up-board');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-matrix table').length === 2,
+		null, {timeout: 15000});
+	assert.match(await page.textContent('#runbun-run-matrix-note'), /Youngster Calvin \(#0\)/);
+	const cells = await page.$$eval('#runbun-run-matrix td', els => els.map(el => el.textContent));
+	assert.ok(cells.length >= 2, 'both directions should render cells');
+	assert.ok(cells.every(text => /%|—/.test(text)), 'every cell is a percent or an honest dash');
+
 	assert.deepEqual(session.errors, [], `page raised errors: ${session.errors.join('; ')}`);
 	await session.context.close();
 });

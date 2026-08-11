@@ -271,6 +271,8 @@
 			$row.append($('<span class="runbun-run-up-actions"></span>')
 				.append($('<button type="button" class="runbun-run-up-plan"></button>')
 					.attr('data-trainer', fight.trainer).text('Plan'))
+				.append($('<button type="button" class="runbun-run-up-board"></button>')
+					.attr('data-trainer', fight.trainer).text('Board'))
 				.append($('<button type="button" class="runbun-run-up-beat"></button>')
 					.attr('data-trainer', fight.trainer).text('Beaten')));
 			$list.append($row);
@@ -421,6 +423,107 @@
 		});
 	}
 
+	// ---------------------------------------------------------- matchup board
+
+	/**
+	 * Sequential heat ramp for the matchup grids — one hue, light-to-dark, so a
+	 * darker cell always means a harder hit. Fill and label ink travel as pairs
+	 * (the label flips to white where the fill goes dark), and the hexes hold on
+	 * both themes because a filled cell brings its own ground. Speed rides on
+	 * glyphs, never on color, so the fill stays honest single-variable.
+	 */
+	var HEAT = [
+		['#cde2fb', '#1a2228'],
+		['#9ec5f4', '#1a2228'],
+		['#6da7ec', '#1a2228'],
+		['#3987e5', '#ffffff'],
+		['#256abf', '#ffffff'],
+		['#184f95', '#ffffff'],
+		['#0d366b', '#ffffff'],
+	];
+	function heat(fraction) {
+		var pct = fraction * 100;
+		return HEAT[pct <= 10 ? 0 : pct <= 20 ? 1 : pct <= 35 ? 2 :
+			pct <= 50 ? 3 : pct <= 75 ? 4 : pct < 100 ? 5 : 6];
+	}
+	var SPEED_GLYPH = {faster: '▲', slower: '▼', tie: '＝'};
+
+	/**
+	 * One direction of the board as a real table: our box down the side, the
+	 * trainer's party across the top. A table because that is what it is — the
+	 * headers are the identity channel and a screen reader walks it for free.
+	 */
+	function matrixTable(payload, direction, caption) {
+		var $table = $('<table class="runbun-run-matrix-table"></table>');
+		$table.append($('<caption></caption>').text(caption));
+		var $head = $('<tr></tr>').append($('<th scope="col"></th>'));
+		payload.grid.forEach(function (row) {
+			$head.append($('<th scope="col"></th>')
+				.text(row.enemy.species + ' L' + row.enemy.level));
+		});
+		$table.append($('<thead></thead>').append($head));
+		var $body = $('<tbody></tbody>');
+		payload.box.forEach(function (mon, i) {
+			var $row = $('<tr></tr>');
+			var ours = mon.nickname || mon.species;
+			$row.append($('<th scope="row"></th>')
+				.text(ours + ' L' + mon.level)
+				.attr('title', mon.level !== mon.from ?
+					'projected from L' + mon.from + ' by the cap' : null));
+			payload.grid.forEach(function (row) {
+				var cell = row.versus[i];
+				var side = cell[direction];
+				var colors = heat(side.max);
+				var label = side.move ? Math.round(side.max * 100) + '%' : '—';
+				var $cell = $('<td></td>')
+					.text(label)
+					.css({'background-color': colors[0], color: colors[1]})
+					.toggleClass('is-ko', side.guaranteedKO)
+					.attr('title', (direction === 'us' ? ours : row.enemy.species) + ': ' +
+						(side.move ?
+							side.move + ' ' + Math.round(side.min * 100) + '-' +
+								Math.round(side.max * 100) + '%' +
+								(side.guaranteedKO ? ' · guaranteed KO' :
+									side.possibleKO ? ' · possible KO' : '') :
+							'no damaging move') +
+						(cell.speed ? ' · we are ' + cell.speed : ''));
+				if (cell.speed && SPEED_GLYPH[cell.speed]) {
+					$cell.append($('<span class="runbun-run-matrix-speed" aria-hidden="true"></span>')
+						.text(SPEED_GLYPH[cell.speed]));
+				}
+				$row.append($cell);
+			});
+			$body.append($row);
+		});
+		$table.append($body);
+		return $table;
+	}
+
+	function renderMatrix(payload) {
+		var $matrix = $('#runbun-run-matrix').empty();
+		$('#runbun-run-matrix-note').text(
+			payload.trainer + ' (#' + payload.order + ')' +
+			(payload.projection.applied && payload.projection.from === 'projected' ?
+				' · box projected to cap ' + payload.projection.cap +
+					' — the levels the free candy gives you there' :
+				' · box at current levels') +
+			' · dark = harder hit · ring = guaranteed KO · ▲ we are faster');
+		$matrix.append(matrixTable(payload, 'us', 'Our best hit — % of their HP'));
+		$matrix.append(matrixTable(payload, 'them', "Their best hit back — % of ours"));
+	}
+
+	function board(trainer) {
+		status('Grading the box…', '');
+		var body = {run: state};
+		if (trainer) body.trainer = trainer;
+		api('/run/matrix', body).then(function (payload) {
+			renderMatrix(payload);
+			status('', '');
+		}).catch(function (error) {
+			status(error.message, 'error');
+		});
+	}
+
 	/**
 	 * A save that would not parse is still the player's only copy, and starting a
 	 * run persists over it. It blocks only while its raw text is on screen exactly
@@ -564,6 +667,9 @@
 
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-plan', function () {
 			plan($(this).attr('data-trainer'));
+		});
+		$('#runbun-run-upcoming').on('click', '.runbun-run-up-board', function () {
+			board($(this).attr('data-trainer'));
 		});
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-beat', function () {
 			command({kind: 'beat', trainer: $(this).attr('data-trainer')});
