@@ -15,6 +15,7 @@
 /** How a claim in a profile is known, weakest last. */
 const PROVENANCE_TAGS = [
 	'source-of-truth', // the game author's own published data
+	'emulator-observed', // reproduced against the live ROM by an instrumented emulator probe; the claim's comment cites the probe corpus
 	'observed', // confirmed in-game by a maintainer
 	'transcribed', // copied from community docs, unverified
 	'inferred', // derived by us, unchecked

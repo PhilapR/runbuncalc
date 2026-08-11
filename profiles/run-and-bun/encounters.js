@@ -222,6 +222,13 @@ const BOSS_PATTERN = /^(Leader |Elite Four |Champion )/;
 const RIVAL_VARIANT_PATTERN = /^Trainer Rival .* (Sceptile|Blaziken|Swampert)$/;
 
 /**
+ * The rival aces a run may declare — the same three the pattern above matches,
+ * stated as data so the run layer validates against the PROFILE's list rather
+ * than a copy of it. Another game's profile declares its own, or none.
+ */
+const RIVAL_ACES = ['Sceptile', 'Blaziken', 'Swampert'];
+
+/**
  * Two story fights carry no team or title prefix to anchor on, so they are named
  * outright. "Trainer Chelle " matches her two fights and nothing else — the only
  * other Chelle-ish label is "Cool Trainer Michelle", which the anchor rules out.
@@ -234,5 +241,5 @@ const MILESTONE_PATTERN =
 
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,
-	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN,
+	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN, RIVAL_ACES,
 };

@@ -34,6 +34,31 @@ test('the run map loads in authored playthrough order', () => {
 	assert.equal(fights[0].order, 0);
 });
 
+test('the caches are keyed by profile: a warm cache never answers for a stranger', () => {
+	// The failure this pins was silent: an unkeyed module-level cache, once
+	// warmed by run-and-bun, served its 362 fights to ANY profile id — so an
+	// unknown game got a confident wrong answer instead of a refusal.
+	planner.loadRunMap('run-and-bun');
+	assert.throws(() => planner.loadRunMap('bogus-game'), /unknown profile/i);
+});
+
+test('a double battle is planned as Singles, and says so instead of hiding it', () => {
+	// 46 fights in the map are doubles. Until Doubles planning lands measured,
+	// the simplification travels WITH the prediction rather than inside it.
+	const double = planner.listFights('run-and-bun').fights.find(f => f.isDouble);
+	assert.ok(double, 'the run map has double battles');
+	const prediction = planner.predict({
+		trainer: double.trainer,
+		playerParty: [{species: 'Marill', level: 40, moves: ['Aqua Tail']}],
+	});
+	assert.equal(prediction.plannedAsSingles, true);
+	const single = planner.predict({
+		trainer: 'Youngster Calvin',
+		playerParty: [{species: 'Marill', level: 40, moves: ['Aqua Tail']}],
+	});
+	assert.equal(single.plannedAsSingles, false);
+});
+
 test('a party is grouped whole, including duplicate species', () => {
 	// Fisherman Phil fields three Luvdisc. Grouping on the raw entry key instead
 	// of the explicit `trainer` field would split him into three one-Pokemon

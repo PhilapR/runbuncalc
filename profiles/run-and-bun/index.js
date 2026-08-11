@@ -127,10 +127,13 @@ module.exports = defineProfile({
 		'encounters.COVERAGE': 'transcribed',
 		// The community AI document (Croven, crediting Dekzeh) is the best available
 		// authority on opponent behaviour, and the transcription has been audited
-		// against it rather than assumed faithful — but it is still a community
-		// document, not the author's own publication. Only in-game observation can
-		// raise these to `observed`.
-		'policy.SCORE_ROLL': 'transcribed',
+		// against it rather than assumed faithful. SCORE_ROLL has since been
+		// raised above that: the operator's pykemon harness read the AI's live
+		// score array out of emulator RAM (0x02000360, u8[4], base 100; chosen
+		// slot 0x02000391) across seeded cohorts and reproduced the 80/20 roll —
+		// see ECOSYSTEM.json, pokemon-mono groundtruth/pykemon, traces/emu/probes.
+		// SETUP remains transcription: no probe has exercised it yet.
+		'policy.SCORE_ROLL': 'emulator-observed',
 		'policy.SETUP': 'transcribed',
 		// DOCUMENTED_SCORES and DOCUMENTED_SWITCH are deliberately not tagged.
 		// They are the document's own text, quoted as the evidence for the two
@@ -138,7 +141,12 @@ module.exports = defineProfile({
 		// count one belief twice and make the project look less verified than it
 		// is for the act of citing its sources.
 
-		'mechanics.criticalHitMultiplier': 'transcribed',
+		// Raised from transcription by the operator's emulator fidelity sweep:
+		// 1,727 damage observations reproduce at 1727/1727 only with the crit
+		// x1.5 applied before the roll — the Gen 6+ multiplier in the ROM's own
+		// rounding order. See ECOSYSTEM.json: pokemon-mono contracts/cross-engine
+		// fidelity corpus and groundtruth/pykemon.
+		'mechanics.criticalHitMultiplier': 'emulator-observed',
 		// Corroborated by the author's own in-ROM ability text. Vanilla Magma Armor
 		// reads "Prevents freezing."; Run & Bun's reads "Blocks criticals and
 		// freeze." Vanilla Gale Wings gives Flying priority only at full HP; Run &

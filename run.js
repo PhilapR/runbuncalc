@@ -145,10 +145,19 @@ function createRun(options) {
 	if (!LEVEL_CAP_MODES.has(mode)) {
 		throw new Error(`unknown level cap mode ${JSON.stringify(mode)}`);
 	}
-	if (opts.rival !== undefined && opts.rival !== null &&
-		!['Sceptile', 'Blaziken', 'Swampert'].includes(opts.rival)) {
-		throw new Error(`unknown rival ${JSON.stringify(opts.rival)}; ` +
-			'the rival is named for their ace: Sceptile, Blaziken or Swampert');
+	// The rival list is the PROFILE's, not this module's: isExcludedVariant
+	// already reads the variant pattern from the profile, and a hardcoded list
+	// here was the half of the concept the engine still owned.
+	if (opts.rival !== undefined && opts.rival !== null) {
+		const aces = (profile.encounters && profile.encounters.RIVAL_ACES) || null;
+		if (!aces) {
+			throw new Error(`profile '${profile.id}' declares no rivals; ` +
+				'a rival cannot be named for this game');
+		}
+		if (!aces.includes(opts.rival)) {
+			throw new Error(`unknown rival ${JSON.stringify(opts.rival)}; ` +
+				`the rival is named for their ace: ${aces.join(', ')}`);
+		}
 	}
 	return {
 		version: VERSION,
@@ -217,7 +226,8 @@ function requireMon(run, id) {
  */
 function isExcludedVariant(run, trainer) {
 	if (!run.rules.rival) return false;
-	const pattern = getProfile(run.profileId).encounters.RIVAL_VARIANT_PATTERN;
+	const encounters = getProfile(run.profileId).encounters;
+	const pattern = encounters && encounters.RIVAL_VARIANT_PATTERN;
 	if (!pattern) return false;
 	const match = pattern.exec(trainer);
 	return !!match && match[1] !== run.rules.rival;
@@ -229,6 +239,10 @@ function isExcludedVariant(run, trainer) {
  * milestones, the planner — reads through this one choke point.
  */
 function visibleFights(run) {
+	// No encounters layer means no run map: the fight views (upcoming, splits,
+	// milestones, caps) all answer empty rather than throwing, because a
+	// data-only profile still has a box worth keeping.
+	if (!getProfile(run.profileId).encounters) return [];
 	return require('./planner').loadRunMap(run.profileId)
 		.filter(fight => !isExcludedVariant(run, fight.trainer));
 }
@@ -242,6 +256,10 @@ function visibleFights(run) {
  * rather than losing its cap.
  */
 function fightTier(profile, trainer) {
+	// A profile with no encounters layer has no tiers; every fight is filler.
+	// Views degrade to empty rather than TypeError — a data-only profile is a
+	// legitimate profile, and `summarize` must survive it.
+	if (!profile.encounters) return null;
 	const boss = profile.encounters.BOSS_PATTERN;
 	const story = profile.encounters.STORY_BOSS_PATTERN;
 	if (boss || story) {
@@ -325,7 +343,8 @@ function capAt(run, order) {
  */
 function split(run) {
 	const profile = getProfile(run.profileId);
-	const boss = profile.encounters.BOSS_PATTERN || profile.encounters.MILESTONE_PATTERN;
+	const encounters = profile.encounters || {};
+	const boss = encounters.BOSS_PATTERN || encounters.MILESTONE_PATTERN;
 	if (!boss) return null;
 	const bosses = visibleFights(run).filter(fight => boss.test(fight.trainer));
 	if (!bosses.length) return null;
@@ -401,7 +420,7 @@ function upcoming(run, count) {
  */
 function milestones(run) {
 	const profile = getProfile(run.profileId);
-	const pattern = profile.encounters.MILESTONE_PATTERN;
+	const pattern = profile.encounters && profile.encounters.MILESTONE_PATTERN;
 	if (!pattern) return [];
 	return visibleFights(run)
 		.filter(fight => pattern.test(fight.trainer))
@@ -423,6 +442,18 @@ function milestones(run) {
  * Alolan line. A profile without the derivation falls back to the lineage
  * walk, which is right for unbranched lines.
  */
+/**
+ * The layer an operation NEEDS, or a contract error naming it — never a
+ * TypeError three calls deep. Views degrade gracefully without a layer;
+ * operations that verify claims against it cannot, and must say so.
+ */
+function requireLayer(profile, name, why) {
+	if (!profile[name]) {
+		throw new Error(`profile '${profile.id}' declares no ${name} layer — ${why}`);
+	}
+	return profile[name];
+}
+
 function familyOf(profile, species) {
 	if (profile.oracle.familyOf) return profile.oracle.familyOf(species);
 	const line = profile.oracle.lineageOf(species);
@@ -502,6 +533,7 @@ function routeCatch(run, profile, canonicalMap) {
 
 function encountersOn(run, map) {
 	const profile = getProfile(run.profileId);
+	requireLayer(profile, 'oracle', 'there are no wild tables to look up');
 	const found = profile.oracle.encountersOn(map);
 	if (!found) return null;
 	const owned = new Set(run.box.map(mon => mon.species));
@@ -552,6 +584,7 @@ function encountersOn(run, map) {
  */
 function unusedRoutes(run) {
 	const profile = getProfile(run.profileId);
+	requireLayer(profile, 'oracle', 'there are no wild tables to walk');
 	const routes = [];
 	for (const map of profile.oracle.maps()) {
 		const here = encountersOn(run, map.name);
@@ -803,6 +836,7 @@ const COMMANDS = {
 	/** Add a Pokemon to the box, checked against the map it was caught on. */
 	catch(run, command) {
 		const profile = getProfile(run.profileId);
+		requireLayer(profile, 'oracle', 'a catch cannot be verified without the wild tables and learnsets');
 		if (!command.species) throw new Error('catch: species is required');
 		if (!profile.oracle.levelUpMoves(command.species).length &&
 			!profile.oracle.teachableMoves(command.species).length) {
@@ -1253,5 +1287,5 @@ module.exports = {
 	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
-	encountersOn, unusedRoutes, encounterRules, learnable, partySpecs, planNext, boxMatrix, summarize,
+	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix, summarize,
 };

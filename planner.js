@@ -40,12 +40,19 @@ const getProfile = require('./profiles').getProfile;
 // table from globals. Provide them before requiring it.
 global.calc = calc;
 
-let bridge = null;
-let runMapCache = null;
+// Keyed by profile id, never bare module-level singletons: an unkeyed cache
+// warmed by one game silently served its 362 fights to ANY profile id — the
+// worst failure mode this file had, because every layer above inherits it.
+const bridgeCache = new Map();
+const runMapCache = new Map();
 
 function loadBridge(profile) {
-	if (bridge) return bridge;
+	if (bridgeCache.has(profile.id)) return bridgeCache.get(profile.id);
 	const encounters = profile.encounters;
+	if (!encounters) {
+		throw new Error(`profile '${profile.id}' declares no encounters layer — ` +
+			'there is no run map to plan against');
+	}
 	const setsPath = path.join(__dirname, encounters.SOURCE);
 	const source = fs.readFileSync(setsPath, 'utf8');
 	// The trainer data is a classic browser script — `var SETDEX_SS = {...};` —
@@ -53,7 +60,8 @@ function loadBridge(profile) {
 	// loads it. `runInThisContext` says that plainly; building a Function to
 	// return the value would only disguise the same evaluation.
 	vm.runInThisContext(source, {filename: encounters.SOURCE});
-	bridge = require('./src/js/sets_to_battle_state.js');
+	const bridge = require('./src/js/sets_to_battle_state.js');
+	bridgeCache.set(profile.id, bridge);
 	return bridge;
 }
 
@@ -64,8 +72,10 @@ function loadBridge(profile) {
  * is gated: it is the only thing that knows where a fight sits in a run.
  */
 function loadRunMap(profileId) {
-	if (runMapCache) return runMapCache;
+	// The profile resolves FIRST: an unknown id must throw whether the cache is
+	// warm or cold, not ride out on another game's fights.
 	const profile = getProfile(profileId);
+	if (runMapCache.has(profile.id)) return runMapCache.get(profile.id);
 	loadBridge(profile);
 	const setdex = global[profile.encounters.GLOBAL];
 
@@ -98,7 +108,7 @@ function loadRunMap(profileId) {
 		fights.push(fight);
 	}
 	fights.sort((a, b) => a.order - b.order);
-	runMapCache = fights;
+	runMapCache.set(profile.id, fights);
 	return fights;
 }
 
@@ -226,11 +236,15 @@ function buildFightState(options) {
 		aiBench: aiParty.slice(1),
 		playerActive: playerParty[0],
 		playerBench: playerParty.slice(1),
-		mode: fight.isDouble && aiParty.length > 1 ? 'Singles' : 'Singles',
+		// Doubles fights are DELIBERATELY planned as Singles for now: the state
+		// bridge and scoring support Doubles, but wiring it here changes 46
+		// fights' predictions and must land measured, not as a ternary flip.
+		// The limitation travels with the result instead of hiding in it.
+		mode: 'Singles',
 		field: opts.field || {},
 	});
 	ai.validateBattleState(state);
-	return {fight, state, borrowed};
+	return {fight, state, borrowed, plannedAsSingles: !!fight.isDouble};
 }
 
 /**
@@ -286,6 +300,9 @@ function predict(options) {
 		// field, and a consumer that hides this is reporting a plan for a box
 		// nobody owns.
 		borrowedPlayerBuild: built.borrowed,
+		// True for the run map's double battles: the prediction ranks the fight
+		// as a 1v1 exchange, which is a simplification the reader must see.
+		plannedAsSingles: built.plannedAsSingles,
 		actions: scored,
 		// The margin is the planning signal. A wide gap means the opponent's move
 		// is effectively fixed; a narrow one means the plan has to survive both.
@@ -365,9 +382,13 @@ function speedRelation(us, them) {
  * blind to everything else: they could not say whether the opponent would pick
  * the move being coloured, and their numbers agreed with nothing else on the
  * page. This asks the POLICY instead — the same `ai.evaluateActions` the
- * predictor ranks turns with — so a cell's KO pressure is the fact the AI is
- * acting on rather than a second opinion about it, and the grid, the plan and
- * the simulation cannot drift apart.
+ * predictor ranks turns with — so the DAMAGE NUMBERS share one authority: a
+ * cell's rolls, clamps and KO booleans come from the policy's own damage
+ * facts, never a parallel calculation. The claim stops there, deliberately: a
+ * cell reports the best DAMAGING action, while the policy in a real turn may
+ * prefer a status or utility move it scores higher — so a cell can name a
+ * move `predict` would not lead with. What cannot disagree is the arithmetic;
+ * what can is the choice.
  *
  * Both directions are evaluated, because half a matchup is not one: "we OHKO
  * it" and "it OHKOs us first" are the same cell and only the pair decides the

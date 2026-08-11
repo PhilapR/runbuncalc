@@ -194,7 +194,11 @@ test('verified claims outnumber unverified ones, and do not regress', () => {
 		const tag = profile.provenance[key];
 		counts[tag] = (counts[tag] || 0) + 1;
 	}
-	const verified = (counts['source-of-truth'] || 0) + (counts['observed'] || 0);
+	// emulator-observed counts as verified: it is reproduction against the live
+	// ROM, the strongest evidence available for behavior with no published
+	// authority (see profiles/profile.js).
+	const verified = (counts['source-of-truth'] || 0) + (counts['observed'] || 0) +
+		(counts['emulator-observed'] || 0);
 	const unverified = (counts['transcribed'] || 0) + (counts['inferred'] || 0);
 
 	assert.ok(

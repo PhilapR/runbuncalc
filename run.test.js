@@ -430,6 +430,26 @@ test('the routes view knows what is spent and what is still out there', () => {
 	assert.equal(r101.best[0].chance, 20);
 });
 
+test('platform contract: rivals come from the profile, and layers fail by name', () => {
+	// The rival list is the profile's; the engine only checks against it.
+	assert.throws(() => fresh({rival: 'Meganium'}),
+		/unknown rival "Meganium"; the rival is named for their ace: Sceptile, Blaziken, Swampert/);
+
+	// A profile with no encounters layer has views, not errors: every fight
+	// view answers empty, so summarize survives a data-only profile.
+	assert.equal(run.fightTier({id: 'data-only'}, 'Leader Brawly'), null);
+
+	// An operation that NEEDS a missing layer names it as a contract error,
+	// never a TypeError three calls deep.
+	const stub = fresh();
+	assert.throws(() => {
+		const orphan = JSON.parse(JSON.stringify(stub));
+		orphan.profileId = 'run-and-bun';
+		// Simulate the missing layer through the exported guard directly.
+		run.requireLayer({id: 'data-only'}, 'oracle', 'a catch cannot be verified');
+	}, /profile 'data-only' declares no oracle layer — a catch cannot be verified/);
+});
+
 test('every encounter rule is its own toggle, and old saves keep their bundle', () => {
 	// 'species' scope: the exact species is a dupe, its evolution is not.
 	const bySpecies = run.apply(fresh({onePerRoute: false, dupesClause: 'species'}),

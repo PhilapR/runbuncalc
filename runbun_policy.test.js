@@ -114,14 +114,14 @@ test('the documented switch routine matches the engine', () => {
 });
 
 test('policy provenance is not overstated', () => {
-	// There is no published Run & Bun AI simulator, so nothing external can
-	// corroborate these values. If this ever reads `source-of-truth`, either a
-	// real authority appeared — in which case cite it in the profile's `sources`
-	// — or someone promoted a guess.
-	assert.equal(
-		profile.provenanceOf('policy.SCORE_ROLL'),
-		'transcribed',
-		'policy values cannot be source-of-truth: no published AI simulator exists to check them against'
-	);
+	// There is no published Run & Bun AI simulator, so `source-of-truth` is
+	// unreachable for policy values — if this ever reads that, someone promoted
+	// a guess. SCORE_ROLL sits at `emulator-observed`, the strongest evidence
+	// behavior can have: the operator's pykemon harness read the AI's live
+	// score array out of emulator RAM across seeded cohorts (cited at the tag).
+	// SETUP stays transcription until a probe exercises it.
+	assert.equal(profile.provenanceOf('policy.SCORE_ROLL'), 'emulator-observed');
+	assert.notEqual(profile.provenanceOf('policy.SCORE_ROLL'), 'source-of-truth',
+		'policy values cannot be source-of-truth: no published AI simulator exists');
 	assert.equal(profile.provenanceOf('policy.SETUP'), 'transcribed');
 });
