@@ -16,6 +16,9 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const planner = require('./planner');
+// The state contract belongs to the AI package, so a state this file claims is
+// valid is checked by the package that consumes it, not by a local re-reading.
+const ai = require('./ai');
 
 test('the run map loads in authored playthrough order', () => {
 	const fights = planner.loadRunMap();
@@ -43,8 +46,10 @@ test('the caches are keyed by profile: a warm cache never answers for a stranger
 });
 
 test('a double battle is planned as Singles, and says so instead of hiding it', () => {
-	// 46 fights in the map are doubles. Until Doubles planning lands measured,
-	// the simplification travels WITH the prediction rather than inside it.
+	// 46 fights in the map are doubles, and the DEFAULT stays Singles: the
+	// measurement found the two modes disagree on the lead's top action in 18 of
+	// the 46, so the mode is a caller's choice, not a silent upgrade. The
+	// simplification travels WITH the prediction rather than inside it.
 	const double = planner.listFights('run-and-bun').fights.find(f => f.isDouble);
 	assert.ok(double, 'the run map has double battles');
 	const prediction = planner.predict({
@@ -57,6 +62,80 @@ test('a double battle is planned as Singles, and says so instead of hiding it', 
 		playerParty: [{species: 'Marill', level: 40, moves: ['Aqua Tail']}],
 	});
 	assert.equal(single.plannedAsSingles, false);
+});
+
+test('{doubles: true} puts two Pokemon per side on the field for a double battle', () => {
+	// School Kid Jerry & Johnson is the run map's first double battle: a pair of
+	// trainers whose four Pokemon arrive as one party under a joined label.
+	const built = planner.buildFightState({
+		trainer: 'School Kid Jerry & Johnson',
+		playerParty: [
+			{species: 'Marill', level: 24, moves: ['Aqua Tail']},
+			{species: 'Machop', level: 24, moves: ['Karate Chop']},
+			{species: 'Taillow', level: 24, moves: ['Wing Attack']},
+		],
+		doubles: true,
+	});
+
+	assert.equal(built.state.mode, 'Doubles');
+	assert.deepEqual(built.state.sides.ai.activeIds, ['ai-1', 'ai-2']);
+	assert.deepEqual(built.state.sides.player.activeIds, ['player-1', 'player-2']);
+	// Both actives are on the field at turn one; the benches keep their ids.
+	assert.deepEqual(built.state.firstTurnOutIds, ['ai-1', 'ai-2', 'player-1', 'player-2']);
+	assert.deepEqual(built.state.sides.ai.party.map(mon => mon.id), ['ai-1', 'ai-2', 'ai-3', 'ai-4']);
+	assert.equal(built.plannedAsSingles, false);
+	// The one thing the run map cannot source: a pair's combined party carries no
+	// ownership column, so which two lead is an assumption and says so.
+	assert.deepEqual(built.leadAssumption.leads, ['Simipour', 'Masquerain']);
+	assert.match(built.leadAssumption.unknown, /which trainer of the pair/);
+
+	// The engine's own contract, and a JSON round-trip: a two-active state that
+	// only validates in memory is not a state this project can transport.
+	assert.doesNotThrow(() => ai.validateBattleState(built.state));
+	assert.doesNotThrow(() => ai.validateBattleState(JSON.parse(JSON.stringify(built.state))));
+
+	// A Doubles turn is two decisions, so the prediction ranks two slots and
+	// attributes every action to the Pokemon that would take it.
+	const prediction = planner.predict({
+		trainer: 'School Kid Jerry & Johnson',
+		playerParty: [
+			{species: 'Marill', level: 24, moves: ['Aqua Tail']},
+			{species: 'Machop', level: 24, moves: ['Karate Chop']},
+		],
+		doubles: true,
+	});
+	assert.deepEqual(prediction.slots.map(slot => slot.actorId), ['ai-1', 'ai-2']);
+	assert.deepEqual(prediction.slots.map(slot => slot.species), ['Simipour', 'Masquerain']);
+	assert.ok(prediction.actions.every(action => action.actorId === 'ai-1' || action.actorId === 'ai-2'));
+	// Spread moves are the mode's whole point: Icy Wind hits both of ours.
+	assert.ok(
+		prediction.actions.some(action => (action.action.targetIds || []).length === 2),
+		'a Doubles state must offer at least one action that hits both targets'
+	);
+});
+
+test('Doubles is refused where it would be a lie, with the reason named', () => {
+	assert.throws(
+		() => planner.buildFightState({
+			trainer: 'Youngster Calvin',
+			playerParty: [
+				{species: 'Marill', level: 24, moves: ['Aqua Tail']},
+				{species: 'Machop', level: 24, moves: ['Karate Chop']},
+			],
+			doubles: true,
+		}),
+		/single battle/,
+		'a single battle has no second slot to plan'
+	);
+	assert.throws(
+		() => planner.buildFightState({
+			trainer: 'School Kid Jerry & Johnson',
+			playerParty: [{species: 'Marill', level: 24, moves: ['Aqua Tail']}],
+			doubles: true,
+		}),
+		/two player Pokemon/,
+		'a double battle leads with two'
+	);
 });
 
 test('a party is grouped whole, including duplicate species', () => {

@@ -189,6 +189,43 @@ test('a team borrowed from trainer sets is flagged on screen', {skip}, async () 
 	await page.close();
 });
 
+test('a double battle carries its 1v1 simplification onto the screen', {skip}, async () => {
+	const page = await newPage();
+	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-planner');
+	await page.click('#runbun-planner-load');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-planner-trainer option').length > 300,
+		null,
+		{timeout: 15000}
+	);
+	// 46 fights in the map are two trainers at once. The planner ranks them with
+	// one Pokémon per side by default, and the measurement behind that default
+	// found the lead's top action differs in 18 of the 46 — so a player reading a
+	// clean ranking of a double battle is reading an answer to another board.
+	await page.selectOption('#runbun-planner-trainer', 'School Kid Jerry & Johnson');
+	await page.fill('#runbun-planner-team', [
+		'Swampert @ Leftovers',
+		'Ability: Torrent',
+		'Level: 24',
+		'Adamant Nature',
+		'- Earthquake',
+		'- Waterfall',
+	].join('\n'));
+	await page.click('#runbun-planner-predict');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-planner-caveats li').length > 0,
+		null,
+		{timeout: 15000}
+	);
+	const caveats = await page.textContent('#runbun-planner-caveats');
+	assert.match(caveats, /double battle, ranked as a 1v1 exchange/);
+	const warned = await page.$eval('#runbun-planner-caveats',
+		el => el.classList.contains('is-warning'));
+	assert.ok(warned, 'a mode simplification is a warning, not a footnote');
+	await page.close();
+});
+
 test('a malformed team is refused in the client without a round trip', {skip}, async () => {
 	const page = await newPage();
 	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});

@@ -475,6 +475,10 @@ app.post("/planner/predict", (req, res, next) => {
 			// Travels with every prediction so a client cannot present a plan built
 			// on a trainer's Pokemon as a plan for the player's team.
 			borrowedPlayerBuild: result.borrowedPlayerBuild,
+			// The same reason: 46 fights in the map are double battles ranked here
+			// as a 1v1 exchange. The library says so on every prediction, and a
+			// client that never receives the flag cannot repeat the caveat.
+			plannedAsSingles: result.plannedAsSingles,
 			notes,
 			actions: result.actions.map(action => ({
 				label: action.label,

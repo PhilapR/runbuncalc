@@ -213,6 +213,15 @@ function playerStateFromEntry(bridge_, mon, id) {
  * caller's, in either of the shapes `playerStateFromEntry` describes; whether
  * any of it was borrowed from a trainer travels back with the state so a
  * consumer can say so rather than presenting a trainer's build as a plan.
+ *
+ * `{doubles: true}` is OPT-IN, and only for the 46 fights the map marks as
+ * double battles. It stays opt-in because the two modes are measurably not the
+ * same answer: over all 46, run with a level-matched probe team, the lead's
+ * top action changed in 18 and its confidence in 21, with margins moving by as
+ * much as 9.4 either way. That is a re-answer of 46 fights, not a refinement,
+ * and the caller decides which question they asked. The larger reason is
+ * `doublesLeads`: which two of a pair's Pokemon start on the field is an
+ * assumption, not data.
  */
 function buildFightState(options) {
 	const opts = options || {};
@@ -223,6 +232,13 @@ function buildFightState(options) {
 	if (!opts.playerParty || !opts.playerParty.length) {
 		throw new Error('playerParty is required: the planner cannot plan a fight with no team');
 	}
+	const doubles = !!opts.doubles;
+	if (doubles && !fight.isDouble) {
+		throw new Error(`${fight.trainer} is a single battle: there is no second slot to plan`);
+	}
+	if (doubles && opts.playerParty.length < 2) {
+		throw new Error('doubles planning needs two player Pokemon: a double battle leads with two');
+	}
 
 	const aiParty = fight.party.map((mon, i) =>
 		b.pokemonStateFromSet(mon.species, mon.setLabel, `ai-${i + 1}`));
@@ -230,21 +246,52 @@ function buildFightState(options) {
 		playerStateFromEntry(b, mon, `player-${i + 1}`));
 	const playerParty = built.map(entry => entry.state);
 	const borrowed = built.some(entry => entry.borrowed);
+	const slots = doubles ? 2 : 1;
 
 	const state = b.buildBattleState({
-		aiActive: aiParty[0],
-		aiBench: aiParty.slice(1),
-		playerActive: playerParty[0],
-		playerBench: playerParty.slice(1),
-		// Doubles fights are DELIBERATELY planned as Singles for now: the state
-		// bridge and scoring support Doubles, but wiring it here changes 46
-		// fights' predictions and must land measured, not as a ternary flip.
-		// The limitation travels with the result instead of hiding in it.
-		mode: 'Singles',
+		aiActives: aiParty.slice(0, slots),
+		aiBench: aiParty.slice(slots),
+		playerActives: playerParty.slice(0, slots),
+		playerBench: playerParty.slice(slots),
+		// Doubles fights default to Singles: the limitation travels with the
+		// result instead of hiding in it, and `{doubles: true}` is what asks for
+		// the two-slot state.
+		mode: doubles ? 'Doubles' : 'Singles',
 		field: opts.field || {},
 	});
 	ai.validateBattleState(state);
-	return {fight, state, borrowed, plannedAsSingles: !!fight.isDouble};
+	return {
+		fight,
+		state,
+		borrowed,
+		plannedAsSingles: !!fight.isDouble && !doubles,
+		doubles,
+		// Only present when the second slot is real, because it is the one thing
+		// about a Doubles plan the run map cannot source.
+		leadAssumption: doubles ? doublesLeads(fight) : undefined,
+	};
+}
+
+/**
+ * Which two of a pair's Pokemon start on the field — an ASSUMPTION, named.
+ *
+ * A double battle in this game is two trainers, and each sends out their own
+ * first Pokemon. The set table records the pair as one combined party under a
+ * joined label ("School Kid Jerry & Johnson") with a single `index` sequence
+ * and no ownership column, so which mon belongs to which trainer is simply not
+ * in the data. First-two-by-index is the only reading the map supports; if the
+ * table is actually ordered trainer-by-trainer, the real leads are the 1st and
+ * the (n/2 + 1)th, and every Doubles prediction here is for the wrong pair.
+ *
+ * This is the reason Doubles stays opt-in even where the engine is ready.
+ */
+function doublesLeads(fight) {
+	return {
+		leadIds: ['ai-1', 'ai-2'],
+		leads: fight.party.slice(0, 2).map(mon => mon.species),
+		assumed: 'first two by run-map index',
+		unknown: 'the run map does not record which trainer of the pair owns which Pokemon',
+	};
 }
 
 /**
@@ -280,6 +327,11 @@ function predict(options) {
 			label: e.action.kind === 'move' ?
 				e.action.moveName :
 				`switch to ${nameById[e.action.replacementId] || e.action.replacementId}`,
+			// Which of the opponent's Pokemon this turn belongs to. In Singles
+			// there is only one answer; in Doubles the ranking mixes two, and an
+			// action read without its actor is a move attributed to the wrong mon.
+			actorId: e.action.actorId,
+			actorSpecies: nameById[e.action.actorId] || e.action.actorId,
 			score: e.outcomes && e.outcomes.length ?
 				e.outcomes.reduce((sum, o) => sum + o.score * o.probability, 0) :
 				undefined,
@@ -289,8 +341,14 @@ function predict(options) {
 		.filter(e => e.score !== undefined)
 		.sort((a, b) => b.score - a.score);
 
-	const top = scored[0];
-	const runnerUp = scored[1];
+	const slots = built.state.sides.ai.activeIds
+		.map(actorId => slotRanking(scored.filter(e => e.actorId === actorId), actorId, nameById))
+		.filter(Boolean);
+	// The margin answers "how close was this Pokemon's second choice", so the
+	// runner-up is the top actor's OWN. In Singles that is scored[1] and nothing
+	// moves; in Doubles the gap between two different Pokemon's moves would have
+	// been a number about no decision either of them makes.
+	const lead = slots.find(slot => slot.actorId === (scored[0] && scored[0].actorId));
 	return {
 		trainer: built.fight.trainer,
 		order: built.fight.order,
@@ -300,15 +358,43 @@ function predict(options) {
 		// field, and a consumer that hides this is reporting a plan for a box
 		// nobody owns.
 		borrowedPlayerBuild: built.borrowed,
-		// True for the run map's double battles: the prediction ranks the fight
-		// as a 1v1 exchange, which is a simplification the reader must see.
+		// True for the run map's double battles planned in the default Singles
+		// mode: the prediction ranks the fight as a 1v1 exchange, which is a
+		// simplification the reader must see.
 		plannedAsSingles: built.plannedAsSingles,
+		// Only set when `{doubles: true}` built a two-slot state, and it carries
+		// the lead assumption the run map cannot source.
+		leadAssumption: built.leadAssumption,
 		actions: scored,
-		// The margin is the planning signal. A wide gap means the opponent's move
-		// is effectively fixed; a narrow one means the plan has to survive both.
-		margin: top && runnerUp ? Number((top.score - runnerUp.score).toFixed(3)) : undefined,
+		// One entry per Pokemon the opponent has on the field: their own ranking,
+		// margin and confidence. A doubles turn is two decisions, not one.
+		slots,
+		margin: lead ? lead.margin : undefined,
+		// No scored action at all keeps the old reading: there was nothing to
+		// choose between.
+		confidence: lead ? lead.confidence : 'only-option',
+	};
+}
+
+/** One active's own ranking: what it does, and how close its second choice was. */
+function slotRanking(actions, actorId, nameById) {
+	if (!actions.length) return null;
+	const top = actions[0];
+	const runnerUp = actions[1];
+	return {
+		actorId,
+		species: nameById[actorId] || actorId,
+		top: top.label,
+		runnerUp: runnerUp ? runnerUp.label : undefined,
+		margin: runnerUp ? Number((top.score - runnerUp.score).toFixed(3)) : undefined,
 		confidence: !runnerUp ? 'only-option' :
 			(top.score - runnerUp.score) >= 2 ? 'decided' : 'contested',
+		// Doubles ranks the same move at each target as two actions, so a zero
+		// margin there often means the MOVE is settled and only the target is a
+		// coin flip — a different warning than "it might do something else". Never
+		// true in Singles, where a move has one target.
+		targetSplit: !!(runnerUp && top.action.kind === 'move' && runnerUp.action.kind === 'move' &&
+			top.action.moveName === runnerUp.action.moveName),
 	};
 }
 

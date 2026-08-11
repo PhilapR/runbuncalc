@@ -117,6 +117,12 @@
 		// On screen rather than in the response only, because a player reading a
 		// clean ranking has no other way to know which team it answered for.
 		var caveats = (result.notes || []).slice();
+		if (result.plannedAsSingles) {
+			caveats.unshift('This is a double battle, ranked as a 1v1 exchange: one Pokémon per ' +
+				'side. The second lead, its partner effects and every spread move are missing ' +
+				'from this ranking, and the opponent\'s lead answers a different board than the ' +
+				'one you will face.');
+		}
 		if (result.borrowedPlayerBuild) {
 			caveats.unshift('This team uses trainer sets. Those are not builds a player can ' +
 				'obtain — the level, item, nature and IVs are the trainer\'s — and the AI ' +
@@ -124,7 +130,7 @@
 		}
 		$('#runbun-planner-caveats')
 			.empty()
-			.toggleClass('is-warning', !!result.borrowedPlayerBuild);
+			.toggleClass('is-warning', !!(result.borrowedPlayerBuild || result.plannedAsSingles));
 		for (var c = 0; c < caveats.length; c++) {
 			$('#runbun-planner-caveats').append($('<li></li>').text(caveats[c]));
 		}

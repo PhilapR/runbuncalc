@@ -273,15 +273,16 @@
 		return out;
 	}
 
-	function partyWithActive(active, bench, sidePrefix) {
-		var party = [active];
-		var usedSpecies = {};
-		usedSpecies[active.species] = true;
-		var nextIndex = 2;
+	function partyWithActives(actives, bench, sidePrefix) {
+		var party = actives.slice();
+		var activeSpecies = {};
+		actives.forEach(function (active) {
+			activeSpecies[active.species] = true;
+		});
+		var nextIndex = actives.length + 1;
 		(bench || []).forEach(function (candidate) {
-			if (!candidate || candidate.species === active.species) return;
-			// Prefer unique bench slots; skip exact species duplicates of active.
-			if (usedSpecies[candidate.species] && candidate.species === active.species) return;
+			// Prefer unique bench slots; skip exact species duplicates of an active.
+			if (!candidate || activeSpecies[candidate.species]) return;
 			var id = sidePrefix + '-' + nextIndex;
 			nextIndex += 1;
 			party.push(Object.assign({}, candidate, {id: id}));
@@ -289,34 +290,63 @@
 		return party;
 	}
 
+	/**
+	 * One side's Pokémon on the field.
+	 *
+	 * Singles has one, Doubles has two, so a side's actives are a LIST. The
+	 * singular `playerActive`/`aiActive` spelling stays because every existing
+	 * caller uses it; `playerActives`/`aiActives` is the opt-in for the second
+	 * slot, and passing more than the mode has slots for is refused rather than
+	 * quietly truncated — a dropped active is a Pokémon missing from the fight.
+	 */
+	function activesForSide(single, list, mode, label) {
+		var actives = Array.isArray(list) && list.length ? list.slice() : (single ? [single] : []);
+		if (!actives.length) throw new Error(label + ' Pokémon is required');
+		var slots = mode === 'Doubles' ? 2 : 1;
+		if (actives.length > slots) {
+			throw new Error('a ' + mode + ' battle has ' + slots + ' active Pokémon per side, got ' +
+				actives.length + ' for ' + label);
+		}
+		var ids = {};
+		actives.forEach(function (active) {
+			if (!active || !active.id) throw new Error(label + ' Pokémon need an id');
+			if (ids[active.id]) throw new Error(label + ' repeats active id ' + active.id);
+			ids[active.id] = true;
+		});
+		return actives;
+	}
+
 	function buildBattleState(options) {
 		var opts = options || {};
-		var playerActive = opts.playerActive;
-		var aiActive = opts.aiActive;
-		if (!playerActive || !aiActive) {
-			throw new Error('playerActive and aiActive Pokémon are required');
-		}
-		var playerParty = partyWithActive(playerActive, opts.playerBench || [], 'player');
-		var aiParty = partyWithActive(aiActive, opts.aiBench || [], 'ai');
+		var mode = opts.mode === 'Doubles' ? 'Doubles' : 'Singles';
+		var playerActives = activesForSide(opts.playerActive, opts.playerActives, mode, 'playerActive');
+		var aiActives = activesForSide(opts.aiActive, opts.aiActives, mode, 'aiActive');
+		var playerParty = partyWithActives(playerActives, opts.playerBench || [], 'player');
+		var aiParty = partyWithActives(aiActives, opts.aiBench || [], 'ai');
 		var field = opts.field || {};
 		var playerEffects = opts.playerEffects;
 		var aiEffects = opts.aiEffects;
+		var idsOf = function (actives) {
+			return actives.map(function (active) {
+				return active.id;
+			});
+		};
 		var state = {
 			generation: RUN_AND_BUN_GENERATION,
-			mode: opts.mode === 'Doubles' ? 'Doubles' : 'Singles',
+			mode: mode,
 			turn: typeof opts.turn === 'number' ? opts.turn : 1,
 			field: field,
 			sides: {
 				ai: {
-					activeIds: [aiActive.id],
+					activeIds: idsOf(aiActives),
 					party: aiParty,
 				},
 				player: {
-					activeIds: [playerActive.id],
+					activeIds: idsOf(playerActives),
 					party: playerParty,
 				},
 			},
-			firstTurnOutIds: [aiActive.id, playerActive.id],
+			firstTurnOutIds: idsOf(aiActives).concat(idsOf(playerActives)),
 		};
 		if (aiEffects) state.sides.ai.effects = aiEffects;
 		if (playerEffects) state.sides.player.effects = playerEffects;

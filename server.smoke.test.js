@@ -662,6 +662,22 @@ test('a borrowed trainer build is reported as such on every prediction', async (
 	assert.equal(body.borrowedPlayerBuild, true);
 });
 
+test('a double battle says over HTTP that it was ranked as a Singles exchange', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'School Kid Jerry & Johnson',
+		playerPaste: PLAYER_PASTE,
+	});
+	assert.equal(status, 200);
+	// The flag exists in the library; a client that never receives it presents a
+	// 1v1 ranking of a 2v2 fight with no caveat attached.
+	assert.equal(body.plannedAsSingles, true);
+	const single = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: PLAYER_PASTE,
+	});
+	assert.equal(single.body.plannedAsSingles, false);
+});
+
 test('a paste and a party at once is refused rather than silently preferred', async () => {
 	const {status, body} = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
