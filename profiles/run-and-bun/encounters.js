@@ -149,27 +149,41 @@ const KNOWN_GAPS = {
  *   BOSS_PATTERN         split-enders: badges, the Elite Four gauntlet, the
  *                        Champion. A run is narrated in these — "the Brawly
  *                        split" is everything up to and including #77.
- *   STORY_BOSS_PATTERN   mandatory story fights inside a split: rivals, every
- *                        Team Aqua/Magma battle, Archie, Maxie, Wally, Steven.
- *                        Together with bosses these SET THE LEVEL CAP — the
- *                        cap is the ace of the next fight in either tier, so a
- *                        fresh run is capped at 12 by the Petalburg Woods
- *                        grunt's Croagunk, not at 21 by Brawly two story
- *                        fights later.
+ *   STORY_BOSS_PATTERN   the mini-bosses: rivals, the seven Aqua/Magma ADMIN
+ *                        battles (Tabitha x3, Shelly x2, Matt, Courtney),
+ *                        Archie, Maxie, Wally, Steven — plus the two
+ *                        standalone grunt fights that ARE walls in their own
+ *                        right, Petalburg Woods and the Museum pair. Together
+ *                        with bosses these SET THE LEVEL CAP: the cap is the
+ *                        ace of the next fight in either tier, so a fresh run
+ *                        is capped at 12 by the Petalburg Woods grunt's
+ *                        Croagunk, not at 21 by Brawly two story fights later.
+ *
+ *                        GAUNTLET grunts are deliberately NOT here. The
+ *                        Weather Institute, Mt Pyre, both hideouts, the Space
+ *                        Center and the Seafloor Cavern are corridors of
+ *                        grunts ending at an admin or a team leader — the
+ *                        road TO the boss, not bosses. The cap through a
+ *                        gauntlet is the admin's ace at the end of it
+ *                        (Shelly's 65 through the Weather Institute), which
+ *                        falls out of the tiering with no per-grunt caps.
  *   MILESTONE_PATTERN    the narrative spine: bosses plus the NAMED story
- *                        bosses. Grunts are story fights but not landmarks —
- *                        34 ticks is a glanceable spine, 70 is noise.
+ *                        bosses — rivals, admins, team leaders, Wally,
+ *                        Steven. 41 ticks. Grunt fights are story but not
+ *                        landmarks, even the two that set caps.
  *
  * `Double` variants of Elite Four members are the same trainer fought a second
- * time in the double-battle branch, so they are bosses too.
+ * time in the double-battle branch, so they are bosses too. One admin battle
+ * is keyed "Aqua Admin ShellySeafloorCavern" with no space before the
+ * location — the patterns anchor on "Aqua Admin " and survive it.
  */
 const BOSS_PATTERN = /^(Leader |Elite Four |Champion )/;
 
 const STORY_BOSS_PATTERN =
-	/^(Trainer Rival |Team Aqua Grunt |Team Magma Grunt |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven )/;
+	/^(Trainer Rival |Aqua Admin |Magma Admin |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven |Team Aqua Grunt (Petalburg Woods|Museum))/;
 
 const MILESTONE_PATTERN =
-	/^(Leader |Elite Four |Champion |Trainer Rival |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven )/;
+	/^(Leader |Elite Four |Champion |Trainer Rival |Aqua Admin |Magma Admin |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven )/;
 
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,

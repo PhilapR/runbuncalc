@@ -52,7 +52,7 @@ test('milestones are the profile\'s notion of a story fight, not this tool\'s', 
 	const all = simulate.selectFights({});
 	const milestones = simulate.selectFights({milestones: true});
 	assert.equal(all.length, 362, 'the unfiltered walk is the whole run map');
-	assert.equal(milestones.length, 34);
+	assert.equal(milestones.length, 41);
 
 	const pattern = getProfile().encounters.MILESTONE_PATTERN;
 	assert.ok(pattern, 'the profile must declare the pattern the walk filters on');

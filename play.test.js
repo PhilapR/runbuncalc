@@ -222,7 +222,7 @@ test('milestones prints the spine without writing', () => {
 	const before = fs.readFileSync(file, 'utf8');
 	const spine = cli('milestones');
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'milestones wrote to the save');
-	assert.match(spine, /1 \/ 34 milestones/);
+	assert.match(spine, /1 \/ 41 milestones/);
 	assert.match(spine, /✓ # {2}77 {2}Leader Brawly/);
 	assert.match(spine, /· # 139 {2}Leader Roxanne/);
 });

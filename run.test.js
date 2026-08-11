@@ -375,7 +375,9 @@ test('the summary states where the run has got to', () => {
 test('the story spine derives beaten from position, not from bookkeeping', () => {
 	const state = fresh();
 	const spine = run.milestones(state);
-	assert.equal(spine.length, 34, 'every milestone fight in the map');
+	// 41: nine badge battles, eight Elite Four rounds, the Champion, nine rival
+	// battles, seven admin battles, four team-leader battles, Wally and Steven.
+	assert.equal(spine.length, 41, 'every milestone fight in the map');
 	assert.equal(spine[0].trainer, 'Leader Brawly');
 	assert.equal(spine[spine.length - 1].trainer, 'Champion Wallace');
 	assert.ok(spine.every(m => !m.beaten), 'a fresh run has beaten nothing');
@@ -386,11 +388,11 @@ test('the story spine derives beaten from position, not from bookkeeping', () =>
 	const after = run.milestones(later);
 	assert.equal(after.filter(m => m.beaten).length, 7);
 	assert.equal(after.filter(m => m.beaten).pop().trainer, 'Leader Norman');
-	assert.equal(after.filter(m => !m.beaten)[0].trainer, 'Magma Leader Maxie Mt Chimney');
+	assert.equal(after.filter(m => !m.beaten)[0].trainer, 'Magma Admin Tabitha Mt Chimney');
 	// Milestones carry their tier so the spine can draw badges taller than
 	// story bosses.
 	assert.equal(after[0].tier, 'boss');
-	assert.equal(after.find(m => m.trainer === 'Magma Leader Maxie Mt Chimney').tier, 'story');
+	assert.equal(after.find(m => m.trainer === 'Magma Admin Tabitha Mt Chimney').tier, 'story');
 });
 
 test('the run is narrated in splits, ended by badges', () => {
@@ -416,10 +418,36 @@ test('the run is narrated in splits, ended by badges', () => {
 	assert.equal(run.fightTier(profile, 'Elite Four SidneyDouble'), 'boss');
 	assert.equal(run.fightTier(profile, 'Champion Wallace'), 'boss');
 	assert.equal(run.fightTier(profile, 'Team Aqua Grunt Petalburg Woods'), 'story');
+	assert.equal(run.fightTier(profile, 'Team Aqua Grunt Museum #1'), 'story');
 	assert.equal(run.fightTier(profile, 'Trainer Rival Cycling Road Swampert'), 'story');
 	assert.equal(run.fightTier(profile, 'Aqua Leader Archie Mt Pyre'), 'story');
+	// The seven admin battles are the mini-bosses proper — one is keyed with no
+	// space before its location and must still classify.
+	assert.equal(run.fightTier(profile, 'Magma Admin Tabitha Mt Chimney'), 'story');
+	assert.equal(run.fightTier(profile, 'Aqua Admin Shelly Weather Institute'), 'story');
+	assert.equal(run.fightTier(profile, 'Aqua Admin ShellySeafloorCavern'), 'story');
+	assert.equal(run.fightTier(profile, 'Magma Admin Courtney Space center'), 'story');
+	// Gauntlet grunts are the road TO the boss, not bosses: no tier, no cap.
+	assert.equal(run.fightTier(profile, 'Team Aqua Grunt Weather Inst #1'), null);
+	assert.equal(run.fightTier(profile, 'Team Magma Grunt Magma Hideout #4teen'), null);
+	assert.equal(run.fightTier(profile, 'Team Aqua Grunt Seafloor Cavern #2'), null);
 	assert.equal(run.fightTier(profile, 'Youngster Calvin'), null);
 	assert.equal(run.fightTier(profile, 'Winstrate Victor'), null);
+});
+
+test('a gauntlet is capped by the admin at its end, not grunt by grunt', () => {
+	// Beating Flannery puts the Weather Institute ahead: three grunt fights,
+	// then Aqua Admin Shelly. The cap must be Shelly's 65 for the whole
+	// corridor — the grunts (aces 60-62) set nothing.
+	const state = run.apply(fresh({levelCap: 'next-milestone-ace'}),
+		{kind: 'beat', trainer: 'Leader Flannery'});
+	const cap = run.levelCap(state);
+	assert.equal(cap.trainer, 'Aqua Admin Shelly Weather Institute');
+	assert.equal(cap.cap, 65);
+	assert.equal(cap.tier, 'story');
+	// And clearing a grunt does not move the cap.
+	const midGauntlet = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Weather Inst #2'});
+	assert.equal(run.levelCap(midGauntlet).trainer, 'Aqua Admin Shelly Weather Institute');
 });
 
 test('a catch can never create a Pokemon with no moves', () => {

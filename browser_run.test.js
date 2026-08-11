@@ -141,9 +141,9 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		null, {timeout: 10000});
 
 	// The story spine renders one tick per milestone, none beaten yet.
-	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 34);
+	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 41);
 	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 0);
-	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 34 milestones/);
+	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 41 milestones/);
 
 	await page.click('#runbun-run-plan');
 	await page.waitForFunction(

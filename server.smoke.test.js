@@ -730,7 +730,7 @@ test('a run is created, advanced and summarized entirely through the request', a
 
 	// The story spine travels with every status, and how far ahead to look is
 	// the client's call, bounded.
-	assert.equal(status.body.milestones.length, 34);
+	assert.equal(status.body.milestones.length, 41);
 	assert.equal(status.body.milestones[0].trainer, 'Leader Brawly');
 	assert.equal(status.body.milestones[0].beaten, false);
 	const wide = await requestJson('/run/status', {run: caught.body.run, upcomingCount: 8});
