@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?d21c6812" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?adc8c001" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -50,6 +50,7 @@
                 <a class="rb-mode-tab" role="tab" id="rb-tab-ai-debug" href="#ai-panel" aria-controls="ai-panel" aria-selected="false" tabindex="-1">AI Debug</a>
                 <a class="rb-mode-tab" role="tab" id="rb-tab-battle" href="#runbun-battle" aria-controls="runbun-battle" aria-selected="false" tabindex="-1">Singles Battle</a>
                 <a class="rb-mode-tab" role="tab" id="rb-tab-planner" href="#runbun-planner" aria-controls="runbun-planner" aria-selected="false" tabindex="-1">Fight Planner</a>
+                <a class="rb-mode-tab" role="tab" id="rb-tab-run" href="#runbun-run" aria-controls="runbun-run" aria-selected="false" tabindex="-1">My Run</a>
                 <a class="rb-mode-tab" role="tab" id="rb-tab-replay" href="#runbun-replay" aria-controls="runbun-replay" aria-selected="false" tabindex="-1">Replay</a>
             </div>
         </nav>
@@ -1939,7 +1940,8 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?2d2473c4"></script>
-    <script type="text/javascript" src="./js/runbun_shell.js?0ccfea71"></script>
+    <script type="text/javascript" src="./js/run_panel.js?82ca46be"></script>
+    <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
 <section id="sets-bridge" class="ai-panel-bridge rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-sets" tabindex="-1" aria-label="Sets to BattleState bridge">
@@ -2191,6 +2193,109 @@
     <div class="runbun-planner-section-label" id="runbun-planner-actions-heading">Ranked opponent actions</div>
     <div id="runbun-planner-actions" class="runbun-planner-actions" role="list" aria-labelledby="runbun-planner-actions-heading"></div>
     <div id="runbun-planner-status" class="runbun-planner-status" role="status" aria-live="polite" aria-atomic="true"></div>
+</section>
+
+
+<section id="runbun-run" class="runbun-run rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-run" tabindex="-1" aria-label="Run and Bun playthrough">
+    <h2 class="runbun-run-title" id="runbun-run-heading">My Run</h2>
+    <p class="runbun-run-help">
+        A playthrough, not a position: your box, your party, your bag and where you have got to.
+        The run is saved in this browser only &mdash; nothing is stored on the server. Use Export
+        to keep a copy or move it to another machine.
+    </p>
+
+    <div id="runbun-run-empty" class="runbun-run-empty">
+        <label class="runbun-run-field">
+            <span>Name</span>
+            <input type="text" id="runbun-run-new-name" value="My run" spellcheck="false">
+        </label>
+        <label class="runbun-run-check">
+            <input type="checkbox" id="runbun-run-new-cap">
+            <span>Level cap at the next story fight&rsquo;s ace</span>
+        </label>
+        <label class="runbun-run-check">
+            <input type="checkbox" id="runbun-run-new-nuzlocke">
+            <span>Permadeath (nuzlocke)</span>
+        </label>
+        <button type="button" id="runbun-run-new" class="btn btn-wide rb-btn-primary">Start a run</button>
+    </div>
+
+    <div id="runbun-run-live" class="runbun-run-live" hidden>
+        <div class="runbun-run-header">
+            <span id="runbun-run-name" class="runbun-run-name"></span>
+            <span id="runbun-run-position" class="runbun-run-position"></span>
+            <span id="runbun-run-cap" class="runbun-run-cap"></span>
+        </div>
+
+        <div class="runbun-run-columns">
+            <div class="runbun-run-column">
+                <div class="runbun-run-section-label" id="runbun-run-box-heading">Box</div>
+                <ul id="runbun-run-box" class="runbun-run-box" aria-labelledby="runbun-run-box-heading"></ul>
+                <div id="runbun-run-bag" class="runbun-run-bag"></div>
+
+                <label class="runbun-run-field">
+                    <span>Party (pick up to six, in lead order)</span>
+                    <select id="runbun-run-party-picker" multiple size="6"></select>
+                </label>
+                <button type="button" id="runbun-run-set-party" class="btn btn-xwide">Set party</button>
+            </div>
+
+            <div class="runbun-run-column">
+                <div class="runbun-run-section-label">Catch</div>
+                <label class="runbun-run-field">
+                    <span>Where</span>
+                    <select id="runbun-run-map"></select>
+                </label>
+                <ul id="runbun-run-encounters" class="runbun-run-encounters"></ul>
+                <div class="runbun-run-row">
+                    <input type="text" id="runbun-run-catch-species" placeholder="Species" spellcheck="false">
+                    <input type="number" id="runbun-run-catch-level" placeholder="Lv" min="1" max="100">
+                    <input type="text" id="runbun-run-catch-name" placeholder="Nickname" spellcheck="false">
+                    <button type="button" id="runbun-run-catch" class="btn btn-wide rb-btn-primary">Catch</button>
+                </div>
+                <p id="runbun-run-limits" class="runbun-run-limits"></p>
+            </div>
+
+            <div class="runbun-run-column">
+                <div class="runbun-run-section-label">Selected</div>
+                <input type="text" id="runbun-run-selected" class="runbun-run-selected" placeholder="click a box entry" readonly>
+                <div class="runbun-run-row">
+                    <button type="button" id="runbun-run-evolve" class="btn btn-wide">Evolve</button>
+                    <input type="number" id="runbun-run-level-to" placeholder="Lv" min="1" max="100">
+                    <button type="button" id="runbun-run-level" class="btn btn-wide">Set level</button>
+                </div>
+                <div class="runbun-run-row">
+                    <input type="text" id="runbun-run-move" placeholder="Move" spellcheck="false">
+                    <input type="text" id="runbun-run-replace" placeholder="Replace" spellcheck="false">
+                    <button type="button" id="runbun-run-teach" class="btn btn-wide">Teach</button>
+                </div>
+                <button type="button" id="runbun-run-learnable" class="btn btn-xxwide">What can it learn?</button>
+                <div class="runbun-run-learn">
+                    <div><strong>Now:</strong> <span id="runbun-run-learn-now"></span></div>
+                    <div><strong>Later:</strong> <span id="runbun-run-learn-later"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="runbun-run-row runbun-run-actions-row">
+            <button type="button" id="runbun-run-plan" class="btn btn-xxwide rb-btn-primary">Plan the next fight</button>
+            <button type="button" id="runbun-run-beat" class="btn btn-xxwide">Beat it &mdash; move on</button>
+            <button type="button" id="runbun-run-undo" class="btn btn-wide">Undo</button>
+        </div>
+        <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>
+        <div id="runbun-run-plan-actions" class="runbun-run-plan-actions" role="list"></div>
+
+        <details class="runbun-run-transfer">
+            <summary>Export / import</summary>
+            <textarea id="runbun-run-transfer" rows="6" spellcheck="false"></textarea>
+            <div class="runbun-run-row">
+                <button type="button" id="runbun-run-export" class="btn btn-wide">Export</button>
+                <button type="button" id="runbun-run-import" class="btn btn-wide">Import</button>
+            </div>
+        </details>
+    </div>
+
+    <div id="runbun-run-status" class="runbun-run-status" role="status" aria-live="polite" aria-atomic="true"></div>
 </section>
 
 <section id="runbun-replay" class="runbun-replay rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-replay" tabindex="-1" aria-label="Run and Bun Replay Scrubber">

@@ -6,6 +6,7 @@ const calc = require("@smogon/calc");
 const ai = require("./ai");
 const planner = require("./planner");
 const playerTeam = require("./team");
+const runtime = require("./run");
 const app = express();
 
 function startServer(port = 3000) {
@@ -486,6 +487,175 @@ app.post("/planner/predict", (req, res, next) => {
 			.test(error.message || "")) {
 			return res.status(400).json({error: error.message, code: "InvalidPlannerRequest"});
 		}
+		next(error);
+	}
+});
+
+
+// -------------------------------------------------------------------- the run
+//
+// The run is a playthrough: a box, a party, a bag and a position in the map.
+// Everything else the server exposes is stateless, and so is this — the RUN
+// TRAVELS IN THE REQUEST rather than living here.
+//
+// That is a deliberate choice, not a shortcut. A run belongs to one player and
+// nobody else, this server has no accounts and no storage, and the moment it
+// held save files it would need both. Keeping the document client-side means the
+// browser can persist it in `localStorage`, the CLI can persist it in a file,
+// and the rules live in exactly one place either way.
+//
+// The cost is that every call carries the whole run. At a few kilobytes for a
+// full box that is cheaper than the alternative.
+
+/** Shared shape check, so every endpoint refuses a missing run the same way. */
+function requireRun(payload, res) {
+	if (!payload || typeof payload.run !== "object" || payload.run === null) {
+		res.status(400).json({error: "run is required", code: "InvalidRun"});
+		return null;
+	}
+	if (payload.run.version !== runtime.VERSION) {
+		res.status(400).json({
+			error: `run is version ${payload.run.version}; this server reads version ${runtime.VERSION}`,
+			code: "RunVersionMismatch",
+		});
+		return null;
+	}
+	return payload.run;
+}
+
+/**
+ * Errors from `run.js` are almost all the player being told why something could
+ * not have happened — a species that is not on that route, a move the species
+ * cannot hold. Those are 400s with the message intact, because the message IS
+ * the feature.
+ */
+function runError(error, res, next) {
+	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^unknown command|^a command needs|^nothing to undo|^the party is empty|^a party holds/.test(error.message || "")) {
+		return res.status(400).json({error: error.message, code: "InvalidRunCommand"});
+	}
+	return next(error);
+}
+
+app.post("/run/new", (req, res, next) => {
+	try {
+		const payload = req.body || {};
+		return res.json({
+			run: runtime.createRun({
+				profileId: payload.profile,
+				name: payload.name,
+				levelCap: payload.levelCap,
+				permadeath: payload.permadeath,
+				now: payload.now || null,
+			}),
+		});
+	} catch (error) {
+		return res.status(400).json({error: error.message, code: "InvalidRun"});
+	}
+});
+
+app.post("/run/apply", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		const next_ = runtime.apply(state, (req.body || {}).command, {now: (req.body || {}).now || null});
+		return res.json({
+			run: next_,
+			summary: next_.log[next_.log.length - 1].summary,
+			status: runtime.summarize(next_),
+		});
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+app.post("/run/undo", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		const undone = runtime.undo(state);
+		return res.json({run: undone, status: runtime.summarize(undone)});
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+app.post("/run/status", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		return res.json({
+			status: runtime.summarize(state),
+			box: state.box,
+			upcoming: runtime.upcoming(state, 5).map(fight => ({
+				trainer: fight.trainer,
+				order: fight.order,
+				partySize: fight.party.length,
+				topLevel: Math.max(...fight.party.map(mon => mon.level)),
+			})),
+		});
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+app.post("/run/where", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		const found = runtime.encountersOn(state, (req.body || {}).map);
+		if (!found) {
+			return res.status(400).json({
+				error: `no map named ${JSON.stringify((req.body || {}).map)} has a wild encounter table`,
+				code: "UnknownMap",
+			});
+		}
+		return res.json(found);
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+app.post("/run/learnable", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		return res.json(runtime.learnable(state, (req.body || {}).id));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+app.post("/run/plan", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		const plan = runtime.planNext(state, {trainer: (req.body || {}).trainer});
+		return res.json({
+			trainer: plan.trainer,
+			order: plan.order,
+			confidence: plan.confidence,
+			margin: plan.margin,
+			borrowedPlayerBuild: plan.borrowedPlayerBuild,
+			actions: plan.actions.map(action => ({label: action.label, score: action.score})),
+		});
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+/** The map list, so a client can offer somewhere to look rather than a text box. */
+app.get("/run/maps", (req, res, next) => {
+	try {
+		const profile = require("./profiles").getProfile(req.query.profile);
+		return res.json({
+			limits: profile.oracle.LIMITS,
+			maps: profile.oracle.maps().map(map => ({
+				map: map.map,
+				name: map.name,
+				methods: map.tables.map(table => table.method),
+			})),
+		});
+	} catch (error) {
 		next(error);
 	}
 });

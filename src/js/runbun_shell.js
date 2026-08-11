@@ -43,6 +43,26 @@
 			],
 			note: 'Practice-vs-policy turn loop over the same HTTP as AI Debug. Doubles field layout follows BattleState.mode (DBL-01).'
 		},
+		planner: {
+			hash: '#runbun-planner',
+			label: 'Fight Planner',
+			chips: [
+				{text: 'Gen 8', kind: 'brand'},
+				{text: 'Run map', kind: 'muted'},
+				{text: 'Thin client', kind: 'muted'}
+			],
+			note: 'Pick a fight from the authored run map, bring a team, see the opponent\'s ranked actions and how much rests on a coin flip.'
+		},
+		run: {
+			hash: '#runbun-run',
+			label: 'My Run',
+			chips: [
+				{text: 'Gen 8', kind: 'brand'},
+				{text: 'Saved in this browser', kind: 'warn'},
+				{text: 'ROM-checked', kind: 'muted'}
+			],
+			note: 'A playthrough: box, party, bag and position. Catches are checked against the game\'s own encounter tables; nothing is stored on the server.'
+		},
 		replay: {
 			hash: '#runbun-replay',
 			label: 'Replay',
@@ -55,7 +75,7 @@
 		}
 	};
 
-	var MODE_ORDER = ['calc', 'sets', 'ai-debug', 'battle', 'replay'];
+	var MODE_ORDER = ['calc', 'sets', 'ai-debug', 'battle', 'planner', 'run', 'replay'];
 
 	function $(id) {
 		return document.getElementById(id);
@@ -71,6 +91,8 @@
 		if (h === '#sets-bridge' || h === '#sets') return 'sets';
 		if (h === '#ai-panel' || h === '#ai-debug') return 'ai-debug';
 		if (h === '#runbun-battle' || h === '#battle') return 'battle';
+		if (h === '#runbun-planner' || h === '#planner') return 'planner';
+		if (h === '#runbun-run' || h === '#run' || h === '#my-run') return 'run';
 		if (h === '#runbun-replay' || h === '#replay') return 'replay';
 		if (h === '#calc' || h === '' || h === '#') return 'calc';
 		return 'calc';
@@ -80,6 +102,8 @@
 		if (modeId === 'sets') return 'sets-bridge';
 		if (modeId === 'ai-debug') return 'ai-panel';
 		if (modeId === 'battle') return 'runbun-battle';
+		if (modeId === 'planner') return 'runbun-planner';
+		if (modeId === 'run') return 'runbun-run';
 		if (modeId === 'replay') return 'runbun-replay';
 		return 'calc';
 	}

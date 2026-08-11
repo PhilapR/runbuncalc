@@ -69,7 +69,13 @@ declared, gated gap (see DATA-09/ENC-01) or platform work for a second game.
 | P2 | UI-P1 | ~~Surface the planner in the browser as a first-class mode~~ **Done** — `#runbun-planner`, browser-tested | UI | PLAT-09 | A player can pick a fight and see the prediction without curl |
 | P2 | PLAT-11 | ~~Simulate a run: walk a team through a stretch of the map~~ **Done** (`simulate.js`, `npm run simulate`) | engine | PLAT-06 | One row per fight plus an aggregate — which fights are coin flips, where the team is under-levelled |
 | P1 | PLAT-12 | ~~Player teams are declared, not borrowed from trainer sets~~ **Done** (`team.js`, `playerPaste`) | engine | PLAT-11 | A Showdown paste builds the player side; any borrowed trainer build is flagged in CLI, API and UI |
-| P2 | DATA-10 | Learnsets + availability from the decomp, so a declared team can be checked for legality | engine | PLAT-12 | `team.js` validates species/move/ability/item existence but claims nothing about whether a mon can be caught by badge N or learn move M |
+| P2 | DATA-10 | ~~Learnsets + availability from the decomp~~ **Done** (`scripts/import-oracle.js`, `profiles/run-and-bun/oracle/`) | engine | PLAT-12 | 131 encounter maps, 435 evolutions, 1114 learnsets + 370 egg lists, ROM-verified; move legality walks the evolution line |
+| P1 | RUN-01 | ~~Formalize the playthrough: box, party, bag, position, rules~~ **Done** (`run.js`) | engine | DATA-10 | Pure command engine; catches checked against real encounter tables; undo by replay |
+| P1 | RUN-02 | ~~Play a run from the terminal~~ **Done** (`play.js`, `npm run play`) | engine | RUN-01 | A JSON save file; read-only subcommands never write; a refusal never corrupts it |
+| P1 | RUN-03 | ~~Expose the run over HTTP, statelessly~~ **Done** — `/run/new`, `/apply`, `/undo`, `/status`, `/where`, `/learnable`, `/plan`, `/maps` | engine | RUN-01 | The run travels in the request; the server stores no save files |
+| P1 | RUN-04 | ~~My Run browser panel~~ **Done** — `#runbun-run`, localStorage, browser-tested | UI | RUN-03 | Start a run, catch off a real route, set a party, plan the next fight; survives reload |
+| P2 | RUN-05 | EXP and growth rates, so levelling can be projected rather than declared | engine | DATA-10 | Growth-rate tables are not imported; the run records the level a player states |
+| P2 | RUN-06 | Item locations and Mart stock | engine | DATA-10 | The bag counts what a player says they have; nothing claims where it came from |
 | P2 | EXP-01 | ~~Deeper Explain: side-by-side doc cite vs reasons / ActionFacts~~ **Done** | UI | Explain MVP; FIX-02 strongly preferred | One scored action shows matching doc section + machine facts together |
 | P2 | EXP-02 | ~~Citation map audit for top score-reason phrases~~ **Done** | docs | EXP-01 or Explain MVP | Gaps filled for high-traffic reason keywords |
 | P2 | UI-V3 | ~~Battle field polish: active cards, summary chips, forced banner, mobile JSON collapse~~ **Done** (cards + chips + collapsible JSON; forced banner retained) | UI | UI-V2 | Singles viewer reads as match UI; still thin client |
@@ -123,7 +129,14 @@ write-ups: §6; session chunks: §7; UI rollout detail:
 | Fight Planner UI | **Shipped** — `#runbun-planner` mode; browser-tested end to end |
 | Run simulation (`simulate.js`) | **Shipped** — `npm run simulate -- --team-file examples/team.txt --milestones` walks the 34-fight spine; reports coin flips and level deltas |
 | Player teams (`team.js`) | **Shipped** — Showdown paste → player side, validated against the game's own species/move/ability/item data. Borrowed trainer builds still reachable via `--borrow`, flagged everywhere |
-| Team legality (learnsets, availability) | **Not claimed** — existence is checked, legality is not. No R&B learnset or encounter-availability data in the profile yet (DATA-10) |
+| Oracle layer (`profiles/run-and-bun/oracle/`) | **ROM-verified** — 131 encounter maps / 1512 slots, 435 evolutions, 1114 level-up + 1114 teachable + 370 egg learnsets, regenerable via `npm run import-oracle` |
+| Move legality | **Shipped** — level-up, TM/tutor and egg moves inherited down the evolution line, with the source of the claim attached |
+| The run (`run.js`) | **Shipped** — box, party, bag, position, rules; pure commands; catches checked against the game's own tables; undo by replay |
+| Run CLI (`play.js`) | **Shipped** — `npm run play -- <command>` over a JSON save file |
+| Run HTTP API | **Shipped** — `/run/new`, `/apply`, `/undo`, `/status`, `/where`, `/learnable`, `/plan`, `/maps`; stateless |
+| My Run UI | **Shipped** — `#runbun-run`; saved in the browser, browser-tested end to end |
+| EXP / growth rates | **Not claimed** — levels are declared by the player, never projected (RUN-05) |
+| Item locations / Mart stock | **Not claimed** — the bag counts what the player says they have (RUN-06) |
 | HTTP AI API (`server.js`) | **Shipped** — choose / evaluate / validate / derive / apply / advance / order |
 | Root validation gate (`npm test`) | **Green path** — calc → AI → build → `test:server` → UI lint |
 | Upstream audit (`npm run test:upstream`) | **Policy B** — intentional fails (~75/63); not part of root gate |

@@ -1940,3 +1940,235 @@ table.field {
 #runbun-planner .runbun-planner-status[data-kind="ok"] {
 	color: var(--rb-ink-muted);
 }
+
+/* ------------------------------------------------------------------ My Run
+   A playthrough panel: box on the left, catching in the middle, one selected
+   Pokemon on the right. Three columns because those are three different
+   activities, and stacking them would make the box scroll away exactly when a
+   player wants to look at it while catching. */
+#runbun-run .runbun-run-help,
+#runbun-run .runbun-run-limits {
+	max-width: 76ch;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-header {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-md);
+	align-items: baseline;
+	padding: var(--rb-space-sm) 0;
+	border-bottom: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-name {
+	font-family: var(--rb-font-brand);
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+#runbun-run .runbun-run-position {
+	font-family: var(--rb-font-mono);
+}
+/* The cap is a rule the player opted into, so it reads as a standing constraint
+   rather than a status line. */
+#runbun-run .runbun-run-cap:not(:empty) {
+	font-family: var(--rb-font-mono);
+	color: var(--rb-warn-ink);
+	background: var(--rb-warn-soft);
+	border-radius: var(--rb-radius-control);
+	padding: 0 var(--rb-space-sm);
+}
+#runbun-run .runbun-run-columns {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+	gap: var(--rb-space-lg);
+	margin-top: var(--rb-space-md);
+}
+#runbun-run .runbun-run-column {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-sm);
+	min-width: 0;
+}
+#runbun-run .runbun-run-section-label {
+	font-family: var(--rb-font-brand);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-size: 0.8rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-box,
+#runbun-run .runbun-run-encounters {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-height: 22rem;
+	overflow-y: auto;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+}
+#runbun-run .runbun-run-mon {
+	display: grid;
+	grid-template-columns: 3.2rem 1fr;
+	gap: 0 var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border-bottom: 1px solid var(--rb-stroke);
+	cursor: pointer;
+}
+#runbun-run .runbun-run-mon:last-child {
+	border-bottom: 0;
+}
+#runbun-run .runbun-run-mon.is-party {
+	background: var(--rb-brand-soft);
+}
+/* A lost Pokemon stays in the box and stays readable — striking it out would
+   make the one entry a nuzlocke player cares most about the hardest to read. */
+#runbun-run .runbun-run-mon.is-lost {
+	opacity: 0.55;
+}
+#runbun-run .runbun-run-mon.is-selected {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: -2px;
+}
+#runbun-run .runbun-run-mon-slot {
+	font-family: var(--rb-font-mono);
+	font-size: 0.8rem;
+	color: var(--rb-ink-muted);
+	align-self: center;
+	text-align: center;
+}
+#runbun-run .runbun-run-mon-name {
+	font-weight: 600;
+}
+#runbun-run .runbun-run-mon-kit,
+#runbun-run .runbun-run-mon-moves {
+	grid-column: 2;
+	font-size: 0.82rem;
+	color: var(--rb-ink-muted);
+	font-family: var(--rb-font-mono);
+}
+#runbun-run .runbun-run-encounters li {
+	border-bottom: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-encounters li:last-child {
+	border-bottom: 0;
+}
+#runbun-run .runbun-run-encounter {
+	display: block;
+	width: 100%;
+	text-align: left;
+	background: none;
+	border: 0;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	color: inherit;
+	cursor: pointer;
+}
+#runbun-run .runbun-run-encounter:hover,
+#runbun-run .runbun-run-encounter:focus-visible {
+	background: var(--rb-surface-sunken);
+}
+#runbun-run .runbun-run-encounters li.is-owned .runbun-run-encounter {
+	color: var(--rb-ok);
+}
+#runbun-run .runbun-run-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+	align-items: center;
+}
+#runbun-run .runbun-run-row input[type="text"] {
+	flex: 1 1 7rem;
+	min-width: 0;
+}
+#runbun-run .runbun-run-row input[type="number"] {
+	width: 4.5rem;
+}
+#runbun-run .runbun-run-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-check {
+	display: flex;
+	gap: var(--rb-space-xs);
+	align-items: center;
+	font-size: 0.9rem;
+}
+#runbun-run .runbun-run-empty {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-sm);
+	align-items: flex-start;
+	max-width: 32rem;
+}
+#runbun-run .runbun-run-selected {
+	font-family: var(--rb-font-mono);
+}
+#runbun-run .runbun-run-bag,
+#runbun-run .runbun-run-learn {
+	font-family: var(--rb-font-mono);
+	font-size: 0.82rem;
+	color: var(--rb-ink-muted);
+	overflow-wrap: anywhere;
+}
+#runbun-run .runbun-run-actions-row {
+	margin-top: var(--rb-space-lg);
+}
+#runbun-run .runbun-run-plan-verdict:not(:empty) {
+	margin-top: var(--rb-space-sm);
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-left: 3px solid var(--rb-action);
+	background: var(--rb-surface-sunken);
+	border-radius: var(--rb-radius-control);
+	font-weight: 600;
+}
+#runbun-run .runbun-run-plan-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+	margin-top: var(--rb-space-sm);
+}
+#runbun-run .runbun-run-action {
+	display: flex;
+	gap: var(--rb-space-xs);
+	align-items: baseline;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-action.is-top {
+	border-color: var(--rb-action);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-transfer {
+	margin-top: var(--rb-space-lg);
+}
+#runbun-run .runbun-run-transfer textarea {
+	width: 100%;
+	font-family: var(--rb-font-mono);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-status:not(:empty) {
+	margin-top: var(--rb-space-md);
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-radius: var(--rb-radius-control);
+	border-left: 3px solid var(--rb-stroke);
+	background: var(--rb-surface-sunken);
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	max-width: 90ch;
+}
+#runbun-run .runbun-run-status[data-kind="ok"] {
+	border-left-color: var(--rb-ok);
+	background: var(--rb-ok-soft);
+}
+/* A refusal is the feature, not an error state to apologise for: it says why
+   this could not have happened in the game. */
+#runbun-run .runbun-run-status[data-kind="error"] {
+	border-left-color: var(--rb-danger);
+	background: var(--rb-danger-soft);
+}

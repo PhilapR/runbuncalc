@@ -35,15 +35,16 @@
     "terser": "^5.15.1"
   },
   "scripts": {
-    "lint": "npm run lint --prefix calc && npm run lint --prefix ai && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js simulate.js simulate.test.js team.js team.test.js scripts --ext js",
+    "lint": "npm run lint --prefix calc && npm run lint --prefix ai && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js simulate.js simulate.test.js team.js team.test.js run.js run.test.js play.js play.test.js browser_run.test.js scripts --ext js",
     "fix": "subpkg run fix && eslint --fix src --ext js",
     "compile": "npm run compile --prefix calc && npm run compile --prefix ai && node build view",
     "bundle": "subpkg run bundle",
     "simulate": "node simulate.js",
+    "play": "node play.js",
     "import-oracle": "node scripts/import-oracle.js",
     "build": "npm run build --prefix calc && npm run build --prefix ai && node build view",
-    "test": "npm run test --prefix calc && npm run test --prefix ai && npm run build && npm run test:server && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js simulate.js simulate.test.js team.js team.test.js scripts --ext js",
-    "test:server": "node --test server.smoke.test.js browser_planner.test.js planner.test.js simulate.test.js team.test.js runbun_policy.test.js sets_to_battle_state.test.js runbun_sets.test.js runbun_species.test.js runbun_oracle.test.js browser_calc_load.test.js fixtures/ui.test.js",
+    "test": "npm run test --prefix calc && npm run test --prefix ai && npm run build && npm run test:server && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js simulate.js simulate.test.js team.js team.test.js run.js run.test.js play.js play.test.js browser_run.test.js scripts --ext js",
+    "test:server": "node --test server.smoke.test.js browser_planner.test.js browser_run.test.js planner.test.js simulate.test.js team.test.js run.test.js play.test.js runbun_policy.test.js sets_to_battle_state.test.js runbun_sets.test.js runbun_species.test.js runbun_oracle.test.js browser_calc_load.test.js fixtures/ui.test.js",
     "postinstall": "subpkg install"
   },
   "subPackages": [
