@@ -109,14 +109,22 @@ function renderStatus(state) {
 
 function renderEncounters(found) {
 	const lines = [`${found.name} (${found.map})`];
+	if (found.used) {
+		lines.push(`  route used — its encounter was ${found.used.species} L${found.used.level}`);
+	}
 	const byMethod = {};
 	for (const mon of found.mons) (byMethod[mon.method] = byMethod[mon.method] || []).push(mon);
 	for (const method of Object.keys(byMethod)) {
 		lines.push(`  ${method}:`);
 		for (const mon of byMethod[method]) {
+			// Under the nuzlocke rules the odds column is the one that matters:
+			// chance renormalized over the rows a re-roll can actually keep.
+			const odds = mon.dupe ? 'dupe' :
+				typeof mon.odds === 'number' ? `${mon.odds}%` :
+					typeof mon.chance === 'number' ? `${mon.chance}%` : '';
 			lines.push(`    ${mon.owned ? '✓' : ' '} ${mon.species.padEnd(22)} ` +
-				`L${mon.minLevel}${mon.maxLevel === mon.minLevel ? '' : `-${mon.maxLevel}`}` +
-				`${mon.rod ? `  ${mon.rod}` : ''}${mon.slots > 1 ? `  x${mon.slots}` : ''}`);
+				`L${mon.minLevel}${mon.maxLevel === mon.minLevel ? '' : `-${mon.maxLevel}`}`.padEnd(8) +
+				`${odds.padStart(6)}${mon.rod ? `  ${mon.rod}` : ''}`);
 		}
 	}
 	return lines.join('\n');

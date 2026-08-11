@@ -330,6 +330,60 @@ test('permadeath is a declared rule, not the default', () => {
 		/has fainted for good/);
 });
 
+test('nuzlocke: one random catch per route, and dupes do not count', () => {
+	// Without the ruleset, a second catch on the same route stays legal.
+	let free = run.apply(fresh(), {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3});
+	free = run.apply(free, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	assert.equal(free.box.length, 2);
+
+	// Under it, the route's encounter is spent by the first catch...
+	let hard = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	assert.throws(() => run.apply(hard, {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}),
+		/already used its one Route101 encounter on Poochyena/);
+
+	// ...and losing or releasing the catch does not refund it: the log is the
+	// record, not the box.
+	const released = run.apply(hard, {kind: 'release', id: 'mon-1'});
+	assert.throws(() => run.apply(released, {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}),
+		/does not refund/);
+
+	// The dupes clause reaches across the evolution line: a caught Buizel makes
+	// a Floatzel on a different route a dupe.
+	let water = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Buizel', map: 'Route104', level: 5, method: 'fish'});
+	assert.throws(() => run.apply(water, {kind: 'catch', species: 'Floatzel', map: 'Route102', level: 50}),
+		/dupe of Buizel/);
+
+	// A gift or static (no map) is not the route's random encounter: exempt.
+	const gift = run.apply(hard, {kind: 'catch', species: 'Poochyena', level: 5});
+	assert.equal(gift.box.length, 2);
+	assert.equal(run.findMon(gift, 'mon-2').origin.method, 'declared');
+});
+
+test('nuzlocke: the encounter list is a forecast — odds, dupes, and a used route', () => {
+	// Plain run: every row carries its raw table chance and nothing else.
+	const plain = run.encountersOn(fresh(), 'Route101');
+	const lillipup = plain.mons.find(mon => mon.species === 'Lillipup');
+	assert.equal(lillipup.chance, 20);
+	assert.equal(lillipup.dupe, undefined);
+	assert.equal(plain.used, undefined);
+
+	// Nuzlocke run that owns Poochyena: its row is a dead slot, and the odds of
+	// everything else renormalize over the 90% a re-roll can actually keep.
+	const state = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	const here = run.encountersOn(state, 'Route101');
+	const pooch = here.mons.find(mon => mon.species === 'Poochyena');
+	assert.equal(pooch.dupe, true);
+	assert.equal(pooch.odds, 0);
+	const scout = here.mons.find(mon => mon.species === 'Lillipup');
+	assert.equal(scout.dupe, false);
+	assert.equal(scout.odds, Math.round(20 / 90 * 1000) / 10);
+	// And the route says it has already been used, naming what it gave.
+	assert.deepEqual(here.used, {species: 'Poochyena', level: 3});
+});
+
 test('beating a fight moves the run forward, and only forward', () => {
 	let state = run.apply(fresh(), {kind: 'beat', trainer: 'Youngster Calvin'});
 	assert.equal(state.position, 0);
@@ -792,9 +846,10 @@ test('the box matrix leaves out Pokemon that are gone for good', () => {
 	// A dead Pokemon under permadeath is not a choice, so a row for it can only
 	// mislead — the grid answers "which six" and it is not eligible for any of
 	// them.
+	// Two routes, because a nuzlocke gets one catch per route.
 	let state = run.applyAll(fresh({permadeath: true}), [
 		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		MARILL,
 		{kind: 'faint', id: 'mon-2'},
 	]);
 	const matrix = run.boxMatrix(state);

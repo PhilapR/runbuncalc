@@ -52,6 +52,27 @@ test('the first route of the run has the roster Run & Bun gives it', () => {
 	}
 });
 
+test('every encounter table is a probability distribution, straight from the fields declaration', () => {
+	// Slot odds come from the decomp's own `encounter_rates`, and this hack
+	// re-weights them (its land table runs 20/10/…/1, not vanilla's 20/20/…).
+	// Route 101's slot 0 is Lillipup at 20% — pinned so a regeneration that
+	// silently falls back to vanilla weights fails a value, not a shape.
+	const route = oracle.encountersOn('Route101');
+	assert.equal(route.mons.find(m => m.species === 'Lillipup').chance, 20);
+	assert.equal(route.mons.find(m => m.species === 'Starly').chance, 5);
+
+	// And every table everywhere sums to ~100 — including the padded ones
+	// (Altering Cave declares real species and empty slots; the empties'
+	// weight is renormalized away rather than left as missing probability).
+	for (const map of oracle.maps()) {
+		for (const table of map.tables) {
+			const total = table.mons.reduce((sum, mon) => sum + mon.chance, 0);
+			assert.ok(Math.abs(total - 100) < 0.5,
+				`${map.name} ${table.method} sums to ${total}`);
+		}
+	}
+});
+
 test('a map resolves by constant or by name, and an unknown one is null', () => {
 	assert.equal(oracle.getMap('MAP_ROUTE101').map, 'MAP_ROUTE101');
 	assert.equal(oracle.getMap('route 101').map, 'MAP_ROUTE101');

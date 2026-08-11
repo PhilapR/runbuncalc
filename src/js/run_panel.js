@@ -384,16 +384,33 @@
 		var $list = $('#runbun-run-encounters').empty();
 		if (!state || !map) return;
 		api('/run/where', {run: state, map: map}).then(function (found) {
+			// Under the nuzlocke rules the list is a forecast, not a menu: the
+			// route's encounter is random, a used route says so, and a dupe row is
+			// dead weight the re-roll skips — its odds go to what's left.
+			if (found.used) {
+				$list.append($('<li class="runbun-run-route-used"></li>')
+					.text('Route used — its encounter was ' + found.used.species +
+						' L' + found.used.level + '.'));
+			}
 			found.mons.forEach(function (mon) {
+				var odds = mon.dupe ? 'dupe' :
+					typeof mon.odds === 'number' ? mon.odds + '%' :
+						typeof mon.chance === 'number' ? mon.chance + '%' : '';
 				$list.append($('<li></li>')
 					.toggleClass('is-owned', !!mon.owned)
+					.toggleClass('is-dupe', !!mon.dupe)
 					.append($('<button type="button" class="runbun-run-encounter"></button>')
 						.attr('data-species', mon.species)
 						.attr('data-level', mon.minLevel)
 						.attr('data-method', mon.method)
+						.attr('title', mon.dupe ?
+							'Same evolution line as a box entry — does not count, re-roll' :
+							typeof mon.odds === 'number' && mon.odds !== mon.chance ?
+								mon.chance + '% raw, ' + mon.odds + '% once dupes are re-rolled' : null)
 						.text((mon.owned ? '✓ ' : '') + mon.species + '  L' + mon.minLevel +
 							(mon.maxLevel === mon.minLevel ? '' : '-' + mon.maxLevel) +
-							(mon.rod ? '  ' + mon.rod : ''))));
+							(mon.rod ? '  ' + mon.rod : '') +
+							(odds ? '  · ' + odds : ''))));
 			});
 		}).catch(function (error) {
 			status(error.message, 'error');

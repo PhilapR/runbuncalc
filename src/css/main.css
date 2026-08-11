@@ -2170,6 +2170,20 @@ table.field {
 #runbun-run .runbun-run-encounters li.is-owned .runbun-run-encounter {
 	color: var(--rb-ok);
 }
+/* A dupe row does not count under the nuzlocke rules: muted and struck, but
+   still clickable — declaring a run non-nuzlocke or checking the tooltip is
+   the player's call, not the list's. */
+#runbun-run .runbun-run-encounters li.is-dupe .runbun-run-encounter {
+	color: var(--rb-ink-muted);
+	text-decoration: line-through;
+}
+#runbun-run .runbun-run-route-used {
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-size: 0.78rem;
+	color: var(--rb-warn-ink);
+	background: var(--rb-warn-soft);
+	border-left: 3px solid var(--rb-warn);
+}
 #runbun-run .runbun-run-row {
 	display: flex;
 	flex-wrap: wrap;

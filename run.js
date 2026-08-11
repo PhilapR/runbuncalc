@@ -125,8 +125,12 @@ function createRun(options) {
 		position: -1,
 		rules: {
 			levelCap: mode,
-			// Permadeath is the nuzlocke rule, off by default. When on, a fainted
-			// Pokemon can never re-enter the party.
+			// The nuzlocke ruleset, off by default. When on: a fainted Pokemon can
+			// never re-enter the party, a map's wild table gives ONE catch for the
+			// whole run (the encounter is random — the player reports what came up),
+			// and a species whose evolution line is already in the box does not
+			// count (the dupes clause: re-roll and report the non-dupe). Kept under
+			// its historical field name so older saves stay readable.
 			permadeath: !!opts.permadeath,
 			// Which rival variant this run faces — fixed by the starter choice at
 			// the top of the game. Null means undeclared: all variants stay
@@ -323,16 +327,59 @@ function milestones(run) {
 }
 
 /** What can be caught on a map, with what the run already holds marked. */
+/**
+ * The base form a species' evolution line is named for — the identity the
+ * dupes clause compares. A Mightyena is a dupe of a caught Poochyena and the
+ * other way around, because they are the same line.
+ */
+function familyOf(profile, species) {
+	const line = profile.oracle.lineageOf(species);
+	return line.length ? line[line.length - 1] : species;
+}
+
+/**
+ * The catch this run already made on a map, if any — from the log, because the
+ * box forgets: releasing or losing the catch does not refund the route.
+ */
+function routeCatch(run, profile, canonicalMap) {
+	for (const entry of run.log) {
+		if (!entry.command || entry.command.kind !== 'catch' || !entry.command.map) continue;
+		const where = profile.oracle.encountersOn(entry.command.map);
+		if (where && where.map === canonicalMap) return entry.command;
+	}
+	return null;
+}
+
 function encountersOn(run, map) {
 	const profile = getProfile(run.profileId);
 	const found = profile.oracle.encountersOn(map);
 	if (!found) return null;
 	const owned = new Set(run.box.map(mon => mon.species));
-	return {
-		map: found.map,
-		name: found.name,
-		mons: found.mons.map(mon => Object.assign({owned: owned.has(mon.species)}, mon)),
-	};
+	const mons = found.mons.map(mon => Object.assign({owned: owned.has(mon.species)}, mon));
+	const answer = {map: found.map, name: found.name, mons};
+
+	// Under the nuzlocke rules the list is not a menu, it is a forecast: the
+	// encounter is random, so each row carries its table odds, dupes are marked
+	// (they do not count — the player re-rolls), and `odds` renormalizes the
+	// chance over what can actually be kept. Per method, because walking and
+	// fishing are separate dice.
+	if (run.rules.permadeath) {
+		const families = new Set(run.box.map(mon => familyOf(profile, mon.species)));
+		const liveByMethod = {};
+		for (const mon of mons) {
+			mon.dupe = families.has(familyOf(profile, mon.species));
+			if (!mon.dupe) {
+				liveByMethod[mon.method] = (liveByMethod[mon.method] || 0) + mon.chance;
+			}
+		}
+		for (const mon of mons) {
+			mon.odds = mon.dupe || !liveByMethod[mon.method] ? 0 :
+				Math.round(mon.chance / liveByMethod[mon.method] * 1000) / 10;
+		}
+		const used = routeCatch(run, profile, found.map);
+		if (used) answer.used = {species: used.species, level: used.level};
+	}
+	return answer;
 }
 
 /** What a box entry could be taught, split by whether it can be taught NOW. */
@@ -565,6 +612,24 @@ const COMMANDS = {
 			throw new Error('catch: level must be an integer from 1 to 100');
 		}
 		const origin = checkEncounter(profile, Object.assign({}, command, {level}));
+
+		// The nuzlocke encounter rules, on wild catches only — a gift, static or
+		// trade (no map) is not the route's random encounter and stays exempt.
+		if (run.rules.permadeath && origin.map) {
+			const prior = routeCatch(run, profile, origin.map);
+			if (prior) {
+				throw new Error(`catch: this run already used its one ${origin.mapName} ` +
+					`encounter on ${prior.species} — a route gives one random catch, ` +
+					'and releasing or losing it does not refund it');
+			}
+			const family = familyOf(profile, command.species);
+			const dupe = run.box.find(mon => familyOf(profile, mon.species) === family);
+			if (dupe) {
+				throw new Error(`catch: ${command.species} is a dupe of ${dupe.species} ` +
+					`(${dupe.id}) — same evolution line, so it does not count; ` +
+					're-roll and report what came up instead');
+			}
+		}
 
 		// Default the moveset to what the species would actually know at this
 		// level. A caught Pokemon arrives with moves; making the player type four

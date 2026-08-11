@@ -240,6 +240,19 @@ function importEncounters(decomp, problems) {
 	if (!group) throw new Error('wild_encounters.json has no gWildMonHeaders group');
 	const rodByIndex = fishingRods(group.fields);
 
+	// Per-slot encounter odds, from the group's own `fields` declaration — the
+	// same place the rod split comes from, and for the same reason: a hack is
+	// free to re-weight its slots, and this one does (its land table runs
+	// 20/10/…/1, not vanilla's 20/20/…). A random-encounter ruleset makes these
+	// odds load-bearing: "what will this route give me" is this array.
+	const ratesByField = new Map(
+		(group.fields || []).map(field => [field.type, field.encounter_rates]));
+	for (const key of Object.keys(ENCOUNTER_METHODS)) {
+		if (!ratesByField.get(key)) {
+			throw new Error(`wild_encounters.json: ${key} declares no encounter_rates`);
+		}
+	}
+
 	const maps = [];
 	for (const entry of group.encounters) {
 		const location = {map: entry.map, name: mapLabel(entry.map), tables: []};
@@ -248,9 +261,11 @@ function importEncounters(decomp, problems) {
 			if (!table || !table.mons || !table.mons.length) continue;
 			const method = ENCOUNTER_METHODS[key];
 
-			// One slot per distinct (species, level range). The raw table repeats a
-			// species once per encounter slot to express its rate; a player choosing
-			// what to catch wants the roster, and the slot count is the rate.
+			// One row per distinct (species, level range). The raw table repeats a
+			// species once per encounter slot to express its rate; a player wants
+			// the roster, so the merged row carries `chance` — the sum of its
+			// slots' declared rates, in percent.
+			const rates = ratesByField.get(key);
 			const grouped = new Map();
 			table.mons.forEach((mon, index) => {
 				// An empty slot is data, not a failure: several tables are padded out
@@ -267,10 +282,16 @@ function importEncounters(decomp, problems) {
 					problems.push(`${entry.map}/${key}[${index}]: no rod group declares slot ${index}`);
 					return;
 				}
+				const rate = rates[index];
+				if (typeof rate !== 'number') {
+					problems.push(`${entry.map}/${key}[${index}]: no declared rate for slot ${index}`);
+					return;
+				}
 				const key2 = `${species}|${mon.min_level}|${mon.max_level}|${rod || ''}`;
 				const found = grouped.get(key2);
 				if (found) {
 					found.slots += 1;
+					found.chance += rate;
 					return;
 				}
 				grouped.set(key2, {
@@ -278,14 +299,25 @@ function importEncounters(decomp, problems) {
 					minLevel: mon.min_level,
 					maxLevel: mon.max_level,
 					slots: 1,
+					chance: rate,
 					...(rod ? {rod} : {}),
 				});
 			});
 
+			// `chance` is the percent of encounters on this table, so a padded
+			// table (Altering Cave declares one real species and eleven empty
+			// slots) normalizes to that species at 100%, not 20%.
+			const mons = [...grouped.values()];
+			const total = mons.reduce((sum, mon) => sum + mon.chance, 0);
+			if (total && total !== 100) {
+				for (const mon of mons) {
+					mon.chance = Math.round(mon.chance / total * 1000) / 10;
+				}
+			}
 			location.tables.push({
 				method,
 				encounterRate: table.encounter_rate,
-				mons: [...grouped.values()],
+				mons,
 			});
 		}
 		if (location.tables.length) maps.push(location);
