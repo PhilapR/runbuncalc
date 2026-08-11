@@ -119,6 +119,14 @@ function dupesMode(opts) {
  */
 function encounterRules(run) {
 	const rules = run.rules;
+	// A stored mode nobody defined is refused, not quietly played as 'line':
+	// the server accepts arbitrary run JSON, and a corrupted or future-vintage
+	// save silently enforcing rules the player never chose is the exact class
+	// of bug the toggles exist to prevent.
+	if (rules.dupesClause !== undefined && !DUPES_MODES.has(rules.dupesClause)) {
+		throw new Error(`unknown dupes clause ${JSON.stringify(rules.dupesClause)} ` +
+			`stored in this run's rules; the modes are: ${[...DUPES_MODES].join(', ')}`);
+	}
 	return {
 		onePerRoute: rules.onePerRoute !== undefined ?
 			!!rules.onePerRoute : !!rules.permadeath,
@@ -421,39 +429,71 @@ function familyOf(profile, species) {
 	return line.length ? line[line.length - 1] : species;
 }
 
-let calcSpecies = null;
+/**
+ * The 'forms' identity: families closed over the dex's base-form links, so
+ * every regional branch of a line shares one key with the base line.
+ *
+ * A CLOSURE, not a per-species collapse. familyOf(baseForm(species)) looked
+ * right and was not a superset of 'line': Obstagoon's base form is itself, so
+ * it kept the Galar line's key while Zigzagoon-Galar collapsed to the Kanto
+ * line's — the strictest mode accepting a catch the default refuses. Instead,
+ * every dex form entry unions its family with its base species' family once,
+ * and a key is the merged component's root. Cached per profile, because the
+ * unkeyed-singleton trap is already on this project's audit wall.
+ */
+const formsMergeByProfile = new Map();
 
-/** A form's base species per the calculator's dex — Grimer-Alola → Grimer. */
-function baseForm(species) {
-	if (!calcSpecies) {
+function formsRootOf(profile, species) {
+	let merged = formsMergeByProfile.get(profile.id);
+	if (!merged) {
+		const parent = new Map();
+		const find = key => {
+			let root = key;
+			while (parent.get(root) !== root) root = parent.get(root);
+			parent.set(key, root);
+			return root;
+		};
+		const ensure = key => {
+			if (!parent.has(key)) parent.set(key, key);
+			return key;
+		};
 		const calc = require('@smogon/calc');
-		calcSpecies = {gen: calc.Generations.get(8), toID: calc.toID};
+		for (const dexEntry of calc.Generations.get(8).species) {
+			if (!dexEntry.baseSpecies || dexEntry.baseSpecies === dexEntry.name) continue;
+			const formRoot = find(ensure(familyOf(profile, dexEntry.name)));
+			const baseRoot = find(ensure(familyOf(profile, dexEntry.baseSpecies)));
+			if (formRoot !== baseRoot) parent.set(formRoot, baseRoot);
+		}
+		merged = {find, ensure};
+		formsMergeByProfile.set(profile.id, merged);
 	}
-	const found = calcSpecies.gen.species.get(calcSpecies.toID(species));
-	return (found && found.baseSpecies) || species;
+	return merged.find(merged.ensure(familyOf(profile, species)));
 }
 
 /**
- * The identity a catch is compared under, per the run's dupes mode — or null
- * when the clause is off. 'forms' collapses to the base form FIRST, then the
- * graph: Sandshrew-Alola → Sandshrew → its whole line, so every regional
- * branch of a line lands on one key.
+ * The identity a catch is compared under, for a dupes mode — or null when the
+ * clause is off. The mode is resolved once by the caller, not re-derived per
+ * box entry: a dupe scan asks this for every mon it holds.
  */
-function dupeKey(run, profile, species) {
-	const mode = encounterRules(run).dupes;
+function dupeKey(mode, profile, species) {
 	if (mode === 'off') return null;
 	if (mode === 'species') return species;
-	if (mode === 'forms') return familyOf(profile, baseForm(species));
+	if (mode === 'forms') return formsRootOf(profile, species);
 	return familyOf(profile, species);
 }
 
 /**
  * The catch this run already made on a map, if any — from the log, because the
- * box forgets: releasing or losing the catch does not refund the route.
+ * box forgets: releasing or losing the catch does not refund the route. A
+ * shiny-claimed catch under the shiny clause is skipped: the clause's whole
+ * point is that a shiny is a bonus, so it must not CONSUME the route either —
+ * a shiny stumbled on first would otherwise block the route's real encounter.
  */
 function routeCatch(run, profile, canonicalMap) {
+	const shinyFree = encounterRules(run).shiny;
 	for (const entry of run.log) {
 		if (!entry.command || entry.command.kind !== 'catch' || !entry.command.map) continue;
+		if (shinyFree && entry.command.shiny) continue;
 		const where = profile.oracle.encountersOn(entry.command.map);
 		if (where && where.map === canonicalMap) return entry.command;
 	}
@@ -476,10 +516,10 @@ function encountersOn(run, map) {
 	// follows its own toggle.
 	const rules = encounterRules(run);
 	if (rules.dupes !== 'off') {
-		const keys = new Set(run.box.map(mon => dupeKey(run, profile, mon.species)));
+		const keys = new Set(run.box.map(mon => dupeKey(rules.dupes, profile, mon.species)));
 		const liveByMethod = {};
 		for (const mon of mons) {
-			mon.dupe = keys.has(dupeKey(run, profile, mon.species));
+			mon.dupe = keys.has(dupeKey(rules.dupes, profile, mon.species));
 			if (!mon.dupe) {
 				liveByMethod[mon.method] = (liveByMethod[mon.method] || 0) + mon.chance;
 			}
@@ -790,8 +830,8 @@ const COMMANDS = {
 			}
 		}
 		if (rules.dupes !== 'off' && origin.map && !shinyExempt) {
-			const key = dupeKey(run, profile, command.species);
-			const dupe = run.box.find(mon => dupeKey(run, profile, mon.species) === key);
+			const key = dupeKey(rules.dupes, profile, command.species);
+			const dupe = run.box.find(mon => dupeKey(rules.dupes, profile, mon.species) === key);
 			if (dupe) {
 				throw new Error(`catch: ${command.species} is a dupe of ${dupe.species} ` +
 					`(${dupe.id}) under the ${JSON.stringify(rules.dupes)} dupes clause, ` +

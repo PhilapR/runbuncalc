@@ -232,10 +232,14 @@ const SUBCOMMANDS = {
 			levelCap: args.flags['no-cap'] ? 'none' : 'next-milestone-ace',
 			// --nuzlocke is the preset; each rule also stands alone as its own
 			// flag, stated as on/off so any preset choice can be overridden.
+			// The fallbacks chase the PRESET flag, not the resolved permadeath:
+			// --nuzlocke --permadeath off means the table minus permadeath, not
+			// no rules at all.
 			permadeath: onOff(args.flags.permadeath, !!args.flags.nuzlocke),
-			onePerRoute: onOff(args.flags.route, undefined),
-			dupesClause: args.flags.dupes,
-			shinyClause: onOff(args.flags['shiny-clause'], undefined),
+			onePerRoute: onOff(args.flags.route, args.flags.nuzlocke ? true : undefined),
+			dupesClause: args.flags.dupes !== undefined ? args.flags.dupes :
+				args.flags.nuzlocke ? 'line' : undefined,
+			shinyClause: onOff(args.flags['shiny-clause'], args.flags.nuzlocke ? true : undefined),
 			// Named for the rival's ace, which the starter choice fixes. Without it
 			// all three variants of each rival fight stay visible.
 			rival: args.flags.rival || null,
@@ -302,7 +306,7 @@ const SUBCOMMANDS = {
 				item: args.flags.item,
 				// The shiny clause: a natural shiny is keepable over the route
 				// rule and the dupes clause, and the exemption is recorded.
-				shiny: args.flags.shiny === true || undefined,
+				shiny: onOff(args.flags.shiny, undefined) || undefined,
 				moves: args.flags.moves ? String(args.flags.moves).split(',').map(m => m.trim()) : undefined,
 			},
 		};

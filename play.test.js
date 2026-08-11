@@ -107,6 +107,23 @@ test('a missing save file says how to start one', () => {
 	assert.throws(() => cli('status'), /no run at .*; start one with: node play\.js new/);
 });
 
+test('the preset survives a single override, and --shiny takes on/off', () => {
+	// --nuzlocke --permadeath off is the table minus permadeath, not no rules:
+	// the other three fallbacks chase the PRESET flag, not resolved permadeath.
+	cli('new', '--name', 'Overridden', '--nuzlocke', '--permadeath', 'off');
+	let onDisk = read();
+	assert.equal(onDisk.rules.permadeath, false);
+	assert.equal(onDisk.rules.onePerRoute, true);
+	assert.equal(onDisk.rules.dupesClause, 'line');
+	assert.equal(onDisk.rules.shinyClause, true);
+
+	// --shiny on means the same as bare --shiny; the sibling rule flags taught
+	// the on/off convention and this one must not silently drop it.
+	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3', '--shiny', 'on');
+	onDisk = read();
+	assert.equal(onDisk.box[0].shiny, true);
+});
+
 test('the caps are the game\'s: on by default, --no-cap is the escape hatch', () => {
 	cli('new');
 	assert.equal(read().rules.levelCap, 'next-milestone-ace');

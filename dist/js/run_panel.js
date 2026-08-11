@@ -464,6 +464,15 @@
 					.text('Route used — its encounter was ' + found.used.species +
 						' L' + found.used.level + '.'));
 			}
+			// The dupe tooltip names the mode in force — 'species' and 'line'
+			// draw the line in different places, which is the toggle's point.
+			var dupesMode = lastStatus && lastStatus.status.rules ?
+				lastStatus.status.rules.dupes : 'line';
+			var dupeTitle = {
+				species: 'Already in the box — the same species does not count, re-roll',
+				line: 'Same evolution line as a box entry — does not count, re-roll',
+				forms: 'Same line as a box entry, or a regional form of it — does not count, re-roll',
+			}[dupesMode] || 'A dupe under this run\'s rules — does not count, re-roll';
 			found.mons.forEach(function (mon) {
 				var odds = mon.dupe ? 'dupe' :
 					typeof mon.odds === 'number' ? mon.odds + '%' :
@@ -476,7 +485,7 @@
 						.attr('data-level', mon.minLevel)
 						.attr('data-method', mon.method)
 						.attr('title', mon.dupe ?
-							'Same evolution line as a box entry — does not count, re-roll' :
+							dupeTitle :
 							typeof mon.odds === 'number' && mon.odds !== mon.chance ?
 								mon.chance + '% raw, ' + mon.odds + '% once dupes are re-rolled' : null)
 						.text((mon.owned ? '✓ ' : '') + mon.species + '  L' + mon.minLevel +

@@ -454,6 +454,34 @@ test('every encounter rule is its own toggle, and old saves keep their bundle', 
 	const byLine = run.apply(run.apply(fresh({dupesClause: 'line', permadeath: true}), geodude), alolan);
 	assert.equal(byLine.box.length, 2);
 
+	// 'forms' is a strict SUPERSET of 'line': the closure reaches a species
+	// whose base form is itself but whose line a regional pre-evolution ties
+	// to the base line — Obstagoon through Zigzagoon-Galar's base Zigzagoon.
+	// Collapsing each species to its own base form missed this and let the
+	// strictest mode accept a catch the default refuses.
+	const galar = run.apply(fresh({dupesClause: 'forms', permadeath: true}),
+		{kind: 'catch', species: 'Zigzagoon-Galar', map: 'Route101', level: 3});
+	assert.throws(() => run.apply(galar,
+		{kind: 'catch', species: 'Obstagoon', map: 'Mt Pyre 5f', level: 58}),
+	/dupe of Zigzagoon-Galar/);
+
+	// A shiny does not CONSUME the route either: caught first under the shiny
+	// clause, the route's real random encounter is still owed.
+	const shinyFirst = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, shiny: true});
+	assert.equal(run.encountersOn(shinyFirst, 'Route101').used, undefined);
+	const thenReal = run.apply(shinyFirst,
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3});
+	assert.equal(thenReal.box.length, 2);
+	assert.deepEqual(run.encountersOn(thenReal, 'Route101').used,
+		{species: 'Lillipup', level: 3});
+
+	// A stored mode nobody defined is refused when read, not played as 'line'.
+	const tampered = fresh({permadeath: true});
+	tampered.rules.dupesClause = 'strict';
+	assert.throws(() => run.encountersOn(tampered, 'Route101'),
+		/unknown dupes clause "strict" stored/);
+
 	// Route rule alone: a dupe is fine, a second catch on the same map is not.
 	const routeOnly = run.apply(fresh({onePerRoute: true, dupesClause: 'off'}),
 		{kind: 'catch', species: 'Buizel', map: 'Route104', level: 5, method: 'fish'});
