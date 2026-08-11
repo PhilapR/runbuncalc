@@ -1276,6 +1276,17 @@ const COMMANDS = {
 			mon.moves[at] = command.move;
 			return `${mon.species} (${mon.id}) forgot ${command.replace}, learned ${command.move}`;
 		}
+		// A named replace is honored below four moves too — a player who says
+		// "over Water Gun" wants Water Gun GONE, and silently appending instead
+		// kept the move while the summary implied the swap happened.
+		if (command.replace) {
+			const at = mon.moves.indexOf(command.replace);
+			if (at === -1) {
+				throw new Error(`teach: ${mon.species} does not know ${command.replace}`);
+			}
+			mon.moves[at] = command.move;
+			return `${mon.species} (${mon.id}) forgot ${command.replace}, learned ${command.move}`;
+		}
 		mon.moves.push(command.move);
 		return `${mon.species} (${mon.id}) learned ${command.move}`;
 	},

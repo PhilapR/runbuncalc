@@ -154,6 +154,24 @@ test('evolution follows the table, including when it is not due yet', () => {
 		/does not become Beautifly/);
 });
 
+test('a named replace is honored below four moves too', () => {
+	// Found live: a Skrelp with two moves taught 'Hydro Pump over Water Gun'
+	// KEPT Water Gun — the replace was silently dropped because a free slot
+	// existed, while the summary implied the swap happened. A named replace
+	// means the old move goes, at any move count.
+	let state = run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Skrelp', map: 'Route103', level: 2, method: 'fish'},
+	]);
+	assert.ok(state.box[0].moves.includes('Water Gun'));
+	state = run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Hydro Pump', replace: 'Water Gun'});
+	assert.ok(!state.box[0].moves.includes('Water Gun'), 'the replaced move must be gone');
+	assert.ok(state.box[0].moves.includes('Hydro Pump'));
+	assert.match(state.log[state.log.length - 1].summary, /forgot Water Gun/);
+	// And a replace naming a move it does not know is still refused.
+	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Play Rough', replace: 'Tackle'}),
+		/does not know Tackle/);
+});
+
 test('a move must be one the species can actually hold', () => {
 	let state = run.apply(fresh(), MARILL);
 	state = run.apply(state, {kind: 'evolve', id: 'mon-1'});
