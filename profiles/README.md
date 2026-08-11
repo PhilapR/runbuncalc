@@ -42,6 +42,7 @@ L5 exists as `planner.js`, reachable over HTTP:
 | `GET /planner/upcoming?after=&count=` | what is next from a point in the run |
 | `GET /planner/fight?trainer=` | one trainer's party |
 | `POST /planner/predict` | the opponent's ranked actions and a decision margin |
+| `POST /run/matrix` | every alive box mon vs every mon in a fight, both directions |
 
 It owns no rules — parties come from the run map, damage from the calculator,
 decisions from the policy — so a wrong answer there is a bug in a layer beneath
@@ -54,6 +55,17 @@ layer below it answers a question about a position and forgets. It is the layer
 the profile's `oracle` serves: a catch is checked against the map's real
 encounter table, an evolution against the real evolution line, a taught move
 against the real learnset, so a run is verified rather than merely recorded.
+
+The layering rule the solving stack follows: **L5 tools stay run-agnostic and
+take explicit inputs; everything that reads the save or the cap rules lives at
+L6.** Cap projection is the worked example — `planNext` and `simulate --run`
+project party levels to `capAt(fight)` (the free candy makes those the levels
+the player will legally have there) before handing them DOWN to the planner,
+which never learns a run exists. `planner.matchup` follows the same rule from
+the other side: it grades every pair through the policy's own damage facts, so
+its KO and speed calls agree by construction with every other number the
+product shows, and `run.boxMatrix` is the thin L6 wrapper that feeds it the
+projected box.
 
 L0–L1 is a calculator. L3 is an opponent oracle. L4–L5 is a fight planner. L6 is
 a playthrough. The same primitives serve a player who wants one number and a

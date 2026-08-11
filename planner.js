@@ -282,7 +282,153 @@ function predict(options) {
 	};
 }
 
+/**
+ * The hardest hitter among one side's actions, by top roll.
+ *
+ * Top roll first because a grid cell is read as "can this kill", and the roll
+ * that decides that is the high one; the floor breaks ties, so two moves with
+ * the same ceiling rank by the damage a player can actually count on.
+ */
+function bestDamagingMove(evaluations) {
+	let best = null;
+	for (const evaluation of evaluations) {
+		if (evaluation.action.kind !== 'move') continue;
+		// `isDamagingFacts` is the policy's own test, so a move that deals no
+		// damage here is one the policy also refuses to score as damage —
+		// Status moves, and immunities that came out of the calculator as zero.
+		if (!ai.isDamagingFacts(evaluation.facts)) continue;
+		const damage = ai.scoringDamageFacts(evaluation.facts);
+		if (!best || damage.max > best.damage.max ||
+			(damage.max === best.damage.max && damage.min > best.damage.min)) {
+			best = {move: evaluation.action.moveName, damage};
+		}
+	}
+	return best;
+}
+
+/**
+ * One direction of a matchup, as fractions rather than HP.
+ *
+ * A grid puts a Poochyena's 20 HP bar next to a Metagross's 250 in the same
+ * column, so raw damage compares nothing. A share of the defender's bar is the
+ * only number that means the same thing in every cell.
+ *
+ * The KO booleans are NOT re-derived from those fractions. They are the
+ * policy's own `guaranteedKO`/`possibleKO`, which already account for Sturdy,
+ * Focus Sash, Disguise and multi-hit rolls — a cell that recomputed
+ * `max >= 1` would disagree with the predictor about the same exchange.
+ */
+function matchupDirection(evaluations) {
+	const speed = evaluations.length ? evaluations[0].facts.attackerSpeed : undefined;
+	const best = bestDamagingMove(evaluations);
+	if (!best) {
+		// A side with nothing but status moves is a real cell, not an error: it
+		// deals nothing, and saying so is the answer.
+		return {move: null, max: 0, min: 0, guaranteedKO: false, possibleKO: false, speed};
+	}
+	const hp = best.damage.targetHp;
+	return {
+		move: best.move,
+		max: hp > 0 ? best.damage.max / hp : 0,
+		min: hp > 0 ? best.damage.min / hp : 0,
+		guaranteedKO: best.damage.guaranteedKO,
+		possibleKO: best.damage.possibleKO,
+		speed,
+	};
+}
+
+/** Faster/slower/tie, from the speeds each side's own facts reported. */
+function speedRelation(us, them) {
+	if (typeof us !== 'number' || typeof them !== 'number') return null;
+	return us > them ? 'faster' : us < them ? 'slower' : 'tie';
+}
+
+/**
+ * The box-versus-trainer matrix: every Pokemon offered against every one of a
+ * trainer's, in both directions.
+ *
+ * The calculator's legacy box grid answered this by colouring each opposing
+ * sprite from a raw damage call. Those colours were right about damage and
+ * blind to everything else: they could not say whether the opponent would pick
+ * the move being coloured, and their numbers agreed with nothing else on the
+ * page. This asks the POLICY instead — the same `ai.evaluateActions` the
+ * predictor ranks turns with — so a cell's KO pressure is the fact the AI is
+ * acting on rather than a second opinion about it, and the grid, the plan and
+ * the simulation cannot drift apart.
+ *
+ * Both directions are evaluated, because half a matchup is not one: "we OHKO
+ * it" and "it OHKOs us first" are the same cell and only the pair decides the
+ * fight.
+ *
+ * L5, so explicit inputs and no run awareness. `playerParty` is levels and
+ * moves somebody handed in; this function does not know a save file exists and
+ * cannot project a level to a cap. `run.boxMatrix` does that, and has to,
+ * because the cap rules live at L6 with the save.
+ *
+ * Each pair is its own 1v1 state with no benches — not a simplification of a
+ * six-on-six fight but the question the grid asks: if these two are the ones
+ * on the field, who wins the exchange. A bench would only add switch actions
+ * that no cell can show.
+ */
+function matchup(options) {
+	const opts = options || {};
+	const profile = getProfile(opts.profileId);
+	const b = loadBridge(profile);
+	const fight = getFight(opts.trainer, opts.profileId);
+
+	if (!opts.playerParty || !opts.playerParty.length) {
+		throw new Error('playerParty is required: the planner cannot compare a trainer to no team');
+	}
+
+	const ours = opts.playerParty.map((mon, i) =>
+		playerStateFromEntry(b, mon, `player-${i + 1}`));
+	const theirs = fight.party.map((mon, i) =>
+		b.pokemonStateFromSet(mon.species, mon.setLabel, `ai-${i + 1}`));
+
+	const grid = theirs.map(enemy => ({
+		enemy: {species: enemy.species, level: enemy.level},
+		versus: ours.map(entry => {
+			// Every cell gets its own copy of both Pokemon under the ids a 1v1
+			// state uses. Sharing one object across the row would let any state a
+			// later cell wrote leak backwards into a number already reported.
+			const player = Object.assign(clone(entry.state), {id: 'player-1'});
+			const foe = Object.assign(clone(enemy), {id: 'ai-1'});
+			const state = b.buildBattleState({
+				aiActive: foe,
+				playerActive: player,
+				mode: 'Singles',
+				field: opts.field || {},
+			});
+			ai.validateBattleState(state);
+			const us = matchupDirection(
+				ai.evaluateActions(state, ai.calculateActionFacts, 'player'));
+			const them = matchupDirection(
+				ai.evaluateActions(state, ai.calculateActionFacts, 'ai'));
+			return {
+				species: player.species,
+				level: player.level,
+				speed: speedRelation(us.speed, them.speed),
+				us,
+				them,
+			};
+		}),
+	}));
+
+	return {
+		trainer: fight.trainer,
+		order: fight.order,
+		// Same warning `predict` carries: a borrowed slot is a trainer's build,
+		// so its row is an answer about a Pokemon nobody owns.
+		borrowedPlayerBuild: ours.some(entry => entry.borrowed),
+		grid,
+	};
+}
+
+function clone(value) {
+	return JSON.parse(JSON.stringify(value));
+}
+
 module.exports = {
 	loadRunMap, listFights, getFight, upcoming, buildFightState, predict,
-	playerStateFromEntry,
+	playerStateFromEntry, matchup,
 };

@@ -24,8 +24,9 @@
  * needs no `--file` at all.
  *
  * Read-only subcommands (`status`, `box`, `where`, `find`, `learn`, `next`,
- * `plan`, `log`, `milestones`) do not write, so they are safe to run mid-thought
- * without perturbing the save. `READ_ONLY` below is the list that enforces it.
+ * `plan`, `matrix`, `log`, `milestones`) do not write, so they are safe to run
+ * mid-thought without perturbing the save. `READ_ONLY` below is the list that
+ * enforces it.
  */
 
 const fs = require('node:fs');
@@ -129,6 +130,51 @@ function renderPlan(plan) {
 			`  decided by ${plan.margin}`);
 	for (const action of plan.actions.slice(0, 5)) {
 		lines.push(`    ${action.score.toFixed(2).padStart(6)}  ${action.label}`);
+	}
+	return lines.join('\n');
+}
+
+/** How the arrows read: we move first, they move first, or it is a coin flip. */
+const SPEED_ARROW = {faster: '>', slower: '<', tie: '='};
+
+/**
+ * One side of a cell: what it leads with and how much of the other's bar goes.
+ *
+ * Percentages, because the fractions are only comparable across a grid and a
+ * player reads a bar in percent. `KO` is the guaranteed one and `KO?` the roll
+ * — the difference between a plan and a gamble, so they must not render alike.
+ */
+function renderMatchupSide(side) {
+	if (!side.move) return '—';
+	const marks = side.guaranteedKO ? ' KO' : side.possibleKO ? ' KO?' : '';
+	return `${side.move} ${Math.round(side.max * 100)}%${marks}`;
+}
+
+/**
+ * The box grid, one block per opposing Pokemon.
+ *
+ * Blocked by THEIR Pokemon rather than ours because that is the order the
+ * question comes in: a player is looking at a boss's lead and asking who in the
+ * box answers it, and a block per enemy puts all six answers under one heading.
+ */
+function renderMatrix(matrix) {
+	const lines = [`${matrix.trainer} (#${matrix.order})`];
+	if (matrix.projection && matrix.projection.applied) {
+		lines.push(`  box at the cap it is fought under: L${matrix.projection.cap}` +
+			(matrix.projection.from === 'projected' ? ' (projected)' : ''));
+	}
+	for (const cell of matrix.grid) {
+		lines.push('');
+		lines.push(`  ${cell.enemy.species} L${cell.enemy.level}`);
+		cell.versus.forEach((row, i) => {
+			const entry = matrix.box[i];
+			const name = entry.nickname ? `${entry.nickname} the ${row.species}` : row.species;
+			// The id leads: the next thing a player does with this grid is put one
+			// of these in the party, and that command takes ids, not species.
+			lines.push(`    ${SPEED_ARROW[row.speed] || '?'} ${entry.id.padEnd(7)} ` +
+				`${`${name} L${row.level}`.padEnd(28)}` +
+				`${renderMatchupSide(row.us).padEnd(26)}${renderMatchupSide(row.them)}`);
+		});
 	}
 	return lines.join('\n');
 }
@@ -342,6 +388,12 @@ const SUBCOMMANDS = {
 			args.positional.length ? {trainer: args.positional.join(' ')} : {}))};
 	},
 
+	/** The whole box against one trainer, both directions. Which six, answered. */
+	matrix(state, args) {
+		return {message: renderMatrix(runtime.boxMatrix(state,
+			args.positional.length ? args.positional.join(' ') : undefined))};
+	},
+
 	undo(state) {
 		const undone = runtime.undo(state);
 		const dropped = state.log[state.log.length - 1];
@@ -357,7 +409,8 @@ const SUBCOMMANDS = {
 };
 
 /** Subcommands that never write, so they can run against a save freely. */
-const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'log', 'milestones']);
+const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
+	'log', 'milestones']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -377,6 +430,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   faint <id> / release <id>                       lose one
   beat <trainer>                                  move the run forward
   next [--count N] / plan [trainer]               what is ahead, and what it does
+  matrix [trainer]                                the whole box against theirs, both ways
   milestones                                      the story spine, beaten and ahead
   log [--count N] / undo                          history`;
 
@@ -422,4 +476,7 @@ if (require.main === module) {
 	}
 }
 
-module.exports = {main, parseArgs, renderStatus, renderEncounters, renderPlan, SUBCOMMANDS, USAGE};
+module.exports = {
+	main, parseArgs, renderStatus, renderEncounters, renderPlan, renderMatrix,
+	SUBCOMMANDS, USAGE,
+};

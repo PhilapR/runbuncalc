@@ -408,6 +408,45 @@ test('the run plans the next fight with the party it actually has', () => {
 	assert.ok(plan.actions.length > 1);
 });
 
+test('a look-ahead plan fights with the party the run will legally have', () => {
+	// Planning Brawly from the start of the run used to field a level 3 Poochyena
+	// against his level 21 party and report every damage roll from it — an answer
+	// about a team the player would never stand there with, since the free candy
+	// puts the whole box at 21 by the time that fight happens.
+	let state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
+
+	const ahead = run.planNext(state, {trainer: 'Leader Brawly'});
+	assert.equal(ahead.trainer, 'Leader Brawly');
+	assert.equal(ahead.state.sides.player.party[0].level, 21,
+		'the projected level has to reach the state the AI is scored against');
+	assert.deepEqual(ahead.projection, {applied: true, cap: 21, from: 'projected'});
+	// The run itself does not move: planning is a question, not a command.
+	assert.equal(state.box[0].level, 3);
+
+	// The fight actually next is projected to ITS cap, which for the first fight
+	// in the map is the Petalburg Woods grunt's 12.
+	assert.deepEqual(run.planNext(state).projection, {applied: true, cap: 12, from: 'projected'});
+
+	// A party already at or over the cap is planned at exactly the levels the box
+	// holds, and says so — hedging about numbers the player can see would be
+	// worse than saying nothing.
+	let over = run.apply(fresh(), MARILL);
+	over = run.apply(over, {kind: 'party', ids: ['mon-1']});
+	const current = run.planNext(over, {trainer: 'Leader Brawly'});
+	assert.deepEqual(current.projection, {applied: true, cap: 21, from: 'current'});
+	assert.equal(current.state.sides.player.party[0].level, 40);
+
+	// A run that declines caps has nothing to project to, and claims nothing.
+	const free = run.applyAll(fresh({levelCap: 'none'}), [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+	const unprojected = run.planNext(free, {trainer: 'Leader Brawly'});
+	assert.deepEqual(unprojected.projection, {applied: false, cap: null, from: 'current'});
+	assert.equal(unprojected.state.sides.player.party[0].level, 3);
+});
+
 test('encounters on a map mark what the run already owns', () => {
 	const state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
 	const here = run.encountersOn(state, 'Route101');
@@ -534,6 +573,69 @@ test('a gauntlet is capped by the admin at its end, not grunt by grunt', () => {
 	assert.equal(run.levelCap(midGauntlet).trainer, 'Aqua Admin Shelly Weather Institute');
 });
 
+test('the cap at a fight is the cap of the stretch that fight belongs to', () => {
+	// A cap is a stretch of map, not a point. `levelCap` answers it from where the
+	// run stands; `capAt` answers it for a fight the run has not reached, which is
+	// the only way a look-ahead plan can be about the party the player will
+	// legally have when they get there.
+	const state = fresh();
+
+	// A boss's own order is inside its own stretch: Brawly (#77) is fought at 21,
+	// not at Roxanne's 25.
+	assert.equal(run.capAt(state, 77), 21);
+	// The first filler AFTER a cap fight has already moved to the next stretch —
+	// #57 is past the Museum grunts (#56), so it is played under Brawly's 21.
+	assert.equal(run.capAt(state, 57), 21);
+	assert.equal(run.capAt(state, 59), 21, 'route filler mid-stretch, still Brawly');
+	// Filler BEFORE a cap fight is still under it: #20 sits between the Petalburg
+	// Woods grunt (#19) and the Museum grunts (#53), so 16.
+	assert.equal(run.capAt(state, 20), 16);
+	assert.equal(run.capAt(state, 53), 16, "the Museum grunt's own order");
+	// The start of the run, before any fight, is the first story boss' 12 — the
+	// same answer `levelCap` gives a fresh run, from the other direction.
+	assert.equal(run.capAt(state, -1), 12);
+	assert.equal(run.capAt(state, 0), 12);
+	assert.equal(run.capAt(state, 19), 12);
+	assert.equal(run.levelCap(state).cap, run.capAt(state, state.position + 1));
+
+	// Nothing boss-tier past the Champion, so nothing sets a cap there.
+	assert.equal(run.capAt(state, 1620), 100, 'the Champion caps his own fight');
+	assert.equal(run.capAt(state, 1621), null);
+	// And a run that declines caps has none anywhere.
+	assert.equal(run.capAt(fresh({levelCap: 'none'}), 77), null);
+
+	// The cap of a fight does not move as the run advances — it is a property of
+	// the map, not of the position. Beating Brawly does not make him easier.
+	const later = run.apply(state, {kind: 'beat', trainer: 'Leader Brawly'});
+	assert.equal(run.capAt(later, 77), 21);
+});
+
+test('projecting the party to a cap raises levels and never lowers them', () => {
+	// The infinite Rare Candy levels the whole box to cap for free, so a mon below
+	// a future fight's cap WILL be at it by then. A mon taken OVER the cap with
+	// the run's limited candies keeps those levels — nothing takes them back — so
+	// the projection is a max, not an assignment.
+	let state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	state = run.apply(state, MARILL);
+	state = run.apply(state, {kind: 'party', ids: ['mon-1', 'mon-2']});
+
+	assert.deepEqual(run.partySpecs(state).map(m => m.level), [3, 40],
+		'with no order asked about, the specs are the box as it stands');
+	assert.deepEqual(run.partySpecs(state, {atOrder: 77}).map(m => m.level), [21, 40],
+		'Poochyena rises to Brawly\'s cap; the overlevelled Marill keeps its 40');
+	// Only the level moves: a projection is about the cap, not about the box.
+	const projected = run.partySpecs(state, {atOrder: 77});
+	assert.equal(projected[0].species, 'Poochyena');
+	assert.deepEqual(projected[0].moves, run.findMon(state, 'mon-1').moves);
+	assert.equal(state.box[0].level, 3, 'projection must not write back to the run');
+	// A capless run projects nothing, whatever order it is asked about.
+	const free = run.applyAll(fresh({levelCap: 'none'}), [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+	assert.deepEqual(run.partySpecs(free, {atOrder: 77}).map(m => m.level), [3]);
+});
+
 test('a catch can never create a Pokemon with no moves', () => {
 	// Run & Bun's own data gives Skarmory an empty level-up learnset —
 	// LEVEL_UP_MOVE(1, MOVE_NONE) in the decomp. Without this refusal the box
@@ -641,4 +743,71 @@ test('a declared rival collapses the variant fights to the ones this run can see
 	assert.equal(undone.rules.rival, 'Swampert');
 
 	assert.throws(() => run.createRun({rival: 'Pikachu'}), /unknown rival "Pikachu"/);
+});
+
+test('the box matrix compares the WHOLE box, at the cap the fight is fought under', () => {
+	// The party is the answer this grid exists to produce, so it cannot also be
+	// the input: a box of twenty against a boss of six is the question "which
+	// six", and filtering to the party assumes it.
+	let state = run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+
+	const matrix = run.boxMatrix(state);
+	// With no trainer named it compares the fight actually next, which for a
+	// fresh run is the run map's opening battle.
+	assert.equal(matrix.trainer, 'Youngster Calvin');
+	assert.equal(matrix.order, 0);
+	assert.equal(matrix.grid.length, 3);
+
+	// Every alive box entry gets a row, party or not.
+	assert.deepEqual(matrix.box.map(entry => entry.id), ['mon-1', 'mon-2']);
+	for (const cell of matrix.grid) assert.equal(cell.versus.length, 2);
+
+	// Projection is the reason this lives at L6: a level 3 catch stands in front
+	// of that grunt at 12, and a grid built from today's levels grades every row
+	// against a box the player will never field.
+	assert.deepEqual(matrix.projection, {applied: true, cap: 12, from: 'projected'});
+	assert.deepEqual(matrix.grid[0].versus.map(row => row.level), [12, 12]);
+	assert.deepEqual(matrix.box.map(entry => [entry.from, entry.level]), [[3, 12], [3, 12]]);
+	// Asking a question does not move the run.
+	assert.deepEqual(state.box.map(mon => mon.level), [3, 3]);
+
+	// A named trainer projects to ITS cap, not the run's current one.
+	const ahead = run.boxMatrix(state, 'Leader Brawly');
+	assert.equal(ahead.order, 77);
+	assert.deepEqual(ahead.projection, {applied: true, cap: 21, from: 'projected'});
+	assert.deepEqual(ahead.grid[0].versus.map(row => row.level), [21, 21]);
+	// The same projection `partySpecs` applies, because it IS `partySpecs`.
+	assert.deepEqual(ahead.grid[0].versus.map(row => row.level),
+		run.partySpecs(run.apply(state, {kind: 'party', ids: ['mon-1', 'mon-2']}),
+			{atOrder: 77}).map(spec => spec.level));
+
+	assert.throws(() => run.boxMatrix(state, 'Leader Brawley'), /no fight named/);
+});
+
+test('the box matrix leaves out Pokemon that are gone for good', () => {
+	// A dead Pokemon under permadeath is not a choice, so a row for it can only
+	// mislead — the grid answers "which six" and it is not eligible for any of
+	// them.
+	let state = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'faint', id: 'mon-2'},
+	]);
+	const matrix = run.boxMatrix(state);
+	assert.deepEqual(matrix.box.map(entry => entry.id), ['mon-1']);
+	for (const cell of matrix.grid) assert.equal(cell.versus.length, 1);
+
+	// Without permadeath a faint is not a loss, so the row stays.
+	const survived = run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'faint', id: 'mon-1'},
+	]);
+	assert.equal(run.boxMatrix(survived).box.length, 1);
+
+	// An empty box is refused with a reason rather than compared to nothing.
+	assert.throws(() => run.boxMatrix(fresh()), /no Pokemon in the box to compare/);
 });

@@ -696,6 +696,24 @@ app.post("/run/plan", (req, res, next) => {
 	}
 });
 
+/**
+ * The box-versus-trainer grid: which of the box beats which of theirs.
+ *
+ * Sent whole, unlike `/run/plan` — a grid IS its cells, and a client that only
+ * got the top row would be back to asking one damage calc at a time. The
+ * projection travels with it so the panel can say "at the cap you will legally
+ * have" rather than presenting raised levels as the box.
+ */
+app.post("/run/matrix", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		return res.json(runtime.boxMatrix(state, (req.body || {}).trainer));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
 /** The map list, so a client can offer somewhere to look rather than a text box. */
 app.get("/run/maps", (req, res, next) => {
 	try {

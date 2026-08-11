@@ -243,3 +243,35 @@ test('every subcommand appears in the usage text', () => {
 			`subcommand "${name}" missing from usage`);
 	}
 });
+
+test('matrix renders the whole box against a trainer, both directions', () => {
+	cli('new');
+	cli('catch', 'Lillipup', '--map', 'Route101', '--level', '3', '--name', 'Scout');
+	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
+	cli('party', 'mon-1');
+	const before = fs.readFileSync(file, 'utf8');
+
+	const grid = cli('matrix');
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'matrix wrote to the save');
+
+	assert.match(grid, /Youngster Calvin \(#0\)/);
+	// The levels on screen are the ones the fight is actually fought at, said out
+	// loud — a grid that silently raised them would look like the box.
+	assert.match(grid, /box at the cap it is fought under: L12 \(projected\)/);
+	// One block per opposing Pokemon, one row per box entry — including the one
+	// not in the party, because "which six" is the question this answers.
+	assert.match(grid, /^ {2}Poochyena L5$/m);
+	assert.match(grid, /^ {2}Rookidee L6$/m);
+	assert.match(grid, /mon-1\s+Scout the Lillipup L12/);
+	assert.match(grid, /mon-2\s+Poochyena L12/);
+	// Each row carries the arrow and both sides' answer.
+	assert.match(grid, /^ {4}[><=] mon-1 .*Tackle \d+%.*Bite \d+%$/m);
+
+	// A named trainer looks ahead, and a fight that can kill says so — the mark
+	// is the difference between a plan and a gamble, so it must render.
+	const brawly = cli('matrix', 'Leader', 'Brawly');
+	assert.match(brawly, /Leader Brawly \(#77\)/);
+	assert.match(brawly, /box at the cap it is fought under: L21/);
+	assert.match(brawly, / KO\b/);
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'matrix wrote to the save');
+});

@@ -122,3 +122,97 @@ test('predict returns ranked opponent actions with a decision margin', () => {
 	assert.equal(typeof result.margin, 'number');
 	assert.ok(['decided', 'contested', 'only-option'].includes(result.confidence));
 });
+
+/** A team with a spread of levels, so the grid has something to distinguish. */
+const MATRIX_PARTY = [
+	{species: 'Mudkip', level: 12, moves: ['Water Gun', 'Tackle', 'Growl']},
+	{species: 'Mudkip', level: 5, moves: ['Water Gun', 'Tackle', 'Growl']},
+];
+
+test('the matchup matrix covers every pair in both directions', () => {
+	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: MATRIX_PARTY});
+	assert.equal(matrix.trainer, 'Youngster Calvin');
+	assert.equal(matrix.order, 0);
+	assert.equal(matrix.borrowedPlayerBuild, false);
+
+	// A grid is only a grid if it is complete: one block per opposing Pokemon,
+	// one row per Pokemon offered, and no cell missing a direction. A partial
+	// grid would be read as "these matchups do not exist" rather than "these
+	// were not computed".
+	assert.equal(matrix.grid.length, 3);
+	assert.deepEqual(matrix.grid.map(cell => cell.enemy.species),
+		['Poochyena', 'Lillipup', 'Rookidee']);
+	for (const cell of matrix.grid) {
+		assert.equal(cell.versus.length, MATRIX_PARTY.length);
+		assert.deepEqual(cell.versus.map(row => row.level), [12, 5],
+			'a row must report the level it was actually built at');
+		for (const row of cell.versus) {
+			for (const direction of [row.us, row.them]) {
+				// Both directions or neither: "we OHKO it" and "it OHKOs us first"
+				// are the same cell, and half a matchup is not one.
+				assert.ok(direction.move, 'every direction needs a move it leads with');
+				assert.equal(typeof direction.guaranteedKO, 'boolean');
+				assert.equal(typeof direction.possibleKO, 'boolean');
+				// A guaranteed KO is also a possible one; the reverse is the
+				// difference between a plan and a gamble.
+				if (direction.guaranteedKO) assert.ok(direction.possibleKO);
+			}
+		}
+	}
+});
+
+test('matrix damage is a fraction of the defender, not raw HP', () => {
+	// Raw damage compares nothing across a grid — 20 off a Poochyena and 20 off a
+	// Metagross are not the same cell. Fractions are the only number that means
+	// the same thing in every row, and they are unbounded above: a move can hit
+	// for three times a bar.
+	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: MATRIX_PARTY});
+	for (const cell of matrix.grid) {
+		for (const row of cell.versus) {
+			for (const direction of [row.us, row.them]) {
+				assert.equal(typeof direction.max, 'number');
+				assert.equal(typeof direction.min, 'number');
+				assert.ok(direction.min >= 0, `negative floor: ${direction.min}`);
+				assert.ok(direction.max >= direction.min, 'the top roll cannot be below the floor');
+				// The KO booleans come from the policy's own facts, so they must
+				// agree with the fractions those same facts produced.
+				assert.equal(direction.possibleKO, direction.max >= 1);
+				assert.equal(direction.guaranteedKO, direction.min >= 1);
+			}
+		}
+	}
+
+	// Something in this fight must actually threaten, or the assertions above
+	// are passing on a grid of zeroes.
+	const hits = matrix.grid.some(cell => cell.versus.some(row => row.us.max > 0.5));
+	assert.ok(hits, 'a level 12 Mudkip should be taking half a bar off something');
+});
+
+test('the speed relation follows the levels the rows were built at', () => {
+	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: MATRIX_PARTY});
+	const ORDER = {slower: 0, tie: 1, faster: 2};
+	for (const cell of matrix.grid) {
+		const high = cell.versus[0];
+		const low = cell.versus[1];
+		// Both rows are the same Pokemon, so nothing but the level separates
+		// them: the level 12 one can never be the slower of the two. This is what
+		// catches a relation read off the wrong side's facts, which a single-row
+		// grid would show as a plausible arrow pointing the wrong way.
+		assert.ok(ORDER[high.speed] >= ORDER[low.speed],
+			`L12 Mudkip reads ${high.speed} where L5 reads ${low.speed} vs ${cell.enemy.species}`);
+		// And the relation is the speeds each side's own facts reported, not a
+		// second opinion about them.
+		for (const row of cell.versus) {
+			assert.equal(row.speed,
+				row.us.speed > row.them.speed ? 'faster' :
+					row.us.speed < row.them.speed ? 'slower' : 'tie');
+		}
+	}
+});
+
+test('a matrix without a team is refused rather than guessed at', () => {
+	assert.throws(
+		() => planner.matchup({trainer: 'Youngster Calvin', playerParty: []}),
+		/playerParty is required/
+	);
+});

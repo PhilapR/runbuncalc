@@ -872,3 +872,46 @@ test('the map list is served without a run, and states its own limits', async ()
 	// must be able to say so rather than implying it is every Pokemon in the game.
 	assert.match(body.limits.note, /scripted events/);
 });
+
+test('the box matrix is served whole, and an unknown trainer is a 400', async () => {
+	let run = await newRun();
+	run = (await requestJson('/run/apply', {run, command: RUN_CATCH})).body.run;
+
+	const matrix = await requestJson('/run/matrix', {run});
+	assert.equal(matrix.status, 200);
+	assert.equal(matrix.body.trainer, 'Youngster Calvin');
+	assert.equal(matrix.body.order, 0);
+	// The grid arrives whole. A client that had to fetch a cell at a time would
+	// be back to asking one damage calculation per matchup, which is the thing
+	// this endpoint exists to stop.
+	assert.equal(matrix.body.grid.length, 3);
+	for (const cell of matrix.body.grid) {
+		assert.ok(cell.enemy.species && cell.enemy.level);
+		assert.equal(cell.versus.length, 1);
+		const row = cell.versus[0];
+		assert.ok(['faster', 'slower', 'tie'].includes(row.speed));
+		assert.ok(row.us.move && row.them.move, 'both directions or the cell is half a matchup');
+	}
+	// The projection travels with the grid: the panel has to be able to say "at
+	// the cap you will legally have" rather than presenting raised levels as the
+	// box the player is looking at.
+	assert.deepEqual(matrix.body.projection, {applied: true, cap: 12, from: 'projected'});
+	assert.deepEqual(matrix.body.box.map(entry => [entry.id, entry.from, entry.level]),
+		[['mon-1', 3, 12]]);
+
+	const named = await requestJson('/run/matrix', {run, trainer: 'Leader Brawly'});
+	assert.equal(named.status, 200);
+	assert.equal(named.body.projection.cap, 21);
+
+	// A misnamed trainer is the caller's typo, so it comes back as a 400 with the
+	// near-misses intact — the message is the feature, and a 500 would eat it.
+	const unknown = await requestJson('/run/matrix', {run, trainer: 'Brawly'});
+	assert.equal(unknown.status, 400);
+	assert.equal(unknown.body.code, 'InvalidRunCommand');
+	assert.match(unknown.body.error, /no fight named "Brawly".*did you mean: Leader Brawly/s);
+
+	// An empty box is the caller's mistake, not a 500.
+	const empty = await requestJson('/run/matrix', {run: await newRun()});
+	assert.equal(empty.status, 400);
+	assert.match(empty.body.error, /no Pokemon in the box to compare/);
+});

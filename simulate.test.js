@@ -235,6 +235,13 @@ test('exactly one team form is accepted', () => {
 		() => simulate.resolveParty({teamPaste: PLAYER_TEAM, borrow: 'Azumarill (Leader Norman)'}),
 		/pass one of/
 	);
+	// A run is the fourth form, and it is the one that would silently win: it
+	// brings a party AND a position, so pairing it with a paste would plan a team
+	// the caller did not ask about from a place they did not name.
+	assert.throws(
+		() => simulate.resolveParty({teamPaste: PLAYER_TEAM, runFile: 'run.json'}),
+		/pass one of --team-file, --team, --borrow, --run/
+	);
 	assert.equal(simulate.resolveParty({teamPaste: PLAYER_TEAM}).party[0].level, 45);
 	assert.equal(
 		simulate.resolveParty({borrow: 'Azumarill (Leader Norman)'}).party[0].setLabel,
@@ -245,6 +252,95 @@ test('exactly one team form is accepted', () => {
 			.party.length,
 		6
 	);
+});
+
+// ------------------------------------------------------------- walking a run
+//
+// A run brings what a pasted team cannot: where the player is standing, which
+// rival they will actually meet, and what the cap will have given the box by the
+// time each fight happens. Those are the three ways this walk can lie — start in
+// the wrong place, offer a fight this save can never see, or plan every row at
+// today's levels — so there is a case for each.
+
+const runtime = require('./run');
+
+/**
+ * A run parked at #250, on Cycling Road with a Swampert rival.
+ *
+ * Chosen because the fight next up (#265) and the ones after it sit in DIFFERENT
+ * cap stretches — 38 then 42 — so a walk that reuses one party across the rows
+ * shows up as an equal level on both instead of hiding.
+ */
+function midRun(options) {
+	return runtime.applyAll(
+		runtime.createRun(Object.assign(
+			{name: 'Cycling Road', now: 't0', rival: 'Swampert'}, options)),
+		[
+			{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+			{kind: 'party', ids: ['mon-1']},
+			{kind: 'beat', trainer: 'Triathlete Jasmine'},
+		]);
+}
+
+test('a run is walked from where it is, at the levels it will have there', () => {
+	const state = midRun();
+	const walk = simulate.simulate({run: state, count: 2});
+
+	assert.equal(walk.run.name, 'Cycling Road');
+	assert.equal(walk.run.position, 250);
+	assert.deepEqual(walk.steps.map(s => s.order), [265, 271],
+		'the walk starts at the fight after the position, not at the top of the map');
+	// The box holds one level 3 Poochyena. It fights #265 at 38 and #271 at 42,
+	// because the free candy puts the whole box at the cap of the fight being
+	// fought — planning both rows at 3 would answer for a team never fielded.
+	assert.deepEqual(walk.steps.map(s => s.playerLevel), [38, 42]);
+	assert.equal(walk.steps[0].levelDelta, 38 - walk.steps[0].opponentLevel);
+	// The header still describes the box as it stands; only the rows are projected.
+	assert.deepEqual(walk.party.map(m => m.level), [3]);
+	assert.equal(runtime.findMon(state, 'mon-1').level, 3, 'a walk must not write back');
+});
+
+test('a run walk says whose run it is, and that the rows are not today\'s levels', () => {
+	const text = simulate.format(simulate.simulate({run: midRun(), count: 1}));
+	// Without this line every row reads as a report on the team the player is
+	// looking at right now, which is the one thing the projection is not.
+	assert.match(text, /^run: Cycling Road — the map from #251 onward, each row planned at the level cap/);
+	assert.match(text, /you L38/);
+
+	// A run that declines caps projects nothing, and must not claim it did.
+	const free = simulate.format(simulate.simulate({run: midRun({levelCap: 'none'}), count: 1}));
+	assert.match(free, /this run declines caps/);
+	assert.match(free, /you L3 /);
+});
+
+test('a run walks its own map: variants it can never see are not fights', () => {
+	// One story event, three variants; the starter choice fixed which one happens.
+	assert.deepEqual(
+		simulate.selectFights({run: midRun(), to: 265}).map(f => f.trainer),
+		['Trainer Rival Cycling Road Swampert']
+	);
+	// The filter is the run's own, not a second copy here — an undeclared starter
+	// still sees all three, which is honest and is why it cannot be hardcoded.
+	assert.equal(simulate.selectFights({run: midRun({rival: null}), to: 265}).length, 3);
+	// The selection flags still compose, and the spine they walk is this run's:
+	// the rival milestone ahead is the Swampert one, once.
+	assert.deepEqual(
+		simulate.selectFights({run: midRun(), milestones: true, count: 2}).map(f => f.trainer),
+		['Trainer Rival Cycling Road Swampert', 'Leader Norman']
+	);
+});
+
+test('a run brings its own position, so --from is refused rather than obeyed', () => {
+	// Two answers to "where is the player standing" is one too many, and the run
+	// is the one that knows.
+	assert.throws(() => simulate.selectFights({run: midRun(), from: 0}), /the run knows where it is/);
+	assert.throws(() => simulate.simulate({run: midRun(), from: 0, count: 1}),
+		/--from does not compose with --run/);
+});
+
+test('a run with an empty party is refused in its own terms', () => {
+	const empty = runtime.createRun({name: 'Empty', now: 't0'});
+	assert.throws(() => simulate.simulate({run: empty, count: 1}), /the run's party is empty/);
 });
 
 test('a declared mon with no moves is refused before it reaches the calculator', () => {

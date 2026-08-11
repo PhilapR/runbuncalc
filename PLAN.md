@@ -129,7 +129,7 @@ phase write-ups: §6; session chunks: §7; UI rollout detail:
 | Fight planner (`planner.js`) | **Shipped** — run map + team → ranked opponent actions with a decision margin |
 | Planner HTTP API | **Shipped** — `/planner/fights`, `/upcoming`, `/fight`, `/predict` |
 | Fight Planner UI | **Shipped** — `#runbun-planner` mode; browser-tested end to end |
-| Run simulation (`simulate.js`) | **Shipped** — `npm run simulate -- --team-file examples/team.txt --milestones` walks the milestone spine; reports coin flips and level deltas |
+| Run simulation (`simulate.js`) | **Shipped** — walks either a declared team (`npm run simulate -- --team-file examples/team.txt --milestones`) or a run document (`--run run.json`), which starts after the save's own position, drops the rival variants it can never face, and plans every row at that fight's level cap; reports coin flips and level deltas |
 | Player teams (`team.js`) | **Shipped** — Showdown paste → player side, validated against the game's own species/move/ability/item data. Borrowed trainer builds still reachable via `--borrow`, flagged everywhere |
 | Oracle layer (`profiles/run-and-bun/oracle/`) | **ROM-verified** — 131 encounter maps / 1462 slots, 436 evolving species, 1115 level-up + 1115 teachable + 370 egg learnsets, regenerable via `npm run import-oracle` (which prints the counts it wrote) |
 | Move legality | **Shipped** — level-up, TM/tutor and egg moves inherited down the evolution line, with the source of the claim attached |

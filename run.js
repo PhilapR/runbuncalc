@@ -203,6 +203,34 @@ function fightTier(profile, trainer) {
 }
 
 /**
+ * The cap governing the stretch of map that starts at `from`: the ace of the
+ * first boss-tier fight of either kind at or after that order.
+ *
+ * One derivation serves both questions asked of the cap — "what am I capped at
+ * now" (from the position) and "what will I be capped at there" (from a fight's
+ * order) — because they are the same question asked from two points on the map,
+ * and two copies of the tier filter would be two places to get boss tiers wrong.
+ */
+function capFrom(run, from) {
+	if (run.rules.levelCap === 'none') return {cap: null, mode: 'none'};
+	const profile = getProfile(run.profileId);
+	const fights = visibleFights(run)
+		.filter(f => f.order >= from)
+		.filter(f => fightTier(profile, f.trainer) !== null);
+	if (!fights.length) return {cap: null, mode: run.rules.levelCap, reason: 'no boss ahead'};
+	const next = fights[0];
+	const ace = next.party.reduce((top, mon) => mon.level > top.level ? mon : top, next.party[0]);
+	return {
+		cap: ace.level,
+		mode: run.rules.levelCap,
+		trainer: next.trainer,
+		order: next.order,
+		ace: ace.species,
+		tier: fightTier(profile, next.trainer),
+	};
+}
+
+/**
  * The level ceiling this run is playing under, and where it comes from.
  *
  * The cap is the ace of the next BOSS-TIER fight of either kind — which is the
@@ -216,22 +244,27 @@ function fightTier(profile, trainer) {
  * reason, and a player arguing with the cap needs the reason.
  */
 function levelCap(run) {
-	if (run.rules.levelCap === 'none') return {cap: null, mode: 'none'};
-	const profile = getProfile(run.profileId);
-	const fights = visibleFights(run)
-		.filter(f => f.order > run.position)
-		.filter(f => fightTier(profile, f.trainer) !== null);
-	if (!fights.length) return {cap: null, mode: run.rules.levelCap, reason: 'no boss ahead'};
-	const next = fights[0];
-	const ace = next.party.reduce((top, mon) => mon.level > top.level ? mon : top, next.party[0]);
-	return {
-		cap: ace.level,
-		mode: run.rules.levelCap,
-		trainer: next.trainer,
-		order: next.order,
-		ace: ace.species,
-		tier: fightTier(profile, next.trainer),
-	};
+	// Orders are integers, so the stretch the run is in starts one past the last
+	// fight it beat.
+	return capFrom(run, run.position + 1);
+}
+
+/**
+ * The cap that will be in force WHEN the fight at `order` is fought.
+ *
+ * A cap is a stretch of map, not a point: every fight from the one after a
+ * boss up to and including the next boss is played under that next boss's ace.
+ * So the fight at that order belongs to the stretch ending at the first
+ * boss-tier fight at or after it — Brawly (#77) is fought at 21, the filler
+ * before him (#59) is fought at 21 too, and filler back at #20 is still under
+ * the Museum grunts' 16.
+ *
+ * Bare number, unlike `levelCap`: this answers a look-ahead question about a
+ * fight the run has not reached, where the interesting fact is the ceiling
+ * itself. Null when the run declines caps or nothing boss-tier lies ahead.
+ */
+function capAt(run, order) {
+	return capFrom(run, order).cap;
 }
 
 /**
@@ -327,13 +360,27 @@ function learnable(run, id) {
 	return {now: now.sort(byName), later: later.sort((a, b) => a.level - b.level || byName(a, b))};
 }
 
-/** The run's party as `team.js` specs, ready for the planner. */
-function partySpecs(run) {
+/**
+ * The run's party as `team.js` specs, ready for the planner.
+ *
+ * `atOrder` projects the party to the cap it will be playing under at that
+ * point in the map. That is not a guess about EXP: the infinite Rare Candy
+ * levels the whole box to cap for free, so a mon below the cap of a future
+ * fight WILL be at that cap by the time it is fought, and planning it at
+ * today's level answers a question about a team the player will never field.
+ */
+function partySpecs(run, options) {
+	const opts = options || {};
+	// Projection only ever raises. A mon taken over the cap with the run's
+	// limited Rare Candies keeps those levels — nothing in the game takes them
+	// back — so a max, never an assignment.
+	const projected = opts.atOrder === undefined || opts.atOrder === null ?
+		null : capAt(run, opts.atOrder);
 	return run.party.map(id => {
 		const mon = requireMon(run, id);
 		return {
 			species: mon.species,
-			level: mon.level,
+			level: projected === null ? mon.level : Math.max(mon.level, projected),
 			nature: mon.nature,
 			ability: mon.ability,
 			item: mon.item,
@@ -344,10 +391,23 @@ function partySpecs(run) {
 }
 
 /**
- * What the next fight does against the current party.
+ * What a fight does against the party the run will legally have when it gets
+ * there.
  *
  * The whole stack in one call: the run says who you are and where you are, the
  * map says who is next, and the planner says what they do about it.
+ *
+ * The party is projected to the cap of the fight being planned, and that
+ * projection is why this function lives at L6 rather than in the planner. A
+ * look-ahead plan built from today's levels lies: planning Brawly from the
+ * start of the run fights him with a level 12 box when the player would stand
+ * there at 21, and every damage roll in the answer is wrong. Only this layer
+ * can fix it, because only this layer reads the save and the cap rules — the
+ * planner takes explicit levels and never learns that a run exists, which is
+ * what keeps it usable for a hypothetical team nobody owns.
+ *
+ * `projection` travels back with the plan so a consumer can say "at the cap
+ * you will legally have" rather than presenting projected levels as the box.
  */
 function planNext(run, options) {
 	const opts = options || {};
@@ -357,11 +417,89 @@ function planNext(run, options) {
 	const ahead = upcoming(run, 1);
 	const trainer = opts.trainer || (ahead.length ? ahead[0].trainer : null);
 	if (!trainer) throw new Error('nothing ahead in the run map to plan against');
-	return require('./planner').predict({
+	const planner = require('./planner');
+	const fight = planner.getFight(trainer, run.profileId);
+	const cap = capAt(run, fight.order);
+	const specs = partySpecs(run, {atOrder: fight.order});
+	const plan = planner.predict({
 		trainer,
-		playerParty: partySpecs(run),
+		playerParty: specs,
 		profileId: run.profileId,
 	});
+	// `from` is not `applied` restated: a party already at or over the cap plans
+	// at exactly the levels the box holds, and a consumer that framed that as a
+	// projection would be hedging about numbers the player can see.
+	const raised = cap !== null &&
+		run.party.some((id, i) => specs[i].level > requireMon(run, id).level);
+	plan.projection = {
+		applied: cap !== null,
+		cap,
+		from: raised ? 'projected' : 'current',
+	};
+	return plan;
+}
+
+/**
+ * Every Pokemon the run still has against every Pokemon a trainer fields.
+ *
+ * `planNext` answers "what does the party do here". This answers the question
+ * that comes first and is harder: WHICH SIX. A box of twenty and a boss of six
+ * is a hundred and twenty exchanges, and no player works them out one damage
+ * calc at a time — which is why the calculator grew a colour-coded box grid,
+ * and why this replaces it.
+ *
+ * The whole box, alive only. A party filter would answer the question with the
+ * answer already assumed, and a dead Pokemon under permadeath is not a choice
+ * — it is a row that can only mislead.
+ *
+ * Projected to the cap of the fight being compared, for the same reason
+ * `planNext` projects: a level 3 Lillipup stands in front of the first grunt at
+ * 12, so a grid built from today's levels grades every row against a box the
+ * player will never field. That projection is why this lives at L6 —
+ * `planner.matchup` takes explicit levels and never learns that a run exists.
+ */
+function boxMatrix(run, trainer) {
+	const planner = require('./planner');
+	const ahead = upcoming(run, 1);
+	const named = trainer || (ahead.length ? ahead[0].trainer : null);
+	if (!named) throw new Error('nothing ahead in the run map to compare against');
+	const fight = planner.getFight(named, run.profileId);
+
+	const alive = run.box.filter(mon => mon.status !== 'dead');
+	if (!alive.length) {
+		throw new Error('no Pokemon in the box to compare; catch something first');
+	}
+
+	const cap = capAt(run, fight.order);
+	// The box is handed to `partySpecs` AS the party rather than projected here.
+	// The rule — raise to the cap, never lower — is one line, and two copies of
+	// it would be two places for the projection to drift from the plan the
+	// player reads next to this grid.
+	const specs = partySpecs(
+		Object.assign({}, run, {party: alive.map(mon => mon.id)}),
+		{atOrder: fight.order});
+
+	const matrix = planner.matchup({
+		trainer: named,
+		playerParty: specs,
+		profileId: run.profileId,
+	});
+	// A grid row is a species and a level; a player acts on it by putting an id
+	// in the party. Two Poochyena in one box make the species alone ambiguous,
+	// so the row keys travel with the grid, in the order the rows are in.
+	matrix.box = alive.map((mon, i) => ({
+		id: mon.id,
+		species: mon.species,
+		nickname: mon.nickname,
+		level: specs[i].level,
+		from: mon.level,
+	}));
+	matrix.projection = {
+		applied: cap !== null,
+		cap,
+		from: alive.some((mon, i) => specs[i].level > mon.level) ? 'projected' : 'current',
+	};
+	return matrix;
 }
 
 // -------------------------------------------------------------------- commands
@@ -805,6 +943,6 @@ function summarize(run) {
 module.exports = {
 	VERSION, PARTY_LIMIT, LEVEL_CAP_MODES, COMMANDS,
 	createRun, apply, applyAll, undo,
-	findMon, levelCap, upcoming, milestones, split, fightTier, isExcludedVariant,
-	encountersOn, learnable, partySpecs, planNext, summarize,
+	findMon, levelCap, capAt, upcoming, milestones, split, fightTier, isExcludedVariant,
+	encountersOn, learnable, partySpecs, planNext, boxMatrix, summarize,
 };
