@@ -16,9 +16,14 @@
 			"localPath": "/workspace/pokemon-mono",
 			"capabilities": [
 				{
-					"name": "Heart Scale = set one IV to 31 (Run & Bun mechanic)",
+					"name": "Heart Scale = set one IV to 31 (Run & Bun mechanic) — SOUND, PORT THIS",
 					"paths": ["engines/rlm/src/pokemon_rlm/simulator/inventory.py"],
-					"notes": "use_heart_scale(bag, pokemon, stat): refuses at 31, consumes from bag, recalculates stats. heart_scales_to_max, iv_quality_rating. Not shop-buyable, sell 100."
+					"notes": "use_heart_scale(bag, pokemon, stat): refuses at 31, consumes from bag, recalculates stats. heart_scales_to_max, iv_quality_rating. Not shop-buyable, sell 100. Graded 2026-08-11: small, correct, and the one genuinely unique capability in engines/rlm — validated by execution."
+				},
+				{
+					"name": "Cross-engine evidence tier — GRADE runbuncalc WITH IT, NEVER MERGE IT IN",
+					"paths": ["contracts/cross-engine", "engines/rab/backend/tests/rom-band-acceptance.test.ts"],
+					"notes": "1,727 emulator-captured damage observations (fidelity/events-f*.json, self-describing, ROM-free) + a provider-agnostic engine contract. The plan of record: runbuncalc becomes a provider and is graded from outside. Its value is exactly that it is external — an engine that grades itself cannot catch a shared-wrong value (see rab's FINDINGS.md PP=10 episode)."
 				},
 				{
 					"name": "In-battle consumable selection",
@@ -26,14 +31,14 @@
 					"notes": "Best HP heal for a deficit, best status cure, best ball."
 				},
 				{
-					"name": "Budget-constrained shop optimizer",
+					"name": "Budget-constrained shop optimizer — DO NOT PORT",
 					"paths": ["engines/rlm/src/pokemon_rlm/simulator/shops.py"],
-					"notes": "optimize_purchase(budget, needs)."
+					"notes": "optimize_purchase(budget, needs). Graded 2026-08-11: fabricates shop locations ('Verdantrum Town', marts on routes that have none) with no provenance. For item availability port engines/rab/backend/src/data/rab-item-availability.ts instead — trainer-order-keyed and cites Mechanics.MD."
 				},
 				{
-					"name": "MDP battle solver: deathless probability, expected deaths",
+					"name": "MDP battle solver: deathless probability, expected deaths — OBJECTIVE GOOD, IMPLEMENTATION UNSOUND",
 					"paths": ["engines/rlm/src/pokemon_rlm/analytics/mdp/mdp.py"],
-					"notes": "Value iteration over battle states. A previously-chosen objective function relevant to the party ranker."
+					"notes": "Graded 2026-08-11: the death reward is SIGN-INVERTED at four sites (reward = -death_penalty with every caller passing -100.0, so the 'optimal' policy maximises deaths), the DP pass is unordered, the state key aliases distinct states, and damage is hardcoded to level 12 with a Gen 6 crit multiplier — behind 59 type-and-range tests that catch none of it. Take the OBJECTIVE (score a fight by P(no deaths), E[deaths]); rebuild the solver fresh on runbuncalc's ai/ and calc."
 				},
 				{
 					"name": "Trainer database and team planning scaffolding",
