@@ -207,10 +207,16 @@ function renderAdvice(advice) {
 	}
 	for (const entry of advice.upgrades) {
 		const mon = advice.party.find(member => member.id === entry.id);
-		const net = entry.delta.koGained - entry.delta.koConceded;
+		// Gains and concessions render separately: a net of zero can hide a
+		// trade ("gains one, hands them one"), and the advisor's own scoring
+		// comment says that trade must never look like a free win.
+		const ko = [
+			entry.delta.koGained > 0 ? `+${entry.delta.koGained}` : '',
+			entry.delta.koConceded > 0 ? `-${entry.delta.koConceded}` : '',
+		].filter(Boolean).join('/');
 		lines.push(`  ${entry.id.padEnd(7)} ${(mon ? mon.species : '?').padEnd(14)}` +
 			`${entry.kind.padEnd(11)} ${entry.detail.padEnd(32)}` +
-			`${(net > 0 ? `+${net} KO` : '').padStart(6)}  ` +
+			`${(ko ? `${ko} KO` : '').padStart(9)}  ` +
 			`${entry.delta.damage >= 0 ? '+' : ''}${entry.delta.damage.toFixed(2)} bars`);
 	}
 	return lines.join('\n');

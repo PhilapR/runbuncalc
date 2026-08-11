@@ -547,15 +547,20 @@
 		}
 		payload.upgrades.forEach(function (entry) {
 			var mon = byId[entry.id] || {};
-			var net = entry.delta.koGained - entry.delta.koConceded;
+			// Gains and concessions render separately: a net of zero can hide a
+			// trade, and a trade must never look like a free win.
+			var koParts = [];
+			if (entry.delta.koGained > 0) koParts.push('+' + entry.delta.koGained);
+			if (entry.delta.koConceded > 0) koParts.push('-' + entry.delta.koConceded);
 			$list.append($('<li class="runbun-run-advice-row"></li>')
 				.append($('<span class="runbun-run-advice-who"></span>')
 					.text((mon.nickname || mon.species || entry.id) + ' ' + entry.id))
 				.append($('<span class="runbun-run-advice-kind"></span>').text(entry.kind))
 				.append($('<span class="runbun-run-advice-what"></span>').text(entry.detail))
 				.append($('<span class="runbun-run-advice-ko"></span>')
-					.toggleClass('is-ko', net > 0)
-					.text(net > 0 ? '+' + net + ' KO' : ''))
+					.toggleClass('is-ko', entry.delta.koGained > entry.delta.koConceded)
+					.toggleClass('is-ko-trade', entry.delta.koConceded > 0)
+					.text(koParts.length ? koParts.join('/') + ' KO' : ''))
 				.append($('<span class="runbun-run-advice-damage"></span>')
 					.attr('title', 'bars of HP, summed across the fight' +
 						(entry.delta.koConceded ?

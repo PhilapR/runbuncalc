@@ -640,8 +640,12 @@ function unusedRoutes(run) {
 }
 
 /** What a box entry could be taught, split by whether it can be taught NOW. */
-function learnable(run, id) {
+function learnable(run, id, options) {
 	const mon = requireMon(run, id);
+	// `atLevel` moves the now/later line: the advisor asks at the CAP the fight
+	// is fought under, because the free candy guarantees the mon reaches it —
+	// gating on today's level hid every level-up move between here and the cap.
+	const atLevel = options && options.atLevel !== undefined ? options.atLevel : mon.level;
 	const profile = getProfile(run.profileId);
 	const all = profile.oracle.legalMoves(mon.species);
 	const known = new Set(mon.moves);
@@ -657,7 +661,7 @@ function learnable(run, id) {
 			s.level !== undefined && (min === null || s.level < min) ? s.level : min, null);
 		const entry = {move, sources};
 		if (soonest !== null) entry.level = soonest;
-		if (gated && soonest > mon.level) later.push(entry);
+		if (gated && soonest > atLevel) later.push(entry);
 		else now.push(entry);
 	}
 	const byName = (a, b) => a.move.localeCompare(b.move);
@@ -881,7 +885,10 @@ function upgradeCandidates(run, mon, spec, base) {
 	const planner = require('./planner');
 	const list = [];
 
-	for (const entry of learnable(run, mon.id).now) {
+	// Candidates are drawn at the SPEC's level — the projected cap — not the
+	// box's: the board is scored there, and the free candy makes those moves
+	// teachable before the fight.
+	for (const entry of learnable(run, mon.id, {atLevel: spec.level}).now) {
 		const moves = spec.moves.slice();
 		let detail = entry.move;
 		if (moves.length >= 4) {

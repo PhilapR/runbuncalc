@@ -1180,7 +1180,9 @@ test('the advisor prices single changes by what they do to the board', () => {
 	// and one scale per recorded sub-31 IV. Rare Candy and the Heart Scale are
 	// both in the bag and in neither list: the calculator cannot hold them, so a
 	// build made of them is not a build.
-	const teachable = run.learnable(state, 'mon-1').now.length;
+	// Derived at the PROJECTED cap, because that is where the advisor draws
+	// candidates: the free candy guarantees the levels between.
+	const teachable = run.learnable(state, 'mon-1', {atLevel: 12}).now.length;
 	assert.equal(advice.considered, teachable + 1 + 1);
 
 	// The deterministic case. Poochyena knows only Tackle, which leaves the
@@ -1218,10 +1220,29 @@ test('the advisor prices single changes by what they do to the board', () => {
 	assert.deepEqual(run.adviseUpgrades(state).upgrades, advice.upgrades);
 });
 
+test('the advisor draws teach candidates at the projected cap, not today\'s level', () => {
+	// A level 3 Poochyena stands in front of the first grunt at 12, and the free
+	// candy guarantees the levels between — so Bite (level 10) is a candidate
+	// even though the box holds a level 3. Gating on today's level hid every
+	// level-up move between here and the cap while scoring the board at the cap.
+	const state = run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+	assert.ok(run.learnable(state, 'mon-1', {atLevel: 12}).now.some(e => e.move === 'Bite'));
+	assert.ok(!run.learnable(state, 'mon-1').now.some(e => e.move === 'Bite'),
+		'without atLevel the line stays at the box level — other callers keep their meaning');
+	const details = run.adviseUpgrades(state).upgrades
+		.filter(u => u.kind === 'teach').map(u => u.detail);
+	assert.ok(details.some(d => /^Bite/.test(d)),
+		`Bite should be weighed at cap 12; teach candidates were: ${details.join(', ')}`);
+});
+
 test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	const box = {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, ivs: {spe: 5}};
 	const teachable = run.learnable(
-		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), 'mon-1').now.length;
+		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]),
+		'mon-1', {atLevel: 12}).now.length;
 
 	// No scale in the bag, no scale candidate: the advisor ranks changes a
 	// player can make today, not ones they could make after finding an item.

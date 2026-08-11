@@ -2839,6 +2839,10 @@ table.field {
 	color: var(--rb-danger);
 	font-weight: 700;
 }
+/* A trade (any KO conceded) must not wear the clean-win colour. */
+#runbun-run .runbun-run-advice-ko.is-ko-trade {
+	color: var(--rb-warn-ink);
+}
 #runbun-run .runbun-run-advice-empty {
 	padding: var(--rb-space-sm);
 	color: var(--rb-ink-muted);
