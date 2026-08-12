@@ -39,7 +39,7 @@
  "scripts": {
   "start": "node build view && node server.js",
   "demo": "node scripts/build-demo.js",
-  "cf:build": "node build view && node scripts/build-worker.js",
+  "cf:build": "npm run build && node scripts/build-worker.js",
   "cf:preview": "npm run cf:build && npx wrangler dev",
   "cf:deploy": "npm run cf:build && npx wrangler deploy",
   "lint": "npm run lint --prefix calc && npm run lint --prefix ai && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js simulate.js simulate.test.js team.js team.test.js run.js run.test.js battle-driver.js battle-driver.test.js play.js play.test.js browser_run.test.js inventory.test.js rom-band.test.js scripts --ext js",
