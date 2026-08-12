@@ -327,6 +327,31 @@ function fightTier(profile, trainer) {
 function capFrom(run, from) {
 	if (run.rules.levelCap === 'none') return {cap: null, mode: 'none'};
 	const profile = getProfile(run.profileId);
+	// A profile that DECLARES its ladder is believed over any derivation: the
+	// authored caps are the game's own numbers (usually one below the boss's
+	// ace, with rungs no ace predicts), transcribed with their provenance in
+	// the profile. Derivation below remains the fallback for profiles that
+	// never authored one.
+	const ladder = profile.encounters && profile.encounters.LEVEL_CAPS;
+	if (ladder) {
+		const row = ladder.find(r => r.order >= from);
+		if (!row) return {cap: null, mode: run.rules.levelCap, reason: 'no boss ahead'};
+		// The reason line names the run's OWN fight: rival rows carry the
+		// triplet's prefix, and the visible variant is the declared rival's.
+		const fight = visibleFights(run).find(f =>
+			f.order >= from && f.order <= row.order && f.trainer.startsWith(row.trainer));
+		const ace = fight ?
+			fight.party.reduce((top, mon) => mon.level > top.level ? mon : top, fight.party[0]) :
+			null;
+		return {
+			cap: row.cap,
+			mode: run.rules.levelCap,
+			trainer: fight ? fight.trainer : row.trainer,
+			order: row.order,
+			...(ace ? {ace: ace.species} : {}),
+			tier: fight ? fightTier(profile, fight.trainer) : 'boss',
+		};
+	}
 	const fights = visibleFights(run)
 		.filter(f => f.order >= from)
 		.filter(f => fightTier(profile, f.trainer) !== null);

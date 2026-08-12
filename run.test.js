@@ -256,6 +256,40 @@ test('a level-up move is not available before its level', () => {
 	assert.ok(run.apply(state, {kind: 'teach', id: 'mon-1', move: free.move}));
 });
 
+test('the level caps are the game\'s own ladder, all twenty-three rows', () => {
+	// Transcribed from docs/official/Mechanic Changes.txt ("Level Cap"): the
+	// authored caps, NOT the next boss's ace — derivation was wrong on ten
+	// rows (Flannery caps at 57 under an ace of 58; Museum at 17 over an ace
+	// of 16; Fallarbor Vito's 48 exists with no badge; and no cap lifts at
+	// Chelle's Mt Pyre fight or Maxie's Space Center raid).
+	const DOC_LADDER = [
+		[19, 12], [56, 17], [77, 21], [139, 25], [181, 32], [224, 35],
+		[265, 38], [337, 42], [434, 48], [519, 54], [571, 57], [696, 65],
+		[714, 66], [758, 69], [855, 73], [927, 76], [1009, 79], [1056, 81],
+		[1130, 85], [1247, 89], [1364, 91], [1454, 95], [1620, 99],
+	];
+	const state = fresh({permadeath: true, rival: 'Swampert'});
+	let previous = -1;
+	for (const pair of DOC_LADDER) {
+		// Every fight up to and including the row's boss plays under its cap...
+		assert.equal(run.capAt(state, pair[0]), pair[1],
+			`cap at #${pair[0]} must be ${pair[1]}`);
+		assert.equal(run.capAt(state, previous + 1), pair[1],
+			`cap at #${previous + 1} (segment start) must be ${pair[1]}`);
+		previous = pair[0];
+	}
+	// ...and the reason line still names a real fight with its real ace.
+	const capped = run.levelCap(state);
+	assert.equal(capped.cap, 12);
+	assert.equal(capped.trainer, 'Team Aqua Grunt Petalburg Woods');
+	assert.equal(capped.ace, 'Croagunk');
+	// The rival boundary holds for a declared rival: fight #253 is the
+	// Sceptile variant, invisible to a Swampert run, but the cap segment is
+	// the triplet's — 38 through #265, 42 after.
+	assert.equal(run.capAt(state, 253), 38);
+	assert.equal(run.capAt(state, 266), 42);
+});
+
 test('the level cap follows boss tiers, not badges', () => {
 	const capped = fresh({levelCap: 'next-milestone-ace'});
 	// A fresh run is capped by the FIRST story-boss fight — the Petalburg Woods
@@ -267,12 +301,14 @@ test('the level cap follows boss tiers, not badges', () => {
 	assert.equal(cap.ace, 'Croagunk');
 	assert.equal(cap.tier, 'story');
 
-	// The cap walks the Brawly split: 12 → 16 → 16 → 21, then the next badge —
-	// and past Roxanne it is Chelle's Rhydon at 32, not Wattson's 35, because
-	// her Daycare fight (#181) sits between the two badges.
+	// The cap walks the Brawly split: 12 → 17 → 17 → 21, then the next badge —
+	// and past Roxanne it is Chelle's 32, not Wattson's 35, because her
+	// Daycare fight (#181) sits between the two badges. 17 is the AUTHORED
+	// cap (the doc's number); the Museum aces are 16, which is exactly why
+	// the ladder is transcribed rather than derived.
 	const walk = [
-		['Team Aqua Grunt Petalburg Woods', 16, 'story'],
-		['Team Aqua Grunt Museum #1', 16, 'story'],
+		['Team Aqua Grunt Petalburg Woods', 17, 'story'],
+		['Team Aqua Grunt Museum #1', 17, 'story'],
 		['Team Aqua Grunt Museum #2', 21, 'boss'],
 		['Leader Brawly', 25, 'boss'],
 		['Leader Roxanne', 32, 'story'],
@@ -815,11 +851,12 @@ test('the split sheet is the gauntlet with its caps, and it moves with the run',
 	assert.equal(prep.split.boss, 'Leader Brawly');
 	assert.equal(prep.split.index, 1);
 	// The gauntlet is every remaining boss-tier fight in the split, boss last,
-	// each under the cap in force when it is fought — the Museum pair shares 16.
+	// each under the cap in force when it is fought — the Museum pair shares
+	// the authored 17.
 	assert.deepEqual(prep.gauntlet.map(f => [f.trainer, f.tier, f.cap]), [
 		['Team Aqua Grunt Petalburg Woods', 'story', 12],
-		['Team Aqua Grunt Museum #1', 'story', 16],
-		['Team Aqua Grunt Museum #2', 'story', 16],
+		['Team Aqua Grunt Museum #1', 'story', 17],
+		['Team Aqua Grunt Museum #2', 'story', 17],
 		['Leader Brawly', 'boss', 21],
 	]);
 	assert.equal(prep.fightsAhead - prep.filler, prep.gauntlet.length);
@@ -1145,9 +1182,9 @@ test('the cap at a fight is the cap of the stretch that fight belongs to', () =>
 	assert.equal(run.capAt(state, 57), 21);
 	assert.equal(run.capAt(state, 59), 21, 'route filler mid-stretch, still Brawly');
 	// Filler BEFORE a cap fight is still under it: #20 sits between the Petalburg
-	// Woods grunt (#19) and the Museum grunts (#53), so 16.
-	assert.equal(run.capAt(state, 20), 16);
-	assert.equal(run.capAt(state, 53), 16, "the Museum grunt's own order");
+	// Woods grunt (#19) and the Museum grunts (#53), so 17.
+	assert.equal(run.capAt(state, 20), 17);
+	assert.equal(run.capAt(state, 53), 17, "the Museum grunt's own order");
 	// The start of the run, before any fight, is the first story boss' 12 — the
 	// same answer `levelCap` gives a fresh run, from the other direction.
 	assert.equal(run.capAt(state, -1), 12);
@@ -1156,7 +1193,7 @@ test('the cap at a fight is the cap of the stretch that fight belongs to', () =>
 	assert.equal(run.levelCap(state).cap, run.capAt(state, state.position + 1));
 
 	// Nothing boss-tier past the Champion, so nothing sets a cap there.
-	assert.equal(run.capAt(state, 1620), 100, 'the Champion caps his own fight');
+	assert.equal(run.capAt(state, 1620), 99, 'the Champion fight plays under the authored 99');
 	assert.equal(run.capAt(state, 1621), null);
 	// And a run that declines caps has none anywhere.
 	assert.equal(run.capAt(fresh({levelCap: 'none'}), 77), null);

@@ -239,7 +239,49 @@ const STORY_BOSS_PATTERN =
 const MILESTONE_PATTERN =
 	/^(Leader |Elite Four |Champion |Trainer Rival |Aqua Admin |Magma Admin |Aqua Leader |Magma Leader |Trainer Wally VR|Trainer Steven |Trainer Chelle |Dumbass Soupercell$)/;
 
+/**
+ * The AUTHORED level-cap ladder — transcribed row for row from the game's own
+ * `Mechanic Changes.txt` ("Level Cap" section, 23 rows), NOT derived.
+ *
+ * Deriving each cap as "the next boss's ace level" was wrong on ten rows:
+ * the authored cap is usually one below the ace (Flannery's ace is 58, her
+ * cap is 57; Wallace's ace is 100, the final cap is 99), the Museum grunts
+ * cap at 17 not their ace's 16, the Fallarbor Vito rung (48) has no badge to
+ * hang on, and derivation invented rungs at mini-bosses (Chelle at Mt Pyre,
+ * Maxie at the Space Center) that the game does not lift the cap for.
+ *
+ * `order` is the fight whose DEFEAT lifts the cap — every fight at or below
+ * it plays under `cap`. Rival rows carry the triplet's PREFIX and its last
+ * variant's order, so the boundary holds whichever rival a run declares.
+ */
+const LEVEL_CAPS = [
+	{trainer: 'Team Aqua Grunt Petalburg Woods', order: 19, cap: 12},
+	{trainer: 'Team Aqua Grunt Museum #2', order: 56, cap: 17},
+	{trainer: 'Leader Brawly', order: 77, cap: 21},
+	{trainer: 'Leader Roxanne', order: 139, cap: 25},
+	{trainer: 'Trainer Chelle Daycare', order: 181, cap: 32},
+	{trainer: 'Leader Wattson', order: 224, cap: 35},
+	{trainer: 'Trainer Rival Cycling Road', order: 265, cap: 38},
+	{trainer: 'Leader Norman', order: 337, cap: 42},
+	{trainer: 'Winstrate Vito Fallarbor', order: 434, cap: 48},
+	{trainer: 'Magma Leader Maxie Mt Chimney', order: 519, cap: 54},
+	{trainer: 'Leader Flannery', order: 571, cap: 57},
+	{trainer: 'Aqua Admin Shelly Weather Institute', order: 696, cap: 65},
+	{trainer: 'Trainer Rival Bridge', order: 714, cap: 66},
+	{trainer: 'Leader Winona', order: 758, cap: 69},
+	{trainer: 'Trainer Rival Lilycove', order: 855, cap: 73},
+	{trainer: 'Aqua Leader Archie Mt Pyre', order: 927, cap: 76},
+	{trainer: 'Magma Leader Maxie Magma Hideout', order: 1009, cap: 79},
+	{trainer: 'Aqua Admin Matt Aqua Hideout', order: 1056, cap: 81},
+	{trainer: 'Leader Liza', order: 1130, cap: 85},
+	{trainer: 'Aqua Leader Archie Seafloor Cavern', order: 1247, cap: 89},
+	{trainer: 'Leader Juan', order: 1364, cap: 91},
+	{trainer: 'Winstrate Vito VR', order: 1454, cap: 95},
+	{trainer: 'Champion Wallace', order: 1620, cap: 99},
+];
+
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,
 	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN, RIVAL_ACES,
+	LEVEL_CAPS,
 };
