@@ -1100,6 +1100,14 @@
 	}
 
 	function bind() {
+		// The starter buttons are a radio in button's clothing: one pressed at
+		// a time, pressing the pressed one clears the choice.
+		$('.runbun-run-starter').on('click', function () {
+			var was = $(this).attr('aria-pressed') === 'true';
+			$('.runbun-run-starter').attr('aria-pressed', 'false');
+			$(this).attr('aria-pressed', was ? 'false' : 'true');
+		});
+
 		$('#runbun-run-new').on('click', function () {
 			if (damagedSaveUnhandled()) {
 				status('The damaged save from this browser is in the transfer box below ' +
@@ -1107,6 +1115,7 @@
 					'or clear that box to start fresh.', 'error');
 				return;
 			}
+			var $starter = $('.runbun-run-starter[aria-pressed="true"]');
 			mutate(function () {
 				return api('/run/new', {
 					name: $('#runbun-run-new-name').val() || 'My run',
@@ -1117,15 +1126,34 @@
 					onePerRoute: $('#runbun-run-new-route').is(':checked'),
 					shinyClause: $('#runbun-run-new-shiny-clause').is(':checked'),
 					dupesClause: $('#runbun-run-new-dupes').val(),
-					// Declaring the rival removes the other two variants of every rival
+					// The starter names the rival: they take the one yours beats, so
+					// declaring it removes the other two variants of every rival
 					// fight from the spine, the road ahead and the caps.
-					rival: $('#runbun-run-new-rival').val() || undefined,
+					rival: $starter.length ? $starter.attr('data-rival') : undefined,
 					now: new Date().toISOString(),
 				}).then(function (payload) {
 					state = payload.run;
+					// The pick lands in the box before anything renders: the gift is
+					// part of starting, not a chore after. No map — a starter is a
+					// scripted gift with no wild table, recorded as declared. A
+					// refused gift must not unstart the run: the run stands, the
+					// refusal is reported, the starter can be caught by hand.
+					if (!$starter.length) return '.';
+					return api('/run/apply', {run: state, command: {
+						kind: 'catch',
+						species: $starter.attr('data-species'),
+						level: 5,
+					}}).then(function (gifted) {
+						state = gifted.run;
+						return ' — ' + $starter.attr('data-species') + ' L5 is in the box.';
+					}, function (error) {
+						return ' — but the starter was refused: ' + error.message;
+					});
+				}).then(function (note) {
 					corruptSave = null;
 					persist();
-					status('Started ' + state.name + '.', 'ok');
+					status('Started ' + state.name + note,
+						note.indexOf('refused') === -1 ? 'ok' : 'error');
 					return render();
 				}).catch(function (error) {
 					status(error.message, 'error');

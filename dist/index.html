@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?86206a71" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?616fe416" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1944,7 +1944,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?4d142a09"></script>
-    <script type="text/javascript" src="./js/run_panel.js?152ab5fd"></script>
+    <script type="text/javascript" src="./js/run_panel.js?53197c15"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2244,15 +2244,27 @@
                 </select>
             </label>
         </div>
-        <label class="runbun-run-field">
-            <span>Rival &mdash; named for their ace, fixed by your starter</span>
-            <select id="runbun-run-new-rival">
-                <option value="">Not chosen yet &mdash; show all variants</option>
-                <option>Sceptile</option>
-                <option>Blaziken</option>
-                <option>Swampert</option>
-            </select>
-        </label>
+        <!-- The question the game actually asks. The rival takes the starter
+             yours beats, so picking here fixes their ace too — and the pick
+             lands in the box as the run's first entry, a declared gift. -->
+        <div class="runbun-run-field">
+            <span>Starter &mdash; the rival takes the one yours beats</span>
+            <div class="runbun-run-starter-row" role="group" aria-label="Choose a starter">
+                <button type="button" class="btn runbun-run-starter" data-species="Treecko" data-rival="Swampert" aria-pressed="false">
+                    <span class="runbun-run-starter-name">Treecko</span>
+                    <span class="runbun-run-starter-note">grass &middot; rival runs Swampert</span>
+                </button>
+                <button type="button" class="btn runbun-run-starter" data-species="Torchic" data-rival="Sceptile" aria-pressed="false">
+                    <span class="runbun-run-starter-name">Torchic</span>
+                    <span class="runbun-run-starter-note">fire &middot; rival runs Sceptile</span>
+                </button>
+                <button type="button" class="btn runbun-run-starter" data-species="Mudkip" data-rival="Blaziken" aria-pressed="false">
+                    <span class="runbun-run-starter-name">Mudkip</span>
+                    <span class="runbun-run-starter-note">water &middot; rival runs Blaziken</span>
+                </button>
+            </div>
+            <p class="runbun-run-starter-hint">Optional &mdash; skip it and every rival variant stays on the road ahead until a starter is caught by hand.</p>
+        </div>
         <button type="button" id="runbun-run-new" class="btn btn-wide rb-btn-primary">Start a run</button>
     </div>
 

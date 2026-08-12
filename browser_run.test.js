@@ -788,3 +788,34 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 
 	await session.context.close();
 });
+
+test('the starter is picked on the setup screen, and the rival follows from it', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	// Three buttons, one pressed at a time; pressing the pressed one clears.
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Treecko"]', 'aria-pressed'), 'true');
+	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Treecko"]', 'aria-pressed'), 'false');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Mudkip"]', 'aria-pressed'), 'true');
+	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Mudkip"]', 'aria-pressed'), 'false');
+
+	// Start with Treecko: the gift is in the box before anything else happens,
+	// and the rival is fixed to the line that answers it — the one Treecko
+	// beats, whose ace is Swampert.
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 10000});
+	const saved = await savedRun(page);
+	assert.equal(saved.box[0].species, 'Treecko');
+	assert.equal(saved.box[0].level, 5);
+	assert.equal(saved.rules.rival, 'Swampert');
+	assert.match(await page.textContent('#runbun-run-status'), /Treecko L5 is in the box/);
+
+	await session.context.close();
+});
