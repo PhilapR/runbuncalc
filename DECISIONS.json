@@ -177,15 +177,20 @@
 				"ai/src/test/volatile-legality.test.ts",
 				"profiles/run-and-bun/index.js"
 			]
+		},
+		{
+			"id": "delayed-encounters-are-holds",
+			"date": "2026-08-12",
+			"ruling": "The over-cap wild catch is really a DELAYED encounter: the player saves a few choice locations for a better table later (Petalburg City held for Popplio until Surf), trading early-game tools for late-game value. Catches stay face-value — the method gates mean high-level water is unreachable until the caps have caught up anyway — and the delay itself is first-class: hold/unhold record the wait and its target, the scout stops nagging, and the routes view flips to READY when the awaited method opens.",
+			"why": "Operator ruling: 'I could save routes to get those higher-value encounters later... most of the time people delay for some fairy type encounters like the Primarina line.'",
+			"enforcedBy": [
+				"run.js",
+				"run.test.js",
+				"play.js"
+			]
 		}
 	],
 	"open": [
-		{
-			"id": "over-cap-wild-catch",
-			"question": "Is an over-cap wild catch (a L50 Walrein at cap 21) usable in real Run & Bun, disobedient, or benched until the cap catches up? The tool currently takes the level at face value everywhere.",
-			"raised": "2026-08-11",
-			"settledBy": "operator ruling, or the game's own behavior checked in the emulator"
-		},
 		{
 			"id": "safari-zone-unit",
 			"question": "Is the Safari Zone one encounter or one per area? Folded to one location under the area rule; some community tables split it.",

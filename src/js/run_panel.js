@@ -645,8 +645,9 @@
 			open + ' open now · ' + used.length + ' spent · * waits on its HM');
 		var $list = $('#runbun-run-routes').empty();
 		unused.forEach(function (route) {
-			var badge = route.open ? 'open' :
-				route.opensAt !== undefined ? '#' + route.opensAt : '?';
+			var badge = route.held ? (route.held.ready ? 'READY' : 'held') :
+				route.open ? 'open' :
+					route.opensAt !== undefined ? '#' + route.opensAt : '?';
 			var best = route.best.map(function (mon) {
 				var where = mon.where ?
 					' (' + (mon.where.replace(route.name, '').trim() || mon.where) + ')' : '';
@@ -654,12 +655,15 @@
 					(mon.method === 'walk' ? '' : ' ' + mon.method) +
 					(mon.gated !== undefined ? '*' : '') + where;
 			}).join(', ');
+			var saving = route.held && route.held.for ?
+				' — saving for ' + route.held.for + (route.held.ready ? ' (catchable NOW)' : '') : '';
 			$list.append($('<li class="runbun-run-route-row"></li>')
-				.toggleClass('is-open', !!route.open)
+				.toggleClass('is-open', !!route.open && !route.held)
+				.toggleClass('is-held', !!route.held)
 				.append($('<span class="runbun-run-route-when"></span>').text(badge))
 				.append($('<span class="runbun-run-route-name"></span>').text(route.name))
 				.append($('<span class="runbun-run-route-best"></span>')
-					.text(best || 'everything here is a dupe')));
+					.text((best || 'everything here is a dupe') + saving)));
 		});
 		used.forEach(function (route) {
 			$list.append($('<li class="runbun-run-route-row is-used"></li>')

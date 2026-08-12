@@ -241,6 +241,11 @@ function createRun(options) {
 		box: [],
 		party: [],
 		bag: {},
+		// Deliberately unspent encounters: a location the player is SAVING for
+		// a better table later (Petalburg City held for Popplio until Surf).
+		// Keyed by the route rule's unit. Legacy saves lack the field; every
+		// reader treats absence as "no holds".
+		holds: {},
 		log: [],
 	};
 }
@@ -710,6 +715,22 @@ function unusedRoutes(run) {
 			entry.used = {species: used.species, level: used.level};
 			const usedOn = members.length > 1 && profile.oracle.encountersOn(used.map);
 			if (usedOn && usedOn.name !== entry.name) entry.used.where = usedOn.name;
+		}
+		// A held location is being walked past ON PURPOSE; the view says why,
+		// and says when the wait has paid off — `ready` means the awaited
+		// species' method is open now, so the player can go collect.
+		const held = !used && run.holds &&
+			run.holds[routeKey(profile, rules.routeUnit, members[0].map)];
+		if (held) {
+			entry.held = held.for ? {for: held.for} : {};
+			if (held.for && profile.oracle.methodOpensAt) {
+				const slots = members.flatMap(map =>
+					profile.oracle.encountersOn(map.name).mons.filter(mon => mon.species === held.for));
+				entry.held.ready = slots.some(slot => {
+					const gate = profile.oracle.methodOpensAt(slot.method);
+					return gate === null || run.position + 1 >= gate;
+				});
+			}
 		}
 		// Best prospects: what a re-roll can actually keep, best odds first,
 		// across every table the location holds. Ties broken by table order,
@@ -1217,7 +1238,11 @@ function adviseCatches(run, trainer) {
 		}).grid.map(cell => cell.versus.some(v => v.us.guaranteedKO && !v.us.selfKO));
 	}
 
-	const routes = unusedRoutes(run).routes.filter(route => !route.used && route.open);
+	// A held route is being saved on purpose: the scout neither recommends
+	// spending it nor forgets it exists — the count travels in the answer.
+	const all = unusedRoutes(run).routes.filter(route => !route.used && route.open);
+	const routes = all.filter(route => !route.held);
+	const held = all.length - routes.length;
 	// One species can walk three open routes; its row costs the same everywhere.
 	const rows = new Map();
 	const catches = [];
@@ -1268,6 +1293,7 @@ function adviseCatches(run, trainer) {
 		routesOpen: routes.length,
 		considered: catches.length,
 		gated,
+		held,
 		enemies: covered.length || fight.party.length,
 		partyCovers: covered.filter(Boolean).length,
 		catches: catches.slice(0, ADVICE_LIMIT),
@@ -1325,6 +1351,78 @@ function checkEncounter(profile, command) {
 
 const COMMANDS = {
 	/** Add a Pokemon to the box, checked against the map it was caught on. */
+	/**
+	 * Save a location's encounter ON PURPOSE — the delay strategy, recorded.
+	 *
+	 * A player rarely spends every route the moment it opens: a few choice
+	 * locations are worth holding until a better table unlocks (Petalburg
+	 * City's rod offers Croagunk today; its surf water holds Popplio at 50%
+	 * once Surf exists). A hold changes no rule — the encounter simply stays
+	 * unspent — but recording it lets every advisor stop nagging about the
+	 * route, and lets the routes view say WHY it is being walked past and
+	 * when the wait pays off.
+	 */
+	hold(run, command) {
+		const profile = getProfile(run.profileId);
+		requireLayer(profile, 'oracle', 'there are no encounter tables to hold');
+		if (!command.map) throw new Error('hold: map is required');
+		const found = profile.oracle.encountersOn(command.map);
+		if (!found) {
+			throw new Error(`no map named ${JSON.stringify(command.map)} has a wild encounter table`);
+		}
+		const rules = encounterRules(run);
+		const key = routeKey(profile, rules.routeUnit, found.map);
+		const label = rules.routeUnit === 'area' ? key : found.name;
+		const spent = routeCatch(run, profile, found.map);
+		if (spent) {
+			throw new Error(`hold: ${label} already gave its encounter ` +
+				`(${spent.species}) — there is nothing left to save`);
+		}
+		if (!run.holds) run.holds = {};
+		if (run.holds[key]) {
+			throw new Error(`hold: ${label} is already held` +
+				`${run.holds[key].for ? ` for ${run.holds[key].for}` : ''}`);
+		}
+		if (command.for) {
+			// The awaited species must actually live somewhere in this location —
+			// on ANY method, including ones still gated. Waiting for a ghost is
+			// exactly the mistake this check exists to catch.
+			const members = profile.oracle.areaOf ?
+				profile.oracle.maps().filter(map => profile.oracle.areaOf(map.map) === key) :
+				[found];
+			const everything = members.flatMap(map => profile.oracle.encountersOn(map.name).mons);
+			if (!everything.some(mon => mon.species === command.for)) {
+				const roster = [...new Set(everything.map(m => m.species))].slice(0, 12).join(', ');
+				throw new Error(`hold: ${command.for} does not appear anywhere on ` +
+					`${label}; it holds: ${roster}`);
+			}
+		}
+		run.holds[key] = command.for ? {for: command.for} : {};
+		return `held ${label}${command.for ? ` for ${command.for}` : ''} — ` +
+			'its encounter stays unspent on purpose';
+	},
+
+	/** Release a hold: the location goes back to being ordinary unspent. */
+	unhold(run, command) {
+		const profile = getProfile(run.profileId);
+		requireLayer(profile, 'oracle', 'there are no encounter tables to hold');
+		if (!command.map) throw new Error('unhold: map is required');
+		const found = profile.oracle.encountersOn(command.map);
+		if (!found) {
+			throw new Error(`no map named ${JSON.stringify(command.map)} has a wild encounter table`);
+		}
+		const rules = encounterRules(run);
+		const key = routeKey(profile, rules.routeUnit, found.map);
+		const label = rules.routeUnit === 'area' ? key : found.name;
+		if (!run.holds || !run.holds[key]) {
+			throw new Error(`unhold: ${label} is not held`);
+		}
+		const held = run.holds[key];
+		delete run.holds[key];
+		return `released the hold on ${label}` +
+			`${held.for ? ` (was waiting for ${held.for})` : ''}`;
+	},
+
 	catch(run, command) {
 		const profile = getProfile(run.profileId);
 		requireLayer(profile, 'oracle', 'a catch cannot be verified without the wild tables and learnsets');
@@ -1371,6 +1469,13 @@ const COMMANDS = {
 					`(${dupe.id}) under the ${JSON.stringify(rules.dupes)} dupes clause, ` +
 					'so it does not count; re-roll and report what came up instead');
 			}
+		}
+
+		// A catch that spends a held location resolves the hold — fulfilled or
+		// abandoned, either way the wait is over. A shiny-exempt catch spends
+		// nothing, so the hold stays.
+		if (origin.map && !shinyExempt && run.holds) {
+			delete run.holds[routeKey(profile, rules.routeUnit, origin.map)];
 		}
 
 		// Default the moveset to what the species would actually know at this

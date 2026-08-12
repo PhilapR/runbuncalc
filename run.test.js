@@ -687,6 +687,61 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	'no undelivered HM may be offered as a teach');
 });
 
+test('a hold saves a location on purpose, and says when the wait pays off', () => {
+	// The canonical case from the operator's own practice: Petalburg City's
+	// rod offers Croagunk today, but its surf water holds Popplio at 50% —
+	// the Primarina line — once Surf exists at #589. The route is walked
+	// past ON PURPOSE, and the tool records the purpose.
+	let state = run.apply(fresh({permadeath: true}),
+		{kind: 'hold', map: 'Petalburg City', for: 'Popplio'});
+	assert.match(state.log[state.log.length - 1].summary, /held Petalburg City for Popplio/);
+
+	// The routes view names the wait — and it is not ready at position -1.
+	const route = run.unusedRoutes(state).routes.find(r => r.name === 'Petalburg City');
+	assert.deepEqual(route.held, {for: 'Popplio', ready: false});
+
+	// The scout stops nagging about it and says so.
+	const scouted = run.adviseCatches(state);
+	assert.equal(scouted.held, 1);
+	assert.ok(scouted.catches.every(c => c.area !== 'Petalburg City'));
+
+	// Once the run passes the Surf gate, the hold reads READY.
+	const late = JSON.parse(JSON.stringify(state));
+	late.position = 600;
+	const readyRoute = run.unusedRoutes(late).routes.find(r => r.name === 'Petalburg City');
+	assert.equal(readyRoute.held.ready, true);
+
+	// Waiting for a ghost is refused with the roster; a held location cannot
+	// be held twice; an unheld one cannot be released.
+	assert.throws(() => run.apply(fresh({permadeath: true}),
+		{kind: 'hold', map: 'Route101', for: 'Popplio'}),
+	/Popplio does not appear anywhere on Route101/);
+	assert.throws(() => run.apply(state, {kind: 'hold', map: 'Petalburg City'}),
+		/already held for Popplio/);
+	assert.throws(() => run.apply(state, {kind: 'unhold', map: 'Route101'}),
+		/Route101 is not held/);
+
+	// The hold covers the whole LOCATION under the area rule: holding Granite
+	// Cave 1f holds the cave, so the B1f table reports it too.
+	const cave = run.apply(fresh({permadeath: true}),
+		{kind: 'hold', map: 'Granite Cave 1f', for: 'Amaura'});
+	assert.ok(run.unusedRoutes(cave).routes.find(r => r.name === 'Granite Cave').held);
+
+	// A catch that spends the held location resolves the hold, fulfilled or
+	// not; a spent location cannot be held after the fact.
+	const caught = run.apply(state,
+		{kind: 'catch', species: 'Croagunk', map: 'Petalburg City', level: 5, method: 'fish'});
+	assert.equal(Object.keys(caught.holds).length, 0, 'the catch resolves the hold');
+	assert.throws(() => run.apply(caught, {kind: 'hold', map: 'Petalburg City'}),
+		/already gave its encounter \(Croagunk\)/);
+
+	// Release works and undo replays holds faithfully.
+	const released = run.apply(state, {kind: 'unhold', map: 'Petalburg City'});
+	assert.equal(Object.keys(released.holds).length, 0);
+	const undone = run.undo(released);
+	assert.deepEqual(undone.holds, {'Petalburg City': {for: 'Popplio'}});
+});
+
 test('the catch advisor scouts only what is really catchable, on the board', () => {
 	// A fresh run: four routes open (opensAt 0), no party, next boss Brawly.
 	const state = fresh({permadeath: true});
@@ -1052,7 +1107,7 @@ test('encounters on a map mark what the run already owns', () => {
 
 test('an unknown command names the ones that exist', () => {
 	assert.throws(() => run.apply(fresh(), {kind: 'yeet', id: 'mon-1'}),
-		/unknown command "yeet"; known: catch, levelUp, evolve/);
+		/unknown command "yeet"; known: .*catch, levelUp, evolve/);
 	assert.throws(() => run.apply(fresh(), {}), /a command needs a kind/);
 	assert.throws(() => run.createRun({levelCap: 'vibes'}), /unknown level cap mode/);
 });

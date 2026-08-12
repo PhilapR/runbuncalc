@@ -577,7 +577,7 @@ function requireRun(payload, res) {
  * the feature.
  */
 function runError(error, res, next) {
-	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^heartScale:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
+	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^heartScale:|^hold:|^unhold:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
 		return res.status(400).json({error: error.message, code: "InvalidRunCommand"});
 	}
 	return next(error);

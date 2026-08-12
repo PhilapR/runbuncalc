@@ -484,6 +484,16 @@ const SUBCOMMANDS = {
 		return {command: {kind: 'beat', trainer: args.positional.join(' ')}};
 	},
 
+	/** Save a location's encounter for later: the delay strategy, recorded. */
+	hold(state, args) {
+		return {command: {kind: 'hold', map: args.positional.join(' '),
+			...(args.flags.for ? {for: args.flags.for} : {})}};
+	},
+
+	unhold(state, args) {
+		return {command: {kind: 'unhold', map: args.positional.join(' ')}};
+	},
+
 	/**
 	 * The routes still holding an unspent encounter, unlock order, open first.
 	 * `--all` includes the spent ones. A route without a date isn't closed —
@@ -511,9 +521,12 @@ const SUBCOMMANDS = {
 						`${mon.gated !== undefined ? '*' : ''}${where}`;
 				})
 				.join(', ');
-			const when = route.open ? 'open     ' :
-				route.opensAt !== undefined ? `#${String(route.opensAt).padStart(4)}    ` : 'unknown  ';
-			lines.push(`  ${when}${route.name.padEnd(34)} ${best || '(everything here is a dupe)'}`);
+			const when = route.held ? (route.held.ready ? 'READY    ' : 'held     ') :
+				route.open ? 'open     ' :
+					route.opensAt !== undefined ? `#${String(route.opensAt).padStart(4)}    ` : 'unknown  ';
+			const holding = route.held && route.held.for ?
+				` [saving for ${route.held.for}${route.held.ready ? ' — catchable NOW' : ''}]` : '';
+			lines.push(`  ${when}${route.name.padEnd(34)} ${best || '(everything here is a dupe)'}${holding}`);
 		}
 		if (anyGated) lines.push('  * method waits on its HM');
 		if (args.flags.all && used.length) {
@@ -603,7 +616,8 @@ const SUBCOMMANDS = {
 		const lines = [`vs ${out.trainer} (#${out.order})` +
 			(out.cap !== null ? ` at cap ${out.cap}` : '') +
 			` — ${out.routesOpen} routes open, party answers ${out.partyCovers}/${out.enemies}` +
-			(out.gated ? `, ${out.gated} prospects wait on an HM` : '')];
+			(out.gated ? `, ${out.gated} prospects wait on an HM` : '') +
+			(out.held ? `, ${out.held} held on purpose` : '')];
 		if (!out.catches.length) {
 			lines.push('  nothing catchable moves this board');
 		}
@@ -650,6 +664,8 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   where <map>                                     what can be caught there
   find <species>                                  everywhere it can be caught
   catch <species> --level N [--map M] [--name N] [--shiny]  add to the box
+  hold <map> [--for Species]                      save a location's encounter for a better table later
+  unhold <map>                                    release a held location
   level <id> <n|cap>                              raise a level; 'cap' is free, over-cap spends Rare Candy
   evolve <id> [--into S]                          evolve
   learn <id>                                      what it can learn, now and later
