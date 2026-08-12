@@ -11,13 +11,12 @@
 		"directory": "dist",
 		"binding": "ASSETS"
 	},
-	"routes": [
-		{
-			"pattern": "runbun.stochastic-inference.dev",
-			"zone_name": "stochastic-inference.dev",
-			"custom_domain": true
-		}
-	],
+	// Dev, not portfolio: this ships to the account's workers.dev subdomain
+	// (https://runbun.<account>.workers.dev — the first deploy prints it).
+	// When it graduates, swap this flag for the zone route the fleet uses:
+	//   "routes": [{"pattern": "runbun.stochastic-inference.dev",
+	//     "zone_name": "stochastic-inference.dev", "custom_domain": true}]
+	"workers_dev": true,
 	// The advisor and the ranker rebuild matchup rows through the policy —
 	// seconds of CPU, not milliseconds. Needs the paid Workers plan; on the
 	// free tier those two answers (only) would exceed the CPU ceiling.

@@ -66,8 +66,12 @@ uses — one implementation, three transports, still no storage.
 
 ```sh
 $ npm run cf:preview   # wrangler dev against the built worker
-$ npm run cf:deploy    # ships runbun.stochastic-inference.dev
+$ npm run cf:deploy    # ships https://runbun.<account>.workers.dev (printed on deploy)
 ```
+
+Dev for now: it deploys to the account's `workers.dev` subdomain. When it
+graduates to the portfolio, swap `workers_dev` in `wrangler.jsonc` for the
+zone route (the commented block shows it).
 
 Notes: the worker embeds the oracle data and trainer sets (~6.4 MB script,
 inside the paid-plan limit), and `wrangler.jsonc` raises the CPU ceiling
