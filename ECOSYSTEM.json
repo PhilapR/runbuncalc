@@ -107,7 +107,7 @@
 						"engines/rlm/src/pokemon_rlm/battle/damage.py",
 						"engines/rlm/src/pokemon_rlm/planning/calculator.py"
 					],
-					"notes": "Graded 2026-08-12: battle/damage.py reproduces all 1,727 corpus observations (ROM rounding order, per-stage floors; commit 8cd15d8 lineage) at ~6.6us/band in plain CPython when fed resolved scalars. planning/calculator.py still computes the NON-floored level term — the exact 07-24 bug — so any consumer of the planning module inherits pre-fix damage. Same drift pattern as rab's configurable mode: the fix landed in each engine's core and missed its fast/secondary path."
+					"notes": "Graded 2026-08-12: battle/damage.py reproduces all 1,727 corpus observations (ROM rounding order, per-stage floors; commit 8cd15d8 lineage) at ~6.6us/band in plain CPython when fed resolved scalars. planning/calculator.py still computes the NON-floored level term — the exact 07-24 bug — so any consumer of the planning module inherits pre-fix damage. Same drift pattern as rab's configurable mode: the fix landed in each engine's core and missed its fast/secondary path. DEFECT FOUND + FIXED 2026-08-12 (branch claude/rlm-spd-volatile-stage, commit 0712dde): PokemonState had one Gen-1-style special_boost — turn_resolution and effects folded Special Defense stages into the Special Attack stage (Amnesia raised SpA), and the boosted special-damage path divided by effective_special, i.e. the defender's Special ATTACK. The corpus never caught it: band conventions are boost-free and the fidelity grading feeds the scalar core directly, bypassing stat selection. Any rlm full-battle result involving special moves where SpA != SpD predates the fix."
 				}
 			]
 		},
