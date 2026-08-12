@@ -114,6 +114,14 @@ function renderEncounters(found) {
 			`  route used — its encounter was ${found.used.species} L${found.used.level}` :
 			'  route used — its encounter got away; nothing kept');
 	}
+	if (found.items && found.items.length) {
+		lines.push('  items here:');
+		for (const item of found.items) {
+			lines.push(`    ${item.name.padEnd(16)} ${item.kind.padEnd(11)} ` +
+				(item.collected ? 'collected' : item.open ? 'UNCOLLECTED — go get it' :
+					`opens at fight #${item.opensAt}`));
+		}
+	}
 	const byMethod = {};
 	for (const mon of found.mons) (byMethod[mon.method] = byMethod[mon.method] || []).push(mon);
 	for (const method of Object.keys(byMethod)) {
@@ -335,7 +343,8 @@ const SUBCOMMANDS = {
 			throw new Error(`no map named ${JSON.stringify(map)}` +
 				(near.length ? `; did you mean: ${near.join(', ')}` : ''));
 		}
-		return {message: renderEncounters(found)};
+		return {message: renderEncounters(
+			Object.assign({}, found, {items: runtime.fieldItems(state, map)}))};
 	},
 
 	/** Every place a species can be caught. The inverse of `where`. */

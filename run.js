@@ -1439,6 +1439,66 @@ function rollEncounter(run, options) {
 	};
 }
 
+/**
+ * The field items standing on a location: the guided half of "what is here".
+ *
+ * The ledger's locations are prose ("Route 104", "Mt. Pyre"); maps and areas
+ * are identifiers — matching normalizes both and allows a prefix only when
+ * what follows is not a digit, so "Mauville" finds Mauville City without
+ * "Route 11" ever swallowing Route 110.
+ *
+ * `collected` is read from the log's own acquires: the Nth ledger row of a
+ * name is collected once the log holds N acquires of it. No new command and
+ * no new state — picking an item up IS the acquire the bag already records.
+ */
+function normPlace(name) {
+	return String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function fieldItems(run, map) {
+	const profile = getProfile(run.profileId);
+	if (!profile.oracle.fieldItems) return [];
+	const names = [];
+	const found = profile.oracle.encountersOn(map);
+	if (found) {
+		names.push(found.name);
+		if (profile.oracle.areaOf) {
+			const area = profile.oracle.areaOf(found.map);
+			if (area) names.push(area);
+		}
+	} else {
+		names.push(map);
+	}
+	const keys = names.map(normPlace);
+	const matches = key => keys.some(place =>
+		place === key ||
+		(place.startsWith(key) && !/^[0-9]/.test(place.slice(key.length))) ||
+		(key.startsWith(place) && !/^[0-9]/.test(key.slice(place.length))));
+
+	const acquired = {};
+	for (const entry of run.log) {
+		if (!entry.command || entry.command.kind !== 'acquire') continue;
+		acquired[entry.command.item] =
+			(acquired[entry.command.item] || 0) + (entry.command.count || 1);
+	}
+	const seen = {};
+	return profile.oracle.fieldItems()
+		.filter(item => matches(normPlace(item.location)))
+		.map(item => {
+			seen[item.name] = seen[item.name] || 0;
+			const collected = (acquired[item.name] || 0) > seen[item.name];
+			seen[item.name] += 1;
+			return {
+				name: item.name,
+				kind: item.kind,
+				location: item.location,
+				opensAt: item.opensAt,
+				open: item.opensAt !== null && run.position + 1 >= item.opensAt,
+				collected,
+			};
+		});
+}
+
 function checkEncounter(profile, command) {
 	if (!command.map) {
 		// Gifts, statics, trades and starters have no wild table anywhere in the
@@ -2343,5 +2403,5 @@ module.exports = {
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
-	adviseUpgrades, adviseCatches, rankParties, summarize, rollEncounter,
+	adviseUpgrades, adviseCatches, rankParties, summarize, rollEncounter, fieldItems,
 };

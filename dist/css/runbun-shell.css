@@ -1115,6 +1115,25 @@ legend {
 	#runbun-run .runbun-run-actions-row .btn {
 		flex: 1 1 auto;
 	}
+
+	/* Fight rows fold to two lines: the trainer's name owns the first with
+	   the tier badge at its end; meta and buttons share the second. One line
+	   crushed a four-word trainer name into a one-word column. */
+	#runbun-run .runbun-run-up,
+	#runbun-run .runbun-run-split-fight {
+		display: grid;
+		grid-template-columns: 3.2rem 1fr auto;
+		grid-template-areas:
+			"order name tier"
+			"order meta actions";
+		row-gap: 2px;
+		align-items: center;
+	}
+	#runbun-run .runbun-run-up-order { grid-area: order; }
+	#runbun-run .runbun-run-up-name { grid-area: name; }
+	#runbun-run .runbun-run-up-tier { grid-area: tier; justify-self: end; }
+	#runbun-run .runbun-run-up-meta { grid-area: meta; }
+	#runbun-run .runbun-run-up-actions { grid-area: actions; justify-self: end; }
 }
 
 /* Touch ergonomics, orthogonal to width: a desktop window on a touch screen

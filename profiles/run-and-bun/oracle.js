@@ -418,6 +418,11 @@ function itemsObtainableBy(order) {
 	return all.filter(item => item.opensAt !== null && item.opensAt <= order);
 }
 
+/** The whole field-item ledger, location and all — the guided view's source. */
+function fieldItems() {
+	return load('availability').items || [];
+}
+
 /**
  * The permanent field a fight is always fought under — Route 119's rain,
  * the Thunderstorm stretch's Electric Terrain, the desert's sandstorm, the
@@ -446,7 +451,7 @@ function moveObtainableAt(move) {
 
 module.exports = {
 	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
-	fightFieldOf, itemsObtainableBy,
+	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp,

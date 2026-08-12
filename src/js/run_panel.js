@@ -345,14 +345,25 @@
 			$list.append($row);
 		});
 		// The split's uncollected field pickups: prep is what to grab BEFORE
-		// the boss, and the sheet says where each item waits.
+		// the boss. Each row says where the item waits, and a reachable one
+		// carries the button that records the trip — guided, not narrated.
 		if (prep.pickups && prep.pickups.length) {
-			var names = prep.pickups.map(function (item) {
-				return item.name + ' (' + item.location +
-					(item.reachable ? '' : ', from #' + item.opensAt) + ')';
+			var $pickups = $('<li class="runbun-run-split-pickups"></li>')
+				.append($('<span class="runbun-run-split-pickups-label"></span>')
+					.text('Grab before the boss'));
+			prep.pickups.forEach(function (item) {
+				var $row = $('<span class="runbun-run-pickup"></span>')
+					.toggleClass('is-waiting', !item.reachable)
+					.append($('<span class="runbun-run-pickup-name"></span>').text(item.name))
+					.append($('<span class="runbun-run-pickup-where"></span>')
+						.text(item.location + (item.reachable ? '' : ' · from #' + item.opensAt)));
+				if (item.reachable) {
+					$row.append($('<button type="button" class="runbun-run-pickup-take"></button>')
+						.attr('data-item', item.name).text('Picked up'));
+				}
+				$pickups.append($row);
 			});
-			$list.append($('<li class="runbun-run-split-pickups"></li>')
-				.text('Pickups not yet collected: ' + names.join(' · ')));
+			$list.append($pickups);
 		}
 	}
 
@@ -531,6 +542,27 @@
 				if (seen[mon.method]) return;
 				seen[mon.method] = true;
 				$method.append($('<option></option>').attr('value', mon.method).text(mon.method));
+			});
+			// The guided half of "what is here": the field items standing on
+			// this location. An open, uncollected one carries the button that
+			// records the pickup; a collected one stays as the record it is.
+			var $items = $('#runbun-run-items').empty();
+			(found.items || []).forEach(function (item) {
+				var $row = $('<li class="runbun-run-item"></li>')
+					.toggleClass('is-collected', item.collected)
+					.toggleClass('is-waiting', !item.collected && !item.open)
+					.append($('<span class="runbun-run-item-name"></span>').text(item.name))
+					.append($('<span class="runbun-run-item-kind"></span>').text(item.kind));
+				if (item.collected) {
+					$row.append($('<span class="runbun-run-item-state"></span>').text('✓ collected'));
+				} else if (item.open) {
+					$row.append($('<button type="button" class="runbun-run-pickup-take"></button>')
+						.attr('data-item', item.name).text('Picked up'));
+				} else {
+					$row.append($('<span class="runbun-run-item-state"></span>')
+						.text('opens at #' + item.opensAt));
+				}
+				$items.append($row);
 			});
 			// The dupe tooltip names the mode in force — 'species' and 'line'
 			// draw the line in different places, which is the toggle's point.
@@ -1173,6 +1205,14 @@
 		});
 
 		$('#runbun-run-map').on('change', showEncounters);
+		// One handler for every "Picked up" button — the items-here list and
+		// the split sheet's grab-list both record through the same acquire.
+		$('#runbun-run').on('click', '.runbun-run-pickup-take', function () {
+			var item = $(this).attr('data-item');
+			command({kind: 'acquire', item: item}).then(function (accepted) {
+				if (accepted) showEncounters();
+			});
+		});
 		$('#runbun-run-box-filter').on('input', function () {
 			if (lastStatus) renderBox(lastStatus);
 		});

@@ -180,7 +180,10 @@ const api = {
 				throw refusal(`no map named ${JSON.stringify((payload || {}).map)} ` +
 					'has a wild encounter table', 'UnknownMap');
 			}
-			return found;
+			// What is here is encounters AND items: the ledger's field pickups
+			// standing on this location ride the same answer, so a client can
+			// guide the player without a second question.
+			return Object.assign({}, found, {items: runtime.fieldItems(state, (payload || {}).map)});
 		});
 	},
 

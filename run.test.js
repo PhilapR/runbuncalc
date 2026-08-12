@@ -1827,3 +1827,38 @@ test('the roll draws the route\'s encounter from the same tables a catch is chec
 		assert.ok(rolledRow, 'the roll stays on the table');
 	}
 });
+
+test('the field items standing on a location, with the log as the collection record', () => {
+	const state = fresh();
+	// Route 104 holds the Miracle Seed the moment order 11 is behind you; a
+	// fresh run has not reached it, and the ledger says so rather than hiding it.
+	const before = run.fieldItems(state, 'Route104');
+	const seed = before.find(item => item.name === 'Miracle Seed');
+	assert.ok(seed, 'Route 104 holds a Miracle Seed');
+	assert.equal(seed.open, false);
+	assert.equal(seed.collected, false);
+	assert.equal(seed.opensAt, 11);
+
+	// Route 101's Potion opens at the very start — and collecting it is the
+	// acquire the bag already records, not a new kind of event.
+	const potion = run.fieldItems(state, 'Route101').find(item => item.name === 'Potion');
+	assert.ok(potion && potion.open && !potion.collected);
+	const bagged = run.apply(state, {kind: 'acquire', item: 'Potion'});
+	assert.equal(run.fieldItems(bagged, 'Route101')
+		.find(item => item.name === 'Potion').collected, true);
+
+	// Prose locations match identifiers without number bleed: "Route 110"
+	// stands only on Route110 — never on Route 119 — and its Poison Barb
+	// never leaks onto a neighbouring route's list.
+	assert.ok(run.fieldItems(state, 'Route110').some(item => item.name === 'Poison Barb'));
+	assert.ok(!run.fieldItems(state, 'Route119').some(item => item.name === 'Poison Barb'));
+
+	// An area-level location reaches every map of the area: Mt. Pyre's item
+	// shows up whichever floor is asked about.
+	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const pyre = oracle.maps().find(map => (oracle.areaOf(map.map) || '') === 'Mt Pyre');
+	if (pyre) {
+		assert.ok(run.fieldItems(state, pyre.name).length > 0,
+			'Mt. Pyre\'s ledger rows should stand on its floors');
+	}
+});

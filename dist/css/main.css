@@ -2198,6 +2198,20 @@ table.field {
 	gap: var(--rb-space-xs);
 	align-items: center;
 }
+/* Rows align as columns, not driftwood: text inputs flex to share the line,
+   number inputs hold a fixed working width, buttons keep their label size.
+   One weight system instead of each row finding its own widths. */
+#runbun-run .runbun-run-row > input[type="text"] {
+	flex: 1 1 8rem;
+	min-width: 0;
+}
+#runbun-run .runbun-run-row > input[type="number"] {
+	flex: 0 0 4.5rem;
+	width: 4.5rem;
+}
+#runbun-run .runbun-run-row > select {
+	flex: 0 1 auto;
+}
 #runbun-run .runbun-run-row input[type="text"],
 #runbun-run .runbun-run-row input[type="number"],
 #runbun-run .runbun-run-field input[type="text"],
@@ -2718,6 +2732,98 @@ table.field {
    (fill and label ink travel as validated pairs, identical on both themes,
    because a filled cell brings its own ground); everything else themes
    normally. Wide fights scroll inside the block, never the page. */
+/* Items on the ground: the guided half of "what is here". Same bordered-list
+   grammar as the encounters above them — one location, one card language. */
+#runbun-run .runbun-run-items {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+#runbun-run .runbun-run-items:not(:empty) {
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-item {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-size: 0.82rem;
+}
+#runbun-run .runbun-run-item + .runbun-run-item {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-item-name {
+	font-weight: 600;
+	flex: 1;
+}
+#runbun-run .runbun-run-item-kind {
+	font-family: var(--rb-font-mono);
+	font-size: 0.7rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-item-state {
+	font-family: var(--rb-font-mono);
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-item.is-collected {
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-item.is-collected .runbun-run-item-state {
+	color: var(--rb-ok);
+}
+#runbun-run .runbun-run-pickup-take {
+	font-size: 0.78rem;
+	padding: 2px var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	cursor: pointer;
+}
+#runbun-run .runbun-run-pickup-take:hover {
+	border-color: var(--rb-brand);
+	color: var(--rb-brand-ink);
+	background: var(--rb-brand-soft);
+}
+
+/* The split's grab-list: structured rows, not a run-on sentence. */
+#runbun-run .runbun-run-split-pickups {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border-top: 1px solid var(--rb-stroke);
+	background: var(--rb-surface-sunken);
+}
+#runbun-run .runbun-run-split-pickups-label {
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-pickup {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-pickup-name {
+	font-weight: 600;
+}
+#runbun-run .runbun-run-pickup-where {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	color: var(--rb-ink-muted);
+	flex: 1;
+}
+#runbun-run .runbun-run-pickup.is-waiting {
+	color: var(--rb-ink-muted);
+}
+
 /* The starter pick: three buttons, one pressed — a radio in button's
    clothing, because the choice deserves more presence than a dropdown row. */
 #runbun-run .runbun-run-starter-row {
@@ -2781,6 +2887,8 @@ table.field {
 }
 #runbun-run .runbun-run-battle {
 	margin-top: var(--rb-space-lg);
+	/* The sticky shell must not sit on the battle header when it scrolls in. */
+	scroll-margin-top: var(--rb-shell-sticky-offset, 4rem);
 	padding: var(--rb-space-md);
 	border: 2px solid var(--rb-brand);
 	border-radius: var(--rb-radius-control);
@@ -2899,7 +3007,9 @@ table.field {
 }
 
 #runbun-run .runbun-run-matrix-block {
-	margin-top: var(--rb-space-md);
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
 }
 #runbun-run .runbun-run-matrix-note {
 	margin: 0 0 var(--rb-space-xs);
@@ -2973,7 +3083,9 @@ table.field {
    one, not reading across — and the numbers hold their columns so the ranking
    is visible without reading a single figure. */
 #runbun-run .runbun-run-advice-block {
-	margin-top: var(--rb-space-md);
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
 }
 #runbun-run .runbun-run-advice-note {
 	margin: 0 0 var(--rb-space-xs);
@@ -3039,7 +3151,9 @@ table.field {
 
 #runbun-run .runbun-run-rank-block,
 #runbun-run .runbun-run-routes-block {
-	margin-top: var(--rb-space-md);
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
 }
 #runbun-run .runbun-run-rank-note,
 #runbun-run .runbun-run-routes-note {

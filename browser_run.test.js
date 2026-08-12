@@ -819,3 +819,39 @@ test('the starter is picked on the setup screen, and the rival follows from it',
 
 	await session.context.close();
 });
+
+test('items are guided onto their routes: listed where they stand, one tap to collect', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+
+	// Route 101 holds a Potion, open from the start: the Where view says so
+	// and carries the button that records the trip.
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-items .runbun-run-item').length > 0,
+		null, {timeout: 10000});
+	const row = await page.textContent('#runbun-run-items .runbun-run-item');
+	assert.match(row, /Potion/);
+	await page.click('#runbun-run-items .runbun-run-pickup-take');
+	await page.waitForFunction(
+		() => /✓ collected/.test(document.querySelector('#runbun-run-items').textContent),
+		null, {timeout: 10000});
+	// The collection IS the bag's ordinary acquire — one record, two views.
+	assert.match(await page.textContent('#runbun-run-bag'), /Potion x1/);
+	assert.equal((await savedRun(page)).bag.Potion, 1);
+
+	// An item the story has not opened yet is shown waiting, not hidden and
+	// not collectable: Route 104's Miracle Seed opens at fight #11.
+	await page.selectOption('#runbun-run-map', 'Route104');
+	await page.waitForFunction(
+		() => /Miracle Seed/.test(document.querySelector('#runbun-run-items').textContent),
+		null, {timeout: 10000});
+	assert.match(await page.textContent('#runbun-run-items'), /opens at #11/);
+	assert.equal(await page.$('#runbun-run-items .runbun-run-pickup-take'), null,
+		'a gated item must not offer its button');
+
+	await session.context.close();
+});
