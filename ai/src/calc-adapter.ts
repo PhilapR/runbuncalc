@@ -45,15 +45,19 @@ function toCalcBoosts(boosts: PokemonState['boosts']) {
   };
 }
 
-function confusionBoostedStat(stat: number, boost: number, generation: number): number {
+function confusionBoostedStat(stat: number, boost: number | undefined, generation: number): number {
+  // An unboosted stat arrives as `undefined` from calc Pokemon whose boosts
+  // table was never touched, and the stage tables below index by stage —
+  // `6 + undefined` walked off the table and crashed the whole evaluation.
+  const stage = Math.max(-6, Math.min(6, boost ?? 0));
   if (generation < 3) {
-    if (boost >= 0) return Math.floor(stat * [1, 1.5, 2, 2.5, 3, 3.5, 4][boost]);
-    return Math.floor(stat * [1, 0.66, 0.5, 0.4, 0.33, 0.28, 0.25][-boost]);
+    if (stage >= 0) return Math.floor(stat * [1, 1.5, 2, 2.5, 3, 3.5, 4][stage]);
+    return Math.floor(stat * [1, 0.66, 0.5, 0.4, 0.33, 0.28, 0.25][-stage]);
   }
   const [numerator, denominator] = [
     [2, 8], [2, 7], [2, 6], [2, 5], [2, 4], [2, 3], [2, 2],
     [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2],
-  ][6 + boost];
+  ][6 + stage];
   return Math.floor(stat * numerator / denominator);
 }
 

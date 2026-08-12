@@ -52,4 +52,14 @@ assert.equal(next.lastResolution?.actionFailure, 'confusion');
 const callerSuppliedNoFacts = deriveMoveResolution(fixture, action, {random: () => 0.9});
 assert.equal(callerSuppliedNoFacts.hpDeltaByPokemon, undefined);
 
+// A PARTIAL boosts table — def touched by a Leer, atk never touched — used to
+// crash the whole evaluation: the stage table indexed `6 + undefined`. The
+// self-hit must price the untouched stat at stage 0 instead.
+const partial = state();
+partial.generation = 8;
+(partial.sides.ai.party[0] as any).boosts = {def: -1};
+const partialFacts = calculateActionFacts(partial, action);
+assert.ok(partialFacts.confusionDamage);
+assert.ok(partialFacts.confusionDamage.min >= 1);
+
 console.log('Confusion self-damage fixtures passed');
