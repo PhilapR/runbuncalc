@@ -128,3 +128,44 @@ test('a finished fight is over: acting on it is refused, not resolved', () => {
 	assert.throws(() => driver.act(played.battle, {kind: 'move', move: 'Tackle'}),
 		/battle: this fight is over/);
 });
+
+test('adjudication reports what happened, deterministically, and calibrates the ranker', () => {
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	// Same seeds, same answer: an adjudication is a measurement, not a mood.
+	const first = driver.adjudicate(doc, 'Youngster Calvin', {rollouts: 6});
+	const second = driver.adjudicate(doc, 'Youngster Calvin', {rollouts: 6});
+	assert.deepEqual(first, second);
+	assert.equal(first.rollouts, 6);
+	assert.ok(first.pWin > 0.5, 'capped mons run over the first Youngster');
+
+	// Two frail mons into Brawly: the floor policy reports the wipe honestly.
+	const doomed = docWith([
+		{species: 'Skitty', map: 'Route101', level: 2},
+		{species: 'Starly', map: 'Route102', level: 5},
+	]);
+	const wiped = driver.adjudicate(doomed, 'Leader Brawly', {rollouts: 4});
+	assert.equal(wiped.pWin, 0);
+	assert.equal(wiped.eDeaths, 2);
+
+	// And the ranker carries the measurement: adjudicated parties come back
+	// with the played numbers attached and sorted ahead by them.
+	const ranked = run.rankParties(doc, 'Youngster Calvin', {rollouts: 4, adjudicate: 2});
+	assert.ok(ranked.parties[0].adjudication, 'the top candidates are played');
+	assert.equal(ranked.parties[0].adjudication.rollouts, 4);
+	assert.match(ranked.adjudication.policy, /lower bound/);
+	const played = ranked.parties.filter(party => party.adjudication);
+	for (let i = 1; i < played.length; i++) {
+		const above = played[i - 1].adjudication;
+		const below = played[i].adjudication;
+		assert.ok(above.pWin > below.pWin ||
+			(above.pWin === below.pWin && above.eDeaths <= below.eDeaths),
+		'played results outrank the grid, wins first, then deaths');
+	}
+	// rollouts: 0 is the off switch — the old grid-only answer, unchanged.
+	const gridOnly = run.rankParties(doc, 'Youngster Calvin', {rollouts: 0});
+	assert.equal(gridOnly.adjudication, null);
+	assert.ok(gridOnly.parties.every(party => !party.adjudication));
+});

@@ -216,7 +216,10 @@ function renderRanking(ranking) {
 	for (const party of ranking.parties) {
 		const names = party.members.map(member =>
 			member.id === party.lead ? `[${member.species}]` : member.species);
-		lines.push(`  ${String(party.score).padStart(7)}  ${names.join(' ')}` +
+		const played = party.adjudication ?
+			`  P(win) ${Math.round(party.adjudication.pWin * 100)}% · ` +
+				`${party.adjudication.eDeaths.toFixed(1)} deaths` : '';
+		lines.push(`  ${String(party.score).padStart(7)}  ${names.join(' ')}${played}` +
 			(party.label && party.label !== 'top' ? `  (${party.label})` : '') +
 			(party.leadCollapse ? '  lead-sensitive' : ''));
 		if (party.unanswered.length) {
@@ -224,6 +227,10 @@ function renderRanking(ranking) {
 		}
 	}
 	lines.push('  [brackets] mark the lead; the score assumes free switches, priced by the entry hit.');
+	if (ranking.adjudication) {
+		lines.push(`  PLAYED rows beat predicted ones: ${ranking.adjudication.rollouts} rollouts each, ` +
+			'floor policy — a lower bound, not a promise.');
+	}
 	return lines.join('\n');
 }
 

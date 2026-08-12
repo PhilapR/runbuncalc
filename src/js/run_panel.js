@@ -790,12 +790,18 @@
 	 * leaves something unanswered has to say so on the same row that ranks it.
 	 */
 	function renderRanking(payload) {
+		var playedCount = payload.parties.filter(function (party) {
+			return party.adjudication;
+		}).length;
 		$('#runbun-run-rank-note').text(
 			payload.trainer + ' (#' + payload.order + ') · ' +
 			payload.combinations + ' sixes from a box of ' + payload.boxSize +
 			(payload.projection.applied && payload.projection.from === 'projected' ?
 				' · box at cap ' + payload.projection.cap : '') +
-			' · [lead] first, score assumes free switches priced by the entry hit');
+			(playedCount ?
+				' · top ' + playedCount + ' PLAYED (' + payload.adjudication.rollouts +
+					' rollouts each, floor policy — a lower bound, not a promise)' :
+				' · [lead] first, score assumes free switches priced by the entry hit'));
 		var $list = $('#runbun-run-ranking').empty();
 		payload.parties.forEach(function (party) {
 			var names = party.members.map(function (member) {
@@ -804,6 +810,15 @@
 			var $row = $('<li class="runbun-run-rank-row"></li>')
 				.append($('<span class="runbun-run-rank-score"></span>').text(party.score))
 				.append($('<span class="runbun-run-rank-six"></span>').text(names.join(' ')));
+			// The played verdict outranks the grid and says so first: what
+			// happened in twelve fights beats what the matrix predicted.
+			if (party.adjudication) {
+				$row.append($('<span class="runbun-run-rank-played"></span>')
+					.toggleClass('is-win', party.adjudication.pWin >= 0.75)
+					.toggleClass('is-loss', party.adjudication.pWin <= 0.25)
+					.text('P(win) ' + Math.round(party.adjudication.pWin * 100) + '% · ' +
+						party.adjudication.eDeaths.toFixed(1) + ' deaths'));
+			}
 			var tags = [];
 			if (party.label && party.label !== 'top') tags.push(party.label);
 			if (party.leadCollapse) tags.push('lead-sensitive');

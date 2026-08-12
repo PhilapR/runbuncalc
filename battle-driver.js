@@ -408,4 +408,84 @@ function act(bundle, chosen) {
 	};
 }
 
-module.exports = {start, act, legalActions, view, streamFor};
+/**
+ * Adjudicate a fight: play it to the end N times under a mechanical policy
+ * and report what actually happened — the calibration layer the grid score
+ * cannot provide (a full-HP damage matrix knows nothing of speed order or
+ * attrition; a 3.28 "all answered" six wiped 30/30 Brawly rollouts while a
+ * 0.62 six won 26/30, which is how this function earned its place).
+ *
+ * The policy is the assignment-following player: switch to the mon the
+ * ranker says answers the enemy's active (when alive and not already in),
+ * otherwise the best move by the driver's own forecast — guaranteed KO
+ * first, then max damage. Replacements pick the assignment too. It is a
+ * FLOOR, not optimal play: real players do better, so pWin here is a lower
+ * bound and a comparison key, never a promise.
+ *
+ * Deterministic on purpose: seeds derive from `seedBase`, so the same box
+ * asks the same question and gets the same answer twice.
+ */
+function adjudicate(doc, trainerName, options) {
+	options = options || {};
+	const rollouts = options.rollouts === undefined ? 12 : options.rollouts;
+	const seedBase = options.seedBase === undefined ? 1000 : options.seedBase;
+	const answerFor = options.answerFor || {};
+
+	const best = actions => {
+		const moves = actions.filter(entry => entry.kind === 'move');
+		if (!moves.length) return actions[0] || null;
+		return moves.reduce((top, entry) => {
+			const score = entry.damage ?
+				(entry.damage.guaranteedKO ? 1000 : 0) + entry.damage.max : 0;
+			const topScore = top.damage ?
+				(top.damage.guaranteedKO ? 1000 : 0) + top.damage.max : 0;
+			return score > topScore ? entry : top;
+		});
+	};
+
+	let wins = 0;
+	let deaths = 0;
+	let deathless = 0;
+	for (let i = 0; i < rollouts; i++) {
+		let opened = start(doc, trainerName, seedBase + i);
+		let bundle = opened.battle;
+		let actions = opened.actions;
+		let viewState = opened.viewState;
+		let guard = 0;
+		let reply = null;
+		while (guard++ < 120) {
+			if (!actions.length) break;
+			let chosen = null;
+			const want = answerFor[viewState.foe.active.species];
+			const wantAlive = want && viewState.player.bench.some(mon =>
+				mon.id === want && mon.hp.current > 0);
+			const swap = actions.find(entry => entry.kind === 'switch' &&
+				entry.action.replacementId === want);
+			if (wantAlive && want !== viewState.player.active.id && swap) {
+				chosen = {kind: 'switch', replacementId: want};
+			} else {
+				const pick = best(actions);
+				chosen = pick.kind === 'move' ?
+					{kind: 'move', move: pick.move} :
+					{kind: 'switch', replacementId: pick.action.replacementId};
+			}
+			reply = act(bundle, chosen);
+			bundle = reply.battle;
+			actions = reply.actions;
+			viewState = reply.viewState;
+			if (reply.result) break;
+		}
+		const lost = bundle.state.sides.player.party.filter(mon => mon.hp.current <= 0).length;
+		if (reply && reply.result === 'win') wins += 1;
+		deaths += lost;
+		if (lost === 0) deathless += 1;
+	}
+	return {
+		pWin: rollouts ? Math.round(wins / rollouts * 100) / 100 : null,
+		eDeaths: rollouts ? Math.round(deaths / rollouts * 100) / 100 : null,
+		pDeathless: rollouts ? Math.round(deathless / rollouts * 100) / 100 : null,
+		rollouts,
+	};
+}
+
+module.exports = {start, act, legalActions, view, streamFor, adjudicate};

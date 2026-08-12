@@ -3372,6 +3372,28 @@ table.field {
 #runbun-run .runbun-run-rank-six {
 	color: var(--rb-ink);
 }
+/* The played verdict: measured, so it wears state colors — win-band green,
+   wipe-band red, the undecided middle stays ink. */
+#runbun-run .runbun-run-rank-played {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	padding: 1px var(--rb-space-xs);
+	border-radius: var(--rb-radius-control);
+	border: 1px solid var(--rb-stroke);
+	color: var(--rb-ink);
+	white-space: nowrap;
+}
+#runbun-run .runbun-run-rank-played.is-win {
+	border-color: var(--rb-ok);
+	color: var(--rb-ok);
+	background: var(--rb-ok-soft);
+}
+#runbun-run .runbun-run-rank-played.is-loss {
+	border-color: var(--rb-danger);
+	color: var(--rb-danger);
+	background: var(--rb-danger-soft);
+}
+
 #runbun-run .runbun-run-rank-tag {
 	color: var(--rb-ink-muted);
 	font-size: 0.72rem;

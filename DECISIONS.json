@@ -211,6 +211,17 @@
 				"battle-driver.test.js",
 				"run.test.js"
 			]
+		},
+		{
+			"id": "ranker-plays-its-candidates",
+			"date": "2026-08-12",
+			"ruling": "The party ranker PLAYS its top candidates: seeded rollouts under the assignment-following floor policy, and what actually happened (wins, then deaths) outranks the grid score, which only breaks ties. pWin is a lower bound and a comparison key, never a promise; rollouts: 0 restores the grid-only answer.",
+			"why": "The party ranker's grid score does not predict rollout survival: a six scoring 3.28 \"all answered\" (frail Tyrogue/Remoraid answers) wiped 87% of Brawly rollouts before prep, while a 0.62 six won 87%. The grid is a full-HP damage matrix — it ignores speed order and attrition. Settled by productizing the adjudication: the same tape now ranks the six that wins 12/12 above the 3.28 six that wipes.",
+			"enforcedBy": [
+				"battle-driver.js",
+				"run.js",
+				"battle-driver.test.js"
+			]
 		}
 	],
 	"open": [
@@ -243,12 +254,6 @@
 			"question": "Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level.",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
-		},
-		{
-			"id": "ranker-rollout-calibration",
-			"question": "The party ranker's grid score does not predict rollout survival: a six scoring 3.28 \"all answered\" (frail Tyrogue/Remoraid answers) wiped 87% of Brawly rollouts before prep, while a 0.62 six won 87%. The grid is a full-HP damage matrix — it ignores speed order and attrition.",
-			"raised": "2026-08-12",
-			"settledBy": "rollout adjudication productized into rankParties (seeded rollouts as a second sort key), or a bulk/speed term in the grid score"
 		}
 	]
 }

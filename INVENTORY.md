@@ -86,6 +86,7 @@ ruling, never by quiet drift.
 - **delayed-encounters-are-holds** (2026-08-12): The over-cap wild catch is really a DELAYED encounter: the player saves a few choice locations for a better table later (Petalburg City held for Popplio until Surf), trading early-game tools for late-game value. Catches stay face-value — the method gates mean high-level water is unreachable until the caps have caught up anyway — and the delay itself is first-class: hold/unhold record the wait and its target, the scout stops nagging, and the routes view flips to READY when the awaited method opens.
 - **evolutions-are-charged** (2026-08-12): An evolution is a checked event with a named price: a level evolution needs the level, a stone evolution spends the stone from the bag, a move evolution needs the move known. The advisor weighs earned evolutions as its fifth upgrade kind, judged at the projected cap like teaches.
 - **recreation-through-the-document** (2026-08-12): The run can be PLAYED here — rolls off the real tables, fights turn-by-turn against the real AI policy — but only through the same document: a roll settles as an ordinary catch or a spend (a route consumed with nothing kept), a fight ends in ordinary faint and beat commands, and the party battles at the projected cap because the infinite candy is the XP system. The battle bundle is client-held; the server keeps no fights.
+- **ranker-plays-its-candidates** (2026-08-12): The party ranker PLAYS its top candidates: seeded rollouts under the assignment-following floor policy, and what actually happened (wins, then deaths) outranks the grid score, which only breaks ties. pWin is a lower bound and a comparison key, never a promise; rollouts: 0 restores the grid-only answer.
 
 ## Open questions (from DECISIONS.json)
 Ruled on by nobody yet — each names what would settle it. An answered
@@ -95,7 +96,6 @@ question moves up into rulings; it is never silently deleted.
 - **policy-setup-unprobed** (2026-08-10): policy.SETUP remains transcription: no emulator probe has exercised the setup-move scoring the way pykemon probed SCORE_ROLL. _Settled by: a pykemon RAM probe over setup-move turns._
 - **doubles-lead-order** (2026-08-11): Which two of a double trainer's party lead. Assumed first-two today, named as leadAssumption. _Settled by: emulator observation or the trainer data carrying a lead marker._
 - **below-catch-level-relearn** (2026-08-12): Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level. _Settled by: operator ruling._
-- **ranker-rollout-calibration** (2026-08-12): The party ranker's grid score does not predict rollout survival: a six scoring 3.28 "all answered" (frail Tyrogue/Remoraid answers) wiped 87% of Brawly rollouts before prep, while a 0.62 six won 87%. The grid is a full-HP damage matrix — it ignores speed order and attrition. _Settled by: rollout adjudication productized into rankParties (seeded rollouts as a second sort key), or a bulk/speed term in the grid score._
 
 ## Hand-written docs, dated
 Last-touched stamps from git, refreshed whenever the inventory is
@@ -107,7 +107,7 @@ the reader's warning to verify before trusting.
 - `AI_DATA_MODEL.md` — bfd934e 2026-08-05
 - `FORK_MAP.md` — a0e9744 2026-08-10
 - `GEN9_AUDIT.md` — c85114d 2026-08-08
-- `README.md` — 4db200f 2026-08-12
+- `README.md` — c8a9391 2026-08-12
 - `RUNBUN_UI_DESIGN.md` — 8fcc3f7 2026-08-12
 - `TASKS.md` — d4f02d3 2026-08-08
 - `VALIDATION.md` — 8fcc3f7 2026-08-12

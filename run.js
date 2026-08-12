@@ -2344,12 +2344,57 @@ function rankParties(run, trainer, options) {
 		parties.push(present(otherLead, 'diversity: different lead'));
 	}
 
+	// ADJUDICATION: the grid is a full-HP damage matrix — it knows nothing of
+	// speed order or attrition, and it has called a wipe "all answered" (a
+	// 3.28 six lost 30/30 Brawly rollouts while a 0.62 six won 26/30, the
+	// finding that opened this ledger question). So the top candidates are
+	// PLAYED: seeded rollouts under the assignment-following policy, and what
+	// actually happened outranks what the matrix predicted. The floor caveat
+	// is real — a mechanical player underestimates every six — but it
+	// underestimates them all with the same hands, which is what a ranking
+	// needs. `rollouts: 0` turns it off.
+	const rollouts = opts.rollouts === undefined ? 12 : opts.rollouts;
+	if (rollouts > 0 && parties.length) {
+		const driver = require('./battle-driver');
+		const adjudicated = Math.min(opts.adjudicate === undefined ? 4 : opts.adjudicate,
+			parties.length);
+		for (let i = 0; i < adjudicated; i++) {
+			const party = parties[i];
+			const staged = Object.assign({}, run, {party: party.members.map(m => m.id)});
+			const answerFor = {};
+			for (const entry of party.perEnemy) {
+				const slot = party.members.findIndex(m => m.id === entry.answeredBy);
+				if (slot >= 0) answerFor[entry.enemy] = `player-${slot + 1}`;
+			}
+			party.adjudication = driver.adjudicate(staged, matrix.trainer,
+				{rollouts, answerFor});
+		}
+		// Played beats predicted: adjudicated parties sort by what happened
+		// (wins, then deaths), the grid score only breaks ties; the un-played
+		// tail keeps its grid order behind them.
+		const played = parties.slice(0, adjudicated);
+		played.sort((a, b) =>
+			b.adjudication.pWin - a.adjudication.pWin ||
+			a.adjudication.eDeaths - b.adjudication.eDeaths ||
+			b.score - a.score);
+		parties.splice(0, adjudicated, ...played);
+		// 'top' is a claim about the whole ranking, and the ranking changed.
+		parties.forEach((party, i) => {
+			if (party.label === 'top') party.label = null;
+			if (i === 0) party.label = 'top';
+		});
+	}
+
 	return {
 		trainer: matrix.trainer,
 		order: matrix.order,
 		projection: matrix.projection,
 		boxSize: members.length,
 		combinations: top.length ? countCombinations(members.length, size) : 0,
+		adjudication: rollouts > 0 ? {
+			rollouts,
+			policy: 'assignment-following floor — pWin is a lower bound and a comparison key, never a promise',
+		} : null,
 		caveats: [
 			'the set score assumes you can always switch to the chosen answer; the entry cost prices the switch-in hit, not a blocked switch',
 			'a cell reports the best DAMAGING action; the opponent may prefer a status move it scores higher',
