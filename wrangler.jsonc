@@ -12,8 +12,12 @@
 		"binding": "ASSETS"
 	},
 	// Dev, not portfolio: this ships to the account's workers.dev subdomain
-	// (https://runbun.<account>.workers.dev — the first deploy prints it).
-	// When it graduates, swap this flag for the zone route the fleet uses:
+	// (https://runbun.<account>.workers.dev — the first deploy prints it),
+	// PRIVATE behind the fleet's preview gate. Dev work is never displayed
+	// publicly — set the password before the first deploy:
+	//   npx wrangler secret put SITE_AUTH_PASSWORD
+	// (Unset skips the gate; that is for local `wrangler dev` and for the
+	// day this graduates to the public portfolio route:)
 	//   "routes": [{"pattern": "runbun.stochastic-inference.dev",
 	//     "zone_name": "stochastic-inference.dev", "custom_domain": true}]
 	"workers_dev": true,

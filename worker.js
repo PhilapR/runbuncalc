@@ -33,8 +33,34 @@ function answer(work) {
 	}
 }
 
+/**
+ * Private-preview gate, the fleet's own pattern (stochastic-inference's
+ * middleware.ts, ported): dev work is never displayed publicly. Basic auth
+ * against SITE_AUTH_PASSWORD (`wrangler secret put SITE_AUTH_PASSWORD`) —
+ * username ignored, password compared whole. Leaving the secret unset skips
+ * the gate, which is what local `wrangler dev` wants and what graduation to
+ * the public portfolio route will want.
+ */
+function gate(request, env) {
+	const password = env.SITE_AUTH_PASSWORD;
+	if (!password) return null;
+	const auth = request.headers.get('authorization');
+	if (auth && auth.indexOf('Basic ') === 0) {
+		const decoded = atob(auth.slice('Basic '.length));
+		const separator = decoded.indexOf(':');
+		const supplied = separator === -1 ? decoded : decoded.slice(separator + 1);
+		if (supplied === password) return null;
+	}
+	return new Response('Authentication required.', {
+		status: 401,
+		headers: {'WWW-Authenticate': 'Basic realm="Run & Bun - private preview"'},
+	});
+}
+
 module.exports = {
 	async fetch(request, env) {
+		const refused = gate(request, env);
+		if (refused) return refused;
 		const url = new URL(request.url);
 		const route = runApi.ROUTES[url.pathname];
 		if (route) {

@@ -65,13 +65,17 @@ in the Worker itself, bundled from the same `run-api.js` the express server
 uses — one implementation, three transports, still no storage.
 
 ```sh
-$ npm run cf:preview   # wrangler dev against the built worker
+$ npx wrangler secret put SITE_AUTH_PASSWORD   # once: the private-preview gate
+$ npm run cf:preview   # wrangler dev against the built worker (gate skipped locally)
 $ npm run cf:deploy    # ships https://runbun.<account>.workers.dev (printed on deploy)
 ```
 
-Dev for now: it deploys to the account's `workers.dev` subdomain. When it
+Dev for now, and dev is **private**: the worker carries the fleet's
+preview gate (Basic auth against `SITE_AUTH_PASSWORD`, the same pattern as
+the journal's middleware) over the page and the API alike. When it
 graduates to the portfolio, swap `workers_dev` in `wrangler.jsonc` for the
-zone route (the commented block shows it).
+zone route (the commented block shows it) and delete the secret to open
+the doors.
 
 Notes: the worker embeds the oracle data and trainer sets (~6.4 MB script,
 inside the paid-plan limit), and `wrangler.jsonc` raises the CPU ceiling
