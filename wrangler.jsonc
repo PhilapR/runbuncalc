@@ -13,11 +13,12 @@
 	},
 	// Dev, not portfolio: this ships to the account's workers.dev subdomain
 	// (https://runbun.<account>.workers.dev — the first deploy prints it),
-	// PRIVATE behind the fleet's preview gate. Dev work is never displayed
-	// publicly — set the password before the first deploy:
-	//   npx wrangler secret put SITE_AUTH_PASSWORD
-	// (Unset skips the gate; that is for local `wrangler dev` and for the
-	// day this graduates to the public portfolio route:)
+	// PRIVATE behind the fleet's preview gate, which FAILS CLOSED: without
+	// the secret the worker answers 503, never an open door.
+	//   deployed:   npx wrangler secret put SITE_AUTH_PASSWORD
+	//   local dev:  copy .dev.vars.example to .dev.vars
+	//   public day: set PREVIEW_OPEN=true on purpose, and swap this flag
+	//   for the fleet's zone route:
 	//   "routes": [{"pattern": "runbun.stochastic-inference.dev",
 	//     "zone_name": "stochastic-inference.dev", "custom_domain": true}]
 	"workers_dev": true,

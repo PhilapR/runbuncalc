@@ -72,10 +72,12 @@ $ npm run cf:deploy    # ships https://runbun.<account>.workers.dev (printed on 
 
 Dev for now, and dev is **private**: the worker carries the fleet's
 preview gate (Basic auth against `SITE_AUTH_PASSWORD`, the same pattern as
-the journal's middleware) over the page and the API alike. When it
+the journal's middleware) over the page and the API alike — and it **fails
+closed**: with no secret set the worker answers 503, never an open door.
+Local `wrangler dev` reads `.dev.vars` (copy `.dev.vars.example`). When it
 graduates to the portfolio, swap `workers_dev` in `wrangler.jsonc` for the
-zone route (the commented block shows it) and delete the secret to open
-the doors.
+zone route (the commented block shows it) and set `PREVIEW_OPEN=true` —
+going public is a deliberate act, not a forgotten secret.
 
 Notes: the worker embeds the oracle data and trainer sets (~6.4 MB script,
 inside the paid-plan limit), and `wrangler.jsonc` raises the CPU ceiling

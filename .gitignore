@@ -8,3 +8,4 @@ npm-debug.log
 tsconfig.tsbuildinfo
 dist/demo.html
 dist-worker/
+.dev.vars

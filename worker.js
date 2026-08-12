@@ -34,22 +34,44 @@ function answer(work) {
 }
 
 /**
- * Private-preview gate, the fleet's own pattern (stochastic-inference's
- * middleware.ts, ported): dev work is never displayed publicly. Basic auth
- * against SITE_AUTH_PASSWORD (`wrangler secret put SITE_AUTH_PASSWORD`) —
- * username ignored, password compared whole. Leaving the secret unset skips
- * the gate, which is what local `wrangler dev` wants and what graduation to
- * the public portfolio route will want.
+ * Private-preview gate, the fleet's pattern with the default FLIPPED: dev
+ * work is never displayed publicly, so an unconfigured gate refuses (503)
+ * instead of silently opening. The original skip-when-unset convenience was
+ * exactly the production failure mode — a forgotten `secret put` shipped a
+ * public site with nothing saying so.
+ *
+ *   deployed:   npx wrangler secret put SITE_AUTH_PASSWORD   (Basic auth)
+ *   local dev:  SITE_AUTH_PASSWORD or PREVIEW_OPEN=true in .dev.vars
+ *   public day: PREVIEW_OPEN=true as a real var, set on purpose
+ *
+ * Username ignored, password compared whole — as SHA-256 digests through
+ * timingSafeEqual, so the comparison cost says nothing about the prefix.
  */
-function gate(request, env) {
+async function gate(request, env) {
+	if (env.PREVIEW_OPEN === 'true') return null;
 	const password = env.SITE_AUTH_PASSWORD;
-	if (!password) return null;
+	if (!password) {
+		// Fail CLOSED: an unconfigured gate is a refusal, never an open door.
+		return new Response(
+			'Preview gate not configured. Set the SITE_AUTH_PASSWORD secret, ' +
+			'or PREVIEW_OPEN=true to serve publicly on purpose.',
+			{status: 503});
+	}
 	const auth = request.headers.get('authorization');
 	if (auth && auth.indexOf('Basic ') === 0) {
 		const decoded = atob(auth.slice('Basic '.length));
 		const separator = decoded.indexOf(':');
 		const supplied = separator === -1 ? decoded : decoded.slice(separator + 1);
-		if (supplied === password) return null;
+		// Constant-time equality over SHA-256 digests (fixed length, XOR
+		// accumulate) — portable, unlike workerd's timingSafeEqual extension.
+		const digest = async value => new Uint8Array(await crypto.subtle.digest(
+			'SHA-256', new TextEncoder().encode(value)));
+		const pair = await Promise.all([digest(supplied), digest(password)]);
+		let difference = 0;
+		for (let i = 0; i < pair[0].length; i++) {
+			difference |= pair[0][i] ^ pair[1][i];
+		}
+		if (difference === 0) return null;
 	}
 	return new Response('Authentication required.', {
 		status: 401,
@@ -59,7 +81,7 @@ function gate(request, env) {
 
 module.exports = {
 	async fetch(request, env) {
-		const refused = gate(request, env);
+		const refused = await gate(request, env);
 		if (refused) return refused;
 		const url = new URL(request.url);
 		const route = runApi.ROUTES[url.pathname];
