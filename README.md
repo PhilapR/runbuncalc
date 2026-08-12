@@ -66,7 +66,7 @@ uses — one implementation, three transports, still no storage.
 
 ```sh
 $ npx wrangler secret put SITE_AUTH_PASSWORD   # once: the private-preview gate
-$ npm run cf:preview   # wrangler dev against the built worker (gate skipped locally)
+$ npm run cf:preview   # wrangler dev against the built worker (reads .dev.vars)
 $ npm run cf:deploy    # ships https://runbun.<account>.workers.dev (printed on deploy)
 ```
 
