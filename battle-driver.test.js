@@ -1,0 +1,130 @@
+/* eslint-env node, es6 */
+'use strict';
+
+/**
+ * The battle driver's gate: the run played turn by turn, without the game.
+ *
+ * `run.test.js` covers the document and `planner.test.js` the predictions;
+ * what only this layer can promise is the LOOP — a player decision in, a
+ * resolved turn out, the same fight every time under the same seed, the
+ * replacement pause where the game pauses, and epitaphs that survive the
+ * stateless round-trips so a loss can be written into the run truthfully.
+ */
+
+const assert = require('node:assert/strict');
+const test = require('node:test');
+
+const run = require('./run');
+const driver = require('./battle-driver');
+
+function docWith(party) {
+	let doc = run.createRun({name: 'Recreation', now: 't0', permadeath: true});
+	doc = run.applyAll(doc, party.map(entry => ({
+		kind: 'catch',
+		species: entry.species,
+		map: entry.map,
+		level: entry.level,
+	})));
+	return run.apply(doc, {kind: 'party',
+		ids: party.map((entry, index) => `mon-${index + 1}`)});
+}
+
+/** Play a whole fight on one policy: always the first offered action. */
+function playOut(doc, seed, trainer) {
+	let opened = driver.start(doc, trainer, seed);
+	let battle = opened.battle;
+	let actions = opened.actions;
+	const phases = [];
+	let guard = 0;
+	while (guard++ < 80) {
+		const pick = actions[0];
+		assert.ok(pick, 'the driver must always offer a legal action while the fight runs');
+		const reply = driver.act(battle, pick.kind === 'move' ?
+			{kind: 'move', move: pick.move} :
+			{kind: 'switch', replacementId: pick.action.replacementId});
+		phases.push(reply.phase);
+		battle = reply.battle;
+		actions = reply.actions;
+		if (reply.result) return {reply, phases, battle};
+	}
+	assert.fail('the fight must end inside the guard');
+	return null;
+}
+
+test('a fight opens at the cap, offers priced moves, and the same seed replays the same fight', () => {
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const opened = driver.start(doc, undefined, 42);
+	// The next unbeaten fight, unasked: the recreation's "next" is the run's.
+	assert.equal(opened.battle.trainer, 'Youngster Calvin');
+	// The party enters at the projected cap — the infinite candy IS the XP
+	// system, so a level 3 catch fights at what it will be leveled to.
+	assert.equal(opened.viewState.player.active.level, 12);
+	// Moves come priced: the button can say what the calculator knows.
+	const move = opened.actions.find(action => action.kind === 'move');
+	assert.ok(move && move.damage && move.damage.max > 0,
+		'a damaging move must carry its forecast');
+	// The battle id ↔ box id map is what lets a faint in here be written out
+	// there. Slot order is party order.
+	assert.deepEqual(opened.battle.party.map(row => row.monId), ['mon-1', 'mon-2']);
+
+	const first = playOut(doc, 42);
+	const second = playOut(doc, 42);
+	assert.equal(first.reply.result, second.reply.result);
+	assert.equal(first.battle.step, second.battle.step,
+		'the same seed must replay the same fight to the turn');
+	// And this seed is a recorded win: a capped Poochyena runs over the
+	// route-one birds. If the fixture drifts, the assertion below names it.
+	assert.equal(first.reply.result, 'win');
+	assert.deepEqual(first.reply.deaths, []);
+});
+
+test('a mid-turn faint pauses for the replacement, and the epitaph survives to the end', () => {
+	// One hopeless lead, one bystander: the lead falls, the driver must pause
+	// on phase "replace" (never auto-picking the player's next), and when the
+	// fight is lost both deaths carry who did it and with what.
+	const doc = docWith([
+		{species: 'Skitty', map: 'Route101', level: 2},
+		{species: 'Starly', map: 'Route102', level: 5},
+	]);
+	// Two frail mons into Leader Brawly: at cap 21 this is a certain wipe,
+	// which is exactly what the test needs — a mid-fight faint and a loss.
+	const played = playOut(doc, 7, 'Leader Brawly');
+	assert.ok(played.phases.includes('replace'),
+		'losing a mon mid-fight must pause for the player to choose the next');
+	assert.equal(played.reply.result, 'loss');
+	assert.equal(played.reply.deaths.length, 2, 'a wipe reports every death');
+	for (const death of played.reply.deaths) {
+		assert.ok(death.monId, 'every death maps back to a box id');
+		assert.ok(death.by, `${death.species} died to a named move, got ${death.by}`);
+		assert.ok(death.of, `${death.species} died to a named killer, got ${death.of}`);
+	}
+});
+
+test('the driver refuses what the fight cannot do, by name', () => {
+	const doc = docWith([{species: 'Poochyena', map: 'Route101', level: 3}]);
+	const opened = driver.start(doc, undefined, 1);
+	// A move it does not know right now.
+	assert.throws(() => driver.act(opened.battle, {kind: 'move', move: 'Earthquake'}),
+		/battle: "Earthquake" is not usable right now/);
+	// A switch to nobody.
+	assert.throws(() => driver.act(opened.battle, {kind: 'switch', replacementId: 'player-9'}),
+		/battle: "player-9" is not a legal switch/);
+	// No action at all.
+	assert.throws(() => driver.act(opened.battle, null), /battle: an action is required/);
+	// And an empty party cannot open a fight.
+	assert.throws(() => driver.start(run.createRun({name: 'x', now: 't0'})),
+		/battle: the party is empty/);
+});
+
+test('a finished fight is over: acting on it is refused, not resolved', () => {
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const played = playOut(doc, 42);
+	assert.throws(() => driver.act(played.battle, {kind: 'move', move: 'Tackle'}),
+		/battle: this fight is over/);
+});

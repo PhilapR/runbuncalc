@@ -519,9 +519,19 @@
 			// dead weight the re-roll skips — its odds go to what's left.
 			if (found.used) {
 				$list.append($('<li class="runbun-run-route-used"></li>')
-					.text('Route used — its encounter was ' + found.used.species +
-						' L' + found.used.level + '.'));
+					.text(found.used.species ?
+						'Route used — its encounter was ' + found.used.species +
+							' L' + found.used.level + '.' :
+						'Route used — its encounter got away; nothing kept.'));
 			}
+			// The roll button rolls the methods this map actually has.
+			var $method = $('#runbun-run-roll-method').empty();
+			var seen = {};
+			found.mons.forEach(function (mon) {
+				if (seen[mon.method]) return;
+				seen[mon.method] = true;
+				$method.append($('<option></option>').attr('value', mon.method).text(mon.method));
+			});
 			// The dupe tooltip names the mode in force — 'species' and 'line'
 			// draw the line in different places, which is the toggle's point.
 			var dupesMode = lastStatus && lastStatus.status.rules ?
@@ -731,7 +741,9 @@
 				.append($('<span class="runbun-run-route-when"></span>').text('used'))
 				.append($('<span class="runbun-run-route-name"></span>').text(route.name))
 				.append($('<span class="runbun-run-route-best"></span>')
-					.text('gave ' + route.used.species + ' L' + route.used.level +
+					.text((route.used.species ?
+						'gave ' + route.used.species + ' L' + route.used.level :
+						'spent — nothing kept') +
 						(route.used.where ? ' (' + route.used.where + ')' : ''))));
 		});
 	}
@@ -889,6 +901,193 @@
 		}).catch(function (error) {
 			status(error.message, 'error');
 		});
+	}
+
+	// -------------------------------------------------------- the recreation
+	//
+	// The run played WITHOUT the game running beside it: the dice roll here
+	// (off the same tables a reported catch is checked against) and the fights
+	// play here, turn by turn, against the same AI policy the planner predicts
+	// with. Nothing bypasses the document — a roll becomes an ordinary catch
+	// or spend, a fight ends in ordinary faint and beat commands, and every
+	// one of them is still verified server-side like a hand-typed one.
+
+	/** The last roll, held until Catch or "It got away" writes its truth. */
+	var rolled = null;
+
+	function rollEncounter() {
+		var map = $('#runbun-run-map').val();
+		if (!state || !map) {
+			status('Pick a route to roll on first.', 'error');
+			return;
+		}
+		var method = $('#runbun-run-roll-method').val() || undefined;
+		api('/run/encounter', {run: state, map: map, method: method}).then(function (payload) {
+			rolled = Object.assign({mapName: map}, payload.roll);
+			$('#runbun-run-roll-text').text('A wild ' + rolled.species + ' L' + rolled.level +
+				' appeared! (' + rolled.method + ' · ' + rolled.chance + '%)');
+			$('#runbun-run-roll-result').prop('hidden', false);
+			status('', '');
+		}).catch(function (error) {
+			status(error.message, 'error');
+		});
+	}
+
+	function settleRoll(kept) {
+		if (!rolled) return;
+		var roll = rolled;
+		var body = kept ?
+			{kind: 'catch', species: roll.species, level: roll.level,
+				map: roll.mapName, method: roll.method} :
+			{kind: 'spend', map: roll.mapName, reason: 'it got away'};
+		command(body).then(function (accepted) {
+			if (!accepted) return;
+			rolled = null;
+			$('#runbun-run-roll-result').prop('hidden', true);
+			showEncounters();
+		});
+	}
+
+	/** The live fight. Page memory only: leaving mid-fight abandons the FIGHT,
+	 * never the run — nothing is written until the fight ends. */
+	var battle = null;
+	var battleBusy = false;
+
+	function hpBar($bar, mon) {
+		var fraction = mon.hp.max ? Math.max(0, mon.hp.current) / mon.hp.max : 0;
+		$bar.css('width', Math.round(fraction * 100) + '%')
+			.attr('data-band', fraction <= 0.2 ? 'low' : fraction <= 0.5 ? 'mid' : 'high');
+	}
+
+	function benchChips(bench, activeId) {
+		return bench.map(function (mon) {
+			var fraction = mon.hp.max ? Math.max(0, mon.hp.current) / mon.hp.max : 0;
+			return $('<span class="runbun-run-battle-chip"></span>')
+				.toggleClass('is-out', mon.hp.current <= 0)
+				.toggleClass('is-active', mon.id === activeId)
+				.text(mon.species + ' ' + Math.round(fraction * 100) + '%');
+		});
+	}
+
+	function paintBattle(reply) {
+		var viewState = reply.viewState;
+		$('#runbun-run-battle-trainer').text(battle.bundle.trainer);
+		$('#runbun-run-battle-turn').text(' · turn ' + viewState.turn);
+		$('#runbun-run-battle-foe-name').text(
+			viewState.foe.active.species + ' L' + viewState.foe.active.level +
+			(viewState.foe.active.status ? ' · ' + viewState.foe.active.status : ''));
+		$('#runbun-run-battle-us-name').text(
+			viewState.player.active.species + ' L' + viewState.player.active.level +
+			(viewState.player.active.status ? ' · ' + viewState.player.active.status : ''));
+		hpBar($('#runbun-run-battle-foe-hp'), viewState.foe.active);
+		hpBar($('#runbun-run-battle-us-hp'), viewState.player.active);
+		$('#runbun-run-battle-foe-bench').empty()
+			.append(benchChips(viewState.foe.bench, viewState.foe.active.id));
+		$('#runbun-run-battle-us-bench').empty()
+			.append(benchChips(viewState.player.bench, viewState.player.active.id));
+
+		var $log = $('#runbun-run-battle-log');
+		(reply.events || []).forEach(function (event) {
+			$log.append($('<li></li>').text(event.text));
+		});
+		$log.scrollTop($log.prop('scrollHeight'));
+
+		var $moves = $('#runbun-run-battle-moves').empty();
+		var $switches = $('#runbun-run-battle-switches').empty();
+		$('#runbun-run-battle-prompt').text(
+			reply.phase === 'replace' ? 'Choose the next Pokemon.' :
+				reply.result ? '' : 'What will ' + viewState.player.active.species + ' do?');
+		(reply.actions || []).forEach(function (entry) {
+			if (entry.kind === 'move') {
+				$moves.append($('<button type="button" class="btn runbun-run-battle-move"></button>')
+					.attr('data-move', entry.move)
+					.append($('<span class="runbun-run-battle-move-name"></span>').text(entry.move))
+					.append($('<span class="runbun-run-battle-move-dmg"></span>').text(
+						entry.damage ?
+							entry.damage.min + '–' + entry.damage.max + '%' +
+								(entry.damage.guaranteedKO ? ' · KO' : '') : '')));
+			} else {
+				$switches.append($('<button type="button" class="btn runbun-run-battle-switch"></button>')
+					.attr('data-replace', entry.action.replacementId)
+					.text(entry.species + ' ' +
+						Math.round(Math.max(0, entry.hp.current) / entry.hp.max * 100) + '%'));
+			}
+		});
+	}
+
+	function startBattle() {
+		if (battle) {
+			status('A fight is already live — finish or abandon it first.', 'error');
+			return;
+		}
+		if (!state) return;
+		status('Sending out…', '');
+		api('/run/battle/start', {run: state}).then(function (payload) {
+			battle = {bundle: payload.battle};
+			$('#runbun-run-battle-log').empty();
+			$('#runbun-run-battle').prop('hidden', false);
+			paintBattle(payload);
+			status('', '');
+		}).catch(function (error) {
+			status(error.message, 'error');
+		});
+	}
+
+	function battleAct(chosen) {
+		if (!battle || battleBusy) return;
+		battleBusy = true;
+		api('/run/battle/act', {battle: battle.bundle, action: chosen}).then(function (reply) {
+			battleBusy = false;
+			battle.bundle = reply.battle;
+			paintBattle(reply);
+			if (reply.result) finishBattle(reply);
+		}).catch(function (error) {
+			battleBusy = false;
+			status(error.message, 'error');
+		});
+	}
+
+	/**
+	 * The fight is over; now it becomes run history — through the same
+	 * commands a hand-kept run would use, one at a time, stopping at the
+	 * first refusal. Deaths first (each with the epitaph the fight already
+	 * knows), then the win. A loss records its dead and nothing else: the
+	 * trainer still stands on the road ahead.
+	 */
+	function finishBattle(reply) {
+		var trainer = battle.bundle.trainer;
+		var won = reply.result === 'win';
+		var deaths = reply.deaths || [];
+		battle = null;
+		var chain = Promise.resolve(true);
+		deaths.forEach(function (death) {
+			if (!death.monId) return;
+			chain = chain.then(function (ok) {
+				if (!ok) return false;
+				return command({kind: 'faint', id: death.monId, to: trainer,
+					by: death.by || undefined});
+			});
+		});
+		if (won) {
+			chain = chain.then(function (ok) {
+				return ok ? command({kind: 'beat', trainer: trainer}) : false;
+			});
+		}
+		chain.then(function (ok) {
+			if (ok) {
+				status(won ?
+					'Won against ' + trainer + ' — recorded' +
+						(deaths.length ? ', with ' + deaths.length + ' lost.' : ', deathless.') :
+					'Wiped against ' + trainer + ' — the deaths are recorded; ' +
+						'the fight can be retried.', won ? 'ok' : 'error');
+			}
+		});
+	}
+
+	function abandonBattle() {
+		battle = null;
+		$('#runbun-run-battle').prop('hidden', true);
+		status('Fight abandoned — nothing was written.', '');
 	}
 
 	/**
@@ -1121,6 +1320,18 @@
 			command({kind: 'beat', trainer: $(this).attr('data-trainer')});
 		});
 		$('#runbun-run-plan').on('click', function () { plan(null); });
+		// The recreation: roll the dice, play the fight.
+		$('#runbun-run-roll').on('click', rollEncounter);
+		$('#runbun-run-roll-catch').on('click', function () { settleRoll(true); });
+		$('#runbun-run-roll-flee').on('click', function () { settleRoll(false); });
+		$('#runbun-run-play').on('click', startBattle);
+		$('#runbun-run-battle-abandon').on('click', abandonBattle);
+		$('#runbun-run-battle-moves').on('click', '.runbun-run-battle-move', function () {
+			battleAct({kind: 'move', move: $(this).attr('data-move')});
+		});
+		$('#runbun-run-battle-switches').on('click', '.runbun-run-battle-switch', function () {
+			battleAct({kind: 'switch', replacementId: $(this).attr('data-replace')});
+		});
 		// Next fight only, unlike Plan and Board which sit on every row ahead:
 		// this call prices hundreds of candidate builds through the policy, and
 		// a button on 362 rows would invite it once per row.

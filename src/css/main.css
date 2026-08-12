@@ -2718,6 +2718,146 @@ table.field {
    (fill and label ink travel as validated pairs, identical on both themes,
    because a filled cell brings its own ground); everything else themes
    normally. Wide fights scroll inside the block, never the page. */
+/* The recreation: the roll result and the live battle. Same card grammar as
+   the rest of the panel — the fight is a section of the run, not a new app. */
+#runbun-run .runbun-run-roll-result {
+	border: 1px solid var(--rb-brand);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-brand-soft);
+	padding: var(--rb-space-sm);
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+}
+/* `display: flex` outranks the UA's `[hidden] {display:none}` on specificity —
+   the exact bug the start form had. Both recreation blocks hide by attribute. */
+#runbun-run .runbun-run-roll-result[hidden],
+#runbun-run .runbun-run-battle[hidden] {
+	display: none;
+}
+#runbun-run .runbun-run-roll-text {
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-battle {
+	margin-top: var(--rb-space-lg);
+	padding: var(--rb-space-md);
+	border: 2px solid var(--rb-brand);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-sm);
+}
+#runbun-run .runbun-run-battle-turn {
+	font-weight: 400;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-battle-field {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: var(--rb-space-md);
+}
+#runbun-run .runbun-run-battle-card {
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	padding: var(--rb-space-sm);
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-battle-card.is-foe {
+	border-left: 3px solid var(--rb-warn);
+}
+#runbun-run .runbun-run-battle-card.is-us {
+	border-left: 3px solid var(--rb-brand);
+}
+#runbun-run .runbun-run-battle-name {
+	font-family: var(--rb-font-brand);
+	font-weight: 600;
+}
+/* The HP bar: a track with a filled span. Bands, not a gradient — the game's
+   own green/amber/red is a reading, and readings should snap. */
+#runbun-run .runbun-run-battle-hp {
+	height: 8px;
+	border-radius: 4px;
+	background: var(--rb-surface-sunken);
+	border: 1px solid var(--rb-stroke);
+	overflow: hidden;
+}
+#runbun-run .runbun-run-battle-hp span {
+	display: block;
+	height: 100%;
+	background: var(--rb-ok, #2f9e44);
+	transition: width 0.25s ease;
+}
+#runbun-run .runbun-run-battle-hp span[data-band="mid"] {
+	background: var(--rb-warn);
+}
+#runbun-run .runbun-run-battle-hp span[data-band="low"] {
+	background: var(--rb-danger, #c92a2a);
+}
+#runbun-run .runbun-run-battle-bench {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-battle-chip {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	padding: 1px var(--rb-space-xs);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-battle-chip.is-active {
+	border-color: var(--rb-brand);
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-battle-chip.is-out {
+	opacity: 0.45;
+	text-decoration: line-through;
+}
+#runbun-run .runbun-run-battle-prompt {
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	min-height: 1.2em;
+}
+#runbun-run .runbun-run-battle-moves {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-battle-move {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	text-align: left;
+}
+#runbun-run .runbun-run-battle-move-dmg {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-battle-switches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-battle-log {
+	list-style: none;
+	margin: 0;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	max-height: 11rem;
+	overflow-y: auto;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+}
+
 #runbun-run .runbun-run-matrix-block {
 	margin-top: var(--rb-space-md);
 }

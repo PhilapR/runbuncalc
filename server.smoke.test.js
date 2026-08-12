@@ -1090,3 +1090,52 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 	assert.equal(empty.status, 400);
 	assert.match(empty.body.error, /need 1, the bag has 0/);
 });
+
+test('the recreation rides HTTP: a roll, a spend, and one played turn', async () => {
+	const runtime = require('./run');
+	let run = runtime.createRun({name: 'HTTP recreation', now: 't0',
+		permadeath: true});
+
+	// The die rolls off the real table, and what it rolls is catchable as-is.
+	const rolled = await requestJson('/run/encounter', {run, map: 'Route101'});
+	assert.equal(rolled.status, 200);
+	assert.ok(rolled.body.roll.species && rolled.body.roll.level >= 1);
+	const caught = await requestJson('/run/apply', {run, command: {
+		kind: 'catch', species: rolled.body.roll.species,
+		level: rolled.body.roll.level, map: 'Route101', method: rolled.body.roll.method,
+	}});
+	assert.equal(caught.status, 200);
+	run = caught.body.run;
+
+	// A used route refuses the die with the rule's own words.
+	const again = await requestJson('/run/encounter', {run, map: 'Route101'});
+	assert.equal(again.status, 400);
+	assert.match(again.body.error, /roll: Route101 already gave its encounter/);
+
+	// Spend is a command like any other, and spent means spent.
+	const fled = await requestJson('/run/apply',
+		{run, command: {kind: 'spend', map: 'Route102', reason: 'it got away'}});
+	assert.equal(fled.status, 200);
+	assert.match(fled.body.summary, /Route102 spent — it got away; nothing kept/);
+
+	// One battle turn over the wire: start names the run's next fight, act
+	// resolves a chosen move, and the whole bundle rides the payloads.
+	run = (await requestJson('/run/apply',
+		{run, command: {kind: 'party', ids: ['mon-1']}})).body.run;
+	const started = await requestJson('/run/battle/start', {run, seed: 42});
+	assert.equal(started.status, 200);
+	assert.equal(started.body.battle.trainer, 'Youngster Calvin');
+	const move = started.body.actions.find(action => action.kind === 'move');
+	assert.ok(move, 'the opening offers a move');
+	const acted = await requestJson('/run/battle/act',
+		{battle: started.body.battle, action: {kind: 'move', move: move.move}});
+	assert.equal(acted.status, 200);
+	assert.ok(acted.body.events.length > 0, 'a turn narrates itself');
+	assert.equal(acted.body.battle.step, 1);
+
+	// And a battle refusal is a 400 with the reason, not a 500.
+	const bad = await requestJson('/run/battle/act',
+		{battle: started.body.battle, action: {kind: 'move', move: 'Earthquake'}});
+	assert.equal(bad.status, 400);
+	assert.match(bad.body.error, /battle: "Earthquake" is not usable right now/);
+});

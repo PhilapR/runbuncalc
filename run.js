@@ -630,7 +630,10 @@ function routeCatch(run, profile, canonicalMap) {
 	const rules = encounterRules(run);
 	const target = routeKey(profile, rules.routeUnit, canonicalMap);
 	for (const entry of run.log) {
-		if (!entry.command || entry.command.kind !== 'catch' || !entry.command.map) continue;
+		// A `spend` consumes the route exactly like a catch: the encounter came
+		// and went (fled, fainted, out of balls) and the rule does not refund it.
+		if (!entry.command || !entry.command.map ||
+			(entry.command.kind !== 'catch' && entry.command.kind !== 'spend')) continue;
 		if (rules.shiny && entry.command.shiny) continue;
 		const where = profile.oracle.encountersOn(entry.command.map);
 		if (where && routeKey(profile, rules.routeUnit, where.map) === target) {
@@ -672,7 +675,7 @@ function encountersOn(run, map) {
 	}
 	if (rules.onePerRoute) {
 		const used = routeCatch(run, profile, found.map);
-		if (used) answer.used = {species: used.species, level: used.level};
+		if (used) answer.used = {species: used.species || null, level: used.level || null};
 	}
 	return answer;
 }
@@ -733,7 +736,7 @@ function unusedRoutes(run) {
 		// is reported for every run — only its consequences are nuzlocke-gated.
 		const used = routeCatch(run, profile, members[0].map);
 		if (used) {
-			entry.used = {species: used.species, level: used.level};
+			entry.used = {species: used.species || null, level: used.level || null};
 			const usedOn = members.length > 1 && profile.oracle.encountersOn(used.map);
 			if (usedOn && usedOn.name !== entry.name) entry.used.where = usedOn.name;
 		}
@@ -1370,6 +1373,72 @@ function adviseCatches(run, trainer) {
  * whatever somebody typed; with it, "Ralts on Route 101 at level 12" is refused
  * with the reason, and a nuzlocke's rules mean something.
  */
+/**
+ * Roll the route's one random encounter — the game master's die, for the run
+ * played entirely in the browser. Everything a catch would be checked against
+ * decides what can come up: the map's real tables, the method's HM gate, and
+ * the dupes clause (a dupe "does not count — the player re-rolls", so the
+ * roll itself skips them, weighted by the same renormalized odds the routes
+ * view prints). The roll is advice with dice in it: nothing is written until
+ * the player catches or spends, and both of those still verify everything.
+ */
+function rollEncounter(run, options) {
+	const profile = getProfile(run.profileId);
+	requireLayer(profile, 'oracle', 'there are no wild tables to roll on');
+	if (!options || !options.map) throw new Error('roll: map is required');
+	const random = options.random || Math.random;
+	const found = encountersOn(run, options.map);
+	if (!found) {
+		throw new Error(`no map named ${JSON.stringify(options.map)} has a wild encounter table`);
+	}
+	if (found.used) {
+		throw new Error(`roll: ${found.name} already gave its encounter` +
+			(found.used.species ? ` (${found.used.species})` : ' — it was spent'));
+	}
+	const methodOpen = method => {
+		if (!profile.oracle.methodOpensAt) return true;
+		const gate = profile.oracle.methodOpensAt(method);
+		return gate === null || run.position + 1 >= gate;
+	};
+	const methods = [...new Set(found.mons.map(mon => mon.method))].filter(methodOpen);
+	if (!methods.length) {
+		throw new Error(`roll: no encounter method on ${found.name} is open yet — ` +
+			'the HMs that unlock them have not been handed over');
+	}
+	let method = options.method;
+	if (method && !methods.includes(method)) {
+		throw new Error(`roll: ${JSON.stringify(method)} is not open on ${found.name}; ` +
+			`open methods: ${methods.join(', ')}`);
+	}
+	if (!method) method = methods.includes('walk') ? 'walk' : methods[0];
+
+	// The pool is what this run can actually keep: dupes are skipped (the
+	// clause's own words — they do not count, re-roll), everything else keeps
+	// its table weight.
+	const pool = found.mons.filter(mon => mon.method === method && !mon.dupe);
+	if (!pool.length) {
+		throw new Error(`roll: everything ${method} turns up on ${found.name} is a dupe — ` +
+			'roll another method or another route');
+	}
+	const total = pool.reduce((sum, mon) => sum + mon.chance, 0);
+	let draw = random() * total;
+	let slot = pool[pool.length - 1];
+	for (const mon of pool) {
+		draw -= mon.chance;
+		if (draw < 0) { slot = mon; break; }
+	}
+	const level = slot.minLevel +
+		Math.floor(random() * (slot.maxLevel - slot.minLevel + 1));
+	return {
+		species: slot.species,
+		level,
+		method,
+		chance: slot.chance,
+		map: found.name,
+		owned: !!slot.owned,
+	};
+}
+
 function checkEncounter(profile, command) {
 	if (!command.map) {
 		// Gifts, statics, trades and starters have no wild table anywhere in the
@@ -1437,7 +1506,7 @@ const COMMANDS = {
 		const spent = routeCatch(run, profile, found.map);
 		if (spent) {
 			throw new Error(`hold: ${label} already gave its encounter ` +
-				`(${spent.species}) — there is nothing left to save`);
+				`(${spent.species || 'spent, nothing kept'}) — there is nothing left to save`);
 		}
 		if (!run.holds) run.holds = {};
 		if (run.holds[key]) {
@@ -1461,6 +1530,34 @@ const COMMANDS = {
 		run.holds[key] = command.for ? {for: command.for} : {};
 		return `held ${label}${command.for ? ` for ${command.for}` : ''} — ` +
 			'its encounter stays unspent on purpose';
+	},
+
+	/**
+	 * The route's encounter came and went with nothing kept: it fled, it
+	 * fainted, the balls ran out. A real nuzlocke event the document could not
+	 * express — the only way to mark a route used was a catch that never
+	 * happened. The played-in-browser mode's "it got away" writes this.
+	 */
+	spend(run, command) {
+		const profile = getProfile(run.profileId);
+		requireLayer(profile, 'oracle', 'there are no encounter tables to spend');
+		if (!command.map) throw new Error('spend: map is required');
+		const found = profile.oracle.encountersOn(command.map);
+		if (!found) {
+			throw new Error(`no map named ${JSON.stringify(command.map)} has a wild encounter table`);
+		}
+		const rules = encounterRules(run);
+		const key = routeKey(profile, rules.routeUnit, found.map);
+		const label = rules.routeUnit === 'area' ? key : found.name;
+		const prior = routeCatch(run, profile, found.map);
+		if (prior) {
+			throw new Error(`spend: ${label} already gave its encounter ` +
+				(prior.species ? `(${prior.species})` : '(spent, nothing kept)'));
+		}
+		// Spending a held location resolves the hold the same way a catch does:
+		// the wait is over, however it ended.
+		if (run.holds) delete run.holds[key];
+		return `${label} spent — ${command.reason || 'the encounter got away'}; nothing kept`;
 	},
 
 	/** Release a hold: the location goes back to being ordinary unspent. */
@@ -1517,8 +1614,10 @@ const COMMANDS = {
 				const priorMap = profile.oracle.encountersOn(prior.map);
 				const detail = priorMap && priorMap.name !== where ?
 					` on ${priorMap.name}` : '';
+				const what = prior.species ? `on ${prior.species}${detail}` :
+					`with nothing kept${detail} — it got away`;
 				throw new Error(`catch: this run already used its one ${where} ` +
-					`encounter on ${prior.species}${detail} — a location gives one ` +
+					`encounter ${what} — a location gives one ` +
 					'random catch, and releasing or losing it does not refund it');
 			}
 		}
@@ -2244,5 +2343,5 @@ module.exports = {
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
-	adviseUpgrades, adviseCatches, rankParties, summarize,
+	adviseUpgrades, adviseCatches, rankParties, summarize, rollEncounter,
 };

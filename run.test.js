@@ -1741,3 +1741,89 @@ test('the advisor refuses what it cannot answer, with the reason', () => {
 	]);
 	assert.throws(() => run.adviseUpgrades(state, 'Leader Brawley'), /no fight named/);
 });
+
+test('a spent route is used with nothing kept, and the rule does not refund it', () => {
+	// The one that got away is a real nuzlocke event: fled, fainted, out of
+	// balls. Before `spend`, the document could only mark that route by
+	// recording a catch that never happened.
+	const nuz = () => fresh({onePerRoute: true, dupesClause: 'line', shinyClause: true});
+	let state = run.applyAll(nuz(), [
+		{kind: 'spend', map: 'Route101', reason: 'it fainted to a crit'},
+	]);
+	assert.match(state.log[0].summary, /Route101 spent — it fainted to a crit; nothing kept/);
+
+	// Spent is spent: the catch is refused with the rule's own words, and the
+	// refusal says the encounter got away rather than inventing a species.
+	assert.throws(() => run.apply(state, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
+		/already used its one Route101 encounter with nothing kept/);
+	// So is a second spend, and a hold on the corpse of the route.
+	assert.throws(() => run.apply(state, {kind: 'spend', map: 'Route101'}),
+		/spend: Route101 already gave its encounter \(spent, nothing kept\)/);
+	assert.throws(() => run.apply(state, {kind: 'hold', map: 'Route101'}),
+		/already gave its encounter \(spent, nothing kept\)/);
+
+	// The views say the same thing without a species to name.
+	assert.deepEqual(run.encountersOn(state, 'Route101').used, {species: null, level: null});
+	const row = run.unusedRoutes(state).routes.find(route => route.name === 'Route101');
+	assert.deepEqual(row.used, {species: null, level: null});
+
+	// Spending a held route resolves the hold, exactly like a catch would.
+	state = run.applyAll(nuz(), [
+		{kind: 'hold', map: 'Route102', for: 'Ralts'},
+		{kind: 'spend', map: 'Route102'},
+	]);
+	assert.deepEqual(state.holds, {});
+	// And the run replays clean.
+	assert.equal(JSON.stringify(run.undo(state)),
+		JSON.stringify(run.apply(nuz(), {kind: 'hold', map: 'Route102', for: 'Ralts'})));
+});
+
+test('the roll draws the route\'s encounter from the same tables a catch is checked against', () => {
+	const nuz = () => fresh({onePerRoute: true, dupesClause: 'line', shinyClause: true});
+	const state = nuz();
+	// Deterministic dice: the first draw picks the species by table weight,
+	// the second picks the level inside the slot's range. random() = 0 lands
+	// on the first slot at its minimum level — and whatever comes up must be
+	// CATCHABLE, which is the whole contract between the die and the rule.
+	const roll = run.rollEncounter(state, {map: 'Route101', random: () => 0});
+	assert.equal(roll.method, 'walk');
+	assert.ok(roll.species && roll.level >= 1);
+	const kept = run.apply(state, {kind: 'catch', species: roll.species,
+		level: roll.level, map: 'Route101', method: roll.method});
+	assert.equal(kept.box[0].species, roll.species);
+
+	// A used route does not roll again — same rule, same wording.
+	assert.throws(() => run.rollEncounter(kept, {map: 'Route101', random: () => 0}),
+		/roll: Route101 already gave its encounter/);
+	// Neither does a method whose HM has not been handed over (rock smash
+	// opens at fight #139; a fresh run stands at the very start).
+	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const rocky = oracle.maps().find(map =>
+		map.tables.some(table => table.method === 'rock-smash') &&
+		map.tables.some(table => table.method === 'walk'));
+	assert.ok(rocky, 'the game has rock-smash tables');
+	assert.throws(() => run.rollEncounter(state, {map: rocky.name, method: 'rock-smash'}),
+		/roll: "rock-smash" is not open/);
+
+	// Under a dupes clause the roll re-rolls dupes by NOT rolling them: catch
+	// the whole walk table but one, and every draw lands on the survivor.
+	let sweep = nuz();
+	const table = run.encountersOn(sweep, 'Route101').mons.filter(mon => mon.method === 'walk');
+	assert.notEqual(run.encounterRules(sweep).dupes, 'off');
+	for (const mon of table.slice(0, -1)) {
+		if (run.encountersOn(sweep, 'Route101').mons.find(row =>
+			row.species === mon.species && row.dupe)) continue;
+		try {
+			sweep = run.apply(sweep, {kind: 'catch', species: mon.species,
+				level: mon.minLevel, map: 'Route101', method: 'walk', shiny: true});
+		} catch (error) { /* a dupe of an earlier line — already excluded */ }
+	}
+	for (const draw of [0, 0.5, 0.99]) {
+		const forced = run.rollEncounter(sweep, {map: 'Route101', random: () => draw});
+		const rolledRow = table.find(mon => mon.species === forced.species);
+		assert.ok(!run.encountersOn(sweep, 'Route101').mons.find(row =>
+			row.species === forced.species && row.dupe),
+		`the die must never land on a dupe; it rolled ${forced.species}`);
+		assert.ok(rolledRow, 'the roll stays on the table');
+	}
+});

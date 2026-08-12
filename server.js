@@ -7,6 +7,7 @@ const ai = require("./ai");
 const planner = require("./planner");
 const playerTeam = require("./team");
 const runtime = require("./run");
+const battleDriver = require("./battle-driver");
 const app = express();
 
 function startServer(port = 3000) {
@@ -577,7 +578,7 @@ function requireRun(payload, res) {
  * the feature.
  */
 function runError(error, res, next) {
-	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^heartScale:|^hold:|^unhold:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
+	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^heartScale:|^hold:|^unhold:|^spend:|^roll:|^battle:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
 		return res.status(400).json({error: error.message, code: "InvalidRunCommand"});
 	}
 	return next(error);
@@ -791,6 +792,48 @@ app.post("/run/scout", (req, res, next) => {
 	if (!state) return undefined;
 	try {
 		return res.json(runtime.adviseCatches(state, (req.body || {}).trainer));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+/**
+ * The game master's die: roll the route's one random encounter off the real
+ * tables. Nothing is written — the reply is what came up, and the panel's
+ * Catch/It-got-away buttons write the truth through /run/apply as usual.
+ */
+app.post("/run/encounter", (req, res, next) => {
+	try {
+		const payload = req.body || {};
+		return res.json({roll: runtime.rollEncounter(payload.run, {
+			map: payload.map,
+			method: payload.method,
+		})});
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+/**
+ * The recreation's fights: the run played without the game running beside
+ * it. `start` opens the next fight (party at its cap, trainer with their
+ * declared field); `act` resolves one player decision against the real AI
+ * policy. The whole battle bundle travels with each request — the server
+ * holds no fights, exactly as it holds no runs.
+ */
+app.post("/run/battle/start", (req, res, next) => {
+	try {
+		const payload = req.body || {};
+		return res.json(battleDriver.start(payload.run, payload.trainer, payload.seed));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
+app.post("/run/battle/act", (req, res, next) => {
+	try {
+		const payload = req.body || {};
+		return res.json(battleDriver.act(payload.battle, payload.action));
 	} catch (error) {
 		return runError(error, res, next);
 	}

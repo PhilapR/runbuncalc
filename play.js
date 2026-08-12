@@ -110,7 +110,9 @@ function renderStatus(state) {
 function renderEncounters(found) {
 	const lines = [`${found.name} (${found.map})`];
 	if (found.used) {
-		lines.push(`  route used — its encounter was ${found.used.species} L${found.used.level}`);
+		lines.push(found.used.species ?
+			`  route used — its encounter was ${found.used.species} L${found.used.level}` :
+			'  route used — its encounter got away; nothing kept');
 	}
 	const byMethod = {};
 	for (const mon of found.mons) (byMethod[mon.method] = byMethod[mon.method] || []).push(mon);
@@ -532,8 +534,11 @@ const SUBCOMMANDS = {
 		if (args.flags.all && used.length) {
 			lines.push('  used:');
 			for (const route of used) {
-				lines.push(`    ${route.name.padEnd(32)} gave ${route.used.species} ` +
-					`L${route.used.level}${route.used.where ? ` (${route.used.where})` : ''}`);
+				lines.push(`    ${route.name.padEnd(32)} ` +
+					(route.used.species ?
+						`gave ${route.used.species} L${route.used.level}` :
+						'spent — nothing kept') +
+					`${route.used.where ? ` (${route.used.where})` : ''}`);
 			}
 		}
 		return {message: lines.join('\n')};

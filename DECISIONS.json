@@ -198,6 +198,19 @@
 				"run.js",
 				"run.test.js"
 			]
+		},
+		{
+			"id": "recreation-through-the-document",
+			"date": "2026-08-12",
+			"ruling": "The run can be PLAYED here — rolls off the real tables, fights turn-by-turn against the real AI policy — but only through the same document: a roll settles as an ordinary catch or a spend (a route consumed with nothing kept), a fight ends in ordinary faint and beat commands, and the party battles at the projected cap because the infinite candy is the XP system. The battle bundle is client-held; the server keeps no fights.",
+			"why": "A second, softer path into the box would fork the record: anything the recreation writes must survive the same verification a hand-reported run does.",
+			"enforcedBy": [
+				"run.js",
+				"battle-driver.js",
+				"server.js",
+				"battle-driver.test.js",
+				"run.test.js"
+			]
 		}
 	],
 	"open": [

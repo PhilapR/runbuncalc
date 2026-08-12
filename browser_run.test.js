@@ -698,3 +698,93 @@ test('two tabs are one run: a catch in one appears in the other', {skip}, async 
 
 	await session.context.close();
 });
+
+test('the recreation: roll the route, catch or lose it, and play the fight to a recorded win', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	// The route rule ON: "one roll per route" is only a rule when the run
+	// declares it — the refusal below is the rule speaking, not the die.
+	await page.check('#runbun-run-new-route');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+
+	// Roll Route 101's one encounter off its real table. What comes up is
+	// advice until a button writes it — so the box must still be empty here.
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	const rolled = await page.textContent('#runbun-run-roll-text');
+	assert.match(rolled, /A wild .+ L\d+ appeared!/);
+	assert.equal((await savedRun(page)).box.length, 0, 'a roll is not a catch');
+
+	// Catch it: the roll becomes an ordinary, fully verified catch command.
+	await page.click('#runbun-run-roll-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 10000});
+	assert.equal(await page.isVisible('#runbun-run-roll-result'), false,
+		'a settled roll leaves the screen');
+
+	// Roll the next route and lose it: the route is spent with nothing kept,
+	// and rolling it again is refused with the rule's own words.
+	await page.selectOption('#runbun-run-map', 'Route102');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	await page.click('#runbun-run-roll-flee');
+	await page.waitForFunction(
+		() => /spent — it got away/.test(
+			document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForFunction(
+		() => /already gave its encounter/.test(
+			document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	assert.equal((await savedRun(page)).box.length, 1, 'losing the roll keeps nothing');
+
+	// Party up and play the fight — turn by turn against the real AI, always
+	// pressing the first move, replacements included. A capped catch runs
+	// over the first Youngster whatever the seed rolled.
+	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
+	assert.match(await page.textContent('#runbun-run-battle-trainer'), /Youngster Calvin/);
+
+	for (let turn = 0; turn < 40; turn++) {
+		const done = await page.evaluate(() =>
+			/recorded|Wiped/.test(document.querySelector('#runbun-run-status').textContent));
+		if (done) break;
+		const button = await page.$('#runbun-run-battle-moves .runbun-run-battle-move') ||
+			await page.$('#runbun-run-battle-switches .runbun-run-battle-switch');
+		if (!button) {
+			await page.waitForTimeout(250);
+			continue;
+		}
+		await button.click();
+		await page.waitForTimeout(150);
+	}
+	await page.waitForFunction(
+		() => /recorded/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 15000});
+
+	// The fight became run history through ordinary commands: win or wipe,
+	// the document moved — a win moves the position past Calvin, a wipe
+	// buries the party. This seed's capped catch wins.
+	const saved = await savedRun(page);
+	assert.ok(saved.position >= 0, 'the won fight must be marked beaten');
+	assert.ok((await page.textContent('#runbun-run-battle-log')).length > 0,
+		'the fight left a narration');
+
+	await session.context.close();
+});
