@@ -519,6 +519,16 @@ const SUBCOMMANDS = {
 		};
 	},
 
+	use(state, args) {
+		return {
+			command: {
+				kind: 'use',
+				item: args.positional.join(' '),
+				count: args.flags.count === undefined ? 1 : Number(args.flags.count),
+			},
+		};
+	},
+
 	party(state, args) {
 		return {command: {kind: 'party', ids: args.positional}};
 	},
@@ -785,6 +795,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   give <id> <item> / take <id>                    hold items
   heartscale <id> <stat>                          spend one: sets an IV (hp/atk/def/spa/spd/spe) to 31
   acquire <item> [--count N]                      add to the bag
+  use <item> [--count N]                          consume from the bag (thrown balls, a Repel)
   party <id> [<id>...]                            set the party, in order
   nickname <id> <name>                            rename
   faint <id> [--to Trainer] [--move M]            lose one, with its epitaph

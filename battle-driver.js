@@ -222,20 +222,27 @@ function finished(state) {
 }
 
 /**
- * The Gen 3 capture formula, floors and all — the one mechanic a wild fight
- * has that a trainer fight does not. Plain Poke Ball only (bonus 1): the
- * recreation has no ball economy yet, and inventing one would be worse than
- * naming the limit. Sleep and freeze double the odds, any other status is
- * half again, exactly as Emerald rolls it.
+ * The ball tiers the recreation throws, with Emerald's multipliers. The
+ * plain Poke Ball is the free baseline — always offered, never counted —
+ * and the better tiers are BAG items: offered while the bundle's bag
+ * snapshot still covers what this fight has thrown, and spent into the
+ * document (`use` commands) when the fight settles.
  */
-function catchMath(mon, rate) {
+const BALLS = {'Poke Ball': 1, 'Great Ball': 1.5, 'Ultra Ball': 2};
+
+/**
+ * The Gen 3 capture formula, floors and all — the one mechanic a wild fight
+ * has that a trainer fight does not. Sleep and freeze double the odds, any
+ * other status is half again, exactly as Emerald rolls it.
+ */
+function catchMath(mon, rate, ballBonus) {
 	const maxHP = mon.hp.max;
 	const curHP = Math.max(1, mon.hp.current);
 	const status = String(mon.status || '').toLowerCase();
 	const bonus = /slp|sleep|frz|freeze/.test(status) ? 2 :
 		status ? 1.5 : 1;
 	const a = Math.min(255,
-		Math.floor(Math.floor((3 * maxHP - 2 * curHP) * rate / (3 * maxHP)) * bonus));
+		Math.floor(Math.floor((3 * maxHP - 2 * curHP) * rate * (ballBonus || 1) / (3 * maxHP)) * bonus));
 	if (a >= 255) return {a, b: 65536, chance: 1};
 	const b = Math.floor(1048560 /
 		Math.floor(Math.sqrt(Math.floor(Math.sqrt(Math.floor(16711680 / Math.max(1, a)))))));
@@ -248,21 +255,36 @@ function wildAction(state, rng) {
 	return options.length ? options[Math.floor(rng() * options.length)] : null;
 }
 
-/** The throw, priced like every move button is: the panel can SAY the odds. */
-function ballAction(state, bundle) {
+/** How many of a ball this fight can still throw: Poke Balls never run out,
+ * the tiers count down from the bundle's bag snapshot. */
+function ballsLeft(bundle, ball) {
+	if (BALLS[ball] === 1) return Infinity;
+	const held = (bundle.wild.balls || {})[ball] || 0;
+	return held - ((bundle.wild.thrown || {})[ball] || 0);
+}
+
+/** Every throwable ball, priced like the move buttons are. */
+function ballActions(state, bundle) {
 	const wildMon = findMon(state, activeOf(state, 'ai'));
-	const math = catchMath(wildMon, bundle.wild.rate);
-	return {
-		kind: 'ball',
-		label: 'Poke Ball',
-		chance: Math.round(math.chance * 100),
-	};
+	return Object.keys(BALLS)
+		.filter(ball => ballsLeft(bundle, ball) > 0)
+		.map(ball => {
+			const math = catchMath(wildMon, bundle.wild.rate, BALLS[ball]);
+			const left = ballsLeft(bundle, ball);
+			return {
+				kind: 'ball',
+				ball,
+				label: ball,
+				chance: Math.round(math.chance * 100),
+				...(left === Infinity ? {} : {left}),
+			};
+		});
 }
 
 function actionsFor(state, bundle) {
 	const base = legalActions(state);
 	if (bundle.wild && phaseOf(state) === 'choose') {
-		return base.concat([ballAction(state, bundle)]);
+		return base.concat(ballActions(state, bundle));
 	}
 	return base;
 }
@@ -369,6 +391,14 @@ function startWild(doc, roll, seed) {
 			species: wild.species,
 			level: wild.level,
 			rate,
+			// The bag's better balls, snapshotted: what this fight may spend.
+			// Throws are counted in `thrown` and settled into the document as
+			// `use` commands when the fight ends.
+			balls: Object.keys(BALLS).reduce((held, ball) => {
+				if (BALLS[ball] > 1 && doc.bag && doc.bag[ball] > 0) held[ball] = doc.bag[ball];
+				return held;
+			}, {}),
+			thrown: {},
 		},
 		party: doc.party.map((monId, slotIndex) => ({
 			battleId: `player-${slotIndex + 1}`,
@@ -448,9 +478,22 @@ function act(bundle, chosen) {
 		if (!bundle.wild) {
 			throw new Error('battle: only a wild encounter takes a ball');
 		}
+		const ball = chosen.ball || 'Poke Ball';
+		if (!BALLS[ball]) {
+			throw new Error(`battle: ${JSON.stringify(ball)} is not a ball this recreation throws — ` +
+				`it has: ${Object.keys(BALLS).join(', ')}`);
+		}
+		if (ballsLeft(bundle, ball) < 1) {
+			throw new Error(`battle: no ${ball} left — this fight has thrown ` +
+				`${(bundle.wild.thrown || {})[ball] || 0} and the bag held ` +
+				`${(bundle.wild.balls || {})[ball] || 0}`);
+		}
+		bundle = Object.assign({}, bundle, {wild: Object.assign({}, bundle.wild,
+			{thrown: Object.assign({}, bundle.wild.thrown,
+				{[ball]: ((bundle.wild.thrown || {})[ball] || 0) + 1})})});
 		const wildMon = findMon(state, activeOf(state, 'ai'));
-		const math = catchMath(wildMon, bundle.wild.rate);
-		events.push({text: 'You threw a Poke Ball!'});
+		const math = catchMath(wildMon, bundle.wild.rate, BALLS[ball]);
+		events.push({text: `You threw a ${ball}!`});
 		let shakes = 0;
 		while (shakes < 4 && Math.floor(rng() * 65536) < math.b) shakes++;
 		if (shakes === 4) {
@@ -660,4 +703,4 @@ function adjudicate(doc, trainerName, options) {
 	};
 }
 
-module.exports = {start, startWild, act, legalActions, view, streamFor, adjudicate, catchMath};
+module.exports = {start, startWild, act, legalActions, view, streamFor, adjudicate, catchMath, BALLS};

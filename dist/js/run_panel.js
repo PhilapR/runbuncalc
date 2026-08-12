@@ -1289,11 +1289,14 @@
 				reply.result ? '' : 'What will ' + viewState.player.active.species + ' do?');
 		(reply.actions || []).forEach(function (entry) {
 			if (entry.kind === 'ball') {
-				// The throw wears its odds the way every move wears its damage.
+				// Each throwable ball wears its odds the way every move wears
+				// its damage; the counted tiers also say how many are left.
 				$moves.append($('<button type="button" class="btn runbun-run-battle-move runbun-run-battle-ball"></button>')
+					.attr('data-ball', entry.ball)
 					.append($('<span class="runbun-run-battle-move-name"></span>').text(entry.label))
 					.append($('<span class="runbun-run-battle-move-dmg"></span>').text(
-						entry.chance + '% catch')));
+						entry.chance + '% catch' +
+						(entry.left !== undefined ? ' · x' + entry.left : ''))));
 			} else if (entry.kind === 'move') {
 				$moves.append($('<button type="button" class="btn runbun-run-battle-move"></button>')
 					.attr('data-move', entry.move)
@@ -1398,6 +1401,16 @@
 			});
 		});
 		if (wild) {
+			// Thrown tier balls are spent whatever the ending — the bag paid
+			// for them the moment they flew. Plain Poke Balls are the free
+			// baseline and are not counted.
+			Object.keys(wild.thrown || {}).forEach(function (ball) {
+				if (ball === 'Poke Ball' || !wild.thrown[ball]) return;
+				chain = chain.then(function (ok) {
+					return ok ? command({kind: 'use', item: ball,
+						count: wild.thrown[ball]}) : false;
+				});
+			});
 			// The fight's ending settles the roll: a caught ball is the catch,
 			// a killed encounter is the spend — both the ordinary, verified
 			// commands the buttons would have written.
@@ -1835,7 +1848,7 @@
 		bindHold('#runbun-run-end', 1000, endRun);
 		$('#runbun-run-battle-moves').on('click', '.runbun-run-battle-move', function () {
 			battleAct($(this).hasClass('runbun-run-battle-ball') ?
-				{kind: 'ball'} :
+				{kind: 'ball', ball: $(this).attr('data-ball')} :
 				{kind: 'move', move: $(this).attr('data-move')});
 		});
 		$('#runbun-run-battle-switches').on('click', '.runbun-run-battle-switch', function () {

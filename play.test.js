@@ -411,3 +411,15 @@ test('split --rollouts pins the played floor to the sheet', () => {
 	assert.throws(() => cli('split', '--rollouts', 'many'),
 		/--rollouts must be an integer from 1 to 100/);
 });
+
+test('use consumes from the bag and refuses an empty shelf', () => {
+	cli('new');
+	cli('acquire', 'Great', 'Ball', '--count', '3');
+	assert.equal(cli('use', 'Great', 'Ball', '--count', '2'), 'used 2 Great Balls (1 left)');
+	assert.deepEqual(read().bag, {'Great Ball': 1});
+	assert.equal(cli('use', 'Great', 'Ball'), 'used Great Ball (0 left)');
+	assert.throws(() => cli('use', 'Great', 'Ball'),
+		/use: need 1 Great Ball, the bag has 0/);
+	cli('undo');
+	assert.deepEqual(read().bag, {'Great Ball': 1}, 'undo restores the throw');
+});

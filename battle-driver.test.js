@@ -181,6 +181,49 @@ test('a wild fight: the ball is priced, the throw is seeded, the ending settles 
 	assert.equal(asleep.chance, 1, 'a sleeping mon at 1 HP is a guaranteed catch');
 });
 
+test('ball tiers are bag-backed: better odds, counted throws, refusals when out', () => {
+	// Two Great Balls in the bag; the Ultra Ball shelf is empty.
+	let doc = docWith([{species: 'Starly', map: 'Route102', level: 5}]);
+	doc = run.apply(doc, {kind: 'acquire', item: 'Great Ball', count: 2});
+	const rolled = run.rollEncounter(doc, {map: 'Route101', random: () => 0.01});
+	const opened = driver.startWild(doc, rolled, 7);
+
+	// Offered: the free Poke Ball plus the two Great Balls, nothing more —
+	// and the tier really pays (Emerald's 1.5x on the a-value).
+	const balls = opened.actions.filter(action => action.kind === 'ball');
+	assert.deepEqual(balls.map(action => action.ball), ['Poke Ball', 'Great Ball']);
+	assert.equal(balls[1].left, 2);
+	assert.equal(balls[0].left, undefined, 'the free baseline is not counted');
+	assert.ok(balls[1].chance > balls[0].chance, 'a Great Ball beats a plain one');
+
+	// Throw both Great Balls (on this seed neither connects); the third is
+	// refused with the count, and the button is off the list.
+	let battle = opened.battle;
+	let reply = null;
+	for (let thrown = 0; thrown < 2; thrown++) {
+		reply = driver.act(battle, {kind: 'ball', ball: 'Great Ball'});
+		battle = reply.battle;
+		assert.ok(!reply.result, 'this seed does not connect in two Great throws');
+	}
+	assert.equal(battle.wild.thrown['Great Ball'], 2, 'the bundle counts the throws');
+	assert.ok(!reply.actions.some(action => action.ball === 'Great Ball'),
+		'an empty shelf offers no button');
+	assert.throws(() => driver.act(battle, {kind: 'ball', ball: 'Great Ball'}),
+		/no Great Ball left — this fight has thrown 2 and the bag held 2/);
+	assert.throws(() => driver.act(battle, {kind: 'ball', ball: 'Master Ball'}),
+		/not a ball this recreation throws/);
+	// The free baseline still throws.
+	const plain = driver.act(battle, {kind: 'ball'});
+	assert.match(plain.events[0].text, /You threw a Poke Ball!/);
+
+	// And the document's half: `use` spends what the fight threw, refusing
+	// honestly when the bag cannot cover the claim.
+	let settled = run.apply(doc, {kind: 'use', item: 'Great Ball', count: 2});
+	assert.equal(settled.bag['Great Ball'], undefined, 'an emptied slot leaves the bag');
+	assert.throws(() => run.apply(settled, {kind: 'use', item: 'Great Ball'}),
+		/use: need 1 Great Ball, the bag has 0/);
+});
+
 test('adjudication reports what happened, deterministically, and calibrates the ranker', () => {
 	const doc = docWith([
 		{species: 'Poochyena', map: 'Route101', level: 3},

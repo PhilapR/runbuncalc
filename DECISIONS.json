@@ -235,6 +235,18 @@
 				"battle-driver.test.js",
 				"server.smoke.test.js"
 			]
+		},
+		{
+			"id": "balls-are-bag-items",
+			"date": "2026-08-12",
+			"ruling": "Ball tiers are bag-backed: the plain Poke Ball stays the free baseline (always offered, never counted), while Great (1.5x) and Ultra (2x) Balls are offered only while the bag covers what the fight has thrown. Throws are counted in the battle bundle and settled into the document as `use` commands whatever the ending — the bag paid the moment they flew. `use` is acquire's other half: it refuses with the count when the bag cannot cover the claim. Run & Bun-specific ball bonuses are not modeled until someone shows the hack changes them.",
+			"why": "Settles the ball-economy open question. Unlimited free Poke Balls kept the recreation playable with zero bookkeeping; making the better tiers cost bag items adds the real decision (spend the Ultra now or save it) without inventing a shop. Abandoning a fight still writes nothing, thrown balls included — the driver's nothing-until-it-ends contract outranks the cheat vector, which the honor system already owns.",
+			"enforcedBy": [
+				"battle-driver.js",
+				"run.js",
+				"battle-driver.test.js",
+				"play.test.js"
+			]
 		}
 	],
 	"open": [
@@ -265,12 +277,6 @@
 		{
 			"id": "below-catch-level-relearn",
 			"question": "Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level.",
-			"raised": "2026-08-12",
-			"settledBy": "operator ruling"
-		},
-		{
-			"id": "ball-economy",
-			"question": "Wild fights throw plain Poke Balls with no inventory or cost. Should balls be bag items (bought, finite, better tiers with real multipliers), and does Run & Bun change any ball bonuses?",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
 		}

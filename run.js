@@ -2013,6 +2013,24 @@ const COMMANDS = {
 		return `bag: ${command.item} x${run.bag[command.item]}`;
 	},
 
+	/** Consume from the bag: thrown balls, a used Repel — acquire's other
+	 * half, refusing the same way every bag spend in this file refuses. */
+	use(run, command) {
+		if (!command.item) throw new Error('use: item is required');
+		const count = command.count === undefined ? 1 : Number(command.count);
+		if (!Number.isInteger(count) || count < 1) {
+			throw new Error('use: count must be a positive integer');
+		}
+		const held = run.bag[command.item] || 0;
+		if (held < count) {
+			throw new Error(`use: need ${count} ${command.item}, the bag has ${held}`);
+		}
+		run.bag[command.item] = held - count;
+		if (!run.bag[command.item]) delete run.bag[command.item];
+		return `used ${count > 1 ? `${count} ` : ''}${command.item}` +
+			`${count > 1 ? 's' : ''} (${held - count} left)`;
+	},
+
 	/** Set the party, in order. The first entry leads. */
 	party(run, command) {
 		const ids = command.ids || [];
