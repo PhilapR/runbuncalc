@@ -16,6 +16,23 @@ function startServer(port = 3000) {
 	});
 }
 
+/**
+ * The standalone banner: every address a phone on the same network can type.
+ * The server always listened on all interfaces — what was missing was the
+ * server SAYING so, with the run panel's own hash, instead of leaving the
+ * player to run ifconfig and guess the fragment.
+ */
+function printAddresses(port) {
+	const nets = require("os").networkInterfaces();
+	console.log(`  On this machine:  http://localhost:${port}/index.html#runbun-run`);
+	for (const name of Object.keys(nets)) {
+		for (const net of nets[name]) {
+			if (net.family !== "IPv4" || net.internal) continue;
+			console.log(`  On your phone:    http://${net.address}:${port}/index.html#runbun-run  (same Wi-Fi)`);
+		}
+	}
+}
+
 // parse application/json. The default 100kb body limit is smaller than a
 // late-game run document (every /run/* command posts the whole save, and a
 // full playthrough's log projects to ~150-300KB), so a stock limit would turn
@@ -887,7 +904,8 @@ app.use('/fixtures', express.static(path.join(__dirname, 'fixtures')));
 app.use(express.static(path.join(__dirname, 'dist')));
 
 if (require.main === module) {
-	startServer();
+	const port = Number(process.env.PORT) || 3000;
+	startServer(port).on("listening", () => printAddresses(port));
 }
 
 module.exports = {app, startServer};

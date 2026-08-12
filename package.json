@@ -35,6 +35,7 @@
   "terser": "^5.15.1"
  },
  "scripts": {
+  "start": "node build view && node server.js",
   "lint": "npm run lint --prefix calc && npm run lint --prefix ai && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js simulate.js simulate.test.js team.js team.test.js run.js run.test.js battle-driver.js battle-driver.test.js play.js play.test.js browser_run.test.js inventory.test.js rom-band.test.js scripts --ext js",
   "fix": "subpkg run fix && eslint --fix src --ext js",
   "compile": "npm run compile --prefix calc && npm run compile --prefix ai && node build view",

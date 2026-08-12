@@ -36,6 +36,26 @@ The same surface is served over HTTP (`POST /run/*`, see
 cannot drift) and in the browser as the **My Run** panel, which adds the
 matchup board, the split sheet and one-click catches off real tables.
 
+### Play it in the browser (no emulator)
+
+The panel is also a **recreation**: roll each route's encounter off the
+real tables (Catch it / It got away — a lost roll spends the route), and
+play the fights turn by turn against the game's own AI policy, with your
+party at the level cap (the infinite candy is the XP system). Deaths and
+wins are written back into the run document through the same verified
+commands a hand-kept run uses.
+
+```sh
+$ npm start
+Server running on port 3000
+  On this machine:  http://localhost:3000/index.html#runbun-run
+  On your phone:    http://192.168.1.23:3000/index.html#runbun-run  (same Wi-Fi)
+```
+
+The page is responsive — the panel is designed to be played from a phone.
+The run saves in that browser's storage; use Export/Import to move it
+between devices.
+
 Nuzlocke rules are individual toggles (`--permadeath`, `--route`,
 `--dupes off|species|line|forms`, `--shiny-clause`); `--nuzlocke` is just the
 preset. Route availability, encounter odds, level caps and the AI's damage
