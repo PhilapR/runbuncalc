@@ -337,6 +337,46 @@ test('a self-KO move is a cell\'s last resort, never its claim', () => {
 	}
 });
 
+test('a fight is planned under its own sky: permanent fields are the default', () => {
+	// Route 119 is fought in permanent rain (Mechanic Changes: Overworld
+	// Weather); the profile declares it per fight, imported from the
+	// operator's own location annotations.
+	const marill = [{species: 'Marill', level: 30, moves: ['Surf']}];
+	const doug = planner.buildFightState({trainer: 'Bug Catcher Doug',
+		playerParty: marill, profileId: 'run-and-bun'});
+	assert.equal(doug.state.field.weather, 'Rain');
+	assert.equal(doug.fightField, 'permanent Rain');
+
+	// The Thunderstorm stretch carries both halves, on every rival variant.
+	const bridge = planner.buildFightState({trainer: 'Trainer Rival Bridge Swampert',
+		playerParty: [{species: 'Marill', level: 66, moves: ['Surf']}], profileId: 'run-and-bun'});
+	assert.equal(bridge.state.field.weather, 'Rain');
+	assert.equal(bridge.state.field.terrain, 'Electric');
+
+	// The Seafloor Cavern's veil is the OPPONENT'S side, already up.
+	const archie = planner.buildFightState({trainer: 'Aqua Leader Archie Seafloor Cavern',
+		playerParty: [{species: 'Marill', level: 89, moves: ['Surf']}], profileId: 'run-and-bun'});
+	assert.equal(archie.state.sides.ai.effects.auroraVeil, true);
+
+	// An explicit field — even an empty one — is the override, so a caller can
+	// still ask the counterfactual; and the board itself grades under the rain
+	// (Surf's cell is half again what the clear-sky counterfactual claims).
+	const rained = planner.matchup({trainer: 'Bug Catcher Doug', playerParty: marill,
+		profileId: 'run-and-bun'});
+	const clear = planner.matchup({trainer: 'Bug Catcher Doug', playerParty: marill,
+		profileId: 'run-and-bun', field: {}});
+	assert.equal(rained.fightField, 'permanent Rain');
+	assert.equal(clear.fightField, undefined);
+	assert.ok(rained.grid[0].versus[0].us.max > clear.grid[0].versus[0].us.max * 1.4,
+		'rain must boost the Water cell');
+
+	// A fight with no declaration stays in clear skies.
+	const calvin = planner.buildFightState({trainer: 'Youngster Calvin',
+		playerParty: marill, profileId: 'run-and-bun'});
+	assert.deepEqual(calvin.state.field, {});
+	assert.equal(calvin.fightField, undefined);
+});
+
 test('a matrix without a team is refused rather than guessed at', () => {
 	assert.throws(
 		() => planner.matchup({trainer: 'Youngster Calvin', playerParty: []}),

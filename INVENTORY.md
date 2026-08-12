@@ -63,6 +63,7 @@ Oracle datasets:
 - `availability.json`: 6 species
 - `encounters.json`: 131 maps
 - `evolutions.json`: 435 species
+- `fight-fields.json`: 5 species
 - `growth.json`: 1114 species
 - `learnsets.json`: 1114 species
 

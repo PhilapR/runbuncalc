@@ -248,6 +248,11 @@ function buildFightState(options) {
 	const borrowed = built.some(entry => entry.borrowed);
 	const slots = doubles ? 2 : 1;
 
+	// The fight's PERMANENT field: Route 119 is fought in rain whether anyone
+	// asks or not, so the profile's declaration is the default and an explicit
+	// `opts.field` (even `{}`) is the override. The Seafloor Cavern's veil is
+	// the opponent's side, not the sky, and it starts already up.
+	const declared = declaredField(profile, fight.trainer);
 	const state = b.buildBattleState({
 		aiActives: aiParty.slice(0, slots),
 		aiBench: aiParty.slice(slots),
@@ -257,7 +262,8 @@ function buildFightState(options) {
 		// result instead of hiding in it, and `{doubles: true}` is what asks for
 		// the two-slot state.
 		mode: doubles ? 'Doubles' : 'Singles',
-		field: opts.field || {},
+		field: opts.field !== undefined ? opts.field : declared.field,
+		aiEffects: declared.aiEffects,
 	});
 	ai.validateBattleState(state);
 	return {
@@ -269,7 +275,34 @@ function buildFightState(options) {
 		// Only present when the second slot is real, because it is the one thing
 		// about a Doubles plan the run map cannot source.
 		leadAssumption: doubles ? doublesLeads(fight) : undefined,
+		// Named when the fight carries a permanent condition, so every consumer
+		// can SAY "planned in permanent Rain" instead of silently assuming it.
+		...(declared.label ? {fightField: declared.label} : {}),
 	};
+}
+
+/**
+ * The permanent field a profile declares for a fight, split into what the
+ * battle state can hold: the sky (weather/terrain), the opponent's starting
+ * side effects, and a human-readable label. A note-only declaration (Route
+ * 129's erratic weather) yields no field — a condition that cannot be
+ * static is reported, never faked.
+ */
+function declaredField(profile, trainer) {
+	const declared = profile.oracle && profile.oracle.fightFieldOf ?
+		profile.oracle.fightFieldOf(trainer) : null;
+	if (!declared) return {field: {}, aiEffects: undefined, label: null};
+	const field = {
+		...(declared.weather ? {weather: declared.weather} : {}),
+		...(declared.terrain ? {terrain: declared.terrain} : {}),
+	};
+	const aiEffects = declared.enemyAuroraVeil ? {auroraVeil: true} : undefined;
+	const parts = [];
+	if (declared.weather) parts.push(`permanent ${declared.weather === 'Sand' ? 'Sandstorm' : declared.weather}`);
+	if (declared.terrain) parts.push(`permanent ${declared.terrain} Terrain`);
+	if (declared.enemyAuroraVeil) parts.push('opponent starts under Aurora Veil');
+	if (declared.note) parts.push(declared.note + ' (not modeled)');
+	return {field, aiEffects, label: parts.join(', ') || null};
 }
 
 /**
@@ -365,6 +398,10 @@ function predict(options) {
 		// Only set when `{doubles: true}` built a two-slot state, and it carries
 		// the lead assumption the run map cannot source.
 		leadAssumption: built.leadAssumption,
+		// Named when the fight carries a permanent condition the state was
+		// built under — "decided by 4.6" in permanent rain is a different
+		// claim than in clear skies, and the reader must see which one it is.
+		...(built.fightField ? {fightField: built.fightField} : {}),
 		actions: scored,
 		// One entry per Pokemon the opponent has on the field: their own ranking,
 		// margin and confidence. A doubles turn is two decisions, not one.
@@ -520,6 +557,11 @@ function matchup(options) {
 	const theirs = fight.party.map((mon, i) =>
 		b.pokemonStateFromSet(mon.species, mon.setLabel, `ai-${i + 1}`));
 
+	// The board is graded under the fight's own sky: a Route 119 cell without
+	// its rain claims numbers the fight will never produce.
+	const declared = declaredField(profile, fight.trainer);
+	const cellField = opts.field !== undefined ? opts.field : declared.field;
+
 	const grid = theirs.map(enemy => ({
 		enemy: {species: enemy.species, level: enemy.level},
 		versus: ours.map(entry => {
@@ -532,7 +574,8 @@ function matchup(options) {
 				aiActive: foe,
 				playerActive: player,
 				mode: 'Singles',
-				field: opts.field || {},
+				field: cellField,
+				aiEffects: declared.aiEffects ? Object.assign({}, declared.aiEffects) : undefined,
 			});
 			ai.validateBattleState(state);
 			const us = matchupDirection(
@@ -555,6 +598,7 @@ function matchup(options) {
 		// Same warning `predict` carries: a borrowed slot is a trainer's build,
 		// so its row is an answer about a Pokemon nobody owns.
 		borrowedPlayerBuild: ours.some(entry => entry.borrowed),
+		...(declared.label && opts.field === undefined ? {fightField: declared.label} : {}),
 		grid,
 	};
 }

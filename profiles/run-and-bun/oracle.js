@@ -408,6 +408,21 @@ function methodOpensAt(method) {
 }
 
 /**
+ * The permanent field a fight is always fought under — Route 119's rain,
+ * the Thunderstorm stretch's Electric Terrain, the desert's sandstorm, the
+ * Seafloor Cavern's opponent-side Aurora Veil — or null for a fight in
+ * clear skies. Imported from the operator's rab location annotations (see
+ * scripts/import-fight-fields.js); a `note`-only entry (Route 129's erratic
+ * weather) declares a condition that CANNOT be a static field.
+ */
+function fightFieldOf(trainer) {
+	if (!cache.fightFields) {
+		cache.fightFields = load('fight-fields').fields;
+	}
+	return cache.fightFields[trainer] || null;
+}
+
+/**
  * The progression order an HM MOVE becomes teachable, or null for a move
  * with no known gate. Null means "not dated", which covers every TM — the
  * source dates only the HM story spine — so a null must be read as "assume
@@ -420,6 +435,7 @@ function moveObtainableAt(move) {
 
 module.exports = {
 	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	fightFieldOf,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp,

@@ -131,7 +131,8 @@ function renderEncounters(found) {
 }
 
 function renderPlan(plan) {
-	const lines = [`${plan.trainer} (#${plan.order})`];
+	const lines = [`${plan.trainer} (#${plan.order})` +
+		(plan.fightField ? ` — ${plan.fightField}` : '')];
 	lines.push(plan.confidence === 'contested' ?
 		`  contested by ${plan.margin} — plan for both` :
 		plan.confidence === 'only-option' ? '  only one action available' :
