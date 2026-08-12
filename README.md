@@ -13,6 +13,39 @@ claim that every generation is fully Run & Bun–sim accurate. Prefer Gen&nbsp;8
 
 Upstream Showdown calc: https://calc.pokemonshowdown.com.
 
+## The run companion
+
+On top of the calculator sits a Run & Bun **playthrough companion**: a
+verifiable run document (every catch checked against the real encounter
+tables, every taught move against real learnsets) plus the solvers a
+nuzlocke actually needs, all graded through the same AI policy that predicts
+the fights.
+
+```sh
+$ node play.js new --nuzlocke        # start a run (game level caps on by default)
+$ node play.js catch Lillipup --map Route101 --level 3
+$ node play.js split                 # the boss ahead, the cap, the gauntlet
+$ node play.js routes                # every route still holding its encounter, unlock order first
+$ node play.js scout                 # what the open routes could add vs the next boss
+$ node play.js rank                  # every possible six from the box, ranked
+$ node play.js advise                # the single teach/item/Heart Scale that most moves the board
+```
+
+The same surface is served over HTTP (`POST /run/*`, see
+[`INVENTORY.md`](INVENTORY.md) — generated from the code and gated, so it
+cannot drift) and in the browser as the **My Run** panel, which adds the
+matchup board, the split sheet and one-click catches off real tables.
+
+Nuzlocke rules are individual toggles (`--permadeath`, `--route`,
+`--dupes off|species|line|forms`, `--shiny-clause`); `--nuzlocke` is just the
+preset. Route availability, encounter odds, level caps and the AI's damage
+model are all imported from the hack's own data with provenance tags —
+including a 1,727-observation emulator corpus this calculator scores
+100% against in CI.
+
+Everything game-specific lives in `profiles/run-and-bun/`; a second hack is
+a profile, not a fork.
+
 This repository houses the core damage formula package ([`@smogon/calc`][1]),
 the browser UI ([`src/`][2]), and the Run & Bun AI package (`ai/`). Ownership
 boundaries are in [`FORK_MAP.md`](FORK_MAP.md).
