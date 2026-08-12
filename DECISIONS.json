@@ -247,6 +247,16 @@
 				"battle-driver.test.js",
 				"play.test.js"
 			]
+		},
+		{
+			"id": "no-items-in-trainer-fights",
+			"date": "2026-08-12",
+			"ruling": "Hardcore Nuzlocke: no healing or battle items in trainer fights, ever. The driver deliberately offers only moves and switches against trainers — this is the rule, not a missing feature — and the adjudicator's rollouts measure the same item-less fight the player must actually play. Balls stay legal in wild encounters (catching is what they are for), which is the only place the driver offers one.",
+			"why": "Operator ruling. It also keeps the calibration honest twice over: mid-fight healing would let the recreation win fights the hardcore ruleset forbids winning that way, and the planner's damage math assumes no mid-turn potion resets on either side.",
+			"enforcedBy": [
+				"battle-driver.js",
+				"battle-driver.test.js"
+			]
 		}
 	],
 	"open": [
