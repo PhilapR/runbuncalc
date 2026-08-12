@@ -52,8 +52,14 @@ const ALLY_HARMFUL_GROUND_TYPES = new Set(['fire', 'poison', 'electric', 'rock']
 const CONTRARY_SETUP_MOVES = new Set(['leafstorm', 'overheat', 'superpower']);
 const DAMAGING_SETUP_MOVES = new Set(['chargebeam', 'poweruppunch']);
 
+const MOVE_ID_CACHE = new Map<string, string>();
 function moveId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  let id = MOVE_ID_CACHE.get(name);
+  if (id === undefined) {
+    id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    MOVE_ID_CACHE.set(name, id);
+  }
+  return id;
 }
 
 function weightedBaseScore(score: number): ScoreOutcome[] {

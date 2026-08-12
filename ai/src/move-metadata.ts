@@ -263,8 +263,14 @@ const SUPPORTED_VOLATILES: Record<string, VolatileStatusName> = {
   laserfocus: 'laserFocus',
 };
 
+const MOVE_ID_CACHE = new Map<string, string>();
 function moveId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  let id = MOVE_ID_CACHE.get(name);
+  if (id === undefined) {
+    id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    MOVE_ID_CACHE.set(name, id);
+  }
+  return id;
 }
 
 function toBoosts(boosts: Record<string, number> | undefined): StatBoosts | undefined {
@@ -325,7 +331,21 @@ export function isSelfSacrificeMove(name: string): boolean {
   return SELF_SACRIFICE_MOVE_IDS.has(moveId(name));
 }
 
+/** Metadata is a pure function of (move, generation) and every consumer
+ * treats the result as read-only, so one lookup per pair is enough — the
+ * uncached Dex walk showed up in the action-fact profile. */
+const MOVE_METADATA_CACHE = new Map<string, MoveMetadata>();
+
 export function getMoveMetadata(name: string, generation: GenerationNum): MoveMetadata {
+  const cacheKey = `${generation}|${moveId(name)}`;
+  const cached = MOVE_METADATA_CACHE.get(cacheKey);
+  if (cached) return cached;
+  const built = buildMoveMetadata(name, generation);
+  MOVE_METADATA_CACHE.set(cacheKey, built);
+  return built;
+}
+
+function buildMoveMetadata(name: string, generation: GenerationNum): MoveMetadata {
   const id = moveId(name);
   const move = Dex.forGen(generation).moves.get(name);
   if (!move.exists) {

@@ -211,8 +211,21 @@ function canonicalAbilityMinimumGeneration(abilityId: string): number | undefine
   return undefined;
 }
 
+/** The id vocabulary is small and the regex ran in every hot ability check;
+ * one shared memo turns the whole family into map hits. */
+const NAME_ID_CACHE = new Map<string, string>();
+function nameId(name: string | undefined): string {
+  const raw = name || '';
+  let id = NAME_ID_CACHE.get(raw);
+  if (id === undefined) {
+    id = raw.toLowerCase().replace(/[^a-z0-9]/g, '');
+    NAME_ID_CACHE.set(raw, id);
+  }
+  return id;
+}
+
 export function isAbilityAvailable(generation: number, ability: string | undefined): boolean {
-  const normalized = (ability || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const normalized = nameId(ability);
   const minimumGeneration = ABILITY_MIN_GENERATION[normalized] ||
     canonicalAbilityMinimumGeneration(normalized) || 1;
   return generation >= minimumGeneration;
@@ -245,7 +258,7 @@ export function getEffectiveAbility(pokemon: PokemonState): string | undefined {
 export function isSlowStartActive(state: BattleState, pokemon: PokemonState): boolean {
   return state.generation >= 4 && isAbilityActive(pokemon, state) &&
     isAbilityAvailable(state.generation, getEffectiveAbility(pokemon)) &&
-    (getEffectiveAbility(pokemon) || '').toLowerCase().replace(/[^a-z0-9]/g, '') === 'slowstart' &&
+    nameId(getEffectiveAbility(pokemon)) === 'slowstart' &&
     (pokemon.volatile?.slowStart?.turns || 0) > 0;
 }
 
@@ -256,21 +269,29 @@ const NON_SUPPRESSIBLE_BY_NEUTRALIZING_GAS = new Set([
 ]);
 
 function isAbilityShieldActive(state: BattleState, pokemon: PokemonState, gasPresent: boolean): boolean {
-  if (state.generation < 9 || (pokemon.item || '').toLowerCase().replace(/[^a-z0-9]/g, '') !== 'abilityshield' ||
+  if (state.generation < 9 || nameId(pokemon.item) !== 'abilityshield' ||
     pokemon.itemCorroded || state.field.magicRoom || pokemon.volatile?.embargo) return false;
   // Klutz suppresses Ability Shield while Klutz itself is active. Neutralizing Gas
   // suppresses Klutz first, so the shield can protect the holder in that case.
-  const ability = (getEffectiveAbility(pokemon) || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const ability = nameId(getEffectiveAbility(pokemon));
   return ability !== 'klutz' || gasPresent;
 }
 
+/** Scanned once per state, not once per ability check: the answer is a fact
+ * of the (immutable) state, and every isAbilityActive call was re-walking
+ * both parties for it. */
+const GAS_CACHE = new WeakMap<BattleState, boolean>();
 function hasActiveNeutralizingGas(state: BattleState): boolean {
-  if (!isAbilityAvailable(state.generation, 'neutralizinggas')) return false;
-  return (['ai', 'player'] as const).some(sideId => state.sides[sideId].activeIds.some(pokemonId => {
-    const pokemon = state.sides[sideId].party.find(candidate => candidate.id === pokemonId);
-    return !!pokemon && pokemon.hp.current > 0 && isAbilityActive(pokemon) &&
-      (getEffectiveAbility(pokemon) || '').toLowerCase().replace(/[^a-z0-9]/g, '') === 'neutralizinggas';
-  }));
+  const cached = GAS_CACHE.get(state);
+  if (cached !== undefined) return cached;
+  const present = isAbilityAvailable(state.generation, 'neutralizinggas') &&
+    (['ai', 'player'] as const).some(sideId => state.sides[sideId].activeIds.some(pokemonId => {
+      const pokemon = state.sides[sideId].party.find(candidate => candidate.id === pokemonId);
+      return !!pokemon && pokemon.hp.current > 0 && isAbilityActive(pokemon) &&
+        nameId(getEffectiveAbility(pokemon)) === 'neutralizinggas';
+    }));
+  GAS_CACHE.set(state, present);
+  return present;
 }
 
 export function isAbilityActive(pokemon: PokemonState, state?: BattleState): boolean {
@@ -278,7 +299,7 @@ export function isAbilityActive(pokemon: PokemonState, state?: BattleState): boo
   if (!state) return true;
 
   const gasPresent = hasActiveNeutralizingGas(state);
-  const ability = (getEffectiveAbility(pokemon) || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const ability = nameId(getEffectiveAbility(pokemon));
   if (!gasPresent || ability === 'neutralizinggas' || NON_SUPPRESSIBLE_BY_NEUTRALIZING_GAS.has(ability)) return true;
   return isAbilityShieldActive(state, pokemon, gasPresent);
 }

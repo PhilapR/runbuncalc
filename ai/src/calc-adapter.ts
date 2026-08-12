@@ -79,7 +79,38 @@ function calculateConfusionDamage(state: BattleState, actor: PokemonState): Dama
   return makeDamageFacts(rolls, actor.hp.current);
 }
 
+/**
+ * Conversion cache: one battle state evaluates many actions against the same
+ * two or four Pokemon, and rebuilding a Calc.Pokemon (species lookup, stat
+ * derivation, deep option merge) dominated the fact pipeline's profile.
+ * Sound because BOTH keys are immutable by construction — `transition.ts`
+ * only ever spread-copies Pokemon and state — and no caller mutates the
+ * returned Calc.Pokemon (`calculate()` clones its inputs). Stateless
+ * conversions are not cached; they have no state to key on.
+ */
+const CALC_POKEMON_CACHE = new WeakMap<BattleState, WeakMap<PokemonState, Calc.Pokemon>>();
+
 function toCalcPokemon(
+  gen: ReturnType<typeof Calc.Generations.get>,
+  pokemon: PokemonState,
+  state?: BattleState,
+) {
+  if (state) {
+    let byMon = CALC_POKEMON_CACHE.get(state);
+    if (!byMon) {
+      byMon = new WeakMap();
+      CALC_POKEMON_CACHE.set(state, byMon);
+    }
+    const cached = byMon.get(pokemon);
+    if (cached) return cached;
+    const built = buildCalcPokemon(gen, pokemon, state);
+    byMon.set(pokemon, built);
+    return built;
+  }
+  return buildCalcPokemon(gen, pokemon, state);
+}
+
+function buildCalcPokemon(
   gen: ReturnType<typeof Calc.Generations.get>,
   pokemon: PokemonState,
   state?: BattleState,
@@ -294,8 +325,14 @@ const HIGH_CRIT_MOVES = new Set([
 ]);
 const CRIT_BLOCKING_ABILITIES = new Set(['battlearmor', 'shellarmor', 'magmaarmor']);
 
+const MOVE_ID_CACHE = new Map<string, string>();
 function moveId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  let id = MOVE_ID_CACHE.get(name);
+  if (id === undefined) {
+    id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    MOVE_ID_CACHE.set(name, id);
+  }
+  return id;
 }
 
 function isParentalBondSplit(state: BattleState, pokemon: PokemonState, move: Calc.Move): boolean {
