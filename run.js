@@ -631,14 +631,22 @@ function unusedRoutes(run) {
 			.sort((a, b) => (b.odds !== undefined ? b.odds : b.chance) -
 				(a.odds !== undefined ? a.odds : a.chance))
 			.slice(0, 3)
-			.map(mon => ({
-				species: mon.species,
-				method: mon.method,
-				minLevel: mon.minLevel,
-				maxLevel: mon.maxLevel,
-				chance: mon.odds !== undefined ? mon.odds : mon.chance,
-				...(mon.rod ? {rod: mon.rod} : {}),
-			}));
+			.map(mon => {
+				// A slot whose method waits on an HM is listed — it is still this
+				// route's future — but marked, so "best prospects" never quietly
+				// promises surfing before Surf exists.
+				const gate = profile.oracle.methodOpensAt ?
+					profile.oracle.methodOpensAt(mon.method) : null;
+				return {
+					species: mon.species,
+					method: mon.method,
+					minLevel: mon.minLevel,
+					maxLevel: mon.maxLevel,
+					chance: mon.odds !== undefined ? mon.odds : mon.chance,
+					...(mon.rod ? {rod: mon.rod} : {}),
+					...(gate !== null && run.position + 1 < gate ? {gated: gate} : {}),
+				};
+			});
 		routes.push(entry);
 	}
 	routes.sort((a, b) =>
@@ -1030,6 +1038,114 @@ function adviseUpgrades(run, trainer) {
 				'projected' : 'current',
 		},
 		upgrades: upgrades.slice(0, ADVICE_LIMIT),
+	};
+}
+
+/** The last four level-up moves a species knows by a level — a fresh catch's
+ * real moveset once the free candy takes it there. TM tuning is the upgrade
+ * advisor's job AFTER the catch is real; promising it here would grade a
+ * hypothetical nobody has caught by moves nobody has taught. */
+function movesAt(profile, species, level) {
+	const learned = [];
+	for (const pair of profile.oracle.levelUpMoves(species)) {
+		if (pair[0] <= level && learned.indexOf(pair[1]) === -1) learned.push(pair[1]);
+	}
+	return learned.slice(-4);
+}
+
+/**
+ * What the open, unspent routes could add against the next boss.
+ *
+ * The Wattson diagnosis, turned into a tool: when a box cannot answer a boss,
+ * the fix is usually not a better six but a catch nobody has made yet. This
+ * walks every route the availability data says is reachable NOW and still
+ * holding its encounter, takes each route's best non-dupe prospects, and
+ * grades a hypothetical catch the same way the board grades everything —
+ * through `planner.matchup`, at the cap the fight is fought under.
+ *
+ * `newAnswers` is the number that matters: boss Pokemon this catch KOs that
+ * NO current party member can. A catch that only duplicates coverage sorts
+ * below one that closes a hole, however hard it hits.
+ *
+ * The hypothetical is honest about what a fresh catch is: its last four
+ * level-up moves at the projected level, the route's real odds of even
+ * getting the species, and a level that follows the run's face-value rule —
+ * cap-level normally, the wild slot's floor when the slot only spawns above
+ * the cap.
+ */
+function adviseCatches(run, trainer) {
+	const planner = require('./planner');
+	const profile = getProfile(run.profileId);
+	requireLayer(profile, 'oracle', 'there are no wild tables to scout');
+
+	const here = split(run);
+	const target = trainer || (here && !here.finished ? here.boss : null);
+	if (!target) throw new Error('nothing ahead in the run map to catch for');
+	const fight = planner.getFight(target, run.profileId);
+	const cap = capAt(run, fight.order);
+
+	// Coverage the party already has, projected the way the board projects it.
+	// With no party, every enemy is uncovered and every KO is a new answer.
+	let covered = [];
+	if (run.party.length) {
+		covered = planner.matchup({
+			trainer: fight.trainer,
+			playerParty: partySpecs(run, {atOrder: fight.order}),
+			profileId: run.profileId,
+		}).grid.map(cell => cell.versus.some(v => v.us.guaranteedKO));
+	}
+
+	const routes = unusedRoutes(run).routes.filter(route => !route.used && route.open);
+	// One species can walk three open routes; its row costs the same everywhere.
+	const rows = new Map();
+	const catches = [];
+	let gated = 0;
+	for (const route of routes) {
+		for (const prospect of route.best) {
+			// An open route is not an open slot: surfing water before Surf exists
+			// is not a catch anyone can make, so a gated method is skipped and
+			// counted, never silently recommended.
+			if (prospect.gated !== undefined) {
+				gated += 1;
+				continue;
+			}
+			const level = cap !== null ? Math.max(cap, prospect.minLevel) : prospect.maxLevel;
+			const moves = movesAt(profile, prospect.species, level);
+			if (!moves.length) continue;
+			const key = `${prospect.species}@${level}`;
+			if (!rows.has(key)) {
+				rows.set(key, planner.matchup({
+					trainer: fight.trainer,
+					playerParty: [{species: prospect.species, level, moves}],
+					profileId: run.profileId,
+				}).grid.map(cell => cell.versus[0]));
+			}
+			const row = rows.get(key);
+			catches.push({
+				map: route.map, name: route.name,
+				species: prospect.species, method: prospect.method, chance: prospect.chance,
+				level,
+				kos: countKO(row, 'us'),
+				newAnswers: row.filter((cell, e) => cell.us.guaranteedKO && !covered[e]).length,
+				kosConceded: countKO(row, 'them'),
+				damage: Math.round(sumMax(row, 'us') * 1000) / 1000,
+			});
+		}
+	}
+	catches.sort((a, b) => b.newAnswers - a.newAnswers || b.kos - a.kos ||
+		a.kosConceded - b.kosConceded || b.damage - a.damage ||
+		// Never a coin flip: the same run must produce the same shortlist twice.
+		a.name.localeCompare(b.name) || a.species.localeCompare(b.species));
+	return {
+		trainer: fight.trainer,
+		order: fight.order,
+		cap,
+		routesOpen: routes.length,
+		considered: catches.length,
+		gated,
+		enemies: covered.length || fight.party.length,
+		partyCovers: covered.filter(Boolean).length,
+		catches: catches.slice(0, ADVICE_LIMIT),
 	};
 }
 
@@ -1790,5 +1906,5 @@ module.exports = {
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
-	adviseUpgrades, rankParties, summarize,
+	adviseUpgrades, adviseCatches, rankParties, summarize,
 };

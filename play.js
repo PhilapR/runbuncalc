@@ -487,14 +487,21 @@ const SUBCOMMANDS = {
 		const open = unused.filter(route => route.open).length;
 		const lines = [`${unused.length} routes still hold an encounter ` +
 			`(${open} open now, ${used.length} used)`];
+		let anyGated = false;
 		for (const route of unused) {
 			const best = route.best
-				.map(mon => `${mon.species} ${mon.chance}%${mon.method === 'walk' ? '' : ` ${mon.method}`}`)
+				.map(mon => {
+					if (mon.gated !== undefined) anyGated = true;
+					return `${mon.species} ${mon.chance}%` +
+						`${mon.method === 'walk' ? '' : ` ${mon.method}`}` +
+						`${mon.gated !== undefined ? '*' : ''}`;
+				})
 				.join(', ');
 			const when = route.open ? 'open     ' :
 				route.opensAt !== undefined ? `#${String(route.opensAt).padStart(4)}    ` : 'unknown  ';
 			lines.push(`  ${when}${route.name.padEnd(34)} ${best || '(everything here is a dupe)'}`);
 		}
+		if (anyGated) lines.push('  * method waits on its HM');
 		if (args.flags.all && used.length) {
 			lines.push('  used:');
 			for (const route of used) {
@@ -570,6 +577,31 @@ const SUBCOMMANDS = {
 			args.positional.length ? args.positional.join(' ') : undefined))};
 	},
 
+	/**
+	 * What the open routes could add against the next boss: each reachable
+	 * unspent route's best prospects, graded as hypothetical catches on the
+	 * same board everything else is graded on.
+	 */
+	scout(state, args) {
+		const out = runtime.adviseCatches(state,
+			args.positional.length ? args.positional.join(' ') : undefined);
+		const lines = [`vs ${out.trainer} (#${out.order})` +
+			(out.cap !== null ? ` at cap ${out.cap}` : '') +
+			` — ${out.routesOpen} routes open, party answers ${out.partyCovers}/${out.enemies}` +
+			(out.gated ? `, ${out.gated} prospects wait on an HM` : '')];
+		if (!out.catches.length) {
+			lines.push('  nothing catchable moves this board');
+		}
+		for (const c of out.catches) {
+			lines.push(`  ${c.species.padEnd(14)} L${String(c.level).padEnd(3)} ` +
+				`${(c.name + ' ' + c.chance + '%' + (c.method === 'walk' ? '' : ' ' + c.method)).padEnd(32)} ` +
+				`${c.newAnswers ? `+${c.newAnswers} new answer${c.newAnswers === 1 ? '' : 's'}, ` : ''}` +
+				`${c.kos}/${out.enemies} KO` +
+				(c.kosConceded ? `, KOd by ${c.kosConceded}` : ''));
+		}
+		return {message: lines.join('\n')};
+	},
+
 	/** Every possible six from the alive box, ranked against a fight. */
 	rank(state, args) {
 		return {message: renderRanking(runtime.rankParties(state,
@@ -592,7 +624,7 @@ const SUBCOMMANDS = {
 
 /** Subcommands that never write, so they can run against a save freely. */
 const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
-	'advise', 'rank', 'log', 'milestones', 'split', 'routes', 'graveyard']);
+	'advise', 'rank', 'scout', 'log', 'milestones', 'split', 'routes', 'graveyard']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -619,6 +651,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   matrix [trainer]                                the whole box against theirs, both ways
   rank [trainer]                                  every six from the box, ranked for a fight
   advise [trainer]                                the single changes that most move that board
+  scout [trainer]                                 what the open routes could add vs the next boss
   routes [--all]                                  routes still holding an encounter
   split                                           this split: boss, cap, gauntlet, filler
   milestones                                      the story spine, beaten and ahead

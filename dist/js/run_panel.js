@@ -582,6 +582,143 @@
 		});
 	}
 
+	// ------------------------------------------------------------ best sixes
+
+	/**
+	 * The ranker's shortlist. One row per six, the lead bracketed the way the
+	 * CLI brackets it, the unanswered enemies named underneath — a six that
+	 * leaves something unanswered has to say so on the same row that ranks it.
+	 */
+	function renderRanking(payload) {
+		$('#runbun-run-rank-note').text(
+			payload.trainer + ' (#' + payload.order + ') · ' +
+			payload.combinations + ' sixes from a box of ' + payload.boxSize +
+			(payload.projection.applied && payload.projection.from === 'projected' ?
+				' · box at cap ' + payload.projection.cap : '') +
+			' · [lead] first, score assumes free switches priced by the entry hit');
+		var $list = $('#runbun-run-ranking').empty();
+		payload.parties.forEach(function (party) {
+			var names = party.members.map(function (member) {
+				return member.id === party.lead ? '[' + member.species + ']' : member.species;
+			});
+			var $row = $('<li class="runbun-run-rank-row"></li>')
+				.append($('<span class="runbun-run-rank-score"></span>').text(party.score))
+				.append($('<span class="runbun-run-rank-six"></span>').text(names.join(' ')));
+			var tags = [];
+			if (party.label && party.label !== 'top') tags.push(party.label);
+			if (party.leadCollapse) tags.push('lead-sensitive');
+			if (tags.length) {
+				$row.append($('<span class="runbun-run-rank-tag"></span>').text(tags.join(' · ')));
+			}
+			if (party.unanswered.length) {
+				$row.append($('<span class="runbun-run-rank-unanswered"></span>')
+					.text('unanswered: ' + party.unanswered.join(', ')));
+			}
+			$list.append($row);
+		});
+	}
+
+	function rank() {
+		status('Ranking every six against that fight…', '');
+		api('/run/rank', {run: state}).then(function (payload) {
+			renderRanking(payload);
+			status('', '');
+		}).catch(function (error) {
+			status(error.message, 'error');
+		});
+	}
+
+	// ---------------------------------------------------------------- routes
+
+	/**
+	 * Every map still holding its encounter, unlock order first. The badge is
+	 * the availability import speaking: open now, opens at an order, or
+	 * honestly unknown — never unknown dressed up as closed. A * on a prospect
+	 * is a method waiting on its HM.
+	 */
+	function renderRoutes(payload) {
+		var unused = payload.routes.filter(function (route) { return !route.used; });
+		var used = payload.routes.filter(function (route) { return route.used; });
+		var open = unused.filter(function (route) { return route.open; }).length;
+		$('#runbun-run-routes-note').text(
+			unused.length + ' routes still hold an encounter · ' +
+			open + ' open now · ' + used.length + ' spent · * waits on its HM');
+		var $list = $('#runbun-run-routes').empty();
+		unused.forEach(function (route) {
+			var badge = route.open ? 'open' :
+				route.opensAt !== undefined ? '#' + route.opensAt : '?';
+			var best = route.best.map(function (mon) {
+				return mon.species + ' ' + mon.chance + '%' +
+					(mon.method === 'walk' ? '' : ' ' + mon.method) +
+					(mon.gated !== undefined ? '*' : '');
+			}).join(', ');
+			$list.append($('<li class="runbun-run-route-row"></li>')
+				.toggleClass('is-open', !!route.open)
+				.append($('<span class="runbun-run-route-when"></span>').text(badge))
+				.append($('<span class="runbun-run-route-name"></span>').text(route.name))
+				.append($('<span class="runbun-run-route-best"></span>')
+					.text(best || 'everything here is a dupe')));
+		});
+		used.forEach(function (route) {
+			$list.append($('<li class="runbun-run-route-row is-used"></li>')
+				.append($('<span class="runbun-run-route-when"></span>').text('used'))
+				.append($('<span class="runbun-run-route-name"></span>').text(route.name))
+				.append($('<span class="runbun-run-route-best"></span>')
+					.text('gave ' + route.used.species + ' L' + route.used.level)));
+		});
+	}
+
+	function routesView() {
+		status('Reading the routes…', '');
+		api('/run/routes', {run: state}).then(function (payload) {
+			renderRoutes(payload);
+			status('', '');
+		}).catch(function (error) {
+			status(error.message, 'error');
+		});
+	}
+
+	/** The catch advisor: what the open routes could add, on the board. */
+	function renderScout(payload) {
+		$('#runbun-run-routes-note').text(
+			'vs ' + payload.trainer + ' (#' + payload.order + ')' +
+			(payload.cap !== null ? ' at cap ' + payload.cap : '') +
+			' · ' + payload.routesOpen + ' routes open · party answers ' +
+			payload.partyCovers + '/' + payload.enemies +
+			(payload.gated ? ' · ' + payload.gated + ' prospects wait on an HM' : ''));
+		var $list = $('#runbun-run-scout').empty();
+		if (!payload.catches.length) {
+			$list.append($('<li class="runbun-run-scout-empty"></li>')
+				.text('Nothing catchable moves this board.'));
+			return;
+		}
+		payload.catches.forEach(function (entry) {
+			var $row = $('<li class="runbun-run-scout-row"></li>')
+				.append($('<span class="runbun-run-scout-species"></span>')
+					.text(entry.species + ' L' + entry.level))
+				.append($('<span class="runbun-run-scout-where"></span>')
+					.text(entry.name + ' · ' + entry.chance + '%' +
+						(entry.method === 'walk' ? '' : ' ' + entry.method)))
+				.append($('<span class="runbun-run-scout-ko"></span>')
+					.toggleClass('is-ko', entry.newAnswers > 0)
+					.toggleClass('is-ko-trade', entry.kosConceded > 0)
+					.text((entry.newAnswers ? '+' + entry.newAnswers + ' new · ' : '') +
+						entry.kos + '/' + payload.enemies + ' KO' +
+						(entry.kosConceded ? ' · KOd by ' + entry.kosConceded : '')));
+			$list.append($row);
+		});
+	}
+
+	function scout() {
+		status('Grading the open routes against the boss…', '');
+		api('/run/scout', {run: state}).then(function (payload) {
+			renderScout(payload);
+			status('', '');
+		}).catch(function (error) {
+			status(error.message, 'error');
+		});
+	}
+
 	// ---------------------------------------------------------- matchup board
 
 	/**
@@ -913,6 +1050,9 @@
 		// this call prices hundreds of candidate builds through the policy, and
 		// a button on 362 rows would invite it once per row.
 		$('#runbun-run-advise').on('click', function () { advise(null); });
+		$('#runbun-run-rank').on('click', function () { rank(); });
+		$('#runbun-run-routes-btn').on('click', function () { routesView(); });
+		$('#runbun-run-scout-btn').on('click', function () { scout(); });
 
 		$('#runbun-run-undo').on('click', function () {
 			mutate(function () {

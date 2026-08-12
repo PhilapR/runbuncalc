@@ -360,6 +360,54 @@ test('the rule toggles are individual, and the preset only drives the controls',
 	await session.context.close();
 });
 
+test('routes, scout and rank render in the panel with the availability data', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.fill('#runbun-run-new-name', 'Routes Run');
+	await page.check('#runbun-run-new-nuzlocke');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+
+	// Routes: unlock order first, the open ones badged as open, a surf slot
+	// starred because the method waits on its HM.
+	await page.click('#runbun-run-routes-btn');
+	await page.waitForSelector('#runbun-run-routes .runbun-run-route-row');
+	assert.match(await page.textContent('#runbun-run-routes-note'), /open now/);
+	const firstRoute = await page.textContent('#runbun-run-routes .runbun-run-route-row');
+	assert.match(firstRoute, /open/);
+	const routeRows = await page.$$eval('#runbun-run-routes .runbun-run-route-row',
+		els => els.map(el => el.textContent));
+	assert.ok(routeRows.some(text => /surf\*/.test(text)),
+		'a pre-Surf water slot should carry the HM star');
+
+	// Scout: hypothetical catches graded against the boss, no surf prospects.
+	await page.click('#runbun-run-scout-btn');
+	await page.waitForSelector('#runbun-run-scout .runbun-run-scout-row');
+	assert.match(await page.textContent('#runbun-run-routes-note'),
+		/vs Leader Brawly \(#77\) at cap 21/);
+	const scouted = await page.$$eval('#runbun-run-scout .runbun-run-scout-row',
+		els => els.map(el => el.textContent));
+	assert.ok(scouted.length >= 1);
+	assert.ok(!scouted.some(text => / surf/.test(text)), 'no surfing before Surf');
+
+	// Rank needs a box; catch one and rank against the first fight.
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-encounters .runbun-run-encounter:has-text("Lillipup")');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-rank');
+	await page.waitForSelector('#runbun-run-ranking .runbun-run-rank-row');
+	assert.match(await page.textContent('#runbun-run-rank-note'), /1 sixes from a box of 1/);
+	assert.match(await page.textContent('#runbun-run-ranking .runbun-run-rank-row'),
+		/\[Lillipup\]/);
+});
+
 test('undo rewinds the saved run one command', {skip}, async () => {
 	const session = await open();
 	const page = session.page;

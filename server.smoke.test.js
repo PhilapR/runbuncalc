@@ -817,6 +817,20 @@ test('the ranker answers over HTTP, and refuses what it cannot rank', async () =
 	assert.match(empty.body.error, /catch something first/);
 });
 
+test('the catch advisor answers over HTTP with the reachable prospects', async () => {
+	const created = await newRun({name: 'Scout', permadeath: true});
+	const {status, body} = await requestJson('/run/scout', {run: created});
+	assert.equal(status, 200);
+	assert.equal(body.trainer, 'Leader Brawly');
+	assert.ok(body.routesOpen >= 4);
+	assert.ok(body.gated >= 1, 'pre-Surf water is gated, not proposed');
+	assert.ok(body.catches.every(c => c.method !== 'surf'));
+
+	// A finished target is a 400 with the reason, like every advisor.
+	const unknown = await requestJson('/run/scout', {run: created, trainer: 'Nobody'});
+	assert.equal(unknown.status, 400);
+});
+
 test('the routes view answers over HTTP with the spent and the still-open', async () => {
 	const created = await newRun({name: 'Routes', permadeath: true});
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});

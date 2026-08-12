@@ -362,8 +362,20 @@ function availabilityOf(name) {
 	return cache.availabilityIndex.get(map.map) || null;
 }
 
+/**
+ * The progression order an encounter METHOD starts working, or null for a
+ * method never dated. Walking and fishing are free from the start (Run & Bun
+ * has one fishing tool, given on Route 103); Surf and Rock Smash wait on
+ * their HMs. Reaching a route is not the same as being able to fish its
+ * water dry — both gates have to hold before a slot is a real prospect.
+ */
+function methodOpensAt(method) {
+	const gates = load('availability').methods || {};
+	return gates[method] !== undefined ? gates[method] : null;
+}
+
 module.exports = {
-	maps, getMap, encountersOn, whereToFind, availabilityOf,
+	maps, getMap, encountersOn, whereToFind, availabilityOf, methodOpensAt,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp,

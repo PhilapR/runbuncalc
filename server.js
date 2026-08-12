@@ -780,6 +780,21 @@ app.post("/run/advise", (req, res, next) => {
 	}
 });
 
+/**
+ * The catch advisor: what the open, unspent routes could add against the next
+ * boss. Cheaper than /run/advise — one row per distinct prospect — but the
+ * same discipline: every claim is a matchup row, never a heuristic.
+ */
+app.post("/run/scout", (req, res, next) => {
+	const state = requireRun(req.body, res);
+	if (!state) return undefined;
+	try {
+		return res.json(runtime.adviseCatches(state, (req.body || {}).trainer));
+	} catch (error) {
+		return runError(error, res, next);
+	}
+});
+
 /** The map list, so a client can offer somewhere to look rather than a text box. */
 app.get("/run/maps", (req, res, next) => {
 	try {

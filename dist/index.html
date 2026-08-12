@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?dea80cc5" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?63c8199e" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1940,7 +1940,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?4d142a09"></script>
-    <script type="text/javascript" src="./js/run_panel.js?08d3ea2f"></script>
+    <script type="text/javascript" src="./js/run_panel.js?53e6e7ad"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2372,6 +2372,7 @@
         <div class="runbun-run-row runbun-run-actions-row">
             <button type="button" id="runbun-run-plan" class="btn btn-xxwide rb-btn-primary">Plan the next fight</button>
             <button type="button" id="runbun-run-advise" class="btn btn-xxwide" title="Every teachable move, bag item and recorded IV, priced against that fight">Advise</button>
+            <button type="button" id="runbun-run-rank" class="btn btn-wide" title="Every possible six from the alive box, ranked against that fight">Rank</button>
             <button type="button" id="runbun-run-undo" class="btn btn-wide">Undo</button>
         </div>
         <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>
@@ -2381,6 +2382,23 @@
             <div class="runbun-run-section-label" id="runbun-run-advice-heading">What to change</div>
             <p id="runbun-run-advice-note" class="runbun-run-advice-note">Press Advise to price every teachable move, every bag item and every recorded IV against the fight ahead.</p>
             <ol id="runbun-run-advice" class="runbun-run-advice" aria-labelledby="runbun-run-advice-heading"></ol>
+        </div>
+
+        <div class="runbun-run-rank-block">
+            <div class="runbun-run-section-label" id="runbun-run-rank-heading">Best sixes</div>
+            <p id="runbun-run-rank-note" class="runbun-run-rank-note">Press Rank to grade every possible six from the alive box against the fight ahead.</p>
+            <ol id="runbun-run-ranking" class="runbun-run-ranking" aria-labelledby="runbun-run-rank-heading"></ol>
+        </div>
+
+        <div class="runbun-run-routes-block">
+            <div class="runbun-run-section-label" id="runbun-run-routes-heading">Routes</div>
+            <div class="runbun-run-row">
+                <button type="button" id="runbun-run-routes-btn" class="btn btn-wide" title="Every map still holding its encounter, unlock order first">Routes</button>
+                <button type="button" id="runbun-run-scout-btn" class="btn btn-wide" title="What the open routes could add against the next boss, graded on the board">Scout</button>
+            </div>
+            <p id="runbun-run-routes-note" class="runbun-run-routes-note">Routes lists every map still holding its encounter, unlock order first. Scout grades what the open ones could add against the next boss.</p>
+            <ol id="runbun-run-scout" class="runbun-run-scout" aria-label="Scouted catches"></ol>
+            <ul id="runbun-run-routes" class="runbun-run-routes" aria-labelledby="runbun-run-routes-heading"></ul>
         </div>
 
         <div class="runbun-run-matrix-block">

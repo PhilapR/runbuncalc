@@ -542,6 +542,36 @@ test('route availability: imported unlock dates order the routes view', () => {
 	assert.ok(routes.slice(firstUndated).every(route => route.opensAt === undefined));
 });
 
+test('the catch advisor scouts only what is really catchable, on the board', () => {
+	// A fresh run: four routes open (opensAt 0), no party, next boss Brawly.
+	const state = fresh({permadeath: true});
+	const out = run.adviseCatches(state);
+	assert.equal(out.trainer, 'Leader Brawly');
+	assert.equal(out.cap, 21);
+	assert.equal(out.partyCovers, 0);
+	assert.equal(out.enemies, 6);
+
+	// Petalburg City's surf slots are geography the run can reach but water it
+	// cannot ride: Surf gates at #589, so they are counted out, not proposed.
+	assert.ok(out.gated >= 1, 'surf prospects before Surf must be gated');
+	assert.ok(out.catches.every(c => c.method !== 'surf'));
+	// Fishing is open from the start — Run & Bun's one rod is given on Route 103.
+	assert.ok(out.catches.some(c => c.method === 'fish'));
+
+	// With no party, every KO is by definition a new answer, and the shortlist
+	// is ordered by exactly that.
+	assert.ok(out.catches.every(c => c.newAnswers === c.kos));
+	const answers = out.catches.map(c => c.newAnswers);
+	assert.deepEqual(answers, [...answers].sort((a, b) => b - a));
+
+	// The routes view carries the same gate: an open route lists its surf slot
+	// with the order the method starts working, so the forecast never promises
+	// surfing before Surf exists.
+	const petalburg = run.unusedRoutes(state).routes.find(route => route.name === 'Petalburg City');
+	assert.ok(petalburg.open);
+	assert.ok(petalburg.best.some(mon => mon.gated === 589));
+});
+
 test('platform contract: rivals come from the profile, and layers fail by name', () => {
 	// The rival list is the profile's; the engine only checks against it.
 	assert.throws(() => fresh({rival: 'Meganium'}),

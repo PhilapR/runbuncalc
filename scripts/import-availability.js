@@ -178,6 +178,18 @@ function main() {
 		}
 	}
 
+	// Encounter METHOD gates, from the operator's story-gates curation (each
+	// carries its evidence there): the Super Rod is the game's only fishing
+	// tool and is given on Route 103 at the start; HM03 Surf is earned by
+	// clearing the Seashore House (rab #157-159); Rock Smash is Roxanne's
+	// reward (rab #46). Walking needs nothing.
+	const methods = {
+		walk: 0,
+		fish: 0,
+		surf: translate(159),
+		'rock-smash': translate(46),
+	};
+
 	const entries = [...byMap.values()].sort((a, b) =>
 		(a.opensAt === null ? 1 : 0) - (b.opensAt === null ? 1 : 0) ||
 		(a.opensAt || 0) - (b.opensAt || 0) || a.name.localeCompare(b.name));
@@ -188,6 +200,7 @@ function main() {
 			'exactly-name-matched trainer anchors (late-biased, never early); a run-map ' +
 			'fight named after the map overrides with direct evidence',
 		provenance: 'transcribed',
+		methods,
 		entries,
 	};
 	fs.writeFileSync(path.join(OUT_DIR, 'availability.json'),

@@ -2848,3 +2848,111 @@ table.field {
 	color: var(--rb-ink-muted);
 	font-size: 0.8rem;
 }
+
+#runbun-run .runbun-run-rank-block,
+#runbun-run .runbun-run-routes-block {
+	margin-top: var(--rb-space-md);
+}
+#runbun-run .runbun-run-rank-note,
+#runbun-run .runbun-run-routes-note {
+	margin: var(--rb-space-xs) 0;
+	color: var(--rb-ink-muted);
+	font-size: 0.78rem;
+}
+#runbun-run .runbun-run-ranking,
+#runbun-run .runbun-run-scout,
+#runbun-run .runbun-run-routes {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 46rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	overflow: hidden;
+}
+#runbun-run .runbun-run-ranking:empty,
+#runbun-run .runbun-run-scout:empty,
+#runbun-run .runbun-run-routes:empty {
+	display: none;
+}
+#runbun-run .runbun-run-scout {
+	margin-bottom: var(--rb-space-xs);
+}
+/* The full route ledger runs long; it scrolls inside its own frame so the
+   panel keeps its shape. */
+#runbun-run .runbun-run-routes {
+	max-height: 20rem;
+	overflow-y: auto;
+}
+#runbun-run .runbun-run-rank-row,
+#runbun-run .runbun-run-scout-row,
+#runbun-run .runbun-run-route-row {
+	display: grid;
+	gap: var(--rb-space-sm);
+	align-items: baseline;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-rank-row {
+	grid-template-columns: 4rem 1fr auto;
+}
+#runbun-run .runbun-run-scout-row {
+	grid-template-columns: minmax(8rem, 1fr) minmax(9rem, 2fr) auto;
+}
+#runbun-run .runbun-run-route-row {
+	grid-template-columns: 3.5rem minmax(9rem, 1fr) minmax(10rem, 2fr);
+}
+#runbun-run .runbun-run-rank-row + .runbun-run-rank-row,
+#runbun-run .runbun-run-scout-row + .runbun-run-scout-row,
+#runbun-run .runbun-run-route-row + .runbun-run-route-row {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-rank-row:first-child,
+#runbun-run .runbun-run-scout-row:first-child {
+	background: var(--rb-brand-soft);
+	font-weight: 600;
+}
+#runbun-run .runbun-run-rank-score,
+#runbun-run .runbun-run-scout-ko,
+#runbun-run .runbun-run-route-when {
+	font-family: var(--rb-font-mono);
+	font-variant-numeric: tabular-nums;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-rank-six {
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-rank-tag {
+	color: var(--rb-ink-muted);
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+/* A hole in a six is its most important property: the unanswered line spans
+   the row and wears the warning ink, not a whisper. */
+#runbun-run .runbun-run-rank-unanswered {
+	grid-column: 1 / -1;
+	color: var(--rb-warn-ink);
+	font-size: 0.75rem;
+}
+#runbun-run .runbun-run-scout-ko.is-ko {
+	color: var(--rb-danger);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-scout-ko.is-ko-trade {
+	color: var(--rb-warn-ink);
+}
+#runbun-run .runbun-run-scout-empty {
+	padding: var(--rb-space-sm);
+	color: var(--rb-ink-muted);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-route-row.is-open .runbun-run-route-when {
+	color: var(--rb-ok, #1b7a3d);
+	font-weight: 700;
+}
+/* A spent route stays in the ledger — struck, with what it gave. */
+#runbun-run .runbun-run-route-row.is-used .runbun-run-route-name {
+	text-decoration: line-through;
+	color: var(--rb-ink-muted);
+}

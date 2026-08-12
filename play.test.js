@@ -136,6 +136,17 @@ test('rank is read-only and renders the shortlist with its lead', () => {
 	assert.match(ranked, /assumes free switches/);
 });
 
+test('scout is read-only and grades open routes against the boss', () => {
+	cli('new');
+	const before = fs.readFileSync(file, 'utf8');
+	const scouted = cli('scout');
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'scout must not write');
+	assert.match(scouted, /vs Leader Brawly \(#77\) at cap 21/);
+	assert.match(scouted, /routes open/);
+	assert.match(scouted, /wait on an HM/);
+	assert.doesNotMatch(scouted, / surf\b/, 'no surf prospects before Surf');
+});
+
 test('the caps are the game\'s: on by default, --no-cap is the escape hatch', () => {
 	cli('new');
 	assert.equal(read().rules.levelCap, 'next-milestone-ace');
