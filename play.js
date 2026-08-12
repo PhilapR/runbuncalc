@@ -295,6 +295,10 @@ const SUBCOMMANDS = {
 			dupesClause: args.flags.dupes !== undefined ? args.flags.dupes :
 				args.flags.nuzlocke ? 'line' : undefined,
 			shinyClause: onOff(args.flags['shiny-clause'], args.flags.nuzlocke ? true : undefined),
+			// What one-per-route COUNTS: 'area' (the location — a cave's floors
+			// are one encounter) is the rule; 'map' (one per wild table) is the
+			// pre-unit behavior, kept for anyone who played it that way.
+			routeUnit: args.flags['route-unit'],
 			// Named for the rival's ace, which the starter choice fixes. Without it
 			// all three variants of each rival fight stay visible.
 			rival: args.flags.rival || null,
@@ -492,9 +496,14 @@ const SUBCOMMANDS = {
 			const best = route.best
 				.map(mon => {
 					if (mon.gated !== undefined) anyGated = true;
+					// A multi-table location tags each prospect with its table,
+					// trimmed of the location's own name: "B2f", not "Granite
+					// Cave B2f" inside the Granite Cave row.
+					const where = mon.where ?
+						` (${mon.where.replace(route.name, '').trim() || mon.where})` : '';
 					return `${mon.species} ${mon.chance}%` +
 						`${mon.method === 'walk' ? '' : ` ${mon.method}`}` +
-						`${mon.gated !== undefined ? '*' : ''}`;
+						`${mon.gated !== undefined ? '*' : ''}${where}`;
 				})
 				.join(', ');
 			const when = route.open ? 'open     ' :
@@ -505,7 +514,8 @@ const SUBCOMMANDS = {
 		if (args.flags.all && used.length) {
 			lines.push('  used:');
 			for (const route of used) {
-				lines.push(`    ${route.name.padEnd(32)} gave ${route.used.species} L${route.used.level}`);
+				lines.push(`    ${route.name.padEnd(32)} gave ${route.used.species} ` +
+					`L${route.used.level}${route.used.where ? ` (${route.used.where})` : ''}`);
 			}
 		}
 		return {message: lines.join('\n')};
@@ -630,6 +640,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
 
   new [--name N] [--no-cap] [--nuzlocke] [--rival Swampert] [--force]   start a run (game caps on by default)
       [--permadeath on|off] [--route on|off] [--shiny-clause on|off] [--dupes off|species|line|forms]
+      [--route-unit area|map]                     what one-per-route counts: the location (default) or the single wild table
   status / box                                    the box, party, bag and position
   where <map>                                     what can be caught there
   find <species>                                  everywhere it can be caught

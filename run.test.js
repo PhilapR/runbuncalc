@@ -399,8 +399,8 @@ test('audit regressions: routes dedupe, family components, growth via macros, ep
 	const state = fresh({permadeath: true});
 	const routes = run.unusedRoutes(state).routes;
 	assert.equal(routes.filter(route => route.map === 'MAP_ALTERING_CAVE').length, 1);
-	const ids = routes.map(route => route.map);
-	assert.equal(new Set(ids).size, ids.length, 'one row per canonical map');
+	const ids = routes.map(route => route.name);
+	assert.equal(new Set(ids).size, ids.length, 'one row per location');
 
 	// Flabébé is one species again: a single 50% row, and the dupes clause
 	// holds against itself.
@@ -512,6 +512,12 @@ test('route availability: imported unlock dates order the routes view', () => {
 	assert.equal(oracle.availabilityOf('Victory Road B1f').opensAt, 1382);
 	assert.equal(oracle.availabilityOf('Victory Road B2f').opensAt, 1382);
 
+	// And the nuzlocke unit folds the floors into one location.
+	assert.equal(oracle.areaOf('Victory Road B2f'), 'Victory Road');
+	assert.equal(oracle.areaOf('Granite Cave Stevens Room'), 'Granite Cave');
+	assert.equal(oracle.areaOf('Underwater Route124'), 'Route124');
+	assert.equal(oracle.areaOf('Route101'), 'Route101');
+
 	// A map the import never dated answers null — unknown, not closed.
 	assert.equal(oracle.availabilityOf('Altering Cave'), null);
 	assert.equal(oracle.availabilityOf('no such place'), null);
@@ -535,11 +541,56 @@ test('route availability: imported unlock dates order the routes view', () => {
 		.find(route => route.name === 'Petalburg Woods').open, true);
 
 	// Ordering: every dated route precedes every undated one, dates ascending.
+	// (Rows are LOCATIONS, so the 83 dated maps fold into fewer dated rows.)
 	const dates = routes.filter(route => route.opensAt !== undefined).map(route => route.opensAt);
-	assert.ok(dates.length >= 80, `expected the import to date most maps, got ${dates.length}`);
+	assert.ok(dates.length >= 40, `expected the import to date most locations, got ${dates.length}`);
 	assert.deepEqual(dates, [...dates].sort((a, b) => a - b));
 	const firstUndated = routes.findIndex(route => route.opensAt === undefined);
 	assert.ok(routes.slice(firstUndated).every(route => route.opensAt === undefined));
+});
+
+test('one encounter per LOCATION: a cave is one route, whatever its floors say', () => {
+	// Granite Cave 1F is caught on; every other floor is the same encounter.
+	const state = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Phanpy', map: 'Granite Cave 1f', level: 8});
+	assert.throws(
+		() => run.apply(state, {kind: 'catch', species: 'Cufant', map: 'Granite Cave B1f', level: 8}),
+		/already used its one Granite Cave encounter on Phanpy on Granite Cave 1f/);
+	// A different LOCATION is a different encounter, business as usual.
+	const two = run.apply(state,
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3});
+	assert.equal(two.box.length, 2);
+
+	// The routes view counts locations the same way: one Granite Cave row,
+	// spent by that catch, its floors listed and its prospects tagged.
+	const routes = run.unusedRoutes(state).routes;
+	const cave = routes.filter(route => route.name === 'Granite Cave');
+	assert.equal(cave.length, 1);
+	assert.equal(cave[0].maps.length, 4);
+	assert.equal(cave[0].used.species, 'Phanpy');
+	assert.equal(cave[0].used.where, 'Granite Cave 1f');
+	assert.ok(routes.every(route => route.name !== 'Granite Cave B1f'));
+
+	// An extra method is not an extra catch: the underwater grass IS the route.
+	assert.ok(routes.every(route => route.name !== 'Underwater Route124'));
+	const r124 = routes.find(route => route.name === 'Route124');
+	assert.equal(r124.maps.length, 2);
+
+	// A save from before the unit existed keeps its per-table rule, because
+	// undo replays the log and the log was legal when written.
+	const legacy = fresh({permadeath: true});
+	delete legacy.rules.routeUnit;
+	const first = run.apply(legacy,
+		{kind: 'catch', species: 'Phanpy', map: 'Granite Cave 1f', level: 8});
+	const second = run.apply(first,
+		{kind: 'catch', species: 'Cufant', map: 'Granite Cave B1f', level: 8});
+	assert.equal(second.box.length, 2);
+	assert.equal(run.encounterRules(second).routeUnit, 'map');
+
+	// A stored unit nobody defined is refused, like every other rule field.
+	const tampered = fresh({permadeath: true});
+	tampered.rules.routeUnit = 'region';
+	assert.throws(() => run.unusedRoutes(tampered), /unknown route unit "region"/);
 });
 
 test('the catch advisor scouts only what is really catchable, on the board', () => {
@@ -666,8 +717,9 @@ test('every encounter rule is its own toggle, and old saves keep their bundle', 
 	delete legacy.rules.onePerRoute;
 	delete legacy.rules.dupesClause;
 	delete legacy.rules.shinyClause;
+	delete legacy.rules.routeUnit;
 	assert.deepEqual(run.encounterRules(legacy),
-		{onePerRoute: true, dupes: 'line', shiny: true});
+		{onePerRoute: true, routeUnit: 'map', dupes: 'line', shiny: true});
 	assert.throws(() => run.apply(legacy, {kind: 'catch', species: 'Floatzel', map: 'Route102', level: 50}),
 		/dupe of Buizel/);
 	// And undo hands back the legacy rules verbatim, not an upgraded shape.

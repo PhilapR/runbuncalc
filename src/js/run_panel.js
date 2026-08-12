@@ -648,9 +648,11 @@
 			var badge = route.open ? 'open' :
 				route.opensAt !== undefined ? '#' + route.opensAt : '?';
 			var best = route.best.map(function (mon) {
+				var where = mon.where ?
+					' (' + (mon.where.replace(route.name, '').trim() || mon.where) + ')' : '';
 				return mon.species + ' ' + mon.chance + '%' +
 					(mon.method === 'walk' ? '' : ' ' + mon.method) +
-					(mon.gated !== undefined ? '*' : '');
+					(mon.gated !== undefined ? '*' : '') + where;
 			}).join(', ');
 			$list.append($('<li class="runbun-run-route-row"></li>')
 				.toggleClass('is-open', !!route.open)
@@ -664,7 +666,8 @@
 				.append($('<span class="runbun-run-route-when"></span>').text('used'))
 				.append($('<span class="runbun-run-route-name"></span>').text(route.name))
 				.append($('<span class="runbun-run-route-best"></span>')
-					.text('gave ' + route.used.species + ' L' + route.used.level)));
+					.text('gave ' + route.used.species + ' L' + route.used.level +
+						(route.used.where ? ' (' + route.used.where + ')' : ''))));
 		});
 	}
 

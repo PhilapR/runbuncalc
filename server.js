@@ -597,6 +597,7 @@ app.post("/run/new", (req, res, next) => {
 				onePerRoute: payload.onePerRoute,
 				dupesClause: payload.dupesClause,
 				shinyClause: payload.shinyClause,
+				routeUnit: payload.routeUnit,
 				rival: payload.rival || null,
 				now: payload.now || null,
 			}),

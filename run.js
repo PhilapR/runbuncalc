@@ -125,6 +125,7 @@ function clone(value) {
  * document's whole value is that applying the same commands gives the same run.
  */
 const DUPES_MODES = new Set(['off', 'species', 'line', 'forms']);
+const ROUTE_UNITS = new Set(['area', 'map']);
 
 function dupesMode(opts) {
 	if (opts.dupesClause === undefined) return opts.permadeath ? 'line' : 'off';
@@ -150,9 +151,19 @@ function encounterRules(run) {
 		throw new Error(`unknown dupes clause ${JSON.stringify(rules.dupesClause)} ` +
 			`stored in this run's rules; the modes are: ${[...DUPES_MODES].join(', ')}`);
 	}
+	if (rules.routeUnit !== undefined && !ROUTE_UNITS.has(rules.routeUnit)) {
+		throw new Error(`unknown route unit ${JSON.stringify(rules.routeUnit)} ` +
+			`stored in this run's rules; the units are: ${[...ROUTE_UNITS].join(', ')}`);
+	}
 	return {
 		onePerRoute: rules.onePerRoute !== undefined ?
 			!!rules.onePerRoute : !!rules.permadeath,
+		// What "one per route" counts: 'area' spends the whole LOCATION (a
+		// cave's floors are one encounter; a route's water is the same route),
+		// 'map' spends only the one wild table. Saves from before the unit
+		// existed keep 'map' — that is the rule their log was legal under, and
+		// undo replays the log.
+		routeUnit: rules.routeUnit !== undefined ? rules.routeUnit : 'map',
 		dupes: rules.dupesClause !== undefined ?
 			rules.dupesClause : rules.permadeath ? 'line' : 'off',
 		shiny: rules.shinyClause !== undefined ?
@@ -167,6 +178,11 @@ function createRun(options) {
 	const mode = opts.levelCap || 'next-milestone-ace';
 	if (!LEVEL_CAP_MODES.has(mode)) {
 		throw new Error(`unknown level cap mode ${JSON.stringify(mode)}`);
+	}
+	const routeUnit = opts.routeUnit !== undefined ? opts.routeUnit : 'area';
+	if (!ROUTE_UNITS.has(routeUnit)) {
+		throw new Error(`unknown route unit ${JSON.stringify(routeUnit)}; ` +
+			`the units are: ${[...ROUTE_UNITS].join(', ')}`);
 	}
 	// The rival list is the PROFILE's, not this module's: isExcludedVariant
 	// already reads the variant pattern from the profile, and a hardcoded list
@@ -198,10 +214,15 @@ function createRun(options) {
 			// match it, because that is the common table — but each stands alone
 			// once stated, because nuzlocke tables vary rule by rule.
 			permadeath: !!opts.permadeath,
-			// One wild catch per map for the whole run. The encounter is random;
-			// the player reports what came up.
+			// One wild catch per LOCATION for the whole run. The encounter is
+			// random; the player reports what came up.
 			onePerRoute: opts.onePerRoute !== undefined ?
 				!!opts.onePerRoute : !!opts.permadeath,
+			// The location is the unit, not the wild table: Granite Cave's four
+			// floors are one encounter, and a route's water is the same route —
+			// an extra method is never an extra catch. 'map' (one per table) is
+			// what pre-unit saves played under and stays available.
+			routeUnit: routeUnit,
 			// What counts as a dupe: 'off', 'species' (the exact species only),
 			// 'line' (the game's own evolution graph — regionals separate unless
 			// this hack connects them, which it does for Grimer/Muk-Alola and
@@ -543,13 +564,27 @@ function dupeKey(mode, profile, species) {
  * point is that a shiny is a bonus, so it must not CONSUME the route either —
  * a shiny stumbled on first would otherwise block the route's real encounter.
  */
+/** The route-rule key for a map under a unit: the whole location for 'area'
+ * (a profile without area knowledge falls back to the map itself), the one
+ * wild table for 'map'. */
+function routeKey(profile, unit, canonicalMap) {
+	if (unit === 'area' && profile.oracle.areaOf) {
+		const area = profile.oracle.areaOf(canonicalMap);
+		if (area !== null) return area;
+	}
+	return canonicalMap;
+}
+
 function routeCatch(run, profile, canonicalMap) {
-	const shinyFree = encounterRules(run).shiny;
+	const rules = encounterRules(run);
+	const target = routeKey(profile, rules.routeUnit, canonicalMap);
 	for (const entry of run.log) {
 		if (!entry.command || entry.command.kind !== 'catch' || !entry.command.map) continue;
-		if (shinyFree && entry.command.shiny) continue;
+		if (rules.shiny && entry.command.shiny) continue;
 		const where = profile.oracle.encountersOn(entry.command.map);
-		if (where && where.map === canonicalMap) return entry.command;
+		if (where && routeKey(profile, rules.routeUnit, where.map) === target) {
+			return entry.command;
+		}
 	}
 	return null;
 }
@@ -608,26 +643,62 @@ function encountersOn(run, map) {
 function unusedRoutes(run) {
 	const profile = getProfile(run.profileId);
 	requireLayer(profile, 'oracle', 'there are no wild tables to walk');
-	const routes = [];
+	const rules = encounterRules(run);
+	// One row per unit the route rule counts: under 'area' a multi-floor
+	// location is ONE row (its floors are one encounter), under 'map' — and
+	// for any profile without area knowledge — every wild table is its own.
+	const groups = new Map();
 	for (const map of profile.oracle.maps()) {
-		const here = encountersOn(run, map.name);
-		const entry = {map: here.map, name: here.name};
-		const when = profile.oracle.availabilityOf && profile.oracle.availabilityOf(map.map);
-		if (when && when.opensAt !== null) {
-			entry.opensAt = when.opensAt;
-			// The date is the order of the first fight had standing there, so the
-			// map is reachable once that fight is the run's NEXT one, not only
-			// after it is beaten — a fresh run must see Route 101 (opensAt 0) open.
-			entry.open = run.position + 1 >= when.opensAt;
+		const key = routeKey(profile, rules.routeUnit, map.map);
+		if (!groups.has(key)) groups.set(key, []);
+		groups.get(key).push(map);
+	}
+	const routes = [];
+	for (const members of groups.values()) {
+		const entry = {
+			name: rules.routeUnit === 'area' && profile.oracle.areaOf ?
+				profile.oracle.areaOf(members[0].map) : members[0].name,
+		};
+		if (members.length === 1) entry.map = members[0].map;
+		else entry.maps = members.map(m => m.name);
+		// The location opens when its FIRST table does — you are in Granite
+		// Cave the moment 1F is, whatever the back floors' dates say. The date
+		// is the order of the first fight had standing there, so the map is
+		// reachable once that fight is the run's NEXT one, not only after it
+		// is beaten — a fresh run must see Route 101 (opensAt 0) open.
+		let opensAt;
+		for (const map of members) {
+			const when = profile.oracle.availabilityOf && profile.oracle.availabilityOf(map.map);
+			if (when && when.opensAt !== null &&
+				(opensAt === undefined || when.opensAt < opensAt)) {
+				opensAt = when.opensAt;
+			}
+		}
+		if (opensAt !== undefined) {
+			entry.opensAt = opensAt;
+			entry.open = run.position + 1 >= opensAt;
 		}
 		// Where a catch happened is a fact of the log, not of the ruleset, so it
 		// is reported for every run — only its consequences are nuzlocke-gated.
-		const used = routeCatch(run, profile, here.map);
-		if (used) entry.used = {species: used.species, level: used.level};
-		// Best prospects: what a re-roll can actually keep, best odds first.
-		// Ties broken by table order, which is the game's own slot order.
-		entry.best = here.mons
-			.filter(mon => !mon.dupe)
+		const used = routeCatch(run, profile, members[0].map);
+		if (used) {
+			entry.used = {species: used.species, level: used.level};
+			const usedOn = members.length > 1 && profile.oracle.encountersOn(used.map);
+			if (usedOn && usedOn.name !== entry.name) entry.used.where = usedOn.name;
+		}
+		// Best prospects: what a re-roll can actually keep, best odds first,
+		// across every table the location holds. Ties broken by table order,
+		// which is the game's own slot order.
+		const pool = [];
+		for (const map of members) {
+			const here = encountersOn(run, map.name);
+			for (const mon of here.mons) {
+				if (mon.dupe) continue;
+				pool.push(members.length > 1 ?
+					Object.assign({where: here.name}, mon) : mon);
+			}
+		}
+		entry.best = pool
 			.sort((a, b) => (b.odds !== undefined ? b.odds : b.chance) -
 				(a.odds !== undefined ? a.odds : a.chance))
 			.slice(0, 3)
@@ -644,6 +715,7 @@ function unusedRoutes(run) {
 					maxLevel: mon.maxLevel,
 					chance: mon.odds !== undefined ? mon.odds : mon.chance,
 					...(mon.rod ? {rod: mon.rod} : {}),
+					...(mon.where ? {where: mon.where} : {}),
 					...(gate !== null && run.position + 1 < gate ? {gated: gate} : {}),
 				};
 			});
@@ -1122,7 +1194,9 @@ function adviseCatches(run, trainer) {
 			}
 			const row = rows.get(key);
 			catches.push({
-				map: route.map, name: route.name,
+				// The location is the encounter the catch would SPEND; `name`
+				// points at the exact table the prospect walks when they differ.
+				area: route.name, name: prospect.where || route.name,
 				species: prospect.species, method: prospect.method, chance: prospect.chance,
 				level,
 				kos: countKO(row, 'us'),
@@ -1224,9 +1298,18 @@ const COMMANDS = {
 		if (rules.onePerRoute && origin.map && !shinyExempt) {
 			const prior = routeCatch(run, profile, origin.map);
 			if (prior) {
-				throw new Error(`catch: this run already used its one ${origin.mapName} ` +
-					`encounter on ${prior.species} — a route gives one random catch, ` +
-					'and releasing or losing it does not refund it');
+				// The refusal names the LOCATION the rule counts, and the exact
+				// table the prior catch came off when they differ — "Granite Cave
+				// is spent, its catch was on B1f" reads as a rule; naming only the
+				// floor would read as a bug on every other floor.
+				const where = rules.routeUnit === 'area' ?
+					routeKey(profile, 'area', origin.map) : origin.mapName;
+				const priorMap = profile.oracle.encountersOn(prior.map);
+				const detail = priorMap && priorMap.name !== where ?
+					` on ${priorMap.name}` : '';
+				throw new Error(`catch: this run already used its one ${where} ` +
+					`encounter on ${prior.species}${detail} — a location gives one ` +
+					'random catch, and releasing or losing it does not refund it');
 			}
 		}
 		if (rules.dupes !== 'off' && origin.map && !shinyExempt) {

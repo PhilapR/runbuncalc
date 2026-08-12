@@ -346,6 +346,39 @@ const LIMITS = {
 };
 
 /**
+ * Multi-map LOCATIONS: one entry per place the game names, covering every
+ * wild table inside it. The nuzlocke unit is the location, not the table —
+ * Granite Cave's four floors are one encounter, and Route 124's underwater
+ * grass is Route 124's dive method, not a second route. Prefixes cover the
+ * floor/room naming; the Underwater pair is spelled out because its names
+ * run the other way.
+ */
+const AREA_PREFIXES = [
+	'Granite Cave', 'Mt Pyre', 'Seafloor Cavern', 'Magma Hideout',
+	'Abandoned Ship', 'Victory Road', 'Meteor Falls', 'Shoal Cave',
+	'Cave Of Origin', 'New Mauville', 'Sky Pillar', 'Safari Zone',
+	'Artisan Cave', 'Mirage Tower',
+];
+const AREA_ALIASES = {
+	'Underwater Route124': 'Route124',
+	'Underwater Route126': 'Route126',
+};
+
+/**
+ * The location a wild map belongs to, by map constant or readable name.
+ * Identity for every map that IS its own location; null for unknown maps.
+ */
+function areaOf(name) {
+	const map = getMap(name);
+	if (!map) return null;
+	if (AREA_ALIASES[map.name]) return AREA_ALIASES[map.name];
+	for (const prefix of AREA_PREFIXES) {
+		if (map.name === prefix || map.name.startsWith(`${prefix} `)) return prefix;
+	}
+	return map.name;
+}
+
+/**
  * When a wild map first becomes reachable, as a progression order — imported
  * from the operator's own rab curation (scripts/import-availability.js shows
  * how the date is derived, and why it can only ever be late, never early).
@@ -375,7 +408,7 @@ function methodOpensAt(method) {
 }
 
 module.exports = {
-	maps, getMap, encountersOn, whereToFind, availabilityOf, methodOpensAt,
+	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp,

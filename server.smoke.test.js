@@ -836,7 +836,10 @@ test('the routes view answers over HTTP with the spent and the still-open', asyn
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
 	const {status, body} = await requestJson('/run/routes', {run: caught.body.run});
 	assert.equal(status, 200);
-	assert.ok(body.routes.length > 100, 'every wild-table map answers');
+	// One row per LOCATION, not per wild table: Granite Cave's floors, Mt
+	// Pyre's nine maps and both underwater routes fold into their locations.
+	assert.ok(body.routes.length > 60 && body.routes.length < 100,
+		'every location answers, grouped by the route rule\'s unit');
 	const spent = body.routes.find(route => route.name === 'Route101');
 	assert.equal(spent.used.species, 'Lillipup');
 	assert.ok(spent.best.length > 0 && spent.best[0].chance > 0);
