@@ -162,12 +162,83 @@
 
 	function refreshStale() {
 		var now = logLength();
+		var staleCount = 0;
+		var answered = 0;
 		Object.keys(STALE_BLOCKS).forEach(function (key) {
 			var stale = stamps[key] !== undefined && stamps[key] !== now;
+			if (stamps[key] !== undefined && key !== 'plan' && key !== 'routes') {
+				answered += 1;
+				if (stale) staleCount += 1;
+			}
 			STALE_BLOCKS[key].forEach(function (selector) {
 				$(selector).toggleClass('rb-stale', stale);
 			});
 		});
+		writeSummary('analysis', staleCount ? staleCount + ' answer' +
+			(staleCount > 1 ? 's' : '') + ' stale — refresh' :
+			answered ? answered + ' standing answer' + (answered > 1 ? 's' : '') :
+				'advise · rank · board');
+	}
+
+	// ------------------------------------------------------------- disclosure
+	//
+	// Ported from ui-lab's disclosure slot, mechanics intact: the region is a
+	// grid row animating 0fr -> 1fr (auto height, nothing measured), the
+	// header is a real button with aria-expanded, closed content is inert.
+	// The POV this panel adds — and feeds back to the lab: the collapsed
+	// header carries a LIVE SUMMARY, so collapsed still informs; opening is
+	// for acting, not for finding out whether anything is inside.
+
+	var SECTIONS_KEY = 'runbun.panel.sections.v1';
+
+	function setSection(key, open) {
+		var $section = $('.rb-disclose[data-section="' + key + '"]');
+		$section.toggleClass('is-open', open);
+		$section.find('.rb-disclose-btn').attr('aria-expanded', open ? 'true' : 'false');
+		var inner = $section.find('.rb-disclose-inner')[0];
+		if (inner) {
+			if (open) inner.removeAttribute('inert');
+			else inner.setAttribute('inert', '');
+		}
+	}
+
+	function persistSections() {
+		var open = {};
+		$('.rb-disclose').each(function () {
+			open[$(this).attr('data-section')] = $(this).hasClass('is-open');
+		});
+		try {
+			window.localStorage.setItem(SECTIONS_KEY, JSON.stringify(open));
+		} catch (error) { /* a panel that cannot remember still folds */ }
+	}
+
+	/** Open a section on the player's behalf — an answer they asked for must
+	 * never land inside a fold they then have to hunt for. */
+	function revealSection(key) {
+		if (!$('.rb-disclose[data-section="' + key + '"]').hasClass('is-open')) {
+			setSection(key, true);
+			persistSections();
+		}
+	}
+
+	function bindDisclosures() {
+		var saved = {};
+		try {
+			saved = JSON.parse(window.localStorage.getItem(SECTIONS_KEY)) || {};
+		} catch (error) { saved = {}; }
+		$('.rb-disclose').each(function () {
+			var key = $(this).attr('data-section');
+			setSection(key, !!saved[key]);
+		});
+		$('#runbun-run').on('click', '.rb-disclose-btn', function () {
+			var $section = $(this).closest('.rb-disclose');
+			setSection($section.attr('data-section'), !$section.hasClass('is-open'));
+			persistSections();
+		});
+	}
+
+	function writeSummary(key, text) {
+		$('.rb-disclose-summary[data-summary="' + key + '"]').text(text || '');
 	}
 
 	function monLabel(mon) {
@@ -460,6 +531,25 @@
 		$('#runbun-run-bag').text(bag.length ?
 			bag.map(function (item) { return item + ' x' + summary.bag[item]; }).join(', ') :
 			'Bag is empty.');
+
+		// The collapsed headers stay live: each section says what it holds so
+		// the player only opens what they need. (`summary` here is the status
+		// payload; the header writer is `writeSummary`.)
+		var alive = payload.box.filter(function (mon) { return mon.status !== 'dead'; }).length;
+		var lost = payload.box.length - alive;
+		writeSummary('box', alive + ' alive' + (lost ? ' · ' + lost + ' lost' : '') +
+			(bag.length ? ' · bag ' + bag.length : ''));
+		writeSummary('split', payload.splitPrep && !payload.splitPrep.split.finished ?
+			payload.splitPrep.split.boss.replace(/^Leader /, '') + ' · ' +
+				payload.splitPrep.fightsAhead + ' fights' +
+				(payload.splitPrep.pickups && payload.splitPrep.pickups.length ?
+					' · ' + payload.splitPrep.pickups.length + ' pickups' : '') :
+			'finished');
+		writeSummary('road', payload.upcoming && payload.upcoming.length ?
+			'#' + payload.upcoming[0].order + ' ' + payload.upcoming[0].trainer : 'nothing ahead');
+		var selected = $('#runbun-run-selected').val();
+		writeSummary('tools', selected || 'select from the box');
+		if (!$('#runbun-run-map').val()) writeSummary('catch', 'pick a route');
 		refreshStale();
 		return payload;
 	}
@@ -546,6 +636,12 @@
 			// The guided half of "what is here": the field items standing on
 			// this location. An open, uncollected one carries the button that
 			// records the pickup; a collected one stays as the record it is.
+			var waiting = (found.items || []).filter(function (item) {
+				return !item.collected && item.open;
+			}).length;
+			writeSummary('catch', found.name +
+				(found.used ? ' · used' : '') +
+				(waiting ? ' · ' + waiting + ' item' + (waiting > 1 ? 's' : '') + ' here' : ''));
 			var $items = $('#runbun-run-items').empty();
 			(found.items || []).forEach(function (item) {
 				var $row = $('<li class="runbun-run-item"></li>')
@@ -678,6 +774,8 @@
 		api('/run/advise', body).then(function (payload) {
 			renderAdvice(payload);
 			stamp('advice');
+			revealSection('analysis');
+			$('.runbun-run-advice-block')[0].scrollIntoView({block: 'start'});
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -725,6 +823,8 @@
 		api('/run/rank', {run: state}).then(function (payload) {
 			renderRanking(payload);
 			stamp('rank');
+			revealSection('analysis');
+			$('.runbun-run-rank-block')[0].scrollIntoView({block: 'start'});
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -929,6 +1029,8 @@
 		api('/run/matrix', body).then(function (payload) {
 			renderMatrix(payload);
 			stamp('matrix');
+			revealSection('analysis');
+			$('.runbun-run-matrix-block')[0].scrollIntoView({block: 'start'});
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -1186,6 +1288,7 @@
 					persist();
 					status('Started ' + state.name + note,
 						note.indexOf('refused') === -1 ? 'ok' : 'error');
+					revealSection('catch');
 					return render();
 				}).catch(function (error) {
 					status(error.message, 'error');
@@ -1505,6 +1608,7 @@
 
 	$(function () {
 		if (!$('#runbun-run').length) return;
+		bindDisclosures();
 		bind();
 		window.addEventListener('storage', syncFromOtherTab);
 		state = restore();

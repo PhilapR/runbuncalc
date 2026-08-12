@@ -89,6 +89,14 @@ async function open() {
 	return {context, page, errors};
 }
 
+
+/** Sections fold by default (the drill-down grammar); a test that reaches
+ * inside them opens everything once, like a player who wants the full desk. */
+async function openAllSections(page) {
+	await page.$$eval('.rb-disclose .rb-disclose-btn[aria-expanded="false"]',
+		els => els.forEach(el => el.click()));
+}
+
 async function savedRun(page) {
 	const raw = await page.evaluate(() => window.localStorage.getItem('runbun.run.v1'));
 	return raw ? JSON.parse(raw) : null;
@@ -102,6 +110,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.check('#runbun-run-new-cap');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	// The start form has to actually go away. It was setting `hidden` correctly
 	// and staying on screen anyway: a `display: flex` rule in this panel's own CSS
 	// outranks the UA stylesheet's `[hidden] {display:none}` on specificity.
@@ -228,6 +237,7 @@ test('a catch that could not have happened is refused and changes nothing', {ski
 
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.selectOption('#runbun-run-map', 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -261,6 +271,7 @@ test('the run survives a reload, because a playthrough that does not is not one'
 	await page.fill('#runbun-run-new-name', 'Persisted');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.selectOption('#runbun-run-map', 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -274,6 +285,7 @@ test('the run survives a reload, because a playthrough that does not is not one'
 
 	await page.reload({waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 15000});
@@ -289,6 +301,7 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.selectOption('#runbun-run-map', 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -349,6 +362,7 @@ test('the rule toggles are individual, and the preset only drives the controls',
 	await page.selectOption('#runbun-run-new-dupes', 'species');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 
 	const saved = await savedRun(page);
 	assert.equal(saved.rules.permadeath, true);
@@ -368,6 +382,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 	await page.check('#runbun-run-new-nuzlocke');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 
 	// Routes: unlock order first, the open ones badged as open, a surf slot
 	// starred because the method waits on its HM.
@@ -414,6 +429,7 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.selectOption('#runbun-run-map', 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -451,6 +467,7 @@ test('a pasted run the server cannot read is refused, and the save survives it',
 	await page.fill('#runbun-run-new-name', 'Keeper');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	// The first status render is what finishes the save; compare only after it.
 	await page.waitForFunction(
 		() => /Keeper/.test(document.querySelector('#runbun-run-name').textContent),
@@ -524,6 +541,7 @@ test('a damaged save is handed back for repair, not quietly replaced', {skip}, a
 	await page.fill('#runbun-run-transfer', '');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.waitForFunction(
 		() => /"box"/.test(window.localStorage.getItem('runbun.run.v1') || ''),
 		null, {timeout: 15000});
@@ -537,6 +555,7 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.selectOption('#runbun-run-map', 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -590,6 +609,7 @@ test('the page fits a phone: the active mode reflows, the calc scrolls in place'
 		'the inactive calc region should collapse on a phone');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	const overflow = await page.evaluate(() =>
 		document.documentElement.scrollWidth - document.documentElement.clientWidth);
 	assert.ok(overflow <= 0, `the run panel forced the page ${overflow}px wider than the phone`);
@@ -625,6 +645,7 @@ test('an answer the run has moved past is marked stale', {skip}, async () => {
 
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.selectOption('#runbun-run-map', 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -708,6 +729,7 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	await page.check('#runbun-run-new-route');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 
 	// Roll Route 101's one encounter off its real table. What comes up is
 	// advice until a button writes it — so the box must still be empty here.
@@ -808,6 +830,7 @@ test('the starter is picked on the setup screen, and the rival follows from it',
 	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 10000});
@@ -826,6 +849,7 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
 
 	// Route 101 holds a Potion, open from the start: the Where view says so
 	// and carries the button that records the trip.
@@ -852,6 +876,73 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	assert.match(await page.textContent('#runbun-run-items'), /opens at #11/);
 	assert.equal(await page.$('#runbun-run-items .runbun-run-pickup-take'), null,
 		'a gated item must not offer its button');
+
+	await session.context.close();
+});
+
+test('the panel folds: collapsed headers stay live, opening is for acting', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	// Everything folds by default except what starting a run opens for you:
+	// the first task is catching, so Route & catch is revealed.
+	const expanded = await page.$$eval('.rb-disclose-btn[aria-expanded="true"]',
+		els => els.map(el => el.closest('.rb-disclose').getAttribute('data-section')));
+	assert.deepEqual(expanded, ['catch'], 'a fresh run opens exactly the catch section');
+	// Collapsed content is not on the player's screen or in their tab order:
+	// the region clips to zero height and the content is inert.
+	const folded = await page.$eval('.rb-disclose[data-section="box"] .rb-disclose-inner',
+		el => el.getBoundingClientRect().height === 0 && el.hasAttribute('inert'));
+	assert.ok(folded, 'a folded section keeps its ledger off the table');
+
+	// The collapsed headers carry the live summary — informed without opening.
+	assert.match(await page.textContent('.rb-disclose-summary[data-summary="box"]'),
+		/0 alive/);
+	assert.match(await page.textContent('.rb-disclose-summary[data-summary="split"]'),
+		/Brawly · \d+ fights/);
+	assert.match(await page.textContent('.rb-disclose-summary[data-summary="road"]'),
+		/#0 Youngster Calvin/);
+
+	// Drill down: open the box, and the ledger is there to act on.
+	await page.click('.rb-disclose[data-section="box"] .rb-disclose-btn');
+	await page.waitForSelector('#runbun-run-box', {state: 'visible', timeout: 5000});
+
+	// An answer the player asks for must never land inside a fold: Advise
+	// (in the always-visible hero) opens the Analysis section itself.
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.fill('#runbun-run-catch-species', 'Poochyena');
+	await page.fill('#runbun-run-catch-level', '3');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => /caught/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	await page.click('.rb-disclose[data-section="box"] .rb-disclose-btn'); // fold it back
+	await page.click('.rb-disclose[data-section="box"] .rb-disclose-btn');
+	await page.waitForSelector('#runbun-run-box', {state: 'visible', timeout: 5000});
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		null, {timeout: 10000});
+	assert.equal(await page.$eval('.rb-disclose[data-section="analysis"] .rb-disclose-inner',
+		el => el.getBoundingClientRect().height), 0, 'analysis starts folded');
+	await page.click('#runbun-run-advise');
+	await page.waitForSelector('.runbun-run-advice-block', {state: 'visible', timeout: 30000});
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="analysis"] .rb-disclose-btn', 'aria-expanded'), 'true');
+
+	// The fold state is the player's: it survives a reload.
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-live:not([hidden])', {timeout: 15000});
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="analysis"] .rb-disclose-btn', 'aria-expanded'), 'true');
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="road"] .rb-disclose-btn', 'aria-expanded'), 'false');
 
 	await session.context.close();
 });
