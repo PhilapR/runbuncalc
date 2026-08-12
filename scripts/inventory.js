@@ -36,6 +36,10 @@ function endpoints() {
 	return found;
 }
 
+/** Everything above this heading is gated byte-for-byte; the doc stamps
+ * below it are advisory (see the section's own note for why). */
+const DOCS_MARKER = '## Hand-written docs, dated';
+
 function inventory() {
 	const run = require(path.join(root, 'run.js'));
 	const play = require(path.join(root, 'play.js'));
@@ -62,6 +66,27 @@ function inventory() {
 	for (const key of Object.keys(profile.provenance)) {
 		const tag = profile.provenance[key];
 		(knowledge[tag] = knowledge[tag] || []).push(key);
+	}
+
+	// The rulings ledger and its open questions — the decisions that used to
+	// live only in chat transcripts and commit messages.
+	const decisions = JSON.parse(fs.readFileSync(path.join(root, 'DECISIONS.json'), 'utf8'));
+
+	// Hand-written root docs, dated by git: a doc's last-touched date is the
+	// reader's staleness warning. (Date and hash only — both are stable at any
+	// given commit, unlike "commits ago", which would drift the gate on every
+	// commit that touches nothing.)
+	const {execSync} = require('child_process');
+	const GENERATED_DOCS = new Set(['INVENTORY.md']);
+	const docs = [];
+	for (const file of fs.readdirSync(root).filter(f => f.endsWith('.md')).sort()) {
+		if (GENERATED_DOCS.has(file)) continue;
+		let stamp = 'untracked';
+		try {
+			stamp = execSync(`git log -1 --format='%h %as' -- ${JSON.stringify(file)}`,
+				{cwd: root}).toString().trim().replace(/'/g, '') || 'untracked';
+		} catch (error) { /* not a git checkout — reported as untracked */ }
+		docs.push({file, stamp});
 	}
 
 	const template = fs.readFileSync(path.join(root, 'src', 'index.template.html'), 'utf8');
@@ -98,6 +123,8 @@ function inventory() {
 		trainerFights: planner.listFights('run-and-bun').fights.length,
 		oracleCounts,
 		knowledge,
+		decisions,
+		docs,
 		endpoints: endpoints(),
 		panels,
 		tests,
@@ -139,6 +166,27 @@ function render(inv) {
 			.filter(tag => inv.knowledge[tag])
 			.map(tag => `- **${tag}** (${inv.knowledge[tag].length}): ` +
 				inv.knowledge[tag].sort().map(k => '`' + k + '`').join(' · ')));
+	push('## Standing rulings (from DECISIONS.json)',
+		'The law of the tool: each ruling names the files that enforce it, and the',
+		'gate fails if an enforcing file disappears. A ruling is changed by a new',
+		'ruling, never by quiet drift.',
+		...inv.decisions.decisions.map(d =>
+			`- **${d.id}** (${d.date}): ${d.ruling}`));
+
+	push('## Open questions (from DECISIONS.json)',
+		'Ruled on by nobody yet — each names what would settle it. An answered',
+		'question moves up into rulings; it is never silently deleted.',
+		...inv.decisions.open.map(q =>
+			`- **${q.id}** (${q.raised}): ${q.question} _Settled by: ${q.settledBy}._`));
+
+	push(DOCS_MARKER,
+		'Last-touched stamps from git, refreshed whenever the inventory is',
+		'regenerated. Advisory, and deliberately BELOW the drift gate\'s waterline:',
+		'a stamp changes at the very commit that touches its doc, so gating it',
+		'byte-for-byte would demand a follow-up commit forever. An old stamp is',
+		'the reader\'s warning to verify before trusting.',
+		...inv.docs.map(d => `- \`${d.file}\` — ${d.stamp}`));
+
 	push('## Test files', inv.tests.map(t => '`' + t + '`').join(' · '));
 
 	push('## Prior art elsewhere (from ECOSYSTEM.json)');
@@ -162,4 +210,4 @@ if (process.argv.includes('--print')) {
 	console.log(`INVENTORY.md written (${output.length} bytes)`);
 }
 
-module.exports = {inventory, render};
+module.exports = {inventory, render, DOCS_MARKER};

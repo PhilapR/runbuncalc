@@ -76,6 +76,54 @@ defaults to `inferred` — the weakest tag — and the ratchet test in
 - **observed** (1): `oracle.LIMITS`
 - **transcribed** (8): `encounters.COVERAGE` · `encounters.INVARIANTS` · `encounters.KNOWN_GAPS` · `mechanics.attractIsGenderIndependent` · `mechanics.psychicTerrainUsesModernScaling` · `oracle.availability` · `oracle.fightFields` · `policy.SETUP`
 
+## Standing rulings (from DECISIONS.json)
+The law of the tool: each ruling names the files that enforce it, and the
+gate fails if an enforcing file disappears. A ruling is changed by a new
+ruling, never by quiet drift.
+- **run-document-is-the-record** (2026-08-08): A playthrough is a verifiable document: every catch is checked against the real encounter tables, every evolution against the real lines, every taught move against real learnsets. Undo is replay, byte-identical.
+- **face-value-catches** (2026-08-09): A recorded fact is taken at face value: catch levels, epitaphs and teaches are the player's report of what happened in the game. The oracle refuses the impossible (wrong route, wrong level range) but never second-guesses the possible.
+- **caps-are-authored** (2026-08-12): Level caps are the game's own 23-row ladder from Mechanic Changes.txt, declared in the profile — never derived from the next boss's ace, which disagreed on ten rows.
+- **to-cap-free-over-cap-priced** (2026-08-09): Leveling to the cap is free (the Endless Candy); every level past it spends a bagged Rare Candy.
+- **dupes-follow-the-games-graph** (2026-08-11): The dupes clause walks the game's OWN evolution graph: regional lines stay separate unless Run & Bun itself connects them (Grimer to Muk-Alola by Dusk Stone; both Basculin to Basculegion). 'forms' mode adds the regional closure on top.
+- **rules-are-toggles** (2026-08-11): Permadeath, one-per-route, the dupes MODE and the shiny clause are independent stored toggles; --nuzlocke is only a preset. Legacy saves keep the bundle they were played under, and undo returns rules verbatim.
+- **one-encounter-per-location** (2026-08-12): The route rule counts LOCATIONS: a cave's floors are one encounter, and an extra method is never an extra catch (underwater grass is the route's dive method). Stored as routeUnit 'area'; pre-unit saves keep 'map' because undo replays the log.
+- **shiny-does-not-consume-the-route** (2026-08-11): Under the shiny clause a shiny catch is keepable over both encounter rules AND leaves the route's real random encounter owed.
+- **egg-moves-ride-the-relearner** (2026-08-12): A move whose only live routes are the egg line costs one Heart Scale at the relearner; a level-up prompt at or below the level, a TM or a tutor is free. The advisor may not offer what the bag cannot pay for.
+- **advisors-recommend-only-the-possible** (2026-08-12): Recommendation surfaces are gated by obtainability — no HM before the story hands it over, no egg move without a scale, no surfing before Surf — while the RECORDING commands stay face-value.
+- **self-ko-is-a-trade** (2026-08-12): A move that faints its user is never a cell's claim while any surviving damage line exists, and a self-KO cell counts as no clean answer for us — while an enemy's sacrifice still counts as a real threat, because our death is permanent and theirs is free.
+- **fights-planned-under-their-own-sky** (2026-08-12): A fight with a declared permanent field (Route 119's rain, the desert's sand, Seafloor's opponent-side veil) is planned under it by default; an explicit field — even {} — is the counterfactual override, and every consumer names which sky its numbers came from.
+- **availability-is-late-biased** (2026-08-12): A route's opensAt is the order of the first mandatory fight standing in it, translated through name anchors — late-biased, never early. A run-map fight named after its location overrides with direct evidence. Absence means unknown, never closed.
+- **doubles-stays-opt-in** (2026-08-11): Doubles planning is opt-in ({doubles: true}) until pair lead order is sourced; double fights planned as Singles carry plannedAsSingles so the simplification is visible.
+- **grade-with-never-merge** (2026-08-11): Sibling engines are graded against shared evidence and each other, never merged: data flows with provenance, code does not. Cross-engine disagreement outside documented divergences is a red gate; documented divergences are settled by new emulator evidence, never by picking a side.
+
+## Open questions (from DECISIONS.json)
+Ruled on by nobody yet — each names what would settle it. An answered
+question moves up into rulings; it is never silently deleted.
+- **over-cap-wild-catch** (2026-08-11): Is an over-cap wild catch (a L50 Walrein at cap 21) usable in real Run & Bun, disobedient, or benched until the cap catches up? The tool currently takes the level at face value everywhere. _Settled by: operator ruling, or the game's own behavior checked in the emulator._
+- **safari-zone-unit** (2026-08-12): Is the Safari Zone one encounter or one per area? Folded to one location under the area rule; some community tables split it. _Settled by: operator ruling._
+- **weather-rounding-order** (2026-08-12): Under sun and rain the two engines disagree by exactly 1 at the low roll. The corpus has no weather observations, so neither side is ROM-verified. _Settled by: pykemon f4-weather-rain sweep (fixture pushed as claude/pykemon-weather-sweep-spec)._
+- **policy-setup-unprobed** (2026-08-10): policy.SETUP remains transcription: no emulator probe has exercised the setup-move scoring the way pykemon probed SCORE_ROLL. _Settled by: a pykemon RAM probe over setup-move turns._
+- **doubles-lead-order** (2026-08-11): Which two of a double trainer's party lead. Assumed first-two today, named as leadAssumption. _Settled by: emulator observation or the trainer data carrying a lead marker._
+- **soul-dew-and-infatuation** (2026-08-12): Soul Dew as +1 SpA/SpD stages for the Latis, and infatuation's genderlessness in OUR engine (declared transcribed) — neither audited against an implementation yet. _Settled by: doc-claim audit continuation; check whether any trainer even fields a Lati with Soul Dew._
+- **below-catch-level-relearn** (2026-08-12): Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level. _Settled by: operator ruling._
+
+## Hand-written docs, dated
+Last-touched stamps from git, refreshed whenever the inventory is
+regenerated. Advisory, and deliberately BELOW the drift gate's waterline:
+a stamp changes at the very commit that touches its doc, so gating it
+byte-for-byte would demand a follow-up commit forever. An old stamp is
+the reader's warning to verify before trusting.
+- `AGENTS.md` — d4f02d3 2026-08-08
+- `AI_DATA_MODEL.md` — bfd934e 2026-08-05
+- `FORK_MAP.md` — a0e9744 2026-08-10
+- `GEN9_AUDIT.md` — c85114d 2026-08-08
+- `PLAN.md` — 0cdbdd4 2026-08-11
+- `README.md` — cdc5a30 2026-08-12
+- `RUNBUN_UI_DESIGN.md` — 15ed880 2026-08-11
+- `RUNBUN_UX.md` — d4f02d3 2026-08-08
+- `TASKS.md` — d4f02d3 2026-08-08
+- `VALIDATION.md` — dcc9400 2026-08-11
+
 ## Test files
 `browser_calc_load.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `rom-band.test.js` · `run.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js`
 

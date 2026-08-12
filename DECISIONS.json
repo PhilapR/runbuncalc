@@ -1,0 +1,164 @@
+{
+	"comment": [
+		"The rulings ledger. Every design decision that changes what the tool",
+		"ACCEPTS or CLAIMS gets a row here when it is made — rulings used to live",
+		"only in chat transcripts and commit messages, which is where they go to",
+		"be forgotten and re-litigated. Each ruling names the files that enforce",
+		"it; `inventory.test.js` fails if an enforcing file disappears, and",
+		"INVENTORY.md renders this ledger so the current law fits on one screen.",
+		"`open` is the other half: questions nobody has ruled on yet, each with",
+		"what would settle it. An open question that gets ruled moves UP into",
+		"decisions; it is never silently deleted."
+	],
+	"decisions": [
+		{
+			"id": "run-document-is-the-record",
+			"date": "2026-08-08",
+			"ruling": "A playthrough is a verifiable document: every catch is checked against the real encounter tables, every evolution against the real lines, every taught move against real learnsets. Undo is replay, byte-identical.",
+			"why": "A box that is whatever somebody typed cannot support a nuzlocke's rules meaning anything.",
+			"enforcedBy": ["run.js", "run.test.js"]
+		},
+		{
+			"id": "face-value-catches",
+			"date": "2026-08-09",
+			"ruling": "A recorded fact is taken at face value: catch levels, epitaphs and teaches are the player's report of what happened in the game. The oracle refuses the impossible (wrong route, wrong level range) but never second-guesses the possible.",
+			"why": "The game itself is the enforcement for what can happen; the document's job is refusing what CANNOT have happened.",
+			"enforcedBy": ["run.js"]
+		},
+		{
+			"id": "caps-are-authored",
+			"date": "2026-08-12",
+			"ruling": "Level caps are the game's own 23-row ladder from Mechanic Changes.txt, declared in the profile — never derived from the next boss's ace, which disagreed on ten rows.",
+			"why": "The authored cap usually sits one below the ace, the Museum rung sits above it, and derivation invented rungs the game never lifts.",
+			"enforcedBy": ["profiles/run-and-bun/encounters.js", "run.test.js"]
+		},
+		{
+			"id": "to-cap-free-over-cap-priced",
+			"date": "2026-08-09",
+			"ruling": "Leveling to the cap is free (the Endless Candy); every level past it spends a bagged Rare Candy.",
+			"why": "That is the game's own economy, and it keeps the whole box playable without grind bookkeeping.",
+			"enforcedBy": ["run.js", "run.test.js"]
+		},
+		{
+			"id": "dupes-follow-the-games-graph",
+			"date": "2026-08-11",
+			"ruling": "The dupes clause walks the game's OWN evolution graph: regional lines stay separate unless Run & Bun itself connects them (Grimer to Muk-Alola by Dusk Stone; both Basculin to Basculegion). 'forms' mode adds the regional closure on top.",
+			"why": "Matches the dominant community tracker's reading, and the hack's custom evolutions are the game's statement of what a line is.",
+			"enforcedBy": ["profiles/run-and-bun/oracle.js", "run.test.js"]
+		},
+		{
+			"id": "rules-are-toggles",
+			"date": "2026-08-11",
+			"ruling": "Permadeath, one-per-route, the dupes MODE and the shiny clause are independent stored toggles; --nuzlocke is only a preset. Legacy saves keep the bundle they were played under, and undo returns rules verbatim.",
+			"why": "Nuzlocke tables vary rule by rule; a save silently enforcing rules the player never chose is the bug class the toggles exist to prevent.",
+			"enforcedBy": ["run.js", "run.test.js", "play.test.js"]
+		},
+		{
+			"id": "one-encounter-per-location",
+			"date": "2026-08-12",
+			"ruling": "The route rule counts LOCATIONS: a cave's floors are one encounter, and an extra method is never an extra catch (underwater grass is the route's dive method). Stored as routeUnit 'area'; pre-unit saves keep 'map' because undo replays the log.",
+			"why": "Operator ruling; a replay that refuses history would brick the save.",
+			"enforcedBy": ["profiles/run-and-bun/oracle.js", "run.js", "run.test.js"]
+		},
+		{
+			"id": "shiny-does-not-consume-the-route",
+			"date": "2026-08-11",
+			"ruling": "Under the shiny clause a shiny catch is keepable over both encounter rules AND leaves the route's real random encounter owed.",
+			"why": "The clause exists to never punish the 1/4096; consuming the route would.",
+			"enforcedBy": ["run.js", "run.test.js"]
+		},
+		{
+			"id": "egg-moves-ride-the-relearner",
+			"date": "2026-08-12",
+			"ruling": "A move whose only live routes are the egg line costs one Heart Scale at the relearner; a level-up prompt at or below the level, a TM or a tutor is free. The advisor may not offer what the bag cannot pay for.",
+			"why": "Operator ruling on how Run & Bun actually serves egg moves.",
+			"enforcedBy": ["run.js", "run.test.js"]
+		},
+		{
+			"id": "advisors-recommend-only-the-possible",
+			"date": "2026-08-12",
+			"ruling": "Recommendation surfaces are gated by obtainability — no HM before the story hands it over, no egg move without a scale, no surfing before Surf — while the RECORDING commands stay face-value.",
+			"why": "The game stops the player from doing the impossible; it does not stop a bad advisor from recommending it.",
+			"enforcedBy": ["run.js", "run.test.js", "server.smoke.test.js"]
+		},
+		{
+			"id": "self-ko-is-a-trade",
+			"date": "2026-08-12",
+			"ruling": "A move that faints its user is never a cell's claim while any surviving damage line exists, and a self-KO cell counts as no clean answer for us — while an enemy's sacrifice still counts as a real threat, because our death is permanent and theirs is free.",
+			"why": "The optimizer sold 'teach Misty Explosion, +3 KO' to a permadeath run.",
+			"enforcedBy": ["planner.js", "planner.test.js", "run.test.js", "ai/src/move-metadata.ts"]
+		},
+		{
+			"id": "fights-planned-under-their-own-sky",
+			"date": "2026-08-12",
+			"ruling": "A fight with a declared permanent field (Route 119's rain, the desert's sand, Seafloor's opponent-side veil) is planned under it by default; an explicit field — even {} — is the counterfactual override, and every consumer names which sky its numbers came from.",
+			"why": "A Route 119 board without its rain claims numbers the fight will never produce.",
+			"enforcedBy": ["planner.js", "planner.test.js", "profiles/run-and-bun/oracle/fight-fields.json"]
+		},
+		{
+			"id": "availability-is-late-biased",
+			"date": "2026-08-12",
+			"ruling": "A route's opensAt is the order of the first mandatory fight standing in it, translated through name anchors — late-biased, never early. A run-map fight named after its location overrides with direct evidence. Absence means unknown, never closed.",
+			"why": "For 'is this route open yet' the safe error direction is late; the source's stage headers were demonstrably stale and are ignored.",
+			"enforcedBy": ["scripts/import-availability.js", "run.test.js"]
+		},
+		{
+			"id": "doubles-stays-opt-in",
+			"date": "2026-08-11",
+			"ruling": "Doubles planning is opt-in ({doubles: true}) until pair lead order is sourced; double fights planned as Singles carry plannedAsSingles so the simplification is visible.",
+			"why": "Measured: the lead's top action changes in 18 of 46 double fights — but which two lead is an assumption the run map cannot source.",
+			"enforcedBy": ["planner.js", "planner.test.js"]
+		},
+		{
+			"id": "grade-with-never-merge",
+			"date": "2026-08-11",
+			"ruling": "Sibling engines are graded against shared evidence and each other, never merged: data flows with provenance, code does not. Cross-engine disagreement outside documented divergences is a red gate; documented divergences are settled by new emulator evidence, never by picking a side.",
+			"why": "The differential gate caught rab's crit bug precisely because two independent engines existed.",
+			"enforcedBy": ["scripts/cross-engine-diff.ts", "scripts/rom-band-check.js", "ECOSYSTEM.json"]
+		}
+	],
+	"open": [
+		{
+			"id": "over-cap-wild-catch",
+			"question": "Is an over-cap wild catch (a L50 Walrein at cap 21) usable in real Run & Bun, disobedient, or benched until the cap catches up? The tool currently takes the level at face value everywhere.",
+			"raised": "2026-08-11",
+			"settledBy": "operator ruling, or the game's own behavior checked in the emulator"
+		},
+		{
+			"id": "safari-zone-unit",
+			"question": "Is the Safari Zone one encounter or one per area? Folded to one location under the area rule; some community tables split it.",
+			"raised": "2026-08-12",
+			"settledBy": "operator ruling"
+		},
+		{
+			"id": "weather-rounding-order",
+			"question": "Under sun and rain the two engines disagree by exactly 1 at the low roll. The corpus has no weather observations, so neither side is ROM-verified.",
+			"raised": "2026-08-12",
+			"settledBy": "pykemon f4-weather-rain sweep (fixture pushed as claude/pykemon-weather-sweep-spec)"
+		},
+		{
+			"id": "policy-setup-unprobed",
+			"question": "policy.SETUP remains transcription: no emulator probe has exercised the setup-move scoring the way pykemon probed SCORE_ROLL.",
+			"raised": "2026-08-10",
+			"settledBy": "a pykemon RAM probe over setup-move turns"
+		},
+		{
+			"id": "doubles-lead-order",
+			"question": "Which two of a double trainer's party lead. Assumed first-two today, named as leadAssumption.",
+			"raised": "2026-08-11",
+			"settledBy": "emulator observation or the trainer data carrying a lead marker"
+		},
+		{
+			"id": "soul-dew-and-infatuation",
+			"question": "Soul Dew as +1 SpA/SpD stages for the Latis, and infatuation's genderlessness in OUR engine (declared transcribed) — neither audited against an implementation yet.",
+			"raised": "2026-08-12",
+			"settledBy": "doc-claim audit continuation; check whether any trainer even fields a Lati with Soul Dew"
+		},
+		{
+			"id": "below-catch-level-relearn",
+			"question": "Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level.",
+			"raised": "2026-08-12",
+			"settledBy": "operator ruling"
+		}
+	]
+}
