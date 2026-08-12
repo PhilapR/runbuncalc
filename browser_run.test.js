@@ -748,7 +748,10 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 
 	// The route rule ON: "one roll per route" is only a rule when the run
 	// declares it — the refusal below is the rule speaking, not the die.
+	// Permadeath ON too, so whichever way the fight ends, the document must
+	// carry it: a beat, or a burial.
 	await page.check('#runbun-run-new-route');
+	await page.check('#runbun-run-new-permadeath');
 	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
@@ -825,9 +828,22 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 
 	// The fight became run history through ordinary commands: win or wipe,
 	// the document moved — a win moves the position past Calvin, a wipe
-	// buries the party. This seed's capped catch wins.
+	// buries the fighter. The seed is the die's to roll (a solo starter loses
+	// this fight a third of the time — that IS Run & Bun), so the test holds
+	// the contract, not the outcome.
 	const saved = await savedRun(page);
-	assert.ok(saved.position >= 0, 'the won fight must be marked beaten');
+	const status = await page.textContent('#runbun-run-status');
+	if (/Won against/.test(status)) {
+		assert.ok(saved.position >= 0, 'a won fight must be marked beaten');
+	} else {
+		assert.match(status, /Wiped against/);
+		assert.equal(saved.position, -1, 'a wipe must not advance the run');
+		const fallen = saved.box.find(mon => mon.status === 'dead');
+		assert.ok(fallen, 'a wipe buries the fighter');
+		assert.equal(fallen.died.to, 'Youngster Calvin',
+			'the epitaph names who did it');
+		assert.ok(fallen.died.move, 'the epitaph names the move');
+	}
 	assert.ok((await page.textContent('#runbun-run-battle-log')).length > 0,
 		'the fight left a narration');
 

@@ -72,6 +72,33 @@ function requireRun(payload) {
 }
 
 /**
+ * The battle bundle round-trips through the client between turns, so it is
+ * as untrusted as the run: a truncated or hand-edited bundle used to reach
+ * the driver's first `state.sides.player` read and come out a 500. This
+ * checks the spine the driver walks before any turn resolves — deep enough
+ * to keep garbage out, shallow enough that a real bundle always passes.
+ */
+function requireBattle(payload) {
+	const bundle = (payload || {}).battle;
+	if (!isRecord(bundle) || !isRecord(bundle.state)) {
+		throw refusal('battle is required — send the bundle from /run/battle/start',
+			'InvalidBattle');
+	}
+	const sides = bundle.state.sides;
+	if (!isRecord(sides) || !isRecord(sides.player) || !isRecord(sides.ai) ||
+		!Array.isArray(sides.player.party) || !Array.isArray(sides.ai.party)) {
+		throw refusal('battle.state is not a battle — send the bundle unaltered',
+			'InvalidBattle');
+	}
+	for (const field of ['seed', 'step']) {
+		if (!Number.isInteger(bundle[field])) {
+			throw refusal(`battle.${field} must be an integer`, 'InvalidBattle');
+		}
+	}
+	return bundle;
+}
+
+/**
  * Errors from `run.js` are almost all the player being told why something
  * could not have happened — a species that is not on that route, a move the
  * species cannot hold. Those become 400s with the message intact, because the
@@ -216,7 +243,21 @@ const api = {
 	/** Every possible six from the alive box, ranked against a fight. */
 	rank(payload) {
 		const state = requireRun(payload);
-		return guarded(() => runtime.rankParties(state, (payload || {}).trainer));
+		// The calibration knobs pass through, bounded: rollouts is per-candidate
+		// playthroughs (0 turns adjudication off), adjudicate is how many top
+		// grid candidates get played. Both are CPU multipliers, so the wire
+		// caps them harder than the library does.
+		const options = {};
+		for (const knob of [['rollouts', 0, 48], ['adjudicate', 1, 8]]) {
+			const value = (payload || {})[knob[0]];
+			if (value === undefined) continue;
+			if (!Number.isInteger(value) || value < knob[1] || value > knob[2]) {
+				throw refusal(`${knob[0]} must be an integer from ${knob[1]} to ${knob[2]}`,
+					'InvalidRunCommand');
+			}
+			options[knob[0]] = value;
+		}
+		return guarded(() => runtime.rankParties(state, (payload || {}).trainer, options));
 	},
 
 	/** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
@@ -245,21 +286,21 @@ const api = {
 
 	/** The game master's die: nothing is written, the reply is what came up. */
 	encounter(payload) {
-		payload = payload || {};
-		return guarded(() => ({roll: runtime.rollEncounter(payload.run, {
+		const state = requireRun(payload);
+		return guarded(() => ({roll: runtime.rollEncounter(state, {
 			map: payload.map,
 			method: payload.method,
 		})}));
 	},
 
 	battleStart(payload) {
-		payload = payload || {};
-		return guarded(() => battleDriver.start(payload.run, payload.trainer, payload.seed));
+		const state = requireRun(payload);
+		return guarded(() => battleDriver.start(state, payload.trainer, payload.seed));
 	},
 
 	battleAct(payload) {
 		payload = payload || {};
-		return guarded(() => battleDriver.act(payload.battle, payload.action));
+		return guarded(() => battleDriver.act(requireBattle(payload), payload.action));
 	},
 
 	/** The map list, so a client can offer somewhere to look, not a text box. */

@@ -1214,7 +1214,7 @@
 			chain = chain.then(function (ok) {
 				if (!ok) return false;
 				return command({kind: 'faint', id: death.monId, to: trainer,
-					by: death.by || undefined});
+					move: death.by || undefined});
 			});
 		});
 		if (won) {

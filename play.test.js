@@ -356,3 +356,46 @@ test('advise ranks single changes against a fight without writing', () => {
 	// and it leads the list with the KO it gains.
 	assert.match(advice, /^ {2}mon-1 {3}Poochyena {5}teach {7}Play Rough.*\+1 KO {2}\+\d+\.\d\d bars$/m);
 });
+
+test('the recreation verbs: a starter opens the run, a roll suggests, a spend burns', () => {
+	// The starter is the game's own opening: the pick lands as an L5 gift and
+	// fixes the rival, and the wrong name is refused with the real list.
+	assert.throws(() => cli('new', '--starter', 'Pikachu'),
+		/the starters are Treecko, Torchic, Mudkip/);
+	assert.throws(() => cli('new', '--starter', 'Treecko', '--rival', 'Blaziken'),
+		/Treecko fixes the rival to Swampert/);
+	assert.match(cli('new', '--starter', 'Mudkip', '--nuzlocke'),
+		/Mudkip L5 is in the box; the rival runs Blaziken/);
+	assert.equal(read().box[0].species, 'Mudkip');
+	assert.equal(read().rules.rival, 'Blaziken');
+
+	// A roll is read-only dice: the save is untouched, and the two ways to
+	// settle it come back paste-ready, carrying the run file.
+	const before = fs.readFileSync(file, 'utf8');
+	const rolled = cli('roll', 'Route101');
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'a roll must not write');
+	assert.match(rolled, /^A wild \w+ L\d+ appeared!/);
+	assert.match(rolled, new RegExp(`keep it: {5}node play\\.js catch \\w+ --level \\d+ ` +
+		`--map Route101 --file ${file}`));
+	assert.match(rolled, new RegExp(`got away: {4}node play\\.js spend Route101 --file ${file}`));
+
+	// Spend writes the route away, and the spent route refuses the next roll.
+	assert.match(cli('spend', 'Route101', '--reason', 'it fled'),
+		/Route101 spent — it fled; nothing kept/);
+	assert.throws(() => cli('roll', 'Route101'),
+		/roll: Route101 already gave its encounter — it was spent/);
+});
+
+test('adjudicate plays the fight and reports the floor without writing', () => {
+	cli('new', '--starter', 'Torchic');
+	cli('party', 'mon-1');
+	const before = fs.readFileSync(file, 'utf8');
+
+	assert.throws(() => cli('adjudicate', '--rollouts', '0'),
+		/--rollouts must be an integer from 1 to 100/);
+	const report = cli('adjudicate', '--rollouts', '3');
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'adjudicate must not write');
+	assert.match(report, /Youngster Calvin \(#0\) — the current party, played 3 times/);
+	assert.match(report, /P\(win\) \d+% {2}· {2}\d+\.\d deaths expected {2}· {2}deathless \d+%/);
+	assert.match(report, /a lower bound, not a promise/);
+});

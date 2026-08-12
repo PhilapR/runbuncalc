@@ -37,6 +37,9 @@ const getProfile = require('./profiles').getProfile;
 
 const DEFAULT_FILE = 'run.json';
 
+/** The rival takes the starter yours beats; picking one fixes their ace. */
+const STARTER_RIVAL = {Treecko: 'Swampert', Torchic: 'Sceptile', Mudkip: 'Blaziken'};
+
 function load(file) {
 	if (!fs.existsSync(file)) {
 		throw new Error(`no run at ${file}; start one with: node play.js new --file ${file}`);
@@ -209,7 +212,8 @@ function renderMatrix(matrix) {
  */
 function renderRanking(ranking) {
 	const lines = [`${ranking.trainer} (#${ranking.order}) — ` +
-		`${ranking.combinations} sixes from a box of ${ranking.boxSize}`];
+		`${ranking.combinations} ${ranking.combinations === 1 ? 'six' : 'sixes'} ` +
+		`from a box of ${ranking.boxSize}`];
 	if (ranking.projection.applied && ranking.projection.from === 'projected') {
 		lines.push(`  box at the cap it is fought under: L${ranking.projection.cap}`);
 	}
@@ -319,10 +323,73 @@ const SUBCOMMANDS = {
 			routeUnit: args.flags['route-unit'],
 			// Named for the rival's ace, which the starter choice fixes. Without it
 			// all three variants of each rival fight stay visible.
-			rival: args.flags.rival || null,
+			rival: args.flags.rival ||
+				(args.flags.starter ? STARTER_RIVAL[args.flags.starter] : null) || null,
 			now: now(),
 		});
+		// --starter is the game's own opening: the pick lands in the box as a
+		// declared L5 gift and fixes the rival to the line that answers it.
+		if (args.flags.starter) {
+			if (!STARTER_RIVAL[args.flags.starter]) {
+				throw new Error(`new: the starters are ${Object.keys(STARTER_RIVAL).join(', ')}` +
+					`, not ${JSON.stringify(args.flags.starter)}`);
+			}
+			if (args.flags.rival && args.flags.rival !== STARTER_RIVAL[args.flags.starter]) {
+				throw new Error(`new: ${args.flags.starter} fixes the rival to ` +
+					`${STARTER_RIVAL[args.flags.starter]} — they take the one yours beats`);
+			}
+			const gifted = runtime.apply(created, {
+				kind: 'catch', species: args.flags.starter, level: 5,
+			}, {now: now()});
+			return {state: gifted, message: `started ${gifted.name} at ${file} — ` +
+				`${args.flags.starter} L5 is in the box; the rival runs ` +
+				STARTER_RIVAL[args.flags.starter]};
+		}
 		return {state: created, message: `started ${created.name} at ${file}`};
+	},
+
+	/** The recreation's dice: roll the route's one random encounter, then
+	 * settle it with `catch` or `spend` — the roll itself writes nothing. */
+	roll(state, args, file) {
+		const map = args.positional.join(' ');
+		if (!map) throw new Error('roll: name a map, e.g. `roll Route101`');
+		const rolled = runtime.rollEncounter(state, {map, method: args.flags.method});
+		// The suggestions must be paste-ready, so they carry the run file too.
+		const fileFlag = file === DEFAULT_FILE ? '' : ` --file ${file}`;
+		return {message: [
+			`A wild ${rolled.species} L${rolled.level} appeared! ` +
+				`(${rolled.method} · ${rolled.chance}%)`,
+			`  keep it:     node play.js catch ${rolled.species} --level ${rolled.level} ` +
+				`--map ${map}${rolled.method === 'walk' ? '' : ` --method ${rolled.method}`}${fileFlag}`,
+			`  got away:    node play.js spend ${map}${fileFlag}`,
+		].join('\n')};
+	},
+
+	/** The one that got away: the route is spent, nothing kept. */
+	spend(state, args) {
+		const map = args.positional.join(' ');
+		if (!map) throw new Error('spend: name a map, e.g. `spend Route101`');
+		return {command: {kind: 'spend', map, reason: args.flags.reason}};
+	},
+
+	/** Play the fight N times and report what happened — the floor, measured. */
+	adjudicate(state, args) {
+		const driver = require('./battle-driver');
+		const rollouts = args.flags.rollouts ? Number(args.flags.rollouts) : 12;
+		if (!Number.isInteger(rollouts) || rollouts < 1 || rollouts > 100) {
+			throw new Error('adjudicate: --rollouts must be an integer from 1 to 100');
+		}
+		const trainer = args.positional.length ? args.positional.join(' ') : undefined;
+		const fight = require('./planner').getFight(
+			trainer || runtime.upcoming(state, 1)[0].trainer, state.profileId);
+		const played = driver.adjudicate(state, fight.trainer, {rollouts});
+		return {message: [
+			`${fight.trainer} (#${fight.order}) — the current party, played ${rollouts} times`,
+			`  P(win) ${Math.round(played.pWin * 100)}%  ·  ` +
+				`${played.eDeaths.toFixed(1)} deaths expected  ·  ` +
+				`deathless ${Math.round(played.pDeathless * 100)}%`,
+			'  floor policy (best forecast move, forced switches only) — a lower bound, not a promise',
+		].join('\n')};
 	},
 
 	status(state) {
@@ -681,16 +748,19 @@ const SUBCOMMANDS = {
 
 /** Subcommands that never write, so they can run against a save freely. */
 const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
-	'advise', 'rank', 'scout', 'log', 'milestones', 'split', 'routes', 'graveyard']);
+	'advise', 'rank', 'scout', 'log', 'milestones', 'split', 'routes', 'graveyard',
+	'roll', 'adjudicate']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
-  new [--name N] [--no-cap] [--nuzlocke] [--rival Swampert] [--force]   start a run (game caps on by default)
+  new [--name N] [--no-cap] [--nuzlocke] [--starter Treecko] [--force]   start a run (game caps on by default)
       [--permadeath on|off] [--route on|off] [--shiny-clause on|off] [--dupes off|species|line|forms]
       [--route-unit area|map]                     what one-per-route counts: the location (default) or the single wild table
   status / box                                    the box, party, bag and position
   where <map>                                     what can be caught there
   find <species>                                  everywhere it can be caught
+  roll <map> [--method m]                         roll the route's one random encounter (writes nothing)
+  spend <map> [--reason R]                        the encounter got away — the route is spent, nothing kept
   catch <species> --level N [--map M] [--name N] [--shiny]  add to the box
   hold <map> [--for Species]                      save a location's encounter for a better table later
   unhold <map>                                    release a held location
@@ -709,7 +779,8 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   beat <trainer>                                  move the run forward
   next [--count N] / plan [trainer]               what is ahead, and what it does
   matrix [trainer]                                the whole box against theirs, both ways
-  rank [trainer]                                  every six from the box, ranked for a fight
+  rank [trainer]                                  every six from the box, ranked — the top ones PLAYED
+  adjudicate [trainer] [--rollouts N]             play the fight N times with the current party, report the floor
   advise [trainer]                                the single changes that most move that board
   scout [trainer]                                 what the open routes could add vs the next boss
   routes [--all]                                  routes still holding an encounter

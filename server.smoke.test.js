@@ -1139,3 +1139,42 @@ test('the recreation rides HTTP: a roll, a spend, and one played turn', async ()
 	assert.equal(bad.status, 400);
 	assert.match(bad.body.error, /battle: "Earthquake" is not usable right now/);
 });
+
+test('the wire refuses garbage where the engine would crash: bundles, runs, knobs', async () => {
+	const runtime = require('./run');
+	let run = runtime.createRun({name: 'hardened', now: 't0', permadeath: true});
+	run = runtime.applyAll(run, [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+
+	// A hand-edited battle bundle is a 400 that names the fix, never a 500.
+	const gutted = await requestJson('/run/battle/act',
+		{battle: {state: {}}, action: {kind: 'move', move: 'Tackle'}});
+	assert.equal(gutted.status, 400);
+	assert.match(gutted.body.error, /send the bundle unaltered/);
+	const missing = await requestJson('/run/battle/act',
+		{action: {kind: 'move', move: 'Tackle'}});
+	assert.equal(missing.status, 400);
+	assert.match(missing.body.error, /send the bundle from \/run\/battle\/start/);
+
+	// The die and the driver check the run's shape like every other endpoint.
+	for (const route of ['/run/encounter', '/run/battle/start']) {
+		const forged = await requestJson(route, {run: {version: run.version}});
+		assert.equal(forged.status, 400, `${route} must refuse a version-only run`);
+	}
+
+	// The ranker's knobs pass through bounded: a played top candidate on
+	// demand, the grid alone at zero, and out-of-range refused by name.
+	const played = await requestJson('/run/rank',
+		{run, trainer: 'Youngster Calvin', rollouts: 2, adjudicate: 1});
+	assert.equal(played.status, 200);
+	assert.equal(played.body.parties[0].adjudication.rollouts, 2);
+	const gridOnly = await requestJson('/run/rank',
+		{run, trainer: 'Youngster Calvin', rollouts: 0});
+	assert.equal(gridOnly.status, 200);
+	assert.equal(gridOnly.body.adjudication, null);
+	const greedy = await requestJson('/run/rank', {run, rollouts: 4900});
+	assert.equal(greedy.status, 400);
+	assert.match(greedy.body.error, /rollouts must be an integer from 0 to 48/);
+});
