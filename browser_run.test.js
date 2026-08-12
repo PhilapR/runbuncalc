@@ -568,3 +568,133 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 
 	await session.context.close();
 });
+
+test('the page fits a phone: the active mode reflows, the calc scrolls in place', {skip}, async () => {
+	// The viewport meta plus the scoped width floor is the whole responsive
+	// setup: without them every rule below 980px is dead code on the devices it
+	// exists for. This drives the page at a real phone size and asserts the
+	// property that matters — nothing forces the PAGE wider than the screen.
+	const context = await browser.newContext({viewport: {width: 390, height: 844}});
+	await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
+	const page = await context.newPage();
+	await page.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-map option').length > 100,
+		null, {timeout: 15000});
+
+	// Below the breakpoint the shell is a true tab UI: the classic calc (whose
+	// desktop float layout is authored at 100em) leaves the layout entirely
+	// while another mode is active, so its floor cannot stretch the page.
+	assert.equal(await page.isVisible('#calc'), false,
+		'the inactive calc region should collapse on a phone');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	const overflow = await page.evaluate(() =>
+		document.documentElement.scrollWidth - document.documentElement.clientWidth);
+	assert.ok(overflow <= 0, `the run panel forced the page ${overflow}px wider than the phone`);
+	// Exactly one region on the page: a mode with its own id-level display rule
+	// (the planner's grid) used to ghost through the collapse and float above
+	// whichever mode was actually selected.
+	const visibleRegions = await page.$$eval('.rb-mode-region',
+		els => els.filter(el => el.offsetParent !== null).map(el => el.id));
+	assert.deepEqual(visibleRegions, ['runbun-run'],
+		'only the active mode should render on a phone');
+
+	// The calc is still reachable — it scrolls INSIDE its own region rather
+	// than widening the page for every other mode.
+	await page.click('#rb-tab-calc');
+	await page.waitForSelector('#calc.rb-mode-active');
+	assert.equal(await page.isVisible('#runbun-run'), false,
+		'switching modes should swap regions, not stack them');
+	const calcScrolls = await page.evaluate(() => {
+		const calc = document.getElementById('calc');
+		return calc.scrollWidth > calc.clientWidth;
+	});
+	assert.ok(calcScrolls, 'the calc should keep its desktop geometry, scrollable in place');
+
+	await context.close();
+});
+
+test('an answer the run has moved past is marked stale', {skip}, async () => {
+	// Plan, Advise, Rank, Routes and Board are computed against the run AS IT
+	// WAS. That is fine — they are on-demand questions — but an advisor sheet
+	// computed three catches ago must not LOOK like current advice.
+	const session = await open();
+	const page = session.page;
+
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.fill('#runbun-run-catch-species', 'Poochyena');
+	await page.fill('#runbun-run-catch-level', '3');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 10000});
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		null, {timeout: 10000});
+
+	await page.click('#runbun-run-plan');
+	await page.waitForFunction(
+		() => /decided|contested|only one/.test(
+			document.querySelector('#runbun-run-plan-verdict').textContent),
+		null, {timeout: 20000});
+	// Fresh answer, fresh mark: computed for THIS run, nothing stale about it.
+	assert.equal(await page.$eval('#runbun-run-plan-verdict',
+		el => el.classList.contains('rb-stale')), false);
+
+	// Any command moves the run; the standing answer must say so on its face.
+	await page.fill('#runbun-run-acquire-item', 'Oran Berry');
+	await page.click('#runbun-run-acquire');
+	await page.waitForFunction(
+		() => document.querySelector('#runbun-run-plan-verdict').classList.contains('rb-stale'),
+		null, {timeout: 10000});
+
+	// Re-asking clears the mark: the answer belongs to the current run again.
+	await page.click('#runbun-run-plan');
+	await page.waitForFunction(
+		() => !document.querySelector('#runbun-run-plan-verdict').classList.contains('rb-stale'),
+		null, {timeout: 20000});
+
+	await session.context.close();
+});
+
+test('two tabs are one run: a catch in one appears in the other', {skip}, async () => {
+	// The save lives in localStorage, so a phone next to the emulator and a
+	// desktop tab were ALWAYS the same run — but each tab only read it at load,
+	// and the staler one would overwrite the other's catches on its next
+	// command. The storage event is the missing half.
+	const session = await open();
+	const first = session.page;
+	const second = await session.context.newPage();
+	await second.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
+	await second.waitForSelector('#runbun-run');
+
+	await first.click('#runbun-run-new');
+	await first.waitForSelector('#runbun-run-live:not([hidden])');
+	// The other tab hears the write and shows the run without a reload.
+	await second.waitForSelector('#runbun-run-live:not([hidden])', {timeout: 10000});
+
+	await first.selectOption('#runbun-run-map', 'Route101');
+	await first.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await first.fill('#runbun-run-catch-species', 'Poochyena');
+	await first.fill('#runbun-run-catch-level', '3');
+	await first.click('#runbun-run-catch');
+
+	await second.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 10000});
+	assert.match(await second.textContent('#runbun-run-status'), /Synced/,
+		'the second tab should say where the change came from');
+
+	await session.context.close();
+});

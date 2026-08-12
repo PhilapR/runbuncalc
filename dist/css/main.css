@@ -134,6 +134,14 @@ html, body {
     color: black;
     margin: 0;
     padding: 0;
+}
+
+/* The desktop floor belongs to the CLASSIC CALC's float layout, not the page:
+   on the body it forced every other mode — run panel, planner, battle — to
+   1600px and made the phone view a zoomed-out photograph of a desktop. The
+   calc keeps its floor; everything else reflows. (The shell collapses inactive
+   regions on small screens, so this floor only binds while Calc is active.) */
+#calc {
     min-width: 100em;
 }
 
@@ -2955,4 +2963,10 @@ table.field {
 #runbun-run .runbun-run-route-row.is-used .runbun-run-route-name {
 	text-decoration: line-through;
 	color: var(--rb-ink-muted);
+}
+/* A held route is walked past on purpose; READY wears the alert color
+   because the wait has paid off and there is something to go collect. */
+#runbun-run .runbun-run-route-row.is-held .runbun-run-route-when {
+	color: var(--rb-warn-ink);
+	font-weight: 700;
 }

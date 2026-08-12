@@ -117,6 +117,9 @@
 	align-items: center;
 	gap: var(--rb-space-xs) var(--rb-space-sm);
 	width: 100%;
+	/* width: 100% + side padding overflows the viewport under the default
+	   content-box — 32px of phantom page width on every screen. */
+	box-sizing: border-box;
 	max-width: var(--rb-page-max);
 	margin: 0 auto;
 	padding: var(--rb-space-xs) var(--rb-space-lg) var(--rb-space-sm);
@@ -1021,7 +1024,15 @@ legend {
 	background: var(--rb-surface-sunken);
 }
 
-/* —— Responsive —— */
+/* —— Responsive ——
+
+   The shell is scroll-based on desktop: every mode is on the page and the
+   tabs are anchors. On a phone that means the classic calc's desktop floor
+   stretches the WHOLE page to 1600px, and the companion panels a player
+   actually reads mid-run render as a zoomed-out photograph. Below the
+   breakpoint the shell becomes a true tab UI: only the active mode renders,
+   each mode reflows to the viewport, and the calc alone keeps a horizontal
+   scroll inside its own region. */
 @media (max-width: 700px) {
 	.rb-mode-tablist {
 		flex-wrap: nowrap;
@@ -1035,6 +1046,27 @@ legend {
 
 	.rb-wordmark {
 		font-size: 1.3rem;
+	}
+
+	/* True tabs: the inactive modes leave the layout entirely, so no hidden
+	   region's width floor can force the page wide. The shell JS keeps
+	   exactly one region active from the hash, clicks and arrow keys.
+	   !important because collapsed must mean collapsed: several regions set
+	   their own display with id-level specificity (#runbun-planner's grid)
+	   and would ghost through the collapse otherwise. */
+	.rb-mode-region:not(.rb-mode-active) {
+		display: none !important;
+	}
+
+	/* The classic calc keeps its desktop geometry but scrolls INSIDE its
+	   region instead of widening the page: the float layout was authored at
+	   100em and reflowing it is a redesign, not a media query. */
+	#calc {
+		min-width: 0;
+		overflow-x: auto;
+	}
+	#calc > * {
+		min-width: 100em;
 	}
 
 	.wrapper,
@@ -1057,6 +1089,82 @@ legend {
 	#runbun-battle .runbun-battle-slots {
 		grid-template-columns: 1fr;
 	}
+
+	/* The run panel on one hand: single column happens by itself (the grid is
+	   auto-fit), but the scroll wells inside it must not eat the page — a
+	   22rem box list on a 660px-tall phone leaves no room for the road ahead. */
+	#runbun-run {
+		padding-left: var(--rb-space-md);
+		padding-right: var(--rb-space-md);
+	}
+	#runbun-run .runbun-run-columns {
+		gap: var(--rb-space-lg);
+	}
+	#runbun-run .runbun-run-box,
+	#runbun-run .runbun-run-encounters {
+		max-height: 14rem;
+	}
+	/* The milestone spine stays one glanceable line and scrolls sideways —
+	   wrapped over five rows it stops being "where am I" at a glance. */
+	#runbun-run .runbun-run-spine {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		padding-bottom: 2px;
+	}
+	#runbun-run .runbun-run-actions-row .btn {
+		flex: 1 1 auto;
+	}
+}
+
+/* Touch ergonomics, orthogonal to width: a desktop window on a touch screen
+   deserves tap targets too. Scoped to the companion panels — the classic
+   calc's dense grid is desktop furniture and stays out of this. */
+@media (pointer: coarse) {
+	.rb-panel .btn,
+	.rb-panel input[type="text"],
+	.rb-panel input[type="number"],
+	.rb-panel input[type="search"],
+	.rb-panel select {
+		min-height: 2.5rem;
+	}
+	.rb-mode-tab {
+		padding-top: 0.6em;
+		padding-bottom: 0.6em;
+	}
+}
+
+/* —— Dynamic state ——
+
+   The panel answers questions on demand (Plan, Advise, Rank, Routes, Board),
+   and the answers go stale the moment the run moves. A stale answer must
+   LOOK stale — an advisor sheet computed three catches ago reads as current
+   advice otherwise. The panel stamps each block with the run's log length
+   when it renders and marks it when the run moves past it. */
+.rb-panel .rb-stale {
+	opacity: 0.55;
+}
+.rb-panel .rb-stale .runbun-run-section-label::after {
+	content: " — run has moved, refresh";
+	font-weight: 400;
+	text-transform: none;
+	letter-spacing: normal;
+	color: var(--rb-warn-ink);
+}
+
+/* The plan verdict has no section label to carry the hint. */
+#runbun-run-plan-verdict.rb-stale:not(:empty)::after {
+	content: " · stale — plan again";
+	color: var(--rb-warn-ink);
+}
+
+/* One change in flight: the guard already refuses the second click with a
+   status line; the cursor says why without one. */
+#runbun-run-live.rb-busy {
+	cursor: progress;
+}
+#runbun-run-live.rb-busy .btn {
+	opacity: 0.75;
 }
 
 html {

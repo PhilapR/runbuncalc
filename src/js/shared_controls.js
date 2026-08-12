@@ -1005,13 +1005,15 @@ $(".gen").change(function () {
 		params.delete('gen');
 		params = '' + params;
 		if (window.history && window.history.replaceState) {
-			window.history.replaceState({}, document.title, window.location.pathname + (params.length ? '?' + params : ''));
+			// The hash is the shell's mode deep-link (#runbun-run); rewriting the
+			// URL without it silently flipped the page back to the calc tab.
+			window.history.replaceState({}, document.title, window.location.pathname + (params.length ? '?' + params : '') + window.location.hash);
 		}
 	} else {
 		params.set('gen', gen);
 		if (window.history && window.history.pushState) {
 			params.sort();
-			var path = window.location.pathname + '?' + params;
+			var path = window.location.pathname + '?' + params + window.location.hash;
 			window.history.pushState({}, document.title, path);
 		}
 	}

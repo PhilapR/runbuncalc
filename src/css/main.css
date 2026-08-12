@@ -134,6 +134,14 @@ html, body {
     color: black;
     margin: 0;
     padding: 0;
+}
+
+/* The desktop floor belongs to the CLASSIC CALC's float layout, not the page:
+   on the body it forced every other mode — run panel, planner, battle — to
+   1600px and made the phone view a zoomed-out photograph of a desktop. The
+   calc keeps its floor; everything else reflows. (The shell collapses inactive
+   regions on small screens, so this floor only binds while Calc is active.) */
+#calc {
     min-width: 100em;
 }
 

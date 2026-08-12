@@ -110,7 +110,13 @@
 			return Promise.resolve(false);
 		}
 		busy = true;
-		function release() { busy = false; }
+		// The guard refuses a second click with a status line; the class lets
+		// the CSS say "in flight" without one (progress cursor, dimmed buttons).
+		$('#runbun-run-live').addClass('rb-busy').attr('aria-busy', 'true');
+		function release() {
+			busy = false;
+			$('#runbun-run-live').removeClass('rb-busy').removeAttr('aria-busy');
+		}
 		// Released on both paths: one failure must never wedge the panel shut.
 		// The work's resolved value passes through, so `command` can report
 		// success to callers with one-shot form fields.
@@ -120,6 +126,47 @@
 		}, function (error) {
 			release();
 			status(error.message, 'error');
+		});
+	}
+
+	/**
+	 * Answers on demand go stale the moment the run moves.
+	 *
+	 * Plan, Advise, Rank, Routes and Board are all computed against the run AS
+	 * IT WAS when their button was pressed. Nothing wrong with that — they are
+	 * expensive questions, asked when the player wants them — but an advisor
+	 * sheet computed three catches ago LOOKS exactly like current advice, and a
+	 * player mid-split will act on it. Each block is stamped with the run log's
+	 * length when it renders; every repaint compares, and a block the run has
+	 * moved past is marked `rb-stale` (dimmed, labelled "refresh" in CSS).
+	 * The answer itself is kept — half-stale advice still orients — the mark
+	 * only says whose run it belongs to.
+	 */
+	var STALE_BLOCKS = {
+		plan: ['#runbun-run-plan-verdict', '#runbun-run-plan-actions'],
+		advice: ['.runbun-run-advice-block'],
+		rank: ['.runbun-run-rank-block'],
+		routes: ['.runbun-run-routes-block'],
+		matrix: ['.runbun-run-matrix-block'],
+	};
+	var stamps = {};
+
+	function logLength() {
+		return state && state.log ? state.log.length : 0;
+	}
+
+	function stamp(key) {
+		stamps[key] = logLength();
+		refreshStale();
+	}
+
+	function refreshStale() {
+		var now = logLength();
+		Object.keys(STALE_BLOCKS).forEach(function (key) {
+			var stale = stamps[key] !== undefined && stamps[key] !== now;
+			STALE_BLOCKS[key].forEach(function (selector) {
+				$(selector).toggleClass('rb-stale', stale);
+			});
 		});
 	}
 
@@ -297,6 +344,16 @@
 					.attr('data-trainer', fight.trainer).text('Board')));
 			$list.append($row);
 		});
+		// The split's uncollected field pickups: prep is what to grab BEFORE
+		// the boss, and the sheet says where each item waits.
+		if (prep.pickups && prep.pickups.length) {
+			var names = prep.pickups.map(function (item) {
+				return item.name + ' (' + item.location +
+					(item.reachable ? '' : ', from #' + item.opensAt) + ')';
+			});
+			$list.append($('<li class="runbun-run-split-pickups"></li>')
+				.text('Pickups not yet collected: ' + names.join(' · ')));
+		}
 	}
 
 	// -------------------------------------------------------------- road ahead
@@ -392,6 +449,7 @@
 		$('#runbun-run-bag').text(bag.length ?
 			bag.map(function (item) { return item + ' x' + summary.bag[item]; }).join(', ') :
 			'Bag is empty.');
+		refreshStale();
 		return payload;
 	}
 
@@ -516,6 +574,7 @@
 					.append($('<span class="runbun-run-action-score"></span>').text(action.score.toFixed(2)))
 					.append($('<span class="runbun-run-action-label"></span>').text(action.label)));
 			});
+			stamp('plan');
 		}).catch(function (error) {
 			status(error.message, 'error');
 		});
@@ -576,6 +635,7 @@
 		if (trainer) body.trainer = trainer;
 		api('/run/advise', body).then(function (payload) {
 			renderAdvice(payload);
+			stamp('advice');
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -622,6 +682,7 @@
 		status('Ranking every six against that fight…', '');
 		api('/run/rank', {run: state}).then(function (payload) {
 			renderRanking(payload);
+			stamp('rank');
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -645,8 +706,9 @@
 			open + ' open now · ' + used.length + ' spent · * waits on its HM');
 		var $list = $('#runbun-run-routes').empty();
 		unused.forEach(function (route) {
-			var badge = route.open ? 'open' :
-				route.opensAt !== undefined ? '#' + route.opensAt : '?';
+			var badge = route.held ? (route.held.ready ? 'READY' : 'held') :
+				route.open ? 'open' :
+					route.opensAt !== undefined ? '#' + route.opensAt : '?';
 			var best = route.best.map(function (mon) {
 				var where = mon.where ?
 					' (' + (mon.where.replace(route.name, '').trim() || mon.where) + ')' : '';
@@ -654,12 +716,15 @@
 					(mon.method === 'walk' ? '' : ' ' + mon.method) +
 					(mon.gated !== undefined ? '*' : '') + where;
 			}).join(', ');
+			var saving = route.held && route.held.for ?
+				' — saving for ' + route.held.for + (route.held.ready ? ' (catchable NOW)' : '') : '';
 			$list.append($('<li class="runbun-run-route-row"></li>')
-				.toggleClass('is-open', !!route.open)
+				.toggleClass('is-open', !!route.open && !route.held)
+				.toggleClass('is-held', !!route.held)
 				.append($('<span class="runbun-run-route-when"></span>').text(badge))
 				.append($('<span class="runbun-run-route-name"></span>').text(route.name))
 				.append($('<span class="runbun-run-route-best"></span>')
-					.text(best || 'everything here is a dupe')));
+					.text((best || 'everything here is a dupe') + saving)));
 		});
 		used.forEach(function (route) {
 			$list.append($('<li class="runbun-run-route-row is-used"></li>')
@@ -675,6 +740,7 @@
 		status('Reading the routes…', '');
 		api('/run/routes', {run: state}).then(function (payload) {
 			renderRoutes(payload);
+			stamp('routes');
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -716,6 +782,7 @@
 		status('Grading the open routes against the boss…', '');
 		api('/run/scout', {run: state}).then(function (payload) {
 			renderScout(payload);
+			stamp('routes');
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -817,6 +884,7 @@
 		if (trainer) body.trainer = trainer;
 		api('/run/matrix', body).then(function (payload) {
 			renderMatrix(payload);
+			stamp('matrix');
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -1123,9 +1191,43 @@
 		});
 	}
 
+	/**
+	 * Two tabs, one run. The save lives in localStorage, so a phone next to the
+	 * emulator and a desktop tab are ALREADY the same run — the only missing
+	 * piece was hearing about each other's writes. The `storage` event fires in
+	 * every OTHER tab when one persists; adopting it here keeps both views on
+	 * the run that actually exists, instead of the loser overwriting the
+	 * winner's catches with a stale base on its next command.
+	 *
+	 * Adopted without a server round-trip on purpose: the only writer of this
+	 * key is this panel, which persists nothing the server did not accept.
+	 * A write mid-flight is NOT adopted — the in-flight reply would clobber it
+	 * anyway; the next repaint reconciles through the same event having fired
+	 * on the other side.
+	 */
+	function syncFromOtherTab(event) {
+		if (event.key !== STORAGE_KEY || busy) return;
+		if (event.newValue === JSON.stringify(state)) return;
+		var incoming = null;
+		if (event.newValue) {
+			try {
+				incoming = JSON.parse(event.newValue);
+			} catch (error) {
+				return; // a corrupt write is the other tab's problem to surface
+			}
+		}
+		state = incoming;
+		showRun();
+		if (!state) return;
+		render().then(function () {
+			status('Synced — the run moved in another tab.', 'ok');
+		});
+	}
+
 	$(function () {
 		if (!$('#runbun-run').length) return;
 		bind();
+		window.addEventListener('storage', syncFromOtherTab);
 		state = restore();
 		loadMaps().then(render).then(function () {
 			if (corruptSave) {

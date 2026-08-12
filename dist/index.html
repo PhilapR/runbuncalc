@@ -3,17 +3,21 @@
 
 <head>
     <meta charset="UTF-8" />
+    <!-- Without this, phones render the page at desktop width and scale it down:
+         every responsive rule below 980px is dead code on the devices it exists
+         for. The classic calc keeps its desktop floor per-region instead. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Run &amp; Bun Damage Calc</title>
     <link type="text/css" rel="stylesheet" href="./js/vendor/select2/select2.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?63c8199e" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?0eef2e3a" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
     <!-- Shell + full-page unify after dark-theme so stadium tokens win the cascade -->
-    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?992fc439" />
+    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?413e7341" />
     <!-- Immediately loads the dark theme in order to reduce FOIT -->
     <script>
         /*
@@ -1930,7 +1934,7 @@
     <script type="text/javascript" src="./calc/result.js?de0d540e"></script>
     <script type="text/javascript" src="./calc/adaptable.js?5117162d"></script>
     <script type="text/javascript" src="./calc/index.js?78a38a99"></script>
-    <script type="text/javascript" src="./js/shared_controls.js?f328f1dc"></script>
+    <script type="text/javascript" src="./js/shared_controls.js?6a0bd674"></script>
     <script type="text/javascript" src="./js/index_randoms_controls.js?562e8ee3"></script>
     <script type="text/javascript" src="./js/moveset_import.js?4d256745"></script>
     <script type="text/javascript" src="./js/sets_to_battle_state.js?3f69542e"></script>
@@ -1940,7 +1944,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?4d142a09"></script>
-    <script type="text/javascript" src="./js/run_panel.js?2a153b8f"></script>
+    <script type="text/javascript" src="./js/run_panel.js?d4624952"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
