@@ -108,6 +108,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 
 	await page.fill('#runbun-run-new-name', 'Browser Run');
 	await page.check('#runbun-run-new-cap');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -141,19 +142,21 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.equal(await page.inputValue('#runbun-run-catch-species'), 'Lillipup');
 	await page.fill('#runbun-run-catch-name', 'Scout');
 	await page.click('#runbun-run-catch');
+	// Two in the box: the starter came free with the run.
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
 		null, {timeout: 10000});
 
-	const boxed = await page.textContent('#runbun-run-box .runbun-run-mon-name');
+	const boxed = await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-name');
 	assert.match(boxed, /Scout the Lillipup L\d+/);
 	// Where it came from travels with it, which is what makes the box a record.
-	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-kit'), /walk · Route101/);
+	assert.match(await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-kit'), /walk · Route101/);
 
 	// The party is built by clicking, because click order IS lead order — the
 	// multi-select this replaced returned selections in DOM order, so the lead
-	// was silently always the earliest catch.
-	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	// was silently always the earliest catch. Scout (mon-2) gets the slot; the
+	// starter stays boxed on purpose.
+	await page.click('.runbun-run-mon[data-id="mon-2"] .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
 		() => document.querySelector('#runbun-run-box .runbun-run-mon.is-party') !== null,
@@ -164,10 +167,12 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.ok(await page.$$eval('#runbun-run-split-gauntlet .runbun-run-split-fight',
 		els => els.length) >= 4, 'the gauntlet lists the boss-tier fights');
 
-	// The story spine renders one tick per milestone, none beaten yet.
-	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 44);
+	// The story spine renders one tick per milestone, none beaten yet — 38,
+	// because the declared rival pruned the other two variants of every
+	// rival milestone.
+	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 38);
 	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 0);
-	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 44 milestones/);
+	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 38 milestones/);
 
 	await page.click('#runbun-run-plan');
 	await page.waitForFunction(
@@ -235,6 +240,7 @@ test('a catch that could not have happened is refused and changes nothing', {ski
 	const session = await open();
 	const page = session.page;
 
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -257,7 +263,8 @@ test('a catch that could not have happened is refused and changes nothing', {ski
 	const message = await page.textContent('#runbun-run-status');
 	assert.match(message, /Ralts does not appear on Route101; it holds: Lillipup/);
 	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');
-	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon', els => els.length), 0);
+	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon', els => els.length), 1,
+		'only the starter stands');
 	// And the save is untouched, not rolled back after the fact.
 	assert.equal(JSON.stringify(await savedRun(page)), before, 'a refusal wrote to the save');
 
@@ -269,6 +276,7 @@ test('the run survives a reload, because a playthrough that does not is not one'
 	const page = session.page;
 
 	await page.fill('#runbun-run-new-name', 'Persisted');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -280,17 +288,17 @@ test('the run survives a reload, because a playthrough that does not is not one'
 	await page.fill('#runbun-run-catch-level', '3');
 	await page.click('#runbun-run-catch');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
 		null, {timeout: 10000});
 
 	await page.reload({waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
 		null, {timeout: 15000});
 	assert.equal(await page.textContent('#runbun-run-name'), 'Persisted');
-	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Poochyena/);
+	assert.match(await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-name'), /Poochyena/);
 
 	await session.context.close();
 });
@@ -299,6 +307,7 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	const session = await open();
 	const page = session.page;
 
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -312,19 +321,20 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 		await page.click('#runbun-run-catch');
 		await page.waitForFunction(
 			expected => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === expected,
-			species === 'Poochyena' ? 1 : 2, {timeout: 10000});
+			species === 'Poochyena' ? 2 : 3, {timeout: 10000});
 	}
 
-	// mon-2 added FIRST, then mon-1: the committed party must keep that order.
-	// This is the exact case the old multi-select could not express.
+	// mon-3 added FIRST, then mon-2: the committed party must keep that order.
+	// This is the exact case the old multi-select could not express. (mon-1,
+	// the starter, deliberately stays boxed — party is a choice, not a default.)
+	await page.click('.runbun-run-mon[data-id="mon-3"] .runbun-run-add');
 	await page.click('.runbun-run-mon[data-id="mon-2"] .runbun-run-add');
-	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 2,
 		null, {timeout: 10000});
 	const saved = await savedRun(page);
-	assert.deepEqual(saved.party, ['mon-2', 'mon-1'],
+	assert.deepEqual(saved.party, ['mon-3', 'mon-2'],
 		'lead order must be the order the player added, not catch order');
 
 	// The road ahead: mark the first fight beaten and the run moves past it.
@@ -343,7 +353,7 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 5000});
 	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Poochyena/);
-	assert.equal((await savedRun(page)).box.length, 2, 'filtering is a view, not a command');
+	assert.equal((await savedRun(page)).box.length, 3, 'filtering is a view, not a command');
 
 	await session.context.close();
 });
@@ -360,6 +370,7 @@ test('the rule toggles are individual, and the preset only drives the controls',
 	// ...and any of them can be adjusted after — the form is what is sent.
 	await page.uncheck('#runbun-run-new-route');
 	await page.selectOption('#runbun-run-new-dupes', 'species');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -380,6 +391,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 
 	await page.fill('#runbun-run-new-name', 'Routes Run');
 	await page.check('#runbun-run-new-nuzlocke');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -414,19 +426,20 @@ test('routes, scout and rank render in the panel with the availability data', {s
 	await page.click('#runbun-run-encounters .runbun-run-encounter:has-text("Lillipup")');
 	await page.click('#runbun-run-catch');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
 		null, {timeout: 10000});
 	await page.click('#runbun-run-rank');
 	await page.waitForSelector('#runbun-run-ranking .runbun-run-rank-row');
-	assert.match(await page.textContent('#runbun-run-rank-note'), /1 sixes from a box of 1/);
+	assert.match(await page.textContent('#runbun-run-rank-note'), /sixes from a box of 2/);
 	assert.match(await page.textContent('#runbun-run-ranking .runbun-run-rank-row'),
-		/\[Lillipup\]/);
+		/Lillipup/);
 });
 
 test('undo rewinds the saved run one command', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
 
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -438,7 +451,7 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 	await page.fill('#runbun-run-catch-level', '3');
 	await page.click('#runbun-run-catch');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
 		null, {timeout: 10000});
 
 	// Export first. That text is the run WITH the catch in it, so leaving it in
@@ -448,12 +461,13 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 	assert.match(await page.inputValue('#runbun-run-transfer'), /Poochyena/);
 
 	await page.click('#runbun-run-undo');
+	// The undo pops the catch; the starter (the run's first command) stands.
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 0,
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 10000});
 	const state = await savedRun(page);
-	assert.equal(state.box.length, 0);
-	assert.equal(state.log.length, 0);
+	assert.equal(state.box.length, 1);
+	assert.equal(state.log.length, 1);
 	assert.equal(await page.inputValue('#runbun-run-transfer'), '',
 		'the export that still holds the undone catch outlived the undo');
 
@@ -465,6 +479,7 @@ test('a pasted run the server cannot read is refused, and the save survives it',
 	const page = session.page;
 
 	await page.fill('#runbun-run-new-name', 'Keeper');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -529,6 +544,7 @@ test('a damaged save is handed back for repair, not quietly replaced', {skip}, a
 	// there is, and it needs the text.
 	assert.equal(await page.inputValue('#runbun-run-transfer'), damaged);
 
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForFunction(
 		() => /starting a run would write over it/.test(
@@ -538,6 +554,8 @@ test('a damaged save is handed back for repair, not quietly replaced', {skip}, a
 		'starting a run wrote over a save the player had not dealt with');
 
 	// Clearing the box IS dealing with it, and then a run starts as usual.
+	// (The starter is still pressed from the blocked attempt — pressing it
+	// again would clear the pick.)
 	await page.fill('#runbun-run-transfer', '');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
@@ -553,6 +571,7 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 	const session = await open();
 	const page = session.page;
 
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -579,11 +598,11 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');
 
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
 		null, {timeout: 15000});
 	const saved = await savedRun(page);
-	assert.equal(saved.box.length, 1, 'the catch that was in flight still has to land');
-	assert.equal(saved.log.length, 1, 'the refused undo must not have run behind it');
+	assert.equal(saved.box.length, 2, 'the catch that was in flight still has to land');
+	assert.equal(saved.log.length, 2, 'the refused undo must not have run behind it');
 
 	await session.context.close();
 });
@@ -607,6 +626,7 @@ test('the page fits a phone: the active mode reflows, the calc scrolls in place'
 	// while another mode is active, so its floor cannot stretch the page.
 	assert.equal(await page.isVisible('#calc'), false,
 		'the inactive calc region should collapse on a phone');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -643,6 +663,7 @@ test('an answer the run has moved past is marked stale', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
 
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -698,6 +719,7 @@ test('two tabs are one run: a catch in one appears in the other', {skip}, async 
 	await second.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
 	await second.waitForSelector('#runbun-run');
 
+	await first.click('.runbun-run-starter[data-species="Treecko"]');
 	await first.click('#runbun-run-new');
 	await first.waitForSelector('#runbun-run-live:not([hidden])');
 	// The other tab hears the write and shows the run without a reload.
@@ -727,6 +749,7 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	// The route rule ON: "one roll per route" is only a rule when the run
 	// declares it — the refusal below is the rule speaking, not the die.
 	await page.check('#runbun-run-new-route');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -741,12 +764,12 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
 	const rolled = await page.textContent('#runbun-run-roll-text');
 	assert.match(rolled, /A wild .+ L\d+ appeared!/);
-	assert.equal((await savedRun(page)).box.length, 0, 'a roll is not a catch');
+	assert.equal((await savedRun(page)).box.length, 1, 'a roll is not a catch — only the starter stands');
 
 	// Catch it: the roll becomes an ordinary, fully verified catch command.
 	await page.click('#runbun-run-roll-catch');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
 		null, {timeout: 10000});
 	assert.equal(await page.isVisible('#runbun-run-roll-result'), false,
 		'a settled roll leaves the screen');
@@ -769,7 +792,7 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 		() => /already gave its encounter/.test(
 			document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
-	assert.equal((await savedRun(page)).box.length, 1, 'losing the roll keeps nothing');
+	assert.equal((await savedRun(page)).box.length, 2, 'losing the roll keeps nothing');
 
 	// Party up and play the fight — turn by turn against the real AI, always
 	// pressing the first move, replacements included. A capped catch runs
@@ -847,6 +870,7 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	const session = await open();
 	const page = session.page;
 
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -884,6 +908,7 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 	const session = await open();
 	const page = session.page;
 
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	// Everything folds by default except what starting a run opens for you:
@@ -899,7 +924,7 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 
 	// The collapsed headers carry the live summary — informed without opening.
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="box"]'),
-		/0 alive/);
+		/1 alive/);
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="split"]'),
 		/Brawly · \d+ fights/);
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="road"]'),
@@ -943,6 +968,52 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 		'.rb-disclose[data-section="analysis"] .rb-disclose-btn', 'aria-expanded'), 'true');
 	assert.equal(await page.getAttribute(
 		'.rb-disclose[data-section="road"] .rb-disclose-btn', 'aria-expanded'), 'false');
+
+	await session.context.close();
+});
+
+test('no starter, no run — and ending one is a held, deliberate act', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	// Starting without a pick is refused with the reason, and nothing starts.
+	await page.click('#runbun-run-new');
+	await page.waitForFunction(
+		() => /Pick a starter first/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 5000});
+	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), null);
+
+	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.waitForFunction(
+		() => /Mudkip L5/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+
+	// Ending a run rides the kit's hold-to-confirm: a short press releases
+	// early and nothing happens — the fill sprang back, the run stands.
+	await page.click('.runbun-run-transfer summary');
+	const button = await page.$('#runbun-run-end');
+	let box = await button.boundingBox();
+	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+	await page.mouse.down();
+	await page.waitForTimeout(300);
+	await page.mouse.up();
+	await page.waitForTimeout(300);
+	assert.ok(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')),
+		'a released hold must not end the run');
+
+	// Held to the end, it commits: the setup screen returns, the browser copy
+	// is cleared, and the final save is left in the transfer box to copy.
+	box = await button.boundingBox();
+	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+	await page.mouse.down();
+	await page.waitForTimeout(1400);
+	await page.mouse.up();
+	await page.waitForSelector('#runbun-run-empty:not([hidden])', {timeout: 5000});
+	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), null);
+	assert.match(await page.inputValue('#runbun-run-transfer'), /"Mudkip"/,
+		'the final save stays in the player\'s hands');
 
 	await session.context.close();
 });

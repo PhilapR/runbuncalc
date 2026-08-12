@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?8b160d8e" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?e98a24a2" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1944,7 +1944,7 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?4d142a09"></script>
-    <script type="text/javascript" src="./js/run_panel.js?0fd40d4d"></script>
+    <script type="text/javascript" src="./js/run_panel.js?637147d2"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
 </div>
 
@@ -2263,7 +2263,7 @@
                     <span class="runbun-run-starter-note">water &middot; vs&nbsp;Blaziken</span>
                 </button>
             </div>
-            <p class="runbun-run-starter-hint">Optional &mdash; skip it and every rival variant stays on the road ahead until a starter is caught by hand.</p>
+            <p class="runbun-run-starter-hint">Every run leaves Birch's lab with one &mdash; picking it fixes the rival and puts the starter in the box.</p>
         </div>
         <button type="button" id="runbun-run-new" class="btn btn-wide rb-btn-primary">Start a run</button>
     </div>
@@ -2572,6 +2572,17 @@
         <div class="runbun-run-row">
             <button type="button" id="runbun-run-export" class="btn btn-wide">Export</button>
             <button type="button" id="runbun-run-import" class="btn btn-wide">Import</button>
+        </div>
+        <!-- Ending a run is deliberate: the kit's hold-to-confirm champion,
+             ported — the fill IS the action's progress, release springs back,
+             the commit only fires at 100%. The final save is left in the box
+             above, because ending a run must never eat the player's only copy. -->
+        <div class="runbun-run-row runbun-run-endrun-row">
+            <button type="button" id="runbun-run-end" class="btn rb-hold" aria-label="Press and hold to end this run">
+                <span class="rb-hold-fill" aria-hidden="true"></span>
+                <span class="rb-hold-label">Hold to end this run</span>
+            </button>
+            <span class="runbun-run-endrun-hint">Clears this browser's save; the final run is left above to copy.</span>
         </div>
     </details>
 

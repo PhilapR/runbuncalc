@@ -2927,6 +2927,46 @@ table.field {
 	margin: var(--rb-space-sm) 0;
 }
 
+/* Hold-to-confirm (ported from ui-lab's promoted hold-button champion):
+   the fill IS the action's progress — motion carrying information, never
+   decoration. Release early and it springs back on the kit's ease-out; the
+   commit only fires at 100%. Reduced motion shortens the hold (the
+   champion's own call) rather than removing the deliberateness. */
+#runbun-run .rb-hold {
+	position: relative;
+	overflow: hidden;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: none;
+}
+#runbun-run .rb-hold-fill {
+	position: absolute;
+	inset: 0;
+	transform: scaleX(0);
+	transform-origin: left;
+	background: var(--rb-danger-soft);
+	transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+	pointer-events: none;
+}
+#runbun-run .rb-hold.is-holding .rb-hold-fill {
+	transform: scaleX(1);
+	transition: transform var(--rb-hold-ms, 1000ms) linear;
+}
+#runbun-run .rb-hold-label {
+	position: relative;
+}
+#runbun-run .runbun-run-endrun-hint {
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+	flex: 1;
+	min-width: 12rem;
+}
+@media (prefers-reduced-motion: reduce) {
+	#runbun-run .rb-hold.is-holding .rb-hold-fill {
+		transition-duration: 200ms;
+	}
+}
+
 /* The starter pick: three buttons, one pressed — a radio in button's
    clothing, because the choice deserves more presence than a dropdown row. */
 #runbun-run .runbun-run-starter-row {

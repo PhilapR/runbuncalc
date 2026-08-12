@@ -1218,6 +1218,74 @@
 		});
 	}
 
+	/**
+	 * Ending a run is the one action that empties the screen, so it rides the
+	 * kit's hold-to-confirm: pointer (or Space/Enter) down starts a linear
+	 * fill over holdMs, releasing early springs it back, and the commit fires
+	 * only when the fill completes. The final save is written into the
+	 * transfer box FIRST — ending a run must never eat the player's only copy.
+	 */
+	function bindHold(selector, holdMs, onConfirm) {
+		var timer = null;
+		var $button = $(selector);
+		$button.css('--rb-hold-ms', holdMs + 'ms');
+		var reduced = window.matchMedia &&
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		var wait = reduced ? 200 : holdMs;
+		function start(event) {
+			if (timer !== null) return;
+			if (event.type === 'keydown' &&
+				(event.originalEvent && event.originalEvent.repeat)) return;
+			$button.addClass('is-holding');
+			timer = window.setTimeout(function () {
+				timer = null;
+				$button.removeClass('is-holding');
+				onConfirm();
+			}, wait);
+		}
+		function cancel() {
+			if (timer === null) return;
+			window.clearTimeout(timer);
+			timer = null;
+			$button.removeClass('is-holding');
+		}
+		$button.on('pointerdown', function (event) { event.preventDefault(); start(event); });
+		$button.on('pointerup pointerleave pointercancel', cancel);
+		$button.on('keydown', function (event) {
+			if (event.key === ' ' || event.key === 'Enter') {
+				event.preventDefault();
+				start(event);
+			}
+		});
+		$button.on('keyup', function (event) {
+			if (event.key === ' ' || event.key === 'Enter') cancel();
+		});
+	}
+
+	function endRun() {
+		if (!state) {
+			status('There is no run to end.', 'error');
+			return;
+		}
+		// The final save goes to the transfer box BEFORE the browser copy is
+		// cleared: the run is over, the record is still the player's.
+		$('#runbun-run-transfer').val(JSON.stringify(state, null, '\t'))
+			.closest('details').prop('open', true);
+		try {
+			window.localStorage.removeItem(STORAGE_KEY);
+		} catch (error) { /* the state below is cleared regardless */ }
+		state = null;
+		lastStatus = null;
+		stagedParty = [];
+		battle = null;
+		rolled = null;
+		stamps = {};
+		$('#runbun-run-battle').prop('hidden', true);
+		$('#runbun-run-roll-result').prop('hidden', true);
+		showRun();
+		status('Run ended. Its final save is in the transfer box — copy it to keep it.', 'ok');
+	}
+
 	function abandonBattle() {
 		battle = null;
 		$('#runbun-run-battle').prop('hidden', true);
@@ -1250,6 +1318,12 @@
 				return;
 			}
 			var $starter = $('.runbun-run-starter[aria-pressed="true"]');
+			// Every run leaves Birch's lab with a starter. A run without one is
+			// an import, not a start — the transfer box below handles those.
+			if (!$starter.length) {
+				status('Pick a starter first — every run leaves the lab with one.', 'error');
+				return;
+			}
 			mutate(function () {
 				return api('/run/new', {
 					name: $('#runbun-run-new-name').val() || 'My run',
@@ -1272,7 +1346,6 @@
 					// scripted gift with no wild table, recorded as declared. A
 					// refused gift must not unstart the run: the run stands, the
 					// refusal is reported, the starter can be caught by hand.
-					if (!$starter.length) return '.';
 					return api('/run/apply', {run: state, command: {
 						kind: 'catch',
 						species: $starter.attr('data-species'),
@@ -1497,6 +1570,7 @@
 		$('#runbun-run-roll-flee').on('click', function () { settleRoll(false); });
 		$('#runbun-run-play').on('click', startBattle);
 		$('#runbun-run-battle-abandon').on('click', abandonBattle);
+		bindHold('#runbun-run-end', 1000, endRun);
 		$('#runbun-run-battle-moves').on('click', '.runbun-run-battle-move', function () {
 			battleAct({kind: 'move', move: $(this).attr('data-move')});
 		});
