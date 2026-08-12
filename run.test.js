@@ -593,6 +593,24 @@ test('one encounter per LOCATION: a cave is one route, whatever its floors say',
 	assert.throws(() => run.unusedRoutes(tampered), /unknown route unit "region"/);
 });
 
+test('the advisor never teaches suicide: self-KO moves price as trades', () => {
+	// A lone Seedot vs Calvin: its learnset holds Misty Explosion and
+	// Explosion, both guaranteed KOs on paper, both fatal to Seedot. The
+	// optimizer used to lead with "Misty Explosion, +3 KO"; the board now
+	// refuses to call a sacrifice an answer, so the whole family prices at
+	// no gain and drops off the list — and the top teach is a real move.
+	let state = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Seedot', map: 'Route103', level: 2});
+	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
+	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
+	const advice = run.adviseUpgrades(state, 'Youngster Calvin');
+	assert.ok(advice.upgrades.length, 'real upgrades exist for a bare Seedot');
+	assert.ok(advice.upgrades.every(u => !/Explosion|Self-Destruct|Final Gambit/.test(u.detail)),
+		'no self-KO move may be sold as an upgrade');
+	assert.equal(advice.upgrades[0].detail, 'Bullet Seed');
+	assert.equal(advice.upgrades[0].delta.koGained, 1);
+});
+
 test('the catch advisor scouts only what is really catchable, on the board', () => {
 	// A fresh run: four routes open (opensAt 0), no party, next boss Brawly.
 	const state = fresh({permadeath: true});

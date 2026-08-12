@@ -906,9 +906,14 @@ function boxMatrix(run, trainer) {
 /** How many changes the advisor reports. A shortlist, not a catalogue. */
 const ADVICE_LIMIT = 10;
 
-/** Guaranteed-KO cells on one side of a row, and the summed damage on it. */
+/** Guaranteed-KO cells on one side of a row, and the summed damage on it.
+ * A self-KO cell (the side's only damage faints its own user) counts for
+ * 'them' but never for 'us': their sacrifice still kills OUR Pokemon, which
+ * in this ruleset is permanent — ours costs a Pokemon to buy the KO, and an
+ * accountant that called that a clean answer taught Explosion as an upgrade. */
 function countKO(row, side) {
-	return row.filter(cell => cell[side].guaranteedKO).length;
+	return row.filter(cell => cell[side].guaranteedKO &&
+		(side === 'them' || !cell[side].selfKO)).length;
 }
 function sumMax(row, side) {
 	return row.reduce((total, cell) => total + cell[side].max, 0);
@@ -1164,7 +1169,7 @@ function adviseCatches(run, trainer) {
 			trainer: fight.trainer,
 			playerParty: partySpecs(run, {atOrder: fight.order}),
 			profileId: run.profileId,
-		}).grid.map(cell => cell.versus.some(v => v.us.guaranteedKO));
+		}).grid.map(cell => cell.versus.some(v => v.us.guaranteedKO && !v.us.selfKO));
 	}
 
 	const routes = unusedRoutes(run).routes.filter(route => !route.used && route.open);
@@ -1200,7 +1205,8 @@ function adviseCatches(run, trainer) {
 				species: prospect.species, method: prospect.method, chance: prospect.chance,
 				level,
 				kos: countKO(row, 'us'),
-				newAnswers: row.filter((cell, e) => cell.us.guaranteedKO && !covered[e]).length,
+				newAnswers: row.filter((cell, e) =>
+					cell.us.guaranteedKO && !cell.us.selfKO && !covered[e]).length,
 				kosConceded: countKO(row, 'them'),
 				damage: Math.round(sumMax(row, 'us') * 1000) / 1000,
 			});
@@ -1800,9 +1806,12 @@ function rankParties(run, trainer, options) {
 	const round = value => Math.round(value * 1000) / 1000;
 	const answers = members.map((member, m) => enemies.map((enemy, e) => {
 		const cell = matrix.grid[e].versus[m];
+		// A self-KO fallback cell earns no KO bonus: trading the mon away is
+		// not an answer this score should chase (the raw damage still counts).
+		const cleanKO = cell.us.guaranteedKO && !cell.us.selfKO;
 		const offense = clamp1(cell.us.max) +
-			(cell.us.guaranteedKO ? 0.5 : cell.us.possibleKO ? 0.2 : 0) +
-			(cell.us.guaranteedKO && cell.speed === 'faster' ? 0.25 : 0);
+			(cleanKO ? 0.5 : cell.us.possibleKO && !cell.us.selfKO ? 0.2 : 0) +
+			(cleanKO && cell.speed === 'faster' ? 0.25 : 0);
 		const danger = clamp1(cell.them.max) +
 			(cell.them.guaranteedKO ? 0.5 : cell.them.possibleKO ? 0.2 : 0);
 		return {

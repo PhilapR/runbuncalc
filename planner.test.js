@@ -314,6 +314,29 @@ test('the speed relation follows the levels the rows were built at', () => {
 	}
 });
 
+test('a self-KO move is a cell\'s last resort, never its claim', () => {
+	// Same mon twice: once where Self-Destruct competes with a real move, once
+	// where it is the only damage the mon has.
+	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: [
+		{species: 'Geodude', level: 12, moves: ['Self-Destruct', 'Tackle']},
+		{species: 'Geodude', level: 12, moves: ['Self-Destruct', 'Harden']},
+	]});
+	for (const cell of matrix.grid) {
+		const armed = cell.versus[0];
+		const cornered = cell.versus[1];
+		// With any surviving option on the list, the cell claims that instead —
+		// Self-Destruct out-damages Tackle everywhere, and choosing it anyway
+		// is how "teach Explosion, +3 KO" got into the advisor's mouth.
+		assert.equal(armed.us.move, 'Tackle', `claimed ${armed.us.move} vs ${cell.enemy.species}`);
+		assert.equal(armed.us.selfKO, undefined);
+		// Alone, the sacrifice line is still the truth of the cell — flagged, so
+		// every KO accountant downstream reads it as a trade.
+		assert.equal(cornered.us.move, 'Self-Destruct');
+		assert.equal(cornered.us.selfKO, true);
+		assert.ok(cornered.us.max > 0);
+	}
+});
+
 test('a matrix without a team is refused rather than guessed at', () => {
 	assert.throws(
 		() => planner.matchup({trainer: 'Youngster Calvin', playerParty: []}),

@@ -407,6 +407,7 @@ function slotRanking(actions, actorId, nameById) {
  */
 function bestDamagingMove(evaluations) {
 	let best = null;
+	let sacrifice = null;
 	for (const evaluation of evaluations) {
 		if (evaluation.action.kind !== 'move') continue;
 		// `isDamagingFacts` is the policy's own test, so a move that deals no
@@ -414,12 +415,22 @@ function bestDamagingMove(evaluations) {
 		// Status moves, and immunities that came out of the calculator as zero.
 		if (!ai.isDamagingFacts(evaluation.facts)) continue;
 		const damage = ai.scoringDamageFacts(evaluation.facts);
-		if (!best || damage.max > best.damage.max ||
-			(damage.max === best.damage.max && damage.min > best.damage.min)) {
-			best = {move: evaluation.action.moveName, damage};
+		// A move that faints its user is not this cell's claim: "beats X" and
+		// "trades itself for X" are different sentences, and pricing Explosion
+		// as the row's best move taught actual suicide as a +3 KO upgrade. The
+		// sacrifice line is kept only as a FALLBACK — a mon whose sole damage
+		// is Explosion still deals it — and the cell says so.
+		const bucket = ai.isSelfSacrificeMove(evaluation.action.moveName) ? 'sacrifice' : 'best';
+		const current = bucket === 'sacrifice' ? sacrifice : best;
+		if (!current || damage.max > current.damage.max ||
+			(damage.max === current.damage.max && damage.min > current.damage.min)) {
+			const entry = {move: evaluation.action.moveName, damage};
+			if (bucket === 'sacrifice') sacrifice = entry; else best = entry;
 		}
 	}
-	return best;
+	if (best) return best;
+	if (sacrifice) return Object.assign({selfKO: true}, sacrifice);
+	return null;
 }
 
 /**
@@ -449,6 +460,10 @@ function matchupDirection(evaluations) {
 		min: hp > 0 ? best.damage.min / hp : 0,
 		guaranteedKO: best.damage.guaranteedKO,
 		possibleKO: best.damage.possibleKO,
+		// Only present when the cell had to fall back to a move that faints
+		// its user: the KO above costs the Pokemon, and every KO accountant
+		// downstream must read it as a trade, never a clean answer.
+		...(best.selfKO ? {selfKO: true} : {}),
 		speed,
 	};
 }

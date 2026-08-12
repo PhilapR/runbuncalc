@@ -314,6 +314,17 @@ function toSecondaryEffects(move: ReturnType<typeof Dex.moves.get>, id: string):
   return effects.length ? effects : undefined;
 }
 
+/**
+ * Moves whose use faints the user — the exact set the move engine zeroes the
+ * actor's HP for on resolution. Exported so planning layers can price the
+ * exchange as the trade it is: a KO bought with a Pokemon is not a free win,
+ * and in a permadeath run it is usually not a win at all.
+ */
+const SELF_SACRIFICE_MOVE_IDS = new Set(['explosion', 'selfdestruct', 'mistyexplosion', 'finalgambit']);
+export function isSelfSacrificeMove(name: string): boolean {
+  return SELF_SACRIFICE_MOVE_IDS.has(moveId(name));
+}
+
 export function getMoveMetadata(name: string, generation: GenerationNum): MoveMetadata {
   const id = moveId(name);
   const move = Dex.forGen(generation).moves.get(name);

@@ -26,6 +26,7 @@ import {
   getMoveMaxPP,
   getMoveMetadata,
   isMoveAvailable,
+  isSelfSacrificeMove,
   RECHARGE_MOVE_MIN_GENERATION,
   PARTIAL_TRAPPING_MOVES,
   PROTECTION_MOVE_MIN_GENERATION,
@@ -6061,7 +6062,7 @@ export function deriveMoveResolution(
     setPendingFullHeal(resolution, effectActorSide);
     resolution.trace!.notes!.push(`scheduled ${action.moveName} full healing on the next replacement`);
   }
-  if (id === 'explosion' || id === 'selfdestruct' || id === 'mistyexplosion' || id === 'finalgambit') {
+  if (isSelfSacrificeMove(action.moveName)) {
     addHpDelta(resolution, actor.id, -actor.hp.current);
   }
 
