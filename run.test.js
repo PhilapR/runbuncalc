@@ -246,10 +246,14 @@ test('a level-up move is not available before its level', () => {
 	assert.ok(later.length > 0, 'a level 3 Poochyena should have moves still ahead of it');
 	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: later[0].move}),
 		/learns .* at level \d+; it is 3/);
-	// And what it CAN learn now is offered separately, so a UI need not guess.
+	// And what it CAN learn now is offered separately, so a UI need not guess —
+	// egg-only entries carry their relearner price as `scale`, so the free
+	// teach is the one to exercise here.
 	const now = run.learnable(state, 'mon-1').now;
 	assert.ok(now.length > 0);
-	assert.ok(run.apply(state, {kind: 'teach', id: 'mon-1', move: now[0].move}));
+	const free = now.find(entry => !entry.scale);
+	assert.ok(free, 'a free teach exists alongside the priced egg moves');
+	assert.ok(run.apply(state, {kind: 'teach', id: 'mon-1', move: free.move}));
 });
 
 test('the level cap follows boss tiers, not badges', () => {
@@ -607,8 +611,28 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	assert.ok(advice.upgrades.length, 'real upgrades exist for a bare Seedot');
 	assert.ok(advice.upgrades.every(u => !/Explosion|Self-Destruct|Final Gambit/.test(u.detail)),
 		'no self-KO move may be sold as an upgrade');
-	assert.equal(advice.upgrades[0].detail, 'Bullet Seed');
-	assert.equal(advice.upgrades[0].delta.koGained, 1);
+
+	// Bullet Seed is Seedot's best answer here — and an EGG move, reachable
+	// only through the relearner, which charges one Heart Scale. With an
+	// empty bag it may not be offered; with a scale it returns, price named.
+	assert.ok(advice.upgrades.every(u => !/Bullet Seed|Take Down/.test(u.detail)),
+		'an egg move without a Heart Scale is not a change the player can make');
+	const funded = run.apply(state, {kind: 'acquire', item: 'Heart Scale'});
+	const paid = run.adviseUpgrades(funded, 'Youngster Calvin');
+	assert.equal(paid.upgrades[0].detail, 'Bullet Seed (one Heart Scale)');
+	assert.equal(paid.upgrades[0].delta.koGained, 1);
+
+	// The teach command charges the same price: refused broke, paid funded,
+	// and a move with any free route (Play Rough is also a TM) stays free.
+	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Bullet Seed'}),
+		/Bullet Seed is an egg move for Seedot — the relearner charges one Heart Scale/);
+	const taught = run.apply(funded, {kind: 'teach', id: 'mon-1', move: 'Bullet Seed'});
+	assert.ok(taught.log[taught.log.length - 1].summary.includes('for one Heart Scale'));
+	assert.equal(taught.bag['Heart Scale'], undefined, 'the scale is spent');
+	let pooch = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	pooch = run.apply(pooch, {kind: 'teach', id: 'mon-1', move: 'Play Rough'});
+	assert.ok(!pooch.log[pooch.log.length - 1].summary.includes('Heart Scale'));
 
 	// And never an HM the story has not handed over: Lotad's Surf gates at
 	// #589, so an advisor for fight #3 may not offer it. TMs carry no dates
@@ -1477,14 +1501,15 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	const box = {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, ivs: {spe: 5}};
 	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
 	// Same derivation the advisor uses: the capability list minus HMs the
-	// story has not handed over by fight #0.
-	const teachable = run.learnable(
-		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]),
-		'mon-1', {atLevel: 12}).now
+	// story has not handed over by fight #0, minus egg moves when no Heart
+	// Scale is in the bag to pay the relearner with.
+	const teachableAt = (state, hasScale) => run.learnable(state, 'mon-1', {atLevel: 12}).now
 		.filter(entry => {
 			const gate = oracle.moveObtainableAt(entry.move);
-			return gate === null || gate <= 0;
+			return (gate === null || gate <= 0) && (!entry.scale || hasScale);
 		}).length;
+	const teachable = teachableAt(
+		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), false);
 
 	// No scale in the bag, no scale candidate: the advisor ranks changes a
 	// player can make today, not ones they could make after finding an item.
@@ -1494,12 +1519,14 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	// An IV the box never recorded is not a candidate either. It already reaches
 	// the calculator as 31, so scaling it would score a flat zero and read as
 	// "this does nothing" when the truth is "nobody has told this run what that
-	// IV is".
-	assert.equal(run.adviseUpgrades(run.applyAll(fresh(), [
+	// IV is". (The scale in the bag DOES unlock the egg-move teaches — the
+	// count grows by exactly those, and by no IV candidate.)
+	const funded = run.applyAll(fresh(), [
 		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
 		{kind: 'party', ids: ['mon-1']},
 		{kind: 'acquire', item: 'Heart Scale'},
-	])).considered, teachable);
+	]);
+	assert.equal(run.adviseUpgrades(funded).considered, teachableAt(funded, true));
 });
 
 test('the advisor refuses what it cannot answer, with the reason', () => {

@@ -1019,7 +1019,11 @@
 		$('#runbun-run-learnable').on('click', function () {
 			api('/run/learnable', {run: state, id: $('#runbun-run-selected').val()})
 				.then(function (payload) {
-					var now = payload.now.map(function (entry) { return entry.move; });
+					// A starred move is an egg move: the relearner charges one
+					// Heart Scale for it, and the teach command will too.
+					var now = payload.now.map(function (entry) {
+						return entry.scale ? entry.move + '*' : entry.move;
+					});
 					var later = payload.later.map(function (entry) {
 						return entry.move + ' @' + entry.level;
 					});

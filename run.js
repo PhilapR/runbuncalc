@@ -752,6 +752,14 @@ function learnable(run, id, options) {
 			s.level !== undefined && (min === null || s.level < min) ? s.level : min, null);
 		const entry = {move, sources};
 		if (soonest !== null) entry.level = soonest;
+		// Available is not the same as free: when the only live route is the
+		// egg line, the move comes from the relearner and costs one Heart
+		// Scale — the teach command charges it, so this list must say so.
+		if (sources.every(s => s.source === 'egg' ||
+			(s.level !== undefined && s.level > atLevel)) &&
+			sources.some(s => s.source === 'egg')) {
+			entry.scale = true;
+		}
 		if (gated && soonest > atLevel) later.push(entry);
 		else now.push(entry);
 	}
@@ -992,6 +1000,10 @@ function upgradeCandidates(run, mon, spec, base, order) {
 		const gate = profile.oracle.moveObtainableAt ?
 			profile.oracle.moveObtainableAt(entry.move) : null;
 		if (gate !== null && order !== undefined && gate > order) continue;
+		// An egg move rides the relearner and costs a Heart Scale: without one
+		// in the bag it is not a change the player can make, and with one the
+		// price is named — it competes with spending that scale on an IV.
+		if (entry.scale && !run.bag[HEART_SCALE]) continue;
 		const moves = spec.moves.slice();
 		let detail = entry.move;
 		if (moves.length >= 4) {
@@ -1001,6 +1013,7 @@ function upgradeCandidates(run, mon, spec, base, order) {
 		} else {
 			moves.push(entry.move);
 		}
+		if (entry.scale) detail += ' (one Heart Scale)';
 		list.push({kind: 'teach', detail, spec: Object.assign({}, spec, {moves})});
 	}
 
@@ -1487,6 +1500,23 @@ const COMMANDS = {
 		if (mon.moves.includes(command.move)) {
 			throw new Error(`teach: ${mon.species} already knows ${command.move}`);
 		}
+		// An egg move has no field route: it lives down the line, and the Move
+		// Reminder hands it over for one Heart Scale. A move with any live free
+		// route — a TM, a tutor, a level-up prompt at or below this level — costs
+		// nothing; the scale is the relearner's fee, not a tax on moves.
+		const relearnerOnly = verdict.sources.every(s =>
+			s.source === 'egg' || (s.level !== undefined && s.level > mon.level)) &&
+			verdict.sources.some(s => s.source === 'egg');
+		if (relearnerOnly) {
+			const held = run.bag[HEART_SCALE] || 0;
+			if (!held) {
+				throw new Error(`teach: ${command.move} is an egg move for ${mon.species} — ` +
+					`the relearner charges one Heart Scale, and the bag has ${held}`);
+			}
+			run.bag[HEART_SCALE] = held - 1;
+			if (!run.bag[HEART_SCALE]) delete run.bag[HEART_SCALE];
+		}
+		const price = relearnerOnly ? ', for one Heart Scale' : '';
 		if (mon.moves.length >= 4) {
 			if (!command.replace) {
 				throw new Error(`teach: ${mon.species} knows four moves ` +
@@ -1497,7 +1527,7 @@ const COMMANDS = {
 				throw new Error(`teach: ${mon.species} does not know ${command.replace}`);
 			}
 			mon.moves[at] = command.move;
-			return `${mon.species} (${mon.id}) forgot ${command.replace}, learned ${command.move}`;
+			return `${mon.species} (${mon.id}) forgot ${command.replace}, learned ${command.move}${price}`;
 		}
 		// A named replace is honored below four moves too — a player who says
 		// "over Water Gun" wants Water Gun GONE, and silently appending instead
@@ -1508,10 +1538,10 @@ const COMMANDS = {
 				throw new Error(`teach: ${mon.species} does not know ${command.replace}`);
 			}
 			mon.moves[at] = command.move;
-			return `${mon.species} (${mon.id}) forgot ${command.replace}, learned ${command.move}`;
+			return `${mon.species} (${mon.id}) forgot ${command.replace}, learned ${command.move}${price}`;
 		}
 		mon.moves.push(command.move);
-		return `${mon.species} (${mon.id}) learned ${command.move}`;
+		return `${mon.species} (${mon.id}) learned ${command.move}${price}`;
 	},
 
 	/** Move an item from the bag onto a Pokemon. */

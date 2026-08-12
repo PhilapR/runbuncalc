@@ -391,7 +391,11 @@ const SUBCOMMANDS = {
 		const detail = runtime.learnable(state, args.positional[0]);
 		const lines = [];
 		lines.push(`now (${detail.now.length}):`);
-		lines.push(`  ${detail.now.map(entry => entry.move).join(', ') || '(nothing)'}`);
+		lines.push(`  ${detail.now.map(entry =>
+			entry.scale ? `${entry.move}*` : entry.move).join(', ') || '(nothing)'}`);
+		if (detail.now.some(entry => entry.scale)) {
+			lines.push('  * egg move — the relearner charges one Heart Scale');
+		}
 		if (detail.later.length) {
 			lines.push(`later (${detail.later.length}):`);
 			lines.push(`  ${detail.later.map(e => `${e.move} @${e.level}`).join(', ')}`);
