@@ -190,6 +190,22 @@ function main() {
 		'rock-smash': translate(46),
 	};
 
+	// The HM MOVES themselves, dated by the same story-gates curation (rab
+	// orders; each entry documents its evidence there). An advisor drawing
+	// teach candidates must not offer Surf three fights into the run — HM03
+	// is earned at the Seashore House. TMs carry no dates in the source and
+	// stay ungated; that limit is documented at the consumer.
+	const hmMoves = {
+		Flash: translate(10),
+		Cut: translate(34),
+		'Rock Smash': translate(46),
+		Strength: translate(90),
+		Surf: translate(159),
+		Fly: translate(210),
+		Dive: translate(314),
+		Waterfall: translate(314),
+	};
+
 	const entries = [...byMap.values()].sort((a, b) =>
 		(a.opensAt === null ? 1 : 0) - (b.opensAt === null ? 1 : 0) ||
 		(a.opensAt || 0) - (b.opensAt || 0) || a.name.localeCompare(b.name));
@@ -201,6 +217,7 @@ function main() {
 			'fight named after the map overrides with direct evidence',
 		provenance: 'transcribed',
 		methods,
+		hmMoves,
 		entries,
 	};
 	fs.writeFileSync(path.join(OUT_DIR, 'availability.json'),

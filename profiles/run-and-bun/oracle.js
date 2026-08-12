@@ -407,8 +407,19 @@ function methodOpensAt(method) {
 	return gates[method] !== undefined ? gates[method] : null;
 }
 
+/**
+ * The progression order an HM MOVE becomes teachable, or null for a move
+ * with no known gate. Null means "not dated", which covers every TM — the
+ * source dates only the HM story spine — so a null must be read as "assume
+ * available", never "never obtainable".
+ */
+function moveObtainableAt(move) {
+	const gates = load('availability').hmMoves || {};
+	return gates[move] !== undefined ? gates[move] : null;
+}
+
 module.exports = {
-	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt,
+	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp,

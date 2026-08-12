@@ -609,6 +609,22 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 		'no self-KO move may be sold as an upgrade');
 	assert.equal(advice.upgrades[0].detail, 'Bullet Seed');
 	assert.equal(advice.upgrades[0].delta.koGained, 1);
+
+	// And never an HM the story has not handed over: Lotad's Surf gates at
+	// #589, so an advisor for fight #3 may not offer it. TMs carry no dates
+	// in the source, so only the HM spine is gated.
+	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	assert.equal(oracle.moveObtainableAt('Surf'), 589);
+	assert.equal(oracle.moveObtainableAt('Rock Smash'), 139);
+	assert.equal(oracle.moveObtainableAt('Tackle'), null);
+	let wet = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Lotad', map: 'Petalburg City', level: 5, method: 'fish'});
+	wet = run.apply(wet, {kind: 'party', ids: ['mon-1']});
+	wet = run.apply(wet, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
+	const early = run.adviseUpgrades(wet, 'Bug Catcher Rick');
+	assert.ok(early.upgrades.every(u => !/^Surf\b|\bSurf$/.test(u.detail) &&
+		!/Waterfall|\bDive\b|\bFly\b|Strength/.test(u.detail)),
+	'no undelivered HM may be offered as a teach');
 });
 
 test('the catch advisor scouts only what is really catchable, on the board', () => {
@@ -1393,8 +1409,15 @@ test('the advisor prices single changes by what they do to the board', () => {
 	// both in the bag and in neither list: the calculator cannot hold them, so a
 	// build made of them is not a build.
 	// Derived at the PROJECTED cap, because that is where the advisor draws
-	// candidates: the free candy guarantees the levels between.
-	const teachable = run.learnable(state, 'mon-1', {atLevel: 12}).now.length;
+	// candidates: the free candy guarantees the levels between — minus any HM
+	// the story has not handed over by this fight, which the advisor may not
+	// offer (learnable itself stays a capability list).
+	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const teachable = run.learnable(state, 'mon-1', {atLevel: 12}).now
+		.filter(entry => {
+			const gate = oracle.moveObtainableAt(entry.move);
+			return gate === null || gate <= 0;
+		}).length;
 	assert.equal(advice.considered, teachable + 1 + 1);
 
 	// The deterministic case. Poochyena knows only Tackle, which leaves the
@@ -1452,9 +1475,16 @@ test('the advisor draws teach candidates at the projected cap, not today\'s leve
 
 test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	const box = {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, ivs: {spe: 5}};
+	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	// Same derivation the advisor uses: the capability list minus HMs the
+	// story has not handed over by fight #0.
 	const teachable = run.learnable(
 		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]),
-		'mon-1', {atLevel: 12}).now.length;
+		'mon-1', {atLevel: 12}).now
+		.filter(entry => {
+			const gate = oracle.moveObtainableAt(entry.move);
+			return gate === null || gate <= 0;
+		}).length;
 
 	// No scale in the bag, no scale candidate: the advisor ranks changes a
 	// player can make today, not ones they could make after finding an item.

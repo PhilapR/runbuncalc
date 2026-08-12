@@ -977,14 +977,21 @@ function leastUsedMove(moves, base) {
  * Each candidate carries the SPEC it would produce, because the score is not
  * estimated from the change — the row is rebuilt with it.
  */
-function upgradeCandidates(run, mon, spec, base) {
+function upgradeCandidates(run, mon, spec, base, order) {
 	const planner = require('./planner');
+	const profile = getProfile(run.profileId);
 	const list = [];
 
 	// Candidates are drawn at the SPEC's level — the projected cap — not the
 	// box's: the board is scored there, and the free candy makes those moves
 	// teachable before the fight.
 	for (const entry of learnable(run, mon.id, {atLevel: spec.level}).now) {
+		// An HM the story has not handed over is not a teach anyone can do —
+		// Surf three fights in was this advisor's other lie. Only the HM spine
+		// is dated; TMs carry no gate in the source and stay on the table.
+		const gate = profile.oracle.moveObtainableAt ?
+			profile.oracle.moveObtainableAt(entry.move) : null;
+		if (gate !== null && order !== undefined && gate > order) continue;
 		const moves = spec.moves.slice();
 		let detail = entry.move;
 		if (moves.length >= 4) {
@@ -1077,7 +1084,7 @@ function adviseUpgrades(run, trainer) {
 	run.party.forEach((id, slot) => {
 		const mon = requireMon(run, id);
 		const base = baseline.grid.map(cell => cell.versus[slot]);
-		for (const candidate of upgradeCandidates(run, mon, specs[slot], base)) {
+		for (const candidate of upgradeCandidates(run, mon, specs[slot], base, fight.order)) {
 			considered += 1;
 			const row = planner.matchup({
 				trainer: named,
