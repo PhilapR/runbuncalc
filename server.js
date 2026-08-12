@@ -6,8 +6,6 @@ const calc = require("@smogon/calc");
 const ai = require("./ai");
 const planner = require("./planner");
 const playerTeam = require("./team");
-const runtime = require("./run");
-const battleDriver = require("./battle-driver");
 const app = express();
 
 function startServer(port = 3000) {
@@ -532,346 +530,34 @@ app.post("/planner/predict", (req, res, next) => {
 // The cost is that every call carries the whole run. At a few kilobytes for a
 // full box that is cheaper than the alternative.
 
-function invalidRun(res, message) {
-	res.status(400).json({error: message, code: "InvalidRun"});
-	return null;
-}
-
-function isRecord(value) {
-	return !!value && typeof value === "object" && !Array.isArray(value);
-}
-
 /**
- * Shared shape check, so every endpoint refuses a malformed run the same way.
- *
- * A version stamp is not a document. `run.js` reads `rules.levelCap`, iterates
- * `box`, `party` and `log` and clones `bag` without re-checking any of it —
- * correctly, because it is handed runs it built itself. Over HTTP the run
- * arrives from a client, so a hand-written `{"version":1}` or a truncated save
- * pasted into the panel's import box used to reach `summarize` and come out a
- * 500. Every field the run layer assumes is checked here, once, and the failure
- * names the field: a malformed run is the caller's mistake to fix.
+ * Every /run/* body lives in `run-api.js`, transport-free: the demo build
+ * bundles that same file into the page and serves it from a fetch shim, so
+ * the two surfaces cannot drift. This file only translates thrown refusals
+ * into HTTP statuses.
  */
-function requireRun(payload, res) {
-	if (!payload || typeof payload.run !== "object" || payload.run === null) {
-		return invalidRun(res, "run is required");
-	}
-	const run = payload.run;
-	if (run.version !== runtime.VERSION) {
-		res.status(400).json({
-			error: `run is version ${run.version}; this server reads version ${runtime.VERSION}`,
-			code: "RunVersionMismatch",
-		});
-		return null;
-	}
-	if (!isRecord(run.rules) || typeof run.rules.levelCap !== "string") {
-		return invalidRun(res, "run.rules must be an object with a levelCap string");
-	}
-	for (const field of ["box", "log"]) {
-		if (!Array.isArray(run[field])) {
-			return invalidRun(res, `run.${field} must be an array`);
+const runApi = require("./run-api");
+
+function respond(res, next, work) {
+	try {
+		return res.json(work());
+	} catch (error) {
+		if (Number.isInteger(error.statusCode)) {
+			return res.status(error.statusCode).json({error: error.message,
+				...(error.code ? {code: error.code} : {})});
 		}
+		return next(error);
 	}
-	// The party holds ids into the box, not Pokemon; anything else makes the
-	// lookup in `summarize` read a property of null.
-	if (!Array.isArray(run.party) || run.party.some(id => typeof id !== "string")) {
-		return invalidRun(res, "run.party must be an array of box ids");
-	}
-	if (!isRecord(run.bag)) {
-		return invalidRun(res, "run.bag must be an object");
-	}
-	for (const field of ["position", "nextId"]) {
-		if (typeof run[field] !== "number" || !Number.isFinite(run[field])) {
-			return invalidRun(res, `run.${field} must be a number`);
-		}
-	}
-	return run;
 }
 
-/**
- * Errors from `run.js` are almost all the player being told why something could
- * not have happened — a species that is not on that route, a move the species
- * cannot hold. Those are 400s with the message intact, because the message IS
- * the feature.
- */
-function runError(error, res, next) {
-	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^faint:|^heartScale:|^hold:|^unhold:|^spend:|^roll:|^battle:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || "")) {
-		return res.status(400).json({error: error.message, code: "InvalidRunCommand"});
-	}
-	return next(error);
+for (const route of Object.keys(runApi.ROUTES)) {
+	if (route === "/run/maps") continue; // the one GET, wired below
+	const handler = runApi.ROUTES[route];
+	app.post(route, (req, res, next) => respond(res, next, () => handler(req.body)));
 }
-
-app.post("/run/new", (req, res, next) => {
-	try {
-		const payload = req.body || {};
-		return res.json({
-			run: runtime.createRun({
-				profileId: payload.profile,
-				name: payload.name,
-				levelCap: payload.levelCap,
-				permadeath: payload.permadeath,
-				// The encounter rules, each its own toggle; omitted they follow
-				// the permadeath flag as the nuzlocke preset.
-				onePerRoute: payload.onePerRoute,
-				dupesClause: payload.dupesClause,
-				shinyClause: payload.shinyClause,
-				routeUnit: payload.routeUnit,
-				rival: payload.rival || null,
-				now: payload.now || null,
-			}),
-		});
-	} catch (error) {
-		return res.status(400).json({error: error.message, code: "InvalidRun"});
-	}
-});
-
-app.post("/run/apply", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		const next_ = runtime.apply(state, (req.body || {}).command, {now: (req.body || {}).now || null});
-		return res.json({
-			run: next_,
-			summary: next_.log[next_.log.length - 1].summary,
-			status: runtime.summarize(next_),
-		});
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-app.post("/run/undo", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		const undone = runtime.undo(state);
-		return res.json({run: undone, status: runtime.summarize(undone)});
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-app.post("/run/status", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		// How far ahead to look is the client's call — a panel showing the road
-		// ahead wants more than a CLI status line — but bounded, because upcoming
-		// parties are heavy and nobody plans 50 fights out.
-		const wanted = Number((req.body || {}).upcomingCount);
-		const count = Number.isInteger(wanted) ? Math.min(Math.max(wanted, 1), 20) : 5;
-		return res.json({
-			status: runtime.summarize(state),
-			box: state.box,
-			// The story spine travels with every status: "where am I" over a
-			// 362-battle map is answered in milestones, not a position integer.
-			milestones: runtime.milestones(state),
-			// And so does the split sheet — it is how the run is narrated, and
-			// small (boss-tier fights only), so every redraw stays current.
-			splitPrep: runtime.splitPrep(state),
-			upcoming: runtime.upcoming(state, count).map(fight => ({
-				trainer: fight.trainer,
-				order: fight.order,
-				partySize: fight.party.length,
-				topLevel: Math.max(...fight.party.map(mon => mon.level)),
-				// 'boss' ends a split, 'story' is a mandatory fight that sets the
-				// cap, null is route filler a client may render quietly.
-				tier: runtime.fightTier(
-					require("./profiles").getProfile(state.profileId), fight.trainer),
-			})),
-		});
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-app.post("/run/where", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		const found = runtime.encountersOn(state, (req.body || {}).map);
-		if (!found) {
-			return res.status(400).json({
-				error: `no map named ${JSON.stringify((req.body || {}).map)} has a wild encounter table`,
-				code: "UnknownMap",
-			});
-		}
-		return res.json(found);
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-app.post("/run/learnable", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		return res.json(runtime.learnable(state, (req.body || {}).id));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-app.post("/run/plan", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		const plan = runtime.planNext(state, {trainer: (req.body || {}).trainer});
-		return res.json({
-			trainer: plan.trainer,
-			order: plan.order,
-			confidence: plan.confidence,
-			margin: plan.margin,
-			borrowedPlayerBuild: plan.borrowedPlayerBuild,
-			actions: plan.actions.map(action => ({label: action.label, score: action.score})),
-		});
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-/**
- * The box-versus-trainer grid: which of the box beats which of theirs.
- *
- * Sent whole, unlike `/run/plan` — a grid IS its cells, and a client that only
- * got the top row would be back to asking one damage calc at a time. The
- * projection travels with it so the panel can say "at the cap you will legally
- * have" rather than presenting raised levels as the box.
- */
-/** Every wild-table map, used or not, with each unused route's best prospects. */
-app.post("/run/routes", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		return res.json(runtime.unusedRoutes(state));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-/** Every possible six from the alive box, ranked against a fight. */
-app.post("/run/rank", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		return res.json(runtime.rankParties(state, (req.body || {}).trainer));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-/** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
-app.post("/run/split", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		return res.json(runtime.splitPrep(state));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-app.post("/run/matrix", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		return res.json(runtime.boxMatrix(state, (req.body || {}).trainer));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-/**
- * The upgrade advisor: the single changes that most move the board.
- *
- * The heaviest call the run layer serves — every teachable move, every bag
- * item and every recorded IV is priced by rebuilding a matchup row through the
- * policy. Scoped to the party for exactly that reason, and answered whole,
- * because a shortlist of ten IS the answer.
- */
-app.post("/run/advise", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		return res.json(runtime.adviseUpgrades(state, (req.body || {}).trainer));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-/**
- * The catch advisor: what the open, unspent routes could add against the next
- * boss. Cheaper than /run/advise — one row per distinct prospect — but the
- * same discipline: every claim is a matchup row, never a heuristic.
- */
-app.post("/run/scout", (req, res, next) => {
-	const state = requireRun(req.body, res);
-	if (!state) return undefined;
-	try {
-		return res.json(runtime.adviseCatches(state, (req.body || {}).trainer));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-/**
- * The game master's die: roll the route's one random encounter off the real
- * tables. Nothing is written — the reply is what came up, and the panel's
- * Catch/It-got-away buttons write the truth through /run/apply as usual.
- */
-app.post("/run/encounter", (req, res, next) => {
-	try {
-		const payload = req.body || {};
-		return res.json({roll: runtime.rollEncounter(payload.run, {
-			map: payload.map,
-			method: payload.method,
-		})});
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-/**
- * The recreation's fights: the run played without the game running beside
- * it. `start` opens the next fight (party at its cap, trainer with their
- * declared field); `act` resolves one player decision against the real AI
- * policy. The whole battle bundle travels with each request — the server
- * holds no fights, exactly as it holds no runs.
- */
-app.post("/run/battle/start", (req, res, next) => {
-	try {
-		const payload = req.body || {};
-		return res.json(battleDriver.start(payload.run, payload.trainer, payload.seed));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
-
-app.post("/run/battle/act", (req, res, next) => {
-	try {
-		const payload = req.body || {};
-		return res.json(battleDriver.act(payload.battle, payload.action));
-	} catch (error) {
-		return runError(error, res, next);
-	}
-});
 
 /** The map list, so a client can offer somewhere to look rather than a text box. */
-app.get("/run/maps", (req, res, next) => {
-	try {
-		const profile = require("./profiles").getProfile(req.query.profile);
-		return res.json({
-			limits: profile.oracle.LIMITS,
-			maps: profile.oracle.maps().map(map => ({
-				map: map.map,
-				name: map.name,
-				methods: map.tables.map(table => table.method),
-			})),
-		});
-	} catch (error) {
-		next(error);
-	}
-});
+app.get("/run/maps", (req, res, next) => respond(res, next, () => runApi.api.maps(req.query)));
 
 app.use((error, req, res, next) => {
 	if (res.headersSent) {
