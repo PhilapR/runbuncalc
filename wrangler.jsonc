@@ -1,0 +1,30 @@
+{
+	// The fleet's deploy pattern (see stochastic-inference/site): one Worker
+	// per app on the stochastic-inference.dev zone, custom domain, assets
+	// binding, observability on. `npm run cf:deploy` builds and ships.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "runbun",
+	"main": "dist-worker/worker.js",
+	"compatibility_date": "2026-06-15",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": "dist",
+		"binding": "ASSETS"
+	},
+	"routes": [
+		{
+			"pattern": "runbun.stochastic-inference.dev",
+			"zone_name": "stochastic-inference.dev",
+			"custom_domain": true
+		}
+	],
+	// The advisor and the ranker rebuild matchup rows through the policy —
+	// seconds of CPU, not milliseconds. Needs the paid Workers plan; on the
+	// free tier those two answers (only) would exceed the CPU ceiling.
+	"limits": {
+		"cpu_ms": 30000
+	},
+	"observability": {
+		"enabled": true
+	}
+}

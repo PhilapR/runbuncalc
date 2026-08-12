@@ -56,6 +56,24 @@ The page is responsive — the panel is designed to be played from a phone.
 The run saves in that browser's storage; use Export/Import to move it
 between devices.
 
+### Deploy to Cloudflare
+
+The repo follows the fleet's deploy pattern (one Worker per app on the
+`stochastic-inference.dev` zone, custom domain, assets binding): static
+`dist/` rides the ASSETS binding and the whole `/run/*` surface is answered
+in the Worker itself, bundled from the same `run-api.js` the express server
+uses — one implementation, three transports, still no storage.
+
+```sh
+$ npm run cf:preview   # wrangler dev against the built worker
+$ npm run cf:deploy    # ships runbun.stochastic-inference.dev
+```
+
+Notes: the worker embeds the oracle data and trainer sets (~6.4 MB script,
+inside the paid-plan limit), and `wrangler.jsonc` raises the CPU ceiling
+because Advise and Rank rebuild matchup rows through the policy — seconds of
+CPU, not milliseconds.
+
 Nuzlocke rules are individual toggles (`--permadeath`, `--route`,
 `--dupes off|species|line|forms`, `--shiny-clause`); `--nuzlocke` is just the
 preset. Route availability, encounter odds, level caps and the AI's damage
