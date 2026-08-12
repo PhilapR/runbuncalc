@@ -97,6 +97,10 @@ Verification: all claim paths verified
 
 - **Doc-drift tooling worth copying** — `tools/check-doc-authority.py`, `docs/authority.json`<br>Rejects volatile test-count snapshots in authoritative docs via a manifest. This repo's inventory gate is the same idea, applied here.
 
+- **rab configurable-damage-calculator — FAST AND WRONG, DO NOT PORT, DO NOT TRUST ITS SPEED** — `engines/rab/backend/src/calculator/configurable-damage-calculator.ts`<br>Measured 2026-08-12 on the vendored 1,727-observation corpus: 87.38% in band at 1.2us/band (7x faster than the wrapper) — it never received the a20548c ROM rounding fix that took every real core to 100%. The engine coupling that matters: rab's own gate and product path run runbuncalc-wrapper (100%, 8.8us raw / 4.2us cached); the configurable mode is a stale parallel formula whose speed is bought with pre-fix math.
+
+- **rlm damage cores — battle/damage.py is the REAL one (100%), planning/calculator.py is pre-fix** — `engines/rlm/src/pokemon_rlm/battle/damage.py`, `engines/rlm/src/pokemon_rlm/planning/calculator.py`<br>Graded 2026-08-12: battle/damage.py reproduces all 1,727 corpus observations (ROM rounding order, per-stage floors; commit 8cd15d8 lineage) at ~6.6us/band in plain CPython when fed resolved scalars. planning/calculator.py still computes the NON-floored level term — the exact 07-24 bug — so any consumer of the planning module inherits pre-fix damage. Same drift pattern as rab's configurable mode: the fix landed in each engine's core and missed its fast/secondary path.
+
 ### PhilapR/platinum-kaizo-agent
 Another-game agent. Unswept — listed so it is not rediscovered by accident.
 Verification: not yet cloned in this environment
