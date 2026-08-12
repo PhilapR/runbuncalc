@@ -206,6 +206,27 @@ function main() {
 		Waterfall: translate(314),
 	};
 
+	// FIELD ITEM PICKUPS, from the same source's item-unlocks curation: what
+	// the overworld hands out and when. This is what lets an advisor say
+	// "go pick up the Silk Scarf on Route 106 before Brawly" instead of
+	// pricing only whatever the bag already holds. HM rows are skipped here —
+	// hmMoves above carries them as teach gates, their real meaning.
+	const itemSource = fs.readFileSync(path.join(RAB, 'progression', 'item-unlocks.ts'), 'utf8');
+	const itemPattern = /\{\s*name: '([^']+)',\s*type: '([^']+)',(?:\s*itemType: '[^']*',)?\s*location: '([^']+)',\s*minOrder: (\d+)/g;
+	const items = [];
+	for (let match; (match = itemPattern.exec(itemSource));) {
+		if (match[2] === 'hm') continue;
+		items.push({
+			name: match[1],
+			kind: match[2],
+			location: match[3],
+			opensAt: translate(Number(match[4])),
+			rabMinOrder: Number(match[4]),
+		});
+	}
+	items.sort((a, b) => (a.opensAt === null ? 1 : 0) - (b.opensAt === null ? 1 : 0) ||
+		(a.opensAt || 0) - (b.opensAt || 0) || a.name.localeCompare(b.name));
+
 	const entries = [...byMap.values()].sort((a, b) =>
 		(a.opensAt === null ? 1 : 0) - (b.opensAt === null ? 1 : 0) ||
 		(a.opensAt || 0) - (b.opensAt || 0) || a.name.localeCompare(b.name));
@@ -218,6 +239,7 @@ function main() {
 		provenance: 'transcribed',
 		methods,
 		hmMoves,
+		items,
 		entries,
 	};
 	fs.writeFileSync(path.join(OUT_DIR, 'availability.json'),

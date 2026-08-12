@@ -408,6 +408,17 @@ function methodOpensAt(method) {
 }
 
 /**
+ * Field item pickups the overworld hands out, dated like everything else:
+ * `[{name, kind, location, opensAt}]`, opensAt in this run map's orders
+ * (null = never dated). What lets an advisor recommend an item the bag does
+ * not hold yet — with where to go get it.
+ */
+function itemsObtainableBy(order) {
+	const all = load('availability').items || [];
+	return all.filter(item => item.opensAt !== null && item.opensAt <= order);
+}
+
+/**
  * The permanent field a fight is always fought under — Route 119's rain,
  * the Thunderstorm stretch's Electric Terrain, the desert's sandstorm, the
  * Seafloor Cavern's opponent-side Aurora Veil — or null for a fight in
@@ -435,7 +446,7 @@ function moveObtainableAt(move) {
 
 module.exports = {
 	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
-	fightFieldOf,
+	fightFieldOf, itemsObtainableBy,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp,

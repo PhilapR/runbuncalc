@@ -297,6 +297,16 @@
 					.attr('data-trainer', fight.trainer).text('Board')));
 			$list.append($row);
 		});
+		// The split's uncollected field pickups: prep is what to grab BEFORE
+		// the boss, and the sheet says where each item waits.
+		if (prep.pickups && prep.pickups.length) {
+			var names = prep.pickups.map(function (item) {
+				return item.name + ' (' + item.location +
+					(item.reachable ? '' : ', from #' + item.opensAt) + ')';
+			});
+			$list.append($('<li class="runbun-run-split-pickups"></li>')
+				.text('Pickups not yet collected: ' + names.join(' · ')));
+		}
 	}
 
 	// -------------------------------------------------------------- road ahead

@@ -742,6 +742,46 @@ test('a hold saves a location on purpose, and says when the wait pays off', () =
 	assert.deepEqual(undone.holds, {'Petalburg City': {for: 'Popplio'}});
 });
 
+test('the advisor recommends field pickups, with where to go get them', () => {
+	// A player who never records pickups has an empty bag, and the bag-only
+	// advisor priced no items at all. The overworld hands out a Miracle Seed
+	// on Route 104 (#11) — a Grass Treecko fighting a fisherman's water mons
+	// at #22 should be told to go get it.
+	let state = run.apply(fresh({permadeath: true}),
+		{kind: 'catch', species: 'Treecko', level: 5});
+	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
+	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
+	const advice = run.adviseUpgrades(state, 'Fisherman Elliot');
+	const seed = advice.upgrades.find(u => u.kind === 'pickup' && /Miracle Seed/.test(u.detail));
+	assert.ok(seed, 'the Miracle Seed pickup must be offered against water');
+	assert.match(seed.detail, /Miracle Seed \(pickup @ Route 104\)/);
+	assert.ok(seed.delta.damage > 0);
+
+	// Not before the overworld has handed it out: fight #0 predates every
+	// type-boost pickup, so none may be offered there.
+	const early = run.adviseUpgrades(state, 'Youngster Calvin');
+	assert.ok(early.upgrades.every(u => !/Miracle Seed|Silk Scarf|Soft Sand/.test(u.detail)),
+		'no pickup that the overworld has not handed out yet');
+
+	// Once the bag records the pickup, the same item is a GIVE, not a trip.
+	const bagged = run.apply(state, {kind: 'acquire', item: 'Miracle Seed'});
+	const again = run.adviseUpgrades(bagged, 'Fisherman Elliot');
+	assert.ok(again.upgrades.some(u => u.kind === 'give' && u.detail === 'Miracle Seed'));
+	assert.ok(again.upgrades.every(u => !/pickup @ Route 104/.test(u.detail)));
+
+	// The split sheet lists the same items as prep: names, places, and
+	// whether the run can reach them yet.
+	const prep = run.splitPrep(state);
+	const sheet = prep.pickups.map(p => p.name);
+	assert.ok(sheet.includes('Miracle Seed') && sheet.includes('Silk Scarf') &&
+		sheet.includes('Soft Sand'), `Brawly-split pickups missing from ${sheet}`);
+	const scarf = prep.pickups.find(p => p.name === 'Silk Scarf');
+	assert.equal(scarf.location, 'Route 106');
+	assert.equal(scarf.reachable, false, 'not reachable at position -1');
+	// Collected items drop off the sheet.
+	assert.ok(!run.splitPrep(bagged).pickups.some(p => p.name === 'Miracle Seed'));
+});
+
 test('the catch advisor scouts only what is really catchable, on the board', () => {
 	// A fresh run: four routes open (opensAt 0), no party, next boss Brawly.
 	const state = fresh({permadeath: true});
@@ -1534,7 +1574,11 @@ test('the advisor prices single changes by what they do to the board', () => {
 			const gate = oracle.moveObtainableAt(entry.move);
 			return gate === null || gate <= 0;
 		}).length;
-	assert.equal(advice.considered, teachable + 1 + 1);
+	// ...plus every holdable field pickup the overworld has handed out by
+	// fight #0 that the run has not collected (the advisor's fourth kind).
+	const pickups = oracle.itemsObtainableBy(0)
+		.filter(p => require('./planner').holdableItem(p.name)).length;
+	assert.equal(advice.considered, teachable + 1 + 1 + pickups);
 
 	// The deterministic case. Poochyena knows only Tackle, which leaves the
 	// grunt's own Poochyena standing; Play Rough turns that cell into a
@@ -1602,11 +1646,14 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 		}).length;
 	const teachable = teachableAt(
 		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), false);
+	const pickupsAt0 = oracle.itemsObtainableBy(0)
+		.filter(p => require('./planner').holdableItem(p.name)).length;
 
 	// No scale in the bag, no scale candidate: the advisor ranks changes a
 	// player can make today, not ones they could make after finding an item.
 	assert.equal(run.adviseUpgrades(
-		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}])).considered, teachable);
+		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}])).considered,
+	teachable + pickupsAt0);
 
 	// An IV the box never recorded is not a candidate either. It already reaches
 	// the calculator as 31, so scaling it would score a flat zero and read as
@@ -1618,7 +1665,69 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 		{kind: 'party', ids: ['mon-1']},
 		{kind: 'acquire', item: 'Heart Scale'},
 	]);
-	assert.equal(run.adviseUpgrades(funded).considered, teachableAt(funded, true));
+	assert.equal(run.adviseUpgrades(funded).considered, teachableAt(funded, true) + pickupsAt0);
+	// (Evolutions are the advisor's fifth kind, but a Poochyena projected to 12
+	// is short of Mightyena's 18 — it contributes no candidate here, which is
+	// itself the claim: eligibility is judged at the projected cap.)
+});
+
+test('the advisor weighs an evolution the run has already earned', () => {
+	// A box full of level-16+ Treeckos graded as Treeckos called Brawly
+	// unwinnable when Grovyle wins it: the sim that first ran this split wiped
+	// 30/30 unevolved and won 26/30 evolved, with no other change. The advisor
+	// must surface the free upgrade, judged at the projected cap like teaches.
+	const state = run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+	// Against Brawly the cap is 21 and Mightyena's 18 is inside it.
+	const advice = run.adviseUpgrades(state, 'Leader Brawly');
+	const evolve = advice.upgrades.find(u => u.kind === 'evolve');
+	assert.ok(evolve, 'an earned evolution must be on the shortlist');
+	assert.equal(evolve.detail, 'evolve into Mightyena');
+	assert.ok(evolve.delta.damage > 0 || evolve.delta.koGained > 0,
+		'the evolved row must beat the unevolved one somewhere');
+	// Against the first grunt the cap is 12: not earned yet, not offered.
+	assert.ok(!run.adviseUpgrades(state).upgrades.some(u => u.kind === 'evolve'),
+		'an evolution the cap has not reached is not a change the player can make');
+});
+
+test('evolve charges the stone and demands the move, not just the level', () => {
+	// The evolution table names three currencies — a level, an item, a known
+	// move — and the command must collect all three, or a run document could
+	// record a Ludicolo no Water Stone ever paid for. Same contract as the
+	// Heart Scale: the resource is charged where it is used, never assumed.
+	let state = run.applyAll(fresh(), [
+		{kind: 'catch', species: 'Lotad', map: 'Route103', level: 3},
+		{kind: 'acquire', item: 'Rare Candy', count: 60},
+		{kind: 'levelUp', id: 'mon-1', to: 14},
+		{kind: 'evolve', id: 'mon-1'},
+	]);
+	assert.equal(state.box[0].species, 'Lombre');
+	// Lombre -> Ludicolo is a stone evolution; an empty bag refuses it by name.
+	assert.throws(() => run.apply(state, {kind: 'evolve', id: 'mon-1'}),
+		/Lombre becomes Ludicolo with a Water Stone; there is none in the bag/);
+	state = run.applyAll(state, [
+		{kind: 'acquire', item: 'Water Stone'},
+		{kind: 'evolve', id: 'mon-1'},
+	]);
+	assert.equal(state.box[0].species, 'Ludicolo');
+	assert.ok(!state.bag['Water Stone'], 'the stone is spent, not kept');
+
+	// Yanma -> Yanmega is a move evolution: knowing Ancient Power is the whole
+	// requirement, and not knowing it is the whole refusal.
+	state = run.apply(state, {kind: 'catch', species: 'Yanma', map: 'Route104', level: 5});
+	assert.throws(() => run.apply(state, {kind: 'evolve', id: 'mon-2'}),
+		/Yanma becomes Yanmega by levelling up knowing Ancient Power/);
+	state = run.applyAll(state, [
+		{kind: 'levelUp', id: 'mon-2', to: 33},
+		{kind: 'teach', id: 'mon-2', move: 'Ancient Power', replace: 'Tackle'},
+		{kind: 'evolve', id: 'mon-2'},
+	]);
+	assert.equal(state.box[1].species, 'Yanmega');
+	// The run replays clean: undo rebuilds Yanma from the log, stone and all.
+	assert.equal(run.undo(state).box[1].species, 'Yanma');
+	assert.deepEqual(JSON.parse(JSON.stringify(state)), state, 'a run must survive JSON');
 });
 
 test('the advisor refuses what it cannot answer, with the reason', () => {

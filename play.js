@@ -557,6 +557,13 @@ const SUBCOMMANDS = {
 				`${fight.tier.padEnd(6)} ${fight.partySize} mons` +
 				(fight.cap !== undefined ? `  cap ${fight.cap}` : ''));
 		}
+		if (prep.pickups && prep.pickups.length) {
+			lines.push('  pickups not yet collected:');
+			for (const item of prep.pickups) {
+				lines.push(`    ${item.name.padEnd(16)} @ ${item.location.padEnd(22)}` +
+					(item.reachable ? 'reachable now' : `from #${item.opensAt}`));
+			}
+		}
 		return {message: lines.join('\n')};
 	},
 

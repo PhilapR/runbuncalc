@@ -464,12 +464,33 @@ function splitPrep(run) {
 			...(cap !== null ? {cap} : {}),
 		});
 	}
+	// The split's field pickups: items the overworld hands out inside this
+	// split's window that the run has not collected. Prep is exactly this —
+	// what to grab BEFORE the boss — and a sheet that omits it sends the
+	// player in without the Silk Scarf sitting two routes back.
+	const pickups = [];
+	if (!here.finished && profile.oracle.itemsObtainableBy) {
+		const carried = new Set(run.box.map(mon => mon.item).filter(Boolean));
+		for (const item of profile.oracle.itemsObtainableBy(here.order)) {
+			if (run.bag[item.name] || carried.has(item.name)) continue;
+			pickups.push({
+				name: item.name,
+				kind: item.kind,
+				location: item.location,
+				opensAt: item.opensAt,
+				// Not yet reachable pickups are listed with their order, so the
+				// sheet reads as an itinerary rather than a scavenger hunt.
+				reachable: run.position + 1 >= item.opensAt,
+			});
+		}
+	}
 	return {
 		split: here,
 		cap: levelCap(run),
 		gauntlet,
 		fightsAhead: ahead.length,
 		filler,
+		pickups,
 	};
 }
 
@@ -1076,6 +1097,46 @@ function upgradeCandidates(run, mon, spec, base, order) {
 		});
 	}
 
+	// Field pickups the overworld has ALREADY handed out by this fight but the
+	// run has not collected: the bag-only view priced no items at all for a
+	// player who never recorded pickups, which read as "items do nothing".
+	// The detail names where to go get it; a pickup already in the bag or on
+	// somebody's mon is not offered twice.
+	if (order !== undefined && profile.oracle.itemsObtainableBy) {
+		const carried = new Set(run.box.map(mon => mon.item).filter(Boolean));
+		for (const pickup of profile.oracle.itemsObtainableBy(order)) {
+			if (!planner.holdableItem(pickup.name)) continue;
+			if (pickup.name === spec.item) continue;
+			if (run.bag[pickup.name] || carried.has(pickup.name)) continue;
+			list.push({
+				kind: 'pickup',
+				detail: `${pickup.name} (pickup @ ${pickup.location})` +
+					(spec.item ? ` over ${spec.item}` : ''),
+				spec: Object.assign({}, spec, {item: pickup.name}),
+			});
+		}
+	}
+
+	// An evolution the run has already earned is the cheapest upgrade on the
+	// board and the one this advisor used to be blind to: a box of level-16+
+	// Treeckos graded as Treeckos called Brawly unwinnable when Grovyle wins
+	// it. Eligibility is judged at the SPEC's level (the projected cap, same
+	// as teaches): a level evo the candy reaches is real, a stone evo is only
+	// real with the stone in the bag, a move evo only with the move known.
+	for (const step of profile.oracle.evolutionsOf(mon.species)) {
+		const eligible =
+			(step.method === 'level' && spec.level >= step.level) ||
+			(step.method === 'item' && !!run.bag[step.item]) ||
+			(step.method === 'move' && spec.moves.includes(step.move));
+		if (!eligible) continue;
+		list.push({
+			kind: 'evolve',
+			detail: `evolve into ${step.into}` +
+				(step.method === 'item' ? ` (${step.item})` : ''),
+			spec: Object.assign({}, spec, {species: step.into}),
+		});
+	}
+
 	// One scale in the bag is enough to make every stat a candidate: these are
 	// alternatives, and the player spends it on one of them.
 	if (run.bag[HEART_SCALE]) {
@@ -1603,9 +1664,27 @@ const COMMANDS = {
 			throw new Error(`evolve: ${mon.species} becomes ${target.into} at level ` +
 				`${target.level}; it is ${mon.level}`);
 		}
+		// A stone evolution spends the stone; without one in the bag it is not
+		// an event this run can record. Same contract as the Heart Scale: the
+		// resource is charged where it is used, never assumed.
+		if (target.method === 'item') {
+			if (!run.bag[target.item]) {
+				throw new Error(`evolve: ${mon.species} becomes ${target.into} with a ` +
+					`${target.item}; there is none in the bag`);
+			}
+			run.bag[target.item] -= 1;
+			if (!run.bag[target.item]) delete run.bag[target.item];
+		}
+		// A move evolution (Yanma with Ancient Power) needs the move on the mon
+		// as it levels — knowing it is the whole requirement.
+		if (target.method === 'move' && !mon.moves.includes(target.move)) {
+			throw new Error(`evolve: ${mon.species} becomes ${target.into} by ` +
+				`levelling up knowing ${target.move}; it does not know it`);
+		}
 		const from = mon.species;
 		mon.species = target.into;
-		return `${from} → ${target.into} (${mon.id})`;
+		return `${from} → ${target.into} (${mon.id})` +
+			(target.method === 'item' ? ` (${target.item} spent)` : '');
 	},
 
 	/** Teach a move, checked against the species' full legal movepool. */

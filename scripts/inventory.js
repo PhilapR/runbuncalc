@@ -76,7 +76,7 @@ function inventory() {
 	// reader's staleness warning. (Date and hash only — both are stable at any
 	// given commit, unlike "commits ago", which would drift the gate on every
 	// commit that touches nothing.)
-	const {execSync} = require('child_process');
+	const execSync = require('child_process').execSync;
 	const GENERATED_DOCS = new Set(['INVENTORY.md']);
 	const docs = [];
 	for (const file of fs.readdirSync(root).filter(f => f.endsWith('.md')).sort()) {

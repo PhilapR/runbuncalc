@@ -188,6 +188,16 @@
 				"run.test.js",
 				"play.js"
 			]
+		},
+		{
+			"id": "evolutions-are-charged",
+			"date": "2026-08-12",
+			"ruling": "An evolution is a checked event with a named price: a level evolution needs the level, a stone evolution spends the stone from the bag, a move evolution needs the move known. The advisor weighs earned evolutions as its fifth upgrade kind, judged at the projected cap like teaches.",
+			"why": "The evolve command took a Ludicolo no Water Stone ever paid for, and the advisor graded level-21 Treeckos as Treeckos — which called Brawly unwinnable (0/30 rollouts) when the same box evolved won 27/30.",
+			"enforcedBy": [
+				"run.js",
+				"run.test.js"
+			]
 		}
 	],
 	"open": [
@@ -220,6 +230,12 @@
 			"question": "Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level.",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
+		},
+		{
+			"id": "ranker-rollout-calibration",
+			"question": "The party ranker's grid score does not predict rollout survival: a six scoring 3.28 \"all answered\" (frail Tyrogue/Remoraid answers) wiped 87% of Brawly rollouts before prep, while a 0.62 six won 87%. The grid is a full-HP damage matrix — it ignores speed order and attrition.",
+			"raised": "2026-08-12",
+			"settledBy": "rollout adjudication productized into rankParties (seeded rollouts as a second sort key), or a bulk/speed term in the grid score"
 		}
 	]
 }

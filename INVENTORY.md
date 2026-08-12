@@ -97,6 +97,7 @@ ruling, never by quiet drift.
 - **grade-with-never-merge** (2026-08-11): Sibling engines are graded against shared evidence and each other, never merged: data flows with provenance, code does not. Cross-engine disagreement outside documented divergences is a red gate; documented divergences are settled by new emulator evidence, never by picking a side.
 - **soul-dew-and-infatuation-verified** (2026-08-12): Soul Dew is +1 SpA/SpD STAGES for the Latis (not a modifier — it composes with Calm Mind and crits ignore it like any stage), and Attract has no gender gate. Both were already implemented and pinned; the audit closed the question rather than changing code.
 - **delayed-encounters-are-holds** (2026-08-12): The over-cap wild catch is really a DELAYED encounter: the player saves a few choice locations for a better table later (Petalburg City held for Popplio until Surf), trading early-game tools for late-game value. Catches stay face-value — the method gates mean high-level water is unreachable until the caps have caught up anyway — and the delay itself is first-class: hold/unhold record the wait and its target, the scout stops nagging, and the routes view flips to READY when the awaited method opens.
+- **evolutions-are-charged** (2026-08-12): An evolution is a checked event with a named price: a level evolution needs the level, a stone evolution spends the stone from the bag, a move evolution needs the move known. The advisor weighs earned evolutions as its fifth upgrade kind, judged at the projected cap like teaches.
 
 ## Open questions (from DECISIONS.json)
 Ruled on by nobody yet — each names what would settle it. An answered
@@ -106,6 +107,7 @@ question moves up into rulings; it is never silently deleted.
 - **policy-setup-unprobed** (2026-08-10): policy.SETUP remains transcription: no emulator probe has exercised the setup-move scoring the way pykemon probed SCORE_ROLL. _Settled by: a pykemon RAM probe over setup-move turns._
 - **doubles-lead-order** (2026-08-11): Which two of a double trainer's party lead. Assumed first-two today, named as leadAssumption. _Settled by: emulator observation or the trainer data carrying a lead marker._
 - **below-catch-level-relearn** (2026-08-12): Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level. _Settled by: operator ruling._
+- **ranker-rollout-calibration** (2026-08-12): The party ranker's grid score does not predict rollout survival: a six scoring 3.28 "all answered" (frail Tyrogue/Remoraid answers) wiped 87% of Brawly rollouts before prep, while a 0.62 six won 87%. The grid is a full-HP damage matrix — it ignores speed order and attrition. _Settled by: rollout adjudication productized into rankParties (seeded rollouts as a second sort key), or a bulk/speed term in the grid score._
 
 ## Hand-written docs, dated
 Last-touched stamps from git, refreshed whenever the inventory is
