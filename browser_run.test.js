@@ -986,6 +986,47 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	await session.context.close();
 });
 
+test('a rolled encounter survives a reload: the die was cast, not the page', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	const cast = await page.textContent('#runbun-run-roll-text');
+
+	// Refresh: the same roll is still on the table — no card lost, no
+	// second die dealt.
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 15000});
+	assert.equal(await page.textContent('#runbun-run-roll-text'), cast,
+		'the same roll returns, verbatim');
+
+	// Settle it, reload again: the answered question stays answered.
+	await openAllSections(page);
+	await page.click('#runbun-run-roll-flee');
+	await page.waitForFunction(
+		() => /spent — it got away/.test(
+			document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	assert.equal(await page.isVisible('#runbun-run-roll-result'), false,
+		'a settled roll must not resurrect');
+	assert.equal(await page.evaluate(
+		() => window.localStorage.getItem('runbun.roll.v1')), null,
+	'the settled roll is cleaned out of storage');
+
+	await session.context.close();
+});
+
 test('a hand-recorded faint offers its takeback, and the window is honest', {skip}, async () => {
 	const session = await open();
 	const page = session.page;

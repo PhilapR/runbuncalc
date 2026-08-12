@@ -1136,8 +1136,65 @@
 	// or spend, a fight ends in ordinary faint and beat commands, and every
 	// one of them is still verified server-side like a hand-typed one.
 
-	/** The last roll, held until Catch or "It got away" writes its truth. */
+	/** The last roll, held until Catch or "It got away" writes its truth —
+	 * and PERSISTED like the battle is: a rolled encounter is a die already
+	 * cast, so a refresh must neither eat it nor deal a second one. */
 	var rolled = null;
+	var rolledLog = 0;
+	var ROLL_KEY = 'runbun.roll.v1';
+
+	function paintRoll() {
+		$('#runbun-run-roll-text').text('A wild ' + rolled.species + ' L' + rolled.level +
+			' appeared! (' + rolled.method + ' · ' + rolled.chance + '%)');
+		$('#runbun-run-roll-result').prop('hidden', false);
+	}
+
+	function persistRoll() {
+		try {
+			window.localStorage.setItem(ROLL_KEY, JSON.stringify(
+				{logLength: rolledLog, roll: rolled}));
+		} catch (error) { /* advice that cannot persist is still advice */ }
+	}
+
+	function clearRollSave() {
+		rolled = null;
+		try {
+			window.localStorage.removeItem(ROLL_KEY);
+		} catch (error) { /* nothing worth surfacing */ }
+	}
+
+	/** A roll dies only when its question got answered: a later catch or
+	 * spend on that map settled the route, everything else leaves the die
+	 * where it fell. (An undo that removes the settle shortens the log, so
+	 * the same check brings the roll back — the die was still cast.) */
+	function rollStillPending(record) {
+		if (!state || !record || !record.roll) return false;
+		return !(state.log || []).slice(record.logLength).some(function (entry) {
+			return entry.command && entry.command.map === record.roll.mapName &&
+				(entry.command.kind === 'catch' || entry.command.kind === 'spend');
+		});
+	}
+
+	function restoreRoll() {
+		var raw;
+		try {
+			raw = window.localStorage.getItem(ROLL_KEY);
+		} catch (error) {
+			return;
+		}
+		if (!raw) return;
+		var record = null;
+		try {
+			record = JSON.parse(raw);
+		} catch (error) { /* an unreadable roll is dropped below */ }
+		if (!record || !rollStillPending(record)) {
+			clearRollSave();
+			return;
+		}
+		rolled = record.roll;
+		rolledLog = record.logLength;
+		paintRoll();
+	}
 
 	function rollEncounter() {
 		var map = $('#runbun-run-map').val();
@@ -1148,9 +1205,9 @@
 		var method = $('#runbun-run-roll-method').val() || undefined;
 		api('/run/encounter', {run: state, map: map, method: method}).then(function (payload) {
 			rolled = Object.assign({mapName: map}, payload.roll);
-			$('#runbun-run-roll-text').text('A wild ' + rolled.species + ' L' + rolled.level +
-				' appeared! (' + rolled.method + ' · ' + rolled.chance + '%)');
-			$('#runbun-run-roll-result').prop('hidden', false);
+			rolledLog = logLength();
+			paintRoll();
+			persistRoll();
 			status('', '');
 		}).catch(function (error) {
 			status(error.message, 'error');
@@ -1166,7 +1223,7 @@
 			{kind: 'spend', map: roll.mapName, reason: 'it got away'};
 		command(body).then(function (accepted) {
 			if (!accepted) return;
-			rolled = null;
+			clearRollSave();
 			$('#runbun-run-roll-result').prop('hidden', true);
 			showEncounters();
 		});
@@ -1231,6 +1288,9 @@
 		battle = {bundle: record.bundle, log: record.log || []};
 		$('#runbun-run-battle-log').empty();
 		$('#runbun-run-battle').prop('hidden', false);
+		// A resumed wild fight owns its roll again: the card yields exactly
+		// as it did when Fight-it opened this battle; abandoning restores it.
+		if (record.bundle.wild) $('#runbun-run-roll-result').prop('hidden', true);
 		paintBattle({
 			phase: record.view.phase,
 			viewState: record.view.viewState,
@@ -1428,7 +1488,7 @@
 			chain.then(function (ok) {
 				if (!ok) return;
 				if (reply.result === 'catch' || won) {
-					rolled = null;
+					clearRollSave();
 					$('#runbun-run-roll-result').prop('hidden', true);
 					showEncounters();
 				} else if (rolled) {
@@ -1524,7 +1584,7 @@
 		stagedParty = [];
 		battle = null;
 		clearBattleSave();
-		rolled = null;
+		clearRollSave();
 		stamps = {};
 		$('#runbun-run-battle').prop('hidden', true);
 		$('#runbun-run-roll-result').prop('hidden', true);
@@ -1959,6 +2019,12 @@
 			clearBattleSave();
 			$('#runbun-run-battle').prop('hidden', true);
 		}
+		// The pending roll survives the sync unless the other tab answered
+		// its question (settled that route); then the card goes with it.
+		if (rolled && !rollStillPending({logLength: rolledLog, roll: rolled})) {
+			clearRollSave();
+			$('#runbun-run-roll-result').prop('hidden', true);
+		}
 		showRun();
 		if (!state) return;
 		render().then(function () {
@@ -1983,6 +2049,9 @@
 			}
 			if (state) {
 				status('Loaded ' + state.name + ' from this browser.', 'ok');
+				// The roll first, then the battle: a live wild fight re-hides
+				// the card it owns, and abandoning hands it back.
+				restoreRoll();
 				restoreBattle();
 			}
 		});
