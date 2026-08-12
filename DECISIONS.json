@@ -222,6 +222,19 @@
 				"run.js",
 				"battle-driver.test.js"
 			]
+		},
+		{
+			"id": "wild-fights-are-fought",
+			"date": "2026-08-12",
+			"ruling": "A rolled encounter can be FOUGHT, not just clicked into the box: a 1v1 against the wild mon at its rolled level (last level-up moves it knows, Struggle if the hack gives it none), the wild side picking uniformly random moves off the seeded stream. The throw is Emerald's own capture formula (floors and all) over mainline dex catch rates, plain Poke Ball only. The ending settles the roll through ordinary commands: a caught ball is the catch, a killed encounter is the spend, a wipe records its faints and settles nothing.",
+			"why": "The recreation's biggest missing risk was the catch itself — crit-kill your encounter, or lose a mon to it. Nothing here is invented: table-checked rolls, the game's formula, dex rates (PokeAPI CSV import, gated so every wild species resolves), and the same document commands every button writes.",
+			"enforcedBy": [
+				"battle-driver.js",
+				"planner.js",
+				"scripts/import-catch-rates.js",
+				"battle-driver.test.js",
+				"server.smoke.test.js"
+			]
 		}
 	],
 	"open": [
@@ -252,6 +265,12 @@
 		{
 			"id": "below-catch-level-relearn",
 			"question": "Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level.",
+			"raised": "2026-08-12",
+			"settledBy": "operator ruling"
+		},
+		{
+			"id": "ball-economy",
+			"question": "Wild fights throw plain Poke Balls with no inventory or cost. Should balls be bag items (bought, finite, better tiers with real multipliers), and does Run & Bun change any ball bonuses?",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
 		}

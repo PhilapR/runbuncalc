@@ -1140,6 +1140,39 @@ test('the recreation rides HTTP: a roll, a spend, and one played turn', async ()
 	assert.match(bad.body.error, /battle: "Earthquake" is not usable right now/);
 });
 
+test('a wild fight rides HTTP: rolled, fought, the ball thrown, forgeries refused', async () => {
+	const runtime = require('./run');
+	let run = runtime.createRun({name: 'wild HTTP', now: 't0', permadeath: true});
+	run = runtime.applyAll(run, [
+		{kind: 'catch', species: 'Starly', map: 'Route102', level: 5},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+
+	const rolled = await requestJson('/run/encounter', {run, map: 'Route101'});
+	assert.equal(rolled.status, 200);
+	const started = await requestJson('/run/battle/wild',
+		{run, roll: rolled.body.roll, seed: 7});
+	assert.equal(started.status, 200);
+	assert.match(started.body.battle.trainer, /^Wild /);
+	const ball = started.body.actions.find(action => action.kind === 'ball');
+	assert.ok(ball && ball.chance >= 0, 'the ball comes priced over the wire');
+
+	const thrown = await requestJson('/run/battle/act',
+		{battle: started.body.battle, action: {kind: 'ball'}});
+	assert.equal(thrown.status, 200);
+	assert.match(thrown.body.events.map(event => event.text).join(' '),
+		/You threw a Poke Ball!/);
+
+	// A roll the route cannot produce is refused with the table's own words.
+	const forged = await requestJson('/run/battle/wild',
+		{run, roll: {map: 'Route101', species: 'Rayquaza', level: 5}});
+	assert.equal(forged.status, 400);
+	assert.match(forged.body.error, /is not on Route101's table/);
+	const missing = await requestJson('/run/battle/wild', {run});
+	assert.equal(missing.status, 400);
+	assert.match(missing.body.error, /send what \/run\/encounter rolled/);
+});
+
 test('the wire refuses garbage where the engine would crash: bundles, runs, knobs', async () => {
 	const runtime = require('./run');
 	let run = runtime.createRun({name: 'hardened', now: 't0', permadeath: true});
@@ -1177,4 +1210,14 @@ test('the wire refuses garbage where the engine would crash: bundles, runs, knob
 	const greedy = await requestJson('/run/rank', {run, rollouts: 4900});
 	assert.equal(greedy.status, 400);
 	assert.match(greedy.body.error, /rollouts must be an integer from 0 to 48/);
+
+	// The split sheet plays its boss on the same bounded knob.
+	const sheet = await requestJson('/run/split', {run, rollouts: 2});
+	assert.equal(sheet.status, 200);
+	assert.equal(sheet.body.adjudication.rollouts, 2);
+	assert.equal(sheet.body.adjudication.trainer, sheet.body.split.boss);
+	const unplayed = await requestJson('/run/split', {run});
+	assert.equal(unplayed.body.adjudication, null, 'unasked, the sheet stays a grid');
+	const splitGreedy = await requestJson('/run/split', {run, rollouts: 4900});
+	assert.equal(splitGreedy.status, 400);
 });

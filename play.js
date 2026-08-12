@@ -627,9 +627,16 @@ const SUBCOMMANDS = {
 		return {message: lines.join('\n')};
 	},
 
-	/** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
-	split(state) {
-		const prep = runtime.splitPrep(state);
+	/** The split as one sheet: boss, cap, remaining gauntlet, filler count.
+	 * `--rollouts N` plays the boss with the current party and pins the
+	 * measured floor under the header. */
+	split(state, args) {
+		const rollouts = args.flags.rollouts ? Number(args.flags.rollouts) : 0;
+		if (args.flags.rollouts !== undefined &&
+			(!Number.isInteger(rollouts) || rollouts < 1 || rollouts > 100)) {
+			throw new Error('split: --rollouts must be an integer from 1 to 100');
+		}
+		const prep = runtime.splitPrep(state, rollouts ? {rollouts} : undefined);
 		if (!prep) return {message: 'this profile declares no splits'};
 		if (prep.split.finished) return {message: 'the run map is finished — no split ahead'};
 		const lines = [
@@ -638,8 +645,15 @@ const SUBCOMMANDS = {
 			prep.cap.cap === null ? '  no level cap' :
 				`  cap now ${prep.cap.cap} (${prep.cap.trainer}'s ${prep.cap.ace})`,
 			`  ${prep.fightsAhead} fights left in the split, ${prep.filler} of them filler`,
-			'  gauntlet:',
 		];
+		if (prep.adjudication) {
+			lines.push(`  played ${prep.adjudication.rollouts} times: ` +
+				`P(win) ${Math.round(prep.adjudication.pWin * 100)}%  ·  ` +
+				`${prep.adjudication.eDeaths.toFixed(1)} deaths expected  ·  ` +
+				`deathless ${Math.round(prep.adjudication.pDeathless * 100)}% ` +
+				'(floor policy — a lower bound)');
+		}
+		lines.push('  gauntlet:');
 		for (const fight of prep.gauntlet) {
 			lines.push(`    #${String(fight.order).padStart(4)}  ${fight.trainer.padEnd(34)}` +
 				`${fight.tier.padEnd(6)} ${fight.partySize} mons` +
@@ -784,7 +798,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   advise [trainer]                                the single changes that most move that board
   scout [trainer]                                 what the open routes could add vs the next boss
   routes [--all]                                  routes still holding an encounter
-  split                                           this split: boss, cap, gauntlet, filler
+  split [--rollouts N]                            this split: boss, cap, gauntlet, filler; N plays the boss
   milestones                                      the story spine, beaten and ahead
   log [--count N] / undo                          history`;
 

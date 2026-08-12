@@ -108,10 +108,17 @@ function clearDeadPlayerPending(state) {
 }
 
 /** Singles retarget: whatever the enumeration aimed at, the move lands on the
- * CURRENT foe active — the one that switched in mid-turn included. */
+ * CURRENT foe active — the one that switched in mid-turn included. A move
+ * that never aimed at the opponent (Splash, Camouflage, a self-boost) keeps
+ * its own targets: forcing a foe onto it fails the engine's legality check,
+ * which is how a random-policy wild Buneary taught this function about
+ * Splash. */
 function retarget(state, action) {
 	if (action.kind !== 'move') return action;
 	const foeSide = state.sides.ai.party.some(mon => mon.id === action.actorId) ? 'player' : 'ai';
+	const aimedAtFoe = (action.targetIds || []).some(id =>
+		state.sides[foeSide].party.some(mon => mon.id === id));
+	if (!aimedAtFoe) return action;
 	const target = activeOf(state, foeSide);
 	if (!target || !alive(state, target)) return null;
 	return Object.assign({}, action, {targetIds: [target]});
@@ -215,6 +222,52 @@ function finished(state) {
 }
 
 /**
+ * The Gen 3 capture formula, floors and all — the one mechanic a wild fight
+ * has that a trainer fight does not. Plain Poke Ball only (bonus 1): the
+ * recreation has no ball economy yet, and inventing one would be worse than
+ * naming the limit. Sleep and freeze double the odds, any other status is
+ * half again, exactly as Emerald rolls it.
+ */
+function catchMath(mon, rate) {
+	const maxHP = mon.hp.max;
+	const curHP = Math.max(1, mon.hp.current);
+	const status = String(mon.status || '').toLowerCase();
+	const bonus = /slp|sleep|frz|freeze/.test(status) ? 2 :
+		status ? 1.5 : 1;
+	const a = Math.min(255,
+		Math.floor(Math.floor((3 * maxHP - 2 * curHP) * rate / (3 * maxHP)) * bonus));
+	if (a >= 255) return {a, b: 65536, chance: 1};
+	const b = Math.floor(1048560 /
+		Math.floor(Math.sqrt(Math.floor(Math.sqrt(Math.floor(16711680 / Math.max(1, a)))))));
+	return {a, b, chance: Math.pow(b / 65536, 4)};
+}
+
+/** How the grass fights back: a uniformly random known move, no policy. */
+function wildAction(state, rng) {
+	const options = ai.enumerateMoveActions(state, 'ai');
+	return options.length ? options[Math.floor(rng() * options.length)] : null;
+}
+
+/** The throw, priced like every move button is: the panel can SAY the odds. */
+function ballAction(state, bundle) {
+	const wildMon = findMon(state, activeOf(state, 'ai'));
+	const math = catchMath(wildMon, bundle.wild.rate);
+	return {
+		kind: 'ball',
+		label: 'Poke Ball',
+		chance: Math.round(math.chance * 100),
+	};
+}
+
+function actionsFor(state, bundle) {
+	const base = legalActions(state);
+	if (bundle.wild && phaseOf(state) === 'choose') {
+		return base.concat([ballAction(state, bundle)]);
+	}
+	return base;
+}
+
+/**
  * Open a fight against the run's next trainer (or a named one): the party at
  * the cap it is fought under, the trainer with their declared field. The
  * bundle that comes back is everything `act` needs — the server keeps nothing.
@@ -259,6 +312,79 @@ function start(doc, trainerName, seed) {
 }
 
 /**
+ * Open a fight against a rolled WILD encounter. The roll is checked against
+ * the route's real table — a wild fight is only offered for what that grass
+ * can produce — and the wild mon fights with the last level-up moves its
+ * rolled level knows, at that level, uncapped. The party enters at the cap
+ * of the run's next fight, same as everywhere. The bundle is `act`'s usual,
+ * plus `wild`: the roll and the species' catch rate, which is what makes
+ * the ball a legal action.
+ */
+function startWild(doc, roll, seed) {
+	const runtime = require('./run');
+	if (!doc.party || !doc.party.length) {
+		throw new Error('battle: the party is empty — set a party before fighting');
+	}
+	const wild = roll || {};
+	if (!wild.map || !wild.species || !wild.level) {
+		throw new Error('battle: a wild fight needs the roll — map, species and level');
+	}
+	const profile = require('./profiles').getProfile(doc.profileId);
+	const table = profile.oracle.encountersOn(wild.map);
+	if (!table) throw new Error(`battle: no wild table for ${JSON.stringify(wild.map)}`);
+	const slot = table.mons.find(mon => mon.species === wild.species &&
+		(!wild.method || mon.method === wild.method) &&
+		wild.level >= mon.minLevel && wild.level <= mon.maxLevel);
+	if (!slot) {
+		throw new Error(`battle: ${wild.species} L${wild.level} is not on ` +
+			`${table.name}'s table — fight what the die rolled`);
+	}
+	const rate = profile.oracle.catchRateOf(wild.species);
+	if (!rate) throw new Error(`battle: no catch rate on file for ${wild.species}`);
+	const learned = [];
+	for (const pair of profile.oracle.levelUpMoves(wild.species)) {
+		if (pair[0] <= wild.level && learned.indexOf(pair[1]) === -1) learned.push(pair[1]);
+	}
+	// Run & Bun gives a few species NO level-up moves at all (the catch
+	// command documents the same quirk); in the game they fight with
+	// Struggle, so here they do too.
+	if (!learned.length) learned.push('Struggle');
+	const ahead = runtime.upcoming(doc, 1);
+	const specs = runtime.partySpecs(doc,
+		ahead.length ? {atOrder: ahead[0].order} : {});
+	const built = planner.buildWildState({
+		playerParty: specs,
+		wild: {species: wild.species, level: wild.level, moves: learned.slice(-4)},
+		profileId: doc.profileId,
+	});
+	const bundle = {
+		state: built.state,
+		seed: Number.isInteger(seed) ? seed : Math.floor(Math.random() * 0x7fffffff),
+		step: 0,
+		trainer: `Wild ${wild.species}`,
+		phase: 'choose',
+		wild: {
+			map: table.name,
+			method: slot.method,
+			species: wild.species,
+			level: wild.level,
+			rate,
+		},
+		party: doc.party.map((monId, slotIndex) => ({
+			battleId: `player-${slotIndex + 1}`,
+			monId,
+			species: specs[slotIndex].species,
+		})),
+	};
+	return {
+		battle: bundle,
+		viewState: view(built.state),
+		actions: actionsFor(built.state, bundle),
+		events: [{text: `A wild ${wild.species} appeared!`}],
+	};
+}
+
+/**
  * Resolve one player decision. In 'choose', that is a full turn: the AI picks
  * blind, order settles, both resolve, end-of-turn runs (unless the player's
  * active fell — then the turn holds for the replacement). In 'replace', the
@@ -271,8 +397,12 @@ function act(bundle, chosen) {
 	const events = [];
 	const faints = [];
 	const rng = streamFor(bundle.seed, bundle.step);
-	const already = finished(state);
-	if (already) throw new Error('battle: this fight is over — start another');
+	// A caught fight ends with the wild mon still standing, so the phase is
+	// the record of that ending, not the HP table.
+	if (finished(state) || bundle.phase === 'done') {
+		throw new Error('battle: this fight is over — start another');
+	}
+	let caught = false;
 
 	const applyOne = (action, label) => {
 		const before = state;
@@ -312,6 +442,41 @@ function act(bundle, chosen) {
 		// The held end-of-turn now runs — the same order the engine's own
 		// rollouts resolve (replacement first, then the turn boundary).
 		if (!finished(state)) state = ai.advanceTurn(state);
+	} else if (chosen.kind === 'ball') {
+		// The throw is the player's whole turn, exactly as the game plays it:
+		// a break-out gives the wild mon its move.
+		if (!bundle.wild) {
+			throw new Error('battle: only a wild encounter takes a ball');
+		}
+		const wildMon = findMon(state, activeOf(state, 'ai'));
+		const math = catchMath(wildMon, bundle.wild.rate);
+		events.push({text: 'You threw a Poke Ball!'});
+		let shakes = 0;
+		while (shakes < 4 && Math.floor(rng() * 65536) < math.b) shakes++;
+		if (shakes === 4) {
+			caught = true;
+			events.push({text: `Gotcha! The wild ${wildMon.species} was caught!`});
+		} else {
+			events.push({text: shakes === 0 ? 'The ball missed the mark entirely!' :
+				`It shook ${shakes} time${shakes === 1 ? '' : 's'}... and broke free!`});
+			const answer = wildAction(state, rng);
+			const aimed = answer ? retarget(state, answer) : null;
+			if (aimed) {
+				try {
+					applyOne(aimed, 'Wild ');
+				} catch (error) {
+					// Same contract as the trainer loop: one illegal transition
+					// loses the actor its beat, never the fight.
+					events.push({text: `${findMon(state, aimed.actorId).species} flinched at ` +
+						`the engine: ${error.message}`});
+				}
+			}
+			state = settleAiSide(state, events);
+			state = clearDeadPlayerPending(state);
+			if (!finished(state) && phaseOf(state) !== 'replace') {
+				state = ai.advanceTurn(state);
+			}
+		}
 	} else {
 		// Reconstruct the chosen action against the CURRENT state — the client
 		// sends intent (a move name, a replacement id), never a raw transition.
@@ -334,11 +499,18 @@ function act(bundle, chosen) {
 		}
 
 		let aiPick = null;
-		try {
-			aiPick = ai.chooseStateAction(state, ai.calculateActionFacts, 'ai', rng,
-				{includeSwitches: false});
-		} catch (error) {
-			aiPick = null; // a policy with nothing to say forfeits its action, never the fight
+		if (bundle.wild) {
+			// Wild mons do not run the trainer policy: the grass picks at
+			// random, off the same seeded stream everything else rolls on.
+			const answer = wildAction(state, rng);
+			aiPick = answer ? {action: answer} : null;
+		} else {
+			try {
+				aiPick = ai.chooseStateAction(state, ai.calculateActionFacts, 'ai', rng,
+					{includeSwitches: false});
+			} catch (error) {
+				aiPick = null; // a policy with nothing to say forfeits its action, never the fight
+			}
 		}
 		const entries = ai.orderActions(state,
 			[aiPick && aiPick.action, playerAction].filter(Boolean), {random: rng});
@@ -349,7 +521,7 @@ function act(bundle, chosen) {
 			const aimed = retarget(state, action);
 			if (!aimed) continue;
 			try {
-				applyOne(aimed, isPlayers ? '' : 'Foe ');
+				applyOne(aimed, isPlayers ? '' : bundle.wild ? 'Wild ' : 'Foe ');
 			} catch (error) {
 				// One illegal transition must not eat the fight: the actor simply
 				// loses the beat (the engine refused it), and the turn goes on.
@@ -368,7 +540,7 @@ function act(bundle, chosen) {
 	}
 
 	state = settleAiSide(state, events);
-	const result = finished(state);
+	const result = caught ? 'catch' : finished(state);
 	const phase = result ? 'done' : phaseOf(state);
 	// Epitaphs ride the bundle: the server keeps nothing, so each turn's
 	// player-side faints are folded in here, where the killer is still known.
@@ -404,7 +576,7 @@ function act(bundle, chosen) {
 					of: known.of || null,
 				};
 			}) : [],
-		actions: result ? [] : legalActions(state),
+		actions: result ? [] : actionsFor(state, next),
 	};
 }
 
@@ -488,4 +660,4 @@ function adjudicate(doc, trainerName, options) {
 	};
 }
 
-module.exports = {start, act, legalActions, view, streamFor, adjudicate};
+module.exports = {start, startWild, act, legalActions, view, streamFor, adjudicate, catchMath};

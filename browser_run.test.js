@@ -303,6 +303,63 @@ test('the run survives a reload, because a playthrough that does not is not one'
 	await session.context.close();
 });
 
+test('a fight survives a reload, and a fight from a moved run does not', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		null, {timeout: 10000});
+
+	// Open the fight and play one turn, so there is a log worth keeping.
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
+	await page.waitForSelector('#runbun-run-battle-moves .runbun-run-battle-move',
+		{timeout: 10000});
+	await page.click('#runbun-run-battle-moves .runbun-run-battle-move');
+	await page.waitForFunction(
+		() => /turn 2/.test(document.querySelector('#runbun-run-battle-turn').textContent),
+		null, {timeout: 10000});
+	const logBefore = await page.textContent('#runbun-run-battle-log');
+	assert.ok(logBefore.length > 0, 'a played turn narrates itself');
+
+	// The refresh: the fight is still on screen, mid-fight, log and all.
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
+	assert.match(await page.textContent('#runbun-run-battle-trainer'), /Youngster Calvin/);
+	assert.match(await page.textContent('#runbun-run-battle-turn'), /turn 2/);
+	assert.equal(await page.textContent('#runbun-run-battle-log'), logBefore,
+		'the narration survives the refresh');
+	// And it is still playable: the buttons act, not just paint.
+	await page.click('#runbun-run-battle-moves .runbun-run-battle-move');
+	await page.waitForFunction(
+		() => !/turn 2/.test(document.querySelector('#runbun-run-battle-turn').textContent),
+		null, {timeout: 10000});
+
+	// A fight stamped against a run that has since moved is a stale fork:
+	// it is dropped on load, never resumed into the wrong document.
+	await page.evaluate(() => {
+		const record = JSON.parse(window.localStorage.getItem('runbun.battle.v1'));
+		record.stamp = 'somewhere else entirely';
+		window.localStorage.setItem('runbun.battle.v1', JSON.stringify(record));
+	});
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	assert.equal(await page.isVisible('#runbun-run-battle'), false,
+		'a stale fight must not resume');
+	assert.equal(await page.evaluate(
+		() => window.localStorage.getItem('runbun.battle.v1')), null,
+	'a stale fight is cleaned out of storage');
+
+	await session.context.close();
+});
+
 test('lead order is click order, and marking a fight beaten moves the run', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
@@ -846,6 +903,137 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	}
 	assert.ok((await page.textContent('#runbun-run-battle-log')).length > 0,
 		'the fight left a narration');
+
+	await session.context.close();
+});
+
+test('a rolled encounter can be fought: the ball is on the buttons, the ending settles the roll', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	// The route rule ON, so the settled roll's "one per route" refusal at the
+	// end is the rule speaking — without it a used route re-rolls legally.
+	await page.check('#runbun-run-new-route');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		null, {timeout: 10000});
+
+	// Roll, then fight the roll instead of clicking it into the box.
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	await page.click('#runbun-run-roll-fight');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
+	assert.match(await page.textContent('#runbun-run-battle-trainer'), /^Wild /);
+	assert.equal(await page.isVisible('#runbun-run-roll-result'), false,
+		'the roll card yields to the fight');
+	const $ball = await page.waitForSelector('.runbun-run-battle-ball', {timeout: 10000});
+	assert.match(await $ball.textContent(), /% catch/, 'the throw wears its odds');
+
+	// Throw balls until the fight settles — a capped starter shrugs off a
+	// route-one wild, so this ends in a catch or (rarely) a kill, never a loss.
+	for (let turn = 0; turn < 30; turn++) {
+		const done = await page.evaluate(() =>
+			/Gotcha|spent, nothing kept/.test(
+				document.querySelector('#runbun-run-status').textContent));
+		if (done) break;
+		const ball = await page.$('.runbun-run-battle-ball');
+		if (!ball) {
+			await page.waitForTimeout(250);
+			continue;
+		}
+		await ball.click();
+		await page.waitForTimeout(150);
+	}
+	try {
+		await page.waitForFunction(
+			() => /Gotcha|spent, nothing kept/.test(
+				document.querySelector('#runbun-run-status').textContent),
+			null, {timeout: 15000});
+	} catch (error) {
+		console.log('DEBUG status:', await page.textContent('#runbun-run-status'));
+		console.log('DEBUG battle visible:', await page.isVisible('#runbun-run-battle'));
+		console.log('DEBUG moves:', await page.evaluate(() =>
+			[...document.querySelectorAll('#runbun-run-battle-moves button')].map(b => b.textContent)));
+		throw error;
+	}
+
+	// Either ending went through the document: a catch is in the box, a kill
+	// spent the route — and in both worlds the route refuses a second roll.
+	const saved = await savedRun(page);
+	const status = await page.textContent('#runbun-run-status');
+	if (/Gotcha/.test(status)) {
+		assert.equal(saved.box.length, 2, 'the caught wild is a real box entry');
+		assert.equal(saved.box[1].origin.mapName, 'Route101');
+	} else {
+		assert.equal(saved.box.length, 1, 'a killed encounter keeps nothing');
+	}
+	await page.click('#runbun-run-roll');
+	await page.waitForFunction(
+		() => /already gave its encounter/.test(
+			document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+
+	await session.context.close();
+});
+
+test('a hand-recorded faint offers its takeback, and the window is honest', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.check('#runbun-run-new-permadeath');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.fill('#runbun-run-catch-species', 'Poochyena');
+	await page.fill('#runbun-run-catch-level', '3');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
+		null, {timeout: 10000});
+
+	// The faint lands, and the takeback bar rises with it.
+	await page.click('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-name');
+	await page.waitForFunction(
+		() => document.querySelector('#runbun-run-selected').value === 'mon-2',
+		null, {timeout: 10000});
+	await page.click('#runbun-run-faint');
+	await page.waitForSelector('#runbun-run-snackbar:not([hidden])', {timeout: 10000});
+	assert.match(await page.textContent('#runbun-run-snackbar-text'), /Poochyena is gone/);
+	assert.ok((await savedRun(page)).box[1].status === 'dead', 'the faint really committed');
+
+	// Undo inside the window: the death is taken back through /run/undo.
+	await page.click('#runbun-run-snackbar-undo');
+	await page.waitForFunction(
+		() => /Undone/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	assert.equal((await savedRun(page)).box[1].status, 'boxed', 'the mon stands again');
+	assert.equal(await page.isVisible('#runbun-run-snackbar'), false,
+		'the bar leaves with the undo');
+
+	// A later command closes the window: the bar must never undo the wrong thing.
+	await page.click('#runbun-run-faint');
+	await page.waitForSelector('#runbun-run-snackbar:not([hidden])', {timeout: 10000});
+	await page.fill('#runbun-run-acquire-item', 'Potion');
+	await page.click('#runbun-run-acquire');
+	await page.waitForFunction(
+		() => /Potion/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+	assert.equal(await page.isVisible('#runbun-run-snackbar'), false,
+		'another command dismisses the takeback');
+	assert.equal((await savedRun(page)).box[1].status, 'dead',
+		'the faint stays recorded once the window closes');
 
 	await session.context.close();
 });

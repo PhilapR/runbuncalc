@@ -270,6 +270,21 @@ function growthRateOf(species) {
 }
 
 /**
+ * A species' catch rate — the one number the ball math runs on. Mainline dex
+ * data (veekun import), not decomp data: the hack does not touch capture
+ * rates. Keys are normalized to alphanumerics so naming styles meet.
+ */
+function catchRateOf(species) {
+	const rates = load('catch-rates').rates;
+	const key = String(species).toLowerCase().replace(/[^a-z0-9]/g, '');
+	if (rates[key]) return rates[key];
+	// Regional forms ('Zigzagoon-Galar') are not separate species rows in the
+	// dex data; their capture rate is the line's, so the base species answers.
+	const base = String(species).split('-')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+	return rates[base] || null;
+}
+
+/**
  * Total EXP at a level, per curve.
  *
  * The curve assignment is hack data; these formulas are the standard Gen 3
@@ -454,6 +469,6 @@ module.exports = {
 	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
-	growthRateOf, expForLevel, levelFromExp,
+	growthRateOf, expForLevel, levelFromExp, catchRateOf,
 	coverage, LIMITS,
 };

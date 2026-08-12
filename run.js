@@ -442,7 +442,7 @@ function split(run) {
  * prep sheet cannot drift from the tiers and caps the rest of the product
  * shows.
  */
-function splitPrep(run) {
+function splitPrep(run, options) {
 	const here = split(run);
 	if (!here) return null;
 	const profile = getProfile(run.profileId);
@@ -484,6 +484,23 @@ function splitPrep(run) {
 			});
 		}
 	}
+	// Play the boss on request: `{rollouts: N}` adjudicates the CURRENT party
+	// against the split's boss and pins the measured floor to the sheet. Off
+	// by default — the sheet repaints after every command, and a measurement
+	// that expensive is asked for, not ambient.
+	let adjudication = null;
+	if (options && options.rollouts > 0 && !here.finished && run.party.length) {
+		const driver = require('./battle-driver');
+		const played = driver.adjudicate(run, here.boss, {rollouts: options.rollouts});
+		adjudication = {
+			trainer: here.boss,
+			pWin: played.pWin,
+			eDeaths: played.eDeaths,
+			pDeathless: played.pDeathless,
+			rollouts: played.rollouts,
+			policy: 'floor: best forecast move, forced switches only — a lower bound',
+		};
+	}
 	return {
 		split: here,
 		cap: levelCap(run),
@@ -491,6 +508,7 @@ function splitPrep(run) {
 		fightsAhead: ahead.length,
 		filler,
 		pickups,
+		adjudication,
 	};
 }
 
@@ -2071,8 +2089,17 @@ const COMMANDS = {
 			return `${mon.species} (${mon.id}) is gone — ${command.to}` +
 				(command.move ? `'s ${command.move}` : '');
 		}
-		mon.died = {at: run.position};
-		return `${mon.species} (${mon.id}) is gone`;
+		// No trainer named: a wild fight, a self-KO, a hand-kept note. The
+		// killer is free text (`of`, e.g. "wild Lillipup") — the map cannot
+		// verify the grass, only the trainers on it.
+		mon.died = {
+			at: run.position,
+			...(command.move ? {move: command.move} : {}),
+			...(command.of ? {of: command.of} : {}),
+		};
+		return `${mon.species} (${mon.id}) is gone` +
+			(command.of ? ` — ${command.of}${command.move ? `'s ${command.move}` : ''} took it` :
+				command.move ? ` — ${command.move} took it` : '');
 	},
 
 	/** Remove a Pokemon from the run entirely. */

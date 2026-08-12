@@ -387,6 +387,11 @@
 		var prep = payload.splitPrep;
 		var $summary = $('#runbun-run-split-summary').empty();
 		var $list = $('#runbun-run-split-gauntlet').empty();
+		// A played floor measures ONE run state: any repaint means the run
+		// moved (or might have), so the measurement clears rather than lie.
+		$('#runbun-run-split-played').text('');
+		$('#runbun-run-split-play').closest('.runbun-run-split-play-row')
+			.prop('hidden', !prep || prep.split.finished || !(state && state.party.length));
 		if (!prep) return;
 		if (prep.split.finished) {
 			$summary.text('The run map is finished — no split ahead.');
@@ -436,6 +441,28 @@
 			});
 			$list.append($pickups);
 		}
+	}
+
+	/** Play the split's boss with the current party, on demand — the same
+	 * measured floor the ranker plays, pinned to the sheet it answers for. */
+	function playBoss() {
+		if (!state || !state.party.length) return;
+		var $out = $('#runbun-run-split-played');
+		$out.text('playing…');
+		api('/run/split', {run: state, rollouts: 8}).then(function (prep) {
+			var played = prep.adjudication;
+			if (!played) {
+				$out.text('');
+				return;
+			}
+			$out.text('P(win) ' + Math.round(played.pWin * 100) + '% · ' +
+				played.eDeaths.toFixed(1) + ' deaths expected · deathless ' +
+				Math.round(played.pDeathless * 100) + '% — floor policy, ' +
+				played.rollouts + ' rollouts');
+		}).catch(function (error) {
+			$out.text('');
+			status(error.message, 'error');
+		});
 	}
 
 	// -------------------------------------------------------------- road ahead
@@ -577,8 +604,56 @@
 	 * Resolves `true` on success and `false` on refusal, so a caller with
 	 * one-shot form fields (the Faint epitaph) knows when they were consumed.
 	 */
+	// ---------------------------------------------------------- snackbar undo
+	//
+	// ui-lab's snackbar-undo slot, ported framework-free. One deliberate
+	// difference from the lab's optimistic delete: a faint here is ALREADY
+	// committed to the document — the bar is a countdown on the easy
+	// takeback, not a stay of execution. The undo is only honored while the
+	// faint is still the run's last command; any other command landing (or
+	// the window draining) dismisses the bar, because /run/undo takes back
+	// whatever came last.
+	var snackbar = {timer: null, tick: null, stamp: null};
+
+	function dismissSnackbar() {
+		if (snackbar.timer) window.clearTimeout(snackbar.timer);
+		if (snackbar.tick) window.clearInterval(snackbar.tick);
+		snackbar.timer = null;
+		snackbar.tick = null;
+		snackbar.stamp = null;
+		$('#runbun-run-snackbar').prop('hidden', true).removeClass('is-counting');
+	}
+
+	function offerUndo(label) {
+		dismissSnackbar();
+		var windowMs = 6000;
+		snackbar.stamp = logLength();
+		var $bar = $('#runbun-run-snackbar');
+		var $text = $('#runbun-run-snackbar-text');
+		var reduced = window.matchMedia &&
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		$text.text(label);
+		$bar.css('--rb-snackbar-ms', windowMs + 'ms').prop('hidden', false);
+		if (reduced) {
+			// The kit's reduced-motion contract: no draining ring, a plain
+			// seconds countdown carries the same information as text.
+			var left = Math.round(windowMs / 1000);
+			$text.text(label + ' · ' + left + 's');
+			snackbar.tick = window.setInterval(function () {
+				left -= 1;
+				if (left > 0) $text.text(label + ' · ' + left + 's');
+			}, 1000);
+		} else {
+			// Forced reflow arms the CSS transition from the full ring.
+			void $bar[0].offsetWidth;
+			$bar.addClass('is-counting');
+		}
+		snackbar.timer = window.setTimeout(dismissSnackbar, windowMs);
+	}
+
 	function command(body) {
 		return mutate(function () {
+			dismissSnackbar();
 			status('Working…', '');
 			return api('/run/apply', {run: state, command: body}).then(function (payload) {
 				state = payload.run;
@@ -1097,10 +1172,76 @@
 		});
 	}
 
-	/** The live fight. Page memory only: leaving mid-fight abandons the FIGHT,
-	 * never the run — nothing is written until the fight ends. */
+	/** The live fight. Nothing is written to the RUN until the fight ends —
+	 * but the fight itself survives a refresh: every turn is stamped against
+	 * the run state it was opened from and kept in its own storage slot, so
+	 * a dropped phone resumes mid-fight, and a run that moved on (another
+	 * tab, an import) silently invalidates the stale fight instead. */
 	var battle = null;
 	var battleBusy = false;
+	var BATTLE_KEY = 'runbun.battle.v1';
+
+	/** What the fight was opened FROM: any command moves the log, so a fight
+	 * resumes only into the exact document it left. */
+	function runStamp() {
+		return state ? state.log.length + ':' + state.position : null;
+	}
+
+	function persistBattle(reply) {
+		battle.view = {
+			phase: reply.phase,
+			viewState: reply.viewState,
+			actions: reply.actions,
+		};
+		battle.log = (battle.log || []).concat((reply.events || []).map(function (event) {
+			return event.text;
+		})).slice(-200);
+		try {
+			window.localStorage.setItem(BATTLE_KEY, JSON.stringify({
+				stamp: runStamp(),
+				bundle: battle.bundle,
+				view: battle.view,
+				log: battle.log,
+			}));
+		} catch (error) { /* a fight that cannot persist is still playable */ }
+	}
+
+	function clearBattleSave() {
+		try {
+			window.localStorage.removeItem(BATTLE_KEY);
+		} catch (error) { /* nothing worth surfacing */ }
+	}
+
+	function restoreBattle() {
+		var raw;
+		try {
+			raw = window.localStorage.getItem(BATTLE_KEY);
+		} catch (error) {
+			return;
+		}
+		if (!raw) return;
+		var record = null;
+		try {
+			record = JSON.parse(raw);
+		} catch (error) { /* an unreadable fight is dropped below */ }
+		if (!record || !record.view || !record.bundle || record.stamp !== runStamp()) {
+			clearBattleSave();
+			return;
+		}
+		battle = {bundle: record.bundle, log: record.log || []};
+		$('#runbun-run-battle-log').empty();
+		$('#runbun-run-battle').prop('hidden', false);
+		paintBattle({
+			phase: record.view.phase,
+			viewState: record.view.viewState,
+			actions: record.view.actions,
+			events: battle.log.map(function (text) {
+				return {text: text};
+			}),
+		});
+		status('The fight against ' + battle.bundle.trainer +
+			' resumed where it left off.', 'ok');
+	}
 
 	function hpBar($bar, mon) {
 		var fraction = mon.hp.max ? Math.max(0, mon.hp.current) / mon.hp.max : 0;
@@ -1147,7 +1288,13 @@
 			reply.phase === 'replace' ? 'Choose the next Pokemon.' :
 				reply.result ? '' : 'What will ' + viewState.player.active.species + ' do?');
 		(reply.actions || []).forEach(function (entry) {
-			if (entry.kind === 'move') {
+			if (entry.kind === 'ball') {
+				// The throw wears its odds the way every move wears its damage.
+				$moves.append($('<button type="button" class="btn runbun-run-battle-move runbun-run-battle-ball"></button>')
+					.append($('<span class="runbun-run-battle-move-name"></span>').text(entry.label))
+					.append($('<span class="runbun-run-battle-move-dmg"></span>').text(
+						entry.chance + '% catch')));
+			} else if (entry.kind === 'move') {
 				$moves.append($('<button type="button" class="btn runbun-run-battle-move"></button>')
 					.attr('data-move', entry.move)
 					.append($('<span class="runbun-run-battle-move-name"></span>').text(entry.move))
@@ -1164,21 +1311,43 @@
 		});
 	}
 
-	function startBattle() {
+	function openBattle(path, body) {
 		if (battle) {
 			status('A fight is already live — finish or abandon it first.', 'error');
-			return;
+			return Promise.resolve(false);
 		}
-		if (!state) return;
+		if (!state) return Promise.resolve(false);
 		status('Sending out…', '');
-		api('/run/battle/start', {run: state}).then(function (payload) {
-			battle = {bundle: payload.battle};
+		return api(path, body).then(function (payload) {
+			battle = {bundle: payload.battle, log: []};
 			$('#runbun-run-battle-log').empty();
 			$('#runbun-run-battle').prop('hidden', false);
 			paintBattle(payload);
+			persistBattle(payload);
 			status('', '');
+			return true;
 		}).catch(function (error) {
 			status(error.message, 'error');
+			return false;
+		});
+	}
+
+	function startBattle() {
+		openBattle('/run/battle/start', {run: state});
+	}
+
+	/** The rolled encounter, fought instead of clicked: the roll card yields
+	 * to the battle, and the fight's ending settles the roll — a caught ball
+	 * is the catch, a killed encounter is the spend. */
+	function startWildBattle() {
+		if (!rolled) return;
+		openBattle('/run/battle/wild', {run: state, roll: {
+			map: rolled.mapName,
+			method: rolled.method,
+			species: rolled.species,
+			level: rolled.level,
+		}}).then(function (opened) {
+			if (opened) $('#runbun-run-roll-result').prop('hidden', true);
 		});
 	}
 
@@ -1189,7 +1358,11 @@
 			battleBusy = false;
 			battle.bundle = reply.battle;
 			paintBattle(reply);
-			if (reply.result) finishBattle(reply);
+			if (reply.result) {
+				finishBattle(reply);
+			} else {
+				persistBattle(reply);
+			}
 		}).catch(function (error) {
 			battleBusy = false;
 			status(error.message, 'error');
@@ -1205,18 +1378,62 @@
 	 */
 	function finishBattle(reply) {
 		var trainer = battle.bundle.trainer;
+		var wild = battle.bundle.wild || null;
 		var won = reply.result === 'win';
 		var deaths = reply.deaths || [];
 		battle = null;
+		clearBattleSave();
 		var chain = Promise.resolve(true);
 		deaths.forEach(function (death) {
 			if (!death.monId) return;
 			chain = chain.then(function (ok) {
 				if (!ok) return false;
-				return command({kind: 'faint', id: death.monId, to: trainer,
-					move: death.by || undefined});
+				// The grass is not a fight on the run map, so a wild death
+				// carries its killer as free text instead of a trainer name.
+				return command(wild ?
+					{kind: 'faint', id: death.monId, move: death.by || undefined,
+						of: 'wild ' + wild.species} :
+					{kind: 'faint', id: death.monId, to: trainer,
+						move: death.by || undefined});
 			});
 		});
+		if (wild) {
+			// The fight's ending settles the roll: a caught ball is the catch,
+			// a killed encounter is the spend — both the ordinary, verified
+			// commands the buttons would have written.
+			if (reply.result === 'catch') {
+				chain = chain.then(function (ok) {
+					return ok ? command({kind: 'catch', species: wild.species,
+						level: wild.level, map: wild.map, method: wild.method}) : false;
+				});
+			} else if (won) {
+				chain = chain.then(function (ok) {
+					return ok ? command({kind: 'spend', map: wild.map,
+						reason: 'the encounter fainted'}) : false;
+				});
+			}
+			chain.then(function (ok) {
+				if (!ok) return;
+				if (reply.result === 'catch' || won) {
+					rolled = null;
+					$('#runbun-run-roll-result').prop('hidden', true);
+					showEncounters();
+				} else if (rolled) {
+					// A wipe settles nothing: the encounter is still standing
+					// in the grass, and the card comes back to prove it.
+					$('#runbun-run-roll-result').prop('hidden', false);
+				}
+				status(reply.result === 'catch' ?
+					'Gotcha! ' + wild.species + ' L' + wild.level + ' joined the box.' :
+					won ?
+						'The wild ' + wild.species + ' fainted — ' + wild.map +
+							' is spent, nothing kept.' :
+						'Wiped by the wild ' + wild.species + ' — the deaths are ' +
+							'recorded; the encounter still stands.',
+				reply.result === 'catch' ? 'ok' : 'error');
+			});
+			return;
+		}
 		if (won) {
 			chain = chain.then(function (ok) {
 				return ok ? command({kind: 'beat', trainer: trainer}) : false;
@@ -1293,6 +1510,7 @@
 		lastStatus = null;
 		stagedParty = [];
 		battle = null;
+		clearBattleSave();
 		rolled = null;
 		stamps = {};
 		$('#runbun-run-battle').prop('hidden', true);
@@ -1302,8 +1520,13 @@
 	}
 
 	function abandonBattle() {
+		var wasWild = !!(battle && battle.bundle && battle.bundle.wild);
 		battle = null;
+		clearBattleSave();
 		$('#runbun-run-battle').prop('hidden', true);
+		// Fleeing a wild fight settles nothing: the roll card returns so the
+		// encounter can still be caught on faith or given up properly.
+		if (wasWild && rolled) $('#runbun-run-roll-result').prop('hidden', false);
 		status('Fight abandoned — nothing was written.', '');
 	}
 
@@ -1506,15 +1729,28 @@
 			// text silently became the next loss's cause of death — a fabricated
 			// entry in the one ledger whose point is the record. A refusal keeps
 			// the text so a misspelled trainer can be fixed and resubmitted.
+			var id = $('#runbun-run-selected').val();
 			command({
 				kind: 'faint',
-				id: $('#runbun-run-selected').val(),
+				id: id,
 				to: $('#runbun-run-died-to').val() || undefined,
 				move: $('#runbun-run-died-move').val() || undefined,
 			}).then(function (accepted) {
 				if (accepted) {
 					$('#runbun-run-died-to').val('');
 					$('#runbun-run-died-move').val('');
+					// A hand-recorded faint is the misclick-prone one, so it
+					// alone gets the takeback window (a battle's deaths are a
+					// deliberate multi-command ending — no single undo fits).
+					var fallen = null;
+					(state && state.box || []).forEach(function (mon) {
+						if (mon.id === id) fallen = mon;
+					});
+					// Permadeath off makes faint a no-op on the mon; a takeback
+					// window on nothing would be theater.
+					if (fallen && fallen.status === 'dead') {
+						offerUndo(fallen.species + ' is gone.');
+					}
 				}
 			});
 		});
@@ -1581,13 +1817,26 @@
 		$('#runbun-run-plan').on('click', function () { plan(null); });
 		// The recreation: roll the dice, play the fight.
 		$('#runbun-run-roll').on('click', rollEncounter);
+		$('#runbun-run-roll-fight').on('click', startWildBattle);
+		$('#runbun-run-snackbar-undo').on('click', function () {
+			// Honored only while the faint is still the last command: /run/undo
+			// takes back whatever came last, and that must never silently be
+			// something else.
+			if (snackbar.stamp === null || snackbar.stamp !== logLength()) {
+				dismissSnackbar();
+				return;
+			}
+			$('#runbun-run-undo').trigger('click');
+		});
 		$('#runbun-run-roll-catch').on('click', function () { settleRoll(true); });
 		$('#runbun-run-roll-flee').on('click', function () { settleRoll(false); });
 		$('#runbun-run-play').on('click', startBattle);
 		$('#runbun-run-battle-abandon').on('click', abandonBattle);
 		bindHold('#runbun-run-end', 1000, endRun);
 		$('#runbun-run-battle-moves').on('click', '.runbun-run-battle-move', function () {
-			battleAct({kind: 'move', move: $(this).attr('data-move')});
+			battleAct($(this).hasClass('runbun-run-battle-ball') ?
+				{kind: 'ball'} :
+				{kind: 'move', move: $(this).attr('data-move')});
 		});
 		$('#runbun-run-battle-switches').on('click', '.runbun-run-battle-switch', function () {
 			battleAct({kind: 'switch', replacementId: $(this).attr('data-replace')});
@@ -1597,11 +1846,13 @@
 		// a button on 362 rows would invite it once per row.
 		$('#runbun-run-advise').on('click', function () { advise(null); });
 		$('#runbun-run-rank').on('click', function () { rank(); });
+		$('#runbun-run-split-play').on('click', playBoss);
 		$('#runbun-run-routes-btn').on('click', function () { routesView(); });
 		$('#runbun-run-scout-btn').on('click', function () { scout(); });
 
 		$('#runbun-run-undo').on('click', function () {
 			mutate(function () {
+				dismissSnackbar();
 				return api('/run/undo', {run: state}).then(function (payload) {
 					state = payload.run;
 					persist();
@@ -1688,6 +1939,13 @@
 			}
 		}
 		state = incoming;
+		// A fight here was opened from a run that no longer exists: playing it
+		// out would write history onto the wrong document. It folds, unwritten.
+		if (battle) {
+			battle = null;
+			clearBattleSave();
+			$('#runbun-run-battle').prop('hidden', true);
+		}
 		showRun();
 		if (!state) return;
 		render().then(function () {
@@ -1710,7 +1968,10 @@
 					'Import to get the run back, or clear the box to start over.', 'error');
 				return;
 			}
-			if (state) status('Loaded ' + state.name + ' from this browser.', 'ok');
+			if (state) {
+				status('Loaded ' + state.name + ' from this browser.', 'ok');
+				restoreBattle();
+			}
 		});
 	});
 })();

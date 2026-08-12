@@ -282,6 +282,47 @@ function buildFightState(options) {
 }
 
 /**
+ * Build a serializable BattleState for a WILD encounter: the caller's party
+ * against one wild Pokemon at its rolled level, no trainer and no declared
+ * field. The wild build goes through the same zero-EV projection as a
+ * declared player Pokemon — its moves are the caller's to source (the last
+ * level-up moves at that level), because move data is the oracle's, not this
+ * layer's.
+ */
+function buildWildState(options) {
+	const opts = options || {};
+	const profile = getProfile(opts.profileId);
+	const b = loadBridge(profile);
+	if (!opts.playerParty || !opts.playerParty.length) {
+		throw new Error('playerParty is required: nobody is standing in the grass');
+	}
+	const wild = opts.wild || {};
+	if (!wild.species || !wild.level) {
+		throw new Error('a wild fight needs the rolled species and level');
+	}
+	if (!wild.moves || !wild.moves.length) {
+		throw new Error(`a wild ${wild.species} needs at least one move`);
+	}
+	const wildMon = playerStateFromEntry(b, {
+		species: wild.species,
+		level: wild.level,
+		moves: wild.moves,
+	}, 'ai-1').state;
+	const built = opts.playerParty.map((mon, i) =>
+		playerStateFromEntry(b, mon, `player-${i + 1}`));
+	const state = b.buildBattleState({
+		aiActives: [wildMon],
+		aiBench: [],
+		playerActives: built.slice(0, 1).map(entry => entry.state),
+		playerBench: built.slice(1).map(entry => entry.state),
+		mode: 'Singles',
+		field: {},
+	});
+	ai.validateBattleState(state);
+	return {state};
+}
+
+/**
  * The permanent field a profile declares for a fight, split into what the
  * battle state can hold: the sky (weather/terrain), the opponent's starting
  * side effects, and a human-readable label. A note-only declaration (Route
@@ -621,6 +662,6 @@ function clone(value) {
 }
 
 module.exports = {
-	loadRunMap, listFights, getFight, upcoming, buildFightState, predict,
+	loadRunMap, listFights, getFight, upcoming, buildFightState, buildWildState, predict,
 	playerStateFromEntry, matchup, holdableItem,
 };

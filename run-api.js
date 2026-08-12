@@ -260,10 +260,17 @@ const api = {
 		return guarded(() => runtime.rankParties(state, (payload || {}).trainer, options));
 	},
 
-	/** The split as one sheet: boss, cap, remaining gauntlet, filler count. */
+	/** The split as one sheet: boss, cap, remaining gauntlet, filler count.
+	 * `rollouts` (bounded like rank's) plays the boss with the current party
+	 * and pins the measured floor to the sheet. */
 	split(payload) {
 		const state = requireRun(payload);
-		return guarded(() => runtime.splitPrep(state));
+		const rollouts = (payload || {}).rollouts;
+		if (rollouts !== undefined &&
+			(!Number.isInteger(rollouts) || rollouts < 0 || rollouts > 48)) {
+			throw refusal('rollouts must be an integer from 0 to 48', 'InvalidRunCommand');
+		}
+		return guarded(() => runtime.splitPrep(state, rollouts ? {rollouts} : undefined));
 	},
 
 	/** The box-versus-trainer grid: which of the box beats which of theirs. */
@@ -296,6 +303,17 @@ const api = {
 	battleStart(payload) {
 		const state = requireRun(payload);
 		return guarded(() => battleDriver.start(state, payload.trainer, payload.seed));
+	},
+
+	/** A rolled wild encounter, fought: the driver checks the roll against
+	 * the route's real table, so this takes the roll at face value. */
+	battleWild(payload) {
+		const state = requireRun(payload);
+		const roll = (payload || {}).roll;
+		if (!isRecord(roll)) {
+			throw refusal('roll is required — send what /run/encounter rolled', 'InvalidRunCommand');
+		}
+		return guarded(() => battleDriver.startWild(state, roll, payload.seed));
 	},
 
 	battleAct(payload) {
@@ -338,6 +356,7 @@ const ROUTES = {
 	'/run/scout': api.scout,
 	'/run/encounter': api.encounter,
 	'/run/battle/start': api.battleStart,
+	'/run/battle/wild': api.battleWild,
 	'/run/battle/act': api.battleAct,
 	'/run/maps': api.maps,
 };

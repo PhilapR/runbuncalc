@@ -374,8 +374,8 @@ test('the recreation verbs: a starter opens the run, a roll suggests, a spend bu
 	const before = fs.readFileSync(file, 'utf8');
 	const rolled = cli('roll', 'Route101');
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'a roll must not write');
-	assert.match(rolled, /^A wild \w+ L\d+ appeared!/);
-	assert.match(rolled, new RegExp(`keep it: {5}node play\\.js catch \\w+ --level \\d+ ` +
+	assert.match(rolled, /^A wild \S+ L\d+ appeared!/);
+	assert.match(rolled, new RegExp(`keep it: {5}node play\\.js catch \\S+ --level \\d+ ` +
 		`--map Route101 --file ${file}`));
 	assert.match(rolled, new RegExp(`got away: {4}node play\\.js spend Route101 --file ${file}`));
 
@@ -398,4 +398,16 @@ test('adjudicate plays the fight and reports the floor without writing', () => {
 	assert.match(report, /Youngster Calvin \(#0\) — the current party, played 3 times/);
 	assert.match(report, /P\(win\) \d+% {2}· {2}\d+\.\d deaths expected {2}· {2}deathless \d+%/);
 	assert.match(report, /a lower bound, not a promise/);
+});
+
+test('split --rollouts pins the played floor to the sheet', () => {
+	cli('new', '--starter', 'Treecko');
+	cli('party', 'mon-1');
+	const plain = cli('split');
+	assert.ok(!/played \d+ times/.test(plain), 'unasked, the sheet stays a grid');
+	const played = cli('split', '--rollouts', '2');
+	assert.match(played, /played 2 times: P\(win\) \d+%/);
+	assert.match(played, /floor policy — a lower bound/);
+	assert.throws(() => cli('split', '--rollouts', 'many'),
+		/--rollouts must be an integer from 1 to 100/);
 });

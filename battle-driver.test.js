@@ -129,6 +129,58 @@ test('a finished fight is over: acting on it is refused, not resolved', () => {
 		/battle: this fight is over/);
 });
 
+test('a wild fight: the ball is priced, the throw is seeded, the ending settles the roll', () => {
+	const doc = docWith([{species: 'Starly', map: 'Route102', level: 5}]);
+	const rolled = run.rollEncounter(doc, {map: 'Route101', random: () => 0.01});
+
+	const opened = driver.startWild(doc, rolled, 7);
+	assert.equal(opened.battle.trainer, `Wild ${rolled.species}`);
+	assert.equal(opened.viewState.foe.active.level, rolled.level,
+		'the wild mon fights at its rolled level, uncapped');
+	const ball = opened.actions.find(action => action.kind === 'ball');
+	assert.ok(ball, 'a wild fight offers the ball');
+	assert.ok(ball.chance > 0 && ball.chance <= 100, 'the throw wears its odds');
+
+	// Throw until it ends: same seed, same fight, to the shake.
+	const playBalls = () => {
+		let battle = opened.battle;
+		let reply = null;
+		for (let guard = 0; guard < 30; guard++) {
+			reply = driver.act(battle, {kind: 'ball'});
+			battle = reply.battle;
+			if (reply.result) return reply;
+		}
+		return reply;
+	};
+	const first = playBalls();
+	const second = playBalls();
+	assert.equal(first.result, second.result);
+	assert.equal(first.battle.step, second.battle.step,
+		'the same seed shakes the same shakes');
+	assert.ok(['catch', 'win', 'loss'].includes(first.result));
+	if (first.result === 'catch') {
+		assert.match(first.events.map(event => event.text).join(' '), /Gotcha/);
+	}
+	// A finished wild fight is over even though nobody fainted.
+	assert.throws(() => driver.act(first.battle, {kind: 'ball'}),
+		/battle: this fight is over/);
+
+	// The ball is the wild fight's action alone, and the roll must be real.
+	const trainerFight = driver.start(doc, undefined, 1);
+	assert.throws(() => driver.act(trainerFight.battle, {kind: 'ball'}),
+		/battle: only a wild encounter takes a ball/);
+	assert.throws(() => driver.startWild(doc, {map: 'Route101', species: 'Rayquaza', level: 5}, 1),
+		/is not on Route101's table/);
+
+	// The math itself, at the two ends the formula promises: a full-HP catch
+	// rate 255 species is a fair throw, and status closes the gap.
+	const full = driver.catchMath({hp: {current: 30, max: 30}, status: ''}, 255);
+	assert.ok(Math.abs(full.chance - Math.pow(49931 / 65536, 4)) < 1e-9,
+		'full HP at rate 255 rolls the book number');
+	const asleep = driver.catchMath({hp: {current: 1, max: 30}, status: 'slp'}, 255);
+	assert.equal(asleep.chance, 1, 'a sleeping mon at 1 HP is a guaranteed catch');
+});
+
 test('adjudication reports what happened, deterministically, and calibrates the ranker', () => {
 	const doc = docWith([
 		{species: 'Poochyena', map: 'Route101', level: 3},
