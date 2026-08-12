@@ -476,21 +476,24 @@ const SUBCOMMANDS = {
 	},
 
 	/**
-	 * The routes still holding an unspent encounter, best prospects first.
-	 * `--all` includes the spent ones. Order is the decomp's declaration order —
-	 * roughly geography, NOT unlock order, which is not data this profile has.
+	 * The routes still holding an unspent encounter, unlock order, open first.
+	 * `--all` includes the spent ones. A route without a date isn't closed —
+	 * the availability import never dated it, and the line says so.
 	 */
 	routes(state, args) {
 		const all = runtime.unusedRoutes(state);
 		const unused = all.routes.filter(route => !route.used);
 		const used = all.routes.filter(route => route.used);
-		const lines = [`${unused.length} routes still hold an encounter (${used.length} used)` +
-			' — declaration order, not unlock order'];
+		const open = unused.filter(route => route.open).length;
+		const lines = [`${unused.length} routes still hold an encounter ` +
+			`(${open} open now, ${used.length} used)`];
 		for (const route of unused) {
 			const best = route.best
 				.map(mon => `${mon.species} ${mon.chance}%${mon.method === 'walk' ? '' : ` ${mon.method}`}`)
 				.join(', ');
-			lines.push(`  ${route.name.padEnd(34)} ${best || '(everything here is a dupe)'}`);
+			const when = route.open ? 'open     ' :
+				route.opensAt !== undefined ? `#${String(route.opensAt).padStart(4)}    ` : 'unknown  ';
+			lines.push(`  ${when}${route.name.padEnd(34)} ${best || '(everything here is a dupe)'}`);
 		}
 		if (args.flags.all && used.length) {
 			lines.push('  used:');

@@ -345,8 +345,25 @@ const LIMITS = {
 		'may legitimately have no map behind it.',
 };
 
+/**
+ * When a wild map first becomes reachable, as a progression order — imported
+ * from the operator's own rab curation (scripts/import-availability.js shows
+ * how the date is derived, and why it can only ever be late, never early).
+ * Returns `{opensAt, method, rabMinOrder}` or null for a map never dated —
+ * absence means "unlock order unknown", not "never opens".
+ */
+function availabilityOf(name) {
+	const map = getMap(name);
+	if (!map) return null;
+	if (!cache.availabilityIndex) {
+		cache.availabilityIndex = new Map(
+			load('availability').entries.map(entry => [entry.map, entry]));
+	}
+	return cache.availabilityIndex.get(map.map) || null;
+}
+
 module.exports = {
-	maps, getMap, encountersOn, whereToFind,
+	maps, getMap, encountersOn, whereToFind, availabilityOf,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp,

@@ -600,10 +600,10 @@ function encountersOn(run, map) {
  * prospects — top odds rows, dupes excluded — so the list reads as "what is
  * still out there", not just "where".
  *
- * Honesty note: the list is in the decomp's declaration order, which is
- * roughly the region's geography, NOT the order routes unlock. When a route
- * becomes reachable is not data this profile has (ENC-02), and guessing would
- * be worse than saying so.
+ * Ordering: routes with a known unlock date come first, in the order they
+ * open; `open` says whether the run's next fight is at-or-past that date.
+ * Maps the availability import never dated carry no `opensAt` and trail in
+ * declaration order — absence means "unlock order unknown", not "never".
  */
 function unusedRoutes(run) {
 	const profile = getProfile(run.profileId);
@@ -612,6 +612,14 @@ function unusedRoutes(run) {
 	for (const map of profile.oracle.maps()) {
 		const here = encountersOn(run, map.name);
 		const entry = {map: here.map, name: here.name};
+		const when = profile.oracle.availabilityOf && profile.oracle.availabilityOf(map.map);
+		if (when && when.opensAt !== null) {
+			entry.opensAt = when.opensAt;
+			// The date is the order of the first fight had standing there, so the
+			// map is reachable once that fight is the run's NEXT one, not only
+			// after it is beaten — a fresh run must see Route 101 (opensAt 0) open.
+			entry.open = run.position + 1 >= when.opensAt;
+		}
 		// Where a catch happened is a fact of the log, not of the ruleset, so it
 		// is reported for every run — only its consequences are nuzlocke-gated.
 		const used = routeCatch(run, profile, here.map);
@@ -633,8 +641,11 @@ function unusedRoutes(run) {
 			}));
 		routes.push(entry);
 	}
+	routes.sort((a, b) =>
+		(a.opensAt === undefined ? 1 : 0) - (b.opensAt === undefined ? 1 : 0) ||
+		(a.opensAt !== undefined ? a.opensAt - b.opensAt : 0));
 	return {
-		order: 'declaration',
+		order: 'opensAt-then-declaration',
 		routes,
 	};
 }

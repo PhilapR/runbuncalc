@@ -475,7 +475,7 @@ test('the routes view knows what is spent and what is still out there', () => {
 	const state = run.apply(fresh({permadeath: true}),
 		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
 	const all = run.unusedRoutes(state);
-	assert.equal(all.order, 'declaration');
+	assert.equal(all.order, 'opensAt-then-declaration');
 
 	const spent = all.routes.find(route => route.name === 'Route101');
 	assert.deepEqual(spent.used, {species: 'Poochyena', level: 3});
@@ -491,6 +491,55 @@ test('the routes view knows what is spent and what is still out there', () => {
 	const plain = run.unusedRoutes(run.apply(fresh(), {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}));
 	const r101 = plain.routes.find(route => route.name === 'Route101');
 	assert.equal(r101.best[0].chance, 20);
+});
+
+test('route availability: imported unlock dates order the routes view', () => {
+	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+
+	// The starting routes are dated to the run's first fight.
+	assert.equal(oracle.availabilityOf('Route101').opensAt, 0);
+
+	// Petalburg Woods is the import's hardest case: rab's proxy dates it
+	// post-Brawly because it labels the in-woods grunt "Route 104 (South)",
+	// but this run map NAMES a fight after the woods at #19 — direct evidence
+	// that outranks the proxy.
+	const woods = oracle.availabilityOf('Petalburg Woods');
+	assert.equal(woods.opensAt, 19);
+	assert.equal(woods.method, 'our-fight');
+
+	// A multi-floor complex expands to every floor: rab says "Victory Road",
+	// all three of our wild tables inherit the date (post-Juan, #1364).
+	assert.equal(oracle.availabilityOf('Victory Road B1f').opensAt, 1382);
+	assert.equal(oracle.availabilityOf('Victory Road B2f').opensAt, 1382);
+
+	// A map the import never dated answers null — unknown, not closed.
+	assert.equal(oracle.availabilityOf('Altering Cave'), null);
+	assert.equal(oracle.availabilityOf('no such place'), null);
+
+	// The routes view: open means the run's NEXT fight is at-or-past the date,
+	// so a fresh run sees Route 101 open and the woods still ahead.
+	const state = fresh({permadeath: true});
+	const routes = run.unusedRoutes(state).routes;
+	const r101 = routes.find(route => route.name === 'Route101');
+	assert.equal(r101.opensAt, 0);
+	assert.equal(r101.open, true);
+	const woodsRow = routes.find(route => route.name === 'Petalburg Woods');
+	assert.equal(woodsRow.opensAt, 19);
+	assert.equal(woodsRow.open, false);
+	assert.equal(routes.find(route => route.name === 'Altering Cave').opensAt, undefined);
+
+	// Beating the run forward opens it: position 19 makes fight #19 the last
+	// one beaten, so a map dated to #19 is open.
+	const advanced = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Petalburg Woods'});
+	assert.equal(run.unusedRoutes(advanced).routes
+		.find(route => route.name === 'Petalburg Woods').open, true);
+
+	// Ordering: every dated route precedes every undated one, dates ascending.
+	const dates = routes.filter(route => route.opensAt !== undefined).map(route => route.opensAt);
+	assert.ok(dates.length >= 80, `expected the import to date most maps, got ${dates.length}`);
+	assert.deepEqual(dates, [...dates].sort((a, b) => a - b));
+	const firstUndated = routes.findIndex(route => route.opensAt === undefined);
+	assert.ok(routes.slice(firstUndated).every(route => route.opensAt === undefined));
 });
 
 test('platform contract: rivals come from the profile, and layers fail by name', () => {
