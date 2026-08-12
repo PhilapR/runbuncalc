@@ -215,11 +215,11 @@ The OSS/custom ownership map is recorded in [`FORK_MAP.md`](FORK_MAP.md), with
 the data-model and validation contracts in [`AGENTS.md`](AGENTS.md),
 [`AI_DATA_MODEL.md`](AI_DATA_MODEL.md), and [`VALIDATION.md`](VALIDATION.md).
 Product surfaces and phase status (calc, AI debug, sets bridge, Singles Battle,
-explain, API) are mapped in [`RUNBUN_UX.md`](RUNBUN_UX.md). UI design (shell,
+explain, API) are mapped in [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`). UI design (shell,
 tokens, screen specs, prioritized V0–V4 rollout) lives in
 [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md). The **master prioritized backlog**
 (P0–P3 / Park) plus roadmap, session chunks, and non-goals live in
-[`PLAN.md`](PLAN.md) §0.
+[`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired — see `DECISIONS.json` and `INVENTORY.md`) §0.
 
 ```sh
 POST /ai/choose-action

@@ -301,7 +301,7 @@ smoke-tests `POST /calculate`, `POST /ai/validate-battle-state`,
 after the packages are built. It also verifies that missing and unknown
 calculator inputs and malformed AI actions / invalid battle state are returned
 as JSON `400` responses. Endpoint shapes live in [`ai/README.md`](ai/README.md);
-product phase status in [`RUNBUN_UX.md`](RUNBUN_UX.md).
+product phase status in [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`).
 The HTTP choice smoke also evaluates the player side and verifies that incoming
 KO and maximum-damage facts survive the public `sideId: "player"` boundary.
 The calculator test
@@ -893,8 +893,8 @@ legality, facts, scores, or transitions. Do not chase Pokémon Showdown parity.
 Tags: `engine` | `scoring` | `caller-owned` | `calc-overlay` | `product`.
 
 **Priority scheme (same everywhere):** **P0 / P1 / P2 / P3 / Park** — see
-[`PLAN.md`](PLAN.md) §0 for the **master prioritized backlog** (UI + product +
-engine). Product phase map: [`RUNBUN_UX.md`](RUNBUN_UX.md). UI rollout ranks:
+[`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired — see `DECISIONS.json` and `INVENTORY.md`) §0 for the **master prioritized backlog** (UI + product +
+engine). Product phase map: [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`). UI rollout ranks:
 [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) §9.
 
 Every open row below must keep a Priority + ID that appears (or rolls up) in

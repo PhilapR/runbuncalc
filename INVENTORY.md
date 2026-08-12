@@ -71,10 +71,10 @@ Oracle datasets:
 Every registered claim, by how it is known. A claim missing from this list
 defaults to `inferred` — the weakest tag — and the ratchet test in
 `runbun_species.test.js` fails if the verified share ever falls.
-- **source-of-truth** (22): `data.ABILITY_SLOT_CHANGES` · `data.BASE_STAT_CHANGES` · `data.MOVE_OVERLAY` · `data.NOT_FULLY_EVOLVED` · `data.PORTED_SPECIES` · `data.REMOVED_ITEMS` · `encounters.LEVEL_CAPS` · `mechanics.confusionBerriesRestoreHalfHpAtQuarter` · `mechanics.covetType` · `mechanics.defogRemovesTerrain` · `mechanics.disguiseBreaksWithoutChipDamage` · `mechanics.evsRemoved` · `mechanics.galeWingsRequiresFullHp` · `mechanics.magmaArmorBlocksCriticalHits` · `mechanics.paralysisSpeedMultiplier` · `mechanics.sleepTurnsResetOnEntry` · `mechanics.superFangType` · `mechanics.terrainDamageBoost` · `oracle.encounters` · `oracle.evolutions` · `oracle.growth` · `oracle.learnsets`
+- **source-of-truth** (24): `data.ABILITY_SLOT_CHANGES` · `data.BASE_STAT_CHANGES` · `data.MOVE_OVERLAY` · `data.NOT_FULLY_EVOLVED` · `data.PORTED_SPECIES` · `data.REMOVED_ITEMS` · `encounters.LEVEL_CAPS` · `mechanics.attractIsGenderIndependent` · `mechanics.confusionBerriesRestoreHalfHpAtQuarter` · `mechanics.covetType` · `mechanics.defogRemovesTerrain` · `mechanics.disguiseBreaksWithoutChipDamage` · `mechanics.evsRemoved` · `mechanics.galeWingsRequiresFullHp` · `mechanics.magmaArmorBlocksCriticalHits` · `mechanics.paralysisSpeedMultiplier` · `mechanics.sleepTurnsResetOnEntry` · `mechanics.soulDewGrantsStages` · `mechanics.superFangType` · `mechanics.terrainDamageBoost` · `oracle.encounters` · `oracle.evolutions` · `oracle.growth` · `oracle.learnsets`
 - **emulator-observed** (3): `mechanics.criticalHitChance` · `mechanics.criticalHitMultiplier` · `policy.SCORE_ROLL`
 - **observed** (1): `oracle.LIMITS`
-- **transcribed** (8): `encounters.COVERAGE` · `encounters.INVARIANTS` · `encounters.KNOWN_GAPS` · `mechanics.attractIsGenderIndependent` · `mechanics.psychicTerrainUsesModernScaling` · `oracle.availability` · `oracle.fightFields` · `policy.SETUP`
+- **transcribed** (7): `encounters.COVERAGE` · `encounters.INVARIANTS` · `encounters.KNOWN_GAPS` · `mechanics.psychicTerrainUsesModernScaling` · `oracle.availability` · `oracle.fightFields` · `policy.SETUP`
 
 ## Standing rulings (from DECISIONS.json)
 The law of the tool: each ruling names the files that enforce it, and the
@@ -95,6 +95,7 @@ ruling, never by quiet drift.
 - **availability-is-late-biased** (2026-08-12): A route's opensAt is the order of the first mandatory fight standing in it, translated through name anchors — late-biased, never early. A run-map fight named after its location overrides with direct evidence. Absence means unknown, never closed.
 - **doubles-stays-opt-in** (2026-08-11): Doubles planning is opt-in ({doubles: true}) until pair lead order is sourced; double fights planned as Singles carry plannedAsSingles so the simplification is visible.
 - **grade-with-never-merge** (2026-08-11): Sibling engines are graded against shared evidence and each other, never merged: data flows with provenance, code does not. Cross-engine disagreement outside documented divergences is a red gate; documented divergences are settled by new emulator evidence, never by picking a side.
+- **soul-dew-and-infatuation-verified** (2026-08-12): Soul Dew is +1 SpA/SpD STAGES for the Latis (not a modifier — it composes with Calm Mind and crits ignore it like any stage), and Attract has no gender gate. Both were already implemented and pinned; the audit closed the question rather than changing code.
 
 ## Open questions (from DECISIONS.json)
 Ruled on by nobody yet — each names what would settle it. An answered
@@ -104,7 +105,6 @@ question moves up into rulings; it is never silently deleted.
 - **weather-rounding-order** (2026-08-12): Under sun and rain the two engines disagree by exactly 1 at the low roll. The corpus has no weather observations, so neither side is ROM-verified. _Settled by: pykemon f4-weather-rain sweep (fixture pushed as claude/pykemon-weather-sweep-spec)._
 - **policy-setup-unprobed** (2026-08-10): policy.SETUP remains transcription: no emulator probe has exercised the setup-move scoring the way pykemon probed SCORE_ROLL. _Settled by: a pykemon RAM probe over setup-move turns._
 - **doubles-lead-order** (2026-08-11): Which two of a double trainer's party lead. Assumed first-two today, named as leadAssumption. _Settled by: emulator observation or the trainer data carrying a lead marker._
-- **soul-dew-and-infatuation** (2026-08-12): Soul Dew as +1 SpA/SpD stages for the Latis, and infatuation's genderlessness in OUR engine (declared transcribed) — neither audited against an implementation yet. _Settled by: doc-claim audit continuation; check whether any trainer even fields a Lati with Soul Dew._
 - **below-catch-level-relearn** (2026-08-12): Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level. _Settled by: operator ruling._
 
 ## Hand-written docs, dated
@@ -117,10 +117,8 @@ the reader's warning to verify before trusting.
 - `AI_DATA_MODEL.md` — bfd934e 2026-08-05
 - `FORK_MAP.md` — a0e9744 2026-08-10
 - `GEN9_AUDIT.md` — c85114d 2026-08-08
-- `PLAN.md` — 0cdbdd4 2026-08-11
 - `README.md` — cdc5a30 2026-08-12
 - `RUNBUN_UI_DESIGN.md` — 15ed880 2026-08-11
-- `RUNBUN_UX.md` — d4f02d3 2026-08-08
 - `TASKS.md` — d4f02d3 2026-08-08
 - `VALIDATION.md` — dcc9400 2026-08-11
 

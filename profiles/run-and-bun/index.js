@@ -86,6 +86,7 @@ module.exports = defineProfile({
 		psychicTerrainUsesModernScaling: true,
 		superFangType: 'Dark',
 		covetType: 'Fairy',
+		soulDewGrantsStages: true,
 		// Audited against the game's own Mechanic Changes doc 2026-08-12; each
 		// of these is implemented (ai/ or calc/) and was verified against that
 		// doc rather than assumed from its base generation.
@@ -164,7 +165,10 @@ module.exports = defineProfile({
 		// Bun's reads "Flying moves go first." with no HP condition.
 		'mechanics.magmaArmorBlocksCriticalHits': 'source-of-truth',
 		'mechanics.galeWingsRequiresFullHp': 'source-of-truth',
-		'mechanics.attractIsGenderIndependent': 'transcribed',
+		// Named outright by the official doc ("Status condition not limited by
+		// gender"); the engine omits the gender gate deliberately and the
+		// legality fixtures pin same-gender Attract working.
+		'mechanics.attractIsGenderIndependent': 'source-of-truth',
 		'mechanics.psychicTerrainUsesModernScaling': 'transcribed',
 		'mechanics.superFangType': 'source-of-truth',
 		'mechanics.covetType': 'source-of-truth',
@@ -178,6 +182,10 @@ module.exports = defineProfile({
 		'mechanics.sleepTurnsResetOnEntry': 'source-of-truth',
 		'mechanics.disguiseBreaksWithoutChipDamage': 'source-of-truth',
 		'mechanics.confusionBerriesRestoreHalfHpAtQuarter': 'source-of-truth',
+		// "Soul Dew: Boosts Latias and Latios SpA/SpD by one stage" — and the
+		// calc fork implements it as literal stages (clamped, clone-safe,
+		// composing with Calm Mind and ignored by crits like any stage).
+		'mechanics.soulDewGrantsStages': 'source-of-truth',
 		// Growth rates ride the same decomp import as the other oracle layers —
 		// this row was simply missing, which the registry's own rules call
 		// 'inferred' by default and which it never was.
