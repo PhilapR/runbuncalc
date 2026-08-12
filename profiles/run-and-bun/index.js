@@ -79,12 +79,23 @@ module.exports = defineProfile({
    */
 	mechanics: {
 		criticalHitMultiplier: 1.5,
+		criticalHitChance: 1 / 16,
 		magmaArmorBlocksCriticalHits: true,
 		galeWingsRequiresFullHp: false,
 		attractIsGenderIndependent: true,
 		psychicTerrainUsesModernScaling: true,
 		superFangType: 'Dark',
 		covetType: 'Fairy',
+		// Audited against the game's own Mechanic Changes doc 2026-08-12; each
+		// of these is implemented (ai/ or calc/) and was verified against that
+		// doc rather than assumed from its base generation.
+		evsRemoved: true,
+		paralysisSpeedMultiplier: 0.25,
+		terrainDamageBoost: 1.5,
+		defogRemovesTerrain: false,
+		sleepTurnsResetOnEntry: true,
+		disguiseBreaksWithoutChipDamage: true,
+		confusionBerriesRestoreHalfHpAtQuarter: true,
 	},
 
 	/**
@@ -157,6 +168,29 @@ module.exports = defineProfile({
 		'mechanics.psychicTerrainUsesModernScaling': 'transcribed',
 		'mechanics.superFangType': 'source-of-truth',
 		'mechanics.covetType': 'source-of-truth',
+		// The game's own documentation dump (official-docs source below) states
+		// each of these outright; the implementations were audited against it.
+		'mechanics.criticalHitChance': 'emulator-observed',
+		'mechanics.evsRemoved': 'source-of-truth',
+		'mechanics.paralysisSpeedMultiplier': 'source-of-truth',
+		'mechanics.terrainDamageBoost': 'source-of-truth',
+		'mechanics.defogRemovesTerrain': 'source-of-truth',
+		'mechanics.sleepTurnsResetOnEntry': 'source-of-truth',
+		'mechanics.disguiseBreaksWithoutChipDamage': 'source-of-truth',
+		'mechanics.confusionBerriesRestoreHalfHpAtQuarter': 'source-of-truth',
+		// Growth rates ride the same decomp import as the other oracle layers —
+		// this row was simply missing, which the registry's own rules call
+		// 'inferred' by default and which it never was.
+		'oracle.growth': 'source-of-truth',
+		// Route availability, encounter-method gates and the HM teach gates:
+		// the operator's rab curation, translated through name-matched anchors
+		// (late-biased, never early — see scripts/import-availability.js).
+		'oracle.availability': 'transcribed',
+		// Per-fight permanent fields, from rab's location annotations plus the
+		// official doc's overworld weather rules.
+		'oracle.fightFields': 'transcribed',
+		// The 23-row level-cap ladder, row for row from the official doc.
+		'encounters.LEVEL_CAPS': 'source-of-truth',
 	},
 
 	sources: {
@@ -172,5 +206,13 @@ module.exports = defineProfile({
 		// The AI document the policy layer transcribes, mirrored byte-identically
 		// in two independent repositories.
 		'ai-document': 'https://github.com/beninburley/run_and_bun_calc — ai_logic.txt',
+		// The game's own documentation dump: Mechanic Changes.txt (the level-cap
+		// ladder and every mechanics delta above), Pokémon/Item Locations, the
+		// AI document. One copy, in the operator's monorepo.
+		'official-docs': 'PhilapR/pokemon-mono — docs/official/ (Run & Bun 1.07 documentation dump)',
+		// The operator's own trainer/progression curation, source of the
+		// availability, HM-gate and fight-field transcriptions. Claims about it
+		// are registered with paths in ECOSYSTEM.json.
+		'rab-curation': 'PhilapR/pokemon-mono — engines/rab/backend/src/data/',
 	},
 });

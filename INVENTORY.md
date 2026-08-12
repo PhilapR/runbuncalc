@@ -60,12 +60,21 @@ Layers declared: `data`, `mechanics`, `policy`, `encounters`, `oracle`, `provena
 Trainer fights in the run map: 362
 
 Oracle datasets:
-- `availability.json`: 6 species
+- `availability.json`: 83 entries
 - `encounters.json`: 131 maps
 - `evolutions.json`: 435 species
-- `fight-fields.json`: 5 species
+- `fight-fields.json`: 35 fights
 - `growth.json`: 1114 species
 - `learnsets.json`: 1114 species
+
+## Where game knowledge lives (the provenance registry)
+Every registered claim, by how it is known. A claim missing from this list
+defaults to `inferred` — the weakest tag — and the ratchet test in
+`runbun_species.test.js` fails if the verified share ever falls.
+- **source-of-truth** (22): `data.ABILITY_SLOT_CHANGES` · `data.BASE_STAT_CHANGES` · `data.MOVE_OVERLAY` · `data.NOT_FULLY_EVOLVED` · `data.PORTED_SPECIES` · `data.REMOVED_ITEMS` · `encounters.LEVEL_CAPS` · `mechanics.confusionBerriesRestoreHalfHpAtQuarter` · `mechanics.covetType` · `mechanics.defogRemovesTerrain` · `mechanics.disguiseBreaksWithoutChipDamage` · `mechanics.evsRemoved` · `mechanics.galeWingsRequiresFullHp` · `mechanics.magmaArmorBlocksCriticalHits` · `mechanics.paralysisSpeedMultiplier` · `mechanics.sleepTurnsResetOnEntry` · `mechanics.superFangType` · `mechanics.terrainDamageBoost` · `oracle.encounters` · `oracle.evolutions` · `oracle.growth` · `oracle.learnsets`
+- **emulator-observed** (3): `mechanics.criticalHitChance` · `mechanics.criticalHitMultiplier` · `policy.SCORE_ROLL`
+- **observed** (1): `oracle.LIMITS`
+- **transcribed** (8): `encounters.COVERAGE` · `encounters.INVARIANTS` · `encounters.KNOWN_GAPS` · `mechanics.attractIsGenderIndependent` · `mechanics.psychicTerrainUsesModernScaling` · `oracle.availability` · `oracle.fightFields` · `policy.SETUP`
 
 ## Test files
 `browser_calc_load.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `rom-band.test.js` · `run.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js`

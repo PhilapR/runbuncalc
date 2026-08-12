@@ -49,7 +49,19 @@ function inventory() {
 	for (const file of fs.readdirSync(oracleDir).filter(f => f.endsWith('.json')).sort()) {
 		const data = JSON.parse(fs.readFileSync(path.join(oracleDir, file), 'utf8'));
 		oracleCounts[file] = data.maps ? `${data.maps.length} maps` :
-			`${Object.keys(data.levelUp || data).length} species`;
+			data.entries ? `${data.entries.length} entries` :
+				data.fields ? `${Object.keys(data.fields).length} fights` :
+					`${Object.keys(data.levelUp || data).length} species`;
+	}
+
+	// The knowledge map: every claim the profile registers, grouped by how it
+	// is known. This is the answer to "where does game knowledge live" — a
+	// claim that is not in this list defaults to `inferred`, the weakest tag,
+	// and the ratchet test fails when the verified share falls.
+	const knowledge = {};
+	for (const key of Object.keys(profile.provenance)) {
+		const tag = profile.provenance[key];
+		(knowledge[tag] = knowledge[tag] || []).push(key);
 	}
 
 	const template = fs.readFileSync(path.join(root, 'src', 'index.template.html'), 'utf8');
@@ -85,6 +97,7 @@ function inventory() {
 			.filter(layer => profile[layer]),
 		trainerFights: planner.listFights('run-and-bun').fights.length,
 		oracleCounts,
+		knowledge,
 		endpoints: endpoints(),
 		panels,
 		tests,
@@ -117,6 +130,15 @@ function render(inv) {
 		`Trainer fights in the run map: ${inv.trainerFights}`,
 		'', 'Oracle datasets:',
 		...Object.keys(inv.oracleCounts).map(f => `- \`${f}\`: ${inv.oracleCounts[f]}`));
+
+	push('## Where game knowledge lives (the provenance registry)',
+		'Every registered claim, by how it is known. A claim missing from this list',
+		'defaults to `inferred` — the weakest tag — and the ratchet test in',
+		'`runbun_species.test.js` fails if the verified share ever falls.',
+		...['source-of-truth', 'emulator-observed', 'observed', 'transcribed', 'inferred']
+			.filter(tag => inv.knowledge[tag])
+			.map(tag => `- **${tag}** (${inv.knowledge[tag].length}): ` +
+				inv.knowledge[tag].sort().map(k => '`' + k + '`').join(' · ')));
 	push('## Test files', inv.tests.map(t => '`' + t + '`').join(' · '));
 
 	push('## Prior art elsewhere (from ECOSYSTEM.json)');
