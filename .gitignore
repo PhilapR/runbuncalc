@@ -11,3 +11,4 @@ dist-worker/
 .dev.vars
 wf-*.log
 out-*.txt
+.wrangler/
