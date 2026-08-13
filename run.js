@@ -2631,8 +2631,11 @@ function fightPlaybook(run, trainer, options) {
 		}
 		if (best) chosen = best.plan;
 	}
-	const played = driver.playbook(run, matrix.trainer,
-		{rollouts, answerFor: answerForOf(chosen)});
+	const played = driver.playbook(run, matrix.trainer, {
+		rollouts,
+		answerFor: answerForOf(chosen),
+		...(opts.seedBase !== undefined ? {seedBase: opts.seedBase} : {}),
+	});
 
 	return {
 		trainer: matrix.trainer,
