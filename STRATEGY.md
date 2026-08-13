@@ -109,6 +109,14 @@ the tape says 53.5%. The pull is named in the reply when it fires:
 `"pull":{"ability":"Static","type":"Electric"}`. No declared ability, no pull —
 Lightning Rod is the control and it moves nothing.
 
+*Amendment (cross-checked against pokemon-mono's independently sourced
+encounter tables, which agree):* **roll B1F, not 1F.** Togedemaru is 10% on
+Granite Cave B1F — double the 1F slot — and under the area rule the cave is
+one encounter whichever floor you roll, so the same held Static play prices
+at `0.5 + 0.5 × 0.10 = 55%`. Magnet Pull on 1F is stronger still on paper
+(Cufant + Aron ≈ 30% Steel → 65%) but pulls Steel, not the Electric slot
+this play is for.
+
 **Commands.**
 
 ```
