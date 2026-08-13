@@ -8,6 +8,13 @@ describe('Run & Bun fork behavior', () => {
       expect(Move('Super Fang').type).toBe('Dark');
     });
 
+    // The calculator and the AI overlay must agree on this base power, or the
+    // browser calc and the AI score the same move differently. See
+    // `ai/src/move-metadata.ts` (CUSTOM_BASE_POWER) and `runbun-data.test.ts`.
+    test('uses the fork base power for Misty Explosion', () => {
+      expect(Move('Misty Explosion').bp).toBe(200);
+    });
+
     test('uses IVs in damage descriptions', () => {
       const result = calculate(Pokemon('Mew'), Pokemon('Vulpix'), Move('Tackle'));
       expect(result.desc()).toContain('31 Atk Mew Tackle vs. 31 HP / 31 Def Vulpix');

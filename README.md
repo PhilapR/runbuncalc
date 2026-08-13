@@ -1,7 +1,6 @@
 # Run & Bun Damage Calc
 
-![Test Status](https://github.com/smogon/damage-calc/workflows/Tests/badge.svg)
-[![npm version](https://img.shields.io/npm/v/@smogon/calc.svg)](https://www.npmjs.com/package/@smogon/calc)&nbsp;
+![Test Status](https://github.com/PhilapR/runbuncalc/actions/workflows/test.yml/badge.svg)
 
 Fork of the [Smogon / Pokémon Showdown damage calculator][0] aimed at **Run & Bun**
 accuracy: Gen&nbsp;8 mechanics by default (see the workspace `MECHANICS.MD`), plus
@@ -13,6 +12,87 @@ claim that every generation is fully Run & Bun–sim accurate. Prefer Gen&nbsp;8
 (S/S) for Run & Bun work; the UI and AI sample state default there.
 
 Upstream Showdown calc: https://calc.pokemonshowdown.com.
+
+## The run companion
+
+On top of the calculator sits a Run & Bun **playthrough companion**: a
+verifiable run document (every catch checked against the real encounter
+tables, every taught move against real learnsets) plus the solvers a
+nuzlocke actually needs, all graded through the same AI policy that predicts
+the fights.
+
+```sh
+$ node play.js new --nuzlocke        # start a run (game level caps on by default)
+$ node play.js catch Lillipup --map Route101 --level 3
+$ node play.js split                 # the boss ahead, the cap, the gauntlet
+$ node play.js routes                # every route still holding its encounter, unlock order first
+$ node play.js scout                 # what the open routes could add vs the next boss
+$ node play.js rank                  # every possible six from the box, ranked
+$ node play.js advise                # the single teach/item/Heart Scale that most moves the board
+```
+
+The same surface is served over HTTP (`POST /run/*`, see
+[`INVENTORY.md`](INVENTORY.md) — generated from the code and gated, so it
+cannot drift) and in the browser as the **My Run** panel, which adds the
+matchup board, the split sheet and one-click catches off real tables.
+
+### Play it in the browser (no emulator)
+
+The panel is also a **recreation**: roll each route's encounter off the
+real tables (Catch it / It got away — a lost roll spends the route), and
+play the fights turn by turn against the game's own AI policy, with your
+party at the level cap (the infinite candy is the XP system). Deaths and
+wins are written back into the run document through the same verified
+commands a hand-kept run uses.
+
+```sh
+$ npm start
+Server running on port 3000
+  On this machine:  http://localhost:3000/index.html#runbun-run
+  On your phone:    http://192.168.1.23:3000/index.html#runbun-run  (same Wi-Fi)
+```
+
+The page is responsive — the panel is designed to be played from a phone.
+The run saves in that browser's storage; use Export/Import to move it
+between devices.
+
+### Deploy to Cloudflare
+
+The repo follows the fleet's deploy pattern (one Worker per app on the
+`stochastic-inference.dev` zone, custom domain, assets binding): static
+`dist/` rides the ASSETS binding and the whole `/run/*` surface is answered
+in the Worker itself, bundled from the same `run-api.js` the express server
+uses — one implementation, three transports, still no storage.
+
+```sh
+$ npx wrangler secret put SITE_AUTH_PASSWORD   # once: the private-preview gate
+$ npm run cf:preview   # wrangler dev against the built worker (reads .dev.vars)
+$ npm run cf:deploy    # ships https://runbun.<account>.workers.dev (printed on deploy)
+```
+
+Dev for now, and dev is **private**: the worker carries the fleet's
+preview gate (Basic auth against `SITE_AUTH_PASSWORD`, the same pattern as
+the journal's middleware) over the page and the API alike — and it **fails
+closed**: with no secret set the worker answers 503, never an open door.
+Local `wrangler dev` reads `.dev.vars` (copy `.dev.vars.example`). When it
+graduates to the portfolio, swap `workers_dev` in `wrangler.jsonc` for the
+zone route (the commented block shows it) and set `PREVIEW_OPEN=true` —
+going public is a deliberate act, not a forgotten secret.
+
+Notes: the worker embeds the oracle data and trainer sets (~6.4 MB script,
+inside the paid-plan limit), and `wrangler.jsonc` raises the CPU ceiling
+because Advise and Rank rebuild matchup rows through the policy — seconds of
+CPU, not milliseconds.
+
+Nuzlocke rules are individual toggles (`--permadeath`, `--route`,
+`--dupes off|species|line|forms`, `--shiny-clause`); `--nuzlocke` is just the
+preset. Route availability, encounter odds, level caps and the AI's damage
+model are all imported from the hack's own data with provenance tags —
+including a 1,727-observation emulator corpus this calculator scores
+100% against in CI.
+
+Everything game-specific lives in `profiles/run-and-bun/`; a second hack is
+a profile, not a fork.
 
 This repository houses the core damage formula package ([`@smogon/calc`][1]),
 the browser UI ([`src/`][2]), and the Run & Bun AI package (`ai/`). Ownership
@@ -183,11 +263,11 @@ The OSS/custom ownership map is recorded in [`FORK_MAP.md`](FORK_MAP.md), with
 the data-model and validation contracts in [`AGENTS.md`](AGENTS.md),
 [`AI_DATA_MODEL.md`](AI_DATA_MODEL.md), and [`VALIDATION.md`](VALIDATION.md).
 Product surfaces and phase status (calc, AI debug, sets bridge, Singles Battle,
-explain, API) are mapped in [`RUNBUN_UX.md`](RUNBUN_UX.md). UI design (shell,
+explain, API) are mapped in [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`). UI design (shell,
 tokens, screen specs, prioritized V0–V4 rollout) lives in
 [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md). The **master prioritized backlog**
 (P0–P3 / Park) plus roadmap, session chunks, and non-goals live in
-[`PLAN.md`](PLAN.md) §0.
+[`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired — see `DECISIONS.json` and `INVENTORY.md`) §0.
 
 ```sh
 POST /ai/choose-action
@@ -306,13 +386,14 @@ Simple, and Clear Body. `advanceTurn()` handles the modeled weather, status,
 item, ability, and G-Max residual effects;
 unmodeled simulator events remain external inputs.
 
-### Import
+### Set data
 
-This repository also houses an internal package under `import/` which is used for populating the
-Pokémon sets data (as well as data about random battle options) used by the UI. Before making
-changes here you must run `npm ci` from under the `import/` directory to install its
-dependencies as they are not installed by default. [`TASKS.md`][4] contains more information on
-how to programmatically update sets.
+`src/js/data/sets/gen8.js` holds the Run & Bun trainer parties — authored data
+keyed by trainer name, read by the Trainer Wheel. It is edited by hand, never
+generated. The upstream `import/` package that regenerated set data from
+`@smogon/sets` has been removed, because it overwrote those trainer parties with
+Smogon competitive usage sets. [`TASKS.md`][4] covers how to change set data
+safely; `runbun_sets.test.js` enforces it.
 
 ## Credits
 
@@ -336,7 +417,7 @@ This package is distributed under the terms of the [MIT License][3].
   [1]: https://github.com/smogon/damage-calc/tree/master/calc
   [2]: https://github.com/smogon/damage-calc/tree/master/src
   [3]: https://github.com/smogon/damage-calc/blob/master/LICENSE
-  [4]: https://github.com/smogon/damage-calc/blob/master/TASKS.md
+  [4]: TASKS.md
   [5]: https://unpkg.com/
   [6]: https://webpack.js.org/
   [7]: https://rollupjs.org/

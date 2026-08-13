@@ -8,22 +8,11 @@
     <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css" />
     <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/colvis/1.1.1/css/dataTables.colVis.css" />
     <link type="text/css" rel="stylesheet" href="./js/vendor/select2/select2.css" />
+    <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?" />
     <link type="text/css" rel="stylesheet" href="./css/main.css?" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-3"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'UA-26211653-3');
-
-        window.onerror = function(err, uri, line) {
-            gtag('event', 'exception', {'description': uri + ':' + line + ': ' + err});
-            return false;
-        };
-    </script>
+    <!-- Shell after dark-theme so stadium tokens win the cascade -->
+    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?" />
         <!-- Immediately loads the dark theme in order to reduce FOIT -->
         <script>
             /*
@@ -40,19 +29,19 @@
 
 <body class="dark-theme">
 
-<div class="header"><div class="header-inner">
-    <ul class="nav">
-        <li><a class="button nav-first" href="//pokemonshowdown.com"><img src="./img/pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /> Home</a></li>
-        <li><a class="button" href="//dex.pokemonshowdown.com">Pok&eacute;dex</a></li>
-        <li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
-        <li><a class="button" href="//pokemonshowdown.com/ladder/">Ladder</a></li>
-        <li><a class="button nav-last" href="//pokemonshowdown.com/forums/">Forum</a></li>
-    </ul>
-    <ul class="nav nav-play">
-        <li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
-    </ul>
-    <div style="clear:both"></div>
-</div></div>
+<header id="rb-shell" class="rb-shell" role="banner">
+    <div class="rb-shell-inner">
+        <div class="rb-shell-brand">
+            <span class="rb-wordmark">Run &amp; Bun</span>
+            <span class="rb-tagline">One-vs-All &middot; sweep a trainer party</span>
+        </div>
+        <nav class="rb-mode-nav" aria-label="Product modes">
+            <div class="rb-mode-tablist">
+                <a class="rb-mode-tab" href="./index.html">Calc</a>
+            </div>
+        </nav>
+    </div>
+</header>
 <div class="wrapper">
 
     <div>
@@ -75,7 +64,6 @@
             <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-one" /><label class="btn btn-left" for="one-vs-one">One vs One</label>
             <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-all" /><label class="btn btn-mid" for="one-vs-all">One vs All</label>
             <input class="mode visually-hidden" type="radio" name="mode" id="all-vs-one" /><label class="btn btn-mid" for="all-vs-one">All vs One</label>
-            <input class="mode visually-hidden" type="radio" name="mode" id="randoms" /><label class="btn btn-right" for="randoms">Random Battles</label>
         </span>
     </div>
     <hr />
@@ -919,10 +907,13 @@
     <script type="text/javascript" src="./js/shared_controls.js?"></script>
     <script type="text/javascript" src="./js/honkalculate_controls.js?"></script>
 
-    <div style="clear:both;padding:20px;text-align:left">Created by Honko, maintained by Austin and Kris
-        <ul><li><a href="https://github.com/smogon/damage-calc/contributors" class="links-lighten" target="_blank">Contributors</a></li>
-            <li><a href="https://www.smogon.com/forums/threads/pok%C3%A9mon-showdown-damage-calculator.3593546/" class="links-lighten" target="_blank">Bug Reports</a></li>
-            <li><a href="https://github.com/smogon/damage-calc" class="links-lighten" target="_blank">GitHub repository</a></li></ul>
+    <div class="credits" style="clear:both;padding:20px;text-align:left">Run &amp; Bun fork (modification by ForwardFeed). Originally created by Honko; maintained upstream by Austin and Kris.
+        <ul>
+            <li><a href="https://github.com/PhilapR/runbuncalc" class="links-lighten" target="_blank">Run &amp; Bun calc repository</a></li>
+            <br>
+            <li><a href="https://github.com/smogon/damage-calc/contributors" class="links-lighten" target="_blank">Smogon Contributors</a></li>
+            <li><a href="https://github.com/smogon/damage-calc" class="links-lighten" target="_blank">Upstream Smogon GitHub</a></li>
+        </ul>
             <button type="button" id="dark-theme-toggle"></button>
             <script type="text/javascript" src="./js/dark-theme-toggle.js?"></script>
     </div>

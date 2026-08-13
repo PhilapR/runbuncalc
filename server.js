@@ -4,6 +4,8 @@ const path = require("path");
 const express = require("express");
 const calc = require("@smogon/calc");
 const ai = require("./ai");
+const planner = require("./planner");
+const playerTeam = require("./team");
 const app = express();
 
 function startServer(port = 3000) {
@@ -12,8 +14,28 @@ function startServer(port = 3000) {
 	});
 }
 
-// parse application/json
-app.use(express.json());
+/**
+ * The standalone banner: every address a phone on the same network can type.
+ * The server always listened on all interfaces — what was missing was the
+ * server SAYING so, with the run panel's own hash, instead of leaving the
+ * player to run ifconfig and guess the fragment.
+ */
+function printAddresses(port) {
+	const nets = require("os").networkInterfaces();
+	console.log(`  On this machine:  http://localhost:${port}/index.html#runbun-run`);
+	for (const name of Object.keys(nets)) {
+		for (const net of nets[name]) {
+			if (net.family !== "IPv4" || net.internal) continue;
+			console.log(`  On your phone:    http://${net.address}:${port}/index.html#runbun-run  (same Wi-Fi)`);
+		}
+	}
+}
+
+// parse application/json. The default 100kb body limit is smaller than a
+// late-game run document (every /run/* command posts the whole save, and a
+// full playthrough's log projects to ~150-300KB), so a stock limit would turn
+// the run panel into HTTP 413s mid-game.
+app.use(express.json({limit: '5mb'}));
 
 const calculateHandler = (req, res, next) => {
 	const input = req.method === "GET" ? req.query : (req.body || {});
@@ -360,6 +382,183 @@ app.post("/ai/order-actions", (req, res, next) => {
 	}
 });
 
+// ---------------------------------------------------------------- planner
+//
+// The AI endpoints above all take a caller-supplied BattleState: they answer
+// "given this position, what happens". The planner answers the question a
+// player actually has mid-run — "I am about to fight X with this team" — by
+// building the position from the authored run map itself.
+//
+// Kept thin on purpose. Every one of these delegates to `planner.js`, which
+// delegates to the layers beneath it; the server adds HTTP and nothing else.
+
+app.get("/planner/fights", (req, res, next) => {
+	try {
+		const listed = planner.listFights(req.query.profile);
+		// The coverage caveat travels with the list rather than being available
+		// separately, so a client cannot present the run map as a complete
+		// trainer census without having been told otherwise.
+		return res.json({
+			coverage: listed.coverage,
+			fights: listed.fights.map(fight => ({
+				trainer: fight.trainer,
+				order: fight.order,
+				isDouble: fight.isDouble,
+				partySize: fight.party.length,
+			})),
+		});
+	} catch (error) {
+		next(error);
+	}
+});
+
+app.get("/planner/fight", (req, res, next) => {
+	try {
+		if (!req.query.trainer) {
+			return res.status(400).json({error: "trainer is required"});
+		}
+		return res.json({fight: planner.getFight(req.query.trainer, req.query.profile)});
+	} catch (error) {
+		// An unknown trainer is a client mistake, not a server fault, and the
+		// planner's message already carries the near-misses worth showing.
+		return res.status(400).json({error: error.message, code: "UnknownTrainer"});
+	}
+});
+
+app.get("/planner/upcoming", (req, res, next) => {
+	try {
+		const after = req.query.after === undefined ? undefined : Number(req.query.after);
+		if (after !== undefined && !Number.isFinite(after)) {
+			return res.status(400).json({error: "after must be a number when supplied"});
+		}
+		const count = req.query.count === undefined ? 5 : Number(req.query.count);
+		if (!Number.isInteger(count) || count < 1 || count > 50) {
+			return res.status(400).json({error: "count must be an integer from 1 through 50"});
+		}
+		const fights = planner.upcoming(after, count, req.query.profile).map(fight => ({
+			trainer: fight.trainer,
+			order: fight.order,
+			partySize: fight.party.length,
+		}));
+		return res.json({fights});
+	} catch (error) {
+		next(error);
+	}
+});
+
+app.post("/planner/predict", (req, res, next) => {
+	try {
+		const payload = req.body || {};
+		if (!payload.trainer) {
+			return res.status(400).json({error: "trainer is required"});
+		}
+		// Two ways to name a team, and the difference matters. `playerPaste` is a
+		// Showdown paste — the player's own box, declared. `playerParty` is the
+		// structured form, which also admits `{species, setLabel}`: a TRAINER'S
+		// build, which the AI scores against and which therefore changes the
+		// ranking. Both are served; the response says which was used.
+		let playerParty = payload.playerParty;
+		let notes = [];
+		if (typeof payload.playerPaste === "string") {
+			if (playerParty) {
+				return res.status(400).json({
+					error: "send playerPaste or playerParty, not both",
+					code: "InvalidPlannerRequest",
+				});
+			}
+			const parsed = playerTeam.parseTeam(payload.playerPaste);
+			playerParty = parsed.party;
+			notes = parsed.notes;
+		}
+		if (!Array.isArray(playerParty) || !playerParty.length) {
+			return res.status(400).json({
+				error: "playerParty is required: the planner cannot plan a fight with no team",
+			});
+		}
+		const result = planner.predict({
+			trainer: payload.trainer,
+			playerParty,
+			field: payload.field,
+			profileId: payload.profile,
+		});
+		// The state is omitted by default: it is large, and a client asking what
+		// the opponent will do rarely wants the whole position back.
+		return res.json({
+			trainer: result.trainer,
+			order: result.order,
+			confidence: result.confidence,
+			margin: result.margin,
+			// Travels with every prediction so a client cannot present a plan built
+			// on a trainer's Pokemon as a plan for the player's team.
+			borrowedPlayerBuild: result.borrowedPlayerBuild,
+			// The same reason: 46 fights in the map are double battles ranked here
+			// as a 1v1 exchange. The library says so on every prediction, and a
+			// client that never receives the flag cannot repeat the caveat.
+			plannedAsSingles: result.plannedAsSingles,
+			notes,
+			actions: result.actions.map(action => ({
+				label: action.label,
+				score: action.score,
+				action: action.action,
+			})),
+			...(payload.includeState ? {state: result.state} : {}),
+		});
+	} catch (error) {
+		// Unknown trainers, unknown sets and unreadable pastes are all client input
+		// problems; the messages name the near-miss, the bad set or the exact line.
+		if (/^no fight named|^Unknown set:|playerParty is required|^Pokemon \d+|^empty team|^a party holds six|needs a species|needs at least one move/
+			.test(error.message || "")) {
+			return res.status(400).json({error: error.message, code: "InvalidPlannerRequest"});
+		}
+		next(error);
+	}
+});
+
+
+// -------------------------------------------------------------------- the run
+//
+// The run is a playthrough: a box, a party, a bag and a position in the map.
+// Everything else the server exposes is stateless, and so is this — the RUN
+// TRAVELS IN THE REQUEST rather than living here.
+//
+// That is a deliberate choice, not a shortcut. A run belongs to one player and
+// nobody else, this server has no accounts and no storage, and the moment it
+// held save files it would need both. Keeping the document client-side means the
+// browser can persist it in `localStorage`, the CLI can persist it in a file,
+// and the rules live in exactly one place either way.
+//
+// The cost is that every call carries the whole run. At a few kilobytes for a
+// full box that is cheaper than the alternative.
+
+/**
+ * Every /run/* body lives in `run-api.js`, transport-free: the demo build
+ * bundles that same file into the page and serves it from a fetch shim, so
+ * the two surfaces cannot drift. This file only translates thrown refusals
+ * into HTTP statuses.
+ */
+const runApi = require("./run-api");
+
+function respond(res, next, work) {
+	try {
+		return res.json(work());
+	} catch (error) {
+		if (Number.isInteger(error.statusCode)) {
+			return res.status(error.statusCode).json({error: error.message,
+				...(error.code ? {code: error.code} : {})});
+		}
+		return next(error);
+	}
+}
+
+for (const route of Object.keys(runApi.ROUTES)) {
+	if (route === "/run/maps") continue; // the one GET, wired below
+	const handler = runApi.ROUTES[route];
+	app.post(route, (req, res, next) => respond(res, next, () => handler(req.body)));
+}
+
+/** The map list, so a client can offer somewhere to look rather than a text box. */
+app.get("/run/maps", (req, res, next) => respond(res, next, () => runApi.api.maps(req.query)));
+
 app.use((error, req, res, next) => {
 	if (res.headersSent) {
 		return next(error);
@@ -384,10 +583,15 @@ app.use((error, req, res, next) => {
 // Named UI BattleState fixtures + goldens for AI Debug (FIX-01/02/03).
 app.use('/fixtures', express.static(path.join(__dirname, 'fixtures')));
 
-app.use(express.static('dist'));
+// Resolved against this file, not the working directory. A bare "dist" made the
+// whole shipped page depend on being started from the repository root: run from
+// anywhere else and every request fell through to a 404, with the page loading
+// enough to look alive and no panel on it.
+app.use(express.static(path.join(__dirname, 'dist')));
 
 if (require.main === module) {
-	startServer();
+	const port = Number(process.env.PORT) || 3000;
+	startServer(port).on("listening", () => printAddresses(port));
 }
 
 module.exports = {app, startServer};

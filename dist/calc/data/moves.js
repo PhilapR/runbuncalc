@@ -3404,7 +3404,7 @@ const SS_PATCH = {
         maxPower: 140,
     },
     'Misty Explosion': {
-        bp: 100,
+        bp: 200,
         type: 'Fairy',
         category: 'Special',
         target: 'allAdjacent',

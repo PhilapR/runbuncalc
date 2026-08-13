@@ -1,0 +1,151 @@
+{
+	"comment": [
+		"The registry of prior art OUTSIDE this repository. This exists because",
+		"the Heart Scale mechanic was rediscovered by accident: the operator had",
+		"already modeled it in pokemon-mono, and nothing here pointed there.",
+		"Every claim carries a repo, a commit it was verified at, and the paths",
+		"that prove it — `npm run inventory` re-verifies the paths whenever the",
+		"clone is present locally, and INVENTORY.md renders the result. A claim",
+		"nobody can point at does not belong in this file."
+	],
+	"sources": [
+		{
+			"repo": "PhilapR/pokemon-mono",
+			"role": "The operator's primary monorepo — four earlier repos subtree-imported (see its RECEIPTS-MAP.md). Read-only prior art for this project.",
+			"verifiedAt": "shallow clone 2026-08-11",
+			"localPath": "/workspace/pokemon-mono",
+			"capabilities": [
+				{
+					"name": "Heart Scale = set one IV to 31 (Run & Bun mechanic) — SOUND, PORTED",
+					"paths": [
+						"engines/rlm/src/pokemon_rlm/simulator/inventory.py"
+					],
+					"notes": "use_heart_scale(bag, pokemon, stat): refuses at 31, consumes from bag, recalculates stats. heart_scales_to_max, iv_quality_rating. Not shop-buyable, sell 100. Graded 2026-08-11: small, correct, and the one genuinely unique capability in engines/rlm — validated by execution. Ported 2026-08-11 as the run command `heartScale`: same three refusals, spent from run.bag, and the IV feeds the planner directly because the box already stores calc spat keys."
+				},
+				{
+					"name": "Cross-engine evidence tier — GRADE runbuncalc WITH IT, NEVER MERGE IT IN",
+					"paths": [
+						"contracts/cross-engine",
+						"engines/rab/backend/tests/rom-band-acceptance.test.ts"
+					],
+					"notes": "1,727 emulator-captured damage observations (fidelity/events-f*.json, self-describing, ROM-free) + a provider-agnostic engine contract. Its value is exactly that it is external — an engine that grades itself cannot catch a shared-wrong value (see rab's FINDINGS.md PP=10 episode). CASHED 2026-08-11: the three event files are vendored at profiles/run-and-bun/fidelity/ (mono commit be6570d, hashes in that README) so the gate runs without this clone, and rom-band.test.js grades this calculator against them — 1,727/1,727 = 100.00% in band, crits included. The corpus stays read-only prior art; nothing else was merged in."
+				},
+				{
+					"name": "In-battle consumable selection",
+					"paths": [
+						"engines/rlm/src/pokemon_rlm/agents/battle_items.py"
+					],
+					"notes": "Best HP heal for a deficit, best status cure, best ball."
+				},
+				{
+					"name": "Budget-constrained shop optimizer — DO NOT PORT",
+					"paths": [
+						"engines/rlm/src/pokemon_rlm/simulator/shops.py"
+					],
+					"notes": "optimize_purchase(budget, needs). Graded 2026-08-11: fabricates shop locations ('Verdantrum Town', marts on routes that have none) with no provenance. For item availability port engines/rab/backend/src/data/rab-item-availability.ts instead — trainer-order-keyed and cites Mechanics.MD."
+				},
+				{
+					"name": "MDP battle solver: deathless probability, expected deaths — OBJECTIVE GOOD, IMPLEMENTATION UNSOUND",
+					"paths": [
+						"engines/rlm/src/pokemon_rlm/analytics/mdp/mdp.py"
+					],
+					"notes": "Graded 2026-08-11: the death reward is SIGN-INVERTED at four sites (reward = -death_penalty with every caller passing -100.0, so the 'optimal' policy maximises deaths), the DP pass is unordered, the state key aliases distinct states, and damage is hardcoded to level 12 with a Gen 6 crit multiplier — behind 59 type-and-range tests that catch none of it. Take the OBJECTIVE (score a fight by P(no deaths), E[deaths]); rebuild the solver fresh on runbuncalc's ai/ and calc."
+				},
+				{
+					"name": "Trainer database and team planning scaffolding",
+					"paths": [
+						"engines/rlm/src/pokemon_rlm/agents/team_planner.py"
+					],
+					"notes": "Locations, level bands, opponent type profiles."
+				},
+				{
+					"name": "Community research-notes pipeline (Optimal Moveset extraction)",
+					"paths": [
+						"engines/rlm/src/pokemon_rlm/data/runandbun_research.py"
+					],
+					"notes": "Structured extraction from community docs; provenance transcribed, not source-of-truth."
+				},
+				{
+					"name": "Run & Bun battle agent with cross-engine gates and calibration receipts",
+					"paths": [
+						"engines/rab"
+					],
+					"notes": "Subtree of rab-battle-agent. Cross-engine diff gates, ROM-band acceptance tests, calibration observation logs. Unswept in detail."
+				},
+				{
+					"name": "ROM ground truth engine",
+					"paths": [
+						"groundtruth/pykemon"
+					],
+					"notes": "Subtree of pykemon. Unswept in detail."
+				},
+				{
+					"name": "RL environment",
+					"paths": [
+						"learners/rl-env"
+					],
+					"notes": "Subtree of pokemon-rl-env. Unswept in detail."
+				},
+				{
+					"name": "Doc-drift tooling worth copying",
+					"paths": [
+						"tools/check-doc-authority.py",
+						"docs/authority.json"
+					],
+					"notes": "Rejects volatile test-count snapshots in authoritative docs via a manifest. This repo's inventory gate is the same idea, applied here."
+				},
+				{
+					"name": "rab configurable-damage-calculator — FAST AND WRONG, DO NOT PORT, DO NOT TRUST ITS SPEED",
+					"paths": [
+						"engines/rab/backend/src/calculator/configurable-damage-calculator.ts"
+					],
+					"notes": "Measured 2026-08-12 on the vendored 1,727-observation corpus: 87.38% in band at 1.2us/band (7x faster than the wrapper) — it never received the a20548c ROM rounding fix that took every real core to 100%. The engine coupling that matters: rab's own gate and product path run runbuncalc-wrapper (100%, 8.8us raw / 4.2us cached); the configurable mode is a stale parallel formula whose speed is bought with pre-fix math."
+				},
+				{
+					"name": "rlm damage cores — battle/damage.py is the REAL one (100%), planning/calculator.py is pre-fix",
+					"paths": [
+						"engines/rlm/src/pokemon_rlm/battle/damage.py",
+						"engines/rlm/src/pokemon_rlm/planning/calculator.py"
+					],
+					"notes": "Graded 2026-08-12: battle/damage.py reproduces all 1,727 corpus observations (ROM rounding order, per-stage floors; commit 8cd15d8 lineage) at ~6.6us/band in plain CPython when fed resolved scalars. planning/calculator.py still computes the NON-floored level term — the exact 07-24 bug — so any consumer of the planning module inherits pre-fix damage. Same drift pattern as rab's configurable mode: the fix landed in each engine's core and missed its fast/secondary path. DEFECT FOUND + FIXED 2026-08-12 (branch claude/rlm-spd-volatile-stage, commit 0712dde): PokemonState had one Gen-1-style special_boost — turn_resolution and effects folded Special Defense stages into the Special Attack stage (Amnesia raised SpA), and the boosted special-damage path divided by effective_special, i.e. the defender's Special ATTACK. The corpus never caught it: band conventions are boost-free and the fidelity grading feeds the scalar core directly, bypassing stat selection. Any rlm full-battle result involving special moves where SpA != SpD predates the fix."
+				},
+				{
+					"name": "rab band path under state: crit-vs-stages FIXED, burn and screens are CALLER CONTRACTS",
+					"paths": [
+						"engines/rab/backend/src/calculator/runbuncalc-wrapper.ts",
+						"engines/rab/backend/src/mechanics/stat-stages.ts"
+					],
+					"notes": "Differential sweep vs runbuncalc over the corpus pairs, 2026-08-12 (the corpus itself is boost-free, so every band gate was blind to all of this). (1) FIXED on branch claude/rab-crit-ignores-stat-stages (4e0e9af): a crit multiplied the STAGE-BOOSTED base by 1.5, so a crit into a +2 Def target dealt half its real damage — the ROM ignores the attacker's negative and defender's positive stages on a crit; after the fix the engines agree on all 44 crit-under-stages scenarios and rab's own gates stay green. (2) The band path carries NO burn halving — rab's acceptance test halves externally; any caller passing a burned attacker must do the same or overstates damage 2x. (3) rab's battle-state tracks reflect/light_screen but its damage path never consumes them — predictions vs screen users run high; runbuncalc wires screens through the calc field. (4) UNVERIFIED DIVERGENCE: under sun/rain the engines differ by 1 at the low roll (weather-modifier rounding order); the corpus has no weather observations, so neither engine is ROM-verified — wants a pykemon weather sweep before anyone 'fixes' either side."
+				}
+			]
+		},
+		{
+			"repo": "PhilapR/platinum-kaizo-agent",
+			"role": "Another-game agent. Unswept — listed so it is not rediscovered by accident.",
+			"verifiedAt": "not yet cloned in this environment",
+			"localPath": null,
+			"capabilities": []
+		},
+		{
+			"repo": "PhilapR/pk-workspace",
+			"role": "Workspace repo, contents unknown. Unswept — listed so it is not rediscovered by accident.",
+			"verifiedAt": "not yet cloned in this environment",
+			"localPath": null,
+			"capabilities": []
+		},
+		{
+			"repo": "PokemonLinePlanner (local copy; upstream unknown)",
+			"role": "Turn-by-turn fight planner with snapshots — the design ancestor of this repo's Fight Planner. MatchupFinder computes best-known-move both directions.",
+			"verifiedAt": "local copy in session scratchpad 2026-08-11",
+			"localPath": null,
+			"capabilities": []
+		},
+		{
+			"repo": "PokemonRunAndBunHelper (local copy; upstream unknown)",
+			"role": "Python battle helper: find_best_move depth-3 search over a battle state.",
+			"verifiedAt": "local copy in session scratchpad 2026-08-11",
+			"localPath": null,
+			"capabilities": []
+		}
+	]
+}

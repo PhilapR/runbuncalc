@@ -1,0 +1,38 @@
+{
+	// The fleet's deploy pattern (see stochastic-inference/site): one Worker
+	// per app on the stochastic-inference.dev zone, custom domain, assets
+	// binding, observability on. `npm run cf:deploy` builds and ships.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "runbun",
+	"main": "dist-worker/worker.js",
+	"compatibility_date": "2026-06-15",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": "dist",
+		"binding": "ASSETS",
+		// Without this, the assets binding answers static paths BEFORE the
+		// Worker runs — the whole app would be public and the gate below
+		// decorative. Every request must enter through worker.js.
+		"run_worker_first": true
+	},
+	// Dev, not portfolio: this ships to the account's workers.dev subdomain
+	// (https://runbun.<account>.workers.dev — the first deploy prints it),
+	// PRIVATE behind the fleet's preview gate, which FAILS CLOSED: without
+	// the secret the worker answers 503, never an open door.
+	//   deployed:   npx wrangler secret put SITE_AUTH_PASSWORD
+	//   local dev:  copy .dev.vars.example to .dev.vars
+	//   public day: set PREVIEW_OPEN=true on purpose, and swap this flag
+	//   for the fleet's zone route:
+	//   "routes": [{"pattern": "runbun.stochastic-inference.dev",
+	//     "zone_name": "stochastic-inference.dev", "custom_domain": true}]
+	"workers_dev": true,
+	// The advisor and the ranker rebuild matchup rows through the policy —
+	// seconds of CPU, not milliseconds. Needs the paid Workers plan; on the
+	// free tier those two answers (only) would exceed the CPU ceiling.
+	"limits": {
+		"cpu_ms": 30000
+	},
+	"observability": {
+		"enabled": true
+	}
+}

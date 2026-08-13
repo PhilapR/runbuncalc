@@ -2,9 +2,23 @@ import {actionKey} from './actions';
 import {isDamagingFacts, scoringDamageFacts} from './facts';
 import {ActionEvaluation, ActionFacts, ScoreOutcome} from './model';
 
-const HIGH_SCORE_PROBABILITY = 0.2;
-const LOW_SCORE_PROBABILITY = 0.8;
-const CRIT_BONUS_PROBABILITY = 0.5;
+/**
+ * Run & Bun AI decision constants.
+ *
+ * Exported so `profiles/run-and-bun/policy.js` can declare them and
+ * `runbun_policy.test.js` can assert the declaration still matches the engine.
+ * These are game-specific tuning, not general battle mechanics: a different
+ * game profile would carry different values.
+ */
+export const HIGH_SCORE_PROBABILITY = 0.2;
+export const LOW_SCORE_PROBABILITY = 0.8;
+export const CRIT_BONUS_PROBABILITY = 0.5;
+
+/** Baseline score a setup move starts from before situational modifiers. */
+export const SETUP_BASE_SCORE = 6;
+
+/** Added to the baseline when the defender cannot act (asleep, frozen, etc.). */
+export const SETUP_INCAPACITATED_BONUS = 3;
 const KO_BOOST_ABILITIES = new Set(['moxie', 'beastboost', 'chillingneigh', 'grimneigh']);
 const TRAPPING_MOVES = new Set([
   'bind', 'clamp', 'firespin', 'infestation', 'magmastorm', 'sandtomb',
@@ -38,8 +52,14 @@ const ALLY_HARMFUL_GROUND_TYPES = new Set(['fire', 'poison', 'electric', 'rock']
 const CONTRARY_SETUP_MOVES = new Set(['leafstorm', 'overheat', 'superpower']);
 const DAMAGING_SETUP_MOVES = new Set(['chargebeam', 'poweruppunch']);
 
+const MOVE_ID_CACHE = new Map<string, string>();
 function moveId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  let id = MOVE_ID_CACHE.get(name);
+  if (id === undefined) {
+    id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    MOVE_ID_CACHE.set(name, id);
+  }
+  return id;
 }
 
 function weightedBaseScore(score: number): ScoreOutcome[] {
@@ -208,7 +228,7 @@ function contrarySetupScore(
 ): ScoreOutcome[] {
   const slower = facts.attackerSpeed !== undefined && facts.defenderSpeed !== undefined &&
     facts.attackerSpeed < facts.defenderSpeed;
-  let score = 6 + (incapacitated ? 3 : 0);
+  let score = SETUP_BASE_SCORE + (incapacitated ? SETUP_INCAPACITATED_BONUS : 0);
 
   if (moveName === 'superpower') {
     if (!slower && !facts.opponentCanKO) score += 3;
@@ -254,7 +274,7 @@ function damagingSetupScore(
     facts.defenderStatus === 'slp' || facts.defenderStatus === 'frz';
   const slower = facts.attackerSpeed !== undefined && facts.defenderSpeed !== undefined &&
     facts.attackerSpeed < facts.defenderSpeed;
-  let score = 6 + (incapacitated ? 3 : 0);
+  let score = SETUP_BASE_SCORE + (incapacitated ? SETUP_INCAPACITATED_BONUS : 0);
   if (!slower && !facts.opponentCanKO) score += 3;
   if (slower && facts.opponentCan2HKO) score -= 5;
   return [{score, probability: 1}];

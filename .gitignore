@@ -5,3 +5,9 @@ eslint-cache/
 Thumbs.db
 pnpm-debug.log
 npm-debug.log
+tsconfig.tsbuildinfo
+dist/demo.html
+dist-worker/
+.dev.vars
+wf-*.log
+out-*.txt

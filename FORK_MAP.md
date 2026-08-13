@@ -33,12 +33,20 @@ fork deltas here and in `VALIDATION.md`; promote an upstream baseline only with
 an explicit fixture change. Do not silently rewrite inherited expectations to
 force the audit green.
 
-The current intentional deltas are:
+The current intentional deltas are. This table was reconciled against a pristine
+`@smogon/calc@0.7.0` — the version the fork carries — so it reflects the real Gen
+8 delta set rather than a partial recollection of it.
 
 | Surface | Fork behavior | Source and fixture |
 | --- | --- | --- |
-| Move data | Super Fang is Dark-type | `calc/src/data/moves.ts`; `fork.test.ts` |
-| Species data | Azumarill has 65 base Attack | `calc/src/data/species.ts`; `fork.test.ts` |
+| Move data | Super Fang is Dark-type; Covet is Fairy-type | `calc/src/data/moves.ts`; `fork.test.ts`; `ai/src/test/runbun-data.test.ts` |
+| Move data | Misty Explosion is 200 base power (upstream Gen 8 is 100) | `calc/src/data/moves.ts`; `fork.test.ts`; `ai/src/test/runbun-data.test.ts` |
+| Move data | Base power changes: Absorb 40, Astonish 40, Charge Beam 40, Lick 40, Mega Drain 60, Octazooka 80 | `calc/src/data/moves.ts`; `ai/src/test/runbun-data.test.ts` |
+| Species data | Run & Bun buffs the Azumarill line: Marill 35 Atk / 35 Sp. Atk, Azumarill 65 Atk / 90 Sp. Atk; Diggersby has 71 base Attack | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Species data | Stantler and Ursaring are not fully evolved (they gain Legends: Arceus evolutions) | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Species data | 30 species absent from upstream Gen 8 are present: Hisuian forms, Legends: Arceus additions, and the Run & Bun original **Saharascal** | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Species data | 125 species lead with a different ability than upstream (Tyranitar Unnerve, Diglett Arena Trap, Ponyta Flame Body, …) — `RUNBUN_ABILITIES` overlay | `calc/src/data/species.ts`; `runbun_species.test.js` |
+| Item data | Energy Powder is removed | `calc/src/data/items.ts`; `runbun_species.test.js` |
 | Descriptions | Damage descriptions use IV values for the displayed stat labels | `calc/src/mechanics/util.ts` and generation mechanics; `fork.test.ts` |
 | Modern terrain | Psychic Terrain uses the fork's modern damage scaling | `calc/src/mechanics/gen56.ts` and `gen789.ts`; `fork.test.ts` |
 | Priority and protection | Gale Wings is not full-HP gated; intact Disguise blocks the first hit | `calc/src/mechanics/gen56.ts` and `gen789.ts`; `fork.test.ts` |
@@ -60,6 +68,21 @@ Serializable `MoveState` also permits caller-defined type, category, priority,
 target, accuracy, secondary-effect, and move-flag overrides; the AI metadata,
 order, calculator, and move-engine boundaries preserve those fields.
 
+### The overlay outranks the inherited data
+
+`calc/` is inherited source material; the Run & Bun overlay is fork-owned and
+**authoritative**. Both are read at runtime by different surfaces — the AI
+pushes the overlay through `calc-adapter.ts`, while the browser damage
+calculator reads `calc/src/data/moves.ts` directly — so a disagreement makes the
+two halves of the product report different damage for the same move, silently.
+
+`ai/src/test/runbun-data.test.ts` is the gate for that: any inherited base power
+or move type contradicting the overlay fails the build. When it fires, change
+the inherited data to the Run & Bun value and add a row above. Only add a
+documented exception when the two consumers legitimately differ (friendship-
+scaled Return and Frustration are the current pair). The gate runs offline
+against data already in the repository; it does not track any upstream fork.
+
 ## Run & Bun application code
 
 - `ai/` owns serializable battle state, legal actions, transition bookkeeping,
@@ -68,9 +91,11 @@ order, calculator, and move-engine boundaries preserve those fields.
 - `server.js` owns the local HTTP adapter for calculator and AI endpoints. It
   validates incoming state/actions/resolutions and validates derived or applied
   battle state before serialization; it does not become a second battle model.
-- `import/` is an auxiliary set-data generator, not a runtime dependency of the
-  calculator or AI server. Its generated output belongs under `src/js/data/`;
-  import changes require the separate `import/` dependency and validation gate.
+- `src/js/data/sets/gen8.js` holds the authored Run & Bun trainer parties and is
+  fork-owned product data, not generated output. The inherited `import/`
+  generator that overwrote it from `@smogon/sets` has been removed;
+  `runbun_sets.test.js` guards the data against being regenerated. See
+  `TASKS.md`.
 - `AGENTS.md`, `AI_DATA_MODEL.md`, and `VALIDATION.md` define the contracts and
   evidence for these additions.
 

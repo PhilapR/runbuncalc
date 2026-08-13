@@ -138,8 +138,16 @@ const CANONICAL_FALLBACK_MIN_GENERATION: Record<string, GenerationNum> = {
   electroshot: 9,
 };
 
-// These are the accuracy changes in MOVE_CHANGES.MD. They are kept as a
-// versioned overlay instead of reading the parent markdown file at runtime.
+// Run & Bun accuracy changes.
+//
+// Originally transcribed from the community MOVE_CHANGES document. Since
+// verified entry by entry against `dekzeh/runandbundex`, the hack author's own
+// pokeemerald-format data dump, which carries per-move `.accuracy` and `.pp` —
+// the game's numbers rather than a description of them. All 166 entries across
+// this table, CUSTOM_BASE_POWER and CUSTOM_MAX_PP agreed.
+//
+// `profiles/run-and-bun/data.js` seals the entry counts so a new entry cannot
+// inherit that confidence without being checked too.
 const CUSTOM_ACCURACY: Record<string, number> = {
   aeroblast: 100, aircutter: 100, airslash: 100, aquatail: 95, barrage: 100,
   belch: 100, bind: 100, blazekick: 100, blizzard: 80, blueflare: 90,
@@ -159,7 +167,7 @@ const CUSTOM_ACCURACY: Record<string, number> = {
   megahorn: 90, metalclaw: 100, metalsound: 100, meteorbeam: 100, meteormash: 100,
   mirrorshot: 100, mudbomb: 100, muddywater: 95, naturesmadness: 100, nightdaze: 100,
   octazooka: 100, originpulse: 100, overheat: 100, pinmissile: 100, playrough: 100,
-  poisonpowder: 90, powerwhip: 90, precipiceblades: 100, precicipeblades: 100,
+  poisonpowder: 90, powerwhip: 90, precipiceblades: 100,
   psychoboost: 100, razorleaf: 100, razorshell: 100, roaroftime: 100,
   rockblast: 100, rockclimb: 95, rockslide: 100, rockthrow: 100, rockwrecker: 100,
   rollingkick: 100, sacredfire: 100, sandtomb: 100, scaleshot: 100, screech: 100,
@@ -225,6 +233,22 @@ const CUSTOM_TYPE: Record<string, string> = {
   superfang: 'Dark',
 };
 
+/**
+ * Every move id named by a Run & Bun overlay table.
+ *
+ * Exported so the data gate can assert each one resolves to a real move. A
+ * mistyped key is invisible at runtime — `getMoveMetadata` simply finds no
+ * override and falls through to the canonical value, so the Run & Bun
+ * correction is dropped with no error and no failing comparison.
+ */
+export const OVERLAY_MOVE_IDS: string[] = Array.from(new Set([
+  ...Object.keys(CUSTOM_ACCURACY),
+  ...Object.keys(CUSTOM_BASE_POWER),
+  ...Object.keys(CUSTOM_MAX_PP),
+  ...Object.keys(CUSTOM_SECONDARY_CHANCE),
+  ...Object.keys(CUSTOM_TYPE),
+])).sort();
+
 const SUPPORTED_STAT_IDS = new Set(['hp', 'atk', 'def', 'spa', 'spd', 'spe']);
 const SUPPORTED_STATUS_NAMES = new Set<StatusName>(['slp', 'psn', 'brn', 'frz', 'par', 'tox']);
 const SUPPORTED_VOLATILES: Record<string, VolatileStatusName> = {
@@ -239,8 +263,14 @@ const SUPPORTED_VOLATILES: Record<string, VolatileStatusName> = {
   laserfocus: 'laserFocus',
 };
 
+const MOVE_ID_CACHE = new Map<string, string>();
 function moveId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  let id = MOVE_ID_CACHE.get(name);
+  if (id === undefined) {
+    id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    MOVE_ID_CACHE.set(name, id);
+  }
+  return id;
 }
 
 function toBoosts(boosts: Record<string, number> | undefined): StatBoosts | undefined {
@@ -290,7 +320,32 @@ function toSecondaryEffects(move: ReturnType<typeof Dex.moves.get>, id: string):
   return effects.length ? effects : undefined;
 }
 
+/**
+ * Moves whose use faints the user — the exact set the move engine zeroes the
+ * actor's HP for on resolution. Exported so planning layers can price the
+ * exchange as the trade it is: a KO bought with a Pokemon is not a free win,
+ * and in a permadeath run it is usually not a win at all.
+ */
+const SELF_SACRIFICE_MOVE_IDS = new Set(['explosion', 'selfdestruct', 'mistyexplosion', 'finalgambit']);
+export function isSelfSacrificeMove(name: string): boolean {
+  return SELF_SACRIFICE_MOVE_IDS.has(moveId(name));
+}
+
+/** Metadata is a pure function of (move, generation) and every consumer
+ * treats the result as read-only, so one lookup per pair is enough — the
+ * uncached Dex walk showed up in the action-fact profile. */
+const MOVE_METADATA_CACHE = new Map<string, MoveMetadata>();
+
 export function getMoveMetadata(name: string, generation: GenerationNum): MoveMetadata {
+  const cacheKey = `${generation}|${moveId(name)}`;
+  const cached = MOVE_METADATA_CACHE.get(cacheKey);
+  if (cached) return cached;
+  const built = buildMoveMetadata(name, generation);
+  MOVE_METADATA_CACHE.set(cacheKey, built);
+  return built;
+}
+
+function buildMoveMetadata(name: string, generation: GenerationNum): MoveMetadata {
   const id = moveId(name);
   const move = Dex.forGen(generation).moves.get(name);
   if (!move.exists) {

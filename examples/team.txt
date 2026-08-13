@@ -1,0 +1,64 @@
+# An example player team, in Showdown paste format.
+#
+# This is what `--team-file` expects: the player's own box, declared. It is NOT
+# a trainer set borrowed from the run map — see the header of `team.js` for why
+# that distinction changes the answer the planner gives.
+#
+# Not checked here: whether these species are obtainable at this point in the
+# run, and whether they can legally learn these moves. Run & Bun learnsets are
+# not in the profile yet, so no claim is made about legality — only the level
+# delta against each fight is reported.
+
+Swampert @ Leftovers
+Ability: Torrent
+Level: 88
+Adamant Nature
+- Earthquake
+- Waterfall
+- Ice Punch
+- Rock Slide
+
+Salamence @ Life Orb
+Ability: Intimidate
+Level: 88
+Naive Nature
+- Dragon Claw
+- Earthquake
+- Fire Blast
+- Dragon Dance
+
+Metagross @ Occa Berry
+Ability: Clear Body
+Level: 88
+Adamant Nature
+- Meteor Mash
+- Bullet Punch
+- Earthquake
+- Ice Punch
+
+Milotic @ Rocky Helmet
+Ability: Marvel Scale
+Level: 88
+Bold Nature
+- Scald
+- Recover
+- Ice Beam
+- Haze
+
+Manectric @ Magnet
+Ability: Lightning Rod
+Level: 88
+Timid Nature
+- Thunderbolt
+- Volt Switch
+- Flamethrower
+- Overheat
+
+Breloom @ Focus Sash
+Ability: Technician
+Level: 88
+Adamant Nature
+- Mach Punch
+- Bullet Seed
+- Spore
+- Rock Tomb

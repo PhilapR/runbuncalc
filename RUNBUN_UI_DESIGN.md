@@ -1,8 +1,8 @@
 # Run & Bun UI Design
 
 **Canonical product UI design** for `runbuncalc`: information architecture,
-visual system, and screen specs. Complements [`RUNBUN_UX.md`](RUNBUN_UX.md)
-(layer ownership / phase status) and [`PLAN.md`](PLAN.md) (**master prioritized
+visual system, and screen specs. Complements [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired)
+(layer ownership / phase status) and [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired) (**master prioritized
 backlog** §0 + roadmap). Engine contracts stay in `AGENTS.md` /
 `AI_DATA_MODEL.md` — this file is presentation only.
 
@@ -14,7 +14,7 @@ Canvas beside chat —
 **priority-ranked** (§9). Do **not** treat this pass as a full Smogon calc
 rewrite (**Park** PARK-09).
 
-**Priority scheme:** same as [`PLAN.md`](PLAN.md) — **P0 / P1 / P2 / P3 /
+**Priority scheme:** same as [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired) — **P0 / P1 / P2 / P3 /
 Park**. Product “next” statements here must match PLAN §0 (no contradictory
 unranked “next”).
 
@@ -425,6 +425,25 @@ behavior; **P2** UI-V3 polish)
 
 ---
 
+### 4.5 My Run (playthrough)
+
+The panel is designed for the run's END STATE, not its first route: a box of
+60+, several lost, 44 milestones, 362 battles. Every component states which of
+those scales it serves.
+
+| Component | Serves | Design |
+| --- | --- | --- |
+| Story spine | 362 battles → 44 milestones | One tick per milestone; beaten = brand fill, next = action outline, split-ending bosses taller than story bosses; names in tooltips, note line names only the next. "Where am I" answered without reading. |
+| Boss tiers & caps | Hardcap pacing | Three profile-declared patterns: `BOSS` (badges/E4/Champion — end splits, name the header's "Brawly split (1/18)"), `STORY_BOSS` (rivals, every Aqua/Magma admin fight, Archie, Maxie, Wally, Steven, both Chelle fights, Dumbass Soupercell). The level cap is the ace of the next fight in EITHER tier — a fresh run caps at 12 (Petalburg Woods grunt's Croagunk), not Brawly's 21. Road-ahead rows badge `boss`/`story`; filler is unbadged. |
+| Road ahead | 25 fights between gyms | Bordered list (same grammar as ranked actions); any row markable **Beaten**, which moves the run past everything before it — one click per route, not per trainer. Per-row **Plan**. |
+| Party strip | Lead order matters | Six visible slots, lead first; built by clicking (+/−) in the box, reordered with ▲. Click order IS lead order. A `<select multiple>` cannot express order — jQuery returns DOM order — which made the lead silently always the earliest catch. Never reintroduce it. |
+| Box | 60+ entries, permadeath | Counts bar (`N alive · M lost`), substring filter (a view, never a command), party pinned on top in lead order, the lost below a `lost` divider — in the record, out of the working set. `at cap` chip when a mon meets the run's cap. |
+| Catch flow | One per route | Encounter click fills the form, never catches — a misclick must not become a box entry. Refusals quote the route's real roster. |
+
+Rules the panel keeps: thin client (all rules server-side), persist only what
+the server accepted, `hidden` attribute + `#runbun-run [hidden]` guard (two
+bugs have come from fighting it), and the run lives in `localStorage` only.
+
 ## 5. Interaction flows
 
 ### 5.1 Evaluate → choose → apply → advance
@@ -552,7 +571,7 @@ Touch targets for R&B primary buttons ≥ 36px height.
 
 Every phase has an explicit **Priority** and PLAN **ID**. Product fixture work
 (FIX-*) is not a visual phase but is **P0** ahead of V2+ polish — see
-[`PLAN.md`](PLAN.md) §0.
+[`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired) §0.
 
 | Priority | Phase | ID | Scope | Done when |
 | --- | --- | --- | --- | --- |
@@ -592,8 +611,8 @@ Singles MVP polish is the product focus (after fixtures feel solid).
 | Artifact | Role |
 | --- | --- |
 | **This file** | Canonical UI design + per-screen / V0–V4 priorities |
-| [`RUNBUN_UX.md`](RUNBUN_UX.md) | Layer map + phase status (same P0–Park ranks) |
-| [`PLAN.md`](PLAN.md) | **Master prioritized backlog (§0)** + roadmap |
+| [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired) | Layer map + phase status (same P0–Park ranks) |
+| [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired) | **Master prioritized backlog (§0)** + roadmap |
 | [`VALIDATION.md`](VALIDATION.md) | Engine/product completeness backlog (same ranks) |
 | [`src/css/runbun-tokens.css`](src/css/runbun-tokens.css) | Token scaffolding (**P0** UI-V0) |
 | Cursor Canvas `runbun-ui-design.canvas.tsx` | Interactive IA + token roles + wireframes |
@@ -630,4 +649,4 @@ Use consistently:
 | P1 | UI-V2b | ~~Unify calc columns onto stadium tokens; load shell after dark-theme.~~ **Done** |
 | P0 | FIX-02 | Prefer fixture browser MVP before deep V3 field chrome. |
 
-Master ordering and done-when: [`PLAN.md`](PLAN.md) §0 / §11.
+Master ordering and done-when: [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired) §0 / §11.

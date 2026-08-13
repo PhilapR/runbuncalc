@@ -64,11 +64,10 @@ to take.
 - The legacy `shared_controls.js` script is now included in the root lint gate.
   Its Ctrl-key behavior supports append-vs-swap dragging; there is no separate
   multi-row selection model.
-- `import/` is a separate set-data generator with its own dependency tree. The
-  root test gate does not compile or run it; after changing import code, run
-  `npm ci` and then `npm test` from `import/` before trusting the result.
-  Its TypeScript 7 toolchain uses `tsc --noEmit -p .` as the lint gate; the
-  inherited TypeScript ESLint stack does not yet support the TypeScript 7 API.
+- `src/js/data/sets/gen8.js` is authored Run & Bun trainer data, not generated
+  output. Never regenerate it from an upstream set source: the removed `import/`
+  generator did exactly that and destroyed the trainer parties.
+  `runbun_sets.test.js` runs in the root gate — see `TASKS.md`.
 
 ## Data rules
 

@@ -1,26 +1,54 @@
 # Tasks
 
-## Updating sets
+Recurring maintenance for the Run & Bun calculator. This is a standalone
+product; procedures inherited from the upstream Smogon calculator do not apply
+unless they are written down here.
 
-A member of the `@smogon` org on npm should update the `@smogon/sets` package monthly after usage stats are published, though they may also create patch releases on demand. After a new sets package has been released:
+## Set data
 
-1. If you haven't done so already:
-    * clone [`smogon/pokemon-showdown`](https://github.com/smogon/pokemon-showdown) into a `pokemon-showdown` directory which sits in the same parent directory as your clone of `smogon/damage-calc`.
-    * run `npm install` and `node build`
-2. Ensure your `pokemon-showdown` and `damage-calc` branches are fully up to date, make sure to have run `node build` in the `pokemon-showdown` directory after syncing.
-3. `cd import/` and run [`ncu -u`](https://www.npmjs.com/package/npm-check-updates) to update to the latest `@smogon/sets` package (or manually update the version `package.json`).
-4. `npm install` from within `import/`, then run `npm run compile`.
-5. Run `./ps-import` (or `node ps-import` if you're on a Windows OS) to pull in tiers from `pokemon-showdown`
-6. Run `./import` (or `node import` if you're on a Windows OS)
-7. Run `node build` in the top level and open up the calc UI in the browser and sanity check that the sets generated in `../src/js/data` look OK (viewing them in your text editor is also recommend).
-8. Commit the changes and push them to master. Only JSON files in `import/` (always `package.json`, sometimes `src/tiers.json`) should have changes as well as the files in `src/js/data`.
+`src/js/data/sets/gen8.js` holds the **Run & Bun trainer parties** — authored
+data keyed by trainer name, with an `index` field ordering each party. It is the
+most Run & Bun-specific dataset in the repository and the Trainer Wheel reads it
+directly.
 
-## Releasing a new `@smogon/calc` package
+Do **not** regenerate it from an upstream set source. The inherited `import/`
+generator wrote all nine generations into `src/js/data/sets/` from
+`@smogon/sets`, so running it replaced the trainer parties with Smogon
+competitive usage sets. That generator has been removed; `runbun_sets.test.js`
+now fails if the trainer data is ever overwritten that way.
 
-You must be part of the `@smogon` org on npm to be able to release this package.
+To change trainer sets, edit `src/js/data/sets/gen8.js` directly, then:
 
-1. Ensure your branch is fully up to date
-2. Run `npm test` to ensure `calc/` is in a good state.
-3. Update the the `version` field in `calc/package.json` to correctly reflect the new version according to the guidance around [semantic versioning](https://semver.org/).
-4. **Be very sure everything is correct - you can not unpublish a version**.
-5. Run `npm publish --access public` from within the `calc/` subdirectory.
+1. `npm run build`
+2. `npm test` — `runbun_sets.test.js` checks the data is still trainer-shaped
+3. Load `#runbun-battle` and the Trainer Wheel in the browser and confirm the
+   party board still renders
+
+The remaining `sets/gen*.js` files are inherited Smogon usage sets for the
+non-Run & Bun generations the calculator still exposes. They are not part of the
+Run & Bun surface and are not regenerated.
+
+## Run & Bun data overlays
+
+Move-level Run & Bun changes (accuracy, base power, PP, type) live in the
+fork-owned overlay at `ai/src/move-metadata.ts`. That overlay is authoritative
+over the inherited calculator data — see `FORK_MAP.md`. When the two disagree,
+`ai/src/test/runbun-data.test.ts` fails the build; fix the inherited data in
+`calc/src/data/` and record the delta in the `FORK_MAP.md` Policy B table.
+
+## Gen 9 coverage
+
+Run & Bun is a Gen 8 game. If a future release ports Gen 9 content, regenerate
+the coverage audit and work the resulting list:
+
+```sh
+npm run build && node scripts/audit-gen9-coverage.js
+```
+
+See `GEN9_AUDIT.md` for the current evidence and why GEN9-02 is Parked.
+
+## Validation gate
+
+`npm test` is the floor: `calc` → `ai` → build → `test:server` → UI lint. Keep
+it green before merge. `npm run test:upstream` is a compatibility audit only and
+is expected to fail where the fork intentionally diverges (Policy B).

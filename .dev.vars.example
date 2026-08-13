@@ -1,0 +1,5 @@
+# Local wrangler dev reads .dev.vars (gitignored). Copy this file to .dev.vars
+# and pick ONE line: a local password, or the explicit open door.
+# The deployed gate FAILS CLOSED without one of these — see worker.js.
+SITE_AUTH_PASSWORD=local-password
+# PREVIEW_OPEN=true

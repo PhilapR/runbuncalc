@@ -134,6 +134,14 @@ html, body {
     color: black;
     margin: 0;
     padding: 0;
+}
+
+/* The desktop floor belongs to the CLASSIC CALC's float layout, not the page:
+   on the body it forced every other mode — run panel, planner, battle — to
+   1600px and made the phone view a zoomed-out photograph of a desktop. The
+   calc keeps its floor; everything else reflows. (The shell collapses inactive
+   regions on small screens, so this floor only binds while Calc is active.) */
+#calc {
     min-width: 100em;
 }
 
@@ -1778,4 +1786,1722 @@ table.field {
     border-radius: 2px;
     white-space: pre-wrap;
     word-break: break-word;
+}
+/* Fight planner (#runbun-planner) — UI-P1 */
+#runbun-planner.runbun-planner,
+#runbun-run.runbun-run {
+	/* The frame every other R&B mode already has (#runbun-battle, #runbun-replay):
+	   a centered raised card. Without it these two panels ran edge to edge, and at
+	   a wide viewport a ranked-action row became a 3000px bar — the score and its
+	   label ended up further apart than either was from the panel edge. */
+	clear: both;
+	margin: var(--rb-space-lg) auto var(--rb-space-xl);
+	padding: var(--rb-space-lg) var(--rb-space-xl);
+	background: var(--rb-surface-raised);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	color: var(--rb-ink);
+	font-family: var(--rb-font-body);
+	font-size: 0.9rem;
+	line-height: 1.4;
+	text-align: left;
+}
+#runbun-planner.runbun-planner {
+	display: grid;
+	gap: var(--rb-space-md);
+	max-width: 64rem;
+}
+/* Three working areas side by side, so wider than the single-question panels. */
+#runbun-run.runbun-run {
+	max-width: 80rem;
+}
+#runbun-planner .runbun-planner-title,
+#runbun-run .runbun-run-title {
+	font-family: var(--rb-font-brand);
+	font-size: 1.35rem;
+	color: var(--rb-brand);
+	margin: 0;
+}
+#runbun-planner .runbun-planner-help,
+#runbun-run .runbun-run-help {
+	color: var(--rb-ink-muted);
+	margin: 0;
+	max-width: 76ch;
+	font-size: 0.875rem;
+}
+
+/* --- shared: section labels ------------------------------------------------ */
+#runbun-planner .runbun-planner-section-label,
+#runbun-run .runbun-run-section-label {
+	display: block;
+	font-family: var(--rb-font-brand);
+	font-weight: 700;
+	font-size: 0.78rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--rb-ink-muted);
+	margin-bottom: var(--rb-space-xs);
+}
+
+/* --- shared: ranked opponent actions ---------------------------------------
+   One component in both panels, per the design doc's action-list sketch: a
+   bordered list with row separators, score in a fixed mono column so the eye
+   can run down it, top action called out with the brand accent. Boxed rows at
+   full width were the single worst thing in the screenshots. */
+#runbun-planner .runbun-planner-actions,
+#runbun-run .runbun-run-plan-actions {
+	display: block;
+	max-width: 44rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	overflow: hidden;
+	background: var(--rb-surface-raised);
+}
+#runbun-planner .runbun-planner-action,
+#runbun-run .runbun-run-action {
+	display: grid;
+	grid-template-columns: 4.5rem 1fr;
+	gap: var(--rb-space-md);
+	align-items: baseline;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 0;
+	border-left: 3px solid transparent;
+	font-size: 0.875rem;
+}
+#runbun-planner .runbun-planner-action + .runbun-planner-action,
+#runbun-run .runbun-run-action + .runbun-run-action {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-planner .runbun-planner-action.is-top,
+#runbun-run .runbun-run-action.is-top {
+	border-left-color: var(--rb-brand);
+	background: var(--rb-brand-soft);
+	font-weight: 700;
+}
+#runbun-planner .runbun-planner-action-score,
+#runbun-run .runbun-run-action-score {
+	font-family: var(--rb-font-mono);
+	text-align: right;
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-action-label,
+#runbun-run .runbun-run-action-label {
+	color: var(--rb-ink);
+	font-family: var(--rb-font-body);
+}
+
+/* --- shared: the verdict ---------------------------------------------------
+   The answer the player came for, so it reads louder than the list beneath it.
+   Contested is coloured apart from decided because they call for different
+   preparation. */
+#runbun-planner .runbun-planner-verdict:not(:empty),
+#runbun-run .runbun-run-plan-verdict:not(:empty) {
+	max-width: 44rem;
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-radius: var(--rb-radius-control);
+	border: 1px solid var(--rb-stroke-strong);
+	border-left-width: 3px;
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	font-family: var(--rb-font-brand);
+	font-weight: 600;
+	margin-top: var(--rb-space-md);
+	margin-bottom: var(--rb-space-xs);
+}
+#runbun-planner .runbun-planner-verdict[data-confidence="contested"] {
+	border-color: var(--rb-warn);
+	background: var(--rb-warn-soft);
+}
+#runbun-planner .runbun-planner-verdict[data-confidence="decided"] {
+	border-color: var(--rb-oracle);
+	background: var(--rb-oracle-soft);
+}
+#runbun-run .runbun-run-plan-verdict:not(:empty) {
+	border-color: var(--rb-action);
+}
+
+/* --- planner: notes and caveats -------------------------------------------- */
+/* The coverage note is warned, not muted: it states what the run map does not
+   contain, and a player should not have to go looking for that. */
+#runbun-planner .runbun-planner-coverage:not(:empty) {
+	border-left: 3px solid var(--rb-warn);
+	background: var(--rb-warn-soft);
+	color: var(--rb-ink);
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-radius: var(--rb-radius-control);
+	font-size: 0.875rem;
+	max-width: 76ch;
+}
+/* Caveats about the team the plan was built for. Warned only when the build is
+   borrowed from a trainer, because that one is not a footnote: the ranking
+   above it answers for a Pokemon the player cannot obtain. */
+#runbun-planner .runbun-planner-caveats:not(:empty) {
+	list-style: none;
+	margin: var(--rb-space-sm) 0 0;
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-left: 3px solid var(--rb-stroke);
+	background: var(--rb-surface-sunken);
+	color: var(--rb-ink-muted);
+	border-radius: var(--rb-radius-control);
+	max-width: 76ch;
+	font-size: 0.875rem;
+}
+#runbun-planner .runbun-planner-caveats.is-warning {
+	border-left-color: var(--rb-warn);
+	background: var(--rb-warn-soft);
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-caveats li + li {
+	margin-top: var(--rb-space-xs);
+}
+
+/* --- planner: fight picker -------------------------------------------------- */
+#runbun-planner .runbun-planner-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: var(--rb-space-sm);
+}
+#runbun-planner .runbun-planner-select-label {
+	display: grid;
+	gap: var(--rb-space-xs);
+	color: var(--rb-ink-muted);
+	font-size: 0.82rem;
+	flex: 1 1 22rem;
+}
+#runbun-planner .runbun-planner-select {
+	width: 100%;
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-columns {
+	display: grid;
+	gap: var(--rb-space-lg);
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+/* The opposing party wears the oracle accent: it is read out of the run map,
+   not something the player edits. */
+#runbun-planner .runbun-planner-party {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: var(--rb-space-xs);
+}
+#runbun-planner .runbun-planner-mon {
+	display: grid;
+	gap: 2px;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	background: var(--rb-surface-sunken);
+	border: 1px solid var(--rb-stroke);
+	border-left: 3px solid var(--rb-oracle);
+	border-radius: var(--rb-radius-control);
+}
+#runbun-planner .runbun-planner-mon-name {
+	font-family: var(--rb-font-brand);
+	font-weight: 600;
+	color: var(--rb-ink);
+}
+#runbun-planner .runbun-planner-mon-kit,
+#runbun-planner .runbun-planner-mon-moves {
+	color: var(--rb-ink-muted);
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+}
+#runbun-planner .runbun-planner-team {
+	width: 100%;
+	box-sizing: border-box;
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+	color: var(--rb-ink);
+	margin-bottom: var(--rb-space-sm);
+	resize: vertical;
+}
+#runbun-planner .runbun-planner-status[data-kind="error"] {
+	color: var(--rb-danger);
+}
+#runbun-planner .runbun-planner-status[data-kind="ok"] {
+	color: var(--rb-ink-muted);
+}
+
+/* ------------------------------------------------------------------ My Run
+   A playthrough panel: box on the left, catching in the middle, one selected
+   Pokemon on the right. Three columns because those are three different
+   activities, and stacking them would make the box scroll away exactly when a
+   player wants to look at it while catching. */
+#runbun-run .runbun-run-limits {
+	max-width: 76ch;
+	color: var(--rb-ink-muted);
+	font-size: 0.8rem;
+	margin: var(--rb-space-xs) 0 0;
+}
+/* The header band is the save-file line: whose run, where it is, what rule it
+   is under. The cap sits apart on the right because it is a standing
+   constraint the player opted into, not part of the position. */
+#runbun-run .runbun-run-header {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-sm) var(--rb-space-lg);
+	align-items: baseline;
+	padding: var(--rb-space-sm) 0;
+	border-bottom: 2px solid var(--rb-brand);
+	margin-bottom: var(--rb-space-md);
+}
+#runbun-run .runbun-run-name {
+	font-family: var(--rb-font-brand);
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+#runbun-run .runbun-run-position {
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-cap:not(:empty) {
+	margin-left: auto;
+	font-family: var(--rb-font-mono);
+	font-size: 0.8rem;
+	color: var(--rb-warn-ink);
+	background: var(--rb-warn-soft);
+	border: 1px solid var(--rb-warn);
+	border-radius: var(--rb-radius-control);
+	padding: 2px var(--rb-space-sm);
+}
+#runbun-run .runbun-run-columns {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+	gap: var(--rb-space-xl);
+	margin-top: var(--rb-space-md);
+}
+#runbun-run .runbun-run-column {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-sm);
+	min-width: 0;
+}
+#runbun-run .runbun-run-box,
+#runbun-run .runbun-run-encounters {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-height: 22rem;
+	overflow-y: auto;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-mon {
+	display: grid;
+	grid-template-columns: 2.2rem 1fr auto;
+	gap: 0 var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border-bottom: 1px solid var(--rb-stroke);
+	border-left: 3px solid transparent;
+	cursor: pointer;
+}
+#runbun-run .runbun-run-mon:last-child {
+	border-bottom: 0;
+}
+#runbun-run .runbun-run-mon:hover {
+	background: var(--rb-surface-sunken);
+}
+/* Party membership is the brand accent, matching the top-action treatment:
+   in both cases it marks "this is the one in play". */
+#runbun-run .runbun-run-mon.is-party {
+	border-left-color: var(--rb-brand);
+	background: var(--rb-brand-soft);
+}
+/* A lost Pokemon stays in the box and stays readable — striking it out would
+   make the one entry a nuzlocke player cares most about the hardest to read. */
+#runbun-run .runbun-run-mon.is-lost {
+	opacity: 0.55;
+}
+#runbun-run .runbun-run-mon.is-selected {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: -2px;
+}
+#runbun-run .runbun-run-mon-slot {
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+	align-self: center;
+	text-align: center;
+}
+#runbun-run .runbun-run-mon.is-party .runbun-run-mon-slot {
+	color: var(--rb-brand-ink);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-mon-name {
+	font-family: var(--rb-font-brand);
+	font-weight: 600;
+}
+#runbun-run .runbun-run-mon-kit,
+#runbun-run .runbun-run-mon-moves {
+	grid-column: 2 / -1;
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+	font-family: var(--rb-font-mono);
+}
+#runbun-run .runbun-run-encounters li {
+	border-bottom: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-encounters li:last-child {
+	border-bottom: 0;
+}
+#runbun-run .runbun-run-encounter {
+	display: block;
+	width: 100%;
+	text-align: left;
+	background: none;
+	border: 0;
+	border-left: 3px solid transparent;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-family: var(--rb-font-mono);
+	font-size: 0.82rem;
+	color: inherit;
+	cursor: pointer;
+}
+#runbun-run .runbun-run-encounter:hover,
+#runbun-run .runbun-run-encounter:focus-visible {
+	background: var(--rb-surface-sunken);
+	border-left-color: var(--rb-action);
+}
+#runbun-run .runbun-run-encounters li.is-owned .runbun-run-encounter {
+	color: var(--rb-ok);
+}
+/* A dupe row does not count under the nuzlocke rules: muted and struck, but
+   still clickable — declaring a run non-nuzlocke or checking the tooltip is
+   the player's call, not the list's. */
+#runbun-run .runbun-run-encounters li.is-dupe .runbun-run-encounter {
+	color: var(--rb-ink-muted);
+	text-decoration: line-through;
+}
+#runbun-run .runbun-run-route-used {
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-size: 0.78rem;
+	color: var(--rb-warn-ink);
+	background: var(--rb-warn-soft);
+	border-left: 3px solid var(--rb-warn);
+}
+#runbun-run .runbun-run-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+	align-items: center;
+}
+/* Rows align as columns, not driftwood: text inputs flex to share the line,
+   number inputs hold a fixed working width, buttons keep their label size.
+   One weight system instead of each row finding its own widths. */
+#runbun-run .runbun-run-row > input[type="text"] {
+	flex: 1 1 8rem;
+	min-width: 0;
+}
+#runbun-run .runbun-run-row > input[type="number"] {
+	flex: 0 0 4.5rem;
+	width: 4.5rem;
+}
+#runbun-run .runbun-run-row > select {
+	flex: 0 1 auto;
+}
+#runbun-run .runbun-run-row input[type="text"],
+#runbun-run .runbun-run-row input[type="number"],
+#runbun-run .runbun-run-field input[type="text"],
+#runbun-run .runbun-run-selected {
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-row input[type="text"] {
+	flex: 1 1 7rem;
+	min-width: 0;
+}
+#runbun-run .runbun-run-row input[type="number"] {
+	width: 4.5rem;
+}
+#runbun-run .runbun-run-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+	font-size: 0.82rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-field select {
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-field select[multiple] option {
+	padding: 2px var(--rb-space-xs);
+}
+#runbun-run .runbun-run-check {
+	display: flex;
+	gap: var(--rb-space-xs);
+	align-items: center;
+	font-size: 0.9rem;
+}
+/* The individual rule toggles sit indented under the preset that drives them,
+   reading as its expansion rather than four more unrelated settings. */
+#runbun-run .runbun-run-rules-detail {
+	margin: var(--rb-space-xs) 0 var(--rb-space-xs) var(--rb-space-lg);
+	padding-left: var(--rb-space-sm);
+	border-left: 2px solid var(--rb-stroke);
+	display: grid;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-empty:not([hidden]) {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-sm);
+	align-items: flex-start;
+	max-width: 32rem;
+	padding: var(--rb-space-md);
+	border: 1px dashed var(--rb-stroke-strong);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+}
+/* Both this panel and jQuery have now tried to fight the `hidden` attribute —
+   `.toggle()` clears inline display, and a bare `display: flex` above outranks
+   the UA stylesheet. This guard settles it for everything in the panel. */
+#runbun-run [hidden] {
+	display: none;
+}
+#runbun-run .runbun-run-selected {
+	width: 100%;
+	box-sizing: border-box;
+	background: var(--rb-surface-sunken);
+}
+#runbun-run .runbun-run-bag,
+#runbun-run .runbun-run-learn {
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+	overflow-wrap: anywhere;
+}
+/* The learnable dump is the longest text in the panel; boxed and capped so it
+   cannot shove the action row off screen. */
+#runbun-run .runbun-run-learn:not(:empty) {
+	max-height: 12rem;
+	overflow-y: auto;
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+}
+#runbun-run .runbun-run-learn strong {
+	color: var(--rb-ink);
+	font-family: var(--rb-font-brand);
+}
+#runbun-run .runbun-run-learn div + div {
+	margin-top: var(--rb-space-xs);
+}
+/* One verb hierarchy in the action row: plan is the primary (it already wears
+   .rb-btn-primary), moving on is a bordered secondary, undo is quiet. */
+#runbun-run .runbun-run-actions-row {
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
+	gap: var(--rb-space-sm);
+}
+#runbun-run #runbun-run-undo.btn {
+	border-color: transparent;
+	background: none;
+	color: var(--rb-ink-muted);
+}
+#runbun-run #runbun-run-undo.btn:hover {
+	color: var(--rb-ink);
+	border-color: var(--rb-stroke);
+}
+#runbun-run .runbun-run-transfer {
+	margin-top: var(--rb-space-lg);
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-transfer summary {
+	cursor: pointer;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-transfer textarea {
+	width: 100%;
+	box-sizing: border-box;
+	margin-top: var(--rb-space-sm);
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+	color: var(--rb-ink);
+	resize: vertical;
+}
+#runbun-run .runbun-run-status:not(:empty) {
+	margin-top: var(--rb-space-md);
+	padding: var(--rb-space-sm) var(--rb-space-md);
+	border-radius: var(--rb-radius-control);
+	border-left: 3px solid var(--rb-stroke);
+	background: var(--rb-surface-sunken);
+	font-family: var(--rb-font-mono);
+	font-size: 0.82rem;
+	max-width: 76ch;
+}
+#runbun-run .runbun-run-status[data-kind="ok"] {
+	border-left-color: var(--rb-ok);
+	background: var(--rb-ok-soft);
+}
+/* A refusal is the feature, not an error state to apologise for: it says why
+   this could not have happened in the game. */
+#runbun-run .runbun-run-status[data-kind="error"] {
+	border-left-color: var(--rb-danger);
+	background: var(--rb-danger-soft);
+}
+/* The team label is a title; the instructions under it are a hint, not a
+   heading — a sentence in letter-spaced small caps reads like shouting. */
+#runbun-planner .runbun-planner-team-hint {
+	margin: 0 0 var(--rb-space-xs);
+	font-size: 0.82rem;
+	color: var(--rb-ink-muted);
+}
+/* The legacy .btn geometry carries negative margins so calc buttons can fuse
+   into segmented clusters. In the run action row each verb is its own
+   decision, so they get their gap back. */
+#runbun-run .runbun-run-actions-row .btn,
+#runbun-run .runbun-run-row .btn {
+	margin: 0;
+}
+
+/* --- My Run at full-game scale --------------------------------------------
+   The pieces that only matter once a run is real: a 34-tick story spine, a
+   filterable box with a graveyard divider, a six-slot party strip whose order
+   is the lead order, and the road ahead as markable rows. */
+
+/* The spine: one tick per milestone. Beaten fills with brand, the next fight
+   in line gets the action accent — the eye finds "you are here" without
+   reading a name. Names live in the tooltips and the note line. */
+#runbun-run .runbun-run-spine-wrap {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--rb-space-sm) var(--rb-space-md);
+	margin-bottom: var(--rb-space-md);
+}
+#runbun-run .runbun-run-spine {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 3px;
+	margin: 0;
+	padding: 0;
+}
+#runbun-run .runbun-run-spine li {
+	width: 11px;
+	height: 14px;
+	border-radius: 2px;
+	background: var(--rb-surface-sunken);
+	border: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-spine li.is-beaten {
+	background: var(--rb-brand);
+	border-color: var(--rb-brand);
+}
+#runbun-run .runbun-run-spine li.is-next {
+	border: 2px solid var(--rb-action);
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-spine-note {
+	font-family: var(--rb-font-mono);
+	font-size: 0.8rem;
+	color: var(--rb-ink-muted);
+}
+
+/* Box toolbar: the census and the filter. Counts matter once the list scrolls;
+   the filter matters once it is sixty rows deep. */
+#runbun-run .runbun-run-box-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rb-space-sm);
+}
+#runbun-run .runbun-run-box-counts {
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run #runbun-run-box-filter {
+	width: 9rem;
+	font-family: var(--rb-font-mono);
+	font-size: 0.8rem;
+	padding: 2px var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+}
+/* The graveyard divider: the lost stay in the record, below the working set. */
+#runbun-run .runbun-run-box-divider {
+	padding: 2px var(--rb-space-sm);
+	font-family: var(--rb-font-brand);
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--rb-ink-muted);
+	background: var(--rb-surface-sunken);
+	border-top: 1px solid var(--rb-stroke);
+	border-bottom: 1px solid var(--rb-stroke);
+}
+/* The party toggle on a box row: quiet until hovered, mono so + and − align. */
+#runbun-run .runbun-run-add {
+	grid-row: 1;
+	grid-column: 3;
+	align-self: start;
+	width: 1.6rem;
+	height: 1.6rem;
+	line-height: 1;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink-muted);
+	font-family: var(--rb-font-mono);
+	font-size: 0.95rem;
+	cursor: pointer;
+}
+#runbun-run .runbun-run-add:hover {
+	border-color: var(--rb-action);
+	color: var(--rb-action);
+}
+#runbun-run .runbun-run-add.is-staged {
+	background: var(--rb-brand-soft);
+	border-color: var(--rb-brand);
+	color: var(--rb-brand-ink);
+}
+#runbun-run .runbun-run-at-cap {
+	margin-left: var(--rb-space-xs);
+	font-family: var(--rb-font-mono);
+	font-size: 0.68rem;
+	font-weight: 400;
+	color: var(--rb-warn-ink);
+	background: var(--rb-warn-soft);
+	border: 1px solid var(--rb-warn);
+	border-radius: var(--rb-radius-control);
+	padding: 0 4px;
+	vertical-align: 1px;
+}
+
+/* The party strip: six slots, lead first. Filled slots read as chips; empty
+   slots stay visible so "a party is six" is on screen, not in documentation. */
+#runbun-run .runbun-run-party-strip {
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+	margin: 0;
+	padding: 0;
+}
+#runbun-run .runbun-run-party-slot {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-left: 3px solid var(--rb-brand);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-party-slot.is-empty {
+	border-style: dashed;
+	border-left-width: 1px;
+	border-left-style: dashed;
+	border-left-color: var(--rb-stroke);
+	color: var(--rb-ink-muted);
+	background: none;
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+}
+#runbun-run .runbun-run-party-order {
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--rb-brand-ink);
+	width: 1rem;
+	text-align: center;
+}
+#runbun-run .runbun-run-party-name {
+	flex: 1;
+	font-family: var(--rb-font-brand);
+	font-weight: 600;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#runbun-run .runbun-run-party-up,
+#runbun-run .runbun-run-party-rm {
+	width: 1.5rem;
+	height: 1.5rem;
+	line-height: 1;
+	border: 1px solid transparent;
+	border-radius: var(--rb-radius-control);
+	background: none;
+	color: var(--rb-ink-muted);
+	cursor: pointer;
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-party-up:hover {
+	color: var(--rb-action);
+	border-color: var(--rb-action);
+}
+#runbun-run .runbun-run-party-rm:hover {
+	color: var(--rb-danger);
+	border-color: var(--rb-danger);
+}
+#runbun-run .runbun-run-party-hint {
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+}
+
+/* The road ahead: the same bordered-list grammar as the ranked actions, so
+   "list of fights" and "list of moves" read as the same kind of thing. Any row
+   can be marked beaten; the next one carries the action accent. */
+#runbun-run .runbun-run-ahead {
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
+}
+/* The split sheet: the same row grammar as the road ahead — it IS the road,
+   filtered to the fights that set caps and end the split — with the boss row
+   accented in brand, because reaching it is what the split means. */
+#runbun-run .runbun-run-split {
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-split-summary {
+	margin-bottom: var(--rb-space-sm);
+	font-family: var(--rb-font-mono);
+	font-size: 0.8rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-split-gauntlet {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 44rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	overflow: hidden;
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-split-fight {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border-left: 3px solid transparent;
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-split-fight + .runbun-run-split-fight {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-split-fight.is-boss-row {
+	border-left-color: var(--rb-brand);
+	background: var(--rb-brand-soft);
+}
+#runbun-run .runbun-run-ahead-hint {
+	margin: 0 0 var(--rb-space-sm);
+	font-size: 0.8rem;
+	color: var(--rb-ink-muted);
+	max-width: 76ch;
+}
+#runbun-run .runbun-run-upcoming {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 44rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	overflow: hidden;
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-up {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border-left: 3px solid transparent;
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-up + .runbun-run-up {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-up.is-next {
+	border-left-color: var(--rb-action);
+	background: var(--rb-surface-sunken);
+}
+#runbun-run .runbun-run-up-order {
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+	width: 3.2rem;
+}
+#runbun-run .runbun-run-up-name {
+	flex: 1;
+	font-weight: 600;
+	min-width: 0;
+}
+#runbun-run .runbun-run-up-meta {
+	font-family: var(--rb-font-mono);
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-up-actions {
+	display: flex;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-up-plan,
+#runbun-run .runbun-run-up-beat {
+	font-size: 0.78rem;
+	padding: 2px var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	cursor: pointer;
+}
+#runbun-run .runbun-run-up-plan:hover {
+	border-color: var(--rb-action);
+	color: var(--rb-action);
+}
+#runbun-run .runbun-run-up-beat:hover {
+	border-color: var(--rb-brand);
+	color: var(--rb-brand-ink);
+	background: var(--rb-brand-soft);
+}
+#runbun-run .runbun-run-up.is-done {
+	color: var(--rb-ink-muted);
+	font-family: var(--rb-font-mono);
+}
+#runbun-run .runbun-run-bag-label {
+	margin-top: var(--rb-space-sm);
+	margin-bottom: 0;
+}
+/* Boss ticks stand taller on the spine: the eight badges, the Elite Four and
+   the Champion are the split-enders a run is narrated in; the named story
+   bosses between them stay short. */
+#runbun-run .runbun-run-spine li.is-boss {
+	height: 20px;
+}
+/* Tier badges on the road ahead: a boss ends a split, a story fight sets the
+   cap. Route filler carries no badge at all. */
+#runbun-run .runbun-run-up-tier {
+	font-family: var(--rb-font-mono);
+	font-size: 0.68rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 0 5px;
+	border-radius: var(--rb-radius-control);
+	border: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-up-tier.is-boss {
+	color: var(--rb-brand-ink);
+	background: var(--rb-brand-soft);
+	border-color: var(--rb-brand);
+}
+#runbun-run .runbun-run-up-tier.is-story {
+	color: var(--rb-oracle);
+	background: var(--rb-oracle-soft);
+	border-color: var(--rb-oracle);
+}
+
+/* The matchup board: two single-hue heat tables, our box down the side and
+   the trainer's party across the top. Cell fills are set inline by the panel
+   (fill and label ink travel as validated pairs, identical on both themes,
+   because a filled cell brings its own ground); everything else themes
+   normally. Wide fights scroll inside the block, never the page. */
+/* Items on the ground: the guided half of "what is here". Same bordered-list
+   grammar as the encounters above them — one location, one card language. */
+#runbun-run .runbun-run-items {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+#runbun-run .runbun-run-items:not(:empty) {
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-item {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-size: 0.82rem;
+}
+#runbun-run .runbun-run-item + .runbun-run-item {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-item-name {
+	font-weight: 600;
+	flex: 1;
+}
+#runbun-run .runbun-run-item-kind {
+	font-family: var(--rb-font-mono);
+	font-size: 0.7rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-item-state {
+	font-family: var(--rb-font-mono);
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-item.is-collected {
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-item.is-collected .runbun-run-item-state {
+	color: var(--rb-ok);
+}
+#runbun-run .runbun-run-pickup-take {
+	font-size: 0.78rem;
+	padding: 2px var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	cursor: pointer;
+}
+#runbun-run .runbun-run-pickup-take:hover {
+	border-color: var(--rb-brand);
+	color: var(--rb-brand-ink);
+	background: var(--rb-brand-soft);
+}
+
+/* The split's grab-list: structured rows, not a run-on sentence. */
+#runbun-run .runbun-run-split-pickups {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border-top: 1px solid var(--rb-stroke);
+	background: var(--rb-surface-sunken);
+}
+#runbun-run .runbun-run-split-pickups-label {
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-pickup {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-pickup-name {
+	font-weight: 600;
+}
+#runbun-run .runbun-run-pickup-where {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	color: var(--rb-ink-muted);
+	flex: 1;
+}
+#runbun-run .runbun-run-pickup.is-waiting {
+	color: var(--rb-ink-muted);
+}
+
+/* —— Disclosure (ported from ui-lab's disclosure slot) ——
+
+   The panel used to lay every ledger on the table at once; now the hero
+   answers "what do I do next" and everything else folds. The port keeps the
+   kit's mechanics exactly: a grid row animates 0fr -> 1fr so the panel
+   reaches its auto height with nothing measured in JS, the exponential
+   ease-out (never bounce), aria-expanded on a real button, inert content
+   when closed, reduced motion snaps to the end state.
+
+   The POV this consumer adds — fed back to the lab: the collapsed header
+   carries a LIVE SUMMARY ("3 alive · 1 lost", "Brawly · 4 fights"), so
+   collapsed still informs and opening is for acting. */
+#runbun-run .rb-disclose {
+	border-top: 1px solid var(--rb-stroke);
+	margin-top: var(--rb-space-sm);
+}
+#runbun-run .rb-disclose-h {
+	margin: 0;
+}
+#runbun-run .rb-disclose-btn {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	padding: var(--rb-space-sm) 0;
+	background: none;
+	border: 0;
+	cursor: pointer;
+	color: var(--rb-ink);
+	font-family: var(--rb-font-body);
+	text-align: left;
+}
+#runbun-run .rb-disclose-btn:hover .rb-disclose-title {
+	color: var(--rb-brand);
+}
+#runbun-run .rb-disclose-btn:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: -2px;
+}
+#runbun-run .rb-disclose-title {
+	font-size: 0.78rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	white-space: nowrap;
+}
+#runbun-run .rb-disclose-summary {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: right;
+	font-family: var(--rb-font-mono);
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .rb-disclose-chev {
+	flex-shrink: 0;
+	color: var(--rb-ink-muted);
+	transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#runbun-run .rb-disclose-btn[aria-expanded="true"] .rb-disclose-chev {
+	transform: rotate(180deg);
+}
+#runbun-run .rb-disclose-region {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#runbun-run .rb-disclose.is-open .rb-disclose-region {
+	grid-template-rows: 1fr;
+}
+#runbun-run .rb-disclose-inner {
+	min-height: 0;
+	overflow: hidden;
+}
+#runbun-run .rb-disclose.is-open .rb-disclose-inner {
+	padding-bottom: var(--rb-space-md);
+}
+@media (prefers-reduced-motion: reduce) {
+	#runbun-run .rb-disclose-region,
+	#runbun-run .rb-disclose-chev {
+		transition-duration: 0.01s;
+	}
+}
+/* Inside a section, the old standalone block chrome collapses: the section
+   header IS the label now, so the first inner label drops its top rule. */
+#runbun-run .rb-disclose-inner > .runbun-run-split,
+#runbun-run .rb-disclose-inner > .runbun-run-ahead,
+#runbun-run .rb-disclose-inner > .runbun-run-advice-block,
+#runbun-run .rb-disclose-inner > .runbun-run-routes-block,
+#runbun-run .rb-disclose-inner > .runbun-run-matrix-block {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+}
+
+/* The hero party strip sits between the spine and the folded sections. */
+#runbun-run .runbun-run-hero-party {
+	margin: var(--rb-space-sm) 0;
+}
+
+/* Hold-to-confirm (ported from ui-lab's promoted hold-button champion):
+   the fill IS the action's progress — motion carrying information, never
+   decoration. Release early and it springs back on the kit's ease-out; the
+   commit only fires at 100%. Reduced motion shortens the hold (the
+   champion's own call) rather than removing the deliberateness. */
+#runbun-run .rb-hold {
+	position: relative;
+	overflow: hidden;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: none;
+}
+#runbun-run .rb-hold-fill {
+	position: absolute;
+	inset: 0;
+	transform: scaleX(0);
+	transform-origin: left;
+	background: var(--rb-danger-soft);
+	transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+	pointer-events: none;
+}
+#runbun-run .rb-hold.is-holding .rb-hold-fill {
+	transform: scaleX(1);
+	transition: transform var(--rb-hold-ms, 1000ms) linear;
+}
+#runbun-run .rb-hold-label {
+	position: relative;
+}
+#runbun-run .runbun-run-endrun-hint {
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+	flex: 1;
+	min-width: 12rem;
+}
+@media (prefers-reduced-motion: reduce) {
+	#runbun-run .rb-hold.is-holding .rb-hold-fill {
+		transition-duration: 200ms;
+	}
+}
+
+/* The starter pick: three buttons, one pressed — a radio in button's
+   clothing, because the choice deserves more presence than a dropdown row. */
+#runbun-run .runbun-run-starter-row {
+	display: grid;
+	/* Always ONE row of three: the choice is a triptych, and a wrapped
+	   2+1 layout reads as two options plus an afterthought. The cards
+	   shrink instead (min-width 0; the note wraps). */
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--rb-space-xs);
+	margin-top: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-starter {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	min-width: 0;
+	text-align: left;
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	cursor: pointer;
+}
+#runbun-run .runbun-run-starter[aria-pressed="true"] {
+	border-color: var(--rb-brand);
+	background: var(--rb-brand-soft);
+	box-shadow: inset 0 0 0 1px var(--rb-brand);
+}
+#runbun-run .runbun-run-starter-name {
+	font-family: var(--rb-font-brand);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-starter-note {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	color: var(--rb-ink-muted);
+	min-width: 0;
+}
+#runbun-run .runbun-run-starter-hint {
+	margin: var(--rb-space-xs) 0 0;
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+}
+
+/* The recreation: the roll result and the live battle. Same card grammar as
+   the rest of the panel — the fight is a section of the run, not a new app. */
+#runbun-run .runbun-run-roll-result {
+	border: 1px solid var(--rb-brand);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-brand-soft);
+	padding: var(--rb-space-sm);
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+}
+/* `display: flex` outranks the UA's `[hidden] {display:none}` on specificity —
+   the exact bug the start form had. Both recreation blocks hide by attribute. */
+#runbun-run .runbun-run-roll-result[hidden],
+#runbun-run .runbun-run-battle[hidden],
+#runbun-run .runbun-run-split-play-row[hidden] {
+	display: none;
+}
+#runbun-run .runbun-run-split-played {
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+	color: var(--rb-ink-muted);
+	align-self: center;
+}
+/* Snackbar-undo (ui-lab port). The slot is reserved: the bar appearing must
+   not shift the desk under a finger heading for another button. */
+#runbun-run .runbun-run-snackbar-slot {
+	min-height: 2rem;
+	display: flex;
+	align-items: center;
+}
+#runbun-run .runbun-run-snackbar {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-xs);
+	width: 100%;
+	padding: 2px var(--rb-space-xs);
+	background: var(--rb-surface-sunken);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-snackbar[hidden] {
+	display: none;
+}
+#runbun-run .runbun-run-snackbar-text {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#runbun-run .runbun-run-snackbar-btn {
+	flex: 0 0 auto;
+}
+#runbun-run .runbun-run-snackbar-ring {
+	flex: 0 0 auto;
+	transform: rotate(-90deg);
+}
+#runbun-run .runbun-run-snackbar-ring-track,
+#runbun-run .runbun-run-snackbar-ring-fill {
+	fill: none;
+	stroke-width: 2;
+}
+#runbun-run .runbun-run-snackbar-ring-track {
+	stroke: var(--rb-stroke);
+}
+#runbun-run .runbun-run-snackbar-ring-fill {
+	stroke: var(--rb-brand);
+	stroke-dasharray: 50.265;
+	stroke-dashoffset: 0;
+}
+/* Motion is state: the ring drains linearly over the window. Armed by JS
+   adding .is-counting after a forced reflow, so the transition runs. */
+#runbun-run .runbun-run-snackbar.is-counting .runbun-run-snackbar-ring-fill {
+	stroke-dashoffset: 50.265;
+	transition: stroke-dashoffset var(--rb-snackbar-ms, 6000ms) linear;
+}
+@media (prefers-reduced-motion: reduce) {
+	#runbun-run .runbun-run-snackbar-ring {
+		display: none;
+	}
+}
+#runbun-run .runbun-run-roll-text {
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+}
+#runbun-run .runbun-run-battle {
+	margin-top: var(--rb-space-lg);
+	/* The sticky shell must not sit on the battle header when it scrolls in. */
+	scroll-margin-top: var(--rb-shell-sticky-offset, 4rem);
+	padding: var(--rb-space-md);
+	border: 2px solid var(--rb-brand);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-sm);
+}
+#runbun-run .runbun-run-battle-turn {
+	font-weight: 400;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-battle-field {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: var(--rb-space-md);
+}
+#runbun-run .runbun-run-battle-card {
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	padding: var(--rb-space-sm);
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-battle-card.is-foe {
+	border-left: 3px solid var(--rb-warn);
+}
+#runbun-run .runbun-run-battle-card.is-us {
+	border-left: 3px solid var(--rb-brand);
+}
+#runbun-run .runbun-run-battle-name {
+	font-family: var(--rb-font-brand);
+	font-weight: 600;
+}
+/* The HP bar: a track with a filled span. Bands, not a gradient — the game's
+   own green/amber/red is a reading, and readings should snap. */
+#runbun-run .runbun-run-battle-hp {
+	height: 8px;
+	border-radius: 4px;
+	background: var(--rb-surface-sunken);
+	border: 1px solid var(--rb-stroke);
+	overflow: hidden;
+}
+#runbun-run .runbun-run-battle-hp span {
+	display: block;
+	height: 100%;
+	background: var(--rb-ok, #2f9e44);
+	transition: width 0.25s ease;
+}
+#runbun-run .runbun-run-battle-hp span[data-band="mid"] {
+	background: var(--rb-warn);
+}
+#runbun-run .runbun-run-battle-hp span[data-band="low"] {
+	background: var(--rb-danger, #c92a2a);
+}
+#runbun-run .runbun-run-battle-bench {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-battle-chip {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	padding: 1px var(--rb-space-xs);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-battle-chip.is-active {
+	border-color: var(--rb-brand);
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-battle-chip.is-out {
+	opacity: 0.45;
+	text-decoration: line-through;
+}
+#runbun-run .runbun-run-battle-prompt {
+	font-family: var(--rb-font-mono);
+	font-size: 0.85rem;
+	min-height: 1.2em;
+}
+#runbun-run .runbun-run-battle-moves {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-battle-move {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	text-align: left;
+}
+#runbun-run .runbun-run-battle-move-dmg {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	color: var(--rb-ink-muted);
+}
+/* The ball is an action like the moves, but not one of them: same card,
+   accent edge, so the eye separates "hit it" from "keep it". */
+#runbun-run .runbun-run-battle-ball {
+	border-left: 3px solid var(--rb-brand);
+}
+#runbun-run .runbun-run-battle-switches {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-battle-log {
+	list-style: none;
+	margin: 0;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	max-height: 11rem;
+	overflow-y: auto;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+}
+
+#runbun-run .runbun-run-matrix-block {
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-matrix-note {
+	margin: 0 0 var(--rb-space-xs);
+	color: var(--rb-ink-muted);
+	font-size: 0.78rem;
+}
+#runbun-run .runbun-run-matrix {
+	overflow-x: auto;
+	display: grid;
+	/* Grid items stretch by default, which turns a content-sized table into a
+	   full-width one and its cells into bars. */
+	justify-items: start;
+	gap: var(--rb-space-md);
+}
+#runbun-run .runbun-run-matrix-table {
+	/* Hug the content: a global table rule stretches to the column, and a
+	   percent in a 200px cell reads as a bar, not a cell. */
+	width: auto;
+	max-width: 100%;
+	border-collapse: separate;
+	border-spacing: 2px;
+	font-family: var(--rb-font-mono);
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+}
+#runbun-run .runbun-run-matrix-table caption {
+	text-align: left;
+	font-family: var(--rb-font-body);
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--rb-ink-muted);
+	padding-bottom: 3px;
+}
+#runbun-run .runbun-run-matrix-table th {
+	font-family: var(--rb-font-body);
+	font-weight: 600;
+	font-size: 0.72rem;
+	color: var(--rb-ink);
+	text-align: left;
+	padding: 2px 6px 2px 0;
+	white-space: nowrap;
+}
+#runbun-run .runbun-run-matrix-table thead th {
+	vertical-align: bottom;
+	text-align: center;
+	padding: 0 4px 3px;
+}
+#runbun-run .runbun-run-matrix-table td {
+	position: relative;
+	min-width: 52px;
+	padding: 6px 14px 6px 6px;
+	text-align: center;
+	border-radius: var(--rb-radius);
+}
+/* The guaranteed-KO ring is an outline, not a fill: the fill already carries
+   magnitude and may not repaint to say "lethal". */
+#runbun-run .runbun-run-matrix-table td.is-ko {
+	box-shadow: inset 0 0 0 2px var(--rb-danger);
+}
+#runbun-run .runbun-run-matrix-speed {
+	position: absolute;
+	top: 2px;
+	right: 3px;
+	font-size: 0.62rem;
+	opacity: 0.85;
+}
+
+/* The upgrade advisor: ten one-line changes, ranked. A grid rather than a
+   table because every row is the same five fields and the player is choosing
+   one, not reading across — and the numbers hold their columns so the ranking
+   is visible without reading a single figure. */
+#runbun-run .runbun-run-advice-block {
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-advice-note {
+	margin: 0 0 var(--rb-space-xs);
+	color: var(--rb-ink-muted);
+	font-size: 0.78rem;
+}
+#runbun-run .runbun-run-advice {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 46rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	overflow: hidden;
+}
+#runbun-run .runbun-run-advice-row {
+	display: grid;
+	grid-template-columns: minmax(7rem, 1fr) 4.5rem minmax(8rem, 2fr) 4rem 3.5rem;
+	gap: var(--rb-space-sm);
+	align-items: baseline;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-advice-row + .runbun-run-advice-row {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-advice-row:first-child {
+	background: var(--rb-brand-soft);
+	font-weight: 600;
+}
+#runbun-run .runbun-run-advice-who,
+#runbun-run .runbun-run-advice-what {
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-advice-kind {
+	color: var(--rb-ink-muted);
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+#runbun-run .runbun-run-advice-ko,
+#runbun-run .runbun-run-advice-damage {
+	font-family: var(--rb-font-mono);
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+	color: var(--rb-ink-muted);
+}
+/* A flipped cell is the whole point of the list, so it is the one thing on the
+   row that carries colour. */
+#runbun-run .runbun-run-advice-ko.is-ko {
+	color: var(--rb-danger);
+	font-weight: 700;
+}
+/* A trade (any KO conceded) must not wear the clean-win colour. */
+#runbun-run .runbun-run-advice-ko.is-ko-trade {
+	color: var(--rb-warn-ink);
+}
+#runbun-run .runbun-run-advice-empty {
+	padding: var(--rb-space-sm);
+	color: var(--rb-ink-muted);
+	font-size: 0.8rem;
+}
+
+#runbun-run .runbun-run-rank-block,
+#runbun-run .runbun-run-routes-block {
+	margin-top: var(--rb-space-lg);
+	padding-top: var(--rb-space-md);
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-rank-note,
+#runbun-run .runbun-run-routes-note {
+	margin: var(--rb-space-xs) 0;
+	color: var(--rb-ink-muted);
+	font-size: 0.78rem;
+}
+#runbun-run .runbun-run-ranking,
+#runbun-run .runbun-run-scout,
+#runbun-run .runbun-run-routes {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	max-width: 46rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	overflow: hidden;
+}
+#runbun-run .runbun-run-ranking:empty,
+#runbun-run .runbun-run-scout:empty,
+#runbun-run .runbun-run-routes:empty {
+	display: none;
+}
+#runbun-run .runbun-run-scout {
+	margin-bottom: var(--rb-space-xs);
+}
+/* The full route ledger runs long; it scrolls inside its own frame so the
+   panel keeps its shape. */
+#runbun-run .runbun-run-routes {
+	max-height: 20rem;
+	overflow-y: auto;
+}
+#runbun-run .runbun-run-rank-row,
+#runbun-run .runbun-run-scout-row,
+#runbun-run .runbun-run-route-row {
+	display: grid;
+	gap: var(--rb-space-sm);
+	align-items: baseline;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-rank-row {
+	grid-template-columns: 4rem 1fr auto;
+}
+#runbun-run .runbun-run-scout-row {
+	grid-template-columns: minmax(8rem, 1fr) minmax(9rem, 2fr) auto;
+}
+#runbun-run .runbun-run-route-row {
+	grid-template-columns: 3.5rem minmax(9rem, 1fr) minmax(10rem, 2fr);
+}
+#runbun-run .runbun-run-rank-row + .runbun-run-rank-row,
+#runbun-run .runbun-run-scout-row + .runbun-run-scout-row,
+#runbun-run .runbun-run-route-row + .runbun-run-route-row {
+	border-top: 1px solid var(--rb-stroke);
+}
+#runbun-run .runbun-run-rank-row:first-child,
+#runbun-run .runbun-run-scout-row:first-child {
+	background: var(--rb-brand-soft);
+	font-weight: 600;
+}
+#runbun-run .runbun-run-rank-score,
+#runbun-run .runbun-run-scout-ko,
+#runbun-run .runbun-run-route-when {
+	font-family: var(--rb-font-mono);
+	font-variant-numeric: tabular-nums;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-rank-six {
+	color: var(--rb-ink);
+}
+/* The played verdict: measured, so it wears state colors — win-band green,
+   wipe-band red, the undecided middle stays ink. */
+#runbun-run .runbun-run-rank-played {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	padding: 1px var(--rb-space-xs);
+	border-radius: var(--rb-radius-control);
+	border: 1px solid var(--rb-stroke);
+	color: var(--rb-ink);
+	white-space: nowrap;
+}
+#runbun-run .runbun-run-rank-played.is-win {
+	border-color: var(--rb-ok);
+	color: var(--rb-ok);
+	background: var(--rb-ok-soft);
+}
+#runbun-run .runbun-run-rank-played.is-loss {
+	border-color: var(--rb-danger);
+	color: var(--rb-danger);
+	background: var(--rb-danger-soft);
+}
+
+#runbun-run .runbun-run-rank-tag {
+	color: var(--rb-ink-muted);
+	font-size: 0.72rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+/* A hole in a six is its most important property: the unanswered line spans
+   the row and wears the warning ink, not a whisper. */
+#runbun-run .runbun-run-rank-unanswered {
+	grid-column: 1 / -1;
+	color: var(--rb-warn-ink);
+	font-size: 0.75rem;
+}
+#runbun-run .runbun-run-scout-ko.is-ko {
+	color: var(--rb-danger);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-scout-ko.is-ko-trade {
+	color: var(--rb-warn-ink);
+}
+#runbun-run .runbun-run-scout-empty {
+	padding: var(--rb-space-sm);
+	color: var(--rb-ink-muted);
+	font-size: 0.8rem;
+}
+#runbun-run .runbun-run-route-row.is-open .runbun-run-route-when {
+	color: var(--rb-ok, #1b7a3d);
+	font-weight: 700;
+}
+/* A spent route stays in the ledger — struck, with what it gave. */
+#runbun-run .runbun-run-route-row.is-used .runbun-run-route-name {
+	text-decoration: line-through;
+	color: var(--rb-ink-muted);
+}
+/* A held route is walked past on purpose; READY wears the alert color
+   because the wait has paid off and there is something to go collect. */
+#runbun-run .runbun-run-route-row.is-held .runbun-run-route-when {
+	color: var(--rb-warn-ink);
+	font-weight: 700;
 }

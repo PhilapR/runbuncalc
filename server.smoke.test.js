@@ -36,6 +36,11 @@ async function requestJson(path, body) {
 	return {status: response.status, body: await response.json()};
 }
 
+async function getJson(path) {
+	const response = await fetch(`${baseUrl}${path}`);
+	return {status: response.status, body: await response.json()};
+}
+
 async function requestRaw(path, body) {
 	const response = await fetch(`${baseUrl}${path}`, {
 		method: 'POST',
@@ -541,4 +546,697 @@ test('Replay sample trace is served and each frame validates over HTTP', async (
 	const bad = await requestJson('/ai/validate-battle-state', {state: {generation: 8}});
 	assert.equal(bad.status, 400);
 	assert.match(bad.body.error, /BattleState|sides/i);
+});
+
+test('planner lists the run map and carries its coverage caveat', async () => {
+	const {status, body} = await getJson('/planner/fights');
+	assert.equal(status, 200);
+	assert.equal(body.fights.length, 362);
+	// The caveat travels with the list. A client that only reads `fights` would
+	// otherwise present a progression spine as a complete trainer census.
+	assert.equal(body.coverage.completeTrainerCensus, false);
+	assert.ok(body.coverage.coversMandatoryProgression);
+	assert.equal(body.fights[0].trainer, 'Youngster Calvin');
+});
+
+test('planner reports what is next from a point in the run', async () => {
+	const {status, body} = await getJson('/planner/upcoming?after=0&count=3');
+	assert.equal(status, 200);
+	assert.equal(body.fights.length, 3);
+	assert.equal(body.fights[0].trainer, 'Bug Catcher Rick');
+	for (const fight of body.fights) assert.ok(fight.order > 0);
+});
+
+test('planner rejects a bad count rather than clamping it silently', async () => {
+	const {status, body} = await getJson('/planner/upcoming?count=999');
+	assert.equal(status, 400);
+	assert.match(body.error, /count must be an integer/);
+});
+
+test('an unknown trainer is a client error and suggests the real name', async () => {
+	const {status, body} = await getJson('/planner/fight?trainer=Calvin');
+	assert.equal(status, 400);
+	assert.equal(body.code, 'UnknownTrainer');
+	assert.match(body.error, /did you mean.*Youngster Calvin/s);
+});
+
+test('planner predicts an opponent turn with ranked actions and a margin', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Youngster Calvin',
+		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
+	});
+	assert.equal(status, 200);
+	assert.equal(body.trainer, 'Youngster Calvin');
+	assert.ok(body.actions.length > 1);
+	for (let i = 1; i < body.actions.length; i++) {
+		assert.ok(body.actions[i - 1].score >= body.actions[i].score, 'actions must be ranked');
+	}
+	for (const action of body.actions) {
+		assert.ok(action.label && !/undefined/.test(action.label), `unresolved label: ${action.label}`);
+	}
+	assert.ok(['decided', 'contested', 'only-option'].includes(body.confidence));
+	// The position is large and rarely wanted; it is opt-in.
+	assert.equal(body.state, undefined);
+});
+
+test('planner returns the position only when asked', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Youngster Calvin',
+		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
+		includeState: true,
+	});
+	assert.equal(status, 200);
+	assert.equal(body.state.generation, 8);
+	assert.equal(body.state.sides.ai.party.length, 3);
+});
+
+test('planning without a team is a 400, not a guess', async () => {
+	const {status, body} = await requestJson('/planner/predict', {trainer: 'Youngster Calvin'});
+	assert.equal(status, 400);
+	assert.match(body.error, /playerParty is required/);
+});
+
+test('an unknown set is a client error rather than a 500', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Youngster Calvin',
+		playerParty: [{species: 'Azumarill', setLabel: 'Not A Real Set'}],
+	});
+	assert.equal(status, 400);
+	assert.equal(body.code, 'InvalidPlannerRequest');
+	assert.match(body.error, /Unknown set/);
+});
+
+const PLAYER_PASTE = [
+	'Swampert @ Leftovers',
+	'Ability: Torrent',
+	'Level: 45',
+	'Adamant Nature',
+	'- Earthquake',
+	'- Waterfall',
+].join('\n');
+
+test('a Showdown paste is a first-class way to name the player team', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: PLAYER_PASTE,
+		includeState: true,
+	});
+	assert.equal(status, 200);
+	const mon = body.state.sides.player.party[0];
+	assert.equal(mon.species, 'Swampert');
+	assert.equal(mon.level, 45);
+	assert.equal(mon.item, 'Leftovers');
+	// The player declared this box, so nothing was borrowed.
+	assert.equal(body.borrowedPlayerBuild, false);
+	assert.deepEqual(body.notes, []);
+});
+
+test('a borrowed trainer build is reported as such on every prediction', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerParty: [{species: 'Metagross', setLabel: 'Trainer Steven Space Center'}],
+	});
+	assert.equal(status, 200);
+	// Steven's level 89 Metagross is not a box any player holds, and the AI scores
+	// against it. A client that cannot tell will present it as a plan.
+	assert.equal(body.borrowedPlayerBuild, true);
+});
+
+test('a double battle says over HTTP that it was ranked as a Singles exchange', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'School Kid Jerry & Johnson',
+		playerPaste: PLAYER_PASTE,
+	});
+	assert.equal(status, 200);
+	// The flag exists in the library; a client that never receives it presents a
+	// 1v1 ranking of a 2v2 fight with no caveat attached.
+	assert.equal(body.plannedAsSingles, true);
+	const single = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: PLAYER_PASTE,
+	});
+	assert.equal(single.body.plannedAsSingles, false);
+});
+
+test('a paste and a party at once is refused rather than silently preferred', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: PLAYER_PASTE,
+		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
+	});
+	assert.equal(status, 400);
+	assert.match(body.error, /not both/);
+});
+
+test('an unreadable paste is a 400 naming the line, not a 500', async () => {
+	const {status, body} = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: 'Swampertt\n- Earthquake',
+	});
+	assert.equal(status, 400);
+	assert.equal(body.code, 'InvalidPlannerRequest');
+	assert.match(body.error, /Pokemon 1 \(Swampertt\): unknown species/);
+
+	const move = await requestJson('/planner/predict', {
+		trainer: 'Leader Norman',
+		playerPaste: 'Swampert\n- Earthquak',
+	});
+	assert.equal(move.status, 400);
+	assert.match(move.body.error, /unknown move "Earthquak"/);
+});
+
+// ------------------------------------------------------------------- the run
+//
+// The run endpoints are stateless: the playthrough travels in the request and
+// the server stores nothing. These cases defend that contract as much as the
+// behaviour — a server that started remembering runs would need accounts, and
+// nothing here has them.
+
+const RUN_CATCH = {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3};
+
+async function newRun(body) {
+	const {status, body: payload} = await requestJson('/run/new', body || {});
+	assert.equal(status, 200);
+	return payload.run;
+}
+
+test('a run is created, advanced and summarized entirely through the request', async () => {
+	const created = await newRun({name: 'HTTP', levelCap: 'next-milestone-ace'});
+	assert.equal(created.name, 'HTTP');
+	assert.equal(created.position, -1);
+
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	assert.equal(caught.status, 200);
+	assert.match(caught.body.summary, /caught Lillipup \(mon-1\) at level 3 on Route101/);
+	assert.equal(caught.body.status.boxed, 1);
+	// The level cap is derived from the run map and names the fight that sets
+	// it — the next story boss of any tier, not the next badge.
+	assert.equal(caught.body.status.levelCap.trainer, 'Team Aqua Grunt Petalburg Woods');
+	assert.equal(caught.body.status.levelCap.cap, 12);
+	assert.equal(caught.body.status.split.boss, 'Leader Brawly');
+
+	// The original run is untouched: the server returned a new document rather
+	// than mutating anything it was given.
+	assert.equal(created.box.length, 0);
+
+	const status = await requestJson('/run/status', {run: caught.body.run});
+	assert.equal(status.status, 200);
+	assert.equal(status.body.box.length, 1);
+	assert.equal(status.body.upcoming[0].trainer, 'Youngster Calvin');
+
+	// The story spine travels with every status, and how far ahead to look is
+	// the client's call, bounded.
+	assert.equal(status.body.milestones.length, 44);
+	assert.equal(status.body.milestones[0].trainer, 'Leader Brawly');
+	assert.equal(status.body.milestones[0].beaten, false);
+	const wide = await requestJson('/run/status', {run: caught.body.run, upcomingCount: 8});
+	assert.equal(wide.body.upcoming.length, 8);
+	const clamped = await requestJson('/run/status', {run: caught.body.run, upcomingCount: 999});
+	assert.equal(clamped.body.upcoming.length, 20);
+});
+
+test('the split sheet travels with status and answers on its own endpoint', async () => {
+	const created = await newRun({name: 'Sheet', rival: 'Swampert'});
+	const status = await requestJson('/run/status', {run: created});
+	assert.equal(status.status, 200);
+	assert.equal(status.body.splitPrep.split.boss, 'Leader Brawly');
+	assert.equal(status.body.splitPrep.gauntlet.length, 4);
+
+	const sheet = await requestJson('/run/split', {run: created});
+	assert.equal(sheet.status, 200);
+	assert.equal(sheet.body.split.index, 1);
+	assert.equal(sheet.body.gauntlet[3].trainer, 'Leader Brawly');
+	assert.equal(sheet.body.gauntlet[3].cap, 21);
+});
+
+test('audit regressions: the new endpoints refuse with reasons, never 500', async () => {
+	// A mistyped trainer in the faint epitaph is the most likely user mistake
+	// on that control; it must come back as the crafted message, not a 500.
+	const created = await newRun({name: 'Refusals', permadeath: true});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	const badFaint = await requestJson('/run/apply', {
+		run: caught.body.run, command: {kind: 'faint', id: 'mon-1', to: 'Calvin'},
+	});
+	assert.equal(badFaint.status, 400);
+	assert.match(badFaint.body.error, /no fight named "Calvin"/);
+
+	// A typo'd held item surfaces as a 400 naming the mon, not a dead board.
+	const held = await requestJson('/run/apply', {
+		run: caught.body.run,
+		command: {kind: 'catch', species: 'Marill', map: 'Route114', level: 40, item: 'Lefovers'},
+	});
+	assert.equal(held.status, 200);
+	const matrix = await requestJson('/run/matrix', {run: held.body.run, trainer: 'Leader Brawly'});
+	assert.equal(matrix.status, 400);
+	assert.match(matrix.body.error, /Marill .*Lefovers.* is not an item/);
+
+	// A finished run map is an ordinary state: the matrix says so with a 400
+	// reason, exactly like /run/plan, rather than a 500.
+	let done = caught.body.run;
+	done = (await requestJson('/run/apply', {run: done, command: {kind: 'party', ids: ['mon-1']}})).body.run;
+	done = (await requestJson('/run/apply', {run: done, command: {kind: 'beat', trainer: 'Champion Wallace'}})).body.run;
+	const after = await requestJson('/run/matrix', {run: done});
+	assert.equal(after.status, 400);
+	assert.match(after.body.error, /nothing ahead/);
+	const plan = await requestJson('/run/plan', {run: done});
+	assert.equal(plan.status, 400);
+});
+
+test('the ranker answers over HTTP, and refuses what it cannot rank', async () => {
+	const created = await newRun({name: 'Rank'});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	const {status, body} = await requestJson('/run/rank', {run: caught.body.run});
+	assert.equal(status, 200);
+	assert.equal(body.trainer, 'Youngster Calvin');
+	assert.equal(body.parties[0].label, 'top');
+	assert.ok(body.caveats.length >= 2);
+
+	// An empty box is a 400 with the reason, exactly like the matrix.
+	const empty = await requestJson('/run/rank', {run: created});
+	assert.equal(empty.status, 400);
+	assert.match(empty.body.error, /catch something first/);
+});
+
+test('the catch advisor answers over HTTP with the reachable prospects', async () => {
+	const created = await newRun({name: 'Scout', permadeath: true});
+	const {status, body} = await requestJson('/run/scout', {run: created});
+	assert.equal(status, 200);
+	assert.equal(body.trainer, 'Leader Brawly');
+	assert.ok(body.routesOpen >= 4);
+	assert.ok(body.gated >= 1, 'pre-Surf water is gated, not proposed');
+	assert.ok(body.catches.every(c => c.method !== 'surf'));
+
+	// A finished target is a 400 with the reason, like every advisor.
+	const unknown = await requestJson('/run/scout', {run: created, trainer: 'Nobody'});
+	assert.equal(unknown.status, 400);
+});
+
+test('the routes view answers over HTTP with the spent and the still-open', async () => {
+	const created = await newRun({name: 'Routes', permadeath: true});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	const {status, body} = await requestJson('/run/routes', {run: caught.body.run});
+	assert.equal(status, 200);
+	// One row per LOCATION, not per wild table: Granite Cave's floors, Mt
+	// Pyre's nine maps and both underwater routes fold into their locations.
+	assert.ok(body.routes.length > 60 && body.routes.length < 100,
+		'every location answers, grouped by the route rule\'s unit');
+	const spent = body.routes.find(route => route.name === 'Route101');
+	assert.equal(spent.used.species, 'Lillipup');
+	assert.ok(spent.best.length > 0 && spent.best[0].chance > 0);
+});
+
+test('a late-game run document still fits through the request body', async () => {
+	// Every /run/* command posts the whole save, and a full playthrough's log
+	// projects past express.json's stock 100kb limit — which would turn the run
+	// panel into HTTP 413s exactly when a run is furthest along and most worth
+	// keeping. Inflate a real run's log past that line and expect a real answer.
+	const good = await newRun({name: 'Marathon'});
+	const entry = {
+		at: '2026-08-11T00:00:00.000Z',
+		command: {kind: 'nickname', id: 'mon-1', name: 'a mid-run annotation of realistic length'},
+	};
+	const big = {...good, log: Array.from({length: 2000}, () => entry)};
+	assert.ok(Buffer.byteLength(JSON.stringify(big)) > 150 * 1024, 'probe must exceed the stock limit');
+	const {status} = await requestJson('/run/status', {run: big});
+	assert.equal(status, 200, 'a long-running save must not be refused for its size');
+});
+
+test('a command that could not have happened is a 400 with the reason', async () => {
+	const created = await newRun();
+	const refused = await requestJson('/run/apply', {
+		run: created,
+		command: {kind: 'catch', species: 'Ralts', map: 'Route101', level: 3},
+	});
+	assert.equal(refused.status, 400);
+	assert.equal(refused.body.code, 'InvalidRunCommand');
+	// The message is the feature: it names the route's actual roster.
+	assert.match(refused.body.error, /Ralts does not appear on Route101; it holds: Lillipup/);
+
+	const illegal = await requestJson('/run/apply', {
+		run: created,
+		command: {kind: 'teach', id: 'mon-1', move: 'Dragon Dance'},
+	});
+	assert.equal(illegal.status, 400);
+	assert.match(illegal.body.error, /no Pokemon with id "mon-1"/);
+});
+
+test('a run of the wrong version is refused rather than half-read', async () => {
+	const missing = await requestJson('/run/apply', {command: RUN_CATCH});
+	assert.equal(missing.status, 400);
+	assert.equal(missing.body.code, 'InvalidRun');
+
+	const stale = await requestJson('/run/apply', {run: {version: 99}, command: RUN_CATCH});
+	assert.equal(stale.status, 400);
+	assert.equal(stale.body.code, 'RunVersionMismatch');
+	assert.match(stale.body.error, /version 99; this server reads version \d+/);
+});
+
+test('a run of the right version but the wrong shape is a 400 naming the field', async () => {
+	// The run layer reads these fields without re-checking them, so a document
+	// that only carries the version stamp used to reach summarize and 500. Every
+	// endpoint inherits this check, and /run/status is where it first bit.
+	const good = await newRun();
+	const shapes = [
+		[{...good, rules: undefined}, /rules/],
+		[{...good, rules: 'strict'}, /rules/],
+		[{...good, rules: []}, /rules/],
+		[{...good, rules: {}}, /levelCap/],
+		[{...good, box: {}}, /box/],
+		[{...good, log: 'nothing yet'}, /log/],
+		[{...good, party: {}}, /party/],
+		[{...good, party: [{id: 'mon-1'}]}, /party/],
+		// Well-typed but dangling: a party id no box entry carries used to
+		// null-deref in summarize and 500.
+		[{...good, party: ['mon-999']}, /mon-999.*not in run\.box/],
+		[{...good, bag: []}, /bag/],
+		[{...good, position: 'start'}, /position/],
+		[{...good, nextId: null}, /nextId/],
+	];
+	for (const [run, field] of shapes) {
+		const {status, body} = await requestJson('/run/status', {run});
+		assert.equal(status, 400, `malformed run must not 500: ${JSON.stringify(run).slice(0, 80)}`);
+		assert.equal(body.code, 'InvalidRun');
+		assert.match(body.error, field);
+	}
+
+	// The panel's import box accepts pasted JSON, and this is what a curious
+	// player types into it first.
+	const bare = await requestJson('/run/status', {run: {version: 1}});
+	assert.equal(bare.status, 400);
+	assert.equal(bare.body.code, 'InvalidRun');
+
+	// The gate admits a real run untouched; a shape check that refuses those
+	// would pass every case above and still be broken.
+	const ok = await requestJson('/run/status', {run: good});
+	assert.equal(ok.status, 200);
+	assert.equal(ok.body.status.name, good.name);
+});
+
+test('the run plans the next fight with its own party, never a borrowed build', async () => {
+	let run = await newRun();
+	run = (await requestJson('/run/apply', {run, command: RUN_CATCH})).body.run;
+	run = (await requestJson('/run/apply', {run, command: {kind: 'party', ids: ['mon-1']}})).body.run;
+
+	const plan = await requestJson('/run/plan', {run});
+	assert.equal(plan.status, 200);
+	assert.equal(plan.body.trainer, 'Youngster Calvin');
+	assert.equal(plan.body.borrowedPlayerBuild, false);
+	assert.ok(plan.body.actions.length > 1);
+
+	const empty = await requestJson('/run/plan', {run: await newRun()});
+	assert.equal(empty.status, 400);
+	assert.match(empty.body.error, /the party is empty/);
+});
+
+test('the encounter table marks what the run already holds', async () => {
+	let run = await newRun();
+	run = (await requestJson('/run/apply', {run, command: RUN_CATCH})).body.run;
+
+	const here = await requestJson('/run/where', {run, map: 'Route101'});
+	assert.equal(here.status, 200);
+	assert.equal(here.body.mons.find(mon => mon.species === 'Lillipup').owned, true);
+	assert.equal(here.body.mons.find(mon => mon.species === 'Skitty').owned, false);
+
+	const nowhere = await requestJson('/run/where', {run, map: 'Nowhere'});
+	assert.equal(nowhere.status, 400);
+	assert.equal(nowhere.body.code, 'UnknownMap');
+});
+
+test('learnable splits what a Pokemon can learn now from what is still ahead', async () => {
+	let run = await newRun();
+	run = (await requestJson('/run/apply', {run, command: RUN_CATCH})).body.run;
+	const learn = await requestJson('/run/learnable', {run, id: 'mon-1'});
+	assert.equal(learn.status, 200);
+	assert.ok(learn.body.now.length > 0);
+	assert.ok(learn.body.later.length > 0, 'a level 3 Lillipup has moves still ahead of it');
+	for (const entry of learn.body.later) {
+		assert.ok(entry.level > 3, 'a "later" move must actually be later');
+	}
+});
+
+test('undo returns the run one command back', async () => {
+	let run = await newRun();
+	run = (await requestJson('/run/apply', {run, command: RUN_CATCH})).body.run;
+	const undone = await requestJson('/run/undo', {run});
+	assert.equal(undone.status, 200);
+	assert.equal(undone.body.run.box.length, 0);
+	assert.equal(undone.body.run.log.length, 0);
+
+	const nothing = await requestJson('/run/undo', {run: undone.body.run});
+	assert.equal(nothing.status, 400);
+	assert.match(nothing.body.error, /nothing to undo/);
+});
+
+test('the map list is served without a run, and states its own limits', async () => {
+	const response = await fetch(`${baseUrl}/run/maps`);
+	assert.equal(response.status, 200);
+	const body = await response.json();
+	// 123 unique maps — the decomp's nine duplicate Altering Cave declarations
+	// collapse to the one roster any lookup can reach.
+	assert.equal(body.maps.length, 123);
+	assert.ok(body.maps.every(map => map.name && map.map && map.methods.length));
+	// Gifts, statics and trades have no wild table; a client offering this list
+	// must be able to say so rather than implying it is every Pokemon in the game.
+	assert.match(body.limits.note, /scripted events/);
+});
+
+test('the box matrix is served whole, and an unknown trainer is a 400', async () => {
+	let run = await newRun();
+	run = (await requestJson('/run/apply', {run, command: RUN_CATCH})).body.run;
+
+	const matrix = await requestJson('/run/matrix', {run});
+	assert.equal(matrix.status, 200);
+	assert.equal(matrix.body.trainer, 'Youngster Calvin');
+	assert.equal(matrix.body.order, 0);
+	// The grid arrives whole. A client that had to fetch a cell at a time would
+	// be back to asking one damage calculation per matchup, which is the thing
+	// this endpoint exists to stop.
+	assert.equal(matrix.body.grid.length, 3);
+	for (const cell of matrix.body.grid) {
+		assert.ok(cell.enemy.species && cell.enemy.level);
+		assert.equal(cell.versus.length, 1);
+		const row = cell.versus[0];
+		assert.ok(['faster', 'slower', 'tie'].includes(row.speed));
+		assert.ok(row.us.move && row.them.move, 'both directions or the cell is half a matchup');
+	}
+	// The projection travels with the grid: the panel has to be able to say "at
+	// the cap you will legally have" rather than presenting raised levels as the
+	// box the player is looking at.
+	assert.deepEqual(matrix.body.projection, {applied: true, cap: 12, from: 'projected'});
+	assert.deepEqual(matrix.body.box.map(entry => [entry.id, entry.from, entry.level]),
+		[['mon-1', 3, 12]]);
+
+	const named = await requestJson('/run/matrix', {run, trainer: 'Leader Brawly'});
+	assert.equal(named.status, 200);
+	assert.equal(named.body.projection.cap, 21);
+
+	// A misnamed trainer is the caller's typo, so it comes back as a 400 with the
+	// near-misses intact — the message is the feature, and a 500 would eat it.
+	const unknown = await requestJson('/run/matrix', {run, trainer: 'Brawly'});
+	assert.equal(unknown.status, 400);
+	assert.equal(unknown.body.code, 'InvalidRunCommand');
+	assert.match(unknown.body.error, /no fight named "Brawly".*did you mean: Leader Brawly/s);
+
+	// An empty box is the caller's mistake, not a 500.
+	const empty = await requestJson('/run/matrix', {run: await newRun()});
+	assert.equal(empty.status, 400);
+	assert.match(empty.body.error, /no Pokemon in the box to compare/);
+});
+
+test('the advisor answers over HTTP, and refuses with the reason', async () => {
+	let run = await newRun();
+	run = (await requestJson('/run/apply',
+		{run, command: {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}})).body.run;
+
+	// An empty party is a refusal, not a 500: nothing has been chosen to improve.
+	const noParty = await requestJson('/run/advise', {run});
+	assert.equal(noParty.status, 400);
+	assert.equal(noParty.body.code, 'InvalidRunCommand');
+	assert.match(noParty.body.error, /the party is empty/);
+
+	run = (await requestJson('/run/apply',
+		{run, command: {kind: 'party', ids: ['mon-1']}})).body.run;
+
+	const advice = await requestJson('/run/advise', {run});
+	assert.equal(advice.status, 200);
+	assert.equal(advice.body.trainer, 'Youngster Calvin');
+	assert.equal(advice.body.order, 0);
+	assert.ok(advice.body.considered > 0);
+	// The same projection the board sends, because these are the board's numbers.
+	assert.deepEqual(advice.body.projection, {applied: true, cap: 12, from: 'projected'});
+	assert.deepEqual(advice.body.party, [{id: 'mon-1', species: 'Poochyena', nickname: null,
+		level: 12, from: 3}]);
+	// The shortlist arrives whole — ten one-line changes IS the answer.
+	assert.ok(advice.body.upgrades.length > 0 && advice.body.upgrades.length <= 10);
+	const top = advice.body.upgrades[0];
+	assert.equal(top.kind, 'teach');
+	assert.equal(top.id, 'mon-1');
+	assert.equal(top.detail, 'Play Rough');
+	assert.deepEqual(Object.keys(top.delta).sort(), ['damage', 'koConceded', 'koGained']);
+	assert.equal(top.delta.koGained, 1);
+
+	// A misnamed trainer keeps its near-misses, like every other run endpoint.
+	const unknown = await requestJson('/run/advise', {run, trainer: 'Brawly'});
+	assert.equal(unknown.status, 400);
+	assert.match(unknown.body.error, /no fight named "Brawly".*did you mean: Leader Brawly/s);
+
+	// And a Heart Scale spent over HTTP comes back in the run, out of the bag.
+	const held = (await requestJson('/run/apply',
+		{run, command: {kind: 'acquire', item: 'Heart Scale'}})).body.run;
+	const spent = await requestJson('/run/apply',
+		{run: held, command: {kind: 'heartScale', id: 'mon-1', stat: 'spd'}});
+	assert.equal(spent.status, 200);
+	assert.deepEqual(spent.body.run.box[0].ivs, {spd: 31});
+	assert.deepEqual(spent.body.run.bag, {});
+	const empty = await requestJson('/run/apply',
+		{run: spent.body.run, command: {kind: 'heartScale', id: 'mon-1', stat: 'spa'}});
+	assert.equal(empty.status, 400);
+	assert.match(empty.body.error, /need 1, the bag has 0/);
+});
+
+test('the recreation rides HTTP: a roll, a spend, and one played turn', async () => {
+	const runtime = require('./run');
+	let run = runtime.createRun({name: 'HTTP recreation', now: 't0',
+		permadeath: true});
+
+	// The die rolls off the real table, and what it rolls is catchable as-is.
+	const rolled = await requestJson('/run/encounter', {run, map: 'Route101'});
+	assert.equal(rolled.status, 200);
+	assert.ok(rolled.body.roll.species && rolled.body.roll.level >= 1);
+	const caught = await requestJson('/run/apply', {run, command: {
+		kind: 'catch', species: rolled.body.roll.species,
+		level: rolled.body.roll.level, map: 'Route101', method: rolled.body.roll.method,
+	}});
+	assert.equal(caught.status, 200);
+	run = caught.body.run;
+
+	// A used route refuses the die with the rule's own words.
+	const again = await requestJson('/run/encounter', {run, map: 'Route101'});
+	assert.equal(again.status, 400);
+	assert.match(again.body.error, /roll: Route101 already gave its encounter/);
+
+	// Spend is a command like any other, and spent means spent.
+	const fled = await requestJson('/run/apply',
+		{run, command: {kind: 'spend', map: 'Route102', reason: 'it got away'}});
+	assert.equal(fled.status, 200);
+	assert.match(fled.body.summary, /Route102 spent — it got away; nothing kept/);
+
+	// One battle turn over the wire: start names the run's next fight, act
+	// resolves a chosen move, and the whole bundle rides the payloads.
+	run = (await requestJson('/run/apply',
+		{run, command: {kind: 'party', ids: ['mon-1']}})).body.run;
+	const started = await requestJson('/run/battle/start', {run, seed: 42});
+	assert.equal(started.status, 200);
+	assert.equal(started.body.battle.trainer, 'Youngster Calvin');
+	const move = started.body.actions.find(action => action.kind === 'move');
+	assert.ok(move, 'the opening offers a move');
+	const acted = await requestJson('/run/battle/act',
+		{battle: started.body.battle, action: {kind: 'move', move: move.move}});
+	assert.equal(acted.status, 200);
+	assert.ok(acted.body.events.length > 0, 'a turn narrates itself');
+	assert.equal(acted.body.battle.step, 1);
+
+	// And a battle refusal is a 400 with the reason, not a 500.
+	const bad = await requestJson('/run/battle/act',
+		{battle: started.body.battle, action: {kind: 'move', move: 'Earthquake'}});
+	assert.equal(bad.status, 400);
+	assert.match(bad.body.error, /battle: "Earthquake" is not usable right now/);
+});
+
+test('a wild fight rides HTTP: rolled, fought, the ball thrown, forgeries refused', async () => {
+	const runtime = require('./run');
+	let run = runtime.createRun({name: 'wild HTTP', now: 't0', permadeath: true});
+	run = runtime.applyAll(run, [
+		{kind: 'catch', species: 'Starly', map: 'Route102', level: 5},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+
+	const rolled = await requestJson('/run/encounter', {run, map: 'Route101'});
+	assert.equal(rolled.status, 200);
+	const started = await requestJson('/run/battle/wild',
+		{run, roll: rolled.body.roll, seed: 7});
+	assert.equal(started.status, 200);
+	assert.match(started.body.battle.trainer, /^Wild /);
+	const ball = started.body.actions.find(action => action.kind === 'ball');
+	assert.ok(ball && ball.chance >= 0, 'the ball comes priced over the wire');
+
+	const thrown = await requestJson('/run/battle/act',
+		{battle: started.body.battle, action: {kind: 'ball'}});
+	assert.equal(thrown.status, 200);
+	assert.match(thrown.body.events.map(event => event.text).join(' '),
+		/You threw a Poke Ball!/);
+
+	// A roll the route cannot produce is refused with the table's own words.
+	const forged = await requestJson('/run/battle/wild',
+		{run, roll: {map: 'Route101', species: 'Rayquaza', level: 5}});
+	assert.equal(forged.status, 400);
+	assert.match(forged.body.error, /is not on Route101's table/);
+	const missing = await requestJson('/run/battle/wild', {run});
+	assert.equal(missing.status, 400);
+	assert.match(missing.body.error, /send what \/run\/encounter rolled/);
+});
+
+test('the wire refuses garbage where the engine would crash: bundles, runs, knobs', async () => {
+	const runtime = require('./run');
+	let run = runtime.createRun({name: 'hardened', now: 't0', permadeath: true});
+	run = runtime.applyAll(run, [
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		{kind: 'party', ids: ['mon-1']},
+	]);
+
+	// A hand-edited battle bundle is a 400 that names the fix, never a 500.
+	const gutted = await requestJson('/run/battle/act',
+		{battle: {state: {}}, action: {kind: 'move', move: 'Tackle'}});
+	assert.equal(gutted.status, 400);
+	assert.match(gutted.body.error, /send the bundle unaltered/);
+	const missing = await requestJson('/run/battle/act',
+		{action: {kind: 'move', move: 'Tackle'}});
+	assert.equal(missing.status, 400);
+	assert.match(missing.body.error, /send the bundle from \/run\/battle\/start/);
+
+	// The die and the driver check the run's shape like every other endpoint.
+	for (const route of ['/run/encounter', '/run/battle/start']) {
+		const forged = await requestJson(route, {run: {version: run.version}});
+		assert.equal(forged.status, 400, `${route} must refuse a version-only run`);
+	}
+
+	// The ranker's knobs pass through bounded: a played top candidate on
+	// demand, the grid alone at zero, and out-of-range refused by name.
+	const played = await requestJson('/run/rank',
+		{run, trainer: 'Youngster Calvin', rollouts: 2, adjudicate: 1});
+	assert.equal(played.status, 200);
+	assert.equal(played.body.parties[0].adjudication.rollouts, 2);
+	const gridOnly = await requestJson('/run/rank',
+		{run, trainer: 'Youngster Calvin', rollouts: 0});
+	assert.equal(gridOnly.status, 200);
+	assert.equal(gridOnly.body.adjudication, null);
+	const greedy = await requestJson('/run/rank', {run, rollouts: 4900});
+	assert.equal(greedy.status, 400);
+	assert.match(greedy.body.error, /rollouts must be an integer from 0 to 48/);
+
+	// The playbook rides the wire with the same bounded knob, and refuses a
+	// party-less run with the CLI's own words.
+	const partied = runtime.applyAll(run, []);
+	const booked = await requestJson('/run/playbook',
+		{run: partied, trainer: 'Youngster Calvin', rollouts: 2});
+	assert.equal(booked.status, 200);
+	assert.equal(booked.body.odds.rollouts, 2);
+	assert.ok(booked.body.assignments.length > 0);
+	assert.ok(booked.body.line.events.length > 0);
+	const bookless = await requestJson('/run/playbook',
+		{run: Object.assign({}, run, {party: []}), trainer: 'Youngster Calvin'});
+	assert.equal(bookless.status, 400);
+	assert.match(bookless.body.error, /set a party first/);
+	const bookGreedy = await requestJson('/run/playbook', {run, rollouts: 4900});
+	assert.equal(bookGreedy.status, 400);
+
+	// The split sheet plays its boss on the same bounded knob.
+	const sheet = await requestJson('/run/split', {run, rollouts: 2});
+	assert.equal(sheet.status, 200);
+	assert.equal(sheet.body.adjudication.rollouts, 2);
+	assert.equal(sheet.body.adjudication.trainer, sheet.body.split.boss);
+	const unplayed = await requestJson('/run/split', {run});
+	assert.equal(unplayed.body.adjudication, null, 'unasked, the sheet stays a grid');
+	const splitGreedy = await requestJson('/run/split', {run, rollouts: 4900});
+	assert.equal(splitGreedy.status, 400);
 });

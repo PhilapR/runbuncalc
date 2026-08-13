@@ -14,12 +14,36 @@ npm run lint
 npm test
 ```
 
-The root gate intentionally does not install or execute the auxiliary
-`import/` generator. For import-pipeline changes, run `npm ci` and
-`npm test` from `import/` separately; its generated set files are UI data, not
-AI or calculator source. The importer compiles and lint-checks through its
-TypeScript 7 `tsc` gate. The GitHub Actions test job runs that separate import
-install/test step after the root gate.
+## The ROM band gate
+
+Every other gate in this repository compares the repository against itself. One
+does not: `rom-band.test.js` grades `calc.calculate()` against 1,727 damage
+observations captured from the running Run & Bun ROM by an emulator that has
+never read this code. The corpus is vendored at
+`profiles/run-and-bun/fidelity/` — provenance, hashes and coverage limits in its
+README — so the gate needs no external clone.
+
+Each observation is checked for membership in the 16-roll set this calculator
+predicts for the move that was actually clicked, with the fixture's injected
+stats fed in through `statOverrides` and detected crits checked against the crit
+band only. Membership, not a range check: it fails a wrong rounding *order*, not
+just a wrong magnitude.
+
+Measured 2026-08-11: **1,727/1,727 = 100.00%**, all three fixtures, 67 censored
+(lethal, HP-truncated) observations excluded. The capturing engine scored 88.65%
+on the same corpus; the two rounding-order bugs it had — a non-floored
+`2·level/5 + 2` term and a roll applied after all modifiers — this fork does not
+have. Run `node scripts/rom-band-check.js` for the standalone report.
+
+What it does not cover is the corpus's own scope: 1v1, no abilities, no items,
+no stat stages, no weather or terrain, no multi-hit moves.
+
+The inherited `import/` set generator has been removed. It regenerated all nine
+`src/js/data/sets/gen*.js` files from `@smogon/sets`, which overwrote the
+authored Run & Bun trainer parties in `gen8.js` with Smogon competitive usage
+sets. `runbun_sets.test.js` runs in the root gate and fails if that data is ever
+replaced by generated content. The GitHub Actions test job is now the root gate
+alone.
 
 The AI test command discovers every compiled `dist/test/*.test.js` fixture, so
 new focused fixtures are included automatically. The decision fixture also
@@ -277,7 +301,7 @@ smoke-tests `POST /calculate`, `POST /ai/validate-battle-state`,
 after the packages are built. It also verifies that missing and unknown
 calculator inputs and malformed AI actions / invalid battle state are returned
 as JSON `400` responses. Endpoint shapes live in [`ai/README.md`](ai/README.md);
-product phase status in [`RUNBUN_UX.md`](RUNBUN_UX.md).
+product phase status in [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`).
 The HTTP choice smoke also evaluates the player side and verifies that incoming
 KO and maximum-damage facts survive the public `sideId: "player"` boundary.
 The calculator test
@@ -869,8 +893,8 @@ legality, facts, scores, or transitions. Do not chase Pokémon Showdown parity.
 Tags: `engine` | `scoring` | `caller-owned` | `calc-overlay` | `product`.
 
 **Priority scheme (same everywhere):** **P0 / P1 / P2 / P3 / Park** — see
-[`PLAN.md`](PLAN.md) §0 for the **master prioritized backlog** (UI + product +
-engine). Product phase map: [`RUNBUN_UX.md`](RUNBUN_UX.md). UI rollout ranks:
+[`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired — see `DECISIONS.json` and `INVENTORY.md`) §0 for the **master prioritized backlog** (UI + product +
+engine). Product phase map: [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`). UI rollout ranks:
 [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) §9.
 
 Every open row below must keep a Priority + ID that appears (or rolls up) in
@@ -899,7 +923,7 @@ PLAN §0. Do not leave unranked “next” / “later” rows here.
 
 | Priority | ID | Item | Tag | Notes / done-when |
 | --- | --- | --- | --- | --- |
-| P0 | HYG-01 | Keep root `npm test` + UI smoke / Policy B notes green | product | Continuous floor (`fixtures/ui.test.js` in `test:server`) |
+| P0 | HYG-01 | Keep root `npm test` + Policy B notes green | product | Continuous floor (`test:server`; `browser_planner.test.js` drives the shipped page in Chromium, `fixtures/ui.test.js` is JSON-fixture only and touches no DOM) |
 | P0 | FIX-01 | ~~Inventory 8–12 fixtures as named UI scenarios~~ **Done** | product | `fixtures/ui/manifest.json` (10 Gen 8 Singles) |
 | P0 | FIX-02 | ~~Fixture browser MVP → AI Debug → validate~~ **Done** | product | `/fixtures/ui` + AI Debug Load fixture |
 | P0 | UI-V0 | ~~Wire `runbun-tokens.css` (no calc guts rewrite)~~ **Done** | product | Tokens usable |
