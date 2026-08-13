@@ -60,6 +60,13 @@ function requireRun(payload) {
 	if (!Array.isArray(run.party) || run.party.some(id => typeof id !== 'string')) {
 		throw refusal('run.party must be an array of box ids', 'InvalidRun');
 	}
+	// ...and each id must actually resolve, or that null-read happens anyway.
+	const boxIds = new Set(run.box.map(entry => entry && entry.id).filter(Boolean));
+	const missing = run.party.find(id => !boxIds.has(id));
+	if (missing !== undefined) {
+		throw refusal(`run.party names ${JSON.stringify(missing)}, which is not in run.box`,
+			'InvalidRun');
+	}
 	if (!isRecord(run.bag)) {
 		throw refusal('run.bag must be an object', 'InvalidRun');
 	}

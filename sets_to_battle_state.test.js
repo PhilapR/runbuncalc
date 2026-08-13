@@ -58,6 +58,44 @@ test('sets bridge rebuilds Gen 8 zero-EV Pokémon and emits valid BattleState', 
 	assert.doesNotThrow(() => ai.validateBattleState(state));
 });
 
+test('sets bridge keeps duplicate-species bench members on the party', () => {
+	// Two Zigzagoon on one team are two party members. The bench dedupe used
+	// to key on species, which dropped the twin — and under permadeath a
+	// missing party slot means the WRONG mon can be recorded as the death.
+	const mon = (id, species) => ({
+		id,
+		species,
+		level: 12,
+		hp: {current: 40, max: 40},
+		moves: [{name: 'Tackle'}],
+		evs: bridge.ZERO_EVS,
+	});
+	const state = bridge.buildBattleState({
+		playerActive: mon('player-1', 'Zigzagoon'),
+		playerBench: [mon('player-2', 'Zigzagoon'), mon('player-3', 'Poochyena')],
+		aiActive: mon('ai-1', 'Whismur'),
+		aiBench: [mon('ai-2', 'Whismur')],
+	});
+	assert.equal(state.sides.player.party.length, 3);
+	assert.deepEqual(
+		state.sides.player.party.map(entry => entry.species),
+		['Zigzagoon', 'Zigzagoon', 'Poochyena']);
+	// Bench ids are reassigned positionally; the roster mapping relies on
+	// nothing being dropped, so the count and order are the contract.
+	assert.deepEqual(
+		state.sides.player.party.map(entry => entry.id),
+		['player-1', 'player-2', 'player-3']);
+	assert.equal(state.sides.ai.party.length, 2);
+	// The active itself arriving again via the bench is still skipped.
+	const active = mon('player-1', 'Zigzagoon');
+	const again = bridge.buildBattleState({
+		playerActive: active,
+		playerBench: [active, mon('player-2', 'Poochyena')],
+		aiActive: mon('ai-1', 'Whismur'),
+	});
+	assert.equal(again.sides.player.party.length, 2);
+});
+
 test('sets bridge parses trainer-style set labels', () => {
 	assert.deepEqual(bridge.parseSetLabel('[12]Gyarados (Leader Winona)'), {
 		species: 'Gyarados',

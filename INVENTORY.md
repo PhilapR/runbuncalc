@@ -119,7 +119,7 @@ the reader's warning to verify before trusting.
 - `GEN9_AUDIT.md` — c85114d 2026-08-08
 - `README.md` — c8a9391 2026-08-12
 - `RUNBUN_UI_DESIGN.md` — 8fcc3f7 2026-08-12
-- `STRATEGY.md` — untracked
+- `STRATEGY.md` — 78fd09e 2026-08-13
 - `TASKS.md` — d4f02d3 2026-08-08
 - `VALIDATION.md` — 8fcc3f7 2026-08-12
 

@@ -905,6 +905,9 @@ test('a run of the right version but the wrong shape is a 400 naming the field',
 		[{...good, log: 'nothing yet'}, /log/],
 		[{...good, party: {}}, /party/],
 		[{...good, party: [{id: 'mon-1'}]}, /party/],
+		// Well-typed but dangling: a party id no box entry carries used to
+		// null-deref in summarize and 500.
+		[{...good, party: ['mon-999']}, /mon-999.*not in run\.box/],
 		[{...good, bag: []}, /bag/],
 		[{...good, position: 'start'}, /position/],
 		[{...good, nextId: null}, /nextId/],

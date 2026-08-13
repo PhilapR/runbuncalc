@@ -275,14 +275,17 @@
 
 	function partyWithActives(actives, bench, sidePrefix) {
 		var party = actives.slice();
-		var activeSpecies = {};
-		actives.forEach(function (active) {
-			activeSpecies[active.species] = true;
-		});
 		var nextIndex = actives.length + 1;
 		(bench || []).forEach(function (candidate) {
-			// Prefer unique bench slots; skip exact species duplicates of an active.
-			if (!candidate || activeSpecies[candidate.species]) return;
+			// Skip only the active mon itself (same object, or same pre-assigned
+			// id) — never a species twin. Two Zigzagoon on one team are two
+			// party members, and dropping one desyncs battle ids from the roster.
+			if (!candidate) return;
+			var isActive = actives.some(function (active) {
+				return active === candidate ||
+					(candidate.id != null && active.id === candidate.id);
+			});
+			if (isActive) return;
 			var id = sidePrefix + '-' + nextIndex;
 			nextIndex += 1;
 			party.push(Object.assign({}, candidate, {id: id}));

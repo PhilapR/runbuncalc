@@ -438,9 +438,15 @@ const SUBCOMMANDS = {
 		if (!Number.isInteger(rollouts) || rollouts < 1 || rollouts > 100) {
 			throw new Error('adjudicate: --rollouts must be an integer from 1 to 100');
 		}
-		const trainer = args.positional.length ? args.positional.join(' ') : undefined;
-		const fight = require('./planner').getFight(
-			trainer || runtime.upcoming(state, 1)[0].trainer, state.profileId);
+		let trainer = args.positional.length ? args.positional.join(' ') : undefined;
+		if (!trainer) {
+			const ahead = runtime.upcoming(state, 1);
+			if (!ahead.length) {
+				throw new Error('adjudicate: nothing ahead in the run map — name a trainer');
+			}
+			trainer = ahead[0].trainer;
+		}
+		const fight = require('./planner').getFight(trainer, state.profileId);
 		const played = driver.adjudicate(state, fight.trainer, {rollouts});
 		return {message: [
 			`${fight.trainer} (#${fight.order}) — the current party, played ${rollouts} times`,

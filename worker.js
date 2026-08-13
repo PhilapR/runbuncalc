@@ -58,8 +58,17 @@ async function gate(request, env) {
 			{status: 503});
 	}
 	const auth = request.headers.get('authorization');
+	// atob throws on malformed base64; a garbage header is a failed
+	// authentication attempt (the 401 below), never a 500.
+	let decoded = null;
 	if (auth && auth.indexOf('Basic ') === 0) {
-		const decoded = atob(auth.slice('Basic '.length));
+		try {
+			decoded = atob(auth.slice('Basic '.length));
+		} catch (ignored) {
+			decoded = null;
+		}
+	}
+	if (decoded !== null) {
 		const separator = decoded.indexOf(':');
 		const supplied = separator === -1 ? decoded : decoded.slice(separator + 1);
 		// Constant-time equality over SHA-256 digests (fixed length, XOR

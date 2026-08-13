@@ -1854,10 +1854,9 @@ const COMMANDS = {
 				}
 			}
 		} else {
-			moves = profile.oracle.levelUpMoves(command.species)
-				.filter(pair => pair[0] <= level)
-				.slice(-4)
-				.map(pair => pair[1]);
+			// Same derivation the scout uses — movesAt dedupes moves a species
+			// relearns at two levels, which the raw slice(-4) did not.
+			moves = movesAt(profile, command.species, level);
 		}
 		// A movesless entry is a time bomb: the box stores it happily and the
 		// planner detonates on it later. It is also real — Run & Bun gives some
