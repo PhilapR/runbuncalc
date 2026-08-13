@@ -2244,17 +2244,18 @@ function undo(run) {
  * would rank a team the player will never field. The box comes from the run
  * or the function does not run.
  */
-function rankParties(run, trainer, options) {
-	const opts = options || {};
-	const matrix = boxMatrix(run, trainer);
-	const members = matrix.box;
+/**
+ * The board turned into answer scores: answers[m][e] prices member m into
+ * enemy e's column with the entry cost in, `leadFree` with it out (for the
+ * enemy-lead column, where the lead is already standing). Rounded so
+ * ordering cannot ride floating dust. Shared by the ranker and the playbook
+ * so "who answers whom" is one arithmetic, not two.
+ */
+function answerTable(matrix) {
 	const enemies = matrix.grid.map(cell => cell.enemy);
 	const clamp1 = value => Math.min(value, 1);
-
-	// answers[m][e] with the entry cost in; answersLead[m] for the enemy-lead
-	// column with it out. Rounded so ordering cannot ride floating dust.
 	const round = value => Math.round(value * 1000) / 1000;
-	const answers = members.map((member, m) => enemies.map((enemy, e) => {
+	return matrix.box.map((member, m) => enemies.map((enemy, e) => {
 		const cell = matrix.grid[e].versus[m];
 		// A self-KO fallback cell earns no KO bonus: trading the mon away is
 		// not an answer this score should chase (the raw damage still counts).
@@ -2269,6 +2270,15 @@ function rankParties(run, trainer, options) {
 			leadFree: round(offense - danger / 2),
 		};
 	}));
+}
+
+function rankParties(run, trainer, options) {
+	const opts = options || {};
+	const matrix = boxMatrix(run, trainer);
+	const members = matrix.box;
+	const enemies = matrix.grid.map(cell => cell.enemy);
+	const round = value => Math.round(value * 1000) / 1000;
+	const answers = answerTable(matrix);
 
 	const size = Math.min(PARTY_LIMIT, members.length);
 	const star = members.reduce((best, member, m) => {
@@ -2456,6 +2466,156 @@ function countCombinations(n, k) {
 	return Math.round(result);
 }
 
+/**
+ * The full fight plan for the CURRENT party against one trainer: who answers
+ * whom (the ranker's own arithmetic, restricted to the six that will
+ * actually walk in), what each answer hits with and what hits back, and the
+ * fight PLAYED — odds, the outcome spread, and one representative rollout's
+ * turn-by-turn line. Everything a player wants taped to the monitor before
+ * a boss, sourced from the same tables and the same tape deck as everything
+ * else, so the plan can never disagree with the ranker or the recreation.
+ */
+function fightPlaybook(run, trainer, options) {
+	const opts = options || {};
+	if (!run.party.length) {
+		throw new Error('playbook: set a party first — the plan is the party\'s');
+	}
+	const driver = require('./battle-driver');
+	const matrix = boxMatrix(run, trainer);
+	const members = matrix.box;
+	const enemies = matrix.grid.map(cell => cell.enemy);
+	const answers = answerTable(matrix);
+	const picks = run.party
+		.map(id => members.findIndex(member => member.id === id))
+		.filter(index => index >= 0);
+	const lead = picks[0];
+
+	// Who answers whom — the same scores the ranker assigns with, plus the
+	// concrete cell behind the assignment: the move, the damage, the threat.
+	const assignments = enemies.map((enemy, e) => {
+		let bestMember = null;
+		let bestValue = -Infinity;
+		for (const m of picks) {
+			const value = e === 0 && m === lead ?
+				answers[m][0].leadFree : answers[m][e].withEntry;
+			if (value > bestValue) { bestValue = value; bestMember = m; }
+		}
+		const cell = matrix.grid[e].versus[bestMember];
+		const pct = value => Math.round(value * 100);
+		return {
+			enemy: enemy.species,
+			enemyLevel: enemy.level,
+			answeredBy: members[bestMember].id,
+			answer: members[bestMember].species,
+			answerNickname: members[bestMember].nickname,
+			move: cell.us.move,
+			damage: {min: pct(cell.us.min), max: pct(cell.us.max),
+				guaranteedKO: !!cell.us.guaranteedKO},
+			speed: cell.speed,
+			threat: {move: cell.them.move, max: pct(cell.them.max),
+				guaranteedKO: !!cell.them.guaranteedKO},
+			answered: bestValue > 0,
+		};
+	});
+
+	const slotOf = id => {
+		const slot = run.party.indexOf(id);
+		return slot >= 0 ? `player-${slot + 1}` : null;
+	};
+	const answerForOf = plan => {
+		const answerFor = {};
+		for (const assignment of plan) {
+			const slot = slotOf(assignment.answeredBy);
+			if (slot) answerFor[assignment.enemy] = slot;
+		}
+		return answerFor;
+	};
+
+	// ASSIGNMENT OPTIMIZATION — the ranker's lesson applied one level down.
+	// The paper assignment is a full-HP turn-zero claim; a Speed Boost
+	// Combusken makes it two turns stale before the answer even switches in.
+	// So the runner-up answer for each contested column is TRIED: every
+	// variant is played (short rollouts, same seeds), and whichever
+	// assignment map actually wins the most keeps the job. Bounded: the four
+	// most contested columns, 16 variants, so the answer arrives while the
+	// question still matters.
+	const rollouts = opts.rollouts === undefined ? 12 : opts.rollouts;
+	const optimize = opts.optimize === undefined ? true : !!opts.optimize;
+	let explored = 0;
+	let chosen = assignments;
+	if (optimize && picks.length > 1) {
+		const contested = [];
+		for (let e = 0; e < enemies.length; e++) {
+			const scored = picks.map(m => ({
+				member: m,
+				value: e === 0 && m === lead ? answers[m][0].leadFree : answers[m][e].withEntry,
+			})).sort((a, b) => b.value - a.value);
+			if (scored.length > 1 && scored[1].value > -Infinity &&
+				members[scored[0].member].id === assignments[e].answeredBy) {
+				contested.push({e, runnerUp: members[scored[1].member].id,
+					gap: scored[0].value - scored[1].value});
+			}
+		}
+		contested.sort((a, b) => a.gap - b.gap);
+		const flips = contested.slice(0, 4);
+		const variants = [];
+		for (let mask = 0; mask < (1 << flips.length); mask++) {
+			const plan = assignments.map(entry => Object.assign({}, entry));
+			flips.forEach((flip, bit) => {
+				if (mask & (1 << bit)) {
+					const member = members.find(entry => entry.id === flip.runnerUp);
+					const cell = matrix.grid[flip.e].versus[
+						members.findIndex(entry => entry.id === flip.runnerUp)];
+					const pct = value => Math.round(value * 100);
+					Object.assign(plan[flip.e], {
+						answeredBy: member.id,
+						answer: member.species,
+						answerNickname: member.nickname,
+						move: cell.us.move,
+						damage: {min: pct(cell.us.min), max: pct(cell.us.max),
+							guaranteedKO: !!cell.us.guaranteedKO},
+						speed: cell.speed,
+						threat: {move: cell.them.move, max: pct(cell.them.max),
+							guaranteedKO: !!cell.them.guaranteedKO},
+						playedOver: assignments[flip.e].answer,
+					});
+				}
+			});
+			variants.push(plan);
+		}
+		explored = variants.length;
+		let best = null;
+		for (const plan of variants) {
+			const trial = driver.adjudicate(run, matrix.trainer, {
+				rollouts: Math.min(4, rollouts),
+				answerFor: answerForOf(plan),
+			});
+			const keyOf = trial.pWin * 1000 - trial.eDeaths;
+			if (best === null || keyOf > best.keyOf) best = {plan, keyOf};
+		}
+		if (best) chosen = best.plan;
+	}
+	const played = driver.playbook(run, matrix.trainer,
+		{rollouts, answerFor: answerForOf(chosen)});
+
+	return {
+		trainer: matrix.trainer,
+		order: matrix.order,
+		projection: matrix.projection,
+		party: run.party.map(id => {
+			const member = members.find(entry => entry.id === id);
+			return member ? {id, species: member.species, nickname: member.nickname,
+				level: member.level} : {id};
+		}),
+		assignments: chosen,
+		explored,
+		odds: played.odds,
+		outcomes: played.outcomes,
+		line: played.line,
+		policy: 'floor: assignment switches + best forecast move — a lower bound, not a promise',
+	};
+}
+
 /** A readable statement of where the run has got to. */
 function summarize(run) {
 	const cap = levelCap(run);
@@ -2493,5 +2653,5 @@ module.exports = {
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
-	adviseUpgrades, adviseCatches, rankParties, summarize, rollEncounter, fieldItems,
+	adviseUpgrades, adviseCatches, rankParties, fightPlaybook, summarize, rollEncounter, fieldItems,
 };

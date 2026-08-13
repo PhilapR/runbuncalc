@@ -372,6 +372,59 @@ const SUBCOMMANDS = {
 		return {command: {kind: 'spend', map, reason: args.flags.reason}};
 	},
 
+	/** The full plan for one fight: assignments, odds, and the expected line. */
+	playbook(state, args) {
+		const rollouts = args.flags.rollouts ? Number(args.flags.rollouts) : 12;
+		if (args.flags.rollouts !== undefined &&
+			(!Number.isInteger(rollouts) || rollouts < 1 || rollouts > 100)) {
+			throw new Error('playbook: --rollouts must be an integer from 1 to 100');
+		}
+		const trainer = args.positional.length ? args.positional.join(' ') : undefined;
+		const book = runtime.fightPlaybook(state, trainer, {rollouts});
+		const pct = value => `${Math.round(value * 100)}%`;
+		const lines = [
+			`${book.trainer} (#${book.order}) — the playbook, played ${book.odds.rollouts} times`,
+			`  party: ${book.party.map(mon =>
+				`${mon.nickname || mon.species} L${mon.level}`).join(' · ')}` +
+				(book.projection.applied ? `  (at cap ${book.projection.cap})` : ''),
+			`  odds: P(win) ${pct(book.odds.pWin)}  ·  ${book.odds.eDeaths.toFixed(1)} deaths expected` +
+				`  ·  deathless ${pct(book.odds.pDeathless)}`,
+			`  endings: ${book.outcomes.map(outcome =>
+				`${outcome.count}× ${outcome.result}` +
+				`${outcome.deaths ? `, ${outcome.deaths} lost` : ', deathless'}` +
+				` (~${outcome.medianTurns} turns)`).join('  ·  ')}`,
+			'  assignments — who answers whom:',
+		];
+		for (const row of book.assignments) {
+			const speed = row.speed === 'faster' ? 'outspeeds' :
+				row.speed === 'slower' ? 'outsped' : 'speed-tied';
+			lines.push(`    ${(`${row.enemy} L${row.enemyLevel}`).padEnd(22)} ← ` +
+				`${(row.answerNickname || row.answer).padEnd(14)}` +
+				`${row.move ? `${row.move} ${row.damage.min}–${row.damage.max}%` +
+					`${row.damage.guaranteedKO ? ' KO' : ''}` : '(no damaging answer)'}` +
+				`, ${speed}; back: ${row.threat.move || 'nothing'}` +
+				`${row.threat.move ? ` ${row.threat.max}%${row.threat.guaranteedKO ? ' KO' : ''}` : ''}` +
+				`${row.answered ? '' : '  ⚠ unanswered'}`);
+		}
+		if (book.line) {
+			lines.push(`  the expected line — seed ${book.line.seed}, ` +
+				`${book.line.result} in ${book.line.turns} turns` +
+				`${book.line.lost ? `, ${book.line.lost} lost` : ', deathless'}:`);
+			for (const event of book.line.events) lines.push(`    ${event}`);
+		}
+		if (book.explored > 1) {
+			lines.push(`  assignments chosen by play: ${book.explored} variants tried, ` +
+				'best tape kept' +
+				(book.assignments.some(row => row.playedOver) ?
+					` — played over the paper pick: ${book.assignments
+						.filter(row => row.playedOver)
+						.map(row => `${row.enemy} to ${row.answer} (was ${row.playedOver})`)
+						.join(', ')}` : ' — the paper picks held'));
+		}
+		lines.push(`  ${book.policy}`);
+		return {message: lines.join('\n')};
+	},
+
 	/** Play the fight N times and report what happened — the floor, measured. */
 	adjudicate(state, args) {
 		const driver = require('./battle-driver');
@@ -773,7 +826,7 @@ const SUBCOMMANDS = {
 /** Subcommands that never write, so they can run against a save freely. */
 const READ_ONLY = new Set(['status', 'box', 'where', 'find', 'learn', 'next', 'plan', 'matrix',
 	'advise', 'rank', 'scout', 'log', 'milestones', 'split', 'routes', 'graveyard',
-	'roll', 'adjudicate']);
+	'roll', 'adjudicate', 'playbook']);
 
 const USAGE = `node play.js <command> [args] [--file run.json]
 
@@ -806,6 +859,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   matrix [trainer]                                the whole box against theirs, both ways
   rank [trainer]                                  every six from the box, ranked — the top ones PLAYED
   adjudicate [trainer] [--rollouts N]             play the fight N times with the current party, report the floor
+  playbook [trainer] [--rollouts N]               the full plan: assignments, odds, endings, the expected line
   advise [trainer]                                the single changes that most move that board
   scout [trainer]                                 what the open routes could add vs the next boss
   routes [--all]                                  routes still holding an encounter

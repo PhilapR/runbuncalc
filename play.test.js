@@ -423,3 +423,21 @@ test('use consumes from the bag and refuses an empty shelf', () => {
 	cli('undo');
 	assert.deepEqual(read().bag, {'Great Ball': 1}, 'undo restores the throw');
 });
+
+test('playbook is read-only and renders the whole plan: odds, assignments, the line', () => {
+	cli('new', '--starter', 'Treecko');
+	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
+	cli('party', 'mon-1', 'mon-2');
+	const before = fs.readFileSync(file, 'utf8');
+	const book = cli('playbook', '--rollouts', '3');
+	assert.equal(fs.readFileSync(file, 'utf8'), before, 'playbook must not write');
+	assert.match(book, /Youngster Calvin \(#0\) — the playbook, played 3 times/);
+	assert.match(book, /odds: P\(win\) \d+%/);
+	assert.match(book, /endings: /);
+	assert.match(book, /assignments — who answers whom:/);
+	assert.match(book, /the expected line — seed \d+, (win|loss) in \d+ turns/);
+	assert.match(book, /wants to battle!/);
+	assert.match(book, /a lower bound, not a promise/);
+	assert.throws(() => cli('playbook', '--rollouts', 'many'),
+		/--rollouts must be an integer from 1 to 100/);
+});

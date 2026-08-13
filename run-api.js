@@ -105,7 +105,7 @@ function requireBattle(payload) {
  * message IS the feature. Anything else re-throws untouched.
  */
 function asRefusal(error) {
-	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^use:|^faint:|^heartScale:|^hold:|^unhold:|^spend:|^roll:|^battle:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || '')) {
+	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^use:|^faint:|^heartScale:|^hold:|^unhold:|^spend:|^roll:|^battle:|^playbook:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || '')) {
 		error.statusCode = 400;
 		error.code = 'InvalidRunCommand';
 	}
@@ -260,6 +260,18 @@ const api = {
 		return guarded(() => runtime.rankParties(state, (payload || {}).trainer, options));
 	},
 
+	/** The full fight plan: assignments, odds, endings, the expected line. */
+	playbook(payload) {
+		const state = requireRun(payload);
+		const rollouts = (payload || {}).rollouts;
+		if (rollouts !== undefined &&
+			(!Number.isInteger(rollouts) || rollouts < 1 || rollouts > 48)) {
+			throw refusal('rollouts must be an integer from 1 to 48', 'InvalidRunCommand');
+		}
+		return guarded(() => runtime.fightPlaybook(state, (payload || {}).trainer,
+			rollouts ? {rollouts} : undefined));
+	},
+
 	/** The split as one sheet: boss, cap, remaining gauntlet, filler count.
 	 * `rollouts` (bounded like rank's) plays the boss with the current party
 	 * and pins the measured floor to the sheet. */
@@ -350,6 +362,7 @@ const ROUTES = {
 	'/run/plan': api.plan,
 	'/run/routes': api.routes,
 	'/run/rank': api.rank,
+	'/run/playbook': api.playbook,
 	'/run/split': api.split,
 	'/run/matrix': api.matrix,
 	'/run/advise': api.advise,

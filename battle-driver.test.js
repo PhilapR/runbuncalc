@@ -264,3 +264,25 @@ test('adjudication reports what happened, deterministically, and calibrates the 
 	assert.equal(gridOnly.adjudication, null);
 	assert.ok(gridOnly.parties.every(party => !party.adjudication));
 });
+
+test('the playbook: same seeds same tape, honest spread, a line that replays the majority', () => {
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const first = driver.playbook(doc, 'Youngster Calvin', {rollouts: 6});
+	const second = driver.playbook(doc, 'Youngster Calvin', {rollouts: 6});
+	assert.deepEqual(first, second, 'a playbook is a measurement, not a mood');
+	assert.equal(first.odds.rollouts, 6);
+	assert.equal(first.outcomes.reduce((sum, outcome) => sum + outcome.count, 0), 6,
+		'every rollout lands in exactly one outcome bucket');
+	assert.ok(first.line, 'the expected line exists');
+	assert.ok(first.line.events.length > 2, 'the line narrates the fight');
+	assert.match(first.line.events[0], /wants to battle!/);
+	// The line replays the MAJORITY result at its most common death count.
+	const majority = first.odds.pWin >= 0.5 ? 'win' : 'loss';
+	assert.equal(first.line.result, majority);
+	// Odds must agree with adjudicate — one tape deck, two readouts.
+	const adjudicated = driver.adjudicate(doc, 'Youngster Calvin', {rollouts: 6});
+	assert.deepEqual(first.odds, adjudicated);
+});

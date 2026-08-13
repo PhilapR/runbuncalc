@@ -640,12 +640,10 @@ function act(bundle, chosen) {
  * Deterministic on purpose: seeds derive from `seedBase`, so the same box
  * asks the same question and gets the same answer twice.
  */
-function adjudicate(doc, trainerName, options) {
-	options = options || {};
-	const rollouts = options.rollouts === undefined ? 12 : options.rollouts;
-	const seedBase = options.seedBase === undefined ? 1000 : options.seedBase;
-	const answerFor = options.answerFor || {};
-
+/** One seeded rollout under the floor policy, with its whole story: the
+ * turn-by-turn narration, the ending, the fallen. Both adjudication and the
+ * playbook read from this one tape deck so their numbers can never drift. */
+function playRollout(doc, trainerName, seed, answerFor) {
 	const best = actions => {
 		const moves = actions.filter(entry => entry.kind === 'move');
 		if (!moves.length) return actions[0] || null;
@@ -658,42 +656,60 @@ function adjudicate(doc, trainerName, options) {
 		});
 	};
 
+	const opened = start(doc, trainerName, seed);
+	let bundle = opened.battle;
+	let actions = opened.actions;
+	let viewState = opened.viewState;
+	const events = opened.events.map(event => event.text);
+	let guard = 0;
+	let reply = null;
+	while (guard++ < 120) {
+		if (!actions.length) break;
+		let chosen = null;
+		const want = answerFor[viewState.foe.active.species];
+		const wantAlive = want && viewState.player.bench.some(mon =>
+			mon.id === want && mon.hp.current > 0);
+		const swap = actions.find(entry => entry.kind === 'switch' &&
+			entry.action.replacementId === want);
+		if (wantAlive && want !== viewState.player.active.id && swap) {
+			chosen = {kind: 'switch', replacementId: want};
+		} else {
+			const pick = best(actions);
+			chosen = pick.kind === 'move' ?
+				{kind: 'move', move: pick.move} :
+				{kind: 'switch', replacementId: pick.action.replacementId};
+		}
+		reply = act(bundle, chosen);
+		bundle = reply.battle;
+		actions = reply.actions;
+		viewState = reply.viewState;
+		for (const event of reply.events) events.push(event.text);
+		if (reply.result) break;
+	}
+	return {
+		seed,
+		result: reply && reply.result ? reply.result : 'unresolved',
+		lost: bundle.state.sides.player.party.filter(mon => mon.hp.current <= 0).length,
+		turns: viewState.turn,
+		events,
+		deaths: reply && reply.result ? reply.deaths : [],
+	};
+}
+
+function adjudicate(doc, trainerName, options) {
+	options = options || {};
+	const rollouts = options.rollouts === undefined ? 12 : options.rollouts;
+	const seedBase = options.seedBase === undefined ? 1000 : options.seedBase;
+	const answerFor = options.answerFor || {};
+
 	let wins = 0;
 	let deaths = 0;
 	let deathless = 0;
 	for (let i = 0; i < rollouts; i++) {
-		let opened = start(doc, trainerName, seedBase + i);
-		let bundle = opened.battle;
-		let actions = opened.actions;
-		let viewState = opened.viewState;
-		let guard = 0;
-		let reply = null;
-		while (guard++ < 120) {
-			if (!actions.length) break;
-			let chosen = null;
-			const want = answerFor[viewState.foe.active.species];
-			const wantAlive = want && viewState.player.bench.some(mon =>
-				mon.id === want && mon.hp.current > 0);
-			const swap = actions.find(entry => entry.kind === 'switch' &&
-				entry.action.replacementId === want);
-			if (wantAlive && want !== viewState.player.active.id && swap) {
-				chosen = {kind: 'switch', replacementId: want};
-			} else {
-				const pick = best(actions);
-				chosen = pick.kind === 'move' ?
-					{kind: 'move', move: pick.move} :
-					{kind: 'switch', replacementId: pick.action.replacementId};
-			}
-			reply = act(bundle, chosen);
-			bundle = reply.battle;
-			actions = reply.actions;
-			viewState = reply.viewState;
-			if (reply.result) break;
-		}
-		const lost = bundle.state.sides.player.party.filter(mon => mon.hp.current <= 0).length;
-		if (reply && reply.result === 'win') wins += 1;
-		deaths += lost;
-		if (lost === 0) deathless += 1;
+		const story = playRollout(doc, trainerName, seedBase + i, answerFor);
+		if (story.result === 'win') wins += 1;
+		deaths += story.lost;
+		if (story.lost === 0) deathless += 1;
 	}
 	return {
 		pWin: rollouts ? Math.round(wins / rollouts * 100) / 100 : null,
@@ -703,4 +719,74 @@ function adjudicate(doc, trainerName, options) {
 	};
 }
 
-module.exports = {start, startWild, act, legalActions, view, streamFor, adjudicate, catchMath, BALLS};
+/**
+ * The playbook's played half: the same seeded rollouts adjudication runs,
+ * kept as stories. What comes back is the odds, the OUTCOME SPREAD (how the
+ * N endings distribute over result and deaths), and the EXPECTED LINE — the
+ * full narration of one representative rollout: majority result, then the
+ * most common death count inside it, earliest seed as the tie-break, so the
+ * same question always replays the same tape.
+ */
+function playbook(doc, trainerName, options) {
+	options = options || {};
+	const rollouts = options.rollouts === undefined ? 12 : options.rollouts;
+	const seedBase = options.seedBase === undefined ? 1000 : options.seedBase;
+	const answerFor = options.answerFor || {};
+
+	const stories = [];
+	let wins = 0;
+	let deaths = 0;
+	let deathless = 0;
+	for (let i = 0; i < rollouts; i++) {
+		const story = playRollout(doc, trainerName, seedBase + i, answerFor);
+		stories.push(story);
+		if (story.result === 'win') wins += 1;
+		deaths += story.lost;
+		if (story.lost === 0) deathless += 1;
+	}
+
+	const buckets = {};
+	for (const story of stories) {
+		const bucketKey = `${story.result}:${story.lost}`;
+		if (!buckets[bucketKey]) {
+			buckets[bucketKey] = {result: story.result, lost: story.lost, count: 0, turns: []};
+		}
+		buckets[bucketKey].count += 1;
+		buckets[bucketKey].turns.push(story.turns);
+	}
+	const outcomes = Object.keys(buckets).map(bucketKey => {
+		const bucket = buckets[bucketKey];
+		bucket.turns.sort((a, b) => a - b);
+		return {
+			result: bucket.result,
+			deaths: bucket.lost,
+			count: bucket.count,
+			medianTurns: bucket.turns[Math.floor(bucket.turns.length / 2)],
+		};
+	}).sort((a, b) => b.count - a.count || a.deaths - b.deaths);
+
+	let line = null;
+	if (stories.length) {
+		const majorityResult = wins * 2 >= stories.length ? 'win' : 'loss';
+		const inMajority = stories.filter(story => story.result === majorityResult);
+		const pool = inMajority.length ? inMajority : stories;
+		const lostCounts = {};
+		for (const story of pool) lostCounts[story.lost] = (lostCounts[story.lost] || 0) + 1;
+		const modalLost = Number(Object.keys(lostCounts)
+			.sort((a, b) => lostCounts[b] - lostCounts[a] || a - b)[0]);
+		line = pool.find(story => story.lost === modalLost) || pool[0];
+	}
+
+	return {
+		odds: {
+			pWin: rollouts ? Math.round(wins / rollouts * 100) / 100 : null,
+			eDeaths: rollouts ? Math.round(deaths / rollouts * 100) / 100 : null,
+			pDeathless: rollouts ? Math.round(deathless / rollouts * 100) / 100 : null,
+			rollouts,
+		},
+		outcomes,
+		line,
+	};
+}
+
+module.exports = {start, startWild, act, legalActions, view, streamFor, adjudicate, playbook, catchMath, BALLS};

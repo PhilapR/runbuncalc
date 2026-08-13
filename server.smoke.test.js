@@ -1211,6 +1211,22 @@ test('the wire refuses garbage where the engine would crash: bundles, runs, knob
 	assert.equal(greedy.status, 400);
 	assert.match(greedy.body.error, /rollouts must be an integer from 0 to 48/);
 
+	// The playbook rides the wire with the same bounded knob, and refuses a
+	// party-less run with the CLI's own words.
+	const partied = runtime.applyAll(run, []);
+	const booked = await requestJson('/run/playbook',
+		{run: partied, trainer: 'Youngster Calvin', rollouts: 2});
+	assert.equal(booked.status, 200);
+	assert.equal(booked.body.odds.rollouts, 2);
+	assert.ok(booked.body.assignments.length > 0);
+	assert.ok(booked.body.line.events.length > 0);
+	const bookless = await requestJson('/run/playbook',
+		{run: Object.assign({}, run, {party: []}), trainer: 'Youngster Calvin'});
+	assert.equal(bookless.status, 400);
+	assert.match(bookless.body.error, /set a party first/);
+	const bookGreedy = await requestJson('/run/playbook', {run, rollouts: 4900});
+	assert.equal(bookGreedy.status, 400);
+
 	// The split sheet plays its boss on the same bounded knob.
 	const sheet = await requestJson('/run/split', {run, rollouts: 2});
 	assert.equal(sheet.status, 200);
