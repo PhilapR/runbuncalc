@@ -1973,3 +1973,27 @@ test('a Static lead pulls the grass: Togedemaru becomes a coin flip, not a 1-in-
 	const undeclared = run.rollEncounter(silent, {map: 'GraniteCave1F', random: seq([0.1, 0])});
 	assert.equal(undeclared.pull, undefined);
 });
+
+test('the scout grades the whole open table, not a display shortlist', () => {
+	// The routes VIEW shows three rows per route; the scout once graded that
+	// display cap — 21 of 131 catchable species — and never offered Gligar,
+	// the measured single biggest Brawly lever. The grader now reads every
+	// ungated row; the view keeps its summary.
+	let doc = run.createRun({name: 'scout', now: 't0', permadeath: true, onePerRoute: true});
+	doc = run.apply(doc, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	doc = run.apply(doc, {kind: 'party', ids: ['mon-1']});
+	// Steven's Room is guarded by Ruin Maniac Georgie (#25): shut at the
+	// door, its Gligar is not a catch anyone can make yet.
+	const early = run.adviseCatches(doc, 'Leader Brawly');
+	assert.ok(!early.catches.some(prospect => prospect.species === 'Gligar'),
+		'a guarded room offers nothing');
+	doc = run.apply(doc, {kind: 'beat', trainer: 'Battle Girl Jocelyn'});
+	const scouted = run.adviseCatches(doc, 'Leader Brawly');
+	assert.ok(scouted.catches.some(prospect => prospect.species === 'Gligar'),
+		'the open room\'s deep slots are graded');
+	assert.ok(scouted.considered > 100,
+		`the whole table is considered, got ${scouted.considered}`);
+	// The display path is untouched: three rows per route.
+	const viewed = run.unusedRoutes(doc).routes.find(route => route.best && route.best.length);
+	assert.ok(viewed.best.length <= 3, 'the routes view keeps its shortlist');
+});

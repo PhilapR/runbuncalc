@@ -779,7 +779,8 @@ function encountersOn(run, map) {
  * Maps the availability import never dated carry no `opensAt` and trail in
  * declaration order — absence means "unlock order unknown", not "never".
  */
-function unusedRoutes(run) {
+function unusedRoutes(run, options) {
+	const opts = options || {};
 	const profile = getProfile(run.profileId);
 	requireLayer(profile, 'oracle', 'there are no wild tables to walk');
 	const rules = encounterRules(run);
@@ -853,10 +854,15 @@ function unusedRoutes(run) {
 					Object.assign({where: here.name}, mon) : mon);
 			}
 		}
+		// The VIEW shows a three-row shortlist; a GRADER must see the whole
+		// table — the scout once read this display cap and graded 21 of 131
+		// catchable species, which is how Gligar (the single biggest Brawly
+		// lever) went unoffered while surf rows it could not use ate the
+		// shortlist. `allProspects` is the grader's door.
 		entry.best = pool
 			.sort((a, b) => (b.odds !== undefined ? b.odds : b.chance) -
 				(a.odds !== undefined ? a.odds : a.chance))
-			.slice(0, 3)
+			.slice(0, opts.allProspects ? pool.length : 3)
 			.map(mon => {
 				// A slot whose method waits on an HM is listed — it is still this
 				// route's future — but marked, so "best prospects" never quietly
@@ -1389,7 +1395,8 @@ function adviseCatches(run, trainer) {
 
 	// A held route is being saved on purpose: the scout neither recommends
 	// spending it nor forgets it exists — the count travels in the answer.
-	const all = unusedRoutes(run).routes.filter(route => !route.used && route.open);
+	const all = unusedRoutes(run, {allProspects: true}).routes
+		.filter(route => !route.used && route.open);
 	const routes = all.filter(route => !route.held);
 	const held = all.length - routes.length;
 	// One species can walk three open routes; its row costs the same everywhere.
