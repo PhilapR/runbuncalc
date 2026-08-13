@@ -327,6 +327,18 @@
 			"question": "Which required fights are reorderable like Camper Gavi (pass now, beat later)? The doc records rosters, not overworld movement. Gavi is operator-confirmed; Battle Girl Luna (#162) and Picnicker Bianca (#192) are structurally identical in the data and wait on the same confirmation.",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
+		},
+		{
+			"id": "tm-tutor-dates",
+			"question": "When does each TM and tutor become available? The official docs folder (Locations sheet, Trainer Battles, Mechanic Changes, Move Changes, Learnsets) contains no TM/tutor location data at all, so `teach` keeps taking teachables at face value — which is why a playbook with TM assumptions reads ~2x the natural-moves floor (Brawly 50% vs 25%). A community Item Locations doc exists outside the folder; importing it would date the teachables.",
+			"raised": "2026-08-12",
+			"settledBy": "operator ruling"
+		},
+		{
+			"id": "rustboro-table-drift",
+			"question": "The author's Pokémon Locations sheet (2023) lists Bonsly and Lillipup at Rustboro City; the current decomp import has Herdier and Stantler instead (Lillipup's evolution among them). Decomp is source-of-truth and newer, so ours stands — but a v1.0x changelog line confirming the Rustboro table change would close this, and nuzlocke.app's transcription (bonsly/lillipup/steenee) matches the OLD sheet, dating their data too.",
+			"raised": "2026-08-12",
+			"settledBy": "operator ruling"
 		}
 	]
 }
