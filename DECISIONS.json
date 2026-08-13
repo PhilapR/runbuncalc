@@ -278,6 +278,17 @@
 				"run.js",
 				"run.test.js"
 			]
+		},
+		{
+			"id": "the-map-is-the-required-road",
+			"date": "2026-08-12",
+			"ruling": "The run map contains only required fights, per the author's own Trainer Battles doc (read from the operator's Drive copy of the official documentation folder): the doc splits each route into a required section and an '(Optionals)' section; its 83 optional trainers (sea routes 105-109/124-134, Abandoned Ship) are absent from our imported 362-fight map except Triathlete Pablo (#1184, 'Route 126 (Optionals)'), now skippable and flagged for the importer to drop. `skip` therefore stays a narrow tool: the Pablo straggler, plus operator-confirmed REORDERABLE-required fights (Camper Gavi). The Brawly-split campaign numbers stand — every fight the lives walked is required.",
+			"why": "Settles the optional-fight-roster open question with source-of-truth provenance instead of curation. Also explains the model cleanly: the game's optional trainers are simply not the run's road, so they carry no orders, gate no caps, and cost nothing to ignore — exactly how the importer already treated them.",
+			"enforcedBy": [
+				"profiles/run-and-bun/index.js",
+				"run.js",
+				"run.test.js"
+			]
 		}
 	],
 	"open": [
@@ -312,8 +323,8 @@
 			"settledBy": "operator ruling"
 		},
 		{
-			"id": "optional-fight-roster",
-			"question": "Which fights besides Camper Gavi can genuinely be walked past and returned to? The route-book survey nominates Battle Girl Luna (#162, Route 117 grass) and Picnicker Bianca (#192, Routes 111/118) as Gavi-shaped guards of optional areas; each needs in-game confirmation before joining profiles/run-and-bun optionalFights. The official documentation folder is drive.google.com/drive/folders/1M-PdZrACBkGPpceTanCq_ltbGNT24lR8 (egress-blocked from this session; needs an operator to read it out). Supporting signal: the hack's changelog patches out accidentally-skippable trainers (e.g. Hiker Bryan), so intended-optional fights are few and deliberate.",
+			"id": "reorderable-fights",
+			"question": "Which required fights are reorderable like Camper Gavi (pass now, beat later)? The doc records rosters, not overworld movement. Gavi is operator-confirmed; Battle Girl Luna (#162) and Picnicker Bianca (#192) are structurally identical in the data and wait on the same confirmation.",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
 		}

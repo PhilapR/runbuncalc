@@ -71,18 +71,25 @@ module.exports = defineProfile({
 	oracle,
 
 	/**
-	 * Fights the road does NOT go through: the few trainers the game lets a
-	 * player walk past and return to later. Everything else on the run map is
-	 * required — a skip of a required fight is a recording error, not a
-	 * strategy — so the `skip` command refuses any trainer not named here.
+	 * Fights the `skip` command may walk past. Everything else on the run map
+	 * is required — and the author's own Trainer Battles doc confirms the map
+	 * IS the required road (provenance: source-of-truth): the doc splits each
+	 * route into a required section and an "(Optionals)" section, its 83
+	 * optional trainers are absent from our imported map save ONE straggler,
+	 * and every fight the campaign harness walks sits in a required section.
 	 *
-	 * Curated by operator route knowledge (provenance: observed). Camper Gavi
-	 * is confirmed: he stands in Route 110's optional grass guarding its
-	 * Electric encounter. Candidates from the route-book survey (Battle Girl
-	 * Luna #162 over Route 117, Picnicker Bianca #192 over Routes 111/118)
-	 * join this list only when confirmed the same way.
+	 * Two kinds of entry:
+	 *  - Triathlete Pablo (#1184): listed under "Route 126 (Optionals)" in the
+	 *    doc — the one optional trainer the map importer swept in. Skippable
+	 *    forever; the importer should drop him on the next regeneration.
+	 *  - Camper Gavi (#48): REQUIRED per the doc's Route 110 (South) section,
+	 *    but operator-confirmed reorderable — the game lets you pass him and
+	 *    come back, and he guards the Route 110 encounter while he stands.
+	 *    (Battle Girl Luna and Picnicker Bianca look Gavi-shaped in the data;
+	 *    the doc does not record overworld reorderability, so they wait on
+	 *    the same in-game confirmation Gavi got.)
 	 */
-	optionalFights: ['Camper Gavi'],
+	optionalFights: ['Camper Gavi', 'Triathlete Pablo'],
 
 	/**
    * Rule deltas against stock Generation 8.
