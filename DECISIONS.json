@@ -313,7 +313,7 @@
 		},
 		{
 			"id": "optional-fight-roster",
-			"question": "Which fights besides Camper Gavi can genuinely be walked past and returned to? The route-book survey nominates Battle Girl Luna (#162, Route 117 grass) and Picnicker Bianca (#192, Routes 111/118) as Gavi-shaped guards of optional areas; each needs in-game confirmation before joining profiles/run-and-bun optionalFights.",
+			"question": "Which fights besides Camper Gavi can genuinely be walked past and returned to? The route-book survey nominates Battle Girl Luna (#162, Route 117 grass) and Picnicker Bianca (#192, Routes 111/118) as Gavi-shaped guards of optional areas; each needs in-game confirmation before joining profiles/run-and-bun optionalFights. The official documentation folder is drive.google.com/drive/folders/1M-PdZrACBkGPpceTanCq_ltbGNT24lR8 (egress-blocked from this session; needs an operator to read it out). Supporting signal: the hack's changelog patches out accidentally-skippable trainers (e.g. Hiker Bryan), so intended-optional fights are few and deliberate.",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
 		}
