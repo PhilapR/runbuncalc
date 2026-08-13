@@ -256,6 +256,13 @@ function findMon(run, id) {
 	return run.box.find(mon => mon.id === id) || null;
 }
 
+/** An egg-line legality source. The oracle writes these as 'egg (Treecko)'
+ * — the base species rides in the string — so equality against 'egg' is the
+ * bug that once taught a giftling Leaf Storm for free. Prefix match only. */
+function isEggSource(source) {
+	return typeof source.source === 'string' && source.source.indexOf('egg') === 0;
+}
+
 function requireMon(run, id) {
 	const mon = findMon(run, id);
 	if (!mon) {
@@ -843,9 +850,9 @@ function learnable(run, id, options) {
 		// Available is not the same as free: when the only live route is the
 		// egg line, the move comes from the relearner and costs one Heart
 		// Scale — the teach command charges it, so this list must say so.
-		if (sources.every(s => s.source === 'egg' ||
+		if (sources.every(s => isEggSource(s) ||
 			(s.level !== undefined && s.level > atLevel)) &&
-			sources.some(s => s.source === 'egg')) {
+			sources.some(isEggSource)) {
 			entry.scale = true;
 		}
 		if (gated && soonest > atLevel) later.push(entry);
@@ -1891,8 +1898,8 @@ const COMMANDS = {
 		// route — a TM, a tutor, a level-up prompt at or below this level — costs
 		// nothing; the scale is the relearner's fee, not a tax on moves.
 		const relearnerOnly = verdict.sources.every(s =>
-			s.source === 'egg' || (s.level !== undefined && s.level > mon.level)) &&
-			verdict.sources.some(s => s.source === 'egg');
+			isEggSource(s) || (s.level !== undefined && s.level > mon.level)) &&
+			verdict.sources.some(isEggSource);
 		if (relearnerOnly) {
 			const held = run.bag[HEART_SCALE] || 0;
 			if (!held) {

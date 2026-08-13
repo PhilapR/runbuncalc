@@ -1862,3 +1862,22 @@ test('the field items standing on a location, with the log as the collection rec
 			'Mt. Pyre\'s ledger rows should stand on its floors');
 	}
 });
+
+test('an egg move is relearner-only: charged a Heart Scale, refused without one', () => {
+	// The oracle writes egg sources as 'egg (Treecko)' — base species in the
+	// string — and an equality check against 'egg' once taught a gift
+	// Treecko Leaf Storm for free. Prefix matching is the regression here.
+	let doc = run.createRun({name: 'egg', now: 't0', permadeath: true});
+	doc = run.apply(doc, {kind: 'catch', species: 'Treecko', level: 12});
+	assert.throws(() => run.apply(doc,
+		{kind: 'teach', id: 'mon-1', move: 'Leaf Storm', replace: 'Leer'}),
+	/teach: Leaf Storm is an egg move for Treecko — the relearner charges one Heart Scale/);
+	doc = run.apply(doc, {kind: 'acquire', item: 'Heart Scale'});
+	doc = run.apply(doc, {kind: 'teach', id: 'mon-1', move: 'Leaf Storm', replace: 'Leer'});
+	assert.match(doc.log[doc.log.length - 1].summary, /for one Heart Scale/);
+	assert.deepEqual(doc.bag, {}, 'the scale is spent');
+	// The learnable listing prices it the same way.
+	const listed = run.learnable(doc, 'mon-1');
+	assert.ok(listed.now.some(entry => !entry.scale),
+		'free routes (level-up, TM, tutor) stay unpriced');
+});
