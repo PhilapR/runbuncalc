@@ -1029,26 +1029,10 @@ test('position fast-forwards; a declared skip is the one way back', () => {
 	assert.throws(() => run.apply(state, {kind: 'beat', trainer: 'Bug Catcher Rick'}),
 		/already behind the run/);
 
-	// The declared skip: name the fight BEFORE walking past, and it stays on
-	// the road — listed first among what remains, like a held encounter.
-	let skipper = run.apply(fresh(), {kind: 'beat', trainer: 'Youngster Calvin'});
-	skipper = run.apply(skipper, {kind: 'skip', trainer: 'Bug Catcher Rick',
-		for: 'a flier for his bugs'});
-	assert.match(skipper.log[skipper.log.length - 1].summary,
-		/skipping Bug Catcher Rick \(#3\) — waiting for a flier for his bugs/);
-	skipper = run.apply(skipper, {kind: 'beat', trainer: 'Youngster Allen'});
-	assert.equal(skipper.position, 6);
-	assert.deepEqual(skipper.skipped, [3]);
-	assert.equal(run.upcoming(skipper, 1)[0].trainer, 'Bug Catcher Rick');
-	// Coming back settles the skip without moving the run.
-	skipper = run.apply(skipper, {kind: 'beat', trainer: 'Bug Catcher Rick'});
-	assert.match(skipper.log[skipper.log.length - 1].summary,
-		/skipped earlier — still at 6/);
-	assert.equal(skipper.skipped, undefined);
-	assert.equal(run.upcoming(skipper, 1)[0].trainer, 'Lass Tiana');
-	// A skip cannot be declared in hindsight, and never twice.
-	assert.throws(() => run.apply(skipper, {kind: 'skip', trainer: 'Youngster Calvin'}),
-		/already beaten — a skip is declared before walking past/);
+	// Most fights are REQUIRED — the road goes through them. Skipping one is
+	// a recording error, refused with the profile's own list of exceptions.
+	assert.throws(() => run.apply(state, {kind: 'skip', trainer: 'Bug Catcher Rick'}),
+		/skip: Bug Catcher Rick is a required fight — the road goes through them\. Only these can be delayed: Camper Gavi/);
 	assert.throws(() => run.apply(state, {kind: 'beat', trainer: 'Nobody At All'}),
 		/no fight named/);
 });
@@ -1056,13 +1040,21 @@ test('position fast-forwards; a declared skip is the one way back', () => {
 test('a skipped guard keeps his route closed until he actually falls', () => {
 	let state = run.apply(fresh({onePerRoute: true}),
 		{kind: 'skip', trainer: 'Camper Gavi', for: 'a box that can afford him'});
+	assert.match(state.log[state.log.length - 1].summary,
+		/skipping Camper Gavi \(#48\) — waiting for a box that can afford him/);
+	// Never twice, and the skipped fight leads the road once passed.
+	assert.throws(() => run.apply(state, {kind: 'skip', trainer: 'Camper Gavi'}),
+		/already being skipped/);
 	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'});
+	assert.deepEqual(state.skipped, [48]);
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi');
 	// Passed, not beaten: the electric grass he guards stays shut.
 	assert.throws(() => run.rollEncounter(state, {map: 'Route110'}),
 		/Route110 is not reachable yet — Camper Gavi \(#48\) guards it/);
-	// Beat him late and the route opens, position unmoved.
+	// Beat him late and the route opens, position unmoved, the debt settled.
 	state = run.apply(state, {kind: 'beat', trainer: 'Camper Gavi'});
 	assert.equal(state.position, 56);
+	assert.equal(state.skipped, undefined);
 	const rolled = run.rollEncounter(state, {map: 'Route110', random: () => 0.01});
 	assert.ok(rolled.species, 'the guarded route rolls once the guard falls');
 });

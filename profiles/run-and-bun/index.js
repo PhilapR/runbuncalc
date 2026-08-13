@@ -71,6 +71,20 @@ module.exports = defineProfile({
 	oracle,
 
 	/**
+	 * Fights the road does NOT go through: the few trainers the game lets a
+	 * player walk past and return to later. Everything else on the run map is
+	 * required — a skip of a required fight is a recording error, not a
+	 * strategy — so the `skip` command refuses any trainer not named here.
+	 *
+	 * Curated by operator route knowledge (provenance: observed). Camper Gavi
+	 * is confirmed: he stands in Route 110's optional grass guarding its
+	 * Electric encounter. Candidates from the route-book survey (Battle Girl
+	 * Luna #162 over Route 117, Picnicker Bianca #192 over Routes 111/118)
+	 * join this list only when confirmed the same way.
+	 */
+	optionalFights: ['Camper Gavi'],
+
+	/**
    * Rule deltas against stock Generation 8.
    *
    * Declarative here, implemented in `calc/src/mechanics/` and gated by

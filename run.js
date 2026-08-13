@@ -2185,6 +2185,14 @@ const COMMANDS = {
 			throw new Error(`skip: this run faces the ${run.rules.rival} rival; ` +
 				`${fight.trainer} is a fight it can never see`);
 		}
+		// Most fights are required — the road goes through them. Only the few
+		// the profile names as optional can be walked past and returned to.
+		const optional = getProfile(run.profileId).optionalFights || [];
+		if (!optional.includes(fight.trainer)) {
+			throw new Error(`skip: ${fight.trainer} is a required fight — the road goes ` +
+				'through them. Only these can be delayed: ' +
+				(optional.length ? optional.join(', ') : '(none declared for this profile)'));
+		}
 		const skipped = new Set(run.skipped || []);
 		if (skipped.has(fight.order)) {
 			throw new Error(`skip: ${fight.trainer} is already being skipped`);

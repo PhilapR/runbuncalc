@@ -271,9 +271,10 @@
 		{
 			"id": "skips-are-declared",
 			"date": "2026-08-12",
-			"ruling": "Position fast-forwards: beating a fight ahead means the road behind fell on the way — that is how a run is recorded. The one way back is a DECLARED skip (`skip <trainer> [--for reason]`), the fight-side twin of `hold`: the skipped fight stays on the road (listed first among what remains), whatever it guards stays closed — a route's unlock now keys on its guard fight actually falling, not on how far the road happens to reach — and beating it later settles the skip without moving the run. The die refuses unreachable routes by naming the guard: 'Route110 is not reachable yet — Camper Gavi (#48) guards it.'",
+			"ruling": "Position fast-forwards: beating a fight ahead means the road behind fell on the way — that is how a run is recorded. The one way back is a DECLARED skip (`skip <trainer> [--for reason]`), the fight-side twin of `hold`: the skipped fight stays on the road (listed first among what remains), whatever it guards stays closed — a route's unlock now keys on its guard fight actually falling, not on how far the road happens to reach — and beating it later settles the skip without moving the run. The die refuses unreachable routes by naming the guard: 'Route110 is not reachable yet — Camper Gavi (#48) guards it.' AMENDED same day: most fights are REQUIRED — the road goes through them. `skip` refuses any trainer the profile does not name in `optionalFights` (curated, provenance observed; currently Camper Gavi). A skip of a required fight is a recording error, not a strategy.",
 			"why": "Operator route knowledge: Camper Gavi is an optional early wall who guards the Route 110 electric grass, and the strategy of delaying him was UNREPRESENTABLE — position was monotonic, and skipping past #48 would have falsely opened the route he guards. Declared-not-implicit skips keep the fast-forward recording idiom intact for every existing run.",
 			"enforcedBy": [
+				"profiles/run-and-bun/index.js",
 				"run.js",
 				"run.test.js"
 			]
@@ -307,6 +308,12 @@
 		{
 			"id": "below-catch-level-relearn",
 			"question": "Does the relearner charge a Heart Scale for a level-up move BELOW the mon's catch level (never leveled through it)? Currently free, treating candy leveling's prompts as covering everything at or below the level.",
+			"raised": "2026-08-12",
+			"settledBy": "operator ruling"
+		},
+		{
+			"id": "optional-fight-roster",
+			"question": "Which fights besides Camper Gavi can genuinely be walked past and returned to? The route-book survey nominates Battle Girl Luna (#162, Route 117 grass) and Picnicker Bianca (#192, Routes 111/118) as Gavi-shaped guards of optional areas; each needs in-game confirmation before joining profiles/run-and-bun optionalFights.",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
 		}
