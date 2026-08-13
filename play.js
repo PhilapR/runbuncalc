@@ -86,6 +86,10 @@ function renderStatus(state) {
 	lines.push(summary.next ?
 		`next: #${summary.next.order} ${summary.next.trainer}` :
 		'next: the run map is finished');
+	if (summary.owed && summary.owed.length) {
+		lines.push(`owed: ${summary.owed.map(fight =>
+			`#${fight.order} ${fight.trainer}`).join(', ')} — delayed, still mandatory`);
+	}
 	if (summary.levelCap.cap !== null) {
 		lines.push(`level cap: ${summary.levelCap.cap} ` +
 			`(${summary.levelCap.trainer}'s ${summary.levelCap.ace})`);

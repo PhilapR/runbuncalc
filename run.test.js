@@ -1032,7 +1032,7 @@ test('position fast-forwards; a declared skip is the one way back', () => {
 	// Most fights are REQUIRED — the road goes through them. Skipping one is
 	// a recording error, refused with the profile's own list of exceptions.
 	assert.throws(() => run.apply(state, {kind: 'skip', trainer: 'Bug Catcher Rick'}),
-		/skip: Bug Catcher Rick is a required fight — the road goes through them\. Only these can be delayed: Camper Gavi/);
+		/skip: Bug Catcher Rick is a required fight — the road goes through them\. Only these can be walked past: Camper Gavi, Triathlete Pablo/);
 	assert.throws(() => run.apply(state, {kind: 'beat', trainer: 'Nobody At All'}),
 		/no fight named/);
 });
@@ -1051,10 +1051,18 @@ test('a skipped guard keeps his route closed until he actually falls', () => {
 	// Passed, not beaten: the electric grass he guards stays shut.
 	assert.throws(() => run.rollEncounter(state, {map: 'Route110'}),
 		/Route110 is not reachable yet — Camper Gavi \(#48\) guards it/);
+	// While he stands the debt is VISIBLE: mandatory-but-delayed is owed.
+	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 48}]);
+	// An OPTIONAL skip is different: never owed, and simply not the road.
+	state = run.apply(state, {kind: 'skip', trainer: 'Triathlete Pablo'});
+	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 48}],
+		'an optional skip is not a debt');
+	assert.ok(!run.upcoming(state, 500).some(fight => fight.trainer === 'Triathlete Pablo'),
+		'a skipped optional fight leaves the road entirely');
 	// Beat him late and the route opens, position unmoved, the debt settled.
 	state = run.apply(state, {kind: 'beat', trainer: 'Camper Gavi'});
 	assert.equal(state.position, 56);
-	assert.equal(state.skipped, undefined);
+	assert.deepEqual(run.summarize(state).owed, []);
 	const rolled = run.rollEncounter(state, {map: 'Route110', random: () => 0.01});
 	assert.ok(rolled.species, 'the guarded route rolls once the guard falls');
 });

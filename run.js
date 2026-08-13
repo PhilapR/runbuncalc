@@ -563,13 +563,27 @@ function splitPrep(run, options) {
 
 /** The fights immediately ahead of where the run has got to. */
 function upcoming(run, count) {
-	// Unbeaten, not merely ahead: a skipped fight (Gavi, held for later) is
-	// still on the road, and it sorts FIRST — it is the nearest thing left
-	// standing, and coming back for it is why it was skippable at all.
+	// Unbeaten, not merely ahead: a DELAYED fight (Gavi, mandatory but
+	// walked past) is still on the road and sorts FIRST — it is owed, and
+	// the nearest thing left standing. A skipped OPTIONAL fight is different:
+	// never owed, so once declared skipped it is simply not the road.
 	const beaten = beatenOrders(run);
+	const skipped = new Set(run.skipped || []);
+	const optional = getProfile(run.profileId).optionalFights || [];
 	return visibleFights(run)
-		.filter(fight => !beaten.has(fight.order))
+		.filter(fight => !beaten.has(fight.order) &&
+			!(skipped.has(fight.order) && optional.includes(fight.trainer)))
 		.slice(0, count || 5);
+}
+
+/** The debts: mandatory fights walked past and not yet settled. */
+function owedFights(run) {
+	const skipped = new Set(run.skipped || []);
+	if (!skipped.size) return [];
+	const optional = getProfile(run.profileId).optionalFights || [];
+	return visibleFights(run)
+		.filter(fight => skipped.has(fight.order) && !optional.includes(fight.trainer))
+		.map(fight => ({trainer: fight.trainer, order: fight.order}));
 }
 
 /**
@@ -2185,13 +2199,18 @@ const COMMANDS = {
 			throw new Error(`skip: this run faces the ${run.rules.rival} rival; ` +
 				`${fight.trainer} is a fight it can never see`);
 		}
-		// Most fights are required — the road goes through them. Only the few
-		// the profile names as optional can be walked past and returned to.
-		const optional = getProfile(run.profileId).optionalFights || [];
-		if (!optional.includes(fight.trainer)) {
+		// Most fights are required IN PLACE — the road goes through them. The
+		// profile names the exceptions: DELAYABLE fights are mandatory but
+		// reorderable (they stay owed until beaten), OPTIONAL ones are never
+		// owed at all.
+		const profile = getProfile(run.profileId);
+		const delayable = profile.delayableFights || [];
+		const optional = profile.optionalFights || [];
+		if (!delayable.includes(fight.trainer) && !optional.includes(fight.trainer)) {
+			const legal = delayable.concat(optional);
 			throw new Error(`skip: ${fight.trainer} is a required fight — the road goes ` +
-				'through them. Only these can be delayed: ' +
-				(optional.length ? optional.join(', ') : '(none declared for this profile)'));
+				'through them. Only these can be walked past: ' +
+				(legal.length ? legal.join(', ') : '(none declared for this profile)'));
 		}
 		const skipped = new Set(run.skipped || []);
 		if (skipped.has(fight.order)) {
@@ -2774,6 +2793,8 @@ function summarize(run) {
 		}, encounterRules(run)),
 		split: split(run),
 		next: ahead.length ? {trainer: ahead[0].trainer, order: ahead[0].order} : null,
+		// Mandatory fights walked past and not settled: the run's open debts.
+		owed: owedFights(run),
 		levelCap: cap,
 		boxed: alive.length,
 		lost: run.box.length - alive.length,

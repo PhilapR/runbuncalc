@@ -282,9 +282,10 @@
 		{
 			"id": "the-map-is-the-required-road",
 			"date": "2026-08-12",
-			"ruling": "The run map contains only required fights, per the author's own Trainer Battles doc (read from the operator's Drive copy of the official documentation folder): the doc splits each route into a required section and an '(Optionals)' section; its 83 optional trainers (sea routes 105-109/124-134, Abandoned Ship) are absent from our imported 362-fight map except Triathlete Pablo (#1184, 'Route 126 (Optionals)'), now skippable and flagged for the importer to drop. `skip` therefore stays a narrow tool: the Pablo straggler, plus operator-confirmed REORDERABLE-required fights (Camper Gavi). The Brawly-split campaign numbers stand — every fight the lives walked is required.",
+			"ruling": "The run map contains only required fights, per the author's own Trainer Battles doc (read from the operator's Drive copy of the official documentation folder): the doc splits each route into a required section and an '(Optionals)' section; its 83 optional trainers (sea routes 105-109/124-134, Abandoned Ship) are absent from our imported 362-fight map except Triathlete Pablo (#1184, 'Route 126 (Optionals)'), now skippable and flagged for the importer to drop. `skip` therefore stays a narrow tool: the Pablo straggler, plus operator-confirmed REORDERABLE-required fights (Camper Gavi). The Brawly-split campaign numbers stand — every fight the lives walked is required. AMENDED same day (operator): Camper Gavi is MANDATORY BUT DELAYABLE — the profile now splits the walk-past roster into delayableFights (mandatory, reorderable, OWED until beaten; status prints the debt) and optionalFights (never owed; a skipped optional fight leaves the road entirely).",
 			"why": "Settles the optional-fight-roster open question with source-of-truth provenance instead of curation. Also explains the model cleanly: the game's optional trainers are simply not the run's road, so they carry no orders, gate no caps, and cost nothing to ignore — exactly how the importer already treated them.",
 			"enforcedBy": [
+				"play.js",
 				"profiles/run-and-bun/index.js",
 				"run.js",
 				"run.test.js"
