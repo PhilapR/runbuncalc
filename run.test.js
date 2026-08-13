@@ -1019,15 +1019,52 @@ test('nuzlocke: the encounter list is a forecast — odds, dupes, and a used rou
 	assert.deepEqual(here.used, {species: 'Poochyena', level: 3});
 });
 
-test('beating a fight moves the run forward, and only forward', () => {
+test('position fast-forwards; a declared skip is the one way back', () => {
 	let state = run.apply(fresh(), {kind: 'beat', trainer: 'Youngster Calvin'});
 	assert.equal(state.position, 0);
 	assert.equal(run.upcoming(state, 1)[0].trainer, 'Bug Catcher Rick');
-	state = run.apply(state, {kind: 'beat', trainer: 'Bug Catcher Rick'});
-	assert.throws(() => run.apply(state, {kind: 'beat', trainer: 'Youngster Calvin'}),
+	// Beating ahead is the fast-forward: the road behind fell on the way,
+	// and walking it back is refused — that is how a run is recorded.
+	state = run.apply(state, {kind: 'beat', trainer: 'Youngster Allen'});
+	assert.throws(() => run.apply(state, {kind: 'beat', trainer: 'Bug Catcher Rick'}),
 		/already behind the run/);
+
+	// The declared skip: name the fight BEFORE walking past, and it stays on
+	// the road — listed first among what remains, like a held encounter.
+	let skipper = run.apply(fresh(), {kind: 'beat', trainer: 'Youngster Calvin'});
+	skipper = run.apply(skipper, {kind: 'skip', trainer: 'Bug Catcher Rick',
+		for: 'a flier for his bugs'});
+	assert.match(skipper.log[skipper.log.length - 1].summary,
+		/skipping Bug Catcher Rick \(#3\) — waiting for a flier for his bugs/);
+	skipper = run.apply(skipper, {kind: 'beat', trainer: 'Youngster Allen'});
+	assert.equal(skipper.position, 6);
+	assert.deepEqual(skipper.skipped, [3]);
+	assert.equal(run.upcoming(skipper, 1)[0].trainer, 'Bug Catcher Rick');
+	// Coming back settles the skip without moving the run.
+	skipper = run.apply(skipper, {kind: 'beat', trainer: 'Bug Catcher Rick'});
+	assert.match(skipper.log[skipper.log.length - 1].summary,
+		/skipped earlier — still at 6/);
+	assert.equal(skipper.skipped, undefined);
+	assert.equal(run.upcoming(skipper, 1)[0].trainer, 'Lass Tiana');
+	// A skip cannot be declared in hindsight, and never twice.
+	assert.throws(() => run.apply(skipper, {kind: 'skip', trainer: 'Youngster Calvin'}),
+		/already beaten — a skip is declared before walking past/);
 	assert.throws(() => run.apply(state, {kind: 'beat', trainer: 'Nobody At All'}),
 		/no fight named/);
+});
+
+test('a skipped guard keeps his route closed until he actually falls', () => {
+	let state = run.apply(fresh({onePerRoute: true}),
+		{kind: 'skip', trainer: 'Camper Gavi', for: 'a box that can afford him'});
+	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'});
+	// Passed, not beaten: the electric grass he guards stays shut.
+	assert.throws(() => run.rollEncounter(state, {map: 'Route110'}),
+		/Route110 is not reachable yet — Camper Gavi \(#48\) guards it/);
+	// Beat him late and the route opens, position unmoved.
+	state = run.apply(state, {kind: 'beat', trainer: 'Camper Gavi'});
+	assert.equal(state.position, 56);
+	const rolled = run.rollEncounter(state, {map: 'Route110', random: () => 0.01});
+	assert.ok(rolled.species, 'the guarded route rolls once the guard falls');
 });
 
 test('undo replays the log without its last entry', () => {
@@ -1798,11 +1835,28 @@ test('the roll draws the route\'s encounter from the same tables a catch is chec
 	// Neither does a method whose HM has not been handed over (rock smash
 	// opens at fight #139; a fresh run stands at the very start).
 	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
-	const rocky = oracle.maps().find(map =>
-		map.tables.some(table => table.method === 'rock-smash') &&
-		map.tables.some(table => table.method === 'walk'));
-	assert.ok(rocky, 'the game has rock-smash tables');
+	// An unreachable route refuses BEFORE its methods do, naming its guard —
+	// so the method probe needs a map whose guard falls before the HM gate.
+	const rocky = oracle.maps().find(map => {
+		if (!map.tables.some(table => table.method === 'rock-smash') ||
+			!map.tables.some(table => table.method === 'walk')) return false;
+		const when = oracle.availabilityOf(map.map);
+		return when && when.opensAt !== null && when.opensAt > 0 && when.opensAt < 100;
+	});
+	assert.ok(rocky, 'the game has an early rock-smash map');
 	assert.throws(() => run.rollEncounter(state, {map: rocky.name, method: 'rock-smash'}),
+		/is not reachable yet — .* guards it/);
+	let past = state;
+	const guardName = (() => {
+		try {
+			run.rollEncounter(state, {map: rocky.name, method: 'rock-smash'});
+			return null;
+		} catch (error) {
+			return error.message.match(/— (.*) \(#\d+\) guards it/)[1];
+		}
+	})();
+	past = run.apply(past, {kind: 'beat', trainer: guardName});
+	assert.throws(() => run.rollEncounter(past, {map: rocky.name, method: 'rock-smash'}),
 		/roll: "rock-smash" is not open/);
 
 	// Under a dupes clause the roll re-rolls dupes by NOT rolling them: catch
@@ -1887,6 +1941,7 @@ test('a Static lead pulls the grass: Togedemaru becomes a coin flip, not a 1-in-
 	// Static lead exists, because the pull makes half of all encounters
 	// Electric — and Togedemaru is the cave's only Electric slot.
 	let doc = run.createRun({name: 'static', now: 't0', permadeath: true});
+	doc = run.apply(doc, {kind: 'beat', trainer: 'Lady Cindy'});
 	doc = run.apply(doc, {kind: 'catch', species: 'Electrike', map: 'Route110',
 		level: 12, ability: 'Static'});
 	doc = run.apply(doc, {kind: 'party', ids: ['mon-1']});
@@ -1905,12 +1960,14 @@ test('a Static lead pulls the grass: Togedemaru becomes a coin flip, not a 1-in-
 	// No Static lead: no pull draw is consumed at all — the same sequence
 	// that pulled above rolls the plain table here.
 	let plain = run.createRun({name: 'plain', now: 't0', permadeath: true});
+	plain = run.apply(plain, {kind: 'beat', trainer: 'Lady Cindy'});
 	plain = run.apply(plain, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
 	plain = run.apply(plain, {kind: 'party', ids: ['mon-1']});
 	const unpulled = run.rollEncounter(plain, {map: 'GraniteCave1F', random: seq([0.1, 0])});
 	assert.equal(unpulled.species, 'Phanpy');
 	// An ability the run never declared cannot pull: face value, like all of it.
 	let silent = run.createRun({name: 'silent', now: 't0', permadeath: true});
+	silent = run.apply(silent, {kind: 'beat', trainer: 'Lady Cindy'});
 	silent = run.apply(silent, {kind: 'catch', species: 'Electrike', map: 'Route110', level: 12});
 	silent = run.apply(silent, {kind: 'party', ids: ['mon-1']});
 	const undeclared = run.rollEncounter(silent, {map: 'GraniteCave1F', random: seq([0.1, 0])});

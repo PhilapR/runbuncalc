@@ -304,6 +304,48 @@ function visibleFights(run) {
 }
 
 /**
+ * Every fight this run has beaten, as a set of orders.
+ *
+ * `position` is the fast-forward: beating a fight ahead means the run
+ * traveled there, and everything on the road behind it fell on the way —
+ * that is how a run is recorded ("I'm at Cycling Road now"). The one
+ * exception is DECLARED: a fight in `skipped` was walked past on purpose
+ * (Camper Gavi, delayed until the box can afford him), exactly as `hold`
+ * declares a delayed encounter. Beaten = at-or-behind position, minus the
+ * skips still outstanding.
+ */
+function beatenOrders(run) {
+	const skipped = new Set(run.skipped || []);
+	return new Set(visibleFights(run)
+		.filter(fight => fight.order <= run.position && !skipped.has(fight.order))
+		.map(fight => fight.order));
+}
+
+/**
+ * Is a map with this unlock anchor open — keyed on its GUARD FIGHT being
+ * beaten, not on how far the road happens to reach. The anchor reproduces
+ * the old `position + 1 >= opensAt` under in-order play (the guard is the
+ * first fight at order >= opensAt - 1); the difference appears exactly when
+ * a fight is skipped: passing Camper Gavi does not open the route he
+ * guards.
+ */
+function anchorOpen(run, opensAt) {
+	if (opensAt === undefined || opensAt === null || opensAt <= 0) return true;
+	const guard = visibleFights(run)
+		.filter(fight => fight.order >= opensAt - 1)
+		.reduce((min, fight) => min === null || fight.order < min.order ? fight : min, null);
+	if (!guard) return true;
+	return beatenOrders(run).has(guard.order);
+}
+
+/** The guard fight behind an unlock anchor, for refusals that name it. */
+function anchorGuard(run, opensAt) {
+	return visibleFights(run)
+		.filter(fight => fight.order >= opensAt - 1)
+		.reduce((min, fight) => min === null || fight.order < min.order ? fight : min, null);
+}
+
+/**
  * Which boss tier a fight belongs to, per the profile's declared patterns.
  *
  * 'boss' ends a split; 'story' is a mandatory fight inside one. Both set the
@@ -487,7 +529,7 @@ function splitPrep(run, options) {
 				opensAt: item.opensAt,
 				// Not yet reachable pickups are listed with their order, so the
 				// sheet reads as an itinerary rather than a scavenger hunt.
-				reachable: run.position + 1 >= item.opensAt,
+				reachable: anchorOpen(run, item.opensAt),
 			});
 		}
 	}
@@ -521,8 +563,12 @@ function splitPrep(run, options) {
 
 /** The fights immediately ahead of where the run has got to. */
 function upcoming(run, count) {
+	// Unbeaten, not merely ahead: a skipped fight (Gavi, held for later) is
+	// still on the road, and it sorts FIRST — it is the nearest thing left
+	// standing, and coming back for it is why it was skippable at all.
+	const beaten = beatenOrders(run);
 	return visibleFights(run)
-		.filter(fight => fight.order > run.position)
+		.filter(fight => !beaten.has(fight.order))
 		.slice(0, count || 5);
 }
 
@@ -755,7 +801,7 @@ function unusedRoutes(run) {
 		}
 		if (opensAt !== undefined) {
 			entry.opensAt = opensAt;
-			entry.open = run.position + 1 >= opensAt;
+			entry.open = anchorOpen(run, opensAt);
 		}
 		// Where a catch happened is a fact of the log, not of the ruleset, so it
 		// is reported for every run — only its consequences are nuzlocke-gated.
@@ -1420,6 +1466,16 @@ function rollEncounter(run, options) {
 		throw new Error(`roll: ${found.name} already gave its encounter` +
 			(found.used.species ? ` (${found.used.species})` : ' — it was spent'));
 	}
+	// The die only rolls where the run can stand: a route whose guard fight
+	// is unbeaten refuses with the guard's name — Route 110's electric grass
+	// is exactly what Camper Gavi is standing in front of.
+	const when = profile.oracle.availabilityOf && profile.oracle.availabilityOf(found.map);
+	if (when && when.opensAt !== null && !anchorOpen(run, when.opensAt)) {
+		const guard = anchorGuard(run, when.opensAt);
+		throw new Error(`roll: ${found.name} is not reachable yet — ` +
+			(guard ? `${guard.trainer} (#${guard.order}) guards it` :
+				`it opens at fight #${when.opensAt}`));
+	}
 	const methodOpen = method => {
 		if (!profile.oracle.methodOpensAt) return true;
 		const gate = profile.oracle.methodOpensAt(method);
@@ -1547,7 +1603,7 @@ function fieldItems(run, map) {
 				kind: item.kind,
 				location: item.location,
 				opensAt: item.opensAt,
-				open: item.opensAt !== null && run.position + 1 >= item.opensAt,
+				open: item.opensAt !== null && anchorOpen(run, item.opensAt),
 				collected,
 			};
 		});
@@ -2097,12 +2153,50 @@ const COMMANDS = {
 			throw new Error(`beat: this run faces the ${run.rules.rival} rival; ` +
 				`${fight.trainer} is a fight it can never see`);
 		}
+		// Position fast-forwards (beating ahead means the road behind fell on
+		// the way); the one way BACK is through a declared skip — beating a
+		// skipped fight settles the debt without moving the run.
+		const skipped = new Set(run.skipped || []);
+		if (skipped.has(fight.order)) {
+			skipped.delete(fight.order);
+			run.skipped = [...skipped].sort((a, b) => a - b);
+			if (!run.skipped.length) delete run.skipped;
+			return `beat ${fight.trainer} (#${fight.order}, skipped earlier — ` +
+				`still at ${run.position})`;
+		}
 		if (fight.order <= run.position) {
 			throw new Error(`beat: ${fight.trainer} is at ${fight.order}, ` +
 				`already behind the run at ${run.position}`);
 		}
 		run.position = fight.order;
 		return `beat ${fight.trainer} (now at ${fight.order})`;
+	},
+
+	/**
+	 * Walk past a fight ON PURPOSE — Gavi held until the box can afford him.
+	 * The declared twin of `hold`: the fight stays on the road (upcoming
+	 * lists it first once passed), whatever it guards stays closed, and
+	 * beating it later settles the skip without moving the run.
+	 */
+	skip(run, command) {
+		const planner = require('./planner');
+		const fight = planner.getFight(command.trainer, run.profileId);
+		if (isExcludedVariant(run, fight.trainer)) {
+			throw new Error(`skip: this run faces the ${run.rules.rival} rival; ` +
+				`${fight.trainer} is a fight it can never see`);
+		}
+		const skipped = new Set(run.skipped || []);
+		if (skipped.has(fight.order)) {
+			throw new Error(`skip: ${fight.trainer} is already being skipped`);
+		}
+		if (fight.order <= run.position) {
+			throw new Error(`skip: ${fight.trainer} is at ${fight.order}, ` +
+				`already beaten — a skip is declared before walking past`);
+		}
+		skipped.add(fight.order);
+		run.skipped = [...skipped].sort((a, b) => a - b);
+		return `skipping ${fight.trainer} (#${fight.order})` +
+			(command.for ? ` — waiting for ${command.for}` : '');
 	},
 
 	/**

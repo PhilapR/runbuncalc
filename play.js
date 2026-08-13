@@ -574,6 +574,11 @@ const SUBCOMMANDS = {
 		};
 	},
 
+	skip(state, args) {
+		return {command: {kind: 'skip', trainer: args.positional.join(' '),
+			for: args.flags.for}};
+	},
+
 	use(state, args) {
 		return {
 			command: {
@@ -856,7 +861,8 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   faint <id> [--to Trainer] [--move M]            lose one, with its epitaph
   release <id>                                    let one go
   graveyard                                       the lost, and what did it
-  beat <trainer>                                  move the run forward
+  beat <trainer>                                  move the run forward (a skipped fight settles in place)
+  skip <trainer> [--for R]                        walk past a fight on purpose — it stays on the road, guards stay up
   next [--count N] / plan [trainer]               what is ahead, and what it does
   matrix [trainer]                                the whole box against theirs, both ways
   rank [trainer]                                  every six from the box, ranked — the top ones PLAYED
