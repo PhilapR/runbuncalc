@@ -1145,7 +1145,9 @@
 
 	function paintRoll() {
 		$('#runbun-run-roll-text').text('A wild ' + rolled.species + ' L' + rolled.level +
-			' appeared! (' + rolled.method + ' · ' + rolled.chance + '%)');
+			' appeared! (' + rolled.method + ' · ' + rolled.chance + '%)' +
+			(rolled.pull ? ' — ' + rolled.pull.ability + ' pulled the ' +
+				rolled.pull.type + '-type out of the grass!' : ''));
 		$('#runbun-run-roll-result').prop('hidden', false);
 	}
 

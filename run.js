@@ -1445,10 +1445,38 @@ function rollEncounter(run, options) {
 		throw new Error(`roll: everything ${method} turns up on ${found.name} is a dupe — ` +
 			'roll another method or another route');
 	}
-	const total = pool.reduce((sum, mon) => sum + mon.chance, 0);
+
+	// THE LEAD'S ABILITY PULLS THE GRASS — the mainline mechanic the delay
+	// strategies are built on: a Static lead makes half of all encounters
+	// Electric (Magnet Pull, Steel), when the table has any. This is why a
+	// player HOLDS Granite Cave until they own a Static lead: Togedemaru's
+	// 5% slot becomes a coin flip. The ability is the run's own record (the
+	// catch declared it); no declared ability, no pull — face value, as
+	// everything here is.
+	const PULLS = {static: 'Electric', magnetpull: 'Steel'};
+	const lead = run.party.length ?
+		run.box.find(mon => mon.id === run.party[0] && mon.status !== 'dead') : null;
+	const pullType = lead && lead.ability ?
+		PULLS[String(lead.ability).toLowerCase().replace(/[^a-z]/g, '')] : null;
+	let pulled = false;
+	let pool2 = pool;
+	if (pullType) {
+		const calc = require('./calc');
+		const gen = calc.Generations.get(8);
+		const typed = pool.filter(mon => {
+			const species = gen.species.get(calc.toID(mon.species));
+			return species && species.types.includes(pullType);
+		});
+		if (typed.length && random() < 0.5) {
+			pool2 = typed;
+			pulled = true;
+		}
+	}
+
+	const total = pool2.reduce((sum, mon) => sum + mon.chance, 0);
 	let draw = random() * total;
-	let slot = pool[pool.length - 1];
-	for (const mon of pool) {
+	let slot = pool2[pool2.length - 1];
+	for (const mon of pool2) {
 		draw -= mon.chance;
 		if (draw < 0) { slot = mon; break; }
 	}
@@ -1461,6 +1489,7 @@ function rollEncounter(run, options) {
 		chance: slot.chance,
 		map: found.name,
 		owned: !!slot.owned,
+		...(pulled ? {pull: {ability: lead.ability, type: pullType}} : {}),
 	};
 }
 

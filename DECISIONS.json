@@ -257,6 +257,16 @@
 				"battle-driver.js",
 				"battle-driver.test.js"
 			]
+		},
+		{
+			"id": "the-lead-pulls-the-grass",
+			"date": "2026-08-12",
+			"ruling": "The party lead's declared ability modifies the die, exactly as the games do it: a Static lead makes half of all encounters Electric-type, Magnet Pull the same for Steel, when the method's table has any such slot (dupes still skipped). The pull reads the run's own record — no declared ability, no pull — and the roll reply names it when it fires. This is the mechanic the route strategies are built on: Granite Cave held until a Static lead exists turns Togedemaru's 5% slot into a coin flip (measured 52% over 2,000 seeded rolls).",
+			"why": "Operator route knowledge, verified against the data: Route 110's all-Electric table opens at fight #48 (Camper Gavi guards it — the availability layer already knew), and the hold feature already models the delay; the pull was the missing physics. Modeled as mainline Emerald behavior until someone shows Run & Bun changes the pull rates.",
+			"enforcedBy": [
+				"run.js",
+				"run.test.js"
+			]
 		}
 	],
 	"open": [

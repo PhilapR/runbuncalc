@@ -1881,3 +1881,38 @@ test('an egg move is relearner-only: charged a Heart Scale, refused without one'
 	assert.ok(listed.now.some(entry => !entry.scale),
 		'free routes (level-up, TM, tutor) stay unpriced');
 });
+
+test('a Static lead pulls the grass: Togedemaru becomes a coin flip, not a 1-in-20', () => {
+	// The delay strategy the route guide teaches: HOLD Granite Cave until a
+	// Static lead exists, because the pull makes half of all encounters
+	// Electric — and Togedemaru is the cave's only Electric slot.
+	let doc = run.createRun({name: 'static', now: 't0', permadeath: true});
+	doc = run.apply(doc, {kind: 'catch', species: 'Electrike', map: 'Route110',
+		level: 12, ability: 'Static'});
+	doc = run.apply(doc, {kind: 'party', ids: ['mon-1']});
+	const seq = values => {
+		let i = 0;
+		return () => values[i++];
+	};
+	// First draw under one-half: the pull fires and the reply says who did it.
+	const pulled = run.rollEncounter(doc, {map: 'GraniteCave1F', random: seq([0.1, 0, 0])});
+	assert.equal(pulled.species, 'Togedemaru');
+	assert.deepEqual(pulled.pull, {ability: 'Static', type: 'Electric'});
+	// First draw over one-half: the table rolls exactly as printed.
+	const missed = run.rollEncounter(doc, {map: 'GraniteCave1F', random: seq([0.9, 0, 0])});
+	assert.equal(missed.species, 'Phanpy');
+	assert.equal(missed.pull, undefined);
+	// No Static lead: no pull draw is consumed at all — the same sequence
+	// that pulled above rolls the plain table here.
+	let plain = run.createRun({name: 'plain', now: 't0', permadeath: true});
+	plain = run.apply(plain, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	plain = run.apply(plain, {kind: 'party', ids: ['mon-1']});
+	const unpulled = run.rollEncounter(plain, {map: 'GraniteCave1F', random: seq([0.1, 0])});
+	assert.equal(unpulled.species, 'Phanpy');
+	// An ability the run never declared cannot pull: face value, like all of it.
+	let silent = run.createRun({name: 'silent', now: 't0', permadeath: true});
+	silent = run.apply(silent, {kind: 'catch', species: 'Electrike', map: 'Route110', level: 12});
+	silent = run.apply(silent, {kind: 'party', ids: ['mon-1']});
+	const undeclared = run.rollEncounter(silent, {map: 'GraniteCave1F', random: seq([0.1, 0])});
+	assert.equal(undeclared.pull, undefined);
+});

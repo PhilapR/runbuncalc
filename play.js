@@ -358,7 +358,9 @@ const SUBCOMMANDS = {
 		const fileFlag = file === DEFAULT_FILE ? '' : ` --file ${file}`;
 		return {message: [
 			`A wild ${rolled.species} L${rolled.level} appeared! ` +
-				`(${rolled.method} · ${rolled.chance}%)`,
+				`(${rolled.method} · ${rolled.chance}%)` +
+				(rolled.pull ? `  — ${rolled.pull.ability} pulled the ` +
+					`${rolled.pull.type}-type out of the grass!` : ''),
 			`  keep it:     node play.js catch ${rolled.species} --level ${rolled.level} ` +
 				`--map ${map}${rolled.method === 'walk' ? '' : ` --method ${rolled.method}`}${fileFlag}`,
 			`  got away:    node play.js spend ${map}${fileFlag}`,
