@@ -12,9 +12,25 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const childProcess = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'dist-worker', 'worker.js');
+
+function git(args) {
+	return childProcess.execFileSync('git', args, {cwd: ROOT, encoding: 'utf8'}).trim();
+}
+
+function buildMetadata() {
+	const revision = git(['rev-parse', 'HEAD']);
+	const dirty = git(['status', '--porcelain', '--untracked-files=all']);
+	if (process.env.RUNBUN_REQUIRE_CLEAN === '1' && dirty) {
+		throw new Error('exact Worker build requires a clean git worktree');
+	}
+	const model = JSON.parse(fs.readFileSync(
+		path.join(ROOT, 'profiles', 'run-and-bun', 'rebuild-model.json'), 'utf8'));
+	return {revision, modelVersion: model.schemaVersion};
+}
 
 function embeddedFiles() {
 	const files = {};
@@ -46,6 +62,7 @@ function loadEsbuild() {
 async function main() {
 	const esbuild = loadEsbuild();
 	const files = embeddedFiles();
+	const metadata = buildMetadata();
 	const shims = {
 		fs: `
 			var FILES = ${JSON.stringify(files)};
@@ -87,6 +104,8 @@ async function main() {
 			'process.env.NODE_ENV': '"production"',
 			__dirname: '"/app"',
 			__filename: '"/app/worker.js"',
+			__RUNBUN_BUILD_SHA__: JSON.stringify(metadata.revision),
+			__RUNBUN_MODEL_VERSION__: JSON.stringify(metadata.modelVersion),
 		},
 		plugins: [{
 			name: 'node-shims',
@@ -104,6 +123,7 @@ async function main() {
 	});
 	const size = fs.statSync(OUT).size;
 	console.log(`worker bundled: ${OUT} (${(size / 1024 / 1024).toFixed(1)} MB)`);
+	console.log(`worker evidence: revision=${metadata.revision} model=${metadata.modelVersion}`);
 }
 
 main().catch(error => {

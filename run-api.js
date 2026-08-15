@@ -16,6 +16,7 @@
 
 const runtime = require('./run');
 const battleDriver = require('./battle-driver');
+const gameRuntimeAdapter = require('./game-runtime-adapter');
 
 function refusal(message, code) {
 	const error = new Error(message);
@@ -130,12 +131,20 @@ function guarded(work) {
 }
 
 const api = {
+	replayEvents(payload) {
+		return guarded(() => {
+			const replay = gameRuntimeAdapter.replay((payload || {}).events,
+				(payload || {}).initialRun ? {initialRun: payload.initialRun} : undefined);
+			return Object.assign({}, replay, {status: runtime.summarize(replay.run)});
+		});
+	},
 	new(payload) {
 		payload = payload || {};
 		try {
 			return {
 				run: runtime.createRun({
 					profileId: payload.profile,
+					attemptId: payload.attemptId,
 					name: payload.name,
 					levelCap: payload.levelCap,
 					permadeath: payload.permadeath,
@@ -186,6 +195,9 @@ const api = {
 			return {
 				status: runtime.summarize(state),
 				box: state.box,
+				// Reachable optional work before the NEXT fight. The runtime owns
+				// unlock truth; the browser only decides how compactly to show it.
+				opportunities: runtime.preFightOpportunities(state),
 				// The story spine travels with every status: "where am I" over a
 				// 362-battle map is answered in milestones, not a position integer.
 				milestones: runtime.milestones(state),
@@ -360,6 +372,7 @@ const api = {
  * transport and forgotten by the other.
  */
 const ROUTES = {
+	'/run/replay-events': api.replayEvents,
 	'/run/new': api.new,
 	'/run/apply': api.apply,
 	'/run/undo': api.undo,

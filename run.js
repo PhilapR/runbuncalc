@@ -201,6 +201,9 @@ function createRun(options) {
 	return {
 		version: VERSION,
 		profileId: profile.id,
+		// Assigned by the owning client. Older imported runs legitimately lack
+		// one; the history layer derives a stable legacy id when they are archived.
+		...(opts.attemptId ? {attemptId: String(opts.attemptId)} : {}),
 		name: opts.name || 'Untitled run',
 		createdAt: opts.now || null,
 		updatedAt: opts.now || null,
@@ -1150,21 +1153,30 @@ function upgradeCandidates(run, mon, spec, base, order) {
 	const planner = require('./planner');
 	const profile = getProfile(run.profileId);
 	const list = [];
+	let undatedMovesExcluded = 0;
 
 	// Candidates are drawn at the SPEC's level — the projected cap — not the
 	// box's: the board is scored there, and the free candy makes those moves
 	// teachable before the fight.
 	for (const entry of learnable(run, mon.id, {atLevel: spec.level}).now) {
-		// An HM the story has not handed over is not a teach anyone can do —
-		// Surf three fights in was this advisor's other lie. Only the HM spine
-		// is dated; TMs carry no gate in the source and stay on the table.
+		const levelRoute = entry.sources.some(source =>
+			source.level !== undefined && source.level <= spec.level);
+		const eggRoute = entry.sources.some(isEggSource);
+		const teachableRoute = entry.sources.some(source => source.source === 'teachable');
+		// Only HMs currently have dated story gates. An undated TM/tutor is a
+		// legal possibility, not proof the player can use it before this fight.
+		// Keep it out of "What to change now" unless a level-up or paid egg route
+		// independently makes the same move available.
 		const gate = profile.oracle.moveObtainableAt ?
 			profile.oracle.moveObtainableAt(entry.move) : null;
-		if (gate !== null && order !== undefined && gate > order) continue;
-		// An egg move rides the relearner and costs a Heart Scale: without one
-		// in the bag it is not a change the player can make, and with one the
-		// price is named — it competes with spending that scale on an IV.
-		if (entry.scale && !run.bag[HEART_SCALE]) continue;
+		const datedTeachRoute = teachableRoute && gate !== null &&
+			(order === undefined || gate <= order);
+		const paidEggRoute = eggRoute && !!run.bag[HEART_SCALE];
+		if (!levelRoute && !datedTeachRoute && !paidEggRoute) {
+			if (teachableRoute && gate === null) undatedMovesExcluded += 1;
+			continue;
+		}
+		const spendsScale = !levelRoute && !datedTeachRoute && paidEggRoute;
 		const moves = spec.moves.slice();
 		let detail = entry.move;
 		if (moves.length >= 4) {
@@ -1174,7 +1186,7 @@ function upgradeCandidates(run, mon, spec, base, order) {
 		} else {
 			moves.push(entry.move);
 		}
-		if (entry.scale) detail += ' (one Heart Scale)';
+		if (spendsScale) detail += ' (one Heart Scale)';
 		list.push({kind: 'teach', detail, spec: Object.assign({}, spec, {moves})});
 	}
 
@@ -1248,7 +1260,7 @@ function upgradeCandidates(run, mon, spec, base, order) {
 			});
 		}
 	}
-	return list;
+	return {list, undatedMovesExcluded};
 }
 
 /**
@@ -1295,10 +1307,13 @@ function adviseUpgrades(run, trainer) {
 
 	const upgrades = [];
 	let considered = 0;
+	let undatedMovesExcluded = 0;
 	run.party.forEach((id, slot) => {
 		const mon = requireMon(run, id);
 		const base = baseline.grid.map(cell => cell.versus[slot]);
-		for (const candidate of upgradeCandidates(run, mon, specs[slot], base, fight.order)) {
+		const candidates = upgradeCandidates(run, mon, specs[slot], base, fight.order);
+		undatedMovesExcluded += candidates.undatedMovesExcluded;
+		for (const candidate of candidates.list) {
 			considered += 1;
 			const row = planner.matchup({
 				trainer: named,
@@ -1334,6 +1349,11 @@ function adviseUpgrades(run, trainer) {
 			cap,
 			from: run.party.some((id, slot) => specs[slot].level > requireMon(run, id).level) ?
 				'projected' : 'current',
+		},
+		availability: {
+			undatedMovesExcluded,
+			note: undatedMovesExcluded ?
+				'Undated TM and tutor options are withheld until their locations are sourced.' : null,
 		},
 		upgrades: upgrades.slice(0, ADVICE_LIMIT),
 	};
@@ -1628,6 +1648,92 @@ function fieldItems(run, map) {
 				collected,
 			};
 		});
+}
+
+/** Do two location labels describe the same playable place? */
+function samePlace(left, right) {
+	const a = normPlace(left);
+	const b = normPlace(right);
+	if (!a || !b) return false;
+	return a === b ||
+		(a.startsWith(b) && !/^[0-9]/.test(a.slice(b.length))) ||
+		(b.startsWith(a) && !/^[0-9]/.test(b.slice(a.length)));
+}
+
+/**
+ * The optional work that is genuinely reachable before the next fight.
+ *
+ * This is a small status projection, not a second progression engine. Routes
+ * come from `unusedRoutes`, item reachability comes from the same anchor used
+ * by the guided pickup view, and move timing is a profile capability. That last
+ * distinction matters: Run & Bun knows TM/tutor legality but has not imported
+ * their locations, so an honest card reports the gap rather than calling every
+ * legal move available now.
+ */
+function preFightOpportunities(run) {
+	const next = upcoming(run, 1)[0] || null;
+	const empty = {
+		before: next ? {trainer: next.trainer, order: next.order} : null,
+		encounters: {count: 0, mode: encounterRules(run).onePerRoute ? 'unspent' : 'open', routes: []},
+		items: {count: 0, pickups: []},
+		moves: {status: 'unknown', available: [], note: 'Move unlock timing is not available for this profile.'},
+	};
+	if (!next) return empty;
+
+	const rules = encounterRules(run);
+	const routes = unusedRoutes(run).routes
+		.filter(route => route.open && (!rules.onePerRoute || !route.used) &&
+			(!route.held || route.held.ready))
+		.map(route => ({
+			name: route.name,
+			// The browser map selector stores authored map names. Area-grouped
+			// routes expose their member names; a single-map route's display name
+			// is already the selector value.
+			map: route.maps ? route.maps[0] : route.name,
+			...(route.held ? {held: route.held} : {}),
+		}));
+	empty.encounters = {
+		count: routes.length,
+		mode: rules.onePerRoute ? 'unspent' : 'open',
+		routes,
+	};
+
+	const profile = getProfile(run.profileId);
+	if (profile.oracle.fieldItems) {
+		const acquired = {};
+		for (const entry of run.log) {
+			if (!entry.command || entry.command.kind !== 'acquire') continue;
+			acquired[entry.command.item] =
+				(acquired[entry.command.item] || 0) + (entry.command.count || 1);
+		}
+		const seen = {};
+		const maps = profile.oracle.maps();
+		const pickups = profile.oracle.fieldItems()
+			.map(item => {
+				seen[item.name] = seen[item.name] || 0;
+				const collected = (acquired[item.name] || 0) > seen[item.name];
+				seen[item.name] += 1;
+				if (collected || item.opensAt === null || !anchorOpen(run, item.opensAt)) return null;
+				const found = maps.find(map => samePlace(map.name, item.location) ||
+					(profile.oracle.areaOf && samePlace(profile.oracle.areaOf(map.map) || '', item.location)));
+				return {
+					name: item.name,
+					kind: item.kind,
+					location: item.location,
+					opensAt: item.opensAt,
+					...(found ? {map: found.name} : {}),
+				};
+			})
+			.filter(Boolean)
+			.sort((a, b) => a.opensAt - b.opensAt ||
+				a.location.localeCompare(b.location) || a.name.localeCompare(b.name));
+		empty.items = {count: pickups.length, pickups};
+	}
+
+	if (profile.oracle.moveAvailability) {
+		empty.moves = profile.oracle.moveAvailability();
+	}
+	return empty;
 }
 
 function checkEncounter(profile, command) {
@@ -2350,6 +2456,7 @@ function undo(run) {
 	if (!run.log.length) throw new Error('nothing to undo');
 	const fresh = createRun({
 		profileId: run.profileId,
+		attemptId: run.attemptId,
 		name: run.name,
 		now: run.createdAt,
 		levelCap: run.rules.levelCap,
@@ -2822,4 +2929,5 @@ module.exports = {
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
 	adviseUpgrades, adviseCatches, rankParties, fightPlaybook, summarize, rollEncounter, fieldItems,
+	preFightOpportunities,
 };

@@ -743,6 +743,11 @@ test('a run is created, advanced and summarized entirely through the request', a
 	assert.equal(status.status, 200);
 	assert.equal(status.body.box.length, 1);
 	assert.equal(status.body.upcoming[0].trainer, 'Youngster Calvin');
+	assert.equal(status.body.opportunities.before.trainer, 'Youngster Calvin');
+	assert.equal(status.body.opportunities.encounters.count, 4);
+	assert.deepEqual(status.body.opportunities.items.pickups.map(item => item.name),
+		['Potion', 'Oran Berry']);
+	assert.equal(status.body.opportunities.moves.status, 'undated');
 
 	// The story spine travels with every status, and how far ahead to look is
 	// the client's call, bounded.
@@ -1071,9 +1076,11 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 	const top = advice.body.upgrades[0];
 	assert.equal(top.kind, 'teach');
 	assert.equal(top.id, 'mon-1');
-	assert.equal(top.detail, 'Play Rough');
+	assert.equal(top.detail, 'Bite');
+	assert.ok(advice.body.availability.undatedMovesExcluded > 0,
+		'undated TM and tutor routes must not masquerade as early-game access');
 	assert.deepEqual(Object.keys(top.delta).sort(), ['damage', 'koConceded', 'koGained']);
-	assert.equal(top.delta.koGained, 1);
+	assert.ok(top.delta.damage > 0, 'the reachable move must improve the board');
 
 	// A misnamed trainer keeps its near-misses, like every other run endpoint.
 	const unknown = await requestJson('/run/advise', {run, trainer: 'Brawly'});

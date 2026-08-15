@@ -352,9 +352,9 @@ test('advise ranks single changes against a fight without writing', () => {
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'advise wrote to the save');
 	assert.match(advice, /Youngster Calvin \(#0\) — \d+ single changes weighed/);
 	assert.match(advice, /party at the cap it is fought under: L12/);
-	// Poochyena knows only Tackle; Play Rough is the change that flips a cell,
-	// and it leads the list with the KO it gains.
-	assert.match(advice, /^ {2}mon-1 {3}Poochyena {5}teach {7}Play Rough.*\+1 KO {2}\+\d+\.\d\d bars$/m);
+	// Poochyena knows only Tackle. Undated TM/tutor access is not treated as
+	// available before Calvin, so the advisor leads with the level-up move Bite.
+	assert.match(advice, /^ {2}mon-1 {3}Poochyena {5}teach {7}Bite.*\+\d+\.\d\d bars$/m);
 });
 
 test('the recreation verbs: a starter opens the run, a roll suggests, a spend burns', () => {

@@ -81,6 +81,27 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 	assert.deepEqual(first.reply.deaths, []);
 });
 
+test('move forecasts stay on max HP and a miss says that it missed', () => {
+	const doc = docWith([{species: 'Mudkip', map: undefined, level: 5}]);
+	const opened = driver.start(doc, 'Youngster Calvin', 0);
+	const firstWaterGun = opened.actions.find(action => action.move === 'Water Gun');
+	assert.ok(firstWaterGun && firstWaterGun.damage,
+		'Water Gun should carry a damage forecast');
+
+	const first = driver.act(opened.battle, {kind: 'move', move: 'Water Gun'});
+	const secondWaterGun = first.actions.find(action => action.move === 'Water Gun');
+	assert.deepEqual(
+		{min: secondWaterGun.damage.min, max: secondWaterGun.damage.max},
+		{min: firstWaterGun.damage.min, max: firstWaterGun.damage.max},
+		'the forecast is a share of max HP, not a growing share of what remains');
+	assert.equal(secondWaterGun.damage.guaranteedKO, true,
+		'the separate KO reading should still reflect the HP remaining');
+
+	const second = driver.act(first.battle, {kind: 'move', move: 'Water Gun'});
+	assert.ok(second.events.some(event => /Mudkip's Water Gun missed!/.test(event.text)),
+		'a failed accuracy roll must not be narrated as an unexplained move use');
+});
+
 test('a mid-turn faint pauses for the replacement, and the epitaph survives to the end', () => {
 	// One hopeless lead, one bystander: the lead falls, the driver must pause
 	// on phase "replace" (never auto-picking the player's next), and when the

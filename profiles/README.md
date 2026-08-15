@@ -69,6 +69,13 @@ its KO and speed calls agree by construction with every other number the
 product shows, and `run.boxMatrix` is the thin L6 wrapper that feeds it the
 projected box.
 
+The L0-L6 stack deliberately stops at a playthrough companion. It does not
+model overworld maps, tilesets, scripts, rendering, emulator observation, or a
+full game runtime. The versioned extension path for those domains is documented
+in [`RUNBUN_REBUILD_MODEL.md`](../RUNBUN_REBUILD_MODEL.md), with a machine-
+readable Run & Bun contract in
+[`run-and-bun/rebuild-model.json`](run-and-bun/rebuild-model.json).
+
 `run.adviseUpgrades` is the rule at its sharpest. Ranking changes needs a
 learnset, a bag and an IV table — three things the planner must never learn
 about — so the candidate builds are enumerated at L6 and each is handed DOWN as

@@ -55,13 +55,13 @@
 		},
 		run: {
 			hash: '#runbun-run',
-			label: 'My Run',
+			label: 'Play',
 			chips: [
-				{text: 'Gen 8', kind: 'brand'},
-				{text: 'Saved in this browser', kind: 'warn'},
+				{text: 'Run & Bun', kind: 'brand'},
+				{text: 'Local save', kind: 'warn'},
 				{text: 'ROM-checked', kind: 'muted'}
 			],
-			note: 'A playthrough: box, party, bag and position. Catches are checked against the game\'s own encounter tables; nothing is stored on the server.'
+			note: 'Encounters · roster · fights · history'
 		},
 		replay: {
 			hash: '#runbun-replay',
@@ -76,6 +76,12 @@
 	};
 
 	var MODE_ORDER = ['calc', 'sets', 'ai-debug', 'battle', 'planner', 'run', 'replay'];
+	var NAV_ORDER = ['run', 'calc', 'tools'];
+	var NAV_DEFAULT_MODE = {
+		run: 'run',
+		calc: 'calc',
+		tools: 'sets'
+	};
 
 	function $(id) {
 		return document.getElementById(id);
@@ -94,8 +100,15 @@
 		if (h === '#runbun-planner' || h === '#planner') return 'planner';
 		if (h === '#runbun-run' || h === '#run' || h === '#my-run') return 'run';
 		if (h === '#runbun-replay' || h === '#replay') return 'replay';
-		if (h === '#calc' || h === '' || h === '#') return 'calc';
-		return 'calc';
+		if (h === '#calc') return 'calc';
+		if (h === '' || h === '#') return 'run';
+		return 'run';
+	}
+
+	function navForMode(modeId) {
+		if (modeId === 'calc') return 'calc';
+		if (modeId === 'sets' || modeId === 'ai-debug') return 'tools';
+		return 'run';
 	}
 
 	function targetIdForMode(modeId) {
@@ -138,29 +151,28 @@
 		MODE_ORDER.forEach(function (id) {
 			var region = $(targetIdForMode(id));
 			if (!region) return;
-			// Scroll-based shell keeps every mode visible; do not aria-hide siblings
-			// (they remain interactive and must stay in the accessibility tree).
+			// Only one working surface is present at a time. Related run and tool
+			// subviews still share one primary-navigation destination.
 			if (id === modeId) region.classList.add('rb-mode-active');
 			else region.classList.remove('rb-mode-active');
 		});
 	}
 
-	function setTabState(modeId) {
-		MODE_ORDER.forEach(function (id) {
-			var tab = $('rb-tab-' + id);
-			if (!tab) return;
-			var selected = id === modeId;
-			tab.setAttribute('aria-selected', selected ? 'true' : 'false');
-			if (selected) tab.setAttribute('aria-current', 'page');
-			else tab.removeAttribute('aria-current');
-			tab.tabIndex = selected ? 0 : -1;
+	function setNavState(modeId) {
+		var activeNav = navForMode(modeId);
+		NAV_ORDER.forEach(function (id) {
+			var link = $('rb-nav-' + id);
+			if (!link) return;
+			if (id === activeNav) link.setAttribute('aria-current', 'page');
+			else link.removeAttribute('aria-current');
 		});
 	}
 
 	function activateMode(modeId, options) {
 		var opts = options || {};
 		var mode = MODES[modeId] || MODES.calc;
-		setTabState(modeId);
+		document.body.setAttribute('data-rb-mode', navForMode(modeId));
+		setNavState(modeId);
 		renderContext(modeId);
 		setActiveRegion(modeId);
 		if (opts.updateHash !== false) {
@@ -207,35 +219,13 @@
 		});
 	}
 
-	function bindTabs() {
-		MODE_ORDER.forEach(function (id) {
-			var tab = $('rb-tab-' + id);
-			if (!tab) return;
-			tab.addEventListener('click', function (event) {
+	function bindPrimaryNav() {
+		NAV_ORDER.forEach(function (navId) {
+			var link = $('rb-nav-' + navId);
+			if (!link) return;
+			link.addEventListener('click', function (event) {
 				event.preventDefault();
-				activateMode(id, {scroll: true, updateHash: true});
-			});
-			tab.addEventListener('keydown', function (event) {
-				var key = event.key;
-				if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'Home' &&
-					key !== 'End' && key !== 'Enter' && key !== ' ') {
-					return;
-				}
-				event.preventDefault();
-				if (key === 'Enter' || key === ' ') {
-					activateMode(id, {scroll: true, updateHash: true, focusPanel: true});
-					return;
-				}
-				var idx = MODE_ORDER.indexOf(id);
-				var nextIdx = idx;
-				if (key === 'ArrowLeft') nextIdx = (idx + MODE_ORDER.length - 1) % MODE_ORDER.length;
-				if (key === 'ArrowRight') nextIdx = (idx + 1) % MODE_ORDER.length;
-				if (key === 'Home') nextIdx = 0;
-				if (key === 'End') nextIdx = MODE_ORDER.length - 1;
-				var nextId = MODE_ORDER[nextIdx];
-				var nextTab = $('rb-tab-' + nextId);
-				if (nextTab) nextTab.focus();
-				activateMode(nextId, {scroll: true, updateHash: true});
+				activateMode(NAV_DEFAULT_MODE[navId], {scroll: true, updateHash: true});
 			});
 		});
 	}
@@ -279,7 +269,7 @@
 	function init() {
 		if (!$('rb-shell')) return;
 		bindThemeSync();
-		bindTabs();
+		bindPrimaryNav();
 		bindSkipLink();
 		window.addEventListener('hashchange', onHashChange);
 		var initial = modeFromHash(window.location.hash);

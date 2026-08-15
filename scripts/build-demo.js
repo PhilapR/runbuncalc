@@ -202,13 +202,16 @@ body { background: var(--rb-surface, #fff); }
 <div class="demo-shell">
 	<h1>Run &amp; Bun — the recreation</h1>
 	<p>The whole engine runs in this page: roll encounters off the real tables, fight the
-	trainers turn by turn against the game's own AI. The run saves in this browser only —
-	use Export to keep a copy. Built from the same modules the server serves.</p>
+	trainers turn by turn against the game's own AI. Attempts save privately in this browser
+	and export as portable archives. Built from the same modules the server serves.</p>
 </div>
 ${panelMarkup()}
 <script>${read('src/js/vendor/jquery-1.9.1.min.js')}</script>
 <script>${engine}</script>
 <script>${FETCH_SHIM}</script>
+<script>${read('src/js/runtime_contract.js')}</script>
+<script>${read('src/js/attempt_store.js')}</script>
+<script>${read('src/js/run_history.js')}</script>
 <script>${read('src/js/run_panel.js')}</script>
 </body>
 </html>

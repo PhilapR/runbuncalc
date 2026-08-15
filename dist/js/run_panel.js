@@ -5,7 +5,7 @@
  * The Fight Planner asks a question about one moment. This asks the question a
  * player actually lives with: here is my box, here is where I am, what happens
  * next. It is the same document `play.js` keeps in a file, kept in
- * `localStorage` instead.
+ * private browser storage instead.
  *
  * THE SERVER HOLDS NO SAVE FILES. Every call posts the whole run and gets a new
  * one back. That keeps this panel a thin client — it holds no rules, no scores
@@ -25,7 +25,9 @@
  *   - 40+ milestones: the spine strip is "where am I" at a glance
  *
  * The one thing this file owns is persistence: read on load, write only what
- * the server accepted, never write a run the server refused.
+ * the server accepted, never write a run the server refused. IndexedDB is the
+ * durable authority; localStorage is only a compatibility mirror and the
+ * browser's cross-tab notification channel.
  */
 (function () {
 	'use strict';
@@ -43,6 +45,25 @@
 	var busy = false;
 	/** Raw text of a save that would not parse, held until the player deals with it. */
 	var corruptSave = null;
+	/** Versioned IndexedDB attempt ledger. Null means compatibility fallback. */
+	var attemptStore = window.RunBunAttemptStore ?
+		window.RunBunAttemptStore.getDefault() : null;
+	/** Optimistic revision of the active IndexedDB head. */
+	var currentRevision = null;
+	/** Where startup found the active attempt, for an honest load receipt. */
+	var restoredFrom = null;
+
+	function newAttemptId() {
+		if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+			return window.crypto.randomUUID();
+		}
+		return 'attempt-' + Date.now().toString(36) + '-' +
+			Math.random().toString(36).slice(2, 10);
+	}
+
+	function newCommandId() {
+		return 'command-' + newAttemptId();
+	}
 
 	function status(message, kind) {
 		$('#runbun-run-status').text(message || '').attr('data-kind', kind || '');
@@ -65,15 +86,16 @@
 	 * Persist only what the server accepted. A refused command must leave the
 	 * save exactly as it was — the same property `play.js` keeps for its file.
 	 */
-	function persist() {
+	function mirror(run) {
 		try {
-			window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+			if (run) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(run));
+			else window.localStorage.removeItem(STORAGE_KEY);
 		} catch (error) {
-			status('Could not save to this browser: ' + error.message, 'error');
+			throw new Error('Could not write the compatibility save: ' + error.message);
 		}
 	}
 
-	function restore() {
+	function restoreLegacy() {
 		var saved;
 		try {
 			saved = window.localStorage.getItem(STORAGE_KEY);
@@ -91,6 +113,100 @@
 			corruptSave = saved;
 			return null;
 		}
+	}
+
+	/**
+	 * Commit an accepted run to the event ledger before exposing its localStorage
+	 * mirror. A stale tab therefore fails at the revision boundary instead of
+	 * publishing a plausible save that silently drops another tab's command.
+	 */
+	function persist(kind, payload, commandId) {
+		if (!state) return Promise.reject(new Error('There is no active run to save.'));
+		if (!attemptStore) {
+			mirror(state);
+			return Promise.resolve({revision: null, fallback: true});
+		}
+		return attemptStore.commit({
+			run: state,
+			expectedRevision: currentRevision === null ? 0 : currentRevision,
+			commandId: commandId || newCommandId(),
+			event: {
+				kind: kind,
+				payload: payload || {},
+				observedAt: new Date().toISOString(),
+				source: {
+					kind: kind === 'run.migrated' ? 'migration' :
+						(kind === 'run.imported' ? 'import' : 'manual'),
+					providerId: 'runbun-browser',
+					confidence: 1,
+				},
+			},
+		}).then(function (receipt) {
+			currentRevision = receipt.revision;
+			mirror(state);
+			return receipt;
+		}).catch(function (error) {
+			if (error && error.code === 'REVISION_CONFLICT') throw error;
+			// A browser can disable or evict IndexedDB independently of localStorage.
+			// Keep the accepted run recoverable, but say that durability degraded.
+			attemptStore = null;
+			mirror(state);
+			status('Durable storage became unavailable; kept a compatibility copy. ' +
+				error.message, 'error');
+			return {revision: null, fallback: true};
+		});
+	}
+
+	function restoreDurable() {
+		if (!attemptStore) {
+			state = restoreLegacy();
+			restoredFrom = state ? 'compatibility storage' : null;
+			return Promise.resolve(state);
+		}
+		return attemptStore.loadActive().then(function (head) {
+			if (head) {
+				state = head.run;
+				currentRevision = head.revision;
+				restoredFrom = 'durable browser storage';
+				mirror(state);
+				return state;
+			}
+			var legacy = restoreLegacy();
+			if (!legacy) return null;
+			if (!legacy.attemptId) legacy.attemptId = newAttemptId();
+			state = legacy;
+			return persist('run.migrated', {run: legacy},
+				'migrate-' + legacy.attemptId).then(function () {
+				restoredFrom = 'migrated browser storage';
+				return state;
+			});
+		}).catch(function (error) {
+			attemptStore = null;
+			state = restoreLegacy();
+			restoredFrom = state ? 'compatibility storage' : null;
+			if (!state && !corruptSave) {
+				status('Durable browser storage could not open: ' + error.message, 'error');
+			}
+			return state;
+		});
+	}
+
+	function recoverConflict(error) {
+		if (!error || error.code !== 'REVISION_CONFLICT' || !attemptStore) {
+			return Promise.reject(error);
+		}
+		return attemptStore.loadActive().then(function (head) {
+			if (!head) throw error;
+			state = head.run;
+			currentRevision = head.revision;
+			mirror(state);
+			showRun();
+			return render().then(function () {
+				status('The run moved in another tab. Reloaded the committed version; ' +
+					'try that action again.', 'error');
+				return false;
+			});
+		});
 	}
 
 	/**
@@ -264,11 +380,15 @@
 		var next = null;
 		spine.forEach(function (milestone) {
 			if (!milestone.beaten && !next) next = milestone;
+			var isNext = !milestone.beaten && milestone === next;
 			$spine.append($('<li></li>')
 				.attr('title', '#' + milestone.order + '  ' + milestone.trainer)
+				.attr('aria-label', '#' + milestone.order + ' ' + milestone.trainer +
+					(milestone.beaten ? ', beaten' : isNext ? ', next milestone' : ', ahead'))
+				.attr('aria-current', isNext ? 'step' : null)
 				.toggleClass('is-beaten', milestone.beaten)
 				.toggleClass('is-boss', milestone.tier === 'boss')
-				.toggleClass('is-next', !milestone.beaten && milestone === next));
+				.toggleClass('is-next', isNext));
 		});
 		var done = spine.filter(function (m) { return m.beaten; }).length;
 		$('#runbun-run-spine-note').text(spine.length ?
@@ -280,25 +400,22 @@
 	// -------------------------------------------------------------- box + party
 
 	/**
-	 * The box, at any size: filterable, party pinned on top in lead order, the
-	 * lost below a divider — present but out of the way, because a nuzlocke's
-	 * graveyard is part of the record and not part of the working set.
+	 * The reserve, at any size: filterable bench first, losses below a divider.
+	 * Active party members already live immediately above this section; drawing
+	 * them here again buried the actual bench and graveyard under a duplicate six.
 	 */
 	function renderBox(payload) {
 		var filter = String($('#runbun-run-box-filter').val() || '').toLowerCase();
 		var cap = payload.status.levelCap && payload.status.levelCap.cap;
 		var $box = $('#runbun-run-box').empty();
+		var $losses = $('#runbun-run-losses').empty();
 
 		var alive = payload.box.filter(function (mon) { return mon.status !== 'dead'; });
 		var lost = payload.box.filter(function (mon) { return mon.status === 'dead'; });
-		$('#runbun-run-box-counts').text(alive.length + ' alive' +
-			(lost.length ? ' · ' + lost.length + ' lost' : ''));
-
 		var party = state.party;
-		var ordered = party
-			.map(findBoxed)
-			.filter(Boolean)
-			.concat(alive.filter(function (mon) { return party.indexOf(mon.id) === -1; }));
+		var reserve = alive.filter(function (mon) { return party.indexOf(mon.id) === -1; });
+		$('#runbun-run-box-counts').text(reserve.length + ' reserve' +
+			(lost.length ? ' · ' + lost.length + ' lost' : ''));
 
 		function matches(mon) {
 			if (!filter) return true;
@@ -306,15 +423,17 @@
 		}
 
 		function row(mon) {
-			var slot = party.indexOf(mon.id);
 			var staged = stagedParty.indexOf(mon.id) !== -1;
+			var label = monLabel(mon);
 			var $row = $('<li class="runbun-run-mon"></li>')
 				.attr('data-id', mon.id)
-				.toggleClass('is-party', slot !== -1)
 				.toggleClass('is-lost', mon.status === 'dead');
 			$row.append($('<span class="runbun-run-mon-slot"></span>')
-				.text(mon.status === 'dead' ? '†' : slot === -1 ? '' : String(slot + 1)));
-			var $name = $('<span class="runbun-run-mon-name"></span>').text(monLabel(mon));
+				.text(mon.status === 'dead' ? '†' : ''));
+			var $name = $('<button type="button" class="runbun-run-mon-name runbun-run-mon-select"></button>')
+				.attr('data-id', mon.id)
+				.attr('aria-label', 'Inspect ' + label)
+				.text(label);
 			if (cap && mon.level >= cap) {
 				$name.append($('<span class="runbun-run-at-cap"></span>').text('at cap'));
 			}
@@ -322,7 +441,10 @@
 			if (mon.status !== 'dead') {
 				$row.append($('<button type="button" class="runbun-run-add"></button>')
 					.attr('data-id', mon.id)
-					.attr('title', staged ? 'Remove from party' : 'Add to party')
+					.attr('title', staged ? 'Remove ' + label + ' from staged party' :
+						'Add ' + label + ' to staged party')
+					.attr('aria-label', staged ? 'Remove ' + label + ' from staged party' :
+						'Add ' + label + ' to staged party')
 					.toggleClass('is-staged', staged)
 					.text(staged ? '−' : '+'));
 			}
@@ -339,41 +461,63 @@
 			return $row;
 		}
 
-		ordered.filter(matches).forEach(function (mon) { $box.append(row(mon)); });
+		var reserveShown = reserve.filter(matches);
+		reserveShown.forEach(function (mon) { $box.append(row(mon)); });
 		var lostShown = lost.filter(matches);
-		if (lostShown.length) {
-			$box.append($('<li class="runbun-run-box-divider" aria-hidden="true"></li>').text('lost'));
-			lostShown.forEach(function (mon) { $box.append(row(mon)); });
+		lostShown.forEach(function (mon) { $losses.append(row(mon)); });
+		$('#runbun-run-losses-heading, #runbun-run-losses').prop('hidden', !lostShown.length);
+		if (!reserveShown.length) {
+			$box.append($('<li class="runbun-run-box-empty"></li>').text(filter ?
+				'No PC Pokémon matches this filter.' :
+				'Every living Pokémon is in the party.'));
 		}
 	}
 
 	/**
-	 * Six slots, lead first. Order is built by the order of adding and adjusted
-	 * with the up arrows — click order IS lead order, which is the entire reason
-	 * this is not a multi-select.
+	 * Filled slots, lead first, plus one compact count of the room remaining.
+	 * Order is built by adding and adjusted with the up arrows — click order IS
+	 * lead order, which is the entire reason this is not a multi-select.
 	 */
 	function renderPartyStrip() {
 		var $strip = $('#runbun-run-party-strip').empty();
-		for (var i = 0; i < PARTY_LIMIT; i++) {
-			var id = stagedParty[i];
-			if (!id) {
-				$strip.append($('<li class="runbun-run-party-slot is-empty"></li>')
-					.text(i === 0 ? 'lead — empty' : '—'));
-				continue;
-			}
+		stagedParty.forEach(function (id, i) {
 			var mon = findBoxed(id);
+			var label = mon ? monLabel(mon) : id;
 			var $slot = $('<li class="runbun-run-party-slot"></li>').attr('data-id', id);
 			$slot.append($('<span class="runbun-run-party-order"></span>').text(String(i + 1)));
-			$slot.append($('<span class="runbun-run-party-name"></span>')
-				.text(mon ? monLabel(mon) : id));
+			var $copy = $('<div class="runbun-run-party-copy"></div>');
+			$copy.append($('<span class="runbun-run-party-role"></span>').text(i === 0 ? 'Lead' : 'Party'));
+			$copy.append($('<button type="button" class="runbun-run-party-name runbun-run-party-select"></button>')
+				.attr('data-id', id)
+				.attr('aria-label', 'Inspect ' + label)
+				.text(label));
+			if (mon) {
+				$copy.append($('<span class="runbun-run-party-meta"></span>').text(
+					(mon.item || 'No held item') + ' · ' + mon.moves.length +
+						(mon.moves.length === 1 ? ' move' : ' moves')));
+			}
+			$slot.append($copy);
 			if (i > 0) {
-				$slot.append($('<button type="button" class="runbun-run-party-up" title="Move toward lead"></button>')
+				$slot.append($('<button type="button" class="runbun-run-party-up"></button>')
+					.attr('title', 'Move ' + label + ' toward lead')
+					.attr('aria-label', 'Move ' + label + ' toward lead')
 					.attr('data-id', id).text('▴'));
 			}
-			$slot.append($('<button type="button" class="runbun-run-party-rm" title="Remove"></button>')
+			$slot.append($('<button type="button" class="runbun-run-party-rm"></button>')
+				.attr('title', 'Remove ' + label + ' from party')
+				.attr('aria-label', 'Remove ' + label + ' from party')
 				.attr('data-id', id).text('×'));
 			$strip.append($slot);
+		});
+		var open = PARTY_LIMIT - stagedParty.length;
+		if (open) {
+			$strip.append($('<li class="runbun-run-party-slot is-empty is-summary"></li>')
+				.text(open + ' open slot' + (open === 1 ? '' : 's') +
+					(stagedParty.length ? '' : ' · choose from the roster')));
 		}
+		var changed = !state || stagedParty.length !== state.party.length ||
+			stagedParty.some(function (id, index) { return state.party[index] !== id; });
+		$('.runbun-run-party-commit').prop('hidden', !changed);
 	}
 
 	// -------------------------------------------------------------- split sheet
@@ -501,12 +645,240 @@
 		}
 	}
 
+	/**
+	 * The companion's game loop in one card.
+	 *
+	 * A newly started run already owns a starter, but it lives in the roster
+	 * until the player chooses a lead. Presenting an enabled-looking fight CTA
+	 * in that state made the first click a refusal and hid the useful action in
+	 * a collapsed section. This projection names the actual next decision and
+	 * makes the product's out-of-battle shortcuts explicit: party members are
+	 * projected to the active cap and trainer battles start from fresh HP.
+	 */
+	function renderNextStep(payload) {
+		var summary = payload.status;
+		var next = summary.next;
+		var partySize = state.party.length;
+		var cap = summary.levelCap && summary.levelCap.cap;
+		var alive = payload.box.filter(function (mon) { return mon.status !== 'dead'; });
+		var firstAvailable = alive.filter(function (mon) {
+			return state.party.indexOf(mon.id) === -1;
+		})[0] || alive[0];
+
+		$('#runbun-run-ready-party').text(partySize ?
+			partySize + ' / ' + PARTY_LIMIT + ' · lead set' : 'Not set');
+		$('#runbun-run-ready-level').text(cap === null || cap === undefined ?
+			'Manual levels' : 'Auto to L' + cap);
+		$('#runbun-run-ready-recovery').text('Fresh at fight start');
+
+		var $play = $('#runbun-run-play');
+		var $plan = $('#runbun-run-plan');
+		var $advise = $('#runbun-run-advise');
+		var $rank = $('#runbun-run-rank');
+		if (!next) {
+			$('#runbun-run-next-title').text('The run map is complete');
+			$('#runbun-run-next-detail').text('All required fights cleared');
+			$play.text('Run complete').prop('disabled', true)
+				.attr('title', 'No required trainer remains');
+			$plan.prop('disabled', true);
+			$advise.prop('disabled', true);
+			$rank.prop('disabled', true);
+			return;
+		}
+
+		if (!partySize) {
+			$('#runbun-run-next-title').text('Build a party for ' + next.trainer);
+			$('#runbun-run-next-detail').text(
+				'0 / ' + PARTY_LIMIT + ' ready' +
+				(firstAvailable ? ' · ' + monLabel(firstAvailable) + ' available' : ''));
+			$play.text('Choose your party').prop('disabled', false)
+				.attr('title', 'Open the roster and choose a lead before fighting');
+			$plan.prop('disabled', true);
+			$advise.prop('disabled', true);
+			$rank.prop('disabled', !alive.length);
+			return;
+		}
+
+		$('#runbun-run-next-title').text('Face ' + next.trainer);
+		$('#runbun-run-next-detail').text(
+			partySize + ' / ' + PARTY_LIMIT + ' ready · ' +
+			(cap === null || cap === undefined ? 'recorded levels' : 'L' + cap) +
+			' · fresh');
+		$play.text('Fight ' + next.trainer).prop('disabled', false)
+			.attr('title', 'Play the next trainer fight turn by turn');
+		$plan.prop('disabled', false);
+		$advise.prop('disabled', false);
+		$rank.prop('disabled', !alive.length);
+	}
+
+	/** A compact, actionable scan of what can still happen before the fight. */
+	function renderOpportunities(payload) {
+		var opportunity = payload.opportunities;
+		var $section = $('#runbun-run-opportunities');
+		var $list = $('#runbun-run-opportunity-list').empty();
+		if (!opportunity || !opportunity.before) {
+			$section.prop('hidden', true);
+			return;
+		}
+		$section.prop('hidden', false);
+		$('#runbun-run-opportunities-fight').text(
+			opportunity.before.trainer || '#' + opportunity.before.order);
+
+		function place(name) {
+			return String(name || '').replace(/^Route\s*(\d+)/, 'Route $1');
+		}
+		function preview(values, limit) {
+			var shown = values.slice(0, limit);
+			return shown.join(' · ') + (values.length > limit ? ' · +' + (values.length - limit) : '');
+		}
+		function addRow(options) {
+			var $row = $('<li class="runbun-run-opportunity"></li>')
+				.addClass(options.unknown ? 'is-unknown' : '');
+			var $inside = options.kind ?
+				$('<button type="button" class="runbun-run-opportunity-action"></button>')
+					.attr('data-kind', options.kind)
+					.attr('aria-label', options.actionLabel || options.name) :
+				$('<div class="runbun-run-opportunity-static"></div>');
+			if (options.title) $inside.attr('title', options.title);
+			if (options.map) $inside.attr('data-map', options.map);
+			$inside.append($('<span class="runbun-run-opportunity-name"></span>').text(options.name));
+			if (options.kind) {
+				$inside.append($('<span class="runbun-run-opportunity-arrow" aria-hidden="true"></span>')
+					.text('→'));
+			}
+			$inside.append($('<span class="runbun-run-opportunity-detail"></span>')
+				.text(options.detail));
+			$row.append($inside);
+			$list.append($row);
+		}
+
+		var encounters = opportunity.encounters || {count: 0, routes: []};
+		addRow({
+			kind: encounters.count ? 'encounters' : null,
+			name: encounters.count + ' encounter ' + (encounters.count === 1 ? 'area' : 'areas'),
+			detail: encounters.count ? preview(encounters.routes.map(function (route) {
+				return place(route.name);
+			}), 3) : 'No open, unspent encounter area',
+			actionLabel: 'Review ' + encounters.count + ' available encounter areas',
+		});
+
+		var items = opportunity.items || {count: 0, pickups: []};
+		addRow({
+			kind: items.count ? 'items' : null,
+			map: items.count && items.pickups[0].map,
+			name: items.count + ' field ' + (items.count === 1 ? 'item' : 'items'),
+			detail: items.count ? preview(items.pickups.map(function (item) {
+				return item.name + ' · ' + place(item.location);
+			}), 2) : 'No uncollected field item is reachable',
+			actionLabel: 'Review ' + items.count + ' reachable field items',
+		});
+
+		var moves = opportunity.moves || {};
+		addRow({
+			name: 'TM & tutors',
+			detail: moves.status === 'undated' ? 'Timing not dated yet' :
+				(moves.note || 'No new move access is recorded'),
+			title: moves.note,
+			unknown: moves.status === 'undated' || moves.status === 'unknown',
+		});
+	}
+
+	/** The game-facing route choice: only places the run can reach right now. */
+	function renderReachableRoutes(payload) {
+		var routes = payload.opportunities && payload.opportunities.encounters ?
+			payload.opportunities.encounters.routes || [] : [];
+		var $routes = $('#runbun-run-reachable').empty();
+		if (!routes.length) {
+			$routes.append($('<p class="runbun-run-reachable-empty"></p>')
+				.text('No unspent encounter area is available before this fight.'));
+			return;
+		}
+		routes.forEach(function (route) {
+			$routes.append($('<button type="button" class="runbun-run-route-choice"></button>')
+				.attr('data-map', route.map)
+				.append($('<span class="runbun-run-route-choice-name"></span>').text(route.name))
+				.append($('<span class="runbun-run-route-choice-action"></span>')
+					.text(route.held ? 'Held route · ready' : 'See encounters')));
+		});
+	}
+
 	// ------------------------------------------------------------------ render
 
 	/** The start form and the run are never both on screen. */
 	function showRun() {
 		$('#runbun-run-empty').prop('hidden', !!state);
 		$('#runbun-run-live').prop('hidden', !state);
+	}
+
+	function renderHistory() {
+		var history = window.RunBunHistory;
+		var $state = $('#runbun-history-state').text('Loading attempts saved in this browser…');
+		$('#runbun-history-content').prop('hidden', true);
+		if (!history) {
+			$state.text('Run history could not load. The active run has not been changed.');
+			return Promise.reject(new Error('Run history is unavailable.'));
+		}
+		return history.list().then(function (records) {
+			var summary = history.derive(records, state);
+			$('#runbun-history-tracked').text(summary.tracked);
+			$('#runbun-history-best').text(summary.best ?
+				history.positionLabel(summary.best.position) : 'No attempts');
+			$('#runbun-history-median').text(summary.medianPosition === null ?
+				'Not enough data' : history.positionLabel(summary.medianPosition));
+			$('#runbun-history-completed').text(summary.completed);
+			writeSummary('history', summary.ended + ' archived' +
+				(summary.active ? ' · 1 active' : ''));
+
+			var $attempts = $('#runbun-history-attempts').empty();
+			summary.attempts.forEach(function (entry) {
+				var $row = $('<li class="runbun-history-attempt"></li>')
+					.toggleClass('is-active', entry.outcome === 'active');
+				$row.append($('<span class="runbun-history-attempt-name"></span>')
+					.text(entry.name || 'Untitled run'));
+				$row.append($('<span class="runbun-history-attempt-outcome"></span>')
+					.text(history.outcomeLabel(entry.outcome)));
+				$row.append($('<span class="runbun-history-attempt-position"></span>')
+					.text(history.positionLabel(entry.position)));
+				$attempts.append($row);
+			});
+
+			var $species = $('#runbun-history-species').empty();
+			summary.species.forEach(function (row) {
+				var $tr = $('<tr></tr>');
+				$tr.append($('<th scope="row"></th>').text(row.species));
+				$tr.append($('<td></td>').text(row.attempts));
+				$tr.append($('<td></td>').text(row.caught));
+				$tr.append($('<td></td>').text(row.survived));
+				$tr.append($('<td></td>').text(history.positionLabel(row.bestPosition)));
+				$species.append($tr);
+			});
+
+			if (!summary.tracked) {
+				$state.text('No archived attempts');
+				return summary;
+			}
+			$state.text(summary.ended ?
+				summary.ended + ' ended attempt' + (summary.ended === 1 ? '' : 's') +
+					' archived locally.' :
+				'This active attempt is not historical evidence until it ends.');
+			$('#runbun-history-content').prop('hidden', false);
+			return summary;
+		}).catch(function (error) {
+			$state.text('Could not read run history: ' + error.message);
+			throw error;
+		});
+	}
+
+	function openHistory() {
+		revealSection('history');
+		return renderHistory().then(function () {
+			var target = document.querySelector(
+				'.rb-disclose[data-section="history"] .rb-disclose-btn');
+			if (target) {
+				target.scrollIntoView({block: 'start'});
+				target.focus();
+			}
+		});
 	}
 
 	/**
@@ -536,6 +908,9 @@
 		renderSpine(payload);
 		renderBox(payload);
 		renderPartyStrip();
+		renderNextStep(payload);
+		renderOpportunities(payload);
+		renderReachableRoutes(payload);
 		renderSplit(payload);
 		renderUpcoming(payload);
 
@@ -564,7 +939,8 @@
 		// payload; the header writer is `writeSummary`.)
 		var alive = payload.box.filter(function (mon) { return mon.status !== 'dead'; }).length;
 		var lost = payload.box.length - alive;
-		writeSummary('box', alive + ' alive' + (lost ? ' · ' + lost + ' lost' : '') +
+		var reserve = alive - state.party.length;
+		writeSummary('box', reserve + ' reserve' + (lost ? ' · ' + lost + ' lost' : '') +
 			(bag.length ? ' · bag ' + bag.length : ''));
 		writeSummary('split', payload.splitPrep && !payload.splitPrep.split.finished ?
 			payload.splitPrep.split.boss.replace(/^Leader /, '') + ' · ' +
@@ -652,15 +1028,18 @@
 	}
 
 	function command(body) {
+		var commandId = newCommandId();
 		return mutate(function () {
 			dismissSnackbar();
 			status('Working…', '');
 			return api('/run/apply', {run: state, command: body}).then(function (payload) {
 				state = payload.run;
-				persist();
-				status(payload.summary, 'ok');
-				return render().then(function () { return true; });
+				return persist('command.applied', {command: body}, commandId).then(function () {
+					status(payload.summary, 'ok');
+					return render().then(function () { return true; });
+				});
 			}).catch(function (error) {
+				if (error && error.code === 'REVISION_CONFLICT') return recoverConflict(error);
 				// The refusal message is the feature: it says why this could not have
 				// happened in the game, not merely that the form was wrong.
 				status(error.message, 'error');
@@ -688,8 +1067,8 @@
 	function showEncounters() {
 		var map = $('#runbun-run-map').val();
 		var $list = $('#runbun-run-encounters').empty();
-		if (!state || !map) return;
-		api('/run/where', {run: state, map: map}).then(function (found) {
+		if (!state || !map) return Promise.resolve();
+		return api('/run/where', {run: state, map: map}).then(function (found) {
 			// Under the nuzlocke rules the list is a forecast, not a menu: the
 			// route's encounter is random, a used route says so, and a dupe row is
 			// dead weight the re-roll skips — its odds go to what's left.
@@ -810,11 +1189,14 @@
 			payload.trainer + ' (#' + payload.order + ') · ' +
 			payload.considered + ' single changes weighed' +
 			(payload.projection.applied && payload.projection.from === 'projected' ?
-				' · party at cap ' + payload.projection.cap : ''));
+				' · party at cap ' + payload.projection.cap : '') +
+			(payload.availability && payload.availability.undatedMovesExcluded ?
+				' · ' + payload.availability.undatedMovesExcluded +
+					' undated TM/tutor options withheld' : ''));
 		var $list = $('#runbun-run-advice').empty();
 		if (!payload.upgrades.length) {
 			$list.append($('<li class="runbun-run-advice-empty"></li>')
-				.text('Nothing in the party, the bag or its learnsets moves this board.'));
+				.text('No confirmed change available before this fight improves the board.'));
 			return;
 		}
 		payload.upgrades.forEach(function (entry) {
@@ -972,7 +1354,7 @@
 
 	function routesView() {
 		status('Reading the routes…', '');
-		api('/run/routes', {run: state}).then(function (payload) {
+		return api('/run/routes', {run: state}).then(function (payload) {
 			renderRoutes(payload);
 			stamp('routes');
 			status('', '');
@@ -1385,6 +1767,10 @@
 		status('Sending out…', '');
 		return api(path, body).then(function (payload) {
 			battle = {bundle: payload.battle, log: []};
+			$('#runbun-run-battle').removeAttr('data-result');
+			$('#runbun-run-battle-result').text('');
+			$('#runbun-run-battle-abandon').text('Abandon fight')
+				.removeAttr('data-complete').prop('disabled', false);
 			$('#runbun-run-battle-log').empty();
 			$('#runbun-run-battle').prop('hidden', false);
 			paintBattle(payload);
@@ -1446,6 +1832,12 @@
 		var wild = battle.bundle.wild || null;
 		var won = reply.result === 'win';
 		var deaths = reply.deaths || [];
+		var resultLabel = reply.result === 'win' ? 'Victory' :
+			reply.result === 'catch' ? 'Caught' : 'Defeat';
+		$('#runbun-run-battle').attr('data-result', reply.result);
+		$('#runbun-run-battle-result').text(resultLabel + ' — recording this result…');
+		$('#runbun-run-battle-abandon').attr('data-complete', 'true')
+			.text('Recording…').prop('disabled', true);
 		battle = null;
 		clearBattleSave();
 		var chain = Promise.resolve(true);
@@ -1488,7 +1880,12 @@
 				});
 			}
 			chain.then(function (ok) {
-				if (!ok) return;
+				if (!ok) {
+					$('#runbun-run-battle-result').text(
+						'The fight ended, but the run could not record every result. Review the status below.');
+					$('#runbun-run-battle-abandon').text('Return to run').prop('disabled', false);
+					return;
+				}
 				if (reply.result === 'catch' || won) {
 					clearRollSave();
 					$('#runbun-run-roll-result').prop('hidden', true);
@@ -1506,6 +1903,9 @@
 						'Wiped by the wild ' + wild.species + ' — the deaths are ' +
 							'recorded; the encounter still stands.',
 				reply.result === 'catch' ? 'ok' : 'error');
+				$('#runbun-run-battle-result').text(
+					(resultLabel === 'Defeat' ? 'Defeat recorded.' : resultLabel + ' recorded.'));
+				$('#runbun-run-battle-abandon').text('Continue').prop('disabled', false).focus();
 			});
 			return;
 		}
@@ -1521,6 +1921,13 @@
 						(deaths.length ? ', with ' + deaths.length + ' lost.' : ', deathless.') :
 					'Wiped against ' + trainer + ' — the deaths are recorded; ' +
 						'the fight can be retried.', won ? 'ok' : 'error');
+				$('#runbun-run-battle-result').text(
+					(won ? 'Victory recorded.' : 'Defeat recorded.'));
+				$('#runbun-run-battle-abandon').text('Continue').prop('disabled', false).focus();
+			} else {
+				$('#runbun-run-battle-result').text(
+					'The fight ended, but the run could not record every result. Review the status below.');
+				$('#runbun-run-battle-abandon').text('Return to run').prop('disabled', false).focus();
 			}
 		});
 	}
@@ -1574,34 +1981,71 @@
 			status('There is no run to end.', 'error');
 			return;
 		}
-		// The final save goes to the transfer box BEFORE the browser copy is
-		// cleared: the run is over, the record is still the player's.
-		$('#runbun-run-transfer').val(JSON.stringify(state, null, '\t'))
-			.closest('details').prop('open', true);
-		try {
-			window.localStorage.removeItem(STORAGE_KEY);
-		} catch (error) { /* the state below is cleared regardless */ }
-		state = null;
-		lastStatus = null;
-		stagedParty = [];
-		battle = null;
-		clearBattleSave();
-		clearRollSave();
-		stamps = {};
-		$('#runbun-run-battle').prop('hidden', true);
-		$('#runbun-run-roll-result').prop('hidden', true);
-		showRun();
-		status('Run ended. Its final save is in the transfer box — copy it to keep it.', 'ok');
+		var finalRun = state;
+		var $outcome = $('#runbun-run-end-outcome');
+		var outcome = $outcome.val();
+		if (outcome === 'completed' && lastStatus && lastStatus.status.next) {
+			$outcome.attr('aria-invalid', 'true').focus();
+			status('This run still has required fights ahead and cannot be archived as completed.',
+				'error');
+			return;
+		}
+		$outcome.removeAttr('aria-invalid');
+		status('Archiving this attempt before clearing the active save…', '');
+		mutate(function () {
+			var endedAt = new Date().toISOString();
+			// The lifecycle event and checked portable copy are materialized before
+			// the archive transaction, so history never points at unverifiable evidence.
+			var portable = persist('run.ended', {outcome: outcome},
+				'end-' + finalRun.attemptId + '-' + Date.now()).then(function () {
+				return attemptStore ? attemptStore.exportActive() : finalRun;
+			});
+			return portable.then(function (archive) {
+				$('#runbun-run-transfer').val(JSON.stringify(archive, null, '\t'))
+					.closest('details').prop('open', true);
+				return window.RunBunHistory.archive(finalRun, outcome, endedAt, archive);
+			})
+				.then(function () {
+					try {
+						mirror(null);
+					} catch (error) { /* the IndexedDB archive is already durable */ }
+					state = null;
+					currentRevision = null;
+					lastStatus = null;
+					stagedParty = [];
+					battle = null;
+					clearBattleSave();
+					clearRollSave();
+					stamps = {};
+					$('#runbun-run-battle').prop('hidden', true);
+					$('#runbun-run-roll-result').prop('hidden', true);
+					showRun();
+					revealSection('history');
+					return renderHistory().then(function () {
+						status('Run archived as ' + window.RunBunHistory.outcomeLabel(outcome) +
+							'. Its final save is also in the transfer box.', 'ok');
+					});
+				});
+		});
 	}
 
 	function abandonBattle() {
+		var completed = $('#runbun-run-battle-abandon').attr('data-complete') === 'true';
 		var wasWild = !!(battle && battle.bundle && battle.bundle.wild);
 		battle = null;
 		clearBattleSave();
 		$('#runbun-run-battle').prop('hidden', true);
+		$('#runbun-run-battle-result').text('');
+		$('#runbun-run-battle-abandon').text('Abandon fight')
+			.removeAttr('data-complete').prop('disabled', false);
 		// Fleeing a wild fight settles nothing: the roll card returns so the
 		// encounter can still be caught on faith or given up properly.
 		if (wasWild && rolled) $('#runbun-run-roll-result').prop('hidden', false);
+		if (completed) {
+			var next = document.querySelector('#runbun-run-play');
+			if (next) next.focus();
+			return;
+		}
 		status('Fight abandoned — nothing was written.', '');
 	}
 
@@ -1621,6 +2065,8 @@
 			var was = $(this).attr('aria-pressed') === 'true';
 			$('.runbun-run-starter').attr('aria-pressed', 'false');
 			$(this).attr('aria-pressed', was ? 'false' : 'true');
+			$('#runbun-run-new').prop('disabled',
+				!$('.runbun-run-starter[aria-pressed="true"]').length);
 		});
 
 		$('#runbun-run-new').on('click', function () {
@@ -1637,8 +2083,10 @@
 				status('Pick a starter first — every run leaves the lab with one.', 'error');
 				return;
 			}
+			var startCommandId = newCommandId();
 			mutate(function () {
 				return api('/run/new', {
+					attemptId: newAttemptId(),
 					name: $('#runbun-run-new-name').val() || 'My run',
 					levelCap: $('#runbun-run-new-cap').is(':checked') ? 'next-milestone-ace' : 'none',
 					// Each rule travels as its own toggle; the preset checkbox only
@@ -1671,12 +2119,14 @@
 					});
 				}).then(function (note) {
 					corruptSave = null;
-					persist();
-					status('Started ' + state.name + note,
-						note.indexOf('refused') === -1 ? 'ok' : 'error');
-					revealSection('catch');
-					return render();
+					return persist('run.started', {run: state}, startCommandId).then(function () {
+						status('Started ' + state.name + note,
+							note.indexOf('refused') === -1 ? 'ok' : 'error');
+						revealSection('box');
+						return render();
+					});
 				}).catch(function (error) {
+					if (error && error.code === 'REVISION_CONFLICT') return recoverConflict(error);
 					status(error.message, 'error');
 				});
 			});
@@ -1775,10 +2225,28 @@
 			command({kind: 'party', ids: stagedParty.slice()});
 		});
 
-		$('#runbun-run-box').on('click', '.runbun-run-mon', function () {
-			$('#runbun-run-selected').val($(this).attr('data-id'));
-			$('#runbun-run-box .runbun-run-mon').removeClass('is-selected');
-			$(this).addClass('is-selected');
+		function selectMon(id, reveal) {
+			$('#runbun-run-selected').val(id);
+			$('#runbun-run-box .runbun-run-mon, #runbun-run-losses .runbun-run-mon')
+				.removeClass('is-selected');
+			$('#runbun-run-box .runbun-run-mon[data-id="' + id + '"], ' +
+				'#runbun-run-losses .runbun-run-mon[data-id="' + id + '"]').addClass('is-selected');
+			var mon = findBoxed(id);
+			writeSummary('tools', mon ? monLabel(mon) : id);
+			if (!reveal) return;
+			revealSection('tools');
+			var selected = document.querySelector('#runbun-run-selected');
+			if (selected) {
+				selected.scrollIntoView({block: 'center'});
+				selected.focus();
+			}
+		}
+
+		$('#runbun-run').on('click', '.runbun-run-mon-select', function () {
+			selectMon($(this).attr('data-id'), true);
+		});
+		$('#runbun-run-party-strip').on('click', '.runbun-run-party-select', function () {
+			selectMon($(this).attr('data-id'), true);
 		});
 
 		$('#runbun-run-evolve').on('click', function () {
@@ -1890,6 +2358,64 @@
 			command({kind: 'beat', trainer: $(this).attr('data-trainer')});
 		});
 		$('#runbun-run-plan').on('click', function () { plan(null); });
+		$('#runbun-run-explore').on('click', function () {
+			revealSection('catch');
+			var target = document.querySelector('#runbun-run-reachable .runbun-run-route-choice') ||
+				document.querySelector('#runbun-run-map');
+			if (target) {
+				target.scrollIntoView({block: 'center'});
+				target.focus();
+			}
+		});
+		$('#runbun-run-reachable').on('click', '.runbun-run-route-choice', function () {
+			var map = $(this).attr('data-map');
+			if (!map || !$('#runbun-run-map option[value="' + map + '"]').length) return;
+			$('#runbun-run-map').val(map);
+			showEncounters().then(function () {
+				var roll = document.querySelector('#runbun-run-roll');
+				if (roll) roll.focus();
+			});
+		});
+		$('#runbun-run-review, #runbun-run-empty-review').on('click', function () {
+			openHistory().catch(function () { /* renderHistory writes the error state */ });
+		});
+		$('#runbun-run-opportunity-list').on('click', '.runbun-run-opportunity-action', function () {
+			var kind = $(this).attr('data-kind');
+			if (kind === 'encounters') {
+				revealSection('catch');
+				var encounter = document.querySelector(
+					'#runbun-run-reachable .runbun-run-route-choice');
+				if (encounter) {
+					encounter.scrollIntoView({block: 'center'});
+					encounter.focus();
+				}
+				return;
+			}
+			if (kind === 'items') {
+				var map = $(this).attr('data-map');
+				if (!map) {
+					revealSection('split');
+					var split = document.querySelector(
+						'.rb-disclose[data-section="split"] .rb-disclose-btn');
+					if (split) {
+						split.scrollIntoView({block: 'center'});
+						split.focus();
+					}
+					return;
+				}
+				revealSection('catch');
+				if (map && $('#runbun-run-map option[value="' + map + '"]').length) {
+					$('#runbun-run-map').val(map);
+				}
+				showEncounters().then(function () {
+					var target = document.querySelector('#runbun-run-map');
+					if (target) {
+						target.scrollIntoView({block: 'center'});
+						target.focus();
+					}
+				});
+			}
+		});
 		// The recreation: roll the dice, play the fight.
 		$('#runbun-run-roll').on('click', rollEncounter);
 		$('#runbun-run-roll-fight').on('click', startWildBattle);
@@ -1905,7 +2431,20 @@
 		});
 		$('#runbun-run-roll-catch').on('click', function () { settleRoll(true); });
 		$('#runbun-run-roll-flee').on('click', function () { settleRoll(false); });
-		$('#runbun-run-play').on('click', startBattle);
+		$('#runbun-run-play').on('click', function () {
+			if (!state || state.party.length) {
+				startBattle();
+				return;
+			}
+			revealSection('box');
+			var first = document.querySelector(
+				'#runbun-run-box .runbun-run-mon:not(.is-lost) .runbun-run-add');
+			if (first) {
+				first.scrollIntoView({block: 'center'});
+				first.focus();
+			}
+			status('Choose up to six Pokémon, put the lead first, then press Set party.', '');
+		});
 		$('#runbun-run-battle-abandon').on('click', abandonBattle);
 		bindHold('#runbun-run-end', 1000, endRun);
 		$('#runbun-run-battle-moves').on('click', '.runbun-run-battle-move', function () {
@@ -1926,20 +2465,24 @@
 		$('#runbun-run-scout-btn').on('click', function () { scout(); });
 
 		$('#runbun-run-undo').on('click', function () {
+			var undoCommandId = newCommandId();
 			mutate(function () {
 				dismissSnackbar();
 				return api('/run/undo', {run: state}).then(function (payload) {
 					state = payload.run;
-					persist();
-					// An export made before the undo still contains the undone command.
-					// Left sitting in the box it is one Import away from reinstating
-					// exactly what the player just took back, so it goes.
-					var hadExport = !!$('#runbun-run-transfer').val();
-					if (hadExport) $('#runbun-run-transfer').val('');
-					status('Undone.' + (hadExport ?
-						' Cleared the transfer box — it held the undone command.' : ''), 'ok');
-					return render();
+					return persist('run.replaced', {reason: 'undo', run: state},
+						undoCommandId).then(function () {
+						// An export made before the undo still contains the undone command.
+						// Left sitting in the box it is one Import away from reinstating
+						// exactly what the player just took back, so it goes.
+						var hadExport = !!$('#runbun-run-transfer').val();
+						if (hadExport) $('#runbun-run-transfer').val('');
+						status('Undone.' + (hadExport ?
+							' Cleared the transfer box — it held the undone command.' : ''), 'ok');
+						return render();
+					});
 				}).catch(function (error) {
+					if (error && error.code === 'REVISION_CONFLICT') return recoverConflict(error);
 					status(error.message, 'error');
 				});
 			});
@@ -1951,8 +2494,15 @@
 				status('There is no run to export yet.', 'error');
 				return;
 			}
-			$('#runbun-run-transfer').val(JSON.stringify(state, null, '\t'));
-			status('Exported. Copy this to keep or move the run.', 'ok');
+			var exporting = attemptStore ? attemptStore.exportActive() : Promise.resolve(state);
+			exporting.then(function (portable) {
+				$('#runbun-run-transfer').val(JSON.stringify(portable, null, '\t'));
+				status(attemptStore ?
+					'Exported a checked attempt archive. Copy it to keep or move the run.' :
+					'Exported the compatibility save. Copy it to keep or move the run.', 'ok');
+			}).catch(function (error) {
+				status('Could not export: ' + error.message, 'error');
+			});
 		});
 		$('#runbun-run-import').on('click', function () {
 			var incoming;
@@ -1966,20 +2516,51 @@
 				status('Could not import: that is not a run', 'error');
 				return;
 			}
+			var isBundle = incoming.format === 'rabrun.archive';
+			var importedRun = isBundle ? incoming.run : incoming;
+			if (!importedRun || typeof importedRun !== 'object') {
+				status('Could not import: that archive has no run', 'error');
+				return;
+			}
+			if (!importedRun.attemptId) {
+				importedRun = JSON.parse(JSON.stringify(importedRun));
+				importedRun.attemptId = newAttemptId();
+			}
+			var previousState = state;
+			var previousRevision = currentRevision;
 			mutate(function () {
 				// The server is the only thing that can tell a run from a shape that
 				// merely looks like one, so it is asked BEFORE anything is adopted.
 				// Checking a field here and persisting on faith wrote junk over a real
 				// save permanently — the panel writes only what the server accepted,
 				// and an import is no different from a command in that.
-				return api('/run/status', {run: incoming, upcomingCount: 8}).then(function (payload) {
-					state = incoming;
+				var checked = isBundle && window.RunBunAttemptStore ?
+					window.RunBunAttemptStore.validateBundle(incoming) : Promise.resolve(incoming);
+				return checked.then(function () {
+					return api('/run/status', {run: importedRun, upcomingCount: 8});
+				}).then(function (payload) {
+					var oldAttemptId = previousState && previousState.attemptId;
+					if (isBundle && attemptStore) {
+						return attemptStore.importBundle(incoming).then(function (head) {
+							state = importedRun;
+							corruptSave = null;
+							currentRevision = head.revision;
+							mirror(state);
+							return payload;
+						});
+					}
+					state = importedRun;
 					corruptSave = null;
-					persist();
+					if (oldAttemptId !== state.attemptId) currentRevision = null;
+					return persist('run.imported', {run: state}).then(function () { return payload; });
+				}).then(function (payload) {
 					showRun();
 					paint(payload);
-					status('Imported.', 'ok');
+					status(isBundle ? 'Imported checked attempt archive.' : 'Imported run.', 'ok');
 				}).catch(function (error) {
+					if (error && error.code === 'REVISION_CONFLICT') return recoverConflict(error);
+					state = previousState;
+					currentRevision = previousRevision;
 					// `state` and the save are untouched: the run on screen is still the
 					// one that was there before the paste.
 					status('Could not import: ' + error.message, 'error');
@@ -1989,31 +2570,20 @@
 	}
 
 	/**
-	 * Two tabs, one run. The save lives in localStorage, so a phone next to the
-	 * emulator and a desktop tab are ALREADY the same run — the only missing
-	 * piece was hearing about each other's writes. The `storage` event fires in
-	 * every OTHER tab when one persists; adopting it here keeps both views on
-	 * the run that actually exists, instead of the loser overwriting the
-	 * winner's catches with a stale base on its next command.
+	 * Two tabs, one run. IndexedDB owns the revision and localStorage supplies a
+	 * cross-tab bell: its `storage` event fires in every OTHER tab after a commit.
+	 * The listener reloads the durable head instead of trusting the event body.
 	 *
-	 * Adopted without a server round-trip on purpose: the only writer of this
-	 * key is this panel, which persists nothing the server did not accept.
+	 * Adopted without a server round-trip on purpose: the durable head contains
+	 * only runs the server accepted.
 	 * A write mid-flight is NOT adopted — the in-flight reply would clobber it
 	 * anyway; the next repaint reconciles through the same event having fired
 	 * on the other side.
 	 */
-	function syncFromOtherTab(event) {
-		if (event.key !== STORAGE_KEY || busy) return;
-		if (event.newValue === JSON.stringify(state)) return;
-		var incoming = null;
-		if (event.newValue) {
-			try {
-				incoming = JSON.parse(event.newValue);
-			} catch (error) {
-				return; // a corrupt write is the other tab's problem to surface
-			}
-		}
+	function adoptOtherTab(incoming, revision) {
+		if (busy || JSON.stringify(incoming) === JSON.stringify(state)) return;
 		state = incoming;
+		currentRevision = revision;
 		// A fight here was opened from a run that no longer exists: playing it
 		// out would write history onto the wrong document. It folds, unwritten.
 		if (battle) {
@@ -2034,13 +2604,36 @@
 		});
 	}
 
+	function syncFromOtherTab(event) {
+		if (event.key !== STORAGE_KEY || busy) return;
+		if (attemptStore) {
+			attemptStore.loadActive().then(function (head) {
+				adoptOtherTab(head ? head.run : null, head ? head.revision : null);
+			}).catch(function () {
+				// The localStorage mirror is still a complete accepted run and remains
+				// the fallback if IndexedDB becomes unavailable between tab writes.
+				attemptStore = null;
+				syncFromOtherTab(event);
+			});
+			return;
+		}
+		var incoming = null;
+		if (event.newValue) {
+			try {
+				incoming = JSON.parse(event.newValue);
+			} catch (error) {
+				return; // a corrupt write is the other tab's problem to surface
+			}
+		}
+		adoptOtherTab(incoming, null);
+	}
+
 	$(function () {
 		if (!$('#runbun-run').length) return;
 		bindDisclosures();
 		bind();
 		window.addEventListener('storage', syncFromOtherTab);
-		state = restore();
-		loadMaps().then(render).then(function () {
+		restoreDurable().then(loadMaps).then(render).then(function () {
 			if (corruptSave) {
 				$('#runbun-run-transfer').val(corruptSave)
 					.closest('details').prop('open', true);
@@ -2050,7 +2643,7 @@
 				return;
 			}
 			if (state) {
-				status('Loaded ' + state.name + ' from this browser.', 'ok');
+				status('Loaded ' + state.name + ' from ' + restoredFrom + '.', 'ok');
 				// The roll first, then the battle: a live wild fight re-hides
 				// the card it owns, and abandoning hands it back.
 				restoreRoll();

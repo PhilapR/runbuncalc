@@ -5,8 +5,11 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "runbun",
 	"main": "dist-worker/worker.js",
-	"compatibility_date": "2026-06-15",
+	"compatibility_date": "2026-08-15",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"secrets": {
+		"required": ["SITE_AUTH_PASSWORD"]
+	},
 	"assets": {
 		"directory": "dist",
 		"binding": "ASSETS",

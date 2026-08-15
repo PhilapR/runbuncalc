@@ -125,8 +125,6 @@ label:not(.btn) {
 
 .select2-container .select2-choice {
     background: var(--background);
-    background-image: linear-gradient(#333, 70%, #1b1b1b);
-    /* Not fully satisfied w/ this gradient, but it's w/e */
     color: var(--text);
 }
 

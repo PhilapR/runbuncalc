@@ -1,4 +1,5 @@
 /* eslint-env node, browser, es6 */
+/* global __RUNBUN_BUILD_SHA__, __RUNBUN_MODEL_VERSION__ */
 'use strict';
 
 /**
@@ -18,6 +19,10 @@
  */
 
 const runApi = require('./run-api.js');
+const BUILD_SHA = typeof __RUNBUN_BUILD_SHA__ === 'string' ?
+	__RUNBUN_BUILD_SHA__ : 'development';
+const MODEL_VERSION = typeof __RUNBUN_MODEL_VERSION__ === 'string' ?
+	__RUNBUN_MODEL_VERSION__ : '2.0.0';
 
 function answer(work) {
 	try {
@@ -28,7 +33,7 @@ function answer(work) {
 			if (error.code) body.code = error.code;
 			return Response.json(body, {status: error.statusCode});
 		}
-		console.error(error);
+		console.error(JSON.stringify({message: 'runbun request failed', error: error.message}));
 		return Response.json({error: 'Internal server error'}, {status: 500});
 	}
 }
@@ -93,6 +98,15 @@ module.exports = {
 		const refused = await gate(request, env);
 		if (refused) return refused;
 		const url = new URL(request.url);
+		if (url.pathname === '/__runbun/meta') {
+			if (request.method !== 'GET') {
+				return Response.json({error: 'GET is required'}, {status: 405});
+			}
+			return Response.json({service: 'runbun', revision: BUILD_SHA,
+				modelVersion: MODEL_VERSION}, {
+				headers: {'Cache-Control': 'no-store'},
+			});
+		}
 		const route = runApi.ROUTES[url.pathname];
 		if (route) {
 			// The one GET in the surface; everything else posts the run.

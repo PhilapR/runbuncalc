@@ -12,12 +12,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?234c8cf4" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?e9d2ddbe" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
     <!-- Shell + full-page unify after dark-theme so stadium tokens win the cascade -->
-    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?80e8933f" />
+    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?0c5944e7" />
     <!-- Immediately loads the dark theme in order to reduce FOIT -->
     <script>
         /*
@@ -45,17 +45,13 @@
     <div class="rb-shell-inner">
         <div class="rb-shell-brand">
             <span class="rb-wordmark">Run &amp; Bun</span>
-            <span class="rb-tagline">Stadium ink · Gen&nbsp;8 policy · thin HTTP client</span>
+            <span class="rb-tagline">Play · plan · survive</span>
         </div>
-        <nav class="rb-mode-nav" aria-label="Product modes">
-            <div class="rb-mode-tablist" role="tablist" aria-label="Product modes">
-                <a class="rb-mode-tab" role="tab" id="rb-tab-calc" href="#calc" aria-controls="calc" aria-selected="true">Calc</a>
-                <a class="rb-mode-tab" role="tab" id="rb-tab-sets" href="#sets-bridge" aria-controls="sets-bridge" aria-selected="false" tabindex="-1">Sets / Bridge</a>
-                <a class="rb-mode-tab" role="tab" id="rb-tab-ai-debug" href="#ai-panel" aria-controls="ai-panel" aria-selected="false" tabindex="-1">AI Debug</a>
-                <a class="rb-mode-tab" role="tab" id="rb-tab-battle" href="#runbun-battle" aria-controls="runbun-battle" aria-selected="false" tabindex="-1">Singles Battle</a>
-                <a class="rb-mode-tab" role="tab" id="rb-tab-planner" href="#runbun-planner" aria-controls="runbun-planner" aria-selected="false" tabindex="-1">Fight Planner</a>
-                <a class="rb-mode-tab" role="tab" id="rb-tab-run" href="#runbun-run" aria-controls="runbun-run" aria-selected="false" tabindex="-1">My Run</a>
-                <a class="rb-mode-tab" role="tab" id="rb-tab-replay" href="#runbun-replay" aria-controls="runbun-replay" aria-selected="false" tabindex="-1">Replay</a>
+        <nav class="rb-mode-nav" aria-label="Primary">
+            <div class="rb-mode-tablist">
+                <a class="rb-mode-tab" id="rb-nav-run" href="#runbun-run" data-mode="run">Play</a>
+                <a class="rb-mode-tab" id="rb-nav-calc" href="#calc" data-mode="calc">Calculator</a>
+                <a class="rb-mode-tab" id="rb-nav-tools" href="#sets-bridge" data-mode="sets">Tools</a>
             </div>
         </nav>
     </div>
@@ -63,12 +59,12 @@
 </header>
 
 <div id="rb-mode-content" tabindex="-1">
-<div id="calc" class="wrapper rb-mode-region" role="tabpanel" aria-labelledby="rb-tab-calc" tabindex="-1">
+<div id="calc" class="wrapper rb-mode-region" role="region" aria-label="Damage calculator" tabindex="-1">
 
     <div aria-label="Settings" role="region">
         <span class="title-block">
             <span class="title-text">Run &amp; Bun Damage Calc</span>
-            <span class="title-subtext">Multi-gen oracle with Run &amp; Bun overlays; defaults to Gen&nbsp;8 (S/S). Product modes above frame Sets, AI Debug, and Battle.</span>
+            <span class="title-subtext">Multi-gen damage oracle with Run &amp; Bun overlays; defaults to Gen&nbsp;8 (S/S).</span>
         </span>
         <span class="genSelection" aria-labelledby="selectGenInstruction" role="radiogroup" title="Select the generation. Run &amp; Bun assumes Generation 8 unless a mechanic overrides it.">
             <span class="visually-hidden" id="selectGenInstruction">Select the generation. Run and Bun assumes Generation 8 unless a mechanic overrides it.</span>
@@ -1934,7 +1930,7 @@
     <script type="text/javascript" src="./calc/result.js?de0d540e"></script>
     <script type="text/javascript" src="./calc/adaptable.js?5117162d"></script>
     <script type="text/javascript" src="./calc/index.js?78a38a99"></script>
-    <script type="text/javascript" src="./js/shared_controls.js?6a0bd674"></script>
+    <script type="text/javascript" src="./js/shared_controls.js?5d850e9b"></script>
     <script type="text/javascript" src="./js/index_randoms_controls.js?562e8ee3"></script>
     <script type="text/javascript" src="./js/moveset_import.js?4d256745"></script>
     <script type="text/javascript" src="./js/sets_to_battle_state.js?cdc8c2ce"></script>
@@ -1944,11 +1940,18 @@
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?4d142a09"></script>
-    <script type="text/javascript" src="./js/run_panel.js?9bc0343e"></script>
-    <script type="text/javascript" src="./js/runbun_shell.js?56b6edb4"></script>
+    <script type="text/javascript" src="./js/runtime_contract.js?8a96b67b"></script>
+    <script type="text/javascript" src="./js/attempt_store.js?d6b345fe"></script>
+    <script type="text/javascript" src="./js/run_history.js?15ce0adc"></script>
+    <script type="text/javascript" src="./js/run_panel.js?8a5cb1f3"></script>
+    <script type="text/javascript" src="./js/runbun_shell.js?e5be2323"></script>
 </div>
 
-<section id="sets-bridge" class="ai-panel-bridge rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-sets" tabindex="-1" aria-label="Sets to BattleState bridge">
+<section id="sets-bridge" class="ai-panel-bridge rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Sets to BattleState bridge">
+    <nav class="rb-subnav" aria-label="Tools">
+        <a href="#sets-bridge" aria-current="page">State builder</a>
+        <a href="#ai-panel">AI inspector</a>
+    </nav>
     <h2 class="ai-panel-bridge-title" id="sets-bridge-heading">Sets → BattleState</h2>
     <p class="ai-panel-bridge-help">
         Build a validated Gen&nbsp;8 <code>BattleState</code> from the current
@@ -1985,7 +1988,11 @@
     </div>
 </section>
 
-<div id="ai-panel" class="ai-panel rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-ai-debug" tabindex="-1" aria-label="Run and Bun AI">
+<div id="ai-panel" class="ai-panel rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Run and Bun AI">
+    <nav class="rb-subnav" aria-label="Tools">
+        <a href="#sets-bridge">State builder</a>
+        <a href="#ai-panel" aria-current="page">AI inspector</a>
+    </nav>
     <h2 class="ai-panel-title" id="ai-panel-heading">Run &amp; Bun AI Debug</h2>
     <p class="ai-panel-help">
         Gen&nbsp;8 decision policy (+ documented Run &amp; Bun overlays) over
@@ -2094,8 +2101,9 @@
     <div id="ai-panel-results" class="ai-panel-results" role="list" aria-labelledby="ai-panel-results-heading"></div>
 </div>
 
-<section id="runbun-battle" class="runbun-battle rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-battle" tabindex="-1" aria-label="Run and Bun Battle Turn Viewer">
-    <h2 class="runbun-battle-title" id="runbun-battle-heading">Battle Turn Viewer</h2>
+<section id="runbun-battle" class="runbun-battle rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Run and Bun Battle Lab">
+    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to run tracker</a>
+    <h2 class="runbun-battle-title" id="runbun-battle-heading">Battle Lab</h2>
     <p class="runbun-battle-help">
         Practice-vs-policy surface for Gen&nbsp;8 Singles and Doubles. Thin client
         over the same AI HTTP as Debug: <code>/ai/evaluate-actions</code>,
@@ -2161,8 +2169,9 @@
     <div id="runbun-battle-status" class="runbun-battle-status" role="status" aria-live="polite" aria-atomic="true"></div>
 </section>
 
-<section id="runbun-planner" class="runbun-planner rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-planner" tabindex="-1" aria-label="Run and Bun Fight Planner">
-    <h2 class="runbun-planner-title" id="runbun-planner-heading">Fight Planner</h2>
+<section id="runbun-planner" class="runbun-planner rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Run and Bun Fight Lab">
+    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to run tracker</a>
+    <h2 class="runbun-planner-title" id="runbun-planner-heading">Fight Lab</h2>
     <p class="runbun-planner-help">
         Pick the trainer you are about to fight, enter the team you are bringing, and see
         what the Run &amp; Bun AI is expected to do. Fights come from the authored run map
@@ -2200,82 +2209,117 @@
 </section>
 
 
-<section id="runbun-run" class="runbun-run rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-run" tabindex="-1" aria-label="Run and Bun playthrough">
-    <h2 class="runbun-run-title" id="runbun-run-heading">My Run</h2>
-    <p class="runbun-run-help">
-        A playthrough, not a position: your box, your party, your bag and where you have got to.
-        The run is saved in this browser only &mdash; nothing is stored on the server. Use Export
-        to keep a copy or move it to another machine.
-    </p>
+<section id="runbun-run" class="runbun-run rb-mode-region rb-mode-active rb-panel" role="region" tabindex="-1" aria-label="Run and Bun run tracker">
+    <h2 class="runbun-run-title" id="runbun-run-heading">Run &amp; Bun</h2>
 
     <div id="runbun-run-empty" class="runbun-run-empty">
-        <label class="runbun-run-field">
-            <span>Name</span>
-            <input type="text" id="runbun-run-new-name" value="My run" spellcheck="false">
-        </label>
-        <label class="runbun-run-check">
-            <input type="checkbox" id="runbun-run-new-cap" checked>
-            <span>Game level caps (Run &amp; Bun hardcodes these; uncheck for free editing)</span>
-        </label>
-        <label class="runbun-run-check">
-            <input type="checkbox" id="runbun-run-new-nuzlocke">
-            <span>Nuzlocke preset &mdash; sets the four rules below; each stays adjustable</span>
-        </label>
-        <div class="runbun-run-rules-detail">
-            <label class="runbun-run-check">
-                <input type="checkbox" id="runbun-run-new-permadeath">
-                <span>Permadeath &mdash; a faint is forever</span>
-            </label>
-            <label class="runbun-run-check">
-                <input type="checkbox" id="runbun-run-new-route">
-                <span>One random catch per route</span>
-            </label>
-            <label class="runbun-run-check">
-                <input type="checkbox" id="runbun-run-new-shiny-clause">
-                <span>Shiny clause &mdash; a natural shiny is always keepable</span>
-            </label>
-            <label class="runbun-run-field">
-                <span>Dupes clause</span>
-                <select id="runbun-run-new-dupes">
-                    <option value="off">Off</option>
-                    <option value="species">Same species only</option>
-                    <option value="line">Evolution line (the game's own graph)</option>
-                    <option value="forms">Line + all regional forms</option>
-                </select>
-            </label>
-        </div>
-        <!-- The question the game actually asks. The rival takes the starter
-             yours beats, so picking here fixes their ace too — and the pick
-             lands in the box as the run's first entry, a declared gift. -->
-        <div class="runbun-run-field">
-            <span>Starter &mdash; the rival takes the one yours beats</span>
-            <div class="runbun-run-starter-row" role="group" aria-label="Choose a starter">
-                <button type="button" class="btn runbun-run-starter" data-species="Treecko" data-rival="Swampert" aria-pressed="false">
-                    <span class="runbun-run-starter-name">Treecko</span>
-                    <span class="runbun-run-starter-note">grass &middot; vs&nbsp;Swampert</span>
-                </button>
-                <button type="button" class="btn runbun-run-starter" data-species="Torchic" data-rival="Sceptile" aria-pressed="false">
-                    <span class="runbun-run-starter-name">Torchic</span>
-                    <span class="runbun-run-starter-note">fire &middot; vs&nbsp;Sceptile</span>
-                </button>
-                <button type="button" class="btn runbun-run-starter" data-species="Mudkip" data-rival="Blaziken" aria-pressed="false">
-                    <span class="runbun-run-starter-name">Mudkip</span>
-                    <span class="runbun-run-starter-note">water &middot; vs&nbsp;Blaziken</span>
-                </button>
+        <div class="runbun-run-setup-form">
+            <div class="runbun-run-newgame-heading">
+                <span>New game</span>
+                <h3>Choose your starter</h3>
             </div>
-            <p class="runbun-run-starter-hint">Every run leaves Birch's lab with one &mdash; picking it fixes the rival and puts the starter in the box.</p>
+            <div class="runbun-run-setup-grid">
+                <div class="runbun-run-setup-options">
+                    <label class="runbun-run-field">
+                        <span>Run name</span>
+                        <input type="text" id="runbun-run-new-name" value="My run" spellcheck="false">
+                    </label>
+                    <div class="runbun-run-setup-modes" role="group" aria-label="Run rules">
+                        <label class="runbun-run-check"><input type="checkbox" id="runbun-run-new-cap" checked><span>Level caps</span></label>
+                        <label class="runbun-run-check"><input type="checkbox" id="runbun-run-new-nuzlocke"><span>Nuzlocke</span></label>
+                    </div>
+                    <div class="runbun-run-rules-detail">
+                        <label class="runbun-run-check"><input type="checkbox" id="runbun-run-new-permadeath"><span>Permadeath</span></label>
+                        <label class="runbun-run-check"><input type="checkbox" id="runbun-run-new-route"><span>One encounter per route</span></label>
+                        <label class="runbun-run-check"><input type="checkbox" id="runbun-run-new-shiny-clause"><span>Shiny clause</span></label>
+                        <label class="runbun-run-field">
+                            <span>Dupes clause</span>
+                            <select id="runbun-run-new-dupes">
+                                <option value="off">Off</option>
+                                <option value="species">Species</option>
+                                <option value="line">Evolution line</option>
+                                <option value="forms">Line + forms</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div class="runbun-run-field runbun-run-starter-field">
+                    <span>Starter</span>
+                    <div class="runbun-run-starter-row" role="group" aria-label="Choose a starter">
+                        <button type="button" class="btn runbun-run-starter" data-species="Treecko" data-rival="Swampert" aria-pressed="false">
+                            <span class="runbun-run-starter-name">Treecko</span>
+                            <span class="runbun-run-starter-note">Grass</span>
+                        </button>
+                        <button type="button" class="btn runbun-run-starter" data-species="Torchic" data-rival="Sceptile" aria-pressed="false">
+                            <span class="runbun-run-starter-name">Torchic</span>
+                            <span class="runbun-run-starter-note">Fire</span>
+                        </button>
+                        <button type="button" class="btn runbun-run-starter" data-species="Mudkip" data-rival="Blaziken" aria-pressed="false">
+                            <span class="runbun-run-starter-name">Mudkip</span>
+                            <span class="runbun-run-starter-note">Water</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="runbun-run-setup-actions">
+                <button type="button" id="runbun-run-new" class="btn btn-wide rb-btn-primary" disabled>Start run</button>
+                <button type="button" id="runbun-run-empty-review" class="btn btn-wide">Run history</button>
+            </div>
         </div>
-        <button type="button" id="runbun-run-new" class="btn btn-wide rb-btn-primary">Start a run</button>
     </div>
 
     <div id="runbun-run-live" class="runbun-run-live" hidden>
-        <div class="runbun-run-header">
-            <span id="runbun-run-name" class="runbun-run-name"></span>
-            <span id="runbun-run-position" class="runbun-run-position"></span>
-            <span id="runbun-run-cap" class="runbun-run-cap"></span>
+        <div class="runbun-run-header" aria-label="Run overview">
+            <div class="runbun-run-metric">
+                <span class="runbun-run-metric-label">Attempt</span>
+                <span id="runbun-run-name" class="runbun-run-name"></span>
+            </div>
+            <div class="runbun-run-metric">
+                <span class="runbun-run-metric-label">Next fight</span>
+                <span id="runbun-run-position" class="runbun-run-position"></span>
+            </div>
+            <div class="runbun-run-metric">
+                <span class="runbun-run-metric-label">Level cap</span>
+                <span id="runbun-run-cap" class="runbun-run-cap"></span>
+            </div>
         </div>
+
+        <section class="runbun-run-next" aria-labelledby="runbun-run-next-title">
+            <div class="runbun-run-next-copy">
+                <span class="runbun-run-next-eyebrow">Next fight</span>
+                <h3 id="runbun-run-next-title">Choose a lead and party</h3>
+                <p id="runbun-run-next-detail">0 / 6 ready</p>
+                <dl class="runbun-run-ready" aria-label="Fight readiness">
+                    <div>
+                        <dt>Party</dt>
+                        <dd id="runbun-run-ready-party">Not set</dd>
+                    </div>
+                    <div>
+                        <dt>Level</dt>
+                        <dd id="runbun-run-ready-level">At the active cap</dd>
+                    </div>
+                    <div>
+                        <dt>HP</dt>
+                        <dd id="runbun-run-ready-recovery">Fresh</dd>
+                    </div>
+                </dl>
+            </div>
+            <div class="runbun-run-next-actions" aria-label="Run commands">
+                <button type="button" id="runbun-run-play" class="btn rb-btn-primary">Choose your party</button>
+                <button type="button" id="runbun-run-plan" class="btn" disabled>Matchup</button>
+                <button type="button" id="runbun-run-advise" class="btn">Prep</button>
+                <button type="button" id="runbun-run-rank" class="btn">Team</button>
+                <button type="button" id="runbun-run-explore" class="btn">Explore</button>
+                <button type="button" id="runbun-run-review" class="btn">Journal</button>
+            </div>
+            <div id="runbun-run-opportunities" class="runbun-run-opportunities" hidden>
+                <span class="runbun-run-opportunities-label">Before <span id="runbun-run-opportunities-fight">this fight</span></span>
+                <ul id="runbun-run-opportunity-list" class="runbun-run-opportunity-list"></ul>
+            </div>
+        </section>
+
         <div class="runbun-run-spine-wrap">
-            <ol id="runbun-run-spine" class="runbun-run-spine" aria-label="Story milestones"></ol>
+            <ol id="runbun-run-spine" class="runbun-run-spine" aria-label="Story milestones" aria-describedby="runbun-run-spine-note"></ol>
             <div id="runbun-run-spine-note" class="runbun-run-spine-note"></div>
         </div>
         <!-- The party lives in the hero: it is the one thing read before every
@@ -2283,18 +2327,13 @@
         <div class="runbun-run-hero-party">
             <div class="runbun-run-section-label" id="runbun-run-party-heading">Party &mdash; lead first</div>
             <ol id="runbun-run-party-strip" class="runbun-run-party-strip" aria-labelledby="runbun-run-party-heading"></ol>
-            <div class="runbun-run-row">
+            <div class="runbun-run-row runbun-run-party-commit" hidden>
                 <button type="button" id="runbun-run-set-party" class="btn btn-xwide">Set party</button>
-                <span class="runbun-run-party-hint">Add from the box; &#9652; moves toward lead.</span>
             </div>
         </div>
 
-        <div class="runbun-run-row runbun-run-actions-row">
-            <button type="button" id="runbun-run-play" class="btn btn-xxwide rb-btn-primary" title="Fight the next trainer here, turn by turn, against the game's own AI">Play the next fight</button>
-            <button type="button" id="runbun-run-plan" class="btn btn-xxwide">Plan the next fight</button>
-            <button type="button" id="runbun-run-advise" class="btn btn-xxwide" title="Every teachable move, bag item and recorded IV, priced against that fight">Advise</button>
-            <button type="button" id="runbun-run-rank" class="btn btn-wide" title="Every possible six from the alive box, ranked against that fight">Rank</button>
-            <button type="button" id="runbun-run-undo" class="btn btn-wide">Undo</button>
+        <div class="runbun-run-history-actions">
+            <button type="button" id="runbun-run-undo" class="btn">Undo last action</button>
         </div>
         <div id="runbun-run-battle" class="runbun-run-battle" hidden>
             <div class="runbun-run-section-label">Battle — <span id="runbun-run-battle-trainer"></span><span id="runbun-run-battle-turn" class="runbun-run-battle-turn"></span></div>
@@ -2311,11 +2350,12 @@
                 </div>
             </div>
             <div id="runbun-run-battle-prompt" class="runbun-run-battle-prompt"></div>
+            <div id="runbun-run-battle-result" class="runbun-run-battle-result" role="status" aria-live="polite"></div>
             <div id="runbun-run-battle-moves" class="runbun-run-battle-moves"></div>
             <div id="runbun-run-battle-switches" class="runbun-run-battle-switches"></div>
             <ul id="runbun-run-battle-log" class="runbun-run-battle-log" aria-live="polite"></ul>
             <div class="runbun-run-row">
-                <button type="button" id="runbun-run-battle-abandon" class="btn btn-wide">Abandon fight</button>
+				<button type="button" id="runbun-run-battle-abandon" class="btn btn-wide">Abandon fight</button>
             </div>
         </div>
         <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>
@@ -2325,20 +2365,22 @@
         <div class="rb-disclose" data-section="box">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-box">
-                    <span class="rb-disclose-title">Box &amp; bag</span>
+                    <span class="rb-disclose-title">PC &amp; bag</span>
                     <span class="rb-disclose-summary" data-summary="box"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-box" role="region" aria-label="Box &amp; bag">
+            <div class="rb-disclose-region" id="rb-sec-box" role="region" aria-label="PC reserve and bag">
                 <div class="rb-disclose-inner">
 
-                <div class="runbun-run-section-label" id="runbun-run-box-heading">Box</div>
+                <div class="runbun-run-section-label" id="runbun-run-box-heading">PC reserve</div>
                 <div class="runbun-run-box-bar">
                     <span id="runbun-run-box-counts" class="runbun-run-box-counts"></span>
-                    <input type="search" id="runbun-run-box-filter" placeholder="Filter" spellcheck="false" aria-label="Filter the box">
+                    <input type="search" id="runbun-run-box-filter" placeholder="Filter PC" spellcheck="false" aria-label="Filter PC reserve and losses">
                 </div>
                 <ul id="runbun-run-box" class="runbun-run-box" aria-labelledby="runbun-run-box-heading"></ul>
+                <div id="runbun-run-losses-heading" class="runbun-run-section-label runbun-run-losses-label" hidden>Losses</div>
+                <ul id="runbun-run-losses" class="runbun-run-losses" aria-labelledby="runbun-run-losses-heading" hidden></ul>
                 <div class="runbun-run-section-label runbun-run-bag-label">Bag</div>
                 <div id="runbun-run-bag" class="runbun-run-bag"></div>
                 <!-- The bag was read-only here, which left the panel unable to
@@ -2356,18 +2398,25 @@
         <div class="rb-disclose" data-section="catch">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-catch">
-                    <span class="rb-disclose-title">Route &amp; catch</span>
+                    <span class="rb-disclose-title">Encounters</span>
                     <span class="rb-disclose-summary" data-summary="catch"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-catch" role="region" aria-label="Route &amp; catch">
+            <div class="rb-disclose-region" id="rb-sec-catch" role="region" aria-label="Encounters">
                 <div class="rb-disclose-inner">
 
-                <label class="runbun-run-field">
-                    <span>Where</span>
-                    <select id="runbun-run-map"></select>
-                </label>
+                <div class="runbun-run-encounter-now" aria-labelledby="runbun-run-reachable-heading">
+                    <div class="runbun-run-section-label" id="runbun-run-reachable-heading">Available before this fight</div>
+                    <div id="runbun-run-reachable" class="runbun-run-reachable"></div>
+                </div>
+                <details class="runbun-run-manual-map">
+                    <summary>Record a different location</summary>
+                    <label class="runbun-run-field">
+                        <span>All locations</span>
+                        <select id="runbun-run-map"></select>
+                    </label>
+                </details>
                 <ul id="runbun-run-encounters" class="runbun-run-encounters"></ul>
                 <ul id="runbun-run-items" class="runbun-run-items" aria-label="Field items on this route"></ul>
                 <div class="runbun-run-row">
@@ -2477,12 +2526,12 @@
         <div class="rb-disclose" data-section="split">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-split">
-                    <span class="rb-disclose-title" id="runbun-run-split-heading">This split</span>
+                    <span class="rb-disclose-title" id="runbun-run-split-heading">Current split</span>
                     <span class="rb-disclose-summary" data-summary="split"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-split" role="region" aria-label="This split">
+            <div class="rb-disclose-region" id="rb-sec-split" role="region" aria-label="Current split">
                 <div class="rb-disclose-inner">
 <div class="runbun-run-split">
             <div id="runbun-run-split-summary" class="runbun-run-split-summary"></div>
@@ -2499,15 +2548,14 @@
         <div class="rb-disclose" data-section="road">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-road">
-                    <span class="rb-disclose-title" id="runbun-run-ahead-heading">The road ahead</span>
+                    <span class="rb-disclose-title" id="runbun-run-ahead-heading">Progress</span>
                     <span class="rb-disclose-summary" data-summary="road"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-road" role="region" aria-label="The road ahead">
+            <div class="rb-disclose-region" id="rb-sec-road" role="region" aria-label="Progress">
                 <div class="rb-disclose-inner">
 <div class="runbun-run-ahead">
-            <p class="runbun-run-ahead-hint">Marking a fight beaten moves the run past everything before it &mdash; clear a route, mark its last trainer.</p>
             <ul id="runbun-run-upcoming" class="runbun-run-upcoming" aria-labelledby="runbun-run-ahead-heading"></ul>
         </div>
                 </div>
@@ -2534,13 +2582,13 @@
                 <div class="rb-disclose-inner">
 <div class="runbun-run-advice-block">
             <div class="runbun-run-section-label" id="runbun-run-advice-heading">What to change</div>
-            <p id="runbun-run-advice-note" class="runbun-run-advice-note">Press Advise to price every teachable move, every bag item and every recorded IV against the fight ahead.</p>
+            <p id="runbun-run-advice-note" class="runbun-run-advice-note">No prep analysis</p>
             <ol id="runbun-run-advice" class="runbun-run-advice" aria-labelledby="runbun-run-advice-heading"></ol>
         </div>
 
         <div class="runbun-run-rank-block">
             <div class="runbun-run-section-label" id="runbun-run-rank-heading">Best sixes</div>
-            <p id="runbun-run-rank-note" class="runbun-run-rank-note">Press Rank to grade every possible six from the alive box against the fight ahead.</p>
+            <p id="runbun-run-rank-note" class="runbun-run-rank-note">No team ranking</p>
             <ol id="runbun-run-ranking" class="runbun-run-ranking" aria-labelledby="runbun-run-rank-heading"></ol>
         </div>
 
@@ -2548,7 +2596,7 @@
 
         <div class="runbun-run-matrix-block">
             <div class="runbun-run-section-label" id="runbun-run-matrix-heading">Matchup board</div>
-            <p id="runbun-run-matrix-note" class="runbun-run-matrix-note">Press Board on a fight above to grade every box mon against it, both directions.</p>
+            <p id="runbun-run-matrix-note" class="runbun-run-matrix-note">No matchup selected</p>
             <div id="runbun-run-matrix" class="runbun-run-matrix" aria-labelledby="runbun-run-matrix-heading"></div>
         </div>
                 </div>
@@ -2570,10 +2618,50 @@
                 <button type="button" id="runbun-run-routes-btn" class="btn btn-wide" title="Every map still holding its encounter, unlock order first">Routes</button>
                 <button type="button" id="runbun-run-scout-btn" class="btn btn-wide" title="What the open routes could add against the next boss, graded on the board">Scout</button>
             </div>
-            <p id="runbun-run-routes-note" class="runbun-run-routes-note">Routes lists every map still holding its encounter, unlock order first. Scout grades what the open ones could add against the next boss.</p>
+            <p id="runbun-run-routes-note" class="runbun-run-routes-note">No route scan</p>
             <ol id="runbun-run-scout" class="runbun-run-scout" aria-label="Scouted catches"></ol>
             <ul id="runbun-run-routes" class="runbun-run-routes" aria-labelledby="runbun-run-routes-heading"></ul>
         </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rb-disclose runbun-run-history-disclose" data-section="history">
+        <h3 class="rb-disclose-h">
+            <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-history">
+                <span class="rb-disclose-title">Trainer history</span>
+                <span class="rb-disclose-summary" data-summary="history">local archive</span>
+                <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+        </h3>
+        <div class="rb-disclose-region" id="rb-sec-history" role="region" aria-label="Trainer history">
+            <div class="rb-disclose-inner">
+                <div class="runbun-run-history" aria-live="polite">
+                    <div class="runbun-run-history-metrics" aria-label="Attempt summary">
+                        <div><span>Tracked</span><strong id="runbun-history-tracked">0</strong></div>
+                        <div><span>Best</span><strong id="runbun-history-best">No attempts</strong></div>
+                        <div><span>Median end</span><strong id="runbun-history-median">Not enough data</strong></div>
+                        <div><span>Completed</span><strong id="runbun-history-completed">0</strong></div>
+                    </div>
+                    <p id="runbun-history-state" class="runbun-history-state">Local archive not loaded</p>
+                    <div id="runbun-history-content" class="runbun-history-content" hidden>
+                        <section aria-labelledby="runbun-history-journal-heading">
+                            <div class="runbun-run-section-label" id="runbun-history-journal-heading">Journal</div>
+                            <ol id="runbun-history-attempts" class="runbun-history-attempts"></ol>
+                        </section>
+                        <section aria-labelledby="runbun-history-species-heading">
+                            <div class="runbun-run-section-label" id="runbun-history-species-heading">Pok&eacute;dex history</div>
+                            <div class="runbun-history-table-wrap">
+                                <table class="runbun-history-species">
+                                    <caption>Species acquired across tracked attempts</caption>
+                                    <thead><tr><th scope="col">Species</th><th scope="col">Runs</th><th scope="col">Caught</th><th scope="col">Alive</th><th scope="col">Best</th></tr></thead>
+                                    <tbody id="runbun-history-species"></tbody>
+                                </table>
+                            </div>
+                            <p class="runbun-history-caveat">Battle contribution and IV impact are not recorded yet.</p>
+                        </section>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2583,7 +2671,7 @@
          damaged save are exactly the cases where there is no run yet, and the
          live block is hidden then. -->
     <details class="runbun-run-transfer">
-        <summary>Export / import</summary>
+        <summary>Save data</summary>
         <textarea id="runbun-run-transfer" rows="6" spellcheck="false"></textarea>
         <div class="runbun-run-row">
             <button type="button" id="runbun-run-export" class="btn btn-wide">Export</button>
@@ -2594,19 +2682,29 @@
              the commit only fires at 100%. The final save is left in the box
              above, because ending a run must never eat the player's only copy. -->
         <div class="runbun-run-row runbun-run-endrun-row">
+            <label class="runbun-run-endrun-outcome">
+                <span>Result</span>
+                <select id="runbun-run-end-outcome" aria-label="Why this attempt ended">
+                    <option value="wipe">Wiped</option>
+                    <option value="completed">Completed</option>
+                    <option value="reset">Reset</option>
+                    <option value="abandoned">Abandoned</option>
+                </select>
+            </label>
             <button type="button" id="runbun-run-end" class="btn rb-hold" aria-label="Press and hold to end this run">
                 <span class="rb-hold-fill" aria-hidden="true"></span>
                 <span class="rb-hold-label">Hold to end this run</span>
             </button>
-            <span class="runbun-run-endrun-hint">Clears this browser's save; the final run is left above to copy.</span>
+            <span class="runbun-run-endrun-hint">Archives locally and clears the active slot.</span>
         </div>
     </details>
 
     <div id="runbun-run-status" class="runbun-run-status" role="status" aria-live="polite" aria-atomic="true"></div>
 </section>
 
-<section id="runbun-replay" class="runbun-replay rb-mode-region rb-panel" role="tabpanel" aria-labelledby="rb-tab-replay" tabindex="-1" aria-label="Run and Bun Replay Scrubber">
-    <h2 class="runbun-replay-title" id="runbun-replay-heading">Replay Scrubber</h2>
+<section id="runbun-replay" class="runbun-replay rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Run and Bun Battle Replay">
+    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to run tracker</a>
+    <h2 class="runbun-replay-title" id="runbun-replay-heading">Battle Replay</h2>
     <p class="runbun-replay-help">
         Step through a shareable <code>apply-advance-trace</code> JSON without re-deriving
         random rolls. Each apply step stores the server <code>derive-resolution</code>
@@ -2650,10 +2748,10 @@
 </section>
 </div><!-- /#rb-mode-content -->
 
-<div class="credits">Run &amp; Bun fork (modification by ForwardFeed). Originally created by Honko; maintained upstream by Austin and Kris. Special thanks to Hzla.
+<div class="credits">Run &amp; Bun fork maintained by PhilapR. Originally created by Honko; maintained upstream by Austin and Kris. Special thanks to Hzla.
     <p class="rb-footer-note">Not a full sim — modeled AI slice over HTTP. Calc density above is the multi-gen oracle.</p>
     <ul>
-        <li><a href="https://github.com/ForwardFeed/runbuncalc" class="links-lighten" target="_blank">Run &amp; Bun calc repository</a></li>
+        <li><a href="https://github.com/PhilapR/runbuncalc" class="links-lighten" target="_blank" rel="noopener noreferrer">Run &amp; Bun calc repository</a></li>
         <br>
         <li><a href="https://github.com/smogon/damage-calc/contributors" class="links-lighten" target="_blank">Smogon Contributors</a></li>
         <li><a href="https://www.smogon.com/forums/threads/pok%C3%A9mon-showdown-damage-calculator.3593546/" class="links-lighten" target="_blank">Smogon Bug Reports</a></li>

@@ -164,13 +164,18 @@ function legalActions(state) {
 		.filter(entry => entry.action.kind === 'move')
 		.map(entry => {
 			const damage = entry.facts && entry.facts.damage;
+			const targetId = entry.action.targetIds && entry.action.targetIds[0];
+			const target = targetId ? findMon(state, targetId) : null;
 			return {
 				kind: 'move',
 				action: entry.action,
 				move: entry.action.moveName,
-				damage: damage && damage.targetHp ? {
-					min: Math.round(damage.min / damage.targetHp * 100),
-					max: Math.round(damage.max / damage.targetHp * 100),
+				// Keep the number stable as HP falls. The KO flag already answers
+				// whether the remaining health is covered; changing 55% into 275%
+				// after one hit makes the same move look five times stronger.
+				damage: damage && target && target.hp.max ? {
+					min: Math.round(damage.min / target.hp.max * 100),
+					max: Math.round(damage.max / target.hp.max * 100),
 					guaranteedKO: !!damage.guaranteedKO,
 				} : null,
 			};
@@ -438,15 +443,31 @@ function act(bundle, chosen) {
 		const before = state;
 		if (action.kind === 'move') {
 			const facts = ai.calculateActionFacts(state, action);
-			state = ai.applyAction(state, action,
-				ai.deriveMoveResolution(state, action, {facts, random: rng}));
+			const resolution = ai.deriveMoveResolution(state, action, {facts, random: rng});
+			state = ai.applyAction(state, action, resolution);
 			const actor = findMon(before, action.actorId);
 			const target = action.targetIds && action.targetIds[0] ?
 				findMon(state, action.targetIds[0]) : null;
 			const was = target && findMon(before, target.id);
 			const dealt = target && was ? Math.max(0, was.hp.current - target.hp.current) : 0;
-			events.push({text: `${label}${actor.species} used ${action.moveName}.` +
-				(target && dealt ? ` (${Math.round(dealt / target.hp.max * 100)}% to ${target.species})` : '')});
+			const failure = {
+				flinch: `${actor.species} flinched and could not move!`,
+				sleep: `${actor.species} is fast asleep.`,
+				freeze: `${actor.species} is frozen solid.`,
+				paralysis: `${actor.species} is paralyzed and could not move!`,
+				confusion: `${actor.species} hurt itself in confusion!`,
+				infatuation: `${actor.species} is immobilized by love.`,
+				protect: `${actor.species}'s ${action.moveName} failed.`,
+				truant: `${actor.species} is loafing around.`,
+			}[resolution.actionFailure];
+			if (failure) {
+				events.push({text: label + failure});
+			} else if (resolution.hit === false) {
+				events.push({text: `${label}${actor.species}'s ${action.moveName} missed!`});
+			} else {
+				events.push({text: `${label}${actor.species} used ${action.moveName}.` +
+					(target && dealt ? ` (${Math.round(dealt / target.hp.max * 100)}% to ${target.species})` : '')});
+			}
 		} else {
 			state = ai.applyAction(state, action);
 			const incoming = findMon(state, action.replacementId);

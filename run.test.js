@@ -38,9 +38,10 @@ function fresh(options) {
 }
 
 test('a new run is empty, positioned before the first fight, and serializable', () => {
-	const state = fresh();
+	const state = fresh({attemptId: 'attempt-1'});
 	assert.equal(state.version, run.VERSION);
 	assert.equal(state.profileId, 'run-and-bun');
+	assert.equal(state.attemptId, 'attempt-1');
 	// -1 rather than 0: the first battle in the map IS index 0, so "nothing beaten
 	// yet" needs a value below it.
 	assert.equal(state.position, -1);
@@ -48,6 +49,12 @@ test('a new run is empty, positioned before the first fight, and serializable', 
 	assert.deepEqual(state.party, []);
 	assert.deepEqual(state.bag, {});
 	assert.deepEqual(JSON.parse(JSON.stringify(state)), state, 'a run must survive JSON');
+});
+
+test('undo preserves the attempt identity used by historical archives', () => {
+	const before = fresh({attemptId: 'attempt-undo'});
+	const after = run.apply(before, MARILL);
+	assert.equal(run.undo(after).attemptId, 'attempt-undo');
 });
 
 test('apply does not touch the run it was given', () => {
@@ -644,7 +651,10 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
 	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
 	const advice = run.adviseUpgrades(state, 'Youngster Calvin');
-	assert.ok(advice.upgrades.length, 'real upgrades exist for a bare Seedot');
+	assert.equal(advice.upgrades.length, 0,
+		'a bare Seedot has no confirmed, currently obtainable improvement here');
+	assert.ok(advice.availability.undatedMovesExcluded > 0,
+		'legal but undated TM/tutor ideas are withheld instead of sold as current prep');
 	assert.ok(advice.upgrades.every(u => !/Explosion|Self-Destruct|Final Gambit/.test(u.detail)),
 		'no self-KO move may be sold as an upgrade');
 
@@ -1597,7 +1607,7 @@ test('the advisor prices single changes by what they do to the board', () => {
 	assert.deepEqual(advice.party, [{id: 'mon-1', species: 'Poochyena', nickname: null,
 		level: 12, from: 3}]);
 
-	// The candidate set is every move it can learn NOW, every HOLDABLE bag item,
+	// The candidate set is every move with a confirmed route NOW, every HOLDABLE bag item,
 	// and one scale per recorded sub-31 IV. Rare Candy and the Heart Scale are
 	// both in the bag and in neither list: the calculator cannot hold them, so a
 	// build made of them is not a build.
@@ -1609,7 +1619,12 @@ test('the advisor prices single changes by what they do to the board', () => {
 	const teachable = run.learnable(state, 'mon-1', {atLevel: 12}).now
 		.filter(entry => {
 			const gate = oracle.moveObtainableAt(entry.move);
-			return gate === null || gate <= 0;
+			const level = entry.sources.some(source =>
+				source.level !== undefined && source.level <= 12);
+			const egg = entry.sources.some(source => /^egg(?:\s|$|\()/.test(source.source));
+			const datedTeach = entry.sources.some(source => source.source === 'teachable') &&
+				gate !== null && gate <= 0;
+			return level || datedTeach || egg;
 		}).length;
 	// ...plus every holdable field pickup the overworld has handed out by
 	// fight #0 that the run has not collected (the advisor's fourth kind).
@@ -1618,11 +1633,11 @@ test('the advisor prices single changes by what they do to the board', () => {
 	assert.equal(advice.considered, teachable + 1 + 1 + pickups);
 
 	// The deterministic case. Poochyena knows only Tackle, which leaves the
-	// grunt's own Poochyena standing; Play Rough turns that cell into a
-	// guaranteed KO, and the advisor has to find it without being told.
+	// grunt's own Poochyena standing; paid relearner access to Play Rough turns
+	// that cell into a guaranteed KO, and the advisor has to name the price.
 	const top = advice.upgrades[0];
 	assert.deepEqual({kind: top.kind, id: top.id, detail: top.detail},
-		{kind: 'teach', id: 'mon-1', detail: 'Play Rough'});
+		{kind: 'teach', id: 'mon-1', detail: 'Play Rough (one Heart Scale)'});
 	assert.equal(top.delta.koGained, 1);
 	assert.equal(top.delta.koConceded, 0);
 	assert.ok(top.delta.damage > 0, 'a flipped cell also moves the damage');
@@ -1679,7 +1694,12 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	const teachableAt = (state, hasScale) => run.learnable(state, 'mon-1', {atLevel: 12}).now
 		.filter(entry => {
 			const gate = oracle.moveObtainableAt(entry.move);
-			return (gate === null || gate <= 0) && (!entry.scale || hasScale);
+			const level = entry.sources.some(source =>
+				source.level !== undefined && source.level <= 12);
+			const egg = entry.sources.some(source => /^egg(?:\s|$|\()/.test(source.source));
+			const datedTeach = entry.sources.some(source => source.source === 'teachable') &&
+				gate !== null && gate <= 0;
+			return level || datedTeach || (egg && hasScale);
 		}).length;
 	const teachable = teachableAt(
 		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), false);
@@ -1915,6 +1935,29 @@ test('the field items standing on a location, with the log as the collection rec
 		assert.ok(run.fieldItems(state, pyre.name).length > 0,
 			'Mt. Pyre\'s ledger rows should stand on its floors');
 	}
+});
+
+test('pre-fight opportunities show only reachable, unspent work and preserve unknown move timing', () => {
+	const state = fresh({permadeath: true});
+	const before = run.preFightOpportunities(state);
+	assert.deepEqual(before.before, {trainer: 'Youngster Calvin', order: 0});
+	assert.equal(before.encounters.mode, 'unspent');
+	assert.deepEqual(before.encounters.routes.map(route => route.name),
+		['Route101', 'Route102', 'Route103', 'Petalburg City']);
+	assert.deepEqual(before.items.pickups.map(item => item.name), ['Potion', 'Oran Berry']);
+	assert.deepEqual(before.items.pickups.map(item => item.map), ['Route101', 'Route102']);
+	assert.equal(before.moves.status, 'undated');
+	assert.match(before.moves.note, /locations and unlock timing are not dated/);
+
+	const collected = run.apply(state, {kind: 'acquire', item: 'Potion'});
+	assert.deepEqual(run.preFightOpportunities(collected).items.pickups.map(item => item.name),
+		['Oran Berry'], 'a pickup already in the log should leave the opportunity scan');
+
+	const spent = run.apply(state,
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3});
+	assert.ok(!run.preFightOpportunities(spent).encounters.routes
+		.some(route => route.name === 'Route101'),
+	'one-per-route runs should not advertise a spent encounter again');
 });
 
 test('an egg move is relearner-only: charged a Heart Scale, refused without one', () => {

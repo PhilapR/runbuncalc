@@ -210,7 +210,7 @@ function drawHealthBar(poke, max, current) {
 	for (var i = 0; i < unwantedColors.length; i++) {
 		healthbar.removeClass("hp-" + unwantedColors[i]);
 	}
-	healthbar.css("background", "linear-gradient(to right, " + fillColor + " " + fillPercent + "%, white 0%");
+	healthbar.css("--hp-fill", fillPercent + "%");
 }
 // TODO: these HP inputs should really be input type=number with min=0, step=1, constrained by max=maxHP or 100
 $(".current-hp").keyup(function () {

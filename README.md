@@ -70,6 +70,10 @@ $ npm run cf:preview   # wrangler dev against the built worker (reads .dev.vars)
 $ npm run cf:deploy    # ships https://runbun.<account>.workers.dev (printed on deploy)
 ```
 
+`cf:deploy` refuses a dirty worktree. The authenticated
+`/__runbun/meta` endpoint reports the exact Git revision and Model version
+embedded in the Worker bundle, so a deployment can be matched to its review.
+
 Dev for now, and dev is **private**: the worker carries the fleet's
 preview gate (Basic auth against `SITE_AUTH_PASSWORD`, the same pattern as
 the journal's middleware) over the page and the API alike — and it **fails

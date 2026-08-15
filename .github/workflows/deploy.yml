@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 22.x
       - run: npm install
-      - run: npm run cf:build
+      - run: npm run cf:build:exact
       - name: Push the preview-gate secret
         if: ${{ secrets.SITE_AUTH_PASSWORD != '' }}
         env:

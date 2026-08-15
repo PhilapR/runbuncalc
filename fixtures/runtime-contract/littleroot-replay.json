@@ -1,0 +1,90 @@
+[
+  {
+    "schemaVersion": "1.0.0",
+    "profileId": "run-and-bun",
+    "runId": "rab-fixture-001",
+    "sequence": 0,
+    "observedAt": "2026-08-13T12:00:00Z",
+    "source": {"kind": "manual", "providerId": "fixture", "confidence": 1},
+    "eventId": "event-000",
+    "kind": "run.started",
+    "payload": {"name": "Littleroot contract slice", "permadeath": true, "rival": "Sceptile"}
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "profileId": "run-and-bun",
+    "runId": "rab-fixture-001",
+    "sequence": 1,
+    "observedAt": "2026-08-13T12:00:01Z",
+    "source": {"kind": "manual", "providerId": "fixture", "confidence": 1},
+    "eventId": "event-001",
+    "kind": "encounter.ended",
+    "payload": {"outcome": "caught", "capture": {"species": "Treecko", "level": 5, "nickname": "Twig"}}
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "profileId": "run-and-bun",
+    "runId": "rab-fixture-001",
+    "sequence": 2,
+    "observedAt": "2026-08-13T12:00:02Z",
+    "source": {"kind": "manual", "providerId": "fixture", "confidence": 1},
+    "eventId": "event-002",
+    "kind": "party.updated",
+    "payload": {"partyInstanceIds": ["mon-1"]}
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "profileId": "run-and-bun",
+    "runId": "rab-fixture-001",
+    "sequence": 3,
+    "observedAt": "2026-08-13T12:00:03Z",
+    "source": {"kind": "manual", "providerId": "fixture", "confidence": 1},
+    "eventId": "event-003",
+    "kind": "resource.updated",
+    "payload": {"item": "Poke Ball", "delta": 5}
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "profileId": "run-and-bun",
+    "runId": "rab-fixture-001",
+    "sequence": 4,
+    "observedAt": "2026-08-13T12:00:04Z",
+    "source": {"kind": "emulator", "providerId": "mgba-libretro-rab", "confidence": 0.8},
+    "eventId": "event-004",
+    "kind": "world.changed",
+    "payload": {"mapId": "rab:route-101", "position": {"x": 8, "y": 19}}
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "profileId": "run-and-bun",
+    "runId": "rab-fixture-001",
+    "sequence": 5,
+    "observedAt": "2026-08-13T12:00:05Z",
+    "source": {"kind": "emulator", "providerId": "mgba-libretro-rab", "confidence": 0.8},
+    "eventId": "event-005",
+    "kind": "encounter.ended",
+    "payload": {"outcome": "caught", "capture": {"species": "Poochyena", "map": "Route101", "level": 3, "method": "walk", "nickname": "Scout"}}
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "profileId": "run-and-bun",
+    "runId": "rab-fixture-001",
+    "sequence": 6,
+    "observedAt": "2026-08-13T12:00:06Z",
+    "source": {"kind": "emulator", "providerId": "mgba-libretro-rab", "confidence": 0.8},
+    "eventId": "event-006",
+    "kind": "party.updated",
+    "payload": {"partyInstanceIds": ["mon-1", "mon-2"]}
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "profileId": "run-and-bun",
+    "runId": "rab-fixture-001",
+    "sequence": 7,
+    "observedAt": "2026-08-13T12:00:07Z",
+    "source": {"kind": "emulator", "providerId": "mgba-libretro-rab", "confidence": 0.8},
+    "eventId": "event-007",
+    "kind": "resource.updated",
+    "payload": {"item": "Poke Ball", "delta": -1}
+  }
+]

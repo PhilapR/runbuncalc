@@ -464,8 +464,24 @@ function moveObtainableAt(move) {
 	return gates[move] !== undefined ? gates[move] : null;
 }
 
+/**
+ * Coverage statement for move unlocks shown in progression UI.
+ *
+ * Legal TM/tutor moves are imported, but their overworld locations and dates
+ * are not. Only the HM story spine is dated. Consumers must preserve that
+ * distinction instead of interpreting an absent date as proof of availability.
+ */
+function moveAvailability() {
+	return {
+		status: 'undated',
+		available: [],
+		note: 'TM and tutor moves are known, but their locations and unlock timing are not dated yet.',
+	};
+}
+
 module.exports = {
 	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	moveAvailability,
 	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
