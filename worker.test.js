@@ -2,7 +2,11 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const webcrypto = require('node:crypto').webcrypto;
 const test = require('node:test');
+
+if (!global.crypto) global.crypto = webcrypto;
+
 const worker = require('./worker');
 
 function authorization(password) {

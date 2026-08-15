@@ -116,10 +116,10 @@ the reader's warning to verify before trusting.
 - `AGENTS.md` — d78a42d 2026-08-13
 - `AI_DATA_MODEL.md` — d78a42d 2026-08-13
 - `DEPLOY.md` — d78a42d 2026-08-13
-- `FORK_MAP.md` — d78a42d 2026-08-13
+- `FORK_MAP.md` — e3c01a4 2026-08-15
 - `GEN9_AUDIT.md` — d78a42d 2026-08-13
-- `README.md` — d78a42d 2026-08-13
-- `RUNBUN_REBUILD_MODEL.md` — untracked
+- `README.md` — e3c01a4 2026-08-15
+- `RUNBUN_REBUILD_MODEL.md` — e3c01a4 2026-08-15
 - `RUNBUN_UI_DESIGN.md` — d78a42d 2026-08-13
 - `STRATEGY.md` — d78a42d 2026-08-13
 - `TASKS.md` — d78a42d 2026-08-13
