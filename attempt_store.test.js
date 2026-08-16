@@ -225,7 +225,7 @@ test('attribution evidence is immutable and replacement tests require the exact 
 	forgedRequest.task.interventions[0].ownership.sourceEventHash = 'f'.repeat(64);
 	await assert.rejects(store.recordEvidence({request: forgedRequest,
 		receipt: forgedReceipt, recordedAt: TIME}),
-		error => error.code === 'INVALID_EVIDENCE' && /acquisition event/.test(error.message));
+	error => error.code === 'INVALID_EVIDENCE' && /acquisition event/.test(error.message));
 
 	const wrongBranchRequest = JSON.parse(JSON.stringify(request));
 	const wrongBranchReceipt = JSON.parse(JSON.stringify(receipt));
@@ -235,7 +235,7 @@ test('attribution evidence is immutable and replacement tests require the exact 
 	wrongBranchReceipt.result.interventions[0].outcome.branchOutcomes[0].seed += 1;
 	assert.throws(() => store.recordEvidence({request: wrongBranchRequest,
 		receipt: wrongBranchReceipt, recordedAt: TIME}),
-		error => error.code === 'INVALID_EVIDENCE' && /intervention result/.test(error.message));
+	error => error.code === 'INVALID_EVIDENCE' && /intervention result/.test(error.message));
 
 	const wrongDeltaRequest = JSON.parse(JSON.stringify(request));
 	const wrongDeltaReceipt = JSON.parse(JSON.stringify(receipt));
@@ -245,7 +245,7 @@ test('attribution evidence is immutable and replacement tests require the exact 
 	wrongDeltaReceipt.result.interventions[0].delta.deaths = '1';
 	assert.throws(() => store.recordEvidence({request: wrongDeltaRequest,
 		receipt: wrongDeltaReceipt, recordedAt: TIME}),
-		error => error.code === 'INVALID_EVIDENCE' && /intervention result/.test(error.message));
+	error => error.code === 'INVALID_EVIDENCE' && /intervention result/.test(error.message));
 	assert.equal((await store.listEvidence(request.attempt.attemptId)).length, 1);
 });
 

@@ -114,12 +114,12 @@ a stamp changes at the very commit that touches its doc, so gating it
 byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
 - `AGENTS.md` — 250820c 2026-08-16
-- `AI_DATA_MODEL.md` — 7881488 2026-08-16
+- `AI_DATA_MODEL.md` — 4e0daf1 2026-08-16
 - `DEPLOY.md` — 1298e03 2026-08-13
 - `FORK_MAP.md` — e3c01a4 2026-08-15
 - `GEN9_AUDIT.md` — c85114d 2026-08-08
 - `README.md` — 6d6d8ec 2026-08-16
-- `RUNBUN_REBUILD_MODEL.md` — 7881488 2026-08-16
+- `RUNBUN_REBUILD_MODEL.md` — 4e0daf1 2026-08-16
 - `RUNBUN_UI_DESIGN.md` — 8fcc3f7 2026-08-12
 - `STRATEGY.md` — 78fd09e 2026-08-13
 - `TASKS.md` — d4f02d3 2026-08-08

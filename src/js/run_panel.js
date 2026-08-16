@@ -1026,7 +1026,7 @@
 						(actual.deaths ? actual.deaths + ' death' + (actual.deaths === 1 ? '' : 's') :
 							'deathless') + ' · ' + actual.turns + ' turns · seed ' + actual.seed :
 						'Played · not yet'));
-						if (actual && actual.contributions.length) {
+					if (actual && actual.contributions.length) {
 						var $contributions = $('<ul class="runbun-history-contributions"></ul>');
 						actual.contributions.forEach(function (contribution) {
 							var appearances = [];
@@ -1043,19 +1043,19 @@
 						$card.append($('<div class="runbun-history-contribution-label"></div>')
 							.text(actual.contributionComplete ? 'Actual participation' :
 								'Partial participation record'));
-							$card.append($contributions);
-						}
-						if (row.attribution && row.attribution.tests.length) {
-							var $modeled = $('<ul class="runbun-history-contributions runbun-history-modeled"></ul>');
-							row.attribution.tests.forEach(function (test) {
-								$modeled.append($('<li></li>').text(
-									attributionTestText(test, row.attribution.seedCount)));
-							});
-							$card.append($('<div class="runbun-history-contribution-label"></div>')
-								.text('Modeled value · fixed-seed tests'));
-							$card.append($modeled);
-						}
-						$planning.append($card);
+						$card.append($contributions);
+					}
+					if (row.attribution && row.attribution.tests.length) {
+						var $modeled = $('<ul class="runbun-history-contributions runbun-history-modeled"></ul>');
+						row.attribution.tests.forEach(function (test) {
+							$modeled.append($('<li></li>').text(
+								attributionTestText(test, row.attribution.seedCount)));
+						});
+						$card.append($('<div class="runbun-history-contribution-label"></div>')
+							.text('Modeled value · fixed-seed tests'));
+						$card.append($modeled);
+					}
+					$planning.append($card);
 				});
 				return review;
 			}).catch(function (error) {

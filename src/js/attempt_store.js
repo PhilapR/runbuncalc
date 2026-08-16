@@ -538,8 +538,8 @@
 		function validDelta(delta) {
 			return isObject(delta) && ['safeBranches', 'wins', 'deaths', 'totalHPRemaining',
 				'changedOutcomeBranches', 'changedDeathlessBranches'].every(function (field) {
-					return Number.isInteger(delta[field]);
-				}) && delta.changedOutcomeBranches >= 0 && delta.changedDeathlessBranches >= 0 &&
+				return Number.isInteger(delta[field]);
+			}) && delta.changedOutcomeBranches >= 0 && delta.changedDeathlessBranches >= 0 &&
 				Number.isFinite(delta.expectedTurns);
 		}
 		if (receipt.input.attemptId !== request.attempt.attemptId ||

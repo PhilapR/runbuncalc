@@ -142,11 +142,11 @@ test('a new run cannot outrun durable bootstrap', {skip}, async () => {
 	await page.waitForFunction(() => !document.querySelector('#runbun-run-new').disabled);
 	assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'false');
 	await page.click('#runbun-run-new');
-	await page.waitForFunction(async () => {
-		const head = await window.RunBunAttemptStore.getDefault().loadActive();
-		return head && head.revision === 1 && head.run.name === 'My run';
-	}, null, {timeout: 15000});
-	assert.equal((await durableHead(page)).revision, 1);
+	await page.waitForFunction(() => /Started My run/.test(
+		document.querySelector('#runbun-run-status').textContent), null, {timeout: 15000});
+	const head = await durableHead(page);
+	assert.equal(head.revision, 1);
+	assert.equal(head.run.name, 'My run');
 	await context.close();
 });
 
@@ -224,14 +224,14 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 	await page.click('#runbun-run-value');
 	await page.waitForFunction(() => /saved with this attempt/.test(
 		document.querySelector('#runbun-run-attribution-state').textContent),
-		null, {timeout: 30000});
+	null, {timeout: 30000});
 	assert.match(await page.textContent('#runbun-run-attribution'),
 		/Modeled roster value.*Baseline · \d+\/4 paired seeds deathless.*IV reference test · Treecko → all 15/s);
 	assert.match(await page.textContent('#runbun-run-attribution'),
 		/Model only · same paired seeds · lead reoptimized/);
 	const attributionEvidence = await page.evaluate(async attemptId =>
 		window.RunBunAttemptStore.getDefault().listEvidence(attemptId),
-		(await durableHead(page)).attemptId);
+	(await durableHead(page)).attemptId);
 	assert.equal(attributionEvidence.length, 4);
 	assert.equal(attributionEvidence[3].kind, 'pokemon.rab.attribute');
 	assert.equal(Object.hasOwn(attributionEvidence[3], 'carry'), false);
@@ -305,8 +305,8 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.equal(await page.textContent('#runbun-run-ready-level'), 'Projected to L12');
 	assert.equal(await page.textContent('#runbun-run-ready-recovery'), 'Fresh at fight start');
 	assert.equal(await page.textContent('#runbun-run-party-strip .is-summary'), '5 open slots');
-	assert.equal(await page.$$eval('.runbun-run-next-actions > button', buttons => buttons.length), 6,
-		'the active loop should use one compact command deck');
+	assert.equal(await page.$$eval('.runbun-run-next-actions > button', buttons => buttons.length), 7,
+		'the active loop should keep roster value inside one compact command deck');
 	assert.match(await page.textContent('#runbun-run-party-strip .runbun-run-party-meta'),
 		/No held item · 3 moves/);
 	await page.click('#runbun-run-party-strip .runbun-run-party-select[data-id="mon-1"]');
@@ -316,9 +316,11 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	'party members should be inspectable without duplicating them in the reserve');
 	assert.match(await page.textContent('#runbun-run-mon-summary-name'), /Treecko · L5/);
 	assert.equal(await page.textContent('#runbun-run-mon-summary-types'), 'Grass');
-	assert.match(await page.textContent('#runbun-run-mon-facts'),
-		/AbilityNot recordedNatureNot recorded/,
-		'missing imported facts must say that they were not recorded');
+	const ownedFacts = await page.textContent('#runbun-run-mon-facts');
+	assert.match(ownedFacts, /AbilityOvergrowNature[A-Z][a-z]+/,
+		'a game-owned starter must expose its rolled ability and nature');
+	assert.doesNotMatch(ownedFacts, /Not recorded/,
+		'game-owned facts must not fall back to imported-data uncertainty');
 	assert.equal(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv.is-unknown',
 		rows => rows.length), 0, 'a game-owned starter has all six player IVs');
 	assert.deepEqual(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv strong',
