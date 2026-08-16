@@ -164,6 +164,13 @@ hosted storage only after Phase 3 proves which facts users actually review.
 
 ## Phase 5 — High-volume simulation and RL workloads
 
+**Current evidence:** The control plane now has exact single/cold-batch/warm-
+batch receipt parity and a reproducible transport benchmark through 1,024
+eight-seed requests. The companion consumes a bounded warm batch for the
+current and next two fights. This closes the JSON/provider transport baseline,
+not the phase: six-Pokemon worst-case simulation, replay-locked episode
+materialization, memory/shard benchmarks, and policy-quality evaluation remain.
+
 **User outcome:** The project can evaluate many seeds, teams, encounters, and
 policy variants quickly enough to discover robust strategies and explain their
 limits in the companion.

@@ -107,13 +107,30 @@ Chromium. The Plan surface combines that eight-seed whole-branch forecast with
 the existing tactical action ranking; companion play still falls back to the
 local planner if the provider cannot answer.
 
-This is local browser/provider parity, not batch readiness. The integration
-matrix therefore keeps `singleBatchParity`, `providerEnabled`, and
-`privateDeploymentVerified` false. The next program slice is step 6: register
-the exact request/receipt capability in `stochastic-inference-core`, then add a
-batch executor and prove that its fixed corpus matches single execution before
-any fleet or RL scale claim. Deployment follows those gates and must remain
-private.
+Step 6 and the first bounded slice of step 7 are now complete locally.
+`stochastic-inference-core` revision
+`ac7ed756a22d106fe241777afb5741633db5d234` registers the exact typed
+capability, validates every receipt against its request, and runs cold or warm
+batches capped at 1,024 unique requests. Its fixed corpus has exact single,
+cold-batch, warm-batch, and recorded-receipt parity. The saved transport
+benchmark measured 1,024 eight-seed requests at 2,083 requests/second through
+one warm provider process; that is not a six-Pokemon worst-case simulator
+claim.
+
+The browser consumer at app revision
+`248546a530df61a8a40614d9cb070243f8a72eb2` uses the already-loaded provider
+for a bounded current-plus-two-fight outlook. Browser batches are capped at the
+eight fights already present on the visible road, preserve order, reject
+duplicate request IDs before provider work, and match single-call receipts.
+The UI labels these eight-seed results `PARTIAL PLAN` and says "sampled
+branches"; it does not promote a clean sample to `CERTIFIED` or "whole branch
+safe."
+
+The integration matrix therefore records `singleBatchParity: true` and exact
+app, engine, control, and verification revisions. `providerEnabled` and
+`privateDeploymentVerified` remain false: no production/private promotion is
+claimed until the exact reviewed app revision passes authenticated success,
+anonymous denial, and deployed receipt checks. Deployment remains private.
 
 The executable manifest is
 [`../contracts/ecosystem/v1/contract.json`](../contracts/ecosystem/v1/contract.json).

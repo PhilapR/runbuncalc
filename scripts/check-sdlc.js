@@ -111,7 +111,7 @@ sha256(receipt.evidence.replayHash, 'receipt evidence replayHash');
 assert.equal(receipt.evidence.deterministic, true);
 assert.deepEqual(receipt.evidence.unexpectedDivergences, []);
 assert.equal(matrix.schemaVersion, 'pokemon.bridge.integration/1.0.0');
-assert.equal(matrix.status, 'provider-integrated-local');
+assert.equal(matrix.status, 'batch-ready-local');
 assert.equal(matrix.contract.canonicalRepository, manifest.authority.canonicalTargetRepository);
 assert.equal(matrix.contract.canonicalPath, manifest.authority.canonicalTargetPath);
 assert.equal(matrix.contract.revision, lock.revision);
@@ -124,7 +124,8 @@ sha256(lock.digest, 'canonical contract digest');
 assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.deepEqual(matrix.fixtures.expectedDivergences, []);
 assert.equal(matrix.lanes.engine.revision, providerProvenance.revision);
-assert.equal(matrix.lanes.app.revision, 'c7b65e2eeaf511bac2e3a6222f430c3973d8f97e');
+assert.equal(matrix.lanes.app.revision, '248546a530df61a8a40614d9cb070243f8a72eb2');
+assert.equal(matrix.lanes.control.revision, 'ac7ed756a22d106fe241777afb5741633db5d234');
 assert.equal(seededReceipt.requestId, request.requestId);
 assert.equal(seededReceipt.producer.revision, providerProvenance.revision);
 assert.equal(seededReceipt.input.stateHash, request.attempt.stateHash);
@@ -152,7 +153,7 @@ assert.equal(seededReceipt.receiptId, 'receipt_' + canonicalHash({
 	replayHash: seededReceipt.evidence.replayHash,
 }).slice(0, 24), 'seeded receiptId does not bind its receipt core');
 assert.equal(matrix.promotion.browserProviderParity, true);
-assert.equal(matrix.promotion.singleBatchParity, false);
+assert.equal(matrix.promotion.singleBatchParity, true);
 assert.equal(matrix.promotion.providerEnabled, false);
 assert.equal(matrix.promotion.privateDeploymentVerified, false);
 

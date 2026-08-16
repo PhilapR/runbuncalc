@@ -1,6 +1,6 @@
 {
   "schemaVersion": "pokemon.bridge.integration/1.0.0",
-  "status": "provider-integrated-local",
+  "status": "batch-ready-local",
   "contract": {
     "version": "1.0.0",
     "canonicalRepository": "pokemon-mono",
@@ -11,7 +11,7 @@
   "lanes": {
     "app": {
       "repository": "runbuncalc",
-      "revision": "c7b65e2eeaf511bac2e3a6222f430c3973d8f97e",
+      "revision": "248546a530df61a8a40614d9cb070243f8a72eb2",
       "gate": "npm test"
     },
     "engine": {
@@ -21,8 +21,8 @@
     },
     "control": {
       "repository": "stochastic-inference-core",
-      "revision": null,
-      "gate": "repository-canonical"
+      "revision": "ac7ed756a22d106fe241777afb5741633db5d234",
+      "gate": "make lint doctor plus focused capability and orchestration suites"
     },
     "verification": {
       "repository": "pokemon-mono",
@@ -45,7 +45,7 @@
   }],
   "promotion": {
     "browserProviderParity": true,
-    "singleBatchParity": false,
+    "singleBatchParity": true,
     "providerEnabled": false,
     "privateDeploymentVerified": false
   }
