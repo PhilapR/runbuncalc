@@ -1,6 +1,6 @@
 {
   "schemaVersion": "pokemon.bridge.integration/1.0.0",
-  "status": "batch-ready-local",
+  "status": "review-ready-local",
   "contract": {
     "version": "1.0.0",
     "canonicalRepository": "pokemon-mono",
@@ -11,7 +11,7 @@
   "lanes": {
     "app": {
       "repository": "runbuncalc",
-      "revision": "5f6542d9460cb52f5c5c19a5f3544f67eb4057e1",
+      "revision": "d3d0f2d614a3271cf9eb6477753ec44d538c3692",
       "gate": "npm test"
     },
     "engine": {
@@ -49,6 +49,9 @@
     "sixPokemonBenchmark": true,
     "planningEvidencePersisted": true,
     "planningEvidenceMaterialized": true,
+    "battleOutcomeRecorded": true,
+    "planningReviewRendered": true,
+    "planningReviewMaterialized": true,
     "providerEnabled": false,
     "privateDeploymentVerified": false
   }

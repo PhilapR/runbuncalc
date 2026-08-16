@@ -168,11 +168,18 @@ archive fell from roughly 112 MB and 4.6 seconds to roughly 3 MB and 0.73 second
 Those are local regression measurements, not cross-device performance promises.
 
 This is the transactional and replay substrate for companion and rebuilt modes.
+Played trainer fights emit canonical `battle.ended` events. Their payloads keep
+the filtered game progression order separate from the canonical pokemon-mono
+trainer order and record seed, lead, participants, turns, result, and deaths.
+The review projection pairs each completion only with the latest eligible plan
+since the prior play of that trainer; a plan recorded after completion cannot
+rewrite the result.
+
 `rl-dataset.js` validates a checked archive and materializes primitive episode,
-event, step, observation, planning-receipt, and planning-branch rows with
-explicit Arrow/Parquet-oriented types. Schema `1.1.0` preserves provider,
-profile/request, seed, result, replay, and evidence identities so policy data
-can be traced back to the exact checked attempt.
+event, step, observation, planning-receipt, planning-branch, battle-outcome, and
+planning-review rows with explicit Arrow/Parquet-oriented types. Schema `1.2.0`
+preserves provider, profile/request, seed, result, replay, and evidence
+identities so policy data can be traced back to the exact checked attempt.
 It is deliberately not Parquet: columnar files belong downstream as immutable
 analytics and RL training partitions. At hosted scale, a Durable Object should
 serialize writes per attempt, D1 should index attempts and lightweight facts,

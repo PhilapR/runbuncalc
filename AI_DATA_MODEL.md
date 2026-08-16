@@ -11,9 +11,11 @@ Planner output is not mutable battle state. Accepted `pokemon.rab.plan`
 request/receipt pairs are stored as content-addressed `rabrun.evidence/1.0.0`
 records beside the attempt event ledger. They bind an attempt revision, owned
 party and IVs, trainer order, explicit seeds, provider revision, result hash,
-and replay hash without advancing the game revision. `rl-dataset.js` schema
-`1.1.0` materializes this evidence into typed `planning_receipts` and
-`planning_branches` tables for Arrow/Parquet-oriented analytics and RL work.
+and replay hash without advancing the game revision. Played fights are separate
+canonical `battle.ended` events with seed, turns, participants, outcome, and
+deaths. `rl-dataset.js` schema `1.2.0` materializes both sides into typed
+`planning_receipts`, `planning_branches`, `battle_outcomes`, and
+`planning_reviews` tables for Arrow/Parquet-oriented analytics and RL work.
 
 `validateBattleState()` is the runtime boundary for serialized inputs. It
 checks stable party IDs, active-slot ownership, HP/resource ranges, stat stages,

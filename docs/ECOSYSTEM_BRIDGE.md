@@ -128,7 +128,7 @@ These are bounded transport/simulator measurements for one recorded party and
 fight, not a claim of policy quality or full-game throughput.
 
 The browser consumer at app revision
-`5f6542d9460cb52f5c5c19a5f3544f67eb4057e1` uses the already-loaded provider
+`d3d0f2d614a3271cf9eb6477753ec44d538c3692` uses the already-loaded provider
 for a bounded current-plus-two-fight outlook. Browser batches are capped at the
 eight fights already present on the visible road, preserve order, reject
 duplicate request IDs before provider work, and match single-call receipts.
@@ -137,15 +137,24 @@ branches"; it does not promote a clean sample to `CERTIFIED` or "whole branch
 safe."
 
 The same app revision retains those three request/receipt pairs atomically in
-IndexedDB v3 and exports them with the attempt. The checked archive materializer
-emits schema `1.1.0` episode, event, step, observation, planning-receipt, and
-per-seed planning-branch tables. Its maximum-batch test retains and materializes
-1,024 receipts without adding game events; the checked archive stays below
-8 MiB in the local regression gate.
+IndexedDB v3 and exports them with the attempt. A played trainer fight now emits
+the canonical `battle.ended` event with both the game's filtered progression
+order and pokemon-mono's canonical trainer order, plus seed, lead, participants,
+turns, result, and deaths. The Run history surface pairs the latest plan before
+that exact fight and labels the descriptive result `held`, `underestimated`,
+`outperformed`, `within-risk`, `defeat`, or `unplayed`; it does not infer carry
+or causal policy value.
+
+The checked archive materializer emits schema `1.2.0` episode, event, step,
+observation, planning-receipt, per-seed planning-branch, battle-outcome, and
+planning-review tables. Its maximum-batch test retains and materializes 1,024
+receipts without adding game events; the checked archive stays below 8 MiB in
+the local regression gate.
 
 The integration matrix therefore records single/batch parity, a six-Pokemon
-benchmark, planning-evidence persistence/materialization, and exact app,
-engine, control, and verification revisions. `providerEnabled` and
+benchmark, planning-evidence persistence/materialization, played-outcome
+recording, rendered review, derived review rows, and exact app, engine, control,
+and verification revisions. `providerEnabled` and
 `privateDeploymentVerified` remain false: no production/private promotion is
 claimed until the exact reviewed app revision passes authenticated success,
 anonymous denial, and deployed receipt checks. Deployment remains private.
