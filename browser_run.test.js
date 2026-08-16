@@ -336,11 +336,21 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	await page.fill('#runbun-run-observed-iv-atk', '27');
 	await page.fill('#runbun-run-observed-iv-spe', '31');
 	await page.click('#runbun-run-record-details');
-	await page.waitForFunction(() => /recorded Treecko/.test(
-		document.querySelector('#runbun-run-status').textContent), null, {timeout: 10000});
+	await page.waitForFunction(() => {
+		const facts = document.querySelector('#runbun-run-mon-facts').textContent;
+		const ivs = Array.from(document.querySelectorAll(
+			'#runbun-run-mon-summary-ivs .runbun-run-iv strong'), row => row.textContent);
+		return /AbilityOvergrowNatureJolly/.test(facts) &&
+			ivs[1] === '27' && ivs[5] === '31';
+	}, null, {timeout: 10000});
 	assert.match(await page.textContent('#runbun-run-mon-facts'), /AbilityOvergrowNatureJolly/);
 	assert.equal(await page.textContent('#runbun-run-mon-summary-ivs .runbun-run-iv:nth-child(2) strong'), '27');
 	assert.equal(await page.textContent('#runbun-run-mon-summary-ivs .runbun-run-iv:nth-child(6) strong'), '31');
+	const identifiedStarter = (await savedRun(page)).box[0];
+	assert.equal(identifiedStarter.nature, 'Jolly', 'the visible identification must reach the durable run');
+	assert.equal(identifiedStarter.ability, 'Overgrow');
+	assert.equal(identifiedStarter.ivs.atk, 27);
+	assert.equal(identifiedStarter.ivs.spe, 31);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
 		/4 encounter areas/);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
