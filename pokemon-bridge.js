@@ -50,7 +50,7 @@ function createPlanningRequest(input) {
 	if (run.version !== runtime.VERSION) fail('run version is unsupported');
 	if (!Array.isArray(run.party) || !run.party.length) fail('run party is empty');
 	const order = options.trainerOrder;
-	if (!Number.isInteger(order) || order < 1) fail('trainerOrder must be a positive integer');
+	if (!Number.isInteger(order) || order < 0) fail('trainerOrder must be a non-negative integer');
 	const specs = runtime.partySpecs(run, {atOrder: order});
 	const team = run.party.map((id, index) => Object.assign({id}, specs[index]));
 	return {

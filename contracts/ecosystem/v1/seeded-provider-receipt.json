@@ -1,10 +1,10 @@
 {
   "schemaVersion": "pokemon.bridge.receipt/1.0.0",
-  "receiptId": "receipt_4a4eec0332445e126420f684",
+  "receiptId": "receipt_339a0f33c01e0d7acfd2ef7f",
   "requestId": "req_first_fight_seed_1450",
   "producer": {
     "repository": "pokemon-mono",
-    "revision": "112b916cf01732c5edba5b3ed1b24535369b4844",
+    "revision": "58aad68ac7a93980e1d424e768b009ce7cc0ba2f",
     "engine": "run-and-bun",
     "engineVersion": "0.1.0"
   },
@@ -35,12 +35,12 @@
         "totalHPRemaining": 0
       }]
     },
-    "outputHash": "9bd39fa6ef8f83287cad53d369c5bbe2798f93526f6c8962df34218d168da1d0"
+    "outputHash": "a6b297a67d1034e3538abedf7663b77c4d0c259fb14337f46cc43112b04c8d5a"
   },
   "evidence": {
     "contractVersion": "1.0.0",
     "deterministic": true,
-    "replayHash": "5d5200523df814487a99036a3839c136bd9dfa8d83a182b51eeab83d20b7341d",
+    "replayHash": "8a758129d3e699f1a87cca5394998820b935f50b8cccc27fdf75f47522ff0190",
     "expectedDivergences": [],
     "unexpectedDivergences": []
   }

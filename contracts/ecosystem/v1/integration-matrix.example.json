@@ -16,7 +16,7 @@
     },
     "engine": {
       "repository": "pokemon-mono",
-      "revision": "112b916cf01732c5edba5b3ed1b24535369b4844",
+      "revision": "58aad68ac7a93980e1d424e768b009ce7cc0ba2f",
       "gate": "bun run test:run-runtime plus just test-ts plus browser-target bridge bundle"
     },
     "control": {
@@ -38,10 +38,10 @@
     "unexpectedDivergences": []
   },
   "adapters": [{
-    "boundary": "trainer-order",
-    "appRepresentation": "zero-based",
-    "contractRepresentation": "one-based",
-    "transform": "contractOrder = appOrder + 1"
+    "boundary": "trainer-identity",
+    "appRepresentation": "filtered progression label",
+    "contractRepresentation": "canonical raw trainer database order",
+    "transform": "resolve exact unique label through pinned pokemon-mono provider"
   }],
   "promotion": {
     "browserProviderParity": true,

@@ -18,6 +18,19 @@ function exactKeys(value, expected, label) {
 	assert.deepEqual(Object.keys(value).sort(), expected.slice().sort(), `${label} keys drifted`);
 }
 
+function canonical(value) {
+	if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
+	if (value && typeof value === 'object') {
+		return '{' + Object.keys(value).sort().map(key =>
+			JSON.stringify(key) + ':' + canonical(value[key])).join(',') + '}';
+	}
+	return JSON.stringify(value);
+}
+
+function canonicalHash(value) {
+	return crypto.createHash('sha256').update(canonical(value)).digest('hex');
+}
+
 const pkg = json('package.json');
 assert.equal(pkg.scripts.start, 'npm run dev');
 assert.equal(pkg.scripts.dev, 'npm run build && node server.js');
@@ -31,7 +44,7 @@ const providerArtifact = fs.readFileSync(path.join(root, 'vendor', 'pokemon-run-
 assert.equal(crypto.createHash('sha256').update(providerArtifact).digest('hex'),
 	providerProvenance.artifactSha256, 'vendored pokemon-mono artifact hash drifted');
 assert.equal(providerProvenance.repository, 'pokemon-mono');
-assert.equal(providerProvenance.revision, '112b916cf01732c5edba5b3ed1b24535369b4844');
+assert.equal(providerProvenance.revision, '58aad68ac7a93980e1d424e768b009ce7cc0ba2f');
 
 const source = read('src/index.template.html');
 assert.match(source, /\/src\\\/index\\\.template\\\.html\$/,
@@ -117,6 +130,27 @@ assert.equal(seededReceipt.producer.revision, providerProvenance.revision);
 assert.equal(seededReceipt.input.stateHash, request.attempt.stateHash);
 assert.deepEqual(seededReceipt.input.seeds, request.task.seeds);
 assert.deepEqual(seededReceipt.evidence.unexpectedDivergences, []);
+const seededBinding = {
+	requestId: request.requestId,
+	attempt: request.attempt,
+	profileRevision: request.profile.revision,
+	providerRevision: seededReceipt.producer.revision,
+	plannerRevision: 'seeded-monte-carlo-lead-planner-v1',
+	seeds: request.task.seeds,
+	summary: seededReceipt.result.summary,
+};
+assert.equal(seededReceipt.result.outputHash, canonicalHash(seededBinding),
+	'seeded receipt outputHash does not bind its request and summary');
+assert.equal(seededReceipt.evidence.replayHash,
+	canonicalHash({binding: seededBinding, outputHash: seededReceipt.result.outputHash}),
+	'seeded receipt replayHash does not bind outputHash');
+assert.equal(seededReceipt.receiptId, 'receipt_' + canonicalHash({
+	schemaVersion: seededReceipt.schemaVersion,
+	requestId: seededReceipt.requestId,
+	providerRevision: seededReceipt.producer.revision,
+	outputHash: seededReceipt.result.outputHash,
+	replayHash: seededReceipt.evidence.replayHash,
+}).slice(0, 24), 'seeded receiptId does not bind its receipt core');
 assert.equal(matrix.promotion.browserProviderParity, true);
 assert.equal(matrix.promotion.singleBatchParity, false);
 assert.equal(matrix.promotion.providerEnabled, false);

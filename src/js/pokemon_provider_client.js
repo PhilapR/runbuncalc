@@ -76,8 +76,8 @@
 
 	async function createRequest(options) {
 		if (!options || !options.run) fail('run is required');
-		if (!Number.isInteger(options.trainerOrder) || options.trainerOrder < 1) {
-			fail('trainerOrder must be a positive integer');
+		if (!Number.isInteger(options.trainerOrder) || options.trainerOrder < 0) {
+			fail('trainerOrder must be a non-negative integer');
 		}
 		var revision = Number.isInteger(options.revision) && options.revision >= 0 ?
 			options.revision : options.run.log && options.run.log.length || 0;

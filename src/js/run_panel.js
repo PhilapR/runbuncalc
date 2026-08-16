@@ -1281,12 +1281,18 @@
 		var runtime = window.RunBunPokemonProvider;
 		var fight = planningFight(trainer);
 		if (!client || !runtime || !fight) return Promise.resolve(null);
+		var trainerOrder;
+		try {
+			trainerOrder = runtime.resolveTrainerOrder(fight.trainer);
+		} catch (error) {
+			return Promise.resolve({error: error});
+		}
 		return client.planRun({
 			runtime: runtime,
 			run: state,
-			// The app's route map is zero-based (#0 is Calvin); the canonical
-			// pokemon-mono bridge is one-based (order 1 is the same fight).
-			trainerOrder: fight.order + 1,
+			// Product progression is filtered. Resolve its label through the
+			// pinned engine rather than treating a UI index as a database key.
+			trainerOrder: trainerOrder,
 			revision: currentRevision === null ? logLength() : currentRevision,
 		}).catch(function (error) { return {error: error}; });
 	}

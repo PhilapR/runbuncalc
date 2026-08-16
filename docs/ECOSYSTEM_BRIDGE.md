@@ -100,9 +100,9 @@ inference is never the game-state authority.
 
 Steps 1 through 5 are locally complete for the first seeded planning fixture.
 `runbuncalc` imports the browser-safe provider built from `pokemon-mono`
-revision `112b916cf01732c5edba5b3ed1b24535369b4844`, verifies the artifact hash
-before building, translates the app's zero-based fight index to the contract's
-one-based trainer order, and reproduces the recorded seed-1450 receipt in
+revision `58aad68ac7a93980e1d424e768b009ce7cc0ba2f`, verifies the artifact hash
+before building, resolves each filtered product label to the engine's unique
+canonical raw trainer order, and reproduces the recorded seed-1450 receipt in
 Chromium. The Plan surface combines that eight-seed whole-branch forecast with
 the existing tactical action ranking; companion play still falls back to the
 local planner if the provider cannot answer.

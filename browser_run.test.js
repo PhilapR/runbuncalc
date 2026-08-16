@@ -125,9 +125,11 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 		plan: typeof window.RunBunPokemonProvider.provider.plan,
 	})), {
 		repository: 'pokemon-mono',
-		revision: '112b916cf01732c5edba5b3ed1b24535369b4844',
+		revision: '58aad68ac7a93980e1d424e768b009ce7cc0ba2f',
 		plan: 'function',
 	});
+	assert.equal(await page.evaluate(() =>
+		window.RunBunPokemonProvider.resolveTrainerOrder('Youngster Calvin')), 3);
 	assert.deepEqual(await page.evaluate(request =>
 		window.RunBunPokemonProvider.provider.plan(request), planningRequest),
 	seededProviderReceipt, 'browser provider must reproduce pokemon-mono canonical receipt exactly');
@@ -139,8 +141,18 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(() => !document.querySelector('#runbun-run-plan').disabled,
 		null, {timeout: 10000});
+	await page.evaluate(() => {
+		const provider = window.RunBunPokemonProvider.provider;
+		const plan = provider.plan.bind(provider);
+		provider.plan = request => {
+			window.__pokemonMonoTrainerOrder = request.task.state.trainer.order;
+			return plan(request);
+		};
+	});
 	await page.click('#runbun-run-plan');
 	await page.waitForSelector('#runbun-run-plan-actions .is-provider', {timeout: 30000});
+	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrder), 3,
+		'Calvin must resolve to the canonical raw trainer order, not the filtered UI index');
 	assert.match(await page.textContent('#runbun-run-plan-actions'),
 		/pokemon-mono · lead Treecko L5 · \d+\/8 branches deathless/);
 	assert.deepEqual(session.errors, []);
