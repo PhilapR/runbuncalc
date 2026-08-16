@@ -52,6 +52,8 @@
 	var currentRevision = null;
 	/** Where startup found the active attempt, for an honest load receipt. */
 	var restoredFrom = null;
+	/** Start is unsafe until durable storage and the authored map are ready. */
+	var initialized = false;
 
 	function newAttemptId() {
 		if (window.crypto && typeof window.crypto.randomUUID === 'function') {
@@ -78,6 +80,12 @@
 
 	function status(message, kind) {
 		$('#runbun-run-status').text(displayText(message)).attr('data-kind', kind || '');
+	}
+
+	function refreshStartAvailability() {
+		var hasStarter = $('.runbun-run-starter[aria-pressed="true"]').length > 0;
+		$('#runbun-run-new').prop('disabled', !initialized || !hasStarter);
+		$('.runbun-run-setup-form').attr('aria-busy', initialized ? 'false' : 'true');
 	}
 
 	function api(path, body) {
@@ -2672,11 +2680,15 @@
 			var was = $(this).attr('aria-pressed') === 'true';
 			$('.runbun-run-starter').attr('aria-pressed', 'false');
 			$(this).attr('aria-pressed', was ? 'false' : 'true');
-			$('#runbun-run-new').prop('disabled',
-				!$('.runbun-run-starter[aria-pressed="true"]').length);
+			refreshStartAvailability();
 		});
 
 		$('#runbun-run-new').on('click', function () {
+			if (!initialized) {
+				status('Finishing durable storage and game data setup. Start the run when loading completes.',
+					'error');
+				return;
+			}
 			if (damagedSaveUnhandled()) {
 				status('The damaged save from this browser is in the transfer box below ' +
 					'and starting a run would write over it. Repair it and press Import, ' +
@@ -3282,6 +3294,8 @@
 		bind();
 		window.addEventListener('storage', syncFromOtherTab);
 		restoreDurable().then(loadMaps).then(render).then(function () {
+			initialized = true;
+			refreshStartAvailability();
 			if (corruptSave) {
 				$('#runbun-run-transfer').val(corruptSave)
 					.closest('details').prop('open', true);

@@ -111,6 +111,45 @@ async function durableHead(page) {
 	return page.evaluate(() => window.RunBunAttemptStore.getDefault().loadActive());
 }
 
+test('a new run cannot outrun durable bootstrap', {skip}, async () => {
+	const context = await browser.newContext();
+	await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
+	let releaseMaps;
+	const mapsReleased = new Promise(resolve => { releaseMaps = resolve; });
+	await context.route('**/run/maps', async route => {
+		await mapsReleased;
+		await route.continue();
+	});
+	const page = await context.newPage();
+	await page.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
+	await page.waitForFunction(() => {
+		const button = document.querySelector('#runbun-run-new');
+		const events = button && window.jQuery && window.jQuery._data(button, 'events');
+		return events && events.click;
+	});
+
+	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	assert.equal(await page.isDisabled('#runbun-run-new'), true,
+		'the selected starter must not bypass unfinished durable bootstrap');
+	assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'true');
+	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
+	assert.equal(await savedRun(page), null, 'a programmatic early click must not create a fallback save');
+
+	releaseMaps();
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-map option').length > 100,
+		null, {timeout: 15000});
+	await page.waitForFunction(() => !document.querySelector('#runbun-run-new').disabled);
+	assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'false');
+	await page.click('#runbun-run-new');
+	await page.waitForFunction(async () => {
+		const head = await window.RunBunAttemptStore.getDefault().loadActive();
+		return head && head.revision === 1 && head.run.name === 'My run';
+	}, null, {timeout: 15000});
+	assert.equal((await durableHead(page)).revision, 1);
+	await context.close();
+});
+
 async function selectManualMap(page, map) {
 	await page.$eval('.runbun-run-manual-map', details => { details.open = true; });
 	await page.selectOption('#runbun-run-map', map);
