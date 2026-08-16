@@ -1,6 +1,6 @@
 {
   "schemaVersion": "pokemon.bridge.local-evidence/1.0.0",
-  "status": "implementation-tested-browser-pending",
+  "status": "implementation-tested-browser-proven-local",
   "contract": {
     "version": "1.1.0",
     "repository": "pokemon-mono",
@@ -11,7 +11,7 @@
   "lanes": {
     "app": {
       "repository": "runbuncalc",
-      "revision": "87ca609a5c5cf7dcc70eed70c8b7c0a2b7ed1d8a"
+      "revision": "1339625fcd0c86ddc8d7346ef9658052ebb023e0"
     },
     "engine": {
       "repository": "pokemon-mono",
@@ -19,7 +19,7 @@
     },
     "control": {
       "repository": "stochastic-inference-core",
-      "revision": "84e7e9eb5d829d10e5f1f4b753976e6abb6d3d1a",
+      "revision": "3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c",
       "attributionCapabilityRegistered": false
     }
   },
@@ -34,14 +34,19 @@
     "evidencePersisted": true,
     "evidenceMaterialized": true,
     "reviewDerived": true,
-    "rendered": false,
+    "durableBootstrapRaceBlocked": true,
+    "durableReloadRecovered": true,
+    "attributionRenderedDesktop": true,
+    "attributionRenderedMobile": true,
+    "historySeparationRendered": true,
+    "rendered": true,
     "privateDeploymentVerified": false
   },
   "nonClaims": [
     "Participation is not carry.",
     "A bounded sample is not whole-branch certification.",
     "The attribution capability is not registered in stochastic-inference-core.",
-    "The attribution UI has not passed the browser acceptance gate.",
+    "The browser acceptance evidence is local and does not prove private deployment.",
     "The exact app revision has not passed private deployment smoke checks."
   ]
 }
