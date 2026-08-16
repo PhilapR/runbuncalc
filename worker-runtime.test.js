@@ -33,6 +33,10 @@ function authorization(password) {
 	return 'Basic ' + Buffer.from('runbun:' + password).toString('base64');
 }
 
+function cookiePair(response) {
+	return response.headers.get('set-cookie').split(';', 1)[0];
+}
+
 async function startWorker() {
 	const port = await availablePort();
 	const inspectorPort = await availablePort();
@@ -113,7 +117,10 @@ test.before(startWorker);
 test.after(stopWorker);
 
 test('workerd keeps the private boundary closed', async () => {
-	assert.equal((await request('/')).status, 401);
+	const loginPage = await request('/', {headers: {Accept: 'text/html'}});
+	assert.equal(loginPage.status, 200);
+	assert.match(await loginPage.text(), /Private playtest/);
+	assert.equal((await request('/__runbun/meta')).status, 401);
 	assert.equal((await request('/', {
 		headers: {Authorization: authorization('wrong')},
 	})).status, 401);
@@ -125,6 +132,47 @@ test('workerd keeps the private boundary closed', async () => {
 	});
 	assert.equal(manifest.status, 200);
 	assert.ok((await manifest.json()).scenarios.length >= 8);
+});
+
+test('workerd browser login reaches the private app and logout clears its cookie', async () => {
+	const wrong = await request('/__runbun/login', {
+		method: 'POST',
+		headers: {
+			'content-type': 'application/x-www-form-urlencoded',
+			Origin: baseUrl,
+		},
+		body: new URLSearchParams({password: 'wrong'}),
+		redirect: 'manual',
+	});
+	assert.equal(wrong.status, 401);
+	assert.equal(wrong.headers.get('set-cookie'), null);
+
+	const login = await request('/__runbun/login', {
+		method: 'POST',
+		headers: {
+			'content-type': 'application/x-www-form-urlencoded',
+			Origin: baseUrl,
+		},
+		body: new URLSearchParams({password: PASSWORD}),
+		redirect: 'manual',
+	});
+	assert.equal(login.status, 303);
+	assert.doesNotMatch(login.headers.get('set-cookie'), /; Secure/i);
+	const cookie = cookiePair(login);
+	assert.match(cookie, /^runbun_session=v1\./);
+	assert.equal((await request('/__runbun/meta', {
+		headers: {Cookie: cookie},
+	})).status, 200);
+	assert.equal((await request('/index.html', {
+		headers: {Cookie: cookie},
+	})).status, 200);
+
+	const logout = await request('/__runbun/logout', {
+		method: 'POST', headers: {Cookie: cookie, Origin: baseUrl},
+		redirect: 'manual',
+	});
+	assert.equal(logout.status, 303);
+	assert.match(logout.headers.get('set-cookie'), /Max-Age=0/);
 });
 
 test('workerd completes the first run transaction and reports the road ahead', async () => {

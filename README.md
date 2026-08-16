@@ -78,10 +78,12 @@ embedded in the Worker bundle, so a deployment can be matched to its review.
 Both CI and the deployment workflow also run the built bundle inside workerd,
 including the private gate and the complete `new → apply → status` transaction.
 
-Dev for now, and dev is **private**: the worker carries the fleet's
-preview gate (Basic auth against `SITE_AUTH_PASSWORD`, the same pattern as
-the journal's middleware) over the page and the API alike — and it **fails
-closed**: with no secret set the worker answers 503, never an open door.
+Dev for now, and dev is **private**: the worker carries a fail-closed preview
+gate against `SITE_AUTH_PASSWORD`. Browsers receive a small inline login form
+and then a signed, `HttpOnly`, `SameSite=Strict` session cookie that expires
+after 12 hours; API tools can keep using Basic Auth. The form is the only
+anonymous HTML response — app assets, metadata, and APIs stay protected. With
+no secret set the worker answers 503, never an open door.
 Local `wrangler dev` reads `.dev.vars` (copy `.dev.vars.example`). When it
 graduates to the portfolio, swap `workers_dev` in `wrangler.jsonc` for the
 zone route (the commented block shows it) and set `PREVIEW_OPEN=true` —

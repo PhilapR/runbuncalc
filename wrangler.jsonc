@@ -21,7 +21,8 @@
 	// Dev, not portfolio: this ships to the account's workers.dev subdomain
 	// (https://runbun.<account>.workers.dev — the first deploy prints it),
 	// PRIVATE behind the fleet's preview gate, which FAILS CLOSED: without
-	// the secret the worker answers 503, never an open door.
+	// the secret the worker answers 503, never an open door. Browsers exchange
+	// the password for a short signed cookie; API tools retain Basic Auth.
 	//   deployed:   npx wrangler secret put SITE_AUTH_PASSWORD
 	//   local dev:  copy .dev.vars.example to .dev.vars
 	//   public day: set PREVIEW_OPEN=true on purpose, and swap this flag

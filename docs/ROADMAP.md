@@ -43,14 +43,17 @@ and on Cloudflare.
 statically bundled modules or build-generated data. Add a Worker-compatible
 `workerd` test harness for every protected route, including the complete
 `/run/new`, `/run/apply`, `/run/status` sequence. Repair or remove the
-exposed Tools validator route mismatch. Keep Basic Auth fail-closed, metadata
-versioned, and deployment revision-visible.
+exposed Tools validator route mismatch. Keep authentication fail-closed,
+retain Basic Auth for API tools, provide a browser-compatible signed session,
+keep metadata versioned, and keep deployment revision-visible.
 
 **Acceptance gates:** `npm test`; authenticated and unauthenticated live
-smoke; workerd test for new/apply/status; malformed JSON and invalid state
+smoke in both an automation browser and Codex Browser; workerd test for
+login/session/logout and new/apply/status; malformed JSON and invalid state
 return explicit 400s; no browser console errors; deployed metadata matches
-the exact reviewed revision; private gate remains 401 without credentials and
-503 when unconfigured.
+the exact reviewed revision; anonymous app/API requests remain 401, the
+anonymous root exposes only the login shell, and an unconfigured gate remains
+503.
 
 **Non-goals:** Public launch, hosted user accounts, server-side saves,
 emulator access, or redesigning the entire UI.
