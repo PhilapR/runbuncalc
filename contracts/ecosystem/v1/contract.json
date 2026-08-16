@@ -2,10 +2,12 @@
   "contract": "pokemon-ecosystem.bridge",
   "version": "1.0.0",
   "authority": {
-    "status": "bootstrap-consumer-copy",
+    "status": "consumer-fixture-cache",
     "currentRepository": "runbuncalc",
     "canonicalTargetRepository": "pokemon-mono",
     "canonicalTargetPath": "contracts/run-runtime/v1",
+    "canonicalRevision": "f7933f91b706c969a1dc5430a9484e5fafa4d66c",
+    "canonicalDigest": "2cd1db3e69c9989b9e766a97e35ebc96a41cef5d756794829c20be2385c88a61",
     "promotionRequires": [
       "canonical-digest",
       "provider-conformance",
@@ -20,9 +22,7 @@
     "orchestration": "stochastic-inference-core"
   },
   "capabilities": [
-    "pokemon.rab.plan",
-    "pokemon.rab.simulate",
-    "pokemon.rab.evaluate"
+    "pokemon.rab.plan"
   ],
   "transports": {
     "control": "application/json",
@@ -45,6 +45,7 @@
   "examples": {
     "request": "planning-request.json",
     "receipt": "planning-receipt.json",
-    "integrationMatrix": "integration-matrix.example.json"
+    "integrationMatrix": "integration-matrix.example.json",
+    "canonicalLock": "canonical.lock.json"
   }
 }

@@ -18,7 +18,12 @@
   "result": {
     "status": "complete",
     "safe": true,
-    "summary": {"branchesEvaluated": 1, "deaths": 0},
+    "summary": {
+      "branchesEvaluated": 1,
+      "deaths": 0,
+      "trainerOrder": 1,
+      "recommendedLeadId": "owned-treecko-1"
+    },
     "outputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
   },
   "evidence": {

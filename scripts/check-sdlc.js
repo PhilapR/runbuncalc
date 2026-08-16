@@ -43,14 +43,16 @@ assert.deepEqual(manifest.owners, {
 });
 assert.equal(manifest.version, '1.0.0');
 assert.deepEqual(manifest.authority, {
-	status: 'bootstrap-consumer-copy',
+	status: 'consumer-fixture-cache',
 	currentRepository: 'runbuncalc',
 	canonicalTargetRepository: 'pokemon-mono',
 	canonicalTargetPath: 'contracts/run-runtime/v1',
+	canonicalRevision: 'f7933f91b706c969a1dc5430a9484e5fafa4d66c',
+	canonicalDigest: '2cd1db3e69c9989b9e766a97e35ebc96a41cef5d756794829c20be2385c88a61',
 	promotionRequires: ['canonical-digest', 'provider-conformance', 'consumer-lock'],
 });
 assert.equal(manifest.transports.archive, 'rabrun.archive@1+model@2.0.0');
-assert.ok(manifest.capabilities.includes('pokemon.rab.simulate'));
+assert.deepEqual(manifest.capabilities, ['pokemon.rab.plan']);
 assert.deepEqual(manifest.parallelLanes, {
 	contract: 'pokemon-mono', engine: 'pokemon-mono', app: 'runbuncalc',
 	control: 'stochastic-inference-core', verification: 'cross-repository',
@@ -59,6 +61,7 @@ assert.deepEqual(manifest.parallelLanes, {
 const request = json('contracts/ecosystem/v1/' + manifest.examples.request);
 const receipt = json('contracts/ecosystem/v1/' + manifest.examples.receipt);
 const matrix = json('contracts/ecosystem/v1/' + manifest.examples.integrationMatrix);
+const lock = json('contracts/ecosystem/v1/' + manifest.examples.canonicalLock);
 assert.equal(request.schemaVersion, manifest.requestSchema);
 assert.equal(receipt.schemaVersion, manifest.receiptSchema);
 assert.equal(receipt.requestId, request.requestId);
@@ -67,17 +70,30 @@ assert.equal(receipt.input.attemptId, request.attempt.attemptId);
 assert.equal(receipt.input.revision, request.attempt.revision);
 assert.equal(receipt.input.stateHash, request.attempt.stateHash);
 assert.deepEqual(receipt.input.seeds, request.task.seeds);
+assert.equal(request.task.state.kind, 'run-and-bun.plan-input');
+assert.ok(Number.isInteger(request.task.state.trainer.order) && request.task.state.trainer.order > 0);
+assert.ok(Array.isArray(request.task.state.playerTeam) && request.task.state.playerTeam.length > 0);
+assert.deepEqual(Object.keys(request.task.state.playerTeam[0].ivs).sort(),
+	['atk', 'def', 'hp', 'spa', 'spd', 'spe']);
+assert.equal(receipt.result.summary.trainerOrder, request.task.state.trainer.order);
+assert.ok(request.task.state.playerTeam.some(pokemon =>
+	pokemon.id === receipt.result.summary.recommendedLeadId));
 sha256(request.attempt.stateHash, 'request attempt stateHash');
 sha256(receipt.result.outputHash, 'receipt result outputHash');
 sha256(receipt.evidence.replayHash, 'receipt evidence replayHash');
 assert.equal(receipt.evidence.deterministic, true);
 assert.deepEqual(receipt.evidence.unexpectedDivergences, []);
 assert.equal(matrix.schemaVersion, 'pokemon.bridge.integration/1.0.0');
-assert.equal(matrix.status, 'unbound-template');
+assert.equal(matrix.status, 'contract-frozen');
 assert.equal(matrix.contract.canonicalRepository, manifest.authority.canonicalTargetRepository);
 assert.equal(matrix.contract.canonicalPath, manifest.authority.canonicalTargetPath);
-assert.equal(matrix.contract.revision, null);
-assert.equal(matrix.contract.digest, null);
+assert.equal(matrix.contract.revision, lock.revision);
+assert.equal(matrix.contract.digest, lock.digest);
+assert.equal(lock.repository, manifest.authority.canonicalTargetRepository);
+assert.equal(lock.path, manifest.authority.canonicalTargetPath);
+assert.equal(lock.revision, manifest.authority.canonicalRevision);
+assert.equal(lock.digest, manifest.authority.canonicalDigest);
+sha256(lock.digest, 'canonical contract digest');
 assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.equal(matrix.promotion.providerEnabled, false);
 assert.equal(matrix.promotion.privateDeploymentVerified, false);

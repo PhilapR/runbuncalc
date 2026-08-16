@@ -1,12 +1,12 @@
 {
   "schemaVersion": "pokemon.bridge.integration/1.0.0",
-  "status": "unbound-template",
+  "status": "contract-frozen",
   "contract": {
     "version": "1.0.0",
     "canonicalRepository": "pokemon-mono",
     "canonicalPath": "contracts/run-runtime/v1",
-    "revision": null,
-    "digest": null
+    "revision": "f7933f91b706c969a1dc5430a9484e5fafa4d66c",
+    "digest": "2cd1db3e69c9989b9e766a97e35ebc96a41cef5d756794829c20be2385c88a61"
   },
   "lanes": {
     "app": {

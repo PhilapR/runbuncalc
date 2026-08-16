@@ -5,10 +5,10 @@ database. It lets the companion ask for planning or simulation while keeping
 the playable run responsive, serializable, and usable without either backend.
 
 The canonical bridge packet belongs beside the simulation truth at
-`pokemon-mono/contracts/run-runtime/v1/`. The packet in this repository is a
-bootstrap consumer copy so app work can proceed before that promotion. Its
-status is machine-readable in `contract.json`; it must not quietly become the
-authority through convenience.
+`pokemon-mono/contracts/run-runtime/v1/`. The recorded request and receipt in
+this repository are a consumer fixture cache pinned by `canonical.lock.json`.
+They let app work proceed without a live provider, but they cannot change the
+contract or quietly become authoritative through convenience.
 
 ```text
 runbuncalc (play and save)

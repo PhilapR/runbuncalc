@@ -13,7 +13,22 @@
   },
   "task": {
     "kind": "plan",
-    "state": {"battle": null, "milestone": "first-required-fight"},
+    "state": {
+      "kind": "run-and-bun.plan-input",
+      "trainer": {"order": 1},
+      "playerTeam": [
+        {
+          "id": "owned-treecko-1",
+          "species": "Treecko",
+          "level": 5,
+          "moves": ["Pound", "Leer"],
+          "nature": "Hardy",
+          "ability": "Overgrow",
+          "item": null,
+          "ivs": {"hp": 12, "atk": 7, "def": 18, "spa": 24, "spd": 11, "spe": 29}
+        }
+      ]
+    },
     "seeds": [1450],
     "constraints": {"zeroDeaths": true, "wholeBranch": true}
   }

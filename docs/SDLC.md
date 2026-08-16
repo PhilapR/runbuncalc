@@ -43,12 +43,13 @@ lanes may proceed concurrently in separate, explicitly owned worktrees:
 | Control | A clean `stochastic-inference-core` worktree limited to Pokémon capability files | Recorded request/receipt pair and fake provider | Routing, typed artifact, lineage, and side-effect declarations |
 | Verification | Cross-repository harness with no product ownership | Exact lane revisions and fixture digest | Compatibility matrix, named divergences, single/batch parity |
 
-The current `runbuncalc/contracts/ecosystem/v1/` directory is explicitly a
-bootstrap consumer copy. It is not the eventual authority. Promotion requires
-the canonical packet to land under `pokemon-mono/contracts/run-runtime/v1/`;
-every consumer then pins its exact revision and digest. Consumers may vendor
-the small packet, but CI must compare its digest to the lock. No consumer
-imports another repository's working tree or tracks an unpinned `latest`.
+The `runbuncalc/contracts/ecosystem/v1/` directory is a recorded consumer
+fixture cache, not the authority. The canonical packet is frozen on the
+dedicated `pokemon-mono` contract lane under `contracts/run-runtime/v1/`, and
+the app pins its exact revision and digest in `canonical.lock.json`. Consumers
+may vendor the small packet, but CI must compare any vendored digest to the
+lock. No consumer imports another repository's working tree or tracks an
+unpinned `latest`.
 
 Each lane must remain runnable without the others: the app uses recorded
 receipts, the engine uses request fixtures, and stochastic inference uses a
