@@ -29,22 +29,56 @@ Before implementation, record:
    is claimed;
 5. explicit non-goals and a rollback boundary.
 
-Then deliver in this order:
+## Parallel development train
 
-1. Add or update a consumer fixture against `contracts/ecosystem/v1/`.
-2. Implement the provider in a clean, dedicated worktree.
-3. Prove deterministic replay and, during migration, cross-engine parity.
-   Named expected divergences must be present; missing or unexpected
-   divergences fail the gate.
-4. Integrate through an adapter. The UI must not import provider internals.
-5. Run each changed repository's canonical gate and record exact revisions,
-   schema versions, fixture hashes, seeds, throughput, and known limits.
-6. Build the exact reviewed revision, deploy it privately, and smoke both
-   authenticated success and anonymous denial. Deployment is a separate,
-   deliberate action.
-7. Promote the provider only after receipts from the deployed surface match
-   the reviewed revision. Keep the prior adapter available for rollback until
-   the new path has replay evidence.
+Only the contract freeze is serial. Land a versioned schema, request fixture,
+receipt fixture, compatibility policy, and contract digest first. Then these
+lanes may proceed concurrently in separate, explicitly owned worktrees:
+
+| Lane | Repository and write set | Develops against | Independent lane gate |
+| --- | --- | --- | --- |
+| Contract | `pokemon-mono/contracts/run-runtime/` | Existing runtime and cross-engine contracts | Schema, examples, canonical digest, backward-compatibility fixtures |
+| Engine | `pokemon-mono/engines/rab/**/bridge/` | Pinned request fixtures | Deterministic provider receipt and replay parity |
+| App | `runbuncalc` provider adapter and product UI | Recorded receipt fixture or mock provider | Offline/local fallback plus browser interaction tests |
+| Control | A clean `stochastic-inference-core` worktree limited to Pokémon capability files | Recorded request/receipt pair and fake provider | Routing, typed artifact, lineage, and side-effect declarations |
+| Verification | Cross-repository harness with no product ownership | Exact lane revisions and fixture digest | Compatibility matrix, named divergences, single/batch parity |
+
+The current `runbuncalc/contracts/ecosystem/v1/` directory is explicitly a
+bootstrap consumer copy. It is not the eventual authority. Promotion requires
+the canonical packet to land under `pokemon-mono/contracts/run-runtime/v1/`;
+every consumer then pins its exact revision and digest. Consumers may vendor
+the small packet, but CI must compare its digest to the lock. No consumer
+imports another repository's working tree or tracks an unpinned `latest`.
+
+Each lane must remain runnable without the others: the app uses recorded
+receipts, the engine uses request fixtures, and stochastic inference uses a
+fake deterministic provider. Provider unavailability must not prevent local
+companion play. Collab may launch and display these modules as a lab, but it is
+not the contract registry, merge coordinator, or save authority.
+
+## Integration train
+
+1. Rebase each lane onto its current repository target and rerun its lane gate.
+2. Assemble an integration matrix containing the contract digest, app SHA,
+   engine SHA, stochastic-inference SHA, fixture corpus, and expected
+   divergences. Begin with
+   `contracts/ecosystem/v1/integration-matrix.example.json`; a blank or moving
+   revision is a failure for promotion.
+3. Prove deterministic replay and cross-engine parity. Named expected
+   divergences must be present; missing or unexpected divergences fail.
+4. Prove the app's local fallback and provider path produce compatible
+   user-visible facts for the pinned corpus.
+5. Prove single and batched execution agree before enabling fleet volume.
+6. Fast-forward each reviewed lane independently. A rejected fast-forward
+   means rebase and rerun; it is not permission to force or merge around drift.
+7. Build the exact reviewed app revision, deploy it privately, and smoke both
+   authenticated success and anonymous denial.
+8. Promote the provider only after deployed receipts match the integration
+   matrix. Retain the prior adapter for rollback until replay evidence exists.
+
+Parallelism ends at shared files. Two lanes must never own the same path, and
+no lane may weaken a contract or acceptance fixture merely to make another
+lane green.
 
 ## Local entrypoints
 

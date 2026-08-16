@@ -1,6 +1,17 @@
 {
   "contract": "pokemon-ecosystem.bridge",
   "version": "1.0.0",
+  "authority": {
+    "status": "bootstrap-consumer-copy",
+    "currentRepository": "runbuncalc",
+    "canonicalTargetRepository": "pokemon-mono",
+    "canonicalTargetPath": "contracts/run-runtime/v1",
+    "promotionRequires": [
+      "canonical-digest",
+      "provider-conformance",
+      "consumer-lock"
+    ]
+  },
   "requestSchema": "pokemon.bridge.request/1.0.0",
   "receiptSchema": "pokemon.bridge.receipt/1.0.0",
   "owners": {
@@ -24,8 +35,16 @@
     "receipts": "immutable",
     "majorVersion": "exact"
   },
+  "parallelLanes": {
+    "contract": "pokemon-mono",
+    "engine": "pokemon-mono",
+    "app": "runbuncalc",
+    "control": "stochastic-inference-core",
+    "verification": "cross-repository"
+  },
   "examples": {
     "request": "planning-request.json",
-    "receipt": "planning-receipt.json"
+    "receipt": "planning-receipt.json",
+    "integrationMatrix": "integration-matrix.example.json"
   }
 }

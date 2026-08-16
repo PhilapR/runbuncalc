@@ -42,11 +42,23 @@ assert.deepEqual(manifest.owners, {
 	attempt: 'runbuncalc', simulation: 'pokemon-mono', orchestration: 'stochastic-inference-core',
 });
 assert.equal(manifest.version, '1.0.0');
+assert.deepEqual(manifest.authority, {
+	status: 'bootstrap-consumer-copy',
+	currentRepository: 'runbuncalc',
+	canonicalTargetRepository: 'pokemon-mono',
+	canonicalTargetPath: 'contracts/run-runtime/v1',
+	promotionRequires: ['canonical-digest', 'provider-conformance', 'consumer-lock'],
+});
 assert.equal(manifest.transports.archive, 'rabrun.archive@1+model@2.0.0');
 assert.ok(manifest.capabilities.includes('pokemon.rab.simulate'));
+assert.deepEqual(manifest.parallelLanes, {
+	contract: 'pokemon-mono', engine: 'pokemon-mono', app: 'runbuncalc',
+	control: 'stochastic-inference-core', verification: 'cross-repository',
+});
 
 const request = json('contracts/ecosystem/v1/' + manifest.examples.request);
 const receipt = json('contracts/ecosystem/v1/' + manifest.examples.receipt);
+const matrix = json('contracts/ecosystem/v1/' + manifest.examples.integrationMatrix);
 assert.equal(request.schemaVersion, manifest.requestSchema);
 assert.equal(receipt.schemaVersion, manifest.receiptSchema);
 assert.equal(receipt.requestId, request.requestId);
@@ -60,5 +72,14 @@ sha256(receipt.result.outputHash, 'receipt result outputHash');
 sha256(receipt.evidence.replayHash, 'receipt evidence replayHash');
 assert.equal(receipt.evidence.deterministic, true);
 assert.deepEqual(receipt.evidence.unexpectedDivergences, []);
+assert.equal(matrix.schemaVersion, 'pokemon.bridge.integration/1.0.0');
+assert.equal(matrix.status, 'unbound-template');
+assert.equal(matrix.contract.canonicalRepository, manifest.authority.canonicalTargetRepository);
+assert.equal(matrix.contract.canonicalPath, manifest.authority.canonicalTargetPath);
+assert.equal(matrix.contract.revision, null);
+assert.equal(matrix.contract.digest, null);
+assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
+assert.equal(matrix.promotion.providerEnabled, false);
+assert.equal(matrix.promotion.privateDeploymentVerified, false);
 
 console.log('SDLC gate passed: built entrypoint and ecosystem bridge contract agree.');

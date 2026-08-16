@@ -4,6 +4,12 @@ The bridge is a contract boundary, not a shared process and not a shared
 database. It lets the companion ask for planning or simulation while keeping
 the playable run responsive, serializable, and usable without either backend.
 
+The canonical bridge packet belongs beside the simulation truth at
+`pokemon-mono/contracts/run-runtime/v1/`. The packet in this repository is a
+bootstrap consumer copy so app work can proceed before that promotion. Its
+status is machine-readable in `contract.json`; it must not quietly become the
+authority through convenience.
+
 ```text
 runbuncalc (play and save)
   IndexedDB attempt ledger -> checked .rabrun archive
@@ -66,17 +72,21 @@ inference is never the game-state authority.
 
 ## Migration sequence
 
-1. Freeze a small corpus from the existing local engine: first route, first
+1. Promote the schema and fixtures into
+   `pokemon-mono/contracts/run-runtime/v1/`, record their digest, and pin that
+   packet in every consumer.
+2. Freeze a small corpus from the existing local engine: first route, first
    required fight, one double battle, and one known divergence.
-2. Add a `pokemon-mono` adapter that consumes the request fixture and emits a
-   receipt without changing the UI.
-3. Compare action legality, damage facts, state transitions, event hashes, and
+3. In parallel, build the `pokemon-mono` provider against request fixtures,
+   the app adapter against recorded receipts, and the stochastic-inference
+   capability against a fake deterministic provider.
+4. Compare action legality, damage facts, state transitions, event hashes, and
    zero-death branch outcomes. Gate expected divergences by name.
-4. Put planning behind a provider adapter in `runbuncalc`; retain local play
+5. Put planning behind a provider adapter in `runbuncalc`; retain local play
    when the provider is unavailable.
-5. Register the proven provider in stochastic inference for experiment and
+6. Register the proven provider in stochastic inference for experiment and
    fleet workloads.
-6. Scale only after single-run and batch execution reproduce the corpus.
+7. Scale only after single-run and batch execution reproduce the corpus.
 
 The executable manifest is
 [`../contracts/ecosystem/v1/contract.json`](../contracts/ecosystem/v1/contract.json).

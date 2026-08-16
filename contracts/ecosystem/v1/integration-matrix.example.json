@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "pokemon.bridge.integration/1.0.0",
+  "status": "unbound-template",
+  "contract": {
+    "version": "1.0.0",
+    "canonicalRepository": "pokemon-mono",
+    "canonicalPath": "contracts/run-runtime/v1",
+    "revision": null,
+    "digest": null
+  },
+  "lanes": {
+    "app": {
+      "repository": "runbuncalc",
+      "revision": null,
+      "gate": "npm test"
+    },
+    "engine": {
+      "repository": "pokemon-mono",
+      "revision": null,
+      "gate": "just gate"
+    },
+    "control": {
+      "repository": "stochastic-inference-core",
+      "revision": null,
+      "gate": "repository-canonical"
+    }
+  },
+  "fixtures": {
+    "corpus": [],
+    "expectedDivergences": [],
+    "unexpectedDivergences": []
+  },
+  "promotion": {
+    "singleBatchParity": false,
+    "providerEnabled": false,
+    "privateDeploymentVerified": false
+  }
+}
