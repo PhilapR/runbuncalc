@@ -168,9 +168,13 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.match(await page.textContent('#runbun-run-mon-facts'), /AbilityUnknownNatureUnknown/,
 		'missing individual facts must stay visibly unknown');
 	assert.equal(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv.is-unknown',
-		rows => rows.length), 6);
-	assert.match(await page.textContent('#runbun-run-mon-summary-ivs'), /\?modeled 31/,
-		'the planner assumption must not masquerade as a recorded perfect IV');
+		rows => rows.length), 0, 'a game-owned starter has all six player IVs');
+	assert.deepEqual(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv strong',
+		rows => rows.map(row => Number(row.textContent)).map(value =>
+			Number.isInteger(value) && value >= 0 && value <= 31)),
+	[true, true, true, true, true, true]);
+	assert.match(await page.textContent('#runbun-run-iv-note'),
+		/Your IVs drive damage, speed, and survival\. Trainer teams use 31; wild encounters use their roll/);
 
 	await page.click('#runbun-run-mon-record summary');
 	await page.selectOption('#runbun-run-observed-nature', 'Jolly');
@@ -468,17 +472,26 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.ok(cells.length >= 2, 'both directions should render cells');
 	assert.ok(cells.every(text => /%|—/.test(text)), 'every cell is a percent or an honest dash');
 
-	// The Heart Scale button is never disabled, so the refusal is what a player
-	// with an empty bag reads — and it has to name which of the two reasons
-	// stopped it, or a greyed-out button would have said more.
+	// Pin this owned stat to a deterministic non-perfect value before testing the
+	// economy. Game-owned Pokemon already have all six IVs; this is an edit, not
+	// filling an unknown.
 	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-mon-select');
+	await page.click('#runbun-run-mon-record summary');
+	await page.fill('#runbun-run-observed-iv-spe', '5');
+	await page.click('#runbun-run-record-details');
+	await page.waitForFunction(
+		() => /recorded Treecko/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+
+	// The Heart Scale button is never disabled, so the refusal is what a player
+	// with an empty bag reads — and it has to name the inventory reason.
 	await page.selectOption('#runbun-run-iv-stat', 'spe');
 	await page.click('#runbun-run-heartscale');
 	await page.waitForFunction(
 		() => /no shop sells them/.test(document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
 
-	// With one in the bag it spends, and the box records the IV.
+	// With one in the bag it spends, and the box records the upgrade.
 	await page.fill('#runbun-run-acquire-item', 'Heart Scale');
 	await page.click('#runbun-run-acquire');
 	await page.waitForFunction(
@@ -486,7 +499,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		null, {timeout: 10000});
 	await page.click('#runbun-run-heartscale');
 	await page.waitForFunction(
-		() => /Speed IV unrecorded → 31/.test(
+		() => /Speed IV 5 → 31/.test(
 			document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
 	assert.equal((await savedRun(page)).box[0].ivs.spe, 31);
@@ -1153,6 +1166,9 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 		null, {timeout: 10000});
 	assert.equal(await page.isVisible('#runbun-run-roll-result'), false,
 		'a settled roll leaves the screen');
+	const caughtIvs = (await savedRun(page)).box[1].ivs;
+	assert.deepEqual(Object.keys(caughtIvs).sort(), ['atk', 'def', 'hp', 'spa', 'spd', 'spe'],
+		'the encounter IV roll becomes owned player state when caught');
 
 	// Roll the next route and lose it: the route is spent with nothing kept,
 	// and rolling it again is refused with the rule's own words.

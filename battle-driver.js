@@ -370,6 +370,12 @@ function startWild(doc, roll, seed) {
 	}
 	const rate = profile.oracle.catchRateOf(wild.species);
 	if (!rate) throw new Error(`battle: no catch rate on file for ${wild.species}`);
+	const missingIvs = Object.keys(runtime.IV_STATS).filter(stat =>
+		!wild.ivs || !Object.prototype.hasOwnProperty.call(wild.ivs, stat));
+	if (missingIvs.length) {
+		throw new Error(`battle: wild ${wild.species} is missing its rolled IVs: ` +
+			`${missingIvs.join(', ')} — roll the encounter once before fighting it`);
+	}
 	const learned = [];
 	for (const pair of profile.oracle.levelUpMoves(wild.species)) {
 		if (pair[0] <= wild.level && learned.indexOf(pair[1]) === -1) learned.push(pair[1]);
@@ -383,7 +389,12 @@ function startWild(doc, roll, seed) {
 		ahead.length ? {atOrder: ahead[0].order} : {});
 	const built = planner.buildWildState({
 		playerParty: specs,
-		wild: {species: wild.species, level: wild.level, moves: learned.slice(-4)},
+		wild: {
+			species: wild.species,
+			level: wild.level,
+			moves: learned.slice(-4),
+			ivs: wild.ivs,
+		},
 		profileId: doc.profileId,
 	});
 	const bundle = {
@@ -397,6 +408,9 @@ function startWild(doc, roll, seed) {
 			method: slot.method,
 			species: wild.species,
 			level: wild.level,
+			// This same roll drives the wild battle and becomes owned on capture.
+			// Never reroll an encounter while its identity crosses that boundary.
+			ivs: wild.ivs || null,
 			rate,
 			// The bag's better balls, snapshotted: what this fight may spend.
 			// Throws are counted in `thrown` and settled into the document as

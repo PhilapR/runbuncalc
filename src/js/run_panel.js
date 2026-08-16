@@ -368,6 +368,15 @@
 
 	var IV_LABELS = {hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe'};
 
+	/** The standalone game's acquisition roll. Values become replay facts in the command. */
+	function rollPlayerIvs() {
+		var ivs = {};
+		Object.keys(IV_LABELS).forEach(function (stat) {
+			ivs[stat] = Math.floor(Math.random() * 32);
+		});
+		return ivs;
+	}
+
 	function dexId(value) {
 		return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
 	}
@@ -434,14 +443,20 @@
 		});
 
 		var $ivs = $('#runbun-run-mon-summary-ivs').empty();
+		var missingIvs = [];
 		Object.keys(IV_LABELS).forEach(function (stat) {
 			var known = mon.ivs && Object.prototype.hasOwnProperty.call(mon.ivs, stat);
+			if (!known) missingIvs.push(IV_LABELS[stat]);
 			$ivs.append($('<div class="runbun-run-iv"></div>').toggleClass('is-unknown', !known)
 				.append($('<span></span>').text(IV_LABELS[stat]))
-				.append($('<strong></strong>').text(known ? mon.ivs[stat] : '?'))
-				.append($('<small></small>').text(known ? 'Known' : 'modeled 31')));
+				.append($('<strong></strong>').text(known ? mon.ivs[stat] : '—'))
+				.append($('<small></small>').text(known ? 'Yours' : 'not recorded')));
 			$('#runbun-run-observed-iv-' + stat).val(known ? mon.ivs[stat] : '');
 		});
+		$('#runbun-run-iv-note').text(missingIvs.length ?
+			'Legacy/imported record: add ' + missingIvs.join(', ') +
+				' before relying on planning. Trainer teams use 31; wild encounters use their roll.' :
+			'Your IVs drive damage, speed, and survival. Trainer teams use 31; wild encounters use their roll.');
 		$('#runbun-run-observed-nature').val(mon.nature || '');
 		$('#runbun-run-observed-ability').val(mon.ability || '');
 	}
@@ -1689,7 +1704,7 @@
 		var roll = rolled;
 		var body = kept ?
 			{kind: 'catch', species: roll.species, level: roll.level,
-				map: roll.mapName, method: roll.method} :
+				map: roll.mapName, method: roll.method, ivs: roll.ivs || rollPlayerIvs()} :
 			{kind: 'spend', map: roll.mapName, reason: 'it got away'};
 		command(body).then(function (accepted) {
 			if (!accepted) return;
@@ -1911,6 +1926,7 @@
 			method: rolled.method,
 			species: rolled.species,
 			level: rolled.level,
+			ivs: rolled.ivs,
 		}}).then(function (opened) {
 			if (opened) $('#runbun-run-roll-result').prop('hidden', true);
 		});
@@ -2000,7 +2016,8 @@
 			if (reply.result === 'catch') {
 				chain = chain.then(function (ok) {
 					return ok ? command({kind: 'catch', species: wild.species,
-						level: wild.level, map: wild.map, method: wild.method}) : false;
+						level: wild.level, map: wild.map, method: wild.method,
+						ivs: wild.ivs || rollPlayerIvs()}) : false;
 				});
 			} else if (won) {
 				chain = chain.then(function (ok) {
@@ -2242,6 +2259,7 @@
 						kind: 'catch',
 						species: $starter.attr('data-species'),
 						level: 5,
+						ivs: rollPlayerIvs(),
 					}}).then(function (gifted) {
 						state = gifted.run;
 						return ' — ' + $starter.attr('data-species') + ' L5 is in the box.';
@@ -2315,6 +2333,7 @@
 				// left checked it would silently exempt the NEXT catch too.
 				shiny: $('#runbun-run-catch-shiny').is(':checked') || undefined,
 				moves: moves.length ? moves : undefined,
+				ivs: rollPlayerIvs(),
 			}).then(function (accepted) {
 				if (accepted) $('#runbun-run-catch-shiny').prop('checked', false);
 			});

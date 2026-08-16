@@ -318,16 +318,17 @@ test('matrix renders the whole box against a trainer, both directions', () => {
 
 test('heartscale spends from the bag and refuses with the reason', () => {
 	cli('new');
-	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
-	// The IV has to be recorded before a scale can be spent on it — the bag
-	// refusal comes first, so this is the empty-bag path.
+	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3', '--iv-spe', '18');
+	const caughtIvs = Object.assign({}, read().box[0].ivs);
+	// The owned IV is known; the bag refusal comes first, so this is the
+	// empty-bag path.
 	assert.throws(() => cli('heartscale', 'mon-1', 'spe'),
 		/no shop sells them — need 1, the bag has 0/);
 	assert.deepEqual(read().bag, {});
 
 	cli('acquire', 'Heart', 'Scale', '--count', '2');
 	assert.equal(cli('heartscale', 'mon-1', 'spe'),
-		'Poochyena (mon-1) Speed IV unrecorded → 31 (Heart Scale spent, 1 left)');
+		'Poochyena (mon-1) Speed IV 18 → 31 (Heart Scale spent, 1 left)');
 	assert.equal(read().box[0].ivs.spe, 31);
 	assert.deepEqual(read().bag, {'Heart Scale': 1});
 
@@ -339,7 +340,8 @@ test('heartscale spends from the bag and refuses with the reason', () => {
 
 	cli('undo');
 	assert.deepEqual(read().bag, {'Heart Scale': 2}, 'undo puts the scale back');
-	assert.deepEqual(read().box[0].ivs, {});
+	assert.deepEqual(read().box[0].ivs, caughtIvs,
+		'undo restores the encounter roll, including the entered Speed IV');
 });
 
 test('advise ranks single changes against a fight without writing', () => {

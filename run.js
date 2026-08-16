@@ -108,6 +108,20 @@ const IV_STATS = {
 	spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed',
 };
 
+/** Roll the six IVs an acquired player Pokemon owns. Opponents are separate. */
+function rollIvs(random) {
+	const draw = random || Math.random;
+	const ivs = {};
+	for (const stat of Object.keys(IV_STATS)) {
+		const value = Number(draw());
+		if (!Number.isFinite(value) || value < 0 || value >= 1) {
+			throw new Error(`IV roll must be in [0, 1); got ${JSON.stringify(value)}`);
+		}
+		ivs[stat] = Math.floor(value * 32);
+	}
+	return ivs;
+}
+
 /**
  * Validate facts observed on the Pokemon summary screen.
  *
@@ -996,6 +1010,13 @@ function partySpecs(run, options) {
 		null : capAt(run, opts.atOrder);
 	return run.party.map(id => {
 		const mon = requireMon(run, id);
+		const missingIvs = Object.keys(IV_STATS).filter(stat =>
+			!mon.ivs || !Object.prototype.hasOwnProperty.call(mon.ivs, stat));
+		if (missingIvs.length) {
+			throw new Error(`${mon.species} (${mon.id}) is missing player IVs: ` +
+				`${missingIvs.map(stat => IV_STATS[stat]).join(', ')} — record all six ` +
+				'before planning; trainer teams use 31, owned and wild Pokemon use their rolls');
+		}
 		return {
 			species: mon.species,
 			level: projected === null ? mon.level : Math.max(mon.level, projected),
@@ -1003,7 +1024,7 @@ function partySpecs(run, options) {
 			ability: mon.ability,
 			item: mon.item,
 			moves: mon.moves,
-			ivs: mon.ivs || {},
+			ivs: mon.ivs,
 		};
 	});
 }
@@ -1295,10 +1316,8 @@ function upgradeCandidates(run, mon, spec, base, order) {
 	if (run.bag[HEART_SCALE]) {
 		const ivs = mon.ivs || {};
 		for (const stat of Object.keys(IV_STATS)) {
-			// Only an IV the box RECORDS can be priced. An unrecorded one already
-			// reaches the calculator as 31, so a scale on it would score a flat
-			// zero and read as "this does nothing" when the truth is "nobody has
-			// told this run what that IV is".
+			// Only an IV the box records can be priced. New acquisitions always
+			// have all six; a partial legacy/import remains incomplete until fixed.
 			if (typeof ivs[stat] !== 'number' || ivs[stat] === 31) continue;
 			list.push({
 				kind: 'heartScale',
@@ -1629,6 +1648,7 @@ function rollEncounter(run, options) {
 	return {
 		species: slot.species,
 		level,
+		ivs: rollIvs(random),
 		method,
 		chance: slot.chance,
 		map: found.name,
@@ -3012,6 +3032,6 @@ module.exports = {
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
-	adviseUpgrades, adviseCatches, rankParties, fightPlaybook, summarize, rollEncounter, fieldItems,
+	adviseUpgrades, adviseCatches, rankParties, fightPlaybook, summarize, rollIvs, rollEncounter, fieldItems,
 	preFightOpportunities,
 };

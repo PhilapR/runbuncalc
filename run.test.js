@@ -32,6 +32,15 @@ const run = require('./run');
  * getting it wrong (Route 102, Route 117) is what the refusal cases assert.
  */
 const MARILL = {kind: 'catch', species: 'Marill', map: 'Route114', level: 40, method: 'fish'};
+const TEST_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
+const PERFECT_IVS = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+
+/** Complete owned-Pokemon fixture; supplied stats override the stable test roll. */
+function owned(command) {
+	return Object.assign({}, command, {
+		ivs: Object.assign({}, TEST_IVS, command.ivs || {}),
+	});
+}
 
 function fresh(options) {
 	return run.createRun(Object.assign({name: 'Gate', now: 't0'}, options));
@@ -72,15 +81,16 @@ test('apply copies the command, so a caller can never reach back into a run', ()
 	// returned: mutating it edited the run while the log's separate copy did not
 	// move, and undo — which replays the log — then rebuilt a different history
 	// than the one on screen.
-	const command = {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
-		ivs: {hp: 31}};
+	const command = owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+		ivs: {hp: 31}});
+	const recorded = Object.assign({}, TEST_IVS, {hp: 31});
 	const state = run.apply(fresh(), command);
 	command.ivs.hp = 0;
 
-	assert.deepEqual(state.box[0].ivs, {hp: 31}, 'the run must not follow the caller');
-	assert.deepEqual(state.log[0].command.ivs, {hp: 31}, 'the log must agree with the run');
+	assert.deepEqual(state.box[0].ivs, recorded, 'the run must not follow the caller');
+	assert.deepEqual(state.log[0].command.ivs, recorded, 'the log must agree with the run');
 	assert.deepEqual(run.partySpecs(run.apply(state, {kind: 'party', ids: ['mon-1']}))[0].ivs,
-		{hp: 31}, 'and the planner must see what the box says');
+		recorded, 'and the planner must see what the box says');
 });
 
 test('the same commands always produce the same run', () => {
@@ -169,6 +179,26 @@ test('invalid observed facts are refused without mutating the run', () => {
 	assert.equal(JSON.stringify(caught), before);
 });
 
+test('player IV rolls cover all six stats and preserve the edge values', () => {
+	const values = [0, 1 / 32, 0.25, 0.5, 30 / 32, 31.999 / 32];
+	let at = 0;
+	assert.deepEqual(run.rollIvs(() => values[at++]), {
+		hp: 0, atk: 1, def: 8, spa: 16, spd: 30, spe: 31,
+	});
+	assert.throws(() => run.rollIvs(() => 1), /IV roll must be in \[0, 1\)/);
+});
+
+test('owned-party planning refuses a legacy record with missing player IVs', () => {
+	let state = run.apply(fresh(), MARILL);
+	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
+	assert.throws(() => run.partySpecs(state),
+		/missing player IVs: HP, Attack, Defense, Sp\. Atk, Sp\. Def, Speed.*trainer teams use 31.*wild Pokemon use their rolls/);
+	state = run.apply(state, {kind: 'identify', id: 'mon-1',
+		ivs: {hp: 1, atk: 2, def: 3, spa: 4, spd: 5, spe: 6}});
+	assert.deepEqual(run.partySpecs(state)[0].ivs,
+		{hp: 1, atk: 2, def: 3, spa: 4, spd: 5, spe: 6});
+});
+
 test('evolution follows the table, including when it is not due yet', () => {
 	let state = run.apply(fresh(), {kind: 'catch', species: 'Marill', map: 'Route114', level: 40});
 	state = run.apply(state, {kind: 'evolve', id: 'mon-1'});
@@ -209,9 +239,9 @@ test('the ranker ranks the box the player will field, never the one they hold to
 		{kind: 'catch', species: 'Pelipper', level: 24, moves: ['Surf', 'Hurricane']},
 	];
 	const capped = run.rankParties(
-		run.applyAll(fresh(), catches), 'Leader Wattson');
+		run.applyAll(fresh(), catches.map(owned)), 'Leader Wattson');
 	const uncapped = run.rankParties(
-		run.applyAll(fresh({levelCap: 'none'}), catches), 'Leader Wattson');
+		run.applyAll(fresh({levelCap: 'none'}), catches.map(owned)), 'Leader Wattson');
 	assert.deepEqual(capped.projection, {applied: true, cap: 35, from: 'projected'});
 	assert.deepEqual(uncapped.projection, {applied: false, cap: null, from: 'current'});
 	assert.notDeepEqual(
@@ -220,7 +250,7 @@ test('the ranker ranks the box the player will field, never the one they hold to
 		'projection must be able to change the ordering, not just the scores');
 
 	// Deterministic: the same question twice is the same answer, byte for byte.
-	assert.deepEqual(run.rankParties(run.applyAll(fresh(), catches), 'Leader Wattson'), capped);
+	assert.deepEqual(run.rankParties(run.applyAll(fresh(), catches.map(owned)), 'Leader Wattson'), capped);
 
 	// The shortlist is exhaustive over C(7,6) = 7 sixes, top plus diversity.
 	assert.equal(capped.combinations, 7);
@@ -231,7 +261,8 @@ test('the ranker ranks the box the player will field, never the one they hold to
 
 test('the ranker finishes a box of 30 in interactive time', () => {
 	const catches = [];
-	for (let i = 0; i < 30; i++) catches.push({kind: 'catch', species: 'Poochyena', level: 20});
+	for (let i = 0; i < 30; i++) catches.push(owned(
+		{kind: 'catch', species: 'Poochyena', level: 20}));
 	const state = run.applyAll(fresh({levelCap: 'none'}), catches);
 	const started = process.hrtime.bigint();
 	// Measure the exhaustive C(30,6) ranker, not the seeded battle adjudication
@@ -441,7 +472,8 @@ test('the bag conserves items across every move', () => {
 test('the party holds six, in order, with no duplicates', () => {
 	let state = fresh();
 	for (let i = 0; i < 7; i++) {
-		state = run.apply(state, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+		state = run.apply(state, owned(
+			{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}));
 	}
 	const ids = state.box.map(mon => mon.id);
 	assert.throws(() => run.apply(state, {kind: 'party', ids}), /a party holds 6/);
@@ -684,7 +716,7 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	// refuses to call a sacrifice an answer, so the whole family prices at
 	// no gain and drops off the list — and the top teach is a real move.
 	let state = run.apply(fresh({permadeath: true}),
-		{kind: 'catch', species: 'Seedot', map: 'Route103', level: 2});
+		owned({kind: 'catch', species: 'Seedot', map: 'Route103', level: 2}));
 	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
 	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
 	const advice = run.adviseUpgrades(state, 'Youngster Calvin');
@@ -725,7 +757,8 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	assert.equal(oracle.moveObtainableAt('Rock Smash'), 139);
 	assert.equal(oracle.moveObtainableAt('Tackle'), null);
 	let wet = run.apply(fresh({permadeath: true}),
-		{kind: 'catch', species: 'Lotad', map: 'Petalburg City', level: 5, method: 'fish'});
+		owned({kind: 'catch', species: 'Lotad', map: 'Petalburg City', level: 5,
+			method: 'fish'}));
 	wet = run.apply(wet, {kind: 'party', ids: ['mon-1']});
 	wet = run.apply(wet, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
 	const early = run.adviseUpgrades(wet, 'Bug Catcher Rick');
@@ -795,7 +828,7 @@ test('the advisor recommends field pickups, with where to go get them', () => {
 	// on Route 104 (#11) — a Grass Treecko fighting a fisherman's water mons
 	// at #22 should be told to go get it.
 	let state = run.apply(fresh({permadeath: true}),
-		{kind: 'catch', species: 'Treecko', level: 5});
+		owned({kind: 'catch', species: 'Treecko', level: 5}));
 	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
 	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
 	const advice = run.adviseUpgrades(state, 'Fisherman Elliot');
@@ -1167,7 +1200,7 @@ test('undo rebuilds the exact document, on the path that passes no clock', () =>
 });
 
 test('the run plans the next fight with the party it actually has', () => {
-	let state = run.apply(fresh(), MARILL);
+	let state = run.apply(fresh(), owned(MARILL));
 	assert.throws(() => run.planNext(state), /the party is empty/);
 	state = run.apply(state, {kind: 'evolve', id: 'mon-1'});
 	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
@@ -1186,7 +1219,8 @@ test('a look-ahead plan fights with the party the run will legally have', () => 
 	// against his level 21 party and report every damage roll from it — an answer
 	// about a team the player would never stand there with, since the free candy
 	// puts the whole box at 21 by the time that fight happens.
-	let state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	let state = run.apply(fresh(), owned(
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}));
 	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
 
 	const ahead = run.planNext(state, {trainer: 'Leader Brawly'});
@@ -1204,7 +1238,7 @@ test('a look-ahead plan fights with the party the run will legally have', () => 
 	// A party already at or over the cap is planned at exactly the levels the box
 	// holds, and says so — hedging about numbers the player can see would be
 	// worse than saying nothing.
-	let over = run.apply(fresh(), MARILL);
+	let over = run.apply(fresh(), owned(MARILL));
 	over = run.apply(over, {kind: 'party', ids: ['mon-1']});
 	const current = run.planNext(over, {trainer: 'Leader Brawly'});
 	assert.deepEqual(current.projection, {applied: true, cap: 21, from: 'current'});
@@ -1212,7 +1246,7 @@ test('a look-ahead plan fights with the party the run will legally have', () => 
 
 	// A run that declines caps has nothing to project to, and claims nothing.
 	const free = run.applyAll(fresh({levelCap: 'none'}), [
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
 		{kind: 'party', ids: ['mon-1']},
 	]);
 	const unprojected = run.planNext(free, {trainer: 'Leader Brawly'});
@@ -1388,8 +1422,9 @@ test('projecting the party to a cap raises levels and never lowers them', () => 
 	// a future fight's cap WILL be at it by then. A mon taken OVER the cap with
 	// the run's limited candies keeps those levels — nothing takes them back — so
 	// the projection is a max, not an assignment.
-	let state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
-	state = run.apply(state, MARILL);
+	let state = run.apply(fresh(), owned(
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}));
+	state = run.apply(state, owned(MARILL));
 	state = run.apply(state, {kind: 'party', ids: ['mon-1', 'mon-2']});
 
 	assert.deepEqual(run.partySpecs(state).map(m => m.level), [3, 40],
@@ -1403,7 +1438,7 @@ test('projecting the party to a cap raises levels and never lowers them', () => 
 	assert.equal(state.box[0].level, 3, 'projection must not write back to the run');
 	// A capless run projects nothing, whatever order it is asked about.
 	const free = run.applyAll(fresh({levelCap: 'none'}), [
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
 		{kind: 'party', ids: ['mon-1']},
 	]);
 	assert.deepEqual(run.partySpecs(free, {atOrder: 77}).map(m => m.level), [3]);
@@ -1523,8 +1558,8 @@ test('the box matrix compares the WHOLE box, at the cap the fight is fought unde
 	// the input: a box of twenty against a boss of six is the question "which
 	// six", and filtering to the party assumes it.
 	let state = run.applyAll(fresh(), [
-		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		owned({kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}),
+		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
 		{kind: 'party', ids: ['mon-1']},
 	]);
 
@@ -1567,8 +1602,8 @@ test('the box matrix leaves out Pokemon that are gone for good', () => {
 	// them.
 	// Two routes, because a nuzlocke gets one catch per route.
 	let state = run.applyAll(fresh({permadeath: true}), [
-		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
-		MARILL,
+		owned({kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}),
+		owned(MARILL),
 		{kind: 'faint', id: 'mon-2'},
 	]);
 	const matrix = run.boxMatrix(state);
@@ -1577,7 +1612,7 @@ test('the box matrix leaves out Pokemon that are gone for good', () => {
 
 	// Without permadeath a faint is not a loss, so the row stays.
 	const survived = run.applyAll(fresh(), [
-		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		owned({kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}),
 		{kind: 'faint', id: 'mon-1'},
 	]);
 	assert.equal(run.boxMatrix(survived).box.length, 1);
@@ -1627,7 +1662,8 @@ test('a Heart Scale sets one IV to 31, out of a bag that has one', () => {
 
 test('the advisor prices single changes by what they do to the board', () => {
 	const state = run.applyAll(fresh(), [
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, ivs: {spe: 5}},
+		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+			ivs: Object.assign({}, PERFECT_IVS, {spe: 5})}),
 		{kind: 'party', ids: ['mon-1']},
 		{kind: 'acquire', item: 'Heart Scale'},
 		{kind: 'acquire', item: 'Rare Candy', count: 3},
@@ -1710,7 +1746,7 @@ test('the advisor draws teach candidates at the projected cap, not today\'s leve
 	// even though the box holds a level 3. Gating on today's level hid every
 	// level-up move between here and the cap while scoring the board at the cap.
 	const state = run.applyAll(fresh(), [
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
 		{kind: 'party', ids: ['mon-1']},
 	]);
 	assert.ok(run.learnable(state, 'mon-1', {atLevel: 12}).now.some(e => e.move === 'Bite'));
@@ -1723,7 +1759,8 @@ test('the advisor draws teach candidates at the projected cap, not today\'s leve
 });
 
 test('the advisor only offers a Heart Scale it can pay for and price', () => {
-	const box = {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3, ivs: {spe: 5}};
+	const box = owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+		ivs: Object.assign({}, PERFECT_IVS, {spe: 5})});
 	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
 	// Same derivation the advisor uses: the capability list minus HMs the
 	// story has not handed over by fight #0, minus egg moves when no Heart
@@ -1749,13 +1786,11 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}])).considered,
 	teachable + pickupsAt0);
 
-	// An IV the box never recorded is not a candidate either. It already reaches
-	// the calculator as 31, so scaling it would score a flat zero and read as
-	// "this does nothing" when the truth is "nobody has told this run what that
-	// IV is". (The scale in the bag DOES unlock the egg-move teaches — the
-	// count grows by exactly those, and by no IV candidate.)
+	// A fully perfect roll has no IV candidate. The scale in the bag still
+	// unlocks egg-move teaches, and the count grows by exactly those.
 	const funded = run.applyAll(fresh(), [
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+			ivs: PERFECT_IVS}),
 		{kind: 'party', ids: ['mon-1']},
 		{kind: 'acquire', item: 'Heart Scale'},
 	]);
@@ -1771,7 +1806,7 @@ test('the advisor weighs an evolution the run has already earned', () => {
 	// 30/30 unevolved and won 26/30 evolved, with no other change. The advisor
 	// must surface the free upgrade, judged at the projected cap like teaches.
 	const state = run.applyAll(fresh(), [
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
 		{kind: 'party', ids: ['mon-1']},
 	]);
 	// Against Brawly the cap is 21 and Mightyena's 18 is inside it.
@@ -2030,11 +2065,13 @@ test('a Static lead pulls the grass: Togedemaru becomes a coin flip, not a 1-in-
 		return () => values[i++];
 	};
 	// First draw under one-half: the pull fires and the reply says who did it.
-	const pulled = run.rollEncounter(doc, {map: 'GraniteCave1F', random: seq([0.1, 0, 0])});
+	const pulled = run.rollEncounter(doc, {map: 'GraniteCave1F',
+		random: seq([0.1, 0, 0, 0, 0, 0, 0, 0, 0])});
 	assert.equal(pulled.species, 'Togedemaru');
 	assert.deepEqual(pulled.pull, {ability: 'Static', type: 'Electric'});
 	// First draw over one-half: the table rolls exactly as printed.
-	const missed = run.rollEncounter(doc, {map: 'GraniteCave1F', random: seq([0.9, 0, 0])});
+	const missed = run.rollEncounter(doc, {map: 'GraniteCave1F',
+		random: seq([0.9, 0, 0, 0, 0, 0, 0, 0, 0])});
 	assert.equal(missed.species, 'Phanpy');
 	assert.equal(missed.pull, undefined);
 	// No Static lead: no pull draw is consumed at all — the same sequence
@@ -2043,14 +2080,16 @@ test('a Static lead pulls the grass: Togedemaru becomes a coin flip, not a 1-in-
 	plain = run.apply(plain, {kind: 'beat', trainer: 'Lady Cindy'});
 	plain = run.apply(plain, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
 	plain = run.apply(plain, {kind: 'party', ids: ['mon-1']});
-	const unpulled = run.rollEncounter(plain, {map: 'GraniteCave1F', random: seq([0.1, 0])});
+	const unpulled = run.rollEncounter(plain, {map: 'GraniteCave1F',
+		random: seq([0.1, 0, 0, 0, 0, 0, 0, 0])});
 	assert.equal(unpulled.species, 'Phanpy');
 	// An ability the run never declared cannot pull: face value, like all of it.
 	let silent = run.createRun({name: 'silent', now: 't0', permadeath: true});
 	silent = run.apply(silent, {kind: 'beat', trainer: 'Lady Cindy'});
 	silent = run.apply(silent, {kind: 'catch', species: 'Electrike', map: 'Route110', level: 12});
 	silent = run.apply(silent, {kind: 'party', ids: ['mon-1']});
-	const undeclared = run.rollEncounter(silent, {map: 'GraniteCave1F', random: seq([0.1, 0])});
+	const undeclared = run.rollEncounter(silent, {map: 'GraniteCave1F',
+		random: seq([0.1, 0, 0, 0, 0, 0, 0, 0])});
 	assert.equal(undeclared.pull, undefined);
 });
 
@@ -2060,7 +2099,8 @@ test('the scout grades the whole open table, not a display shortlist', () => {
 	// the measured single biggest Brawly lever. The grader now reads every
 	// ungated row; the view keeps its summary.
 	let doc = run.createRun({name: 'scout', now: 't0', permadeath: true, onePerRoute: true});
-	doc = run.apply(doc, {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	doc = run.apply(doc, owned(
+		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}));
 	doc = run.apply(doc, {kind: 'party', ids: ['mon-1']});
 	// Steven's Room is guarded by Ruin Maniac Georgie (#25): shut at the
 	// door, its Gligar is not a catch anyone can make yet.

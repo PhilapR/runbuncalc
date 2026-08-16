@@ -284,7 +284,8 @@ function buildFightState(options) {
  * field. The wild build goes through the same zero-EV projection as a
  * declared player Pokemon — its moves are the caller's to source (the last
  * level-up moves at that level), because move data is the oracle's, not this
- * layer's.
+ * layer's. Unlike trainer sets, the wild Pokemon carries the encounter's
+ * rolled IVs through the fight so a capture owns the Pokemon that appeared.
  */
 function buildWildState(options) {
 	const opts = options || {};
@@ -304,6 +305,7 @@ function buildWildState(options) {
 		species: wild.species,
 		level: wild.level,
 		moves: wild.moves,
+		ivs: wild.ivs,
 	}, 'ai-1').state;
 	const built = opts.playerParty.map((mon, i) =>
 		playerStateFromEntry(b, mon, `player-${i + 1}`));

@@ -17,6 +17,8 @@ const test = require('node:test');
 const run = require('./run');
 const driver = require('./battle-driver');
 
+const TEST_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
+
 function docWith(party) {
 	let doc = run.createRun({name: 'Recreation', now: 't0', permadeath: true});
 	doc = run.applyAll(doc, party.map(entry => ({
@@ -24,6 +26,7 @@ function docWith(party) {
 		species: entry.species,
 		map: entry.map,
 		level: entry.level,
+		ivs: Object.assign({}, TEST_IVS),
 	})));
 	return run.apply(doc, {kind: 'party',
 		ids: party.map((entry, index) => `mon-${index + 1}`)});
@@ -161,6 +164,10 @@ test('a wild fight: the ball is priced, the throw is seeded, the ending settles 
 	assert.equal(opened.battle.trainer, `Wild ${rolled.species}`);
 	assert.equal(opened.viewState.foe.active.level, rolled.level,
 		'the wild mon fights at its rolled level, uncapped');
+	assert.deepEqual(opened.battle.wild.ivs, rolled.ivs,
+		'the player IV roll waits in the bundle for a successful capture');
+	assert.deepEqual(opened.battle.state.sides.ai.party[0].ivs, rolled.ivs,
+		'the wild opponent fights with the same random IVs the player may catch');
 	const ball = opened.actions.find(action => action.kind === 'ball');
 	assert.ok(ball, 'a wild fight offers the ball');
 	assert.ok(ball.chance > 0 && ball.chance <= 100, 'the throw wears its odds');

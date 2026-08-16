@@ -712,7 +712,14 @@ test('an unreadable paste is a 400 naming the line, not a 500', async () => {
 // behaviour — a server that started remembering runs would need accounts, and
 // nothing here has them.
 
-const RUN_CATCH = {kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3};
+const OWNED_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
+
+function ownedCatch(command) {
+	return Object.assign({}, command, {ivs: Object.assign({}, OWNED_IVS, command.ivs || {})});
+}
+
+const RUN_CATCH = ownedCatch(
+	{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3});
 
 async function newRun(body) {
 	const {status, body: payload} = await requestJson('/run/new', body || {});
@@ -788,7 +795,8 @@ test('audit regressions: the new endpoints refuse with reasons, never 500', asyn
 	// A typo'd held item surfaces as a 400 naming the mon, not a dead board.
 	const held = await requestJson('/run/apply', {
 		run: caught.body.run,
-		command: {kind: 'catch', species: 'Marill', map: 'Route114', level: 40, item: 'Lefovers'},
+		command: ownedCatch(
+			{kind: 'catch', species: 'Marill', map: 'Route114', level: 40, item: 'Lefovers'}),
 	});
 	assert.equal(held.status, 200);
 	const matrix = await requestJson('/run/matrix', {run: held.body.run, trainer: 'Leader Brawly'});
@@ -1051,7 +1059,8 @@ test('the box matrix is served whole, and an unknown trainer is a 400', async ()
 test('the advisor answers over HTTP, and refuses with the reason', async () => {
 	let run = await newRun();
 	run = (await requestJson('/run/apply',
-		{run, command: {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}})).body.run;
+		{run, command: ownedCatch(
+			{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3})})).body.run;
 
 	// An empty party is a refusal, not a 500: nothing has been chosen to improve.
 	const noParty = await requestJson('/run/advise', {run});
@@ -1093,7 +1102,7 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 	const spent = await requestJson('/run/apply',
 		{run: held, command: {kind: 'heartScale', id: 'mon-1', stat: 'spd'}});
 	assert.equal(spent.status, 200);
-	assert.deepEqual(spent.body.run.box[0].ivs, {spd: 31});
+	assert.deepEqual(spent.body.run.box[0].ivs, Object.assign({}, OWNED_IVS, {spd: 31}));
 	assert.deepEqual(spent.body.run.bag, {});
 	const empty = await requestJson('/run/apply',
 		{run: spent.body.run, command: {kind: 'heartScale', id: 'mon-1', stat: 'spa'}});
@@ -1113,6 +1122,7 @@ test('the recreation rides HTTP: a roll, a spend, and one played turn', async ()
 	const caught = await requestJson('/run/apply', {run, command: {
 		kind: 'catch', species: rolled.body.roll.species,
 		level: rolled.body.roll.level, map: 'Route101', method: rolled.body.roll.method,
+		ivs: rolled.body.roll.ivs,
 	}});
 	assert.equal(caught.status, 200);
 	run = caught.body.run;
@@ -1154,7 +1164,7 @@ test('a wild fight rides HTTP: rolled, fought, the ball thrown, forgeries refuse
 	const runtime = require('./run');
 	let run = runtime.createRun({name: 'wild HTTP', now: 't0', permadeath: true});
 	run = runtime.applyAll(run, [
-		{kind: 'catch', species: 'Starly', map: 'Route102', level: 5},
+		ownedCatch({kind: 'catch', species: 'Starly', map: 'Route102', level: 5}),
 		{kind: 'party', ids: ['mon-1']},
 	]);
 
@@ -1187,7 +1197,7 @@ test('the wire refuses garbage where the engine would crash: bundles, runs, knob
 	const runtime = require('./run');
 	let run = runtime.createRun({name: 'hardened', now: 't0', permadeath: true});
 	run = runtime.applyAll(run, [
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+		ownedCatch({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
 		{kind: 'party', ids: ['mon-1']},
 	]);
 
