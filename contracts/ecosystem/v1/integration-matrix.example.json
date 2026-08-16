@@ -11,23 +11,32 @@
   "lanes": {
     "app": {
       "repository": "runbuncalc",
-      "revision": null,
+      "revision": "c11db8fbdb12c40972b050cfd77259c58dd820b8",
       "gate": "npm test"
     },
     "engine": {
       "repository": "pokemon-mono",
-      "revision": null,
-      "gate": "just gate"
+      "revision": "647b3ad96ad6a887252bda2f5ebcf1cb90e907c8",
+      "gate": "focused provider tests plus browser-target bridge bundle"
     },
     "control": {
       "repository": "stochastic-inference-core",
       "revision": null,
       "gate": "repository-canonical"
+    },
+    "verification": {
+      "repository": "pokemon-mono",
+      "revision": "867461d6ca9ed24b71c447e20dd5fa840b5b0d5c",
+      "gate": "just run-runtime && just run-runtime-falsify"
     }
   },
   "fixtures": {
-    "corpus": [],
-    "expectedDivergences": [],
+    "corpus": [
+      "planning-request.json::deterministic-injected-planner"
+    ],
+    "expectedDivergences": [
+      "production-rab-planner-does-not-accept-request-seed"
+    ],
     "unexpectedDivergences": []
   },
   "promotion": {

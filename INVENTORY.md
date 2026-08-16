@@ -113,12 +113,12 @@ regenerated. Advisory, and deliberately BELOW the drift gate's waterline:
 a stamp changes at the very commit that touches its doc, so gating it
 byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
-- `AGENTS.md` — d4f02d3 2026-08-08
+- `AGENTS.md` — 250820c 2026-08-16
 - `AI_DATA_MODEL.md` — bfd934e 2026-08-05
 - `DEPLOY.md` — 1298e03 2026-08-13
 - `FORK_MAP.md` — e3c01a4 2026-08-15
 - `GEN9_AUDIT.md` — c85114d 2026-08-08
-- `README.md` — ac99e93 2026-08-16
+- `README.md` — 6d6d8ec 2026-08-16
 - `RUNBUN_REBUILD_MODEL.md` — e3c01a4 2026-08-15
 - `RUNBUN_UI_DESIGN.md` — 8fcc3f7 2026-08-12
 - `STRATEGY.md` — 78fd09e 2026-08-13
@@ -126,7 +126,7 @@ the reader's warning to verify before trusting.
 - `VALIDATION.md` — 8fcc3f7 2026-08-12
 
 ## Test files
-`attempt_store.test.js` · `battle-driver.test.js` · `browser_calc_load.test.js` · `browser_entrypoint.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `game-runtime-adapter.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `rl-dataset.test.js` · `rom-band.test.js` · `run.test.js` · `run_history.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js` · `ui_style.test.js` · `worker-runtime.test.js` · `worker.test.js`
+`attempt_store.test.js` · `battle-driver.test.js` · `browser_calc_load.test.js` · `browser_entrypoint.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `game-runtime-adapter.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `pokemon-bridge.test.js` · `rl-dataset.test.js` · `rom-band.test.js` · `run.test.js` · `run_history.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js` · `ui_style.test.js` · `worker-runtime.test.js` · `worker.test.js`
 
 ## Prior art elsewhere (from ECOSYSTEM.json)
 
