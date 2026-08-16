@@ -235,22 +235,24 @@ The root `postinstall` step provisions the `calc/` and `ai/` subpackages through
 Avoid installing those packages independently unless you are deliberately working on an
 isolated package.
 
-Next, run `npm run build` from the root directory. This compiles both `@smogon/calc` and
-`runbuncalc-ai`, then compiles the templated HTML and copies everything into the top-level `dist/`
-folder. To then view the UI, open `dist/index.html` -
-simply double-clicking on the file from your operating system's file manager UI should open it in
-your default browser.
+Run `npm run dev` from the root directory. It compiles both `@smogon/calc` and
+`runbuncalc-ai`, materializes the templated HTML and assets into `dist/`, and
+serves that exact product build. Use the printed local URL.
 
 ```sh
-$ npm run build
-$ open dist/index.html # open works on macOS, simply double-clicking the file on Windows/macOS works
+$ npm run dev
 ```
 
-**If you make changes to anything in `calc/` or `ai/`, you must run `npm run build` from the top level to
-compile the files and copy them into `dist/` again. If you make changes to the HTML or JavaScript in
-`src/` you must run `node build view` before the changes will become visible in your browser**
-(`npm run build` also works, but it is slower, as it will compile `calc/` and `ai/` as well, which is
-unnecessary if you did not make any changes to that directory).
+`src/index.template.html` is build input and must never be used as a preview;
+its calculator URLs intentionally resolve only after materialization. For a
+quick UI-only iteration after a successful full build, run `npm run preview`.
+That refreshes `dist/` from `src/` and serves it without recompiling the two
+subpackages. Run `npm run dev` again after changing `calc/` or `ai/`.
+
+The repository lifecycle and cross-project ownership contract are documented
+in [`docs/SDLC.md`](docs/SDLC.md) and
+[`docs/ECOSYSTEM_BRIDGE.md`](docs/ECOSYSTEM_BRIDGE.md). `npm run check:sdlc`
+proves the runnable entrypoint and bridge manifest before the broader test gate.
 
 Before opening up a Pull Request, please ensure `npm test` passes:
 

@@ -1,0 +1,31 @@
+{
+  "contract": "pokemon-ecosystem.bridge",
+  "version": "1.0.0",
+  "requestSchema": "pokemon.bridge.request/1.0.0",
+  "receiptSchema": "pokemon.bridge.receipt/1.0.0",
+  "owners": {
+    "attempt": "runbuncalc",
+    "simulation": "pokemon-mono",
+    "orchestration": "stochastic-inference-core"
+  },
+  "capabilities": [
+    "pokemon.rab.plan",
+    "pokemon.rab.simulate",
+    "pokemon.rab.evaluate"
+  ],
+  "transports": {
+    "control": "application/json",
+    "archive": "rabrun.archive@1+model@2.0.0",
+    "analytics": "arrow-or-parquet",
+    "training": "arrow-or-npz"
+  },
+  "compatibility": {
+    "unknownFields": "reject-at-provider-boundary",
+    "receipts": "immutable",
+    "majorVersion": "exact"
+  },
+  "examples": {
+    "request": "planning-request.json",
+    "receipt": "planning-receipt.json"
+  }
+}

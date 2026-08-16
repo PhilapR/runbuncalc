@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "pokemon.bridge.request/1.0.0",
+  "requestId": "req_first_fight_seed_1450",
+  "capability": "pokemon.rab.plan",
+  "attempt": {
+    "attemptId": "attempt_seed_1450",
+    "revision": 42,
+    "stateHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "profile": {
+    "id": "run-and-bun",
+    "revision": "rab-profile-fixture-v1"
+  },
+  "task": {
+    "kind": "plan",
+    "state": {"battle": null, "milestone": "first-required-fight"},
+    "seeds": [1450],
+    "constraints": {"zeroDeaths": true, "wholeBranch": true}
+  }
+}

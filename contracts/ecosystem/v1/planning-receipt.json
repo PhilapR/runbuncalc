@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "pokemon.bridge.receipt/1.0.0",
+  "receiptId": "receipt_first_fight_seed_1450_001",
+  "requestId": "req_first_fight_seed_1450",
+  "producer": {
+    "repository": "pokemon-mono",
+    "revision": "fixture-revision",
+    "engine": "run-and-bun",
+    "engineVersion": "0.1.0"
+  },
+  "input": {
+    "attemptId": "attempt_seed_1450",
+    "revision": 42,
+    "stateHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "profileRevision": "rab-profile-fixture-v1",
+    "seeds": [1450]
+  },
+  "result": {
+    "status": "complete",
+    "safe": true,
+    "summary": {"branchesEvaluated": 1, "deaths": 0},
+    "outputHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "evidence": {
+    "contractVersion": "1.0.0",
+    "deterministic": true,
+    "replayHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "expectedDivergences": [],
+    "unexpectedDivergences": []
+  }
+}

@@ -153,6 +153,12 @@ event mutation, or treating screenshots/tiles as structured state.
 analytics can accidentally become a second authority. Keep event schemas
 small, typed, versioned, and replayable before optimizing storage.
 
+Cross-repository work follows the ownership and evidence boundaries in
+[`ECOSYSTEM_BRIDGE.md`](ECOSYSTEM_BRIDGE.md) and the gated delivery lifecycle
+in [`SDLC.md`](SDLC.md). A cross-repository feature does not advance merely
+because one checkout is green; its provider, consumer, contract fixtures, and
+reviewed deployment revision must agree.
+
 **Sequence:** Begin the schema discipline in Phase 2; make cross-device or
 hosted storage only after Phase 3 proves which facts users actually review.
 
