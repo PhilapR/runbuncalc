@@ -124,7 +124,7 @@ sha256(lock.digest, 'canonical contract digest');
 assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.deepEqual(matrix.fixtures.expectedDivergences, []);
 assert.equal(matrix.lanes.engine.revision, providerProvenance.revision);
-assert.equal(matrix.lanes.app.revision, '814c23e6ebf4d041568d25435f34e499a3b5b191');
+assert.equal(matrix.lanes.app.revision, 'c7b65e2eeaf511bac2e3a6222f430c3973d8f97e');
 assert.equal(seededReceipt.requestId, request.requestId);
 assert.equal(seededReceipt.producer.revision, providerProvenance.revision);
 assert.equal(seededReceipt.input.stateHash, request.attempt.stateHash);

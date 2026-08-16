@@ -11,7 +11,7 @@
   "lanes": {
     "app": {
       "repository": "runbuncalc",
-      "revision": "814c23e6ebf4d041568d25435f34e499a3b5b191",
+      "revision": "c7b65e2eeaf511bac2e3a6222f430c3973d8f97e",
       "gate": "npm test"
     },
     "engine": {
