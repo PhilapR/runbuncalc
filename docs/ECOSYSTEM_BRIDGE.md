@@ -128,7 +128,7 @@ These are bounded transport/simulator measurements for one recorded party and
 fight, not a claim of policy quality or full-game throughput.
 
 The browser consumer at app revision
-`d3d0f2d614a3271cf9eb6477753ec44d538c3692` uses the already-loaded provider
+`27cb8e5e03f90e7931d359f7d23768914c50dd34` uses the already-loaded provider
 for a bounded current-plus-two-fight outlook. Browser batches are capped at the
 eight fights already present on the visible road, preserve order, reject
 duplicate request IDs before provider work, and match single-call receipts.
@@ -143,18 +143,23 @@ order and pokemon-mono's canonical trainer order, plus seed, lead, participants,
 turns, result, and deaths. The Run history surface pairs the latest plan before
 that exact fight and labels the descriptive result `held`, `underestimated`,
 `outperformed`, `within-risk`, `defeat`, or `unplayed`; it does not infer carry
-or causal policy value.
+or causal policy value. The same immutable completion records replay-stable
+per-Pokemon appearances, switch-ins, move attempts, opposing real HP removed by
+those moves, and direct KOs. History renders those counters as actual or partial
+participation and never promotes them to carry.
 
-The checked archive materializer emits schema `1.2.0` episode, event, step,
+The checked archive materializer emits schema `1.3.0` episode, event, step,
 observation, planning-receipt, per-seed planning-branch, battle-outcome, and
-planning-review tables. Its maximum-batch test retains and materializes 1,024
+planning-review tables plus per-Pokemon battle-contribution rows. Its
+maximum-batch test retains and materializes 1,024
 receipts without adding game events; the checked archive stays below 8 MiB in
 the local regression gate.
 
 The integration matrix therefore records single/batch parity, a six-Pokemon
 benchmark, planning-evidence persistence/materialization, played-outcome
-recording, rendered review, derived review rows, and exact app, engine, control,
-and verification revisions. `providerEnabled` and
+recording, rendered review, derived review rows, realized-participation capture,
+rendering and materialization, and exact app, engine, control, and verification
+revisions. `providerEnabled` and
 `privateDeploymentVerified` remain false: no production/private promotion is
 claimed until the exact reviewed app revision passes authenticated success,
 anonymous denial, and deployed receipt checks. Deployment remains private.

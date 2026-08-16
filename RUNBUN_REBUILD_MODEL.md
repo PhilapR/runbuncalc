@@ -171,13 +171,21 @@ This is the transactional and replay substrate for companion and rebuilt modes.
 Played trainer fights emit canonical `battle.ended` events. Their payloads keep
 the filtered game progression order separate from the canonical pokemon-mono
 trainer order and record seed, lead, participants, turns, result, and deaths.
+Contribution schema v1 also records each owned Pokemon's replay-stable
+appearance count, switch-ins, move attempts, immediate opposing real HP
+removed by those moves, and direct KOs. A resumed malformed or pre-telemetry
+battle remains explicitly partial. These counters do not include Substitute
+HP, residual damage, hazards, ball throws, or illegal actions and do not imply
+that a species, IV roll, or Pokemon carried the run.
 The review projection pairs each completion only with the latest eligible plan
 since the prior play of that trainer; a plan recorded after completion cannot
 rewrite the result.
 
 `rl-dataset.js` validates a checked archive and materializes primitive episode,
 event, step, observation, planning-receipt, planning-branch, battle-outcome, and
-planning-review rows with explicit Arrow/Parquet-oriented types. Schema `1.2.0`
+planning-review rows with explicit Arrow/Parquet-oriented types. Schema `1.3.0`
+adds one primitive `battle_contributions` row per owned Pokemon in each trainer
+receipt, keyed back to attempt, event, revision, and trainer order. It
 preserves provider, profile/request, seed, result, replay, and evidence
 identities so policy data can be traced back to the exact checked attempt.
 It is deliberately not Parquet: columnar files belong downstream as immutable

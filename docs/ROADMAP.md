@@ -122,7 +122,10 @@ progression order, and canonical pokemon-mono trainer order. Run history joins
 the latest eligible receipt by trainer number and revision, distinguishes
 unplayed and unplanned evidence, and renders descriptive plan-vs-played outcomes
 without claiming carry. Re-plans after a fight cannot rewrite its review, and
-wild/malformed records do not enter the join.
+wild/malformed records do not enter the join. Each new fight also records and
+renders replay-stable appearances, switch-ins, move attempts, opposing real HP
+removed by those moves, and direct KOs. Incomplete resumed telemetry stays
+marked partial, and the UI calls this actual participation rather than carry.
 
 **Non-goals:** An omniscient optimal policy, fabricated hidden information,
 social leaderboards, or a promise that high IVs/species alone explain a run.
@@ -158,8 +161,9 @@ manifest tying every row to attempt, revision, schema, seed, and source.
 
 **Current evidence:** IndexedDB v3 stores planner receipts separately from the
 event ledger, imports older archives, rejects receipt corruption, and preserves
-atomic batch order. Materializer schema `1.2.0` emits typed planning receipt,
-per-seed branch, played battle outcome, and plan-vs-played review tables. A
+atomic batch order. Materializer schema `1.3.0` emits typed planning receipt,
+per-seed branch, played battle outcome, plan-vs-played review, and per-Pokemon
+battle-contribution tables. A
 1,024-receipt maximum batch remains below 8 MiB and materializes in the local
 five-second regression bound without creating game events. Native Parquet/Arrow
 file writing remains downstream work.
