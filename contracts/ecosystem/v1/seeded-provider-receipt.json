@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "pokemon.bridge.receipt/1.0.0",
+  "receiptId": "receipt_4a4eec0332445e126420f684",
+  "requestId": "req_first_fight_seed_1450",
+  "producer": {
+    "repository": "pokemon-mono",
+    "revision": "112b916cf01732c5edba5b3ed1b24535369b4844",
+    "engine": "run-and-bun",
+    "engineVersion": "0.1.0"
+  },
+  "input": {
+    "attemptId": "attempt_seed_1450",
+    "revision": 42,
+    "stateHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "profileRevision": "rab-profile-fixture-v1",
+    "seeds": [1450]
+  },
+  "result": {
+    "status": "complete",
+    "safe": false,
+    "summary": {
+      "branchesEvaluated": 1,
+      "candidatesEvaluated": 1,
+      "deaths": 1,
+      "losses": 1,
+      "safeBranches": 0,
+      "trainerOrder": 1,
+      "recommendedLeadId": "owned-treecko-1",
+      "expectedTurns": 5,
+      "branchOutcomes": [{
+        "seed": 1450,
+        "victory": false,
+        "deaths": 1,
+        "turns": 5,
+        "totalHPRemaining": 0
+      }]
+    },
+    "outputHash": "9bd39fa6ef8f83287cad53d369c5bbe2798f93526f6c8962df34218d168da1d0"
+  },
+  "evidence": {
+    "contractVersion": "1.0.0",
+    "deterministic": true,
+    "replayHash": "5d5200523df814487a99036a3839c136bd9dfa8d83a182b51eeab83d20b7341d",
+    "expectedDivergences": [],
+    "unexpectedDivergences": []
+  }
+}

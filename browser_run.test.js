@@ -30,6 +30,9 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
+const planningRequest = require('./contracts/ecosystem/v1/planning-request.json');
+const seededProviderReceipt = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
+
 const startServer = require('./server').startServer;
 
 let chromium = null;
@@ -125,6 +128,9 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 		revision: '112b916cf01732c5edba5b3ed1b24535369b4844',
 		plan: 'function',
 	});
+	assert.deepEqual(await page.evaluate(request =>
+		window.RunBunPokemonProvider.provider.plan(request), planningRequest),
+	seededProviderReceipt, 'browser provider must reproduce pokemon-mono canonical receipt exactly');
 
 	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');

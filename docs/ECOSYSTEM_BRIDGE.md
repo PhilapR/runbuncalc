@@ -96,7 +96,28 @@ inference is never the game-state authority.
    fleet workloads.
 7. Scale only after single-run and batch execution reproduce the corpus.
 
+## Current gate — 2026-08-16
+
+Steps 1 through 5 are locally complete for the first seeded planning fixture.
+`runbuncalc` imports the browser-safe provider built from `pokemon-mono`
+revision `112b916cf01732c5edba5b3ed1b24535369b4844`, verifies the artifact hash
+before building, translates the app's zero-based fight index to the contract's
+one-based trainer order, and reproduces the recorded seed-1450 receipt in
+Chromium. The Plan surface combines that eight-seed whole-branch forecast with
+the existing tactical action ranking; companion play still falls back to the
+local planner if the provider cannot answer.
+
+This is local browser/provider parity, not batch readiness. The integration
+matrix therefore keeps `singleBatchParity`, `providerEnabled`, and
+`privateDeploymentVerified` false. The next program slice is step 6: register
+the exact request/receipt capability in `stochastic-inference-core`, then add a
+batch executor and prove that its fixed corpus matches single execution before
+any fleet or RL scale claim. Deployment follows those gates and must remain
+private.
+
 The executable manifest is
 [`../contracts/ecosystem/v1/contract.json`](../contracts/ecosystem/v1/contract.json).
-Its examples are test vectors, not proof that a live `pokemon-mono` provider
-already exists.
+Its canonical examples remain test vectors. The additional
+`seeded-provider-receipt.json` and integration matrix record the narrower fact
+that the pinned provider exists and matches the first local browser corpus;
+they do not prove batch or deployed parity.

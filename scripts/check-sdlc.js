@@ -73,6 +73,7 @@ assert.deepEqual(manifest.parallelLanes, {
 
 const request = json('contracts/ecosystem/v1/' + manifest.examples.request);
 const receipt = json('contracts/ecosystem/v1/' + manifest.examples.receipt);
+const seededReceipt = json('contracts/ecosystem/v1/seeded-provider-receipt.json');
 const matrix = json('contracts/ecosystem/v1/' + manifest.examples.integrationMatrix);
 const lock = json('contracts/ecosystem/v1/' + manifest.examples.canonicalLock);
 assert.equal(request.schemaVersion, manifest.requestSchema);
@@ -97,7 +98,7 @@ sha256(receipt.evidence.replayHash, 'receipt evidence replayHash');
 assert.equal(receipt.evidence.deterministic, true);
 assert.deepEqual(receipt.evidence.unexpectedDivergences, []);
 assert.equal(matrix.schemaVersion, 'pokemon.bridge.integration/1.0.0');
-assert.equal(matrix.status, 'contract-frozen');
+assert.equal(matrix.status, 'provider-integrated-local');
 assert.equal(matrix.contract.canonicalRepository, manifest.authority.canonicalTargetRepository);
 assert.equal(matrix.contract.canonicalPath, manifest.authority.canonicalTargetPath);
 assert.equal(matrix.contract.revision, lock.revision);
@@ -108,6 +109,16 @@ assert.equal(lock.revision, manifest.authority.canonicalRevision);
 assert.equal(lock.digest, manifest.authority.canonicalDigest);
 sha256(lock.digest, 'canonical contract digest');
 assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
+assert.deepEqual(matrix.fixtures.expectedDivergences, []);
+assert.equal(matrix.lanes.engine.revision, providerProvenance.revision);
+assert.equal(matrix.lanes.app.revision, '814c23e6ebf4d041568d25435f34e499a3b5b191');
+assert.equal(seededReceipt.requestId, request.requestId);
+assert.equal(seededReceipt.producer.revision, providerProvenance.revision);
+assert.equal(seededReceipt.input.stateHash, request.attempt.stateHash);
+assert.deepEqual(seededReceipt.input.seeds, request.task.seeds);
+assert.deepEqual(seededReceipt.evidence.unexpectedDivergences, []);
+assert.equal(matrix.promotion.browserProviderParity, true);
+assert.equal(matrix.promotion.singleBatchParity, false);
 assert.equal(matrix.promotion.providerEnabled, false);
 assert.equal(matrix.promotion.privateDeploymentVerified, false);
 

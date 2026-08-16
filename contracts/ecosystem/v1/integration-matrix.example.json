@@ -1,6 +1,6 @@
 {
   "schemaVersion": "pokemon.bridge.integration/1.0.0",
-  "status": "contract-frozen",
+  "status": "provider-integrated-local",
   "contract": {
     "version": "1.0.0",
     "canonicalRepository": "pokemon-mono",
@@ -11,13 +11,13 @@
   "lanes": {
     "app": {
       "repository": "runbuncalc",
-      "revision": "c11db8fbdb12c40972b050cfd77259c58dd820b8",
+      "revision": "814c23e6ebf4d041568d25435f34e499a3b5b191",
       "gate": "npm test"
     },
     "engine": {
       "repository": "pokemon-mono",
-      "revision": "647b3ad96ad6a887252bda2f5ebcf1cb90e907c8",
-      "gate": "focused provider tests plus browser-target bridge bundle"
+      "revision": "112b916cf01732c5edba5b3ed1b24535369b4844",
+      "gate": "bun run test:run-runtime plus just test-ts plus browser-target bridge bundle"
     },
     "control": {
       "repository": "stochastic-inference-core",
@@ -32,14 +32,19 @@
   },
   "fixtures": {
     "corpus": [
-      "planning-request.json::deterministic-injected-planner"
+      "planning-request.json::seeded-provider-receipt.json"
     ],
-    "expectedDivergences": [
-      "production-rab-planner-does-not-accept-request-seed"
-    ],
+    "expectedDivergences": [],
     "unexpectedDivergences": []
   },
+  "adapters": [{
+    "boundary": "trainer-order",
+    "appRepresentation": "zero-based",
+    "contractRepresentation": "one-based",
+    "transform": "contractOrder = appOrder + 1"
+  }],
   "promotion": {
+    "browserProviderParity": true,
     "singleBatchParity": false,
     "providerEnabled": false,
     "privateDeploymentVerified": false
