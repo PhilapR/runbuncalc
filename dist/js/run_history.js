@@ -187,6 +187,52 @@
 		};
 	}
 
+	function attributionSummary(record) {
+		if (!record || record.kind !== 'pokemon.rab.attribute' || !record.request ||
+			!record.receipt || !record.request.task || !record.request.task.state ||
+			!record.request.task.state.trainer ||
+			!Number.isInteger(record.request.task.state.trainer.order) ||
+			!Array.isArray(record.request.task.state.baselineTeam) ||
+			!Array.isArray(record.request.task.interventions) ||
+			!record.receipt.result || !record.receipt.result.baseline ||
+			!Array.isArray(record.receipt.result.interventions) ||
+			!record.receipt.input) return null;
+		var baseline = record.request.task.state.baselineTeam;
+		var requested = {};
+		record.request.task.interventions.forEach(function (row) {
+			if (row && row.interventionId) requested[row.interventionId] = row;
+		});
+		var tests = record.receipt.result.interventions.map(function (result) {
+			var intervention = requested[result.interventionId];
+			if (!intervention || !result.delta ||
+				['replace-party-member', 'normalize-ivs'].indexOf(result.kind) === -1) return null;
+			var target = baseline.filter(function (mon) { return mon.id === result.targetId; })[0];
+			return {
+				interventionId: result.interventionId,
+				kind: result.kind,
+				targetId: result.targetId,
+				targetSpecies: target && target.species || result.targetId,
+				replacementId: intervention.replacement && intervention.replacement.id || null,
+				replacementSpecies: intervention.replacement && intervention.replacement.species || null,
+				reference: intervention.reference || null,
+				delta: clone(result.delta),
+			};
+		}).filter(Boolean);
+		if (!tests.length) return null;
+		return {
+			evidenceId: record.evidenceId,
+			trainerOrder: record.request.task.state.trainer.order,
+			attemptRevision: record.attemptRevision,
+			recordedAt: record.recordedAt || null,
+			seedCount: Array.isArray(record.receipt.input.seeds) ?
+				record.receipt.input.seeds.length : 0,
+			policy: record.receipt.input.policy || null,
+			baselineSafeBranches: record.receipt.result.baseline.safeBranches,
+			baselineDeaths: record.receipt.result.baseline.totalDeaths,
+			tests: tests,
+		};
+	}
+
 	function battleCompletion(event) {
 		var payload = event && event.kind === 'battle.ended' ? event.payload : null;
 		if (!payload || payload.kind !== 'trainer' ||
@@ -245,10 +291,16 @@
 	 * A completion consumes only plans recorded since the prior play of that
 	 * trainer and chooses the latest one at or before the completed revision.
 	 * Plans created after a completion remain unplayed. This is descriptive
-	 * evidence: it never manufactures carry, causal value, or policy quality.
+	 * evidence. Attribution is joined as a separate fixed-seed model result; it
+	 * never upgrades participation into carry, causal value, or historical truth.
 	 */
 	function derivePlanningReview(inspected) {
 		var plans = (inspected && inspected.evidence || []).map(planningSummary)
+			.filter(Boolean).sort(function (a, b) {
+				return a.attemptRevision - b.attemptRevision ||
+					String(a.recordedAt || '').localeCompare(String(b.recordedAt || ''));
+			});
+		var attributions = (inspected && inspected.evidence || []).map(attributionSummary)
 			.filter(Boolean).sort(function (a, b) {
 				return a.attemptRevision - b.attemptRevision ||
 					String(a.recordedAt || '').localeCompare(String(b.recordedAt || ''));
@@ -257,6 +309,7 @@
 			.filter(Boolean).sort(function (a, b) { return a.revision - b.revision; });
 		var orders = {};
 		plans.forEach(function (plan) { orders[plan.trainerOrder] = true; });
+		attributions.forEach(function (entry) { orders[entry.trainerOrder] = true; });
 		completions.forEach(function (actual) { orders[actual.trainerOrder] = true; });
 		var rows = [];
 		Object.keys(orders).map(Number).sort(function (a, b) { return a - b; })
@@ -267,6 +320,9 @@
 				var trainerPlays = completions.filter(function (actual) {
 					return actual.trainerOrder === trainerOrder;
 				});
+				var trainerAttributions = attributions.filter(function (entry) {
+					return entry.trainerOrder === trainerOrder;
+				});
 				var priorRevision = -1;
 				trainerPlays.forEach(function (actual) {
 					var eligible = trainerPlans.filter(function (plan) {
@@ -274,11 +330,19 @@
 							plan.attemptRevision <= actual.revision;
 					});
 					var plan = eligible.length ? eligible[eligible.length - 1] : null;
+					var eligibleAttributions = trainerAttributions.filter(function (entry) {
+						return entry.attemptRevision > priorRevision &&
+							entry.attemptRevision <= actual.revision;
+					});
+					var attribution = eligibleAttributions.length ?
+						eligibleAttributions[eligibleAttributions.length - 1] : null;
 					rows.push({
 						trainerOrder: trainerOrder,
 						trainer: actual.trainer,
 						plan: plan,
 						planCount: eligible.length,
+						attribution: attribution,
+						attributionCount: eligibleAttributions.length,
 						actual: actual,
 						comparison: comparison(plan, actual),
 					});
@@ -287,25 +351,35 @@
 				var remaining = trainerPlans.filter(function (plan) {
 					return plan.attemptRevision > priorRevision;
 				});
-				if (remaining.length) {
-					var latest = remaining[remaining.length - 1];
+				var remainingAttributions = trainerAttributions.filter(function (entry) {
+					return entry.attemptRevision > priorRevision;
+				});
+				if (remaining.length || remainingAttributions.length) {
+					var latest = remaining.length ? remaining[remaining.length - 1] : null;
+					var latestAttribution = remainingAttributions.length ?
+						remainingAttributions[remainingAttributions.length - 1] : null;
 					rows.push({
 						trainerOrder: trainerOrder,
 						trainer: null,
 						plan: latest,
 						planCount: remaining.length,
+						attribution: latestAttribution,
+						attributionCount: remainingAttributions.length,
 						actual: null,
 						comparison: 'unplayed',
 					});
 				}
 			});
 		rows.sort(function (a, b) {
-			var aRevision = a.actual ? a.actual.revision : a.plan.attemptRevision;
-			var bRevision = b.actual ? b.actual.revision : b.plan.attemptRevision;
+			var aRevision = a.actual ? a.actual.revision :
+				a.plan ? a.plan.attemptRevision : a.attribution.attemptRevision;
+			var bRevision = b.actual ? b.actual.revision :
+				b.plan ? b.plan.attemptRevision : b.attribution.attemptRevision;
 			return bRevision - aRevision;
 		});
 		return {
 			planned: plans.length,
+			modeled: attributions.length,
 			played: completions.length,
 			matched: rows.filter(function (row) { return row.plan && row.actual; }).length,
 			rows: rows,
@@ -407,6 +481,7 @@
 		record: record,
 		derive: derive,
 		derivePlanningReview: derivePlanningReview,
+		attributionSummary: attributionSummary,
 		positionLabel: positionLabel,
 		outcomeLabel: outcomeLabel,
 		archive: archive,

@@ -446,8 +446,202 @@
 		};
 	}
 
+	function validateAttributionEvidence(input) {
+		if (!isObject(input)) throw error('Attribution evidence is required.', 'INVALID_EVIDENCE');
+		var request = input.request;
+		var receipt = input.receipt;
+		var task = request && request.task;
+		var state = task && task.state;
+		var constraints = task && task.constraints;
+		if (!isObject(request) ||
+			request.schemaVersion !== 'pokemon.bridge.attribution.request/1.0.0' ||
+			request.capability !== 'pokemon.rab.attribute' || !isObject(request.attempt) ||
+			!isObject(request.profile) || request.profile.id !== 'run-and-bun' ||
+			!isObject(task) || task.kind !== 'attribute' || !isObject(state) ||
+			state.kind !== 'run-and-bun.attribution-input' ||
+			state.startingCondition !== 'full-health-no-status-full-pp' ||
+			!isObject(state.trainer) || !Number.isInteger(state.trainer.order) ||
+			state.trainer.order < 1 || !Array.isArray(state.baselineTeam) ||
+			!state.baselineTeam.length || state.baselineTeam.length > 6 ||
+			!Array.isArray(task.interventions) || !task.interventions.length ||
+			task.interventions.length > 32 || !Array.isArray(task.seeds) ||
+			!task.seeds.length || task.seeds.length > 10000 || !isObject(constraints) ||
+			constraints.zeroDeaths !== true || constraints.wholeBranch !== true ||
+			constraints.policy !== 'reoptimize-lead-v1' ||
+			!Number.isInteger(constraints.maxCandidateBranches) ||
+			constraints.maxCandidateBranches < 1 || constraints.maxCandidateBranches > 262144) {
+			throw error('Attribution evidence request is invalid.', 'INVALID_EVIDENCE');
+		}
+		var seeds = {};
+		task.seeds.forEach(function (seed) {
+			if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff || seeds[seed]) {
+				throw error('Attribution seeds must be unique UINT32 values.', 'INVALID_EVIDENCE');
+			}
+			seeds[seed] = true;
+		});
+		var interventionIds = {};
+		task.interventions.forEach(function (intervention) {
+			if (!isObject(intervention) || typeof intervention.interventionId !== 'string' ||
+				!intervention.interventionId || interventionIds[intervention.interventionId] ||
+				typeof intervention.targetId !== 'string' || !intervention.targetId ||
+				['replace-party-member', 'normalize-ivs'].indexOf(intervention.kind) === -1) {
+				throw error('Attribution intervention is invalid.', 'INVALID_EVIDENCE');
+			}
+			interventionIds[intervention.interventionId] = true;
+			if (intervention.kind === 'replace-party-member' &&
+				(!isObject(intervention.replacement) || !isObject(intervention.ownership) ||
+				typeof intervention.ownership.sourceEventId !== 'string' ||
+				!(/^[a-f0-9]{64}$/).test(intervention.ownership.sourceEventHash || '') ||
+				!Number.isInteger(intervention.ownership.acquiredRevision))) {
+				throw error('Replacement attribution lacks acquisition provenance.', 'INVALID_EVIDENCE');
+			}
+			if (intervention.kind === 'normalize-ivs' &&
+				(intervention.reference !== 'all-15-reference' || !isObject(intervention.ivs) ||
+				['hp', 'atk', 'def', 'spa', 'spd', 'spe'].some(function (stat) {
+					return intervention.ivs[stat] !== 15;
+				}))) throw error('IV attribution reference is invalid.', 'INVALID_EVIDENCE');
+		});
+		var candidateBranches = (task.interventions.length + 1) *
+			state.baselineTeam.length * task.seeds.length;
+		if (candidateBranches > constraints.maxCandidateBranches) {
+			throw error('Attribution branch budget is exceeded.', 'INVALID_EVIDENCE');
+		}
+		if (!isObject(receipt) ||
+			receipt.schemaVersion !== 'pokemon.bridge.attribution.receipt/1.0.0' ||
+			receipt.requestId !== request.requestId || !isObject(receipt.producer) ||
+			receipt.producer.repository !== 'pokemon-mono' ||
+			typeof receipt.producer.revision !== 'string' || !receipt.producer.revision ||
+			!isObject(receipt.input) || !isObject(receipt.result) ||
+			receipt.result.status !== 'complete' || !isObject(receipt.result.baseline) ||
+			!Array.isArray(receipt.result.interventions) ||
+			receipt.result.interventions.length !== task.interventions.length ||
+			!isObject(receipt.result.summary) || !isObject(receipt.evidence)) {
+			throw error('Attribution evidence receipt is invalid.', 'INVALID_EVIDENCE');
+		}
+		function validOutcome(outcome) {
+			return isObject(outcome) && typeof outcome.recommendedLeadId === 'string' &&
+				outcome.recommendedLeadId && Number.isInteger(outcome.safeBranches) &&
+				outcome.safeBranches >= 0 && outcome.safeBranches <= task.seeds.length &&
+				Number.isInteger(outcome.losses) && Number.isInteger(outcome.totalDeaths) &&
+				outcome.losses >= 0 && outcome.totalDeaths >= 0 &&
+				Number.isFinite(outcome.expectedTurns) && outcome.expectedTurns >= 0 &&
+				Number.isInteger(outcome.startingTotalHP) && outcome.startingTotalHP >= 0 &&
+				Array.isArray(outcome.branchOutcomes) &&
+				outcome.branchOutcomes.length === task.seeds.length &&
+				outcome.branchOutcomes.every(function (branch, index) {
+					return isObject(branch) && branch.seed === task.seeds[index] &&
+						typeof branch.victory === 'boolean' && Number.isInteger(branch.deaths) &&
+						branch.deaths >= 0 && Number.isInteger(branch.turns) && branch.turns >= 0 &&
+						Number.isInteger(branch.totalHPRemaining) && branch.totalHPRemaining >= 0;
+				});
+		}
+		function validDelta(delta) {
+			return isObject(delta) && ['safeBranches', 'wins', 'deaths', 'totalHPRemaining',
+				'changedOutcomeBranches', 'changedDeathlessBranches'].every(function (field) {
+					return Number.isInteger(delta[field]);
+				}) && delta.changedOutcomeBranches >= 0 && delta.changedDeathlessBranches >= 0 &&
+				Number.isFinite(delta.expectedTurns);
+		}
+		if (receipt.input.attemptId !== request.attempt.attemptId ||
+			receipt.input.revision !== request.attempt.revision ||
+			receipt.input.stateHash !== request.attempt.stateHash ||
+			receipt.input.profileRevision !== request.profile.revision ||
+			receipt.input.trainerOrder !== state.trainer.order ||
+			receipt.input.policy !== constraints.policy ||
+			receipt.input.maxCandidateBranches !== constraints.maxCandidateBranches ||
+			canonical(receipt.input.seeds) !== canonical(task.seeds) ||
+			canonical(receipt.input.interventionIds) !== canonical(task.interventions.map(function (row) {
+				return row.interventionId;
+			})) || !validOutcome(receipt.result.baseline) ||
+			receipt.result.summary.seedPairsEvaluated !== task.seeds.length * task.interventions.length ||
+			receipt.result.summary.candidateBranchesEvaluated !== candidateBranches ||
+			!(/^[a-f0-9]{64}$/).test(receipt.input.requestHash || '') ||
+			!(/^[a-f0-9]{64}$/).test(receipt.input.baselineTeamHash || '') ||
+			!(/^[a-f0-9]{64}$/).test(receipt.result.outputHash || '') ||
+			!(/^[a-f0-9]{64}$/).test(receipt.evidence.replayHash || '') ||
+			receipt.evidence.deterministic !== true ||
+			!Array.isArray(receipt.evidence.expectedDivergences) ||
+			receipt.evidence.expectedDivergences.length ||
+			!Array.isArray(receipt.evidence.unexpectedDivergences) ||
+			receipt.evidence.unexpectedDivergences.length) {
+			throw error('Attribution evidence does not bind to its request.', 'INVALID_EVIDENCE');
+		}
+		receipt.result.interventions.forEach(function (result, index) {
+			var intervention = task.interventions[index];
+			if (!isObject(result) || result.interventionId !== intervention.interventionId ||
+				result.kind !== intervention.kind || result.targetId !== intervention.targetId ||
+				!(/^[a-f0-9]{64}$/).test(result.effectiveTeamHash || '') ||
+				!validOutcome(result.outcome) || !validDelta(result.delta)) {
+				throw error('Attribution intervention result is invalid.', 'INVALID_EVIDENCE');
+			}
+		});
+		var evidenceId = receipt.receiptId || 'pokemon.rab.attribute:' + request.requestId;
+		if (typeof evidenceId !== 'string' || !evidenceId ||
+			typeof request.attempt.attemptId !== 'string' || !request.attempt.attemptId ||
+			!Number.isInteger(request.attempt.revision) || request.attempt.revision < 1 ||
+			!(/^[a-f0-9]{64}$/).test(request.attempt.stateHash || '')) {
+			throw error('Attribution evidence identity is invalid.', 'INVALID_EVIDENCE');
+		}
+		var recordedAt = input.recordedAt || now();
+		if (typeof recordedAt !== 'string' || Number.isNaN(Date.parse(recordedAt))) {
+			throw error('Attribution evidence recordedAt must be an ISO timestamp.', 'INVALID_EVIDENCE');
+		}
+		return {
+			id: request.attempt.attemptId + '::' + evidenceId,
+			schemaVersion: EVIDENCE_SCHEMA,
+			evidenceId: evidenceId,
+			attemptId: request.attempt.attemptId,
+			attemptRevision: request.attempt.revision,
+			stateHash: request.attempt.stateHash,
+			kind: 'pokemon.rab.attribute',
+			recordedAt: recordedAt,
+			request: clone(request),
+			receipt: clone(receipt),
+		};
+	}
+
+	function validateAttributionOwnership(record, events, code) {
+		if (!record || record.kind !== 'pokemon.rab.attribute') return;
+		var byId = {};
+		(events || []).forEach(function (event) { byId[event.eventId] = event; });
+		record.request.task.interventions.forEach(function (intervention) {
+			if (intervention.kind !== 'replace-party-member') return;
+			var ownership = intervention.ownership;
+			var source = byId[ownership.sourceEventId];
+			var matchesStart = source && source.kind === 'run.started' && source.payload &&
+				source.payload.run && Array.isArray(source.payload.run.box) &&
+				source.payload.run.box.some(function (mon) {
+					return mon && mon.id === intervention.replacement.id &&
+						mon.species === intervention.replacement.species;
+				});
+			var matchesCatch = source && source.kind === 'command.applied' && source.payload &&
+				source.payload.command && source.payload.command.kind === 'catch' &&
+				source.payload.command.species === intervention.replacement.species &&
+				source.payload.result &&
+				source.payload.result.pokemonId === intervention.replacement.id;
+			if (!source || source.eventHash !== ownership.sourceEventHash ||
+				source.revision !== ownership.acquiredRevision ||
+				source.revision > record.attemptRevision || (!matchesStart && !matchesCatch)) {
+				throw error('Replacement attribution does not match its acquisition event.',
+					code || 'INVALID_EVIDENCE');
+			}
+		});
+	}
+
+	function validateEvidenceState(record, events, code) {
+		var boundEvent = (events || []).find(function (event) {
+			return event.attemptId === record.attemptId && event.revision === record.attemptRevision;
+		});
+		if (!boundEvent || boundEvent.stateHash !== record.stateHash) {
+			throw error('Simulator evidence does not match its bound attempt revision.',
+				code || 'INVALID_EVIDENCE');
+		}
+	}
+
 	function prepareEvidence(input) {
-		var record = validatePlanningEvidence(input);
+		var capability = input && input.request && input.request.capability;
+		var record = capability === 'pokemon.rab.attribute' ?
+			validateAttributionEvidence(input) : validatePlanningEvidence(input);
 		return sha256(evidenceHashInput(record)).then(function (evidenceHash) {
 			record.evidenceHash = evidenceHash;
 			return record;
@@ -473,19 +667,27 @@
 		});
 	}
 
-	function validateEvidenceShape(record, attemptId) {
+	function validateEvidenceShape(record, attemptId, events) {
 		if (!isObject(record) || record.schemaVersion !== EVIDENCE_SCHEMA ||
-			record.kind !== 'pokemon.rab.plan' || record.attemptId !== attemptId ||
+			['pokemon.rab.plan', 'pokemon.rab.attribute'].indexOf(record.kind) === -1 ||
+			record.attemptId !== attemptId ||
 			record.id !== record.attemptId + '::' + record.evidenceId ||
 			!Number.isInteger(record.attemptRevision) || record.attemptRevision < 0 ||
 			!(/^[a-f0-9]{64}$/).test(record.stateHash || '') ||
 			!(/^[a-f0-9]{64}$/).test(record.evidenceHash || '') ||
 			!isObject(record.request) || !isObject(record.receipt) ||
 			record.request.requestId !== record.receipt.requestId) {
-			throw error('Archive planning evidence is invalid.', 'INVALID_BUNDLE');
+			throw error('Archive simulator evidence is invalid.', 'INVALID_BUNDLE');
 		}
-		validatePlanningEvidence({request: record.request, receipt: record.receipt,
-			recordedAt: record.recordedAt});
+		if (record.kind === 'pokemon.rab.attribute') {
+			validateAttributionEvidence({request: record.request, receipt: record.receipt,
+				recordedAt: record.recordedAt});
+			validateAttributionOwnership(record, events, 'INVALID_BUNDLE');
+		} else {
+			validatePlanningEvidence({request: record.request, receipt: record.receipt,
+				recordedAt: record.recordedAt});
+		}
+		validateEvidenceState(record, events, 'INVALID_BUNDLE');
 	}
 
 	function addChecksum(bundle) {
@@ -667,7 +869,9 @@
 				typeof receipt.commandId !== 'string' || !receipt.commandId ||
 				!hashPattern.test(receipt.stateHash || '');
 		})) throw error('Archive idempotency receipt is invalid.', 'INVALID_BUNDLE');
-		evidence.forEach(function (record) { validateEvidenceShape(record, bundle.attemptId); });
+		evidence.forEach(function (record) {
+			validateEvidenceShape(record, bundle.attemptId, bundle.events);
+		});
 	}
 
 	function validateMaterializedLog(bundle) {
@@ -787,7 +991,7 @@
 							if (hashes.some(function (hash, index) {
 								return hash !== evidence[index].evidenceHash;
 							})) {
-								throw error('Archived planning evidence does not match its hash.',
+								throw error('Archived simulator evidence does not match its hash.',
 									'CORRUPT_EVIDENCE');
 							}
 							return true;
@@ -868,10 +1072,15 @@
 				return enqueue(function () {
 					var head = state.heads[prepared[0].attemptId];
 					if (!head) throw error('Evidence attempt does not exist.', 'MISSING_ATTEMPT');
+					var attemptEvents = state.events.filter(function (event) {
+						return event.attemptId === prepared[0].attemptId;
+					});
 					prepared.forEach(function (record) {
 						if (record.attemptRevision > head.revision) {
 							throw error('Evidence revision is ahead of the attempt.', 'INVALID_EVIDENCE');
 						}
+						validateEvidenceState(record, attemptEvents, 'INVALID_EVIDENCE');
+						validateAttributionOwnership(record, attemptEvents, 'INVALID_EVIDENCE');
 						var prior = state.evidence[record.id];
 						if (prior && prior.evidenceHash !== record.evidenceHash) {
 							throw error('Evidence identity was reused with different content.',
@@ -1123,20 +1332,24 @@
 		function recordEvidenceBatch(inputs) {
 			return prepareEvidenceBatch(inputs).then(function (prepared) {
 				return enqueue(function () {
-					return transaction(['heads', 'evidence'], 'readwrite', function (tx) {
+					return transaction(['heads', 'events', 'evidence'], 'readwrite', function (tx) {
 						return Promise.all([
 							requestValue(tx.objectStore('heads').get(prepared[0].attemptId)),
+							requestByAttempt(tx.objectStore('events'), prepared[0].attemptId),
 							Promise.all(prepared.map(function (record) {
 								return requestValue(tx.objectStore('evidence').get(record.id));
 							})),
 						]).then(function (values) {
 							var head = values[0];
-							var priorRecords = values[1];
+							var attemptEvents = values[1];
+							var priorRecords = values[2];
 							if (!head) throw error('Evidence attempt does not exist.', 'MISSING_ATTEMPT');
 							prepared.forEach(function (record, index) {
 								if (record.attemptRevision > head.revision) {
 									throw error('Evidence revision is ahead of the attempt.', 'INVALID_EVIDENCE');
 								}
+								validateEvidenceState(record, attemptEvents, 'INVALID_EVIDENCE');
+								validateAttributionOwnership(record, attemptEvents, 'INVALID_EVIDENCE');
 								if (priorRecords[index] &&
 									priorRecords[index].evidenceHash !== record.evidenceHash) {
 									throw error('Evidence identity was reused with different content.',

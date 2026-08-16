@@ -127,6 +127,14 @@ renders replay-stable appearances, switch-ins, move attempts, opposing real HP
 removed by those moves, and direct KOs. Incomplete resumed telemetry stays
 marked partial, and the UI calls this actual participation rather than carry.
 
+The pinned Pokemon Mono provider now also evaluates bounded fixed-seed
+replacement and all-15 IV reference interventions. Receipts bind the exact
+attempt state, baseline and effective teams, policy, seeds, branch budget, and
+provider/planner revisions. Replacement candidates require a matching chained
+acquisition event. History renders these as modeled tests beside, never inside,
+actual participation, and the dataset materializer emits normalized attribution
+receipt/test/branch tables without a carry field.
+
 **Non-goals:** An omniscient optimal policy, fabricated hidden information,
 social leaderboards, or a promise that high IVs/species alone explain a run.
 

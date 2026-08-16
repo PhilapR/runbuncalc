@@ -1,9 +1,9 @@
 {
   "schemaVersion": "pokemon.bridge.consumer-lock/1.0.0",
   "repository": "pokemon-mono",
-  "revision": "f7933f91b706c969a1dc5430a9484e5fafa4d66c",
+  "revision": "8e2c3c8f021094814b1b44844c7de4992095d274",
   "path": "contracts/run-runtime/v1",
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.1.0",
   "digestAlgorithm": "SHA-256",
-  "digest": "2cd1db3e69c9989b9e766a97e35ebc96a41cef5d756794829c20be2385c88a61"
+  "digest": "402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75"
 }

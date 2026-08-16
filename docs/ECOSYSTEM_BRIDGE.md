@@ -17,6 +17,8 @@ runbuncalc (play and save)
   IndexedDB attempt ledger -> checked .rabrun archive
   planning request ---------> pokemon-mono (mechanics and simulation)
   planning receipt <--------- deterministic result + replay evidence
+  attribution request ------> fixed-seed replacement and IV interventions
+  attribution receipt <------ paired outcomes, deltas, and provenance hashes
                                       ^
                                       |
                          stochastic-inference-core
@@ -34,7 +36,8 @@ the attempt revision and state hash, the game profile revision, task,
 constraints, and explicit seed set. It contains serializable state, never
 calculator class instances or a live IndexedDB handle.
 
-`pokemon-mono` returns `pokemon.bridge.receipt/1.0.0` JSON. The receipt binds
+`pokemon-mono` returns `pokemon.bridge.receipt/1.0.0` planning JSON or
+`pokemon.bridge.attribution.receipt/1.0.0` attribution JSON. Each receipt binds
 the result to the request, engine revision, profile revision, input state hash,
 seeds, output hash, and replay evidence. Results are immutable. A correction
 creates a new receipt rather than rewriting an old one.
@@ -58,7 +61,8 @@ simulator or read emulator memory.
 ## Stochastic inference boundary
 
 Stochastic inference registers versioned capabilities such as
-`pokemon.rab.plan`, `pokemon.rab.simulate`, and `pokemon.rab.evaluate`. It may:
+`pokemon.rab.plan`, `pokemon.rab.attribute`, `pokemon.rab.simulate`, and
+`pokemon.rab.evaluate`. It may:
 
 - choose a compatible `pokemon-mono` provider;
 - split broad seed searches across cheap workers;
@@ -105,9 +109,15 @@ inference is never the game-state authority.
 
 ## Current gate — 2026-08-16
 
-Steps 1 through 5 are locally complete for the first seeded planning fixture.
+Steps 1 through 5 are locally complete for seeded planning and the first bounded
+attribution contract. The attribution capability independently replaces one
+party member or normalizes one owned Pokemon to the all-15 IV reference, uses
+the same explicit seeds on both sides, and reoptimizes the lead for each team.
+It reports modeled deltas only; participation and historical carry remain
+separate evidence levels.
+
 `runbuncalc` imports the browser-safe provider built from `pokemon-mono`
-revision `58aad68ac7a93980e1d424e768b009ce7cc0ba2f`, verifies the artifact hash
+revision `5648e07f8c48f8ce20e091dbf367dab213350686`, verifies the artifact hash
 before building, resolves each filtered product label to the engine's unique
 canonical raw trainer order, and reproduces the recorded seed-1450 receipt in
 Chromium. The Plan surface combines that eight-seed whole-branch forecast with
@@ -148,9 +158,18 @@ per-Pokemon appearances, switch-ins, move attempts, opposing real HP removed by
 those moves, and direct KOs. History renders those counters as actual or partial
 participation and never promotes them to carry.
 
-The checked archive materializer emits schema `1.3.0` episode, event, step,
+The roster-value action stores fixed-seed replacement and IV reference receipts
+beside those records. Replacement tests are admitted only when the checked
+acquisition event binds the exact owned Pokemon ID, event hash, and revision;
+old or imported catches without that proof are omitted instead of reconstructed
+by guesswork.
+
+The checked archive materializer emits schema `1.4.0` episode, event, step,
 observation, planning-receipt, per-seed planning-branch, battle-outcome, and
-planning-review tables plus per-Pokemon battle-contribution rows. Its
+planning-review tables plus per-Pokemon battle-contribution rows. Attribution
+is normalized into receipt, intervention, and per-seed branch tables with
+fixed-width integer, float, dictionary, and hash columns; it does not duplicate
+full receipts into each branch or add a carry field. Its
 maximum-batch test retains and materializes 1,024
 receipts without adding game events; the checked archive stays below 8 MiB in
 the local regression gate.

@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pokemon.bridge.attribution.request/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "requestId", "capability", "attempt", "profile", "task"],
+  "properties": {
+    "schemaVersion": {"const": "pokemon.bridge.attribution.request/1.0.0"},
+    "requestId": {"type": "string", "minLength": 1},
+    "capability": {"const": "pokemon.rab.attribute"},
+    "attempt": {"$ref": "#/$defs/attempt"},
+    "profile": {"$ref": "#/$defs/profile"},
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "state", "interventions", "seeds", "constraints"],
+      "properties": {
+        "kind": {"const": "attribute"},
+        "state": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "trainer", "startingCondition", "baselineTeam"],
+          "properties": {
+            "kind": {"const": "run-and-bun.attribution-input"},
+            "startingCondition": {"const": "full-health-no-status-full-pp"},
+            "trainer": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["order"],
+              "properties": {
+                "order": {"type": "integer", "minimum": 1, "maximum": 4294967295}
+              }
+            },
+            "baselineTeam": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 6,
+              "items": {"$ref": "#/$defs/pokemon"}
+            }
+          }
+        },
+        "interventions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "oneOf": [
+              {"$ref": "#/$defs/replacement"},
+              {"$ref": "#/$defs/normalizedIvs"}
+            ]
+          }
+        },
+        "seeds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {"type": "integer", "minimum": 0, "maximum": 4294967295}
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["zeroDeaths", "wholeBranch", "policy", "maxCandidateBranches"],
+          "properties": {
+            "zeroDeaths": {"const": true},
+            "wholeBranch": {"const": true},
+            "policy": {"const": "reoptimize-lead-v1"},
+            "maxCandidateBranches": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 262144
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attemptId", "revision", "stateHash"],
+      "properties": {
+        "attemptId": {"type": "string", "minLength": 1},
+        "revision": {"type": "integer", "minimum": 0, "maximum": 4294967295},
+        "stateHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "revision"],
+      "properties": {
+        "id": {"const": "run-and-bun"},
+        "revision": {"type": "string", "minLength": 1}
+      }
+    },
+    "ivs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hp", "atk", "def", "spa", "spd", "spe"],
+      "properties": {
+        "hp": {"type": "integer", "minimum": 0, "maximum": 31},
+        "atk": {"type": "integer", "minimum": 0, "maximum": 31},
+        "def": {"type": "integer", "minimum": 0, "maximum": 31},
+        "spa": {"type": "integer", "minimum": 0, "maximum": 31},
+        "spd": {"type": "integer", "minimum": 0, "maximum": 31},
+        "spe": {"type": "integer", "minimum": 0, "maximum": 31}
+      }
+    },
+    "pokemon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "species", "level", "moves", "nature", "ability", "item", "ivs"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "species": {"type": "string", "minLength": 1},
+        "level": {"type": "integer", "minimum": 1, "maximum": 100},
+        "moves": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "nature": {"type": "string", "minLength": 1},
+        "ability": {"type": "string", "minLength": 1},
+        "item": {"type": ["string", "null"]},
+        "ivs": {"$ref": "#/$defs/ivs"}
+      }
+    },
+    "replacement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["interventionId", "kind", "targetId", "replacement", "ownership"],
+      "properties": {
+        "interventionId": {"type": "string", "minLength": 1},
+        "kind": {"const": "replace-party-member"},
+        "targetId": {"type": "string", "minLength": 1},
+        "replacement": {"$ref": "#/$defs/pokemon"},
+        "ownership": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sourceEventId", "sourceEventHash", "acquiredRevision"],
+          "properties": {
+            "sourceEventId": {"type": "string", "minLength": 1},
+            "sourceEventHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+            "acquiredRevision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4294967295
+            }
+          }
+        }
+      }
+    },
+    "normalizedIvs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["interventionId", "kind", "targetId", "reference", "ivs"],
+      "properties": {
+        "interventionId": {"type": "string", "minLength": 1},
+        "kind": {"const": "normalize-ivs"},
+        "targetId": {"type": "string", "minLength": 1},
+        "reference": {"const": "all-15-reference"},
+        "ivs": {"$ref": "#/$defs/ivs"}
+      }
+    }
+  }
+}

@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?c336f43b" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?9ed1231b" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1953,11 +1953,11 @@
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
     <script type="text/javascript" src="./js/planner_panel.js?4d142a09"></script>
     <script type="text/javascript" src="./js/runtime_contract.js?8a96b67b"></script>
-    <script type="text/javascript" src="./js/attempt_store.js?1c2742ba"></script>
-    <script type="text/javascript" src="./js/run_history.js?635187d8"></script>
-    <script type="text/javascript" src="./js/pokemon_provider.js?0febf060"></script>
-    <script type="text/javascript" src="./js/pokemon_provider_client.js?ebd12811"></script>
-    <script type="text/javascript" src="./js/run_panel.js?fb049291"></script>
+    <script type="text/javascript" src="./js/attempt_store.js?08bdb60c"></script>
+    <script type="text/javascript" src="./js/run_history.js?d88e941e"></script>
+    <script type="text/javascript" src="./js/pokemon_provider.js?147a1d3b"></script>
+    <script type="text/javascript" src="./js/pokemon_provider_client.js?44a3f1ee"></script>
+    <script type="text/javascript" src="./js/run_panel.js?4e43a1ae"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?7ce42e0e"></script>
 </div>
 
@@ -2314,6 +2314,7 @@
             <div class="runbun-run-next-actions" aria-label="Run commands">
                 <button type="button" id="runbun-run-play" class="btn rb-btn-primary">Choose your party</button>
                 <button type="button" id="runbun-run-plan" class="btn" disabled>Check matchup</button>
+                <button type="button" id="runbun-run-value" class="btn" disabled>Test roster value</button>
                 <button type="button" id="runbun-run-advise" class="btn">Improve party</button>
                 <button type="button" id="runbun-run-rank" class="btn">Rank parties</button>
                 <button type="button" id="runbun-run-explore" class="btn">Find encounters</button>
@@ -2371,6 +2372,12 @@
         <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>
         <div id="runbun-run-plan-actions" class="runbun-run-plan-actions" role="list"></div>
         <div id="runbun-run-plan-evidence" class="runbun-run-plan-evidence" role="status" aria-live="polite"></div>
+        <section id="runbun-run-attribution" class="runbun-run-attribution" aria-labelledby="runbun-run-attribution-heading" hidden>
+            <h3 id="runbun-run-attribution-heading" class="runbun-run-section-label">Modeled roster value</h3>
+            <p id="runbun-run-attribution-state" class="runbun-run-plan-evidence" role="status" aria-live="polite"></p>
+            <ul id="runbun-run-attribution-tests" class="runbun-run-attribution-tests"></ul>
+            <p class="runbun-run-plan-outlook-note">Model only · same paired seeds · lead reoptimized for each team. Actual battle participation stays separate in Run history.</p>
+        </section>
         <section id="runbun-run-plan-outlook" class="runbun-run-plan-outlook" aria-labelledby="runbun-run-plan-outlook-heading" hidden>
             <h3 id="runbun-run-plan-outlook-heading" class="runbun-run-section-label">If this party stays unchanged</h3>
             <ol id="runbun-run-plan-outlook-list" class="runbun-run-plan-outlook-list"></ol>
@@ -2727,11 +2734,11 @@
                                     <tbody id="runbun-history-species"></tbody>
                                 </table>
                             </div>
-                            <p class="runbun-history-caveat">This table counts catches and survival. Carry and IV comparisons require completed battle evidence.</p>
+                            <p class="runbun-history-caveat">This table counts catches and survival. Saved replacement and IV reference tests appear with the fight they modeled.</p>
                         </section>
                         <section class="runbun-history-planning" aria-labelledby="runbun-history-planning-heading">
-                            <div class="runbun-run-section-label" id="runbun-history-planning-heading">Plans vs played</div>
-                            <p id="runbun-history-planning-state" class="runbun-history-state" role="status" aria-live="polite">Choose a run to compare its saved plans with played fights.</p>
+                            <div class="runbun-run-section-label" id="runbun-history-planning-heading">Fight evidence</div>
+                            <p id="runbun-history-planning-state" class="runbun-history-state" role="status" aria-live="polite">Choose a run to review plans, modeled tests, and played fights.</p>
                             <ol id="runbun-history-planning" class="runbun-history-planning-list"></ol>
                             <p class="runbun-history-caveat">This compares sampled forecasts with recorded fights. It does not claim that a Pokémon carried the run or that the sample proved safety.</p>
                         </section>

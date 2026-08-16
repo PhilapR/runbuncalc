@@ -381,6 +381,10 @@
 	}
 
 	var IV_LABELS = {hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe'};
+	var NATURES = ['Hardy', 'Lonely', 'Brave', 'Adamant', 'Naughty', 'Bold', 'Docile',
+		'Relaxed', 'Impish', 'Lax', 'Timid', 'Hasty', 'Serious', 'Jolly', 'Naive',
+		'Modest', 'Mild', 'Quiet', 'Bashful', 'Rash', 'Calm', 'Gentle', 'Sassy',
+		'Careful', 'Quirky'];
 
 	/** The standalone game's acquisition roll. Values become replay facts in the command. */
 	function rollPlayerIvs() {
@@ -391,11 +395,30 @@
 		return ivs;
 	}
 
+	/** Nature, ability and IVs are visible owned facts, rolled once and saved. */
+	function rollPlayerFacts(speciesName) {
+		var abilities = [];
+		try {
+			var gen = window.calc && window.calc.Generations && window.calc.Generations.get(8);
+			var species = gen && gen.species.get(dexId(speciesName));
+			abilities = species && species.abilities ? Object.keys(species.abilities)
+				.map(function (slot) { return species.abilities[slot]; })
+				.filter(function (ability, index, all) {
+					return ability && all.indexOf(ability) === index;
+				}) : [];
+		} catch (ignore) {}
+		return {
+			ivs: rollPlayerIvs(),
+			nature: NATURES[Math.floor(Math.random() * NATURES.length)],
+			ability: abilities.length ? abilities[Math.floor(Math.random() * abilities.length)] : undefined,
+		};
+	}
+
 	function dexId(value) {
 		return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
 	}
 
-	/** Species typing is reference data. Individual ability/nature/IVs are not. */
+	/** Species typing is reference data; owned ability/nature/IVs are persisted rolls. */
 	function speciesTypes(mon) {
 		try {
 			var gen = window.calc && window.calc.Generations && window.calc.Generations.get(8);
@@ -792,6 +815,7 @@
 
 		var $play = $('#runbun-run-play');
 		var $plan = $('#runbun-run-plan');
+		var $value = $('#runbun-run-value');
 		var $advise = $('#runbun-run-advise');
 		var $rank = $('#runbun-run-rank');
 		if (!next) {
@@ -800,6 +824,7 @@
 			$play.text('Run complete').prop('disabled', true)
 				.attr('title', 'No required trainer remains');
 			$plan.prop('disabled', true);
+			$value.prop('disabled', true);
 			$advise.prop('disabled', true);
 			$rank.prop('disabled', true);
 			return;
@@ -813,6 +838,7 @@
 			$play.text('Choose your party').prop('disabled', false)
 				.attr('title', 'Open the roster and choose a lead before fighting');
 			$plan.prop('disabled', true);
+			$value.prop('disabled', true);
 			$advise.prop('disabled', true);
 			$rank.prop('disabled', !alive.length);
 			return;
@@ -826,6 +852,7 @@
 		$play.text('Fight ' + displayText(next.trainer)).prop('disabled', false)
 			.attr('title', 'Play the next trainer fight turn by turn');
 		$plan.prop('disabled', false);
+		$value.prop('disabled', false);
 		$advise.prop('disabled', false);
 		$rank.prop('disabled', !alive.length);
 	}
@@ -950,7 +977,7 @@
 			var $planningState = $('#runbun-history-planning-state');
 			var $planning = $('#runbun-history-planning').empty();
 			if (!entry) {
-				$planningState.text('Choose a run to compare its saved plans with played fights.');
+				$planningState.text('Choose a run to review plans, modeled tests, and played fights.');
 				return Promise.resolve(null);
 			}
 			$planningState.text('Loading ' + (entry.name || 'this run') + '…');
@@ -961,7 +988,7 @@
 				}
 				var review = history.derivePlanningReview(inspected);
 				if (!review.rows.length) {
-					$planningState.text('No saved plans or played fight receipts in this run yet.');
+					$planningState.text('No saved plans, modeled tests, or played fight receipts in this run yet.');
 					return review;
 				}
 				$planningState.text((entry.name || 'This run') + ': ' + review.planned +
@@ -991,7 +1018,7 @@
 						(actual.deaths ? actual.deaths + ' death' + (actual.deaths === 1 ? '' : 's') :
 							'deathless') + ' · ' + actual.turns + ' turns · seed ' + actual.seed :
 						'Played · not yet'));
-					if (actual && actual.contributions.length) {
+						if (actual && actual.contributions.length) {
 						var $contributions = $('<ul class="runbun-history-contributions"></ul>');
 						actual.contributions.forEach(function (contribution) {
 							var appearances = [];
@@ -1008,9 +1035,19 @@
 						$card.append($('<div class="runbun-history-contribution-label"></div>')
 							.text(actual.contributionComplete ? 'Actual participation' :
 								'Partial participation record'));
-						$card.append($contributions);
-					}
-					$planning.append($card);
+							$card.append($contributions);
+						}
+						if (row.attribution && row.attribution.tests.length) {
+							var $modeled = $('<ul class="runbun-history-contributions runbun-history-modeled"></ul>');
+							row.attribution.tests.forEach(function (test) {
+								$modeled.append($('<li></li>').text(
+									attributionTestText(test, row.attribution.seedCount)));
+							});
+							$card.append($('<div class="runbun-history-contribution-label"></div>')
+								.text('Modeled value · fixed-seed tests'));
+							$card.append($modeled);
+						}
+						$planning.append($card);
 				});
 				return review;
 			}).catch(function (error) {
@@ -1243,9 +1280,16 @@
 		return mutate(function () {
 			dismissSnackbar();
 			status('Working…', '');
+			var priorBoxIds = {};
+			(state && state.box || []).forEach(function (mon) { priorBoxIds[mon.id] = true; });
 			return api('/run/apply', {run: state, command: body}).then(function (payload) {
 				state = payload.run;
-				return persist('command.applied', {command: body}, commandId).then(function () {
+				var eventPayload = {command: body};
+				if (body.kind === 'catch') {
+					var added = (state.box || []).filter(function (mon) { return !priorBoxIds[mon.id]; });
+					if (added.length === 1) eventPayload.result = {pokemonId: added[0].id};
+				}
+				return persist('command.applied', eventPayload, commandId).then(function () {
 					status(payload.summary, 'ok');
 					return render().then(function () { return true; });
 				});
@@ -1475,6 +1519,105 @@
 				.append($('<span class="runbun-run-plan-outlook-result"></span>')
 					.text(summary.safeBranches + '/' + summary.branchesEvaluated +
 						' sampled branches deathless')));
+		});
+	}
+
+	function signedMetric(value, suffix) {
+		if (!Number.isFinite(value)) return 'not reported';
+		return (value > 0 ? '+' : '') + value + ' ' + suffix;
+	}
+
+	function attributionTestText(test, seedCount) {
+		var delta = test.delta || {};
+		var name = test.kind === 'replace-party-member' ?
+			'Replacement test · ' + test.targetSpecies + ' → ' + test.replacementSpecies :
+			'IV reference test · ' + test.targetSpecies + ' → all 15';
+		return name + ' · ' + signedMetric(delta.safeBranches, 'deathless branches') +
+			' · ' + signedMetric(delta.deaths, 'deaths') + ' · ' +
+			signedMetric(delta.totalHPRemaining, 'total HP remaining') +
+			' · ' + seedCount + ' paired seeds';
+	}
+
+	function renderAttribution(result, saved) {
+		var $section = $('#runbun-run-attribution').prop('hidden', false);
+		var $state = $('#runbun-run-attribution-state').removeAttr('data-kind');
+		var $tests = $('#runbun-run-attribution-tests').empty();
+		if (!result) {
+			$section.prop('hidden', true);
+			return;
+		}
+		var request = result.request;
+		var receipt = result.receipt;
+		var byId = {};
+		request.task.interventions.forEach(function (test) { byId[test.interventionId] = test; });
+		var baseline = {};
+		request.task.state.baselineTeam.forEach(function (mon) { baseline[mon.id] = mon; });
+		var seedCount = request.task.seeds.length;
+		$state.attr('data-kind', saved && saved.error ? 'error' : 'saved').text(
+			'Baseline · ' + receipt.result.baseline.safeBranches + '/' + seedCount +
+			' paired seeds deathless · ' + receipt.result.interventions.length +
+			' independent tests' + (saved && saved.error ?
+				' · evidence was not saved: ' + saved.error.message : ' · saved with this attempt'));
+		receipt.result.interventions.forEach(function (test) {
+			var requested = byId[test.interventionId] || {};
+			$tests.append($('<li></li>').text(attributionTestText({
+				kind: test.kind,
+				targetSpecies: baseline[test.targetId] && baseline[test.targetId].species || test.targetId,
+				replacementSpecies: requested.replacement && requested.replacement.species,
+				delta: test.delta,
+			}, seedCount)));
+		});
+	}
+
+	function testRosterValue(trainer) {
+		var client = window.RunBunPokemonProviderClient;
+		var runtime = window.RunBunPokemonProvider;
+		var fight = planningFights(trainer, 1)[0];
+		if (!client || !runtime || !attemptStore || !fight) {
+			status('Roster value needs the embedded simulator and durable attempt history.', 'error');
+			return;
+		}
+		var analysisAttemptId = state.attemptId;
+		var analysisRevision = currentRevision;
+		var analysisRun = JSON.parse(JSON.stringify(state));
+		var $button = $('#runbun-run-value').prop('disabled', true).text('Testing roster…');
+		$('#runbun-run-attribution').prop('hidden', false);
+		$('#runbun-run-attribution-state').removeAttr('data-kind')
+			.text('Running fixed-seed replacement and IV reference tests…');
+		$('#runbun-run-attribution-tests').empty();
+		attemptStore.inspectAttempt(analysisAttemptId).then(function (inspected) {
+			if (!inspected || !inspected.head || inspected.head.revision !== analysisRevision) {
+				throw new Error('The durable attempt is not at the run currently on screen.');
+			}
+			return client.attributeRun({
+				runtime: runtime,
+				run: analysisRun,
+				events: inspected.events,
+				trainerOrder: runtime.resolveTrainerOrder(fight.trainer),
+				revision: analysisRevision,
+			});
+		}).then(function (result) {
+			return attemptStore.inspectAttempt(analysisAttemptId).then(function (inspected) {
+				if (!inspected || !inspected.head || state.attemptId !== analysisAttemptId ||
+					currentRevision !== analysisRevision ||
+					inspected.head.revision !== analysisRevision ||
+					inspected.head.stateHash !== result.request.attempt.stateHash) {
+					throw new Error('The run changed while roster value was being modeled. Test it again.');
+				}
+				return attemptStore.recordEvidence({request: result.request, receipt: result.receipt,
+					recordedAt: new Date().toISOString()});
+			}).then(function (saved) {
+				renderAttribution(result, saved);
+				status('Modeled roster value saved for ' + displayText(fight.trainer) + '.', 'ok');
+			}, function (error) {
+				renderAttribution(result, {error: error});
+				status('The model finished, but its evidence was not saved: ' + error.message, 'error');
+			});
+		}).catch(function (error) {
+			$('#runbun-run-attribution-state').attr('data-kind', 'error').text(error.message);
+			status(error.message, 'error');
+		}).then(function () {
+			$button.prop('disabled', false).text('Test roster value');
 		});
 	}
 
@@ -1963,7 +2106,8 @@
 		}
 		var method = $('#runbun-run-roll-method').val() || undefined;
 		api('/run/encounter', {run: state, map: map, method: method}).then(function (payload) {
-			rolled = Object.assign({mapName: map}, payload.roll);
+			rolled = Object.assign({mapName: map}, payload.roll,
+				rollPlayerFacts(payload.roll.species));
 			rolledLog = logLength();
 			paintRoll();
 			persistRoll();
@@ -1978,7 +2122,8 @@
 		var roll = rolled;
 		var body = kept ?
 			{kind: 'catch', species: roll.species, level: roll.level,
-				map: roll.mapName, method: roll.method, ivs: roll.ivs || rollPlayerIvs()} :
+				map: roll.mapName, method: roll.method, ivs: roll.ivs || rollPlayerIvs(),
+				nature: roll.nature, ability: roll.ability} :
 			{kind: 'spend', map: roll.mapName, reason: 'it got away'};
 		command(body).then(function (accepted) {
 			if (!accepted) return;
@@ -2330,7 +2475,8 @@
 				chain = chain.then(function (ok) {
 					return ok ? command({kind: 'catch', species: wild.species,
 						level: wild.level, map: wild.map, method: wild.method,
-						ivs: wild.ivs || rollPlayerIvs()}) : false;
+						ivs: wild.ivs || rollPlayerIvs(), nature: wild.nature,
+						ability: wild.ability}) : false;
 				});
 			} else if (won) {
 				chain = chain.then(function (ok) {
@@ -2568,11 +2714,14 @@
 					// scripted gift with no wild table, recorded as declared. A
 					// refused gift must not unstart the run: the run stands, the
 					// refusal is reported, the starter can be caught by hand.
+					var starterFacts = rollPlayerFacts($starter.attr('data-species'));
 					return api('/run/apply', {run: state, command: {
 						kind: 'catch',
 						species: $starter.attr('data-species'),
 						level: 5,
-						ivs: rollPlayerIvs(),
+						ivs: starterFacts.ivs,
+						nature: starterFacts.nature,
+						ability: starterFacts.ability,
 					}}).then(function (gifted) {
 						state = gifted.run;
 						return ' — ' + $starter.attr('data-species') + ' L5 is in the box.';
@@ -2635,6 +2784,7 @@
 				.split(',')
 				.map(function (move) { return move.trim(); })
 				.filter(Boolean);
+			var facts = rollPlayerFacts($('#runbun-run-catch-species').val());
 			command({
 				kind: 'catch',
 				species: $('#runbun-run-catch-species').val(),
@@ -2646,7 +2796,9 @@
 				// left checked it would silently exempt the NEXT catch too.
 				shiny: $('#runbun-run-catch-shiny').is(':checked') || undefined,
 				moves: moves.length ? moves : undefined,
-				ivs: rollPlayerIvs(),
+				ivs: facts.ivs,
+				nature: facts.nature,
+				ability: facts.ability,
 			}).then(function (accepted) {
 				if (accepted) $('#runbun-run-catch-shiny').prop('checked', false);
 			});
@@ -2852,6 +3004,7 @@
 			command({kind: 'beat', trainer: $(this).attr('data-trainer')});
 		});
 		$('#runbun-run-plan').on('click', function () { plan(null); });
+		$('#runbun-run-value').on('click', function () { testRosterValue(null); });
 		$('#runbun-run-explore').on('click', function () {
 			revealSection('catch');
 			var target = document.querySelector('#runbun-run-reachable .runbun-run-route-choice') ||

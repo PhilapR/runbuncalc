@@ -5,10 +5,10 @@ import {
 
 const metadata = Object.freeze({
 	repository: 'pokemon-mono',
-	engineRevision: '58aad68ac7a93980e1d424e768b009ce7cc0ba2f',
-	artifactSha256: 'c9ce24a7daf27a55fe3cd11002d1a6d7ed878ab79815ec545b54f429d8e08f2f',
-	contractRevision: 'f7933f91b706c969a1dc5430a9484e5fafa4d66c',
-	contractDigest: '2cd1db3e69c9989b9e766a97e35ebc96a41cef5d756794829c20be2385c88a61',
+	engineRevision: '5648e07f8c48f8ce20e091dbf367dab213350686',
+	artifactSha256: '986f4ef086939bdb546ae1fdc117e6e180f7d0b2e2d4d6bc364ff8f3b662eec0',
+	contractRevision: '8e2c3c8f021094814b1b44844c7de4992095d274',
+	contractDigest: '402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75',
 });
 
 globalThis.RunBunPokemonProvider = Object.freeze({
@@ -16,6 +16,6 @@ globalThis.RunBunPokemonProvider = Object.freeze({
 	resolveTrainerOrder: resolveRabTrainerOrder,
 	provider: createRabRunRuntimeProvider({
 		providerRevision: metadata.engineRevision,
-		engineVersion: '0.1.0',
+		engineVersion: '0.2.0',
 	}),
 });

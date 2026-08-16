@@ -77,3 +77,27 @@ test('the preferred path invokes an imported provider in the same process', asyn
 	assert.equal(observed.task.state.playerTeam[0].ivs.spe, 29);
 	assert.equal(result.producer.repository, 'pokemon-mono');
 });
+
+test('the pinned in-process provider deterministically replays attribution', async () => {
+	const providerModule = await import('./vendor/pokemon-run-runtime/index.js');
+	const source = require('./contracts/ecosystem/v1/attribution-request.json');
+	const providerRevision = '5648e07f8c48f8ce20e091dbf367dab213350686';
+	const provider = providerModule.createRabRunRuntimeProvider({
+		providerRevision, engineVersion: '0.2.0',
+	});
+	const first = await provider.attribute(JSON.parse(JSON.stringify(source)));
+	const replay = await provider.attribute(JSON.parse(JSON.stringify(source)));
+
+	assert.deepEqual(replay, first);
+	assert.equal(first.requestId, source.requestId);
+	assert.equal(first.producer.revision, providerRevision);
+	assert.deepEqual(first.input.interventionIds,
+		source.task.interventions.map(row => row.interventionId));
+	assert.equal(first.result.interventions.length, source.task.interventions.length);
+	assert.equal(first.result.summary.seedPairsEvaluated,
+		source.task.seeds.length * source.task.interventions.length);
+	assert.match(first.result.outputHash, /^[a-f0-9]{64}$/);
+	assert.match(first.evidence.replayHash, /^[a-f0-9]{64}$/);
+	assert.equal(first.evidence.deterministic, true);
+	assert.equal(JSON.stringify(first).includes('"carry"'), false);
+});

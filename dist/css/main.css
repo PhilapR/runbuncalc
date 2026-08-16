@@ -1937,6 +1937,36 @@ table.field {
 	color: var(--rb-warn);
 }
 
+#runbun-run .runbun-run-attribution:not([hidden]) {
+	display: grid;
+	gap: var(--rb-space-xs);
+	margin-top: var(--rb-space-sm);
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-left: 3px solid var(--rb-oracle);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+}
+
+#runbun-run .runbun-run-attribution-tests {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: var(--rb-space-xs);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#runbun-run .runbun-run-attribution-tests li {
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+	font-family: var(--rb-font-mono);
+	font-size: 0.78rem;
+	line-height: 1.45;
+}
+
 #runbun-run .runbun-run-plan-outlook-list {
 	list-style: none;
 	margin: 0;
@@ -3191,6 +3221,9 @@ table.field {
 	font-size: 0.82rem;
 	line-height: 1.4;
 	overflow-wrap: anywhere;
+}
+#runbun-run .runbun-history-modeled li {
+	border-left: 3px solid var(--rb-oracle);
 }
 #runbun-run .runbun-run-endrun-outcome {
 	display: grid;

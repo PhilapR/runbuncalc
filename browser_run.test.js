@@ -123,10 +123,12 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 		repository: window.RunBunPokemonProvider.metadata.repository,
 		revision: window.RunBunPokemonProvider.metadata.engineRevision,
 		plan: typeof window.RunBunPokemonProvider.provider.plan,
+		attribute: typeof window.RunBunPokemonProvider.provider.attribute,
 	})), {
 		repository: 'pokemon-mono',
-		revision: '58aad68ac7a93980e1d424e768b009ce7cc0ba2f',
+		revision: '5648e07f8c48f8ce20e091dbf367dab213350686',
 		plan: 'function',
+		attribute: 'function',
 	});
 	assert.equal(await page.evaluate(() =>
 		window.RunBunPokemonProvider.resolveTrainerOrder('Youngster Calvin')), 3);
@@ -180,6 +182,20 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 	assert.equal(retained.evidence.every(record =>
 		record.schemaVersion === 'rabrun.evidence/1.0.0' &&
 		/^[a-f0-9]{64}$/.test(record.evidenceHash)), true);
+	await page.click('#runbun-run-value');
+	await page.waitForFunction(() => /saved with this attempt/.test(
+		document.querySelector('#runbun-run-attribution-state').textContent),
+		null, {timeout: 30000});
+	assert.match(await page.textContent('#runbun-run-attribution'),
+		/Modeled roster value.*Baseline · \d+\/4 paired seeds deathless.*IV reference test · Treecko → all 15/s);
+	assert.match(await page.textContent('#runbun-run-attribution'),
+		/Model only · same paired seeds · lead reoptimized/);
+	const attributionEvidence = await page.evaluate(async attemptId =>
+		window.RunBunAttemptStore.getDefault().listEvidence(attemptId),
+		(await durableHead(page)).attemptId);
+	assert.equal(attributionEvidence.length, 4);
+	assert.equal(attributionEvidence[3].kind, 'pokemon.rab.attribute');
+	assert.equal(Object.hasOwn(attributionEvidence[3], 'carry'), false);
 	await page.evaluate(async () => {
 		const store = window.RunBunAttemptStore.getDefault();
 		const head = await store.loadActive();
@@ -203,6 +219,8 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 		rows => rows.length), 3, 'the current plan and two-fight outlook become review rows');
 	assert.match(await page.textContent('#runbun-history-planning'),
 		/Youngster Calvin.*(sampled plan held in play|played fight beat the sampled risk).*Played · won · deathless/s);
+	assert.match(await page.textContent('#runbun-history-planning'),
+		/Modeled value · fixed-seed tests.*IV reference test · Treecko → all 15/s);
 	assert.deepEqual(session.errors, []);
 	await session.context.close();
 });

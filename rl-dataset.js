@@ -4,7 +4,7 @@
 const AttemptStore = require('./src/js/attempt_store');
 const RunHistory = require('./src/js/run_history');
 
-const SCHEMA_VERSION = '1.3.0';
+const SCHEMA_VERSION = '1.4.0';
 const TABLE_SCHEMAS = Object.freeze({
 	episodes: Object.freeze({
 		attempt_id: 'UTF8', profile_id: 'UTF8', model_version: 'UTF8',
@@ -48,6 +48,35 @@ const TABLE_SCHEMAS = Object.freeze({
 		branch_index: 'UINT32', seed: 'UINT32', victory: 'BOOLEAN', deaths: 'UINT32',
 		turns: 'UINT32', total_hp_remaining: 'INT32',
 	}),
+	attribution_receipts: Object.freeze({
+		attempt_id: 'UTF8', evidence_id: 'UTF8', attempt_revision: 'UINT32',
+		state_hash: 'FIXED_BINARY_32', request_id: 'UTF8', trainer_order: 'UINT32',
+		provider_revision: 'UTF8', planner_revision: 'UTF8', policy: 'UTF8_DICTIONARY',
+		seed_count: 'UINT32', baseline_team_size: 'UINT8', intervention_count: 'UINT32',
+		seed_pairs_evaluated: 'UINT32', candidate_branches_evaluated: 'UINT32',
+		baseline_safe_branches: 'UINT32', baseline_losses: 'UINT32',
+		baseline_deaths: 'UINT32', baseline_expected_turns: 'FLOAT32',
+		request_hash: 'FIXED_BINARY_32', baseline_team_hash: 'FIXED_BINARY_32',
+		output_hash: 'FIXED_BINARY_32', replay_hash: 'FIXED_BINARY_32',
+		evidence_hash: 'FIXED_BINARY_32',
+	}),
+	attribution_tests: Object.freeze({
+		attempt_id: 'UTF8', evidence_id: 'UTF8', request_id: 'UTF8',
+		intervention_index: 'UINT32', intervention_id: 'UTF8', kind: 'UTF8_DICTIONARY',
+		target_id: 'UTF8', replacement_id: 'UTF8?', reference: 'UTF8_DICTIONARY?',
+		source_event_id: 'UTF8?', source_event_hash: 'FIXED_BINARY_32?',
+		acquired_revision: 'UINT32?', effective_team_hash: 'FIXED_BINARY_32',
+		safe_branches: 'UINT32', losses: 'UINT32', deaths: 'UINT32',
+		expected_turns: 'FLOAT32', delta_safe_branches: 'INT32', delta_wins: 'INT32',
+		delta_deaths: 'INT32', delta_expected_turns: 'FLOAT32',
+		delta_total_hp_remaining: 'INT32', changed_outcome_branches: 'UINT32',
+		changed_deathless_branches: 'UINT32',
+	}),
+	attribution_branches: Object.freeze({
+		attempt_id: 'UTF8', evidence_id: 'UTF8', request_id: 'UTF8',
+		intervention_id: 'UTF8?', branch_index: 'UINT32', seed: 'UINT32',
+		victory: 'BOOLEAN', deaths: 'UINT32', turns: 'UINT32', total_hp_remaining: 'INT32',
+	}),
 	battle_outcomes: Object.freeze({
 		attempt_id: 'UTF8', revision: 'UINT32', event_id: 'UTF8',
 		trainer_order: 'UINT32', progression_order: 'UINT32?', trainer: 'UTF8',
@@ -82,6 +111,13 @@ function timestamp(value) {
 function uint32(value, label) {
 	if (!Number.isInteger(value) || value < 0 || value > 0xffffffff) {
 		throw new Error(`${label} must fit UINT32.`);
+	}
+	return value;
+}
+
+function int32(value, label) {
+	if (!Number.isInteger(value) || value < -2147483648 || value > 2147483647) {
+		throw new Error(`${label} must fit INT32.`);
 	}
 	return value;
 }
@@ -193,6 +229,99 @@ function planningBranchRows(bundle, evidence) {
 	}));
 }
 
+function attributionReceiptRow(bundle, evidence) {
+	const request = evidence.request;
+	const receipt = evidence.receipt;
+	const baseline = receipt.result.baseline;
+	return {
+		attempt_id: bundle.attemptId,
+		evidence_id: evidence.evidenceId,
+		attempt_revision: uint32(evidence.attemptRevision, 'attribution attempt revision'),
+		state_hash: evidence.stateHash,
+		request_id: request.requestId,
+		trainer_order: uint32(receipt.input.trainerOrder, 'attribution trainer order'),
+		provider_revision: receipt.producer.revision,
+		planner_revision: receipt.input.plannerRevision,
+		policy: receipt.input.policy,
+		seed_count: uint32(receipt.input.seeds.length, 'attribution seed count'),
+		baseline_team_size: uint32(request.task.state.baselineTeam.length,
+			'attribution baseline team size'),
+		intervention_count: uint32(request.task.interventions.length,
+			'attribution intervention count'),
+		seed_pairs_evaluated: uint32(receipt.result.summary.seedPairsEvaluated,
+			'attribution seed pairs'),
+		candidate_branches_evaluated: uint32(receipt.result.summary.candidateBranchesEvaluated,
+			'attribution candidate branches'),
+		baseline_safe_branches: uint32(baseline.safeBranches, 'attribution baseline safe branches'),
+		baseline_losses: uint32(baseline.losses, 'attribution baseline losses'),
+		baseline_deaths: uint32(baseline.totalDeaths, 'attribution baseline deaths'),
+		baseline_expected_turns: Math.fround(baseline.expectedTurns),
+		request_hash: receipt.input.requestHash,
+		baseline_team_hash: receipt.input.baselineTeamHash,
+		output_hash: receipt.result.outputHash,
+		replay_hash: receipt.evidence.replayHash,
+		evidence_hash: evidence.evidenceHash,
+	};
+}
+
+function attributionTestRows(bundle, evidence) {
+	const byId = Object.fromEntries(evidence.request.task.interventions
+		.map(intervention => [intervention.interventionId, intervention]));
+	return evidence.receipt.result.interventions.map((result, index) => {
+		const intervention = byId[result.interventionId];
+		const ownership = intervention.ownership || {};
+		return {
+			attempt_id: bundle.attemptId,
+			evidence_id: evidence.evidenceId,
+			request_id: evidence.request.requestId,
+			intervention_index: uint32(index, 'attribution intervention index'),
+			intervention_id: result.interventionId,
+			kind: result.kind,
+			target_id: result.targetId,
+			replacement_id: intervention.replacement && intervention.replacement.id || null,
+			reference: intervention.reference || null,
+			source_event_id: ownership.sourceEventId || null,
+			source_event_hash: ownership.sourceEventHash || null,
+			acquired_revision: ownership.acquiredRevision === undefined ? null :
+				uint32(ownership.acquiredRevision, 'attribution acquired revision'),
+			effective_team_hash: result.effectiveTeamHash,
+			safe_branches: uint32(result.outcome.safeBranches, 'attribution safe branches'),
+			losses: uint32(result.outcome.losses, 'attribution losses'),
+			deaths: uint32(result.outcome.totalDeaths, 'attribution deaths'),
+			expected_turns: Math.fround(result.outcome.expectedTurns),
+			delta_safe_branches: int32(result.delta.safeBranches, 'attribution safe branch delta'),
+			delta_wins: int32(result.delta.wins, 'attribution win delta'),
+			delta_deaths: int32(result.delta.deaths, 'attribution death delta'),
+			delta_expected_turns: Math.fround(result.delta.expectedTurns),
+			delta_total_hp_remaining: int32(result.delta.totalHPRemaining,
+				'attribution remaining HP delta'),
+			changed_outcome_branches: uint32(result.delta.changedOutcomeBranches,
+				'attribution changed outcome branches'),
+			changed_deathless_branches: uint32(result.delta.changedDeathlessBranches,
+				'attribution changed deathless branches'),
+		};
+	});
+}
+
+function attributionBranchRows(bundle, evidence) {
+	const groups = [{interventionId: null, outcome: evidence.receipt.result.baseline}]
+		.concat(evidence.receipt.result.interventions.map(result => ({
+			interventionId: result.interventionId, outcome: result.outcome,
+		})));
+	return groups.flatMap(group => group.outcome.branchOutcomes.map((branch, index) => ({
+		attempt_id: bundle.attemptId,
+		evidence_id: evidence.evidenceId,
+		request_id: evidence.request.requestId,
+		intervention_id: group.interventionId,
+		branch_index: uint32(index, 'attribution branch index'),
+		seed: uint32(branch.seed, 'attribution branch seed'),
+		victory: branch.victory,
+		deaths: uint32(branch.deaths, 'attribution branch deaths'),
+		turns: uint32(branch.turns, 'attribution branch turns'),
+		total_hp_remaining: int32(branch.totalHPRemaining, 'attribution branch remaining HP'),
+	})));
+}
+
 function battleOutcomeRow(bundle, event) {
 	const payload = event.payload;
 	if (event.kind !== 'battle.ended' || !payload || payload.kind !== 'trainer' ||
@@ -298,6 +427,13 @@ async function materialize(bundle, options) {
 	const planningEvidence = evidence.filter(record => record.kind === 'pokemon.rab.plan');
 	const planningReceipts = planningEvidence.map(record => planningReceiptRow(bundle, record));
 	const planningBranches = planningEvidence.flatMap(record => planningBranchRows(bundle, record));
+	const attributionEvidence = evidence.filter(record => record.kind === 'pokemon.rab.attribute');
+	const attributionReceipts = attributionEvidence.map(record =>
+		attributionReceiptRow(bundle, record));
+	const attributionTests = attributionEvidence.flatMap(record =>
+		attributionTestRows(bundle, record));
+	const attributionBranches = attributionEvidence.flatMap(record =>
+		attributionBranchRows(bundle, record));
 	const battleOutcomes = bundle.events.map(event => battleOutcomeRow(bundle, event)).filter(Boolean);
 	const planningReviews = RunHistory.derivePlanningReview(bundle).rows.map(row =>
 		planningReviewRow(bundle, row));
@@ -323,6 +459,9 @@ async function materialize(bundle, options) {
 		observations,
 		planning_receipts: planningReceipts,
 		planning_branches: planningBranches,
+		attribution_receipts: attributionReceipts,
+		attribution_tests: attributionTests,
+		attribution_branches: attributionBranches,
 		battle_outcomes: battleOutcomes,
 		planning_reviews: planningReviews,
 		battle_contributions: battleContributions,

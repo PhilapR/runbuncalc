@@ -9,6 +9,8 @@ const littleroot = require('./fixtures/runtime-contract/littleroot-replay.json')
 const legacyArchive = require('./fixtures/runtime-contract/rabrun-archive-v1.json');
 const planningRequest = require('./contracts/ecosystem/v1/planning-request.json');
 const planningReceipt = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
+const attributionRequest = require('./contracts/ecosystem/v1/attribution-request.json');
+const attributionReceipt = require('./contracts/ecosystem/v1/attribution-receipt.json');
 const TIME = '2026-08-15T00:00:00.000Z';
 
 function sortValue(value) {
@@ -111,6 +113,8 @@ test('planning receipts are content-addressed evidence, not run revisions', asyn
 	receipt.input.revision = 1;
 	await started(store, request.attempt.attemptId);
 	const before = await store.loadActive();
+	request.attempt.stateHash = before.stateHash;
+	receipt.input.stateHash = before.stateHash;
 	const first = await store.recordEvidence({
 		request, receipt, recordedAt: TIME,
 	});
@@ -154,6 +158,9 @@ test('planning evidence batches are atomic and preserve caller order', async () 
 	request.attempt.revision = 1;
 	receipt.input.revision = 1;
 	await started(store, request.attempt.attemptId);
+	const head = await store.loadActive();
+	request.attempt.stateHash = head.stateHash;
+	receipt.input.stateHash = head.stateHash;
 	const secondRequest = JSON.parse(JSON.stringify(request));
 	const secondReceipt = JSON.parse(JSON.stringify(receipt));
 	secondRequest.requestId += '-second';
@@ -180,6 +187,66 @@ test('planning evidence batches are atomic and preserve caller order', async () 
 	]), error => error.code === 'EVIDENCE_CONFLICT');
 	assert.equal((await store.listEvidence(request.attempt.attemptId)).length, 2,
 		'a rejected batch must not retain its non-conflicting prefix');
+});
+
+test('attribution evidence is immutable and replacement tests require the exact catch event', async () => {
+	const store = Store.createMemoryStore();
+	const request = JSON.parse(JSON.stringify(attributionRequest));
+	const receipt = JSON.parse(JSON.stringify(attributionReceipt));
+	await started(store, request.attempt.attemptId);
+	const caught = await store.commit({
+		run: run(request.attempt.attemptId, 1), expectedRevision: 1,
+		commandId: 'catch-route-101',
+		event: event('command.applied', {command: {kind: 'catch', species: 'Poochyena', level: 5},
+			result: {pokemonId: 'owned-poochyena-1'}}),
+	});
+	request.attempt.revision = caught.revision;
+	request.attempt.stateHash = caught.stateHash;
+	receipt.input.revision = caught.revision;
+	receipt.input.stateHash = caught.stateHash;
+	request.task.interventions[0].ownership = {
+		sourceEventId: caught.event.eventId, sourceEventHash: caught.event.eventHash,
+		acquiredRevision: caught.revision,
+	};
+
+	const saved = await store.recordEvidence({request, receipt, recordedAt: TIME});
+	assert.equal(saved.kind, 'pokemon.rab.attribute');
+	assert.equal(saved.duplicate, false);
+	assert.match(saved.evidenceHash, /^[a-f0-9]{64}$/);
+	assert.equal((await store.loadActive()).revision, 2,
+		'attribution evidence must not advance game state');
+	assert.equal(await store.validateBundle(await store.exportActive()), true);
+
+	const forgedRequest = JSON.parse(JSON.stringify(request));
+	const forgedReceipt = JSON.parse(JSON.stringify(receipt));
+	forgedRequest.requestId += '-forged';
+	forgedReceipt.requestId = forgedRequest.requestId;
+	forgedReceipt.receiptId += '-forged';
+	forgedRequest.task.interventions[0].ownership.sourceEventHash = 'f'.repeat(64);
+	await assert.rejects(store.recordEvidence({request: forgedRequest,
+		receipt: forgedReceipt, recordedAt: TIME}),
+		error => error.code === 'INVALID_EVIDENCE' && /acquisition event/.test(error.message));
+
+	const wrongBranchRequest = JSON.parse(JSON.stringify(request));
+	const wrongBranchReceipt = JSON.parse(JSON.stringify(receipt));
+	wrongBranchRequest.requestId += '-wrong-branch';
+	wrongBranchReceipt.requestId = wrongBranchRequest.requestId;
+	wrongBranchReceipt.receiptId += '-wrong-branch';
+	wrongBranchReceipt.result.interventions[0].outcome.branchOutcomes[0].seed += 1;
+	assert.throws(() => store.recordEvidence({request: wrongBranchRequest,
+		receipt: wrongBranchReceipt, recordedAt: TIME}),
+		error => error.code === 'INVALID_EVIDENCE' && /intervention result/.test(error.message));
+
+	const wrongDeltaRequest = JSON.parse(JSON.stringify(request));
+	const wrongDeltaReceipt = JSON.parse(JSON.stringify(receipt));
+	wrongDeltaRequest.requestId += '-wrong-delta';
+	wrongDeltaReceipt.requestId = wrongDeltaRequest.requestId;
+	wrongDeltaReceipt.receiptId += '-wrong-delta';
+	wrongDeltaReceipt.result.interventions[0].delta.deaths = '1';
+	assert.throws(() => store.recordEvidence({request: wrongDeltaRequest,
+		receipt: wrongDeltaReceipt, recordedAt: TIME}),
+		error => error.code === 'INVALID_EVIDENCE' && /intervention result/.test(error.message));
+	assert.equal((await store.listEvidence(request.attempt.attemptId)).length, 1);
 });
 
 test('long attempts checkpoint every 50 revisions with content-addressed states', async () => {

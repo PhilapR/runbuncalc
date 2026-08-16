@@ -5,6 +5,8 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 const {derivePlanningReview} = require('./src/js/run_history');
+const attributionRequestFixture = require('./contracts/ecosystem/v1/attribution-request.json');
+const attributionReceiptFixture = require('./contracts/ecosystem/v1/attribution-receipt.json');
 
 const ATTEMPT_ID = 'attempt-planning-review';
 
@@ -71,6 +73,20 @@ function battleCompleted({trainerOrder = 7, revision = 20, victory = true, death
 			turns, leadId: 'mon-treecko', participantIds: ['mon-treecko'],
 			contributionVersion: contributions ? 1 : null,
 			contributionComplete: Boolean(contributions), contributions: contributions || []},
+	};
+}
+
+function attributionEvidence({trainerOrder = 7, attemptRevision = 12,
+	recordedAt = '2026-08-16T09:40:00.000Z'} = {}) {
+	const request = JSON.parse(JSON.stringify(attributionRequestFixture));
+	const receipt = JSON.parse(JSON.stringify(attributionReceiptFixture));
+	request.task.state.trainer.order = trainerOrder;
+	receipt.input.trainerOrder = trainerOrder;
+	return {
+		id: ATTEMPT_ID + '::' + receipt.receiptId,
+		schemaVersion: 'rabrun.evidence/1.0.0', evidenceId: receipt.receiptId,
+		attemptId: ATTEMPT_ID, attemptRevision, stateHash: request.attempt.stateHash,
+		kind: 'pokemon.rab.attribute', recordedAt, request, receipt,
 	};
 }
 
@@ -172,4 +188,34 @@ test('ignores unrelated, wild, and malformed records without inventing carry', (
 	assert.equal(result.rows.length, 1);
 	assert.equal(result.rows[0].comparison, 'unplayed');
 	assert.equal(Object.hasOwn(result.rows[0], 'carry'), false);
+});
+
+test('joins fixed-seed modeled value separately from realized participation', () => {
+	const review = onlyReview(derivePlanningReview(inspected([
+		planEvidence({attemptRevision: 10}), attributionEvidence({attemptRevision: 12}),
+	], [battleCompleted({revision: 20, contributions: [{monId: 'owned-treecko-1',
+		battleId: 'player-1', species: 'Treecko', appearances: 1, switchIns: 0,
+		moveAttempts: 3, opposingHpRemoved: 41, kos: 1}]})])));
+
+	assert.equal(review.attribution.seedCount, 2);
+	assert.equal(review.attribution.policy, 'reoptimize-lead-v1');
+	assert.equal(review.attribution.tests.length, 2);
+	assert.deepEqual(review.attribution.tests.map(row => row.kind),
+		['replace-party-member', 'normalize-ivs']);
+	assert.equal(review.attribution.tests[0].targetSpecies, 'Mudkip');
+	assert.equal(review.attribution.tests[0].replacementSpecies, 'Poochyena');
+	assert.equal(review.attribution.tests[0].delta.safeBranches, -1);
+	assert.equal(review.actual.contributions.length, 1);
+	assert.equal(Object.hasOwn(review, 'carry'), false);
+	assert.equal(Object.hasOwn(review.attribution, 'carry'), false);
+});
+
+test('retains an attribution-only pre-fight row without calling it historical truth', () => {
+	const result = derivePlanningReview(inspected([attributionEvidence()], []));
+	const review = onlyReview(result);
+	assert.equal(review.plan, null);
+	assert.equal(review.actual, null);
+	assert.equal(review.attributionCount, 1);
+	assert.equal(result.modeled, 1);
+	assert.equal(Object.hasOwn(review.attribution.tests[0], 'carry'), false);
 });

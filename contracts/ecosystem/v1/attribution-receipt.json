@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "pokemon.bridge.attribution.receipt/1.0.0",
+  "receiptId": "receipt_a0bed4e1d8263be09263cef8",
+  "requestId": "req_calvin_attribution_001",
+  "producer": {
+    "repository": "pokemon-mono",
+    "revision": "fixture-revision",
+    "engine": "run-and-bun",
+    "engineVersion": "0.2.0"
+  },
+  "input": {
+    "attemptId": "attempt_calvin_attribution",
+    "revision": 42,
+    "stateHash": "1111111111111111111111111111111111111111111111111111111111111111",
+    "profileRevision": "rab-profile-fixture-v1",
+    "requestHash": "77fbd1c032b3acd569f35f13fa95227f7bacf399d58c5e66e5888f321ee3249c",
+    "baselineTeamHash": "87c63e7bcefbee452d63234e26c52a2bbab4836f46dc8acd18c384c664f8856b",
+    "plannerRevision": "seeded-monte-carlo-lead-planner-v1",
+    "trainerOrder": 3,
+    "policy": "reoptimize-lead-v1",
+    "maxCandidateBranches": 100,
+    "seeds": [1450, 1451],
+    "interventionIds": [
+      "replace-mudkip-with-poochyena",
+      "treecko-all-15-reference"
+    ]
+  },
+  "result": {
+    "status": "complete",
+    "baseline": {
+      "recommendedLeadId": "owned-treecko-1",
+      "startingTotalHP": 40,
+      "safeBranches": 1,
+      "losses": 0,
+      "totalDeaths": 1,
+      "expectedTurns": 5.5,
+      "branchOutcomes": [
+        {"seed": 1450, "victory": true, "deaths": 0, "turns": 5, "totalHPRemaining": 31},
+        {"seed": 1451, "victory": true, "deaths": 1, "turns": 6, "totalHPRemaining": 12}
+      ]
+    },
+    "interventions": [
+      {
+        "interventionId": "replace-mudkip-with-poochyena",
+        "kind": "replace-party-member",
+        "targetId": "owned-mudkip-1",
+        "effectiveTeamHash": "b18bc1e7cefffe8c86f01a8fa3eb07f414a4babd5aead82053e7990755efea26",
+        "outcome": {
+          "recommendedLeadId": "owned-treecko-1",
+          "startingTotalHP": 38,
+          "safeBranches": 0,
+          "losses": 1,
+          "totalDeaths": 2,
+          "expectedTurns": 6,
+          "branchOutcomes": [
+            {"seed": 1450, "victory": true, "deaths": 1, "turns": 6, "totalHPRemaining": 8},
+            {"seed": 1451, "victory": false, "deaths": 1, "turns": 6, "totalHPRemaining": 0}
+          ]
+        },
+        "delta": {
+          "safeBranches": -1,
+          "wins": -1,
+          "deaths": 1,
+          "expectedTurns": 0.5,
+          "totalHPRemaining": -35,
+          "changedOutcomeBranches": 1,
+          "changedDeathlessBranches": 1
+        }
+      },
+      {
+        "interventionId": "treecko-all-15-reference",
+        "kind": "normalize-ivs",
+        "targetId": "owned-treecko-1",
+        "effectiveTeamHash": "beb54dd8f004134f07116595b47ada6ffbed7a35971659f4ffb64a3886cfb6eb",
+        "outcome": {
+          "recommendedLeadId": "owned-mudkip-1",
+          "startingTotalHP": 40,
+          "safeBranches": 1,
+          "losses": 0,
+          "totalDeaths": 1,
+          "expectedTurns": 6,
+          "branchOutcomes": [
+            {"seed": 1450, "victory": true, "deaths": 0, "turns": 6, "totalHPRemaining": 28},
+            {"seed": 1451, "victory": true, "deaths": 1, "turns": 6, "totalHPRemaining": 10}
+          ]
+        },
+        "delta": {
+          "safeBranches": 0,
+          "wins": 0,
+          "deaths": 0,
+          "expectedTurns": 0.5,
+          "totalHPRemaining": -5,
+          "changedOutcomeBranches": 0,
+          "changedDeathlessBranches": 0
+        }
+      }
+    ],
+    "summary": {
+      "seedPairsEvaluated": 4,
+      "candidateBranchesEvaluated": 12
+    },
+    "outputHash": "144f539835110c5fda6732a4a073122822ca53b798c65684a091e6f49cf74b8c"
+  },
+  "evidence": {
+    "contractVersion": "1.0.0",
+    "deterministic": true,
+    "replayHash": "2f1f1f4232414c1f3c9549c5e682458080305e5583b51d9fcf0ae53bdab6145c",
+    "expectedDivergences": [],
+    "unexpectedDivergences": []
+  }
+}

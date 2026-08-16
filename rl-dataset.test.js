@@ -7,6 +7,8 @@ const Store = require('./src/js/attempt_store');
 const dataset = require('./rl-dataset');
 const planningRequestFixture = require('./contracts/ecosystem/v1/planning-request.json');
 const planningReceiptFixture = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
+const attributionRequestFixture = require('./contracts/ecosystem/v1/attribution-request.json');
+const attributionReceiptFixture = require('./contracts/ecosystem/v1/attribution-receipt.json');
 
 const TIME = '2026-08-15T00:00:00.000Z';
 
@@ -34,6 +36,9 @@ test('checked archives materialize into primitive episode, event, step and obser
 	planningRequest.attempt.revision = 3;
 	planningReceipt.input.attemptId = 'rl-attempt';
 	planningReceipt.input.revision = 3;
+	const planningHead = await store.loadActive();
+	planningRequest.attempt.stateHash = planningHead.stateHash;
+	planningReceipt.input.stateHash = planningHead.stateHash;
 	await store.recordEvidence({request: planningRequest, receipt: planningReceipt,
 		recordedAt: TIME});
 	await store.commit({run: advanced, expectedRevision: 3, commandId: 'battle',
@@ -51,7 +56,7 @@ test('checked archives materialize into primitive episode, event, step and obser
 	const rows = await dataset.materialize(await store.exportActive(), {
 		reward: row => row.payload.command.kind === 'tick' ? -1 : 0,
 	});
-	assert.equal(rows.schemaVersion, '1.3.0');
+	assert.equal(rows.schemaVersion, '1.4.0');
 	assert.equal(rows.episodes[0].outcome, 'wipe');
 	assert.equal(rows.episodes[0].revision_count, 5);
 	assert.equal(rows.events.length, 5);
@@ -115,6 +120,56 @@ test('checked archives materialize into primitive episode, event, step and obser
 	assert.match(dataset.ndjson(rows.steps), /"action_kind":"tick".*\n$/);
 });
 
+test('fixed-seed attribution materializes into normalized receipt, test, and branch tables', async () => {
+	const store = Store.createMemoryStore();
+	const attemptId = 'rl-attribution';
+	const initial = {attemptId, profileId: 'run-and-bun', value: 0, log: []};
+	await store.commit({run: initial, expectedRevision: 0, commandId: 'start',
+		event: event('run.started', {run: initial})});
+	const catchCommand = {kind: 'catch', species: 'Poochyena', level: 5};
+	const caughtRun = Object.assign({}, initial, {value: 1,
+		log: [{command: catchCommand, summary: 'caught Poochyena', at: TIME}]});
+	const caught = await store.commit({run: caughtRun,
+		expectedRevision: 1, commandId: 'catch-route-101',
+		event: event('command.applied', {command: catchCommand,
+			result: {pokemonId: 'owned-poochyena-1'}})});
+	const request = JSON.parse(JSON.stringify(attributionRequestFixture));
+	const receipt = JSON.parse(JSON.stringify(attributionReceiptFixture));
+	request.attempt.attemptId = attemptId;
+	request.attempt.revision = caught.revision;
+	request.attempt.stateHash = caught.stateHash;
+	receipt.input.attemptId = attemptId;
+	receipt.input.revision = caught.revision;
+	receipt.input.stateHash = caught.stateHash;
+	request.task.interventions[0].ownership = {
+		sourceEventId: caught.event.eventId, sourceEventHash: caught.event.eventHash,
+		acquiredRevision: caught.revision,
+	};
+	await store.recordEvidence({request, receipt, recordedAt: TIME});
+
+	const rows = await dataset.materialize(await store.exportActive());
+	assert.equal(rows.schemaVersion, '1.4.0');
+	assert.equal(rows.attribution_receipts.length, 1);
+	assert.equal(rows.attribution_receipts[0].seed_count, 2);
+	assert.equal(rows.attribution_receipts[0].intervention_count, 2);
+	assert.equal(rows.attribution_receipts[0].candidate_branches_evaluated, 12);
+	assert.equal(rows.attribution_tests.length, 2);
+	assert.deepEqual(rows.attribution_tests.map(row => ({kind: row.kind,
+		target: row.target_id, replacement: row.replacement_id,
+		safeDelta: row.delta_safe_branches})), [
+		{kind: 'replace-party-member', target: 'owned-mudkip-1',
+			replacement: 'owned-poochyena-1', safeDelta: -1},
+		{kind: 'normalize-ivs', target: 'owned-treecko-1', replacement: null, safeDelta: 0},
+	]);
+	assert.equal(rows.attribution_tests[0].source_event_id, caught.event.eventId);
+	assert.equal(rows.attribution_branches.length, 6);
+	assert.deepEqual(rows.attribution_branches.map(row => row.intervention_id),
+		[null, null, 'replace-mudkip-with-poochyena', 'replace-mudkip-with-poochyena',
+			'treecko-all-15-reference', 'treecko-all-15-reference']);
+	assert.equal(Object.hasOwn(rows.attribution_tests[0], 'carry'), false);
+	assert.equal(dataset.TABLE_SCHEMAS.attribution_tests.delta_deaths, 'INT32');
+});
+
 test('5k-event materialization is deterministic and linear', {timeout: 30000}, async () => {
 	const store = Store.createMemoryStore();
 	for (let revision = 1; revision <= 5000; revision++) {
@@ -140,17 +195,20 @@ test('maximum planning batch materializes into bounded typed evidence rows', {ti
 	const initial = {attemptId: 'rl-evidence-scale', profileId: 'run-and-bun', log: []};
 	await store.commit({run: initial, expectedRevision: 0, commandId: 'start',
 		event: event('run.started', {run: initial})});
+	const head = await store.loadActive();
 	const inputs = Array.from({length: 1024}, (_, index) => {
 		const request = JSON.parse(JSON.stringify(planningRequestFixture));
 		const receipt = JSON.parse(JSON.stringify(planningReceiptFixture));
 		request.requestId = `rl-scale-request-${index}`;
 		request.attempt.attemptId = initial.attemptId;
 		request.attempt.revision = 1;
+		request.attempt.stateHash = head.stateHash;
 		request.task.seeds = [index];
 		receipt.receiptId = `rl-scale-receipt-${index}`;
 		receipt.requestId = request.requestId;
 		receipt.input.attemptId = initial.attemptId;
 		receipt.input.revision = 1;
+		receipt.input.stateHash = head.stateHash;
 		receipt.input.seeds = [index];
 		receipt.result.summary.branchOutcomes[0].seed = index;
 		return {request, receipt, recordedAt: TIME};
