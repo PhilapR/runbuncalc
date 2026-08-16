@@ -1264,45 +1264,82 @@
 		});
 	}
 
-	function planningFight(trainer) {
+	function planningFights(trainer, limit) {
 		if (!lastStatus) return null;
 		var fights = (lastStatus.upcoming || []).slice();
 		if (lastStatus.splitPrep && Array.isArray(lastStatus.splitPrep.gauntlet)) {
 			fights = fights.concat(lastStatus.splitPrep.gauntlet);
 		}
 		if (trainer) {
-			return fights.filter(function (fight) { return fight.trainer === trainer; })[0] || null;
+			fights = fights.filter(function (fight) { return fight.trainer === trainer; });
 		}
-		return lastStatus.status && lastStatus.status.next || fights[0] || null;
+		var seen = {};
+		return fights.filter(function (fight) {
+			if (!fight || seen[fight.trainer]) return false;
+			seen[fight.trainer] = true;
+			return true;
+		}).slice(0, limit || 1);
 	}
 
-	function embeddedForecast(trainer) {
+	function embeddedForecasts(trainer) {
 		var client = window.RunBunPokemonProviderClient;
 		var runtime = window.RunBunPokemonProvider;
-		var fight = planningFight(trainer);
-		if (!client || !runtime || !fight) return Promise.resolve(null);
-		var trainerOrder;
+		var fights = planningFights(trainer, trainer ? 1 : 3);
+		if (!client || !runtime || !fights || !fights.length) return Promise.resolve(null);
+		var options;
 		try {
-			trainerOrder = runtime.resolveTrainerOrder(fight.trainer);
+			options = fights.map(function (fight) {
+				return {
+					runtime: runtime,
+					run: state,
+					// Product progression is filtered. Resolve every visible label
+					// through the pinned engine rather than treating a UI index as a
+					// canonical trainer database key.
+					trainerOrder: runtime.resolveTrainerOrder(fight.trainer),
+					revision: currentRevision === null ? logLength() : currentRevision,
+				};
+			});
 		} catch (error) {
 			return Promise.resolve({error: error});
 		}
-		return client.planRun({
-			runtime: runtime,
-			run: state,
-			// Product progression is filtered. Resolve its label through the
-			// pinned engine rather than treating a UI index as a database key.
-			trainerOrder: trainerOrder,
-			revision: currentRevision === null ? logLength() : currentRevision,
+		var planning = typeof client.planBatch === 'function' ?
+			client.planBatch(options) : Promise.all(options.map(client.planRun));
+		return planning.then(function (results) {
+			return results.map(function (result, index) {
+				return {fight: fights[index], result: result};
+			});
 		}).catch(function (error) { return {error: error}; });
+	}
+
+	function renderPlanOutlook(forecasts) {
+		var $outlook = $('#runbun-run-plan-outlook');
+		var $list = $('#runbun-run-plan-outlook-list').empty();
+		var later = Array.isArray(forecasts) ? forecasts.slice(1) : [];
+		$outlook.prop('hidden', !later.length);
+		later.forEach(function (forecast) {
+			var summary = forecast.result.receipt.result.summary;
+			var lead = findBoxed(summary.recommendedLeadId);
+			var allSampledSafe = summary.safeBranches === summary.branchesEvaluated;
+			$list.append($('<li class="runbun-run-plan-outlook-row"></li>')
+				.toggleClass('is-sample-safe', allSampledSafe)
+				.toggleClass('is-sample-risk', !allSampledSafe)
+				.append($('<span class="runbun-run-plan-outlook-fight"></span>')
+					.text(displayText(forecast.fight.trainer)))
+				.append($('<span class="runbun-run-plan-outlook-lead"></span>')
+					.text('Lead ' + (lead ? monLabel(lead) : summary.recommendedLeadId)))
+				.append($('<span class="runbun-run-plan-outlook-result"></span>')
+					.text(summary.safeBranches + '/' + summary.branchesEvaluated +
+						' sampled branches deathless')));
+		});
 	}
 
 	function plan(trainer) {
 		var body = {run: state};
 		if (trainer) body.trainer = trainer;
-		return Promise.all([api('/run/plan', body), embeddedForecast(trainer)]).then(function (answers) {
+		return Promise.all([api('/run/plan', body), embeddedForecasts(trainer)]).then(function (answers) {
 			var result = answers[0];
-			var forecast = answers[1];
+			var forecasts = answers[1];
+			var forecast = Array.isArray(forecasts) && forecasts.length ? forecasts[0].result : forecasts;
 			$('#runbun-run-plan-verdict').text(
 				result.confidence === 'contested' ?
 					result.trainer + ' — contested by ' + result.margin + '. Plan for both.' :
@@ -1318,6 +1355,7 @@
 					.append($('<span class="runbun-run-action-label"></span>').text(action.label)));
 			});
 			if (forecast && forecast.error) {
+				renderPlanOutlook(null);
 				$actions.append($('<div class="runbun-run-action is-provider"></div>')
 					.append($('<span class="runbun-run-action-score"></span>').text('—'))
 					.append($('<span class="runbun-run-action-label"></span>')
@@ -1326,15 +1364,19 @@
 				var summary = forecast.receipt.result.summary;
 				var lead = findBoxed(summary.recommendedLeadId);
 				var branchLabel = summary.safeBranches + '/' + summary.branchesEvaluated +
-					' branches deathless';
-				var risk = forecast.receipt.result.safe ? 'whole branch safe' :
-					'worst branch loses ' + summary.deaths;
+					' sampled branches deathless';
+				var risk = forecast.receipt.result.safe ? 'no deaths observed' :
+					'worst sampled branch loses ' + summary.deaths;
 				$actions.prepend($('<div class="runbun-run-action is-provider is-top"></div>')
 					.append($('<span class="runbun-run-action-score"></span>')
 						.text(summary.safeBranches + '/' + summary.branchesEvaluated))
 					.append($('<span class="runbun-run-action-label"></span>')
-						.text('pokemon-mono · lead ' + (lead ? monLabel(lead) : summary.recommendedLeadId) +
+						.text('PARTIAL PLAN · Pokemon Mono · lead ' +
+							(lead ? monLabel(lead) : summary.recommendedLeadId) +
 							' · ' + branchLabel + ' · ' + risk)));
+				renderPlanOutlook(forecasts);
+			} else {
+				renderPlanOutlook(null);
 			}
 			stamp('plan');
 		}).catch(function (error) {

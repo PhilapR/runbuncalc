@@ -7,6 +7,7 @@
 	'use strict';
 
 	var IVS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+	var MAX_BROWSER_BATCH_REQUESTS = 8;
 
 	function fail(message) {
 		throw new Error('pokemon-mono planner: ' + message);
@@ -106,14 +107,15 @@
 		};
 	}
 
-	async function planRun(options) {
+	function resolveRuntime(options) {
 		var runtime = options && options.runtime || root.RunBunPokemonProvider;
 		if (!runtime || !runtime.provider || typeof runtime.provider.plan !== 'function') {
 			fail('embedded provider is not loaded');
 		}
-		var request = await createRequest(Object.assign({}, options, {
-			profileRevision: options.profileRevision || runtime.metadata.engineRevision,
-		}));
+		return runtime;
+	}
+
+	async function executeRequest(runtime, request) {
 		var receipt = await runtime.provider.plan(request);
 		if (!receipt || receipt.requestId !== request.requestId ||
 			receipt.producer.repository !== 'pokemon-mono' ||
@@ -125,5 +127,53 @@
 		return {request: request, receipt: receipt, metadata: runtime.metadata};
 	}
 
-	return {canonical: canonical, deriveSeeds: deriveSeeds, createRequest: createRequest, planRun: planRun};
+	async function planRun(options) {
+		var runtime = resolveRuntime(options);
+		var request = await createRequest(Object.assign({}, options, {
+			profileRevision: options.profileRevision || runtime.metadata.engineRevision,
+		}));
+		return executeRequest(runtime, request);
+	}
+
+	/**
+	 * Plan a small look-ahead through one already-loaded browser provider.
+	 *
+	 * This is deliberately bounded to the eight fights the run surface loads.
+	 * Fleet-scale batches belong in stochastic-inference-core; the browser only
+	 * needs enough work to answer "does this party still look viable ahead?".
+	 * Requests execute in stable order so the returned rows map directly back to
+	 * the visible road, while the provider module itself stays warm in-process.
+	 */
+	async function planBatch(options) {
+		if (!Array.isArray(options) || !options.length) fail('batch must contain at least one fight');
+		if (options.length > MAX_BROWSER_BATCH_REQUESTS) {
+			fail('browser batches are capped at ' + MAX_BROWSER_BATCH_REQUESTS + ' fights');
+		}
+		var runtime = resolveRuntime(options[0]);
+		var requests = [];
+		var requestIds = {};
+		for (var index = 0; index < options.length; index += 1) {
+			var item = Object.assign({}, options[index], {runtime: runtime});
+			var request = await createRequest(Object.assign({}, item, {
+				profileRevision: item.profileRevision || runtime.metadata.engineRevision,
+			}));
+			if (requestIds[request.requestId]) fail('batch requestId values must be unique');
+			requestIds[request.requestId] = true;
+			requests.push(request);
+		}
+		var results = [];
+		for (var requestIndex = 0; requestIndex < requests.length; requestIndex += 1) {
+			results.push(await executeRequest(runtime, requests[requestIndex]));
+		}
+		return results;
+	}
+
+	return {
+		MAX_BROWSER_BATCH_REQUESTS: MAX_BROWSER_BATCH_REQUESTS,
+		canonical: canonical,
+		deriveSeeds: deriveSeeds,
+		createRequest: createRequest,
+		planRun: planRun,
+		planBatch: planBatch,
+	};
 });

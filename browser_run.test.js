@@ -144,17 +144,24 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 	await page.evaluate(() => {
 		const provider = window.RunBunPokemonProvider.provider;
 		const plan = provider.plan.bind(provider);
+		window.__pokemonMonoTrainerOrders = [];
 		provider.plan = request => {
-			window.__pokemonMonoTrainerOrder = request.task.state.trainer.order;
+			window.__pokemonMonoTrainerOrders.push(request.task.state.trainer.order);
 			return plan(request);
 		};
 	});
 	await page.click('#runbun-run-plan');
 	await page.waitForSelector('#runbun-run-plan-actions .is-provider', {timeout: 30000});
-	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrder), 3,
+	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrders[0]), 3,
 		'Calvin must resolve to the canonical raw trainer order, not the filtered UI index');
+	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrders.length), 3,
+		'the warm browser batch should check the current and next two fights');
+	assert.equal(await page.$$eval('#runbun-run-plan-outlook-list li', rows => rows.length), 2,
+		'the current forecast belongs in the plan; the next two belong in the outlook');
 	assert.match(await page.textContent('#runbun-run-plan-actions'),
-		/pokemon-mono · lead Treecko L5 · \d+\/8 branches deathless/);
+		/PARTIAL PLAN · Pokemon Mono · lead Treecko L5 · \d+\/8 sampled branches deathless/);
+	assert.match(await page.textContent('#runbun-run-plan-outlook'),
+		/bounded eight-seed checks, not certified safe routes/);
 	assert.deepEqual(session.errors, []);
 	await session.context.close();
 });
