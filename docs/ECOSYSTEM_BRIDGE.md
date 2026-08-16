@@ -39,6 +39,13 @@ the result to the request, engine revision, profile revision, input state hash,
 seeds, output hash, and replay evidence. Results are immutable. A correction
 creates a new receipt rather than rewriting an old one.
 
+`runbuncalc` stores accepted receipts in the attempt's separate
+`rabrun.evidence/1.0.0` collection. Evidence is immutable and
+content-addressed, exports with the checked `.rabrun` archive, and does not
+advance the game-state revision. This keeps planning observations available
+for review and training without pretending that a simulator read changed the
+run. Archives created before the evidence collection still import unchanged.
+
 The primary product and development transport is an in-process package export
 from `pokemon-mono`. The JSON request and receipt remain the stable API around
 that import: they preserve deterministic replay, permit fixture-driven UI work,
@@ -109,16 +116,19 @@ local planner if the provider cannot answer.
 
 Step 6 and the first bounded slice of step 7 are now complete locally.
 `stochastic-inference-core` revision
-`ac7ed756a22d106fe241777afb5741633db5d234` registers the exact typed
+`84e7e9eb5d829d10e5f1f4b753976e6abb6d3d1a` registers the exact typed
 capability, validates every receipt against its request, and runs cold or warm
-batches capped at 1,024 unique requests. Its fixed corpus has exact single,
-cold-batch, warm-batch, and recorded-receipt parity. The saved transport
-benchmark measured 1,024 eight-seed requests at 2,083 requests/second through
-one warm provider process; that is not a six-Pokemon worst-case simulator
-claim.
+batches capped at 1,024 unique requests. Its three-pair fixed corpus now
+includes a realistic six-Pokemon Calvin request and has exact single,
+cold-batch, warm-batch, and recorded-receipt parity. For that six-Pokemon
+fixture, each eight-seed request evaluates 48 candidate branches. A 16-request
+warm batch took a 192.233 ms median (3,995 candidate evaluations/second), and
+1,024 requests took a 6,844.261 ms median (7,181 candidate evaluations/second).
+These are bounded transport/simulator measurements for one recorded party and
+fight, not a claim of policy quality or full-game throughput.
 
 The browser consumer at app revision
-`248546a530df61a8a40614d9cb070243f8a72eb2` uses the already-loaded provider
+`5f6542d9460cb52f5c5c19a5f3544f67eb4057e1` uses the already-loaded provider
 for a bounded current-plus-two-fight outlook. Browser batches are capped at the
 eight fights already present on the visible road, preserve order, reject
 duplicate request IDs before provider work, and match single-call receipts.
@@ -126,8 +136,16 @@ The UI labels these eight-seed results `PARTIAL PLAN` and says "sampled
 branches"; it does not promote a clean sample to `CERTIFIED` or "whole branch
 safe."
 
-The integration matrix therefore records `singleBatchParity: true` and exact
-app, engine, control, and verification revisions. `providerEnabled` and
+The same app revision retains those three request/receipt pairs atomically in
+IndexedDB v3 and exports them with the attempt. The checked archive materializer
+emits schema `1.1.0` episode, event, step, observation, planning-receipt, and
+per-seed planning-branch tables. Its maximum-batch test retains and materializes
+1,024 receipts without adding game events; the checked archive stays below
+8 MiB in the local regression gate.
+
+The integration matrix therefore records single/batch parity, a six-Pokemon
+benchmark, planning-evidence persistence/materialization, and exact app,
+engine, control, and verification revisions. `providerEnabled` and
 `privateDeploymentVerified` remain false: no production/private promotion is
 claimed until the exact reviewed app revision passes authenticated success,
 anonymous denial, and deployed receipt checks. Deployment remains private.

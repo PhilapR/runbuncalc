@@ -19,6 +19,8 @@ not prerequisites for a good game.
 - Export/import is a checked `rabrun.archive` boundary. Parquet and NPZ are
   derived analytics/training formats produced from checked archives; neither is
   live game state or the transactional save store.
+- Planner request/receipt pairs are immutable, content-addressed attempt
+  evidence. They export with the archive but never advance the game revision.
 - Static Run & Bun profile data remains separate from runtime state. Tiles,
   palettes, metatiles, collision, scripts, and presentation are not yet a
   complete world/runtime implementation.
@@ -146,6 +148,13 @@ cross-tab cases are deterministic and recoverable. Export/import preserves
 hash chains and outcomes. A materializer produces versioned Parquet/NPZ with a
 manifest tying every row to attempt, revision, schema, seed, and source.
 
+**Current evidence:** IndexedDB v3 stores planner receipts separately from the
+event ledger, imports older archives, rejects receipt corruption, and preserves
+atomic batch order. Materializer schema `1.1.0` emits typed planning receipt and
+per-seed branch tables. A 1,024-receipt maximum batch remains below 8 MiB and
+materializes in the local five-second regression bound without creating game
+events. Native Parquet/Arrow file writing remains downstream work.
+
 **Non-goals:** Multi-user editing, real-time cloud sync by default, arbitrary
 event mutation, or treating screenshots/tiles as structured state.
 
@@ -165,11 +174,14 @@ hosted storage only after Phase 3 proves which facts users actually review.
 ## Phase 5 — High-volume simulation and RL workloads
 
 **Current evidence:** The control plane now has exact single/cold-batch/warm-
-batch receipt parity and a reproducible transport benchmark through 1,024
-eight-seed requests. The companion consumes a bounded warm batch for the
-current and next two fights. This closes the JSON/provider transport baseline,
-not the phase: six-Pokemon worst-case simulation, replay-locked episode
-materialization, memory/shard benchmarks, and policy-quality evaluation remain.
+batch receipt parity and reproducible transport benchmarks through 1,024
+eight-seed requests, including a six-Pokemon party that evaluates 48 candidate
+branches per request. The companion consumes and retains a bounded warm batch
+for the current and next two fights, and checked archives materialize those
+receipts into replay-linked RL rows. This closes the JSON/provider and evidence
+lineage baseline, not the phase: broader party/fight distributions, native
+Parquet/Arrow shard benchmarks, replayed policy episodes, and policy-quality
+evaluation remain.
 
 **User outcome:** The project can evaluate many seeds, teams, encounters, and
 policy variants quickly enough to discover robust strategies and explain their

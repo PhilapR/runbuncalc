@@ -11,7 +11,7 @@
   "lanes": {
     "app": {
       "repository": "runbuncalc",
-      "revision": "248546a530df61a8a40614d9cb070243f8a72eb2",
+      "revision": "5f6542d9460cb52f5c5c19a5f3544f67eb4057e1",
       "gate": "npm test"
     },
     "engine": {
@@ -21,7 +21,7 @@
     },
     "control": {
       "repository": "stochastic-inference-core",
-      "revision": "ac7ed756a22d106fe241777afb5741633db5d234",
+      "revision": "84e7e9eb5d829d10e5f1f4b753976e6abb6d3d1a",
       "gate": "make lint doctor plus focused capability and orchestration suites"
     },
     "verification": {
@@ -46,6 +46,9 @@
   "promotion": {
     "browserProviderParity": true,
     "singleBatchParity": true,
+    "sixPokemonBenchmark": true,
+    "planningEvidencePersisted": true,
+    "planningEvidenceMaterialized": true,
     "providerEnabled": false,
     "privateDeploymentVerified": false
   }

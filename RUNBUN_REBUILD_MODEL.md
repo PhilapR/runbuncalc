@@ -147,12 +147,20 @@ Each accepted event or projected command is an optimistic, idempotent transactio
 - a verified snapshot at lifecycle boundaries and every 50 revisions.
 
 An export is a portable `rabrun.archive` bundle containing the head, complete
-event sequence, snapshots, compact idempotency receipts, manifest, and whole-bundle
-SHA-256 checksum. Import validates the bundle, state identities, event hash chain,
-and compatibility command log before making the attempt active. IndexedDB v2
-adds attempt/revision indexes and range reads; v1 databases and archive bundles
-upcast without deleting the original history. End-run records now point to the
-checked evidence head and checksum rather than copying an unverified final save.
+event sequence, snapshots, compact idempotency receipts, immutable planning
+evidence, manifest, and whole-bundle SHA-256 checksum. Import validates the
+bundle, state identities, event hash chain, evidence hashes, and compatibility
+command log before making the attempt active. IndexedDB v2 added
+attempt/revision indexes and range reads; v3 adds an evidence store indexed by
+attempt. v1 databases and older archive bundles upcast without deleting the
+original history. End-run records now point to the checked evidence head and
+checksum rather than copying an unverified final save.
+
+Planning evidence uses `rabrun.evidence/1.0.0`. Each record binds the full
+`pokemon.rab.plan` request and deterministic `pokemon-mono` receipt to an
+attempt revision and state hash. It is content-addressed and batch-atomic but
+does not enter the semantic event chain or increment the run revision: asking
+the simulator a question is evidence acquisition, not a game action.
 
 The storage acceptance tests cover 10,000 compact revisions and a realistic
 growing command log. On the development machine, the latter's 2,000-revision
@@ -161,7 +169,10 @@ Those are local regression measurements, not cross-device performance promises.
 
 This is the transactional and replay substrate for companion and rebuilt modes.
 `rl-dataset.js` validates a checked archive and materializes primitive episode,
-event, step, and observation rows with explicit Arrow/Parquet-oriented types.
+event, step, observation, planning-receipt, and planning-branch rows with
+explicit Arrow/Parquet-oriented types. Schema `1.1.0` preserves provider,
+profile/request, seed, result, replay, and evidence identities so policy data
+can be traced back to the exact checked attempt.
 It is deliberately not Parquet: columnar files belong downstream as immutable
 analytics and RL training partitions. At hosted scale, a Durable Object should
 serialize writes per attempt, D1 should index attempts and lightweight facts,

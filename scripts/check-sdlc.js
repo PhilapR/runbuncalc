@@ -124,8 +124,8 @@ sha256(lock.digest, 'canonical contract digest');
 assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.deepEqual(matrix.fixtures.expectedDivergences, []);
 assert.equal(matrix.lanes.engine.revision, providerProvenance.revision);
-assert.equal(matrix.lanes.app.revision, '248546a530df61a8a40614d9cb070243f8a72eb2');
-assert.equal(matrix.lanes.control.revision, 'ac7ed756a22d106fe241777afb5741633db5d234');
+assert.equal(matrix.lanes.app.revision, '5f6542d9460cb52f5c5c19a5f3544f67eb4057e1');
+assert.equal(matrix.lanes.control.revision, '84e7e9eb5d829d10e5f1f4b753976e6abb6d3d1a');
 assert.equal(seededReceipt.requestId, request.requestId);
 assert.equal(seededReceipt.producer.revision, providerProvenance.revision);
 assert.equal(seededReceipt.input.stateHash, request.attempt.stateHash);
@@ -154,6 +154,9 @@ assert.equal(seededReceipt.receiptId, 'receipt_' + canonicalHash({
 }).slice(0, 24), 'seeded receiptId does not bind its receipt core');
 assert.equal(matrix.promotion.browserProviderParity, true);
 assert.equal(matrix.promotion.singleBatchParity, true);
+assert.equal(matrix.promotion.sixPokemonBenchmark, true);
+assert.equal(matrix.promotion.planningEvidencePersisted, true);
+assert.equal(matrix.promotion.planningEvidenceMaterialized, true);
 assert.equal(matrix.promotion.providerEnabled, false);
 assert.equal(matrix.promotion.privateDeploymentVerified, false);
 
