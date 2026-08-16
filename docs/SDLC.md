@@ -39,7 +39,7 @@ lanes may proceed concurrently in separate, explicitly owned worktrees:
 | --- | --- | --- | --- |
 | Contract | `pokemon-mono/contracts/run-runtime/` | Existing runtime and cross-engine contracts | Schema, examples, canonical digest, backward-compatibility fixtures |
 | Engine | `pokemon-mono/engines/rab/**/bridge/` | Pinned request fixtures | Deterministic provider receipt and replay parity |
-| App | `runbuncalc` provider adapter and product UI | Recorded receipt fixture or mock provider | Offline/local fallback plus browser interaction tests |
+| App | `runbuncalc` provider adapter and product UI | Pinned importable provider interface plus recorded receipt fixture | Same-process provider path, offline/local fallback, and browser interaction tests |
 | Control | A clean `stochastic-inference-core` worktree limited to Pokémon capability files | Recorded request/receipt pair and fake provider | Routing, typed artifact, lineage, and side-effect declarations |
 | Verification | Cross-repository harness with no product ownership | Exact lane revisions and fixture digest | Compatibility matrix, named divergences, single/batch parity |
 
@@ -48,14 +48,17 @@ fixture cache, not the authority. The canonical packet is frozen on the
 dedicated `pokemon-mono` contract lane under `contracts/run-runtime/v1/`, and
 the app pins its exact revision and digest in `canonical.lock.json`. Consumers
 may vendor the small packet, but CI must compare any vendored digest to the
-lock. No consumer imports another repository's working tree or tracks an
-unpinned `latest`.
+lock. No consumer reaches through another repository's source tree or tracks
+an unpinned `latest`. Importing a pinned, declared `pokemon-mono` package export
+is the preferred app integration; relative imports into a live worktree are
+not.
 
-Each lane must remain runnable without the others: the app uses recorded
-receipts, the engine uses request fixtures, and stochastic inference uses a
-fake deterministic provider. Provider unavailability must not prevent local
-companion play. Collab may launch and display these modules as a lab, but it is
-not the contract registry, merge coordinator, or save authority.
+Each lane must remain runnable without the others: the app can use recorded
+receipts when the imported provider is absent, the engine uses request
+fixtures, and stochastic inference uses a fake deterministic provider.
+Provider unavailability must not prevent local companion play. Collab may
+launch and display these modules as a lab, but it is not the contract registry,
+merge coordinator, or save authority.
 
 ## Integration train
 

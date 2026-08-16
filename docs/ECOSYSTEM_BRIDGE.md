@@ -1,8 +1,10 @@
 # Pokemon ecosystem bridge
 
-The bridge is a contract boundary, not a shared process and not a shared
-database. It lets the companion ask for planning or simulation while keeping
-the playable run responsive, serializable, and usable without either backend.
+The bridge is a logical contract boundary, not a requirement for a process or
+database boundary. The product path imports a pinned, bundleable
+`pokemon-mono` provider and calls it in the same process. It lets the companion
+ask for planning or simulation while keeping the playable run responsive,
+serializable, and usable without a provider.
 
 The canonical bridge packet belongs beside the simulation truth at
 `pokemon-mono/contracts/run-runtime/v1/`. The recorded request and receipt in
@@ -37,10 +39,14 @@ the result to the request, engine revision, profile revision, input state hash,
 seeds, output hash, and replay evidence. Results are immutable. A correction
 creates a new receipt rather than rewriting an old one.
 
-The first transport should be a local CLI or loopback HTTP adapter. In-process
-embedding is an optimization only after contract and replay parity. Cloudflare
-may serve the companion and small deterministic calculator operations, but it
-must not become the high-volume simulator or read emulator memory.
+The primary product and development transport is an in-process package export
+from `pokemon-mono`. The JSON request and receipt remain the stable API around
+that import: they preserve deterministic replay, permit fixture-driven UI work,
+and prevent the app from reaching into engine internals. A CLI or loopback
+adapter exposes the same API for batch workers, debugging, and runtimes where
+the provider cannot be bundled. Cloudflare may serve the companion and small
+deterministic calculator operations, but it must not become the high-volume
+simulator or read emulator memory.
 
 ## Stochastic inference boundary
 
@@ -77,13 +83,15 @@ inference is never the game-state authority.
    packet in every consumer.
 2. Freeze a small corpus from the existing local engine: first route, first
    required fight, one double battle, and one known divergence.
-3. In parallel, build the `pokemon-mono` provider against request fixtures,
-   the app adapter against recorded receipts, and the stochastic-inference
-   capability against a fake deterministic provider.
+3. In parallel, build an importable `pokemon-mono` provider against request
+   fixtures, the app adapter against that interface plus recorded receipts,
+   and the stochastic-inference capability against a fake deterministic
+   provider.
 4. Compare action legality, damage facts, state transitions, event hashes, and
    zero-death branch outcomes. Gate expected divergences by name.
-5. Put planning behind a provider adapter in `runbuncalc`; retain local play
-   when the provider is unavailable.
+5. Import the pinned provider package behind the adapter in `runbuncalc`;
+   retain recorded fixtures for UI development and local play when planning is
+   unavailable.
 6. Register the proven provider in stochastic inference for experiment and
    fleet workloads.
 7. Scale only after single-run and batch execution reproduce the corpus.
