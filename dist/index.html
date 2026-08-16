@@ -12,12 +12,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?e9d2ddbe" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?a31e22b9" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
     <!-- Shell + full-page unify after dark-theme so stadium tokens win the cascade -->
-    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?0c5944e7" />
+    <link type="text/css" rel="stylesheet" href="./css/runbun-shell.css?9929d449" />
     <!-- Immediately loads the dark theme in order to reduce FOIT -->
     <script>
         /*
@@ -51,7 +51,7 @@
             <div class="rb-mode-tablist">
                 <a class="rb-mode-tab" id="rb-nav-run" href="#runbun-run" data-mode="run">Play</a>
                 <a class="rb-mode-tab" id="rb-nav-calc" href="#calc" data-mode="calc">Calculator</a>
-                <a class="rb-mode-tab" id="rb-nav-tools" href="#sets-bridge" data-mode="sets">Tools</a>
+                <a class="rb-mode-tab" id="rb-nav-tools" href="#sets-bridge" data-mode="sets">Lab</a>
             </div>
         </nav>
     </div>
@@ -89,8 +89,8 @@
             <input class="mode visually-hidden" type="radio" name="mode" id="one-vs-all" /><label class="btn btn-mid" for="one-vs-all">One vs All</label>
             <input class="mode visually-hidden" type="radio" name="mode" id="all-vs-one" /><label class="btn btn-mid" for="all-vs-one">All vs One</label>
         </span>
-        <button id="screen-calc">
-            put this calculation in a grabbable window
+        <button id="screen-calc" title="Open this matchup in a movable calculator window">
+            Pop out matchup
         </button>
     </div>
     <hr />
@@ -230,7 +230,7 @@
             <span>Moves</span>
         </button>
     </div>
-    <div class="panel">
+    <div class="panel calc-column calc-player-column">
         <div aria-label="Pok&eacute;mon 1" role="region">
             <fieldset class="poke-info" id="p1">
                 <legend align="center">
@@ -830,7 +830,7 @@
             </fieldset>
         </div>
     </div>
-    <div class="panel">
+    <div class="panel calc-column calc-field-column">
         <div aria-label="Field information" role="region">
             <fieldset class="field-info">
                 <legend align="center">Field
@@ -1193,7 +1193,7 @@
             </fieldset>
         </div>
     </div>
-    <div class="panel">
+    <div class="panel calc-column calc-opponent-column">
         <div aria-label="Pok&eacute;mon 2" role="region">
             <fieldset class="poke-info" id="p2">
                 <legend align="center">Pok&eacute;mon 2
@@ -1935,7 +1935,7 @@
     <script type="text/javascript" src="./js/moveset_import.js?4d256745"></script>
     <script type="text/javascript" src="./js/sets_to_battle_state.js?cdc8c2ce"></script>
     <script type="text/javascript" src="./js/golden_eval.js?961a5a37"></script>
-    <script type="text/javascript" src="./js/ai_panel.js?81487a68"></script>
+    <script type="text/javascript" src="./js/ai_panel.js?dd28e9a0"></script>
     <script type="text/javascript" src="./js/replay_trace.js?80270e49"></script>
     <script type="text/javascript" src="./js/battle_turn_viewer.js?9fd4aedc"></script>
     <script type="text/javascript" src="./js/replay_viewer.js?22f187cd"></script>
@@ -1944,30 +1944,23 @@
     <script type="text/javascript" src="./js/attempt_store.js?d6b345fe"></script>
     <script type="text/javascript" src="./js/run_history.js?15ce0adc"></script>
     <script type="text/javascript" src="./js/run_panel.js?8a5cb1f3"></script>
-    <script type="text/javascript" src="./js/runbun_shell.js?e5be2323"></script>
+    <script type="text/javascript" src="./js/runbun_shell.js?54cf56aa"></script>
 </div>
 
 <section id="sets-bridge" class="ai-panel-bridge rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Sets to BattleState bridge">
-    <nav class="rb-subnav" aria-label="Tools">
+    <nav class="rb-subnav" aria-label="Lab views">
         <a href="#sets-bridge" aria-current="page">State builder</a>
         <a href="#ai-panel">AI inspector</a>
     </nav>
-    <h2 class="ai-panel-bridge-title" id="sets-bridge-heading">Sets → BattleState</h2>
+    <h2 class="ai-panel-bridge-title" id="sets-bridge-heading">Battle-state lab</h2>
     <p class="ai-panel-bridge-help">
-        Build a validated Gen&nbsp;8 <code>BattleState</code> from the current
-        calc panels (<code>#p1</code> = player, <code>#p2</code> = ai).
-        Optional benches come from Team / opposing trainer sets already
-        loaded above. Result is written into AI Debug for evaluate / choose.
+        Turn the current calculator matchup into a validated state for AI inspection.
+        This development surface does not change your run.
     </p>
     <div id="ai-panel-bridge-callouts" class="ai-panel-callouts" aria-live="polite">
         <div class="ai-panel-callout ai-panel-callout-warn">
-            <strong>Gen 8 only.</strong> Loaded BattleState is always generation&nbsp;8,
-            even when the calc UI generation selector differs.
-        </div>
-        <div class="ai-panel-callout ai-panel-callout-warn">
-            <strong>Zero EVs.</strong> R&amp;B AI projections force all EVs to 0
-            (HP and stats rebuild under that rule). Panel EV spreads are ignored
-            for AI — do not assume calc damage equals AI facts.
+            <strong>Model boundary.</strong> AI inspection uses Gen&nbsp;8 with zero EVs,
+            even when the calculator is showing another generation or EV spread.
         </div>
     </div>
     <div class="ai-panel-controls">
@@ -1979,17 +1972,17 @@
             <input type="checkbox" id="ai-panel-include-trainer-party" checked />
             Include opposing trainer party
         </label>
-        <button type="button" id="ai-panel-load-calc" class="btn btn-wide rb-btn-primary">Load from calc panels</button>
-        <button type="button" id="ai-panel-validate" class="btn btn-wide rb-btn-secondary">Validate state</button>
-        <a class="btn btn-wide rb-btn-ghost" href="#ai-panel">Open AI Debug</a>
+        <button type="button" id="ai-panel-load-calc" class="btn btn-wide rb-btn-primary">Load matchup</button>
+        <button type="button" id="ai-panel-validate" class="btn btn-wide rb-btn-secondary">Validate</button>
+        <a class="btn btn-wide rb-btn-ghost" href="#ai-panel">Inspect AI</a>
     </div>
     <div id="sets-bridge-preview" class="sets-bridge-preview" aria-live="polite">
-        <p class="sets-bridge-preview-empty">No bridged party yet — load from calc panels.</p>
+        <p class="sets-bridge-preview-empty">Load a calculator matchup to inspect its battle state.</p>
     </div>
 </section>
 
 <div id="ai-panel" class="ai-panel rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Run and Bun AI">
-    <nav class="rb-subnav" aria-label="Tools">
+    <nav class="rb-subnav" aria-label="Lab views">
         <a href="#sets-bridge">State builder</a>
         <a href="#ai-panel" aria-current="page">AI inspector</a>
     </nav>

@@ -173,15 +173,11 @@
 	outline: 1px solid transparent;
 }
 
-/* The calculator keeps its inherited desktop geometry, but the overflow now
-   belongs to that surface instead of widening every product screen. */
+/* The calculator owns its overflow instead of widening every product screen.
+   Its working columns are explicitly composed below. */
 #calc {
 	min-width: 0;
 	overflow-x: auto;
-}
-
-#calc > * {
-	min-width: 100em;
 }
 
 .rb-subnav {
@@ -314,6 +310,24 @@ body[data-rb-mode="run"] .credits #sets {
 	margin: 0;
 }
 
+body[data-rb-mode="tools"] .credits > ul,
+body[data-rb-mode="tools"] .credits .rb-footer-note,
+body[data-rb-mode="tools"] .credits #sets > *:not(#dark-theme-toggle) {
+	display: none;
+}
+
+body[data-rb-mode="tools"] .credits {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rb-space-md);
+	flex-wrap: wrap;
+}
+
+body[data-rb-mode="tools"] .credits #sets {
+	margin: 0;
+}
+
 .credits #sets > a,
 .credits #sets > button {
 	font-family: var(--rb-font-body);
@@ -321,6 +335,43 @@ body[data-rb-mode="run"] .credits #sets {
 }
 
 /* —— Calc mode header / toolbar —— */
+#calc.rb-mode-active {
+	display: grid;
+	grid-template-columns: minmax(30em, 1fr) minmax(27.5em, 0.92fr) minmax(30em, 1fr);
+	grid-template-rows: auto auto auto auto;
+	column-gap: var(--rb-space-sm);
+	align-items: start;
+}
+
+#calc > [role="region"][aria-label="Settings"],
+#calc > .move-result-group,
+#calc > .main-result-group {
+	grid-column: 1 / -1;
+}
+
+#calc > [role="region"][aria-label="Settings"] { grid-row: 1; }
+#calc > .move-result-group { grid-row: 2; }
+#calc > .main-result-group { grid-row: 3; }
+#calc > .calc-player-column { grid-column: 1; grid-row: 4; }
+#calc > .calc-field-column { grid-column: 2; grid-row: 4; }
+#calc > .calc-opponent-column { grid-column: 3; grid-row: 4; }
+
+#calc > .calc-column {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-sm);
+	float: none;
+	min-width: 0;
+}
+
+#calc > .calc-column > [role="region"],
+#calc > .calc-column fieldset {
+	width: 100%;
+	min-width: 0;
+	float: none;
+	margin-right: 0;
+}
+
 #calc > [role="region"][aria-label="Settings"] {
 	display: flex;
 	flex-wrap: wrap;
@@ -468,6 +519,8 @@ body[data-rb-mode="run"] .credits #sets {
 #sets-bridge .btn:focus-visible,
 #runbun-battle .btn:focus-visible,
 #calc .btn:focus-visible,
+#rb-mode-content button:focus-visible,
+.credits button:focus-visible,
 .rb-mode-tab:focus-visible,
 #calc #screen-calc:focus-visible,
 .ai-panel-result-row:focus-visible,
@@ -540,8 +593,36 @@ legend {
 
 /* —— Results block —— */
 #calc .move-result-group {
-	margin: var(--rb-space-md) 0 11.5em;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--rb-space-lg);
+	min-width: 0;
+	margin: var(--rb-space-sm) 0 var(--rb-space-md);
 	padding: var(--rb-space-sm) 0 0;
+}
+
+#calc .move-result-subgroup {
+	float: none;
+	width: auto;
+	min-width: 0;
+}
+
+#calc .move-result-subgroup > div:not(.result-move-header) {
+	display: grid;
+	grid-template-columns: minmax(10em, 0.7fr) minmax(0, 1.3fr);
+	align-items: center;
+	gap: var(--rb-space-sm);
+}
+
+#calc .move-result-subgroup > div:not(.result-move-header) > span {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+/* Grid display must never outrank the native hidden state used for doubles. */
+#calc .move-result-group[hidden],
+#calc .main-result-group[hidden] {
+	display: none;
 }
 
 #calc .result-move-header {
@@ -961,6 +1042,11 @@ legend {
 	box-sizing: border-box;
 }
 
+#sets-bridge.ai-panel-bridge,
+#ai-panel.ai-panel {
+	max-width: 64rem;
+}
+
 /* Calc column strip: ensure three floated fieldsets stay on one band */
 #calc .panel {
 	box-sizing: border-box;
@@ -1117,13 +1203,63 @@ legend {
 }
 
 /* —— Responsive —— */
+@media (max-width: 900px) {
+	#calc.rb-mode-active {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto;
+		overflow-x: visible;
+	}
+
+	#calc > [role="region"][aria-label="Settings"],
+	#calc > .move-result-group,
+	#calc > .main-result-group,
+	#calc > .calc-player-column,
+	#calc > .calc-opponent-column,
+	#calc > .calc-field-column {
+		grid-column: 1;
+	}
+
+	#calc > [role="region"][aria-label="Settings"] { grid-row: 1; }
+	#calc > .move-result-group { grid-row: 2; }
+	#calc > .main-result-group { grid-row: 3; }
+	#calc > .calc-player-column { grid-row: 4; }
+	#calc > .calc-opponent-column { grid-row: 5; }
+	#calc > .calc-field-column { grid-row: 6; }
+
+	#calc .move-result-group {
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--rb-space-sm);
+	}
+
+	#calc .move-result-subgroup > div:not(.result-move-header) {
+		display: grid;
+		grid-template-columns: minmax(8.5rem, 0.8fr) minmax(0, 1.2fr);
+		align-items: center;
+		gap: var(--rb-space-xs);
+	}
+
+	#calc .move-result-group .btn {
+		width: 100%;
+		box-sizing: border-box;
+		margin-right: 0;
+	}
+}
+
 @media (max-width: 700px) {
+	.rb-mode-region {
+		scroll-margin-top: 9rem;
+	}
+
 	.rb-mode-tablist {
 		flex-wrap: wrap;
 	}
 
 	.rb-mode-tab {
 		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		box-sizing: border-box;
 	}
 
 	.rb-wordmark {

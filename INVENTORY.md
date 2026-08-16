@@ -118,7 +118,7 @@ the reader's warning to verify before trusting.
 - `DEPLOY.md` — 1298e03 2026-08-13
 - `FORK_MAP.md` — e3c01a4 2026-08-15
 - `GEN9_AUDIT.md` — c85114d 2026-08-08
-- `README.md` — e3c01a4 2026-08-15
+- `README.md` — ac99e93 2026-08-16
 - `RUNBUN_REBUILD_MODEL.md` — e3c01a4 2026-08-15
 - `RUNBUN_UI_DESIGN.md` — 8fcc3f7 2026-08-12
 - `STRATEGY.md` — 78fd09e 2026-08-13

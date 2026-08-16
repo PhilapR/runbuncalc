@@ -111,13 +111,10 @@ html, body {
     padding: 0;
 }
 
-/* The desktop floor belongs to the CLASSIC CALC's float layout, not the page:
-   on the body it forced every other mode — run panel, planner, battle — to
-   1600px and made the phone view a zoomed-out photograph of a desktop. The
-   calc keeps its floor; everything else reflows. (The shell collapses inactive
-   regions on small screens, so this floor only binds while Calc is active.) */
+/* The product shell composes the calculator with Grid. Keep the region fluid;
+   only genuinely dense controls may scroll, never the whole application. */
 #calc {
-    min-width: 100em;
+    min-width: 0;
 }
 
 .trainer-poks-label {
@@ -316,6 +313,7 @@ th {
 .visually-hidden {
     clip: rect(1px, 1px, 1px, 1px);
     height: 1px;
+    width: 1px;
     overflow: hidden;
     position: absolute;
     top: auto;

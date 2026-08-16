@@ -1164,7 +1164,7 @@
 		if (!state || !state.sides) {
 			var empty = document.createElement('p');
 			empty.className = 'sets-bridge-preview-empty';
-			empty.textContent = 'No bridged party yet — load from calc panels.';
+			empty.textContent = 'Load a calculator matchup to inspect its battle state.';
 			root.appendChild(empty);
 			return;
 		}

@@ -925,11 +925,10 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 	await session.context.close();
 });
 
-test('the page fits a phone: the active mode reflows, the calc scrolls in place', {skip}, async () => {
-	// The viewport meta plus the scoped width floor is the whole responsive
-	// setup: without them every rule below 980px is dead code on the devices it
-	// exists for. This drives the page at a real phone size and asserts the
-	// property that matters — nothing forces the PAGE wider than the screen.
+test('the page fits a phone: every active mode reflows without page overflow', {skip}, async () => {
+	// Drive the page at a real phone size and assert the property that matters:
+	// the active game and calculator both fit the viewport without turning the
+	// page into a clipped desktop canvas.
 	const context = await browser.newContext({viewport: {width: 390, height: 844}});
 	await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
 	const page = await context.newPage();
@@ -939,9 +938,8 @@ test('the page fits a phone: the active mode reflows, the calc scrolls in place'
 		() => document.querySelectorAll('#runbun-run-map option').length > 100,
 		null, {timeout: 15000});
 
-	// The shell renders one working surface at every viewport: the classic calc
-	// (whose float layout is authored at 100em) leaves the layout entirely while
-	// the run is active, so its floor cannot stretch the page.
+	// The shell renders one working surface at every viewport. Inactive regions
+	// leave layout entirely, so their controls cannot stretch the page.
 	assert.equal(await page.isVisible('#calc'), false,
 		'the inactive calc region should collapse on a phone');
 	await page.click('.runbun-run-starter[data-species="Treecko"]');
@@ -961,17 +959,33 @@ test('the page fits a phone: the active mode reflows, the calc scrolls in place'
 	assert.deepEqual(visibleRegions, ['runbun-run'],
 		'only the active surface should render on a phone');
 
-	// The calc is still reachable — it scrolls INSIDE its own region rather
-	// than widening the page for every other mode.
+	// The calc is still reachable. Its combatants stack as one comparison flow,
+	// followed by the field controls, with exactly one live result group.
 	await page.click('#rb-nav-calc');
 	await page.waitForSelector('#calc.rb-mode-active');
 	assert.equal(await page.isVisible('#runbun-run'), false,
 		'switching modes should swap regions, not stack them');
-	const calcScrolls = await page.evaluate(() => {
+	const calcLayout = await page.evaluate(() => {
 		const calc = document.getElementById('calc');
-		return calc.scrollWidth > calc.clientWidth;
+		return {
+			pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+			calcOverflow: calc.scrollWidth - calc.clientWidth,
+			playerTop: document.getElementById('p1').getBoundingClientRect().top,
+			opponentTop: document.getElementById('p2').getBoundingClientRect().top,
+			fieldTop: document.querySelector('#calc .field-info').getBoundingClientRect().top,
+			visibleResults: Array.from(document.querySelectorAll('#calc .move-result-group'))
+				.filter(el => getComputedStyle(el).display !== 'none').length,
+		};
 	});
-	assert.ok(calcScrolls, 'the calc should keep its desktop geometry, scrollable in place');
+	assert.ok(calcLayout.pageOverflow <= 0,
+		`the calculator forced the page ${calcLayout.pageOverflow}px wider than the phone`);
+	assert.ok(calcLayout.calcOverflow <= 0,
+		`the calculator kept ${calcLayout.calcOverflow}px of hidden desktop overflow`);
+	assert.ok(calcLayout.playerTop < calcLayout.opponentTop &&
+		calcLayout.opponentTop < calcLayout.fieldTop,
+	'the phone flow should show player, opponent, then field');
+	assert.equal(calcLayout.visibleResults, 1,
+		'the dormant doubles result group must remain hidden');
 
 	await context.close();
 });

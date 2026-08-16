@@ -17,12 +17,12 @@
 		},
 		sets: {
 			hash: '#sets-bridge',
-			label: 'Sets / Bridge',
+			label: 'Lab',
 			chips: [
-				{text: 'Gen 8', kind: 'brand'},
-				{text: 'Zero EV', kind: 'warn'}
+				{text: 'Development lab', kind: 'brand'},
+				{text: 'Gen 8 · zero EV', kind: 'warn'}
 			],
-			note: 'Gen 8 only · EVs forced 0 for AI projections.'
+			note: 'Inspect model state without changing the active run.'
 		},
 		'ai-debug': {
 			hash: '#ai-panel',
