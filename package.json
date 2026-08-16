@@ -3,6 +3,7 @@
  "repository": "github:PhilapR/runbuncalc",
  "license": "MIT",
  "dependencies": {
+  "@philapr/pokemon-run-runtime": "file:vendor/pokemon-run-runtime",
   "@smogon/calc": "file:calc"
  },
  "devDependencies": {
@@ -47,7 +48,7 @@
   "cf:preview": "npm run cf:build && npx wrangler dev",
 	"cf:deploy": "npm run cf:build:exact && npx wrangler deploy",
 	"test:worker-runtime": "node scripts/build-worker.js && node --test worker-runtime.test.js",
-	"lint": "npm run lint --prefix calc && npm run lint --prefix ai && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js browser_entrypoint.test.js pokemon-bridge.js pokemon-bridge.test.js simulate.js simulate.test.js team.js team.test.js run.js run.test.js attempt_store.test.js run_history.test.js rl-dataset.js rl-dataset.test.js ui_style.test.js battle-driver.js battle-driver.test.js play.js play.test.js browser_run.test.js inventory.test.js rom-band.test.js game-runtime-adapter.js game-runtime-adapter.test.js worker.js worker.test.js scripts --ext js",
+	"lint": "npm run lint --prefix calc && npm run lint --prefix ai && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js browser_entrypoint.test.js pokemon-bridge.js pokemon-bridge.test.js pokemon-provider-client.test.js simulate.js simulate.test.js team.js team.test.js run.js run.test.js attempt_store.test.js run_history.test.js rl-dataset.js rl-dataset.test.js ui_style.test.js battle-driver.js battle-driver.test.js play.js play.test.js browser_run.test.js inventory.test.js rom-band.test.js game-runtime-adapter.js game-runtime-adapter.test.js worker.js worker.test.js scripts --ext js",
   "fix": "subpkg run fix && eslint --fix src --ext js",
   "compile": "npm run compile --prefix calc && npm run compile --prefix ai && node build view",
   "bundle": "subpkg run bundle",
@@ -56,9 +57,9 @@
   "import-oracle": "node scripts/import-oracle.js",
   "inventory": "node scripts/inventory.js",
   "build": "npm run build --prefix calc && npm run build --prefix ai && node build view",
-	"test": "npm run test --prefix calc && npm run test --prefix ai && node build view && npm run check:sdlc && node --test ui_style.test.js && npm run test:server && npm run test:worker-runtime && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js browser_entrypoint.test.js pokemon-bridge.js pokemon-bridge.test.js simulate.js simulate.test.js team.js team.test.js run.js run.test.js attempt_store.test.js run_history.test.js rl-dataset.js rl-dataset.test.js ui_style.test.js battle-driver.js battle-driver.test.js play.js play.test.js browser_run.test.js inventory.test.js rom-band.test.js game-runtime-adapter.js game-runtime-adapter.test.js worker.js worker.test.js worker-runtime.test.js ai-api.js setdex-loader.js scripts --ext js",
+	"test": "npm run test --prefix calc && npm run test --prefix ai && node build view && npm run check:sdlc && node --test ui_style.test.js && npm run test:server && npm run test:worker-runtime && eslint --cache src profiles planner.js planner.test.js browser_planner.test.js browser_entrypoint.test.js pokemon-bridge.js pokemon-bridge.test.js pokemon-provider-client.test.js simulate.js simulate.test.js team.js team.test.js run.js run.test.js attempt_store.test.js run_history.test.js rl-dataset.js rl-dataset.test.js ui_style.test.js battle-driver.js battle-driver.test.js play.js play.test.js browser_run.test.js inventory.test.js rom-band.test.js game-runtime-adapter.js game-runtime-adapter.test.js worker.js worker.test.js worker-runtime.test.js ai-api.js setdex-loader.js scripts --ext js",
   "pretest:server": "node --test rl-dataset.test.js",
-	"test:server": "node --test inventory.test.js server.smoke.test.js browser_planner.test.js browser_entrypoint.test.js browser_run.test.js battle-driver.test.js planner.test.js pokemon-bridge.test.js simulate.test.js team.test.js run.js run.test.js attempt_store.test.js run_history.test.js play.test.js game-runtime-adapter.test.js worker.test.js runbun_policy.test.js sets_to_battle_state.test.js runbun_sets.test.js runbun_species.test.js runbun_oracle.test.js rom-band.test.js browser_calc_load.test.js fixtures/ui.test.js",
+	"test:server": "node --test inventory.test.js server.smoke.test.js browser_planner.test.js browser_entrypoint.test.js browser_run.test.js battle-driver.test.js planner.test.js pokemon-bridge.test.js pokemon-provider-client.test.js simulate.test.js team.test.js run.js run.test.js attempt_store.test.js run_history.test.js play.test.js game-runtime-adapter.test.js worker.test.js runbun_policy.test.js sets_to_battle_state.test.js runbun_sets.test.js runbun_species.test.js runbun_oracle.test.js rom-band.test.js browser_calc_load.test.js fixtures/ui.test.js",
   "postinstall": "subpkg install"
  },
  "subPackages": [

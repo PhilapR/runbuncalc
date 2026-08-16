@@ -2,6 +2,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -21,6 +22,16 @@ const pkg = json('package.json');
 assert.equal(pkg.scripts.start, 'npm run dev');
 assert.equal(pkg.scripts.dev, 'npm run build && node server.js');
 assert.equal(pkg.scripts.preview, 'node build view && node server.js');
+assert.equal(pkg.dependencies['@philapr/pokemon-run-runtime'],
+	'file:vendor/pokemon-run-runtime');
+
+const providerProvenance = json('vendor/pokemon-run-runtime/PROVENANCE.json');
+const providerArtifact = fs.readFileSync(path.join(root, 'vendor', 'pokemon-run-runtime',
+	providerProvenance.artifact));
+assert.equal(crypto.createHash('sha256').update(providerArtifact).digest('hex'),
+	providerProvenance.artifactSha256, 'vendored pokemon-mono artifact hash drifted');
+assert.equal(providerProvenance.repository, 'pokemon-mono');
+assert.equal(providerProvenance.revision, '112b916cf01732c5edba5b3ed1b24535369b4844');
 
 const source = read('src/index.template.html');
 assert.match(source, /\/src\\\/index\\\.template\\\.html\$/,
@@ -30,11 +41,13 @@ assert.ok(!fs.existsSync(path.join(root, 'src', 'calc')),
 
 const dist = path.join(root, 'dist');
 for (const relative of ['index.html', 'calc/index.js', 'js/runbun_shell.js',
-	'js/runtime_contract.js', 'js/attempt_store.js']) {
+	'js/runtime_contract.js', 'js/attempt_store.js', 'js/pokemon_provider.js',
+	'js/pokemon_provider_client.js']) {
 	assert.ok(fs.existsSync(path.join(dist, relative)), `dist/${relative} is missing; build before preview`);
 }
 const built = read('dist/index.html');
 assert.doesNotMatch(built, /index\.template\.html/);
+assert.match(built, /js\/pokemon_provider\.js\?[a-f0-9]{8}/);
 
 const manifest = json('contracts/ecosystem/v1/contract.json');
 exactKeys(manifest.owners, ['attempt', 'simulation', 'orchestration'], 'contract owners');

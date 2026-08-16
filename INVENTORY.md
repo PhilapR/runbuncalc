@@ -126,7 +126,7 @@ the reader's warning to verify before trusting.
 - `VALIDATION.md` — 8fcc3f7 2026-08-12
 
 ## Test files
-`attempt_store.test.js` · `battle-driver.test.js` · `browser_calc_load.test.js` · `browser_entrypoint.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `game-runtime-adapter.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `pokemon-bridge.test.js` · `rl-dataset.test.js` · `rom-band.test.js` · `run.test.js` · `run_history.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js` · `ui_style.test.js` · `worker-runtime.test.js` · `worker.test.js`
+`attempt_store.test.js` · `battle-driver.test.js` · `browser_calc_load.test.js` · `browser_entrypoint.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `game-runtime-adapter.test.js` · `inventory.test.js` · `planner.test.js` · `play.test.js` · `pokemon-bridge.test.js` · `pokemon-provider-client.test.js` · `rl-dataset.test.js` · `rom-band.test.js` · `run.test.js` · `run_history.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js` · `ui_style.test.js` · `worker-runtime.test.js` · `worker.test.js`
 
 ## Prior art elsewhere (from ECOSYSTEM.json)
 

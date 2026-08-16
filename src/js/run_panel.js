@@ -1264,10 +1264,39 @@
 		});
 	}
 
+	function planningFight(trainer) {
+		if (!lastStatus) return null;
+		var fights = (lastStatus.upcoming || []).slice();
+		if (lastStatus.splitPrep && Array.isArray(lastStatus.splitPrep.gauntlet)) {
+			fights = fights.concat(lastStatus.splitPrep.gauntlet);
+		}
+		if (trainer) {
+			return fights.filter(function (fight) { return fight.trainer === trainer; })[0] || null;
+		}
+		return lastStatus.status && lastStatus.status.next || fights[0] || null;
+	}
+
+	function embeddedForecast(trainer) {
+		var client = window.RunBunPokemonProviderClient;
+		var runtime = window.RunBunPokemonProvider;
+		var fight = planningFight(trainer);
+		if (!client || !runtime || !fight) return Promise.resolve(null);
+		return client.planRun({
+			runtime: runtime,
+			run: state,
+			// The app's route map is zero-based (#0 is Calvin); the canonical
+			// pokemon-mono bridge is one-based (order 1 is the same fight).
+			trainerOrder: fight.order + 1,
+			revision: currentRevision === null ? logLength() : currentRevision,
+		}).catch(function (error) { return {error: error}; });
+	}
+
 	function plan(trainer) {
 		var body = {run: state};
 		if (trainer) body.trainer = trainer;
-		api('/run/plan', body).then(function (result) {
+		return Promise.all([api('/run/plan', body), embeddedForecast(trainer)]).then(function (answers) {
+			var result = answers[0];
+			var forecast = answers[1];
 			$('#runbun-run-plan-verdict').text(
 				result.confidence === 'contested' ?
 					result.trainer + ' — contested by ' + result.margin + '. Plan for both.' :
@@ -1282,6 +1311,25 @@
 					.append($('<span class="runbun-run-action-score"></span>').text(action.score.toFixed(2)))
 					.append($('<span class="runbun-run-action-label"></span>').text(action.label)));
 			});
+			if (forecast && forecast.error) {
+				$actions.append($('<div class="runbun-run-action is-provider"></div>')
+					.append($('<span class="runbun-run-action-score"></span>').text('—'))
+					.append($('<span class="runbun-run-action-label"></span>')
+						.text('pokemon-mono seed check unavailable · ' + forecast.error.message)));
+			} else if (forecast) {
+				var summary = forecast.receipt.result.summary;
+				var lead = findBoxed(summary.recommendedLeadId);
+				var branchLabel = summary.safeBranches + '/' + summary.branchesEvaluated +
+					' branches deathless';
+				var risk = forecast.receipt.result.safe ? 'whole branch safe' :
+					'worst branch loses ' + summary.deaths;
+				$actions.prepend($('<div class="runbun-run-action is-provider is-top"></div>')
+					.append($('<span class="runbun-run-action-score"></span>')
+						.text(summary.safeBranches + '/' + summary.branchesEvaluated))
+					.append($('<span class="runbun-run-action-label"></span>')
+						.text('pokemon-mono · lead ' + (lead ? monLabel(lead) : summary.recommendedLeadId) +
+							' · ' + branchLabel + ' · ' + risk)));
+			}
 			stamp('plan');
 		}).catch(function (error) {
 			status(error.message, 'error');

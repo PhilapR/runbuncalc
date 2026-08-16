@@ -113,6 +113,34 @@ async function selectManualMap(page, map) {
 	await page.selectOption('#runbun-run-map', map);
 }
 
+test('the page plans through the pinned pokemon-mono browser provider', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+	assert.deepEqual(await page.evaluate(() => ({
+		repository: window.RunBunPokemonProvider.metadata.repository,
+		revision: window.RunBunPokemonProvider.metadata.engineRevision,
+		plan: typeof window.RunBunPokemonProvider.provider.plan,
+	})), {
+		repository: 'pokemon-mono',
+		revision: '112b916cf01732c5edba5b3ed1b24535369b4844',
+		plan: 'function',
+	});
+
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(() => !document.querySelector('#runbun-run-plan').disabled,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-plan');
+	await page.waitForSelector('#runbun-run-plan-actions .is-provider', {timeout: 30000});
+	assert.match(await page.textContent('#runbun-run-plan-actions'),
+		/pokemon-mono · lead Treecko L5 · \d+\/8 branches deathless/);
+	assert.deepEqual(session.errors, []);
+	await session.context.close();
+});
+
 test('a new run presents the next valid decision before the fight', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
