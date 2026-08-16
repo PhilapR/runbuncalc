@@ -11,7 +11,7 @@
   "lanes": {
     "app": {
       "repository": "runbuncalc",
-      "revision": "1339625fcd0c86ddc8d7346ef9658052ebb023e0"
+      "revision": "3debde2065ec8541bc654bd1a825cdb28adb0e3b"
     },
     "engine": {
       "repository": "pokemon-mono",
@@ -28,6 +28,19 @@
     "contractReceipt": "attribution-receipt.json",
     "providerReceipt": "seeded-provider-attribution-receipt.json"
   },
+  "deploymentReceipt": {
+    "provider": "cloudflare-workers",
+    "url": "https://runbun.rago-philip.workers.dev",
+    "versionId": "a273f15d-cbd9-4e9d-a388-67a2b4f64559",
+    "deployedAt": "2026-08-16T19:19:09.437Z",
+    "revision": "3debde2065ec8541bc654bd1a825cdb28adb0e3b",
+    "modelVersion": "2.0.0",
+    "rollbackVersionId": "1c164be8-ae75-4bff-959e-c541b3d1bf13",
+    "runtime": {
+      "wrangler": "4.122.0",
+      "workerd": "2026-08-11"
+    }
+  },
   "gates": {
     "providerDeterministicRepeat": true,
     "providerReceiptLocked": true,
@@ -40,13 +53,20 @@
     "attributionRenderedMobile": true,
     "historySeparationRendered": true,
     "rendered": true,
-    "privateDeploymentVerified": false
+    "exactRuntimeGate": true,
+    "privateDeploymentVerified": true,
+    "productionAnonymousDenied": true,
+    "productionAuthenticatedMetadata": true,
+    "productionRunTransaction": true,
+    "productionAiValidation": true,
+    "productionRenderedAttribution": true,
+    "capabilityRegistered": false
   },
   "nonClaims": [
     "Participation is not carry.",
     "A bounded sample is not whole-branch certification.",
     "The attribution capability is not registered in stochastic-inference-core.",
-    "The browser acceptance evidence is local and does not prove private deployment.",
-    "The exact app revision has not passed private deployment smoke checks."
+    "Private deployment does not promote the attribution provider into stochastic-inference-core.",
+    "The rendered fixed-seed attribution sample is not a historical carry claim."
   ]
 }

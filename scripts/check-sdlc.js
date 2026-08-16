@@ -194,7 +194,7 @@ assert.equal(localAttribution.status, 'implementation-tested-browser-proven-loca
 assert.equal(localAttribution.contract.revision, lock.revision);
 assert.equal(localAttribution.contract.digest, lock.digest);
 assert.equal(localAttribution.lanes.app.revision,
-	'1339625fcd0c86ddc8d7346ef9658052ebb023e0');
+	'3debde2065ec8541bc654bd1a825cdb28adb0e3b');
 assert.equal(localAttribution.lanes.engine.revision, providerProvenance.revision);
 assert.equal(localAttribution.lanes.control.revision,
 	'3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c');
@@ -210,7 +210,28 @@ assert.equal(localAttribution.gates.attributionRenderedDesktop, true);
 assert.equal(localAttribution.gates.attributionRenderedMobile, true);
 assert.equal(localAttribution.gates.historySeparationRendered, true);
 assert.equal(localAttribution.gates.rendered, true);
-assert.equal(localAttribution.gates.privateDeploymentVerified, false);
+assert.equal(localAttribution.deploymentReceipt.provider, 'cloudflare-workers');
+assert.equal(localAttribution.deploymentReceipt.url,
+	'https://runbun.rago-philip.workers.dev');
+assert.equal(localAttribution.deploymentReceipt.versionId,
+	'a273f15d-cbd9-4e9d-a388-67a2b4f64559');
+assert.equal(localAttribution.deploymentReceipt.deployedAt,
+	'2026-08-16T19:19:09.437Z');
+assert.equal(localAttribution.deploymentReceipt.revision,
+	localAttribution.lanes.app.revision);
+assert.equal(localAttribution.deploymentReceipt.modelVersion, '2.0.0');
+assert.equal(localAttribution.deploymentReceipt.rollbackVersionId,
+	'1c164be8-ae75-4bff-959e-c541b3d1bf13');
+assert.equal(localAttribution.deploymentReceipt.runtime.wrangler, '4.122.0');
+assert.equal(localAttribution.deploymentReceipt.runtime.workerd, '2026-08-11');
+assert.equal(localAttribution.gates.exactRuntimeGate, true);
+assert.equal(localAttribution.gates.privateDeploymentVerified, true);
+assert.equal(localAttribution.gates.productionAnonymousDenied, true);
+assert.equal(localAttribution.gates.productionAuthenticatedMetadata, true);
+assert.equal(localAttribution.gates.productionRunTransaction, true);
+assert.equal(localAttribution.gates.productionAiValidation, true);
+assert.equal(localAttribution.gates.productionRenderedAttribution, true);
+assert.equal(localAttribution.gates.capabilityRegistered, false);
 assert.equal(matrix.promotion.browserProviderParity, true);
 assert.equal(matrix.promotion.singleBatchParity, true);
 assert.equal(matrix.promotion.sixPokemonBenchmark, true);
