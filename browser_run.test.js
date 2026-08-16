@@ -150,6 +150,7 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 			return plan(request);
 		};
 	});
+	const revisionBeforePlan = (await durableHead(page)).revision;
 	await page.click('#runbun-run-plan');
 	await page.waitForSelector('#runbun-run-plan-actions .is-provider', {timeout: 30000});
 	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrders[0]), 3,
@@ -162,6 +163,23 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 		/PARTIAL PLAN · Pokemon Mono · lead Treecko L5 · \d+\/8 sampled branches deathless/);
 	assert.match(await page.textContent('#runbun-run-plan-outlook'),
 		/bounded eight-seed checks, not certified safe routes/);
+	assert.equal(await page.textContent('#runbun-run-plan-evidence'),
+		'3 simulator receipts saved with this attempt.');
+	const retained = await page.evaluate(async attemptId => {
+		const store = window.RunBunAttemptStore.getDefault();
+		return {
+			head: await store.loadActive(),
+			evidence: await store.listEvidence(attemptId),
+		};
+	}, (await durableHead(page)).attemptId);
+	assert.equal(retained.head.revision, revisionBeforePlan,
+		'read-only planning must not advance the game-state revision');
+	assert.equal(retained.evidence.length, 3);
+	assert.deepEqual(retained.evidence.map(record => record.receipt.input.revision),
+		[revisionBeforePlan, revisionBeforePlan, revisionBeforePlan]);
+	assert.equal(retained.evidence.every(record =>
+		record.schemaVersion === 'rabrun.evidence/1.0.0' &&
+		/^[a-f0-9]{64}$/.test(record.evidenceHash)), true);
 	assert.deepEqual(session.errors, []);
 	await session.context.close();
 });
@@ -308,20 +326,22 @@ test('IndexedDB is authoritative and exports a checked replay archive', {skip}, 
 			request.onsuccess = () => resolve(request.result);
 			request.onerror = () => reject(request.error);
 		});
-		const tx = db.transaction(['events', 'snapshots', 'idempotency'], 'readonly');
+		const tx = db.transaction(['events', 'snapshots', 'idempotency', 'evidence'], 'readonly');
 		const result = {
 			databaseVersion: db.version,
 			events: Array.from(tx.objectStore('events').indexNames),
 			snapshots: Array.from(tx.objectStore('snapshots').indexNames),
 			idempotency: Array.from(tx.objectStore('idempotency').indexNames),
+			evidence: Array.from(tx.objectStore('evidence').indexNames),
 		};
 		db.close();
 		return result;
 	}), {
-		databaseVersion: 2,
+		databaseVersion: 3,
 		events: ['byAttempt', 'byAttemptRevision'],
 		snapshots: ['byAttempt', 'byAttemptRevision'],
 		idempotency: ['byAttempt'],
+		evidence: ['byAttempt'],
 	});
 
 	// Delete only the compatibility mirror. Reload must recover the IndexedDB

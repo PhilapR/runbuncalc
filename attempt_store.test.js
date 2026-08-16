@@ -7,6 +7,9 @@ const runtime = require('./run');
 const adapter = require('./game-runtime-adapter');
 const littleroot = require('./fixtures/runtime-contract/littleroot-replay.json');
 const legacyArchive = require('./fixtures/runtime-contract/rabrun-archive-v1.json');
+const planningRequest = require('./contracts/ecosystem/v1/planning-request.json');
+const planningReceipt = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
+const TIME = '2026-08-15T00:00:00.000Z';
 
 function sortValue(value) {
 	if (Array.isArray(value)) return value.map(sortValue);
@@ -98,6 +101,85 @@ test('export includes a portable checksum and rejects corruption', async () => {
 	nestedBundle.events[0].payload.checksum = 'tampered';
 	await assert.rejects(() => nested.validateBundle(nestedBundle),
 		error => error.code === 'CORRUPT_BUNDLE');
+});
+
+test('planning receipts are content-addressed evidence, not run revisions', async () => {
+	const store = Store.createMemoryStore();
+	const request = JSON.parse(JSON.stringify(planningRequest));
+	const receipt = JSON.parse(JSON.stringify(planningReceipt));
+	request.attempt.revision = 1;
+	receipt.input.revision = 1;
+	await started(store, request.attempt.attemptId);
+	const before = await store.loadActive();
+	const first = await store.recordEvidence({
+		request, receipt, recordedAt: TIME,
+	});
+	assert.equal(first.duplicate, false);
+	assert.equal(first.schemaVersion, Store.EVIDENCE_SCHEMA);
+	assert.match(first.evidenceHash, /^[a-f0-9]{64}$/);
+	assert.equal((await store.loadActive()).revision, before.revision,
+		'read-only planning evidence must not advance game state');
+
+	const duplicate = await store.recordEvidence({
+		request, receipt, recordedAt: '2026-08-16T01:00:00.000Z',
+	});
+	assert.equal(duplicate.duplicate, true);
+	assert.equal((await store.listEvidence(request.attempt.attemptId)).length, 1);
+
+	const bundle = await store.exportActive();
+	assert.equal(bundle.manifest.evidenceCount, 1);
+	assert.equal(bundle.evidence[0].receipt.receiptId, receipt.receiptId);
+	assert.equal(await store.validateBundle(bundle), true);
+	const restarted = Store.createMemoryStore();
+	await restarted.importBundle(bundle);
+	assert.deepEqual(await restarted.listEvidence(request.attempt.attemptId),
+		bundle.evidence);
+
+	const corrupted = JSON.parse(JSON.stringify(bundle));
+	corrupted.evidence[0].receipt.result.safe = !corrupted.evidence[0].receipt.result.safe;
+	await assert.rejects(() => store.validateBundle(rechecksum(corrupted)),
+		error => error.code === 'CORRUPT_EVIDENCE');
+
+	const conflictingReceipt = JSON.parse(JSON.stringify(receipt));
+	conflictingReceipt.result.safe = !conflictingReceipt.result.safe;
+	await assert.rejects(() => store.recordEvidence({
+		request, receipt: conflictingReceipt, recordedAt: TIME,
+	}), error => error.code === 'EVIDENCE_CONFLICT');
+});
+
+test('planning evidence batches are atomic and preserve caller order', async () => {
+	const store = Store.createMemoryStore();
+	const request = JSON.parse(JSON.stringify(planningRequest));
+	const receipt = JSON.parse(JSON.stringify(planningReceipt));
+	request.attempt.revision = 1;
+	receipt.input.revision = 1;
+	await started(store, request.attempt.attemptId);
+	const secondRequest = JSON.parse(JSON.stringify(request));
+	const secondReceipt = JSON.parse(JSON.stringify(receipt));
+	secondRequest.requestId += '-second';
+	secondReceipt.requestId = secondRequest.requestId;
+	secondReceipt.receiptId += '-second';
+	const records = await store.recordEvidenceBatch([
+		{request, receipt, recordedAt: TIME},
+		{request: secondRequest, receipt: secondReceipt, recordedAt: TIME},
+	]);
+	assert.deepEqual(records.map(record => record.receipt.requestId),
+		[request.requestId, secondRequest.requestId]);
+	assert.deepEqual(records.map(record => record.duplicate), [false, false]);
+
+	const thirdRequest = JSON.parse(JSON.stringify(request));
+	const thirdReceipt = JSON.parse(JSON.stringify(receipt));
+	thirdRequest.requestId += '-third';
+	thirdReceipt.requestId = thirdRequest.requestId;
+	thirdReceipt.receiptId += '-third';
+	const conflict = JSON.parse(JSON.stringify(receipt));
+	conflict.result.safe = !conflict.result.safe;
+	await assert.rejects(() => store.recordEvidenceBatch([
+		{request: thirdRequest, receipt: thirdReceipt, recordedAt: TIME},
+		{request, receipt: conflict, recordedAt: TIME},
+	]), error => error.code === 'EVIDENCE_CONFLICT');
+	assert.equal((await store.listEvidence(request.attempt.attemptId)).length, 2,
+		'a rejected batch must not retain its non-conflicting prefix');
 });
 
 test('long attempts checkpoint every 50 revisions with content-addressed states', async () => {

@@ -12,7 +12,8 @@
 	var VERSION = 1;
 	var MODEL_VERSION = '2.0.0';
 	var DB_NAME = 'runbun-attempts';
-	var DB_VERSION = 2;
+	var DB_VERSION = 3;
+	var EVIDENCE_SCHEMA = 'rabrun.evidence/1.0.0';
 	var SNAPSHOT_INTERVAL = 50;
 	var SNAPSHOT_KINDS = ['run.started', 'run.migrated', 'run.imported', 'run.replaced'];
 	var defaultStore = null;
@@ -273,7 +274,8 @@
 	}
 
 	function makeMemoryState() {
-		return {heads: {}, events: [], snapshots: [], idempotency: {}, archives: {}, activeAttemptId: null};
+		return {heads: {}, events: [], snapshots: [], idempotency: {}, evidence: {},
+			archives: {}, activeAttemptId: null};
 	}
 
 	function serial(initial) {
@@ -301,6 +303,7 @@
 
 	function makeBundle(inspected) {
 		if (!inspected || !inspected.head) return null;
+		var evidence = clone(inspected.evidence || []);
 		return {
 			format: SCHEMA,
 			schema: SCHEMA,
@@ -314,10 +317,12 @@
 			events: clone(inspected.events),
 			snapshots: clone(inspected.snapshots),
 			idempotency: clone(inspected.idempotency),
+			evidence: evidence,
 			manifest: {
 				eventCount: inspected.events.length,
 				snapshotCount: inspected.snapshots.length,
 				idempotencyCount: inspected.idempotency.length,
+				evidenceCount: evidence.length,
 				headStateHash: inspected.head.stateHash,
 				headEventHash: inspected.head.lastEventHash,
 				headLogLength: Array.isArray(inspected.head.run.log) ? inspected.head.run.log.length : null,
@@ -354,6 +359,133 @@
 				return ('00' + byte.toString(16)).slice(-2);
 			}).join('');
 		});
+	}
+
+	function evidenceHashInput(record) {
+		return canonical({
+			schemaVersion: record.schemaVersion,
+			evidenceId: record.evidenceId,
+			attemptId: record.attemptId,
+			attemptRevision: record.attemptRevision,
+			stateHash: record.stateHash,
+			kind: record.kind,
+			request: record.request,
+			receipt: record.receipt,
+		});
+	}
+
+	function validatePlanningEvidence(input) {
+		if (!isObject(input)) throw error('Planning evidence is required.', 'INVALID_EVIDENCE');
+		var request = input.request;
+		var receipt = input.receipt;
+		if (!isObject(request) || request.capability !== 'pokemon.rab.plan' ||
+			!isObject(request.attempt) || !isObject(request.task) ||
+			request.task.kind !== 'plan' || !isObject(request.task.state) ||
+			!isObject(request.profile) || typeof request.profile.revision !== 'string' ||
+			!request.profile.revision || !Array.isArray(request.task.state.playerTeam) ||
+			!request.task.state.playerTeam.length || request.task.state.playerTeam.length > 6 ||
+			!isObject(request.task.state.trainer) ||
+			!Number.isInteger(request.task.state.trainer.order) ||
+			request.task.state.trainer.order < 1 || !Array.isArray(request.task.seeds) ||
+			!request.task.seeds.length || request.task.seeds.length > 4096) {
+			throw error('Planning evidence request is invalid.', 'INVALID_EVIDENCE');
+		}
+		var seedSet = {};
+		request.task.seeds.forEach(function (seed) {
+			if (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff || seedSet[seed]) {
+				throw error('Planning evidence seeds must be unique UINT32 values.', 'INVALID_EVIDENCE');
+			}
+			seedSet[seed] = true;
+		});
+		if (!isObject(receipt) || receipt.requestId !== request.requestId ||
+			!isObject(receipt.producer) || receipt.producer.repository !== 'pokemon-mono' ||
+			typeof receipt.producer.revision !== 'string' || !receipt.producer.revision ||
+			!isObject(receipt.input) || !isObject(receipt.result) ||
+			!isObject(receipt.result.summary) || !isObject(receipt.evidence)) {
+			throw error('Planning evidence receipt is invalid.', 'INVALID_EVIDENCE');
+		}
+		var summary = receipt.result.summary;
+		if (receipt.input.attemptId !== request.attempt.attemptId ||
+			receipt.input.revision !== request.attempt.revision ||
+			receipt.input.stateHash !== request.attempt.stateHash ||
+			receipt.input.profileRevision !== request.profile.revision ||
+			canonical(receipt.input.seeds) !== canonical(request.task.seeds) ||
+			summary.trainerOrder !== request.task.state.trainer.order ||
+			!Array.isArray(summary.branchOutcomes) ||
+			summary.branchOutcomes.length !== request.task.seeds.length ||
+			summary.branchesEvaluated !== summary.branchOutcomes.length ||
+			!(/^[a-f0-9]{64}$/).test(receipt.result.outputHash || '') ||
+			!(/^[a-f0-9]{64}$/).test(receipt.evidence.replayHash || '') ||
+			receipt.evidence.deterministic !== true ||
+			!Array.isArray(receipt.evidence.unexpectedDivergences) ||
+			receipt.evidence.unexpectedDivergences.length) {
+			throw error('Planning evidence does not bind to its request.', 'INVALID_EVIDENCE');
+		}
+		var evidenceId = receipt.receiptId || 'pokemon.rab.plan:' + request.requestId;
+		if (typeof evidenceId !== 'string' || !evidenceId ||
+			typeof request.attempt.attemptId !== 'string' || !request.attempt.attemptId ||
+			!Number.isInteger(request.attempt.revision) || request.attempt.revision < 0 ||
+			!(/^[a-f0-9]{64}$/).test(request.attempt.stateHash || '')) {
+			throw error('Planning evidence identity is invalid.', 'INVALID_EVIDENCE');
+		}
+		var recordedAt = input.recordedAt || now();
+		if (typeof recordedAt !== 'string' || Number.isNaN(Date.parse(recordedAt))) {
+			throw error('Planning evidence recordedAt must be an ISO timestamp.', 'INVALID_EVIDENCE');
+		}
+		return {
+			id: request.attempt.attemptId + '::' + evidenceId,
+			schemaVersion: EVIDENCE_SCHEMA,
+			evidenceId: evidenceId,
+			attemptId: request.attempt.attemptId,
+			attemptRevision: request.attempt.revision,
+			stateHash: request.attempt.stateHash,
+			kind: 'pokemon.rab.plan',
+			recordedAt: recordedAt,
+			request: clone(request),
+			receipt: clone(receipt),
+		};
+	}
+
+	function prepareEvidence(input) {
+		var record = validatePlanningEvidence(input);
+		return sha256(evidenceHashInput(record)).then(function (evidenceHash) {
+			record.evidenceHash = evidenceHash;
+			return record;
+		});
+	}
+
+	function prepareEvidenceBatch(inputs) {
+		if (!Array.isArray(inputs) || !inputs.length || inputs.length > 1024) {
+			return Promise.reject(error('Evidence batch must contain 1 through 1024 records.',
+				'INVALID_EVIDENCE'));
+		}
+		return Promise.all(inputs.map(prepareEvidence)).then(function (records) {
+			var attemptId = records[0].attemptId;
+			var ids = {};
+			records.forEach(function (record) {
+				if (record.attemptId !== attemptId) {
+					throw error('Evidence batch must belong to one attempt.', 'INVALID_EVIDENCE');
+				}
+				if (ids[record.id]) throw error('Evidence batch IDs must be unique.', 'INVALID_EVIDENCE');
+				ids[record.id] = true;
+			});
+			return records;
+		});
+	}
+
+	function validateEvidenceShape(record, attemptId) {
+		if (!isObject(record) || record.schemaVersion !== EVIDENCE_SCHEMA ||
+			record.kind !== 'pokemon.rab.plan' || record.attemptId !== attemptId ||
+			record.id !== record.attemptId + '::' + record.evidenceId ||
+			!Number.isInteger(record.attemptRevision) || record.attemptRevision < 0 ||
+			!(/^[a-f0-9]{64}$/).test(record.stateHash || '') ||
+			!(/^[a-f0-9]{64}$/).test(record.evidenceHash || '') ||
+			!isObject(record.request) || !isObject(record.receipt) ||
+			record.request.requestId !== record.receipt.requestId) {
+			throw error('Archive planning evidence is invalid.', 'INVALID_BUNDLE');
+		}
+		validatePlanningEvidence({request: record.request, receipt: record.receipt,
+			recordedAt: record.recordedAt});
 	}
 
 	function addChecksum(bundle) {
@@ -475,6 +607,7 @@
 
 	function validateShape(bundle) {
 		var hashPattern = /^[a-f0-9]{64}$/;
+		var evidence = bundle && bundle.evidence === undefined ? [] : bundle && bundle.evidence;
 		if (!isObject(bundle) || (bundle.format || bundle.schema) !== SCHEMA ||
 			(bundle.version || bundle.schemaVersion) !== VERSION || bundle.modelVersion !== MODEL_VERSION) {
 			throw error('Unsupported archive bundle.', 'INVALID_BUNDLE');
@@ -489,6 +622,7 @@
 		}
 		if (attemptIdOf(bundle.head.run) !== bundle.attemptId || !Array.isArray(bundle.events) ||
 			!Array.isArray(bundle.snapshots) || !Array.isArray(bundle.idempotency) ||
+			!Array.isArray(evidence) ||
 			!isObject(bundle.run) ||
 			canonical(bundle.run) !== canonical(bundle.head.run)) {
 			throw error('Archive bundle contents are invalid.', 'INVALID_BUNDLE');
@@ -496,6 +630,8 @@
 		if (!isObject(bundle.manifest) || bundle.manifest.eventCount !== bundle.events.length ||
 			bundle.manifest.snapshotCount !== bundle.snapshots.length ||
 			bundle.manifest.idempotencyCount !== bundle.idempotency.length ||
+			(bundle.evidence === undefined ? bundle.manifest.evidenceCount !== undefined :
+				bundle.manifest.evidenceCount !== evidence.length) ||
 			bundle.manifest.headStateHash !== bundle.head.stateHash ||
 			bundle.manifest.headEventHash !== bundle.head.lastEventHash ||
 			bundle.manifest.headLogLength !== (Array.isArray(bundle.head.run.log) ? bundle.head.run.log.length : null)) {
@@ -531,6 +667,7 @@
 				typeof receipt.commandId !== 'string' || !receipt.commandId ||
 				!hashPattern.test(receipt.stateHash || '');
 		})) throw error('Archive idempotency receipt is invalid.', 'INVALID_BUNDLE');
+		evidence.forEach(function (record) { validateEvidenceShape(record, bundle.attemptId); });
 	}
 
 	function validateMaterializedLog(bundle) {
@@ -643,7 +780,18 @@
 						if (eventHashes.some(function (hash, index) { return hash !== bundle.events[index].eventHash; })) {
 							throw error('An archived event does not match its event hash.', 'CORRUPT_EVENT');
 						}
-						return true;
+						var evidence = bundle.evidence || [];
+						return Promise.all(evidence.map(function (record) {
+							return sha256(evidenceHashInput(record));
+						})).then(function (hashes) {
+							if (hashes.some(function (hash, index) {
+								return hash !== evidence[index].evidenceHash;
+							})) {
+								throw error('Archived planning evidence does not match its hash.',
+									'CORRUPT_EVIDENCE');
+							}
+							return true;
+						});
 					});
 				});
 			});
@@ -700,6 +848,10 @@
 					idempotency: Object.keys(state.idempotency).map(function (key) {
 						return state.idempotency[key];
 					}).filter(function (receipt) { return receipt.attemptId === id; }).map(clone),
+					evidence: Object.keys(state.evidence).map(function (key) {
+						return state.evidence[key];
+					}).filter(function (record) { return record.attemptId === id; })
+						.sort(function (a, b) { return a.recordedAt.localeCompare(b.recordedAt); }).map(clone),
 				};
 			});
 		}
@@ -711,6 +863,30 @@
 				});
 			});
 		}
+		function recordEvidenceBatch(inputs) {
+			return prepareEvidenceBatch(inputs).then(function (prepared) {
+				return enqueue(function () {
+					var head = state.heads[prepared[0].attemptId];
+					if (!head) throw error('Evidence attempt does not exist.', 'MISSING_ATTEMPT');
+					prepared.forEach(function (record) {
+						if (record.attemptRevision > head.revision) {
+							throw error('Evidence revision is ahead of the attempt.', 'INVALID_EVIDENCE');
+						}
+						var prior = state.evidence[record.id];
+						if (prior && prior.evidenceHash !== record.evidenceHash) {
+							throw error('Evidence identity was reused with different content.',
+								'EVIDENCE_CONFLICT');
+						}
+					});
+					return prepared.map(function (record) {
+						var prior = state.evidence[record.id];
+						if (prior) return Object.assign(clone(prior), {duplicate: true});
+						state.evidence[record.id] = clone(record);
+						return Object.assign(clone(record), {duplicate: false});
+					});
+				});
+			});
+		}
 		return {
 			commit: function (input) {
 				var prepared = validateCommit(input);
@@ -718,6 +894,10 @@
 					return enqueue(function () { return commitMemory(state, prepared); });
 				});
 			},
+			recordEvidence: function (input) {
+				return recordEvidenceBatch([input]).then(function (records) { return records[0]; });
+			},
+			recordEvidenceBatch: recordEvidenceBatch,
 			loadActive: function () {
 				return enqueue(function () { return state.activeAttemptId && state.heads[state.activeAttemptId] ? clone(state.heads[state.activeAttemptId]) : null; });
 			},
@@ -735,6 +915,13 @@
 						var existing = state.heads[id];
 						if (existing) {
 							if (canonical(existing) !== canonical(incoming.head)) throw error('Attempt already exists with different state.', 'IMPORT_CONFLICT');
+							(incoming.evidence || []).forEach(function (record) {
+								var prior = state.evidence[record.id];
+								if (prior && prior.evidenceHash !== record.evidenceHash) {
+									throw error('Imported evidence conflicts with this attempt.', 'EVIDENCE_CONFLICT');
+								}
+								state.evidence[record.id] = clone(record);
+							});
 							state.activeAttemptId = id;
 							return {attemptId: id, revision: existing.revision, run: clone(existing.run), duplicate: true};
 						}
@@ -743,6 +930,9 @@
 						incoming.snapshots.forEach(function (snapshot) { state.snapshots.push(clone(snapshot)); });
 						incoming.idempotency.forEach(function (receipt) {
 							state.idempotency[receipt.id] = clone(receipt);
+						});
+						(incoming.evidence || []).forEach(function (record) {
+							state.evidence[record.id] = clone(record);
 						});
 						state.activeAttemptId = id;
 						return {attemptId: id, revision: incoming.head.revision, run: clone(incoming.head.run), duplicate: false};
@@ -780,6 +970,15 @@
 					}));
 				});
 			},
+			listEvidence: function (attemptId) {
+				var id = String(attemptId);
+				return enqueue(function () {
+					return Object.keys(state.evidence).map(function (key) { return state.evidence[key]; })
+						.filter(function (record) { return record.attemptId === id; })
+						.sort(function (a, b) { return a.recordedAt.localeCompare(b.recordedAt); })
+						.map(clone);
+				});
+			},
 			replayBundle: replayBundle,
 		};
 	}
@@ -806,6 +1005,7 @@
 				if (!db.objectStoreNames.contains('events')) db.createObjectStore('events', {keyPath: 'id'});
 				if (!db.objectStoreNames.contains('snapshots')) db.createObjectStore('snapshots', {keyPath: 'id'});
 				if (!db.objectStoreNames.contains('idempotency')) db.createObjectStore('idempotency', {keyPath: 'id'});
+				if (!db.objectStoreNames.contains('evidence')) db.createObjectStore('evidence', {keyPath: 'id'});
 				if (!db.objectStoreNames.contains('archives')) db.createObjectStore('archives', {keyPath: 'archiveId'});
 				if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', {keyPath: 'key'});
 				var upgrade = request.transaction;
@@ -814,6 +1014,7 @@
 				ensureIndex(upgrade.objectStore('snapshots'), 'byAttempt', 'attemptId');
 				ensureIndex(upgrade.objectStore('snapshots'), 'byAttemptRevision', ['attemptId', 'revision'], {unique: true});
 				ensureIndex(upgrade.objectStore('idempotency'), 'byAttempt', 'attemptId');
+				ensureIndex(upgrade.objectStore('evidence'), 'byAttempt', 'attemptId');
 				ensureIndex(upgrade.objectStore('archives'), 'byAttempt', 'attemptId');
 				upgrade.objectStore('meta').put({key: 'schema', schema: SCHEMA, version: VERSION,
 					modelVersion: MODEL_VERSION, databaseVersion: DB_VERSION});
@@ -870,13 +1071,14 @@
 	function createIndexedStore() {
 		var enqueue = serial();
 		function inspectAttempt(attemptId) {
-			return transaction(['heads', 'events', 'snapshots', 'idempotency'], 'readonly', function (tx) {
+			return transaction(['heads', 'events', 'snapshots', 'idempotency', 'evidence'], 'readonly', function (tx) {
 				var id = String(attemptId);
 				return Promise.all([
 					requestValue(tx.objectStore('heads').get(id)),
 					requestByAttempt(tx.objectStore('events'), id),
 					requestByAttempt(tx.objectStore('snapshots'), id),
 					requestByAttempt(tx.objectStore('idempotency'), id),
+					requestByAttempt(tx.objectStore('evidence'), id),
 				]).then(function (values) {
 					if (!values[0]) return null;
 					return {
@@ -885,6 +1087,9 @@
 						events: values[1].sort(function (a, b) { return a.revision - b.revision; }),
 						snapshots: values[2].sort(function (a, b) { return a.revision - b.revision; }),
 						idempotency: values[3],
+						evidence: values[4].sort(function (a, b) {
+							return a.recordedAt.localeCompare(b.recordedAt);
+						}),
 					};
 				});
 			});
@@ -912,6 +1117,41 @@
 					return events.filter(function (event) {
 						return event.revision >= from && event.revision <= to;
 					}).sort(function (a, b) { return a.revision - b.revision; });
+				});
+			});
+		}
+		function recordEvidenceBatch(inputs) {
+			return prepareEvidenceBatch(inputs).then(function (prepared) {
+				return enqueue(function () {
+					return transaction(['heads', 'evidence'], 'readwrite', function (tx) {
+						return Promise.all([
+							requestValue(tx.objectStore('heads').get(prepared[0].attemptId)),
+							Promise.all(prepared.map(function (record) {
+								return requestValue(tx.objectStore('evidence').get(record.id));
+							})),
+						]).then(function (values) {
+							var head = values[0];
+							var priorRecords = values[1];
+							if (!head) throw error('Evidence attempt does not exist.', 'MISSING_ATTEMPT');
+							prepared.forEach(function (record, index) {
+								if (record.attemptRevision > head.revision) {
+									throw error('Evidence revision is ahead of the attempt.', 'INVALID_EVIDENCE');
+								}
+								if (priorRecords[index] &&
+									priorRecords[index].evidenceHash !== record.evidenceHash) {
+									throw error('Evidence identity was reused with different content.',
+										'EVIDENCE_CONFLICT');
+								}
+							});
+							return prepared.map(function (record, index) {
+								if (priorRecords[index]) {
+									return Object.assign(clone(priorRecords[index]), {duplicate: true});
+								}
+								tx.objectStore('evidence').put(record);
+								return Object.assign(clone(record), {duplicate: false});
+							});
+						});
+					});
 				});
 			});
 		}
@@ -971,6 +1211,10 @@
 					});
 				});
 			},
+			recordEvidence: function (input) {
+				return recordEvidenceBatch([input]).then(function (records) { return records[0]; });
+			},
+			recordEvidenceBatch: recordEvidenceBatch,
 			loadActive: function () {
 				return transaction(['heads', 'meta'], 'readonly', function (tx) {
 					return requestValue(tx.objectStore('meta').get('activeAttemptId')).then(function (active) {
@@ -991,19 +1235,36 @@
 			importBundle: function (bundle) {
 				return upgradeBundle(bundle).then(function (incoming) {
 					return enqueue(function () {
-						return transaction(['heads', 'events', 'snapshots', 'idempotency', 'meta'], 'readwrite', function (tx) {
+						return transaction(['heads', 'events', 'snapshots', 'idempotency', 'evidence', 'meta'], 'readwrite', function (tx) {
 							var heads = tx.objectStore('heads');
 							return requestValue(heads.get(incoming.attemptId)).then(function (existing) {
 								if (existing) {
 									if (canonical(existing) !== canonical(incoming.head)) throw error('Attempt already exists with different state.', 'IMPORT_CONFLICT');
-									tx.objectStore('meta').put({key: 'activeAttemptId', value: incoming.attemptId});
-									return {attemptId: incoming.attemptId, revision: existing.revision, run: clone(existing.run), duplicate: true};
+									var records = incoming.evidence || [];
+									return Promise.all(records.map(function (record) {
+										return requestValue(tx.objectStore('evidence').get(record.id));
+									})).then(function (priorRecords) {
+										records.forEach(function (record, index) {
+											if (priorRecords[index] &&
+												priorRecords[index].evidenceHash !== record.evidenceHash) {
+												throw error('Imported evidence conflicts with this attempt.',
+													'EVIDENCE_CONFLICT');
+											}
+											tx.objectStore('evidence').put(clone(record));
+										});
+										tx.objectStore('meta').put({key: 'activeAttemptId', value: incoming.attemptId});
+										return {attemptId: incoming.attemptId, revision: existing.revision,
+											run: clone(existing.run), duplicate: true};
+									});
 								}
 								heads.put(clone(incoming.head));
 								incoming.events.forEach(function (event) { tx.objectStore('events').put(clone(event)); });
 								incoming.snapshots.forEach(function (snapshot) { tx.objectStore('snapshots').put(clone(snapshot)); });
 								incoming.idempotency.forEach(function (receipt) {
 									tx.objectStore('idempotency').put(clone(receipt));
+								});
+								(incoming.evidence || []).forEach(function (record) {
+									tx.objectStore('evidence').put(clone(record));
 								});
 								tx.objectStore('meta').put({key: 'activeAttemptId', value: incoming.attemptId});
 								return {attemptId: incoming.attemptId, revision: incoming.head.revision, run: clone(incoming.head.run), duplicate: false};
@@ -1034,6 +1295,13 @@
 			},
 			inspectAttempt: inspectAttempt,
 			listEvents: listEvents,
+			listEvidence: function (attemptId) {
+				return transaction(['evidence'], 'readonly', function (tx) {
+					return requestByAttempt(tx.objectStore('evidence'), String(attemptId)).then(function (records) {
+						return records.sort(function (a, b) { return a.recordedAt.localeCompare(b.recordedAt); });
+					});
+				});
+			},
 			replayBundle: replayBundle,
 		};
 	}
@@ -1053,10 +1321,13 @@
 		DB_NAME: DB_NAME,
 		DB_VERSION: DB_VERSION,
 		MODEL_VERSION: MODEL_VERSION,
+		EVIDENCE_SCHEMA: EVIDENCE_SCHEMA,
 		SNAPSHOT_INTERVAL: SNAPSHOT_INTERVAL,
 		createMemoryStore: createMemoryStore,
 		getDefault: getDefault,
 		commit: delegate('commit'),
+		recordEvidence: delegate('recordEvidence'),
+		recordEvidenceBatch: delegate('recordEvidenceBatch'),
 		loadActive: delegate('loadActive'),
 		exportActive: delegate('exportActive'),
 		exportAttempt: delegate('exportAttempt'),
@@ -1068,6 +1339,7 @@
 		importArchives: delegate('importArchives'),
 		inspectAttempt: delegate('inspectAttempt'),
 		listEvents: delegate('listEvents'),
+		listEvidence: delegate('listEvidence'),
 		replayBundle: replayBundle,
 	};
 });

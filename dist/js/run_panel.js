@@ -270,7 +270,8 @@
 	 * only says whose run it belongs to.
 	 */
 	var STALE_BLOCKS = {
-		plan: ['#runbun-run-plan-verdict', '#runbun-run-plan-actions'],
+		plan: ['#runbun-run-plan-verdict', '#runbun-run-plan-actions',
+			'#runbun-run-plan-evidence', '#runbun-run-plan-outlook'],
 		advice: ['.runbun-run-advice-block'],
 		rank: ['.runbun-run-rank-block'],
 		routes: ['.runbun-run-routes-block'],
@@ -1311,6 +1312,54 @@
 		}).catch(function (error) { return {error: error}; });
 	}
 
+	function retainForecastEvidence(forecasts) {
+		if (!Array.isArray(forecasts) || !forecasts.length) return Promise.resolve({count: 0});
+		if (!attemptStore || typeof attemptStore.recordEvidenceBatch !== 'function') {
+			return Promise.resolve({count: 0, unavailable: true});
+		}
+		var recordedAt = new Date().toISOString();
+		return attemptStore.recordEvidenceBatch(forecasts.map(function (forecast) {
+			return {
+				request: forecast.result.request,
+				receipt: forecast.result.receipt,
+				recordedAt: recordedAt,
+			};
+		})).then(function (records) {
+			return {
+				count: records.length,
+				duplicates: records.filter(function (record) { return record.duplicate; }).length,
+			};
+		}).catch(function (error) {
+			return {count: 0, error: error};
+		});
+	}
+
+	function renderPlanEvidence(retention) {
+		var $evidence = $('#runbun-run-plan-evidence').removeAttr('data-kind');
+		if (!retention) {
+			$evidence.text('');
+			return;
+		}
+		if (retention.error) {
+			$evidence.attr('data-kind', 'error')
+				.text('Plan shown · evidence was not saved: ' + retention.error.message);
+			return;
+		}
+		if (retention.unavailable) {
+			$evidence.attr('data-kind', 'error')
+				.text('Plan shown · durable evidence storage is unavailable.');
+			return;
+		}
+		if (retention.count) {
+			$evidence.attr('data-kind', 'saved').text(
+				retention.count + ' simulator receipt' + (retention.count === 1 ? '' : 's') +
+				' saved with this attempt' +
+				(retention.duplicates ? ' · ' + retention.duplicates + ' already present' : '') + '.');
+			return;
+		}
+		$evidence.text('');
+	}
+
 	function renderPlanOutlook(forecasts) {
 		var $outlook = $('#runbun-run-plan-outlook');
 		var $list = $('#runbun-run-plan-outlook-list').empty();
@@ -1337,6 +1386,11 @@
 		var body = {run: state};
 		if (trainer) body.trainer = trainer;
 		return Promise.all([api('/run/plan', body), embeddedForecasts(trainer)]).then(function (answers) {
+			return retainForecastEvidence(answers[1]).then(function (retention) {
+				return {answers: answers, retention: retention};
+			});
+		}).then(function (planned) {
+			var answers = planned.answers;
 			var result = answers[0];
 			var forecasts = answers[1];
 			var forecast = Array.isArray(forecasts) && forecasts.length ? forecasts[0].result : forecasts;
@@ -1378,8 +1432,10 @@
 			} else {
 				renderPlanOutlook(null);
 			}
+			renderPlanEvidence(planned.retention);
 			stamp('plan');
 		}).catch(function (error) {
+			renderPlanEvidence(null);
 			status(error.message, 'error');
 		});
 	}

@@ -1922,6 +1922,21 @@ table.field {
 	margin-top: var(--rb-space-md);
 }
 
+#runbun-run .runbun-run-plan-evidence:not(:empty) {
+	max-width: 44rem;
+	margin-top: var(--rb-space-xs);
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+}
+
+#runbun-run .runbun-run-plan-evidence[data-kind="saved"] {
+	color: var(--rb-oracle);
+}
+
+#runbun-run .runbun-run-plan-evidence[data-kind="error"] {
+	color: var(--rb-warn);
+}
+
 #runbun-run .runbun-run-plan-outlook-list {
 	list-style: none;
 	margin: 0;

@@ -5,6 +5,8 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const Store = require('./src/js/attempt_store');
 const dataset = require('./rl-dataset');
+const planningRequestFixture = require('./contracts/ecosystem/v1/planning-request.json');
+const planningReceiptFixture = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
 
 const TIME = '2026-08-15T00:00:00.000Z';
 
@@ -28,14 +30,23 @@ test('checked archives materialize into primitive episode, event, step and obser
 		event: event('command.applied', {command: {kind: 'tick'}})});
 	await store.commit({run: advanced, expectedRevision: 3, commandId: 'end',
 		event: event('run.ended', {outcome: 'wipe'})});
+	const planningRequest = JSON.parse(JSON.stringify(planningRequestFixture));
+	const planningReceipt = JSON.parse(JSON.stringify(planningReceiptFixture));
+	planningRequest.attempt.attemptId = 'rl-attempt';
+	planningRequest.attempt.revision = 4;
+	planningReceipt.input.attemptId = 'rl-attempt';
+	planningReceipt.input.revision = 4;
+	await store.recordEvidence({request: planningRequest, receipt: planningReceipt,
+		recordedAt: TIME});
 
 	const rows = await dataset.materialize(await store.exportActive(), {
 		reward: row => row.payload.command.kind === 'tick' ? -1 : 0,
 	});
-	assert.equal(rows.schemaVersion, '1.0.0');
+	assert.equal(rows.schemaVersion, '1.1.0');
 	assert.equal(rows.episodes[0].outcome, 'wipe');
 	assert.equal(rows.episodes[0].revision_count, 4);
 	assert.equal(rows.events.length, 4);
+	assert.equal(rows.episodes[0].evidence_count, 1);
 	assert.equal(rows.events[1].source_kind, 'emulator');
 	assert.equal(rows.events[1].frame, 42);
 	assert.deepEqual(rows.steps.map(row => ({action: row.action_kind,
@@ -51,6 +62,26 @@ test('checked archives materialize into primitive episode, event, step and obser
 	});
 	assert.equal(dataset.TABLE_SCHEMAS.events.revision, 'UINT32');
 	assert.equal(dataset.TABLE_SCHEMAS.steps.reward, 'FLOAT32?');
+	assert.equal(dataset.TABLE_SCHEMAS.planning_receipts.player_team_size, 'UINT8');
+	assert.equal(rows.planning_receipts.length, 1);
+	assert.deepEqual(rows.planning_receipts[0], {
+		attempt_id: 'rl-attempt', evidence_id: planningReceipt.receiptId,
+		attempt_revision: 4, state_hash: planningRequest.attempt.stateHash,
+		request_id: planningRequest.requestId, trainer_order: 1,
+		provider_revision: planningReceipt.producer.revision, seed_count: 1,
+		player_team_size: 1, candidates_evaluated: 1, branches_evaluated: 1,
+		safe_branches: 0, deaths: 1, losses: 1,
+		recommended_lead_id: 'owned-treecko-1', expected_turns: 5,
+		result_status: 'complete', safe: false,
+		output_hash: planningReceipt.result.outputHash,
+		replay_hash: planningReceipt.evidence.replayHash,
+		evidence_hash: (await store.listEvidence('rl-attempt'))[0].evidenceHash,
+	});
+	assert.deepEqual(rows.planning_branches, [{
+		attempt_id: 'rl-attempt', evidence_id: planningReceipt.receiptId,
+		request_id: planningRequest.requestId, branch_index: 0, seed: 1450,
+		victory: false, deaths: 1, turns: 5, total_hp_remaining: 0,
+	}]);
 	assert.match(dataset.ndjson(rows.steps), /"action_kind":"tick".*\n$/);
 });
 
@@ -72,4 +103,38 @@ test('5k-event materialization is deterministic and linear', {timeout: 30000}, a
 	assert.deepEqual(second, first);
 	assert.ok(Date.now() - started < 5000);
 	assert.ok(Buffer.byteLength(dataset.ndjson(first.events)) < 10 * 1024 * 1024);
+});
+
+test('maximum planning batch materializes into bounded typed evidence rows', {timeout: 30000}, async () => {
+	const store = Store.createMemoryStore();
+	const initial = {attemptId: 'rl-evidence-scale', profileId: 'run-and-bun', log: []};
+	await store.commit({run: initial, expectedRevision: 0, commandId: 'start',
+		event: event('run.started', {run: initial})});
+	const inputs = Array.from({length: 1024}, (_, index) => {
+		const request = JSON.parse(JSON.stringify(planningRequestFixture));
+		const receipt = JSON.parse(JSON.stringify(planningReceiptFixture));
+		request.requestId = `rl-scale-request-${index}`;
+		request.attempt.attemptId = initial.attemptId;
+		request.attempt.revision = 1;
+		request.task.seeds = [index];
+		receipt.receiptId = `rl-scale-receipt-${index}`;
+		receipt.requestId = request.requestId;
+		receipt.input.attemptId = initial.attemptId;
+		receipt.input.revision = 1;
+		receipt.input.seeds = [index];
+		receipt.result.summary.branchOutcomes[0].seed = index;
+		return {request, receipt, recordedAt: TIME};
+	});
+	const started = Date.now();
+	await store.recordEvidenceBatch(inputs);
+	const bundle = await store.exportActive();
+	const rows = await dataset.materialize(bundle);
+	assert.equal(bundle.manifest.eventCount, 1);
+	assert.equal(bundle.manifest.evidenceCount, 1024);
+	assert.equal(rows.episodes[0].evidence_count, 1024);
+	assert.equal(rows.planning_receipts.length, 1024);
+	assert.equal(rows.planning_branches.length, 1024);
+	assert.equal(rows.planning_receipts[1023].request_id, 'rl-scale-request-1023');
+	assert.ok(Date.now() - started < 5000);
+	assert.ok(Buffer.byteLength(JSON.stringify(bundle)) < 8 * 1024 * 1024);
 });
