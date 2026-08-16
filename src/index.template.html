@@ -2328,8 +2328,9 @@
         <div class="runbun-run-history-actions">
             <button type="button" id="runbun-run-undo" class="btn">Undo last action</button>
         </div>
-        <div id="runbun-run-battle" class="runbun-run-battle" hidden>
-            <div class="runbun-run-section-label">Battle — <span id="runbun-run-battle-trainer"></span><span id="runbun-run-battle-turn" class="runbun-run-battle-turn"></span></div>
+        <div id="runbun-run-battle" class="runbun-run-battle" role="region"
+            aria-labelledby="runbun-run-battle-heading" tabindex="-1" hidden>
+            <h3 id="runbun-run-battle-heading" class="runbun-run-section-label runbun-run-battle-heading">Battle — <span id="runbun-run-battle-trainer"></span><span id="runbun-run-battle-turn" class="runbun-run-battle-turn"></span></h3>
             <div class="runbun-run-battle-field">
                 <div class="runbun-run-battle-card is-foe">
                     <div class="runbun-run-battle-name" id="runbun-run-battle-foe-name"></div>
@@ -2344,9 +2345,9 @@
             </div>
             <div id="runbun-run-battle-prompt" class="runbun-run-battle-prompt"></div>
             <div id="runbun-run-battle-result" class="runbun-run-battle-result" role="status" aria-live="polite"></div>
-            <div id="runbun-run-battle-moves" class="runbun-run-battle-moves"></div>
-            <div id="runbun-run-battle-switches" class="runbun-run-battle-switches"></div>
-            <ul id="runbun-run-battle-log" class="runbun-run-battle-log" aria-live="polite"></ul>
+            <div id="runbun-run-battle-moves" class="runbun-run-battle-moves" role="group" aria-labelledby="runbun-run-battle-prompt"></div>
+            <div id="runbun-run-battle-switches" class="runbun-run-battle-switches" role="group" aria-label="Available switches"></div>
+            <ul id="runbun-run-battle-log" class="runbun-run-battle-log" aria-label="Battle log" aria-live="polite"></ul>
             <div class="runbun-run-row">
 				<button type="button" id="runbun-run-battle-abandon" class="btn btn-wide">Abandon fight</button>
             </div>

@@ -3705,6 +3705,22 @@ table.field {
 	flex-direction: column;
 	gap: var(--rb-space-sm);
 }
+#runbun-run .runbun-run-battle-heading {
+	margin: 0;
+}
+/* A fight owns the play surface until it resolves. Keeping the run header
+   preserves attempt context; folding every out-of-battle sibling prevents PC,
+   route, and analysis controls from reading as legal mid-turn actions. */
+#runbun-run-live.is-battle-active > :not(.runbun-run-header):not(.runbun-run-battle) {
+	display: none;
+}
+#runbun-run.is-battle-active > .runbun-run-history-disclose,
+#runbun-run.is-battle-active > .runbun-run-transfer {
+	display: none;
+}
+#runbun-run-live.is-battle-active .runbun-run-battle {
+	margin-top: var(--rb-space-md);
+}
 #runbun-run .runbun-run-battle-turn {
 	font-weight: 400;
 	color: var(--rb-ink-muted);
@@ -3791,9 +3807,18 @@ table.field {
 	border-color: var(--rb-danger);
 	background: var(--rb-danger-soft);
 }
+#runbun-run .runbun-run-battle-result[data-kind="error"] {
+	border-color: var(--rb-danger);
+	background: var(--rb-danger-soft);
+}
+#runbun-run .runbun-run-battle.rb-busy .runbun-run-battle-move,
+#runbun-run .runbun-run-battle.rb-busy .runbun-run-battle-switch {
+	cursor: progress;
+	opacity: 0.58;
+}
 #runbun-run .runbun-run-battle-moves {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--rb-space-xs);
 }
 #runbun-run .runbun-run-battle-move {
@@ -3801,7 +3826,12 @@ table.field {
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 2px;
+	width: 100%;
+	min-height: 56px;
+	margin: 0;
+	padding: var(--rb-space-sm);
 	text-align: left;
+	overflow-wrap: anywhere;
 }
 #runbun-run .runbun-run-battle-move-dmg {
 	font-family: var(--rb-font-mono);

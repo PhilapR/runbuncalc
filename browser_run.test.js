@@ -580,6 +580,20 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
 	await page.waitForSelector('#runbun-run-battle-moves .runbun-run-battle-move',
 		{timeout: 10000});
+	await page.waitForFunction(() => document.activeElement.id === 'runbun-run-battle');
+	assert.equal(await page.$eval('#runbun-run-live', element =>
+		element.classList.contains('is-battle-active')), true,
+	'a live fight takes over the run surface');
+	assert.equal(await page.isVisible('.runbun-run-hero-party'), false,
+		'out-of-battle party editing folds while a fight is live');
+	assert.equal(await page.isVisible('.runbun-run-history-disclose'), false,
+		'run history stays out of the live battle surface');
+	assert.equal(await page.isVisible('.runbun-run-transfer'), false,
+		'save management stays out of the live battle surface');
+	const moveWidths = await page.$$eval('#runbun-run-battle-moves .runbun-run-battle-move',
+		buttons => buttons.map(button => button.getBoundingClientRect().width));
+	assert.ok(moveWidths.every(width => width >= 180),
+		'battle moves fill their two-column decision grid');
 	await page.click('#runbun-run-battle-moves .runbun-run-battle-move');
 	await page.waitForFunction(
 		() => /turn 2/.test(document.querySelector('#runbun-run-battle-turn').textContent),
@@ -590,6 +604,10 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	// The refresh: the fight is still on screen, mid-fight, log and all.
 	await page.reload({waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
+	await page.waitForFunction(() => document.activeElement.id === 'runbun-run-battle');
+	assert.equal(await page.$eval('#runbun-run-live', element =>
+		element.classList.contains('is-battle-active')), true,
+	'a resumed fight restores battle mode');
 	assert.match(await page.textContent('#runbun-run-battle-trainer'), /Youngster Calvin/);
 	assert.match(await page.textContent('#runbun-run-battle-turn'), /turn 2/);
 	assert.equal(await page.textContent('#runbun-run-battle-log'), logBefore,
@@ -611,6 +629,9 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	assert.equal(await page.isVisible('#runbun-run-battle'), false,
 		'a stale fight must not resume');
+	assert.equal(await page.$eval('#runbun-run-live', element =>
+		element.classList.contains('is-battle-active')), false,
+	'a stale fight cannot leave the run surface locked in battle mode');
 	assert.equal(await page.evaluate(
 		() => window.localStorage.getItem('runbun.battle.v1')), null,
 	'a stale fight is cleaned out of storage');
@@ -1190,6 +1211,9 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	await page.click('#runbun-run-battle-abandon');
 	assert.equal(await page.isVisible('#runbun-run-battle'), false,
 		'Continue returns to the next run decision');
+	assert.equal(await page.$eval('#runbun-run-live', element =>
+		element.classList.contains('is-battle-active')), false,
+	'Continue restores the out-of-battle run surface');
 	assert.equal(await page.textContent('#runbun-run-status'), recordedStatus,
 		'closing a completed fight must not claim that nothing was written');
 
@@ -1266,6 +1290,9 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	} else {
 		assert.equal(saved.box.length, 1, 'a killed encounter keeps nothing');
 	}
+	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Continue',
+		'a settled wild fight keeps its result visible until the player continues');
+	await page.click('#runbun-run-battle-abandon');
 	await page.click('#runbun-run-roll');
 	await page.waitForFunction(
 		() => /already gave its encounter/.test(

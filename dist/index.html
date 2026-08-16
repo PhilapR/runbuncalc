@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?a31e22b9" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?295fa5bd" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?f0b0303e" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -1943,7 +1943,7 @@
     <script type="text/javascript" src="./js/runtime_contract.js?8a96b67b"></script>
     <script type="text/javascript" src="./js/attempt_store.js?d6b345fe"></script>
     <script type="text/javascript" src="./js/run_history.js?15ce0adc"></script>
-    <script type="text/javascript" src="./js/run_panel.js?8a5cb1f3"></script>
+    <script type="text/javascript" src="./js/run_panel.js?949b8217"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?54cf56aa"></script>
 </div>
 
@@ -2328,8 +2328,9 @@
         <div class="runbun-run-history-actions">
             <button type="button" id="runbun-run-undo" class="btn">Undo last action</button>
         </div>
-        <div id="runbun-run-battle" class="runbun-run-battle" hidden>
-            <div class="runbun-run-section-label">Battle — <span id="runbun-run-battle-trainer"></span><span id="runbun-run-battle-turn" class="runbun-run-battle-turn"></span></div>
+        <div id="runbun-run-battle" class="runbun-run-battle" role="region"
+            aria-labelledby="runbun-run-battle-heading" tabindex="-1" hidden>
+            <h3 id="runbun-run-battle-heading" class="runbun-run-section-label runbun-run-battle-heading">Battle — <span id="runbun-run-battle-trainer"></span><span id="runbun-run-battle-turn" class="runbun-run-battle-turn"></span></h3>
             <div class="runbun-run-battle-field">
                 <div class="runbun-run-battle-card is-foe">
                     <div class="runbun-run-battle-name" id="runbun-run-battle-foe-name"></div>
@@ -2344,9 +2345,9 @@
             </div>
             <div id="runbun-run-battle-prompt" class="runbun-run-battle-prompt"></div>
             <div id="runbun-run-battle-result" class="runbun-run-battle-result" role="status" aria-live="polite"></div>
-            <div id="runbun-run-battle-moves" class="runbun-run-battle-moves"></div>
-            <div id="runbun-run-battle-switches" class="runbun-run-battle-switches"></div>
-            <ul id="runbun-run-battle-log" class="runbun-run-battle-log" aria-live="polite"></ul>
+            <div id="runbun-run-battle-moves" class="runbun-run-battle-moves" role="group" aria-labelledby="runbun-run-battle-prompt"></div>
+            <div id="runbun-run-battle-switches" class="runbun-run-battle-switches" role="group" aria-label="Available switches"></div>
+            <ul id="runbun-run-battle-log" class="runbun-run-battle-log" aria-label="Battle log" aria-live="polite"></ul>
             <div class="runbun-run-row">
 				<button type="button" id="runbun-run-battle-abandon" class="btn btn-wide">Abandon fight</button>
             </div>

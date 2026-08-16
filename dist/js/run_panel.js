@@ -1653,6 +1653,24 @@
 		} catch (error) { /* nothing worth surfacing */ }
 	}
 
+	/**
+	 * A live fight is a mode, not another disclosure in the tracker. While it
+	 * owns the screen, out-of-battle editors fold away and keyboard focus moves
+	 * to the battle heading. Leaving the fight restores the run desk exactly as
+	 * it was; none of those sections are destroyed or re-rendered here.
+	 */
+	function setBattleMode(active, moveFocus) {
+		var $live = $('#runbun-run-live');
+		var panel = document.querySelector('#runbun-run-battle');
+		$live.toggleClass('is-battle-active', !!active);
+		$('#runbun-run').toggleClass('is-battle-active', !!active);
+		if (!active || !panel || !moveFocus) return;
+		window.requestAnimationFrame(function () {
+			panel.scrollIntoView({block: 'start'});
+			panel.focus({preventScroll: true});
+		});
+	}
+
 	function restoreBattle() {
 		var raw;
 		try {
@@ -1672,6 +1690,7 @@
 		battle = {bundle: record.bundle, log: record.log || []};
 		$('#runbun-run-battle-log').empty();
 		$('#runbun-run-battle').prop('hidden', false);
+		setBattleMode(true, true);
 		// A resumed wild fight owns its roll again: the card yields exactly
 		// as it did when Fight-it opened this battle; abandoning restores it.
 		if (record.bundle.wild) $('#runbun-run-roll-result').prop('hidden', true);
@@ -1773,6 +1792,7 @@
 				.removeAttr('data-complete').prop('disabled', false);
 			$('#runbun-run-battle-log').empty();
 			$('#runbun-run-battle').prop('hidden', false);
+			setBattleMode(true, true);
 			paintBattle(payload);
 			persistBattle(payload);
 			status('', '');
@@ -1802,11 +1822,23 @@
 		});
 	}
 
+	function setBattleBusy(active) {
+		var $panel = $('#runbun-run-battle');
+		$panel.toggleClass('rb-busy', !!active);
+		if (active) $panel.attr('aria-busy', 'true');
+		else $panel.removeAttr('aria-busy');
+		$panel.find('.runbun-run-battle-move, .runbun-run-battle-switch')
+			.prop('disabled', !!active);
+	}
+
 	function battleAct(chosen) {
 		if (!battle || battleBusy) return;
 		battleBusy = true;
+		setBattleBusy(true);
+		$('#runbun-run-battle-result').removeAttr('data-kind').text('');
 		api('/run/battle/act', {battle: battle.bundle, action: chosen}).then(function (reply) {
 			battleBusy = false;
+			setBattleBusy(false);
 			battle.bundle = reply.battle;
 			paintBattle(reply);
 			if (reply.result) {
@@ -1816,6 +1848,9 @@
 			}
 		}).catch(function (error) {
 			battleBusy = false;
+			setBattleBusy(false);
+			$('#runbun-run-battle-result').attr('data-kind', 'error')
+				.text('That turn did not resolve — ' + error.message + ' Try again.');
 			status(error.message, 'error');
 		});
 	}
@@ -2018,6 +2053,7 @@
 					clearRollSave();
 					stamps = {};
 					$('#runbun-run-battle').prop('hidden', true);
+					setBattleMode(false, false);
 					$('#runbun-run-roll-result').prop('hidden', true);
 					showRun();
 					revealSection('history');
@@ -2035,6 +2071,7 @@
 		battle = null;
 		clearBattleSave();
 		$('#runbun-run-battle').prop('hidden', true);
+		setBattleMode(false, false);
 		$('#runbun-run-battle-result').text('');
 		$('#runbun-run-battle-abandon').text('Abandon fight')
 			.removeAttr('data-complete').prop('disabled', false);
@@ -2590,6 +2627,7 @@
 			battle = null;
 			clearBattleSave();
 			$('#runbun-run-battle').prop('hidden', true);
+			setBattleMode(false, false);
 		}
 		// The pending roll survives the sync unless the other tab answered
 		// its question (settled that route); then the card goes with it.
