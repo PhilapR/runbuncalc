@@ -81,6 +81,7 @@ test('the preferred path invokes an imported provider in the same process', asyn
 test('the pinned in-process provider deterministically replays attribution', async () => {
 	const providerModule = await import('./vendor/pokemon-run-runtime/index.js');
 	const source = require('./contracts/ecosystem/v1/attribution-request.json');
+	const lockedReceipt = require('./contracts/ecosystem/v1/seeded-provider-attribution-receipt.json');
 	const providerRevision = '5648e07f8c48f8ce20e091dbf367dab213350686';
 	const provider = providerModule.createRabRunRuntimeProvider({
 		providerRevision, engineVersion: '0.2.0',
@@ -89,6 +90,7 @@ test('the pinned in-process provider deterministically replays attribution', asy
 	const replay = await provider.attribute(JSON.parse(JSON.stringify(source)));
 
 	assert.deepEqual(replay, first);
+	assert.deepEqual(first, lockedReceipt);
 	assert.equal(first.requestId, source.requestId);
 	assert.equal(first.producer.revision, providerRevision);
 	assert.deepEqual(first.input.interventionIds,

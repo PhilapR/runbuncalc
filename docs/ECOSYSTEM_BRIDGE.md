@@ -109,8 +109,9 @@ inference is never the game-state authority.
 
 ## Current gate — 2026-08-16
 
-Steps 1 through 5 are locally complete for seeded planning and the first bounded
-attribution contract. The attribution capability independently replaces one
+Steps 1 through 5 are locally complete for seeded planning. The first bounded
+attribution contract and app implementation are locally tested, while their
+rendered browser acceptance remains open. The attribution capability independently replaces one
 party member or normalizes one owned Pokemon to the all-15 IV reference, uses
 the same explicit seeds on both sides, and reoptimizes the lead for each team.
 It reports modeled deltas only; participation and historical carry remain
@@ -124,7 +125,7 @@ Chromium. The Plan surface combines that eight-seed whole-branch forecast with
 the existing tactical action ranking; companion play still falls back to the
 local planner if the provider cannot answer.
 
-Step 6 and the first bounded slice of step 7 are now complete locally.
+Step 6 and the first bounded slice of step 7 are complete locally for planning.
 `stochastic-inference-core` revision
 `84e7e9eb5d829d10e5f1f4b753976e6abb6d3d1a` registers the exact typed
 capability, validates every receipt against its request, and runs cold or warm
@@ -136,9 +137,11 @@ warm batch took a 192.233 ms median (3,995 candidate evaluations/second), and
 1,024 requests took a 6,844.261 ms median (7,181 candidate evaluations/second).
 These are bounded transport/simulator measurements for one recorded party and
 fight, not a claim of policy quality or full-game throughput.
+The control repository does not yet register `pokemon.rab.attribute`; that is a
+separate next-phase gate, not implied by the app implementation.
 
 The browser consumer at app revision
-`27cb8e5e03f90e7931d359f7d23768914c50dd34` uses the already-loaded provider
+`87ca609a5c5cf7dcc70eed70c8b7c0a2b7ed1d8a` uses the already-loaded provider
 for a bounded current-plus-two-fight outlook. Browser batches are capped at the
 eight fights already present on the visible road, preserve order, reject
 duplicate request IDs before provider work, and match single-call receipts.
@@ -174,18 +177,18 @@ maximum-batch test retains and materializes 1,024
 receipts without adding game events; the checked archive stays below 8 MiB in
 the local regression gate.
 
-The integration matrix therefore records single/batch parity, a six-Pokemon
-benchmark, planning-evidence persistence/materialization, played-outcome
-recording, rendered review, derived review rows, realized-participation capture,
-rendering and materialization, and exact app, engine, control, and verification
-revisions. `providerEnabled` and
-`privateDeploymentVerified` remain false: no production/private promotion is
-claimed until the exact reviewed app revision passes authenticated success,
-anonymous denial, and deployed receipt checks. Deployment remains private.
+The integration matrix remains the last promoted planning/participation
+baseline. Attribution has a separate
+`attribution-local-evidence.json` lock with exact contract, app, engine, and
+control revisions. It records deterministic provider replay, evidence
+persistence, materialization, and derived review as passed, while rendered
+browser acceptance, control registration, and private deployment verification
+remain false. No production/private promotion is claimed until those gates pass.
+Deployment remains private.
 
 The executable manifest is
 [`../contracts/ecosystem/v1/contract.json`](../contracts/ecosystem/v1/contract.json).
-Its canonical examples remain test vectors. The additional
-`seeded-provider-receipt.json` and integration matrix record the narrower fact
-that the pinned provider exists and matches the first local browser corpus;
-they do not prove batch or deployed parity.
+Its canonical examples remain test vectors. The additional planning and
+attribution seeded provider receipts record narrower reproducible corpus facts.
+The local attribution evidence lock is not an integration promotion and none of
+these files prove deployed parity.

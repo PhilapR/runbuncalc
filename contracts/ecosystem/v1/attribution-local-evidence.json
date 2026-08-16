@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "pokemon.bridge.local-evidence/1.0.0",
+  "status": "implementation-tested-browser-pending",
+  "contract": {
+    "version": "1.1.0",
+    "repository": "pokemon-mono",
+    "path": "contracts/run-runtime/v1",
+    "revision": "8e2c3c8f021094814b1b44844c7de4992095d274",
+    "digest": "402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75"
+  },
+  "lanes": {
+    "app": {
+      "repository": "runbuncalc",
+      "revision": "87ca609a5c5cf7dcc70eed70c8b7c0a2b7ed1d8a"
+    },
+    "engine": {
+      "repository": "pokemon-mono",
+      "revision": "5648e07f8c48f8ce20e091dbf367dab213350686"
+    },
+    "control": {
+      "repository": "stochastic-inference-core",
+      "revision": "84e7e9eb5d829d10e5f1f4b753976e6abb6d3d1a",
+      "attributionCapabilityRegistered": false
+    }
+  },
+  "fixtures": {
+    "request": "attribution-request.json",
+    "contractReceipt": "attribution-receipt.json",
+    "providerReceipt": "seeded-provider-attribution-receipt.json"
+  },
+  "gates": {
+    "providerDeterministicRepeat": true,
+    "providerReceiptLocked": true,
+    "evidencePersisted": true,
+    "evidenceMaterialized": true,
+    "reviewDerived": true,
+    "rendered": false,
+    "privateDeploymentVerified": false
+  },
+  "nonClaims": [
+    "Participation is not carry.",
+    "A bounded sample is not whole-branch certification.",
+    "The attribution capability is not registered in stochastic-inference-core.",
+    "The attribution UI has not passed the browser acceptance gate.",
+    "The exact app revision has not passed private deployment smoke checks."
+  ]
+}
