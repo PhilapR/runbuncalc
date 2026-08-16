@@ -32,11 +32,18 @@ function canonicalHash(value) {
 }
 
 const pkg = json('package.json');
+const packageLock = json('package-lock.json');
+const providerPackage = json('vendor/pokemon-run-runtime/package.json');
 assert.equal(pkg.scripts.start, 'npm run dev');
 assert.equal(pkg.scripts.dev, 'npm run build && node server.js');
 assert.equal(pkg.scripts.preview, 'node build view && node server.js');
 assert.equal(pkg.dependencies['@philapr/pokemon-run-runtime'],
 	'file:vendor/pokemon-run-runtime');
+assert.equal(packageLock.packages['vendor/pokemon-run-runtime'].version,
+	providerPackage.version, 'root lockfile must pin the vendored provider version');
+assert.deepEqual(packageLock.packages['node_modules/@philapr/pokemon-run-runtime'], {
+	resolved: 'vendor/pokemon-run-runtime', link: true,
+}, 'root lockfile must resolve the provider through the reviewed vendor directory');
 
 const deployWorkflow = read('.github/workflows/deploy.yml');
 assert.match(deployWorkflow, /on:\s*\n\s+workflow_dispatch:\s*\n/,
