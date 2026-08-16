@@ -995,13 +995,13 @@
 						var $contributions = $('<ul class="runbun-history-contributions"></ul>');
 						actual.contributions.forEach(function (contribution) {
 							var appearances = [];
-							if (contribution.entered > contribution.switchIns) appearances.push('started');
+							if (contribution.appearances > contribution.switchIns) appearances.push('started');
 							if (contribution.switchIns) appearances.push(contribution.switchIns +
 								' switch-in' + (contribution.switchIns === 1 ? '' : 's'));
 							$contributions.append($('<li></li>').text(contribution.species + ' · ' +
-								appearances.join(' + ') + ' · ' + contribution.moveActions + ' move attempt' +
-								(contribution.moveActions === 1 ? '' : 's') + ' · ' +
-								contribution.damageDealt + ' opposing HP removed' +
+								appearances.join(' + ') + ' · ' + contribution.moveAttempts + ' move attempt' +
+								(contribution.moveAttempts === 1 ? '' : 's') + ' · ' +
+								contribution.opposingHpRemoved + ' opposing HP removed' +
 								(contribution.kos ? ' · ' + contribution.kos + ' KO' +
 									(contribution.kos === 1 ? '' : 's') : '')));
 						});
@@ -2283,14 +2283,15 @@
 				leadId: completedBundle.party && completedBundle.party[0] ?
 					completedBundle.party[0].monId : null,
 				participantIds: (completedBundle.contributions || [])
-					.filter(function (row) { return row.entered > 0; })
+					.filter(function (row) { return row.appearances > 0; })
 					.map(function (row) { return row.monId; }),
 				contributionVersion: completedBundle.contributionVersion || null,
 				contributionComplete: completedBundle.contributionComplete === true,
 				contributions: (completedBundle.contributions || []).map(function (row) {
 					return {monId: row.monId, battleId: row.battleId, species: row.species,
-						entered: row.entered, switchIns: row.switchIns, actions: row.actions,
-						moveActions: row.moveActions, damageDealt: row.damageDealt, kos: row.kos};
+						appearances: row.appearances, switchIns: row.switchIns,
+						moveAttempts: row.moveAttempts,
+						opposingHpRemoved: row.opposingHpRemoved, kos: row.kos};
 				}),
 				deaths: deaths.map(function (death) {
 					return {monId: death.monId, species: death.species,

@@ -42,7 +42,7 @@ test('checked archives materialize into primitive episode, event, step and obser
 			leadId: 'owned-treecko-1', participantIds: ['owned-treecko-1'],
 			contributionVersion: 1, contributionComplete: true,
 			contributions: [{monId: 'owned-treecko-1', battleId: 'player-1', species: 'Treecko',
-				entered: 1, switchIns: 0, actions: 5, moveActions: 5, damageDealt: 37, kos: 0}],
+				appearances: 1, switchIns: 0, moveAttempts: 5, opposingHpRemoved: 37, kos: 0}],
 			deaths: [{monId: 'owned-treecko-1', species: 'Treecko'}]},
 		{kind: 'simulator', providerId: 'runbun-battle-driver', confidence: 1})});
 	await store.commit({run: advanced, expectedRevision: 4, commandId: 'end',
@@ -109,8 +109,8 @@ test('checked archives materialize into primitive episode, event, step and obser
 		attempt_id: 'rl-attempt', battle_revision: 4,
 		battle_event_id: 'rl-attempt:battle', trainer_order: 1,
 		mon_id: 'owned-treecko-1', battle_id: 'player-1', species: 'Treecko',
-		entered: 1, switch_ins: 0, actions: 5, move_actions: 5,
-		immediate_hp_lost: 37, kos: 0, complete: true,
+		appearances: 1, switch_ins: 0, move_attempts: 5,
+		opposing_hp_removed: 37, kos: 0, complete: true,
 	}]);
 	assert.match(dataset.ndjson(rows.steps), /"action_kind":"tick".*\n$/);
 });

@@ -195,16 +195,16 @@
 			!Array.isArray(payload.deaths) || !Number.isInteger(payload.turns)) return null;
 		function validContribution(row) {
 			var validCounters = row &&
-				['entered', 'switchIns', 'actions', 'moveActions', 'damageDealt', 'kos']
+				['appearances', 'switchIns', 'moveAttempts', 'opposingHpRemoved', 'kos']
 					.every(function (field) {
 						return Number.isInteger(row[field]) && row[field] >= 0 &&
 							row[field] <= 0xffffffff;
 					});
 			return Boolean(validCounters && typeof row.monId === 'string' && row.monId &&
 				typeof row.battleId === 'string' && row.battleId &&
-				typeof row.species === 'string' && row.species && row.switchIns <= row.entered &&
-				row.moveActions <= row.actions &&
-				(row.entered > 0 || row.actions + row.damageDealt + row.kos === 0));
+				typeof row.species === 'string' && row.species &&
+				row.switchIns <= row.appearances &&
+				(row.appearances > 0 || row.moveAttempts + row.opposingHpRemoved + row.kos === 0));
 		}
 		var rawContributions = Array.isArray(payload.contributions) ? payload.contributions : [];
 		var validContributions = rawContributions.every(validContribution);
@@ -224,7 +224,7 @@
 			contributionComplete: payload.contributionVersion === 1 &&
 				payload.contributionComplete === true && validContributions,
 			contributions: contributions.filter(function (row) {
-				return row.entered > 0 || row.actions > 0;
+				return row.appearances > 0 || row.moveAttempts > 0;
 			}),
 		};
 	}

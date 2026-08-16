@@ -138,9 +138,9 @@ test('leaves evidence with no matching completion unplayed', () => {
 
 test('retains complete realized participation without inferring carry', () => {
 	const contributions = [{monId: 'mon-treecko', battleId: 'player-1', species: 'Treecko',
-		entered: 1, switchIns: 0, actions: 3, moveActions: 3, damageDealt: 41, kos: 1},
+		appearances: 1, switchIns: 0, moveAttempts: 3, opposingHpRemoved: 41, kos: 1},
 	{monId: 'mon-mudkip', battleId: 'player-2', species: 'Mudkip',
-		entered: 0, switchIns: 0, actions: 0, moveActions: 0, damageDealt: 0, kos: 0}];
+		appearances: 0, switchIns: 0, moveAttempts: 0, opposingHpRemoved: 0, kos: 0}];
 	const review = onlyReview(derivePlanningReview(inspected([], [battleCompleted({contributions})])));
 
 	assert.equal(review.actual.contributionComplete, true);
@@ -150,7 +150,7 @@ test('retains complete realized participation without inferring carry', () => {
 
 test('a malformed contribution row makes the receipt partial', () => {
 	const contributions = [{monId: 'mon-treecko', battleId: 'player-1', species: 'Treecko',
-		entered: 1, switchIns: 0, actions: 3, moveActions: 3, damageDealt: -1, kos: 1}];
+		appearances: 1, switchIns: 0, moveAttempts: 3, opposingHpRemoved: -1, kos: 1}];
 	const review = onlyReview(derivePlanningReview(inspected([], [battleCompleted({contributions})])));
 
 	assert.equal(review.actual.contributionComplete, false);

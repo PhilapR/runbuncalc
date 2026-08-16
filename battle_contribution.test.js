@@ -49,22 +49,21 @@ test('battle bundles report entry, attempted moves, direct damage, and KOs', () 
 	const opened = driver.start(doc, 'Youngster Calvin', 0);
 	assert.deepEqual(row(opened.battle, 'mon-1'), {
 		monId: 'mon-1', battleId: 'player-1', species: 'Mudkip',
-		entered: 1, switchIns: 0, actions: 0, moveActions: 0,
-		damageDealt: 0, kos: 0,
+		appearances: 1, switchIns: 0, moveAttempts: 0,
+		opposingHpRemoved: 0, kos: 0,
 	});
 
 	const first = driver.act(opened.battle, {kind: 'move', move: 'Water Gun'});
 	const afterHit = row(first.battle, 'mon-1');
-	assert.equal(afterHit.actions, 1);
-	assert.equal(afterHit.moveActions, 1);
-	assert.ok(afterHit.damageDealt > 0, 'direct opposing HP loss is recorded as damage');
+	assert.equal(afterHit.moveAttempts, 1);
+	assert.ok(afterHit.opposingHpRemoved > 0,
+		'direct opposing HP loss is recorded as damage');
 	assert.equal(afterHit.kos, 0);
 
 	const second = driver.act(first.battle, {kind: 'move', move: 'Water Gun'});
 	const afterMiss = row(second.battle, 'mon-1');
-	assert.equal(afterMiss.actions, 2, 'an attempted move counts as an action');
-	assert.equal(afterMiss.moveActions, 2, 'an attempted move counts as a move action');
-	assert.equal(afterMiss.damageDealt, afterHit.damageDealt,
+	assert.equal(afterMiss.moveAttempts, 2, 'a miss still counts as a move attempt');
+	assert.equal(afterMiss.opposingHpRemoved, afterHit.opposingHpRemoved,
 		'a miss does not invent damage');
 
 	const played = playOut(docWith([
@@ -86,8 +85,8 @@ test('voluntary and forced replacements count the incoming mon entry and switch-
 	});
 	assert.deepEqual(row(switched.battle, 'mon-2'), {
 		monId: 'mon-2', battleId: 'player-2', species: 'Pidgey',
-		entered: 1, switchIns: 1, actions: 0, moveActions: 0,
-		damageDealt: 0, kos: 0,
+		appearances: 1, switchIns: 1, moveAttempts: 0,
+		opposingHpRemoved: 0, kos: 0,
 	});
 
 	const forced = playOut(docWith([
@@ -96,7 +95,7 @@ test('voluntary and forced replacements count the incoming mon entry and switch-
 	]), 7, 'Leader Brawly');
 	assert.ok(forced.deaths.length > 0);
 	assert.ok(forced.battle.contributions.some(entry =>
-		entry.monId === 'mon-2' && entry.entered > 0 && entry.switchIns > 0),
+		entry.monId === 'mon-2' && entry.appearances > 0 && entry.switchIns > 0),
 	'a forced replacement counts the incoming mon entry and switch-in');
 });
 
@@ -126,10 +125,10 @@ test('malformed resumed telemetry is rebuilt and remains explicitly partial', ()
 	const opened = driver.start(docWith([{species: 'Poochyena', map: 'Route101', level: 3}]),
 		undefined, 1);
 	const malformed = structuredClone(opened.battle);
-	malformed.contributions[0].damageDealt = -1;
+	malformed.contributions[0].opposingHpRemoved = -1;
 	const resumed = driver.act(malformed, {kind: 'move', move: 'Tackle'});
 
 	assert.equal(resumed.battle.contributionComplete, false);
-	assert.equal(row(resumed.battle, 'mon-1').moveActions, 1);
-	assert.ok(row(resumed.battle, 'mon-1').damageDealt >= 0);
+	assert.equal(row(resumed.battle, 'mon-1').moveAttempts, 1);
+	assert.ok(row(resumed.battle, 'mon-1').opposingHpRemoved >= 0);
 });

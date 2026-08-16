@@ -66,8 +66,8 @@ const TABLE_SCHEMAS = Object.freeze({
 	battle_contributions: Object.freeze({
 		attempt_id: 'UTF8', battle_revision: 'UINT32', battle_event_id: 'UTF8',
 		trainer_order: 'UINT32', mon_id: 'UTF8', battle_id: 'UTF8', species: 'UTF8',
-		entered: 'UINT32', switch_ins: 'UINT32', actions: 'UINT32',
-		move_actions: 'UINT32', immediate_hp_lost: 'UINT32', kos: 'UINT32',
+		appearances: 'UINT32', switch_ins: 'UINT32', move_attempts: 'UINT32',
+		opposing_hp_removed: 'UINT32', kos: 'UINT32',
 		complete: 'BOOLEAN',
 	}),
 });
@@ -247,12 +247,12 @@ function planningReviewRow(bundle, row) {
 
 function validBattleContribution(row) {
 	const validCounters = row &&
-		['entered', 'switchIns', 'actions', 'moveActions', 'damageDealt', 'kos']
+		['appearances', 'switchIns', 'moveAttempts', 'opposingHpRemoved', 'kos']
 			.every(field => Number.isInteger(row[field]) && row[field] >= 0 && row[field] <= 0xffffffff);
 	return Boolean(validCounters && typeof row.monId === 'string' && row.monId &&
 		typeof row.battleId === 'string' && row.battleId && typeof row.species === 'string' &&
-		row.species && row.switchIns <= row.entered && row.moveActions <= row.actions &&
-		(row.entered > 0 || row.actions + row.damageDealt + row.kos === 0));
+		row.species && row.switchIns <= row.appearances &&
+		(row.appearances > 0 || row.moveAttempts + row.opposingHpRemoved + row.kos === 0));
 }
 
 function battleContributionRows(bundle, event) {
@@ -270,11 +270,11 @@ function battleContributionRows(bundle, event) {
 			mon_id: row.monId,
 			battle_id: row.battleId,
 			species: row.species,
-			entered: uint32(row.entered, 'contribution entries'),
+			appearances: uint32(row.appearances, 'contribution appearances'),
 			switch_ins: uint32(row.switchIns, 'contribution switch ins'),
-			actions: uint32(row.actions, 'contribution actions'),
-			move_actions: uint32(row.moveActions, 'contribution move actions'),
-			immediate_hp_lost: uint32(row.damageDealt, 'contribution immediate HP lost'),
+			move_attempts: uint32(row.moveAttempts, 'contribution move attempts'),
+			opposing_hp_removed: uint32(row.opposingHpRemoved,
+				'contribution opposing HP removed'),
 			kos: uint32(row.kos, 'contribution KOs'),
 			complete,
 		}));

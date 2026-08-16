@@ -227,11 +227,10 @@ function contributionRoster(party, activeBattleId) {
 		monId: member.monId,
 		battleId: member.battleId,
 		species: member.species,
-		entered: member.battleId === activeBattleId ? 1 : 0,
+		appearances: member.battleId === activeBattleId ? 1 : 0,
 		switchIns: 0,
-		actions: 0,
-		moveActions: 0,
-		damageDealt: 0,
+		moveAttempts: 0,
+		opposingHpRemoved: 0,
 		kos: 0,
 	}));
 }
@@ -249,10 +248,10 @@ function contributionRowsAreValid(bundle) {
 			return false;
 		}
 		ids.add(row.monId);
-		var validCounters = ['entered', 'switchIns', 'actions', 'moveActions', 'damageDealt', 'kos']
+		var validCounters = ['appearances', 'switchIns', 'moveAttempts', 'opposingHpRemoved', 'kos']
 			.every(field => Number.isInteger(row[field]) && row[field] >= 0 && row[field] <= 0xffffffff);
-		return validCounters && row.switchIns <= row.entered && row.moveActions <= row.actions &&
-			(row.entered > 0 || row.actions + row.damageDealt + row.kos === 0);
+		return validCounters && row.switchIns <= row.appearances &&
+			(row.appearances > 0 || row.moveAttempts + row.opposingHpRemoved + row.kos === 0);
 	});
 }
 
@@ -269,7 +268,7 @@ function recordContribution(rows, before, after, action) {
 	if (action.kind === 'switch') {
 		const incoming = rows.find(row => row.battleId === action.replacementId);
 		if (incoming) {
-			incoming.entered += 1;
+			incoming.appearances += 1;
 			incoming.switchIns += 1;
 		}
 		return;
@@ -277,15 +276,14 @@ function recordContribution(rows, before, after, action) {
 	if (action.kind !== 'move') return;
 	const actor = rows.find(row => row.battleId === action.actorId);
 	if (!actor) return;
-	actor.actions += 1;
-	actor.moveActions += 1;
+	actor.moveAttempts += 1;
 	const opposingIds = new Set(before.sides.ai.party.map(mon => mon.id));
 	const targets = (action.targetIds || []).filter(id => opposingIds.has(id));
 	for (const id of targets) {
 		const prior = findMon(before, id);
 		const current = findMon(after, id);
 		if (!prior || !current) continue;
-		actor.damageDealt += Math.max(0, prior.hp.current - current.hp.current);
+		actor.opposingHpRemoved += Math.max(0, prior.hp.current - current.hp.current);
 		if (prior.hp.current > 0 && current.hp.current <= 0) actor.kos += 1;
 	}
 }
