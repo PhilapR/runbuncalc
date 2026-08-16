@@ -1730,8 +1730,7 @@
                     <div id="trainer-pok-list-opposing" class="trainer-pok-list-opposing trainer-wheel-party dropzone calc-trigger" role="list" aria-labelledby="trainer-wheel-party-label">
                     </div>
                     <div id="trainer-pok-list-opposing2" class="dropzone calc-trigger"
-                    data-placeholder=" For doubles you can drag & drop the opposing pokemons here,
-                     only the first one off each row will be calculated against. Top left always top calc and Bot left always bot calc" hidden>
+                    hidden>
                     </div>
                 </div>
                 <hr>
@@ -1943,8 +1942,8 @@
     <script type="text/javascript" src="./js/runtime_contract.js?8a96b67b"></script>
     <script type="text/javascript" src="./js/attempt_store.js?d6b345fe"></script>
     <script type="text/javascript" src="./js/run_history.js?15ce0adc"></script>
-    <script type="text/javascript" src="./js/run_panel.js?8ad3bce0"></script>
-    <script type="text/javascript" src="./js/runbun_shell.js?54cf56aa"></script>
+    <script type="text/javascript" src="./js/run_panel.js?1f6ed1a7"></script>
+    <script type="text/javascript" src="./js/runbun_shell.js?7ce42e0e"></script>
 </div>
 
 <section id="sets-bridge" class="ai-panel-bridge rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Sets to BattleState bridge">
@@ -2095,7 +2094,7 @@
 </div>
 
 <section id="runbun-battle" class="runbun-battle rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Run and Bun Battle Lab">
-    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to run tracker</a>
+    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to game</a>
     <h2 class="runbun-battle-title" id="runbun-battle-heading">Battle Lab</h2>
     <p class="runbun-battle-help">
         Practice-vs-policy surface for Gen&nbsp;8 Singles and Doubles. Thin client
@@ -2163,7 +2162,7 @@
 </section>
 
 <section id="runbun-planner" class="runbun-planner rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Run and Bun Fight Lab">
-    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to run tracker</a>
+    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to game</a>
     <h2 class="runbun-planner-title" id="runbun-planner-heading">Fight Lab</h2>
     <p class="runbun-planner-help">
         Pick the trainer you are about to fight, enter the team you are bringing, and see
@@ -2202,7 +2201,7 @@
 </section>
 
 
-<section id="runbun-run" class="runbun-run rb-mode-region rb-mode-active rb-panel" role="region" tabindex="-1" aria-label="Run and Bun run tracker">
+<section id="runbun-run" class="runbun-run rb-mode-region rb-mode-active rb-panel" role="region" tabindex="-1" aria-label="Run and Bun game">
     <h2 class="runbun-run-title" id="runbun-run-heading">Run &amp; Bun</h2>
 
     <div id="runbun-run-empty" class="runbun-run-empty">
@@ -2299,11 +2298,11 @@
             </div>
             <div class="runbun-run-next-actions" aria-label="Run commands">
                 <button type="button" id="runbun-run-play" class="btn rb-btn-primary">Choose your party</button>
-                <button type="button" id="runbun-run-plan" class="btn" disabled>Matchup</button>
-                <button type="button" id="runbun-run-advise" class="btn">Prep</button>
-                <button type="button" id="runbun-run-rank" class="btn">Team</button>
-                <button type="button" id="runbun-run-explore" class="btn">Explore</button>
-                <button type="button" id="runbun-run-review" class="btn">Journal</button>
+                <button type="button" id="runbun-run-plan" class="btn" disabled>Check matchup</button>
+                <button type="button" id="runbun-run-advise" class="btn">Improve party</button>
+                <button type="button" id="runbun-run-rank" class="btn">Rank parties</button>
+                <button type="button" id="runbun-run-explore" class="btn">Find encounters</button>
+                <button type="button" id="runbun-run-review" class="btn">Run history</button>
             </div>
             <div id="runbun-run-opportunities" class="runbun-run-opportunities" hidden>
                 <span class="runbun-run-opportunities-label">Before <span id="runbun-run-opportunities-fight">this fight</span></span>
@@ -2321,12 +2320,12 @@
             <div class="runbun-run-section-label" id="runbun-run-party-heading">Party &mdash; lead first</div>
             <ol id="runbun-run-party-strip" class="runbun-run-party-strip" aria-labelledby="runbun-run-party-heading"></ol>
             <div class="runbun-run-row runbun-run-party-commit" hidden>
-                <button type="button" id="runbun-run-set-party" class="btn btn-xwide">Set party</button>
+                <button type="button" id="runbun-run-set-party" class="btn btn-xwide">Use this party</button>
             </div>
         </div>
 
         <div class="runbun-run-history-actions">
-            <button type="button" id="runbun-run-undo" class="btn">Undo last action</button>
+            <button type="button" id="runbun-run-undo" class="btn">Undo last change</button>
         </div>
         <div id="runbun-run-battle" class="runbun-run-battle" role="region"
             aria-labelledby="runbun-run-battle-heading" tabindex="-1" hidden>
@@ -2351,7 +2350,7 @@
             <div id="runbun-run-battle-switches" class="runbun-run-battle-switches" role="group" aria-label="Available switches"></div>
             <ul id="runbun-run-battle-log" class="runbun-run-battle-log" aria-label="Battle log" aria-live="polite"></ul>
             <div class="runbun-run-row">
-				<button type="button" id="runbun-run-battle-abandon" class="btn btn-wide">Abandon fight</button>
+				<button type="button" id="runbun-run-battle-abandon" class="btn btn-wide">Leave fight without saving</button>
             </div>
         </div>
         <div id="runbun-run-plan-verdict" class="runbun-run-plan-verdict" role="status" aria-live="polite"></div>
@@ -2372,7 +2371,7 @@
                 <div class="runbun-run-section-label" id="runbun-run-box-heading">PC reserve</div>
                 <div class="runbun-run-box-bar">
                     <span id="runbun-run-box-counts" class="runbun-run-box-counts"></span>
-                    <input type="search" id="runbun-run-box-filter" placeholder="Filter PC" spellcheck="false" aria-label="Filter PC reserve and losses">
+                    <input type="search" id="runbun-run-box-filter" placeholder="Search PC and losses" spellcheck="false" aria-label="Search PC reserve and losses">
                 </div>
                 <ul id="runbun-run-box" class="runbun-run-box" aria-labelledby="runbun-run-box-heading"></ul>
                 <div id="runbun-run-losses-heading" class="runbun-run-section-label runbun-run-losses-label" hidden>Losses</div>
@@ -2383,8 +2382,8 @@
                      record the two items the game's economies run on: Rare
                      Candy over the cap, and Heart Scales for IVs. -->
                 <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-acquire-item" placeholder="Item found" spellcheck="false">
-                    <input type="number" id="runbun-run-acquire-count" placeholder="x" min="1" value="1">
+                    <input type="text" id="runbun-run-acquire-item" placeholder="Item name" aria-label="Item name" spellcheck="false">
+                    <input type="number" id="runbun-run-acquire-count" aria-label="Item quantity" min="1" value="1">
                     <button type="button" id="runbun-run-acquire" class="btn btn-wide">Add to bag</button>
                 </div>
             
@@ -2407,7 +2406,7 @@
                     <div id="runbun-run-reachable" class="runbun-run-reachable"></div>
                 </div>
                 <details class="runbun-run-manual-map">
-                    <summary>Record a different location</summary>
+                    <summary>Choose another location</summary>
                     <label class="runbun-run-field">
                         <span>All locations</span>
                         <select id="runbun-run-map"></select>
@@ -2416,30 +2415,30 @@
                 <ul id="runbun-run-encounters" class="runbun-run-encounters"></ul>
                 <ul id="runbun-run-items" class="runbun-run-items" aria-label="Field items on this route"></ul>
                 <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-catch-species" placeholder="Species" spellcheck="false">
-                    <input type="number" id="runbun-run-catch-level" placeholder="Lv" min="1" max="100">
-                    <input type="text" id="runbun-run-catch-name" placeholder="Nickname" spellcheck="false">
+                    <input type="text" id="runbun-run-catch-species" placeholder="Species" aria-label="Encounter species" spellcheck="false">
+                    <input type="number" id="runbun-run-catch-level" placeholder="Lv" aria-label="Encounter level" min="1" max="100">
+                    <input type="text" id="runbun-run-catch-name" placeholder="Nickname" aria-label="Nickname" spellcheck="false">
                 </div>
                 <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-catch-moves" placeholder="Moves (optional, comma-separated)" spellcheck="false">
+                    <input type="text" id="runbun-run-catch-moves" placeholder="Moves (optional, comma-separated)" aria-label="Known moves" spellcheck="false">
                     <label class="runbun-run-check runbun-run-shiny" title="The shiny clause: a natural shiny is keepable over the route rule and the dupes clause">
                         <input type="checkbox" id="runbun-run-catch-shiny">
                         <span>Shiny</span>
                     </label>
-                    <button type="button" id="runbun-run-catch" class="btn btn-wide rb-btn-primary">Catch</button>
+                    <button type="button" id="runbun-run-catch" class="btn btn-wide rb-btn-primary">Add to PC</button>
                 </div>
                 <!-- The recreation's dice: instead of reporting what the
                      emulator rolled, roll here off the same tables. The
                      result is advice until Catch or "It got away" writes it. -->
                 <div class="runbun-run-row">
-                    <select id="runbun-run-roll-method" aria-label="Encounter method to roll"></select>
-                    <button type="button" id="runbun-run-roll" class="btn btn-xwide" title="Roll this route's one random encounter off its real table">Roll encounter</button>
+                    <select id="runbun-run-roll-method" aria-label="Encounter method"></select>
+                    <button type="button" id="runbun-run-roll" class="btn btn-xwide" title="Find one random wild Pokémon from this location">Find wild Pokémon</button>
                 </div>
                 <div id="runbun-run-roll-result" class="runbun-run-roll-result" hidden>
                     <span id="runbun-run-roll-text" class="runbun-run-roll-text"></span>
                     <div class="runbun-run-row">
-                        <button type="button" id="runbun-run-roll-fight" class="btn btn-wide rb-btn-primary" title="Play the encounter turn by turn — weaken it, throw balls, or watch it flee your killing blow">Fight it</button>
-                        <button type="button" id="runbun-run-roll-catch" class="btn btn-wide" title="Skip the fight and record the catch as made">Catch it</button>
+                        <button type="button" id="runbun-run-roll-fight" class="btn btn-wide rb-btn-primary" title="Play the encounter turn by turn — weaken it or throw a ball">Battle this Pokémon</button>
+                        <button type="button" id="runbun-run-roll-catch" class="btn btn-wide" title="Skip the battle and keep this encounter">Keep without battling</button>
                         <button type="button" id="runbun-run-roll-flee" class="btn btn-wide" title="The route is spent either way — a nuzlocke does not refund the one that got away">It got away</button>
                     </div>
                 </div>
@@ -2451,16 +2450,16 @@
         <div class="rb-disclose" data-section="tools">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-tools">
-                    <span class="rb-disclose-title">Pok&eacute;mon tools</span>
+                    <span class="rb-disclose-title">Pok&eacute;mon details</span>
                     <span class="rb-disclose-summary" data-summary="tools"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-tools" role="region" aria-label="Pok&eacute;mon tools">
+            <div class="rb-disclose-region" id="rb-sec-tools" role="region" aria-label="Pok&eacute;mon details and actions">
                 <div class="rb-disclose-inner">
 
-                <div class="runbun-run-section-label">Selected</div>
-                <input type="text" id="runbun-run-selected" class="visually-hidden" aria-label="Selected Pok&eacute;mon id" readonly>
+                <div class="runbun-run-section-label">Selected Pok&eacute;mon</div>
+                <input type="hidden" id="runbun-run-selected">
                 <p id="runbun-run-mon-empty" class="runbun-run-mon-empty">Choose a Pok&eacute;mon from the party or PC.</p>
                 <article id="runbun-run-mon-summary" class="runbun-run-mon-summary" tabindex="-1" hidden
                     aria-labelledby="runbun-run-mon-summary-name">
@@ -2479,7 +2478,7 @@
                     <div id="runbun-run-mon-summary-ivs" class="runbun-run-iv-readout"></div>
                 </article>
                 <details id="runbun-run-mon-record" class="runbun-run-mon-record" hidden>
-                    <summary>Record observed details</summary>
+                    <summary>Edit Pok&eacute;mon details</summary>
                     <div class="runbun-run-record-grid">
                         <label class="runbun-run-field" for="runbun-run-observed-nature">
                             <span>Nature</span>
@@ -2501,7 +2500,7 @@
                         </label>
                     </div>
                     <fieldset class="runbun-run-iv-entry">
-                        <legend>Known IVs</legend>
+                        <legend>Player IVs</legend>
                         <div class="runbun-run-iv-entry-grid">
                             <label for="runbun-run-observed-iv-hp"><span>HP</span><input type="number" id="runbun-run-observed-iv-hp" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
                             <label for="runbun-run-observed-iv-atk"><span>Atk</span><input type="number" id="runbun-run-observed-iv-atk" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
@@ -2511,18 +2510,18 @@
                             <label for="runbun-run-observed-iv-spe"><span>Spe</span><input type="number" id="runbun-run-observed-iv-spe" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
                         </div>
                     </fieldset>
-                    <button type="button" id="runbun-run-record-details" class="btn btn-xwide rb-btn-primary">Save observed details</button>
+                    <button type="button" id="runbun-run-record-details" class="btn btn-xwide rb-btn-primary">Save Pok&eacute;mon details</button>
                 </details>
                 <div class="runbun-run-row">
                     <button type="button" id="runbun-run-evolve" class="btn btn-wide">Evolve</button>
-                    <input type="number" id="runbun-run-level-to" placeholder="Lv" min="1" max="100">
-                    <button type="button" id="runbun-run-level" class="btn btn-wide">Set level</button>
-                    <button type="button" id="runbun-run-level-cap" class="btn btn-wide" title="The infinite candy makes this free">To cap</button>
+                    <input type="number" id="runbun-run-level-to" placeholder="Lv" aria-label="Target level" min="1" max="100">
+                    <button type="button" id="runbun-run-level" class="btn btn-wide">Set exact level</button>
+                    <button type="button" id="runbun-run-level-cap" class="btn btn-wide" title="The infinite candy makes this free">Level to cap</button>
                 </div>
                 <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-move" placeholder="Move" spellcheck="false">
-                    <input type="text" id="runbun-run-replace" placeholder="Replace" spellcheck="false">
-                    <button type="button" id="runbun-run-teach" class="btn btn-wide">Teach</button>
+                    <input type="text" id="runbun-run-move" placeholder="New move" aria-label="New move" spellcheck="false">
+                    <input type="text" id="runbun-run-replace" placeholder="Move to replace" aria-label="Move to replace" spellcheck="false">
+                    <button type="button" id="runbun-run-teach" class="btn btn-wide">Teach move</button>
                 </div>
                 <!-- The IV economy: a Heart Scale is found, never sold, and sets
                      exactly one IV to 31. The button is always live — the server
@@ -2537,15 +2536,15 @@
                         <option value="spd">Sp. Def</option>
                         <option value="spe">Speed</option>
                     </select>
-                    <button type="button" id="runbun-run-heartscale" class="btn btn-xwide" title="One Heart Scale from the bag sets that IV to 31">Heart Scale</button>
+                    <button type="button" id="runbun-run-heartscale" class="btn btn-xwide" title="One Heart Scale from the bag sets that IV to 31">Use Heart Scale</button>
                 </div>
                 <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-died-to" placeholder="To (trainer, optional)" spellcheck="false">
-                    <input type="text" id="runbun-run-died-move" placeholder="By (move, optional)" spellcheck="false">
+                    <input type="text" id="runbun-run-died-to" placeholder="Fainted against (optional)" aria-label="Fainted against trainer" spellcheck="false">
+                    <input type="text" id="runbun-run-died-move" placeholder="Fainted to move (optional)" aria-label="Move that caused the faint" spellcheck="false">
                 </div>
                 <div class="runbun-run-row">
-                    <button type="button" id="runbun-run-faint" class="btn btn-wide">Faint</button>
-                    <button type="button" id="runbun-run-release" class="btn btn-wide">Release</button>
+                    <button type="button" id="runbun-run-faint" class="btn btn-wide">Record faint</button>
+                    <button type="button" id="runbun-run-release" class="btn btn-wide">Release Pok&eacute;mon</button>
                 </div>
                 <!-- ui-lab snackbar-undo, ported framework-free: the row is
                      RESERVED (in flow, no fixed positioning, no layout jump),
@@ -2561,10 +2560,10 @@
                         <button type="button" id="runbun-run-snackbar-undo" class="btn runbun-run-snackbar-btn">Undo</button>
                     </div>
                 </div>
-                <button type="button" id="runbun-run-learnable" class="btn btn-xxwide">What can it learn?</button>
+                <button type="button" id="runbun-run-learnable" class="btn btn-xxwide">Show learnable moves</button>
                 <div class="runbun-run-learn">
-                    <div><strong>Now:</strong> <span id="runbun-run-learn-now"></span></div>
-                    <div><strong>Later:</strong> <span id="runbun-run-learn-later"></span></div>
+                    <div><strong>Available now:</strong> <span id="runbun-run-learn-now"></span></div>
+                    <div><strong>Available later:</strong> <span id="runbun-run-learn-later"></span></div>
                 </div>
             
                 </div>
@@ -2574,17 +2573,17 @@
         <div class="rb-disclose" data-section="split">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-split">
-                    <span class="rb-disclose-title" id="runbun-run-split-heading">Current split</span>
+                    <span class="rb-disclose-title" id="runbun-run-split-heading">Road to next boss</span>
                     <span class="rb-disclose-summary" data-summary="split"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-split" role="region" aria-label="Current split">
+            <div class="rb-disclose-region" id="rb-sec-split" role="region" aria-label="Road to next boss">
                 <div class="rb-disclose-inner">
 <div class="runbun-run-split">
             <div id="runbun-run-split-summary" class="runbun-run-split-summary"></div>
             <div class="runbun-run-row runbun-run-split-play-row">
-                <button type="button" id="runbun-run-split-play" class="btn" title="Play the boss 8 times with the current party under the floor policy — a measured lower bound, not a promise">Play the boss</button>
+                <button type="button" id="runbun-run-split-play" class="btn" title="Test the current party in 8 conservative battle simulations">Test party vs boss</button>
                 <span id="runbun-run-split-played" class="runbun-run-split-played"></span>
             </div>
             <ul id="runbun-run-split-gauntlet" class="runbun-run-split-gauntlet" aria-labelledby="runbun-run-split-heading"></ul>
@@ -2596,12 +2595,12 @@
         <div class="rb-disclose" data-section="road">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-road">
-                    <span class="rb-disclose-title" id="runbun-run-ahead-heading">Progress</span>
+                    <span class="rb-disclose-title" id="runbun-run-ahead-heading">Upcoming fights</span>
                     <span class="rb-disclose-summary" data-summary="road"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-road" role="region" aria-label="Progress">
+            <div class="rb-disclose-region" id="rb-sec-road" role="region" aria-label="Upcoming fights">
                 <div class="rb-disclose-inner">
 <div class="runbun-run-ahead">
             <ul id="runbun-run-upcoming" class="runbun-run-upcoming" aria-labelledby="runbun-run-ahead-heading"></ul>
@@ -2621,30 +2620,30 @@
         <div class="rb-disclose" data-section="analysis">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-analysis">
-                    <span class="rb-disclose-title">Analysis</span>
+                    <span class="rb-disclose-title">Battle planning</span>
                     <span class="rb-disclose-summary" data-summary="analysis"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-analysis" role="region" aria-label="Analysis">
+            <div class="rb-disclose-region" id="rb-sec-analysis" role="region" aria-label="Battle planning">
                 <div class="rb-disclose-inner">
 <div class="runbun-run-advice-block">
-            <div class="runbun-run-section-label" id="runbun-run-advice-heading">What to change</div>
-            <p id="runbun-run-advice-note" class="runbun-run-advice-note">No prep analysis</p>
+            <div class="runbun-run-section-label" id="runbun-run-advice-heading">Best upgrades for the next fight</div>
+            <p id="runbun-run-advice-note" class="runbun-run-advice-note">Choose Check matchup to compare upgrades.</p>
             <ol id="runbun-run-advice" class="runbun-run-advice" aria-labelledby="runbun-run-advice-heading"></ol>
         </div>
 
         <div class="runbun-run-rank-block">
-            <div class="runbun-run-section-label" id="runbun-run-rank-heading">Best sixes</div>
-            <p id="runbun-run-rank-note" class="runbun-run-rank-note">No team ranking</p>
+            <div class="runbun-run-section-label" id="runbun-run-rank-heading">Best parties</div>
+            <p id="runbun-run-rank-note" class="runbun-run-rank-note">Choose Rank parties to test your available Pok&eacute;mon.</p>
             <ol id="runbun-run-ranking" class="runbun-run-ranking" aria-labelledby="runbun-run-rank-heading"></ol>
         </div>
 
         
 
         <div class="runbun-run-matrix-block">
-            <div class="runbun-run-section-label" id="runbun-run-matrix-heading">Matchup board</div>
-            <p id="runbun-run-matrix-note" class="runbun-run-matrix-note">No matchup selected</p>
+            <div class="runbun-run-section-label" id="runbun-run-matrix-heading">Matchup table</div>
+            <p id="runbun-run-matrix-note" class="runbun-run-matrix-note">Choose a trainer to compare matchups.</p>
             <div id="runbun-run-matrix" class="runbun-run-matrix" aria-labelledby="runbun-run-matrix-heading"></div>
         </div>
                 </div>
@@ -2653,21 +2652,21 @@
         <div class="rb-disclose" data-section="routes">
             <h3 class="rb-disclose-h">
                 <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-routes">
-                    <span class="rb-disclose-title">Routes &amp; scouting</span>
+                    <span class="rb-disclose-title">Encounter planning</span>
                     <span class="rb-disclose-summary" data-summary="routes"></span>
                     <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
             </h3>
-            <div class="rb-disclose-region" id="rb-sec-routes" role="region" aria-label="Routes &amp; scouting">
+            <div class="rb-disclose-region" id="rb-sec-routes" role="region" aria-label="Encounter planning">
                 <div class="rb-disclose-inner">
 <div class="runbun-run-routes-block">
-            <div class="runbun-run-section-label" id="runbun-run-routes-heading">Routes</div>
+            <div class="runbun-run-section-label" id="runbun-run-routes-heading">Open encounter areas</div>
             <div class="runbun-run-row">
-                <button type="button" id="runbun-run-routes-btn" class="btn btn-wide" title="Every map still holding its encounter, unlock order first">Routes</button>
-                <button type="button" id="runbun-run-scout-btn" class="btn btn-wide" title="What the open routes could add against the next boss, graded on the board">Scout</button>
+                <button type="button" id="runbun-run-routes-btn" class="btn btn-wide" title="Show every location that still has an encounter">Show all encounter areas</button>
+                <button type="button" id="runbun-run-scout-btn" class="btn btn-wide" title="Compare available encounters against the next boss">Compare wild encounters</button>
             </div>
-            <p id="runbun-run-routes-note" class="runbun-run-routes-note">No route scan</p>
-            <ol id="runbun-run-scout" class="runbun-run-scout" aria-label="Scouted catches"></ol>
+            <p id="runbun-run-routes-note" class="runbun-run-routes-note">Choose Compare wild encounters to test open areas against the next boss.</p>
+            <ol id="runbun-run-scout" class="runbun-run-scout" aria-label="Encounter comparison"></ol>
             <ul id="runbun-run-routes" class="runbun-run-routes" aria-labelledby="runbun-run-routes-heading"></ul>
         </div>
                 </div>
@@ -2678,36 +2677,36 @@
     <div class="rb-disclose runbun-run-history-disclose" data-section="history">
         <h3 class="rb-disclose-h">
             <button type="button" class="rb-disclose-btn" aria-expanded="false" aria-controls="rb-sec-history">
-                <span class="rb-disclose-title">Trainer history</span>
-                <span class="rb-disclose-summary" data-summary="history">local archive</span>
+                <span class="rb-disclose-title">Run history</span>
+                <span class="rb-disclose-summary" data-summary="history">saved in this browser</span>
                 <svg class="rb-disclose-chev" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
         </h3>
-        <div class="rb-disclose-region" id="rb-sec-history" role="region" aria-label="Trainer history">
+        <div class="rb-disclose-region" id="rb-sec-history" role="region" aria-label="Run history">
             <div class="rb-disclose-inner">
                 <div class="runbun-run-history" aria-live="polite">
-                    <div class="runbun-run-history-metrics" aria-label="Attempt summary">
-                        <div><span>Tracked</span><strong id="runbun-history-tracked">0</strong></div>
-                        <div><span>Best</span><strong id="runbun-history-best">No attempts</strong></div>
-                        <div><span>Median end</span><strong id="runbun-history-median">Not enough data</strong></div>
-                        <div><span>Completed</span><strong id="runbun-history-completed">0</strong></div>
+                    <div class="runbun-run-history-metrics" aria-label="Run history summary">
+                        <div><span>Runs saved</span><strong id="runbun-history-tracked">0</strong></div>
+                        <div><span>Farthest</span><strong id="runbun-history-best">No runs yet</strong></div>
+                        <div><span>Typical finish</span><strong id="runbun-history-median">Need 2+ runs</strong></div>
+                        <div><span>Runs completed</span><strong id="runbun-history-completed">0</strong></div>
                     </div>
-                    <p id="runbun-history-state" class="runbun-history-state">Local archive not loaded</p>
+                    <p id="runbun-history-state" class="runbun-history-state">Loading runs saved in this browser…</p>
                     <div id="runbun-history-content" class="runbun-history-content" hidden>
                         <section aria-labelledby="runbun-history-journal-heading">
-                            <div class="runbun-run-section-label" id="runbun-history-journal-heading">Journal</div>
+                            <div class="runbun-run-section-label" id="runbun-history-journal-heading">Run journal</div>
                             <ol id="runbun-history-attempts" class="runbun-history-attempts"></ol>
                         </section>
                         <section aria-labelledby="runbun-history-species-heading">
-                            <div class="runbun-run-section-label" id="runbun-history-species-heading">Pok&eacute;dex history</div>
+                            <div class="runbun-run-section-label" id="runbun-history-species-heading">Species across runs</div>
                             <div class="runbun-history-table-wrap">
                                 <table class="runbun-history-species">
-                                    <caption>Species acquired across tracked attempts</caption>
-                                    <thead><tr><th scope="col">Species</th><th scope="col">Runs</th><th scope="col">Caught</th><th scope="col">Alive</th><th scope="col">Best</th></tr></thead>
+                                    <caption>Species acquired across saved runs</caption>
+                                    <thead><tr><th scope="col">Species</th><th scope="col">Runs found</th><th scope="col">Caught</th><th scope="col">Alive</th><th scope="col">Farthest point</th></tr></thead>
                                     <tbody id="runbun-history-species"></tbody>
                                 </table>
                             </div>
-                            <p class="runbun-history-caveat">Battle contribution and IV impact are not recorded yet.</p>
+                            <p class="runbun-history-caveat">This table counts catches and survival. Carry and IV comparisons require completed battle evidence.</p>
                         </section>
                     </div>
                 </div>
@@ -2719,11 +2718,11 @@
          damaged save are exactly the cases where there is no run yet, and the
          live block is hidden then. -->
     <details class="runbun-run-transfer">
-        <summary>Save data</summary>
+        <summary>Import or export save</summary>
         <textarea id="runbun-run-transfer" rows="6" spellcheck="false"></textarea>
         <div class="runbun-run-row">
-            <button type="button" id="runbun-run-export" class="btn btn-wide">Export</button>
-            <button type="button" id="runbun-run-import" class="btn btn-wide">Import</button>
+            <button type="button" id="runbun-run-export" class="btn btn-wide">Export save</button>
+            <button type="button" id="runbun-run-import" class="btn btn-wide">Import save</button>
         </div>
         <!-- Ending a run is deliberate: the kit's hold-to-confirm champion,
              ported — the fill IS the action's progress, release springs back,
@@ -2734,7 +2733,7 @@
                 <span>Result</span>
                 <select id="runbun-run-end-outcome" aria-label="Why this attempt ended">
                     <option value="wipe">Wiped</option>
-                    <option value="completed">Completed</option>
+                    <option value="completed">Won / completed</option>
                     <option value="reset">Reset</option>
                     <option value="abandoned">Abandoned</option>
                 </select>
@@ -2743,7 +2742,7 @@
                 <span class="rb-hold-fill" aria-hidden="true"></span>
                 <span class="rb-hold-label">Hold to end this run</span>
             </button>
-            <span class="runbun-run-endrun-hint">Archives locally and clears the active slot.</span>
+            <span class="runbun-run-endrun-hint">Saves this run to history in this browser and clears the active slot.</span>
         </div>
     </details>
 
@@ -2751,7 +2750,7 @@
 </section>
 
 <section id="runbun-replay" class="runbun-replay rb-mode-region rb-panel" role="region" tabindex="-1" aria-label="Run and Bun Battle Replay">
-    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to run tracker</a>
+    <a class="rb-surface-backlink" href="#runbun-run">&larr; Back to game</a>
     <h2 class="runbun-replay-title" id="runbun-replay-heading">Battle Replay</h2>
     <p class="runbun-replay-help">
         Step through a shareable <code>apply-advance-trace</code> JSON without re-deriving

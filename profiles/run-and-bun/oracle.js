@@ -355,9 +355,8 @@ const LIMITS = {
 	wildEncountersOnly: true,
 	staticAndGiftEncountersAbsent: true,
 	itemLocationsAbsent: true,
-	note: 'Wild encounter tables only. Starters, gifts, statics, trades and Poke Mart ' +
-		'stock are scripted events with no table in the decomp, so a catch or an item ' +
-		'may legitimately have no map behind it.',
+	note: 'Route rolls cover wild encounters. Starters, gifts, static encounters, trades ' +
+		'and shop stock are scripted events, so add them without choosing a route.',
 };
 
 /**

@@ -58,10 +58,10 @@
 			label: 'Play',
 			chips: [
 				{text: 'Run & Bun', kind: 'brand'},
-				{text: 'Local save', kind: 'warn'},
-				{text: 'ROM-checked', kind: 'muted'}
+				{text: 'Saved in this browser', kind: 'warn'},
+				{text: 'Game data verified', kind: 'muted'}
 			],
-			note: 'Encounters · roster · fights · history'
+			note: 'Play battles · manage your party · review the run'
 		},
 		replay: {
 			hash: '#runbun-replay',
@@ -153,8 +153,15 @@
 			if (!region) return;
 			// Only one working surface is present at a time. Related run and tool
 			// subviews still share one primary-navigation destination.
-			if (id === modeId) region.classList.add('rb-mode-active');
-			else region.classList.remove('rb-mode-active');
+			if (id === modeId) {
+				region.classList.add('rb-mode-active');
+				region.removeAttribute('aria-hidden');
+				region.removeAttribute('inert');
+			} else {
+				region.classList.remove('rb-mode-active');
+				region.setAttribute('aria-hidden', 'true');
+				region.setAttribute('inert', '');
+			}
 		});
 	}
 

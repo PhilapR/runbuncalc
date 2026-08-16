@@ -46,3 +46,37 @@ test('secondary engineering surface is presented as a lab', () => {
 	assert.match(html, /id="sets-bridge-heading">Battle-state lab<\/h2>/);
 	assert.match(html, /This development surface does not change your run\./);
 });
+
+test('the game surface names outcomes instead of tracker-era tools', () => {
+	const html = fs.readFileSync(path.join(__dirname, 'src/index.template.html'), 'utf8');
+	const panel = fs.readFileSync(path.join(__dirname, 'src/js/run_panel.js'), 'utf8');
+	const shell = fs.readFileSync(path.join(__dirname, 'src/js/runbun_shell.js'), 'utf8');
+	const start = html.indexOf('<section id="runbun-run"');
+	const end = html.indexOf('<section id="runbun-replay"');
+	const game = html.slice(start, end);
+
+	assert.match(game, />Check matchup</);
+	assert.match(game, />Improve party</);
+	assert.match(game, />Rank parties</);
+	assert.match(game, />Find encounters</);
+	assert.match(game, />Use this party</);
+	assert.match(game, />Leave fight without saving</);
+	assert.match(game, />Show all encounter areas</);
+	assert.match(game, />Compare wild encounters</);
+	assert.match(game, /id="runbun-run-catch-level"[^>]*aria-label="Encounter level"/);
+	assert.match(game, /type="hidden" id="runbun-run-selected"/);
+	assert.match(panel, /\.text\('Return to run'\)/);
+	assert.match(panel, /replace\(\/\\bRoute\\s\*\(\\d\+\)\\b\/g, 'Route \$1'\)/);
+	assert.doesNotMatch(game, />Matchup<|>Prep<|>Team<|>Explore<|>Journal<|>Set party</);
+	assert.doesNotMatch(game, /saved on this device|Show open routes|Compare encounters|No party ranking yet/);
+	assert.doesNotMatch(panel, /\.text\('Plan'\)|\.text\('Board'\)|\.text\('Beaten'\)/);
+	assert.doesNotMatch(shell, /Local save|ROM-checked|Encounters · roster · fights · history/);
+});
+
+test('inactive product surfaces leave both the layout and accessibility tree', () => {
+	const shell = fs.readFileSync(path.join(__dirname, 'src/js/runbun_shell.js'), 'utf8');
+	assert.match(shell, /region\.setAttribute\('aria-hidden', 'true'\)/);
+	assert.match(shell, /region\.setAttribute\('inert', ''\)/);
+	assert.match(shell, /region\.removeAttribute\('aria-hidden'\)/);
+	assert.match(shell, /region\.removeAttribute\('inert'\)/);
+});

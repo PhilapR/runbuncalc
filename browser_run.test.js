@@ -151,7 +151,7 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.match(await page.textContent('#runbun-run-play'), /Fight Youngster Calvin/);
 	assert.equal(await page.isDisabled('#runbun-run-plan'), false);
 	assert.equal(await page.textContent('#runbun-run-ready-party'), '1 / 6 · lead set');
-	assert.equal(await page.textContent('#runbun-run-ready-level'), 'Auto to L12');
+	assert.equal(await page.textContent('#runbun-run-ready-level'), 'Projected to L12');
 	assert.equal(await page.textContent('#runbun-run-ready-recovery'), 'Fresh at fight start');
 	assert.equal(await page.textContent('#runbun-run-party-strip .is-summary'), '5 open slots');
 	assert.equal(await page.$$eval('.runbun-run-next-actions > button', buttons => buttons.length), 6,
@@ -165,8 +165,9 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	'party members should be inspectable without duplicating them in the reserve');
 	assert.match(await page.textContent('#runbun-run-mon-summary-name'), /Treecko · L5/);
 	assert.equal(await page.textContent('#runbun-run-mon-summary-types'), 'Grass');
-	assert.match(await page.textContent('#runbun-run-mon-facts'), /AbilityUnknownNatureUnknown/,
-		'missing individual facts must stay visibly unknown');
+	assert.match(await page.textContent('#runbun-run-mon-facts'),
+		/AbilityNot recordedNatureNot recorded/,
+		'missing imported facts must say that they were not recorded');
 	assert.equal(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv.is-unknown',
 		rows => rows.length), 0, 'a game-owned starter has all six player IVs');
 	assert.deepEqual(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv strong',
@@ -192,7 +193,7 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
 		/2 field items/);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
-		/TM & tutorsTiming not dated yet/);
+		/TM & tutorsMove locations are not mapped yet/);
 	assert.equal(await page.$$eval('#runbun-run-reachable .runbun-run-route-choice',
 		buttons => buttons.length), 4,
 	'Explore should begin with the four reachable choices, not the complete ROM catalog');
@@ -213,7 +214,7 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	await page.click('#runbun-run-review');
 	assert.equal(await page.getAttribute(
 		'.rb-disclose[data-section="history"] .rb-disclose-btn', 'aria-expanded'), 'true');
-	await page.waitForFunction(() => /active attempt/.test(
+	await page.waitForFunction(() => /active run joins history/i.test(
 		document.querySelector('#runbun-history-state').textContent), null, {timeout: 5000});
 	await page.click('#runbun-run-explore');
 	assert.equal(await page.getAttribute(
@@ -396,7 +397,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	const cap = await page.textContent('#runbun-run-cap');
 	assert.match(cap, /Level cap 12 — Team Aqua Grunt Petalburg Woods's Croagunk/);
 	// And the split leads the position line.
-	assert.match(await page.textContent('#runbun-run-position'), /Brawly split \(1\/18\)/);
+	assert.match(await page.textContent('#runbun-run-position'), /Road to Brawly · boss 1\/18/);
 
 	// Picking a route lists what actually lives there.
 	await selectManualMap(page, 'Route101');
@@ -422,7 +423,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	const boxed = await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-name');
 	assert.match(boxed, /Scout the Lillipup L\d+/);
 	// Where it came from travels with it, which is what makes the box a record.
-	assert.match(await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-kit'), /walk · Route101/);
+	assert.match(await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-kit'), /walk · Route 101/);
 
 	// The party is built by clicking, because click order IS lead order — the
 	// multi-select this replaced returned selections in DOM order, so the lead
@@ -439,7 +440,8 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	'the persistent party should not be drawn again in the reserve');
 
 	// The split sheet names the boss the run is working toward and its gauntlet.
-	assert.match(await page.textContent('#runbun-run-split-summary'), /Brawly split \(1\/18\)/);
+	assert.match(await page.textContent('#runbun-run-split-summary'),
+		/Road to Brawly · boss 1\/18/);
 	assert.ok(await page.$$eval('#runbun-run-split-gauntlet .runbun-run-split-fight',
 		els => els.length) >= 4, 'the gauntlet lists the boss-tier fights');
 
@@ -511,16 +513,17 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 			'#runbun-run-advice .runbun-run-advice-empty') !== null,
 		null, {timeout: 30000});
 	assert.match(await page.textContent('#runbun-run-advice-note'),
-		/Youngster Calvin \(#0\) · \d+ single changes weighed.*undated TM\/tutor options withheld/);
+		/Youngster Calvin \(#0\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
 	const rows = await page.$$eval('#runbun-run-advice .runbun-run-advice-row',
 		els => els.map(el => el.textContent));
 	assert.ok(rows.length <= 10, 'the advisor offers a shortlist, not a catalogue');
 	if (rows.length) {
 		assert.ok(/Scout/.test(rows[0]), 'each row names the Pokemon it would change');
+		assert.doesNotMatch(rows[0], /mon-\d+/, 'player-facing upgrades must not expose storage ids');
 		assert.ok(rows.some(text => /KO/.test(text)), 'a flipped cell is why the list is ordered');
 	} else {
 		assert.match(await page.textContent('#runbun-run-advice .runbun-run-advice-empty'),
-			/No confirmed change available before this fight improves the board/);
+			/No available upgrade improves a matchup in this fight/);
 	}
 
 	assert.deepEqual(session.errors, [], `page raised errors: ${session.errors.join('; ')}`);
@@ -552,7 +555,7 @@ test('a catch that could not have happened is refused and changes nothing', {ski
 
 	// The refusal is the feature: it names the route's real roster.
 	const message = await page.textContent('#runbun-run-status');
-	assert.match(message, /Ralts does not appear on Route101; it holds: Lillipup/);
+	assert.match(message, /Ralts does not appear on Route 101; it holds: Lillipup/);
 	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');
 	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon', els => els.length), 1,
 		'only the starter stands');
@@ -799,7 +802,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 		null, {timeout: 10000});
 	await page.click('#runbun-run-rank');
 	await page.waitForSelector('#runbun-run-ranking .runbun-run-rank-row');
-	assert.match(await page.textContent('#runbun-run-rank-note'), /sixes from a box of 2/);
+	assert.match(await page.textContent('#runbun-run-rank-note'), /1 party from 2 Pokémon/);
 	assert.match(await page.textContent('#runbun-run-ranking .runbun-run-rank-row'),
 		/Lillipup/);
 });
@@ -1241,15 +1244,15 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 		'the fight left a narration');
 	assert.match(await page.textContent('#runbun-run-battle-result'), /recorded/,
 		'the finished battle says its result is in the run');
-	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Continue',
+	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Return to run',
 		'a completed fight must never leave an Abandon action behind');
 	const recordedStatus = await page.textContent('#runbun-run-status');
 	await page.click('#runbun-run-battle-abandon');
 	assert.equal(await page.isVisible('#runbun-run-battle'), false,
-		'Continue returns to the next run decision');
+		'Return to run opens the next run decision');
 	assert.equal(await page.$eval('#runbun-run-live', element =>
 		element.classList.contains('is-battle-active')), false,
-	'Continue restores the out-of-battle run surface');
+	'Return to run restores the out-of-battle run surface');
 	assert.equal(await page.textContent('#runbun-run-status'), recordedStatus,
 		'closing a completed fight must not claim that nothing was written');
 
@@ -1326,7 +1329,7 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	} else {
 		assert.equal(saved.box.length, 1, 'a killed encounter keeps nothing');
 	}
-	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Continue',
+	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Return to run',
 		'a settled wild fight keeps its result visible until the player continues');
 	await page.click('#runbun-run-battle-abandon');
 	await page.click('#runbun-run-roll');
@@ -1648,7 +1651,7 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 		{state: 'visible', timeout: 10000});
 	assert.match(await page.textContent('#runbun-history-attempts'), /Wiped/);
 	assert.equal(await page.textContent('#runbun-history-tracked'), '1');
-	assert.match(await page.textContent('#runbun-run-status'), /Run archived as Wiped/);
+	assert.match(await page.textContent('#runbun-run-status'), /Run saved as Wiped/);
 
 	await session.context.close();
 });
