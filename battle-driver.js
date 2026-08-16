@@ -222,6 +222,74 @@ function phaseOf(state) {
 	return 'choose';
 }
 
+function contributionRoster(party, activeBattleId) {
+	return (party || []).map(member => ({
+		monId: member.monId,
+		battleId: member.battleId,
+		species: member.species,
+		entered: member.battleId === activeBattleId ? 1 : 0,
+		switchIns: 0,
+		actions: 0,
+		moveActions: 0,
+		damageDealt: 0,
+		kos: 0,
+	}));
+}
+
+function contributionRowsAreValid(bundle) {
+	var party = bundle.party || [];
+	var rows = bundle.contributions;
+	var ids = new Set();
+	if (!Array.isArray(rows) || rows.length !== party.length) return false;
+	return rows.every(row => {
+		if (!row || typeof row.monId !== 'string' || !row.monId ||
+			typeof row.battleId !== 'string' || !row.battleId ||
+			typeof row.species !== 'string' || !row.species || ids.has(row.monId) ||
+			!party.some(member => member.monId === row.monId && member.battleId === row.battleId)) {
+			return false;
+		}
+		ids.add(row.monId);
+		var validCounters = ['entered', 'switchIns', 'actions', 'moveActions', 'damageDealt', 'kos']
+			.every(field => Number.isInteger(row[field]) && row[field] >= 0 && row[field] <= 0xffffffff);
+		return validCounters && row.switchIns <= row.entered && row.moveActions <= row.actions &&
+			(row.entered > 0 || row.actions + row.damageDealt + row.kos === 0);
+	});
+}
+
+function contributionState(bundle) {
+	var complete = bundle.contributionVersion === 1 && bundle.contributionComplete !== false &&
+		contributionRowsAreValid(bundle);
+	var rows = complete ? bundle.contributions.map(row => Object.assign({}, row)) :
+		contributionRoster(bundle.party, activeOf(bundle.state, 'player'));
+	return {complete, rows};
+}
+
+function recordContribution(rows, before, after, action) {
+	if (!action || typeof action.actorId !== 'string' || action.actorId.indexOf('player') !== 0) return;
+	if (action.kind === 'switch') {
+		const incoming = rows.find(row => row.battleId === action.replacementId);
+		if (incoming) {
+			incoming.entered += 1;
+			incoming.switchIns += 1;
+		}
+		return;
+	}
+	if (action.kind !== 'move') return;
+	const actor = rows.find(row => row.battleId === action.actorId);
+	if (!actor) return;
+	actor.actions += 1;
+	actor.moveActions += 1;
+	const opposingIds = new Set(before.sides.ai.party.map(mon => mon.id));
+	const targets = (action.targetIds || []).filter(id => opposingIds.has(id));
+	for (const id of targets) {
+		const prior = findMon(before, id);
+		const current = findMon(after, id);
+		if (!prior || !current) continue;
+		actor.damageDealt += Math.max(0, prior.hp.current - current.hp.current);
+		if (prior.hp.current > 0 && current.hp.current <= 0) actor.kos += 1;
+	}
+}
+
 function finished(state) {
 	if (sideOut(state, 'ai')) return 'win';
 	if (sideOut(state, 'player')) return 'loss';
@@ -332,6 +400,9 @@ function start(doc, trainerName, seed) {
 			species: specs[slot].species,
 		})),
 	};
+	bundle.contributionVersion = 1;
+	bundle.contributionComplete = true;
+	bundle.contributions = contributionRoster(bundle.party, activeOf(state, 'player'));
 	return {
 		battle: bundle,
 		viewState: view(state),
@@ -427,6 +498,9 @@ function startWild(doc, roll, seed) {
 			species: specs[slotIndex].species,
 		})),
 	};
+	bundle.contributionVersion = 1;
+	bundle.contributionComplete = true;
+	bundle.contributions = contributionRoster(bundle.party, activeOf(built.state, 'player'));
 	return {
 		battle: bundle,
 		viewState: view(built.state),
@@ -447,6 +521,7 @@ function act(bundle, chosen) {
 	let state = bundle.state;
 	const events = [];
 	const faints = [];
+	const contribution = contributionState(bundle);
 	const rng = streamFor(bundle.seed, bundle.step);
 	// A caught fight ends with the wild mon still standing, so the phase is
 	// the record of that ending, not the HP table.
@@ -489,6 +564,7 @@ function act(bundle, chosen) {
 			const incoming = findMon(state, action.replacementId);
 			events.push({text: `${label}${incoming.species} was sent out.`});
 		}
+		recordContribution(contribution.rows, before, state, action);
 		recordFaints(before, state, action.kind === 'move' ? action.moveName : null,
 			action.actorId, events, faints);
 	};
@@ -631,7 +707,9 @@ function act(bundle, chosen) {
 			carried.push(death);
 		}
 	}
-	const next = Object.assign({}, bundle, {state, step: bundle.step + 1, phase, deaths: carried});
+	const next = Object.assign({}, bundle, {state, step: bundle.step + 1, phase, deaths: carried,
+		contributionVersion: 1, contributionComplete: contribution.complete,
+		contributions: contribution.rows});
 	const monIdOf = battleId => {
 		const row = (bundle.party || []).find(member => member.battleId === battleId);
 		return row ? row.monId : null;

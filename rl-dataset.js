@@ -4,7 +4,7 @@
 const AttemptStore = require('./src/js/attempt_store');
 const RunHistory = require('./src/js/run_history');
 
-const SCHEMA_VERSION = '1.2.0';
+const SCHEMA_VERSION = '1.3.0';
 const TABLE_SCHEMAS = Object.freeze({
 	episodes: Object.freeze({
 		attempt_id: 'UTF8', profile_id: 'UTF8', model_version: 'UTF8',
@@ -62,6 +62,13 @@ const TABLE_SCHEMAS = Object.freeze({
 		sampled_branches: 'UINT32?', sampled_safe_branches: 'UINT32?',
 		sampled_deaths: 'UINT32?', actual_outcome: 'UTF8_DICTIONARY?',
 		actual_deaths: 'UINT32?', actual_turns: 'UINT32?',
+	}),
+	battle_contributions: Object.freeze({
+		attempt_id: 'UTF8', battle_revision: 'UINT32', battle_event_id: 'UTF8',
+		trainer_order: 'UINT32', mon_id: 'UTF8', battle_id: 'UTF8', species: 'UTF8',
+		entered: 'UINT32', switch_ins: 'UINT32', actions: 'UINT32',
+		move_actions: 'UINT32', immediate_hp_lost: 'UINT32', kos: 'UINT32',
+		complete: 'BOOLEAN',
 	}),
 });
 
@@ -238,6 +245,41 @@ function planningReviewRow(bundle, row) {
 	};
 }
 
+function validBattleContribution(row) {
+	const validCounters = row &&
+		['entered', 'switchIns', 'actions', 'moveActions', 'damageDealt', 'kos']
+			.every(field => Number.isInteger(row[field]) && row[field] >= 0 && row[field] <= 0xffffffff);
+	return Boolean(validCounters && typeof row.monId === 'string' && row.monId &&
+		typeof row.battleId === 'string' && row.battleId && typeof row.species === 'string' &&
+		row.species && row.switchIns <= row.entered && row.moveActions <= row.actions &&
+		(row.entered > 0 || row.actions + row.damageDealt + row.kos === 0));
+}
+
+function battleContributionRows(bundle, event) {
+	const payload = event.payload;
+	if (event.kind !== 'battle.ended' || !payload || payload.kind !== 'trainer' ||
+		!Number.isInteger(payload.trainerOrder) || !Array.isArray(payload.contributions)) return [];
+	const valid = payload.contributions.every(validBattleContribution);
+	const complete = payload.contributionVersion === 1 && payload.contributionComplete === true && valid;
+	return payload.contributions.filter(validBattleContribution)
+		.map(row => ({
+			attempt_id: bundle.attemptId,
+			battle_revision: uint32(event.revision, 'contribution battle revision'),
+			battle_event_id: event.eventId,
+			trainer_order: uint32(payload.trainerOrder, 'contribution trainer order'),
+			mon_id: row.monId,
+			battle_id: row.battleId,
+			species: row.species,
+			entered: uint32(row.entered, 'contribution entries'),
+			switch_ins: uint32(row.switchIns, 'contribution switch ins'),
+			actions: uint32(row.actions, 'contribution actions'),
+			move_actions: uint32(row.moveActions, 'contribution move actions'),
+			immediate_hp_lost: uint32(row.damageDealt, 'contribution immediate HP lost'),
+			kos: uint32(row.kos, 'contribution KOs'),
+			complete,
+		}));
+}
+
 async function materialize(bundle, options) {
 	await AttemptStore.validateBundle(bundle);
 	const events = bundle.events.map(event => eventRow(bundle, event));
@@ -259,6 +301,8 @@ async function materialize(bundle, options) {
 	const battleOutcomes = bundle.events.map(event => battleOutcomeRow(bundle, event)).filter(Boolean);
 	const planningReviews = RunHistory.derivePlanningReview(bundle).rows.map(row =>
 		planningReviewRow(bundle, row));
+	const battleContributions = bundle.events.flatMap(event =>
+		battleContributionRows(bundle, event));
 	return {
 		schemaVersion: SCHEMA_VERSION,
 		tableSchemas: TABLE_SCHEMAS,
@@ -281,6 +325,7 @@ async function materialize(bundle, options) {
 		planning_branches: planningBranches,
 		battle_outcomes: battleOutcomes,
 		planning_reviews: planningReviews,
+		battle_contributions: battleContributions,
 	};
 }
 

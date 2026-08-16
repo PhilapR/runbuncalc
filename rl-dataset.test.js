@@ -40,6 +40,9 @@ test('checked archives materialize into primitive episode, event, step and obser
 		event: event('battle.ended', {kind: 'trainer', trainer: 'Youngster Allen',
 			trainerOrder: 1, progressionOrder: 0, seed: 1450, outcome: 'lost', turns: 5,
 			leadId: 'owned-treecko-1', participantIds: ['owned-treecko-1'],
+			contributionVersion: 1, contributionComplete: true,
+			contributions: [{monId: 'owned-treecko-1', battleId: 'player-1', species: 'Treecko',
+				entered: 1, switchIns: 0, actions: 5, moveActions: 5, damageDealt: 37, kos: 0}],
 			deaths: [{monId: 'owned-treecko-1', species: 'Treecko'}]},
 		{kind: 'simulator', providerId: 'runbun-battle-driver', confidence: 1})});
 	await store.commit({run: advanced, expectedRevision: 4, commandId: 'end',
@@ -48,7 +51,7 @@ test('checked archives materialize into primitive episode, event, step and obser
 	const rows = await dataset.materialize(await store.exportActive(), {
 		reward: row => row.payload.command.kind === 'tick' ? -1 : 0,
 	});
-	assert.equal(rows.schemaVersion, '1.2.0');
+	assert.equal(rows.schemaVersion, '1.3.0');
 	assert.equal(rows.episodes[0].outcome, 'wipe');
 	assert.equal(rows.episodes[0].revision_count, 5);
 	assert.equal(rows.events.length, 5);
@@ -101,6 +104,13 @@ test('checked archives materialize into primitive episode, event, step and obser
 		planned_lead_id: 'owned-treecko-1', sampled_branches: 1,
 		sampled_safe_branches: 0, sampled_deaths: 1, actual_outcome: 'loss',
 		actual_deaths: 1, actual_turns: 5,
+	}]);
+	assert.deepEqual(rows.battle_contributions, [{
+		attempt_id: 'rl-attempt', battle_revision: 4,
+		battle_event_id: 'rl-attempt:battle', trainer_order: 1,
+		mon_id: 'owned-treecko-1', battle_id: 'player-1', species: 'Treecko',
+		entered: 1, switch_ins: 0, actions: 5, move_actions: 5,
+		immediate_hp_lost: 37, kos: 0, complete: true,
 	}]);
 	assert.match(dataset.ndjson(rows.steps), /"action_kind":"tick".*\n$/);
 });

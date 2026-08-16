@@ -3165,6 +3165,33 @@ table.field {
 	line-height: 1.45;
 	color: var(--rb-ink-muted);
 }
+#runbun-run .runbun-history-contribution-label {
+	margin-top: var(--rb-space-xs);
+	font-size: 0.7rem;
+	font-weight: 800;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-history-contributions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+#runbun-run .runbun-history-contributions li {
+	min-width: 0;
+	padding: 0.25rem 0.45rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+	font-family: var(--rb-font-mono);
+	font-size: 0.82rem;
+	line-height: 1.4;
+	overflow-wrap: anywhere;
+}
 #runbun-run .runbun-run-endrun-outcome {
 	display: grid;
 	gap: 0.2rem;

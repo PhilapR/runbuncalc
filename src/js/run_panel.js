@@ -991,6 +991,25 @@
 						(actual.deaths ? actual.deaths + ' death' + (actual.deaths === 1 ? '' : 's') :
 							'deathless') + ' · ' + actual.turns + ' turns · seed ' + actual.seed :
 						'Played · not yet'));
+					if (actual && actual.contributions.length) {
+						var $contributions = $('<ul class="runbun-history-contributions"></ul>');
+						actual.contributions.forEach(function (contribution) {
+							var appearances = [];
+							if (contribution.entered > contribution.switchIns) appearances.push('started');
+							if (contribution.switchIns) appearances.push(contribution.switchIns +
+								' switch-in' + (contribution.switchIns === 1 ? '' : 's'));
+							$contributions.append($('<li></li>').text(contribution.species + ' · ' +
+								appearances.join(' + ') + ' · ' + contribution.moveActions + ' move attempt' +
+								(contribution.moveActions === 1 ? '' : 's') + ' · ' +
+								contribution.damageDealt + ' opposing HP removed' +
+								(contribution.kos ? ' · ' + contribution.kos + ' KO' +
+									(contribution.kos === 1 ? '' : 's') : '')));
+						});
+						$card.append($('<div class="runbun-history-contribution-label"></div>')
+							.text(actual.contributionComplete ? 'Actual participation' :
+								'Partial participation record'));
+						$card.append($contributions);
+					}
 					$planning.append($card);
 				});
 				return review;
@@ -2263,8 +2282,15 @@
 					reply.viewState.turn : completedBundle.state.turn,
 				leadId: completedBundle.party && completedBundle.party[0] ?
 					completedBundle.party[0].monId : null,
-				participantIds: (completedBundle.party || []).map(function (member) {
-					return member.monId;
+				participantIds: (completedBundle.contributions || [])
+					.filter(function (row) { return row.entered > 0; })
+					.map(function (row) { return row.monId; }),
+				contributionVersion: completedBundle.contributionVersion || null,
+				contributionComplete: completedBundle.contributionComplete === true,
+				contributions: (completedBundle.contributions || []).map(function (row) {
+					return {monId: row.monId, battleId: row.battleId, species: row.species,
+						entered: row.entered, switchIns: row.switchIns, actions: row.actions,
+						moveActions: row.moveActions, damageDealt: row.damageDealt, kos: row.kos};
 				}),
 				deaths: deaths.map(function (death) {
 					return {monId: death.monId, species: death.species,

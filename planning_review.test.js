@@ -61,14 +61,16 @@ function planEvidence({trainerOrder = 7, attemptRevision = 10, recordedAt = '202
 }
 
 function battleCompleted({trainerOrder = 7, revision = 20, victory = true, deaths = 0, turns = 6,
-	wild = false, kind = 'battle.ended'} = {}) {
+	wild = false, kind = 'battle.ended', contributions} = {}) {
 	return {
 		attemptId: ATTEMPT_ID,
 		revision,
 		kind,
 		payload: {kind: wild ? 'wild' : 'trainer', trainerOrder,
 			outcome: victory ? 'won' : 'lost', deaths: Array.from({length: deaths}, (_, index) => 'mon-' + index),
-			turns, leadId: 'mon-treecko', participantIds: ['mon-treecko']},
+			turns, leadId: 'mon-treecko', participantIds: ['mon-treecko'],
+			contributionVersion: contributions ? 1 : null,
+			contributionComplete: Boolean(contributions), contributions: contributions || []},
 	};
 }
 
@@ -93,7 +95,8 @@ test('matches the latest pre-battle plan by trainer order and reports actual out
 		deaths: 0, losses: 0, expectedTurns: 5, leadId: 'mon-mudkip', leadSpecies: 'Mudkip'});
 	assert.deepEqual(review.actual, {eventId: undefined, revision: 20, trainerOrder: 7,
 		trainer: null, result: 'win', deaths: 0, turns: 5, seed: undefined,
-		leadId: 'mon-treecko', participantIds: ['mon-treecko']});
+		leadId: 'mon-treecko', participantIds: ['mon-treecko'],
+		contributionComplete: false, contributions: []});
 	assert.equal(review.comparison, 'held');
 });
 
@@ -131,6 +134,27 @@ test('leaves evidence with no matching completion unplayed', () => {
 	], [])));
 	assert.equal(review.comparison, 'unplayed');
 	assert.equal(review.actual, null);
+});
+
+test('retains complete realized participation without inferring carry', () => {
+	const contributions = [{monId: 'mon-treecko', battleId: 'player-1', species: 'Treecko',
+		entered: 1, switchIns: 0, actions: 3, moveActions: 3, damageDealt: 41, kos: 1},
+	{monId: 'mon-mudkip', battleId: 'player-2', species: 'Mudkip',
+		entered: 0, switchIns: 0, actions: 0, moveActions: 0, damageDealt: 0, kos: 0}];
+	const review = onlyReview(derivePlanningReview(inspected([], [battleCompleted({contributions})])));
+
+	assert.equal(review.actual.contributionComplete, true);
+	assert.deepEqual(review.actual.contributions, [contributions[0]]);
+	assert.equal(Object.hasOwn(review.actual.contributions[0], 'carry'), false);
+});
+
+test('a malformed contribution row makes the receipt partial', () => {
+	const contributions = [{monId: 'mon-treecko', battleId: 'player-1', species: 'Treecko',
+		entered: 1, switchIns: 0, actions: 3, moveActions: 3, damageDealt: -1, kos: 1}];
+	const review = onlyReview(derivePlanningReview(inspected([], [battleCompleted({contributions})])));
+
+	assert.equal(review.actual.contributionComplete, false);
+	assert.deepEqual(review.actual.contributions, []);
 });
 
 test('ignores unrelated, wild, and malformed records without inventing carry', () => {

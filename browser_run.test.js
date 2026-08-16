@@ -1351,6 +1351,10 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	assert.equal(completed.payload.trainerOrder, 3);
 	assert.equal(completed.payload.progressionOrder, 0);
 	assert.equal(completed.payload.outcome, /Won against/.test(status) ? 'won' : 'lost');
+	assert.equal(completed.payload.contributionVersion, 1);
+	assert.equal(completed.payload.contributionComplete, true);
+	assert.ok(completed.payload.contributions.some(row => row.entered > 0 && row.moveActions > 0),
+		'the battle receipt records the Pokemon that actually acted');
 	assert.equal(completed.payload.deaths.length,
 		saved.box.filter(mon => mon.status === 'dead').length);
 	assert.equal(completed.source.kind, 'simulator');
