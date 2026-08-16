@@ -28,13 +28,12 @@
  * in the game.
  */
 
-const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
 
 const calc = require('@smogon/calc');
 const ai = require('./ai');
 const getProfile = require('./profiles').getProfile;
+const loadSetdex = require('./setdex-loader').loadSetdex;
 
 // The sets bridge is browser-first: it reads the calculator and the trainer
 // table from globals. Provide them before requiring it.
@@ -54,12 +53,10 @@ function loadBridge(profile) {
 			'there is no run map to plan against');
 	}
 	const setsPath = path.join(__dirname, encounters.SOURCE);
-	const source = fs.readFileSync(setsPath, 'utf8');
-	// The trainer data is a classic browser script — `var SETDEX_SS = {...};` —
-	// so evaluating it in this realm is what actually reproduces how the page
-	// loads it. `runInThisContext` says that plainly; building a Function to
-	// return the value would only disguise the same evaluation.
-	vm.runInThisContext(source, {filename: encounters.SOURCE});
+	// Node loads the classic browser source in-process. The Cloudflare build
+	// replaces this loader with a materialized data module produced at build
+	// time, because workerd intentionally rejects eval/new Function.
+	loadSetdex(setsPath, encounters.GLOBAL);
 	const bridge = require('./src/js/sets_to_battle_state.js');
 	bridgeCache.set(profile.id, bridge);
 	return bridge;

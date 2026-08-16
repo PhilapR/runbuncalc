@@ -1,0 +1,443 @@
+{
+  "schemaVersion": 1,
+  "kind": "apply-advance-trace",
+  "id": "sample-apply-advance",
+  "label": "Sample apply → advance (Gen 8 Singles)",
+  "generation": 8,
+  "mode": "Singles",
+  "initialState": {
+    "generation": 8,
+    "mode": "Singles",
+    "turn": 1,
+    "field": {},
+    "sides": {
+      "ai": {
+        "activeIds": [
+          "ai-1"
+        ],
+        "party": [
+          {
+            "id": "ai-1",
+            "species": "Pikachu",
+            "level": 100,
+            "hp": {
+              "current": 100,
+              "max": 100
+            },
+            "ability": "Static",
+            "item": "Light Ball",
+            "nature": "Timid",
+            "evs": {
+              "hp": 0,
+              "atk": 0,
+              "def": 0,
+              "spa": 0,
+              "spd": 0,
+              "spe": 0
+            },
+            "moves": [
+              {
+                "name": "Thunderbolt"
+              },
+              {
+                "name": "Thunder Wave"
+              },
+              {
+                "name": "Protect"
+              },
+              {
+                "name": "Volt Switch"
+              }
+            ]
+          }
+        ]
+      },
+      "player": {
+        "activeIds": [
+          "player-1"
+        ],
+        "party": [
+          {
+            "id": "player-1",
+            "species": "Gyarados",
+            "level": 100,
+            "hp": {
+              "current": 200,
+              "max": 200
+            },
+            "ability": "Intimidate",
+            "nature": "Jolly",
+            "evs": {
+              "hp": 0,
+              "atk": 0,
+              "def": 0,
+              "spa": 0,
+              "spd": 0,
+              "spe": 0
+            },
+            "moves": [
+              {
+                "name": "Waterfall"
+              },
+              {
+                "name": "Earthquake"
+              },
+              {
+                "name": "Dragon Dance"
+              },
+              {
+                "name": "Ice Fang"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "firstTurnOutIds": [
+      "ai-1",
+      "player-1"
+    ]
+  },
+  "steps": [
+    {
+      "type": "apply",
+      "sideId": "ai",
+      "action": {
+        "kind": "move",
+        "actorId": "ai-1",
+        "moveName": "Thunderbolt",
+        "targetIds": [
+          "player-1"
+        ]
+      },
+      "resolution": {
+        "hit": true,
+        "trace": {
+          "source": "battle-engine",
+          "hit": true,
+          "accuracyBase": 100,
+          "accuracyRoll": 0.2924510365681141,
+          "accuracyThreshold": 1,
+          "accuracyMultiplier": 1,
+          "accuracyModifiers": [],
+          "notes": [
+            "derived common move effects",
+            "sampled calculator damage"
+          ],
+          "secondaryRolls": {
+            "player-1:0": 0.6688123200268818
+          }
+        }
+      },
+      "evaluations": [
+        {
+          "action": {
+            "kind": "move",
+            "actorId": "ai-1",
+            "moveName": "Thunderbolt",
+            "targetIds": [
+              "player-1"
+            ]
+          },
+          "reasons": [
+            "highest damaging move or a move that can KO",
+            "can KO the target"
+          ]
+        },
+        {
+          "action": {
+            "kind": "move",
+            "actorId": "ai-1",
+            "moveName": "Volt Switch",
+            "targetIds": [
+              "player-1"
+            ]
+          },
+          "reasons": [
+            "highest damaging move or a move that can KO",
+            "can KO the target"
+          ]
+        },
+        {
+          "action": {
+            "kind": "move",
+            "actorId": "ai-1",
+            "moveName": "Thunder Wave",
+            "targetIds": [
+              "player-1"
+            ]
+          },
+          "reasons": [
+            "default non-damaging move score"
+          ]
+        },
+        {
+          "action": {
+            "kind": "move",
+            "actorId": "ai-1",
+            "moveName": "Protect",
+            "targetIds": [
+              "ai-1"
+            ]
+          },
+          "reasons": [
+            "Protect scoring rule",
+            "Protect context adjustment"
+          ]
+        }
+      ],
+      "stateAfter": {
+        "generation": 8,
+        "mode": "Singles",
+        "turn": 1,
+        "field": {},
+        "sides": {
+          "ai": {
+            "activeIds": [
+              "ai-1"
+            ],
+            "party": [
+              {
+                "id": "ai-1",
+                "species": "Pikachu",
+                "level": 100,
+                "hp": {
+                  "current": 100,
+                  "max": 100
+                },
+                "ability": "Static",
+                "item": "Light Ball",
+                "nature": "Timid",
+                "evs": {
+                  "hp": 0,
+                  "atk": 0,
+                  "def": 0,
+                  "spa": 0,
+                  "spd": 0,
+                  "spe": 0
+                },
+                "moves": [
+                  {
+                    "name": "Thunderbolt",
+                    "timesUsed": 1
+                  },
+                  {
+                    "name": "Thunder Wave"
+                  },
+                  {
+                    "name": "Protect"
+                  },
+                  {
+                    "name": "Volt Switch"
+                  }
+                ]
+              }
+            ]
+          },
+          "player": {
+            "activeIds": [
+              "player-1"
+            ],
+            "party": [
+              {
+                "id": "player-1",
+                "species": "Gyarados",
+                "level": 100,
+                "hp": {
+                  "current": 200,
+                  "max": 200
+                },
+                "ability": "Intimidate",
+                "nature": "Jolly",
+                "evs": {
+                  "hp": 0,
+                  "atk": 0,
+                  "def": 0,
+                  "spa": 0,
+                  "spd": 0,
+                  "spe": 0
+                },
+                "moves": [
+                  {
+                    "name": "Waterfall"
+                  },
+                  {
+                    "name": "Earthquake"
+                  },
+                  {
+                    "name": "Dragon Dance"
+                  },
+                  {
+                    "name": "Ice Fang"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "firstTurnOutIds": [
+          "ai-1",
+          "player-1"
+        ],
+        "lastMoveByPokemon": {
+          "ai-1": "Thunderbolt"
+        },
+        "lastMoveUsedByPokemon": {
+          "ai-1": "Thunderbolt"
+        },
+        "lastMoveTargetIdsByPokemon": {
+          "ai-1": [
+            "player-1"
+          ]
+        },
+        "lastMoveUsed": "Thunderbolt",
+        "moveStreakByPokemon": {
+          "ai-1": {
+            "moveName": "Thunderbolt",
+            "count": 1
+          }
+        },
+        "lastMoveTargetedByPokemon": {
+          "player-1": "Thunderbolt"
+        },
+        "lastResolution": {
+          "source": "battle-engine",
+          "hit": true,
+          "accuracyBase": 100,
+          "accuracyRoll": 0.2924510365681141,
+          "accuracyThreshold": 1,
+          "accuracyMultiplier": 1,
+          "accuracyModifiers": [],
+          "notes": [
+            "derived common move effects",
+            "sampled calculator damage"
+          ],
+          "secondaryRolls": {
+            "player-1:0": 0.6688123200268818
+          }
+        }
+      }
+    },
+    {
+      "type": "advance",
+      "stateAfter": {
+        "generation": 8,
+        "mode": "Singles",
+        "turn": 2,
+        "field": {},
+        "sides": {
+          "ai": {
+            "activeIds": [
+              "ai-1"
+            ],
+            "party": [
+              {
+                "id": "ai-1",
+                "species": "Pikachu",
+                "level": 100,
+                "hp": {
+                  "current": 100,
+                  "max": 100
+                },
+                "ability": "Static",
+                "item": "Light Ball",
+                "nature": "Timid",
+                "evs": {
+                  "hp": 0,
+                  "atk": 0,
+                  "def": 0,
+                  "spa": 0,
+                  "spd": 0,
+                  "spe": 0
+                },
+                "moves": [
+                  {
+                    "name": "Thunderbolt",
+                    "timesUsed": 1
+                  },
+                  {
+                    "name": "Thunder Wave"
+                  },
+                  {
+                    "name": "Protect"
+                  },
+                  {
+                    "name": "Volt Switch"
+                  }
+                ]
+              }
+            ]
+          },
+          "player": {
+            "activeIds": [
+              "player-1"
+            ],
+            "party": [
+              {
+                "id": "player-1",
+                "species": "Gyarados",
+                "level": 100,
+                "hp": {
+                  "current": 200,
+                  "max": 200
+                },
+                "ability": "Intimidate",
+                "nature": "Jolly",
+                "evs": {
+                  "hp": 0,
+                  "atk": 0,
+                  "def": 0,
+                  "spa": 0,
+                  "spd": 0,
+                  "spe": 0
+                },
+                "moves": [
+                  {
+                    "name": "Waterfall"
+                  },
+                  {
+                    "name": "Earthquake"
+                  },
+                  {
+                    "name": "Dragon Dance"
+                  },
+                  {
+                    "name": "Ice Fang"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "firstTurnOutIds": [],
+        "lastMoveByPokemon": {
+          "ai-1": "Thunderbolt"
+        },
+        "lastMoveUsedByPokemon": {
+          "ai-1": "Thunderbolt"
+        },
+        "lastMoveTargetIdsByPokemon": {
+          "ai-1": [
+            "player-1"
+          ]
+        },
+        "lastMoveUsed": "Thunderbolt",
+        "moveStreakByPokemon": {
+          "ai-1": {
+            "moveName": "Thunderbolt",
+            "count": 1
+          }
+        },
+        "lastMoveTargetedByPokemon": {
+          "player-1": "Thunderbolt"
+        },
+        "lastResolution": {
+          "source": "battle-engine",
+          "notes": [
+            "derived end-of-turn residual effects"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -19,6 +19,7 @@
  */
 
 const runApi = require('./run-api.js');
+const aiApi = require('./ai-api.js');
 const BUILD_SHA = typeof __RUNBUN_BUILD_SHA__ === 'string' ?
 	__RUNBUN_BUILD_SHA__ : 'development';
 const MODEL_VERSION = typeof __RUNBUN_MODEL_VERSION__ === 'string' ?
@@ -107,7 +108,7 @@ module.exports = {
 				headers: {'Cache-Control': 'no-store'},
 			});
 		}
-		const route = runApi.ROUTES[url.pathname];
+		const route = runApi.ROUTES[url.pathname] || aiApi.ROUTES[url.pathname];
 		if (route) {
 			// The one GET in the surface; everything else posts the run.
 			if (url.pathname === '/run/maps' && request.method === 'GET') {

@@ -1,0 +1,46 @@
+{
+  "generation": 8,
+  "mode": "Singles",
+  "turn": 4,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1"],
+      "party": [{
+        "id": "ai-1",
+        "species": "Clefable",
+        "level": 50,
+        "hp": {"current": 28, "max": 160},
+        "ability": "Magic Guard",
+        "item": "Leftovers",
+        "nature": "Bold",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Protect"},
+          {"name": "Moonblast"},
+          {"name": "Soft-Boiled"},
+          {"name": "Thunder Wave"}
+        ]
+      }]
+    },
+    "player": {
+      "activeIds": ["player-1"],
+      "party": [{
+        "id": "player-1",
+        "species": "Kartana",
+        "level": 50,
+        "hp": {"current": 100, "max": 100},
+        "ability": "Beast Boost",
+        "item": "Choice Scarf",
+        "nature": "Jolly",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Leaf Blade"},
+          {"name": "Smart Strike"},
+          {"name": "Sacred Sword"},
+          {"name": "Knock Off"}
+        ]
+      }]
+    }
+  }
+}

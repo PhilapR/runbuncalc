@@ -20,6 +20,25 @@ function environment(password) {
 	};
 }
 
+function battleState() {
+	return {
+		generation: 8,
+		mode: 'Singles',
+		turn: 1,
+		field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [{
+				id: 'ai-1', species: 'Poochyena', level: 5,
+				hp: {current: 20, max: 20}, moves: [{name: 'Tackle'}],
+			}]},
+			player: {activeIds: ['player-1'], party: [{
+				id: 'player-1', species: 'Treecko', level: 5,
+				hp: {current: 21, max: 21}, moves: [{name: 'Pound'}],
+			}]},
+		},
+	};
+}
+
 test('private Worker fails closed when its password secret is absent', async () => {
 	const response = await worker.fetch(new Request('https://runbun.test/'), {
 		ASSETS: {fetch: async () => new Response('must not be reached')},
@@ -56,4 +75,25 @@ test('authenticated requests can reach private static assets', async () => {
 	}), environment(password));
 	assert.equal(response.status, 200);
 	assert.equal(await response.text(), 'private asset');
+});
+
+test('authenticated browser tools can validate BattleState through the Worker', async () => {
+	const password = 'correct horse battery staple';
+	const headers = {
+		Authorization: authorization(password),
+		'content-type': 'application/json',
+	};
+	const ok = await worker.fetch(new Request('https://runbun.test/ai/validate-battle-state', {
+		method: 'POST', headers, body: JSON.stringify({state: battleState()}),
+	}), environment(password));
+	assert.equal(ok.status, 200);
+	assert.deepEqual(await ok.json(), {ok: true});
+
+	const bad = await worker.fetch(new Request('https://runbun.test/ai/validate-battle-state', {
+		method: 'POST', headers, body: '{}',
+	}), environment(password));
+	assert.equal(bad.status, 400);
+	assert.deepEqual(await bad.json(), {
+		error: 'BattleState with sides is required', code: 'InvalidBattleState',
+	});
 });

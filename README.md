@@ -35,6 +35,8 @@ The same surface is served over HTTP (`POST /run/*`, see
 [`INVENTORY.md`](INVENTORY.md) — generated from the code and gated, so it
 cannot drift) and in the browser as the **My Run** panel, which adds the
 matchup board, the split sheet and one-click catches off real tables.
+The product and architecture sequence is tracked in
+[`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ### Play it in the browser (no emulator)
 
@@ -73,6 +75,8 @@ $ npm run cf:deploy    # ships https://runbun.<account>.workers.dev (printed on 
 `cf:deploy` refuses a dirty worktree. The authenticated
 `/__runbun/meta` endpoint reports the exact Git revision and Model version
 embedded in the Worker bundle, so a deployment can be matched to its review.
+Both CI and the deployment workflow also run the built bundle inside workerd,
+including the private gate and the complete `new → apply → status` transaction.
 
 Dev for now, and dev is **private**: the worker carries the fleet's
 preview gate (Basic auth against `SITE_AUTH_PASSWORD`, the same pattern as
@@ -83,8 +87,9 @@ graduates to the portfolio, swap `workers_dev` in `wrangler.jsonc` for the
 zone route (the commented block shows it) and set `PREVIEW_OPEN=true` —
 going public is a deliberate act, not a forgotten secret.
 
-Notes: the worker embeds the oracle data and trainer sets (~6.4 MB script,
-inside the paid-plan limit), and `wrangler.jsonc` raises the CPU ceiling
+Notes: the worker embeds the oracle data and build-materialized trainer sets
+(~6.4 MB script, inside the paid-plan limit) without runtime `eval`, and
+`wrangler.jsonc` raises the CPU ceiling
 because Advise and Rank rebuild matchup rows through the policy — seconds of
 CPU, not milliseconds.
 

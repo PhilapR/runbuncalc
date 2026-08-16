@@ -130,6 +130,13 @@ test('sample apply-advance replay loads, scrubs, and validates without re-derive
 	);
 });
 
+test('the browser asset build carries its lab manifest and sample replay', () => {
+	for (const relative of ['manifest.json', 'replays/sample.json']) {
+		assert.ok(fs.existsSync(path.join(__dirname, '..', 'dist', 'fixtures', 'ui', relative)),
+			`dist/fixtures/ui/${relative} must ship with the Worker assets`);
+	}
+});
+
 test('replay recorder exports a scrubbable shareable trace', () => {
 	const state = readJson(path.join(uiDir, 'sample.json'));
 	const recorder = replayTrace.createRecorder(state);

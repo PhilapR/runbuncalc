@@ -26,6 +26,8 @@ jobs:
           node-version: 22.x
       - run: npm install
       - run: npm run cf:build:exact
+      - name: Prove the private run transaction inside workerd
+        run: npm run test:worker-runtime
       - name: Push the preview-gate secret
         if: ${{ secrets.SITE_AUTH_PASSWORD != '' }}
         env:
