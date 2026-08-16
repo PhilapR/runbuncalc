@@ -24,9 +24,10 @@
  * never mutates the old one. That is what makes undo a one-liner and what lets
  * the UI show a change before committing it. The command list is deliberately
  * small and concrete — `catch`, `evolve`, `teach`, `levelUp`, `give`, `take`,
- * `heartScale`, `party`, `beat`, `faint`, `release` — because a playthrough really is that
- * short a list of verbs, and a generic "edit this field" command would give up
- * every check below.
+ * `identify`, `heartScale`, `party`, `beat`, `faint`, `release` — because a
+ * playthrough really is that short a list of verbs. `identify` records facts
+ * learned from the summary screen; it is intentionally narrower than a generic
+ * field editor, so an observation cannot rewrite species, level, or history.
  *
  * WHAT IS CHECKED, AND WHAT IS NOT
  *
@@ -64,6 +65,7 @@
  */
 
 const getProfile = require('./profiles').getProfile;
+const NATURES = require('./team').NATURES;
 
 /** Document format. Bumped when a stored run would need migrating. */
 const VERSION = 1;
@@ -105,6 +107,51 @@ const IV_STATS = {
 	hp: 'HP', atk: 'Attack', def: 'Defense',
 	spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed',
 };
+
+/**
+ * Validate facts observed on the Pokemon summary screen.
+ *
+ * Ability is free text because Run & Bun changes ability slots and an observed
+ * individual is more authoritative than a species default. Nature and IVs have
+ * closed game taxonomies, so typos there are refused before they enter replay.
+ * A partial IV map is deliberate: an absent stat remains unknown.
+ */
+function observedFacts(command, kind) {
+	const facts = {};
+	if (command.nature !== undefined && command.nature !== null && command.nature !== '') {
+		if (typeof command.nature !== 'string' || !NATURES.has(command.nature.trim())) {
+			throw new Error(`${kind}: nature must be one of ${[...NATURES].join(', ')}`);
+		}
+		facts.nature = command.nature.trim();
+	}
+	if (command.ability !== undefined && command.ability !== null && command.ability !== '') {
+		if (typeof command.ability !== 'string' || !command.ability.trim() ||
+			command.ability.trim().length > 80) {
+			throw new Error(`${kind}: ability must be a name up to 80 characters`);
+		}
+		facts.ability = command.ability.trim();
+	}
+	if (command.ivs !== undefined && command.ivs !== null) {
+		if (typeof command.ivs !== 'object' || Array.isArray(command.ivs)) {
+			throw new Error(`${kind}: ivs must be a partial stat map`);
+		}
+		facts.ivs = {};
+		for (const entry of Object.entries(command.ivs)) {
+			const stat = entry[0];
+			const raw = entry[1];
+			if (!Object.prototype.hasOwnProperty.call(IV_STATS, stat)) {
+				throw new Error(`${kind}: IV stat must be one of ${Object.keys(IV_STATS).join(', ')}; ` +
+					`got ${JSON.stringify(stat)}`);
+			}
+			const value = Number(raw);
+			if (!Number.isInteger(value) || value < 0 || value > 31) {
+				throw new Error(`${kind}: ${IV_STATS[stat]} IV must be an integer from 0 to 31`);
+			}
+			facts.ivs[stat] = value;
+		}
+	}
+	return facts;
+}
 
 /**
  * Heart Scales are the game's IV economy: one scale sets ONE IV to 31, they
@@ -1975,16 +2022,17 @@ const COMMANDS = {
 				(teachable.length ? `; it can be taught: ${teachable.join(', ')}` : ''));
 		}
 
+		const facts = observedFacts(command, 'catch');
 		const mon = {
 			id: `mon-${run.nextId}`,
 			species: command.species,
 			nickname: command.nickname || null,
 			level,
-			nature: command.nature || null,
-			ability: command.ability || null,
+			nature: facts.nature || null,
+			ability: facts.ability || null,
 			item: command.item || null,
 			moves,
-			ivs: command.ivs || {},
+			ivs: facts.ivs || {},
 			status: 'boxed',
 			// Recorded because it carries a rules exemption, not as flavor.
 			...(command.shiny ? {shiny: true} : {}),
@@ -1994,6 +2042,30 @@ const COMMANDS = {
 		run.box.push(mon);
 		return `caught ${mon.species} (${mon.id}) at level ${level}` +
 			(origin.mapName ? ` on ${origin.mapName}` : ' — declared, no wild table');
+	},
+
+	/** Record summary-screen facts without pretending unknown values are facts. */
+	identify(run, command) {
+		const mon = requireMon(run, command.id);
+		const facts = observedFacts(command, 'identify');
+		const changed = [];
+		if (facts.nature) {
+			mon.nature = facts.nature;
+			changed.push(`nature ${facts.nature}`);
+		}
+		if (facts.ability) {
+			mon.ability = facts.ability;
+			changed.push(`ability ${facts.ability}`);
+		}
+		if (facts.ivs && Object.keys(facts.ivs).length) {
+			mon.ivs = Object.assign({}, mon.ivs || {}, facts.ivs);
+			changed.push(`${Object.keys(facts.ivs).length} IV` +
+				(Object.keys(facts.ivs).length === 1 ? '' : 's'));
+		}
+		if (!changed.length) {
+			throw new Error('identify: record a nature, ability, or at least one IV');
+		}
+		return `recorded ${mon.species} (${mon.id}): ${changed.join(', ')}`;
 	},
 
 	/**

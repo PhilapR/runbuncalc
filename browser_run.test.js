@@ -163,6 +163,26 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.equal(await page.getAttribute(
 		'.rb-disclose[data-section="tools"] .rb-disclose-btn', 'aria-expanded'), 'true',
 	'party members should be inspectable without duplicating them in the reserve');
+	assert.match(await page.textContent('#runbun-run-mon-summary-name'), /Treecko · L5/);
+	assert.equal(await page.textContent('#runbun-run-mon-summary-types'), 'Grass');
+	assert.match(await page.textContent('#runbun-run-mon-facts'), /AbilityUnknownNatureUnknown/,
+		'missing individual facts must stay visibly unknown');
+	assert.equal(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv.is-unknown',
+		rows => rows.length), 6);
+	assert.match(await page.textContent('#runbun-run-mon-summary-ivs'), /\?modeled 31/,
+		'the planner assumption must not masquerade as a recorded perfect IV');
+
+	await page.click('#runbun-run-mon-record summary');
+	await page.selectOption('#runbun-run-observed-nature', 'Jolly');
+	await page.fill('#runbun-run-observed-ability', 'Overgrow');
+	await page.fill('#runbun-run-observed-iv-atk', '27');
+	await page.fill('#runbun-run-observed-iv-spe', '31');
+	await page.click('#runbun-run-record-details');
+	await page.waitForFunction(() => /recorded Treecko/.test(
+		document.querySelector('#runbun-run-status').textContent), null, {timeout: 10000});
+	assert.match(await page.textContent('#runbun-run-mon-facts'), /AbilityOvergrowNatureJolly/);
+	assert.equal(await page.textContent('#runbun-run-mon-summary-ivs .runbun-run-iv:nth-child(2) strong'), '27');
+	assert.equal(await page.textContent('#runbun-run-mon-summary-ivs .runbun-run-iv:nth-child(6) strong'), '31');
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
 		/4 encounter areas/);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),

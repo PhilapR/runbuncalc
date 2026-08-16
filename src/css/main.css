@@ -2651,6 +2651,201 @@ table.field {
 	box-sizing: border-box;
 	background: var(--rb-surface-sunken);
 }
+#runbun-run .runbun-run-mon-empty {
+	margin: 0;
+	padding: var(--rb-space-md);
+	border: 1px dashed var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	color: var(--rb-ink-muted);
+	font-family: var(--rb-font-mono);
+	font-size: 0.8rem;
+	text-align: center;
+}
+#runbun-run .runbun-run-mon-summary {
+	min-width: 0;
+	padding: var(--rb-space-md);
+	border: 1px solid var(--rb-stroke);
+	border-left: 3px solid var(--rb-brand);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-mon-summary:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+}
+#runbun-run .runbun-run-mon-summary-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--rb-space-md);
+}
+#runbun-run .runbun-run-mon-summary-name {
+	margin: 0;
+	font-family: var(--rb-font-brand);
+	font-size: 1.15rem;
+	overflow-wrap: anywhere;
+}
+#runbun-run .runbun-run-mon-summary-species {
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-type-list,
+#runbun-run .runbun-run-move-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-type,
+#runbun-run .runbun-run-move {
+	padding: 2px var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+	font-family: var(--rb-font-mono);
+	font-size: 0.7rem;
+}
+#runbun-run .runbun-run-type {
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+#runbun-run .runbun-run-type.is-unknown,
+#runbun-run .runbun-run-fact dd.is-unknown,
+#runbun-run .runbun-run-iv.is-unknown {
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-mon-facts {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--rb-space-sm);
+	margin: var(--rb-space-md) 0;
+}
+#runbun-run .runbun-run-fact {
+	min-width: 0;
+}
+#runbun-run .runbun-run-fact dt,
+#runbun-run .runbun-run-mon-subhead {
+	font-family: var(--rb-font-mono);
+	font-size: 0.65rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-fact dd {
+	margin: 2px 0 0;
+	font-size: 0.84rem;
+	overflow-wrap: anywhere;
+}
+#runbun-run .runbun-run-mon-subhead {
+	margin: var(--rb-space-md) 0 var(--rb-space-xs);
+}
+#runbun-run .runbun-run-model-note {
+	margin: 0 0 var(--rb-space-sm);
+	font-size: 0.75rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-iv-readout,
+#runbun-run .runbun-run-iv-entry-grid {
+	display: grid;
+	grid-template-columns: repeat(6, minmax(3rem, 1fr));
+	gap: var(--rb-space-xs);
+}
+#runbun-run .runbun-run-iv {
+	display: grid;
+	justify-items: center;
+	padding: var(--rb-space-xs);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	font-family: var(--rb-font-mono);
+}
+#runbun-run .runbun-run-iv span,
+#runbun-run .runbun-run-iv small {
+	font-size: 0.62rem;
+}
+#runbun-run .runbun-run-iv strong {
+	font-size: 1rem;
+}
+#runbun-run .runbun-run-mon-record {
+	margin: var(--rb-space-sm) 0 var(--rb-space-md);
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+}
+#runbun-run .runbun-run-mon-record summary {
+	cursor: pointer;
+	font-size: 0.78rem;
+	font-weight: 700;
+}
+#runbun-run .runbun-run-record-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--rb-space-sm);
+	margin-top: var(--rb-space-sm);
+}
+#runbun-run .runbun-run-mon-record select,
+#runbun-run .runbun-run-mon-record input {
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+	color: var(--rb-ink);
+	font-family: var(--rb-font-mono);
+}
+#runbun-run .runbun-run-mon-record input[aria-invalid="true"] {
+	border-color: var(--rb-danger);
+}
+#runbun-run .runbun-run-mon-record input:focus-visible,
+#runbun-run .runbun-run-mon-record select:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+}
+#runbun-run .runbun-run-iv-entry {
+	float: none;
+	box-sizing: border-box;
+	width: 100%;
+	margin: var(--rb-space-md) 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+#runbun-run .runbun-run-iv-entry legend {
+	margin-bottom: var(--rb-space-xs);
+	font-size: 0.72rem;
+	font-weight: 700;
+}
+#runbun-run .runbun-run-iv-entry label {
+	display: grid;
+	gap: 2px;
+	font-family: var(--rb-font-mono);
+	font-size: 0.65rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run #runbun-run-record-details.btn {
+	display: block;
+	width: auto;
+	min-width: 11rem;
+	margin: 0;
+}
+@media (max-width: 640px) {
+	#runbun-run .runbun-run-mon-summary-head {
+		flex-direction: column;
+	}
+	#runbun-run .runbun-run-record-grid {
+		grid-template-columns: 1fr;
+	}
+	#runbun-run .runbun-run-mon-facts {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	#runbun-run .runbun-run-iv-readout,
+	#runbun-run .runbun-run-iv-entry-grid {
+		grid-template-columns: repeat(3, minmax(3rem, 1fr));
+	}
+}
 #runbun-run .runbun-run-bag,
 #runbun-run .runbun-run-learn {
 	font-family: var(--rb-font-mono);
@@ -3747,6 +3942,13 @@ table.field {
 #runbun-run .runbun-run-battle-name {
 	font-family: var(--rb-font-brand);
 	font-weight: 600;
+}
+#runbun-run .runbun-run-battle-meta {
+	min-height: 1em;
+	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	color: var(--rb-ink-muted);
+	overflow-wrap: anywhere;
 }
 /* The HP bar: a track with a filled span. Bands, not a gradient — the game's
    own green/amber/red is a reading, and readings should snap. */

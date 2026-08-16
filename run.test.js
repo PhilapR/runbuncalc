@@ -135,6 +135,40 @@ test('a gift or starter is recorded as declared rather than refused', () => {
 	assert.match(state.log[0].summary, /declared, no wild table/);
 });
 
+test('observed nature, ability, and partial IVs are replayable run facts', () => {
+	const caught = run.apply(fresh(), {
+		kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+		nature: 'Jolly', ability: 'Run Away', ivs: {atk: 27},
+	});
+	assert.equal(caught.box[0].nature, 'Jolly');
+	assert.equal(caught.box[0].ability, 'Run Away');
+	assert.deepEqual(caught.box[0].ivs, {atk: 27});
+
+	const identified = run.apply(caught, {
+		kind: 'identify', id: 'mon-1', ability: 'Quick Feet', ivs: {hp: 11, spe: 31},
+	});
+	assert.equal(identified.box[0].nature, 'Jolly', 'unsupplied facts stay recorded');
+	assert.equal(identified.box[0].ability, 'Quick Feet');
+	assert.deepEqual(identified.box[0].ivs, {atk: 27, hp: 11, spe: 31});
+	assert.match(identified.log.at(-1).summary, /recorded Poochyena.*ability Quick Feet, 2 IVs/);
+	assert.deepEqual(run.undo(identified), caught, 'observations must participate in undo and replay');
+});
+
+test('invalid observed facts are refused without mutating the run', () => {
+	const caught = run.apply(fresh(), MARILL);
+	const before = JSON.stringify(caught);
+	assert.throws(() => run.apply(caught, {
+		kind: 'identify', id: 'mon-1', ivs: {spe: 32},
+	}), /Speed IV must be an integer from 0 to 31/);
+	assert.throws(() => run.apply(caught, {
+		kind: 'identify', id: 'mon-1', nature: 'Very Brave',
+	}), /nature must be one of/);
+	assert.throws(() => run.apply(caught, {
+		kind: 'identify', id: 'mon-1', ivs: {speed: 20},
+	}), /IV stat must be one of/);
+	assert.equal(JSON.stringify(caught), before);
+});
+
 test('evolution follows the table, including when it is not due yet', () => {
 	let state = run.apply(fresh(), {kind: 'catch', species: 'Marill', map: 'Route114', level: 40});
 	state = run.apply(state, {kind: 'evolve', id: 'mon-1'});
@@ -1197,7 +1231,7 @@ test('encounters on a map mark what the run already owns', () => {
 
 test('an unknown command names the ones that exist', () => {
 	assert.throws(() => run.apply(fresh(), {kind: 'yeet', id: 'mon-1'}),
-		/unknown command "yeet"; known: .*catch, levelUp, evolve/);
+		/unknown command "yeet"; known: .*catch.*levelUp.*evolve/);
 	assert.throws(() => run.apply(fresh(), {}), /a command needs a kind/);
 	assert.throws(() => run.createRun({levelCap: 'vibes'}), /unknown level cap mode/);
 });

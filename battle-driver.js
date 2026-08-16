@@ -198,6 +198,8 @@ function view(state) {
 		hp: {current: Math.max(0, mon.hp.current), max: mon.hp.max},
 		status: mon.status || null,
 		item: mon.item || null,
+		types: (mon.types || []).slice(),
+		ability: mon.ability || null,
 	});
 	return {
 		turn: state.turn,

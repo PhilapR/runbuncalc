@@ -2334,11 +2334,13 @@
             <div class="runbun-run-battle-field">
                 <div class="runbun-run-battle-card is-foe">
                     <div class="runbun-run-battle-name" id="runbun-run-battle-foe-name"></div>
+                    <div class="runbun-run-battle-meta" id="runbun-run-battle-foe-meta"></div>
                     <div class="runbun-run-battle-hp"><span id="runbun-run-battle-foe-hp"></span></div>
                     <div class="runbun-run-battle-bench" id="runbun-run-battle-foe-bench"></div>
                 </div>
                 <div class="runbun-run-battle-card is-us">
                     <div class="runbun-run-battle-name" id="runbun-run-battle-us-name"></div>
+                    <div class="runbun-run-battle-meta" id="runbun-run-battle-us-meta"></div>
                     <div class="runbun-run-battle-hp"><span id="runbun-run-battle-us-hp"></span></div>
                     <div class="runbun-run-battle-bench" id="runbun-run-battle-us-bench"></div>
                 </div>
@@ -2458,7 +2460,59 @@
                 <div class="rb-disclose-inner">
 
                 <div class="runbun-run-section-label">Selected</div>
-                <input type="text" id="runbun-run-selected" class="runbun-run-selected" placeholder="click a box entry" readonly>
+                <input type="text" id="runbun-run-selected" class="visually-hidden" aria-label="Selected Pok&eacute;mon id" readonly>
+                <p id="runbun-run-mon-empty" class="runbun-run-mon-empty">Choose a Pok&eacute;mon from the party or PC.</p>
+                <article id="runbun-run-mon-summary" class="runbun-run-mon-summary" tabindex="-1" hidden
+                    aria-labelledby="runbun-run-mon-summary-name">
+                    <header class="runbun-run-mon-summary-head">
+                        <div>
+                            <h4 id="runbun-run-mon-summary-name" class="runbun-run-mon-summary-name"></h4>
+                            <div id="runbun-run-mon-summary-species" class="runbun-run-mon-summary-species"></div>
+                        </div>
+                        <div id="runbun-run-mon-summary-types" class="runbun-run-type-list" aria-label="Types"></div>
+                    </header>
+                    <dl id="runbun-run-mon-facts" class="runbun-run-mon-facts"></dl>
+                    <div class="runbun-run-mon-subhead">Moves</div>
+                    <div id="runbun-run-mon-summary-moves" class="runbun-run-move-list"></div>
+                    <div class="runbun-run-mon-subhead">Individual values</div>
+                    <p class="runbun-run-model-note">Recorded values are facts. <strong>?</strong> is unknown; planning models an unknown IV as 31.</p>
+                    <div id="runbun-run-mon-summary-ivs" class="runbun-run-iv-readout"></div>
+                </article>
+                <details id="runbun-run-mon-record" class="runbun-run-mon-record" hidden>
+                    <summary>Record observed details</summary>
+                    <div class="runbun-run-record-grid">
+                        <label class="runbun-run-field" for="runbun-run-observed-nature">
+                            <span>Nature</span>
+                            <select id="runbun-run-observed-nature" name="observed-nature" autocomplete="off">
+                                <option value="">Unknown</option>
+                                <option>Adamant</option><option>Bashful</option><option>Bold</option><option>Brave</option>
+                                <option>Calm</option><option>Careful</option><option>Docile</option><option>Gentle</option>
+                                <option>Hardy</option><option>Hasty</option><option>Impish</option><option>Jolly</option>
+                                <option>Lax</option><option>Lonely</option><option>Mild</option><option>Modest</option>
+                                <option>Naive</option><option>Naughty</option><option>Quiet</option><option>Quirky</option>
+                                <option>Rash</option><option>Relaxed</option><option>Sassy</option><option>Serious</option>
+                                <option>Timid</option>
+                            </select>
+                        </label>
+                        <label class="runbun-run-field" for="runbun-run-observed-ability">
+                            <span>Actual ability</span>
+                            <input type="text" id="runbun-run-observed-ability" name="observed-ability"
+                                placeholder="Unknown" spellcheck="false" autocomplete="off">
+                        </label>
+                    </div>
+                    <fieldset class="runbun-run-iv-entry">
+                        <legend>Known IVs</legend>
+                        <div class="runbun-run-iv-entry-grid">
+                            <label for="runbun-run-observed-iv-hp"><span>HP</span><input type="number" id="runbun-run-observed-iv-hp" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
+                            <label for="runbun-run-observed-iv-atk"><span>Atk</span><input type="number" id="runbun-run-observed-iv-atk" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
+                            <label for="runbun-run-observed-iv-def"><span>Def</span><input type="number" id="runbun-run-observed-iv-def" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
+                            <label for="runbun-run-observed-iv-spa"><span>SpA</span><input type="number" id="runbun-run-observed-iv-spa" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
+                            <label for="runbun-run-observed-iv-spd"><span>SpD</span><input type="number" id="runbun-run-observed-iv-spd" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
+                            <label for="runbun-run-observed-iv-spe"><span>Spe</span><input type="number" id="runbun-run-observed-iv-spe" min="0" max="31" inputmode="numeric" autocomplete="off"></label>
+                        </div>
+                    </fieldset>
+                    <button type="button" id="runbun-run-record-details" class="btn btn-xwide rb-btn-primary">Save observed details</button>
+                </details>
                 <div class="runbun-run-row">
                     <button type="button" id="runbun-run-evolve" class="btn btn-wide">Evolve</button>
                     <input type="number" id="runbun-run-level-to" placeholder="Lv" min="1" max="100">

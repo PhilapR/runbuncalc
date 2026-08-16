@@ -366,6 +366,86 @@
 		return lastStatus.box.filter(function (mon) { return mon.id === id; })[0] || null;
 	}
 
+	var IV_LABELS = {hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe'};
+
+	function dexId(value) {
+		return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+	}
+
+	/** Species typing is reference data. Individual ability/nature/IVs are not. */
+	function speciesTypes(mon) {
+		try {
+			var gen = window.calc && window.calc.Generations && window.calc.Generations.get(8);
+			var species = gen && gen.species.get(dexId(mon && mon.species));
+			return species && species.types ? species.types.slice() : [];
+		} catch (error) {
+			return [];
+		}
+	}
+
+	function appendTypeChips($target, types) {
+		$target.empty();
+		(types || []).forEach(function (type) {
+			$target.append($('<span class="runbun-run-type"></span>')
+				.attr('data-type', String(type).toLowerCase())
+				.text(type));
+		});
+		if (!types || !types.length) {
+			$target.append($('<span class="runbun-run-type is-unknown"></span>').text('Type unknown'));
+		}
+	}
+
+	function fact($list, label, value, known) {
+		$list.append($('<div class="runbun-run-fact"></div>')
+			.append($('<dt></dt>').text(label))
+			.append($('<dd></dd>').toggleClass('is-unknown', known === false).text(value)));
+	}
+
+	function originLabel(mon) {
+		if (!mon.origin || !mon.origin.mapName) return 'Declared';
+		return (mon.origin.method || 'caught') + ' · ' + mon.origin.mapName;
+	}
+
+	/** The Pokemon-summary screen: facts first, editing secondary. */
+	function renderSelectedMon() {
+		var id = $('#runbun-run-selected').val();
+		var mon = findBoxed(id);
+		$('#runbun-run-mon-empty').prop('hidden', !!mon);
+		$('#runbun-run-mon-summary, #runbun-run-mon-record').prop('hidden', !mon);
+		if (!mon) return;
+
+		var displayName = mon.nickname || mon.species;
+		$('#runbun-run-mon-summary-name').text(displayName + ' · L' + mon.level);
+		$('#runbun-run-mon-summary-species').text(
+			(mon.nickname ? mon.species + ' · ' : '') + mon.id + (mon.shiny ? ' · Shiny' : ''));
+		appendTypeChips($('#runbun-run-mon-summary-types'), speciesTypes(mon));
+
+		var $facts = $('#runbun-run-mon-facts').empty();
+		fact($facts, 'Ability', mon.ability || 'Unknown', !!mon.ability);
+		fact($facts, 'Nature', mon.nature || 'Unknown', !!mon.nature);
+		fact($facts, 'Held item', mon.item || 'None', true);
+		fact($facts, 'Origin', originLabel(mon), true);
+		fact($facts, 'Run state', mon.status === 'dead' ? 'Lost' :
+			(state.party.indexOf(mon.id) !== -1 ? 'Party' : 'PC'), true);
+
+		var $moves = $('#runbun-run-mon-summary-moves').empty();
+		mon.moves.forEach(function (move) {
+			$moves.append($('<span class="runbun-run-move"></span>').text(move));
+		});
+
+		var $ivs = $('#runbun-run-mon-summary-ivs').empty();
+		Object.keys(IV_LABELS).forEach(function (stat) {
+			var known = mon.ivs && Object.prototype.hasOwnProperty.call(mon.ivs, stat);
+			$ivs.append($('<div class="runbun-run-iv"></div>').toggleClass('is-unknown', !known)
+				.append($('<span></span>').text(IV_LABELS[stat]))
+				.append($('<strong></strong>').text(known ? mon.ivs[stat] : '?'))
+				.append($('<small></small>').text(known ? 'Known' : 'modeled 31')));
+			$('#runbun-run-observed-iv-' + stat).val(known ? mon.ivs[stat] : '');
+		});
+		$('#runbun-run-observed-nature').val(mon.nature || '');
+		$('#runbun-run-observed-ability').val(mon.ability || '');
+	}
+
 	// ------------------------------------------------------------------- spine
 
 	/**
@@ -450,12 +530,14 @@
 			}
 			// A lost row's kit line is its epitaph — who did it beats where it came
 			// from, because the graveyard is read as a story, not an inventory.
+			var types = speciesTypes(mon);
 			$row.append($('<span class="runbun-run-mon-kit"></span>')
 				.text(mon.status === 'dead' && mon.died && mon.died.to ?
 					'killed by ' + mon.died.to +
 						(mon.died.move ? "'s " + mon.died.move : '') :
-					[mon.item, mon.origin && mon.origin.mapName ?
-						mon.origin.method + ' · ' + mon.origin.mapName : 'declared']
+					[types.length ? types.join('/') : null,
+						mon.ability || 'ability unknown', mon.item, mon.origin && mon.origin.mapName ?
+							mon.origin.method + ' · ' + mon.origin.mapName : 'declared']
 						.filter(Boolean).join(' · ')));
 			$row.append($('<span class="runbun-run-mon-moves"></span>').text(mon.moves.join(', ')));
 			return $row;
@@ -492,8 +574,11 @@
 				.attr('aria-label', 'Inspect ' + label)
 				.text(label));
 			if (mon) {
+				var types = speciesTypes(mon);
 				$copy.append($('<span class="runbun-run-party-meta"></span>').text(
-					(mon.item || 'No held item') + ' · ' + mon.moves.length +
+					(types.length ? types.join('/') + ' · ' : '') +
+						(mon.ability || 'ability unknown') + ' · ' +
+						(mon.item || 'No held item') + ' · ' + mon.moves.length +
 						(mon.moves.length === 1 ? ' move' : ' moves')));
 			}
 			$slot.append($copy);
@@ -908,6 +993,7 @@
 		renderSpine(payload);
 		renderBox(payload);
 		renderPartyStrip();
+		renderSelectedMon();
 		renderNextStep(payload);
 		renderOpportunities(payload);
 		renderReachableRoutes(payload);
@@ -1732,6 +1818,14 @@
 		$('#runbun-run-battle-us-name').text(
 			viewState.player.active.species + ' L' + viewState.player.active.level +
 			(viewState.player.active.status ? ' · ' + viewState.player.active.status : ''));
+		$('#runbun-run-battle-foe-meta').text(
+			(viewState.foe.active.types || []).join(' / ') +
+			(viewState.foe.active.ability ? ' · ' + viewState.foe.active.ability : '') +
+			(viewState.foe.active.item ? ' · ' + viewState.foe.active.item : ''));
+		$('#runbun-run-battle-us-meta').text(
+			(viewState.player.active.types || []).join(' / ') +
+			(viewState.player.active.ability ? ' · ' + viewState.player.active.ability : '') +
+			(viewState.player.active.item ? ' · ' + viewState.player.active.item : ''));
 		hpBar($('#runbun-run-battle-foe-hp'), viewState.foe.active);
 		hpBar($('#runbun-run-battle-us-hp'), viewState.player.active);
 		$('#runbun-run-battle-foe-bench').empty()
@@ -2269,10 +2363,11 @@
 			$('#runbun-run-box .runbun-run-mon[data-id="' + id + '"], ' +
 				'#runbun-run-losses .runbun-run-mon[data-id="' + id + '"]').addClass('is-selected');
 			var mon = findBoxed(id);
+			renderSelectedMon();
 			writeSummary('tools', mon ? monLabel(mon) : id);
 			if (!reveal) return;
 			revealSection('tools');
-			var selected = document.querySelector('#runbun-run-selected');
+			var selected = document.querySelector('#runbun-run-mon-summary');
 			if (selected) {
 				selected.scrollIntoView({block: 'center'});
 				selected.focus();
@@ -2284,6 +2379,36 @@
 		});
 		$('#runbun-run-party-strip').on('click', '.runbun-run-party-select', function () {
 			selectMon($(this).attr('data-id'), true);
+		});
+
+		$('#runbun-run-record-details').on('click', function () {
+			var ivs = {};
+			var invalid = null;
+			Object.keys(IV_LABELS).forEach(function (stat) {
+				var $input = $('#runbun-run-observed-iv-' + stat);
+				var raw = String($input.val() || '').trim();
+				if (!raw) return;
+				var value = Number(raw);
+				if (!Number.isInteger(value) || value < 0 || value > 31) {
+					invalid = invalid || $input[0];
+					$input.attr('aria-invalid', 'true');
+					return;
+				}
+				$input.removeAttr('aria-invalid');
+				ivs[stat] = value;
+			});
+			if (invalid) {
+				status('Each IV must be a whole number from 0 to 31.', 'error');
+				invalid.focus();
+				return;
+			}
+			command({
+				kind: 'identify',
+				id: $('#runbun-run-selected').val(),
+				nature: $('#runbun-run-observed-nature').val() || undefined,
+				ability: $('#runbun-run-observed-ability').val() || undefined,
+				ivs: Object.keys(ivs).length ? ivs : undefined,
+			});
 		});
 
 		$('#runbun-run-evolve').on('click', function () {

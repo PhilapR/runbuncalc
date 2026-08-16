@@ -111,6 +111,7 @@
 			hp: {current: current, max: maxHp},
 			moves: moveStatesFromNames(pokemon.moves),
 		};
+		if (pokemon.types && pokemon.types.length) state.types = pokemon.types.slice();
 		if (!state.moves.length) {
 			throw new Error(id + ' (' + pokemon.name + ') needs at least one move');
 		}

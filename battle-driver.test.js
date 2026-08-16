@@ -62,6 +62,9 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 	// The party enters at the projected cap — the infinite candy IS the XP
 	// system, so a level 3 catch fights at what it will be leveled to.
 	assert.equal(opened.viewState.player.active.level, 12);
+	assert.ok(opened.viewState.player.active.types.length > 0,
+		'the battle surface needs the active Pokemon typing');
+	assert.equal(typeof opened.viewState.player.active.ability, 'string');
 	// Moves come priced: the button can say what the calculator knows.
 	const move = opened.actions.find(action => action.kind === 'move');
 	assert.ok(move && move.damage && move.damage.max > 0,

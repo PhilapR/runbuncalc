@@ -113,7 +113,7 @@ function requireBattle(payload) {
  * message IS the feature. Anything else re-throws untouched.
  */
 function asRefusal(error) {
-	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^use:|^faint:|^heartScale:|^hold:|^unhold:|^spend:|^roll:|^battle:|^playbook:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || '')) {
+	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^identify:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^use:|^faint:|^heartScale:|^hold:|^unhold:|^spend:|^roll:|^battle:|^playbook:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || '')) {
 		error.statusCode = 400;
 		error.code = 'InvalidRunCommand';
 	}
