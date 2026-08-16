@@ -29,12 +29,16 @@ jobs:
       - name: Prove the private run transaction inside workerd
         run: npm run test:worker-runtime
       - name: Push the preview-gate secret
-        if: ${{ secrets.SITE_AUTH_PASSWORD != '' }}
         env:
           SITE_AUTH_PASSWORD: ${{ secrets.SITE_AUTH_PASSWORD }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: printf '%s' "$SITE_AUTH_PASSWORD" | npx wrangler secret put SITE_AUTH_PASSWORD
+        run: |
+          if [ -z "$SITE_AUTH_PASSWORD" ]; then
+            echo "SITE_AUTH_PASSWORD is absent; preserving the existing Worker secret."
+            exit 0
+          fi
+          printf '%s' "$SITE_AUTH_PASSWORD" | npx wrangler secret put SITE_AUTH_PASSWORD
         # (wrangler creates the Worker on first secret put if it is new)
       - name: Deploy
         env:

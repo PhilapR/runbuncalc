@@ -38,6 +38,15 @@ assert.equal(pkg.scripts.preview, 'node build view && node server.js');
 assert.equal(pkg.dependencies['@philapr/pokemon-run-runtime'],
 	'file:vendor/pokemon-run-runtime');
 
+const deployWorkflow = read('.github/workflows/deploy.yml');
+assert.match(deployWorkflow, /on:\s*\n\s+workflow_dispatch:\s*\n/,
+	'deployment must remain an explicit manual action');
+assert.doesNotMatch(deployWorkflow, /^\s*if:\s*\$\{\{\s*secrets\./m,
+	'GitHub does not expose the secrets context directly in step if expressions');
+assert.match(deployWorkflow,
+	/if \[ -z "\$SITE_AUTH_PASSWORD" \]; then[\s\S]*preserving the existing Worker secret/,
+	'an absent optional password must preserve the existing private Worker secret');
+
 const providerProvenance = json('vendor/pokemon-run-runtime/PROVENANCE.json');
 const providerArtifact = fs.readFileSync(path.join(root, 'vendor', 'pokemon-run-runtime',
 	providerProvenance.artifact));
