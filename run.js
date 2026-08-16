@@ -2604,13 +2604,27 @@ function rankParties(run, trainer, options) {
 	const bestPerLead = new Map();
 	const picks = Array.from({length: size}, (unused, i) => i);
 	const key = list => list.join(',');
-	for (;;) {
-		const scored = Object.assign({picks: picks.slice()}, scoreSix(picks));
-		top.push(scored);
-		if (top.length > keep * 4) {
-			top.sort((a, b) => b.score - a.score || key(a.picks).localeCompare(key(b.picks)));
-			top.length = keep;
+	const compareScored = (a, b) =>
+		b.score - a.score || a.pickKey.localeCompare(b.pickKey);
+	function retainTop(scored) {
+		if (top.length < keep) {
+			top.push(scored);
+			top.sort(compareScored);
+			return;
 		}
+		// Most combinations cannot enter the shortlist. Do not repeatedly sort
+		// batches of losing candidates: compare with the current floor first and
+		// only reorder the bounded top N when that floor actually changes.
+		if (compareScored(scored, top[top.length - 1]) < 0) {
+			top[top.length - 1] = scored;
+			top.sort(compareScored);
+		}
+	}
+	for (;;) {
+		const scoredPicks = picks.slice();
+		const scored = Object.assign({picks: scoredPicks, pickKey: key(scoredPicks)},
+			scoreSix(picks));
+		retainTop(scored);
 		if (!picks.includes(star) && (!withoutStar || scored.score > withoutStar.score)) {
 			withoutStar = scored;
 		}
@@ -2623,8 +2637,6 @@ function rankParties(run, trainer, options) {
 		picks[i]++;
 		for (let j = i + 1; j < size; j++) picks[j] = picks[j - 1] + 1;
 	}
-	top.sort((a, b) => b.score - a.score || key(a.picks).localeCompare(key(b.picks)));
-	top.length = Math.min(top.length, keep);
 
 	function present(scored, label) {
 		// The per-enemy assignment: which member answers which — the next thing
