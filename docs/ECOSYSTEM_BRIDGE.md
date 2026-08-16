@@ -182,10 +182,12 @@ The integration matrix remains the last promoted planning/participation
 baseline. Attribution has a separate
 `attribution-local-evidence.json` lock with exact contract, app, engine, and
 control revisions. It records deterministic provider replay, evidence
-persistence, materialization, and derived review as passed, while rendered
-browser acceptance, control registration, and private deployment verification
-remain false. No production/private promotion is claimed until those gates pass.
-Deployment remains private.
+persistence, materialization, derived review, and the local rendered
+browser-to-archive journey as passed. Its deployment receipt still identifies
+the older private app revision; control registration and exact private
+deployment of the current app/engine pair remain open. No production/private
+promotion of the current pair is claimed until those gates pass. Deployment
+remains private.
 
 The executable manifest is
 [`../contracts/ecosystem/v1/contract.json`](../contracts/ecosystem/v1/contract.json).
