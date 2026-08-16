@@ -3000,9 +3000,13 @@ table.field {
 }
 #runbun-run .runbun-history-content {
 	display: grid;
-	grid-template-columns: minmax(16rem, 0.8fr) minmax(24rem, 1.2fr);
+	grid-template-columns: minmax(13rem, 0.3fr) minmax(0, 0.7fr);
 	gap: var(--rb-space-lg);
 	align-items: start;
+}
+#runbun-run .runbun-history-journal {
+	grid-column: 1;
+	grid-row: 1;
 }
 #runbun-run .runbun-history-attempts {
 	list-style: none;
@@ -3014,18 +3018,42 @@ table.field {
 	overflow: hidden;
 }
 #runbun-run .runbun-history-attempt {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+#runbun-run .runbun-history-attempt-button {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
 	gap: 0.15rem var(--rb-space-sm);
+	width: 100%;
 	padding: var(--rb-space-sm);
+	border: 0;
 	border-left: 3px solid transparent;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
 }
 #runbun-run .runbun-history-attempt + .runbun-history-attempt {
 	border-top: 1px solid var(--rb-stroke);
 }
-#runbun-run .runbun-history-attempt.is-active {
+#runbun-run .runbun-history-attempt-button:hover,
+#runbun-run .runbun-history-attempt-button:focus-visible {
+	background: var(--rb-surface-hover);
+}
+#runbun-run .runbun-history-attempt-button:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: -2px;
+}
+#runbun-run .runbun-history-attempt.is-active .runbun-history-attempt-button {
 	border-left-color: var(--rb-action);
 	background: var(--rb-action-soft);
+}
+#runbun-run .runbun-history-attempt.is-selected .runbun-history-attempt-button {
+	box-shadow: inset 3px 0 0 var(--rb-brand);
 }
 #runbun-run .runbun-history-attempt-name {
 	min-width: 0;
@@ -3076,6 +3104,67 @@ table.field {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+#runbun-run .runbun-history-planning {
+	grid-column: 2;
+	grid-row: 1;
+}
+#runbun-run .runbun-history-species-section {
+	grid-column: 1 / -1;
+	grid-row: 2;
+}
+#runbun-run .runbun-history-planning-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+	gap: var(--rb-space-sm);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+#runbun-run .runbun-history-plan {
+	display: grid;
+	gap: var(--rb-space-xs);
+	min-width: 0;
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-top: 3px solid var(--rb-brand);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-history-plan[data-comparison="underestimated"],
+#runbun-run .runbun-history-plan[data-comparison="defeat"] {
+	border-top-color: var(--rb-danger);
+}
+#runbun-run .runbun-history-plan[data-comparison="held"],
+#runbun-run .runbun-history-plan[data-comparison="outperformed"] {
+	border-top-color: var(--rb-oracle);
+}
+#runbun-run .runbun-history-plan-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--rb-space-sm);
+}
+#runbun-run .runbun-history-plan-head strong {
+	font-family: var(--rb-font-brand);
+	font-size: 0.9rem;
+}
+#runbun-run .runbun-history-plan-head span {
+	font-family: var(--rb-font-mono);
+	font-size: 0.68rem;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-history-plan-verdict {
+	margin: 0;
+	font-weight: 700;
+	color: var(--rb-brand-ink);
+}
+#runbun-run .runbun-history-plan-fact {
+	margin: 0;
+	font-family: var(--rb-font-mono);
+	font-size: 0.875rem;
+	line-height: 1.45;
+	color: var(--rb-ink-muted);
+}
 #runbun-run .runbun-run-endrun-outcome {
 	display: grid;
 	gap: 0.2rem;
@@ -3111,6 +3200,17 @@ table.field {
 		border-top: 1px solid var(--rb-stroke);
 	}
 	#runbun-run .runbun-history-content {
+		grid-template-columns: 1fr;
+	}
+	#runbun-run .runbun-history-planning {
+		grid-column: auto;
+		grid-row: 2;
+	}
+	#runbun-run .runbun-history-species-section {
+		grid-column: auto;
+		grid-row: 3;
+	}
+	#runbun-run .runbun-history-planning-list {
 		grid-template-columns: 1fr;
 	}
 }

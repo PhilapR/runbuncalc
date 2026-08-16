@@ -157,6 +157,139 @@
 		};
 	}
 
+	function planningSummary(record) {
+		if (!record || record.kind !== 'pokemon.rab.plan' ||
+			!record.request || !record.receipt || !record.receipt.result ||
+			!record.receipt.result.summary || !record.request.task ||
+			!record.request.task.state || !record.request.task.state.trainer ||
+			!Number.isInteger(record.request.task.state.trainer.order)) return null;
+		var summary = record.receipt.result.summary;
+		if (!Number.isInteger(summary.branchesEvaluated) ||
+			!Number.isInteger(summary.safeBranches) || !Number.isInteger(summary.deaths) ||
+			!Number.isInteger(summary.losses)) return null;
+		var team = Array.isArray(record.request.task.state.playerTeam) ?
+			record.request.task.state.playerTeam : [];
+		var lead = team.filter(function (mon) {
+			return mon && mon.id === summary.recommendedLeadId;
+		})[0] || null;
+		return {
+			evidenceId: record.evidenceId,
+			trainerOrder: record.request.task.state.trainer.order,
+			attemptRevision: record.attemptRevision,
+			recordedAt: record.recordedAt || null,
+			branches: summary.branchesEvaluated,
+			safeBranches: summary.safeBranches,
+			deaths: summary.deaths,
+			losses: summary.losses,
+			expectedTurns: summary.expectedTurns,
+			leadId: summary.recommendedLeadId,
+			leadSpecies: lead && lead.species || null,
+		};
+	}
+
+	function battleCompletion(event) {
+		var payload = event && event.kind === 'battle.ended' ? event.payload : null;
+		if (!payload || payload.kind !== 'trainer' ||
+			!Number.isInteger(payload.trainerOrder) || payload.trainerOrder < 1 ||
+			['won', 'lost'].indexOf(payload.outcome) === -1 ||
+			!Array.isArray(payload.deaths) || !Number.isInteger(payload.turns)) return null;
+		return {
+			eventId: event.eventId,
+			revision: event.revision,
+			trainerOrder: payload.trainerOrder,
+			trainer: payload.trainer || null,
+			result: payload.outcome === 'won' ? 'win' : 'loss',
+			deaths: payload.deaths.length,
+			turns: payload.turns,
+			seed: payload.seed,
+			leadId: payload.leadId || null,
+			participantIds: Array.isArray(payload.participantIds) ? payload.participantIds.slice() : [],
+		};
+	}
+
+	function comparison(plan, actual) {
+		if (!plan) return 'unplanned';
+		if (!actual) return 'unplayed';
+		if (actual.result !== 'win') return 'defeat';
+		var sampledDeathless = plan.branches > 0 && plan.safeBranches === plan.branches &&
+			plan.deaths === 0 && plan.losses === 0;
+		if (actual.deaths === 0) return sampledDeathless ? 'held' : 'outperformed';
+		return sampledDeathless ? 'underestimated' : 'within-risk';
+	}
+
+	/**
+	 * Pair immutable planning receipts with explicit battle.ended events.
+	 *
+	 * A completion consumes only plans recorded since the prior play of that
+	 * trainer and chooses the latest one at or before the completed revision.
+	 * Plans created after a completion remain unplayed. This is descriptive
+	 * evidence: it never manufactures carry, causal value, or policy quality.
+	 */
+	function derivePlanningReview(inspected) {
+		var plans = (inspected && inspected.evidence || []).map(planningSummary)
+			.filter(Boolean).sort(function (a, b) {
+				return a.attemptRevision - b.attemptRevision ||
+					String(a.recordedAt || '').localeCompare(String(b.recordedAt || ''));
+			});
+		var completions = (inspected && inspected.events || []).map(battleCompletion)
+			.filter(Boolean).sort(function (a, b) { return a.revision - b.revision; });
+		var orders = {};
+		plans.forEach(function (plan) { orders[plan.trainerOrder] = true; });
+		completions.forEach(function (actual) { orders[actual.trainerOrder] = true; });
+		var rows = [];
+		Object.keys(orders).map(Number).sort(function (a, b) { return a - b; })
+			.forEach(function (trainerOrder) {
+				var trainerPlans = plans.filter(function (plan) {
+					return plan.trainerOrder === trainerOrder;
+				});
+				var trainerPlays = completions.filter(function (actual) {
+					return actual.trainerOrder === trainerOrder;
+				});
+				var priorRevision = -1;
+				trainerPlays.forEach(function (actual) {
+					var eligible = trainerPlans.filter(function (plan) {
+						return plan.attemptRevision > priorRevision &&
+							plan.attemptRevision <= actual.revision;
+					});
+					var plan = eligible.length ? eligible[eligible.length - 1] : null;
+					rows.push({
+						trainerOrder: trainerOrder,
+						trainer: actual.trainer,
+						plan: plan,
+						planCount: eligible.length,
+						actual: actual,
+						comparison: comparison(plan, actual),
+					});
+					priorRevision = actual.revision;
+				});
+				var remaining = trainerPlans.filter(function (plan) {
+					return plan.attemptRevision > priorRevision;
+				});
+				if (remaining.length) {
+					var latest = remaining[remaining.length - 1];
+					rows.push({
+						trainerOrder: trainerOrder,
+						trainer: null,
+						plan: latest,
+						planCount: remaining.length,
+						actual: null,
+						comparison: 'unplayed',
+					});
+				}
+			});
+		rows.sort(function (a, b) {
+			var aRevision = a.actual ? a.actual.revision : a.plan.attemptRevision;
+			var bRevision = b.actual ? b.actual.revision : b.plan.attemptRevision;
+			return bRevision - aRevision;
+		});
+		return {
+			planned: plans.length,
+			played: completions.length,
+			matched: rows.filter(function (row) { return row.plan && row.actual; }).length,
+			rows: rows,
+		};
+	}
+
 	function openDb() {
 		return new Promise(function (resolve, reject) {
 			if (typeof indexedDB === 'undefined') {
@@ -251,6 +384,7 @@
 		attemptId: attemptId,
 		record: record,
 		derive: derive,
+		derivePlanningReview: derivePlanningReview,
 		positionLabel: positionLabel,
 		outcomeLabel: outcomeLabel,
 		archive: archive,

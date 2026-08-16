@@ -28,24 +28,30 @@ test('checked archives materialize into primitive episode, event, step and obser
 		log: [{command: {kind: 'tick'}, summary: 'tick', at: TIME}]};
 	await store.commit({run: advanced, expectedRevision: 2, commandId: 'tick',
 		event: event('command.applied', {command: {kind: 'tick'}})});
-	await store.commit({run: advanced, expectedRevision: 3, commandId: 'end',
-		event: event('run.ended', {outcome: 'wipe'})});
 	const planningRequest = JSON.parse(JSON.stringify(planningRequestFixture));
 	const planningReceipt = JSON.parse(JSON.stringify(planningReceiptFixture));
 	planningRequest.attempt.attemptId = 'rl-attempt';
-	planningRequest.attempt.revision = 4;
+	planningRequest.attempt.revision = 3;
 	planningReceipt.input.attemptId = 'rl-attempt';
-	planningReceipt.input.revision = 4;
+	planningReceipt.input.revision = 3;
 	await store.recordEvidence({request: planningRequest, receipt: planningReceipt,
 		recordedAt: TIME});
+	await store.commit({run: advanced, expectedRevision: 3, commandId: 'battle',
+		event: event('battle.ended', {kind: 'trainer', trainer: 'Youngster Allen',
+			trainerOrder: 1, progressionOrder: 0, seed: 1450, outcome: 'lost', turns: 5,
+			leadId: 'owned-treecko-1', participantIds: ['owned-treecko-1'],
+			deaths: [{monId: 'owned-treecko-1', species: 'Treecko'}]},
+		{kind: 'simulator', providerId: 'runbun-battle-driver', confidence: 1})});
+	await store.commit({run: advanced, expectedRevision: 4, commandId: 'end',
+		event: event('run.ended', {outcome: 'wipe'})});
 
 	const rows = await dataset.materialize(await store.exportActive(), {
 		reward: row => row.payload.command.kind === 'tick' ? -1 : 0,
 	});
-	assert.equal(rows.schemaVersion, '1.1.0');
+	assert.equal(rows.schemaVersion, '1.2.0');
 	assert.equal(rows.episodes[0].outcome, 'wipe');
-	assert.equal(rows.episodes[0].revision_count, 4);
-	assert.equal(rows.events.length, 4);
+	assert.equal(rows.episodes[0].revision_count, 5);
+	assert.equal(rows.events.length, 5);
 	assert.equal(rows.episodes[0].evidence_count, 1);
 	assert.equal(rows.events[1].source_kind, 'emulator');
 	assert.equal(rows.events[1].frame, 42);
@@ -66,7 +72,7 @@ test('checked archives materialize into primitive episode, event, step and obser
 	assert.equal(rows.planning_receipts.length, 1);
 	assert.deepEqual(rows.planning_receipts[0], {
 		attempt_id: 'rl-attempt', evidence_id: planningReceipt.receiptId,
-		attempt_revision: 4, state_hash: planningRequest.attempt.stateHash,
+		attempt_revision: 3, state_hash: planningRequest.attempt.stateHash,
 		request_id: planningRequest.requestId, trainer_order: 1,
 		provider_revision: planningReceipt.producer.revision, seed_count: 1,
 		player_team_size: 1, candidates_evaluated: 1, branches_evaluated: 1,
@@ -81,6 +87,20 @@ test('checked archives materialize into primitive episode, event, step and obser
 		attempt_id: 'rl-attempt', evidence_id: planningReceipt.receiptId,
 		request_id: planningRequest.requestId, branch_index: 0, seed: 1450,
 		victory: false, deaths: 1, turns: 5, total_hp_remaining: 0,
+	}]);
+	assert.deepEqual(rows.battle_outcomes, [{
+		attempt_id: 'rl-attempt', revision: 4, event_id: 'rl-attempt:battle',
+		trainer_order: 1, progression_order: 0, trainer: 'Youngster Allen', seed: 1450,
+		outcome: 'lost', turns: 5, lead_id: 'owned-treecko-1', participant_count: 1,
+		deaths: 1, provider_id: 'runbun-battle-driver',
+	}]);
+	assert.deepEqual(rows.planning_reviews, [{
+		attempt_id: 'rl-attempt', trainer_order: 1, comparison: 'defeat',
+		evidence_id: planningReceipt.receiptId, planning_revision: 3,
+		battle_revision: 4, battle_event_id: 'rl-attempt:battle', plan_count: 1,
+		planned_lead_id: 'owned-treecko-1', sampled_branches: 1,
+		sampled_safe_branches: 0, sampled_deaths: 1, actual_outcome: 'loss',
+		actual_deaths: 1, actual_turns: 5,
 	}]);
 	assert.match(dataset.ndjson(rows.steps), /"action_kind":"tick".*\n$/);
 });

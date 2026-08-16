@@ -2705,20 +2705,20 @@
         </h3>
         <div class="rb-disclose-region" id="rb-sec-history" role="region" aria-label="Run history">
             <div class="rb-disclose-inner">
-                <div class="runbun-run-history" aria-live="polite">
+                <div class="runbun-run-history">
                     <div class="runbun-run-history-metrics" aria-label="Run history summary">
                         <div><span>Runs saved</span><strong id="runbun-history-tracked">0</strong></div>
                         <div><span>Farthest</span><strong id="runbun-history-best">No runs yet</strong></div>
                         <div><span>Typical finish</span><strong id="runbun-history-median">Need 2+ runs</strong></div>
                         <div><span>Runs completed</span><strong id="runbun-history-completed">0</strong></div>
                     </div>
-                    <p id="runbun-history-state" class="runbun-history-state">Loading runs saved in this browser…</p>
+                    <p id="runbun-history-state" class="runbun-history-state" role="status" aria-live="polite">Loading runs saved in this browser…</p>
                     <div id="runbun-history-content" class="runbun-history-content" hidden>
-                        <section aria-labelledby="runbun-history-journal-heading">
+                        <section class="runbun-history-journal" aria-labelledby="runbun-history-journal-heading">
                             <div class="runbun-run-section-label" id="runbun-history-journal-heading">Run journal</div>
                             <ol id="runbun-history-attempts" class="runbun-history-attempts"></ol>
                         </section>
-                        <section aria-labelledby="runbun-history-species-heading">
+                        <section class="runbun-history-species-section" aria-labelledby="runbun-history-species-heading">
                             <div class="runbun-run-section-label" id="runbun-history-species-heading">Species across runs</div>
                             <div class="runbun-history-table-wrap">
                                 <table class="runbun-history-species">
@@ -2728,6 +2728,12 @@
                                 </table>
                             </div>
                             <p class="runbun-history-caveat">This table counts catches and survival. Carry and IV comparisons require completed battle evidence.</p>
+                        </section>
+                        <section class="runbun-history-planning" aria-labelledby="runbun-history-planning-heading">
+                            <div class="runbun-run-section-label" id="runbun-history-planning-heading">Plans vs played</div>
+                            <p id="runbun-history-planning-state" class="runbun-history-state" role="status" aria-live="polite">Choose a run to compare its saved plans with played fights.</p>
+                            <ol id="runbun-history-planning" class="runbun-history-planning-list"></ol>
+                            <p class="runbun-history-caveat">This compares sampled forecasts with recorded fights. It does not claim that a Pokémon carried the run or that the sample proved safety.</p>
                         </section>
                     </div>
                 </div>

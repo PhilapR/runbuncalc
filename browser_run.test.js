@@ -180,6 +180,29 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip}, 
 	assert.equal(retained.evidence.every(record =>
 		record.schemaVersion === 'rabrun.evidence/1.0.0' &&
 		/^[a-f0-9]{64}$/.test(record.evidenceHash)), true);
+	await page.evaluate(async () => {
+		const store = window.RunBunAttemptStore.getDefault();
+		const head = await store.loadActive();
+		await store.commit({
+			run: head.run,
+			expectedRevision: head.revision,
+			commandId: 'browser-planning-review-completion',
+			event: {
+				kind: 'battle.ended',
+				payload: {kind: 'trainer', trainer: 'Youngster Calvin', trainerOrder: 3,
+					seed: 1450, outcome: 'won', turns: 5, leadId: 'mon-1',
+					participantIds: ['mon-1'], deaths: []},
+				observedAt: '2026-08-16T12:00:00.000Z',
+				source: {kind: 'simulator', providerId: 'runbun-battle-driver', confidence: 1},
+			},
+		});
+	});
+	await page.click('#runbun-run-review');
+	await page.waitForSelector('#runbun-history-planning .runbun-history-plan', {timeout: 10000});
+	assert.equal(await page.$$eval('#runbun-history-planning .runbun-history-plan',
+		rows => rows.length), 3, 'the current plan and two-fight outlook become review rows');
+	assert.match(await page.textContent('#runbun-history-planning'),
+		/Youngster Calvin.*(sampled plan held in play|played fight beat the sampled risk).*Played · won · deathless/s);
 	assert.deepEqual(session.errors, []);
 	await session.context.close();
 });
@@ -1317,6 +1340,21 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 		'the fight left a narration');
 	assert.match(await page.textContent('#runbun-run-battle-result'), /recorded/,
 		'the finished battle says its result is in the run');
+	const completed = await page.evaluate(async () => {
+		const store = window.RunBunAttemptStore.getDefault();
+		const head = await store.loadActive();
+		const inspected = await store.inspectAttempt(head.attemptId);
+		return inspected.events.filter(event => event.kind === 'battle.ended').at(-1);
+	});
+	assert.equal(completed.payload.kind, 'trainer');
+	assert.equal(completed.payload.trainer, 'Youngster Calvin');
+	assert.equal(completed.payload.trainerOrder, 3);
+	assert.equal(completed.payload.progressionOrder, 0);
+	assert.equal(completed.payload.outcome, /Won against/.test(status) ? 'won' : 'lost');
+	assert.equal(completed.payload.deaths.length,
+		saved.box.filter(mon => mon.status === 'dead').length);
+	assert.equal(completed.source.kind, 'simulator');
+	assert.equal(completed.source.providerId, 'runbun-battle-driver');
 	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Return to run',
 		'a completed fight must never leave an Abandon action behind');
 	const recordedStatus = await page.textContent('#runbun-run-status');

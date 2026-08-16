@@ -147,8 +147,10 @@
 				observedAt: new Date().toISOString(),
 				source: {
 					kind: kind === 'run.migrated' ? 'migration' :
-						(kind === 'run.imported' ? 'import' : 'manual'),
-					providerId: 'runbun-browser',
+						(kind === 'run.imported' ? 'import' :
+							(kind === 'battle.ended' ? 'simulator' : 'manual')),
+					providerId: kind === 'battle.ended' ?
+						'runbun-battle-driver' : 'runbun-browser',
 					confidence: 1,
 				},
 			},
@@ -933,6 +935,70 @@
 			$state.text('Run history could not load. The active run has not been changed.');
 			return Promise.reject(new Error('Run history is unavailable.'));
 		}
+		function comparisonText(kind) {
+			return {
+				held: 'The sampled plan held in play.',
+				underestimated: 'The played fight was harsher than the sample.',
+				outperformed: 'The played fight beat the sampled risk.',
+				'within-risk': 'The sampled risk showed up in play.',
+				defeat: 'The played fight ended in defeat.',
+				unplayed: 'Saved for a fight that has not been played yet.',
+				unplanned: 'Played without a saved simulator plan.',
+			}[kind] || 'No comparison is available.';
+		}
+		function renderPlanningReview(entry) {
+			var $planningState = $('#runbun-history-planning-state');
+			var $planning = $('#runbun-history-planning').empty();
+			if (!entry) {
+				$planningState.text('Choose a run to compare its saved plans with played fights.');
+				return Promise.resolve(null);
+			}
+			$planningState.text('Loading ' + (entry.name || 'this run') + '…');
+			return history.evidence(entry.attemptId).then(function (inspected) {
+				if (!inspected) {
+					$planningState.text('No checked battle evidence is available for this run.');
+					return null;
+				}
+				var review = history.derivePlanningReview(inspected);
+				if (!review.rows.length) {
+					$planningState.text('No saved plans or played fight receipts in this run yet.');
+					return review;
+				}
+				$planningState.text((entry.name || 'This run') + ': ' + review.planned +
+					' saved plan' + (review.planned === 1 ? '' : 's') + ' · ' + review.played +
+					' played fight' + (review.played === 1 ? '' : 's') + '.');
+				review.rows.forEach(function (row) {
+					var plan = row.plan;
+					var actual = row.actual;
+					var trainer = row.trainer || 'Trainer #' + row.trainerOrder;
+					var $card = $('<li class="runbun-history-plan"></li>')
+						.attr('data-comparison', row.comparison);
+					$card.append($('<div class="runbun-history-plan-head"></div>')
+						.append($('<strong></strong>').text(displayText(trainer)))
+						.append($('<span></span>').text(row.trainer ?
+							'Trainer #' + row.trainerOrder : 'Saved plan')));
+					$card.append($('<p class="runbun-history-plan-verdict"></p>')
+						.text(comparisonText(row.comparison)));
+					$card.append($('<p class="runbun-history-plan-fact"></p>').text(plan ?
+						'Plan · lead ' + (plan.leadSpecies || plan.leadId || 'not recorded') + ' · ' +
+						plan.safeBranches + '/' + plan.branches + ' sampled branches deathless' +
+						(Number.isFinite(plan.expectedTurns) ? ' · ' + plan.expectedTurns +
+							' expected turns' : '') + (row.planCount > 1 ?
+							' · latest of ' + row.planCount : '') :
+						'Plan · none saved before this fight'));
+					$card.append($('<p class="runbun-history-plan-fact"></p>').text(actual ?
+						'Played · ' + (actual.result === 'win' ? 'won' : 'lost') + ' · ' +
+						(actual.deaths ? actual.deaths + ' death' + (actual.deaths === 1 ? '' : 's') :
+							'deathless') + ' · ' + actual.turns + ' turns · seed ' + actual.seed :
+						'Played · not yet'));
+					$planning.append($card);
+				});
+				return review;
+			}).catch(function (error) {
+				$planningState.text('Could not read this run\'s battle evidence: ' + error.message);
+				return null;
+			});
+		}
 		return history.list().then(function (records) {
 			var summary = history.derive(records, state);
 			$('#runbun-history-tracked').text(summary.tracked);
@@ -945,15 +1011,26 @@
 				(summary.active ? ' · 1 active' : ''));
 
 			var $attempts = $('#runbun-history-attempts').empty();
-			summary.attempts.forEach(function (entry) {
+			summary.attempts.forEach(function (entry, index) {
 				var $row = $('<li class="runbun-history-attempt"></li>')
-					.toggleClass('is-active', entry.outcome === 'active');
-				$row.append($('<span class="runbun-history-attempt-name"></span>')
+					.toggleClass('is-active', entry.outcome === 'active')
+					.toggleClass('is-selected', index === 0);
+				var $button = $('<button type="button" class="runbun-history-attempt-button"></button>')
+					.attr('aria-pressed', index === 0 ? 'true' : 'false');
+				$button.append($('<span class="runbun-history-attempt-name"></span>')
 					.text(entry.name || 'Untitled run'));
-				$row.append($('<span class="runbun-history-attempt-outcome"></span>')
+				$button.append($('<span class="runbun-history-attempt-outcome"></span>')
 					.text(history.outcomeLabel(entry.outcome)));
-				$row.append($('<span class="runbun-history-attempt-position"></span>')
+				$button.append($('<span class="runbun-history-attempt-position"></span>')
 					.text(history.positionLabel(entry.position)));
+				$button.on('click', function () {
+					$attempts.find('.runbun-history-attempt').removeClass('is-selected')
+						.find('.runbun-history-attempt-button').attr('aria-pressed', 'false');
+					$row.addClass('is-selected');
+					$button.attr('aria-pressed', 'true');
+					renderPlanningReview(entry);
+				});
+				$row.append($button);
 				$attempts.append($row);
 			});
 
@@ -977,7 +1054,7 @@
 					' saved in this browser.' :
 				'The active run joins history when it ends.');
 			$('#runbun-history-content').prop('hidden', false);
-			return summary;
+			return renderPlanningReview(summary.attempts[0]).then(function () { return summary; });
 		}).catch(function (error) {
 			$state.text('Could not read run history: ' + error.message);
 			throw error;
@@ -2151,10 +2228,19 @@
 	 * trainer still stands on the road ahead.
 	 */
 	function finishBattle(reply) {
-		var trainer = battle.bundle.trainer;
-		var wild = battle.bundle.wild || null;
+		var completedBundle = battle.bundle;
+		var trainer = completedBundle.trainer;
+		var wild = completedBundle.wild || null;
 		var won = reply.result === 'win';
 		var deaths = reply.deaths || [];
+		var completionCommandId = newCommandId();
+		var canonicalTrainerOrder = null;
+		if (!wild && window.RunBunPokemonProvider &&
+			typeof window.RunBunPokemonProvider.resolveTrainerOrder === 'function') {
+			try {
+				canonicalTrainerOrder = window.RunBunPokemonProvider.resolveTrainerOrder(trainer);
+			} catch (ignore) {}
+		}
 		var resultLabel = reply.result === 'win' ? 'Victory' :
 			reply.result === 'catch' ? 'Caught' : 'Defeat';
 		$('#runbun-run-battle').attr('data-result', reply.result);
@@ -2164,6 +2250,28 @@
 		battle = null;
 		clearBattleSave();
 		var chain = Promise.resolve(true);
+		function recordCompletion(ok) {
+			if (!ok) return false;
+			return persist('battle.ended', {
+				kind: wild ? 'wild' : 'trainer',
+				trainer: trainer,
+				trainerOrder: canonicalTrainerOrder,
+				progressionOrder: Number.isInteger(completedBundle.order) ? completedBundle.order : null,
+				seed: completedBundle.seed,
+				outcome: won ? 'won' : 'lost',
+				turns: reply.viewState && Number.isInteger(reply.viewState.turn) ?
+					reply.viewState.turn : completedBundle.state.turn,
+				leadId: completedBundle.party && completedBundle.party[0] ?
+					completedBundle.party[0].monId : null,
+				participantIds: (completedBundle.party || []).map(function (member) {
+					return member.monId;
+				}),
+				deaths: deaths.map(function (death) {
+					return {monId: death.monId, species: death.species,
+						by: death.by || null, of: death.of || null};
+				}),
+			}, completionCommandId).then(function () { return true; });
+		}
 		deaths.forEach(function (death) {
 			if (!death.monId) return;
 			chain = chain.then(function (ok) {
@@ -2203,7 +2311,7 @@
 						reason: 'the encounter fainted'}) : false;
 				});
 			}
-			chain.then(function (ok) {
+			chain.then(recordCompletion).then(function (ok) {
 				if (!ok) {
 					$('#runbun-run-battle-result').text(
 						'The fight ended, but the run could not record every result. Review the status below.');
@@ -2238,7 +2346,7 @@
 				return ok ? command({kind: 'beat', trainer: trainer}) : false;
 			});
 		}
-		chain.then(function (ok) {
+		chain.then(recordCompletion).then(function (ok) {
 			if (ok) {
 				status(won ?
 					'Won against ' + trainer + ' — recorded' +

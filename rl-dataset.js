@@ -2,8 +2,9 @@
 'use strict';
 
 const AttemptStore = require('./src/js/attempt_store');
+const RunHistory = require('./src/js/run_history');
 
-const SCHEMA_VERSION = '1.1.0';
+const SCHEMA_VERSION = '1.2.0';
 const TABLE_SCHEMAS = Object.freeze({
 	episodes: Object.freeze({
 		attempt_id: 'UTF8', profile_id: 'UTF8', model_version: 'UTF8',
@@ -46,6 +47,21 @@ const TABLE_SCHEMAS = Object.freeze({
 		attempt_id: 'UTF8', evidence_id: 'UTF8', request_id: 'UTF8',
 		branch_index: 'UINT32', seed: 'UINT32', victory: 'BOOLEAN', deaths: 'UINT32',
 		turns: 'UINT32', total_hp_remaining: 'INT32',
+	}),
+	battle_outcomes: Object.freeze({
+		attempt_id: 'UTF8', revision: 'UINT32', event_id: 'UTF8',
+		trainer_order: 'UINT32', progression_order: 'UINT32?', trainer: 'UTF8',
+		seed: 'UINT32', outcome: 'UTF8_DICTIONARY', turns: 'UINT32',
+		lead_id: 'UTF8?', participant_count: 'UINT8', deaths: 'UINT8',
+		provider_id: 'UTF8',
+	}),
+	planning_reviews: Object.freeze({
+		attempt_id: 'UTF8', trainer_order: 'UINT32', comparison: 'UTF8_DICTIONARY',
+		evidence_id: 'UTF8?', planning_revision: 'UINT32?', battle_revision: 'UINT32?',
+		battle_event_id: 'UTF8?', plan_count: 'UINT32', planned_lead_id: 'UTF8?',
+		sampled_branches: 'UINT32?', sampled_safe_branches: 'UINT32?',
+		sampled_deaths: 'UINT32?', actual_outcome: 'UTF8_DICTIONARY?',
+		actual_deaths: 'UINT32?', actual_turns: 'UINT32?',
 	}),
 });
 
@@ -170,6 +186,58 @@ function planningBranchRows(bundle, evidence) {
 	}));
 }
 
+function battleOutcomeRow(bundle, event) {
+	const payload = event.payload;
+	if (event.kind !== 'battle.ended' || !payload || payload.kind !== 'trainer' ||
+		!Number.isInteger(payload.trainerOrder) || typeof payload.trainer !== 'string' ||
+		!payload.trainer || !Number.isInteger(payload.seed) ||
+		['won', 'lost'].indexOf(payload.outcome) === -1 || !Number.isInteger(payload.turns) ||
+		!Array.isArray(payload.participantIds) || payload.participantIds.length > 6 ||
+		!Array.isArray(payload.deaths) || payload.deaths.length > 6) return null;
+	return {
+		attempt_id: bundle.attemptId,
+		revision: uint32(event.revision, 'battle revision'),
+		event_id: event.eventId,
+		trainer_order: uint32(payload.trainerOrder, 'battle trainer order'),
+		progression_order: payload.progressionOrder === null ||
+			payload.progressionOrder === undefined ? null :
+			uint32(payload.progressionOrder, 'battle progression order'),
+		trainer: payload.trainer,
+		seed: uint32(payload.seed, 'battle seed'),
+		outcome: payload.outcome,
+		turns: uint32(payload.turns, 'battle turns'),
+		lead_id: payload.leadId || null,
+		participant_count: uint32((payload.participantIds || []).length,
+			'battle participant count'),
+		deaths: uint32(payload.deaths.length, 'battle deaths'),
+		provider_id: event.source.providerId,
+	};
+}
+
+function planningReviewRow(bundle, row) {
+	return {
+		attempt_id: bundle.attemptId,
+		trainer_order: uint32(row.trainerOrder, 'review trainer order'),
+		comparison: row.comparison,
+		evidence_id: row.plan ? row.plan.evidenceId : null,
+		planning_revision: row.plan ?
+			uint32(row.plan.attemptRevision, 'review planning revision') : null,
+		battle_revision: row.actual ?
+			uint32(row.actual.revision, 'review battle revision') : null,
+		battle_event_id: row.actual ? row.actual.eventId : null,
+		plan_count: uint32(row.planCount, 'review plan count'),
+		planned_lead_id: row.plan ? row.plan.leadId : null,
+		sampled_branches: row.plan ?
+			uint32(row.plan.branches, 'review sampled branches') : null,
+		sampled_safe_branches: row.plan ?
+			uint32(row.plan.safeBranches, 'review safe branches') : null,
+		sampled_deaths: row.plan ? uint32(row.plan.deaths, 'review sampled deaths') : null,
+		actual_outcome: row.actual ? row.actual.result : null,
+		actual_deaths: row.actual ? uint32(row.actual.deaths, 'review actual deaths') : null,
+		actual_turns: row.actual ? uint32(row.actual.turns, 'review actual turns') : null,
+	};
+}
+
 async function materialize(bundle, options) {
 	await AttemptStore.validateBundle(bundle);
 	const events = bundle.events.map(event => eventRow(bundle, event));
@@ -188,6 +256,9 @@ async function materialize(bundle, options) {
 	const planningEvidence = evidence.filter(record => record.kind === 'pokemon.rab.plan');
 	const planningReceipts = planningEvidence.map(record => planningReceiptRow(bundle, record));
 	const planningBranches = planningEvidence.flatMap(record => planningBranchRows(bundle, record));
+	const battleOutcomes = bundle.events.map(event => battleOutcomeRow(bundle, event)).filter(Boolean);
+	const planningReviews = RunHistory.derivePlanningReview(bundle).rows.map(row =>
+		planningReviewRow(bundle, row));
 	return {
 		schemaVersion: SCHEMA_VERSION,
 		tableSchemas: TABLE_SCHEMAS,
@@ -208,6 +279,8 @@ async function materialize(bundle, options) {
 		observations,
 		planning_receipts: planningReceipts,
 		planning_branches: planningBranches,
+		battle_outcomes: battleOutcomes,
+		planning_reviews: planningReviews,
 	};
 }
 
