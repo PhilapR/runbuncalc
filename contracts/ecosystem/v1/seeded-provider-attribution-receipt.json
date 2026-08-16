@@ -1,10 +1,10 @@
 {
   "schemaVersion": "pokemon.bridge.attribution.receipt/1.0.0",
-  "receiptId": "receipt_a73778efd4cb22bb11805c4e",
+  "receiptId": "receipt_98aa7f6c883126e2bb564e88",
   "requestId": "req_calvin_attribution_001",
   "producer": {
     "repository": "pokemon-mono",
-    "revision": "5648e07f8c48f8ce20e091dbf367dab213350686",
+    "revision": "2ae1b7e5721a2d2ff3b9692df75f65329c891650",
     "engine": "run-and-bun",
     "engineVersion": "0.2.0"
   },
@@ -19,7 +19,10 @@
     "trainerOrder": 3,
     "policy": "reoptimize-lead-v1",
     "maxCandidateBranches": 100,
-    "seeds": [1450, 1451],
+    "seeds": [
+      1450,
+      1451
+    ],
     "interventionIds": [
       "replace-mudkip-with-poochyena",
       "treecko-all-15-reference"
@@ -35,8 +38,20 @@
       "totalDeaths": 4,
       "expectedTurns": 9,
       "branchOutcomes": [
-        {"seed": 1450, "victory": false, "deaths": 2, "turns": 8, "totalHPRemaining": 0},
-        {"seed": 1451, "victory": false, "deaths": 2, "turns": 10, "totalHPRemaining": 0}
+        {
+          "seed": 1450,
+          "victory": false,
+          "deaths": 2,
+          "turns": 8,
+          "totalHPRemaining": 0
+        },
+        {
+          "seed": 1451,
+          "victory": false,
+          "deaths": 2,
+          "turns": 10,
+          "totalHPRemaining": 0
+        }
       ]
     },
     "interventions": [
@@ -53,8 +68,20 @@
           "totalDeaths": 4,
           "expectedTurns": 11,
           "branchOutcomes": [
-            {"seed": 1450, "victory": false, "deaths": 2, "turns": 10, "totalHPRemaining": 0},
-            {"seed": 1451, "victory": false, "deaths": 2, "turns": 12, "totalHPRemaining": 0}
+            {
+              "seed": 1450,
+              "victory": false,
+              "deaths": 2,
+              "turns": 10,
+              "totalHPRemaining": 0
+            },
+            {
+              "seed": 1451,
+              "victory": false,
+              "deaths": 2,
+              "turns": 12,
+              "totalHPRemaining": 0
+            }
           ]
         },
         "delta": {
@@ -80,8 +107,20 @@
           "totalDeaths": 4,
           "expectedTurns": 9,
           "branchOutcomes": [
-            {"seed": 1450, "victory": false, "deaths": 2, "turns": 8, "totalHPRemaining": 0},
-            {"seed": 1451, "victory": false, "deaths": 2, "turns": 10, "totalHPRemaining": 0}
+            {
+              "seed": 1450,
+              "victory": false,
+              "deaths": 2,
+              "turns": 8,
+              "totalHPRemaining": 0
+            },
+            {
+              "seed": 1451,
+              "victory": false,
+              "deaths": 2,
+              "turns": 10,
+              "totalHPRemaining": 0
+            }
           ]
         },
         "delta": {
@@ -99,12 +138,12 @@
       "seedPairsEvaluated": 4,
       "candidateBranchesEvaluated": 12
     },
-    "outputHash": "d49cdda6cff38b420a0db44627e9c275f2ff05bc0a2013880634d89b4acc6dbf"
+    "outputHash": "81b4c374bfd6d2896024e8f7d7107cafc1e45179bf9b1ec394c0fcafab4b1814"
   },
   "evidence": {
     "contractVersion": "1.0.0",
     "deterministic": true,
-    "replayHash": "a781ef44800db9818cae022a2f0cc6ea2c76fac13ebeb05bc09c235536c07413",
+    "replayHash": "78a5b950a60ff7a3d3fb965a772043ab04c7b91183c05c53a8876114e7f02f98",
     "expectedDivergences": [],
     "unexpectedDivergences": []
   }

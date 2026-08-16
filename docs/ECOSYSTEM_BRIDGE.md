@@ -110,15 +110,16 @@ inference is never the game-state authority.
 ## Current gate — 2026-08-16
 
 Steps 1 through 5 are locally complete for seeded planning. The first bounded
-attribution contract and app implementation are locally tested, while their
-rendered browser acceptance remains open. The attribution capability independently replaces one
-party member or normalizes one owned Pokemon to the all-15 IV reference, uses
-the same explicit seeds on both sides, and reoptimizes the lead for each team.
-It reports modeled deltas only; participation and historical carry remain
-separate evidence levels.
+attribution contract and app implementation are locally tested through a
+rendered browser-to-archive journey. That journey persists one random wild IV
+roll across reload, independently replaces one party member or normalizes one
+owned Pokemon to the all-15 IV reference, uses the same explicit seeds on both
+sides, plays the planned trainer fight through the game UI, and materializes
+the checked archive. Modeled deltas and actual participation remain separate;
+neither is labeled as historical carry.
 
 `runbuncalc` imports the browser-safe provider built from `pokemon-mono`
-revision `5648e07f8c48f8ce20e091dbf367dab213350686`, verifies the artifact hash
+revision `2ae1b7e5721a2d2ff3b9692df75f65329c891650`, verifies the artifact hash
 before building, resolves each filtered product label to the engine's unique
 canonical raw trainer order, and reproduces the recorded seed-1450 receipt in
 Chromium. The Plan surface combines that eight-seed whole-branch forecast with

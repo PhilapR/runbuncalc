@@ -82,7 +82,7 @@ test('the pinned in-process provider deterministically replays attribution', asy
 	const providerModule = await import('./vendor/pokemon-run-runtime/index.js');
 	const source = require('./contracts/ecosystem/v1/attribution-request.json');
 	const lockedReceipt = require('./contracts/ecosystem/v1/seeded-provider-attribution-receipt.json');
-	const providerRevision = '5648e07f8c48f8ce20e091dbf367dab213350686';
+	const providerRevision = require('./vendor/pokemon-run-runtime/PROVENANCE.json').revision;
 	const provider = providerModule.createRabRunRuntimeProvider({
 		providerRevision, engineVersion: '0.2.0',
 	});

@@ -42,6 +42,7 @@
   "dev": "npm run build && node server.js",
   "preview": "node build view && node server.js",
   "check:sdlc": "node scripts/check-sdlc.js",
+  "refresh:provider-fixtures": "node scripts/refresh-pokemon-provider-fixtures.js",
   "demo": "node scripts/build-demo.js",
   "cf:build": "npm run build && node scripts/build-worker.js",
 	"cf:build:exact": "RUNBUN_REQUIRE_CLEAN=1 npm run cf:build",

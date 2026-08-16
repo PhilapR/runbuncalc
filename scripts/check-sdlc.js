@@ -60,7 +60,7 @@ const providerArtifact = fs.readFileSync(path.join(root, 'vendor', 'pokemon-run-
 assert.equal(crypto.createHash('sha256').update(providerArtifact).digest('hex'),
 	providerProvenance.artifactSha256, 'vendored pokemon-mono artifact hash drifted');
 assert.equal(providerProvenance.repository, 'pokemon-mono');
-assert.equal(providerProvenance.revision, '5648e07f8c48f8ce20e091dbf367dab213350686');
+assert.equal(providerProvenance.revision, '2ae1b7e5721a2d2ff3b9692df75f65329c891650');
 
 const source = read('src/index.template.html');
 assert.match(source, /\/src\\\/index\\\.template\\\.html\$/,
