@@ -184,8 +184,10 @@ rewrite the result.
 `rl-dataset.js` validates a checked archive and materializes primitive episode,
 event, step, observation, planning-receipt, planning-branch, battle-outcome, and
 planning-review rows with explicit Arrow/Parquet-oriented types. Schema `1.3.0`
-adds one primitive `battle_contributions` row per owned Pokemon in each trainer
-receipt, keyed back to attempt, event, revision, and trainer order. It
+added one primitive `battle_contributions` row per owned Pokemon in each trainer
+receipt, keyed back to attempt, event, revision, and trainer order; schema
+`1.4.0` adds normalized `attribution_receipts`, `attribution_tests`, and
+`attribution_branches` tables for modeled counterfactual evidence. It
 preserves provider, profile/request, seed, result, replay, and evidence
 identities so policy data can be traced back to the exact checked attempt.
 It is deliberately not Parquet: columnar files belong downstream as immutable

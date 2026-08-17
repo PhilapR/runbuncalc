@@ -9,10 +9,12 @@ not prerequisites for a good game.
 ## Current posture
 
 - The private Cloudflare Worker is the deployment target. The current branch
-  build-materializes the authored trainer set and now passes a real workerd
+  build-materializes the authored trainer set and passes a real workerd
   `new → apply → status` acceptance test without dynamic code generation. The
-  live site still serves the older failing revision until this branch is
-  reviewed and deliberately redeployed.
+  live Worker serves this exact branch revision behind fail-closed password
+  authentication; `/__runbun/meta` reports the deployed Git revision. Live
+  deployment is verified, but formal cross-repository evidence promotion and
+  PR review are still pending.
 - The local browser run is authoritative for companion play. IndexedDB stores
   a versioned, hash-linked event ledger with lifecycle/every-50-revision
   snapshots; localStorage is only a compatibility mirror and wake-up signal.
@@ -172,9 +174,9 @@ manifest tying every row to attempt, revision, schema, seed, and source.
 
 **Current evidence:** IndexedDB v3 stores planner receipts separately from the
 event ledger, imports older archives, rejects receipt corruption, and preserves
-atomic batch order. Materializer schema `1.3.0` emits typed planning receipt,
-per-seed branch, played battle outcome, plan-vs-played review, and per-Pokemon
-battle-contribution tables. A
+atomic batch order. Materializer schema `1.4.0` emits typed planning receipt,
+per-seed branch, played battle outcome, plan-vs-played review, per-Pokemon
+battle-contribution, and normalized attribution receipt/test/branch tables. A
 1,024-receipt maximum batch remains below 8 MiB and materializes in the local
 five-second regression bound without creating game events. Native Parquet/Arrow
 file writing remains downstream work.
@@ -280,8 +282,10 @@ route-to-fight slice, not the whole game.
 
 ## Near-term execution order
 
-1. Review the Worker-safe loader and workerd `new → apply → status` gate,
-   redeploy privately, and repeat the authenticated/anonymous live smoke.
+1. Done: the Worker-safe loader and workerd `new → apply → status` gate are
+   deployed privately, and the authenticated/anonymous live smoke passed
+   against the exact deployed revision. Remaining: PR review and formal
+   cross-repository evidence promotion.
 2. Finish the first self-contained game slice and its reload/export/import
    evidence.
 3. Consolidate road-ahead, encounter/item/tutor availability, prep, and review

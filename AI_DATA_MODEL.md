@@ -17,10 +17,11 @@ deaths. Versioned contribution rows record appearances, switch-ins, move
 attempts, immediate opposing real HP removed by those moves, and direct KOs.
 They deliberately exclude Substitute HP, hazards, residual effects, balls, and
 illegal actions; these are realized participation facts, not carry or causal
-value. `rl-dataset.js` schema `1.3.0` materializes both sides into typed
+value. `rl-dataset.js` schema `1.4.0` materializes both sides into typed
 `planning_receipts`, `planning_branches`, `battle_outcomes`, and
-`planning_reviews` tables plus primitive `battle_contributions` rows for
-Arrow/Parquet-oriented analytics and RL work.
+`planning_reviews` tables plus primitive `battle_contributions` rows, and adds
+`attribution_receipts`, `attribution_tests`, and `attribution_branches` tables
+for Arrow/Parquet-oriented analytics and RL work.
 
 `validateBattleState()` is the runtime boundary for serialized inputs. It
 checks stable party IDs, active-slot ownership, HP/resource ranges, stat stages,
