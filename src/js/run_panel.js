@@ -389,38 +389,10 @@
 	}
 
 	var IV_LABELS = {hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe'};
-	var NATURES = ['Hardy', 'Lonely', 'Brave', 'Adamant', 'Naughty', 'Bold', 'Docile',
-		'Relaxed', 'Impish', 'Lax', 'Timid', 'Hasty', 'Serious', 'Jolly', 'Naive',
-		'Modest', 'Mild', 'Quiet', 'Bashful', 'Rash', 'Calm', 'Gentle', 'Sassy',
-		'Careful', 'Quirky'];
 
-	/** The standalone game's acquisition roll. Values become replay facts in the command. */
-	function rollPlayerIvs() {
-		var ivs = {};
-		Object.keys(IV_LABELS).forEach(function (stat) {
-			ivs[stat] = Math.floor(Math.random() * 32);
-		});
-		return ivs;
-	}
-
-	/** Nature, ability and IVs are visible owned facts, rolled once and saved. */
-	function rollPlayerFacts(speciesName) {
-		var abilities = [];
-		try {
-			var gen = window.calc && window.calc.Generations && window.calc.Generations.get(8);
-			var species = gen && gen.species.get(dexId(speciesName));
-			abilities = species && species.abilities ? Object.keys(species.abilities)
-				.map(function (slot) { return species.abilities[slot]; })
-				.filter(function (ability, index, all) {
-					return ability && all.indexOf(ability) === index;
-				}) : [];
-		} catch (ignore) {}
-		return {
-			ivs: rollPlayerIvs(),
-			nature: NATURES[Math.floor(Math.random() * NATURES.length)],
-			ability: abilities.length ? abilities[Math.floor(Math.random() * abilities.length)] : undefined,
-		};
-	}
+	// This panel never rolls an identity. IVs, nature, and ability are
+	// authored by the server's die (/run/encounter, /run/identity) and only
+	// carried through here into the catch command that makes them replay facts.
 
 	function dexId(value) {
 		return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -947,10 +919,23 @@
 		routes.forEach(function (route) {
 			$routes.append($('<button type="button" class="runbun-run-route-choice"></button>')
 				.attr('data-map', route.map)
+				.attr('aria-pressed', 'false')
 				.append($('<span class="runbun-run-route-choice-name"></span>')
 					.text(displayText(route.name)))
 				.append($('<span class="runbun-run-route-choice-action"></span>')
 					.text(route.held ? 'Held route · ready' : 'See encounters')));
+		});
+		syncRouteSelection();
+	}
+
+	/** The card whose table is on screen wears the selected state; every other
+	 * card stays a plain offer. One writer, so cards and table cannot disagree. */
+	function syncRouteSelection() {
+		var map = $('#runbun-run-map').val();
+		$('#runbun-run-reachable .runbun-run-route-choice').each(function () {
+			var selected = !!map && $(this).attr('data-map') === map;
+			$(this).toggleClass('is-selected', selected)
+				.attr('aria-pressed', selected ? 'true' : 'false');
 		});
 	}
 
@@ -1332,6 +1317,7 @@
 	function showEncounters() {
 		var map = $('#runbun-run-map').val();
 		var $list = $('#runbun-run-encounters').empty();
+		syncRouteSelection();
 		if (!state || !map) return Promise.resolve();
 		return api('/run/where', {run: state, map: map}).then(function (found) {
 			// Under the nuzlocke rules the list is a forecast, not a menu: the
@@ -2114,8 +2100,9 @@
 		}
 		var method = $('#runbun-run-roll-method').val() || undefined;
 		api('/run/encounter', {run: state, map: map, method: method}).then(function (payload) {
-			rolled = Object.assign({mapName: map}, payload.roll,
-				rollPlayerFacts(payload.roll.species));
+			// The server authors the whole rolled identity — IVs, nature,
+			// ability. This panel only carries it; it never rolls its own.
+			rolled = Object.assign({mapName: map}, payload.roll);
 			rolledLog = logLength();
 			paintRoll();
 			persistRoll();
@@ -2130,7 +2117,7 @@
 		var roll = rolled;
 		var body = kept ?
 			{kind: 'catch', species: roll.species, level: roll.level,
-				map: roll.mapName, method: roll.method, ivs: roll.ivs || rollPlayerIvs(),
+				map: roll.mapName, method: roll.method, ivs: roll.ivs,
 				nature: roll.nature, ability: roll.ability} :
 			{kind: 'spend', map: roll.mapName, reason: 'it got away'};
 		command(body).then(function (accepted) {
@@ -2257,9 +2244,28 @@
 		$('#runbun-run-battle-foe-name').text(
 			viewState.foe.active.species + ' L' + viewState.foe.active.level +
 			(viewState.foe.active.status ? ' · ' + viewState.foe.active.status : ''));
+		// Fights are played at the level cap the run can legally reach, so a
+		// mon that is owned below the cap says so — otherwise the jump from
+		// the roster's L5 to a battle L12 reads like a bug, not a rule.
+		var ownedLevel = null;
+		var activeRow = (battle.bundle.party || []).filter(function (row) {
+			return row.battleId === viewState.player.active.id;
+		})[0];
+		if (activeRow && state && state.box) {
+			var ownedMon = state.box.filter(function (mon) {
+				return mon.id === activeRow.monId;
+			})[0];
+			if (ownedMon) ownedLevel = ownedMon.level;
+		}
+		var atCap = ownedLevel !== null && viewState.player.active.level > ownedLevel;
 		$('#runbun-run-battle-us-name').text(
 			viewState.player.active.species + ' L' + viewState.player.active.level +
-			(viewState.player.active.status ? ' · ' + viewState.player.active.status : ''));
+			(atCap ? ' · at cap' : '') +
+			(viewState.player.active.status ? ' · ' + viewState.player.active.status : ''))
+			.attr('title', atCap ?
+				'Fights are played at the run’s level cap: owned L' + ownedLevel +
+					', capped to L' + viewState.player.active.level + ' for this fight.' :
+				null);
 		$('#runbun-run-battle-foe-meta').text(
 			(viewState.foe.active.types || []).join(' / ') +
 			(viewState.foe.active.ability ? ' · ' + viewState.foe.active.ability : '') +
@@ -2354,6 +2360,10 @@
 			species: rolled.species,
 			level: rolled.level,
 			ivs: rolled.ivs,
+			// The roll is the encounter's whole identity: the nature and
+			// ability that fight the battle must be the ones the box keeps.
+			nature: rolled.nature,
+			ability: rolled.ability,
 		}}).then(function (opened) {
 			if (opened) $('#runbun-run-roll-result').prop('hidden', true);
 		});
@@ -2483,7 +2493,7 @@
 				chain = chain.then(function (ok) {
 					return ok ? command({kind: 'catch', species: wild.species,
 						level: wild.level, map: wild.map, method: wild.method,
-						ivs: wild.ivs || rollPlayerIvs(), nature: wild.nature,
+						ivs: wild.ivs, nature: wild.nature,
 						ability: wild.ability}) : false;
 				});
 			} else if (won) {
@@ -2726,15 +2736,20 @@
 					// scripted gift with no wild table, recorded as declared. A
 					// refused gift must not unstart the run: the run stands, the
 					// refusal is reported, the starter can be caught by hand.
-					var starterFacts = rollPlayerFacts($starter.attr('data-species'));
-					return api('/run/apply', {run: state, command: {
-						kind: 'catch',
+					// The identity comes from the server's die; the catch
+					// command below is what makes it a durable, replayable fact.
+					return api('/run/identity', {
 						species: $starter.attr('data-species'),
-						level: 5,
-						ivs: starterFacts.ivs,
-						nature: starterFacts.nature,
-						ability: starterFacts.ability,
-					}}).then(function (gifted) {
+					}).then(function (authored) {
+						return api('/run/apply', {run: state, command: {
+							kind: 'catch',
+							species: $starter.attr('data-species'),
+							level: 5,
+							ivs: authored.identity.ivs,
+							nature: authored.identity.nature,
+							ability: authored.identity.ability,
+						}});
+					}).then(function (gifted) {
 						state = gifted.run;
 						return ' — ' + $starter.attr('data-species') + ' L5 is in the box.';
 					}, function (error) {
@@ -2783,6 +2798,9 @@
 		// level and nickname are the player's to set, and a one-click catch would
 		// make a misclick a box entry.
 		$('#runbun-run-encounters').on('click', '.runbun-run-encounter', function () {
+			// Prefilling writes into the scripted-catch form, so the
+			// disclosure that hides it must open before the values land.
+			$('#runbun-run-manual-add').prop('open', true);
 			$('#runbun-run-catch-species').val($(this).attr('data-species'));
 			$('#runbun-run-catch-level').val($(this).attr('data-level'));
 		});
@@ -2796,24 +2814,30 @@
 				.split(',')
 				.map(function (move) { return move.trim(); })
 				.filter(Boolean);
-			var facts = rollPlayerFacts($('#runbun-run-catch-species').val());
-			command({
-				kind: 'catch',
-				species: $('#runbun-run-catch-species').val(),
-				level: Number($('#runbun-run-catch-level').val()),
-				map: $('#runbun-run-map').val() || undefined,
-				nickname: $('#runbun-run-catch-name').val() || undefined,
-				// The shiny clause: keepable over the route rule and the dupes
-				// clause, and recorded on the mon. One-shot like the epitaph —
-				// left checked it would silently exempt the NEXT catch too.
-				shiny: $('#runbun-run-catch-shiny').is(':checked') || undefined,
-				moves: moves.length ? moves : undefined,
-				ivs: facts.ivs,
-				nature: facts.nature,
-				ability: facts.ability,
-			}).then(function (accepted) {
-				if (accepted) $('#runbun-run-catch-shiny').prop('checked', false);
-			});
+			// The server's die authors the identity; the catch command makes
+			// it a durable, replayable fact. This form never rolls its own.
+			api('/run/identity', {species: $('#runbun-run-catch-species').val()})
+				.then(function (authored) {
+					return command({
+						kind: 'catch',
+						species: $('#runbun-run-catch-species').val(),
+						level: Number($('#runbun-run-catch-level').val()),
+						map: $('#runbun-run-map').val() || undefined,
+						nickname: $('#runbun-run-catch-name').val() || undefined,
+						// The shiny clause: keepable over the route rule and the dupes
+						// clause, and recorded on the mon. One-shot like the epitaph —
+						// left checked it would silently exempt the NEXT catch too.
+						shiny: $('#runbun-run-catch-shiny').is(':checked') || undefined,
+						moves: moves.length ? moves : undefined,
+						ivs: authored.identity.ivs,
+						nature: authored.identity.nature,
+						ability: authored.identity.ability,
+					});
+				}).then(function (accepted) {
+					if (accepted) $('#runbun-run-catch-shiny').prop('checked', false);
+				}, function (error) {
+					status(error.message, 'error');
+				});
 		});
 
 		// Party assembly: click order is lead order. Staged locally, committed as
@@ -3102,7 +3126,17 @@
 				first.scrollIntoView({block: 'center'});
 				first.focus();
 			}
-			status('Choose up to six Pokémon, put the lead first, then choose Use this party.', '');
+			// The reserve itself flashes so the eye lands on the place to act;
+			// the toast only names the one rule the list cannot show (lead
+			// first). CSS renders the cue (static under reduced motion), and
+			// the timed removal bounds it for both.
+			var $reserve = $('#runbun-run-box');
+			$reserve.removeClass('rb-attn');
+			// Force a reflow so a second click restarts the animation.
+			if ($reserve.length) $reserve[0].getBoundingClientRect();
+			$reserve.addClass('rb-attn');
+			window.setTimeout(function () { $reserve.removeClass('rb-attn'); }, 1800);
+			status('Pick your team from the PC reserve — lead first.', '');
 		});
 		$('#runbun-run-battle-abandon').on('click', abandonBattle);
 		bindHold('#runbun-run-end', 1000, endRun);

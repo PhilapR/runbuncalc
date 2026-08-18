@@ -2442,25 +2442,14 @@
                 </details>
                 <ul id="runbun-run-encounters" class="runbun-run-encounters"></ul>
                 <ul id="runbun-run-items" class="runbun-run-items" aria-label="Field items on this route"></ul>
-                <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-catch-species" placeholder="Species" aria-label="Encounter species" spellcheck="false">
-                    <input type="number" id="runbun-run-catch-level" placeholder="Lv" aria-label="Encounter level" min="1" max="100">
-                    <input type="text" id="runbun-run-catch-name" placeholder="Nickname" aria-label="Nickname" spellcheck="false">
-                </div>
-                <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-catch-moves" placeholder="Moves (optional, comma-separated)" aria-label="Known moves" spellcheck="false">
-                    <label class="runbun-run-check runbun-run-shiny" title="The shiny clause: a natural shiny is keepable over the route rule and the dupes clause">
-                        <input type="checkbox" id="runbun-run-catch-shiny">
-                        <span>Shiny</span>
-                    </label>
-                    <button type="button" id="runbun-run-catch" class="btn btn-wide rb-btn-primary">Add to PC</button>
-                </div>
                 <!-- The recreation's dice: instead of reporting what the
                      emulator rolled, roll here off the same tables. The
-                     result is advice until Catch or "It got away" writes it. -->
+                     result is advice until Catch or "It got away" writes it.
+                     The roll is the game's own action, so it carries the
+                     primary style; the manual form below is the exception. -->
                 <div class="runbun-run-row">
                     <select id="runbun-run-roll-method" aria-label="Encounter method"></select>
-                    <button type="button" id="runbun-run-roll" class="btn btn-xwide" title="Find one random wild Pokémon from this location">Find wild Pokémon</button>
+                    <button type="button" id="runbun-run-roll" class="btn btn-xwide rb-btn-primary" title="Find one random wild Pokémon from this location">Find wild Pokémon</button>
                 </div>
                 <div id="runbun-run-roll-result" class="runbun-run-roll-result" hidden>
                     <span id="runbun-run-roll-text" class="runbun-run-roll-text"></span>
@@ -2470,6 +2459,25 @@
                         <button type="button" id="runbun-run-roll-flee" class="btn btn-wide" title="The route is spent either way — a nuzlocke does not refund the one that got away">It got away</button>
                     </div>
                 </div>
+                <!-- Scripted events skip the dice: starters, gifts, statics,
+                     trades and shop stock are added by hand. Kept behind a
+                     disclosure so the manual form never outshouts the roll. -->
+                <details class="runbun-run-manual-map runbun-run-manual-add" id="runbun-run-manual-add">
+                    <summary>Record a scripted catch — starter, gift, static, or trade</summary>
+                    <div class="runbun-run-row">
+                        <input type="text" id="runbun-run-catch-species" placeholder="Species" aria-label="Encounter species" spellcheck="false">
+                        <input type="number" id="runbun-run-catch-level" placeholder="Lv" aria-label="Encounter level" min="1" max="100">
+                        <input type="text" id="runbun-run-catch-name" placeholder="Nickname" aria-label="Nickname" spellcheck="false">
+                    </div>
+                    <div class="runbun-run-row">
+                        <input type="text" id="runbun-run-catch-moves" placeholder="Moves (optional, comma-separated)" aria-label="Known moves" spellcheck="false">
+                        <label class="runbun-run-check runbun-run-shiny" title="The shiny clause: a natural shiny is keepable over the route rule and the dupes clause">
+                            <input type="checkbox" id="runbun-run-catch-shiny">
+                            <span>Shiny</span>
+                        </label>
+                        <button type="button" id="runbun-run-catch" class="btn btn-wide">Add to PC</button>
+                    </div>
+                </details>
                 <p id="runbun-run-limits" class="runbun-run-limits"></p>
             
                 </div>

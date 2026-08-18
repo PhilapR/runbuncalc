@@ -1116,16 +1116,35 @@ test('the recreation rides HTTP: a roll, a spend, and one played turn', async ()
 		permadeath: true});
 
 	// The die rolls off the real table, and what it rolls is catchable as-is.
+	// The roll authors the whole identity — the client only carries it.
 	const rolled = await requestJson('/run/encounter', {run, map: 'Route101'});
 	assert.equal(rolled.status, 200);
 	assert.ok(rolled.body.roll.species && rolled.body.roll.level >= 1);
+	assert.ok(rolled.body.roll.nature, 'the roll authors a nature');
+	assert.ok(rolled.body.roll.ability, 'the roll authors an ability');
 	const caught = await requestJson('/run/apply', {run, command: {
 		kind: 'catch', species: rolled.body.roll.species,
 		level: rolled.body.roll.level, map: 'Route101', method: rolled.body.roll.method,
-		ivs: rolled.body.roll.ivs,
+		ivs: rolled.body.roll.ivs, nature: rolled.body.roll.nature,
+		ability: rolled.body.roll.ability,
 	}});
 	assert.equal(caught.status, 200);
+	const kept = caught.body.run.box.find(mon => mon.species === rolled.body.roll.species);
+	assert.equal(kept.nature, rolled.body.roll.nature,
+		'the caught mon owns the nature the roll authored');
+	assert.equal(kept.ability, rolled.body.roll.ability,
+		'the caught mon owns the ability the roll authored');
 	run = caught.body.run;
+
+	// The same die serves scripted events: advice until a catch writes it.
+	const authored = await requestJson('/run/identity', {species: 'Torchic'});
+	assert.equal(authored.status, 200);
+	assert.deepEqual(Object.keys(authored.body.identity.ivs).sort(),
+		['atk', 'def', 'hp', 'spa', 'spd', 'spe']);
+	assert.ok(authored.body.identity.nature && authored.body.identity.ability);
+	const nameless = await requestJson('/run/identity', {});
+	assert.equal(nameless.status, 400);
+	assert.match(nameless.body.error, /species is required/);
 
 	// A used route refuses the die with the rule's own words.
 	const again = await requestJson('/run/encounter', {run, map: 'Route101'});

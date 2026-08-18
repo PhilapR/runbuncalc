@@ -331,6 +331,18 @@ const api = {
 		})}));
 	},
 
+	/** The same die for scripted events (starter, gift, static, trade): a
+	 * rolled identity the client carries into its catch command. Advice until
+	 * that command writes it, exactly like /run/encounter. */
+	identity(payload) {
+		payload = payload || {};
+		if (typeof payload.species !== 'string' || !payload.species.trim()) {
+			throw refusal('species is required — whose identity is being rolled?',
+				'InvalidRunCommand');
+		}
+		return guarded(() => ({identity: runtime.rollIdentity(payload.species.trim())}));
+	},
+
 	battleStart(payload) {
 		const state = requireRun(payload);
 		return guarded(() => battleDriver.start(state, payload.trainer, payload.seed));
@@ -388,6 +400,7 @@ const ROUTES = {
 	'/run/advise': api.advise,
 	'/run/scout': api.scout,
 	'/run/encounter': api.encounter,
+	'/run/identity': api.identity,
 	'/run/battle/start': api.battleStart,
 	'/run/battle/wild': api.battleWild,
 	'/run/battle/act': api.battleAct,

@@ -306,6 +306,8 @@ function buildWildState(options) {
 		level: wild.level,
 		moves: wild.moves,
 		ivs: wild.ivs,
+		nature: wild.nature,
+		ability: wild.ability,
 	}, 'ai-1').state;
 	const built = opts.playerParty.map((mon, i) =>
 		playerStateFromEntry(b, mon, `player-${i + 1}`));

@@ -2416,6 +2416,25 @@ table.field {
 	gap: var(--rb-space-sm);
 	min-width: 0;
 }
+/* A one-shot "act here" flash for guided jumps (the party CTA lands on the
+   PC reserve). Animated for sighted flow; reduced motion gets the same cue
+   as a static ring. The panel removes the class on a timer, which is what
+   bounds the static variant. */
+@keyframes rb-attn-pulse {
+	0% { outline-color: var(--rb-action); }
+	100% { outline-color: transparent; }
+}
+#runbun-run .rb-attn {
+	outline: 2px solid transparent;
+	outline-offset: 2px;
+	animation: rb-attn-pulse 1.6s ease-out 1;
+}
+@media (prefers-reduced-motion: reduce) {
+	#runbun-run .rb-attn {
+		animation: none;
+		outline-color: var(--rb-action);
+	}
+}
 #runbun-run .runbun-run-box,
 #runbun-run .runbun-run-losses,
 #runbun-run .runbun-run-encounters {
@@ -2457,6 +2476,17 @@ table.field {
 #runbun-run .runbun-run-route-choice:hover,
 #runbun-run .runbun-run-route-choice:focus-visible {
 	border-color: var(--rb-action);
+}
+/* The card whose encounter table is on screen: a persistent state, distinct
+   from the transient hover/focus ring, so "which route am I looking at?"
+   always has exactly one answer. */
+#runbun-run .runbun-run-route-choice.is-selected {
+	border-color: var(--rb-action);
+	background: var(--rb-surface-sunken, var(--rb-surface));
+	box-shadow: inset 0 0 0 1px var(--rb-action);
+}
+#runbun-run .runbun-run-route-choice.is-selected .runbun-run-route-choice-action {
+	color: var(--rb-action);
 }
 #runbun-run .runbun-run-route-choice-name {
 	font-family: var(--rb-font-brand);

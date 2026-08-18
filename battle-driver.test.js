@@ -168,6 +168,18 @@ test('a wild fight: the ball is priced, the throw is seeded, the ending settles 
 		'the player IV roll waits in the bundle for a successful capture');
 	assert.deepEqual(opened.battle.state.sides.ai.party[0].ivs, rolled.ivs,
 		'the wild opponent fights with the same random IVs the player may catch');
+	// The server's die authors the whole identity, and that identity is what
+	// fights the battle AND waits in the bundle for a successful capture.
+	assert.ok(rolled.nature, 'the roll authors a nature');
+	assert.ok(rolled.ability, 'the roll authors an ability');
+	assert.equal(opened.battle.wild.nature, rolled.nature,
+		'the rolled nature waits in the bundle for a successful capture');
+	assert.equal(opened.battle.wild.ability, rolled.ability,
+		'the rolled ability waits in the bundle for a successful capture');
+	assert.equal(opened.battle.state.sides.ai.party[0].ability, rolled.ability,
+		'the wild opponent fights with the ability the player would catch');
+	assert.equal(opened.battle.state.sides.ai.party[0].nature, rolled.nature,
+		'the wild opponent fights with the nature the player would catch');
 	const ball = opened.actions.find(action => action.kind === 'ball');
 	assert.ok(ball, 'a wild fight offers the ball');
 	assert.ok(ball.chance > 0 && ball.chance <= 100, 'the throw wears its odds');

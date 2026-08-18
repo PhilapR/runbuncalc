@@ -463,6 +463,8 @@ function startWild(doc, roll, seed) {
 			level: wild.level,
 			moves: learned.slice(-4),
 			ivs: wild.ivs,
+			nature: wild.nature,
+			ability: wild.ability,
 		},
 		profileId: doc.profileId,
 	});
@@ -480,6 +482,8 @@ function startWild(doc, roll, seed) {
 			// This same roll drives the wild battle and becomes owned on capture.
 			// Never reroll an encounter while its identity crosses that boundary.
 			ivs: wild.ivs || null,
+			nature: wild.nature || null,
+			ability: wild.ability || null,
 			rate,
 			// The bag's better balls, snapshotted: what this fight may spend.
 			// Throws are counted in `thrown` and settled into the document as

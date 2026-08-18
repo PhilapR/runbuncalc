@@ -101,6 +101,11 @@ async function open() {
 async function openAllSections(page) {
 	await page.$$eval('.rb-disclose .rb-disclose-btn[aria-expanded="false"]',
 		els => els.forEach(el => el.click()));
+	// The manual disclosures (location chooser, scripted-catch form) fold by
+	// design; tests that drive the whole panel open them the same way. The
+	// transfer details is deliberately excluded — tests toggle it by summary.
+	await page.$$eval('#runbun-run details.runbun-run-manual-map',
+		els => els.forEach(el => { el.open = true; }));
 }
 
 async function savedRun(page) {
@@ -177,17 +182,25 @@ test('a new run cannot outrun durable bootstrap', {skip}, async () => {
 });
 
 async function selectManualMap(page, map) {
-	await page.$eval('.runbun-run-manual-map', details => { details.open = true; });
+	// Both manual disclosures share the class: the location chooser this
+	// helper selects in, and the scripted-catch form the same flows fill next.
+	await page.$$eval('.runbun-run-manual-map',
+		els => els.forEach(el => { el.open = true; }));
 	await page.selectOption('#runbun-run-map', map);
 }
 
 test('the page plans through the pinned pokemon-mono browser provider', {skip, timeout: 120000}, async () => {
 	const session = await open();
 	const page = session.page;
+	// The server authors the entire rolled identity, so the deterministic
+	// seam is the server's answer itself — the page only carries it.
 	await session.context.route('**/run/encounter', async route => {
 		const response = await route.fetch();
 		const payload = await response.json();
 		payload.roll.species = 'Zigzagoon-Galar';
+		payload.roll.ability = 'Gluttony';
+		payload.roll.nature = 'Adamant';
+		payload.roll.ivs = {hp: 0, atk: 5, def: 9, spa: 13, spd: 20, spe: 28};
 		await route.fulfill({response, json: payload});
 	});
 	assert.deepEqual(await page.evaluate(() => ({
@@ -219,18 +232,8 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
-	await page.evaluate(() => {
-		window.__runbunNativeRandom = Math.random;
-		const values = [0.03, 0.17, 0.29, 0.41, 0.63, 0.89, 0.52, 0.24];
-		let index = 0;
-		Math.random = () => values[index++ % values.length];
-	});
 	await page.click('#runbun-run-roll');
 	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
-	await page.evaluate(() => {
-		Math.random = window.__runbunNativeRandom;
-		delete window.__runbunNativeRandom;
-	});
 	await page.click('#runbun-run-roll-catch');
 	await page.waitForFunction(
 		() => JSON.parse(localStorage.getItem('runbun.run.v1')).box.length === 2,
@@ -1389,7 +1392,7 @@ test('two tabs are one run: a catch in one appears in the other', {skip}, async 
 	await second.waitForSelector('#runbun-run-live:not([hidden])', {timeout: 10000});
 
 	await first.click('.rb-disclose[data-section="catch"] .rb-disclose-btn');
-	await first.waitForSelector('#runbun-run-catch', {state: 'visible', timeout: 5000});
+	await first.waitForSelector('#runbun-run-roll', {state: 'visible', timeout: 5000});
 	await selectManualMap(first, 'Route101');
 	await first.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -1809,7 +1812,7 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 	// An answer the player asks for must never land inside a fold: Advise
 	// (in the always-visible hero) opens the Analysis section itself.
 	await page.click('.rb-disclose[data-section="catch"] .rb-disclose-btn');
-	await page.waitForSelector('#runbun-run-catch', {state: 'visible', timeout: 5000});
+	await page.waitForSelector('#runbun-run-roll', {state: 'visible', timeout: 5000});
 	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,

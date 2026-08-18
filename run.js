@@ -123,6 +123,29 @@ function rollIvs(random) {
 }
 
 /**
+ * The one author of a rolled Pokemon identity: six IVs, a nature, and an
+ * ability, all from the same draw stream. `/run/encounter` bakes it into
+ * every wild roll and `/run/identity` serves it for scripted events
+ * (starter, gift, static, trade), so a client never invents these facts —
+ * it only carries them into the catch command, which is what keeps the
+ * recorded command replay-deterministic.
+ */
+function rollIdentity(species, random) {
+	const draw = random || Math.random;
+	const ivs = rollIvs(draw);
+	const natures = [...NATURES];
+	const nature = natures[Math.floor(draw() * natures.length)];
+	let ability;
+	const calc = require('./calc');
+	const found = calc.Generations.get(8).species.get(calc.toID(species));
+	if (found && found.abilities) {
+		const abilities = [...new Set(Object.values(found.abilities).filter(Boolean))];
+		if (abilities.length) ability = abilities[Math.floor(draw() * abilities.length)];
+	}
+	return {ivs, nature, ...(ability ? {ability} : {})};
+}
+
+/**
  * Validate facts observed on the Pokemon summary screen.
  *
  * Ability is free text because Run & Bun changes ability slots and an observed
@@ -1648,7 +1671,9 @@ function rollEncounter(run, options) {
 	return {
 		species: slot.species,
 		level,
-		ivs: rollIvs(random),
+		// The roll IS the individual: IVs, nature, and ability are authored
+		// here, in one place, and only carried by the client from now on.
+		...rollIdentity(slot.species, random),
 		method,
 		chance: slot.chance,
 		map: found.name,
@@ -3032,6 +3057,6 @@ module.exports = {
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
-	adviseUpgrades, adviseCatches, rankParties, fightPlaybook, summarize, rollIvs, rollEncounter, fieldItems,
+	adviseUpgrades, adviseCatches, rankParties, fightPlaybook, summarize, rollIvs, rollIdentity, rollEncounter, fieldItems,
 	preFightOpportunities,
 };
