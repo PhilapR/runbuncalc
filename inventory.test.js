@@ -22,7 +22,7 @@ const render = generator.render;
 const DOCS_MARKER = generator.DOCS_MARKER;
 
 test('INVENTORY.md matches what the code generates', () => {
-	const committed = fs.readFileSync(path.join(__dirname, 'INVENTORY.md'), 'utf8');
+	const committed = fs.readFileSync(path.join(__dirname, 'docs', 'INVENTORY.md'), 'utf8');
 	const generated = render(inventory());
 	// Everything above the doc-stamps marker is gated byte-for-byte. The
 	// stamps below it are advisory: a stamp changes at the very commit that

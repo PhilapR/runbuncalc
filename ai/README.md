@@ -20,8 +20,8 @@ states.
 | Multi-gen | Supported by the calculator oracle; not a claim of full R&B sim fidelity outside Gen 8 + documented overlays |
 
 Product surfaces and phase status: [`../RUNBUN_UX.md`](../RUNBUN_UX.md).
-Data model: [`../AI_DATA_MODEL.md`](../AI_DATA_MODEL.md).
-Validation record: [`../VALIDATION.md`](../VALIDATION.md).
+Data model: [`../docs/AI_DATA_MODEL.md`](../docs/AI_DATA_MODEL.md).
+Validation record: [`../docs/VALIDATION.md`](../docs/VALIDATION.md).
 
 ## Direct TypeScript usage
 
@@ -87,7 +87,7 @@ for convenience; prefer `{state: …}` for new clients.
 ```
 
 Party members need stable `id`, `species`, `level`, `hp: {current, max}`, and
-`moves`. Full field contracts: `AI_DATA_MODEL.md` / `validateBattleState()`.
+`moves`. Full field contracts: `docs/AI_DATA_MODEL.md` / `validateBattleState()`.
 
 **`options` (evaluate / choose):**
 
@@ -184,5 +184,5 @@ critical AI routes above).
 
 Keep generic damage mechanics in `calc/`, Run & Bun policy and transitions in
 `ai/`, transport in `server.js`, and presentation in `src/`. See the repository
-[fork map](../FORK_MAP.md), [data model](../AI_DATA_MODEL.md), and
-[validation record](../VALIDATION.md) before adding a mechanic.
+[fork map](../docs/FORK_MAP.md), [data model](../docs/AI_DATA_MODEL.md), and
+[validation record](../docs/VALIDATION.md) before adding a mechanic.

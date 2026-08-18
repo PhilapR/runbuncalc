@@ -11,7 +11,7 @@ Run & Bun is the first profile. It is not meant to be the only one.
 Everything Run & Bun-specific used to be hardcoded across the tree: move
 overrides inside `ai/src/`, species edits inside `calc/src/data/`, trainer
 parties inside `src/js/data/`, and rule deltas described only in prose in
-`FORK_MAP.md`. That works for exactly one game. Supporting a second one means
+`docs/FORK_MAP.md`. That works for exactly one game. Supporting a second one means
 forking the whole project again — which is the thing this project exists to stop
 doing.
 
@@ -72,7 +72,7 @@ projected box.
 The L0-L6 stack deliberately stops at a playthrough companion. It does not
 model overworld maps, tilesets, scripts, rendering, emulator observation, or a
 full game runtime. The versioned extension path for those domains is documented
-in [`RUNBUN_REBUILD_MODEL.md`](../RUNBUN_REBUILD_MODEL.md), with a machine-
+in [`RUNBUN_REBUILD_MODEL.md`](../docs/RUNBUN_REBUILD_MODEL.md), with a machine-
 readable Run & Bun contract in
 [`run-and-bun/rebuild-model.json`](run-and-bun/rebuild-model.json).
 

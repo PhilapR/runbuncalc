@@ -77,9 +77,13 @@ function inventory() {
 	// given commit, unlike "commits ago", which would drift the gate on every
 	// commit that touches nothing.)
 	const execSync = require('child_process').execSync;
-	const GENERATED_DOCS = new Set(['INVENTORY.md']);
+	const GENERATED_DOCS = new Set(['docs/INVENTORY.md']);
 	const docs = [];
-	for (const file of fs.readdirSync(root).filter(f => f.endsWith('.md')).sort()) {
+	const docFiles = fs.readdirSync(root).filter(f => f.endsWith('.md'))
+		.concat(fs.readdirSync(path.join(root, 'docs'))
+			.filter(f => f.endsWith('.md')).map(f => 'docs/' + f))
+		.sort();
+	for (const file of docFiles) {
 		if (GENERATED_DOCS.has(file)) continue;
 		let stamp = 'untracked';
 		try {
@@ -206,8 +210,8 @@ const output = render(inventory());
 if (process.argv.includes('--print')) {
 	process.stdout.write(output);
 } else {
-	fs.writeFileSync(path.join(root, 'INVENTORY.md'), output);
-	console.log(`INVENTORY.md written (${output.length} bytes)`);
+	fs.writeFileSync(path.join(root, 'docs', 'INVENTORY.md'), output);
+	console.log(`docs/INVENTORY.md written (${output.length} bytes)`);
 }
 
 module.exports = {inventory, render, DOCS_MARKER};

@@ -29,7 +29,7 @@
  *   - Ice Punch
  *   - Rock Slide
  *
- * Run & Bun removes EVs (`AI_DATA_MODEL.md`), so an `EVs:` line is accepted and
+ * Run & Bun removes EVs (`docs/AI_DATA_MODEL.md`), so an `EVs:` line is accepted and
  * reported back as ignored rather than silently dropped — a player pasting a
  * competitive export should be told their spread does nothing here, not left to
  * assume it applied.

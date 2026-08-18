@@ -266,7 +266,7 @@ const report = render();
 if (process.argv.includes('--stdout')) {
 	process.stdout.write(report);
 } else {
-	const target = path.join(root, 'GEN9_AUDIT.md');
+	const target = path.join(root, 'docs', 'GEN9_AUDIT.md');
 	fs.writeFileSync(target, report);
 	process.stdout.write(`Wrote ${path.relative(root, target)}\n`);
 }
