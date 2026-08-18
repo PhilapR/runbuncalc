@@ -162,6 +162,8 @@ test('a new run cannot outrun durable bootstrap', {skip}, async () => {
 	await page.click('.runbun-run-starter[data-species="Mudkip"]');
 	assert.equal(await page.isDisabled('#runbun-run-new'), true,
 		'the selected starter must not bypass unfinished durable bootstrap');
+	assert.equal(await page.getAttribute('#runbun-run-new', 'title'),
+		'Loading the run panel…', 'a disabled start button must say why');
 	assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'true');
 	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
 	assert.equal(await savedRun(page), null, 'a programmatic early click must not create a fallback save');
@@ -1884,6 +1886,12 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 		null, {timeout: 10000});
 	assert.match((await savedRun(page)).attemptId, /^[0-9a-f-]{20,}$|^attempt-/,
 		'a browser attempt should have a stable archive identity');
+	// A fresh run has no party yet: every disabled planning tool names the
+	// unlock instead of sitting mute.
+	assert.equal(await page.getAttribute('#runbun-run-plan', 'title'),
+		'Choose a party first', 'disabled Check matchup must say why');
+	assert.equal(await page.getAttribute('#runbun-run-value', 'title'),
+		'Choose a party first', 'disabled Test roster value must say why');
 
 	// Ending a run rides the kit's hold-to-confirm: a short press releases
 	// early and nothing happens — the fill sprang back, the run stands.

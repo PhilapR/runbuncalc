@@ -80,3 +80,43 @@ test('inactive product surfaces leave both the layout and accessibility tree', (
 	assert.match(shell, /region\.removeAttribute\('aria-hidden'\)/);
 	assert.match(shell, /region\.removeAttribute\('inert'\)/);
 });
+
+test('action buttons keep readable ink and visible keyboard focus in both themes', () => {
+	const tokens = fs.readFileSync(path.join(__dirname, '..', 'src/css/runbun-tokens.css'), 'utf8');
+	const shell = fs.readFileSync(path.join(__dirname, '..', 'src/css/runbun-shell.css'), 'utf8');
+	const mainCss = fs.readFileSync(path.join(__dirname, '..', 'src/css/main.css'), 'utf8');
+	// One ink token per theme: white on the dark-teal light action, dark ink
+	// on the light-teal dark action. Hardcoded #fff on the fill was 2.52:1.
+	assert.equal((tokens.match(/--rb-action-ink:/g) || []).length, 2,
+		'both themes must define --rb-action-ink');
+	assert.match(shell, /\.rb-btn-primary\.btn\s*\{[^}]*color:\s*var\(--rb-action-ink\)/,
+		'primary buttons must take their ink from the theme token');
+	assert.doesNotMatch(shell, /\.rb-btn-primary\.btn\s*\{[^}]*color:\s*#fff/,
+		'primary buttons must not hardcode white ink');
+	// Upstream removed .button outlines; the fork restores :focus-visible.
+	assert.match(mainCss, /\.button:focus-visible,\s*\n\.btn:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--rb-focus\)/,
+		'keyboard focus ring on .button/.btn must survive the upstream outline reset');
+});
+
+test('small screens keep the 16px input floor and 44px checkbox targets', () => {
+	const mainCss = fs.readFileSync(path.join(__dirname, '..', 'src/css/main.css'), 'utf8');
+	const floor = mainCss.slice(mainCss.indexOf('/* Mobile floors'));
+	assert.ok(floor.length > 100, 'the mobile floors block must stay last in main.css');
+	assert.match(floor, /font-size:\s*16px\s*!important/,
+		'text-entry controls must hold 16px on small screens or iOS zooms the page');
+	assert.match(floor, /\.runbun-run-check\s*\{[^}]*min-height:\s*44px/,
+		'checkbox rows must stay 44px touch targets');
+});
+
+test('starter cards carry type identity and the rival answer', () => {
+	const html = fs.readFileSync(path.join(__dirname, '..', 'src/index.template.html'), 'utf8');
+	const tokens = fs.readFileSync(path.join(__dirname, '..', 'src/css/runbun-tokens.css'), 'utf8');
+	['grass', 'fire', 'water'].forEach(kind => {
+		assert.match(html, new RegExp('class="btn runbun-run-starter" data-species="[A-Za-z]+" data-type="' + kind + '"'),
+			'each starter names its type for the accent');
+		assert.equal((tokens.match(new RegExp('--rb-type-' + kind + ':', 'g')) || []).length, 2,
+			'--rb-type-' + kind + ' must exist in both themes');
+	});
+	assert.equal((html.match(/runbun-run-starter-rival/g) || []).length, 3,
+		'every starter card states which starter the rival answers with');
+});
