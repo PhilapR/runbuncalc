@@ -24,6 +24,12 @@
 	--rb-action-hover: #096664;
 	/* Ink for text ON the action fill (>=4.5:1 in both themes). */
 	--rb-action-ink: #ffffff;
+	/* Type scale — four sizes for the whole game surface. Label is the
+	   legibility floor: nothing player-facing renders smaller. */
+	--rb-text-label: 0.72rem;
+	--rb-text-section: 0.78rem;
+	--rb-text-body: 0.85rem;
+	--rb-text-note: 0.92rem;
 	/* Starter type identities — solid accents, decorative only. */
 	--rb-type-grass: #3d8b3d;
 	--rb-type-fire: #c2531f;

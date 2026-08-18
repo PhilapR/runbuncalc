@@ -120,3 +120,26 @@ test('starter cards carry type identity and the rival answer', () => {
 	assert.equal((html.match(/runbun-run-starter-rival/g) || []).length, 3,
 		'every starter card states which starter the rival answers with');
 });
+
+test('the game surface types from the four-step scale, never raw small rems', () => {
+	const tokens = fs.readFileSync(path.join(__dirname, '..', 'src/css/runbun-tokens.css'), 'utf8');
+	['label', 'section', 'body', 'note'].forEach(step => {
+		assert.match(tokens, new RegExp('--rb-text-' + step + ':'),
+			'--rb-text-' + step + ' must exist');
+	});
+	const mainCss = fs.readFileSync(path.join(__dirname, '..', 'src/css/main.css'), 'utf8');
+	// Every runbun rule takes its size from the scale: a raw rem below 1
+	// is exactly how the nine-size label drift happened the first time.
+	const offenders = [];
+	for (const match of mainCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+		if (!/runbun/.test(match[1])) continue;
+		for (const size of match[2].matchAll(/font-size:\s*([0-9.]+)rem/g)) {
+			if (parseFloat(size[1]) < 1) offenders.push(match[1].trim().slice(0, 60) + ' → ' + size[1] + 'rem');
+		}
+	}
+	assert.deepEqual(offenders, [],
+		'sub-1rem font sizes in game rules must use var(--rb-text-*)');
+	// Upstream th{font-size:0.8em} compounds sizes below the floor.
+	assert.match(mainCss, /#runbun-run th\s*\{\s*font-size:\s*inherit;/,
+		'game tables must reset the upstream th shrink');
+});
