@@ -167,7 +167,7 @@ assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.deepEqual(matrix.fixtures.expectedDivergences, []);
 assert.equal(matrix.lanes.engine.revision, '2ae1b7e5721a2d2ff3b9692df75f65329c891650');
 assert.equal(matrix.lanes.app.revision, 'ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a');
-assert.equal(matrix.lanes.control.revision, '3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c');
+assert.equal(matrix.lanes.control.revision, '83972e2b857ddeea9094744c40e211037856fcfa');
 assert.equal(matrix.lanes.verification.revision, '867461d6ca9ed24b71c447e20dd5fa840b5b0d5c');
 assert.equal(seededReceipt.requestId, request.requestId);
 assert.equal(seededReceipt.producer.revision, providerProvenance.revision);
@@ -217,8 +217,11 @@ assert.equal(localAttribution.lanes.app.revision,
 	'ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a');
 assert.equal(localAttribution.lanes.engine.revision, providerProvenance.revision);
 assert.equal(localAttribution.lanes.control.revision,
-	'3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c');
-assert.equal(localAttribution.lanes.control.attributionCapabilityRegistered, false);
+	'83972e2b857ddeea9094744c40e211037856fcfa');
+// Registered by the operator on 2026-08-18: capability suite 86/86, ruff
+// and doctor green at that control revision. The lane branch remains local
+// pending a history cleanup (>100MB evidence blobs block its GitHub push).
+assert.equal(localAttribution.lanes.control.attributionCapabilityRegistered, true);
 assert.equal(localAttribution.gates.providerDeterministicRepeat, true);
 assert.equal(localAttribution.gates.providerReceiptLocked, true);
 assert.equal(localAttribution.gates.evidencePersisted, true);
@@ -251,7 +254,7 @@ assert.equal(localAttribution.gates.productionAuthenticatedMetadata, true);
 assert.equal(localAttribution.gates.productionRunTransaction, true);
 assert.equal(localAttribution.gates.productionAiValidation, true);
 assert.equal(localAttribution.gates.productionRenderedAttribution, true);
-assert.equal(localAttribution.gates.capabilityRegistered, false);
+assert.equal(localAttribution.gates.capabilityRegistered, true);
 assert.equal(matrix.promotion.browserProviderParity, true);
 assert.equal(matrix.promotion.singleBatchParity, true);
 assert.equal(matrix.promotion.sixPokemonBenchmark, true);

@@ -19,8 +19,8 @@
 		},
 		"control": {
 			"repository": "stochastic-inference-core",
-			"revision": "3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c",
-			"attributionCapabilityRegistered": false
+			"revision": "83972e2b857ddeea9094744c40e211037856fcfa",
+			"attributionCapabilityRegistered": true
 		}
 	},
 	"fixtures": {
@@ -60,13 +60,12 @@
 		"productionRunTransaction": true,
 		"productionAiValidation": true,
 		"productionRenderedAttribution": true,
-		"capabilityRegistered": false
+		"capabilityRegistered": true
 	},
 	"nonClaims": [
 		"Participation is not carry.",
 		"A bounded sample is not whole-branch certification.",
-		"The attribution capability is not registered in stochastic-inference-core.",
-		"Private deployment does not promote the attribution provider into stochastic-inference-core.",
+		"Registration exposes routing and receipt retention only; Core owns no mechanics.",
 		"The rendered fixed-seed attribution sample is not a historical carry claim."
 	]
 }

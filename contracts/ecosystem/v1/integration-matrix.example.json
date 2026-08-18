@@ -21,8 +21,8 @@
 		},
 		"control": {
 			"repository": "stochastic-inference-core",
-			"revision": "3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c",
-			"gate": "uv run pytest tests/capabilities -k pokemon (81 passed)"
+			"revision": "83972e2b857ddeea9094744c40e211037856fcfa",
+			"gate": "uv run pytest tests/capabilities -k pokemon (86 passed) plus make lint doctor"
 		},
 		"verification": {
 			"repository": "pokemon-mono",
