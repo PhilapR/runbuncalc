@@ -45,6 +45,9 @@
 	var busy = false;
 	/** Raw text of a save that would not parse, held until the player deals with it. */
 	var corruptSave = null;
+	// When corruptSave holds a HEALTHY save that was parked (not damaged),
+	// this note replaces the "damaged save" load message with the truth.
+	var parkedSaveNote = null;
 	/** Versioned IndexedDB attempt ledger. Null means compatibility fallback. */
 	var attemptStore = window.RunBunAttemptStore ?
 		window.RunBunAttemptStore.getDefault() : null;
@@ -209,6 +212,9 @@
 					// goes to the transfer box under the same protection a
 					// damaged save gets; Start refuses to write over it.
 					corruptSave = window.localStorage.getItem(STORAGE_KEY);
+					parkedSaveNote = 'This browser also held a quick save from a ' +
+						'different run. Its text is in the transfer box below — ' +
+						'copy it if you want to keep it, then clear the box.';
 				}
 				state = head.run;
 				currentRevision = head.revision;
@@ -219,11 +225,27 @@
 			var legacy = restoreLegacy();
 			if (!legacy) return null;
 			if (!legacy.attemptId) legacy.attemptId = newAttemptId();
-			state = legacy;
-			return persist('run.migrated', {run: legacy},
-				'migrate-' + legacy.attemptId).then(function () {
-				restoredFrom = 'migrated browser storage';
-				return state;
+			// The durable store may already hold this attempt as an ARCHIVED
+			// head (an ended run whose mirror clear failed, or an old tab
+			// writing late). Migrating it would collide with that head at
+			// expectedRevision 0 and previously demoted the whole session to
+			// localStorage-only. Ended means ended: park the quick save.
+			return attemptStore.inspectAttempt(legacy.attemptId).then(function (known) {
+				if (known) {
+					corruptSave = window.localStorage.getItem(STORAGE_KEY);
+					parkedSaveNote = 'This browser held a quick save of a run ' +
+						'that already ended. The ended run is in Run history; ' +
+						'the quick save text is in the transfer box below — ' +
+						'copy it if you want to keep it, then clear the box ' +
+						'to start a new run.';
+					return null;
+				}
+				state = legacy;
+				return persist('run.migrated', {run: legacy},
+					'migrate-' + legacy.attemptId).then(function () {
+					restoredFrom = 'migrated browser storage';
+					return state;
+				});
 			});
 		}).catch(function (error) {
 			attemptStore = null;
@@ -1691,6 +1713,11 @@
 			}
 			renderPlanEvidence(planned.retention);
 			stamp('plan');
+			// The verdict renders far below the hero commands; an answer the
+			// player asked for must arrive on their screen — same treatment
+			// Advise gives its shortlist.
+			var verdictNode = document.getElementById('runbun-run-plan-verdict');
+			if (verdictNode) verdictNode.scrollIntoView({block: 'nearest'});
 		}).catch(function (error) {
 			renderPlanEvidence(null);
 			status(error.message, 'error');
@@ -3357,7 +3384,8 @@
 			if (corruptSave) {
 				$('#runbun-run-transfer').val(corruptSave)
 					.closest('details').prop('open', true);
-				status('The run saved in this browser is damaged and could not be read. ' +
+				status(parkedSaveNote ||
+					'The run saved in this browser is damaged and could not be read. ' +
 					'Its raw text is in the transfer box below — repair it and press ' +
 					'Import to get the run back, or clear the box to start over.', 'error');
 				return;

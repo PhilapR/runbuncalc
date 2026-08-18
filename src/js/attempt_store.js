@@ -430,9 +430,15 @@
 		var evidenceId = receipt.receiptId || 'pokemon.rab.plan:' + request.requestId;
 		if (typeof evidenceId !== 'string' || !evidenceId ||
 			typeof request.attempt.attemptId !== 'string' || !request.attempt.attemptId ||
-			!Number.isInteger(request.attempt.revision) || request.attempt.revision < 0 ||
 			!(/^[a-f0-9]{64}$/).test(request.attempt.stateHash || '')) {
 			throw error('Planning evidence identity is invalid.', 'INVALID_EVIDENCE');
+		}
+		// Revisions start at 1, so evidence bound below that can never match
+		// an event; refuse here instead of letting the state check blame the
+		// receipt for a mismatch the schema pretended was legal.
+		if (!Number.isInteger(request.attempt.revision) || request.attempt.revision < 1) {
+			throw error('Planning evidence must bind to an attempt revision of 1 or more.',
+				'INVALID_EVIDENCE');
 		}
 		var recordedAt = input.recordedAt || now();
 		if (typeof recordedAt !== 'string' || Number.isNaN(Date.parse(recordedAt))) {
@@ -659,7 +665,11 @@
 			return Promise.reject(error('Evidence batch must contain 1 through 1024 records.',
 				'INVALID_EVIDENCE'));
 		}
-		return Promise.all(inputs.map(prepareEvidence)).then(function (records) {
+		// A validator throw must reach the caller as a rejection, never as a
+		// synchronous escape from a promise-returning API.
+		return Promise.resolve().then(function () {
+			return Promise.all(inputs.map(prepareEvidence));
+		}).then(function (records) {
 			var attemptId = records[0].attemptId;
 			var ids = {};
 			records.forEach(function (record) {
@@ -706,7 +716,11 @@
 
 	function prepareIntegrity(prepared) {
 		var runValue = canonical(stateProjection(prepared.run));
-		var materialized = snapshotFromPayload(prepared.event.payload, prepared.run);
+		// Only lifecycle kinds may source a snapshot from their payload; an
+		// interval checkpoint records the accepted run, never a payload that
+		// happens to carry a `run`/`snapshot`/`state` key.
+		var materialized = isSnapshotKind(prepared.event.kind) ?
+			snapshotFromPayload(prepared.event.payload, prepared.run) : prepared.run;
 		prepared.snapshotRun = isSnapshotKind(prepared.event.kind) ? clone(materialized) : stateProjection(materialized);
 		var snapshotValue = canonical(stateProjection(prepared.snapshotRun));
 		return sha256(runValue).then(function (stateHash) {
@@ -735,8 +749,70 @@
 		};
 	}
 
+	/**
+	 * Prove the stored chain instead of trusting it: recompute every state
+	 * hash and every event hash from the stored records and compare. Export
+	 * routes fully-hashed records through here, so bit rot, a devtools edit,
+	 * or a half-written store surfaces as CORRUPT_* instead of being
+	 * silently rewritten into a fresh, plausible archive.
+	 */
+	function verifyInspection(inspected) {
+		var result = clone(inspected);
+		result.events.sort(function (a, b) { return a.revision - b.revision; });
+		result.snapshots.sort(function (a, b) { return a.revision - b.revision; });
+		var states = [{run: result.head.run, stateHash: result.head.stateHash, label: 'head'}]
+			.concat(result.snapshots.map(function (snapshot) {
+				return {run: snapshot.run, stateHash: snapshot.stateHash,
+					label: 'snapshot ' + snapshot.revision};
+			}));
+		return Promise.all(states.map(function (state) {
+			return sha256(canonical(stateProjection(state.run)));
+		})).then(function (hashes) {
+			states.forEach(function (state, index) {
+				if (hashes[index] !== state.stateHash) {
+					throw error('A stored state does not match its recorded hash (' +
+						state.label + ').', 'CORRUPT_STATE');
+				}
+			});
+			var previousEventHash = null;
+			return result.events.reduce(function (chain, event) {
+				return chain.then(function () {
+					if (event.previousEventHash !== previousEventHash) {
+						throw error('Stored event ' + event.revision +
+							' breaks the hash chain.', 'CORRUPT_EVENT');
+					}
+					return sha256(eventHashInput(event)).then(function (eventHash) {
+						if (eventHash !== event.eventHash) {
+							throw error('Stored event ' + event.revision +
+								' does not match its recorded hash.', 'CORRUPT_EVENT');
+						}
+						previousEventHash = eventHash;
+					});
+				});
+			}, Promise.resolve()).then(function () {
+				if (result.events.length && result.head.lastEventHash !== previousEventHash) {
+					throw error('The stored head does not match its final event hash.',
+						'CORRUPT_EVENT');
+				}
+				return result;
+			});
+		});
+	}
+
 	function upgradeInspection(inspected) {
 		if (!inspected || !inspected.head) return Promise.resolve(inspected);
+		// A record that already carries its complete chain is VERIFIED, never
+		// rewritten. Only pre-v2 records — including a v1 database upgraded
+		// in place, whose early events legitimately lack hashes — may be
+		// reconstructed. This guards against bit rot and accidents, not an
+		// adversary with write access to the store.
+		var hashPattern = /^[a-f0-9]{64}$/;
+		if (hashPattern.test(inspected.head.lastEventHash || '') &&
+			inspected.events.every(function (event) {
+				return hashPattern.test(event.eventHash || '');
+			})) {
+			return verifyInspection(inspected);
+		}
 		var result = clone(inspected);
 		result.events.sort(function (a, b) { return a.revision - b.revision; });
 		result.snapshots.sort(function (a, b) { return a.revision - b.revision; });
@@ -967,6 +1043,15 @@
 				snapshots: bundle.snapshots,
 				idempotency: bundle.idempotency,
 			}).then(function (inspected) { return addChecksum(makeBundle(inspected)); });
+		}).then(function (upcast) {
+			// The upcast must prove itself before anything is written: an
+			// accepted-but-invalid result would import into an attempt that
+			// can never export a valid archive again — silent, deferred
+			// corruption discovered only when the player tries to move it.
+			return validateBundle(upcast).then(function () { return upcast; }, function (cause) {
+				throw error('This version 1 archive cannot be upgraded to Model v2 — ' +
+					cause.message, 'UNSUPPORTED_VERSION');
+			});
 		});
 	}
 
@@ -1240,6 +1325,12 @@
 			};
 			request.onsuccess = function () { resolve(request.result); };
 			request.onerror = function () { reject(request.error || error('Could not open attempt store.', 'INDEXEDDB_OPEN')); };
+			// A blocked upgrade must fail loudly: openDb runs inside the serial
+			// queue, so a forever-pending open would wedge every later write.
+			request.onblocked = function () {
+				reject(error('The attempt store is blocked by another open tab. ' +
+					'Close other tabs of this app and reload.', 'INDEXEDDB_BLOCKED'));
+			};
 		});
 	}
 
@@ -1582,6 +1673,7 @@
 		SNAPSHOT_INTERVAL: SNAPSHOT_INTERVAL,
 		createMemoryStore: createMemoryStore,
 		chooseRestoreSource: chooseRestoreSource,
+		verifyInspection: verifyInspection,
 		getDefault: getDefault,
 		commit: delegate('commit'),
 		recordEvidence: delegate('recordEvidence'),

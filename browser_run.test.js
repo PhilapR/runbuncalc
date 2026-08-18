@@ -271,8 +271,26 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 		};
 	});
 	const revisionBeforePlan = (await durableHead(page)).revision;
+	// A real mid-run screen is taller than the window and the player sits up
+	// at the hero commands; the verdict renders far below them. A short
+	// viewport makes that geometry decisive rather than coincidental.
+	await openAllSections(page);
+	await page.setViewportSize({width: 1280, height: 360});
+	await page.$eval('#runbun-run-plan', el => {
+		el.scrollIntoView({block: 'center'});
+	});
 	await page.click('#runbun-run-plan');
 	await page.waitForSelector('#runbun-run-plan-actions .is-provider', {timeout: 30000});
+	// An answer the player asks for must arrive on their screen: Check
+	// matchup scrolls its own verdict into the viewport. The page scrolls
+	// smoothly, so the settled position is what counts.
+	await page.waitForFunction(() => {
+		const box = document.getElementById('runbun-run-plan-verdict').getBoundingClientRect();
+		return box.bottom > 0 && box.top < window.innerHeight;
+	}, null, {timeout: 5000}).catch(() => {
+		throw new Error('the plan verdict must be scrolled into the viewport');
+	});
+	await page.setViewportSize({width: 1280, height: 720});
 	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrders[0]), 3,
 		'Calvin must resolve to the canonical raw trainer order, not the filtered UI index');
 	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrders.length), 3,
@@ -1926,6 +1944,24 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	assert.match(await page.textContent('#runbun-history-attempts'), /Wiped/);
 	assert.equal(await page.textContent('#runbun-history-tracked'), '1');
 	assert.match(await page.textContent('#runbun-run-status'), /Run saved as Wiped/);
+
+	// A quick save of the ended run resurfacing (a failed mirror clear, an
+	// old tab writing late) must not resurrect the run, collide with its
+	// archived head, or kill durable storage. It parks in the transfer box;
+	// the panel stays on the start screen with durability intact.
+	await page.evaluate(savedRunDoc => {
+		window.localStorage.setItem('runbun.run.v1', JSON.stringify(savedRunDoc));
+	}, archivedBundle.head.run);
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-empty:not([hidden])', {timeout: 15000});
+	assert.match(await page.textContent('#runbun-run-status'), /already ended/);
+	assert.doesNotMatch(await page.textContent('#runbun-run-status'),
+		/Durable storage became unavailable|could not open/);
+	assert.match(await page.inputValue('#runbun-run-transfer'), /"Mudkip"/,
+		'the parked quick save stays in the player\'s hands');
+	assert.equal(await page.evaluate(() =>
+		window.RunBunAttemptStore.getDefault().loadActive()), null,
+	'the archived attempt must not become active again');
 
 	await session.context.close();
 });

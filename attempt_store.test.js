@@ -312,7 +312,7 @@ test('attribution evidence is immutable and replacement tests require the exact 
 	wrongBranchReceipt.requestId = wrongBranchRequest.requestId;
 	wrongBranchReceipt.receiptId += '-wrong-branch';
 	wrongBranchReceipt.result.interventions[0].outcome.branchOutcomes[0].seed += 1;
-	assert.throws(() => store.recordEvidence({request: wrongBranchRequest,
+	await assert.rejects(() => store.recordEvidence({request: wrongBranchRequest,
 		receipt: wrongBranchReceipt, recordedAt: TIME}),
 	error => error.code === 'INVALID_EVIDENCE' && /intervention result/.test(error.message));
 
@@ -322,7 +322,7 @@ test('attribution evidence is immutable and replacement tests require the exact 
 	wrongDeltaReceipt.requestId = wrongDeltaRequest.requestId;
 	wrongDeltaReceipt.receiptId += '-wrong-delta';
 	wrongDeltaReceipt.result.interventions[0].delta.deaths = '1';
-	assert.throws(() => store.recordEvidence({request: wrongDeltaRequest,
+	await assert.rejects(() => store.recordEvidence({request: wrongDeltaRequest,
 		receipt: wrongDeltaReceipt, recordedAt: TIME}),
 	error => error.code === 'INVALID_EVIDENCE' && /intervention result/.test(error.message));
 	assert.equal((await store.listEvidence(request.attempt.attemptId)).length, 1);
@@ -345,6 +345,76 @@ test('long attempts checkpoint every 50 revisions with content-addressed states'
 	assert.equal(inspected.events[49].previousStateHash, inspected.events[48].stateHash);
 	assert.equal(inspected.events[49].stateHash, inspected.head.stateHash);
 	assert.equal(await store.validateBundle(await store.exportActive()), true);
+});
+
+test('an interval checkpoint records the accepted run, not whatever the payload carries', async () => {
+	const store = Store.createMemoryStore();
+	await started(store, 'long-run');
+	for (let revision = 2; revision < Store.SNAPSHOT_INTERVAL; revision++) {
+		await store.commit({
+			run: run('long-run', revision - 1),
+			expectedRevision: revision - 1,
+			commandId: 'command-' + revision,
+			event: event('command.applied', {command: {value: revision - 1}}),
+		});
+	}
+	// The 50th commit is an ordinary command whose payload happens to carry
+	// a `state` key. Only lifecycle kinds may source a snapshot from their
+	// payload; an interval checkpoint must record the accepted run.
+	await store.commit({
+		run: run('long-run', 49), expectedRevision: 49, commandId: 'command-50',
+		event: event('command.applied',
+			{command: {value: 49}, state: {attemptId: 'long-run', value: -777}}),
+	});
+	const inspected = await store.inspectAttempt('long-run');
+	const checkpoint = inspected.snapshots.find(snapshot => snapshot.revision === 50);
+	assert.deepEqual(checkpoint.run, run('long-run', 49),
+		'the interval checkpoint must be the accepted run state');
+	assert.equal(checkpoint.stateHash, inspected.head.stateHash);
+});
+
+test('verifyInspection proves the stored chain instead of rewriting it', async () => {
+	const store = Store.createMemoryStore();
+	await started(store);
+	await store.commit({
+		run: run('attempt-1', 1), expectedRevision: 1, commandId: 'change-1',
+		event: event('command.applied', {command: {value: 1}}),
+	});
+	const healthy = await store.inspectAttempt('attempt-1');
+	await Store.verifyInspection(healthy);
+
+	const tamperedEvent = JSON.parse(JSON.stringify(healthy));
+	tamperedEvent.events[1].payload.command.value = 999;
+	await assert.rejects(() => Store.verifyInspection(tamperedEvent),
+		error => error.code === 'CORRUPT_EVENT');
+
+	const tamperedState = JSON.parse(JSON.stringify(healthy));
+	tamperedState.head.run.value = 999;
+	await assert.rejects(() => Store.verifyInspection(tamperedState),
+		error => error.code === 'CORRUPT_STATE');
+
+	const brokenLink = JSON.parse(JSON.stringify(healthy));
+	brokenLink.events[1].previousEventHash = brokenLink.events[1].eventHash;
+	await assert.rejects(() => Store.verifyInspection(brokenLink),
+		error => error.code === 'CORRUPT_EVENT');
+});
+
+test('planning evidence must bind to a real revision, and says so', async () => {
+	const store = Store.createMemoryStore();
+	const request = JSON.parse(JSON.stringify(planningRequest));
+	const receipt = JSON.parse(JSON.stringify(planningReceipt));
+	await started(store, request.attempt.attemptId);
+	const head = await store.loadActive();
+	request.attempt.revision = 0;
+	receipt.input.revision = 0;
+	request.attempt.stateHash = head.stateHash;
+	receipt.input.stateHash = head.stateHash;
+	// Revisions start at 1, so evidence bound to revision 0 can never match
+	// an event. The schema check must refuse it up front rather than letting
+	// the state check blame the receipt for a mismatch it was told was legal.
+	await assert.rejects(() => store.recordEvidence({request, receipt, recordedAt: TIME}),
+		error => error.code === 'INVALID_EVIDENCE' && /revision/.test(error.message) &&
+			!/does not match its bound/.test(error.message));
 });
 
 test('replay applies snapshots and command.applied events', async () => {
@@ -395,6 +465,31 @@ test('legacy archives upcast losslessly and idempotently into Model v2', async (
 	const second = await store.importBundle(legacyArchive);
 	assert.equal(second.duplicate, true);
 	assert.deepEqual((await store.loadActive()).run, legacyArchive.head.run);
+});
+
+test('a legacy archive that cannot upcast validly is refused before anything is written', async () => {
+	// (a) No snapshots: the upcast strips the lifecycle payload but has no
+	// snapshot to carry the command log, so its own validator can never
+	// accept the result — importing it would create an attempt that can
+	// never export again.
+	const noSnapshots = JSON.parse(JSON.stringify(legacyArchive));
+	noSnapshots.snapshots = [];
+	noSnapshots.manifest.snapshotCount = 0;
+	const storeA = Store.createMemoryStore();
+	await assert.rejects(() => storeA.importBundle(rechecksum(noSnapshots)),
+		error => error.code === 'UNSUPPORTED_VERSION');
+	assert.equal(await storeA.loadActive(), null, 'a refused upcast must write nothing');
+
+	// (b) An idempotency receipt bound to a revision with no event resolves
+	// to an undefined stateHash in the upcast.
+	const orphan = JSON.parse(JSON.stringify(legacyArchive));
+	orphan.idempotency.push({id: 'legacy-attempt::orphan', attemptId: 'legacy-attempt',
+		commandId: 'orphan', fingerprint: 'legacy-orphan', revision: 99});
+	orphan.manifest.idempotencyCount = orphan.idempotency.length;
+	const storeB = Store.createMemoryStore();
+	await assert.rejects(() => storeB.importBundle(rechecksum(orphan)),
+		error => error.code === 'UNSUPPORTED_VERSION');
+	assert.equal(await storeB.loadActive(), null, 'a refused upcast must write nothing');
 });
 
 test('event tampering is rejected even after the outer checksum is recomputed', async () => {
