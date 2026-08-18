@@ -69,11 +69,17 @@ function base64UrlDecode(value) {
 	if (!/^[A-Za-z0-9_-]+$/.test(value)) return null;
 	const standard = value.replace(/-/g, '+').replace(/_/g, '/');
 	const padded = standard + '='.repeat((4 - standard.length % 4) % 4);
+	let bytes;
 	try {
-		return Uint8Array.from(atob(padded), character => character.charCodeAt(0));
+		bytes = Uint8Array.from(atob(padded), character => character.charCodeAt(0));
 	} catch (ignored) {
 		return null;
 	}
+	// atob discards the spare bits of the final character, so two different
+	// strings can decode to the same bytes. A signature has exactly one
+	// canonical spelling; any other spelling is tampering and is refused.
+	if (base64UrlEncode(bytes) !== value) return null;
+	return bytes;
 }
 
 async function sessionSignature(password, expiry) {
