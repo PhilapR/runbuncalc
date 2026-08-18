@@ -113,20 +113,20 @@ regenerated. Advisory, and deliberately BELOW the drift gate's waterline:
 a stamp changes at the very commit that touches its doc, so gating it
 byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
-- `AGENTS.md` — 250820c 2026-08-16
-- `README.md` — 368dc9c 2026-08-16
-- `docs/AI_DATA_MODEL.md` — untracked
-- `docs/DEPLOY.md` — untracked
+- `AGENTS.md` — 98b4a50 2026-08-18
+- `README.md` — 98b4a50 2026-08-18
+- `docs/AI_DATA_MODEL.md` — 98b4a50 2026-08-18
+- `docs/DEPLOY.md` — 98b4a50 2026-08-18
 - `docs/ECOSYSTEM_BRIDGE.md` — deb903a 2026-08-16
-- `docs/FORK_MAP.md` — untracked
-- `docs/GEN9_AUDIT.md` — untracked
+- `docs/FORK_MAP.md` — 98b4a50 2026-08-18
+- `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
-- `docs/RUNBUN_REBUILD_MODEL.md` — untracked
-- `docs/RUNBUN_UI_DESIGN.md` — untracked
+- `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
+- `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18
 - `docs/SDLC.md` — c11db8f 2026-08-16
-- `docs/STRATEGY.md` — untracked
-- `docs/TASKS.md` — untracked
-- `docs/VALIDATION.md` — untracked
+- `docs/STRATEGY.md` — 98b4a50 2026-08-18
+- `docs/TASKS.md` — 98b4a50 2026-08-18
+- `docs/VALIDATION.md` — 98b4a50 2026-08-18
 
 ## Test files
 `attempt_store.test.js` · `battle-driver.test.js` · `battle_contribution.test.js` · `browser_calc_load.test.js` · `browser_entrypoint.test.js` · `browser_planner.test.js` · `browser_run.test.js` · `game-runtime-adapter.test.js` · `inventory.test.js` · `planner.test.js` · `planning_review.test.js` · `play.test.js` · `pokemon-bridge.test.js` · `pokemon-provider-client.test.js` · `rl-dataset.test.js` · `rom-band.test.js` · `run.test.js` · `run_history.test.js` · `runbun_oracle.test.js` · `runbun_policy.test.js` · `runbun_sets.test.js` · `runbun_species.test.js` · `server.smoke.test.js` · `sets_to_battle_state.test.js` · `simulate.test.js` · `team.test.js` · `ui_style.test.js` · `worker-runtime.test.js` · `worker.test.js`
