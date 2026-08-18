@@ -4605,3 +4605,11 @@ table.field {
 	color: var(--rb-warn-ink);
 	font-weight: 700;
 }
+
+/* Fork overlay: upstream removed .button outlines wholesale; keyboard users
+   get the shell's focus ring back without re-adding pointer-focus noise. */
+.button:focus-visible,
+.btn:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+}

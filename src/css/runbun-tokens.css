@@ -22,6 +22,8 @@
 	--rb-brand-soft: #f3e0d4;
 	--rb-action: #0b7a78;
 	--rb-action-hover: #096664;
+	/* Ink for text ON the action fill (>=4.5:1 in both themes). */
+	--rb-action-ink: #ffffff;
 	--rb-warn: #a67c00;
 	--rb-warn-ink: #6b4f00;
 	--rb-warn-soft: #fff4d6;
@@ -64,6 +66,7 @@
 	--rb-brand-soft: #3a2418;
 	--rb-action: #2bb5b1;
 	--rb-action-hover: #3fccc8;
+	--rb-action-ink: #0d1114;
 	--rb-warn: #e0b84a;
 	--rb-warn-ink: #f0c96a;
 	--rb-warn-soft: #3a3014;

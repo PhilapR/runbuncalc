@@ -87,7 +87,9 @@
 
 	function refreshStartAvailability() {
 		var hasStarter = $('.runbun-run-starter[aria-pressed="true"]').length > 0;
-		$('#runbun-run-new').prop('disabled', !initialized || !hasStarter);
+		$('#runbun-run-new').prop('disabled', !initialized || !hasStarter)
+			.attr('title', !initialized ? 'Loading the run panel…' :
+				!hasStarter ? 'Pick a starter first' : 'Begin the run');
 		$('.runbun-run-setup-form').attr('aria-busy', initialized ? 'false' : 'true');
 	}
 
@@ -849,10 +851,10 @@
 			$('#runbun-run-next-detail').text('All required fights cleared');
 			$play.text('Run complete').prop('disabled', true)
 				.attr('title', 'No required trainer remains');
-			$plan.prop('disabled', true);
-			$value.prop('disabled', true);
-			$advise.prop('disabled', true);
-			$rank.prop('disabled', true);
+			$plan.prop('disabled', true).attr('title', 'No required trainer remains');
+			$value.prop('disabled', true).attr('title', 'No required trainer remains');
+			$advise.prop('disabled', true).attr('title', 'No required trainer remains');
+			$rank.prop('disabled', true).attr('title', 'No required trainer remains');
 			return;
 		}
 
@@ -863,10 +865,12 @@
 				(firstAvailable ? ' · ' + monLabel(firstAvailable) + ' available' : ''));
 			$play.text('Choose your party').prop('disabled', false)
 				.attr('title', 'Open the roster and choose a lead before fighting');
-			$plan.prop('disabled', true);
-			$value.prop('disabled', true);
-			$advise.prop('disabled', true);
-			$rank.prop('disabled', !alive.length);
+			$plan.prop('disabled', true).attr('title', 'Choose a party first');
+			$value.prop('disabled', true).attr('title', 'Choose a party first');
+			$advise.prop('disabled', true).attr('title', 'Choose a party first');
+			$rank.prop('disabled', !alive.length).attr('title', alive.length ?
+				'Score every legal party against the next fight' :
+				'Catch a Pokémon first');
 			return;
 		}
 
@@ -877,10 +881,15 @@
 			' · fresh');
 		$play.text('Fight ' + displayText(next.trainer)).prop('disabled', false)
 			.attr('title', 'Play the next trainer fight turn by turn');
-		$plan.prop('disabled', false);
-		$value.prop('disabled', false);
-		$advise.prop('disabled', false);
-		$rank.prop('disabled', !alive.length);
+		$plan.prop('disabled', false)
+			.attr('title', 'Sample the next fight with your current party');
+		$value.prop('disabled', false)
+			.attr('title', 'Run modeled replacement and IV tests on this roster');
+		$advise.prop('disabled', false)
+			.attr('title', 'Price candidate builds against the next fight');
+		$rank.prop('disabled', !alive.length).attr('title', alive.length ?
+			'Score every legal party against the next fight' :
+			'Catch a Pokémon first');
 	}
 
 	/** A compact, actionable scan of what can still happen before the fight. */

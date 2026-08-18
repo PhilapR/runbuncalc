@@ -482,7 +482,7 @@ body[data-rb-mode="tools"] .credits #sets {
 #runbun-battle .rb-btn-primary.btn {
 	background: var(--rb-action);
 	border-color: var(--rb-action);
-	color: #fff;
+	color: var(--rb-action-ink);
 	text-shadow: none;
 	box-shadow: none;
 }
@@ -492,7 +492,7 @@ body[data-rb-mode="tools"] .credits #sets {
 #runbun-battle .rb-btn-primary.btn:hover {
 	background: var(--rb-action-hover);
 	border-color: var(--rb-action-hover);
-	color: #fff;
+	color: var(--rb-action-ink);
 }
 
 .rb-btn-secondary.btn,
