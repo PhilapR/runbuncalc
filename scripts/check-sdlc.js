@@ -149,12 +149,15 @@ assert.equal(attributionReceipt.result.summary.seedPairsEvaluated,
 	attributionRequest.task.seeds.length * attributionRequest.task.interventions.length);
 assert.deepEqual(attributionReceipt.evidence.unexpectedDivergences, []);
 assert.equal(matrix.schemaVersion, 'pokemon.bridge.integration/1.0.0');
-assert.equal(matrix.status, 'participation-ready-local');
-assert.equal(matrix.contract.version, '1.0.0',
-	'integration matrix remains the last promoted planning baseline');
-assert.equal(matrix.contract.revision, 'f7933f91b706c969a1dc5430a9484e5fafa4d66c');
+assert.equal(matrix.status, 'attribution-ready-deployed-local');
+// Promoted 2026-08-18: every lane's own gate re-ran green against these
+// exact revisions, the provider bundle was reproduced from source, and the
+// deployed Worker re-passed the authenticated production smoke.
+assert.equal(matrix.contract.version, '1.1.0',
+	'integration matrix is the promoted attribution baseline');
+assert.equal(matrix.contract.revision, '8e2c3c8f021094814b1b44844c7de4992095d274');
 assert.equal(matrix.contract.digest,
-	'2cd1db3e69c9989b9e766a97e35ebc96a41cef5d756794829c20be2385c88a61');
+	'402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75');
 assert.equal(lock.repository, manifest.authority.canonicalTargetRepository);
 assert.equal(lock.path, manifest.authority.canonicalTargetPath);
 assert.equal(lock.revision, manifest.authority.canonicalRevision);
@@ -162,9 +165,10 @@ assert.equal(lock.digest, manifest.authority.canonicalDigest);
 sha256(lock.digest, 'canonical contract digest');
 assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.deepEqual(matrix.fixtures.expectedDivergences, []);
-assert.equal(matrix.lanes.engine.revision, '58aad68ac7a93980e1d424e768b009ce7cc0ba2f');
-assert.equal(matrix.lanes.app.revision, '27cb8e5e03f90e7931d359f7d23768914c50dd34');
-assert.equal(matrix.lanes.control.revision, '84e7e9eb5d829d10e5f1f4b753976e6abb6d3d1a');
+assert.equal(matrix.lanes.engine.revision, '2ae1b7e5721a2d2ff3b9692df75f65329c891650');
+assert.equal(matrix.lanes.app.revision, 'ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a');
+assert.equal(matrix.lanes.control.revision, '3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c');
+assert.equal(matrix.lanes.verification.revision, '867461d6ca9ed24b71c447e20dd5fa840b5b0d5c');
 assert.equal(seededReceipt.requestId, request.requestId);
 assert.equal(seededReceipt.producer.revision, providerProvenance.revision);
 assert.equal(seededReceipt.input.stateHash, request.attempt.stateHash);
@@ -210,7 +214,7 @@ assert.equal(localAttribution.status, 'implementation-tested-browser-proven-loca
 assert.equal(localAttribution.contract.revision, lock.revision);
 assert.equal(localAttribution.contract.digest, lock.digest);
 assert.equal(localAttribution.lanes.app.revision,
-	'3debde2065ec8541bc654bd1a825cdb28adb0e3b');
+	'ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a');
 assert.equal(localAttribution.lanes.engine.revision, providerProvenance.revision);
 assert.equal(localAttribution.lanes.control.revision,
 	'3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c');
@@ -230,14 +234,14 @@ assert.equal(localAttribution.deploymentReceipt.provider, 'cloudflare-workers');
 assert.equal(localAttribution.deploymentReceipt.url,
 	'https://runbun.rago-philip.workers.dev');
 assert.equal(localAttribution.deploymentReceipt.versionId,
-	'a273f15d-cbd9-4e9d-a388-67a2b4f64559');
+	'3aae9677-dd32-4eef-95c9-b129f3385526');
 assert.equal(localAttribution.deploymentReceipt.deployedAt,
-	'2026-08-16T19:19:09.437Z');
+	'2026-08-18T15:24:39.455Z');
 assert.equal(localAttribution.deploymentReceipt.revision,
 	localAttribution.lanes.app.revision);
 assert.equal(localAttribution.deploymentReceipt.modelVersion, '2.0.0');
 assert.equal(localAttribution.deploymentReceipt.rollbackVersionId,
-	'1c164be8-ae75-4bff-959e-c541b3d1bf13');
+	'7304a693-063e-4284-8e5d-220c6fd05e2d');
 assert.equal(localAttribution.deploymentReceipt.runtime.wrangler, '4.122.0');
 assert.equal(localAttribution.deploymentReceipt.runtime.workerd, '2026-08-11');
 assert.equal(localAttribution.gates.exactRuntimeGate, true);
@@ -259,7 +263,10 @@ assert.equal(matrix.promotion.planningReviewMaterialized, true);
 assert.equal(matrix.promotion.battleContributionRecorded, true);
 assert.equal(matrix.promotion.battleContributionRendered, true);
 assert.equal(matrix.promotion.battleContributionMaterialized, true);
-assert.equal(matrix.promotion.providerEnabled, false);
-assert.equal(matrix.promotion.privateDeploymentVerified, false);
+// Both flipped by the 2026-08-18 promotion: the pinned browser provider
+// ships in the product path, and the deployed Worker re-passed the
+// authenticated production smoke at this matrix's exact app revision.
+assert.equal(matrix.promotion.providerEnabled, true);
+assert.equal(matrix.promotion.privateDeploymentVerified, true);
 
 console.log('SDLC gate passed: built entrypoint and ecosystem bridge contract agree.');

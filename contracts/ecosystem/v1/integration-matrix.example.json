@@ -1,61 +1,64 @@
 {
-  "schemaVersion": "pokemon.bridge.integration/1.0.0",
-  "status": "participation-ready-local",
-  "contract": {
-    "version": "1.0.0",
-    "canonicalRepository": "pokemon-mono",
-    "canonicalPath": "contracts/run-runtime/v1",
-    "revision": "f7933f91b706c969a1dc5430a9484e5fafa4d66c",
-    "digest": "2cd1db3e69c9989b9e766a97e35ebc96a41cef5d756794829c20be2385c88a61"
-  },
-  "lanes": {
-    "app": {
-      "repository": "runbuncalc",
-      "revision": "27cb8e5e03f90e7931d359f7d23768914c50dd34",
-      "gate": "npm test"
-    },
-    "engine": {
-      "repository": "pokemon-mono",
-      "revision": "58aad68ac7a93980e1d424e768b009ce7cc0ba2f",
-      "gate": "bun run test:run-runtime plus just test-ts plus browser-target bridge bundle"
-    },
-    "control": {
-      "repository": "stochastic-inference-core",
-      "revision": "84e7e9eb5d829d10e5f1f4b753976e6abb6d3d1a",
-      "gate": "make lint doctor plus focused capability and orchestration suites"
-    },
-    "verification": {
-      "repository": "pokemon-mono",
-      "revision": "867461d6ca9ed24b71c447e20dd5fa840b5b0d5c",
-      "gate": "just run-runtime && just run-runtime-falsify"
-    }
-  },
-  "fixtures": {
-    "corpus": [
-      "planning-request.json::seeded-provider-receipt.json"
-    ],
-    "expectedDivergences": [],
-    "unexpectedDivergences": []
-  },
-  "adapters": [{
-    "boundary": "trainer-identity",
-    "appRepresentation": "filtered progression label",
-    "contractRepresentation": "canonical raw trainer database order",
-    "transform": "resolve exact unique label through pinned pokemon-mono provider"
-  }],
-  "promotion": {
-    "browserProviderParity": true,
-    "singleBatchParity": true,
-    "sixPokemonBenchmark": true,
-    "planningEvidencePersisted": true,
-    "planningEvidenceMaterialized": true,
-    "battleOutcomeRecorded": true,
-    "planningReviewRendered": true,
-    "planningReviewMaterialized": true,
-    "battleContributionRecorded": true,
-    "battleContributionRendered": true,
-    "battleContributionMaterialized": true,
-    "providerEnabled": false,
-    "privateDeploymentVerified": false
-  }
+	"schemaVersion": "pokemon.bridge.integration/1.0.0",
+	"status": "attribution-ready-deployed-local",
+	"contract": {
+		"version": "1.1.0",
+		"canonicalRepository": "pokemon-mono",
+		"canonicalPath": "contracts/run-runtime/v1",
+		"revision": "8e2c3c8f021094814b1b44844c7de4992095d274",
+		"digest": "402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75"
+	},
+	"lanes": {
+		"app": {
+			"repository": "runbuncalc",
+			"revision": "ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a",
+			"gate": "npm test"
+		},
+		"engine": {
+			"repository": "pokemon-mono",
+			"revision": "2ae1b7e5721a2d2ff3b9692df75f65329c891650",
+			"gate": "bun run test:run-runtime plus reproducible browser-target bridge bundle (sha256 5503927e\u2026)"
+		},
+		"control": {
+			"repository": "stochastic-inference-core",
+			"revision": "3cf5ae04fbe8037bac63e2a3fd82039eeac1b93c",
+			"gate": "uv run pytest tests/capabilities -k pokemon (81 passed)"
+		},
+		"verification": {
+			"repository": "pokemon-mono",
+			"revision": "867461d6ca9ed24b71c447e20dd5fa840b5b0d5c",
+			"gate": "just run-runtime-falsify (v1.0.0 packet, 5 attacks) plus contract-side verify.mjs && falsify.mjs at 8e2c3c8 (v1.1.0, 25 attacks)"
+		}
+	},
+	"fixtures": {
+		"corpus": [
+			"planning-request.json::seeded-provider-receipt.json",
+			"attribution-request.json::seeded-provider-attribution-receipt.json"
+		],
+		"expectedDivergences": [],
+		"unexpectedDivergences": []
+	},
+	"adapters": [
+		{
+			"boundary": "trainer-identity",
+			"appRepresentation": "filtered progression label",
+			"contractRepresentation": "canonical raw trainer database order",
+			"transform": "resolve exact unique label through pinned pokemon-mono provider"
+		}
+	],
+	"promotion": {
+		"browserProviderParity": true,
+		"singleBatchParity": true,
+		"sixPokemonBenchmark": true,
+		"planningEvidencePersisted": true,
+		"planningEvidenceMaterialized": true,
+		"battleOutcomeRecorded": true,
+		"planningReviewRendered": true,
+		"planningReviewMaterialized": true,
+		"battleContributionRecorded": true,
+		"battleContributionRendered": true,
+		"battleContributionMaterialized": true,
+		"providerEnabled": true,
+		"privateDeploymentVerified": true
+	}
 }
