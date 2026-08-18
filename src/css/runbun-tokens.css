@@ -24,6 +24,10 @@
 	--rb-action-hover: #096664;
 	/* Ink for text ON the action fill (>=4.5:1 in both themes). */
 	--rb-action-ink: #ffffff;
+	/* Starter type identities — solid accents, decorative only. */
+	--rb-type-grass: #3d8b3d;
+	--rb-type-fire: #c2531f;
+	--rb-type-water: #2469b0;
 	--rb-warn: #a67c00;
 	--rb-warn-ink: #6b4f00;
 	--rb-warn-soft: #fff4d6;
@@ -67,6 +71,9 @@
 	--rb-action: #2bb5b1;
 	--rb-action-hover: #3fccc8;
 	--rb-action-ink: #0d1114;
+	--rb-type-grass: #5db85d;
+	--rb-type-fire: #e8763d;
+	--rb-type-water: #4d94dd;
 	--rb-warn: #e0b84a;
 	--rb-warn-ink: #f0c96a;
 	--rb-warn-soft: #3a3014;

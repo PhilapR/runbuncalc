@@ -2341,6 +2341,9 @@ table.field {
 #runbun-run .runbun-run-opportunity.is-unknown .runbun-run-opportunity-name {
 	color: var(--rb-ink-muted);
 }
+#runbun-run #runbun-run-roll-method {
+	min-width: 7em;
+}
 #runbun-run .runbun-run-next-actions {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4033,26 +4036,48 @@ table.field {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 2px;
+	gap: 3px;
 	min-width: 0;
 	text-align: left;
-	padding: var(--rb-space-sm);
+	padding: var(--rb-space-md) var(--rb-space-sm);
+	/* The type accent rides the left edge: identity at a glance without
+	   painting the whole card. */
 	border: 1px solid var(--rb-stroke);
+	border-left: 4px solid var(--rb-stroke-strong);
 	border-radius: var(--rb-radius-control);
 	background: var(--rb-surface-raised);
 	cursor: pointer;
 }
+#runbun-run .runbun-run-starter[data-type="grass"] { border-left-color: var(--rb-type-grass); }
+#runbun-run .runbun-run-starter[data-type="fire"] { border-left-color: var(--rb-type-fire); }
+#runbun-run .runbun-run-starter[data-type="water"] { border-left-color: var(--rb-type-water); }
+#runbun-run .runbun-run-starter:hover {
+	border-color: var(--rb-stroke-strong);
+}
+#runbun-run .runbun-run-starter[data-type="grass"]:hover { border-left-color: var(--rb-type-grass); }
+#runbun-run .runbun-run-starter[data-type="fire"]:hover { border-left-color: var(--rb-type-fire); }
+#runbun-run .runbun-run-starter[data-type="water"]:hover { border-left-color: var(--rb-type-water); }
 #runbun-run .runbun-run-starter[aria-pressed="true"] {
 	border-color: var(--rb-brand);
 	background: var(--rb-brand-soft);
 	box-shadow: inset 0 0 0 1px var(--rb-brand);
 }
+#runbun-run .runbun-run-starter[aria-pressed="true"] .runbun-run-starter-name::after {
+	content: " ✓";
+	color: var(--rb-brand-ink);
+}
 #runbun-run .runbun-run-starter-name {
 	font-family: var(--rb-font-brand);
 	font-weight: 700;
+	font-size: 1.05rem;
 }
 #runbun-run .runbun-run-starter-note {
 	font-family: var(--rb-font-mono);
+	font-size: 0.72rem;
+	color: var(--rb-ink-muted);
+	min-width: 0;
+}
+#runbun-run .runbun-run-starter-rival {
 	font-size: 0.72rem;
 	color: var(--rb-ink-muted);
 	min-width: 0;
@@ -4612,4 +4637,24 @@ table.field {
 .btn:focus-visible {
 	outline: 2px solid var(--rb-focus);
 	outline-offset: 2px;
+}
+
+/* Mobile floors, LAST in the file on purpose: the component rules above set
+   compact fonts with equal specificity, and the later rule must win. */
+@media (max-width: 860px) {
+	#runbun-run input[type="text"],
+	#runbun-run input[type="search"],
+	#runbun-run input[type="number"],
+	#runbun-run select,
+	#runbun-run textarea {
+		/* Under 16px, focusing an input makes iOS Safari zoom the page.
+		   !important because the compact component rules above outrank any
+		   flat selector; this floor must win every one of those fights. */
+		font-size: 16px !important;
+	}
+	#runbun-run .runbun-run-check {
+		/* The label is the touch target, not the 13px box inside it. */
+		min-height: 44px;
+		align-items: center;
+	}
 }
