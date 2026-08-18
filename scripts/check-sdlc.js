@@ -167,7 +167,7 @@ assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.deepEqual(matrix.fixtures.expectedDivergences, []);
 assert.equal(matrix.lanes.engine.revision, '2ae1b7e5721a2d2ff3b9692df75f65329c891650');
 assert.equal(matrix.lanes.app.revision, 'ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a');
-assert.equal(matrix.lanes.control.revision, '83972e2b857ddeea9094744c40e211037856fcfa');
+assert.equal(matrix.lanes.control.revision, '446776f91ea17eb25054fc3d233f5baa8f8e5c55');
 assert.equal(matrix.lanes.verification.revision, '867461d6ca9ed24b71c447e20dd5fa840b5b0d5c');
 assert.equal(seededReceipt.requestId, request.requestId);
 assert.equal(seededReceipt.producer.revision, providerProvenance.revision);
@@ -217,10 +217,12 @@ assert.equal(localAttribution.lanes.app.revision,
 	'ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a');
 assert.equal(localAttribution.lanes.engine.revision, providerProvenance.revision);
 assert.equal(localAttribution.lanes.control.revision,
-	'83972e2b857ddeea9094744c40e211037856fcfa');
-// Registered by the operator on 2026-08-18: capability suite 86/86, ruff
-// and doctor green at that control revision. The lane branch remains local
-// pending a history cleanup (>100MB evidence blobs block its GitHub push).
+	'446776f91ea17eb25054fc3d233f5baa8f8e5c55');
+// Registered by the operator on 2026-08-18: capability suite, metrics and
+// catalog floors (95 passed), ruff, doctor, and the operator-accepted loss
+// baseline all green at that control revision. The lane branch remains
+// local pending a history cleanup (>100MB evidence blobs block its GitHub
+// push); claude/rab-control-clean-v1 carries the same content reviewably.
 assert.equal(localAttribution.lanes.control.attributionCapabilityRegistered, true);
 assert.equal(localAttribution.gates.providerDeterministicRepeat, true);
 assert.equal(localAttribution.gates.providerReceiptLocked, true);
