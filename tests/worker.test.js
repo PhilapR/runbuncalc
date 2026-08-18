@@ -7,7 +7,7 @@ const test = require('node:test');
 
 if (!global.crypto) global.crypto = webcrypto;
 
-const worker = require('../worker');
+const worker = require('../lib/worker');
 
 function authorization(password) {
 	return 'Basic ' + Buffer.from('reviewer:' + password).toString('base64');

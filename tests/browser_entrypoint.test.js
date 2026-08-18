@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const pathToFileURL = require('node:url').pathToFileURL;
 const test = require('node:test');
-const app = require('../server').app;
+const app = require('../lib/server').app;
 
 let chromium = null;
 try {

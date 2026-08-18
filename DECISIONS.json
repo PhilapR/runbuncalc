@@ -17,7 +17,7 @@
 			"ruling": "A playthrough is a verifiable document: every catch is checked against the real encounter tables, every evolution against the real lines, every taught move against real learnsets. Undo is replay, byte-identical.",
 			"why": "A box that is whatever somebody typed cannot support a nuzlocke's rules meaning anything.",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		},
@@ -27,7 +27,7 @@
 			"ruling": "A recorded fact is taken at face value: catch levels, epitaphs and teaches are the player's report of what happened in the game. The oracle refuses the impossible (wrong route, wrong level range) but never second-guesses the possible.",
 			"why": "The game itself is the enforcement for what can happen; the document's job is refusing what CANNOT have happened.",
 			"enforcedBy": [
-				"run.js"
+				"lib/run.js"
 			]
 		},
 		{
@@ -46,7 +46,7 @@
 			"ruling": "Leveling to the cap is free (the Endless Candy); every level past it spends a bagged Rare Candy.",
 			"why": "That is the game's own economy, and it keeps the whole box playable without grind bookkeeping.",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		},
@@ -66,7 +66,7 @@
 			"ruling": "Permadeath, one-per-route, the dupes MODE and the shiny clause are independent stored toggles; --nuzlocke is only a preset. Legacy saves keep the bundle they were played under, and undo returns rules verbatim.",
 			"why": "Nuzlocke tables vary rule by rule; a save silently enforcing rules the player never chose is the bug class the toggles exist to prevent.",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js",
 				"tests/play.test.js"
 			]
@@ -78,7 +78,7 @@
 			"why": "Operator ruling; a replay that refuses history would brick the save.",
 			"enforcedBy": [
 				"profiles/run-and-bun/oracle.js",
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		},
@@ -88,7 +88,7 @@
 			"ruling": "Under the shiny clause a shiny catch is keepable over both encounter rules AND leaves the route's real random encounter owed.",
 			"why": "The clause exists to never punish the 1/4096; consuming the route would.",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		},
@@ -98,7 +98,7 @@
 			"ruling": "A move whose only live routes are the egg line costs one Heart Scale at the relearner; a level-up prompt at or below the level, a TM or a tutor is free. The advisor may not offer what the bag cannot pay for.",
 			"why": "Operator ruling on how Run & Bun actually serves egg moves.",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		},
@@ -108,7 +108,7 @@
 			"ruling": "Recommendation surfaces are gated by obtainability — no HM before the story hands it over, no egg move without a scale, no surfing before Surf — while the RECORDING commands stay face-value.",
 			"why": "The game stops the player from doing the impossible; it does not stop a bad advisor from recommending it.",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js",
 				"tests/server.smoke.test.js"
 			]
@@ -119,7 +119,7 @@
 			"ruling": "A move that faints its user is never a cell's claim while any surviving damage line exists, and a self-KO cell counts as no clean answer for us — while an enemy's sacrifice still counts as a real threat, because our death is permanent and theirs is free.",
 			"why": "The optimizer sold 'teach Misty Explosion, +3 KO' to a permadeath run.",
 			"enforcedBy": [
-				"planner.js",
+				"lib/planner.js",
 				"tests/planner.test.js",
 				"tests/run.test.js",
 				"ai/src/move-metadata.ts"
@@ -131,7 +131,7 @@
 			"ruling": "A fight with a declared permanent field (Route 119's rain, the desert's sand, Seafloor's opponent-side veil) is planned under it by default; an explicit field — even {} — is the counterfactual override, and every consumer names which sky its numbers came from.",
 			"why": "A Route 119 board without its rain claims numbers the fight will never produce.",
 			"enforcedBy": [
-				"planner.js",
+				"lib/planner.js",
 				"tests/planner.test.js",
 				"profiles/run-and-bun/oracle/fight-fields.json"
 			]
@@ -152,7 +152,7 @@
 			"ruling": "Doubles planning is opt-in ({doubles: true}) until pair lead order is sourced; double fights planned as Singles carry plannedAsSingles so the simplification is visible.",
 			"why": "Measured: the lead's top action changes in 18 of 46 double fights — but which two lead is an assumption the run map cannot source.",
 			"enforcedBy": [
-				"planner.js",
+				"lib/planner.js",
 				"tests/planner.test.js"
 			]
 		},
@@ -184,9 +184,9 @@
 			"ruling": "The over-cap wild catch is really a DELAYED encounter: the player saves a few choice locations for a better table later (Petalburg City held for Popplio until Surf), trading early-game tools for late-game value. Catches stay face-value — the method gates mean high-level water is unreachable until the caps have caught up anyway — and the delay itself is first-class: hold/unhold record the wait and its target, the scout stops nagging, and the routes view flips to READY when the awaited method opens.",
 			"why": "Operator ruling: 'I could save routes to get those higher-value encounters later... most of the time people delay for some fairy type encounters like the Primarina line.'",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js",
-				"play.js"
+				"lib/play.js"
 			]
 		},
 		{
@@ -195,7 +195,7 @@
 			"ruling": "An evolution is a checked event with a named price: a level evolution needs the level, a stone evolution spends the stone from the bag, a move evolution needs the move known. The advisor weighs earned evolutions as its fifth upgrade kind, judged at the projected cap like teaches.",
 			"why": "The evolve command took a Ludicolo no Water Stone ever paid for, and the advisor graded level-21 Treeckos as Treeckos — which called Brawly unwinnable (0/30 rollouts) when the same box evolved won 27/30.",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		},
@@ -205,9 +205,9 @@
 			"ruling": "The run can be PLAYED here — rolls off the real tables, fights turn-by-turn against the real AI policy — but only through the same document: a roll settles as an ordinary catch or a spend (a route consumed with nothing kept), a fight ends in ordinary faint and beat commands, and the party battles at the projected cap because the infinite candy is the XP system. The battle bundle is client-held; the server keeps no fights.",
 			"why": "A second, softer path into the box would fork the record: anything the recreation writes must survive the same verification a hand-reported run does.",
 			"enforcedBy": [
-				"run.js",
-				"battle-driver.js",
-				"server.js",
+				"lib/run.js",
+				"lib/battle-driver.js",
+				"lib/server.js",
 				"tests/battle-driver.test.js",
 				"tests/run.test.js"
 			]
@@ -218,8 +218,8 @@
 			"ruling": "The party ranker PLAYS its top candidates: seeded rollouts under the assignment-following floor policy, and what actually happened (wins, then deaths) outranks the grid score, which only breaks ties. pWin is a lower bound and a comparison key, never a promise; rollouts: 0 restores the grid-only answer.",
 			"why": "The party ranker's grid score does not predict rollout survival: a six scoring 3.28 \"all answered\" (frail Tyrogue/Remoraid answers) wiped 87% of Brawly rollouts before prep, while a 0.62 six won 87%. The grid is a full-HP damage matrix — it ignores speed order and attrition. Settled by productizing the adjudication: the same tape now ranks the six that wins 12/12 above the 3.28 six that wipes.",
 			"enforcedBy": [
-				"battle-driver.js",
-				"run.js",
+				"lib/battle-driver.js",
+				"lib/run.js",
 				"tests/battle-driver.test.js"
 			]
 		},
@@ -229,8 +229,8 @@
 			"ruling": "A rolled encounter can be FOUGHT, not just clicked into the box: a 1v1 against the wild mon at its rolled level (last level-up moves it knows, Struggle if the hack gives it none), the wild side picking uniformly random moves off the seeded stream. The throw is Emerald's own capture formula (floors and all) over mainline dex catch rates, plain Poke Ball only. The ending settles the roll through ordinary commands: a caught ball is the catch, a killed encounter is the spend, a wipe records its faints and settles nothing.",
 			"why": "The recreation's biggest missing risk was the catch itself — crit-kill your encounter, or lose a mon to it. Nothing here is invented: table-checked rolls, the game's formula, dex rates (PokeAPI CSV import, gated so every wild species resolves), and the same document commands every button writes.",
 			"enforcedBy": [
-				"battle-driver.js",
-				"planner.js",
+				"lib/battle-driver.js",
+				"lib/planner.js",
 				"scripts/import-catch-rates.js",
 				"tests/battle-driver.test.js",
 				"tests/server.smoke.test.js"
@@ -242,8 +242,8 @@
 			"ruling": "Ball tiers are bag-backed: the plain Poke Ball stays the free baseline (always offered, never counted), while Great (1.5x) and Ultra (2x) Balls are offered only while the bag covers what the fight has thrown. Throws are counted in the battle bundle and settled into the document as `use` commands whatever the ending — the bag paid the moment they flew. `use` is acquire's other half: it refuses with the count when the bag cannot cover the claim. Run & Bun-specific ball bonuses are not modeled until someone shows the hack changes them.",
 			"why": "Settles the ball-economy open question. Unlimited free Poke Balls kept the recreation playable with zero bookkeeping; making the better tiers cost bag items adds the real decision (spend the Ultra now or save it) without inventing a shop. Abandoning a fight still writes nothing, thrown balls included — the driver's nothing-until-it-ends contract outranks the cheat vector, which the honor system already owns.",
 			"enforcedBy": [
-				"battle-driver.js",
-				"run.js",
+				"lib/battle-driver.js",
+				"lib/run.js",
 				"tests/battle-driver.test.js",
 				"tests/play.test.js"
 			]
@@ -254,7 +254,7 @@
 			"ruling": "Hardcore Nuzlocke: no healing or battle items in trainer fights, ever. The driver deliberately offers only moves and switches against trainers — this is the rule, not a missing feature — and the adjudicator's rollouts measure the same item-less fight the player must actually play. Balls stay legal in wild encounters (catching is what they are for), which is the only place the driver offers one.",
 			"why": "Operator ruling. It also keeps the calibration honest twice over: mid-fight healing would let the recreation win fights the hardcore ruleset forbids winning that way, and the planner's damage math assumes no mid-turn potion resets on either side.",
 			"enforcedBy": [
-				"battle-driver.js",
+				"lib/battle-driver.js",
 				"tests/battle-driver.test.js"
 			]
 		},
@@ -264,7 +264,7 @@
 			"ruling": "The party lead's declared ability modifies the die, exactly as the games do it: a Static lead makes half of all encounters Electric-type, Magnet Pull the same for Steel, when the method's table has any such slot (dupes still skipped). The pull reads the run's own record — no declared ability, no pull — and the roll reply names it when it fires. This is the mechanic the route strategies are built on: Granite Cave held until a Static lead exists turns Togedemaru's 5% slot into a coin flip (measured 52% over 2,000 seeded rolls).",
 			"why": "Operator route knowledge, verified against the data: Route 110's all-Electric table opens at fight #48 (Camper Gavi guards it — the availability layer already knew), and the hold feature already models the delay; the pull was the missing physics. Modeled as mainline Emerald behavior until someone shows Run & Bun changes the pull rates.",
 			"enforcedBy": [
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		},
@@ -275,7 +275,7 @@
 			"why": "Operator route knowledge: Camper Gavi is an optional early wall who guards the Route 110 electric grass, and the strategy of delaying him was UNREPRESENTABLE — position was monotonic, and skipping past #48 would have falsely opened the route he guards. Declared-not-implicit skips keep the fast-forward recording idiom intact for every existing run.",
 			"enforcedBy": [
 				"profiles/run-and-bun/index.js",
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		},
@@ -285,9 +285,9 @@
 			"ruling": "The run map contains only required fights, per the author's own Trainer Battles doc (read from the operator's Drive copy of the official documentation folder): the doc splits each route into a required section and an '(Optionals)' section; its 83 optional trainers (sea routes 105-109/124-134, Abandoned Ship) are absent from our imported 362-fight map except Triathlete Pablo (#1184, 'Route 126 (Optionals)'), now skippable and flagged for the importer to drop. `skip` therefore stays a narrow tool: the Pablo straggler, plus operator-confirmed REORDERABLE-required fights (Camper Gavi). The Brawly-split campaign numbers stand — every fight the lives walked is required. AMENDED same day (operator): Camper Gavi is MANDATORY BUT DELAYABLE — the profile now splits the walk-past roster into delayableFights (mandatory, reorderable, OWED until beaten; status prints the debt) and optionalFights (never owed; a skipped optional fight leaves the road entirely).",
 			"why": "Settles the optional-fight-roster open question with source-of-truth provenance instead of curation. Also explains the model cleanly: the game's optional trainers are simply not the run's road, so they carry no orders, gate no caps, and cost nothing to ignore — exactly how the importer already treated them.",
 			"enforcedBy": [
-				"play.js",
+				"lib/play.js",
 				"profiles/run-and-bun/index.js",
-				"run.js",
+				"lib/run.js",
 				"tests/run.test.js"
 			]
 		}

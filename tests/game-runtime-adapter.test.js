@@ -6,10 +6,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const legacyEvents = require('../fixtures/runtime-contract/littleroot-replay.json');
-const adapter = require('../game-runtime-adapter');
+const adapter = require('../lib/game-runtime-adapter');
 const contract = require('../src/js/runtime_contract');
 const Store = require('../src/js/attempt_store');
-const runtime = require('../run');
+const runtime = require('../lib/run');
 
 function event(kind, revision, payload, extra) {
 	return Object.assign({

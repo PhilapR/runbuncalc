@@ -27,7 +27,7 @@ const root = path.join(__dirname, '..');
 function endpoints() {
 	// The route table, read from the server source. A regex rather than
 	// requiring the app keeps this runnable without binding a port.
-	const source = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+	const source = fs.readFileSync(path.join(root, 'lib', 'server.js'), 'utf8');
 	const found = [];
 	const pattern = /app\.(get|post)\(\s*["']([^"']+)["']/g;
 	for (let match; (match = pattern.exec(source));) {
@@ -41,11 +41,11 @@ function endpoints() {
 const DOCS_MARKER = '## Hand-written docs, dated';
 
 function inventory() {
-	const run = require(path.join(root, 'run.js'));
-	const play = require(path.join(root, 'play.js'));
-	const planner = require(path.join(root, 'planner.js'));
-	const simulate = require(path.join(root, 'simulate.js'));
-	const team = require(path.join(root, 'team.js'));
+	const run = require(path.join(root, 'lib', 'run.js'));
+	const play = require(path.join(root, 'lib', 'play.js'));
+	const planner = require(path.join(root, 'lib', 'planner.js'));
+	const simulate = require(path.join(root, 'lib', 'simulate.js'));
+	const team = require(path.join(root, 'lib', 'team.js'));
 	const profile = require(path.join(root, 'profiles')).getProfile('run-and-bun');
 
 	const oracleDir = path.join(root, 'profiles', 'run-and-bun', 'oracle');

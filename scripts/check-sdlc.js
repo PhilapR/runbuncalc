@@ -35,8 +35,8 @@ const pkg = json('package.json');
 const packageLock = json('package-lock.json');
 const providerPackage = json('vendor/pokemon-run-runtime/package.json');
 assert.equal(pkg.scripts.start, 'npm run dev');
-assert.equal(pkg.scripts.dev, 'npm run build && node server.js');
-assert.equal(pkg.scripts.preview, 'node build view && node server.js');
+assert.equal(pkg.scripts.dev, 'npm run build && node lib/server.js');
+assert.equal(pkg.scripts.preview, 'node build view && node lib/server.js');
 assert.equal(pkg.dependencies['@philapr/pokemon-run-runtime'],
 	'file:vendor/pokemon-run-runtime');
 assert.equal(packageLock.packages['vendor/pokemon-run-runtime'].version,

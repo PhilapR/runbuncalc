@@ -111,7 +111,7 @@ async function main() {
 	};
 	await esbuild.build({
 		stdin: {
-			contents: 'export default require(\'./worker.js\');\n',
+			contents: 'export default require(\'./lib/worker.js\');\n',
 			resolveDir: ROOT,
 			sourcefile: 'worker-entry.js',
 		},

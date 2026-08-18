@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const serverModule = require('../server');
+const serverModule = require('../lib/server');
 const startServer = serverModule.startServer;
 
 let server;
@@ -1111,7 +1111,7 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 });
 
 test('the recreation rides HTTP: a roll, a spend, and one played turn', async () => {
-	const runtime = require('../run');
+	const runtime = require('../lib/run');
 	let run = runtime.createRun({name: 'HTTP recreation', now: 't0',
 		permadeath: true});
 
@@ -1180,7 +1180,7 @@ test('the recreation rides HTTP: a roll, a spend, and one played turn', async ()
 });
 
 test('a wild fight rides HTTP: rolled, fought, the ball thrown, forgeries refused', async () => {
-	const runtime = require('../run');
+	const runtime = require('../lib/run');
 	let run = runtime.createRun({name: 'wild HTTP', now: 't0', permadeath: true});
 	run = runtime.applyAll(run, [
 		ownedCatch({kind: 'catch', species: 'Starly', map: 'Route102', level: 5}),
@@ -1213,7 +1213,7 @@ test('a wild fight rides HTTP: rolled, fought, the ball thrown, forgeries refuse
 });
 
 test('the wire refuses garbage where the engine would crash: bundles, runs, knobs', async () => {
-	const runtime = require('../run');
+	const runtime = require('../lib/run');
 	let run = runtime.createRun({name: 'hardened', now: 't0', permadeath: true});
 	run = runtime.applyAll(run, [
 		ownedCatch({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),

@@ -22,7 +22,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const run = require('../run');
+const run = require('../lib/run');
 
 /**
  * Real coordinates from the game, used throughout.
@@ -1702,7 +1702,7 @@ test('the advisor prices single changes by what they do to the board', () => {
 	// ...plus every holdable field pickup the overworld has handed out by
 	// fight #0 that the run has not collected (the advisor's fourth kind).
 	const pickups = oracle.itemsObtainableBy(0)
-		.filter(p => require('../planner').holdableItem(p.name)).length;
+		.filter(p => require('../lib/planner').holdableItem(p.name)).length;
 	assert.equal(advice.considered, teachable + 1 + 1 + pickups);
 
 	// The deterministic case. Poochyena knows only Tackle, which leaves the
@@ -1718,7 +1718,7 @@ test('the advisor prices single changes by what they do to the board', () => {
 	// And the claim is the BOARD's claim, cell for cell — the advisor scores by
 	// rebuilding the row through the planner, so an upgrade can never disagree
 	// with the grid a player reads next to it.
-	const planner = require('../planner');
+	const planner = require('../lib/planner');
 	const specs = run.partySpecs(state, {atOrder: 0});
 	const ko = payload => payload.grid.filter(cell => cell.versus[0].us.guaranteedKO).length;
 	assert.equal(ko(planner.matchup({trainer: 'Youngster Calvin', playerParty: specs,
@@ -1778,7 +1778,7 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	const teachable = teachableAt(
 		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), false);
 	const pickupsAt0 = oracle.itemsObtainableBy(0)
-		.filter(p => require('../planner').holdableItem(p.name)).length;
+		.filter(p => require('../lib/planner').holdableItem(p.name)).length;
 
 	// No scale in the bag, no scale candidate: the advisor ranks changes a
 	// player can make today, not ones they could make after finding an item.

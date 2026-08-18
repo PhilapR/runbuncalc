@@ -32,9 +32,9 @@ const test = require('node:test');
 
 const planningRequest = require('../contracts/ecosystem/v1/planning-request.json');
 const seededProviderReceipt = require('../contracts/ecosystem/v1/seeded-provider-receipt.json');
-const dataset = require('../rl-dataset');
+const dataset = require('../lib/rl-dataset');
 
-const startServer = require('../server').startServer;
+const startServer = require('../lib/server').startServer;
 
 let chromium = null;
 try {

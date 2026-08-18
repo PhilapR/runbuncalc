@@ -15,7 +15,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const team = require('../team');
+const team = require('../lib/team');
 
 const SWAMPERT = [
 	'Swampert @ Leftovers',

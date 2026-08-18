@@ -3,8 +3,8 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const bridge = require('../pokemon-bridge');
-const runtime = require('../run');
+const bridge = require('../lib/pokemon-bridge');
+const runtime = require('../lib/run');
 
 const HASH = 'a'.repeat(64);
 const IVS = {hp: 12, atk: 7, def: 18, spa: 24, spd: 11, spe: 29};

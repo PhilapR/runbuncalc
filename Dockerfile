@@ -20,4 +20,4 @@ COPY . .
 RUN node build
 
 EXPOSE 3000
-CMD [ "node", "server.js" ]
+CMD [ "node", "lib/server.js" ]

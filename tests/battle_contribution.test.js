@@ -4,8 +4,8 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const run = require('../run');
-const driver = require('../battle-driver');
+const run = require('../lib/run');
+const driver = require('../lib/battle-driver');
 
 const TEST_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
 
