@@ -67,7 +67,7 @@ to take.
 - `src/js/data/sets/gen8.js` is authored Run & Bun trainer data, not generated
   output. Never regenerate it from an upstream set source: the removed `import/`
   generator did exactly that and destroyed the trainer parties.
-  `runbun_sets.test.js` runs in the root gate — see `TASKS.md`.
+  `runbun_sets.test.js` runs in the root gate — see `docs/TASKS.md`.
 
 ## Data rules
 

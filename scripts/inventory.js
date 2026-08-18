@@ -27,7 +27,7 @@ const root = path.join(__dirname, '..');
 function endpoints() {
 	// The route table, read from the server source. A regex rather than
 	// requiring the app keeps this runnable without binding a port.
-	const source = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+	const source = fs.readFileSync(path.join(root, 'lib', 'server.js'), 'utf8');
 	const found = [];
 	const pattern = /app\.(get|post)\(\s*["']([^"']+)["']/g;
 	for (let match; (match = pattern.exec(source));) {
@@ -41,11 +41,11 @@ function endpoints() {
 const DOCS_MARKER = '## Hand-written docs, dated';
 
 function inventory() {
-	const run = require(path.join(root, 'run.js'));
-	const play = require(path.join(root, 'play.js'));
-	const planner = require(path.join(root, 'planner.js'));
-	const simulate = require(path.join(root, 'simulate.js'));
-	const team = require(path.join(root, 'team.js'));
+	const run = require(path.join(root, 'lib', 'run.js'));
+	const play = require(path.join(root, 'lib', 'play.js'));
+	const planner = require(path.join(root, 'lib', 'planner.js'));
+	const simulate = require(path.join(root, 'lib', 'simulate.js'));
+	const team = require(path.join(root, 'lib', 'team.js'));
 	const profile = require(path.join(root, 'profiles')).getProfile('run-and-bun');
 
 	const oracleDir = path.join(root, 'profiles', 'run-and-bun', 'oracle');
@@ -77,9 +77,13 @@ function inventory() {
 	// given commit, unlike "commits ago", which would drift the gate on every
 	// commit that touches nothing.)
 	const execSync = require('child_process').execSync;
-	const GENERATED_DOCS = new Set(['INVENTORY.md']);
+	const GENERATED_DOCS = new Set(['docs/INVENTORY.md']);
 	const docs = [];
-	for (const file of fs.readdirSync(root).filter(f => f.endsWith('.md')).sort()) {
+	const docFiles = fs.readdirSync(root).filter(f => f.endsWith('.md'))
+		.concat(fs.readdirSync(path.join(root, 'docs'))
+			.filter(f => f.endsWith('.md')).map(f => 'docs/' + f))
+		.sort();
+	for (const file of docFiles) {
 		if (GENERATED_DOCS.has(file)) continue;
 		let stamp = 'untracked';
 		try {
@@ -96,7 +100,8 @@ function inventory() {
 		panels.push({id: match[1], label: match[2]});
 	}
 
-	const tests = fs.readdirSync(root).filter(f => f.endsWith('.test.js')).sort();
+	const tests = fs.readdirSync(path.join(root, 'tests'))
+		.filter(f => f.endsWith('.test.js')).map(f => 'tests/' + f).sort();
 
 	const ecosystem = JSON.parse(fs.readFileSync(path.join(root, 'ECOSYSTEM.json'), 'utf8'));
 	for (const source of ecosystem.sources) {
@@ -206,8 +211,8 @@ const output = render(inventory());
 if (process.argv.includes('--print')) {
 	process.stdout.write(output);
 } else {
-	fs.writeFileSync(path.join(root, 'INVENTORY.md'), output);
-	console.log(`INVENTORY.md written (${output.length} bytes)`);
+	fs.writeFileSync(path.join(root, 'docs', 'INVENTORY.md'), output);
+	console.log(`docs/INVENTORY.md written (${output.length} bytes)`);
 }
 
 module.exports = {inventory, render, DOCS_MARKER};

@@ -32,7 +32,7 @@ $ node play.js advise                # the single teach/item/Heart Scale that mo
 ```
 
 The same surface is served over HTTP (`POST /run/*`, see
-[`INVENTORY.md`](INVENTORY.md) — generated from the code and gated, so it
+[`INVENTORY.md`](docs/INVENTORY.md) — generated from the code and gated, so it
 cannot drift) and in the browser as the **My Run** panel, which adds the
 matchup board, the split sheet and one-click catches off real tables.
 The product and architecture sequence is tracked in
@@ -107,7 +107,7 @@ a profile, not a fork.
 
 This repository houses the core damage formula package ([`@smogon/calc`][1]),
 the browser UI ([`src/`][2]), and the Run & Bun AI package (`ai/`). Ownership
-boundaries are in [`FORK_MAP.md`](FORK_MAP.md).
+boundaries are in [`FORK_MAP.md`](docs/FORK_MAP.md).
 
 ## `@smogon/calc`
 
@@ -272,13 +272,13 @@ Package-level API usage, the full HTTP endpoint list (including
 `POST /ai/validate-battle-state`), and Gen&nbsp;8 / zero-EV notes are in
 [`ai/README.md`](ai/README.md).
 
-The OSS/custom ownership map is recorded in [`FORK_MAP.md`](FORK_MAP.md), with
+The OSS/custom ownership map is recorded in [`FORK_MAP.md`](docs/FORK_MAP.md), with
 the data-model and validation contracts in [`AGENTS.md`](AGENTS.md),
-[`AI_DATA_MODEL.md`](AI_DATA_MODEL.md), and [`VALIDATION.md`](VALIDATION.md).
+[`AI_DATA_MODEL.md`](docs/AI_DATA_MODEL.md), and [`VALIDATION.md`](docs/VALIDATION.md).
 Product surfaces and phase status (calc, AI debug, sets bridge, Singles Battle,
 explain, API) are mapped in [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`). UI design (shell,
 tokens, screen specs, prioritized V0–V4 rollout) lives in
-[`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md). The **master prioritized backlog**
+[`RUNBUN_UI_DESIGN.md`](docs/RUNBUN_UI_DESIGN.md). The **master prioritized backlog**
 (P0–P3 / Park) plus roadmap, session chunks, and non-goals live in
 [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired — see `DECISIONS.json` and `INVENTORY.md`) §0.
 
@@ -430,7 +430,7 @@ This package is distributed under the terms of the [MIT License][3].
   [1]: https://github.com/smogon/damage-calc/tree/master/calc
   [2]: https://github.com/smogon/damage-calc/tree/master/src
   [3]: https://github.com/smogon/damage-calc/blob/master/LICENSE
-  [4]: TASKS.md
+  [4]: docs/TASKS.md
   [5]: https://unpkg.com/
   [6]: https://webpack.js.org/
   [7]: https://rollupjs.org/
