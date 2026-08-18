@@ -1633,6 +1633,7 @@
 		$('#runbun-run-attribution').prop('hidden', false);
 		$('#runbun-run-attribution-state').removeAttr('data-kind')
 			.text('Running fixed-seed replacement and IV reference tests…');
+		$('#runbun-run-attribution')[0].scrollIntoView({block: 'center'});
 		$('#runbun-run-attribution-tests').empty();
 		attemptStore.inspectAttempt(analysisAttemptId).then(function (inspected) {
 			if (!inspected || !inspected.head || inspected.head.revision !== analysisRevision) {
@@ -1689,6 +1690,10 @@
 						result.trainer + ' — only one action available.' :
 						result.trainer + ' — decided by ' + result.margin + '.'
 			);
+			// The button lives at the top of the panel and the answer renders
+			// below the fold — bring the verdict to the player, same as
+			// advise() and rank() already do.
+			$('#runbun-run-plan-verdict')[0].scrollIntoView({block: 'center'});
 			var $actions = $('#runbun-run-plan-actions').empty();
 			result.actions.slice(0, 6).forEach(function (action, i) {
 				$actions.append($('<div class="runbun-run-action"></div>')
