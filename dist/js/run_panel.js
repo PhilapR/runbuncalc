@@ -507,6 +507,16 @@
 			$moves.append($('<span class="runbun-run-move"></span>').text(move));
 		});
 
+		// The forget slot is a closed set: this Pokemon's own moves. An empty
+		// first choice covers the free-slot teach (fewer than four moves).
+		var $replace = $('#runbun-run-replace').empty()
+			.append($('<option value=""></option>').text(mon.moves.length < 4 ?
+				'Into an empty slot' : 'Choose the move to forget'));
+		mon.moves.forEach(function (move) {
+			$replace.append($('<option></option>').attr('value', move).text('Forget ' + move));
+		});
+		refreshTeachableOptions(mon.id);
+
 		var $ivs = $('#runbun-run-mon-summary-ivs').empty();
 		var missingIvs = [];
 		Object.keys(IV_LABELS).forEach(function (stat) {
@@ -524,6 +534,22 @@
 			'Your IVs drive damage, speed, and survival. Trainer teams use 31; wild encounters use their roll.');
 		$('#runbun-run-observed-nature').val(mon.nature || '');
 		$('#runbun-run-observed-ability').val(mon.ability || '');
+	}
+
+	// The datalist behind the New move field: everything this Pokemon can
+	// legally learn right now, fetched once per selection. Free text still
+	// works — the teach command is the validator, this is only the menu.
+	var teachableFor = null;
+	function refreshTeachableOptions(id) {
+		if (!state || !id || teachableFor === id) return;
+		teachableFor = id;
+		api('/run/learnable', {run: state, id: id}).then(function (payload) {
+			if (teachableFor !== id) return;
+			var $options = $('#runbun-run-move-options').empty();
+			payload.now.forEach(function (entry) {
+				$options.append($('<option></option>').attr('value', entry.move));
+			});
+		}).catch(function (ignore) { /* the menu is optional; teach validates */ });
 	}
 
 	// ------------------------------------------------------------------- spine
@@ -1332,6 +1358,9 @@
 			(state && state.box || []).forEach(function (mon) { priorBoxIds[mon.id] = true; });
 			return api('/run/apply', {run: state, command: body}).then(function (payload) {
 				state = payload.run;
+				// Any applied command may change what a Pokemon can learn
+				// (teach consumes the slot, level-up opens new rows).
+				teachableFor = null;
 				var eventPayload = {command: body};
 				if (body.kind === 'catch') {
 					var added = (state.box || []).filter(function (mon) { return !priorBoxIds[mon.id]; });
@@ -3392,6 +3421,16 @@
 		bindDisclosures();
 		bind();
 		window.addEventListener('storage', syncFromOtherTab);
+		// The bag and scripted-catch fields offer the game's own vocabulary:
+		// every Gen 8 item and species, one-time menus. Free text still
+		// passes through; the commands stay the validators.
+		try {
+			var gen = window.calc.Generations.get(8);
+			var $items = $('#runbun-run-item-options');
+			for (var item of gen.items) $items.append($('<option></option>').attr('value', item.name));
+			var $species = $('#runbun-run-species-options');
+			for (var species of gen.species) $species.append($('<option></option>').attr('value', species.name));
+		} catch (ignore) { /* menus are optional; commands validate */ }
 		restoreDurable().then(loadMaps).then(render).then(function () {
 			initialized = true;
 			refreshStartAvailability();

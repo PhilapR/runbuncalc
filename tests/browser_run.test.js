@@ -773,6 +773,22 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	// economy. Game-owned Pokemon already have all six IVs; this is an edit, not
 	// filling an unknown.
 	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-mon-select');
+	// Constrained inputs offer the game's own vocabulary: the forget slot is
+	// a select of THIS Pokemon's moves, the new-move field carries a menu of
+	// what it can legally learn, and the bag/species fields carry the full
+	// Gen 8 item and species lists. Free text still passes through — the
+	// commands stay the validators.
+	assert.deepEqual(
+		await page.$$eval('#runbun-run-replace option', opts => opts.map(o => o.value).filter(Boolean)),
+		await page.$$eval('#runbun-run-mon-summary-moves .runbun-run-move', els => els.map(el => el.textContent)),
+		'the forget select must list exactly the selected Pokemon\'s moves');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-move-options option').length > 3,
+		null, {timeout: 10000});
+	assert.ok(await page.$eval('#runbun-run-item-options', el => el.children.length > 100),
+		'the bag item field must offer the item vocabulary');
+	assert.ok(await page.$eval('#runbun-run-species-options', el => el.children.length > 500),
+		'the scripted-catch species field must offer the species vocabulary');
 	await page.click('#runbun-run-mon-record summary');
 	await page.fill('#runbun-run-observed-iv-spe', '5');
 	await page.click('#runbun-run-record-details');
@@ -1262,7 +1278,13 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 	await page.fill('#runbun-run-catch-species', 'Poochyena');
 	await page.fill('#runbun-run-catch-level', '3');
 	await page.click('#runbun-run-catch');
-	await page.click('#runbun-run-undo');
+	// Deterministic mid-flight click, immune to machine speed on both
+	// sides: wait for the synchronous 'Working…' marker so the flight has
+	// begun, then click programmatically — page.click's actionability wait
+	// would idle on the busy-disabled button until the flight ends.
+	await page.waitForFunction(
+		() => /Working/.test(document.querySelector('#runbun-run-status').textContent));
+	await page.evaluate(() => document.querySelector('#runbun-run-undo').click());
 	// Refused out loud: a button that quietly does nothing reads as broken.
 	assert.match(await page.textContent('#runbun-run-status'), /One change at a time/);
 	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');

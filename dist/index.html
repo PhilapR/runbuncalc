@@ -1957,7 +1957,7 @@
     <script type="text/javascript" src="./js/run_history.js?d88e941e"></script>
     <script type="text/javascript" src="./js/pokemon_provider.js?07020739"></script>
     <script type="text/javascript" src="./js/pokemon_provider_client.js?44a3f1ee"></script>
-    <script type="text/javascript" src="./js/run_panel.js?c76e7cb9"></script>
+    <script type="text/javascript" src="./js/run_panel.js?245afbac"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?7ce42e0e"></script>
 </div>
 
@@ -2413,7 +2413,8 @@
                      record the two items the game's economies run on: Rare
                      Candy over the cap, and Heart Scales for IVs. -->
                 <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-acquire-item" placeholder="Item name" aria-label="Item name" spellcheck="false">
+                    <input type="text" id="runbun-run-acquire-item" placeholder="Item name" aria-label="Item name" spellcheck="false" list="runbun-run-item-options" autocomplete="off">
+                    <datalist id="runbun-run-item-options"></datalist>
                     <input type="number" id="runbun-run-acquire-count" aria-label="Item quantity" min="1" value="1">
                     <button type="button" id="runbun-run-acquire" class="btn btn-wide">Add to bag</button>
                 </div>
@@ -2468,7 +2469,8 @@
                 <details class="runbun-run-manual-map runbun-run-manual-add" id="runbun-run-manual-add">
                     <summary>Record a scripted catch — starter, gift, static, or trade</summary>
                     <div class="runbun-run-row">
-                        <input type="text" id="runbun-run-catch-species" placeholder="Species" aria-label="Encounter species" spellcheck="false">
+                        <input type="text" id="runbun-run-catch-species" placeholder="Species" aria-label="Encounter species" spellcheck="false" list="runbun-run-species-options" autocomplete="off">
+                        <datalist id="runbun-run-species-options"></datalist>
                         <input type="number" id="runbun-run-catch-level" placeholder="Lv" aria-label="Encounter level" min="1" max="100">
                         <input type="text" id="runbun-run-catch-name" placeholder="Nickname" aria-label="Nickname" spellcheck="false">
                     </div>
@@ -2558,8 +2560,9 @@
                     <button type="button" id="runbun-run-level-cap" class="btn btn-wide" title="The infinite candy makes this free">Level to cap</button>
                 </div>
                 <div class="runbun-run-row">
-                    <input type="text" id="runbun-run-move" placeholder="New move" aria-label="New move" spellcheck="false">
-                    <input type="text" id="runbun-run-replace" placeholder="Move to replace" aria-label="Move to replace" spellcheck="false">
+                    <input type="text" id="runbun-run-move" placeholder="New move" aria-label="New move" spellcheck="false" list="runbun-run-move-options" autocomplete="off">
+                    <datalist id="runbun-run-move-options"></datalist>
+                    <select id="runbun-run-replace" aria-label="Move to replace"></select>
                     <button type="button" id="runbun-run-teach" class="btn btn-wide">Teach move</button>
                 </div>
                 <!-- The IV economy: a Heart Scale is found, never sold, and sets
