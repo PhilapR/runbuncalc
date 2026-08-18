@@ -23,7 +23,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
-const GEN8_SETS = path.join(__dirname, 'src', 'js', 'data', 'sets', 'gen8.js');
+const GEN8_SETS = path.join(__dirname, '..', 'src', 'js', 'data', 'sets', 'gen8.js');
 const GENERATED_BANNER = 'AUTOMATICALLY GENERATED';
 
 function loadSetdex(filePath, globalName) {
@@ -81,7 +81,7 @@ test('Run & Bun trainer sets carry the party index the Trainer Wheel relies on',
 });
 
 test('the run map matches the profile\'s declared encounter invariants', () => {
-	const encounters = require('./profiles').getProfile('run-and-bun').encounters;
+	const encounters = require('../profiles').getProfile('run-and-bun').encounters;
 	const setdex = loadSetdex(GEN8_SETS, 'SETDEX_SS');
 
 	const labels = new Set();
@@ -120,7 +120,7 @@ test('the run map declares itself a progression spine, not a full trainer census
 	// data must not claim to cover every battle a player can pick. If someone
 	// imports the missing trainers, this flag is what they have to change, which
 	// forces the claim to be revisited deliberately.
-	const encounters = require('./profiles').getProfile('run-and-bun').encounters;
+	const encounters = require('../profiles').getProfile('run-and-bun').encounters;
 	assert.equal(encounters.COVERAGE.completeTrainerCensus, false);
 	assert.ok(encounters.COVERAGE.coversMandatoryProgression);
 
@@ -227,7 +227,7 @@ test('the trainer progression index is a dense, globally unique ordering', () =>
 	// Density is asserted against the DECLARED gaps rather than a tolerance. A
 	// percentage threshold hides exactly what a gap means here: the sequence is
 	// authored and dense, so a missing index is a lost party member, not slack.
-	const encounters = require('./profiles').getProfile('run-and-bun').encounters;
+	const encounters = require('../profiles').getProfile('run-and-bun').encounters;
 	const present = new Set(indices);
 	const gaps = [];
 	for (let i = min; i <= max; i++) if (!present.has(i)) gaps.push(i);

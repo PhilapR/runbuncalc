@@ -18,7 +18,7 @@
 			"why": "A box that is whatever somebody typed cannot support a nuzlocke's rules meaning anything.",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -37,7 +37,7 @@
 			"why": "The authored cap usually sits one below the ace, the Museum rung sits above it, and derivation invented rungs the game never lifts.",
 			"enforcedBy": [
 				"profiles/run-and-bun/encounters.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -47,7 +47,7 @@
 			"why": "That is the game's own economy, and it keeps the whole box playable without grind bookkeeping.",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -57,7 +57,7 @@
 			"why": "Matches the dominant community tracker's reading, and the hack's custom evolutions are the game's statement of what a line is.",
 			"enforcedBy": [
 				"profiles/run-and-bun/oracle.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -67,8 +67,8 @@
 			"why": "Nuzlocke tables vary rule by rule; a save silently enforcing rules the player never chose is the bug class the toggles exist to prevent.",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js",
-				"play.test.js"
+				"tests/run.test.js",
+				"tests/play.test.js"
 			]
 		},
 		{
@@ -79,7 +79,7 @@
 			"enforcedBy": [
 				"profiles/run-and-bun/oracle.js",
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -89,7 +89,7 @@
 			"why": "The clause exists to never punish the 1/4096; consuming the route would.",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -99,7 +99,7 @@
 			"why": "Operator ruling on how Run & Bun actually serves egg moves.",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -109,8 +109,8 @@
 			"why": "The game stops the player from doing the impossible; it does not stop a bad advisor from recommending it.",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js",
-				"server.smoke.test.js"
+				"tests/run.test.js",
+				"tests/server.smoke.test.js"
 			]
 		},
 		{
@@ -120,8 +120,8 @@
 			"why": "The optimizer sold 'teach Misty Explosion, +3 KO' to a permadeath run.",
 			"enforcedBy": [
 				"planner.js",
-				"planner.test.js",
-				"run.test.js",
+				"tests/planner.test.js",
+				"tests/run.test.js",
 				"ai/src/move-metadata.ts"
 			]
 		},
@@ -132,7 +132,7 @@
 			"why": "A Route 119 board without its rain claims numbers the fight will never produce.",
 			"enforcedBy": [
 				"planner.js",
-				"planner.test.js",
+				"tests/planner.test.js",
 				"profiles/run-and-bun/oracle/fight-fields.json"
 			]
 		},
@@ -143,7 +143,7 @@
 			"why": "For 'is this route open yet' the safe error direction is late; the source's stage headers were demonstrably stale and are ignored.",
 			"enforcedBy": [
 				"scripts/import-availability.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -153,7 +153,7 @@
 			"why": "Measured: the lead's top action changes in 18 of 46 double fights — but which two lead is an assumption the run map cannot source.",
 			"enforcedBy": [
 				"planner.js",
-				"planner.test.js"
+				"tests/planner.test.js"
 			]
 		},
 		{
@@ -185,7 +185,7 @@
 			"why": "Operator ruling: 'I could save routes to get those higher-value encounters later... most of the time people delay for some fairy type encounters like the Primarina line.'",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js",
+				"tests/run.test.js",
 				"play.js"
 			]
 		},
@@ -196,7 +196,7 @@
 			"why": "The evolve command took a Ludicolo no Water Stone ever paid for, and the advisor graded level-21 Treeckos as Treeckos — which called Brawly unwinnable (0/30 rollouts) when the same box evolved won 27/30.",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -208,8 +208,8 @@
 				"run.js",
 				"battle-driver.js",
 				"server.js",
-				"battle-driver.test.js",
-				"run.test.js"
+				"tests/battle-driver.test.js",
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -220,7 +220,7 @@
 			"enforcedBy": [
 				"battle-driver.js",
 				"run.js",
-				"battle-driver.test.js"
+				"tests/battle-driver.test.js"
 			]
 		},
 		{
@@ -232,8 +232,8 @@
 				"battle-driver.js",
 				"planner.js",
 				"scripts/import-catch-rates.js",
-				"battle-driver.test.js",
-				"server.smoke.test.js"
+				"tests/battle-driver.test.js",
+				"tests/server.smoke.test.js"
 			]
 		},
 		{
@@ -244,8 +244,8 @@
 			"enforcedBy": [
 				"battle-driver.js",
 				"run.js",
-				"battle-driver.test.js",
-				"play.test.js"
+				"tests/battle-driver.test.js",
+				"tests/play.test.js"
 			]
 		},
 		{
@@ -255,7 +255,7 @@
 			"why": "Operator ruling. It also keeps the calibration honest twice over: mid-fight healing would let the recreation win fights the hardcore ruleset forbids winning that way, and the planner's damage math assumes no mid-turn potion resets on either side.",
 			"enforcedBy": [
 				"battle-driver.js",
-				"battle-driver.test.js"
+				"tests/battle-driver.test.js"
 			]
 		},
 		{
@@ -265,7 +265,7 @@
 			"why": "Operator route knowledge, verified against the data: Route 110's all-Electric table opens at fight #48 (Camper Gavi guards it — the availability layer already knew), and the hold feature already models the delay; the pull was the missing physics. Modeled as mainline Emerald behavior until someone shows Run & Bun changes the pull rates.",
 			"enforcedBy": [
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -276,7 +276,7 @@
 			"enforcedBy": [
 				"profiles/run-and-bun/index.js",
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		},
 		{
@@ -288,7 +288,7 @@
 				"play.js",
 				"profiles/run-and-bun/index.js",
 				"run.js",
-				"run.test.js"
+				"tests/run.test.js"
 			]
 		}
 	],

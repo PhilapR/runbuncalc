@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const pathToFileURL = require('node:url').pathToFileURL;
 const test = require('node:test');
-const app = require('./server').app;
+const app = require('../server').app;
 
 let chromium = null;
 try {
@@ -61,7 +61,7 @@ test('opening the source template redirects to the materialized page', {skip}, a
 	const session = await pageWithOfflineFonts();
 	const context = session.context;
 	const page = session.page;
-	const source = pathToFileURL(path.join(__dirname, 'src', 'index.template.html'));
+	const source = pathToFileURL(path.join(__dirname, '..', 'src', 'index.template.html'));
 	source.hash = 'calc';
 	await page.goto(source.href, {waitUntil: 'domcontentloaded'});
 	await page.waitForURL(/\/dist\/index\.html#calc$/);

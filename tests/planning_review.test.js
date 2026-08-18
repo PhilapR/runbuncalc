@@ -4,9 +4,9 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const {derivePlanningReview} = require('./src/js/run_history');
-const attributionRequestFixture = require('./contracts/ecosystem/v1/attribution-request.json');
-const attributionReceiptFixture = require('./contracts/ecosystem/v1/attribution-receipt.json');
+const {derivePlanningReview} = require('../src/js/run_history');
+const attributionRequestFixture = require('../contracts/ecosystem/v1/attribution-request.json');
+const attributionReceiptFixture = require('../contracts/ecosystem/v1/attribution-receipt.json');
 
 const ATTEMPT_ID = 'attempt-planning-review';
 

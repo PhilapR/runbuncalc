@@ -22,7 +22,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const run = require('./run');
+const run = require('../run');
 
 /**
  * Real coordinates from the game, used throughout.
@@ -540,14 +540,14 @@ test('audit regressions: routes dedupe, family components, growth via macros, ep
 	// the game keeps them separate (matching the dominant community tracker),
 	// merged only where Run & Bun itself connects the lines (plain Grimer
 	// evolves into Muk-Alola by Dusk Stone in this hack).
-	const oracle2 = require('./profiles').getProfile('run-and-bun').oracle;
+	const oracle2 = require('../profiles').getProfile('run-and-bun').oracle;
 	assert.notEqual(oracle2.familyOf('Sandshrew'), oracle2.familyOf('Sandshrew-Alola'));
 	assert.notEqual(oracle2.familyOf('Zigzagoon'), oracle2.familyOf('Zigzagoon-Galar'));
 	assert.equal(oracle2.familyOf('Grimer'), oracle2.familyOf('Muk-Alola'));
 	assert.equal(oracle2.familyOf('Basculin'), oracle2.familyOf('Basculin-Blue-Striped'));
 
 	// Macro-defined growth rates import: Pikachu answers, like everything wild.
-	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	assert.equal(oracle.growthRateOf('Pikachu'), 'medium-fast');
 	assert.equal(oracle.expForLevel('Pikachu', 50), 125000);
 
@@ -610,7 +610,7 @@ test('the routes view knows what is spent and what is still out there', () => {
 });
 
 test('route availability: imported unlock dates order the routes view', () => {
-	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 
 	// The starting routes are dated to the run's first fight.
 	assert.equal(oracle.availabilityOf('Route101').opensAt, 0);
@@ -752,7 +752,7 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	// And never an HM the story has not handed over: Lotad's Surf gates at
 	// #589, so an advisor for fight #3 may not offer it. TMs carry no dates
 	// in the source, so only the HM spine is gated.
-	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	assert.equal(oracle.moveObtainableAt('Surf'), 589);
 	assert.equal(oracle.moveObtainableAt('Rock Smash'), 139);
 	assert.equal(oracle.moveObtainableAt('Tackle'), null);
@@ -1335,7 +1335,7 @@ test('the run is narrated in splits, ended by badges', () => {
 	assert.equal(run.split(badge).boss, 'Leader Roxanne');
 
 	// The tier classifier itself: boss ends splits, story sets caps, filler is null.
-	const profile = require('./profiles').getProfile();
+	const profile = require('../profiles').getProfile();
 	assert.equal(run.fightTier(profile, 'Leader Brawly'), 'boss');
 	assert.equal(run.fightTier(profile, 'Elite Four SidneyDouble'), 'boss');
 	assert.equal(run.fightTier(profile, 'Champion Wallace'), 'boss');
@@ -1688,7 +1688,7 @@ test('the advisor prices single changes by what they do to the board', () => {
 	// candidates: the free candy guarantees the levels between — minus any HM
 	// the story has not handed over by this fight, which the advisor may not
 	// offer (learnable itself stays a capability list).
-	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	const teachable = run.learnable(state, 'mon-1', {atLevel: 12}).now
 		.filter(entry => {
 			const gate = oracle.moveObtainableAt(entry.move);
@@ -1702,7 +1702,7 @@ test('the advisor prices single changes by what they do to the board', () => {
 	// ...plus every holdable field pickup the overworld has handed out by
 	// fight #0 that the run has not collected (the advisor's fourth kind).
 	const pickups = oracle.itemsObtainableBy(0)
-		.filter(p => require('./planner').holdableItem(p.name)).length;
+		.filter(p => require('../planner').holdableItem(p.name)).length;
 	assert.equal(advice.considered, teachable + 1 + 1 + pickups);
 
 	// The deterministic case. Poochyena knows only Tackle, which leaves the
@@ -1718,7 +1718,7 @@ test('the advisor prices single changes by what they do to the board', () => {
 	// And the claim is the BOARD's claim, cell for cell — the advisor scores by
 	// rebuilding the row through the planner, so an upgrade can never disagree
 	// with the grid a player reads next to it.
-	const planner = require('./planner');
+	const planner = require('../planner');
 	const specs = run.partySpecs(state, {atOrder: 0});
 	const ko = payload => payload.grid.filter(cell => cell.versus[0].us.guaranteedKO).length;
 	assert.equal(ko(planner.matchup({trainer: 'Youngster Calvin', playerParty: specs,
@@ -1761,7 +1761,7 @@ test('the advisor draws teach candidates at the projected cap, not today\'s leve
 test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	const box = owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
 		ivs: Object.assign({}, PERFECT_IVS, {spe: 5})});
-	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	// Same derivation the advisor uses: the capability list minus HMs the
 	// story has not handed over by fight #0, minus egg moves when no Heart
 	// Scale is in the bag to pay the relearner with.
@@ -1778,7 +1778,7 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	const teachable = teachableAt(
 		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), false);
 	const pickupsAt0 = oracle.itemsObtainableBy(0)
-		.filter(p => require('./planner').holdableItem(p.name)).length;
+		.filter(p => require('../planner').holdableItem(p.name)).length;
 
 	// No scale in the bag, no scale candidate: the advisor ranks changes a
 	// player can make today, not ones they could make after finding an item.
@@ -1926,7 +1926,7 @@ test('the roll draws the route\'s encounter from the same tables a catch is chec
 		/roll: Route101 already gave its encounter/);
 	// Neither does a method whose HM has not been handed over (rock smash
 	// opens at fight #139; a fresh run stands at the very start).
-	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	// An unreachable route refuses BEFORE its methods do, naming its guard —
 	// so the method probe needs a map whose guard falls before the HM gate.
 	const rocky = oracle.maps().find(map => {
@@ -2001,7 +2001,7 @@ test('the field items standing on a location, with the log as the collection rec
 
 	// An area-level location reaches every map of the area: Mt. Pyre's item
 	// shows up whichever floor is asked about.
-	const oracle = require('./profiles').getProfile('run-and-bun').oracle;
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	const pyre = oracle.maps().find(map => (oracle.areaOf(map.map) || '') === 'Mt Pyre');
 	if (pyre) {
 		assert.ok(run.fieldItems(state, pyre.name).length > 0,

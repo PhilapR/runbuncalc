@@ -27,7 +27,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const band = require('./scripts/rom-band-check.js');
+const band = require('../scripts/rom-band-check.js');
 
 const result = band.checkBands();
 

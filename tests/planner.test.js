@@ -15,10 +15,10 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const planner = require('./planner');
+const planner = require('../planner');
 // The state contract belongs to the AI package, so a state this file claims is
 // valid is checked by the package that consumes it, not by a local re-reading.
-const ai = require('./ai');
+const ai = require('../ai');
 
 test('the run map loads in authored playthrough order', () => {
 	const fights = planner.loadRunMap();

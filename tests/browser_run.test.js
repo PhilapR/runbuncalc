@@ -30,11 +30,11 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const planningRequest = require('./contracts/ecosystem/v1/planning-request.json');
-const seededProviderReceipt = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
-const dataset = require('./rl-dataset');
+const planningRequest = require('../contracts/ecosystem/v1/planning-request.json');
+const seededProviderReceipt = require('../contracts/ecosystem/v1/seeded-provider-receipt.json');
+const dataset = require('../rl-dataset');
 
-const startServer = require('./server').startServer;
+const startServer = require('../server').startServer;
 
 let chromium = null;
 try {

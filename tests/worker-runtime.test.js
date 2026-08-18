@@ -40,12 +40,12 @@ function cookiePair(response) {
 async function startWorker() {
 	const port = await availablePort();
 	const inspectorPort = await availablePort();
-	const wrangler = path.join(__dirname, 'node_modules', '.bin', 'wrangler');
+	const wrangler = path.join(__dirname, '..', 'node_modules', '.bin', 'wrangler');
 	workerProcess = childProcess.spawn(wrangler, [
 		'dev', '--local', '--ip', '127.0.0.1', '--port', String(port),
 		'--inspector-port', String(inspectorPort),
 	], {
-		cwd: __dirname,
+		cwd: require('node:path').join(__dirname, '..'),
 		env: Object.assign({}, process.env, {SITE_AUTH_PASSWORD: PASSWORD}),
 		stdio: ['ignore', 'pipe', 'pipe'],
 	});

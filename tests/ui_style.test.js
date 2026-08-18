@@ -16,7 +16,7 @@ const FLAT_COLOR_SOURCES = [
 
 test('authored UI uses flat color unless a gradient is explicitly approved', () => {
 	FLAT_COLOR_SOURCES.forEach(relativePath => {
-		const source = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
+		const source = fs.readFileSync(path.join(__dirname, '..', relativePath), 'utf8');
 		assert.doesNotMatch(
 			source,
 			/gradient\s*\(/i,
@@ -26,9 +26,9 @@ test('authored UI uses flat color unless a gradient is explicitly approved', () 
 });
 
 test('calculator composes both combatants in an explicit responsive grid', () => {
-	const html = fs.readFileSync(path.join(__dirname, 'src/index.template.html'), 'utf8');
-	const mainCss = fs.readFileSync(path.join(__dirname, 'src/css/main.css'), 'utf8');
-	const css = fs.readFileSync(path.join(__dirname, 'src/css/runbun-shell.css'), 'utf8');
+	const html = fs.readFileSync(path.join(__dirname, '..', 'src/index.template.html'), 'utf8');
+	const mainCss = fs.readFileSync(path.join(__dirname, '..', 'src/css/main.css'), 'utf8');
+	const css = fs.readFileSync(path.join(__dirname, '..', 'src/css/runbun-shell.css'), 'utf8');
 	assert.match(html, /class="panel calc-column calc-player-column"/);
 	assert.match(html, /class="panel calc-column calc-opponent-column"/);
 	assert.match(css, /#calc\.rb-mode-active\s*\{[\s\S]*?display:\s*grid;/);
@@ -41,16 +41,16 @@ test('calculator composes both combatants in an explicit responsive grid', () =>
 });
 
 test('secondary engineering surface is presented as a lab', () => {
-	const html = fs.readFileSync(path.join(__dirname, 'src/index.template.html'), 'utf8');
+	const html = fs.readFileSync(path.join(__dirname, '..', 'src/index.template.html'), 'utf8');
 	assert.match(html, /id="rb-nav-tools"[^>]*>Lab<\/a>/);
 	assert.match(html, /id="sets-bridge-heading">Battle-state lab<\/h2>/);
 	assert.match(html, /This development surface does not change your run\./);
 });
 
 test('the game surface names outcomes instead of tracker-era tools', () => {
-	const html = fs.readFileSync(path.join(__dirname, 'src/index.template.html'), 'utf8');
-	const panel = fs.readFileSync(path.join(__dirname, 'src/js/run_panel.js'), 'utf8');
-	const shell = fs.readFileSync(path.join(__dirname, 'src/js/runbun_shell.js'), 'utf8');
+	const html = fs.readFileSync(path.join(__dirname, '..', 'src/index.template.html'), 'utf8');
+	const panel = fs.readFileSync(path.join(__dirname, '..', 'src/js/run_panel.js'), 'utf8');
+	const shell = fs.readFileSync(path.join(__dirname, '..', 'src/js/runbun_shell.js'), 'utf8');
 	const start = html.indexOf('<section id="runbun-run"');
 	const end = html.indexOf('<section id="runbun-replay"');
 	const game = html.slice(start, end);
@@ -74,7 +74,7 @@ test('the game surface names outcomes instead of tracker-era tools', () => {
 });
 
 test('inactive product surfaces leave both the layout and accessibility tree', () => {
-	const shell = fs.readFileSync(path.join(__dirname, 'src/js/runbun_shell.js'), 'utf8');
+	const shell = fs.readFileSync(path.join(__dirname, '..', 'src/js/runbun_shell.js'), 'utf8');
 	assert.match(shell, /region\.setAttribute\('aria-hidden', 'true'\)/);
 	assert.match(shell, /region\.setAttribute\('inert', ''\)/);
 	assert.match(shell, /region\.removeAttribute\('aria-hidden'\)/);

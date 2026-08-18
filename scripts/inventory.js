@@ -100,7 +100,8 @@ function inventory() {
 		panels.push({id: match[1], label: match[2]});
 	}
 
-	const tests = fs.readdirSync(root).filter(f => f.endsWith('.test.js')).sort();
+	const tests = fs.readdirSync(path.join(root, 'tests'))
+		.filter(f => f.endsWith('.test.js')).map(f => 'tests/' + f).sort();
 
 	const ecosystem = JSON.parse(fs.readFileSync(path.join(root, 'ECOSYSTEM.json'), 'utf8'));
 	for (const source of ecosystem.sources) {

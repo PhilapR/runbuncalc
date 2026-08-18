@@ -3,8 +3,8 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const bridge = require('./pokemon-bridge');
-const runtime = require('./run');
+const bridge = require('../pokemon-bridge');
+const runtime = require('../run');
 
 const HASH = 'a'.repeat(64);
 const IVS = {hp: 12, atk: 7, def: 18, spa: 24, spd: 11, spe: 29};
@@ -24,7 +24,7 @@ function request(run) {
 }
 
 function receipt() {
-	return require('./contracts/ecosystem/v1/planning-receipt.json');
+	return require('../contracts/ecosystem/v1/planning-receipt.json');
 }
 
 test('a run becomes a pinned planning DTO with owned IVs intact', () => {
@@ -79,10 +79,10 @@ test('the preferred path invokes an imported provider in the same process', asyn
 });
 
 test('the pinned in-process provider deterministically replays attribution', async () => {
-	const providerModule = await import('./vendor/pokemon-run-runtime/index.js');
-	const source = require('./contracts/ecosystem/v1/attribution-request.json');
-	const lockedReceipt = require('./contracts/ecosystem/v1/seeded-provider-attribution-receipt.json');
-	const providerRevision = require('./vendor/pokemon-run-runtime/PROVENANCE.json').revision;
+	const providerModule = await import('../vendor/pokemon-run-runtime/index.js');
+	const source = require('../contracts/ecosystem/v1/attribution-request.json');
+	const lockedReceipt = require('../contracts/ecosystem/v1/seeded-provider-attribution-receipt.json');
+	const providerRevision = require('../vendor/pokemon-run-runtime/PROVENANCE.json').revision;
 	const provider = providerModule.createRabRunRuntimeProvider({
 		providerRevision, engineVersion: '0.2.0',
 	});

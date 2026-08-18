@@ -3,12 +3,12 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const Store = require('./src/js/attempt_store');
-const dataset = require('./rl-dataset');
-const planningRequestFixture = require('./contracts/ecosystem/v1/planning-request.json');
-const planningReceiptFixture = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
-const attributionRequestFixture = require('./contracts/ecosystem/v1/attribution-request.json');
-const attributionReceiptFixture = require('./contracts/ecosystem/v1/attribution-receipt.json');
+const Store = require('../src/js/attempt_store');
+const dataset = require('../rl-dataset');
+const planningRequestFixture = require('../contracts/ecosystem/v1/planning-request.json');
+const planningReceiptFixture = require('../contracts/ecosystem/v1/seeded-provider-receipt.json');
+const attributionRequestFixture = require('../contracts/ecosystem/v1/attribution-request.json');
+const attributionReceiptFixture = require('../contracts/ecosystem/v1/attribution-receipt.json');
 
 const TIME = '2026-08-15T00:00:00.000Z';
 

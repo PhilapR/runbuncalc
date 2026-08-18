@@ -4,10 +4,10 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 const calc = require('@smogon/calc');
-const ai = require('./ai');
+const ai = require('../ai');
 
 global.calc = calc;
-const bridge = require('./src/js/sets_to_battle_state.js');
+const bridge = require('../src/js/sets_to_battle_state.js');
 
 test('sets bridge rebuilds Gen 8 zero-EV Pokémon and emits valid BattleState', () => {
 	const gen = calc.Generations.get(8);

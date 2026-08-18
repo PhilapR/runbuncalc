@@ -3,8 +3,8 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const history = require('./src/js/run_history');
-const Store = require('./src/js/attempt_store');
+const history = require('../src/js/run_history');
+const Store = require('../src/js/attempt_store');
 
 function attempt(id, position, species) {
 	return {

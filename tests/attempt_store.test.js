@@ -2,15 +2,15 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const Store = require('./src/js/attempt_store.js');
-const runtime = require('./run');
-const adapter = require('./game-runtime-adapter');
-const littleroot = require('./fixtures/runtime-contract/littleroot-replay.json');
-const legacyArchive = require('./fixtures/runtime-contract/rabrun-archive-v1.json');
-const planningRequest = require('./contracts/ecosystem/v1/planning-request.json');
-const planningReceipt = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
-const attributionRequest = require('./contracts/ecosystem/v1/attribution-request.json');
-const attributionReceipt = require('./contracts/ecosystem/v1/attribution-receipt.json');
+const Store = require('../src/js/attempt_store.js');
+const runtime = require('../run');
+const adapter = require('../game-runtime-adapter');
+const littleroot = require('../fixtures/runtime-contract/littleroot-replay.json');
+const legacyArchive = require('../fixtures/runtime-contract/rabrun-archive-v1.json');
+const planningRequest = require('../contracts/ecosystem/v1/planning-request.json');
+const planningReceipt = require('../contracts/ecosystem/v1/seeded-provider-receipt.json');
+const attributionRequest = require('../contracts/ecosystem/v1/attribution-request.json');
+const attributionReceipt = require('../contracts/ecosystem/v1/attribution-receipt.json');
 const TIME = '2026-08-15T00:00:00.000Z';
 
 function sortValue(value) {

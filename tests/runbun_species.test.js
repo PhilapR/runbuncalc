@@ -25,9 +25,9 @@ const test = require('node:test');
 // Assert the data tables directly rather than through `Generations.get()`. The
 // runtime wrapper renames base stats (`at` -> `atk`) and does not surface
 // `nfe`, and it is the tables themselves a bad regeneration would damage.
-const SPECIES = require('./calc/dist/data/species.js').SPECIES;
-const ITEMS = require('./calc/dist/data/items.js').ITEMS;
-const getProfile = require('./profiles').getProfile;
+const SPECIES = require('../calc/dist/data/species.js').SPECIES;
+const ITEMS = require('../calc/dist/data/items.js').ITEMS;
+const getProfile = require('../profiles').getProfile;
 
 const profile = getProfile('run-and-bun');
 const species = SPECIES[profile.baseGeneration];
@@ -123,7 +123,7 @@ test('the move overlay still matches the size it was verified at', () => {
 	// ROM data rather than inheriting the confidence of the entries already
 	// checked. Re-verify, then update the profile deliberately.
 	const fs = require('node:fs');
-	const source = fs.readFileSync(require('node:path').join(__dirname, 'ai', 'src', 'move-metadata.ts'), 'utf8');
+	const source = fs.readFileSync(require('node:path').join(__dirname, '..', 'ai', 'src', 'move-metadata.ts'), 'utf8');
 
 	function tableSize(name) {
 		const match = source.match(new RegExp('const ' + name + '[^{]*\\{([\\s\\S]*?)\\n\\};'));
@@ -156,7 +156,7 @@ test('the Run & Bun ability-slot overlay is intact', () => {
 	// about the output looks wrong.
 	const fs = require('node:fs');
 	const source = fs.readFileSync(
-		require('node:path').join(__dirname, 'calc', 'src', 'data', 'species.ts'), 'utf8');
+		require('node:path').join(__dirname, '..', 'calc', 'src', 'data', 'species.ts'), 'utf8');
 	const match = source.match(/const RUNBUN_ABILITIES[^{]*\{([\s\S]*?)\n\};/);
 	assert.ok(match, 'the RUNBUN_ABILITIES overlay is missing from calc/src/data/species.ts');
 	const entries = Array.from(match[1].matchAll(/abilities: \{0:/g)).length;

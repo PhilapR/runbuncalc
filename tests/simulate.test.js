@@ -19,8 +19,8 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const simulate = require('./simulate');
-const getProfile = require('./profiles').getProfile;
+const simulate = require('../simulate');
+const getProfile = require('../profiles').getProfile;
 
 test('a team is read as Species (Set Label), commas and all', () => {
 	assert.deepEqual(
@@ -175,9 +175,9 @@ const PLAYER_TEAM = [
 ].join('\n');
 
 test('a declared team reaches the BattleState as the player typed it', () => {
-	const parsed = require('./team').parseTeam(PLAYER_TEAM);
+	const parsed = require('../team').parseTeam(PLAYER_TEAM);
 	const party = parsed.party;
-	const built = require('./planner').buildFightState({
+	const built = require('../planner').buildFightState({
 		trainer: 'Leader Norman',
 		playerParty: party,
 	});
@@ -192,8 +192,8 @@ test('a declared team reaches the BattleState as the player typed it', () => {
 });
 
 test('borrowing a trainer build changes the answer, and says so', () => {
-	const planner = require('./planner');
-	const declared = require('./team').parseTeam(PLAYER_TEAM).party;
+	const planner = require('../planner');
+	const declared = require('../team').parseTeam(PLAYER_TEAM).party;
 
 	const own = planner.predict({trainer: 'Leader Norman', playerParty: declared});
 	const borrowed = planner.predict({
@@ -219,7 +219,7 @@ test('a run built from trainer sets carries the warning through to the page', ()
 	assert.equal(run.summary.borrowedPlayerBuild, true);
 	assert.match(simulate.format(run), /not player-obtainable/);
 
-	const parsed = require('./team').parseTeam(PLAYER_TEAM);
+	const parsed = require('../team').parseTeam(PLAYER_TEAM);
 	const party = parsed.party;
 	const notes = parsed.notes;
 	const real = simulate.simulate({party, notes, from: 337, count: 1});
@@ -248,7 +248,7 @@ test('exactly one team form is accepted', () => {
 		'Leader Norman'
 	);
 	assert.equal(
-		simulate.resolveParty({teamFile: require('node:path').join(__dirname, 'examples', 'team.txt')})
+		simulate.resolveParty({teamFile: require('node:path').join(__dirname, '..', 'examples', 'team.txt')})
 			.party.length,
 		6
 	);
@@ -262,7 +262,7 @@ test('exactly one team form is accepted', () => {
 // the wrong place, offer a fight this save can never see, or plan every row at
 // today's levels — so there is a case for each.
 
-const runtime = require('./run');
+const runtime = require('../run');
 const RUN_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
 
 /**
@@ -347,14 +347,14 @@ test('a run with an empty party is refused in its own terms', () => {
 
 test('a declared mon with no moves is refused before it reaches the calculator', () => {
 	assert.throws(
-		() => require('./planner').buildFightState({
+		() => require('../planner').buildFightState({
 			trainer: 'Leader Norman',
 			playerParty: [{species: 'Swampert', level: 45}],
 		}),
 		/at least one move/
 	);
 	assert.throws(
-		() => require('./planner').buildFightState({
+		() => require('../planner').buildFightState({
 			trainer: 'Leader Norman',
 			playerParty: [{level: 45, moves: ['Earthquake']}],
 		}),

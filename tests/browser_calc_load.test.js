@@ -30,7 +30,7 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
-const root = __dirname;
+const root = require('node:path').join(__dirname, '..');
 const distDir = path.join(root, 'dist');
 const template = path.join(root, 'src', 'index.template.html');
 

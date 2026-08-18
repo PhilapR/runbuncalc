@@ -23,7 +23,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const startServer = require('./server').startServer;
+const startServer = require('../server').startServer;
 
 let chromium = null;
 try {

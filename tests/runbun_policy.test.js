@@ -20,8 +20,8 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const scoring = require('./ai/dist/scoring.js');
-const profile = require('./profiles').getProfile('run-and-bun');
+const scoring = require('../ai/dist/scoring.js');
+const profile = require('../profiles').getProfile('run-and-bun');
 
 test('the profile declares a policy layer', () => {
 	assert.ok(profile.policy, 'run-and-bun profile has no policy layer');
@@ -95,7 +95,7 @@ test('the documented switch routine matches the engine', () => {
 	// above 50% health, and then a 50% roll — Singles only.
 	const fs = require('node:fs');
 	const source = fs.readFileSync(
-		require('node:path').join(__dirname, 'ai', 'src', 'switch.ts'), 'utf8');
+		require('node:path').join(__dirname, '..', 'ai', 'src', 'switch.ts'), 'utf8');
 	const doc = profile.policy.DOCUMENTED_SWITCH;
 
 	assert.match(

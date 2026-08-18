@@ -15,7 +15,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const team = require('./team');
+const team = require('../team');
 
 const SWAMPERT = [
 	'Swampert @ Leftovers',
@@ -126,7 +126,7 @@ test('a parsed team round-trips back to a paste', () => {
 
 test('the shipped example team parses', () => {
 	const source = require('node:fs').readFileSync(
-		require('node:path').join(__dirname, 'examples', 'team.txt'), 'utf8');
+		require('node:path').join(__dirname, '..', 'examples', 'team.txt'), 'utf8');
 	const parsed = team.parseTeam(source);
 	const party = parsed.party;
 	assert.equal(party.length, 6, 'the example should show a full party');

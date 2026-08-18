@@ -23,7 +23,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const oracle = require('./profiles').getProfile().oracle;
+const oracle = require('../profiles').getProfile().oracle;
 
 test('the oracle carries the whole decomp, not a truncated read of it', () => {
 	const coverage = oracle.coverage();

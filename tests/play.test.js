@@ -21,7 +21,7 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 
-const play = require('./play');
+const play = require('../play');
 
 let dir;
 let file;

@@ -3,7 +3,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const client = require('./src/js/pokemon_provider_client');
+const client = require('../src/js/pokemon_provider_client');
 
 function run() {
 	return {

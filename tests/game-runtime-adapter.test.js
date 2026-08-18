@@ -5,11 +5,11 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
-const legacyEvents = require('./fixtures/runtime-contract/littleroot-replay.json');
-const adapter = require('./game-runtime-adapter');
-const contract = require('./src/js/runtime_contract');
-const Store = require('./src/js/attempt_store');
-const runtime = require('./run');
+const legacyEvents = require('../fixtures/runtime-contract/littleroot-replay.json');
+const adapter = require('../game-runtime-adapter');
+const contract = require('../src/js/runtime_contract');
+const Store = require('../src/js/attempt_store');
+const runtime = require('../run');
 
 function event(kind, revision, payload, extra) {
 	return Object.assign({
@@ -86,7 +86,7 @@ test('legacy envelope and event aliases normalize explicitly into canonical v2',
 
 test('model registry and executable registry are identical', () => {
 	const model = JSON.parse(fs.readFileSync(
-		path.join(__dirname, 'profiles/run-and-bun/rebuild-model.json'), 'utf8'));
+		path.join(__dirname, '..', 'profiles/run-and-bun/rebuild-model.json'), 'utf8'));
 	assert.equal(model.schemaVersion, '2.0.0');
 	assert.deepEqual(model.events, adapter.EVENT_KINDS);
 	assert.deepEqual(adapter.EVENT_KINDS, contract.EVENT_KINDS);
