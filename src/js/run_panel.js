@@ -167,7 +167,11 @@
 			mirror(state);
 			return receipt;
 		}).catch(function (error) {
-			if (error && error.code === 'REVISION_CONFLICT') throw error;
+			// Neither conflict is evidence that storage died: revision means
+			// another tab landed first, idempotency means this commandId was
+			// already spent. Both surface; neither demotes durability.
+			if (error && (error.code === 'REVISION_CONFLICT' ||
+				error.code === 'IDEMPOTENCY_CONFLICT')) throw error;
 			// A browser can disable or evict IndexedDB independently of localStorage.
 			// Keep the accepted run recoverable, but say that durability degraded.
 			attemptStore = null;
@@ -186,6 +190,26 @@
 		}
 		return attemptStore.loadActive().then(function (head) {
 			if (head) {
+				// A degraded prior session appends only to the mirror, so the
+				// mirror can be AHEAD of the durable head. The chooser decides;
+				// the losing copy is parked, never silently overwritten.
+				var choice = window.RunBunAttemptStore.chooseRestoreSource(
+					head, restoreLegacy());
+				if (choice.source === 'mirror' && choice.parked === 'durable') {
+					state = restoreLegacy();
+					currentRevision = head.revision;
+					restoredFrom = 'compatibility storage (ahead of durable)';
+					status('This browser\'s quick save is ahead of durable storage ' +
+						'— continuing from the quick save. The next accepted ' +
+						'command re-anchors durability.', 'error');
+					return state;
+				}
+				if (choice.parked === 'mirror') {
+					// A mirror from a DIFFERENT attempt is someone's run. It
+					// goes to the transfer box under the same protection a
+					// damaged save gets; Start refuses to write over it.
+					corruptSave = window.localStorage.getItem(STORAGE_KEY);
+				}
 				state = head.run;
 				currentRevision = head.revision;
 				restoredFrom = 'durable browser storage';

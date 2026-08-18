@@ -77,6 +77,85 @@ test('revision, duplicate command, and optimistic conflict are atomic', async ()
 		'an old idempotency receipt must not pair its revision with a newer run head');
 });
 
+test('a retried command with a fresh observedAt is the same command', async () => {
+	// The panel stamps observedAt at send time, so an honest retry of the
+	// same commandId never carries the same wall clock. The idempotency
+	// record exists exactly for that retry; it must answer with the stored
+	// receipt, not a conflict.
+	const store = Store.createMemoryStore();
+	await started(store);
+	const retried = await store.commit({
+		run: run('attempt-1', 0), expectedRevision: 0, commandId: 'start-1',
+		event: {kind: 'run.started', payload: {snapshot: run('attempt-1', 0)},
+			observedAt: '2026-08-15T09:59:59.000Z'},
+	});
+	assert.equal(retried.duplicate, true,
+		'a retry that differs only in observedAt must return the stored receipt');
+	assert.equal(retried.revision, 1);
+	// A genuinely different command under a reused id is still a conflict.
+	await assert.rejects(() => store.commit({
+		run: run('attempt-1', 1), expectedRevision: 0, commandId: 'start-1',
+		event: event('run.started', {snapshot: run('attempt-1', 1)}),
+	}), error => error.code === 'IDEMPOTENCY_CONFLICT');
+});
+
+test('a rejected import leaves the target attempt untouched', async () => {
+	const target = Store.createMemoryStore();
+	const request = JSON.parse(JSON.stringify(planningRequest));
+	const receipt = JSON.parse(JSON.stringify(planningReceipt));
+	request.attempt.revision = 1;
+	receipt.input.revision = 1;
+	await started(target, request.attempt.attemptId);
+	const head = await target.loadActive();
+	request.attempt.stateHash = head.stateHash;
+	receipt.input.stateHash = head.stateHash;
+	await target.recordEvidence({request, receipt, recordedAt: TIME});
+	const before = await target.listEvidence(request.attempt.attemptId);
+
+	// A second store with the same attempt records a CONFLICTING copy of the
+	// same receipt id plus one genuinely new receipt — a bundle whose import
+	// must be refused as a whole.
+	const other = Store.createMemoryStore();
+	await started(other, request.attempt.attemptId);
+	const conflicting = JSON.parse(JSON.stringify(receipt));
+	conflicting.result.safe = !conflicting.result.safe;
+	await other.recordEvidence({request, receipt: conflicting, recordedAt: TIME});
+	const fresh = JSON.parse(JSON.stringify(receipt));
+	fresh.receiptId = receipt.receiptId + '-second';
+	await other.recordEvidence({request, receipt: fresh, recordedAt: TIME});
+	const bundle = await other.exportActive();
+	// The new record first, the conflicting one last: a one-pass importer
+	// writes the prefix before it notices the conflict.
+	bundle.evidence.sort((a, b) =>
+		(a.evidenceId.endsWith('-second') ? 0 : 1) - (b.evidenceId.endsWith('-second') ? 0 : 1));
+	const reordered = rechecksum(bundle);
+
+	await assert.rejects(() => target.importBundle(reordered),
+		error => error.code === 'EVIDENCE_CONFLICT');
+	assert.deepEqual(await target.listEvidence(request.attempt.attemptId), before,
+		'a refused import must not keep any prefix of its evidence');
+});
+
+test('the restore chooser never lets a stale durable head eat a newer mirror', () => {
+	const head = {attemptId: 'a1', revision: 3,
+		run: {attemptId: 'a1', log: [1, 2, 3], updatedAt: TIME}};
+	const aheadMirror = {attemptId: 'a1', log: [1, 2, 3, 4], updatedAt: TIME};
+	const behindMirror = {attemptId: 'a1', log: [1, 2], updatedAt: TIME};
+	assert.deepEqual(Store.chooseRestoreSource(null, aheadMirror),
+		{source: 'mirror', parked: null});
+	assert.deepEqual(Store.chooseRestoreSource(head, null),
+		{source: 'durable', parked: null});
+	assert.deepEqual(Store.chooseRestoreSource(head, behindMirror),
+		{source: 'durable', parked: null});
+	assert.deepEqual(Store.chooseRestoreSource(head, aheadMirror),
+		{source: 'mirror', parked: 'durable'},
+		'a mirror with commands the durable store never saw must win and park the head');
+	const otherAttempt = {attemptId: 'a2', log: [1, 2, 3, 4, 5], updatedAt: TIME};
+	assert.deepEqual(Store.chooseRestoreSource(head, otherAttempt),
+		{source: 'durable', parked: 'mirror'},
+		'a mirror from a different attempt is parked, not silently destroyed');
+});
+
 test('export includes a portable checksum and rejects corruption', async () => {
 	const store = Store.createMemoryStore();
 	await started(store);

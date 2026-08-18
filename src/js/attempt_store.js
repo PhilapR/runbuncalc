@@ -155,11 +155,17 @@
 	}
 
 	function fingerprint(input) {
+		// The fingerprint identifies the COMMAND, not the attempt to send it:
+		// the panel stamps observedAt at send time, so an honest retry never
+		// carries the same wall clock. stateHash already pins the semantic
+		// effect, so excluding the clock does not weaken conflict detection.
+		var event = clone(input.event);
+		delete event.observedAt;
 		return canonical({
 			attemptId: input.attemptId,
 			expectedRevision: input.expectedRevision,
 			commandId: input.commandId,
-			event: input.event,
+			event: event,
 			stateHash: input.stateHash,
 		});
 	}
@@ -1124,11 +1130,15 @@
 						var existing = state.heads[id];
 						if (existing) {
 							if (canonical(existing) !== canonical(incoming.head)) throw error('Attempt already exists with different state.', 'IMPORT_CONFLICT');
+							// Two passes: every record is checked before any is
+							// written, so a refused import keeps no prefix.
 							(incoming.evidence || []).forEach(function (record) {
 								var prior = state.evidence[record.id];
 								if (prior && prior.evidenceHash !== record.evidenceHash) {
 									throw error('Imported evidence conflicts with this attempt.', 'EVIDENCE_CONFLICT');
 								}
+							});
+							(incoming.evidence || []).forEach(function (record) {
 								state.evidence[record.id] = clone(record);
 							});
 							state.activeAttemptId = id;
@@ -1261,9 +1271,21 @@
 			return new Promise(function (resolve, reject) {
 				var tx;
 				var result;
+				var failure = null;
 				try {
 					tx = db.transaction(names, mode);
-					result = work(tx);
+					// An async failure inside `work` must abort the transaction:
+					// without this, a rejection raised in a .then() never reaches
+					// an IDB handler, the transaction auto-commits its partial
+					// writes, and the caller is told the operation failed.
+					result = Promise.resolve(work(tx)).catch(function (workError) {
+						failure = workError;
+						try { tx.abort(); } catch (ignore) {}
+						throw workError;
+					});
+					// The abort path settles through reject(failure) below; this
+					// subscriber only marks the rejection as handled.
+					result.catch(function () {});
 				} catch (transactionError) {
 					try { tx.abort(); } catch (ignore) {}
 					db.close();
@@ -1271,8 +1293,8 @@
 					return;
 				}
 				tx.oncomplete = function () { db.close(); resolve(result); };
-				tx.onerror = function () { db.close(); reject(tx.error || error('IndexedDB transaction failed.', 'INDEXEDDB_TRANSACTION')); };
-				tx.onabort = function () { db.close(); reject(tx.error || error('IndexedDB transaction aborted.', 'INDEXEDDB_TRANSACTION')); };
+				tx.onerror = function () { db.close(); reject(failure || tx.error || error('IndexedDB transaction failed.', 'INDEXEDDB_TRANSACTION')); };
+				tx.onabort = function () { db.close(); reject(failure || tx.error || error('IndexedDB transaction aborted.', 'INDEXEDDB_TRANSACTION')); };
 			});
 		});
 	}
@@ -1457,12 +1479,17 @@
 									return Promise.all(records.map(function (record) {
 										return requestValue(tx.objectStore('evidence').get(record.id));
 									})).then(function (priorRecords) {
+										// Two passes: every record is checked before any
+										// is written, so a refused import keeps no prefix
+										// even if the transaction abort below fails.
 										records.forEach(function (record, index) {
 											if (priorRecords[index] &&
 												priorRecords[index].evidenceHash !== record.evidenceHash) {
 												throw error('Imported evidence conflicts with this attempt.',
 													'EVIDENCE_CONFLICT');
 											}
+										});
+										records.forEach(function (record) {
 											tx.objectStore('evidence').put(clone(record));
 										});
 										tx.objectStore('meta').put({key: 'activeAttemptId', value: incoming.attemptId});
@@ -1528,6 +1555,23 @@
 		return function () { return getDefault()[name].apply(getDefault(), arguments); };
 	}
 
+	/**
+	 * Which copy of the run a fresh page load should trust: the durable head
+	 * or the localStorage mirror. A degraded session appends only to the
+	 * mirror, so the mirror being AHEAD of the head is real player progress
+	 * that a blind mirror(head.run) would destroy. The loser is parked, never
+	 * silently overwritten. Pure so the policy is testable without a browser.
+	 */
+	function chooseRestoreSource(head, mirrorRun) {
+		var headLog = head && head.run && Array.isArray(head.run.log) ? head.run.log.length : 0;
+		var mirrorLog = mirrorRun && Array.isArray(mirrorRun.log) ? mirrorRun.log.length : 0;
+		if (!head) return {source: 'mirror', parked: null};
+		if (!mirrorRun) return {source: 'durable', parked: null};
+		if (mirrorRun.attemptId !== head.attemptId) return {source: 'durable', parked: 'mirror'};
+		if (mirrorLog > headLog) return {source: 'mirror', parked: 'durable'};
+		return {source: 'durable', parked: null};
+	}
+
 	return {
 		SCHEMA: SCHEMA,
 		VERSION: VERSION,
@@ -1537,6 +1581,7 @@
 		EVIDENCE_SCHEMA: EVIDENCE_SCHEMA,
 		SNAPSHOT_INTERVAL: SNAPSHOT_INTERVAL,
 		createMemoryStore: createMemoryStore,
+		chooseRestoreSource: chooseRestoreSource,
 		getDefault: getDefault,
 		commit: delegate('commit'),
 		recordEvidence: delegate('recordEvidence'),
