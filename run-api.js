@@ -16,6 +16,7 @@
 
 const runtime = require('./run');
 const battleDriver = require('./battle-driver');
+const gameRuntimeAdapter = require('./game-runtime-adapter');
 
 function refusal(message, code) {
 	const error = new Error(message);
@@ -112,7 +113,7 @@ function requireBattle(payload) {
  * message IS the feature. Anything else re-throws untouched.
  */
 function asRefusal(error) {
-	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^use:|^faint:|^heartScale:|^hold:|^unhold:|^spend:|^roll:|^battle:|^playbook:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || '')) {
+	if (/^[A-Z][a-z].*(does not|cannot|is not|has no)|^no |^teach:|^evolve:|^catch:|^identify:|^levelUp:|^party:|^give:|^take:|^beat:|^acquire:|^use:|^faint:|^heartScale:|^hold:|^unhold:|^spend:|^roll:|^battle:|^playbook:|^unknown |^a command needs|^nothing |^the party is empty|^a party holds/.test(error.message || '')) {
 		error.statusCode = 400;
 		error.code = 'InvalidRunCommand';
 	}
@@ -130,12 +131,20 @@ function guarded(work) {
 }
 
 const api = {
+	replayEvents(payload) {
+		return guarded(() => {
+			const replay = gameRuntimeAdapter.replay((payload || {}).events,
+				(payload || {}).initialRun ? {initialRun: payload.initialRun} : undefined);
+			return Object.assign({}, replay, {status: runtime.summarize(replay.run)});
+		});
+	},
 	new(payload) {
 		payload = payload || {};
 		try {
 			return {
 				run: runtime.createRun({
 					profileId: payload.profile,
+					attemptId: payload.attemptId,
 					name: payload.name,
 					levelCap: payload.levelCap,
 					permadeath: payload.permadeath,
@@ -186,6 +195,9 @@ const api = {
 			return {
 				status: runtime.summarize(state),
 				box: state.box,
+				// Reachable optional work before the NEXT fight. The runtime owns
+				// unlock truth; the browser only decides how compactly to show it.
+				opportunities: runtime.preFightOpportunities(state),
 				// The story spine travels with every status: "where am I" over a
 				// 362-battle map is answered in milestones, not a position integer.
 				milestones: runtime.milestones(state),
@@ -319,6 +331,18 @@ const api = {
 		})}));
 	},
 
+	/** The same die for scripted events (starter, gift, static, trade): a
+	 * rolled identity the client carries into its catch command. Advice until
+	 * that command writes it, exactly like /run/encounter. */
+	identity(payload) {
+		payload = payload || {};
+		if (typeof payload.species !== 'string' || !payload.species.trim()) {
+			throw refusal('species is required — whose identity is being rolled?',
+				'InvalidRunCommand');
+		}
+		return guarded(() => ({identity: runtime.rollIdentity(payload.species.trim())}));
+	},
+
 	battleStart(payload) {
 		const state = requireRun(payload);
 		return guarded(() => battleDriver.start(state, payload.trainer, payload.seed));
@@ -360,6 +384,7 @@ const api = {
  * transport and forgotten by the other.
  */
 const ROUTES = {
+	'/run/replay-events': api.replayEvents,
 	'/run/new': api.new,
 	'/run/apply': api.apply,
 	'/run/undo': api.undo,
@@ -375,6 +400,7 @@ const ROUTES = {
 	'/run/advise': api.advise,
 	'/run/scout': api.scout,
 	'/run/encounter': api.encounter,
+	'/run/identity': api.identity,
 	'/run/battle/start': api.battleStart,
 	'/run/battle/wild': api.battleWild,
 	'/run/battle/act': api.battleAct,

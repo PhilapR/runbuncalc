@@ -1,0 +1,79 @@
+{
+  "generation": 8,
+  "mode": "Singles",
+  "turn": 3,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1"],
+      "party": [
+        {
+          "id": "ai-1",
+          "species": "Pikachu",
+          "level": 50,
+          "hp": {"current": 0, "max": 100},
+          "ability": "Static",
+          "nature": "Timid",
+          "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+          "moves": [
+            {"name": "Thunderbolt"},
+            {"name": "Volt Switch"},
+            {"name": "Protect"},
+            {"name": "Thunder Wave"}
+          ]
+        },
+        {
+          "id": "ai-2",
+          "species": "Toxapex",
+          "level": 50,
+          "hp": {"current": 140, "max": 140},
+          "ability": "Regenerator",
+          "item": "Black Sludge",
+          "nature": "Bold",
+          "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+          "moves": [
+            {"name": "Scald"},
+            {"name": "Recover"},
+            {"name": "Haze"},
+            {"name": "Toxic"}
+          ]
+        },
+        {
+          "id": "ai-3",
+          "species": "Corviknight",
+          "level": 50,
+          "hp": {"current": 150, "max": 150},
+          "ability": "Pressure",
+          "item": "Leftovers",
+          "nature": "Impish",
+          "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+          "moves": [
+            {"name": "Brave Bird"},
+            {"name": "Roost"},
+            {"name": "U-turn"},
+            {"name": "Defog"}
+          ]
+        }
+      ]
+    },
+    "player": {
+      "activeIds": ["player-1"],
+      "party": [{
+        "id": "player-1",
+        "species": "Dragapult",
+        "level": 50,
+        "hp": {"current": 120, "max": 140},
+        "ability": "Infiltrator",
+        "nature": "Timid",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Shadow Ball"},
+          {"name": "Dragon Pulse"},
+          {"name": "Flamethrower"},
+          {"name": "U-turn"}
+        ]
+      }]
+    }
+  },
+  "pendingForcedSwitchIds": ["ai-1"]
+}

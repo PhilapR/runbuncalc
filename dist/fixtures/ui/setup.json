@@ -1,0 +1,47 @@
+{
+  "generation": 8,
+  "mode": "Singles",
+  "turn": 1,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1"],
+      "party": [{
+        "id": "ai-1",
+        "species": "Gyarados",
+        "level": 50,
+        "hp": {"current": 170, "max": 170},
+        "ability": "Intimidate",
+        "item": "Lum Berry",
+        "nature": "Jolly",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Dragon Dance"},
+          {"name": "Waterfall"},
+          {"name": "Earthquake"},
+          {"name": "Ice Fang"}
+        ]
+      }]
+    },
+    "player": {
+      "activeIds": ["player-1"],
+      "party": [{
+        "id": "player-1",
+        "species": "Alakazam",
+        "level": 50,
+        "hp": {"current": 130, "max": 130},
+        "ability": "Magic Guard",
+        "item": "Focus Sash",
+        "nature": "Timid",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Calm Mind"},
+          {"name": "Psychic"},
+          {"name": "Shadow Ball"},
+          {"name": "Focus Blast"}
+        ]
+      }]
+    }
+  },
+  "firstTurnOutIds": ["ai-1", "player-1"]
+}

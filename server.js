@@ -4,6 +4,7 @@ const path = require("path");
 const express = require("express");
 const calc = require("@smogon/calc");
 const ai = require("./ai");
+const aiApi = require("./ai-api");
 const planner = require("./planner");
 const playerTeam = require("./team");
 const app = express();
@@ -176,13 +177,7 @@ function getEvaluationOptions(state, options) {
 
 app.post("/ai/validate-battle-state", (req, res, next) => {
 	try {
-		const payload = req.body || {};
-		const state = payload.state || payload;
-		if (!state || !state.sides) {
-			return res.status(400).json({error: "BattleState with sides is required"});
-		}
-		ai.validateBattleState(state);
-		return res.json({ok: true});
+		return res.json(aiApi.api.validateBattleState(req.body));
 	} catch (error) {
 		next(error);
 	}

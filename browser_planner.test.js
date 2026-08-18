@@ -85,7 +85,7 @@ test('the planner panel loads the run map and predicts a real fight', {skip}, as
 	const consoleErrors = [];
 	page.on('pageerror', error => consoleErrors.push(String(error)));
 
-	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});
+	await page.goto(`${baseUrl}/index.html#runbun-planner`, {waitUntil: 'domcontentloaded'});
 
 	// The panel must exist on the shipped page, not only in the template.
 	await page.waitForSelector('#runbun-planner');
@@ -160,7 +160,7 @@ test('the planner panel loads the run map and predicts a real fight', {skip}, as
 
 test('a team borrowed from trainer sets is flagged on screen', {skip}, async () => {
 	const page = await newPage();
-	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});
+	await page.goto(`${baseUrl}/index.html#runbun-planner`, {waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-planner');
 	await page.click('#runbun-planner-load');
 	await page.waitForFunction(
@@ -191,7 +191,7 @@ test('a team borrowed from trainer sets is flagged on screen', {skip}, async () 
 
 test('a double battle carries its 1v1 simplification onto the screen', {skip}, async () => {
 	const page = await newPage();
-	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});
+	await page.goto(`${baseUrl}/index.html#runbun-planner`, {waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-planner');
 	await page.click('#runbun-planner-load');
 	await page.waitForFunction(
@@ -228,7 +228,7 @@ test('a double battle carries its 1v1 simplification onto the screen', {skip}, a
 
 test('a malformed team is refused in the client without a round trip', {skip}, async () => {
 	const page = await newPage();
-	await page.goto(`${baseUrl}/index.html`, {waitUntil: 'domcontentloaded'});
+	await page.goto(`${baseUrl}/index.html#runbun-planner`, {waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-planner');
 	await page.click('#runbun-planner-load');
 	await page.waitForFunction(

@@ -102,5 +102,13 @@ if (process.argv[2] !== 'view') {
 
 cpdir('src', 'dist');
 cpdir('calc/dist', 'dist/calc', {wrapCommonJs: true});
+require('child_process').execFileSync(process.execPath,
+	[path.join(__dirname, 'scripts', 'build-pokemon-provider.js')], {stdio: 'inherit'});
+// Express serves these from the repository, while the Worker can only serve
+// files inside the ASSETS directory. Keep the lab manifest and replay fixtures
+// in the same URL space on both transports so background capability checks do
+// not become silent 404s after deployment.
+fs.mkdirSync(path.join('dist', 'fixtures'), {recursive: true});
+cpdir('fixtures/ui', 'dist/fixtures/ui');
 makeCachebuster('dist/honkalculate.template.html', 'dist/honkalculate.html');
 makeCachebuster('dist/index.template.html', 'dist/index.html');

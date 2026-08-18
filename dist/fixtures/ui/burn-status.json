@@ -1,0 +1,47 @@
+{
+  "generation": 8,
+  "mode": "Singles",
+  "turn": 3,
+  "field": {},
+  "sides": {
+    "ai": {
+      "activeIds": ["ai-1"],
+      "party": [{
+        "id": "ai-1",
+        "species": "Conkeldurr",
+        "level": 50,
+        "hp": {"current": 150, "max": 180},
+        "ability": "Guts",
+        "item": "Flame Orb",
+        "nature": "Adamant",
+        "status": "brn",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Drain Punch"},
+          {"name": "Mach Punch"},
+          {"name": "Knock Off"},
+          {"name": "Bulk Up"}
+        ]
+      }]
+    },
+    "player": {
+      "activeIds": ["player-1"],
+      "party": [{
+        "id": "player-1",
+        "species": "Corviknight",
+        "level": 50,
+        "hp": {"current": 150, "max": 150},
+        "ability": "Pressure",
+        "item": "Leftovers",
+        "nature": "Impish",
+        "evs": {"hp": 0, "atk": 0, "def": 0, "spa": 0, "spd": 0, "spe": 0},
+        "moves": [
+          {"name": "Brave Bird"},
+          {"name": "Roost"},
+          {"name": "U-turn"},
+          {"name": "Defog"}
+        ]
+      }]
+    }
+  }
+}

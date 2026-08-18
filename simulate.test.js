@@ -263,6 +263,7 @@ test('exactly one team form is accepted', () => {
 // today's levels — so there is a case for each.
 
 const runtime = require('./run');
+const RUN_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
 
 /**
  * A run parked at #250, on Cycling Road with a Swampert rival.
@@ -276,7 +277,8 @@ function midRun(options) {
 		runtime.createRun(Object.assign(
 			{name: 'Cycling Road', now: 't0', rival: 'Swampert'}, options)),
 		[
-			{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
+			{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+				ivs: Object.assign({}, RUN_IVS)},
 			{kind: 'party', ids: ['mon-1']},
 			{kind: 'beat', trainer: 'Triathlete Jasmine'},
 		]);

@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "2.0.0",
+  "game": {
+    "profileId": "run-and-bun",
+    "version": "1.07",
+    "platform": "gba",
+    "baseGame": "pokemon-emerald"
+  },
+  "domains": {
+    "rules": {
+      "kind": "static",
+      "includes": ["mechanics", "damage", "legality", "opponent-policy"]
+    },
+    "content": {
+      "kind": "static",
+      "includes": ["species", "moves", "items", "trainers", "encounters", "progression"]
+    },
+    "world": {
+      "kind": "static-plus-runtime",
+      "includes": ["map-headers", "layouts", "metatile-maps", "tilesets", "collision", "warps", "objects", "scripts"]
+    },
+    "presentation": {
+      "kind": "static",
+      "includes": ["tiles", "palettes", "sprites", "animations", "text", "audio", "ui-flows"]
+    },
+    "run": {
+      "kind": "runtime",
+      "includes": ["attempt", "party", "boxes", "bag", "flags", "encounter-ledger", "milestones"]
+    },
+    "scene": {
+      "kind": "runtime",
+      "includes": ["mode", "map", "position", "facing", "menu", "dialog", "active-objects"]
+    },
+    "battle": {
+      "kind": "runtime",
+      "includes": ["participants", "hp", "status", "moves", "pp", "field", "turn", "pending-input"]
+    }
+  },
+  "sources": {
+    "profile": {
+      "role": "canonical-static-data",
+      "transport": "repository"
+    },
+    "rom-import": {
+      "role": "canonical-static-extraction",
+      "transport": "offline-build"
+    },
+    "emulator": {
+      "role": "observed-live-state",
+      "transport": "localhost-bridge"
+    },
+    "simulator": {
+      "role": "predicted-or-rebuilt-state",
+      "transport": "in-process-or-service"
+    }
+  },
+  "operatingModes": {
+    "companion": {
+      "authority": {
+        "static": "profile",
+        "runtime": "run-document"
+      }
+    },
+    "emulator-sync": {
+      "authority": {
+        "static": "profile-and-rom-import",
+        "runtime": "emulator"
+      }
+    },
+    "rebuild": {
+      "authority": {
+        "static": "profile-and-rom-import",
+        "runtime": "simulator"
+      }
+    }
+  },
+  "runtimeSchemas": {
+    "eventEnvelope": {
+      "required": ["schemaVersion", "eventId", "attemptId", "profileId", "kind", "source", "observedAt", "payload"],
+      "cursor": "revision-required-after-persistence; sourceSequence-optional-upstream-cursor"
+    },
+    "sceneObservation": {
+      "required": ["mode"],
+      "fields": ["map", "position", "facing", "menu", "dialog", "activeObjects"]
+    },
+    "battleObservation": {
+      "fields": ["battleId", "phase", "turn", "participants", "field", "pendingInput"]
+    }
+  },
+  "events": [
+    "run.started",
+    "run.ended",
+    "run.migrated",
+    "run.imported",
+    "run.replaced",
+    "command.applied",
+    "snapshot.observed",
+    "party.changed",
+    "box.changed",
+    "bag.changed",
+    "map.entered",
+    "position.changed",
+    "encounter.started",
+    "pokemon.caught",
+    "pokemon.fainted",
+    "battle.started",
+    "turn.resolved",
+    "battle.ended",
+    "flag.changed"
+  ],
+  "attemptOutcomes": ["wipe", "completed", "reset", "abandoned"],
+  "analytics": {
+    "authority": "checked-rabrun-archive",
+    "materializer": "rl-dataset.js",
+    "tables": ["episodes", "events", "steps", "observations"],
+    "storage": "Parquet partitions are downstream immutable products, never the live command store"
+  },
+  "invariants": [
+    "Every event uses the v2 envelope: eventId, attemptId, profileId, ledger revision and optional sourceSequence, kind, source, observedAt, and payload.",
+    "Every source uses the union manual, emulator, simulator, rebuilt, import, migration, or system and records providerId and confidence.",
+    "Every value records its source and observation time.",
+    "Observed emulator state is never presented as simulated state.",
+    "A screenshot is presentation evidence, not structured game state.",
+    "Tileset graphics and metatile behavior remain separate.",
+    "The browser never receives arbitrary emulator memory access.",
+    "ROM and copyrighted extracted assets are never required by the hosted companion."
+  ]
+}

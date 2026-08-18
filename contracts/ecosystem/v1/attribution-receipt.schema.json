@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pokemon.bridge.attribution.receipt/1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "receiptId", "requestId", "producer", "input", "result", "evidence"],
+  "properties": {
+    "schemaVersion": {"const": "pokemon.bridge.attribution.receipt/1.0.0"},
+    "receiptId": {"type": "string", "minLength": 1},
+    "requestId": {"type": "string", "minLength": 1},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "revision", "engine", "engineVersion"],
+      "properties": {
+        "repository": {"const": "pokemon-mono"},
+        "revision": {"type": "string", "minLength": 1},
+        "engine": {"const": "run-and-bun"},
+        "engineVersion": {"type": "string", "minLength": 1}
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attemptId", "revision", "stateHash", "profileRevision", "requestHash", "baselineTeamHash", "plannerRevision", "trainerOrder", "policy", "maxCandidateBranches", "seeds", "interventionIds"],
+      "properties": {
+        "attemptId": {"type": "string", "minLength": 1},
+        "revision": {"type": "integer", "minimum": 0, "maximum": 4294967295},
+        "stateHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "profileRevision": {"type": "string", "minLength": 1},
+        "requestHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "baselineTeamHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "plannerRevision": {"type": "string", "minLength": 1},
+        "trainerOrder": {"type": "integer", "minimum": 1, "maximum": 4294967295},
+        "policy": {"const": "reoptimize-lead-v1"},
+        "maxCandidateBranches": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262144
+        },
+        "seeds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {"type": "integer", "minimum": 0, "maximum": 4294967295}
+        },
+        "interventionIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "baseline", "interventions", "summary", "outputHash"],
+      "properties": {
+        "status": {"const": "complete"},
+        "baseline": {"$ref": "#/$defs/outcomeSummary"},
+        "interventions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {"$ref": "#/$defs/interventionResult"}
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["seedPairsEvaluated", "candidateBranchesEvaluated"],
+          "properties": {
+            "seedPairsEvaluated": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 262144
+            },
+            "candidateBranchesEvaluated": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 262144
+            }
+          }
+        },
+        "outputHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contractVersion", "deterministic", "replayHash", "expectedDivergences", "unexpectedDivergences"],
+      "properties": {
+        "contractVersion": {"const": "1.0.0"},
+        "deterministic": {"const": true},
+        "replayHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "expectedDivergences": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "unexpectedDivergences": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "branchOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seed", "victory", "deaths", "turns", "totalHPRemaining"],
+      "properties": {
+        "seed": {"type": "integer", "minimum": 0, "maximum": 4294967295},
+        "victory": {"type": "boolean"},
+        "deaths": {"type": "integer", "minimum": 0, "maximum": 6},
+        "turns": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "totalHPRemaining": {"type": "integer", "minimum": 0, "maximum": 4294967295}
+      }
+    },
+    "outcomeSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recommendedLeadId", "startingTotalHP", "safeBranches", "losses", "totalDeaths", "expectedTurns", "branchOutcomes"],
+      "properties": {
+        "recommendedLeadId": {"type": "string", "minLength": 1},
+        "startingTotalHP": {"type": "integer", "minimum": 1, "maximum": 4294967295},
+        "safeBranches": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "losses": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "totalDeaths": {"type": "integer", "minimum": 0, "maximum": 60000},
+        "expectedTurns": {"type": "number", "minimum": 0, "maximum": 10000},
+        "branchOutcomes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10000,
+          "items": {"$ref": "#/$defs/branchOutcome"}
+        }
+      }
+    },
+    "delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["safeBranches", "wins", "deaths", "expectedTurns", "totalHPRemaining", "changedOutcomeBranches", "changedDeathlessBranches"],
+      "properties": {
+        "safeBranches": {"type": "integer", "minimum": -10000, "maximum": 10000},
+        "wins": {"type": "integer", "minimum": -10000, "maximum": 10000},
+        "deaths": {"type": "integer", "minimum": -60000, "maximum": 60000},
+        "expectedTurns": {"type": "number", "minimum": -10000, "maximum": 10000},
+        "totalHPRemaining": {
+          "type": "integer",
+          "minimum": -4294967295,
+          "maximum": 4294967295
+        },
+        "changedOutcomeBranches": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "changedDeathlessBranches": {"type": "integer", "minimum": 0, "maximum": 10000}
+      }
+    },
+    "interventionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["interventionId", "kind", "targetId", "effectiveTeamHash", "outcome", "delta"],
+      "properties": {
+        "interventionId": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["replace-party-member", "normalize-ivs"]},
+        "targetId": {"type": "string", "minLength": 1},
+        "effectiveTeamHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "outcome": {"$ref": "#/$defs/outcomeSummary"},
+        "delta": {"$ref": "#/$defs/delta"}
+      }
+    }
+  }
+}

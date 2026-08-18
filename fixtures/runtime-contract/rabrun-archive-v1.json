@@ -1,0 +1,86 @@
+{
+  "format": "rabrun.archive",
+  "schema": "rabrun.archive",
+  "version": 1,
+  "schemaVersion": 1,
+  "attemptId": "legacy-attempt",
+  "exportedAt": "2026-08-15T00:00:00.000Z",
+  "head": {
+    "attemptId": "legacy-attempt",
+    "revision": 2,
+    "run": {
+      "attemptId": "legacy-attempt",
+      "value": 1,
+      "log": [{"command": {"kind": "tick", "value": 1}, "summary": "tick", "at": "2026-08-15T00:00:00.000Z"}]
+    },
+    "stateHash": "f1569f3a2c49d660cd59ec2bfcc3399d0760958499a2f75fa938d25ee6e86ac0"
+  },
+  "run": {
+    "attemptId": "legacy-attempt",
+    "value": 1,
+    "log": [{"command": {"kind": "tick", "value": 1}, "summary": "tick", "at": "2026-08-15T00:00:00.000Z"}]
+  },
+  "events": [
+    {
+      "id": "legacy-attempt:1",
+      "attemptId": "legacy-attempt",
+      "revision": 1,
+      "commandId": "start",
+      "kind": "run.started",
+      "payload": {"run": {"attemptId": "legacy-attempt", "value": 0, "log": []}},
+      "observedAt": "2026-08-15T00:00:00.000Z",
+      "previousStateHash": null,
+      "stateHash": "35ab59f3e0c4371f548d9ef652872428b27cea1d4c7f4a4563e78671f2733860"
+    },
+    {
+      "id": "legacy-attempt:2",
+      "attemptId": "legacy-attempt",
+      "revision": 2,
+      "commandId": "tick",
+      "kind": "command.applied",
+      "payload": {"command": {"kind": "tick", "value": 1}},
+      "observedAt": "2026-08-15T00:00:00.000Z",
+      "previousStateHash": "35ab59f3e0c4371f548d9ef652872428b27cea1d4c7f4a4563e78671f2733860",
+      "stateHash": "f1569f3a2c49d660cd59ec2bfcc3399d0760958499a2f75fa938d25ee6e86ac0"
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "legacy-attempt:1",
+      "attemptId": "legacy-attempt",
+      "revision": 1,
+      "run": {"attemptId": "legacy-attempt", "value": 0, "log": []},
+      "stateHash": "35ab59f3e0c4371f548d9ef652872428b27cea1d4c7f4a4563e78671f2733860"
+    }
+  ],
+  "idempotency": [
+    {
+      "id": "legacy-attempt::start",
+      "attemptId": "legacy-attempt",
+      "commandId": "start",
+      "fingerprint": "legacy-start",
+      "revision": 1,
+      "run": {"attemptId": "legacy-attempt", "value": 0, "log": []},
+      "event": {"kind": "run.started", "payload": {"run": {"attemptId": "legacy-attempt", "value": 0, "log": []}}, "observedAt": "2026-08-15T00:00:00.000Z"},
+      "stateHash": "35ab59f3e0c4371f548d9ef652872428b27cea1d4c7f4a4563e78671f2733860"
+    },
+    {
+      "id": "legacy-attempt::tick",
+      "attemptId": "legacy-attempt",
+      "commandId": "tick",
+      "fingerprint": "legacy-tick",
+      "revision": 2,
+      "run": {"attemptId": "legacy-attempt", "value": 1, "log": [{"command": {"kind": "tick", "value": 1}, "summary": "tick", "at": "2026-08-15T00:00:00.000Z"}]},
+      "event": {"kind": "command.applied", "payload": {"command": {"kind": "tick", "value": 1}}, "observedAt": "2026-08-15T00:00:00.000Z"},
+      "stateHash": "f1569f3a2c49d660cd59ec2bfcc3399d0760958499a2f75fa938d25ee6e86ac0"
+    }
+  ],
+  "manifest": {
+    "eventCount": 2,
+    "snapshotCount": 1,
+    "idempotencyCount": 2,
+    "headStateHash": "f1569f3a2c49d660cd59ec2bfcc3399d0760958499a2f75fa938d25ee6e86ac0"
+  },
+  "checksumAlgorithm": "SHA-256",
+  "checksum": "302ab7d1478c6be2acf1343f47c6e66fe1bcd330b760ffdcae02464dbdb3e739"
+}

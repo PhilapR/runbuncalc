@@ -318,16 +318,17 @@ test('matrix renders the whole box against a trainer, both directions', () => {
 
 test('heartscale spends from the bag and refuses with the reason', () => {
 	cli('new');
-	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
-	// The IV has to be recorded before a scale can be spent on it — the bag
-	// refusal comes first, so this is the empty-bag path.
+	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3', '--iv-spe', '18');
+	const caughtIvs = Object.assign({}, read().box[0].ivs);
+	// The owned IV is known; the bag refusal comes first, so this is the
+	// empty-bag path.
 	assert.throws(() => cli('heartscale', 'mon-1', 'spe'),
 		/no shop sells them — need 1, the bag has 0/);
 	assert.deepEqual(read().bag, {});
 
 	cli('acquire', 'Heart', 'Scale', '--count', '2');
 	assert.equal(cli('heartscale', 'mon-1', 'spe'),
-		'Poochyena (mon-1) Speed IV unrecorded → 31 (Heart Scale spent, 1 left)');
+		'Poochyena (mon-1) Speed IV 18 → 31 (Heart Scale spent, 1 left)');
 	assert.equal(read().box[0].ivs.spe, 31);
 	assert.deepEqual(read().bag, {'Heart Scale': 1});
 
@@ -339,7 +340,8 @@ test('heartscale spends from the bag and refuses with the reason', () => {
 
 	cli('undo');
 	assert.deepEqual(read().bag, {'Heart Scale': 2}, 'undo puts the scale back');
-	assert.deepEqual(read().box[0].ivs, {});
+	assert.deepEqual(read().box[0].ivs, caughtIvs,
+		'undo restores the encounter roll, including the entered Speed IV');
 });
 
 test('advise ranks single changes against a fight without writing', () => {
@@ -352,9 +354,9 @@ test('advise ranks single changes against a fight without writing', () => {
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'advise wrote to the save');
 	assert.match(advice, /Youngster Calvin \(#0\) — \d+ single changes weighed/);
 	assert.match(advice, /party at the cap it is fought under: L12/);
-	// Poochyena knows only Tackle; Play Rough is the change that flips a cell,
-	// and it leads the list with the KO it gains.
-	assert.match(advice, /^ {2}mon-1 {3}Poochyena {5}teach {7}Play Rough.*\+1 KO {2}\+\d+\.\d\d bars$/m);
+	// Poochyena knows only Tackle. Undated TM/tutor access is not treated as
+	// available before Calvin, so the advisor leads with the level-up move Bite.
+	assert.match(advice, /^ {2}mon-1 {3}Poochyena {5}teach {7}Bite.*\+\d+\.\d\d bars$/m);
 });
 
 test('the recreation verbs: a starter opens the run, a roll suggests, a spend burns', () => {

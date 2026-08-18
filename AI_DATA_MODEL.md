@@ -7,6 +7,22 @@ used by a browser or server without sharing mutable calculator objects.
 The initial TypeScript contract lives in `ai/src/model.ts` and is exported by
 the `runbuncalc-ai` subpackage.
 
+Planner output is not mutable battle state. Accepted `pokemon.rab.plan`
+request/receipt pairs are stored as content-addressed `rabrun.evidence/1.0.0`
+records beside the attempt event ledger. They bind an attempt revision, owned
+party and IVs, trainer order, explicit seeds, provider revision, result hash,
+and replay hash without advancing the game revision. Played fights are separate
+canonical `battle.ended` events with seed, turns, participants, outcome, and
+deaths. Versioned contribution rows record appearances, switch-ins, move
+attempts, immediate opposing real HP removed by those moves, and direct KOs.
+They deliberately exclude Substitute HP, hazards, residual effects, balls, and
+illegal actions; these are realized participation facts, not carry or causal
+value. `rl-dataset.js` schema `1.4.0` materializes both sides into typed
+`planning_receipts`, `planning_branches`, `battle_outcomes`, and
+`planning_reviews` tables plus primitive `battle_contributions` rows, and adds
+`attribution_receipts`, `attribution_tests`, and `attribution_branches` tables
+for Arrow/Parquet-oriented analytics and RL work.
+
 `validateBattleState()` is the runtime boundary for serialized inputs. It
 checks stable party IDs, active-slot ownership, HP/resource ranges, stat stages,
 volatile timers, hazard layers, supported weather/terrain values, field and

@@ -7,7 +7,9 @@
  * `run.test.js` covers the rules and `play.test.js` covers the save file. What
  * is only checkable here is the thing a player actually does: start a run, look
  * at a route, catch something off it, set a party, and plan the next fight —
- * with the whole run living in `localStorage` and the server holding nothing.
+ * with the whole run living in private browser storage and the server holding
+ * nothing. IndexedDB owns the durable revision; localStorage is a compatibility
+ * mirror and cross-tab signal.
  *
  * These properties are specific to this layer and cannot be tested below it:
  *
@@ -27,6 +29,10 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
+
+const planningRequest = require('./contracts/ecosystem/v1/planning-request.json');
+const seededProviderReceipt = require('./contracts/ecosystem/v1/seeded-provider-receipt.json');
+const dataset = require('./rl-dataset');
 
 const startServer = require('./server').startServer;
 
@@ -95,12 +101,572 @@ async function open() {
 async function openAllSections(page) {
 	await page.$$eval('.rb-disclose .rb-disclose-btn[aria-expanded="false"]',
 		els => els.forEach(el => el.click()));
+	// The manual disclosures (location chooser, scripted-catch form) fold by
+	// design; tests that drive the whole panel open them the same way. The
+	// transfer details is deliberately excluded — tests toggle it by summary.
+	await page.$$eval('#runbun-run details.runbun-run-manual-map',
+		els => els.forEach(el => { el.open = true; }));
 }
 
 async function savedRun(page) {
 	const raw = await page.evaluate(() => window.localStorage.getItem('runbun.run.v1'));
 	return raw ? JSON.parse(raw) : null;
 }
+
+async function durableHead(page) {
+	return page.evaluate(() => window.RunBunAttemptStore.getDefault().loadActive());
+}
+
+async function driveVisibleBattleToReceipt(page, maxTurns) {
+	for (let turn = 0; turn < (maxTurns || 40); turn++) {
+		const done = await page.evaluate(() =>
+			/recorded|Wiped/.test(document.querySelector('#runbun-run-status').textContent));
+		if (done) break;
+		const button = await page.$('#runbun-run-battle-moves .runbun-run-battle-move') ||
+			await page.$('#runbun-run-battle-switches .runbun-run-battle-switch');
+		if (!button) {
+			await page.waitForTimeout(250);
+			continue;
+		}
+		await button.click();
+		await page.waitForTimeout(150);
+	}
+	await page.waitForFunction(
+		() => /recorded/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 15000});
+	return page.evaluate(async () => {
+		const store = window.RunBunAttemptStore.getDefault();
+		const head = await store.loadActive();
+		const inspected = await store.inspectAttempt(head.attemptId);
+		return inspected.events.filter(event => event.kind === 'battle.ended').at(-1);
+	});
+}
+
+test('a new run cannot outrun durable bootstrap', {skip}, async () => {
+	const context = await browser.newContext();
+	await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
+	let releaseMaps;
+	const mapsReleased = new Promise(resolve => { releaseMaps = resolve; });
+	await context.route('**/run/maps', async route => {
+		await mapsReleased;
+		await route.continue();
+	});
+	const page = await context.newPage();
+	await page.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
+	await page.waitForFunction(() => {
+		const button = document.querySelector('#runbun-run-new');
+		const events = button && window.jQuery && window.jQuery._data(button, 'events');
+		return events && events.click;
+	});
+
+	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	assert.equal(await page.isDisabled('#runbun-run-new'), true,
+		'the selected starter must not bypass unfinished durable bootstrap');
+	assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'true');
+	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
+	assert.equal(await savedRun(page), null, 'a programmatic early click must not create a fallback save');
+
+	releaseMaps();
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-map option').length > 100,
+		null, {timeout: 15000});
+	await page.waitForFunction(() => !document.querySelector('#runbun-run-new').disabled);
+	assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'false');
+	await page.click('#runbun-run-new');
+	await page.waitForFunction(() => /Started My run/.test(
+		document.querySelector('#runbun-run-status').textContent), null, {timeout: 15000});
+	const head = await durableHead(page);
+	assert.equal(head.revision, 1);
+	assert.equal(head.run.name, 'My run');
+	await context.close();
+});
+
+async function selectManualMap(page, map) {
+	// Both manual disclosures share the class: the location chooser this
+	// helper selects in, and the scripted-catch form the same flows fill next.
+	await page.$$eval('.runbun-run-manual-map',
+		els => els.forEach(el => { el.open = true; }));
+	await page.selectOption('#runbun-run-map', map);
+}
+
+test('the page plans through the pinned pokemon-mono browser provider', {skip, timeout: 120000}, async () => {
+	const session = await open();
+	const page = session.page;
+	// The server authors the entire rolled identity, so the deterministic
+	// seam is the server's answer itself — the page only carries it.
+	await session.context.route('**/run/encounter', async route => {
+		const response = await route.fetch();
+		const payload = await response.json();
+		payload.roll.species = 'Zigzagoon-Galar';
+		payload.roll.ability = 'Gluttony';
+		payload.roll.nature = 'Adamant';
+		payload.roll.ivs = {hp: 0, atk: 5, def: 9, spa: 13, spd: 20, spe: 28};
+		await route.fulfill({response, json: payload});
+	});
+	assert.deepEqual(await page.evaluate(() => ({
+		repository: window.RunBunPokemonProvider.metadata.repository,
+		revision: window.RunBunPokemonProvider.metadata.engineRevision,
+		plan: typeof window.RunBunPokemonProvider.provider.plan,
+		attribute: typeof window.RunBunPokemonProvider.provider.attribute,
+	})), {
+		repository: 'pokemon-mono',
+		revision: '2ae1b7e5721a2d2ff3b9692df75f65329c891650',
+		plan: 'function',
+		attribute: 'function',
+	});
+	assert.equal(await page.evaluate(() =>
+		window.RunBunPokemonProvider.resolveTrainerOrder('Youngster Calvin')), 3);
+	assert.deepEqual(await page.evaluate(request =>
+		window.RunBunPokemonProvider.provider.plan(request), planningRequest),
+	seededProviderReceipt, 'browser provider must reproduce pokemon-mono canonical receipt exactly');
+
+	await page.check('#runbun-run-new-route');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+
+	// One real route roll supplies the reserve used by the replacement test.
+	// Its owned IVs are facts from the roll, and must survive reconstruction.
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	await page.click('#runbun-run-roll-catch');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).box.length === 2,
+		null, {timeout: 10000});
+	const wild = (await savedRun(page)).box[1];
+	assert.equal(wild.species, 'Zigzagoon-Galar');
+	assert.equal(wild.ability, 'Gluttony',
+		'the acquisition must use the same ROM-backed ability as the pinned runtime');
+	assert.deepEqual(Object.keys(wild.ivs).sort(), ['atk', 'def', 'hp', 'spa', 'spd', 'spe']);
+	assert.equal(Object.values(wild.ivs).every(iv =>
+		Number.isInteger(iv) && iv >= 0 && iv <= 31), true);
+	assert.deepEqual(wild.ivs, {hp: 0, atk: 5, def: 9, spa: 13, spd: 20, spe: 28},
+		'the wild roll must preserve its six generated values, not a trainer default');
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-live:not([hidden])', {timeout: 15000});
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-map option').length > 100,
+		null, {timeout: 15000});
+	await openAllSections(page);
+	const reconstructedWild = (await savedRun(page)).box.find(mon => mon.id === wild.id);
+	assert.deepEqual(reconstructedWild.ivs, wild.ivs,
+		'reload must reconstruct the one owned IV roll instead of rerolling it');
+
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(() => !document.querySelector('#runbun-run-plan').disabled,
+		null, {timeout: 10000});
+	await page.evaluate(() => {
+		const provider = window.RunBunPokemonProvider.provider;
+		const plan = provider.plan.bind(provider);
+		window.__pokemonMonoTrainerOrders = [];
+		provider.plan = request => {
+			window.__pokemonMonoTrainerOrders.push(request.task.state.trainer.order);
+			return plan(request);
+		};
+	});
+	const revisionBeforePlan = (await durableHead(page)).revision;
+	// A real mid-run screen is taller than the window and the player sits up
+	// at the hero commands; the verdict renders far below them. A short
+	// viewport makes that geometry decisive rather than coincidental.
+	await openAllSections(page);
+	await page.setViewportSize({width: 1280, height: 360});
+	await page.$eval('#runbun-run-plan', el => {
+		el.scrollIntoView({block: 'center'});
+	});
+	await page.click('#runbun-run-plan');
+	await page.waitForSelector('#runbun-run-plan-actions .is-provider', {timeout: 30000});
+	// An answer the player asks for must arrive on their screen: Check
+	// matchup scrolls its own verdict into the viewport. The page scrolls
+	// smoothly, so the settled position is what counts.
+	await page.waitForFunction(() => {
+		const box = document.getElementById('runbun-run-plan-verdict').getBoundingClientRect();
+		return box.bottom > 0 && box.top < window.innerHeight;
+	}, null, {timeout: 5000}).catch(() => {
+		throw new Error('the plan verdict must be scrolled into the viewport');
+	});
+	await page.setViewportSize({width: 1280, height: 720});
+	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrders[0]), 3,
+		'Calvin must resolve to the canonical raw trainer order, not the filtered UI index');
+	assert.equal(await page.evaluate(() => window.__pokemonMonoTrainerOrders.length), 3,
+		'the warm browser batch should check the current and next two fights');
+	assert.equal(await page.$$eval('#runbun-run-plan-outlook-list li', rows => rows.length), 2,
+		'the current forecast belongs in the plan; the next two belong in the outlook');
+	assert.match(await page.textContent('#runbun-run-plan-actions'),
+		/PARTIAL PLAN · Pokemon Mono · lead Treecko L5 · \d+\/8 sampled branches deathless/);
+	assert.match(await page.textContent('#runbun-run-plan-outlook'),
+		/bounded eight-seed checks, not certified safe routes/);
+	assert.equal(await page.textContent('#runbun-run-plan-evidence'),
+		'3 simulator receipts saved with this attempt.');
+	const retained = await page.evaluate(async attemptId => {
+		const store = window.RunBunAttemptStore.getDefault();
+		return {
+			head: await store.loadActive(),
+			evidence: await store.listEvidence(attemptId),
+		};
+	}, (await durableHead(page)).attemptId);
+	assert.equal(retained.head.revision, revisionBeforePlan,
+		'read-only planning must not advance the game-state revision');
+	assert.equal(retained.evidence.length, 3);
+	assert.deepEqual(retained.evidence.map(record => record.receipt.input.revision),
+		[revisionBeforePlan, revisionBeforePlan, revisionBeforePlan]);
+	assert.equal(retained.evidence.every(record =>
+		record.schemaVersion === 'rabrun.evidence/1.0.0' &&
+		/^[a-f0-9]{64}$/.test(record.evidenceHash)), true);
+	await page.click('#runbun-run-value');
+	await page.waitForFunction(() => !document.querySelector('#runbun-run-value').disabled,
+		null, {timeout: 60000});
+	assert.match(await page.textContent('#runbun-run-attribution-state'),
+		/saved with this attempt/);
+	assert.match(await page.textContent('#runbun-run-attribution'),
+		/Modeled roster value.*Baseline · \d+\/4 paired seeds deathless.*IV reference test · Treecko → all 15/s);
+	assert.match(await page.textContent('#runbun-run-attribution'),
+		/Replacement test · Treecko → .+ · .*4 paired seeds/s,
+		'the caught reserve must be compared on the same fixed seeds');
+	assert.match(await page.textContent('#runbun-run-attribution'),
+		/Model only · same paired seeds · lead reoptimized/);
+	const attributionEvidence = await page.evaluate(async attemptId =>
+		window.RunBunAttemptStore.getDefault().listEvidence(attemptId),
+	(await durableHead(page)).attemptId);
+	assert.equal(attributionEvidence.length, 4);
+	assert.equal(attributionEvidence[3].kind, 'pokemon.rab.attribute');
+	assert.equal(Object.hasOwn(attributionEvidence[3], 'carry'), false);
+
+	// Play the exact fight the plan described. This must create the battle
+	// event through ordinary UI commands, including contribution telemetry.
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
+	assert.match(await page.textContent('#runbun-run-battle-trainer'), /Youngster Calvin/);
+	const completed = await driveVisibleBattleToReceipt(page);
+	assert.equal(completed.payload.trainer, 'Youngster Calvin');
+	assert.equal(completed.payload.trainerOrder, 3);
+	assert.equal(completed.payload.contributionVersion, 1);
+	assert.equal(completed.payload.contributionComplete, true);
+	assert.ok(completed.payload.contributions.some(row =>
+		row.appearances > 0 && row.moveAttempts > 0));
+	assert.equal(Object.hasOwn(completed.payload, 'carry'), false);
+	assert.equal(completed.source.kind, 'simulator');
+	assert.equal(completed.source.providerId, 'runbun-battle-driver');
+	await page.click('#runbun-run-battle-abandon');
+	await page.waitForFunction(() => document.querySelector('#runbun-run-battle').hidden,
+		null, {timeout: 10000});
+
+	await page.click('#runbun-run-review');
+	await page.waitForSelector('#runbun-history-planning .runbun-history-plan', {timeout: 10000});
+	assert.equal(await page.$$eval('#runbun-history-planning .runbun-history-plan',
+		rows => rows.length), 3, 'the current plan and two-fight outlook become review rows');
+	assert.match(await page.textContent('#runbun-history-planning'),
+		/Youngster Calvin.*(sampled plan held in play|played fight was harsher than the sample|played fight beat the sampled risk|sampled risk showed up in play|played fight ended in defeat).*Played · (won|lost)/s);
+	assert.match(await page.textContent('#runbun-history-planning'),
+		/Actual participation/s);
+	assert.match(await page.textContent('#runbun-history-planning'),
+		/Modeled value · fixed-seed tests.*IV reference test · Treecko → all 15/s);
+	assert.doesNotMatch(await page.textContent('#runbun-history-planning'), /\bcarry\b/i);
+
+	const bundle = await page.evaluate(() =>
+		window.RunBunAttemptStore.getDefault().exportActive());
+	const rows = await dataset.materialize(bundle);
+	assert.equal(rows.planning_receipts.length, 3);
+	assert.equal(rows.attribution_receipts.length, 1);
+	assert.deepEqual(rows.attribution_tests.map(row => row.kind).sort(),
+		['normalize-ivs', 'replace-party-member']);
+	const replacement = rows.attribution_tests.find(row => row.kind === 'replace-party-member');
+	assert.ok(replacement.source_event_id && replacement.source_event_hash,
+		'the species counterfactual must bind to the reserve acquisition event');
+	assert.equal(rows.battle_outcomes.length, 1);
+	assert.equal(rows.battle_outcomes[0].trainer_order, 3);
+	assert.equal(rows.battle_outcomes[0].outcome, completed.payload.outcome);
+	assert.ok(rows.battle_contributions.some(row =>
+		row.mon_id === 'mon-1' && row.complete && row.move_attempts > 0));
+	const review = rows.planning_reviews.find(row => row.trainer_order === 3);
+	assert.ok(review && review.battle_event_id,
+		'the materialized plan review must join the actual fight to its fixed-seed plan');
+	assert.equal(review.actual_outcome, completed.payload.outcome === 'won' ? 'win' : 'loss');
+	assert.equal(Object.hasOwn(rows.attribution_tests[0], 'carry'), false);
+	assert.deepEqual(session.errors, []);
+	await session.context.close();
+});
+
+test('a new run presents the next valid decision before the fight', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+
+	assert.match(await page.textContent('#runbun-run-next-title'),
+		/Build a party for Youngster Calvin/);
+	assert.equal(await page.textContent('#runbun-run-play'), 'Choose your party');
+	assert.equal(await page.isDisabled('#runbun-run-plan'), true,
+		'a matchup preview without a party is not a valid next action');
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="box"] .rb-disclose-btn', 'aria-expanded'), 'true',
+	'the roster should be open when the starter is the next useful object');
+	assert.equal(await page.textContent('#runbun-run-party-strip .is-summary'),
+		'6 open slots · choose from the roster');
+	assert.equal(await page.$$eval('#runbun-run-party-strip > li', rows => rows.length), 1,
+		'empty capacity should be summarized instead of drawing six empty cards');
+	assert.equal(await page.isHidden('.runbun-run-party-commit'), true,
+		'the commit action should stay out of the layout until party order changes');
+
+	await page.click('#runbun-run-play');
+	assert.equal(await page.evaluate(() =>
+		document.activeElement.classList.contains('runbun-run-add')), true,
+	'Choose your party should focus the first usable roster control');
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	assert.equal(await page.isVisible('.runbun-run-party-commit'), true);
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => /Face Youngster Calvin/.test(
+			document.querySelector('#runbun-run-next-title').textContent),
+		null, {timeout: 10000});
+
+	assert.match(await page.textContent('#runbun-run-play'), /Fight Youngster Calvin/);
+	assert.equal(await page.isDisabled('#runbun-run-plan'), false);
+	assert.equal(await page.textContent('#runbun-run-ready-party'), '1 / 6 · lead set');
+	assert.equal(await page.textContent('#runbun-run-ready-level'), 'Projected to L12');
+	assert.equal(await page.textContent('#runbun-run-ready-recovery'), 'Fresh at fight start');
+	assert.equal(await page.textContent('#runbun-run-party-strip .is-summary'), '5 open slots');
+	assert.equal(await page.$$eval('.runbun-run-next-actions > button', buttons => buttons.length), 7,
+		'the active loop should keep roster value inside one compact command deck');
+	assert.match(await page.textContent('#runbun-run-party-strip .runbun-run-party-meta'),
+		/No held item · 3 moves/);
+	await page.click('#runbun-run-party-strip .runbun-run-party-select[data-id="mon-1"]');
+	assert.equal(await page.inputValue('#runbun-run-selected'), 'mon-1');
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="tools"] .rb-disclose-btn', 'aria-expanded'), 'true',
+	'party members should be inspectable without duplicating them in the reserve');
+	assert.match(await page.textContent('#runbun-run-mon-summary-name'), /Treecko · L5/);
+	assert.equal(await page.textContent('#runbun-run-mon-summary-types'), 'Grass');
+	const ownedFacts = await page.textContent('#runbun-run-mon-facts');
+	assert.match(ownedFacts, /AbilityOvergrowNature[A-Z][a-z]+/,
+		'a game-owned starter must expose its rolled ability and nature');
+	assert.doesNotMatch(ownedFacts, /Not recorded/,
+		'game-owned facts must not fall back to imported-data uncertainty');
+	assert.equal(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv.is-unknown',
+		rows => rows.length), 0, 'a game-owned starter has all six player IVs');
+	assert.deepEqual(await page.$$eval('#runbun-run-mon-summary-ivs .runbun-run-iv strong',
+		rows => rows.map(row => Number(row.textContent)).map(value =>
+			Number.isInteger(value) && value >= 0 && value <= 31)),
+	[true, true, true, true, true, true]);
+	assert.match(await page.textContent('#runbun-run-iv-note'),
+		/Your IVs drive damage, speed, and survival\. Trainer teams use 31; wild encounters use their roll/);
+
+	await page.click('#runbun-run-mon-record summary');
+	await page.selectOption('#runbun-run-observed-nature', 'Jolly');
+	await page.fill('#runbun-run-observed-ability', 'Overgrow');
+	await page.fill('#runbun-run-observed-iv-atk', '27');
+	await page.fill('#runbun-run-observed-iv-spe', '31');
+	await page.click('#runbun-run-record-details');
+	await page.waitForFunction(() => {
+		const facts = document.querySelector('#runbun-run-mon-facts').textContent;
+		const ivs = Array.from(document.querySelectorAll(
+			'#runbun-run-mon-summary-ivs .runbun-run-iv strong'), row => row.textContent);
+		return /AbilityOvergrowNatureJolly/.test(facts) &&
+			ivs[1] === '27' && ivs[5] === '31';
+	}, null, {timeout: 10000});
+	assert.match(await page.textContent('#runbun-run-mon-facts'), /AbilityOvergrowNatureJolly/);
+	assert.equal(await page.textContent('#runbun-run-mon-summary-ivs .runbun-run-iv:nth-child(2) strong'), '27');
+	assert.equal(await page.textContent('#runbun-run-mon-summary-ivs .runbun-run-iv:nth-child(6) strong'), '31');
+	const identifiedStarter = (await savedRun(page)).box[0];
+	assert.equal(identifiedStarter.nature, 'Jolly', 'the visible identification must reach the durable run');
+	assert.equal(identifiedStarter.ability, 'Overgrow');
+	assert.equal(identifiedStarter.ivs.atk, 27);
+	assert.equal(identifiedStarter.ivs.spe, 31);
+	assert.match(await page.textContent('#runbun-run-opportunity-list'),
+		/4 encounter areas/);
+	assert.match(await page.textContent('#runbun-run-opportunity-list'),
+		/2 field items/);
+	assert.match(await page.textContent('#runbun-run-opportunity-list'),
+		/TM & tutorsMove locations are not mapped yet/);
+	assert.equal(await page.$$eval('#runbun-run-reachable .runbun-run-route-choice',
+		buttons => buttons.length), 4,
+	'Explore should begin with the four reachable choices, not the complete ROM catalog');
+
+	await page.click('.runbun-run-opportunity-action[data-kind="items"]');
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="catch"] .rb-disclose-btn', 'aria-expanded'), 'true');
+	assert.equal(await page.inputValue('#runbun-run-map'), 'Route101');
+	await page.waitForFunction(() => /Potion/.test(
+		document.querySelector('#runbun-run-items').textContent), null, {timeout: 10000});
+
+	await page.click('.runbun-run-opportunity-action[data-kind="encounters"]');
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="catch"] .rb-disclose-btn', 'aria-expanded'), 'true');
+	assert.equal(await page.evaluate(() =>
+		document.activeElement.classList.contains('runbun-run-route-choice')), true);
+
+	await page.click('#runbun-run-review');
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="history"] .rb-disclose-btn', 'aria-expanded'), 'true');
+	await page.waitForFunction(() => /active run joins history/i.test(
+		document.querySelector('#runbun-history-state').textContent), null, {timeout: 5000});
+	await page.click('#runbun-run-explore');
+	assert.equal(await page.getAttribute(
+		'.rb-disclose[data-section="catch"] .rb-disclose-btn', 'aria-expanded'), 'true');
+	assert.equal(await page.evaluate(() =>
+		document.activeElement.classList.contains('runbun-run-route-choice')), true);
+	assert.deepEqual(session.errors, []);
+
+	await session.context.close();
+});
+
+test('IndexedDB is authoritative and exports a checked replay archive', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+
+	await page.fill('#runbun-run-new-name', 'Durable run');
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.waitForFunction(async () => {
+		const head = await window.RunBunAttemptStore.getDefault().loadActive();
+		return head && head.revision === 1 && head.run.name === 'Durable run';
+	}, null, {timeout: 15000});
+
+	const before = await durableHead(page);
+	assert.equal(before.revision, 1);
+	const inspected = await page.evaluate(id =>
+		window.RunBunAttemptStore.getDefault().inspectAttempt(id), before.attemptId);
+	assert.equal(inspected.events.length, 1);
+	assert.equal(inspected.events[0].kind, 'run.started');
+	assert.equal(inspected.events[0].schemaVersion, '2.0.0');
+	assert.equal(inspected.events[0].source.providerId, 'runbun-browser');
+	assert.equal(inspected.events[0].source.kind, 'manual');
+	assert.match(inspected.events[0].eventHash, /^[a-f0-9]{64}$/);
+	assert.deepEqual(await page.evaluate(async () => {
+		const request = indexedDB.open(window.RunBunAttemptStore.DB_NAME);
+		const db = await new Promise((resolve, reject) => {
+			request.onsuccess = () => resolve(request.result);
+			request.onerror = () => reject(request.error);
+		});
+		const tx = db.transaction(['events', 'snapshots', 'idempotency', 'evidence'], 'readonly');
+		const result = {
+			databaseVersion: db.version,
+			events: Array.from(tx.objectStore('events').indexNames),
+			snapshots: Array.from(tx.objectStore('snapshots').indexNames),
+			idempotency: Array.from(tx.objectStore('idempotency').indexNames),
+			evidence: Array.from(tx.objectStore('evidence').indexNames),
+		};
+		db.close();
+		return result;
+	}), {
+		databaseVersion: 3,
+		events: ['byAttempt', 'byAttemptRevision'],
+		snapshots: ['byAttempt', 'byAttemptRevision'],
+		idempotency: ['byAttempt'],
+		evidence: ['byAttempt'],
+	});
+
+	// Delete only the compatibility mirror. Reload must recover the IndexedDB
+	// head and repopulate that mirror, proving localStorage is not authoritative.
+	await page.evaluate(() => window.localStorage.removeItem('runbun.run.v1'));
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-live:not([hidden])', {timeout: 15000});
+	assert.equal(await page.textContent('#runbun-run-name'), 'Durable run');
+	assert.equal((await savedRun(page)).name, 'Durable run');
+	assert.match(await page.textContent('#runbun-run-status'), /durable browser storage/);
+
+	await page.click('.runbun-run-transfer summary');
+	await page.click('#runbun-run-export');
+	await page.waitForFunction(
+		() => /"format": "rabrun\.archive"/.test(
+			document.querySelector('#runbun-run-transfer').value),
+		null, {timeout: 10000});
+	assert.equal(await page.evaluate(async () => {
+		const bundle = JSON.parse(document.querySelector('#runbun-run-transfer').value);
+		return window.RunBunAttemptStore.validateBundle(bundle);
+	}), true);
+	await page.click('#runbun-run-import');
+	await page.waitForFunction(() => /Imported checked attempt archive/.test(
+		document.querySelector('#runbun-run-status').textContent), null, {timeout: 10000});
+	assert.equal((await durableHead(page)).revision, 1, 'duplicate import preserves the durable head');
+
+	assert.deepEqual(session.errors, [], `page raised errors: ${session.errors.join('; ')}`);
+	await session.context.close();
+});
+
+test('a v1 browser database upgrades in place before the next command', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	const head = await durableHead(page);
+
+	await page.evaluate(async oldHead => {
+		const name = window.RunBunAttemptStore.DB_NAME;
+		await new Promise((resolve, reject) => {
+			const request = indexedDB.deleteDatabase(name);
+			request.onsuccess = resolve;
+			request.onerror = () => reject(request.error);
+			request.onblocked = () => reject(new Error('legacy database deletion was blocked'));
+		});
+		const db = await new Promise((resolve, reject) => {
+			const request = indexedDB.open(name, 1);
+			request.onupgradeneeded = () => {
+				const created = request.result;
+				created.createObjectStore('heads', {keyPath: 'attemptId'});
+				created.createObjectStore('events', {keyPath: 'id'});
+				created.createObjectStore('snapshots', {keyPath: 'id'});
+				created.createObjectStore('idempotency', {keyPath: 'id'});
+				created.createObjectStore('archives', {keyPath: 'archiveId'});
+				created.createObjectStore('meta', {keyPath: 'key'});
+			};
+			request.onsuccess = () => resolve(request.result);
+			request.onerror = () => reject(request.error);
+		});
+		await new Promise((resolve, reject) => {
+			const tx = db.transaction(['heads', 'events', 'snapshots', 'idempotency', 'meta'], 'readwrite');
+			const id = oldHead.attemptId;
+			const legacyEvent = {id: id + ':1', attemptId: id, revision: 1,
+				commandId: 'legacy-start', kind: 'run.started', payload: {run: oldHead.run},
+				observedAt: oldHead.run.createdAt, previousStateHash: null,
+				stateHash: oldHead.stateHash};
+			tx.objectStore('heads').put({attemptId: id, revision: 1,
+				run: oldHead.run, stateHash: oldHead.stateHash});
+			tx.objectStore('events').put(legacyEvent);
+			tx.objectStore('snapshots').put({id: id + ':1', attemptId: id,
+				revision: 1, run: oldHead.run, stateHash: oldHead.stateHash});
+			tx.objectStore('idempotency').put({id: id + '::legacy-start', attemptId: id,
+				commandId: 'legacy-start', fingerprint: 'legacy', revision: 1,
+				run: oldHead.run, event: legacyEvent, stateHash: oldHead.stateHash});
+			tx.objectStore('meta').put({key: 'activeAttemptId', value: id});
+			tx.oncomplete = resolve;
+			tx.onerror = () => reject(tx.error);
+		});
+		db.close();
+	}, head);
+
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-live:not([hidden])', {timeout: 15000});
+	await openAllSections(page);
+	await page.fill('#runbun-run-acquire-item', 'Potion');
+	await page.click('#runbun-run-acquire');
+	await page.waitForFunction(async () => {
+		const active = await window.RunBunAttemptStore.getDefault().loadActive();
+		return active && active.revision === 2;
+	}, null, {timeout: 15000});
+	const upgraded = await page.evaluate(async () => {
+		const store = window.RunBunAttemptStore.getDefault();
+		const bundle = await store.exportActive();
+		return {bundle, valid: await store.validateBundle(bundle)};
+	});
+	assert.equal(upgraded.valid, true);
+	assert.equal(upgraded.bundle.modelVersion, '2.0.0');
+	assert.equal(upgraded.bundle.events[0].source.kind, 'migration');
+	assert.equal(upgraded.bundle.events[1].source.kind, 'manual');
+	assert.equal(upgraded.bundle.events[1].previousEventHash,
+		upgraded.bundle.events[0].eventHash);
+	assert.deepEqual(session.errors, []);
+	await session.context.close();
+});
 
 test('a player starts a run, catches off a real route, and plans the next fight', {skip}, async () => {
 	const session = await open();
@@ -124,10 +690,10 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	const cap = await page.textContent('#runbun-run-cap');
 	assert.match(cap, /Level cap 12 — Team Aqua Grunt Petalburg Woods's Croagunk/);
 	// And the split leads the position line.
-	assert.match(await page.textContent('#runbun-run-position'), /Brawly split \(1\/18\)/);
+	assert.match(await page.textContent('#runbun-run-position'), /Road to Brawly · boss 1\/18/);
 
 	// Picking a route lists what actually lives there.
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -150,7 +716,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	const boxed = await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-name');
 	assert.match(boxed, /Scout the Lillipup L\d+/);
 	// Where it came from travels with it, which is what makes the box a record.
-	assert.match(await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-kit'), /walk · Route101/);
+	assert.match(await page.textContent('.runbun-run-mon[data-id="mon-2"] .runbun-run-mon-kit'), /walk · Route 101/);
 
 	// The party is built by clicking, because click order IS lead order — the
 	// multi-select this replaced returned selections in DOM order, so the lead
@@ -159,11 +725,16 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.click('.runbun-run-mon[data-id="mon-2"] .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
-		() => document.querySelector('#runbun-run-box .runbun-run-mon.is-party') !== null,
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party[0] === 'mon-2' &&
+			document.querySelectorAll('#runbun-run-box .runbun-run-mon[data-id="mon-2"]').length === 0,
 		null, {timeout: 10000});
+	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon[data-id="mon-2"]',
+		rows => rows.length), 0,
+	'the persistent party should not be drawn again in the reserve');
 
 	// The split sheet names the boss the run is working toward and its gauntlet.
-	assert.match(await page.textContent('#runbun-run-split-summary'), /Brawly split \(1\/18\)/);
+	assert.match(await page.textContent('#runbun-run-split-summary'),
+		/Road to Brawly · boss 1\/18/);
 	assert.ok(await page.$$eval('#runbun-run-split-gauntlet .runbun-run-split-fight',
 		els => els.length) >= 4, 'the gauntlet lists the boss-tier fights');
 
@@ -196,17 +767,26 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.ok(cells.length >= 2, 'both directions should render cells');
 	assert.ok(cells.every(text => /%|—/.test(text)), 'every cell is a percent or an honest dash');
 
+	// Pin this owned stat to a deterministic non-perfect value before testing the
+	// economy. Game-owned Pokemon already have all six IVs; this is an edit, not
+	// filling an unknown.
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-mon-select');
+	await page.click('#runbun-run-mon-record summary');
+	await page.fill('#runbun-run-observed-iv-spe', '5');
+	await page.click('#runbun-run-record-details');
+	await page.waitForFunction(
+		() => /recorded Treecko/.test(document.querySelector('#runbun-run-status').textContent),
+		null, {timeout: 10000});
+
 	// The Heart Scale button is never disabled, so the refusal is what a player
-	// with an empty bag reads — and it has to name which of the two reasons
-	// stopped it, or a greyed-out button would have said more.
-	await page.click('.runbun-run-mon[data-id="mon-1"]');
+	// with an empty bag reads — and it has to name the inventory reason.
 	await page.selectOption('#runbun-run-iv-stat', 'spe');
 	await page.click('#runbun-run-heartscale');
 	await page.waitForFunction(
 		() => /no shop sells them/.test(document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
 
-	// With one in the bag it spends, and the box records the IV.
+	// With one in the bag it spends, and the box records the upgrade.
 	await page.fill('#runbun-run-acquire-item', 'Heart Scale');
 	await page.click('#runbun-run-acquire');
 	await page.waitForFunction(
@@ -214,7 +794,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		null, {timeout: 10000});
 	await page.click('#runbun-run-heartscale');
 	await page.waitForFunction(
-		() => /Speed IV unrecorded → 31/.test(
+		() => /Speed IV 5 → 31/.test(
 			document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
 	assert.equal((await savedRun(page)).box[0].ivs.spe, 31);
@@ -222,15 +802,22 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	// The advisor: the same board, read as "what do I change about it".
 	await page.click('#runbun-run-advise');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-advice .runbun-run-advice-row').length > 0,
+		() => document.querySelector('#runbun-run-advice .runbun-run-advice-row, ' +
+			'#runbun-run-advice .runbun-run-advice-empty') !== null,
 		null, {timeout: 30000});
 	assert.match(await page.textContent('#runbun-run-advice-note'),
-		/Youngster Calvin \(#0\) · \d+ single changes weighed/);
+		/Youngster Calvin \(#0\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
 	const rows = await page.$$eval('#runbun-run-advice .runbun-run-advice-row',
 		els => els.map(el => el.textContent));
 	assert.ok(rows.length <= 10, 'the advisor offers a shortlist, not a catalogue');
-	assert.ok(/Scout/.test(rows[0]), 'each row names the Pokemon it would change');
-	assert.ok(rows.some(text => /KO/.test(text)), 'a flipped cell is why the list is ordered');
+	if (rows.length) {
+		assert.ok(/Scout/.test(rows[0]), 'each row names the Pokemon it would change');
+		assert.doesNotMatch(rows[0], /mon-\d+/, 'player-facing upgrades must not expose storage ids');
+		assert.ok(rows.some(text => /KO/.test(text)), 'a flipped cell is why the list is ordered');
+	} else {
+		assert.match(await page.textContent('#runbun-run-advice .runbun-run-advice-empty'),
+			/No available upgrade improves a matchup in this fight/);
+	}
 
 	assert.deepEqual(session.errors, [], `page raised errors: ${session.errors.join('; ')}`);
 	await session.context.close();
@@ -244,7 +831,7 @@ test('a catch that could not have happened is refused and changes nothing', {ski
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -261,7 +848,7 @@ test('a catch that could not have happened is refused and changes nothing', {ski
 
 	// The refusal is the feature: it names the route's real roster.
 	const message = await page.textContent('#runbun-run-status');
-	assert.match(message, /Ralts does not appear on Route101; it holds: Lillipup/);
+	assert.match(message, /Ralts does not appear on Route 101; it holds: Lillipup/);
 	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');
 	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon', els => els.length), 1,
 		'only the starter stands');
@@ -280,7 +867,7 @@ test('the run survives a reload, because a playthrough that does not is not one'
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -314,7 +901,7 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party.length === 1,
 		null, {timeout: 10000});
 
 	// Open the fight and play one turn, so there is a log worth keeping.
@@ -322,6 +909,20 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
 	await page.waitForSelector('#runbun-run-battle-moves .runbun-run-battle-move',
 		{timeout: 10000});
+	await page.waitForFunction(() => document.activeElement.id === 'runbun-run-battle');
+	assert.equal(await page.$eval('#runbun-run-live', element =>
+		element.classList.contains('is-battle-active')), true,
+	'a live fight takes over the run surface');
+	assert.equal(await page.isVisible('.runbun-run-hero-party'), false,
+		'out-of-battle party editing folds while a fight is live');
+	assert.equal(await page.isVisible('.runbun-run-history-disclose'), false,
+		'run history stays out of the live battle surface');
+	assert.equal(await page.isVisible('.runbun-run-transfer'), false,
+		'save management stays out of the live battle surface');
+	const moveWidths = await page.$$eval('#runbun-run-battle-moves .runbun-run-battle-move',
+		buttons => buttons.map(button => button.getBoundingClientRect().width));
+	assert.ok(moveWidths.every(width => width >= 180),
+		'battle moves fill their two-column decision grid');
 	await page.click('#runbun-run-battle-moves .runbun-run-battle-move');
 	await page.waitForFunction(
 		() => /turn 2/.test(document.querySelector('#runbun-run-battle-turn').textContent),
@@ -332,6 +933,10 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	// The refresh: the fight is still on screen, mid-fight, log and all.
 	await page.reload({waitUntil: 'domcontentloaded'});
 	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
+	await page.waitForFunction(() => document.activeElement.id === 'runbun-run-battle');
+	assert.equal(await page.$eval('#runbun-run-live', element =>
+		element.classList.contains('is-battle-active')), true,
+	'a resumed fight restores battle mode');
 	assert.match(await page.textContent('#runbun-run-battle-trainer'), /Youngster Calvin/);
 	assert.match(await page.textContent('#runbun-run-battle-turn'), /turn 2/);
 	assert.equal(await page.textContent('#runbun-run-battle-log'), logBefore,
@@ -353,6 +958,9 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	assert.equal(await page.isVisible('#runbun-run-battle'), false,
 		'a stale fight must not resume');
+	assert.equal(await page.$eval('#runbun-run-live', element =>
+		element.classList.contains('is-battle-active')), false,
+	'a stale fight cannot leave the run surface locked in battle mode');
 	assert.equal(await page.evaluate(
 		() => window.localStorage.getItem('runbun.battle.v1')), null,
 	'a stale fight is cleaned out of storage');
@@ -368,7 +976,7 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -388,7 +996,7 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	await page.click('.runbun-run-mon[data-id="mon-2"] .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 2,
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party.length === 2,
 		null, {timeout: 10000});
 	const saved = await savedRun(page);
 	assert.deepEqual(saved.party, ['mon-3', 'mon-2'],
@@ -405,11 +1013,11 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	assert.equal((await savedRun(page)).position, 0);
 
 	// The box filter narrows without touching the document.
-	await page.fill('#runbun-run-box-filter', 'pooch');
+	await page.fill('#runbun-run-box-filter', 'tree');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 5000});
-	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Poochyena/);
+	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Treecko/);
 	assert.equal((await savedRun(page)).box.length, 3, 'filtering is a view, not a command');
 
 	await session.context.close();
@@ -476,7 +1084,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 	assert.ok(!scouted.some(text => / surf/.test(text)), 'no surfing before Surf');
 
 	// Rank needs a box; catch one and rank against the first fight.
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -487,7 +1095,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 		null, {timeout: 10000});
 	await page.click('#runbun-run-rank');
 	await page.waitForSelector('#runbun-run-ranking .runbun-run-rank-row');
-	assert.match(await page.textContent('#runbun-run-rank-note'), /sixes from a box of 2/);
+	assert.match(await page.textContent('#runbun-run-rank-note'), /1 party from 2 Pokémon/);
 	assert.match(await page.textContent('#runbun-run-ranking .runbun-run-rank-row'),
 		/Lillipup/);
 });
@@ -500,7 +1108,7 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -515,6 +1123,9 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 	// the box after an undo leaves a silent redo one click away.
 	await page.click('.runbun-run-transfer summary');
 	await page.click('#runbun-run-export');
+	await page.waitForFunction(
+		() => /Poochyena/.test(document.querySelector('#runbun-run-transfer').value),
+		null, {timeout: 10000});
 	assert.match(await page.inputValue('#runbun-run-transfer'), /Poochyena/);
 
 	await page.click('#runbun-run-undo');
@@ -567,7 +1178,7 @@ test('a pasted run the server cannot read is refused, and the save survives it',
 
 	// And the panel is still a panel: the run it holds is the one it always
 	// held, and the in-flight guard released when the import failed.
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -632,7 +1243,7 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -664,11 +1275,10 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 	await session.context.close();
 });
 
-test('the page fits a phone: the active mode reflows, the calc scrolls in place', {skip}, async () => {
-	// The viewport meta plus the scoped width floor is the whole responsive
-	// setup: without them every rule below 980px is dead code on the devices it
-	// exists for. This drives the page at a real phone size and asserts the
-	// property that matters — nothing forces the PAGE wider than the screen.
+test('the page fits a phone: every active mode reflows without page overflow', {skip}, async () => {
+	// Drive the page at a real phone size and assert the property that matters:
+	// the active game and calculator both fit the viewport without turning the
+	// page into a clipped desktop canvas.
 	const context = await browser.newContext({viewport: {width: 390, height: 844}});
 	await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
 	const page = await context.newPage();
@@ -678,15 +1288,16 @@ test('the page fits a phone: the active mode reflows, the calc scrolls in place'
 		() => document.querySelectorAll('#runbun-run-map option').length > 100,
 		null, {timeout: 15000});
 
-	// Below the breakpoint the shell is a true tab UI: the classic calc (whose
-	// desktop float layout is authored at 100em) leaves the layout entirely
-	// while another mode is active, so its floor cannot stretch the page.
+	// The shell renders one working surface at every viewport. Inactive regions
+	// leave layout entirely, so their controls cannot stretch the page.
 	assert.equal(await page.isVisible('#calc'), false,
 		'the inactive calc region should collapse on a phone');
 	await page.click('.runbun-run-starter[data-species="Treecko"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	await page.click('#runbun-run-review');
+	await page.waitForSelector('#runbun-history-content:not([hidden])', {timeout: 5000});
 	const overflow = await page.evaluate(() =>
 		document.documentElement.scrollWidth - document.documentElement.clientWidth);
 	assert.ok(overflow <= 0, `the run panel forced the page ${overflow}px wider than the phone`);
@@ -696,19 +1307,35 @@ test('the page fits a phone: the active mode reflows, the calc scrolls in place'
 	const visibleRegions = await page.$$eval('.rb-mode-region',
 		els => els.filter(el => el.offsetParent !== null).map(el => el.id));
 	assert.deepEqual(visibleRegions, ['runbun-run'],
-		'only the active mode should render on a phone');
+		'only the active surface should render on a phone');
 
-	// The calc is still reachable — it scrolls INSIDE its own region rather
-	// than widening the page for every other mode.
-	await page.click('#rb-tab-calc');
+	// The calc is still reachable. Its combatants stack as one comparison flow,
+	// followed by the field controls, with exactly one live result group.
+	await page.click('#rb-nav-calc');
 	await page.waitForSelector('#calc.rb-mode-active');
 	assert.equal(await page.isVisible('#runbun-run'), false,
 		'switching modes should swap regions, not stack them');
-	const calcScrolls = await page.evaluate(() => {
+	const calcLayout = await page.evaluate(() => {
 		const calc = document.getElementById('calc');
-		return calc.scrollWidth > calc.clientWidth;
+		return {
+			pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+			calcOverflow: calc.scrollWidth - calc.clientWidth,
+			playerTop: document.getElementById('p1').getBoundingClientRect().top,
+			opponentTop: document.getElementById('p2').getBoundingClientRect().top,
+			fieldTop: document.querySelector('#calc .field-info').getBoundingClientRect().top,
+			visibleResults: Array.from(document.querySelectorAll('#calc .move-result-group'))
+				.filter(el => getComputedStyle(el).display !== 'none').length,
+		};
 	});
-	assert.ok(calcScrolls, 'the calc should keep its desktop geometry, scrollable in place');
+	assert.ok(calcLayout.pageOverflow <= 0,
+		`the calculator forced the page ${calcLayout.pageOverflow}px wider than the phone`);
+	assert.ok(calcLayout.calcOverflow <= 0,
+		`the calculator kept ${calcLayout.calcOverflow}px of hidden desktop overflow`);
+	assert.ok(calcLayout.playerTop < calcLayout.opponentTop &&
+		calcLayout.opponentTop < calcLayout.fieldTop,
+	'the phone flow should show player, opponent, then field');
+	assert.equal(calcLayout.visibleResults, 1,
+		'the dormant doubles result group must remain hidden');
 
 	await context.close();
 });
@@ -724,7 +1351,7 @@ test('an answer the run has moved past is marked stale', {skip}, async () => {
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -737,7 +1364,7 @@ test('an answer the run has moved past is marked stale', {skip}, async () => {
 	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party.length === 1,
 		null, {timeout: 10000});
 
 	await page.click('#runbun-run-plan');
@@ -782,7 +1409,9 @@ test('two tabs are one run: a catch in one appears in the other', {skip}, async 
 	// The other tab hears the write and shows the run without a reload.
 	await second.waitForSelector('#runbun-run-live:not([hidden])', {timeout: 10000});
 
-	await first.selectOption('#runbun-run-map', 'Route101');
+	await first.click('.rb-disclose[data-section="catch"] .rb-disclose-btn');
+	await first.waitForSelector('#runbun-run-roll', {state: 'visible', timeout: 5000});
+	await selectManualMap(first, 'Route101');
 	await first.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -816,7 +1445,7 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 
 	// Roll Route 101's one encounter off its real table. What comes up is
 	// advice until a button writes it — so the box must still be empty here.
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -833,10 +1462,13 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 		null, {timeout: 10000});
 	assert.equal(await page.isVisible('#runbun-run-roll-result'), false,
 		'a settled roll leaves the screen');
+	const caughtIvs = (await savedRun(page)).box[1].ivs;
+	assert.deepEqual(Object.keys(caughtIvs).sort(), ['atk', 'def', 'hp', 'spa', 'spd', 'spe'],
+		'the encounter IV roll becomes owned player state when caught');
 
 	// Roll the next route and lose it: the route is spent with nothing kept,
 	// and rolling it again is refused with the rule's own words.
-	await page.selectOption('#runbun-run-map', 'Route102');
+	await selectManualMap(page, 'Route102');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -860,28 +1492,13 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party.length === 1,
 		null, {timeout: 10000});
 	await page.click('#runbun-run-play');
 	await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 15000});
 	assert.match(await page.textContent('#runbun-run-battle-trainer'), /Youngster Calvin/);
 
-	for (let turn = 0; turn < 40; turn++) {
-		const done = await page.evaluate(() =>
-			/recorded|Wiped/.test(document.querySelector('#runbun-run-status').textContent));
-		if (done) break;
-		const button = await page.$('#runbun-run-battle-moves .runbun-run-battle-move') ||
-			await page.$('#runbun-run-battle-switches .runbun-run-battle-switch');
-		if (!button) {
-			await page.waitForTimeout(250);
-			continue;
-		}
-		await button.click();
-		await page.waitForTimeout(150);
-	}
-	await page.waitForFunction(
-		() => /recorded/.test(document.querySelector('#runbun-run-status').textContent),
-		null, {timeout: 15000});
+	const completed = await driveVisibleBattleToReceipt(page);
 
 	// The fight became run history through ordinary commands: win or wipe,
 	// the document moved — a win moves the position past Calvin, a wipe
@@ -903,6 +1520,33 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	}
 	assert.ok((await page.textContent('#runbun-run-battle-log')).length > 0,
 		'the fight left a narration');
+	assert.match(await page.textContent('#runbun-run-battle-result'), /recorded/,
+		'the finished battle says its result is in the run');
+	assert.equal(completed.payload.kind, 'trainer');
+	assert.equal(completed.payload.trainer, 'Youngster Calvin');
+	assert.equal(completed.payload.trainerOrder, 3);
+	assert.equal(completed.payload.progressionOrder, 0);
+	assert.equal(completed.payload.outcome, /Won against/.test(status) ? 'won' : 'lost');
+	assert.equal(completed.payload.contributionVersion, 1);
+	assert.equal(completed.payload.contributionComplete, true);
+	assert.ok(completed.payload.contributions.some(row =>
+		row.appearances > 0 && row.moveAttempts > 0),
+	'the battle receipt records the Pokemon that actually acted');
+	assert.equal(completed.payload.deaths.length,
+		saved.box.filter(mon => mon.status === 'dead').length);
+	assert.equal(completed.source.kind, 'simulator');
+	assert.equal(completed.source.providerId, 'runbun-battle-driver');
+	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Return to run',
+		'a completed fight must never leave an Abandon action behind');
+	const recordedStatus = await page.textContent('#runbun-run-status');
+	await page.click('#runbun-run-battle-abandon');
+	assert.equal(await page.isVisible('#runbun-run-battle'), false,
+		'Return to run opens the next run decision');
+	assert.equal(await page.$eval('#runbun-run-live', element =>
+		element.classList.contains('is-battle-active')), false,
+	'Return to run restores the out-of-battle run surface');
+	assert.equal(await page.textContent('#runbun-run-status'), recordedStatus,
+		'closing a completed fight must not claim that nothing was written');
 
 	await session.context.close();
 });
@@ -921,11 +1565,11 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party.length === 1,
 		null, {timeout: 10000});
 
 	// Roll, then fight the roll instead of clicking it into the box.
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -977,6 +1621,9 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	} else {
 		assert.equal(saved.box.length, 1, 'a killed encounter keeps nothing');
 	}
+	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Return to run',
+		'a settled wild fight keeps its result visible until the player continues');
+	await page.click('#runbun-run-battle-abandon');
 	await page.click('#runbun-run-roll');
 	await page.waitForFunction(
 		() => /already gave its encounter/.test(
@@ -994,7 +1641,7 @@ test('a rolled encounter survives a reload: the die was cast, not the page', {sk
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -1036,7 +1683,7 @@ test('a hand-recorded faint offers its takeback, and the window is honest', {ski
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.fill('#runbun-run-catch-species', 'Poochyena');
 	await page.fill('#runbun-run-catch-level', '3');
 	await page.click('#runbun-run-catch');
@@ -1053,6 +1700,8 @@ test('a hand-recorded faint offers its takeback, and the window is honest', {ski
 	await page.waitForSelector('#runbun-run-snackbar:not([hidden])', {timeout: 10000});
 	assert.match(await page.textContent('#runbun-run-snackbar-text'), /Poochyena is gone/);
 	assert.ok((await savedRun(page)).box[1].status === 'dead', 'the faint really committed');
+	await page.waitForSelector('#runbun-run-losses .runbun-run-mon[data-id="mon-2"].is-lost',
+		{state: 'visible', timeout: 10000});
 
 	// Undo inside the window: the death is taken back through /run/undo.
 	await page.click('#runbun-run-snackbar-undo');
@@ -1122,7 +1771,7 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 
 	// Route 101 holds a Potion, open from the start: the Where view says so
 	// and carries the button that records the trip.
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-items .runbun-run-item').length > 0,
 		null, {timeout: 10000});
@@ -1138,7 +1787,7 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 
 	// An item the story has not opened yet is shown waiting, not hidden and
 	// not collectable: Route 104's Miracle Seed opens at fight #11.
-	await page.selectOption('#runbun-run-map', 'Route104');
+	await selectManualMap(page, 'Route104');
 	await page.waitForFunction(
 		() => /Miracle Seed/.test(document.querySelector('#runbun-run-items').textContent),
 		null, {timeout: 10000});
@@ -1157,31 +1806,32 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	// Everything folds by default except what starting a run opens for you:
-	// the first task is catching, so Route & catch is revealed.
+	// the starter is in the roster and a party is required before the fight.
 	const expanded = await page.$$eval('.rb-disclose-btn[aria-expanded="true"]',
 		els => els.map(el => el.closest('.rb-disclose').getAttribute('data-section')));
-	assert.deepEqual(expanded, ['catch'], 'a fresh run opens exactly the catch section');
+	assert.deepEqual(expanded, ['box'], 'a fresh run opens exactly the roster section');
 	// Collapsed content is not on the player's screen or in their tab order:
 	// the region clips to zero height and the content is inert.
-	const folded = await page.$eval('.rb-disclose[data-section="box"] .rb-disclose-inner',
+	const folded = await page.$eval('.rb-disclose[data-section="catch"] .rb-disclose-inner',
 		el => el.getBoundingClientRect().height === 0 && el.hasAttribute('inert'));
 	assert.ok(folded, 'a folded section keeps its ledger off the table');
 
 	// The collapsed headers carry the live summary — informed without opening.
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="box"]'),
-		/1 alive/);
+		/1 reserve/);
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="split"]'),
 		/Brawly · \d+ fights/);
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="road"]'),
 		/#0 Youngster Calvin/);
 
-	// Drill down: open the box, and the ledger is there to act on.
-	await page.click('.rb-disclose[data-section="box"] .rb-disclose-btn');
+	// The roster opened with the run, and the ledger is there to act on.
 	await page.waitForSelector('#runbun-run-box', {state: 'visible', timeout: 5000});
 
 	// An answer the player asks for must never land inside a fold: Advise
 	// (in the always-visible hero) opens the Analysis section itself.
-	await page.selectOption('#runbun-run-map', 'Route101');
+	await page.click('.rb-disclose[data-section="catch"] .rb-disclose-btn');
+	await page.waitForSelector('#runbun-run-roll', {state: 'visible', timeout: 5000});
+	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
 		null, {timeout: 10000});
@@ -1197,7 +1847,7 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
-		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon.is-party').length === 1,
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party.length === 1,
 		null, {timeout: 10000});
 	assert.equal(await page.$eval('.rb-disclose[data-section="analysis"] .rb-disclose-inner',
 		el => el.getBoundingClientRect().height), 0, 'analysis starts folded');
@@ -1221,19 +1871,19 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	const session = await open();
 	const page = session.page;
 
-	// Starting without a pick is refused with the reason, and nothing starts.
-	await page.click('#runbun-run-new');
-	await page.waitForFunction(
-		() => /Pick a starter first/.test(document.querySelector('#runbun-run-status').textContent),
-		null, {timeout: 5000});
+	// The screen teaches the required first choice by withholding the action.
+	assert.equal(await page.isDisabled('#runbun-run-new'), true);
 	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), null);
 
 	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	assert.equal(await page.isDisabled('#runbun-run-new'), false);
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await page.waitForFunction(
 		() => /Mudkip L5/.test(document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
+	assert.match((await savedRun(page)).attemptId, /^[0-9a-f-]{20,}$|^attempt-/,
+		'a browser attempt should have a stable archive identity');
 
 	// Ending a run rides the kit's hold-to-confirm: a short press releases
 	// early and nothing happens — the fill sprang back, the run stands.
@@ -1248,17 +1898,70 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	assert.ok(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')),
 		'a released hold must not end the run');
 
-	// Held to the end, it commits: the setup screen returns, the browser copy
-	// is cleared, and the final save is left in the transfer box to copy.
-	box = await button.boundingBox();
-	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-	await page.mouse.down();
+	// Completion is evidence, not a free-form label: a run with required fights
+	// ahead remains active and the result control receives the correction.
+	await page.selectOption('#runbun-run-end-outcome', 'completed');
+	await button.focus();
+	await page.keyboard.down('Space');
 	await page.waitForTimeout(1400);
-	await page.mouse.up();
-	await page.waitForSelector('#runbun-run-empty:not([hidden])', {timeout: 5000});
+	await page.keyboard.up('Space');
+	assert.ok(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')),
+		'an early run must not be archived as completed');
+	assert.equal(await page.getAttribute('#runbun-run-end-outcome', 'aria-invalid'), 'true');
+	assert.match(await page.textContent('#runbun-run-status'), /required fights ahead/);
+	await page.selectOption('#runbun-run-end-outcome', 'wipe');
+
+	// Held to the end with the keyboard, it commits: the setup screen returns,
+	// the browser copy is cleared, and the final save is left in the transfer
+	// box to copy. The short path above covers pointer cancellation; this path
+	// also proves the destructive hold is not pointer-only.
+	await button.focus();
+	await page.keyboard.down('Space');
+	await page.waitForTimeout(1400);
+	await page.keyboard.up('Space');
+	await page.waitForSelector('#runbun-run-empty:not([hidden])', {timeout: 15000});
 	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), null);
 	assert.match(await page.inputValue('#runbun-run-transfer'), /"Mudkip"/,
 		'the final save stays in the player\'s hands');
+	const archivedBundle = JSON.parse(await page.inputValue('#runbun-run-transfer'));
+	assert.equal(archivedBundle.modelVersion, '2.0.0');
+	assert.equal(archivedBundle.events.at(-1).kind, 'run.ended');
+	assert.equal(archivedBundle.events.at(-1).payload.outcome, 'wipe');
+	assert.deepEqual(await page.evaluate(async () => {
+		const entries = await window.RunBunAttemptStore.getDefault().listArchives();
+		return entries.map(entry => entry.evidence && {
+			revision: entry.evidence.revision,
+			eventHash: entry.evidence.eventHash,
+			checksum: entry.evidence.checksum,
+		});
+	}), [{
+		revision: archivedBundle.head.revision,
+		eventHash: archivedBundle.head.lastEventHash,
+		checksum: archivedBundle.checksum,
+	}]);
+	await page.waitForSelector('#runbun-history-attempts .runbun-history-attempt',
+		{state: 'visible', timeout: 10000});
+	assert.match(await page.textContent('#runbun-history-attempts'), /Wiped/);
+	assert.equal(await page.textContent('#runbun-history-tracked'), '1');
+	assert.match(await page.textContent('#runbun-run-status'), /Run saved as Wiped/);
+
+	// A quick save of the ended run resurfacing (a failed mirror clear, an
+	// old tab writing late) must not resurrect the run, collide with its
+	// archived head, or kill durable storage. It parks in the transfer box;
+	// the panel stays on the start screen with durability intact.
+	await page.evaluate(savedRunDoc => {
+		window.localStorage.setItem('runbun.run.v1', JSON.stringify(savedRunDoc));
+	}, archivedBundle.head.run);
+	await page.reload({waitUntil: 'domcontentloaded'});
+	await page.waitForSelector('#runbun-run-empty:not([hidden])', {timeout: 15000});
+	assert.match(await page.textContent('#runbun-run-status'), /already ended/);
+	assert.doesNotMatch(await page.textContent('#runbun-run-status'),
+		/Durable storage became unavailable|could not open/);
+	assert.match(await page.inputValue('#runbun-run-transfer'), /"Mudkip"/,
+		'the parked quick save stays in the player\'s hands');
+	assert.equal(await page.evaluate(() =>
+		window.RunBunAttemptStore.getDefault().loadActive()), null,
+	'the archived attempt must not become active again');
 
 	await session.context.close();
 });

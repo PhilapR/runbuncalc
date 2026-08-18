@@ -4,17 +4,35 @@
 /**
  * Bundle the Cloudflare Worker: `worker.js` + the whole engine, browser-flat.
  *
- * Same three Node shims as the demo build (Workers' nodejs_compat has no real
- * filesystem): fs answers from files embedded at build time, path joins
- * strings, vm is indirect eval for the trainer setdex. Output is an ES module
- * with a default export, which is what wrangler's `main` expects.
+ * Workers' nodejs_compat has no real filesystem, so fs answers from embedded
+ * oracle files and path joins strings. The authored browser setdex is executed
+ * once by Node DURING THE BUILD and serialized into a virtual loader module;
+ * no eval/new Function reaches workerd. Output is an ES module with a default
+ * export, which is what wrangler's `main` expects.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
+const childProcess = require('node:child_process');
+const vm = require('node:vm');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'dist-worker', 'worker.js');
+
+function git(args) {
+	return childProcess.execFileSync('git', args, {cwd: ROOT, encoding: 'utf8'}).trim();
+}
+
+function buildMetadata() {
+	const revision = git(['rev-parse', 'HEAD']);
+	const dirty = git(['status', '--porcelain', '--untracked-files=all']);
+	if (process.env.RUNBUN_REQUIRE_CLEAN === '1' && dirty) {
+		throw new Error('exact Worker build requires a clean git worktree');
+	}
+	const model = JSON.parse(fs.readFileSync(
+		path.join(ROOT, 'profiles', 'run-and-bun', 'rebuild-model.json'), 'utf8'));
+	return {revision, modelVersion: model.schemaVersion};
+}
 
 function embeddedFiles() {
 	const files = {};
@@ -22,9 +40,24 @@ function embeddedFiles() {
 	for (const name of fs.readdirSync(oracleDir).filter(f => f.endsWith('.json'))) {
 		files[`oracle/${name}`] = fs.readFileSync(path.join(oracleDir, name), 'utf8');
 	}
-	const encounters = require(path.join(ROOT, 'profiles', 'run-and-bun', 'encounters.js'));
-	files[encounters.SOURCE] = fs.readFileSync(path.join(ROOT, encounters.SOURCE), 'utf8');
 	return files;
+}
+
+/** Materialize the one profile this Worker targets while Node may evaluate it. */
+function embeddedSetdexes() {
+	const profile = require(path.join(ROOT, 'profiles')).getProfile();
+	if (!profile.encounters) return {};
+	const encounters = profile.encounters;
+	const sourcePath = path.join(ROOT, encounters.SOURCE);
+	const context = {};
+	vm.runInNewContext(fs.readFileSync(sourcePath, 'utf8'), context, {
+		filename: encounters.SOURCE,
+	});
+	const setdex = context[encounters.GLOBAL];
+	if (!setdex || typeof setdex !== 'object') {
+		throw new Error(`${encounters.SOURCE} did not define ${encounters.GLOBAL}`);
+	}
+	return {[encounters.GLOBAL]: setdex};
 }
 
 function loadEsbuild() {
@@ -46,6 +79,8 @@ function loadEsbuild() {
 async function main() {
 	const esbuild = loadEsbuild();
 	const files = embeddedFiles();
+	const setdexes = embeddedSetdexes();
+	const metadata = buildMetadata();
 	const shims = {
 		fs: `
 			var FILES = ${JSON.stringify(files)};
@@ -64,9 +99,13 @@ async function main() {
 				return Array.prototype.join.call(arguments, '/');
 			}};
 		`,
-		vm: `
-			module.exports = {runInThisContext: function (source) {
-				return (0, eval)(source);
+		setdexLoader: `
+			var SETDEXES = ${JSON.stringify(setdexes)};
+			module.exports = {loadSetdex: function (sourcePath, globalName) {
+				var setdex = SETDEXES[globalName];
+				if (!setdex) throw new Error('worker setdex is not embedded: ' + globalName);
+				globalThis[globalName] = setdex;
+				return setdex;
 			}};
 		`,
 	};
@@ -87,11 +126,17 @@ async function main() {
 			'process.env.NODE_ENV': '"production"',
 			__dirname: '"/app"',
 			__filename: '"/app/worker.js"',
+			__RUNBUN_BUILD_SHA__: JSON.stringify(metadata.revision),
+			__RUNBUN_MODEL_VERSION__: JSON.stringify(metadata.modelVersion),
 		},
 		plugins: [{
 			name: 'node-shims',
 			setup(build) {
-				build.onResolve({filter: /^(node:)?(fs|path|vm|os)$/}, args => ({
+				build.onResolve({filter: /^\.\/setdex-loader(?:\.js)?$/}, () => ({
+					path: 'setdexLoader',
+					namespace: 'worker-shim',
+				}));
+				build.onResolve({filter: /^(node:)?(fs|path|os)$/}, args => ({
 					path: args.path.replace(/^node:/, ''),
 					namespace: 'worker-shim',
 				}));
@@ -104,6 +149,7 @@ async function main() {
 	});
 	const size = fs.statSync(OUT).size;
 	console.log(`worker bundled: ${OUT} (${(size / 1024 / 1024).toFixed(1)} MB)`);
+	console.log(`worker evidence: revision=${metadata.revision} model=${metadata.modelVersion}`);
 }
 
 main().catch(error => {

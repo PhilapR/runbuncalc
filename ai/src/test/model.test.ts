@@ -2505,16 +2505,28 @@ const supremeOverlordBaseFacts = calculateActionFacts(
   supremeOverlordState,
   move(supremeOverlordState, 'Iron Head'),
 );
-supremeOverlordState.sides.ai.party[0].alliesFainted = 5;
+const supremeOverlordMaxState = {
+  ...supremeOverlordState,
+  sides: {
+    ...supremeOverlordState.sides,
+    ai: {
+      ...supremeOverlordState.sides.ai,
+      party: supremeOverlordState.sides.ai.party.map(pokemon => ({
+        ...pokemon,
+        alliesFainted: pokemon.id === 'ai-1' ? 5 : pokemon.alliesFainted,
+      })),
+    },
+  },
+};
 const supremeOverlordMaxFacts = calculateActionFacts(
-  supremeOverlordState,
-  move(supremeOverlordState, 'Iron Head'),
+  supremeOverlordMaxState,
+  move(supremeOverlordMaxState, 'Iron Head'),
 );
 assert.equal(supremeOverlordBaseFacts.attackerAbility, 'Supreme Overlord');
 assert.ok((supremeOverlordMaxFacts.damage?.max || 0) > (supremeOverlordBaseFacts.damage?.max || 0));
-const supremeOverlordGen8 = {...supremeOverlordState, generation: 8 as const, sides: {
-  ...supremeOverlordState.sides,
-  ai: {...supremeOverlordState.sides.ai, party: supremeOverlordState.sides.ai.party.map(pokemon => ({
+const supremeOverlordGen8 = {...supremeOverlordMaxState, generation: 8 as const, sides: {
+  ...supremeOverlordMaxState.sides,
+  ai: {...supremeOverlordMaxState.sides.ai, party: supremeOverlordMaxState.sides.ai.party.map(pokemon => ({
     ...pokemon, species: 'Bisharp',
   }))},
 }};

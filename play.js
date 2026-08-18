@@ -40,6 +40,16 @@ const DEFAULT_FILE = 'run.json';
 /** The rival takes the starter yours beats; picking one fixes their ace. */
 const STARTER_RIVAL = {Treecko: 'Swampert', Torchic: 'Sceptile', Mudkip: 'Blaziken'};
 
+/** New owned Pokemon roll IVs; explicit flags let a companion record the screen. */
+function playerIvs(args) {
+	const ivs = runtime.rollIvs();
+	for (const stat of Object.keys(runtime.IV_STATS)) {
+		const supplied = args.flags[`iv-${stat}`];
+		if (supplied !== undefined) ivs[stat] = Number(supplied);
+	}
+	return ivs;
+}
+
 function load(file) {
 	if (!fs.existsSync(file)) {
 		throw new Error(`no run at ${file}; start one with: node play.js new --file ${file}`);
@@ -344,6 +354,7 @@ const SUBCOMMANDS = {
 			}
 			const gifted = runtime.apply(created, {
 				kind: 'catch', species: args.flags.starter, level: 5,
+				ivs: playerIvs(args),
 			}, {now: now()});
 			return {state: gifted, message: `started ${gifted.name} at ${file} — ` +
 				`${args.flags.starter} L5 is in the box; the rival runs ` +
@@ -518,6 +529,7 @@ const SUBCOMMANDS = {
 				// rule and the dupes clause, and the exemption is recorded.
 				shiny: onOff(args.flags.shiny, undefined) || undefined,
 				moves: args.flags.moves ? String(args.flags.moves).split(',').map(m => m.trim()) : undefined,
+				ivs: playerIvs(args),
 			},
 		};
 	},
@@ -855,7 +867,7 @@ const USAGE = `node play.js <command> [args] [--file run.json]
   find <species>                                  everywhere it can be caught
   roll <map> [--method m]                         roll the route's one random encounter (writes nothing)
   spend <map> [--reason R]                        the encounter got away — the route is spent, nothing kept
-  catch <species> --level N [--map M] [--name N] [--shiny]  add to the box
+  catch <species> --level N [--map M] [--name N] [--shiny] [--iv-hp 0..31 ...]  add to the box
   hold <map> [--for Species]                      save a location's encounter for a better table later
   unhold <map>                                    release a held location
   level <id> <n|cap>                              raise a level; 'cap' is free, over-cap spends Rare Candy

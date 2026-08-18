@@ -24,9 +24,10 @@
  * never mutates the old one. That is what makes undo a one-liner and what lets
  * the UI show a change before committing it. The command list is deliberately
  * small and concrete — `catch`, `evolve`, `teach`, `levelUp`, `give`, `take`,
- * `heartScale`, `party`, `beat`, `faint`, `release` — because a playthrough really is that
- * short a list of verbs, and a generic "edit this field" command would give up
- * every check below.
+ * `identify`, `heartScale`, `party`, `beat`, `faint`, `release` — because a
+ * playthrough really is that short a list of verbs. `identify` records facts
+ * learned from the summary screen; it is intentionally narrower than a generic
+ * field editor, so an observation cannot rewrite species, level, or history.
  *
  * WHAT IS CHECKED, AND WHAT IS NOT
  *
@@ -64,6 +65,7 @@
  */
 
 const getProfile = require('./profiles').getProfile;
+const NATURES = require('./team').NATURES;
 
 /** Document format. Bumped when a stored run would need migrating. */
 const VERSION = 1;
@@ -105,6 +107,88 @@ const IV_STATS = {
 	hp: 'HP', atk: 'Attack', def: 'Defense',
 	spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed',
 };
+
+/** Roll the six IVs an acquired player Pokemon owns. Opponents are separate. */
+function rollIvs(random) {
+	const draw = random || Math.random;
+	const ivs = {};
+	for (const stat of Object.keys(IV_STATS)) {
+		const value = Number(draw());
+		if (!Number.isFinite(value) || value < 0 || value >= 1) {
+			throw new Error(`IV roll must be in [0, 1); got ${JSON.stringify(value)}`);
+		}
+		ivs[stat] = Math.floor(value * 32);
+	}
+	return ivs;
+}
+
+/**
+ * The one author of a rolled Pokemon identity: six IVs, a nature, and an
+ * ability, all from the same draw stream. `/run/encounter` bakes it into
+ * every wild roll and `/run/identity` serves it for scripted events
+ * (starter, gift, static, trade), so a client never invents these facts —
+ * it only carries them into the catch command, which is what keeps the
+ * recorded command replay-deterministic.
+ */
+function rollIdentity(species, random) {
+	const draw = random || Math.random;
+	const ivs = rollIvs(draw);
+	const natures = [...NATURES];
+	const nature = natures[Math.floor(draw() * natures.length)];
+	let ability;
+	const calc = require('./calc');
+	const found = calc.Generations.get(8).species.get(calc.toID(species));
+	if (found && found.abilities) {
+		const abilities = [...new Set(Object.values(found.abilities).filter(Boolean))];
+		if (abilities.length) ability = abilities[Math.floor(draw() * abilities.length)];
+	}
+	return {ivs, nature, ...(ability ? {ability} : {})};
+}
+
+/**
+ * Validate facts observed on the Pokemon summary screen.
+ *
+ * Ability is free text because Run & Bun changes ability slots and an observed
+ * individual is more authoritative than a species default. Nature and IVs have
+ * closed game taxonomies, so typos there are refused before they enter replay.
+ * A partial IV map is deliberate: an absent stat remains unknown.
+ */
+function observedFacts(command, kind) {
+	const facts = {};
+	if (command.nature !== undefined && command.nature !== null && command.nature !== '') {
+		if (typeof command.nature !== 'string' || !NATURES.has(command.nature.trim())) {
+			throw new Error(`${kind}: nature must be one of ${[...NATURES].join(', ')}`);
+		}
+		facts.nature = command.nature.trim();
+	}
+	if (command.ability !== undefined && command.ability !== null && command.ability !== '') {
+		if (typeof command.ability !== 'string' || !command.ability.trim() ||
+			command.ability.trim().length > 80) {
+			throw new Error(`${kind}: ability must be a name up to 80 characters`);
+		}
+		facts.ability = command.ability.trim();
+	}
+	if (command.ivs !== undefined && command.ivs !== null) {
+		if (typeof command.ivs !== 'object' || Array.isArray(command.ivs)) {
+			throw new Error(`${kind}: ivs must be a partial stat map`);
+		}
+		facts.ivs = {};
+		for (const entry of Object.entries(command.ivs)) {
+			const stat = entry[0];
+			const raw = entry[1];
+			if (!Object.prototype.hasOwnProperty.call(IV_STATS, stat)) {
+				throw new Error(`${kind}: IV stat must be one of ${Object.keys(IV_STATS).join(', ')}; ` +
+					`got ${JSON.stringify(stat)}`);
+			}
+			const value = Number(raw);
+			if (!Number.isInteger(value) || value < 0 || value > 31) {
+				throw new Error(`${kind}: ${IV_STATS[stat]} IV must be an integer from 0 to 31`);
+			}
+			facts.ivs[stat] = value;
+		}
+	}
+	return facts;
+}
 
 /**
  * Heart Scales are the game's IV economy: one scale sets ONE IV to 31, they
@@ -201,6 +285,9 @@ function createRun(options) {
 	return {
 		version: VERSION,
 		profileId: profile.id,
+		// Assigned by the owning client. Older imported runs legitimately lack
+		// one; the history layer derives a stable legacy id when they are archived.
+		...(opts.attemptId ? {attemptId: String(opts.attemptId)} : {}),
 		name: opts.name || 'Untitled run',
 		createdAt: opts.now || null,
 		updatedAt: opts.now || null,
@@ -946,6 +1033,13 @@ function partySpecs(run, options) {
 		null : capAt(run, opts.atOrder);
 	return run.party.map(id => {
 		const mon = requireMon(run, id);
+		const missingIvs = Object.keys(IV_STATS).filter(stat =>
+			!mon.ivs || !Object.prototype.hasOwnProperty.call(mon.ivs, stat));
+		if (missingIvs.length) {
+			throw new Error(`${mon.species} (${mon.id}) is missing player IVs: ` +
+				`${missingIvs.map(stat => IV_STATS[stat]).join(', ')} — record all six ` +
+				'before planning; trainer teams use 31, owned and wild Pokemon use their rolls');
+		}
 		return {
 			species: mon.species,
 			level: projected === null ? mon.level : Math.max(mon.level, projected),
@@ -953,7 +1047,7 @@ function partySpecs(run, options) {
 			ability: mon.ability,
 			item: mon.item,
 			moves: mon.moves,
-			ivs: mon.ivs || {},
+			ivs: mon.ivs,
 		};
 	});
 }
@@ -1150,21 +1244,30 @@ function upgradeCandidates(run, mon, spec, base, order) {
 	const planner = require('./planner');
 	const profile = getProfile(run.profileId);
 	const list = [];
+	let undatedMovesExcluded = 0;
 
 	// Candidates are drawn at the SPEC's level — the projected cap — not the
 	// box's: the board is scored there, and the free candy makes those moves
 	// teachable before the fight.
 	for (const entry of learnable(run, mon.id, {atLevel: spec.level}).now) {
-		// An HM the story has not handed over is not a teach anyone can do —
-		// Surf three fights in was this advisor's other lie. Only the HM spine
-		// is dated; TMs carry no gate in the source and stay on the table.
+		const levelRoute = entry.sources.some(source =>
+			source.level !== undefined && source.level <= spec.level);
+		const eggRoute = entry.sources.some(isEggSource);
+		const teachableRoute = entry.sources.some(source => source.source === 'teachable');
+		// Only HMs currently have dated story gates. An undated TM/tutor is a
+		// legal possibility, not proof the player can use it before this fight.
+		// Keep it out of "What to change now" unless a level-up or paid egg route
+		// independently makes the same move available.
 		const gate = profile.oracle.moveObtainableAt ?
 			profile.oracle.moveObtainableAt(entry.move) : null;
-		if (gate !== null && order !== undefined && gate > order) continue;
-		// An egg move rides the relearner and costs a Heart Scale: without one
-		// in the bag it is not a change the player can make, and with one the
-		// price is named — it competes with spending that scale on an IV.
-		if (entry.scale && !run.bag[HEART_SCALE]) continue;
+		const datedTeachRoute = teachableRoute && gate !== null &&
+			(order === undefined || gate <= order);
+		const paidEggRoute = eggRoute && !!run.bag[HEART_SCALE];
+		if (!levelRoute && !datedTeachRoute && !paidEggRoute) {
+			if (teachableRoute && gate === null) undatedMovesExcluded += 1;
+			continue;
+		}
+		const spendsScale = !levelRoute && !datedTeachRoute && paidEggRoute;
 		const moves = spec.moves.slice();
 		let detail = entry.move;
 		if (moves.length >= 4) {
@@ -1174,7 +1277,7 @@ function upgradeCandidates(run, mon, spec, base, order) {
 		} else {
 			moves.push(entry.move);
 		}
-		if (entry.scale) detail += ' (one Heart Scale)';
+		if (spendsScale) detail += ' (one Heart Scale)';
 		list.push({kind: 'teach', detail, spec: Object.assign({}, spec, {moves})});
 	}
 
@@ -1236,10 +1339,8 @@ function upgradeCandidates(run, mon, spec, base, order) {
 	if (run.bag[HEART_SCALE]) {
 		const ivs = mon.ivs || {};
 		for (const stat of Object.keys(IV_STATS)) {
-			// Only an IV the box RECORDS can be priced. An unrecorded one already
-			// reaches the calculator as 31, so a scale on it would score a flat
-			// zero and read as "this does nothing" when the truth is "nobody has
-			// told this run what that IV is".
+			// Only an IV the box records can be priced. New acquisitions always
+			// have all six; a partial legacy/import remains incomplete until fixed.
 			if (typeof ivs[stat] !== 'number' || ivs[stat] === 31) continue;
 			list.push({
 				kind: 'heartScale',
@@ -1248,7 +1349,7 @@ function upgradeCandidates(run, mon, spec, base, order) {
 			});
 		}
 	}
-	return list;
+	return {list, undatedMovesExcluded};
 }
 
 /**
@@ -1295,10 +1396,13 @@ function adviseUpgrades(run, trainer) {
 
 	const upgrades = [];
 	let considered = 0;
+	let undatedMovesExcluded = 0;
 	run.party.forEach((id, slot) => {
 		const mon = requireMon(run, id);
 		const base = baseline.grid.map(cell => cell.versus[slot]);
-		for (const candidate of upgradeCandidates(run, mon, specs[slot], base, fight.order)) {
+		const candidates = upgradeCandidates(run, mon, specs[slot], base, fight.order);
+		undatedMovesExcluded += candidates.undatedMovesExcluded;
+		for (const candidate of candidates.list) {
 			considered += 1;
 			const row = planner.matchup({
 				trainer: named,
@@ -1334,6 +1438,11 @@ function adviseUpgrades(run, trainer) {
 			cap,
 			from: run.party.some((id, slot) => specs[slot].level > requireMon(run, id).level) ?
 				'projected' : 'current',
+		},
+		availability: {
+			undatedMovesExcluded,
+			note: undatedMovesExcluded ?
+				'Undated TM and tutor options are withheld until their locations are sourced.' : null,
 		},
 		upgrades: upgrades.slice(0, ADVICE_LIMIT),
 	};
@@ -1562,6 +1671,9 @@ function rollEncounter(run, options) {
 	return {
 		species: slot.species,
 		level,
+		// The roll IS the individual: IVs, nature, and ability are authored
+		// here, in one place, and only carried by the client from now on.
+		...rollIdentity(slot.species, random),
 		method,
 		chance: slot.chance,
 		map: found.name,
@@ -1628,6 +1740,92 @@ function fieldItems(run, map) {
 				collected,
 			};
 		});
+}
+
+/** Do two location labels describe the same playable place? */
+function samePlace(left, right) {
+	const a = normPlace(left);
+	const b = normPlace(right);
+	if (!a || !b) return false;
+	return a === b ||
+		(a.startsWith(b) && !/^[0-9]/.test(a.slice(b.length))) ||
+		(b.startsWith(a) && !/^[0-9]/.test(b.slice(a.length)));
+}
+
+/**
+ * The optional work that is genuinely reachable before the next fight.
+ *
+ * This is a small status projection, not a second progression engine. Routes
+ * come from `unusedRoutes`, item reachability comes from the same anchor used
+ * by the guided pickup view, and move timing is a profile capability. That last
+ * distinction matters: Run & Bun knows TM/tutor legality but has not imported
+ * their locations, so an honest card reports the gap rather than calling every
+ * legal move available now.
+ */
+function preFightOpportunities(run) {
+	const next = upcoming(run, 1)[0] || null;
+	const empty = {
+		before: next ? {trainer: next.trainer, order: next.order} : null,
+		encounters: {count: 0, mode: encounterRules(run).onePerRoute ? 'unspent' : 'open', routes: []},
+		items: {count: 0, pickups: []},
+		moves: {status: 'unknown', available: [], note: 'Move unlock timing is not available for this profile.'},
+	};
+	if (!next) return empty;
+
+	const rules = encounterRules(run);
+	const routes = unusedRoutes(run).routes
+		.filter(route => route.open && (!rules.onePerRoute || !route.used) &&
+			(!route.held || route.held.ready))
+		.map(route => ({
+			name: route.name,
+			// The browser map selector stores authored map names. Area-grouped
+			// routes expose their member names; a single-map route's display name
+			// is already the selector value.
+			map: route.maps ? route.maps[0] : route.name,
+			...(route.held ? {held: route.held} : {}),
+		}));
+	empty.encounters = {
+		count: routes.length,
+		mode: rules.onePerRoute ? 'unspent' : 'open',
+		routes,
+	};
+
+	const profile = getProfile(run.profileId);
+	if (profile.oracle.fieldItems) {
+		const acquired = {};
+		for (const entry of run.log) {
+			if (!entry.command || entry.command.kind !== 'acquire') continue;
+			acquired[entry.command.item] =
+				(acquired[entry.command.item] || 0) + (entry.command.count || 1);
+		}
+		const seen = {};
+		const maps = profile.oracle.maps();
+		const pickups = profile.oracle.fieldItems()
+			.map(item => {
+				seen[item.name] = seen[item.name] || 0;
+				const collected = (acquired[item.name] || 0) > seen[item.name];
+				seen[item.name] += 1;
+				if (collected || item.opensAt === null || !anchorOpen(run, item.opensAt)) return null;
+				const found = maps.find(map => samePlace(map.name, item.location) ||
+					(profile.oracle.areaOf && samePlace(profile.oracle.areaOf(map.map) || '', item.location)));
+				return {
+					name: item.name,
+					kind: item.kind,
+					location: item.location,
+					opensAt: item.opensAt,
+					...(found ? {map: found.name} : {}),
+				};
+			})
+			.filter(Boolean)
+			.sort((a, b) => a.opensAt - b.opensAt ||
+				a.location.localeCompare(b.location) || a.name.localeCompare(b.name));
+		empty.items = {count: pickups.length, pickups};
+	}
+
+	if (profile.oracle.moveAvailability) {
+		empty.moves = profile.oracle.moveAvailability();
+	}
+	return empty;
 }
 
 function checkEncounter(profile, command) {
@@ -1869,16 +2067,17 @@ const COMMANDS = {
 				(teachable.length ? `; it can be taught: ${teachable.join(', ')}` : ''));
 		}
 
+		const facts = observedFacts(command, 'catch');
 		const mon = {
 			id: `mon-${run.nextId}`,
 			species: command.species,
 			nickname: command.nickname || null,
 			level,
-			nature: command.nature || null,
-			ability: command.ability || null,
+			nature: facts.nature || null,
+			ability: facts.ability || null,
 			item: command.item || null,
 			moves,
-			ivs: command.ivs || {},
+			ivs: facts.ivs || {},
 			status: 'boxed',
 			// Recorded because it carries a rules exemption, not as flavor.
 			...(command.shiny ? {shiny: true} : {}),
@@ -1888,6 +2087,30 @@ const COMMANDS = {
 		run.box.push(mon);
 		return `caught ${mon.species} (${mon.id}) at level ${level}` +
 			(origin.mapName ? ` on ${origin.mapName}` : ' — declared, no wild table');
+	},
+
+	/** Record summary-screen facts without pretending unknown values are facts. */
+	identify(run, command) {
+		const mon = requireMon(run, command.id);
+		const facts = observedFacts(command, 'identify');
+		const changed = [];
+		if (facts.nature) {
+			mon.nature = facts.nature;
+			changed.push(`nature ${facts.nature}`);
+		}
+		if (facts.ability) {
+			mon.ability = facts.ability;
+			changed.push(`ability ${facts.ability}`);
+		}
+		if (facts.ivs && Object.keys(facts.ivs).length) {
+			mon.ivs = Object.assign({}, mon.ivs || {}, facts.ivs);
+			changed.push(`${Object.keys(facts.ivs).length} IV` +
+				(Object.keys(facts.ivs).length === 1 ? '' : 's'));
+		}
+		if (!changed.length) {
+			throw new Error('identify: record a nature, ability, or at least one IV');
+		}
+		return `recorded ${mon.species} (${mon.id}): ${changed.join(', ')}`;
 	},
 
 	/**
@@ -2350,6 +2573,7 @@ function undo(run) {
 	if (!run.log.length) throw new Error('nothing to undo');
 	const fresh = createRun({
 		profileId: run.profileId,
+		attemptId: run.attemptId,
 		name: run.name,
 		now: run.createdAt,
 		levelCap: run.rules.levelCap,
@@ -2497,13 +2721,27 @@ function rankParties(run, trainer, options) {
 	const bestPerLead = new Map();
 	const picks = Array.from({length: size}, (unused, i) => i);
 	const key = list => list.join(',');
-	for (;;) {
-		const scored = Object.assign({picks: picks.slice()}, scoreSix(picks));
-		top.push(scored);
-		if (top.length > keep * 4) {
-			top.sort((a, b) => b.score - a.score || key(a.picks).localeCompare(key(b.picks)));
-			top.length = keep;
+	const compareScored = (a, b) =>
+		b.score - a.score || a.pickKey.localeCompare(b.pickKey);
+	function retainTop(scored) {
+		if (top.length < keep) {
+			top.push(scored);
+			top.sort(compareScored);
+			return;
 		}
+		// Most combinations cannot enter the shortlist. Do not repeatedly sort
+		// batches of losing candidates: compare with the current floor first and
+		// only reorder the bounded top N when that floor actually changes.
+		if (compareScored(scored, top[top.length - 1]) < 0) {
+			top[top.length - 1] = scored;
+			top.sort(compareScored);
+		}
+	}
+	for (;;) {
+		const scoredPicks = picks.slice();
+		const scored = Object.assign({picks: scoredPicks, pickKey: key(scoredPicks)},
+			scoreSix(picks));
+		retainTop(scored);
 		if (!picks.includes(star) && (!withoutStar || scored.score > withoutStar.score)) {
 			withoutStar = scored;
 		}
@@ -2516,8 +2754,6 @@ function rankParties(run, trainer, options) {
 		picks[i]++;
 		for (let j = i + 1; j < size; j++) picks[j] = picks[j - 1] + 1;
 	}
-	top.sort((a, b) => b.score - a.score || key(a.picks).localeCompare(key(b.picks)));
-	top.length = Math.min(top.length, keep);
 
 	function present(scored, label) {
 		// The per-enemy assignment: which member answers which — the next thing
@@ -2821,5 +3057,6 @@ module.exports = {
 	createRun, apply, applyAll, undo,
 	findMon, levelCap, capAt, upcoming, milestones, split, splitPrep, fightTier, isExcludedVariant,
 	encountersOn, unusedRoutes, encounterRules, requireLayer, learnable, partySpecs, planNext, boxMatrix,
-	adviseUpgrades, adviseCatches, rankParties, fightPlaybook, summarize, rollEncounter, fieldItems,
+	adviseUpgrades, adviseCatches, rankParties, fightPlaybook, summarize, rollIvs, rollIdentity, rollEncounter, fieldItems,
+	preFightOpportunities,
 };

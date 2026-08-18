@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "pokemon.bridge.attribution.request/1.0.0",
+  "requestId": "req_calvin_attribution_001",
+  "capability": "pokemon.rab.attribute",
+  "attempt": {
+    "attemptId": "attempt_calvin_attribution",
+    "revision": 42,
+    "stateHash": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "profile": {
+    "id": "run-and-bun",
+    "revision": "rab-profile-fixture-v1"
+  },
+  "task": {
+    "kind": "attribute",
+    "state": {
+      "kind": "run-and-bun.attribution-input",
+      "trainer": {"order": 3},
+      "startingCondition": "full-health-no-status-full-pp",
+      "baselineTeam": [
+        {
+          "id": "owned-treecko-1",
+          "species": "Treecko",
+          "level": 5,
+          "moves": ["Pound", "Leer"],
+          "nature": "Hardy",
+          "ability": "Overgrow",
+          "item": null,
+          "ivs": {"hp": 12, "atk": 7, "def": 18, "spa": 24, "spd": 11, "spe": 29}
+        },
+        {
+          "id": "owned-mudkip-1",
+          "species": "Mudkip",
+          "level": 5,
+          "moves": ["Tackle", "Growl"],
+          "nature": "Hardy",
+          "ability": "Torrent",
+          "item": null,
+          "ivs": {"hp": 21, "atk": 14, "def": 27, "spa": 9, "spd": 16, "spe": 5}
+        }
+      ]
+    },
+    "interventions": [
+      {
+        "interventionId": "replace-mudkip-with-poochyena",
+        "kind": "replace-party-member",
+        "targetId": "owned-mudkip-1",
+        "replacement": {
+          "id": "owned-poochyena-1",
+          "species": "Poochyena",
+          "level": 5,
+          "moves": ["Tackle", "Howl"],
+          "nature": "Hardy",
+          "ability": "Run Away",
+          "item": null,
+          "ivs": {"hp": 17, "atk": 18, "def": 19, "spa": 20, "spd": 21, "spe": 22}
+        },
+        "ownership": {
+          "sourceEventId": "attempt_calvin_attribution:catch-route-101",
+          "sourceEventHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "acquiredRevision": 12
+        }
+      },
+      {
+        "interventionId": "treecko-all-15-reference",
+        "kind": "normalize-ivs",
+        "targetId": "owned-treecko-1",
+        "reference": "all-15-reference",
+        "ivs": {"hp": 15, "atk": 15, "def": 15, "spa": 15, "spd": 15, "spe": 15}
+      }
+    ],
+    "seeds": [1450, 1451],
+    "constraints": {
+      "zeroDeaths": true,
+      "wholeBranch": true,
+      "policy": "reoptimize-lead-v1",
+      "maxCandidateBranches": 100
+    }
+  }
+}

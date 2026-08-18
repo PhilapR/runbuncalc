@@ -104,7 +104,6 @@
 	outline-offset: 2px;
 }
 
-.rb-mode-tab[aria-selected="true"],
 .rb-mode-tab[aria-current="page"] {
 	color: var(--rb-brand);
 	border-bottom-color: var(--rb-brand);
@@ -166,8 +165,61 @@
 	scroll-margin-top: var(--rb-shell-sticky-offset);
 }
 
+.rb-mode-region:not(.rb-mode-active) {
+	display: none !important;
+}
+
 .rb-mode-region.rb-mode-active {
 	outline: 1px solid transparent;
+}
+
+/* The calculator owns its overflow instead of widening every product screen.
+   Its working columns are explicitly composed below. */
+#calc {
+	min-width: 0;
+	overflow-x: auto;
+}
+
+.rb-subnav {
+	display: inline-flex;
+	gap: 0.2rem;
+	margin-bottom: var(--rb-space-md);
+	padding: 0.2rem;
+	border: 1px solid var(--rb-stroke);
+	border-radius: var(--rb-radius-control);
+	background: var(--rb-surface-sunken);
+}
+
+.rb-subnav a,
+.rb-surface-backlink {
+	font-family: var(--rb-font-body);
+	font-size: 0.82rem;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.rb-subnav a {
+	padding: 0.35rem 0.65rem;
+	color: var(--rb-ink-muted);
+	border-radius: calc(var(--rb-radius-control) - 2px);
+}
+
+.rb-subnav a[aria-current="page"] {
+	color: var(--rb-ink);
+	background: var(--rb-surface-raised);
+	box-shadow: 0 0 0 1px var(--rb-stroke);
+}
+
+.rb-surface-backlink {
+	display: inline-block;
+	margin-bottom: var(--rb-space-sm);
+	color: var(--rb-action);
+}
+
+.rb-subnav a:focus-visible,
+.rb-surface-backlink:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
 }
 
 #calc.rb-mode-active .title-block .title-text,
@@ -236,6 +288,46 @@ body {
 	margin-top: var(--rb-space-md);
 }
 
+/* Companion mode keeps the inherited calculator credits but drops calculator-
+   only utilities from the end of the run. Theme remains available; side
+   arrows, doubles compatibility, the Lua export and AI diagram belong to the
+   calculator/tools surfaces. */
+body[data-rb-mode="run"] .credits > ul,
+body[data-rb-mode="run"] .credits .rb-footer-note,
+body[data-rb-mode="run"] .credits #sets > *:not(#dark-theme-toggle) {
+	display: none;
+}
+
+body[data-rb-mode="run"] .credits {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rb-space-md);
+	flex-wrap: wrap;
+}
+
+body[data-rb-mode="run"] .credits #sets {
+	margin: 0;
+}
+
+body[data-rb-mode="tools"] .credits > ul,
+body[data-rb-mode="tools"] .credits .rb-footer-note,
+body[data-rb-mode="tools"] .credits #sets > *:not(#dark-theme-toggle) {
+	display: none;
+}
+
+body[data-rb-mode="tools"] .credits {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--rb-space-md);
+	flex-wrap: wrap;
+}
+
+body[data-rb-mode="tools"] .credits #sets {
+	margin: 0;
+}
+
 .credits #sets > a,
 .credits #sets > button {
 	font-family: var(--rb-font-body);
@@ -243,6 +335,43 @@ body {
 }
 
 /* —— Calc mode header / toolbar —— */
+#calc.rb-mode-active {
+	display: grid;
+	grid-template-columns: minmax(30em, 1fr) minmax(27.5em, 0.92fr) minmax(30em, 1fr);
+	grid-template-rows: auto auto auto auto;
+	column-gap: var(--rb-space-sm);
+	align-items: start;
+}
+
+#calc > [role="region"][aria-label="Settings"],
+#calc > .move-result-group,
+#calc > .main-result-group {
+	grid-column: 1 / -1;
+}
+
+#calc > [role="region"][aria-label="Settings"] { grid-row: 1; }
+#calc > .move-result-group { grid-row: 2; }
+#calc > .main-result-group { grid-row: 3; }
+#calc > .calc-player-column { grid-column: 1; grid-row: 4; }
+#calc > .calc-field-column { grid-column: 2; grid-row: 4; }
+#calc > .calc-opponent-column { grid-column: 3; grid-row: 4; }
+
+#calc > .calc-column {
+	display: flex;
+	flex-direction: column;
+	gap: var(--rb-space-sm);
+	float: none;
+	min-width: 0;
+}
+
+#calc > .calc-column > [role="region"],
+#calc > .calc-column fieldset {
+	width: 100%;
+	min-width: 0;
+	float: none;
+	margin-right: 0;
+}
+
 #calc > [role="region"][aria-label="Settings"] {
 	display: flex;
 	flex-wrap: wrap;
@@ -390,6 +519,8 @@ body {
 #sets-bridge .btn:focus-visible,
 #runbun-battle .btn:focus-visible,
 #calc .btn:focus-visible,
+#rb-mode-content button:focus-visible,
+.credits button:focus-visible,
 .rb-mode-tab:focus-visible,
 #calc #screen-calc:focus-visible,
 .ai-panel-result-row:focus-visible,
@@ -462,8 +593,36 @@ legend {
 
 /* —— Results block —— */
 #calc .move-result-group {
-	margin: var(--rb-space-md) 0 11.5em;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--rb-space-lg);
+	min-width: 0;
+	margin: var(--rb-space-sm) 0 var(--rb-space-md);
 	padding: var(--rb-space-sm) 0 0;
+}
+
+#calc .move-result-subgroup {
+	float: none;
+	width: auto;
+	min-width: 0;
+}
+
+#calc .move-result-subgroup > div:not(.result-move-header) {
+	display: grid;
+	grid-template-columns: minmax(10em, 0.7fr) minmax(0, 1.3fr);
+	align-items: center;
+	gap: var(--rb-space-sm);
+}
+
+#calc .move-result-subgroup > div:not(.result-move-header) > span {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+/* Grid display must never outrank the native hidden state used for doubles. */
+#calc .move-result-group[hidden],
+#calc .main-result-group[hidden] {
+	display: none;
 }
 
 #calc .result-move-header {
@@ -771,6 +930,20 @@ legend {
 }
 
 /* —— Select2 (dense; stadium surfaces) —— */
+/* The vendor skin contains nine decorative gradients. Neutralize every state
+   here so legacy and dynamically-created controls follow the flat-color rule. */
+.select2-container .select2-choice,
+.select2-container.select2-drop-above .select2-choice,
+.select2-container .select2-choice .select2-arrow,
+.select2-dropdown-open .select2-choice,
+.select2-dropdown-open.select2-drop-above .select2-choice,
+.select2-container-multi .select2-choices,
+.select2-container-multi .select2-choices .select2-search-choice,
+.select2-search input,
+.select2-search input.select2-active {
+	background-image: none !important;
+}
+
 .select2-container .select2-choice {
 	background: var(--rb-surface-sunken);
 	background-image: none;
@@ -867,6 +1040,11 @@ legend {
 	color: var(--rb-ink);
 	font-family: var(--rb-font-body);
 	box-sizing: border-box;
+}
+
+#sets-bridge.ai-panel-bridge,
+#ai-panel.ai-panel {
+	max-width: 64rem;
 }
 
 /* Calc column strip: ensure three floated fieldsets stay on one band */
@@ -1024,49 +1202,68 @@ legend {
 	background: var(--rb-surface-sunken);
 }
 
-/* —— Responsive ——
+/* —— Responsive —— */
+@media (max-width: 900px) {
+	#calc.rb-mode-active {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto;
+		overflow-x: visible;
+	}
 
-   The shell is scroll-based on desktop: every mode is on the page and the
-   tabs are anchors. On a phone that means the classic calc's desktop floor
-   stretches the WHOLE page to 1600px, and the companion panels a player
-   actually reads mid-run render as a zoomed-out photograph. Below the
-   breakpoint the shell becomes a true tab UI: only the active mode renders,
-   each mode reflows to the viewport, and the calc alone keeps a horizontal
-   scroll inside its own region. */
+	#calc > [role="region"][aria-label="Settings"],
+	#calc > .move-result-group,
+	#calc > .main-result-group,
+	#calc > .calc-player-column,
+	#calc > .calc-opponent-column,
+	#calc > .calc-field-column {
+		grid-column: 1;
+	}
+
+	#calc > [role="region"][aria-label="Settings"] { grid-row: 1; }
+	#calc > .move-result-group { grid-row: 2; }
+	#calc > .main-result-group { grid-row: 3; }
+	#calc > .calc-player-column { grid-row: 4; }
+	#calc > .calc-opponent-column { grid-row: 5; }
+	#calc > .calc-field-column { grid-row: 6; }
+
+	#calc .move-result-group {
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--rb-space-sm);
+	}
+
+	#calc .move-result-subgroup > div:not(.result-move-header) {
+		display: grid;
+		grid-template-columns: minmax(8.5rem, 0.8fr) minmax(0, 1.2fr);
+		align-items: center;
+		gap: var(--rb-space-xs);
+	}
+
+	#calc .move-result-group .btn {
+		width: 100%;
+		box-sizing: border-box;
+		margin-right: 0;
+	}
+}
+
 @media (max-width: 700px) {
+	.rb-mode-region {
+		scroll-margin-top: 9rem;
+	}
+
 	.rb-mode-tablist {
-		flex-wrap: nowrap;
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
+		flex-wrap: wrap;
 	}
 
 	.rb-mode-tab {
 		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		box-sizing: border-box;
 	}
 
 	.rb-wordmark {
 		font-size: 1.3rem;
-	}
-
-	/* True tabs: the inactive modes leave the layout entirely, so no hidden
-	   region's width floor can force the page wide. The shell JS keeps
-	   exactly one region active from the hash, clicks and arrow keys.
-	   !important because collapsed must mean collapsed: several regions set
-	   their own display with id-level specificity (#runbun-planner's grid)
-	   and would ghost through the collapse otherwise. */
-	.rb-mode-region:not(.rb-mode-active) {
-		display: none !important;
-	}
-
-	/* The classic calc keeps its desktop geometry but scrolls INSIDE its
-	   region instead of widening the page: the float layout was authored at
-	   100em and reflowing it is a redesign, not a media query. */
-	#calc {
-		min-width: 0;
-		overflow-x: auto;
-	}
-	#calc > * {
-		min-width: 100em;
 	}
 
 	.wrapper,

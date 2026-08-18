@@ -98,6 +98,10 @@ against data already in the repository; it does not track any upstream fork.
   `TASKS.md`.
 - `AGENTS.md`, `AI_DATA_MODEL.md`, and `VALIDATION.md` define the contracts and
   evidence for these additions.
+- `RUNBUN_REBUILD_MODEL.md` defines the optional path beyond the companion:
+  ROM-derived world/presentation data, normalized emulator observation, and a
+  future authoritative game runtime. Those domains are not implemented by the
+  current L0-L6 profile stack.
 
 ## Generated surfaces
 

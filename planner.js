@@ -28,13 +28,12 @@
  * in the game.
  */
 
-const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
 
 const calc = require('@smogon/calc');
 const ai = require('./ai');
 const getProfile = require('./profiles').getProfile;
+const loadSetdex = require('./setdex-loader').loadSetdex;
 
 // The sets bridge is browser-first: it reads the calculator and the trainer
 // table from globals. Provide them before requiring it.
@@ -54,12 +53,10 @@ function loadBridge(profile) {
 			'there is no run map to plan against');
 	}
 	const setsPath = path.join(__dirname, encounters.SOURCE);
-	const source = fs.readFileSync(setsPath, 'utf8');
-	// The trainer data is a classic browser script — `var SETDEX_SS = {...};` —
-	// so evaluating it in this realm is what actually reproduces how the page
-	// loads it. `runInThisContext` says that plainly; building a Function to
-	// return the value would only disguise the same evaluation.
-	vm.runInThisContext(source, {filename: encounters.SOURCE});
+	// Node loads the classic browser source in-process. The Cloudflare build
+	// replaces this loader with a materialized data module produced at build
+	// time, because workerd intentionally rejects eval/new Function.
+	loadSetdex(setsPath, encounters.GLOBAL);
 	const bridge = require('./src/js/sets_to_battle_state.js');
 	bridgeCache.set(profile.id, bridge);
 	return bridge;
@@ -287,7 +284,8 @@ function buildFightState(options) {
  * field. The wild build goes through the same zero-EV projection as a
  * declared player Pokemon — its moves are the caller's to source (the last
  * level-up moves at that level), because move data is the oracle's, not this
- * layer's.
+ * layer's. Unlike trainer sets, the wild Pokemon carries the encounter's
+ * rolled IVs through the fight so a capture owns the Pokemon that appeared.
  */
 function buildWildState(options) {
 	const opts = options || {};
@@ -307,6 +305,9 @@ function buildWildState(options) {
 		species: wild.species,
 		level: wild.level,
 		moves: wild.moves,
+		ivs: wild.ivs,
+		nature: wild.nature,
+		ability: wild.ability,
 	}, 'ai-1').state;
 	const built = opts.playerParty.map((mon, i) =>
 		playerStateFromEntry(b, mon, `player-${i + 1}`));

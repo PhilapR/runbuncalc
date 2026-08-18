@@ -164,13 +164,18 @@ function legalActions(state) {
 		.filter(entry => entry.action.kind === 'move')
 		.map(entry => {
 			const damage = entry.facts && entry.facts.damage;
+			const targetId = entry.action.targetIds && entry.action.targetIds[0];
+			const target = targetId ? findMon(state, targetId) : null;
 			return {
 				kind: 'move',
 				action: entry.action,
 				move: entry.action.moveName,
-				damage: damage && damage.targetHp ? {
-					min: Math.round(damage.min / damage.targetHp * 100),
-					max: Math.round(damage.max / damage.targetHp * 100),
+				// Keep the number stable as HP falls. The KO flag already answers
+				// whether the remaining health is covered; changing 55% into 275%
+				// after one hit makes the same move look five times stronger.
+				damage: damage && target && target.hp.max ? {
+					min: Math.round(damage.min / target.hp.max * 100),
+					max: Math.round(damage.max / target.hp.max * 100),
 					guaranteedKO: !!damage.guaranteedKO,
 				} : null,
 			};
@@ -193,6 +198,8 @@ function view(state) {
 		hp: {current: Math.max(0, mon.hp.current), max: mon.hp.max},
 		status: mon.status || null,
 		item: mon.item || null,
+		types: (mon.types || []).slice(),
+		ability: mon.ability || null,
 	});
 	return {
 		turn: state.turn,
@@ -213,6 +220,72 @@ function phaseOf(state) {
 		return 'replace';
 	}
 	return 'choose';
+}
+
+function contributionRoster(party, activeBattleId) {
+	return (party || []).map(member => ({
+		monId: member.monId,
+		battleId: member.battleId,
+		species: member.species,
+		appearances: member.battleId === activeBattleId ? 1 : 0,
+		switchIns: 0,
+		moveAttempts: 0,
+		opposingHpRemoved: 0,
+		kos: 0,
+	}));
+}
+
+function contributionRowsAreValid(bundle) {
+	var party = bundle.party || [];
+	var rows = bundle.contributions;
+	var ids = new Set();
+	if (!Array.isArray(rows) || rows.length !== party.length) return false;
+	return rows.every(row => {
+		if (!row || typeof row.monId !== 'string' || !row.monId ||
+			typeof row.battleId !== 'string' || !row.battleId ||
+			typeof row.species !== 'string' || !row.species || ids.has(row.monId) ||
+			!party.some(member => member.monId === row.monId && member.battleId === row.battleId)) {
+			return false;
+		}
+		ids.add(row.monId);
+		var validCounters = ['appearances', 'switchIns', 'moveAttempts', 'opposingHpRemoved', 'kos']
+			.every(field => Number.isInteger(row[field]) && row[field] >= 0 && row[field] <= 0xffffffff);
+		return validCounters && row.switchIns <= row.appearances &&
+			(row.appearances > 0 || row.moveAttempts + row.opposingHpRemoved + row.kos === 0);
+	});
+}
+
+function contributionState(bundle) {
+	var complete = bundle.contributionVersion === 1 && bundle.contributionComplete !== false &&
+		contributionRowsAreValid(bundle);
+	var rows = complete ? bundle.contributions.map(row => Object.assign({}, row)) :
+		contributionRoster(bundle.party, activeOf(bundle.state, 'player'));
+	return {complete, rows};
+}
+
+function recordContribution(rows, before, after, action) {
+	if (!action || typeof action.actorId !== 'string' || action.actorId.indexOf('player') !== 0) return;
+	if (action.kind === 'switch') {
+		const incoming = rows.find(row => row.battleId === action.replacementId);
+		if (incoming) {
+			incoming.appearances += 1;
+			incoming.switchIns += 1;
+		}
+		return;
+	}
+	if (action.kind !== 'move') return;
+	const actor = rows.find(row => row.battleId === action.actorId);
+	if (!actor) return;
+	actor.moveAttempts += 1;
+	const opposingIds = new Set(before.sides.ai.party.map(mon => mon.id));
+	const targets = (action.targetIds || []).filter(id => opposingIds.has(id));
+	for (const id of targets) {
+		const prior = findMon(before, id);
+		const current = findMon(after, id);
+		if (!prior || !current) continue;
+		actor.opposingHpRemoved += Math.max(0, prior.hp.current - current.hp.current);
+		if (prior.hp.current > 0 && current.hp.current <= 0) actor.kos += 1;
+	}
 }
 
 function finished(state) {
@@ -325,6 +398,9 @@ function start(doc, trainerName, seed) {
 			species: specs[slot].species,
 		})),
 	};
+	bundle.contributionVersion = 1;
+	bundle.contributionComplete = true;
+	bundle.contributions = contributionRoster(bundle.party, activeOf(state, 'player'));
 	return {
 		battle: bundle,
 		viewState: view(state),
@@ -363,6 +439,12 @@ function startWild(doc, roll, seed) {
 	}
 	const rate = profile.oracle.catchRateOf(wild.species);
 	if (!rate) throw new Error(`battle: no catch rate on file for ${wild.species}`);
+	const missingIvs = Object.keys(runtime.IV_STATS).filter(stat =>
+		!wild.ivs || !Object.prototype.hasOwnProperty.call(wild.ivs, stat));
+	if (missingIvs.length) {
+		throw new Error(`battle: wild ${wild.species} is missing its rolled IVs: ` +
+			`${missingIvs.join(', ')} — roll the encounter once before fighting it`);
+	}
 	const learned = [];
 	for (const pair of profile.oracle.levelUpMoves(wild.species)) {
 		if (pair[0] <= wild.level && learned.indexOf(pair[1]) === -1) learned.push(pair[1]);
@@ -376,7 +458,14 @@ function startWild(doc, roll, seed) {
 		ahead.length ? {atOrder: ahead[0].order} : {});
 	const built = planner.buildWildState({
 		playerParty: specs,
-		wild: {species: wild.species, level: wild.level, moves: learned.slice(-4)},
+		wild: {
+			species: wild.species,
+			level: wild.level,
+			moves: learned.slice(-4),
+			ivs: wild.ivs,
+			nature: wild.nature,
+			ability: wild.ability,
+		},
 		profileId: doc.profileId,
 	});
 	const bundle = {
@@ -390,6 +479,11 @@ function startWild(doc, roll, seed) {
 			method: slot.method,
 			species: wild.species,
 			level: wild.level,
+			// This same roll drives the wild battle and becomes owned on capture.
+			// Never reroll an encounter while its identity crosses that boundary.
+			ivs: wild.ivs || null,
+			nature: wild.nature || null,
+			ability: wild.ability || null,
 			rate,
 			// The bag's better balls, snapshotted: what this fight may spend.
 			// Throws are counted in `thrown` and settled into the document as
@@ -406,6 +500,9 @@ function startWild(doc, roll, seed) {
 			species: specs[slotIndex].species,
 		})),
 	};
+	bundle.contributionVersion = 1;
+	bundle.contributionComplete = true;
+	bundle.contributions = contributionRoster(bundle.party, activeOf(built.state, 'player'));
 	return {
 		battle: bundle,
 		viewState: view(built.state),
@@ -426,6 +523,7 @@ function act(bundle, chosen) {
 	let state = bundle.state;
 	const events = [];
 	const faints = [];
+	const contribution = contributionState(bundle);
 	const rng = streamFor(bundle.seed, bundle.step);
 	// A caught fight ends with the wild mon still standing, so the phase is
 	// the record of that ending, not the HP table.
@@ -438,20 +536,37 @@ function act(bundle, chosen) {
 		const before = state;
 		if (action.kind === 'move') {
 			const facts = ai.calculateActionFacts(state, action);
-			state = ai.applyAction(state, action,
-				ai.deriveMoveResolution(state, action, {facts, random: rng}));
+			const resolution = ai.deriveMoveResolution(state, action, {facts, random: rng});
+			state = ai.applyAction(state, action, resolution);
 			const actor = findMon(before, action.actorId);
 			const target = action.targetIds && action.targetIds[0] ?
 				findMon(state, action.targetIds[0]) : null;
 			const was = target && findMon(before, target.id);
 			const dealt = target && was ? Math.max(0, was.hp.current - target.hp.current) : 0;
-			events.push({text: `${label}${actor.species} used ${action.moveName}.` +
-				(target && dealt ? ` (${Math.round(dealt / target.hp.max * 100)}% to ${target.species})` : '')});
+			const failure = {
+				flinch: `${actor.species} flinched and could not move!`,
+				sleep: `${actor.species} is fast asleep.`,
+				freeze: `${actor.species} is frozen solid.`,
+				paralysis: `${actor.species} is paralyzed and could not move!`,
+				confusion: `${actor.species} hurt itself in confusion!`,
+				infatuation: `${actor.species} is immobilized by love.`,
+				protect: `${actor.species}'s ${action.moveName} failed.`,
+				truant: `${actor.species} is loafing around.`,
+			}[resolution.actionFailure];
+			if (failure) {
+				events.push({text: label + failure});
+			} else if (resolution.hit === false) {
+				events.push({text: `${label}${actor.species}'s ${action.moveName} missed!`});
+			} else {
+				events.push({text: `${label}${actor.species} used ${action.moveName}.` +
+					(target && dealt ? ` (${Math.round(dealt / target.hp.max * 100)}% to ${target.species})` : '')});
+			}
 		} else {
 			state = ai.applyAction(state, action);
 			const incoming = findMon(state, action.replacementId);
 			events.push({text: `${label}${incoming.species} was sent out.`});
 		}
+		recordContribution(contribution.rows, before, state, action);
 		recordFaints(before, state, action.kind === 'move' ? action.moveName : null,
 			action.actorId, events, faints);
 	};
@@ -594,7 +709,9 @@ function act(bundle, chosen) {
 			carried.push(death);
 		}
 	}
-	const next = Object.assign({}, bundle, {state, step: bundle.step + 1, phase, deaths: carried});
+	const next = Object.assign({}, bundle, {state, step: bundle.step + 1, phase, deaths: carried,
+		contributionVersion: 1, contributionComplete: contribution.complete,
+		contributions: contribution.rows});
 	const monIdOf = battleId => {
 		const row = (bundle.party || []).find(member => member.battleId === battleId);
 		return row ? row.monId : null;

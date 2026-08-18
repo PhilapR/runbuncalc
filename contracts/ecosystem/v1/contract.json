@@ -1,0 +1,58 @@
+{
+  "contract": "pokemon-ecosystem.bridge",
+  "version": "1.1.0",
+  "authority": {
+    "status": "consumer-fixture-cache",
+    "currentRepository": "runbuncalc",
+    "canonicalTargetRepository": "pokemon-mono",
+    "canonicalTargetPath": "contracts/run-runtime/v1",
+    "canonicalRevision": "8e2c3c8f021094814b1b44844c7de4992095d274",
+    "canonicalDigest": "402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75",
+    "promotionRequires": [
+      "canonical-digest",
+      "provider-conformance",
+      "consumer-lock"
+    ]
+  },
+  "requestSchema": "pokemon.bridge.request/1.0.0",
+  "receiptSchema": "pokemon.bridge.receipt/1.0.0",
+  "attributionRequestSchema": "pokemon.bridge.attribution.request/1.0.0",
+  "attributionReceiptSchema": "pokemon.bridge.attribution.receipt/1.0.0",
+  "owners": {
+    "attempt": "runbuncalc",
+    "simulation": "pokemon-mono",
+    "orchestration": "stochastic-inference-core"
+  },
+  "capabilities": [
+    "pokemon.rab.plan",
+    "pokemon.rab.attribute"
+  ],
+  "transports": {
+    "control": "application/json",
+    "archive": "rabrun.archive@1+model@2.0.0",
+    "analytics": "arrow-or-parquet",
+    "training": "arrow-or-npz"
+  },
+  "compatibility": {
+    "unknownFields": "reject-at-provider-boundary",
+    "receipts": "immutable",
+    "majorVersion": "exact"
+  },
+  "parallelLanes": {
+    "contract": "pokemon-mono",
+    "engine": "pokemon-mono",
+    "app": "runbuncalc",
+    "control": "stochastic-inference-core",
+    "verification": "cross-repository"
+  },
+  "examples": {
+    "request": "planning-request.json",
+    "receipt": "planning-receipt.json",
+    "attributionRequest": "attribution-request.json",
+    "attributionReceipt": "attribution-receipt.json",
+    "seededAttributionReceipt": "seeded-provider-attribution-receipt.json",
+    "localAttributionEvidence": "attribution-local-evidence.json",
+    "integrationMatrix": "integration-matrix.example.json",
+    "canonicalLock": "canonical.lock.json"
+  }
+}

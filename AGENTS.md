@@ -1130,3 +1130,18 @@ so the generated `dist/` output stays synchronized.
   it through the importer when possible.
 - Do not add a new special case to the damage mechanics merely to implement an
   AI preference.
+
+## Parallel work
+
+- Use a dedicated, named worktree for every concurrent or cross-repository
+  lane. Never share a worktree between agents or absorb unrelated dirty paths.
+- Declare one disjoint write set per lane using the table in `docs/SDLC.md`.
+  Shared contract files have one owner; consumers develop against pinned
+  fixtures or recorded receipts.
+- Stage explicit paths, re-check status immediately before committing, and do
+  not use stash as a coordination mechanism.
+- Rebase onto the current target, rerun the lane gate, and integrate with a
+  fast-forward. A rejected fast-forward is drift evidence, not permission to
+  force or weaken a fixture.
+- Record exact lane revisions and the contract digest in an integration matrix
+  before cross-repository compatibility or deployment may be claimed.

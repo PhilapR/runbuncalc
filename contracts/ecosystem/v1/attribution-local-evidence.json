@@ -1,0 +1,71 @@
+{
+	"schemaVersion": "pokemon.bridge.local-evidence/1.0.0",
+	"status": "implementation-tested-browser-proven-local",
+	"contract": {
+		"version": "1.1.0",
+		"repository": "pokemon-mono",
+		"path": "contracts/run-runtime/v1",
+		"revision": "8e2c3c8f021094814b1b44844c7de4992095d274",
+		"digest": "402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75"
+	},
+	"lanes": {
+		"app": {
+			"repository": "runbuncalc",
+			"revision": "ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a"
+		},
+		"engine": {
+			"repository": "pokemon-mono",
+			"revision": "2ae1b7e5721a2d2ff3b9692df75f65329c891650"
+		},
+		"control": {
+			"repository": "stochastic-inference-core",
+			"revision": "446776f91ea17eb25054fc3d233f5baa8f8e5c55",
+			"attributionCapabilityRegistered": true
+		}
+	},
+	"fixtures": {
+		"request": "attribution-request.json",
+		"contractReceipt": "attribution-receipt.json",
+		"providerReceipt": "seeded-provider-attribution-receipt.json"
+	},
+	"deploymentReceipt": {
+		"provider": "cloudflare-workers",
+		"url": "https://runbun.rago-philip.workers.dev",
+		"versionId": "3aae9677-dd32-4eef-95c9-b129f3385526",
+		"deployedAt": "2026-08-18T15:24:39.455Z",
+		"revision": "ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a",
+		"modelVersion": "2.0.0",
+		"rollbackVersionId": "7304a693-063e-4284-8e5d-220c6fd05e2d",
+		"runtime": {
+			"wrangler": "4.122.0",
+			"workerd": "2026-08-11"
+		}
+	},
+	"gates": {
+		"providerDeterministicRepeat": true,
+		"providerReceiptLocked": true,
+		"evidencePersisted": true,
+		"evidenceMaterialized": true,
+		"reviewDerived": true,
+		"durableBootstrapRaceBlocked": true,
+		"durableReloadRecovered": true,
+		"attributionRenderedDesktop": true,
+		"attributionRenderedMobile": true,
+		"historySeparationRendered": true,
+		"rendered": true,
+		"exactRuntimeGate": true,
+		"privateDeploymentVerified": true,
+		"productionAnonymousDenied": true,
+		"productionAuthenticatedMetadata": true,
+		"productionRunTransaction": true,
+		"productionAiValidation": true,
+		"productionRenderedAttribution": true,
+		"capabilityRegistered": true
+	},
+	"nonClaims": [
+		"Participation is not carry.",
+		"A bounded sample is not whole-branch certification.",
+		"Registration exposes routing and receipt retention only; Core owns no mechanics.",
+		"The rendered fixed-seed attribution sample is not a historical carry claim."
+	]
+}

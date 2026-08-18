@@ -17,6 +17,8 @@ const test = require('node:test');
 const run = require('./run');
 const driver = require('./battle-driver');
 
+const TEST_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
+
 function docWith(party) {
 	let doc = run.createRun({name: 'Recreation', now: 't0', permadeath: true});
 	doc = run.applyAll(doc, party.map(entry => ({
@@ -24,6 +26,7 @@ function docWith(party) {
 		species: entry.species,
 		map: entry.map,
 		level: entry.level,
+		ivs: Object.assign({}, TEST_IVS),
 	})));
 	return run.apply(doc, {kind: 'party',
 		ids: party.map((entry, index) => `mon-${index + 1}`)});
@@ -62,6 +65,9 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 	// The party enters at the projected cap — the infinite candy IS the XP
 	// system, so a level 3 catch fights at what it will be leveled to.
 	assert.equal(opened.viewState.player.active.level, 12);
+	assert.ok(opened.viewState.player.active.types.length > 0,
+		'the battle surface needs the active Pokemon typing');
+	assert.equal(typeof opened.viewState.player.active.ability, 'string');
 	// Moves come priced: the button can say what the calculator knows.
 	const move = opened.actions.find(action => action.kind === 'move');
 	assert.ok(move && move.damage && move.damage.max > 0,
@@ -79,6 +85,27 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 	// route-one birds. If the fixture drifts, the assertion below names it.
 	assert.equal(first.reply.result, 'win');
 	assert.deepEqual(first.reply.deaths, []);
+});
+
+test('move forecasts stay on max HP and a miss says that it missed', () => {
+	const doc = docWith([{species: 'Mudkip', map: undefined, level: 5}]);
+	const opened = driver.start(doc, 'Youngster Calvin', 0);
+	const firstWaterGun = opened.actions.find(action => action.move === 'Water Gun');
+	assert.ok(firstWaterGun && firstWaterGun.damage,
+		'Water Gun should carry a damage forecast');
+
+	const first = driver.act(opened.battle, {kind: 'move', move: 'Water Gun'});
+	const secondWaterGun = first.actions.find(action => action.move === 'Water Gun');
+	assert.deepEqual(
+		{min: secondWaterGun.damage.min, max: secondWaterGun.damage.max},
+		{min: firstWaterGun.damage.min, max: firstWaterGun.damage.max},
+		'the forecast is a share of max HP, not a growing share of what remains');
+	assert.equal(secondWaterGun.damage.guaranteedKO, true,
+		'the separate KO reading should still reflect the HP remaining');
+
+	const second = driver.act(first.battle, {kind: 'move', move: 'Water Gun'});
+	assert.ok(second.events.some(event => /Mudkip's Water Gun missed!/.test(event.text)),
+		'a failed accuracy roll must not be narrated as an unexplained move use');
 });
 
 test('a mid-turn faint pauses for the replacement, and the epitaph survives to the end', () => {
@@ -137,6 +164,22 @@ test('a wild fight: the ball is priced, the throw is seeded, the ending settles 
 	assert.equal(opened.battle.trainer, `Wild ${rolled.species}`);
 	assert.equal(opened.viewState.foe.active.level, rolled.level,
 		'the wild mon fights at its rolled level, uncapped');
+	assert.deepEqual(opened.battle.wild.ivs, rolled.ivs,
+		'the player IV roll waits in the bundle for a successful capture');
+	assert.deepEqual(opened.battle.state.sides.ai.party[0].ivs, rolled.ivs,
+		'the wild opponent fights with the same random IVs the player may catch');
+	// The server's die authors the whole identity, and that identity is what
+	// fights the battle AND waits in the bundle for a successful capture.
+	assert.ok(rolled.nature, 'the roll authors a nature');
+	assert.ok(rolled.ability, 'the roll authors an ability');
+	assert.equal(opened.battle.wild.nature, rolled.nature,
+		'the rolled nature waits in the bundle for a successful capture');
+	assert.equal(opened.battle.wild.ability, rolled.ability,
+		'the rolled ability waits in the bundle for a successful capture');
+	assert.equal(opened.battle.state.sides.ai.party[0].ability, rolled.ability,
+		'the wild opponent fights with the ability the player would catch');
+	assert.equal(opened.battle.state.sides.ai.party[0].nature, rolled.nature,
+		'the wild opponent fights with the nature the player would catch');
 	const ball = opened.actions.find(action => action.kind === 'ball');
 	assert.ok(ball, 'a wild fight offers the ball');
 	assert.ok(ball.chance > 0 && ball.chance <= 100, 'the throw wears its odds');

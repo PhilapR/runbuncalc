@@ -355,9 +355,8 @@ const LIMITS = {
 	wildEncountersOnly: true,
 	staticAndGiftEncountersAbsent: true,
 	itemLocationsAbsent: true,
-	note: 'Wild encounter tables only. Starters, gifts, statics, trades and Poke Mart ' +
-		'stock are scripted events with no table in the decomp, so a catch or an item ' +
-		'may legitimately have no map behind it.',
+	note: 'Route rolls cover wild encounters. Starters, gifts, static encounters, trades ' +
+		'and shop stock are scripted events, so add them without choosing a route.',
 };
 
 /**
@@ -464,8 +463,24 @@ function moveObtainableAt(move) {
 	return gates[move] !== undefined ? gates[move] : null;
 }
 
+/**
+ * Coverage statement for move unlocks shown in progression UI.
+ *
+ * Legal TM/tutor moves are imported, but their overworld locations and dates
+ * are not. Only the HM story spine is dated. Consumers must preserve that
+ * distinction instead of interpreting an absent date as proof of availability.
+ */
+function moveAvailability() {
+	return {
+		status: 'undated',
+		available: [],
+		note: 'TM and tutor moves are known, but their locations and unlock timing are not dated yet.',
+	};
+}
+
 module.exports = {
 	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	moveAvailability,
 	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,

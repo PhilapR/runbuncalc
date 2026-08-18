@@ -35,6 +35,8 @@ The same surface is served over HTTP (`POST /run/*`, see
 [`INVENTORY.md`](INVENTORY.md) — generated from the code and gated, so it
 cannot drift) and in the browser as the **My Run** panel, which adds the
 matchup board, the split sheet and one-click catches off real tables.
+The product and architecture sequence is tracked in
+[`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ### Play it in the browser (no emulator)
 
@@ -70,17 +72,26 @@ $ npm run cf:preview   # wrangler dev against the built worker (reads .dev.vars)
 $ npm run cf:deploy    # ships https://runbun.<account>.workers.dev (printed on deploy)
 ```
 
-Dev for now, and dev is **private**: the worker carries the fleet's
-preview gate (Basic auth against `SITE_AUTH_PASSWORD`, the same pattern as
-the journal's middleware) over the page and the API alike — and it **fails
-closed**: with no secret set the worker answers 503, never an open door.
+`cf:deploy` refuses a dirty worktree. The authenticated
+`/__runbun/meta` endpoint reports the exact Git revision and Model version
+embedded in the Worker bundle, so a deployment can be matched to its review.
+Both CI and the deployment workflow also run the built bundle inside workerd,
+including the private gate and the complete `new → apply → status` transaction.
+
+Dev for now, and dev is **private**: the worker carries a fail-closed preview
+gate against `SITE_AUTH_PASSWORD`. Browsers receive a small inline login form
+and then a signed, `HttpOnly`, `SameSite=Strict` session cookie that expires
+after 12 hours; API tools can keep using Basic Auth. The form is the only
+anonymous HTML response — app assets, metadata, and APIs stay protected. With
+no secret set the worker answers 503, never an open door.
 Local `wrangler dev` reads `.dev.vars` (copy `.dev.vars.example`). When it
 graduates to the portfolio, swap `workers_dev` in `wrangler.jsonc` for the
 zone route (the commented block shows it) and set `PREVIEW_OPEN=true` —
 going public is a deliberate act, not a forgotten secret.
 
-Notes: the worker embeds the oracle data and trainer sets (~6.4 MB script,
-inside the paid-plan limit), and `wrangler.jsonc` raises the CPU ceiling
+Notes: the worker embeds the oracle data and build-materialized trainer sets
+(~6.4 MB script, inside the paid-plan limit) without runtime `eval`, and
+`wrangler.jsonc` raises the CPU ceiling
 because Advise and Rank rebuild matchup rows through the policy — seconds of
 CPU, not milliseconds.
 
@@ -226,22 +237,24 @@ The root `postinstall` step provisions the `calc/` and `ai/` subpackages through
 Avoid installing those packages independently unless you are deliberately working on an
 isolated package.
 
-Next, run `npm run build` from the root directory. This compiles both `@smogon/calc` and
-`runbuncalc-ai`, then compiles the templated HTML and copies everything into the top-level `dist/`
-folder. To then view the UI, open `dist/index.html` -
-simply double-clicking on the file from your operating system's file manager UI should open it in
-your default browser.
+Run `npm run dev` from the root directory. It compiles both `@smogon/calc` and
+`runbuncalc-ai`, materializes the templated HTML and assets into `dist/`, and
+serves that exact product build. Use the printed local URL.
 
 ```sh
-$ npm run build
-$ open dist/index.html # open works on macOS, simply double-clicking the file on Windows/macOS works
+$ npm run dev
 ```
 
-**If you make changes to anything in `calc/` or `ai/`, you must run `npm run build` from the top level to
-compile the files and copy them into `dist/` again. If you make changes to the HTML or JavaScript in
-`src/` you must run `node build view` before the changes will become visible in your browser**
-(`npm run build` also works, but it is slower, as it will compile `calc/` and `ai/` as well, which is
-unnecessary if you did not make any changes to that directory).
+`src/index.template.html` is build input and must never be used as a preview;
+its calculator URLs intentionally resolve only after materialization. For a
+quick UI-only iteration after a successful full build, run `npm run preview`.
+That refreshes `dist/` from `src/` and serves it without recompiling the two
+subpackages. Run `npm run dev` again after changing `calc/` or `ai/`.
+
+The repository lifecycle and cross-project ownership contract are documented
+in [`docs/SDLC.md`](docs/SDLC.md) and
+[`docs/ECOSYSTEM_BRIDGE.md`](docs/ECOSYSTEM_BRIDGE.md). `npm run check:sdlc`
+proves the runnable entrypoint and bridge manifest before the broader test gate.
 
 Before opening up a Pull Request, please ensure `npm test` passes:
 
