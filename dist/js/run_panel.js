@@ -2754,7 +2754,8 @@
 				engine: {
 					app: appRevision,
 					provider: window.RunBunPokemonProvider &&
-						window.RunBunPokemonProvider.revision || null,
+						window.RunBunPokemonProvider.metadata &&
+						window.RunBunPokemonProvider.metadata.engineRevision || null,
 				},
 				outcome: won ? 'won' : 'lost',
 				turns: reply.viewState && Number.isInteger(reply.viewState.turn) ?
