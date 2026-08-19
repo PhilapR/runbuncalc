@@ -890,7 +890,12 @@ function actionFailure(
   if (actor.status === 'par' && sampleActionRoll(random, 'Paralysis') < 0.25) {
     return {failure: 'paralysis'};
   }
-  if (actor.volatile?.confusion && sampleActionRoll(random, 'Confusion') >= 1 / 3) {
+  // Gen 8 confusion: 33% chance to hit yourself. Run & Bun's own mechanics
+  // doc lists no confusion change and mandates Gen 8 defaults for anything
+  // unlisted. The old `>= 1/3` (a 2/3 self-hit, wrong in EVERY generation)
+  // was copy-patterned from the Protect streak check below, where 2/3
+  // failure is genuinely correct.
+  if (actor.volatile?.confusion && sampleActionRoll(random, 'Confusion') < 1 / 3) {
     return {failure: 'confusion'};
   }
   if (actor.volatile?.infatuated && sampleActionRoll(random, 'Infatuation') < 0.5) {
