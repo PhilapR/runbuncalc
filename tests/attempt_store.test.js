@@ -694,3 +694,39 @@ test('a backwards wall clock is flagged at commit, never rewritten', async () =>
 	const bundle = await store.exportActive();
 	assert.equal(await store.validateBundle(bundle), true);
 });
+
+test('a re-anchored mirror commits as run.replaced so its exports stay importable', async () => {
+	function runLog(id, value, log) {
+		return {attemptId: id, value: value, log: log, updatedAt: TIME};
+	}
+	// The failure being healed: a degraded session appends to the mirror
+	// only; on recovery the next command absorbs the mirror-grown log into
+	// ONE command.applied, whose single logEntry cannot re-materialize the
+	// whole log — the attempt's own export then fails import as CORRUPT_LOG.
+	const broken = Store.createMemoryStore();
+	await broken.commit({run: runLog('attempt-1', 0, []), expectedRevision: 0,
+		commandId: 'start', event: event('run.started', {})});
+	await broken.commit({run: runLog('attempt-1', 3, [{kind: 'a'}, {kind: 'b'}, {kind: 'c'}]), expectedRevision: 1,
+		commandId: 'absorb', event: event('command.applied', {command: {kind: 'c'}})});
+	const brokenBundle = await broken.exportActive();
+	await assert.rejects(() => broken.validateBundle(brokenBundle),
+		error => error.code === 'CORRUPT_LOG',
+		'the absorbed log must fail its own export — this is the defect being healed');
+
+	// The cure: adopting the ahead mirror is a lifecycle event. run.replaced
+	// snapshots the full adopted run, so materialization restarts from it.
+	const healed = Store.createMemoryStore();
+	await healed.commit({run: runLog('attempt-1', 0, []), expectedRevision: 0,
+		commandId: 'start', event: event('run.started', {})});
+	await healed.commit({run: runLog('attempt-1', 2, [{kind: 'a'}, {kind: 'b'}]), expectedRevision: 1,
+		commandId: 'replace-2', event: event('run.replaced',
+			{reason: 'compatibility copy ran ahead of durable storage'})});
+	await healed.commit({run: runLog('attempt-1', 3, [{kind: 'a'}, {kind: 'b'}, {kind: 'c'}]), expectedRevision: 2,
+		commandId: 'next', event: event('command.applied', {command: {kind: 'c'}})});
+	const bundle = await healed.exportActive();
+	assert.equal(await healed.validateBundle(bundle), true,
+		'a re-anchored attempt must export archives that import cleanly');
+	const fresh = Store.createMemoryStore();
+	const imported = await fresh.importBundle(bundle);
+	assert.equal(imported.duplicate, false, 'the healed archive round-trips');
+});

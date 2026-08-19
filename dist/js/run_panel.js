@@ -254,10 +254,27 @@
 					state = restoreLegacy();
 					currentRevision = head.revision;
 					restoredFrom = 'compatibility storage (ahead of durable)';
-					status('This browser\'s quick save is ahead of durable storage ' +
-						'— continuing from the quick save. The next accepted ' +
-						'command re-anchors durability.', 'error');
-					return state;
+					// Re-anchor NOW, as a lifecycle event: run.replaced
+					// snapshots the whole adopted run, so the ledger's
+					// materialized-log check keeps holding for every later
+					// export. Silently absorbing the mirror into the next
+					// ordinary command manufactured archives that failed
+					// their own re-import as CORRUPT_LOG.
+					var mirrorLog = (state.log || []).length;
+					return persist('run.replaced', {
+						reason: 'compatibility copy ran ahead of durable storage',
+					}, 'replace-' + state.attemptId + '-' + mirrorLog).then(function () {
+						status('This browser\'s quick save was ahead of durable ' +
+							'storage — re-anchored and continuing.', 'ok');
+						return state;
+					}).catch(function (ignored) {
+						// Degraded again: the mirror keeps the run playable and
+						// the next healthy boot retries this same re-anchor.
+						status('This browser\'s quick save is ahead of durable storage ' +
+							'— continuing from the quick save. The next healthy start ' +
+							're-anchors durability.', 'error');
+						return state;
+					});
 				}
 				if (choice.parked === 'mirror') {
 					// A mirror from a DIFFERENT attempt is someone's run. It
