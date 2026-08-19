@@ -4363,8 +4363,10 @@ uproarState.sides.player.party[0].status = 'slp';
 uproarState.sides.player.party[0].statusTurns = 2;
 const uproarAction = move(uproarState, 'Uproar');
 const uproarResolution = deriveMoveResolution(uproarState, uproarAction, {hit: true, random: () => 0});
+// Gen 5+ Uproar is a fixed 3 turns; the roll-based 2-5 was the Gen 3/4
+// table (constants audit D17). The state() fixture is gen 9.
 assert.deepEqual(uproarResolution.volatileByPokemon?.['ai-1']?.uproar, {
-  turns: 2, moveName: 'Uproar',
+  turns: 3, moveName: 'Uproar',
 });
 assert.equal(uproarResolution.statusByPokemon?.['player-1'], '');
 const uproarStarted = applyAction(uproarState, uproarAction, uproarResolution);
@@ -4384,7 +4386,8 @@ const faintedUproar = doublesState();
 faintedUproar.sides.ai.party[0].volatile = {uproar: {turns: 1}};
 faintedUproar.sides.ai.party[0].hp.current = 0;
 assert.equal(canApplyMajorStatus(faintedUproar, 'player-1', 'ai-2', 'slp', undefined, true), true);
-const uproarFinishedState = beginNextTurn(uproarStarted);
+// Two boundaries now, not one: gen 5+ Uproar runs a fixed 3 turns (D17).
+const uproarFinishedState = beginNextTurn(beginNextTurn(uproarStarted));
 const uproarFinalAction = enumerateMoveActions(uproarFinishedState, 'ai')[0];
 const uproarFinalResolution = deriveMoveResolution(uproarFinishedState, uproarFinalAction, {hit: true});
 assert.equal(uproarFinalResolution.volatileByPokemon?.['ai-1']?.uproar, null);

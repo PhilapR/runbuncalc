@@ -897,16 +897,23 @@ function actionFailure(
     if (sampleActionRoll(random, 'Freeze') >= 0.2) return {failure: 'freeze'};
     return {clearStatus: true};
   }
-  if (actor.status === 'par' && sampleActionRoll(random, 'Paralysis') < 0.25) {
-    return {failure: 'paralysis'};
-  }
-  // Gen 8 confusion: 33% chance to hit yourself. Run & Bun's own mechanics
-  // doc lists no confusion change and mandates Gen 8 defaults for anything
+  // Confusion is checked BEFORE paralysis: Showdown's onBeforeMovePriority
+  // and the pokeemerald lineage agree. With paralysis first, a mon that was
+  // both paralyzed and confused self-hit 25% of the time and was fully
+  // paralyzed 25%; the truth is 33% / 16.7%, and self-hit damage is real
+  // chip the misallocation moved.
+  //
+  // Gen 8 confusion: 33% chance to hit yourself (the cartridge is 33/100,
+  // which is also what the sibling predictor uses). Run & Bun's own doc
+  // lists no confusion change and mandates Gen 8 defaults for anything
   // unlisted. The old `>= 1/3` (a 2/3 self-hit, wrong in EVERY generation)
   // was copy-patterned from the Protect streak check below, where 2/3
   // failure is genuinely correct.
-  if (actor.volatile?.confusion && sampleActionRoll(random, 'Confusion') < 1 / 3) {
+  if (actor.volatile?.confusion && sampleActionRoll(random, 'Confusion') < 0.33) {
     return {failure: 'confusion'};
+  }
+  if (actor.status === 'par' && sampleActionRoll(random, 'Paralysis') < 0.25) {
+    return {failure: 'paralysis'};
   }
   if (actor.volatile?.infatuated && sampleActionRoll(random, 'Infatuation') < 0.5) {
     return {failure: 'infatuation'};
@@ -4146,7 +4153,10 @@ export function deriveMoveResolution(
   if (id === 'uproar') {
     const previous = actor.volatile?.uproar;
     if (!previous) {
-      const turns = Math.floor(sampleActionRoll(random, `${action.moveName} duration`) * 4) + 2;
+      // Gen 5+ is a fixed 3; the 2-5 roll is the Gen 3/4 table.
+      const turns = state.generation >= 5
+        ? 3
+        : Math.floor(sampleActionRoll(random, `${action.moveName} duration`) * 4) + 2;
       addVolatile(resolution, [actor.id], 'uproar', {turns, moveName: action.moveName});
       clearMajorStatus(resolution, state, (['ai', 'player'] as const).flatMap(sideId =>
         state.sides[sideId].activeIds));
@@ -5922,7 +5932,9 @@ export function deriveMoveResolution(
     const yawnTargets = effectTargetIds.filter(targetId =>
       !getPokemon(state, targetId)?.volatile?.yawn &&
       canApplyMajorStatus(state, effectActorId, targetId, 'slp', moveType, true));
-    addVolatile(resolution, yawnTargets, 'yawn', {turns: 1, sourceId: effectActorId});
+    // Duration 2: this turn is the grace turn Gen 8 gives the target to
+    // switch or act; the sleep lands at the end of the NEXT turn.
+    addVolatile(resolution, yawnTargets, 'yawn', {turns: 2, sourceId: effectActorId});
   }
   if (id === 'leechseed') {
     const seedTargets = effectTargetIds.filter(targetId =>

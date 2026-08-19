@@ -963,7 +963,9 @@ export function deriveEndTurnResolution(state: BattleState, options: EndTurnOpti
     }
 
     const yawn = pokemon.volatile?.yawn;
-    if (yawn) {
+    // Only the SECOND end-of-turn converts: turns 2 is the grace turn Gen 8
+    // gives the target to switch or act, and the boundary ticks it to 1.
+    if (yawn && (yawn.turns ?? 1) <= 1) {
       if (!pokemon.status && canApplyMajorStatus(
         state,
         yawn.sourceId || pokemon.id,
@@ -971,7 +973,11 @@ export function deriveEndTurnResolution(state: BattleState, options: EndTurnOpti
         'slp',
       )) {
         setStatus(resolution, pokemon.id, 'slp');
-        setStatusTurns(resolution, pokemon.id, 2);
+        // Yawn inflicts ordinary sleep — a rolled 2-4 counter, like every
+        // other sleep site in this engine. The hardcoded 2 always granted
+        // the shortest possible nap.
+        setStatusTurns(resolution, pokemon.id,
+          Math.floor(Math.max(0, Math.min(0.999999999999, random())) * 3) + 2);
       }
       setVolatile(resolution, pokemon.id, 'yawn', null);
     }
