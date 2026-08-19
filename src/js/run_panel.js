@@ -2757,7 +2757,8 @@
 						window.RunBunPokemonProvider.metadata &&
 						window.RunBunPokemonProvider.metadata.engineRevision || null,
 				},
-				outcome: won ? 'won' : 'lost',
+				outcome: won ? 'won' :
+					reply.result === 'catch' ? 'caught' : 'lost',
 				turns: reply.viewState && Number.isInteger(reply.viewState.turn) ?
 					reply.viewState.turn : completedBundle.state.turn,
 				leadId: completedBundle.party && completedBundle.party[0] ?

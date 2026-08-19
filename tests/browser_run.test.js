@@ -1694,6 +1694,18 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	} else {
 		assert.equal(saved.box.length, 1, 'a killed encounter keeps nothing');
 	}
+	// The receipt speaks the wild vocabulary: the box said Gotcha, so the
+	// event must say caught — a catch recorded as 'lost' poisons every
+	// downstream reader of wild battle.ended events.
+	const completed = await page.evaluate(async () => {
+		const store = window.RunBunAttemptStore.getDefault();
+		const head = await store.loadActive();
+		const inspected = await store.inspectAttempt(head.attemptId);
+		return inspected.events.filter(event => event.kind === 'battle.ended').at(-1);
+	});
+	assert.equal(completed.payload.kind, 'wild');
+	assert.equal(completed.payload.outcome, /Gotcha/.test(status) ? 'caught' : 'won',
+		'a caught wild is caught, not lost; a killed one is won');
 	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Return to run',
 		'a settled wild fight keeps its result visible until the player continues');
 	await page.click('#runbun-run-battle-abandon');
