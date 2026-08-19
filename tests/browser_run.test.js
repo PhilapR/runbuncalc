@@ -787,7 +787,13 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	// Pin this owned stat to a deterministic non-perfect value before testing the
 	// economy. Game-owned Pokemon already have all six IVs; this is an edit, not
 	// filling an unknown.
+	// The editor toolbench acts on the SELECTED Pokemon; before a selection
+	// exists it is a bench of levers wired to nothing, and it hides.
+	assert.equal(await page.$eval('#runbun-run-mon-tools', el => el.hidden), true,
+		'the details editor must hide until a Pokemon is selected');
 	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-mon-select');
+	assert.equal(await page.$eval('#runbun-run-mon-tools', el => el.hidden), false,
+		'selecting a Pokemon reveals its editor');
 	// Constrained inputs offer the game's own vocabulary: the forget slot is
 	// a select of THIS Pokemon's moves, the new-move field carries a menu of
 	// what it can legally learn, and the bag/species fields carry the full

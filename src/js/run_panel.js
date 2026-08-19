@@ -485,7 +485,7 @@
 		var id = $('#runbun-run-selected').val();
 		var mon = findBoxed(id);
 		$('#runbun-run-mon-empty').prop('hidden', !!mon);
-		$('#runbun-run-mon-summary, #runbun-run-mon-record').prop('hidden', !mon);
+		$('#runbun-run-mon-summary, #runbun-run-mon-record, #runbun-run-mon-tools').prop('hidden', !mon);
 		if (!mon) return;
 
 		var displayName = mon.nickname || mon.species;
@@ -3234,6 +3234,7 @@
 					var later = payload.later.map(function (entry) {
 						return entry.move + ' @' + entry.level;
 					});
+					$('#runbun-run-learn').prop('hidden', false);
 					$('#runbun-run-learn-now').text(now.join(', ') || '(nothing)');
 					$('#runbun-run-learn-later').text(later.join(', ') || '(nothing left)');
 				}).catch(function (error) {

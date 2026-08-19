@@ -2418,6 +2418,20 @@
                     <input type="number" id="runbun-run-acquire-count" aria-label="Item quantity" min="1" value="1">
                     <button type="button" id="runbun-run-acquire" class="btn btn-wide">Add to bag</button>
                 </div>
+                <!-- ui-lab snackbar-undo, ported framework-free: the row is
+                     RESERVED (in flow, no fixed positioning, no layout jump),
+                     the countdown ring reports the window, Undo is a real
+                     button, and reduced motion gets plain seconds instead. -->
+                <div class="runbun-run-snackbar-slot" aria-live="polite">
+                    <div id="runbun-run-snackbar" class="runbun-run-snackbar" hidden>
+                        <svg class="runbun-run-snackbar-ring" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                            <circle class="runbun-run-snackbar-ring-track" cx="9" cy="9" r="8"></circle>
+                            <circle class="runbun-run-snackbar-ring-fill" cx="9" cy="9" r="8"></circle>
+                        </svg>
+                        <span id="runbun-run-snackbar-text" class="runbun-run-snackbar-text"></span>
+                        <button type="button" id="runbun-run-snackbar-undo" class="btn runbun-run-snackbar-btn">Undo</button>
+                    </div>
+                </div>
             
                 </div>
             </div>
@@ -2555,6 +2569,7 @@
                     </fieldset>
                     <button type="button" id="runbun-run-record-details" class="btn btn-xwide rb-btn-primary">Save Pok&eacute;mon details</button>
                 </details>
+                <div id="runbun-run-mon-tools" hidden>
                 <div class="runbun-run-row">
                     <button type="button" id="runbun-run-evolve" class="btn btn-wide">Evolve</button>
                     <input type="number" id="runbun-run-level-to" placeholder="Lv" aria-label="Target level" min="1" max="100">
@@ -2590,25 +2605,13 @@
                     <button type="button" id="runbun-run-faint" class="btn btn-wide">Record faint</button>
                     <button type="button" id="runbun-run-release" class="btn btn-wide">Release Pok&eacute;mon</button>
                 </div>
-                <!-- ui-lab snackbar-undo, ported framework-free: the row is
-                     RESERVED (in flow, no fixed positioning, no layout jump),
-                     the countdown ring reports the window, Undo is a real
-                     button, and reduced motion gets plain seconds instead. -->
-                <div class="runbun-run-snackbar-slot" aria-live="polite">
-                    <div id="runbun-run-snackbar" class="runbun-run-snackbar" hidden>
-                        <svg class="runbun-run-snackbar-ring" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-                            <circle class="runbun-run-snackbar-ring-track" cx="9" cy="9" r="8"></circle>
-                            <circle class="runbun-run-snackbar-ring-fill" cx="9" cy="9" r="8"></circle>
-                        </svg>
-                        <span id="runbun-run-snackbar-text" class="runbun-run-snackbar-text"></span>
-                        <button type="button" id="runbun-run-snackbar-undo" class="btn runbun-run-snackbar-btn">Undo</button>
-                    </div>
-                </div>
                 <button type="button" id="runbun-run-learnable" class="btn btn-xxwide">Show learnable moves</button>
-                <div class="runbun-run-learn">
+                <div class="runbun-run-learn" id="runbun-run-learn" hidden>
                     <div><strong>Available now:</strong> <span id="runbun-run-learn-now"></span></div>
                     <div><strong>Available later:</strong> <span id="runbun-run-learn-later"></span></div>
                 </div>
+                </div>
+
             
                 </div>
             </div>
