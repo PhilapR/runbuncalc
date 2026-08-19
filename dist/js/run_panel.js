@@ -536,6 +536,53 @@
 		$('#runbun-run-observed-ability').val(mon.ability || '');
 	}
 
+	/**
+	 * The run -> calculator bridge: load THIS Pokemon, with its exact rolled
+	 * identity, into the calculator's player slot. The set rides the live
+	 * setdex under one well-known name — never localStorage, because the run
+	 * is the authority and a persisted copy would go stale on the next
+	 * level-up. Level is projected to the active cap, the same projection
+	 * every planning surface uses.
+	 */
+	var RUN_SET_NAME = 'My Run';
+	function openInCalculator(mon) {
+		var dex = window.SETDEX_SS;
+		if (!dex || !window.jQuery) {
+			status('The calculator has not finished loading yet.', 'error');
+			return;
+		}
+		var cap = lastStatus && lastStatus.status && lastStatus.status.levelCap ?
+			lastStatus.status.levelCap.cap : null;
+		var level = cap === null || cap === undefined ?
+			mon.level : Math.max(mon.level, cap);
+		var ivs = mon.ivs || {};
+		dex[mon.species] = dex[mon.species] || {};
+		dex[mon.species][RUN_SET_NAME] = {
+			level: level,
+			nature: mon.nature || undefined,
+			ability: mon.ability || undefined,
+			item: mon.item || undefined,
+			moves: mon.moves.slice(0, 4),
+			// The calculator's legacy stat keys; the run's rolled IVs.
+			ivs: {hp: ivs.hp, at: ivs.atk, df: ivs.def,
+				sa: ivs.spa, sd: ivs.spd, sp: ivs.spe},
+			evs: {},
+			isCustomSet: true,
+		};
+		var setId = mon.species + ' (' + RUN_SET_NAME + ')';
+		if (typeof window.topPokemonIcon === 'function') {
+			window.topPokemonIcon(setId, $('#p1mon')[0]);
+		}
+		$('.player').val(setId);
+		$('.player').change();
+		$('.player .select2-chosen').text(setId);
+		window.location.hash = '#calc';
+		status((mon.nickname || mon.species) + ' L' + level +
+			(level !== mon.level ? ' (projected to the cap)' : '') +
+			' is in the calculator against ' +
+			(window.CURRENT_TRAINER || 'the loaded trainer') + '.', 'ok');
+	}
+
 	// The datalist behind the New move field: everything this Pokemon can
 	// legally learn right now, fetched once per selection. Free text still
 	// works — the teach command is the validator, this is only the menu.
@@ -3096,6 +3143,11 @@
 		});
 		$('#runbun-run-release').on('click', function () {
 			command({kind: 'release', id: $('#runbun-run-selected').val()});
+		});
+		$('#runbun-run-open-calc').on('click', function () {
+			var mon = findBoxed($('#runbun-run-selected').val());
+			if (!mon) return;
+			openInCalculator(mon);
 		});
 		$('#runbun-run-learnable').on('click', function () {
 			api('/run/learnable', {run: state, id: $('#runbun-run-selected').val()})

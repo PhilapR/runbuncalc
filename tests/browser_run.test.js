@@ -789,6 +789,34 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		'the bag item field must offer the item vocabulary');
 	assert.ok(await page.$eval('#runbun-run-species-options', el => el.children.length > 500),
 		'the scripted-catch species field must offer the species vocabulary');
+	// The run -> calculator bridge: one click loads THIS Pokemon's exact
+	// rolled identity into the player slot, level projected to the cap, and
+	// lands on the calculator tab. The set lives only in the live setdex —
+	// never persisted, because the run is the authority.
+	await page.click('#runbun-run-open-calc');
+	await page.waitForFunction(() => window.location.hash === '#calc');
+	assert.equal(await page.$eval('.calc-player-column .select2-chosen', el => el.textContent),
+		'Treecko (My Run)', 'the player slot must hold the run set');
+	const bridged = await page.evaluate(() => {
+		const saved = JSON.parse(window.localStorage.getItem('runbun.run.v1'));
+		const mon = saved.box.find(entry => entry.species === 'Treecko');
+		const p1 = document.querySelector('.calc-player-column');
+		return {
+			level: p1.querySelector('.level').value,
+			nature: p1.querySelector('.nature').value,
+			calcIvs: ['hp', 'at', 'df', 'sa', 'sd', 'sp']
+				.map(k => p1.querySelector('.' + k + ' .ivs').value).join(','),
+			runIvs: [mon.ivs.hp, mon.ivs.atk, mon.ivs.def,
+				mon.ivs.spa, mon.ivs.spd, mon.ivs.spe].join(','),
+			persisted: window.localStorage.customsets || null,
+		};
+	});
+	assert.equal(bridged.level, '12', 'the bridged level must be projected to the cap');
+	assert.equal(bridged.calcIvs, bridged.runIvs,
+		'the calculator must carry the run\'s exact rolled IVs');
+	assert.equal(bridged.persisted, null,
+		'the run set must never leak into persistent custom sets');
+	await page.evaluate(() => { window.location.hash = '#runbun-run'; });
 	await page.click('#runbun-run-mon-record summary');
 	await page.fill('#runbun-run-observed-iv-spe', '5');
 	await page.click('#runbun-run-record-details');
