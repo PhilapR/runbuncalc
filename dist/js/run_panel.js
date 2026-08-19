@@ -545,7 +545,7 @@
 	 * every planning surface uses.
 	 */
 	var RUN_SET_NAME = 'My Run';
-	function openInCalculator(mon) {
+	function openInCalculator(mon, enemySetId) {
 		var dex = window.SETDEX_SS;
 		if (!dex || !window.jQuery) {
 			status('The calculator has not finished loading yet.', 'error');
@@ -576,11 +576,21 @@
 		$('.player').val(setId);
 		$('.player').change();
 		$('.player .select2-chosen').text(setId);
+		var opponentLabel = window.CURRENT_TRAINER || 'the loaded trainer';
+		if (enemySetId && dex[enemySetId.split(' (')[0]] &&
+			dex[enemySetId.split(' (')[0]][enemySetId.split(' (')[1].slice(0, -1)]) {
+			if (typeof window.topPokemonIcon === 'function') {
+				window.topPokemonIcon(enemySetId, $('#p2mon')[0]);
+			}
+			$('.opposing').val(enemySetId);
+			$('.opposing').change();
+			$('.opposing .select2-chosen').text(enemySetId);
+			opponentLabel = enemySetId;
+		}
 		window.location.hash = '#calc';
 		status((mon.nickname || mon.species) + ' L' + level +
 			(level !== mon.level ? ' (projected to the cap)' : '') +
-			' is in the calculator against ' +
-			(window.CURRENT_TRAINER || 'the loaded trainer') + '.', 'ok');
+			' is in the calculator against ' + opponentLabel + '.', 'ok');
 	}
 
 	// The datalist behind the New move field: everything this Pokemon can
@@ -2114,6 +2124,12 @@
 					.text(label)
 					.css({'background-color': colors[0], color: colors[1]})
 					.toggleClass('is-ko', side.guaranteedKO)
+					// Every cell is a doorway: this pairing, one click, in the
+					// full calculator. Keyboard gets the same door.
+					.attr('data-mon-id', mon.id)
+					.attr('data-enemy', row.enemy.species)
+					.attr('role', 'button')
+					.attr('tabindex', '0')
 					.attr('title', (direction === 'us' ? ours : row.enemy.species) + ': ' +
 						(side.move ?
 							side.move + ' ' + Math.round(side.min * 100) + '-' +
@@ -2121,7 +2137,8 @@
 								(side.guaranteedKO ? ' · guaranteed KO' :
 									side.possibleKO ? ' · possible KO' : '') :
 							'no damaging move') +
-						(cell.speed ? ' · we are ' + cell.speed : ''));
+						(cell.speed ? ' · we are ' + cell.speed : '') +
+						' — open this pairing in the calculator');
 				if (cell.speed && SPEED_GLYPH[cell.speed]) {
 					$cell.append($('<span class="runbun-run-matrix-speed" aria-hidden="true"></span>')
 						.text(SPEED_GLYPH[cell.speed]));
@@ -2143,6 +2160,7 @@
 					' — the levels the free candy gives you there' :
 				' · box at current levels') +
 			' · dark = harder hit · ring = guaranteed KO · ▲ we are faster');
+		$matrix.attr('data-trainer', payload.trainer);
 		$matrix.append(matrixTable(payload, 'us', 'Our best hit — % of their HP'));
 		$matrix.append(matrixTable(payload, 'them', "Their best hit back — % of ours"));
 	}
@@ -2184,6 +2202,18 @@
 			(rolled.pull ? ' — ' + rolled.pull.ability + ' pulled the ' +
 				rolled.pull.type + '-type out of the grass!' : ''));
 		$('#runbun-run-roll-result').prop('hidden', false);
+		// The battle/keep/flee decision wants the same numbers the fight's
+		// ball buttons will wear — quoted here at full HP, before committing.
+		var oddsSpecies = rolled.species;
+		$('#runbun-run-roll-odds').text('');
+		api('/run/catch-odds', {run: state, species: oddsSpecies}).then(function (payload) {
+			if (!rolled || rolled.species !== oddsSpecies) return;
+			$('#runbun-run-roll-odds').text('Catch at full HP: ' +
+				payload.odds.map(function (entry) {
+					return entry.ball + ' ' + entry.chance + '%' +
+						(entry.held !== null ? ' ×' + entry.held : '');
+				}).join(' · '));
+		}).catch(function (ignore) { /* the quote is optional; the fight still shows odds */ });
 	}
 
 	function persistRoll() {
@@ -3143,6 +3173,20 @@
 		});
 		$('#runbun-run-release').on('click', function () {
 			command({kind: 'release', id: $('#runbun-run-selected').val()});
+		});
+		function openMatrixPairing(cell) {
+			var mon = findBoxed(cell.attr('data-mon-id'));
+			var trainer = cell.closest('#runbun-run-matrix').attr('data-trainer');
+			if (!mon || !trainer) return;
+			openInCalculator(mon, cell.attr('data-enemy') + ' (' + trainer + ')');
+		}
+		$('#runbun-run-matrix').on('click', 'td[data-mon-id]', function () {
+			openMatrixPairing($(this));
+		});
+		$('#runbun-run-matrix').on('keydown', 'td[data-mon-id]', function (event) {
+			if (event.key !== 'Enter' && event.key !== ' ') return;
+			event.preventDefault();
+			openMatrixPairing($(this));
 		});
 		$('#runbun-run-open-calc').on('click', function () {
 			var mon = findBoxed($('#runbun-run-selected').val());

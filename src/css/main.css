@@ -2341,6 +2341,13 @@ table.field {
 #runbun-run .runbun-run-opportunity.is-unknown .runbun-run-opportunity-name {
 	color: var(--rb-ink-muted);
 }
+#runbun-run .runbun-run-roll-odds {
+	display: block;
+	margin-top: var(--rb-space-xs);
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	color: var(--rb-ink-muted);
+}
 #runbun-run #runbun-run-roll-method {
 	min-width: 7em;
 }

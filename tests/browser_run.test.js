@@ -236,6 +236,12 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 		null, {timeout: 10000});
 	await page.click('#runbun-run-roll');
 	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	// The battle/keep/flee decision reads its odds before committing —
+	// quoted at full HP by the same formula the fight's ball buttons use.
+	await page.waitForFunction(
+		() => /Catch at full HP: Poke Ball \d+%/.test(
+			document.querySelector('#runbun-run-roll-odds').textContent),
+		null, {timeout: 10000});
 	await page.click('#runbun-run-roll-catch');
 	await page.waitForFunction(
 		() => JSON.parse(localStorage.getItem('runbun.run.v1')).box.length === 2,
@@ -766,6 +772,15 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		null, {timeout: 15000});
 	assert.match(await page.textContent('#runbun-run-matrix-note'), /Youngster Calvin \(#0\)/);
 	const cells = await page.$$eval('#runbun-run-matrix td', els => els.map(el => el.textContent));
+	// Every board cell is a doorway: one click opens this exact pairing in
+	// the calculator — our mon with its rolled identity, their mon by set.
+	await page.click('#runbun-run-matrix td[data-mon-id]');
+	await page.waitForFunction(() => window.location.hash === '#calc');
+	assert.match(await page.$eval('.calc-player-column .select2-chosen', el => el.textContent),
+		/\(My Run\)$/, 'the pairing must load our run mon on the player side');
+	assert.match(await page.$eval('.calc-opponent-column .select2-chosen', el => el.textContent),
+		/\(Youngster Calvin\)$/, 'the pairing must load the trainer set opposite');
+	await page.evaluate(() => { window.location.hash = '#runbun-run'; });
 	assert.ok(cells.length >= 2, 'both directions should render cells');
 	assert.ok(cells.every(text => /%|—/.test(text)), 'every cell is a percent or an honest dash');
 

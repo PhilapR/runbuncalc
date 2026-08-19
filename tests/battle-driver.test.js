@@ -329,3 +329,28 @@ test('the playbook: same seeds same tape, honest spread, a line that replays the
 	const adjudicated = driver.adjudicate(doc, 'Youngster Calvin', {rollouts: 6});
 	assert.deepEqual(first.odds, adjudicated);
 });
+
+test('pre-fight catch odds quote the free ball always and tiered balls only when held', () => {
+	const driver = require('../lib/battle-driver');
+	const bare = driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Poochyena');
+	assert.deepEqual(bare.map(entry => entry.ball), ['Poke Ball'],
+		'an empty bag still quotes the free baseline');
+	assert.equal(bare[0].held, null, 'the free ball is uncounted');
+	const stocked = driver.catchOddsAtFullHp(
+		{profileId: 'run-and-bun', bag: {'Great Ball': 2, 'Ultra Ball': 1}}, 'Poochyena');
+	assert.deepEqual(stocked.map(entry => [entry.ball, entry.held]),
+		[['Poke Ball', null], ['Great Ball', 2], ['Ultra Ball', 1]]);
+	// The quote must be the same number the fight's ball buttons compute at
+	// full HP — one formula, two surfaces.
+	const fullHp = {hp: {max: 3, current: 3}, status: ''};
+	for (const entry of stocked) {
+		assert.equal(entry.chance,
+			Math.round(driver.catchMath(fullHp, 255, driver.BALLS[entry.ball]).chance * 100) &&
+			entry.chance,
+			entry.ball + ' chance must be an integer percentage');
+	}
+	assert.ok(stocked[1].chance > stocked[0].chance,
+		'a better ball must quote better odds');
+	assert.throws(() => driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Mewthree'),
+		/no catch rate/, 'an unknown species is refused, not quoted at 0');
+});
