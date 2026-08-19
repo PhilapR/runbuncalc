@@ -203,6 +203,11 @@ const PROTECTIVE_MOVES = new Set([
   'maxguard',
 ]);
 const CONSECUTIVE_PROTECTIVE_MOVES = new Set(Array.from(PROTECTIVE_MOVES).concat('endure'));
+// Moves that thaw their own user before executing (Gen 8).
+const DEFROST_MOVES = new Set([
+  'flamewheel', 'sacredfire', 'flareblitz', 'scald', 'steameruption',
+  'burnup', 'pyroball', 'fusionflare', 'scorchingsands', 'matchagotcha',
+]);
 const FIRST_TURN_MOVE_MIN_GENERATION: Record<string, number> = {
   fakeout: 3,
   firstimpression: 7,
@@ -894,6 +899,10 @@ function actionFailure(
     return {wake: true};
   }
   if (actor.status === 'frz') {
+    // Defrost-flag moves always thaw the user and execute — no roll. Sacking
+    // a "frozen solid" mon that could Scald its way out every time is the
+    // kind of misread that ends a nuzlocke.
+    if (DEFROST_MOVES.has(actionMoveId)) return {clearStatus: true};
     if (sampleActionRoll(random, 'Freeze') >= 0.2) return {failure: 'freeze'};
     return {clearStatus: true};
   }
@@ -3981,6 +3990,16 @@ export function deriveMoveResolution(
     // mainline is 1/24); stage progression is the Gen 8 default, so
     // stage 1 = 1/8, stage 2 = 1/2, stage 3+ = always. Facts carry the
     // crit distribution; a move with no critRolls cannot crit.
+    // Gen 8 variable multi-hit: 35% two, 35% three, 15% four, 15% five.
+    // The calculator pins these at three for its damage display; a sampling
+    // engine must roll, or Rock Blast-class moves never deal their real
+    // spread (up to 67% more than predicted, 15% of the time).
+    let hitCountOverride: number | undefined;
+    const range = resolutionFacts.multiHitRange;
+    if (range && range[0] === 2 && range[1] === 5) {
+      const draw = sampleActionRoll(random, 'Multi-hit count');
+      hitCountOverride = draw < 0.35 ? 2 : draw < 0.7 ? 3 : draw < 0.85 ? 4 : 5;
+    }
     const criticalByTarget: Record<string, boolean> = {};
     const critStage = resolutionFacts.attackerCriticalHitStage ?? 0;
     const critChance = critStage >= 3 ? 1 : critStage === 2 ? 0.5 : critStage === 1 ? 0.125 : 1 / 16;
@@ -3990,7 +4009,7 @@ export function deriveMoveResolution(
       if (!targetFacts?.critRolls?.length) continue;
       if (sampleActionRoll(random, 'Critical hit') < critChance) criticalByTarget[targetId] = true;
     }
-    const sampled = sampleDamageResolution(actionForTargets, resolutionFacts, random, criticalByTarget);
+    const sampled = sampleDamageResolution(actionForTargets, resolutionFacts, random, criticalByTarget, hitCountOverride);
     const criticalTargets = Object.keys(criticalByTarget);
     resolution.damageByTarget = sampled.damageByTarget;
     resolution.hitDamageByTarget = sampled.hitDamageByTarget;
@@ -4585,6 +4604,24 @@ export function deriveMoveResolution(
         if (shellTrapDamage > 0) addHpDelta(resolution, actor.id, -shellTrapDamage);
         clearVolatile(resolution, target.id, 'shellTrap');
         resolution.trace!.notes!.push(`Shell Trap from ${target.id} triggered on ${actor.id}`);
+      }
+      // A held King's Rock / Razor Fang (or Stench) adds a 10% flinch to any
+      // damaging move that has no flinch secondary of its own — doubled by
+      // Serene Grace. Unmodeled before, so enemy flinch-denial chains never
+      // appeared in a prediction.
+      const flinchItemHeld = isItemEffectActive(state, actor) &&
+        ['kingsrock', 'razorfang'].includes(moveId(actor.item || ''));
+      const stench = hasAbility(state, actor, 'stench');
+      const carriesOwnFlinch = (options.facts?.secondaryEffects || []).some(
+        (effect: {volatile?: {name?: string}}) => effect.volatile?.name === 'flinch');
+      if ((flinchItemHeld || stench) && !carriesOwnFlinch && moveCategory !== 'Status' &&
+        (resolution.damageByTarget?.[targetId] || 0) > 0 && !target.volatile?.flinch &&
+        canApplyVolatile(state, targetId, 'flinch')) {
+        const flinchChance = hasAbility(state, actor, 'serenegrace') ? 0.2 : 0.1;
+        if (sampleActionRoll(random, 'Held flinch item') < flinchChance) {
+          addVolatile(resolution, [targetId], 'flinch', {turns: 1});
+          resolution.trace!.notes!.push(`${actor.id} flinched ${targetId} with a held item effect`);
+        }
       }
       const targetAbility = moveId(getEffectiveAbility(target));
       const targetAbilityIgnored = ignoresTargetAbility(state, actor.id, targetId, moveCategory);

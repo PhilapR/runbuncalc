@@ -692,7 +692,7 @@ export function validateMoveEngineOptions(
   if (!candidate.facts || typeof candidate.facts !== 'object' || Array.isArray(candidate.facts)) invalid('move-engine facts must be an object');
   const facts = candidate.facts as Record<string, unknown>;
   const allowed = new Set<keyof ActionFacts>([
-    'damage', 'damageByTarget', 'confusionDamage', 'moveCategory', 'moveType', 'fieldTerrain', 'moveAccuracy', 'isMultiHit',
+    'damage', 'damageByTarget', 'confusionDamage', 'moveCategory', 'moveType', 'fieldTerrain', 'moveAccuracy', 'isMultiHit', 'multiHitRange',
     'secondaryEffects', 'battleMode', 'priority', 'attackerSpeed', 'attackerCriticalHitStage',
     'criticalHitGuaranteed', 'criticalHit', 'attackerHp', 'attackerHpPercent', 'defenderSpeed', 'opponentSpeeds',
     'attackerAbility', 'attackerPartnerAbility', 'attackerPartnerItem', 'attackerPartnerTypes', 'attackerPartnerMoves',

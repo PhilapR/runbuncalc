@@ -45,14 +45,17 @@ assert.equal(facts.damage?.hits, 3);
 assert.equal(facts.damage?.min, facts.damage!.rolls[0] * 3);
 assert.equal(facts.damage?.max, facts.damage!.rolls[facts.damage!.rolls.length - 1] * 3);
 
-// The first draw is the critical-hit event (D1); 0.9 declines it so the
-// per-hit assertions below still read the ordinary roll table.
-const noCrit = (rest: number) => {
-  let first = true;
-  return () => { if (first) { first = false; return 0.9; } return rest; };
+// Two engine draws precede the damage rolls now: the variable multi-hit
+// COUNT (D2) and the critical-hit event (D1). 0.5 holds the count at three
+// (this fixture's expectation) and 0.9 declines the crit, so the per-hit
+// assertions below still read the ordinary roll table.
+// Parental Bond is not a variable multi-hit, so it draws only the crit.
+const noCrit = (rest: number, preamble: number[] = [0.9]) => {
+  let index = 0;
+  return () => (index < preamble.length ? preamble[index++] : rest);
 };
 const sampled = deriveMoveResolution(factsState, factsAction, {
-  facts, hit: true, random: noCrit(0),
+  facts, hit: true, random: noCrit(0, [0.5, 0.9]),
 });
 validateMoveEngineOptions(factsState, factsAction, {facts});
 validateMoveResolution(factsState, factsAction, sampled);

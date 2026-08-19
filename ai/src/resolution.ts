@@ -29,6 +29,7 @@ export function sampleDamageResolution(
   facts: ActionFacts,
   random: () => number = Math.random,
   criticalByTarget: Record<string, boolean> = {},
+  hitCountOverride?: number,
 ): MoveResolution {
   const damageByTarget: Record<string, number> = {};
   const damageRollsByTarget: Record<string, number> = {};
@@ -40,7 +41,7 @@ export function sampleDamageResolution(
     const targetFacts = damageFactsByTarget[targetId] ||
       (action.targetIds.length === 1 ? facts.damage : undefined);
     if (!targetFacts) continue;
-    const hitCount = targetFacts.hits || 1;
+    const hitCount = hitCountOverride ?? targetFacts.hits ?? 1;
     const critical = criticalByTarget[targetId] === true;
     const hits = targetFacts.hitRolls
       ? targetFacts.hitRolls.map(rolls => pickRoll({rolls, min: 0, max: 0, targetHp: 0,

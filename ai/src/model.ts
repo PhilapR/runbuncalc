@@ -513,6 +513,8 @@ export interface DamageFacts {
 }
 
 export interface ActionFacts {
+  /** Variable multi-hit bounds when the count must be sampled per use. */
+  multiHitRange?: [number, number];
   damage?: DamageFacts;
   damageByTarget?: Record<string, DamageFacts>;
   /** Calculator-backed self-hit damage when the acting Pokémon is confused. */

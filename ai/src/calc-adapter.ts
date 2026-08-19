@@ -630,6 +630,11 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
         ? true
         : moveMetadata.accuracy,
       isMultiHit: move.hits > 1 || isParentalBondSplit(state, attackerState, move),
+      // The calculator resolves a variable multi-hit to a fixed 3 for its
+      // damage display; a sampling engine has to roll the count instead.
+      multiHitRange: getCalculatorAbility(state, attackerState) === 'Skill Link'
+        ? undefined
+        : moveMetadata.multiHitRange,
       secondaryEffects: moveMetadata.secondaryEffects,
       battleMode: state.mode,
       // Use the shared action-order boundary so ability-granted priority is
