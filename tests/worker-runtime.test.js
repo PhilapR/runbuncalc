@@ -196,6 +196,44 @@ test('workerd completes the first run transaction and reports the road ahead', a
 	assert.equal(statusBody.status.next.trainer, 'Youngster Calvin');
 });
 
+test('workerd and Node resolve the same seeded fight and plan byte-identically', async () => {
+	// Prod serves the battle math from an esbuild bundle built with workerd
+	// resolution conditions; every other determinism gate runs in Node. This
+	// is the host-parity check: one run document, one explicit roll, one
+	// seed — both hosts must produce the SAME bytes, or dev-verified
+	// receipts and prod-played fights are silently different populations.
+	const runApi = require('../lib/run-api.js');
+	const identity = {
+		ivs: {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22},
+		nature: 'Adamant', ability: 'Torrent', moves: ['Tackle', 'Growl'],
+	};
+	const created = await runApi.ROUTES['/run/new']({name: 'parity'});
+	const caught = await runApi.ROUTES['/run/apply']({run: created.run,
+		command: Object.assign({kind: 'catch', species: 'Mudkip', level: 12}, identity)});
+	const ready = await runApi.ROUTES['/run/apply']({run: caught.run,
+		command: {kind: 'party', ids: [caught.run.box[0].id]}});
+	const roll = {map: 'Route101', method: 'walk', species: 'Lillipup', level: 3,
+		ivs: {hp: 1, atk: 2, def: 3, spa: 4, spd: 5, spe: 6}, nature: 'Bashful',
+		ability: 'Vital Spirit'};
+
+	const nodeOpen = await runApi.ROUTES['/run/battle/wild']({run: ready.run, roll, seed: 424242});
+	const nodeTurn = await runApi.ROUTES['/run/battle/act']({battle: nodeOpen.battle,
+		action: {kind: 'move', move: 'Tackle'}});
+	const workerOpen = await (await post('/run/battle/wild',
+		{run: ready.run, roll, seed: 424242})).json();
+	const workerTurn = await (await post('/run/battle/act',
+		{battle: workerOpen.battle, action: {kind: 'move', move: 'Tackle'}})).json();
+	assert.equal(JSON.stringify(workerOpen), JSON.stringify(JSON.parse(JSON.stringify(nodeOpen))),
+		'the opened wild fight must be byte-identical across hosts');
+	assert.equal(JSON.stringify(workerTurn), JSON.stringify(JSON.parse(JSON.stringify(nodeTurn))),
+		'the resolved turn must be byte-identical across hosts');
+
+	const nodePlan = await runApi.ROUTES['/run/plan']({run: ready.run});
+	const workerPlan = await (await post('/run/plan', {run: ready.run})).json();
+	assert.equal(JSON.stringify(workerPlan), JSON.stringify(JSON.parse(JSON.stringify(nodePlan))),
+		'the plan must be byte-identical across hosts');
+});
+
 test('workerd exposes validation with explicit client errors', async () => {
 	const valid = await post('/ai/validate-battle-state', {state: battleState()});
 	assert.equal(valid.status, 200);
