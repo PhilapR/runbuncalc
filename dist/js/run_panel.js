@@ -81,8 +81,26 @@
 			.replace(/\bSpace center\b/g, 'Space Center');
 	}
 
+	/**
+	 * A refusal arrives as 'teach: Poochyena cannot learn ...' — the prefix
+	 * is the command's name, useful in a log, noise in the game's voice. The
+	 * strip is presentation-only: journals and receipts keep the raw text.
+	 */
+	var COMMAND_PREFIX = new RegExp('^(teach|catch|evolve|levelUp|faint|party|use|' +
+		'give|take|heartScale|acquire|release|nickname|beat|skip|battle|plan|' +
+		'import|identify|hold|unhold|spend|undo|run|roll): ');
+	function speakable(message) {
+		var text = String(message || '');
+		var stripped = text.replace(COMMAND_PREFIX, '');
+		if (stripped !== text && stripped) {
+			return stripped.charAt(0).toUpperCase() + stripped.slice(1);
+		}
+		return text;
+	}
+
 	function status(message, kind) {
-		$('#runbun-run-status').text(displayText(message)).attr('data-kind', kind || '');
+		$('#runbun-run-status').text(displayText(speakable(message)))
+			.attr('data-kind', kind || '');
 	}
 
 	function refreshStartAvailability() {

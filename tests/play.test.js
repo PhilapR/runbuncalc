@@ -328,7 +328,7 @@ test('heartscale spends from the bag and refuses with the reason', () => {
 
 	cli('acquire', 'Heart', 'Scale', '--count', '2');
 	assert.equal(cli('heartscale', 'mon-1', 'spe'),
-		'Poochyena (mon-1) Speed IV 18 → 31 (Heart Scale spent, 1 left)');
+		'Poochyena Speed IV 18 → 31 (Heart Scale spent, 1 left)');
 	assert.equal(read().box[0].ivs.spe, 31);
 	assert.deepEqual(read().bag, {'Heart Scale': 1});
 

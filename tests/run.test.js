@@ -1645,7 +1645,7 @@ test('a Heart Scale sets one IV to 31, out of a bag that has one', () => {
 	assert.equal(spent.box[0].ivs.spe, 31);
 	assert.deepEqual(spent.bag, {'Heart Scale': 1}, 'one scale spent, one left');
 	assert.equal(spent.log[spent.log.length - 1].summary,
-		'Poochyena (mon-1) Speed IV 5 → 31 (Heart Scale spent, 1 left)');
+		'Poochyena Speed IV 5 → 31 (Heart Scale spent, 1 left)');
 	// The last scale leaves the bag rather than sitting there as a zero.
 	assert.deepEqual(run.apply(spent, {kind: 'heartScale', id: 'mon-1', stat: 'spa'}).bag, {});
 

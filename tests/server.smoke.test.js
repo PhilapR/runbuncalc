@@ -734,7 +734,7 @@ test('a run is created, advanced and summarized entirely through the request', a
 
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
 	assert.equal(caught.status, 200);
-	assert.match(caught.body.summary, /caught Lillipup \(mon-1\) at level 3 on Route101/);
+	assert.match(caught.body.summary, /caught Lillipup at level 3 on Route101/);
 	assert.equal(caught.body.status.boxed, 1);
 	// The level cap is derived from the run map and names the fight that sets
 	// it — the next story boss of any tier, not the next badge.
