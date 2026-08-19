@@ -711,47 +711,81 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
     defenderState.hp.current,
     context.baseFacts.isMultiHit ? context.move.hits : 1,
   );
-  const semiInvulnerable = defenderState.volatile?.charge?.moveName &&
-    SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(defenderState.volatile.charge.moveName)) &&
-    !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(context.move.name));
-  let damage = semiInvulnerable ||
-    (context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
-      isDisguiseActive(context.state, defenderState) && rawDamage.max > 0)
-    ? makeDamageFacts([0], defenderState.hp.current)
-    : rawDamage;
-  if (context.state.generation >= 8 && context.move.category === 'Physical' &&
-    !context.baseFacts.isMultiHit && !defenderState.substituteHp && damage.max > 0 &&
-    isIceFaceActive(context.state, defenderState) &&
-    !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category)) {
-    damage = makeDamageFacts([0], defenderState.hp.current);
-  }
-  if (context.state.generation >= 8 && context.move.category !== 'Status' &&
-    moveId(context.move.type) === 'fire' && defenderState.volatile?.tarShot && damage.max > 0) {
-    damage = mapDamageFacts(damage, roll => roll * 2);
-  }
-  if (context.state.generation >= 9 && defenderState.volatile?.glaiveRush &&
-    context.move.category !== 'Status' && damage.max > 0) {
-    damage = mapDamageFacts(damage, roll => roll * 2);
-  }
-  if (context.state.generation >= 5 && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
-    defenderState.hp.current === defenderState.hp.max && !defenderState.substituteHp &&
-    isAbilityActive(defenderState, context.state) && moveId(getEffectiveAbility(defenderState) || '') === 'sturdy' &&
-    damage.max >= defenderState.hp.current) {
-    damage = makeDamageFacts(
-      damage.rolls.map(roll => Math.min(roll, Math.max(0, defenderState.hp.current - 1))),
+  // Every damage-shaping guard below applies to the crit distribution too:
+  // Sturdy caps a crit at HP-1 exactly as it caps a normal hit, Disguise
+  // eats a crit whole. Extracted so the crit pass cannot drift from it.
+  const applyDamageGuards = (input: DamageFacts): DamageFacts => {
+    const semiInvulnerable = defenderState.volatile?.charge?.moveName &&
+      SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(defenderState.volatile.charge.moveName)) &&
+      !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(context.move.name));
+    let guarded = semiInvulnerable ||
+      (context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
+        isDisguiseActive(context.state, defenderState) && input.max > 0)
+      ? makeDamageFacts([0], defenderState.hp.current)
+      : input;
+    if (context.state.generation >= 8 && context.move.category === 'Physical' &&
+      !context.baseFacts.isMultiHit && !defenderState.substituteHp && guarded.max > 0 &&
+      isIceFaceActive(context.state, defenderState) &&
+      !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category)) {
+      guarded = makeDamageFacts([0], defenderState.hp.current);
+    }
+    if (context.state.generation >= 8 && context.move.category !== 'Status' &&
+      moveId(context.move.type) === 'fire' && defenderState.volatile?.tarShot && guarded.max > 0) {
+      guarded = mapDamageFacts(guarded, roll => roll * 2);
+    }
+    if (context.state.generation >= 9 && defenderState.volatile?.glaiveRush &&
+      context.move.category !== 'Status' && guarded.max > 0) {
+      guarded = mapDamageFacts(guarded, roll => roll * 2);
+    }
+    if (context.state.generation >= 5 && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
+      defenderState.hp.current === defenderState.hp.max && !defenderState.substituteHp &&
+      isAbilityActive(defenderState, context.state) && moveId(getEffectiveAbility(defenderState) || '') === 'sturdy' &&
+      guarded.max >= defenderState.hp.current) {
+      guarded = makeDamageFacts(
+        guarded.rolls.map(roll => Math.min(roll, Math.max(0, defenderState.hp.current - 1))),
+        defenderState.hp.current,
+        guarded.hits,
+      );
+    }
+    if (context.state.generation >= 4 && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
+      defenderState.hp.current === defenderState.hp.max && !defenderState.substituteHp &&
+      isItemEffectActive(context.state, defenderState) && moveId(defenderState.item || '') === 'focussash' &&
+      guarded.max >= defenderState.hp.current) {
+      guarded = makeDamageFacts(
+        guarded.rolls.map(roll => Math.min(roll, Math.max(0, defenderState.hp.current - 1))),
+        defenderState.hp.current,
+        guarded.hits,
+      );
+    }
+    return guarded;
+  };
+  let damage = applyDamageGuards(rawDamage);
+
+  // The crit distribution, computed once beside the normal one. Without it
+  // P(crit) was zero in every sampled outcome outside Laser Focus — the
+  // engine knew the crit STAGE and had no consumer for it.
+  const critBlocked = !!context.state.sides[defenderSide].effects?.luckyChant ||
+    (isAbilityActive(defenderState, context.state) &&
+      isAbilityAvailable(context.state.generation, getEffectiveAbility(defenderState)) &&
+      CRIT_BLOCKING_ABILITIES.has(moveId(getEffectiveAbility(defenderState) || '')));
+  if (context.move.category !== 'Status' && damage.max > 0 &&
+    !context.baseFacts.criticalHitGuaranteed && !critBlocked) {
+    const critMove = new Calc.Move(context.gen, context.move.name, {
+      ...(context.move as unknown as {originalOptions?: object}).originalOptions,
+      ability: getCalculatorAbility(context.state, context.attackerState),
+      item: context.move.item,
+      species: getEffectiveSpecies(context.attackerState),
+      isCrit: true,
+      hits: context.move.hits,
+      overrides: (context.move as unknown as {overrides?: object}).overrides,
+    });
+    const critResult = Calc.calculate(context.gen, context.attacker, defender, critMove, field);
+    const critFacts = applyDamageGuards(makeDamageFacts(
+      critResult.damage as DamageInput,
       defenderState.hp.current,
-      damage.hits,
-    );
-  }
-  if (context.state.generation >= 4 && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
-    defenderState.hp.current === defenderState.hp.max && !defenderState.substituteHp &&
-    isItemEffectActive(context.state, defenderState) && moveId(defenderState.item || '') === 'focussash' &&
-    damage.max >= defenderState.hp.current) {
-    damage = makeDamageFacts(
-      damage.rolls.map(roll => Math.min(roll, Math.max(0, defenderState.hp.current - 1))),
-      defenderState.hp.current,
-      damage.hits,
-    );
+      context.baseFacts.isMultiHit ? context.move.hits : 1,
+    ));
+    damage = {...damage, critRolls: critFacts.rolls, critMax: critFacts.max, critMin: critFacts.min};
   }
 
   return {

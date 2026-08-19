@@ -46,7 +46,10 @@ function row(battle, monId) {
 
 test('battle bundles report entry, attempted moves, direct damage, and KOs', () => {
 	const doc = docWith([{species: 'Mudkip', level: 5}]);
-	const opened = driver.start(doc, 'Youngster Calvin', 0);
+	// Seed 1 is the hit-then-miss script this fixture needs. Seed 0 played it
+	// before the engine began sampling critical hits (constants audit D1);
+	// the extra draw per damaging move reshaped every seeded stream.
+	const opened = driver.start(doc, 'Youngster Calvin', 1);
 	assert.deepEqual(row(opened.battle, 'mon-1'), {
 		monId: 'mon-1', battleId: 'player-1', species: 'Mudkip',
 		appearances: 1, switchIns: 0, moveAttempts: 0,

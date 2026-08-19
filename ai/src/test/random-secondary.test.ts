@@ -1,4 +1,8 @@
 import assert from 'node:assert/strict';
+
+// NOTE: every scripted roll sequence here carries a no-crit draw (0.9)
+// between accuracy and damage — the engine samples the critical-hit event
+// per target since the constants audit (D1).
 import {calculateActionFacts} from '../calc-adapter';
 import {enumerateMoveActions} from '../actions';
 import {deriveMoveResolution} from '../move-engine';
@@ -34,7 +38,7 @@ const direClawData = actionAndFacts(direClaw, 'Dire Claw');
 assert.deepEqual(direClawData.facts.secondaryEffects?.[0]?.statusChoices, ['slp', 'psn', 'par']);
 const sleep = deriveMoveResolution(direClaw, direClawData.action, {
   hit: true, facts: direClawData.facts, random: (() => {
-    const rolls = [0.5, 0, 0, 0.1]; let index = 0;
+    const rolls = [0.5, 0.9, 0, 0, 0.1]; let index = 0;
     return () => rolls[Math.min(index++, rolls.length - 1)];
   })(),
 });
@@ -44,7 +48,7 @@ const poison = state('Dire Claw');
 const poisonData = actionAndFacts(poison, 'Dire Claw');
 const poisoned = deriveMoveResolution(poison, poisonData.action, {
   hit: true, facts: poisonData.facts, random: (() => {
-    const rolls = [0.5, 0, 0.34]; let index = 0;
+    const rolls = [0.5, 0.9, 0, 0.34]; let index = 0;
     return () => rolls[Math.min(index++, rolls.length - 1)];
   })(),
 });
@@ -55,7 +59,7 @@ const triAttackData = actionAndFacts(triAttack, 'Tri Attack');
 assert.deepEqual(triAttackData.facts.secondaryEffects?.[0]?.statusChoices, ['par', 'brn', 'frz']);
 const frozen = deriveMoveResolution(triAttack, triAttackData.action, {
   hit: true, facts: triAttackData.facts, random: (() => {
-    const rolls = [0.5, 0, 0.9]; let index = 0;
+    const rolls = [0.5, 0.9, 0, 0.9]; let index = 0;
     return () => rolls[Math.min(index++, rolls.length - 1)];
   })(),
 });
@@ -65,7 +69,7 @@ const serene = state('Dire Claw', 'Serene Grace');
 const sereneData = actionAndFacts(serene, 'Dire Claw');
 const sereneResolution = deriveMoveResolution(serene, sereneData.action, {
   hit: true, facts: sereneData.facts, random: (() => {
-    const rolls = [0.5, 0.9, 0.67]; let index = 0;
+    const rolls = [0.5, 0.9, 0.9, 0.67]; let index = 0;
     return () => rolls[Math.min(index++, rolls.length - 1)];
   })(),
 });

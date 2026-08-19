@@ -402,7 +402,7 @@ export function validateMoveResolution(
   if (!resolution || typeof resolution !== 'object' || Array.isArray(resolution)) invalid('resolution must be an object');
   const candidate = resolution as Record<string, unknown>;
   const allowed = new Set([
-    'hit', 'actionFailure', 'damageByTarget', 'hitDamageByTarget', 'hpDeltaByPokemon', 'itemByPokemon', 'allySwitchByPokemon', 'itemCorrodedByPokemon', 'consumedItemByPokemon',
+    'hit', 'actionFailure', 'criticalHitTargets', 'damageByTarget', 'hitDamageByTarget', 'hpDeltaByPokemon', 'itemByPokemon', 'allySwitchByPokemon', 'itemCorrodedByPokemon', 'consumedItemByPokemon',
     'substituteHpByPokemon', 'statusByPokemon', 'statusTurnsByPokemon', 'disguiseBrokenByPokemon',
     'isSaltCureByPokemon', 'toxicCounterByPokemon', 'boostsByPokemon', 'resetBoostsByPokemon',
     'setBoostsByPokemon', 'volatileByPokemon', 'typeOverrideByPokemon', 'abilityOverrideByPokemon', 'noAbilityByPokemon',

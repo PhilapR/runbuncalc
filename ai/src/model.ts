@@ -365,6 +365,8 @@ export interface ResolutionTrace {
 }
 
 export interface MoveResolution {
+  /** Targets whose damage this resolution sampled as a critical hit. */
+  criticalHitTargets?: string[];
   hit?: boolean;
   /** The actor failed to execute the selected move for this turn. */
   actionFailure?: ActionFailure;
@@ -493,6 +495,12 @@ export interface SwitchEntryResolution {
 
 export interface DamageFacts {
   rolls: number[];
+  /** The same hit resolved as a critical: rolls, and their bounds. Absent
+   * when a crit is impossible (Lucky Chant, Battle Armor) or already
+   * guaranteed (Laser Focus), in which case `rolls` IS the crit. */
+  critRolls?: number[];
+  critMin?: number;
+  critMax?: number;
   /** Number of sequential hits represented by the per-hit rolls. */
   hits?: number;
   /** Independent per-hit roll distributions, used by calculator split-hit effects such as Parental Bond. */

@@ -45,8 +45,14 @@ assert.equal(facts.damage?.hits, 3);
 assert.equal(facts.damage?.min, facts.damage!.rolls[0] * 3);
 assert.equal(facts.damage?.max, facts.damage!.rolls[facts.damage!.rolls.length - 1] * 3);
 
+// The first draw is the critical-hit event (D1); 0.9 declines it so the
+// per-hit assertions below still read the ordinary roll table.
+const noCrit = (rest: number) => {
+  let first = true;
+  return () => { if (first) { first = false; return 0.9; } return rest; };
+};
 const sampled = deriveMoveResolution(factsState, factsAction, {
-  facts, hit: true, random: () => 0,
+  facts, hit: true, random: noCrit(0),
 });
 validateMoveEngineOptions(factsState, factsAction, {facts});
 validateMoveResolution(factsState, factsAction, sampled);
@@ -85,7 +91,7 @@ assert.equal(parentalFacts.damage?.hitRolls?.length, 2);
 assert.equal(parentalFacts.damage?.min,
   parentalFacts.damage!.hitRolls!.reduce((total, rolls) => total + Math.min(...rolls), 0));
 const parentalResolution = deriveMoveResolution(parentalState, parentalAction, {
-  facts: parentalFacts, hit: true, random: () => 0,
+  facts: parentalFacts, hit: true, random: noCrit(0),
 });
 assert.deepEqual(parentalResolution.hitDamageByTarget?.['player-1'], [
   parentalFacts.damage!.hitRolls![0][0], parentalFacts.damage!.hitRolls![1][0],

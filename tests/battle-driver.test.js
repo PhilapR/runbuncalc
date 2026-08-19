@@ -89,7 +89,9 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 
 test('move forecasts stay on max HP and a miss says that it missed', () => {
 	const doc = docWith([{species: 'Mudkip', map: undefined, level: 5}]);
-	const opened = driver.start(doc, 'Youngster Calvin', 0);
+	// Seed 1 scripts hit-then-miss now; seed 0 did before the engine started
+	// sampling critical hits (constants audit D1) and reshaped every stream.
+	const opened = driver.start(doc, 'Youngster Calvin', 1);
 	const firstWaterGun = opened.actions.find(action => action.move === 'Water Gun');
 	assert.ok(firstWaterGun && firstWaterGun.damage,
 		'Water Gun should carry a damage forecast');

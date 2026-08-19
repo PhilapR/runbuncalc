@@ -3963,7 +3963,22 @@ export function deriveMoveResolution(
     };
     resolution.trace!.notes!.push(`${action.moveName} is waiting for ${pledgePartner!.id}'s paired Pledge move`);
   } else if (resolutionFacts) {
-    const sampled = sampleDamageResolution(actionForTargets, resolutionFacts, random);
+    // The crit event, sampled per target before its damage. Base 1/16 is
+    // the hack's own emulator-observed rate (profiles/run-and-bun: Gen 8
+    // mainline is 1/24); stage progression is the Gen 8 default, so
+    // stage 1 = 1/8, stage 2 = 1/2, stage 3+ = always. Facts carry the
+    // crit distribution; a move with no critRolls cannot crit.
+    const criticalByTarget: Record<string, boolean> = {};
+    const critStage = resolutionFacts.attackerCriticalHitStage ?? 0;
+    const critChance = critStage >= 3 ? 1 : critStage === 2 ? 0.5 : critStage === 1 ? 0.125 : 1 / 16;
+    for (const targetId of actionForTargets.targetIds) {
+      const targetFacts = resolutionFacts.damageByTarget?.[targetId] ||
+        (actionForTargets.targetIds.length === 1 ? resolutionFacts.damage : undefined);
+      if (!targetFacts?.critRolls?.length) continue;
+      if (sampleActionRoll(random, 'Critical hit') < critChance) criticalByTarget[targetId] = true;
+    }
+    const sampled = sampleDamageResolution(actionForTargets, resolutionFacts, random, criticalByTarget);
+    const criticalTargets = Object.keys(criticalByTarget);
     resolution.damageByTarget = sampled.damageByTarget;
     resolution.hitDamageByTarget = sampled.hitDamageByTarget;
     resolution.trace = {
@@ -3972,8 +3987,12 @@ export function deriveMoveResolution(
       hit: resolution.trace?.hit,
       damageRollsByTarget: sampled.trace?.damageRollsByTarget,
       hitDamageRollsByTarget: sampled.trace?.hitDamageRollsByTarget,
-      notes: [...(resolution.trace?.notes || []), 'sampled calculator damage'],
+      notes: [...(resolution.trace?.notes || []),
+        criticalTargets.length
+          ? `sampled calculator damage — critical hit on ${criticalTargets.join(', ')}`
+          : 'sampled calculator damage'],
     };
+    if (criticalTargets.length) resolution.criticalHitTargets = criticalTargets;
   }
 
   if (combinedPledge) {
