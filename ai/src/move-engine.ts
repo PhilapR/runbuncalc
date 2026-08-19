@@ -4611,9 +4611,11 @@ export function deriveMoveResolution(
       if (!targetAbilityIgnored && hasAbility(state, target, 'effectspore') && contactAttempts > 0) {
         for (let attempt = 0; attempt < contactAttempts; attempt += 1) {
           const effectSporeRoll = sampleActionRoll(random, 'Effect Spore contact chance');
-          const effectSporeStatus = effectSporeRoll < 0.1
+          // Gen 8 split: 9% psn / 10% par / 11% slp (the 10/10/10 was the
+          // Gen 3/4 table — sleep, the worst status, was underweighted).
+          const effectSporeStatus = effectSporeRoll < 0.09
             ? 'psn' as const
-            : effectSporeRoll < 0.2
+            : effectSporeRoll < 0.19
               ? 'par' as const
               : effectSporeRoll < 0.3
                 ? 'slp' as const

@@ -87,11 +87,18 @@ function weatherDamage(state: BattleState, pokemon: PokemonState, types: string[
     hasActiveWeatherItem(state, pokemon, 'safetygoggles')) return 0;
   if (state.generation >= 2 && state.field.weather === 'Sand' &&
     !hasType(types, 'Rock', 'Ground', 'Steel')) {
+    // Sand Rush/Sand Force always exempt; Sand Veil's immunity began Gen 4.
+    if (hasAbility(state, pokemon, 'sandrush') || hasAbility(state, pokemon, 'sandforce') ||
+      (state.generation >= 4 && hasAbility(state, pokemon, 'sandveil'))) return 0;
     const denominator = state.generation === 2 ? 8 : 16;
     return Math.max(1, Math.floor(pokemon.hp.max / denominator));
   }
   if (state.generation >= 3 && state.field.weather === 'Hail' && state.generation < 9 &&
     !hasType(types, 'Ice')) {
+    // Ice Body nets +1/16 (was charged the chip AND credited the heal,
+    // netting zero); Snow Cloak and Slush Rush take no hail chip either.
+    if (hasAbility(state, pokemon, 'icebody') || hasAbility(state, pokemon, 'snowcloak') ||
+      hasAbility(state, pokemon, 'slushrush')) return 0;
     return Math.max(1, Math.floor(pokemon.hp.max / 16));
   }
   return 0;
@@ -625,9 +632,12 @@ function applyConfusionBerry(
   projectedHp: number,
   random: () => number,
 ) {
+  const confusionBerryThreshold = state.generation >= 4 && hasAbility(state, pokemon, 'gluttony')
+    ? Math.floor(pokemon.hp.max / 2)
+    : Math.floor(pokemon.hp.max / 4);
   if (state.generation < 3 || !itemEffectsActive(state, pokemon) ||
     !CONFUSION_BERRIES.has(id(pokemon.item)) || projectedHp <= 0 ||
-    projectedHp > Math.floor(pokemon.hp.max / 4)) return;
+    projectedHp > confusionBerryThreshold) return;
   if (!pokemon.volatile?.healBlock) {
     addDelta(resolution, pokemon.id, Math.floor(pokemon.hp.max / 2) * berryEffectMultiplier(state, pokemon));
   }
