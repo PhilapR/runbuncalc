@@ -610,6 +610,24 @@
 			'Your IVs drive damage, speed, and survival. Trainer teams use 31; wild encounters use their roll.');
 		$('#runbun-run-observed-nature').val(mon.nature || '');
 		$('#runbun-run-observed-ability').val(mon.ability || '');
+
+		// The bag's holdable items, for THIS Pokemon. An empty bag says so
+		// rather than offering an empty picker.
+		var $hold = $('#runbun-run-hold-item').empty();
+		var bagItems = Object.keys((state && state.bag) || {}).filter(function (item) {
+			return (state.bag[item] || 0) > 0;
+		}).sort();
+		if (!bagItems.length) {
+			$hold.append($('<option value=""></option>').text('The bag is empty'));
+		}
+		bagItems.forEach(function (item) {
+			$hold.append($('<option></option>').attr('value', item)
+				.text(item + ' ×' + state.bag[item]));
+		});
+		$('#runbun-run-give').prop('disabled', !bagItems.length);
+		$('#runbun-run-take').prop('disabled', !mon.item)
+			.attr('title', mon.item ? 'Put ' + mon.item + ' back in the bag' :
+				(mon.nickname || mon.species) + ' is not holding anything');
 	}
 
 	/**
@@ -1475,7 +1493,8 @@
 		writeSummary('road', payload.upcoming && payload.upcoming.length ?
 			'#' + payload.upcoming[0].order + ' ' + payload.upcoming[0].trainer : 'nothing ahead');
 		var selected = $('#runbun-run-selected').val();
-		writeSummary('tools', selected || 'select a Pokémon');
+		var selectedMon = selected ? findBoxed(selected) : null;
+		writeSummary('tools', selectedMon ? monLabel(selectedMon) : 'select a Pokémon');
 		if (!$('#runbun-run-map').val()) writeSummary('catch', 'pick a route');
 		refreshStale();
 		renderCalcParty();
@@ -1621,13 +1640,28 @@
 						'Route used — its encounter got away; nothing kept.'));
 			}
 			// The roll button rolls the methods this map actually has.
+			// The method picker offers what this run can actually use. A method
+			// still waiting on its HM stays visible (it is the route's future)
+			// but is disabled and says why — offering it live sent the player
+			// into "surf is not open here", a refusal they could not act on.
 			var $method = $('#runbun-run-roll-method').empty();
 			var seen = {};
+			var openMethods = [];
 			found.mons.forEach(function (mon) {
 				if (seen[mon.method]) return;
 				seen[mon.method] = true;
-				$method.append($('<option></option>').attr('value', mon.method).text(mon.method));
+				var gated = mon.methodGated;
+				if (!gated) openMethods.push(mon.method);
+				$method.append($('<option></option>')
+					.attr('value', mon.method)
+					.prop('disabled', !!gated)
+					.text(gated ? mon.method + ' — opens at fight #' + gated : mon.method));
 			});
+			if (openMethods.length) $method.val(openMethods[0]);
+			$('#runbun-run-roll').prop('disabled', !openMethods.length)
+				.attr('title', openMethods.length ?
+					'Find one random wild Pokémon from this location' :
+					'No encounter method here is open yet — the HMs that unlock them are still ahead');
 			// The guided half of "what is here": the field items standing on
 			// this location. An open, uncollected one carries the button that
 			// records the pickup; a collected one stays as the record it is.
@@ -3229,7 +3263,7 @@
 				'#runbun-run-losses .runbun-run-mon[data-id="' + id + '"]').addClass('is-selected');
 			var mon = findBoxed(id);
 			renderSelectedMon();
-			writeSummary('tools', mon ? monLabel(mon) : id);
+			writeSummary('tools', mon ? monLabel(mon) : 'select a Pokémon');
 			if (!reveal) return;
 			revealSection('tools');
 			var selected = document.querySelector('#runbun-run-mon-summary');
@@ -3366,6 +3400,17 @@
 			var mon = findBoxed($('#runbun-run-selected').val());
 			if (!mon) return;
 			openInCalculator(mon);
+		});
+		$('#runbun-run-give').on('click', function () {
+			var id = $('#runbun-run-selected').val();
+			var item = $('#runbun-run-hold-item').val();
+			if (!id || !item) return;
+			command({kind: 'give', id: id, item: item});
+		});
+		$('#runbun-run-take').on('click', function () {
+			var id = $('#runbun-run-selected').val();
+			if (!id) return;
+			command({kind: 'take', id: id});
 		});
 		$('#runbun-run-learnable').on('click', function () {
 			api('/run/learnable', {run: state, id: $('#runbun-run-selected').val()})

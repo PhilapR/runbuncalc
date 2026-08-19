@@ -2593,6 +2593,14 @@
                      exactly one IV to 31. The button is always live — the server
                      names the reason (no scale in the bag, that IV already 31),
                      and the reason is the thing worth reading. -->
+                <!-- Held items: the engine models them fully (berry pinch
+                     thresholds, Focus Band, Big Root) and the run has give/take
+                     commands, but the player had no way to hand one over. -->
+                <div class="runbun-run-row">
+                    <select id="runbun-run-hold-item" aria-label="Item to hold"></select>
+                    <button type="button" id="runbun-run-give" class="btn btn-wide" title="Hand this item from the bag to the selected Pok&eacute;mon">Give item</button>
+                    <button type="button" id="runbun-run-take" class="btn btn-wide" title="Put the held item back in the bag">Take item back</button>
+                </div>
                 <div class="runbun-run-row">
                     <select id="runbun-run-iv-stat" aria-label="Which IV a Heart Scale would set to 31">
                         <option value="hp">HP</option>
