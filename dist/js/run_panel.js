@@ -2751,9 +2751,16 @@
 		battleBusy = true;
 		setBattleBusy(true);
 		$('#runbun-run-battle-result').removeAttr('data-kind').text('');
-		api('/run/battle/act', {battle: battle.bundle, action: chosen}).then(function (reply) {
+		// The bundle this turn was sent from: if the fight is abandoned (or a
+		// stale one invalidated) while the turn is in flight, the reply
+		// belongs to a battle that no longer exists. Dropping it is correct —
+		// nothing was written — and it beats the raw TypeError the player saw
+		// when the handler dereferenced a cleared battle.
+		var actedOn = battle.bundle;
+		api('/run/battle/act', {battle: actedOn, action: chosen}).then(function (reply) {
 			battleBusy = false;
 			setBattleBusy(false);
+			if (!battle || battle.bundle !== actedOn) return;
 			battle.bundle = reply.battle;
 			paintBattle(reply);
 			if (reply.result) {
@@ -2764,6 +2771,7 @@
 		}).catch(function (error) {
 			battleBusy = false;
 			setBattleBusy(false);
+			if (!battle || battle.bundle !== actedOn) return;
 			$('#runbun-run-battle-result').attr('data-kind', 'error')
 				.text('That turn did not resolve — ' + error.message + ' Try again.');
 			status(error.message, 'error');

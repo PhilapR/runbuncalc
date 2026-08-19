@@ -1323,6 +1323,49 @@ test('a damaged save is handed back for repair, not quietly replaced', {skip}, a
 	await session.context.close();
 });
 
+test('a turn that resolves after its fight is gone is dropped, not thrown', async () => {
+	const session = await open();
+	const page = session.page;
+	await page.waitForFunction(() => {
+		const button = document.querySelector('#runbun-run-new');
+		const events = button && window.jQuery && window.jQuery._data(button, 'events');
+		return events && events.click;
+	});
+	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('#runbun-run-box .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(() =>
+		/takes the lead/.test(document.querySelector('#runbun-run-status').textContent));
+	// Slow the turn down so the abandon lands while it is in flight.
+	await page.route('**/run/battle/act', async route => {
+		await new Promise(resolve => setTimeout(resolve, 1200));
+		await route.continue();
+	});
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])');
+	await page.waitForSelector('.runbun-run-battle-move');
+	// Fire the turn and abandon it in the SAME task, so the abandon lands
+	// while the act request is still in flight — the exact sequence that
+	// used to surface a raw TypeError when the reply came back.
+	const raced = await page.evaluate(() => {
+		document.querySelector('.runbun-run-battle-move').click();
+		const cleared = document.querySelector('#runbun-run-battle-abandon');
+		cleared.click();
+		return !!cleared;
+	});
+	assert.equal(raced, true, 'the race was actually staged');
+	await page.waitForTimeout(3000);
+	// The reply belonged to a fight that no longer exists: dropped silently,
+	// never surfaced as a raw TypeError.
+	assert.doesNotMatch(await page.textContent('#runbun-run-status'),
+		/Cannot set properties|Cannot read propert|undefined is not/,
+		'a late turn must not surface a JavaScript error to the player');
+	await session.context.close();
+});
+
 test('a change asked for while another is in flight is refused, not merged', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
