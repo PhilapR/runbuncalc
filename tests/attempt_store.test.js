@@ -642,3 +642,55 @@ test('a Littleroot runtime fixture rebuilds through the real run reducer', async
 	const expected = adapter.replay(littleroot).run;
 	assert.deepEqual(rebuilt.run, expected);
 });
+
+test('the archive shelf refuses silent replacement of a saved run', async () => {
+	const store = Store.createMemoryStore();
+	await started(store);
+	const first = await store.archive({attemptId: 'attempt-1', name: 'First run',
+		outcome: 'wipe', position: 3, run: run('attempt-1', 3),
+		evidence: {revision: 3, checksum: 'aaaa'}});
+	// Same shelf slot, different content, no supersede: refused loudly.
+	await assert.rejects(() => store.archive({attemptId: 'attempt-1', name: 'Rewritten',
+		outcome: 'completed', position: 9, run: run('attempt-1', 9),
+		evidence: {revision: 9, checksum: 'bbbb'}}),
+	error => error.code === 'ARCHIVE_CONFLICT');
+	await assert.rejects(() => store.importArchives([{attemptId: 'attempt-1',
+		name: 'Legacy shadow', outcome: 'reset', position: 1, run: run('attempt-1', 1),
+		evidence: {revision: 1, checksum: 'cccc'}}]),
+	error => error.code === 'ARCHIVE_CONFLICT');
+	// The shelf still holds the original.
+	const kept = (await store.listArchives())[0];
+	assert.equal(kept.outcome, 'wipe', 'the first archive survives every collision');
+	// A deliberate re-archive names what it replaces — that is the valve.
+	const superseded = await store.archive({attemptId: 'attempt-1', name: 'Continued run',
+		outcome: 'completed', position: 12, run: run('attempt-1', 12),
+		evidence: {revision: 12, checksum: 'dddd'}, supersedes: first.evidence.checksum});
+	assert.equal(superseded.outcome, 'completed');
+	// Idempotent same-content puts stay legal (the legacy DB re-import path).
+	await store.importArchives([JSON.parse(JSON.stringify(superseded))]);
+	assert.equal((await store.listArchives()).length, 1);
+});
+
+test('a backwards wall clock is flagged at commit, never rewritten', async () => {
+	const store = Store.createMemoryStore();
+	await store.commit({
+		run: run('attempt-1', 0), expectedRevision: 0, commandId: 'start-1',
+		event: {kind: 'run.started', payload: {snapshot: run('attempt-1', 0)},
+			observedAt: '2026-08-15T10:00:00.000Z'},
+	});
+	await store.commit({
+		run: run('attempt-1', 1), expectedRevision: 1, commandId: 'change-1',
+		event: {kind: 'command.applied', payload: {command: {value: 1}},
+			observedAt: '2026-08-15T09:00:00.000Z'},
+	});
+	const events = await store.listEvents('attempt-1');
+	assert.equal(events[0].observedAtSuspect, undefined,
+		'a forward clock carries no flag');
+	assert.equal(events[1].observedAtSuspect, true,
+		'the backwards timestamp is marked suspect');
+	assert.equal(events[1].observedAt, '2026-08-15T09:00:00.000Z',
+		'the raw value is kept — flagged, never rewritten');
+	// The flag is part of the hash chain from birth: the export round-trips.
+	const bundle = await store.exportActive();
+	assert.equal(await store.validateBundle(bundle), true);
+});

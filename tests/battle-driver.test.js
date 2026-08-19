@@ -354,3 +354,41 @@ test('pre-fight catch odds quote the free ball always and tiered balls only when
 	assert.throws(() => driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Mewthree'),
 		/no catch rate/, 'an unknown species is refused, not quoted at 0');
 });
+
+test('a seeded fight never touches Math.random, even through random end-turn effects', () => {
+	// Starf Berry under 25% HP is the deterministic trigger: the end-turn
+	// resolver samples a random stat to boost. Before the fix the driver's
+	// three advanceTurn calls passed no rng, so this fell through to
+	// Math.random — invisible to every fixture fight that never reached a
+	// random branch (the exact green-on-broken shape AGENTS rule 5 names).
+	// A L20 holder that knows only Growl: it can never KO the wild (a
+	// finished fight skips end-of-turn), and the L3 wild cannot KO it.
+	let doc = run.createRun({name: 'Recreation', now: 't0', permadeath: true});
+	doc = run.apply(doc, {kind: 'catch', species: 'Starly', level: 20,
+		moves: ['Growl'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'party', ids: ['mon-1']});
+	doc = run.apply(doc, {kind: 'acquire', item: 'Starf Berry'});
+	doc = run.apply(doc, {kind: 'give', id: 'mon-1', item: 'Starf Berry'});
+	const rolled = run.rollEncounter(doc, {map: 'Route101', random: () => 0.01});
+	function lowHpBundle() {
+		const opened = driver.startWild(doc, rolled, 7);
+		// Test-only surgery: the driver has no command that starts a fight
+		// wounded, and the berry only wakes at a quarter health.
+		const holder = opened.battle.state.sides.player.party[0];
+		holder.hp.current = Math.floor(holder.hp.max / 4);
+		return opened.battle;
+	}
+	const realRandom = Math.random;
+	Math.random = () => { throw new Error('Math.random leaked into a seeded battle'); };
+	try {
+		const first = driver.act(lowHpBundle(), {kind: 'move', move: 'Growl'});
+		const second = driver.act(lowHpBundle(), {kind: 'move', move: 'Growl'});
+		assert.deepEqual(first.viewState, second.viewState,
+			'the same seed and step must resolve the random berry identically');
+		const boosts = first.battle.state.sides.player.party[0].boosts || {};
+		assert.ok(Object.values(boosts).some(value => value >= 2),
+			'the Starf Berry must actually have fired for this test to mean anything');
+	} finally {
+		Math.random = realRandom;
+	}
+});

@@ -98,6 +98,27 @@
 		return text;
 	}
 
+	var COUNTERS_KEY = 'runbun.counters.v1';
+	function bumpCounter(group, key) {
+		try {
+			var counters = JSON.parse(window.localStorage.getItem(COUNTERS_KEY)) || {};
+			counters[group] = counters[group] || {};
+			counters[group][key] = (counters[group][key] || 0) + 1;
+			window.localStorage.setItem(COUNTERS_KEY, JSON.stringify(counters));
+		} catch (ignore) { /* a lost count is a lost count, never a lost run */ }
+	}
+
+	// The engine identity fights are recorded under: the deployed revision
+	// when the page can learn it, and the pinned provider always.
+	var appRevision = null;
+	function learnAppRevision() {
+		fetch('/__runbun/meta').then(function (response) {
+			return response.ok ? response.json() : null;
+		}).then(function (meta) {
+			if (meta && meta.revision) appRevision = meta.revision;
+		}).catch(function (ignore) { /* dev servers have no meta; null is honest */ });
+	}
+
 	function status(message, kind) {
 		$('#runbun-run-status').text(displayText(speakable(message)))
 			.attr('data-kind', kind || '');
@@ -187,7 +208,16 @@
 			},
 		}).then(function (receipt) {
 			currentRevision = receipt.revision;
-			mirror(state);
+			// The mirror is a convenience copy. Its failure (quota, privacy
+			// mode) must never demote a session whose durable commit just
+			// SUCCEEDED — that inversion turned a full localStorage into a
+			// memory-only run.
+			try {
+				mirror(state);
+			} catch (ignored) {
+				status('Saved durably. The compatibility copy could not be ' +
+					'written (browser storage is full); the run itself is safe.', 'error');
+			}
 			return receipt;
 		}).catch(function (error) {
 			// Neither conflict is evidence that storage died: revision means
@@ -198,7 +228,9 @@
 			// A browser can disable or evict IndexedDB independently of localStorage.
 			// Keep the accepted run recoverable, but say that durability degraded.
 			attemptStore = null;
-			mirror(state);
+			try {
+				mirror(state);
+			} catch (ignored) { /* memory only now; the status below still renders */ }
 			status('Durable storage became unavailable; kept a compatibility copy. ' +
 				error.message, 'error');
 			return {revision: null, fallback: true};
@@ -1272,6 +1304,25 @@
 					renderPlanningReview(entry);
 				});
 				$row.append($button);
+				if (attemptStore && entry.attemptId) {
+					$row.append($('<button type="button" class="btn runbun-history-attempt-export"></button>')
+						.attr('title', 'Put this run\'s checked archive in the transfer box')
+						.text('Export')
+						.on('click', function () {
+							attemptStore.exportAttempt(entry.attemptId).then(function (bundle) {
+								if (!bundle) {
+									status('No durable archive exists for this run.', 'error');
+									return;
+								}
+								$('#runbun-run-transfer').val(JSON.stringify(bundle))
+									.closest('details').prop('open', true);
+								status((entry.name || 'The run') + '\'s archive is in the ' +
+									'transfer box — copy it somewhere safe.', 'ok');
+							}).catch(function (error) {
+								status(error.message, 'error');
+							});
+						}));
+				}
 				$attempts.append($row);
 			});
 
@@ -1485,6 +1536,7 @@
 				});
 			}).catch(function (error) {
 				if (error && error.code === 'REVISION_CONFLICT') return recoverConflict(error);
+				bumpCounter('refusals', body.kind || 'unknown');
 				// The refusal message is the feature: it says why this could not have
 				// happened in the game, not merely that the form was wrong.
 				status(error.message, 'error');
@@ -2568,6 +2620,7 @@
 		status('Sending out…', '');
 		return api(path, body).then(function (payload) {
 			battle = {bundle: payload.battle, log: []};
+			bumpCounter('battleStarted', payload.battle.trainer);
 			$('#runbun-run-battle').removeAttr('data-result');
 			$('#runbun-run-battle-result').text('');
 			$('#runbun-run-battle-abandon').text('Leave fight without saving')
@@ -2680,6 +2733,12 @@
 				trainerOrder: canonicalTrainerOrder,
 				progressionOrder: Number.isInteger(completedBundle.order) ? completedBundle.order : null,
 				seed: completedBundle.seed,
+				actions: (completedBundle.tape || []).slice(),
+				engine: {
+					app: appRevision,
+					provider: window.RunBunPokemonProvider &&
+						window.RunBunPokemonProvider.revision || null,
+				},
 				outcome: won ? 'won' : 'lost',
 				turns: reply.viewState && Number.isInteger(reply.viewState.turn) ?
 					reply.viewState.turn : completedBundle.state.turn,
@@ -2896,6 +2955,9 @@
 	function abandonBattle() {
 		var completed = $('#runbun-run-battle-abandon').attr('data-complete') === 'true';
 		var wasWild = !!(battle && battle.bundle && battle.bundle.wild);
+		if (!completed && battle && battle.bundle) {
+			bumpCounter('battleAbandoned', battle.bundle.trainer);
+		}
 		battle = null;
 		clearBattleSave();
 		$('#runbun-run-battle').prop('hidden', true);
@@ -3587,6 +3649,12 @@
 		bindDisclosures();
 		bind();
 		window.addEventListener('storage', syncFromOtherTab);
+		learnAppRevision();
+		if (window.navigator && navigator.storage && navigator.storage.persist) {
+			navigator.storage.persist().then(function (granted) {
+				window.__runbunStoragePersisted = granted;
+			}).catch(function (ignore) { /* denial is legal; eviction risk stands */ });
+		}
 		// The bag and scripted-catch fields offer the game's own vocabulary:
 		// every Gen 8 item and species, one-time menus. Free text still
 		// passes through; the commands stay the validators.
