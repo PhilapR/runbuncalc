@@ -912,8 +912,17 @@ function actionFailure(
     return {failure: 'infatuation'};
   }
   if (CONSECUTIVE_PROTECTIVE_MOVES.has(actionMoveId) &&
+    !['wideguard', 'quickguard'].includes(actionMoveId) &&
     CONSECUTIVE_PROTECTIVE_MOVES.has(moveId(state.moveStreakByPokemon?.[actor.id]?.moveName))) {
-    if (sampleActionRoll(random, 'Protect') >= 1 / 3) return {failure: 'protect'};
+    // Gen 8 stall: success is (1/3)^n with a 1/729 floor, not a flat 1/3
+    // forever. Wide/Quick Guard carry no stalling flag — they never take
+    // this roll, though their use keeps feeding the streak for what
+    // follows. Known simplification: the streak counter keys by exact
+    // move, so alternating Protect/Detect resets it where the cartridge
+    // stall counter would persist — strictly player-favorable, and rare.
+    const streak = state.moveStreakByPokemon?.[actor.id]?.count ?? 1;
+    const successChance = Math.max(1 / 729, Math.pow(1 / 3, streak));
+    if (sampleActionRoll(random, 'Protect') >= successChance) return {failure: 'protect'};
   }
   return {};
 }
