@@ -116,6 +116,7 @@ the reader's warning to verify before trusting.
 - `AGENTS.md` — 98b4a50 2026-08-18
 - `README.md` — 98b4a50 2026-08-18
 - `docs/AI_DATA_MODEL.md` — 98b4a50 2026-08-18
+- `docs/CONSTANTS-AUDIT.md` — 0a3095c 2026-08-19
 - `docs/DEPLOY.md` — 98b4a50 2026-08-18
 - `docs/ECOSYSTEM_BRIDGE.md` — deb903a 2026-08-16
 - `docs/EVALUATION.md` — 1222266 2026-08-19
