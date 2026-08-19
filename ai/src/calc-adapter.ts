@@ -318,10 +318,14 @@ function toCalcField(
 
 const HIGH_CRIT_MOVES = new Set([
   'aeroblast', 'aircutter', 'attackorder', 'blazekick', 'crabhammer', 'crosschop',
-  'crosspoison', 'drillrun', 'frostbreath', 'karatechop', 'leafblade', 'nightslash',
-  'poisonjab', 'poisonsting', 'psychocut', 'razorleaf', 'razorwind',
-  'shadowclaw', 'slash', 'spacialrend', 'stoneedge', 'stormthrow', 'surgingstrikes',
-  'wickedblow',
+  'crosspoison', 'drillrun', 'karatechop', 'leafblade', 'nightslash',
+  'poisontail', 'psychocut', 'razorleaf', 'razorwind', 'shadowclaw',
+  'skyattack', 'slash', 'snipeshot', 'spacialrend', 'stoneedge',
+]);
+// Always-crit moves: not a stage bonus, a guarantee. Kept apart so the
+// stage math never double-counts them.
+const ALWAYS_CRIT_MOVES = new Set([
+  'frostbreath', 'stormthrow', 'surgingstrikes', 'wickedblow',
 ]);
 const CRIT_BLOCKING_ABILITIES = new Set(['battlearmor', 'shellarmor', 'magmaarmor']);
 
@@ -633,7 +637,8 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
       priority: getActionOrderFacts(state, action).priority,
       attackerSpeed: attacker.stats.spe,
       attackerCriticalHitStage: criticalHitStage(state, attackerState, action.moveName),
-      criticalHitGuaranteed: !!attackerState.volatile?.laserFocus,
+      criticalHitGuaranteed: !!attackerState.volatile?.laserFocus ||
+        ALWAYS_CRIT_MOVES.has(moveId(action.moveName)),
       attackerHp: attackerState.hp.current,
       attackerHpPercent: attackerState.hp.max > 0
         ? attackerState.hp.current / attackerState.hp.max * 100
@@ -819,6 +824,7 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
     isSuperEffective: typeMultiplier(context.gen, context.move.type, defender)! > 1,
     isHighCrit: !context.state.sides[defenderSide].effects?.luckyChant &&
       (HIGH_CRIT_MOVES.has(moveId(context.move.name)) ||
+      ALWAYS_CRIT_MOVES.has(moveId(context.move.name)) ||
       !!context.attackerState.volatile?.laserFocus) &&
       !(isAbilityActive(defenderState, context.state) &&
         isAbilityAvailable(context.state.generation, getEffectiveAbility(defenderState)) &&

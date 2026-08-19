@@ -2413,9 +2413,15 @@ function resolveSecondaryEffects(
   const attacker = getPokemon(state, action.actorId);
   const suppressesSecondaries = facts.moveCategory !== 'Status' && !!attacker &&
     hasAbility(state, attacker, 'sheerforce');
-  const doublesSecondaryChance = !!attacker &&
-    (hasAbility(state, attacker, 'serenegrace') ||
-      (state.generation >= 5 && state.sides[sideForPokemon(state, attacker.id)].effects?.pledgeRainbow === true));
+  // Serene Grace and a Rainbow stack multiplicatively (x4, capped at 100):
+  // a Serene Grace user behind its own Rainbow flinches with Iron Head 100%
+  // of the time, not 60%.
+  let secondaryChanceMultiplier = 1;
+  if (attacker && hasAbility(state, attacker, 'serenegrace')) secondaryChanceMultiplier *= 2;
+  if (attacker && state.generation >= 5 &&
+    state.sides[sideForPokemon(state, attacker.id)].effects?.pledgeRainbow === true) {
+    secondaryChanceMultiplier *= 2;
+  }
   const secondaryRolls: Record<string, number> = {};
   const secondaryTargetIds = facts.isMultiHit
     ? Array.from(new Set([
@@ -2454,7 +2460,7 @@ function resolveSecondaryEffects(
           ? `${targetId}:${index}:hit${hitIndex + 1}`
           : `${targetId}:${index}`;
         secondaryRolls[rollKey] = roll;
-        const chance = doublesSecondaryChance ? Math.min(100, effect.chance * 2) : effect.chance;
+        const chance = Math.min(100, effect.chance * secondaryChanceMultiplier);
         if (suppressesSecondaries || bounded >= chance / 100) continue;
 
         const recipientId = effect.target === 'self' ? action.actorId : targetId;
@@ -5861,6 +5867,12 @@ export function deriveMoveResolution(
       }
     }
   }
+  // Taunt is 3 turns, which yields the correct three taunted actions for a
+  // target that has not yet moved. A target Taunted AFTER it acted gets only
+  // two, because this engine decrements at the turn boundary and the state
+  // model carries no already-moved signal to compensate with. Documented
+  // rather than guessed: inventing that signal from lastMoveByPokemon would
+  // misfire on any mon that moved on an earlier turn.
   if (id === 'taunt') addEligibleVolatile(resolution, state, effectTargetIds, 'taunt', {turns: 3}, effectActorId, true);
   if (id === 'embargo' && state.generation >= 4) {
     addEligibleVolatile(resolution, state, effectTargetIds, 'embargo', {turns: 5}, effectActorId, true);

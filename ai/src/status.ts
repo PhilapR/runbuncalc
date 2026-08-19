@@ -71,10 +71,15 @@ const WEATHER_RECOVERY_MOVES = new Set(['moonlight', 'morningsun', 'synthesis'])
 const ALLY_HEALING_MOVES = new Set(['floralhealing', 'healpulse', 'pollenpuff']);
 const ALLY_TEAM_HEALING_MOVES = new Set(['junglehealing', 'lifedew']);
 const ALLY_TEAM_CLEANSE_MOVES = new Set(['aromatherapy', 'healbell']);
+// Mirrors calc-adapter's set: the AI doc's "has a move with high crit
+// chance" clause must classify moves the same way the crit math does. The
+// old copy carried strangesteam (a confusion move) and missed seven.
 const HIGH_CRIT_MOVES = new Set([
   'aeroblast', 'aircutter', 'attackorder', 'blazekick', 'crabhammer', 'crosschop',
-  'drillrun', 'leafblade', 'nightslash', 'poisonjab', 'razorleaf', 'shadowclaw',
-  'slash', 'spacialrend', 'stoneedge', 'strangesteam', 'surgingstrikes', 'wickedblow',
+  'crosspoison', 'drillrun', 'karatechop', 'leafblade', 'nightslash',
+  'poisontail', 'psychocut', 'razorleaf', 'razorwind', 'shadowclaw',
+  'skyattack', 'slash', 'snipeshot', 'spacialrend', 'stoneedge',
+  'frostbreath', 'stormthrow', 'surgingstrikes', 'wickedblow',
 ]);
 const CRIT_SETUP_ABILITIES = new Set(['superluck', 'sniper']);
 const CRIT_BLOCKING_ABILITIES = new Set(['battlearmor', 'shellarmor', 'magmaarmor']);

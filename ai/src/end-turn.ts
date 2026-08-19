@@ -110,9 +110,13 @@ function grassyTerrainDelta(state: BattleState, pokemon: PokemonState): number {
   return Math.max(1, Math.floor(pokemon.hp.max / 16));
 }
 
-function volatileRecoveryDelta(pokemon: PokemonState): number {
-  if (!pokemon.volatile?.aquaRing && !pokemon.volatile?.ingrain) return 0;
-  return Math.max(1, Math.floor(pokemon.hp.max / 16));
+function volatileRecoveryDelta(state: BattleState, pokemon: PokemonState): number {
+  // Each heals 1/16 independently — they stack — and Big Root boosts both.
+  const sixteenth = Math.max(1, Math.floor(pokemon.hp.max / 16));
+  let total = 0;
+  if (pokemon.volatile?.aquaRing) total += drainRecoveryAmount(state, pokemon, sixteenth);
+  if (pokemon.volatile?.ingrain) total += drainRecoveryAmount(state, pokemon, sixteenth);
+  return total;
 }
 
 function addDelta(resolution: EndTurnResolution, pokemonId: string, delta: number) {
@@ -900,7 +904,7 @@ export function deriveEndTurnResolution(state: BattleState, options: EndTurnOpti
     const grassyTerrain = grassyTerrainDelta(state, pokemon);
     if (grassyTerrain) delta += grassyTerrain;
 
-    const volatileRecovery = volatileRecoveryDelta(pokemon);
+    const volatileRecovery = volatileRecoveryDelta(state, pokemon);
     if (volatileRecovery) delta += volatileRecovery;
 
     const gmaxDamage = residualGmaxDamage(state, pokemon, types, magicGuard);
