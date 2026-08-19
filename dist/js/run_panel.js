@@ -1077,6 +1077,23 @@
 			return;
 		}
 
+		// A nuzlocke with nothing left alive is over: offering "choose your
+		// party" from an empty box is a dead end, and the player has just
+		// watched their last Pokemon fall.
+		if (!alive.length) {
+			$('#runbun-run-next-title').text('The run is over');
+			$('#runbun-run-next-detail').text(
+				payload.box.length + ' caught · none left standing · ' +
+				displayText(next.trainer) + ' still stands');
+			$play.text('End this run').prop('disabled', false)
+				.attr('title', 'Nothing is left alive — save this run to history');
+			$plan.prop('disabled', true).attr('title', 'Nothing is left alive');
+			$value.prop('disabled', true).attr('title', 'Nothing is left alive');
+			$advise.prop('disabled', true).attr('title', 'Nothing is left alive');
+			$rank.prop('disabled', true).attr('title', 'Nothing is left alive');
+			return;
+		}
+
 		if (!partySize) {
 			$('#runbun-run-next-title').text('Build a party for ' + displayText(next.trainer));
 			$('#runbun-run-next-detail').text(
@@ -3533,6 +3550,22 @@
 		$('#runbun-run-roll-catch').on('click', function () { settleRoll(true); });
 		$('#runbun-run-roll-flee').on('click', function () { settleRoll(false); });
 		$('#runbun-run-play').on('click', function () {
+			// Nothing alive: the only honest next action is ending the run.
+			if (state && lastStatus && !(lastStatus.box || []).some(function (mon) {
+				return mon.status !== 'dead';
+			})) {
+				revealSection('history');
+				var transfer = document.querySelector('.runbun-run-transfer');
+				if (transfer) {
+					transfer.open = true;
+					transfer.scrollIntoView({block: 'center'});
+				}
+				var outcome = document.querySelector('#runbun-run-end-outcome');
+				if (outcome) outcome.value = 'wipe';
+				status('Every Pokémon is gone. Press and hold End run to save this ' +
+					'attempt to your history.', 'error');
+				return;
+			}
 			if (!state || state.party.length) {
 				startBattle();
 				return;
