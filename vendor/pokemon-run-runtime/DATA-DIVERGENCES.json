@@ -1,0 +1,1346 @@
+{
+	"schemaVersion": "pokemon.provider.data-divergences/1.0.0",
+	"providerRevision": "2ae1b7e5721a2d2ff3b9692df75f65329c891650",
+	"providerArtifactSha256": "5503927e7d7cccc85bae88f30c4d73a2c4f7c2c207096c0166693fcb8d108e55",
+	"meaning": "Fields where the pinned provider's embedded species data disagrees with the fork's decomp-verified tables. Planning receipts for teams holding these species are computed from the vendor values. Retired by curating mono's species table to R&B values and re-pinning.",
+	"speciesCompared": 1244,
+	"divergenceCount": 140,
+	"entries": [
+		{
+			"species": "Abomasnow",
+			"field": "abilities",
+			"vendor": [
+				"Snow Warning"
+			],
+			"fork": [
+				"Soundproof"
+			]
+		},
+		{
+			"species": "Aggron",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Heavy Metal"
+			]
+		},
+		{
+			"species": "Aron",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Heavy Metal"
+			]
+		},
+		{
+			"species": "Boldore",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Solid Rock"
+			]
+		},
+		{
+			"species": "Bounsweet",
+			"field": "abilities",
+			"vendor": [
+				"Leaf Guard"
+			],
+			"fork": [
+				"Sweet Veil"
+			]
+		},
+		{
+			"species": "Buneary",
+			"field": "abilities",
+			"vendor": [
+				"Run Away"
+			],
+			"fork": [
+				"Cute Charm"
+			]
+		},
+		{
+			"species": "Bunnelby",
+			"field": "abilities",
+			"vendor": [
+				"Pickup"
+			],
+			"fork": [
+				"Cheek Pouch"
+			]
+		},
+		{
+			"species": "Centiskorch",
+			"field": "abilities",
+			"vendor": [
+				"Flash Fire"
+			],
+			"fork": [
+				"Flame Body"
+			]
+		},
+		{
+			"species": "Chandelure",
+			"field": "abilities",
+			"vendor": [
+				"Flash Fire"
+			],
+			"fork": [
+				"Shadow Tag"
+			]
+		},
+		{
+			"species": "Clefable",
+			"field": "abilities",
+			"vendor": [
+				"Cute Charm"
+			],
+			"fork": [
+				"Unaware"
+			]
+		},
+		{
+			"species": "Clefairy",
+			"field": "abilities",
+			"vendor": [
+				"Cute Charm"
+			],
+			"fork": [
+				"Friend Guard"
+			]
+		},
+		{
+			"species": "Cleffa",
+			"field": "abilities",
+			"vendor": [
+				"Cute Charm"
+			],
+			"fork": [
+				"Friend Guard"
+			]
+		},
+		{
+			"species": "Comfey",
+			"field": "abilities",
+			"vendor": [
+				"Flower Veil"
+			],
+			"fork": [
+				"Triage"
+			]
+		},
+		{
+			"species": "Corviknight",
+			"field": "abilities",
+			"vendor": [
+				"Pressure"
+			],
+			"fork": [
+				"Unnerve"
+			]
+		},
+		{
+			"species": "Corvisquire",
+			"field": "abilities",
+			"vendor": [
+				"Keen Eye"
+			],
+			"fork": [
+				"Unnerve"
+			]
+		},
+		{
+			"species": "Cresselia",
+			"field": "baseStats.def",
+			"vendor": 110,
+			"fork": 120
+		},
+		{
+			"species": "Cresselia",
+			"field": "baseStats.spd",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Croagunk",
+			"field": "abilities",
+			"vendor": [
+				"Anticipation"
+			],
+			"fork": [
+				"Poison Touch"
+			]
+		},
+		{
+			"species": "Cutiefly",
+			"field": "abilities",
+			"vendor": [
+				"Honey Gather"
+			],
+			"fork": [
+				"Sweet Veil"
+			]
+		},
+		{
+			"species": "Delcatty",
+			"field": "abilities",
+			"vendor": [
+				"Cute Charm"
+			],
+			"fork": [
+				"Normalize"
+			]
+		},
+		{
+			"species": "Diggersby",
+			"field": "abilities",
+			"vendor": [
+				"Pickup"
+			],
+			"fork": [
+				"Cheek Pouch"
+			]
+		},
+		{
+			"species": "Diglett",
+			"field": "abilities",
+			"vendor": [
+				"Sand Veil"
+			],
+			"fork": [
+				"Arena Trap"
+			]
+		},
+		{
+			"species": "Dugtrio",
+			"field": "abilities",
+			"vendor": [
+				"Sand Veil"
+			],
+			"fork": [
+				"Arena Trap"
+			]
+		},
+		{
+			"species": "Electabuzz",
+			"field": "abilities",
+			"vendor": [
+				"Static"
+			],
+			"fork": [
+				"Vital Spirit"
+			]
+		},
+		{
+			"species": "Electivire",
+			"field": "abilities",
+			"vendor": [
+				"Motor Drive"
+			],
+			"fork": [
+				"Vital Spirit"
+			]
+		},
+		{
+			"species": "Electrode-Hisui",
+			"field": "abilities",
+			"vendor": [
+				"Soundproof"
+			],
+			"fork": [
+				"Aftermath"
+			]
+		},
+		{
+			"species": "Elekid",
+			"field": "abilities",
+			"vendor": [
+				"Static"
+			],
+			"fork": [
+				"Vital Spirit"
+			]
+		},
+		{
+			"species": "Enamorus",
+			"field": "abilities",
+			"vendor": [
+				"Cute Charm"
+			],
+			"fork": [
+				"Healer"
+			]
+		},
+		{
+			"species": "Escavalier",
+			"field": "abilities",
+			"vendor": [
+				"Swarm"
+			],
+			"fork": [
+				"Overcoat"
+			]
+		},
+		{
+			"species": "Exeggutor-Alola",
+			"field": "abilities",
+			"vendor": [
+				"Frisk"
+			],
+			"fork": [
+				"Harvest"
+			]
+		},
+		{
+			"species": "Ferroseed",
+			"field": "abilities",
+			"vendor": [
+				"Iron Barbs"
+			],
+			"fork": [
+				"Anticipation"
+			]
+		},
+		{
+			"species": "Ferrothorn",
+			"field": "abilities",
+			"vendor": [
+				"Iron Barbs"
+			],
+			"fork": [
+				"Anticipation"
+			]
+		},
+		{
+			"species": "Fletchling",
+			"field": "abilities",
+			"vendor": [
+				"Big Pecks"
+			],
+			"fork": [
+				"Keen Eye"
+			]
+		},
+		{
+			"species": "Frillish",
+			"field": "abilities",
+			"vendor": [
+				"Water Absorb"
+			],
+			"fork": [
+				"Cursed Body"
+			]
+		},
+		{
+			"species": "Froslass",
+			"field": "abilities",
+			"vendor": [
+				"Snow Cloak"
+			],
+			"fork": [
+				"Cursed Body"
+			]
+		},
+		{
+			"species": "Gabite",
+			"field": "abilities",
+			"vendor": [
+				"Sand Veil"
+			],
+			"fork": [
+				"Rough Skin"
+			]
+		},
+		{
+			"species": "Gallade",
+			"field": "abilities",
+			"vendor": [
+				"Steadfast"
+			],
+			"fork": [
+				"Inner Focus"
+			]
+		},
+		{
+			"species": "Garchomp",
+			"field": "abilities",
+			"vendor": [
+				"Sand Veil"
+			],
+			"fork": [
+				"Rough Skin"
+			]
+		},
+		{
+			"species": "Gible",
+			"field": "abilities",
+			"vendor": [
+				"Sand Veil"
+			],
+			"fork": [
+				"Rough Skin"
+			]
+		},
+		{
+			"species": "Gigalith",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Solid Rock"
+			]
+		},
+		{
+			"species": "Golduck",
+			"field": "abilities",
+			"vendor": [
+				"Damp"
+			],
+			"fork": [
+				"Swift Swim"
+			]
+		},
+		{
+			"species": "Goodra",
+			"field": "abilities",
+			"vendor": [
+				"Sap Sipper"
+			],
+			"fork": [
+				"Gooey"
+			]
+		},
+		{
+			"species": "Goodra-Hisui",
+			"field": "abilities",
+			"vendor": [
+				"Sap Sipper"
+			],
+			"fork": [
+				"Gooey"
+			]
+		},
+		{
+			"species": "Goomy",
+			"field": "abilities",
+			"vendor": [
+				"Sap Sipper"
+			],
+			"fork": [
+				"Gooey"
+			]
+		},
+		{
+			"species": "Grimer",
+			"field": "abilities",
+			"vendor": [
+				"Stench"
+			],
+			"fork": [
+				"Poison Touch"
+			]
+		},
+		{
+			"species": "Hakamo-o",
+			"field": "abilities",
+			"vendor": [
+				"Bulletproof"
+			],
+			"fork": [
+				"Overcoat"
+			]
+		},
+		{
+			"species": "Hatenna",
+			"field": "abilities",
+			"vendor": [
+				"Healer"
+			],
+			"fork": [
+				"Synchronize"
+			]
+		},
+		{
+			"species": "Hatterene",
+			"field": "abilities",
+			"vendor": [
+				"Healer"
+			],
+			"fork": [
+				"Synchronize"
+			]
+		},
+		{
+			"species": "Hattrem",
+			"field": "abilities",
+			"vendor": [
+				"Healer"
+			],
+			"fork": [
+				"Synchronize"
+			]
+		},
+		{
+			"species": "Hitmonchan",
+			"field": "abilities",
+			"vendor": [
+				"Keen Eye"
+			],
+			"fork": [
+				"Inner Focus"
+			]
+		},
+		{
+			"species": "Jangmo-o",
+			"field": "abilities",
+			"vendor": [
+				"Bulletproof"
+			],
+			"fork": [
+				"Overcoat"
+			]
+		},
+		{
+			"species": "Jellicent",
+			"field": "abilities",
+			"vendor": [
+				"Water Absorb"
+			],
+			"fork": [
+				"Cursed Body"
+			]
+		},
+		{
+			"species": "Karrablast",
+			"field": "abilities",
+			"vendor": [
+				"Swarm"
+			],
+			"fork": [
+				"No Guard"
+			]
+		},
+		{
+			"species": "Kecleon",
+			"field": "abilities",
+			"vendor": [
+				"Color Change"
+			],
+			"fork": [
+				"Protean"
+			]
+		},
+		{
+			"species": "Kingler",
+			"field": "abilities",
+			"vendor": [
+				"Hyper Cutter"
+			],
+			"fork": [
+				"Sheer Force"
+			]
+		},
+		{
+			"species": "Kleavor",
+			"field": "baseStats.atk",
+			"vendor": 130,
+			"fork": 135
+		},
+		{
+			"species": "Kleavor",
+			"field": "baseStats.spd",
+			"vendor": 75,
+			"fork": 70
+		},
+		{
+			"species": "Kommo-o",
+			"field": "abilities",
+			"vendor": [
+				"Bulletproof"
+			],
+			"fork": [
+				"Overcoat"
+			]
+		},
+		{
+			"species": "Krabby",
+			"field": "abilities",
+			"vendor": [
+				"Hyper Cutter"
+			],
+			"fork": [
+				"Sheer Force"
+			]
+		},
+		{
+			"species": "Lairon",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Heavy Metal"
+			]
+		},
+		{
+			"species": "Lampent",
+			"field": "abilities",
+			"vendor": [
+				"Flash Fire"
+			],
+			"fork": [
+				"Shadow Tag"
+			]
+		},
+		{
+			"species": "Larvesta",
+			"field": "abilities",
+			"vendor": [
+				"Flame Body"
+			],
+			"fork": [
+				"Swarm"
+			]
+		},
+		{
+			"species": "Ledian",
+			"field": "abilities",
+			"vendor": [
+				"Swarm"
+			],
+			"fork": [
+				"Rattled"
+			]
+		},
+		{
+			"species": "Ledyba",
+			"field": "abilities",
+			"vendor": [
+				"Swarm"
+			],
+			"fork": [
+				"Rattled"
+			]
+		},
+		{
+			"species": "Linoone-Galar",
+			"field": "abilities",
+			"vendor": [
+				"Pickup"
+			],
+			"fork": [
+				"Gluttony"
+			]
+		},
+		{
+			"species": "Litleo",
+			"field": "abilities",
+			"vendor": [
+				"Rivalry"
+			],
+			"fork": [
+				"Unnerve"
+			]
+		},
+		{
+			"species": "Litwick",
+			"field": "abilities",
+			"vendor": [
+				"Flash Fire"
+			],
+			"fork": [
+				"Shadow Tag"
+			]
+		},
+		{
+			"species": "Luxio",
+			"field": "abilities",
+			"vendor": [
+				"Rivalry"
+			],
+			"fork": [
+				"Intimidate"
+			]
+		},
+		{
+			"species": "Luxray",
+			"field": "abilities",
+			"vendor": [
+				"Rivalry"
+			],
+			"fork": [
+				"Intimidate"
+			]
+		},
+		{
+			"species": "Lycanroc",
+			"field": "abilities",
+			"vendor": [
+				"Keen Eye"
+			],
+			"fork": [
+				"Sand Rush"
+			]
+		},
+		{
+			"species": "Lycanroc-Midnight",
+			"field": "abilities",
+			"vendor": [
+				"Keen Eye"
+			],
+			"fork": [
+				"No Guard"
+			]
+		},
+		{
+			"species": "Maractus",
+			"field": "abilities",
+			"vendor": [
+				"Water Absorb"
+			],
+			"fork": [
+				"Chlorophyll"
+			]
+		},
+		{
+			"species": "Marill",
+			"field": "baseStats.atk",
+			"vendor": 20,
+			"fork": 35
+		},
+		{
+			"species": "Marill",
+			"field": "baseStats.spa",
+			"vendor": 20,
+			"fork": 35
+		},
+		{
+			"species": "Meowth-Galar",
+			"field": "abilities",
+			"vendor": [
+				"Pickup"
+			],
+			"fork": [
+				"Run Away"
+			]
+		},
+		{
+			"species": "Morelull",
+			"field": "abilities",
+			"vendor": [
+				"Illuminate"
+			],
+			"fork": [
+				"Effect Spore"
+			]
+		},
+		{
+			"species": "Mudbray",
+			"field": "abilities",
+			"vendor": [
+				"Own Tempo"
+			],
+			"fork": [
+				"Tangling Hair"
+			]
+		},
+		{
+			"species": "Mudsdale",
+			"field": "abilities",
+			"vendor": [
+				"Own Tempo"
+			],
+			"fork": [
+				"Tangling Hair"
+			]
+		},
+		{
+			"species": "Muk",
+			"field": "abilities",
+			"vendor": [
+				"Stench"
+			],
+			"fork": [
+				"Poison Touch"
+			]
+		},
+		{
+			"species": "Munna",
+			"field": "abilities",
+			"vendor": [
+				"Forewarn"
+			],
+			"fork": [
+				"Synchronize"
+			]
+		},
+		{
+			"species": "Musharna",
+			"field": "abilities",
+			"vendor": [
+				"Forewarn"
+			],
+			"fork": [
+				"Synchronize"
+			]
+		},
+		{
+			"species": "Nosepass",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Magnet Pull"
+			]
+		},
+		{
+			"species": "Overqwil",
+			"field": "abilities",
+			"vendor": [
+				"Poison Point"
+			],
+			"fork": [
+				"Intimidate"
+			]
+		},
+		{
+			"species": "Phanpy",
+			"field": "abilities",
+			"vendor": [
+				"Pickup"
+			],
+			"fork": [
+				"Cute Charm"
+			]
+		},
+		{
+			"species": "Ponyta",
+			"field": "abilities",
+			"vendor": [
+				"Run Away"
+			],
+			"fork": [
+				"Flame Body"
+			]
+		},
+		{
+			"species": "Probopass",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Magnet Pull"
+			]
+		},
+		{
+			"species": "Psyduck",
+			"field": "abilities",
+			"vendor": [
+				"Damp"
+			],
+			"fork": [
+				"Swift Swim"
+			]
+		},
+		{
+			"species": "Pyroar",
+			"field": "abilities",
+			"vendor": [
+				"Rivalry"
+			],
+			"fork": [
+				"Unnerve"
+			]
+		},
+		{
+			"species": "Qwilfish",
+			"field": "abilities",
+			"vendor": [
+				"Poison Point"
+			],
+			"fork": [
+				"Intimidate"
+			]
+		},
+		{
+			"species": "Qwilfish-Hisui",
+			"field": "abilities",
+			"vendor": [
+				"Poison Point"
+			],
+			"fork": [
+				"Intimidate"
+			]
+		},
+		{
+			"species": "Rapidash",
+			"field": "abilities",
+			"vendor": [
+				"Run Away"
+			],
+			"fork": [
+				"Flame Body"
+			]
+		},
+		{
+			"species": "Rhydon",
+			"field": "abilities",
+			"vendor": [
+				"Lightning Rod"
+			],
+			"fork": [
+				"Reckless"
+			]
+		},
+		{
+			"species": "Rhyhorn",
+			"field": "abilities",
+			"vendor": [
+				"Lightning Rod"
+			],
+			"fork": [
+				"Reckless"
+			]
+		},
+		{
+			"species": "Rhyperior",
+			"field": "abilities",
+			"vendor": [
+				"Lightning Rod"
+			],
+			"fork": [
+				"Solid Rock"
+			]
+		},
+		{
+			"species": "Ribombee",
+			"field": "abilities",
+			"vendor": [
+				"Honey Gather"
+			],
+			"fork": [
+				"Sweet Veil"
+			]
+		},
+		{
+			"species": "Roggenrola",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Weak Armor"
+			]
+		},
+		{
+			"species": "Rookidee",
+			"field": "abilities",
+			"vendor": [
+				"Keen Eye"
+			],
+			"fork": [
+				"Unnerve"
+			]
+		},
+		{
+			"species": "Sandshrew-Alola",
+			"field": "abilities",
+			"vendor": [
+				"Snow Cloak"
+			],
+			"fork": [
+				"Slush Rush"
+			]
+		},
+		{
+			"species": "Sandslash-Alola",
+			"field": "abilities",
+			"vendor": [
+				"Snow Cloak"
+			],
+			"fork": [
+				"Slush Rush"
+			]
+		},
+		{
+			"species": "Sawk",
+			"field": "abilities",
+			"vendor": [
+				"Sturdy"
+			],
+			"fork": [
+				"Mold Breaker"
+			]
+		},
+		{
+			"species": "Shiinotic",
+			"field": "abilities",
+			"vendor": [
+				"Illuminate"
+			],
+			"fork": [
+				"Effect Spore"
+			]
+		},
+		{
+			"species": "Shinx",
+			"field": "abilities",
+			"vendor": [
+				"Rivalry"
+			],
+			"fork": [
+				"Intimidate"
+			]
+		},
+		{
+			"species": "Sigilyph",
+			"field": "abilities",
+			"vendor": [
+				"Wonder Skin"
+			],
+			"fork": [
+				"Tinted Lens"
+			]
+		},
+		{
+			"species": "Sizzlipede",
+			"field": "abilities",
+			"vendor": [
+				"Flash Fire"
+			],
+			"fork": [
+				"Flame Body"
+			]
+		},
+		{
+			"species": "Skitty",
+			"field": "abilities",
+			"vendor": [
+				"Cute Charm"
+			],
+			"fork": [
+				"Normalize"
+			]
+		},
+		{
+			"species": "Skuntank",
+			"field": "abilities",
+			"vendor": [
+				"Stench"
+			],
+			"fork": [
+				"Keen Eye"
+			]
+		},
+		{
+			"species": "Sliggoo",
+			"field": "abilities",
+			"vendor": [
+				"Sap Sipper"
+			],
+			"fork": [
+				"Gooey"
+			]
+		},
+		{
+			"species": "Sliggoo-Hisui",
+			"field": "abilities",
+			"vendor": [
+				"Sap Sipper"
+			],
+			"fork": [
+				"Gooey"
+			]
+		},
+		{
+			"species": "Sneasler",
+			"field": "abilities",
+			"vendor": [
+				"Pressure"
+			],
+			"fork": [
+				"Inner Focus"
+			]
+		},
+		{
+			"species": "Snover",
+			"field": "abilities",
+			"vendor": [
+				"Snow Warning"
+			],
+			"fork": [
+				"Soundproof"
+			]
+		},
+		{
+			"species": "Starmie",
+			"field": "abilities",
+			"vendor": [
+				"Illuminate"
+			],
+			"fork": [
+				"Natural Cure"
+			]
+		},
+		{
+			"species": "Staryu",
+			"field": "abilities",
+			"vendor": [
+				"Illuminate"
+			],
+			"fork": [
+				"Natural Cure"
+			]
+		},
+		{
+			"species": "Steenee",
+			"field": "abilities",
+			"vendor": [
+				"Leaf Guard"
+			],
+			"fork": [
+				"Sweet Veil"
+			]
+		},
+		{
+			"species": "Stunky",
+			"field": "abilities",
+			"vendor": [
+				"Stench"
+			],
+			"fork": [
+				"Keen Eye"
+			]
+		},
+		{
+			"species": "Teddiursa",
+			"field": "abilities",
+			"vendor": [
+				"Pickup"
+			],
+			"fork": [
+				"Quick Feet"
+			]
+		},
+		{
+			"species": "Throh",
+			"field": "abilities",
+			"vendor": [
+				"Guts"
+			],
+			"fork": [
+				"Mold Breaker"
+			]
+		},
+		{
+			"species": "Togekiss",
+			"field": "abilities",
+			"vendor": [
+				"Hustle"
+			],
+			"fork": [
+				"Super Luck"
+			]
+		},
+		{
+			"species": "Togepi",
+			"field": "abilities",
+			"vendor": [
+				"Hustle"
+			],
+			"fork": [
+				"Super Luck"
+			]
+		},
+		{
+			"species": "Togetic",
+			"field": "abilities",
+			"vendor": [
+				"Hustle"
+			],
+			"fork": [
+				"Super Luck"
+			]
+		},
+		{
+			"species": "Torkoal",
+			"field": "abilities",
+			"vendor": [
+				"White Smoke"
+			],
+			"fork": [
+				"Shell Armor"
+			]
+		},
+		{
+			"species": "Toxicroak",
+			"field": "abilities",
+			"vendor": [
+				"Anticipation"
+			],
+			"fork": [
+				"Poison Touch"
+			]
+		},
+		{
+			"species": "Trapinch",
+			"field": "abilities",
+			"vendor": [
+				"Hyper Cutter"
+			],
+			"fork": [
+				"Arena Trap"
+			]
+		},
+		{
+			"species": "Tsareena",
+			"field": "abilities",
+			"vendor": [
+				"Leaf Guard"
+			],
+			"fork": [
+				"Sweet Veil"
+			]
+		},
+		{
+			"species": "Tyranitar",
+			"field": "abilities",
+			"vendor": [
+				"Sand Stream"
+			],
+			"fork": [
+				"Unnerve"
+			]
+		},
+		{
+			"species": "Vespiquen",
+			"field": "abilities",
+			"vendor": [
+				"Pressure"
+			],
+			"fork": [
+				"Unnerve"
+			]
+		},
+		{
+			"species": "Volcarona",
+			"field": "abilities",
+			"vendor": [
+				"Flame Body"
+			],
+			"fork": [
+				"Swarm"
+			]
+		},
+		{
+			"species": "Voltorb-Hisui",
+			"field": "abilities",
+			"vendor": [
+				"Soundproof"
+			],
+			"fork": [
+				"Aftermath"
+			]
+		},
+		{
+			"species": "Weavile",
+			"field": "abilities",
+			"vendor": [
+				"Pressure"
+			],
+			"fork": [
+				"Inner Focus"
+			]
+		},
+		{
+			"species": "Yanma",
+			"field": "abilities",
+			"vendor": [
+				"Speed Boost"
+			],
+			"fork": [
+				"Compound Eyes"
+			]
+		},
+		{
+			"species": "Yanmega",
+			"field": "abilities",
+			"vendor": [
+				"Speed Boost"
+			],
+			"fork": [
+				"Tinted Lens"
+			]
+		},
+		{
+			"species": "Zacian",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zacian-Crowned",
+			"field": "baseStats.atk",
+			"vendor": 150,
+			"fork": 170
+		},
+		{
+			"species": "Zamazenta",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.def",
+			"vendor": 140,
+			"fork": 145
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.spd",
+			"vendor": 140,
+			"fork": 145
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.hp",
+			"vendor": 60,
+			"fork": 55
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.atk",
+			"vendor": 105,
+			"fork": 100
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.spa",
+			"vendor": 120,
+			"fork": 125
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.spe",
+			"vendor": 105,
+			"fork": 110
+		}
+	]
+}
