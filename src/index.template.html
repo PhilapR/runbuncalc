@@ -244,6 +244,13 @@
         </button>
     </div>
     <div class="panel calc-column calc-player-column">
+        <!-- The run's own party, one click from the calculator's player slot.
+             Hidden entirely when no run is active, so the calculator stays a
+             standalone tool. -->
+        <div id="runbun-calc-party" class="runbun-calc-party" hidden>
+            <span class="runbun-calc-party-label">Your party</span>
+            <div id="runbun-calc-party-list" class="runbun-calc-party-list"></div>
+        </div>
         <div aria-label="Pok&eacute;mon 1" role="region">
             <fieldset class="poke-info" id="p1">
                 <legend align="center">

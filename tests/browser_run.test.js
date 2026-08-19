@@ -837,6 +837,27 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		'the calculator must carry the run\'s exact rolled IVs');
 	assert.equal(bridged.persisted, null,
 		'the run set must never leak into persistent custom sets');
+	// The calculator's own tab is run-aware: the party rides in as chips, so
+	// a player already in the calculator never has to leave it to load their
+	// own Pokemon (or hand-enter six IVs the run already knows).
+	assert.equal(await page.isVisible('#runbun-calc-party'), true,
+		'an active run shows its party in the calculator');
+	await page.click('.runbun-calc-party-chip');
+	const fromChip = await page.evaluate(() => {
+		const p1 = document.querySelector('.calc-player-column');
+		const saved = JSON.parse(window.localStorage.getItem('runbun.run.v1'));
+		const mon = saved.box.find(entry => entry.id === saved.party[0]);
+		return {
+			chosen: p1.querySelector('.select2-chosen').textContent,
+			calcIvs: ['hp', 'at', 'df', 'sa', 'sd', 'sp']
+				.map(k => p1.querySelector('.' + k + ' .ivs').value).join(','),
+			runIvs: [mon.ivs.hp, mon.ivs.atk, mon.ivs.def,
+				mon.ivs.spa, mon.ivs.spd, mon.ivs.spe].join(','),
+		};
+	});
+	assert.match(fromChip.chosen, /\(My Run\)$/, 'the chip loads the run set');
+	assert.equal(fromChip.calcIvs, fromChip.runIvs,
+		'a party chip carries the run\'s exact rolled IVs');
 	await page.evaluate(() => { window.location.hash = '#runbun-run'; });
 	await page.click('#runbun-run-mon-record summary');
 	await page.fill('#runbun-run-observed-iv-spe', '5');

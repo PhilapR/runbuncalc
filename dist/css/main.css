@@ -4644,11 +4644,70 @@ table.field {
 }
 
 /* Fork overlay: upstream removed .button outlines wholesale; keyboard users
-   get the shell's focus ring back without re-adding pointer-focus noise. */
+   get the shell's focus ring back without re-adding pointer-focus noise.
+   The calculator is ~200 inputs and selects deep — a keyboard user tabbing
+   a damage matchup had no idea which field they were in, which is the one
+   accessibility failure that makes the whole surface unusable by keyboard. */
 .button:focus-visible,
-.btn:focus-visible {
+.btn:focus-visible,
+#calc input:focus-visible,
+#calc select:focus-visible,
+#calc textarea:focus-visible,
+#calc [tabindex]:focus-visible,
+#sets-bridge input:focus-visible,
+#sets-bridge select:focus-visible,
+#ai-panel input:focus-visible,
+#ai-panel select:focus-visible {
 	outline: 2px solid var(--rb-focus);
 	outline-offset: 2px;
+}
+
+/* The select2 dropdowns the calculator uses for species and sets render
+   their own focus state; the ring rides the visible box, not the hidden
+   native input behind it. */
+#calc .select2-container--focus .select2-choice,
+#calc .select2-container-active .select2-choice {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 1px;
+}
+
+.runbun-calc-party {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	flex-wrap: wrap;
+	margin-bottom: var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-left: 3px solid var(--rb-brand);
+	border-radius: 0;
+	background: var(--rb-surface-raised);
+}
+.runbun-calc-party-label {
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--rb-ink-muted);
+}
+.runbun-calc-party-list {
+	display: flex;
+	gap: var(--rb-space-xs);
+	flex-wrap: wrap;
+}
+.runbun-calc-party-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--rb-space-xs);
+	min-height: 32px;
+	margin: 0;
+	padding: 0.2rem 0.55rem;
+	font-size: var(--rb-text-body);
+}
+.runbun-calc-party-chip .runbun-calc-party-slot {
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	color: var(--rb-ink-muted);
 }
 
 /* Mobile floors, LAST in the file on purpose: the component rules above set

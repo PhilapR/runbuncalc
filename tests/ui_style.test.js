@@ -93,9 +93,17 @@ test('action buttons keep readable ink and visible keyboard focus in both themes
 		'primary buttons must take their ink from the theme token');
 	assert.doesNotMatch(shell, /\.rb-btn-primary\.btn\s*\{[^}]*color:\s*#fff/,
 		'primary buttons must not hardcode white ink');
-	// Upstream removed .button outlines; the fork restores :focus-visible.
-	assert.match(mainCss, /\.button:focus-visible,\s*\n\.btn:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--rb-focus\)/,
+	// Upstream removed .button outlines; the fork restores :focus-visible —
+	// and the ring must reach the calculator's own inputs and selects, which
+	// are the deepest keyboard surface in the app.
+	assert.match(mainCss, /\.button:focus-visible,[\s\S]{0,600}?outline:\s*2px solid var\(--rb-focus\)/,
 		'keyboard focus ring on .button/.btn must survive the upstream outline reset');
+	['#calc input:focus-visible', '#calc select:focus-visible'].forEach(selector => {
+		assert.ok(mainCss.includes(selector),
+			'the calculator surface must carry a visible focus ring: ' + selector);
+	});
+	assert.match(mainCss, /select2-container--focus \.select2-choice[\s\S]{0,120}?outline:\s*2px solid var\(--rb-focus\)/,
+		'select2 dropdowns render their own focus box and need the ring on it');
 });
 
 test('small screens keep the 16px input floor and 44px checkbox targets', () => {

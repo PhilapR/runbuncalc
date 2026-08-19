@@ -669,6 +669,29 @@
 			' is in the calculator against ' + opponentLabel + '.', 'ok');
 	}
 
+	/**
+	 * The calculator's player slot, made run-aware from the calculator's own
+	 * tab: the run's living party as one-click chips. Without this the only
+	 * path was the details panel's "Check in calculator" button on the Play
+	 * tab, so a player already in the calculator had to leave it, find the
+	 * mon, and come back — or hand-enter six IVs the run already knows.
+	 */
+	function renderCalcParty() {
+		var $strip = $('#runbun-calc-party');
+		if (!$strip.length) return;
+		var party = (state && state.party || []).map(findBoxed).filter(Boolean);
+		$strip.prop('hidden', !party.length);
+		var $list = $('#runbun-calc-party-list').empty();
+		party.forEach(function (mon, index) {
+			$list.append($('<button type="button" class="btn runbun-calc-party-chip"></button>')
+				.attr('title', 'Load ' + (mon.nickname || mon.species) +
+					' — its rolled IVs, nature and ability — into the calculator')
+				.append($('<span class="runbun-calc-party-slot"></span>').text(index + 1))
+				.append($('<span></span>').text((mon.nickname || mon.species) + ' L' + mon.level))
+				.on('click', function () { openInCalculator(mon); }));
+		});
+	}
+
 	// The datalist behind the New move field: everything this Pokemon can
 	// legally learn right now, fetched once per selection. Free text still
 	// works — the teach command is the validator, this is only the menu.
@@ -1455,6 +1478,7 @@
 		writeSummary('tools', selected || 'select a Pokémon');
 		if (!$('#runbun-run-map').val()) writeSummary('catch', 'pick a route');
 		refreshStale();
+		renderCalcParty();
 		return payload;
 	}
 

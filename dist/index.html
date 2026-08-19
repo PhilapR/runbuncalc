@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?4c519f12" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?d9a626cf" />
     <link type="text/css" rel="stylesheet" href="./css/runbun-tokens.css?38068d14" />
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <link type="text/css" rel="stylesheet" href="./css/dark-theme.css" id="dark-theme-styles">
@@ -244,6 +244,13 @@
         </button>
     </div>
     <div class="panel calc-column calc-player-column">
+        <!-- The run's own party, one click from the calculator's player slot.
+             Hidden entirely when no run is active, so the calculator stays a
+             standalone tool. -->
+        <div id="runbun-calc-party" class="runbun-calc-party" hidden>
+            <span class="runbun-calc-party-label">Your party</span>
+            <div id="runbun-calc-party-list" class="runbun-calc-party-list"></div>
+        </div>
         <div aria-label="Pok&eacute;mon 1" role="region">
             <fieldset class="poke-info" id="p1">
                 <legend align="center">
@@ -1957,7 +1964,7 @@
     <script type="text/javascript" src="./js/run_history.js?d88e941e"></script>
     <script type="text/javascript" src="./js/pokemon_provider.js?07020739"></script>
     <script type="text/javascript" src="./js/pokemon_provider_client.js?44a3f1ee"></script>
-    <script type="text/javascript" src="./js/run_panel.js?97e3572e"></script>
+    <script type="text/javascript" src="./js/run_panel.js?f72e4f1b"></script>
     <script type="text/javascript" src="./js/runbun_shell.js?7ce42e0e"></script>
 </div>
 
