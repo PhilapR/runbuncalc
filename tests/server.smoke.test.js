@@ -754,7 +754,9 @@ test('a run is created, advanced and summarized entirely through the request', a
 	assert.equal(status.body.opportunities.encounters.count, 4);
 	assert.deepEqual(status.body.opportunities.items.pickups.map(item => item.name),
 		['Potion', 'Oran Berry']);
-	assert.equal(status.body.opportunities.moves.status, 'undated');
+	assert.equal(status.body.opportunities.moves.status, 'dated');
+	assert.equal(status.body.opportunities.moves.count, 0,
+		'no TM or tutor is reachable before the first fight');
 
 	// The story spine travels with every status, and how far ahead to look is
 	// the client's call, bounded.

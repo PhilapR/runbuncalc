@@ -2009,7 +2009,7 @@ test('the field items standing on a location, with the log as the collection rec
 	}
 });
 
-test('pre-fight opportunities show only reachable, unspent work and preserve unknown move timing', () => {
+test('pre-fight opportunities show only reachable, unspent work and honest move timing', () => {
 	const state = fresh({permadeath: true});
 	const before = run.preFightOpportunities(state);
 	assert.deepEqual(before.before, {trainer: 'Youngster Calvin', order: 0});
@@ -2018,8 +2018,13 @@ test('pre-fight opportunities show only reachable, unspent work and preserve unk
 		['Route101', 'Route102', 'Route103', 'Petalburg City']);
 	assert.deepEqual(before.items.pickups.map(item => item.name), ['Potion', 'Oran Berry']);
 	assert.deepEqual(before.items.pickups.map(item => item.map), ['Route101', 'Route102']);
-	assert.equal(before.moves.status, 'undated');
-	assert.match(before.moves.note, /locations and unlock timing are not dated/);
+	// Move locations are imported now: the projection is run-aware, counts
+	// only dated-and-open rows, and names the undated remainder instead of
+	// hiding it.
+	assert.equal(before.moves.status, 'dated');
+	assert.equal(before.moves.count, 0, 'nothing is reachable before the first fight');
+	assert.ok(before.moves.undated >= 20);
+	assert.match(before.moves.note, /undated/);
 
 	const collected = run.apply(state, {kind: 'acquire', item: 'Potion'});
 	assert.deepEqual(run.preFightOpportunities(collected).items.pickups.map(item => item.name),
@@ -2116,4 +2121,44 @@ test('the scout grades the whole open table, not a display shortlist', () => {
 	// The display path is untouched: three rows per route.
 	const viewed = run.unusedRoutes(doc).routes.find(route => route.best && route.best.length);
 	assert.ok(viewed.best.length <= 3, 'the routes view keeps its shortlist');
+});
+
+test('TM and tutor locations are dated late-biased and projected run-aware', () => {
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const rows = oracle.moveItems();
+	assert.equal(rows.length, 78, '50 TMs and 28 tutor rows from the Items Locations sheet');
+	const dated = rows.filter(row => row.opensAt !== null);
+	assert.ok(dated.length >= 56, 'most rows carry an unlock date');
+	// A prose HM requirement must gate the pickup: Surf rows can never open
+	// before Surf itself does.
+	const surfGate = oracle.moveObtainableAt('Surf');
+	for (const row of rows) {
+		if (/requires Surf/i.test(row.location) && row.opensAt !== null) {
+			assert.ok(row.opensAt >= surfGate,
+				row.move + ' requires Surf but opens at ' + row.opensAt + ' < ' + surfGate);
+		}
+	}
+	// Undated rows must say so, never masquerade as reachable.
+	for (const row of rows) {
+		if (row.opensAt === null) assert.equal(row.dating, 'no-datable-place');
+	}
+	// Run-aware: at the start of a run, nothing is reachable yet and the
+	// projection reports the undated remainder honestly.
+	const moves = run.preFightOpportunities(fresh({})).moves;
+	assert.equal(moves.status, 'dated');
+	assert.equal(moves.count, 0, 'no TM or tutor is reachable before the first fight');
+	assert.ok(moves.undated >= 20, 'the undated remainder is counted, not hidden');
+});
+
+test('evolution readiness reports the ladder and whether the run is there', () => {
+	const caught = run.apply(fresh({}), {kind: 'catch', species: 'Treecko', level: 5,
+		ivs: {hp: 1, atk: 2, def: 3, spa: 4, spd: 5, spe: 6}, nature: 'Adamant', ability: 'Overgrow'});
+	const monId = caught.box[0].id;
+	const before = run.evolutionReadiness(caught, monId);
+	assert.deepEqual(before.evolutions, [{into: 'Grovyle', method: 'level', level: 16, ready: false}]);
+	// Over-cap levels cost Rare Candy, exactly as the game charges them.
+	const stocked = run.apply(caught, {kind: 'acquire', item: 'Rare Candy', count: 4});
+	const leveled = run.apply(stocked, {kind: 'levelUp', id: monId, to: 16});
+	assert.equal(run.evolutionReadiness(leveled, monId).evolutions[0].ready, true,
+		'reaching the level flips readiness');
 });

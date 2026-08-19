@@ -492,7 +492,7 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
 		/2 field items/);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
-		/TM & tutorsMove locations are not mapped yet/);
+		/0 TMs & tutors reachableNone reachable yet · \d+ known places, undated/);
 	assert.equal(await page.$$eval('#runbun-run-reachable .runbun-run-route-choice',
 		buttons => buttons.length), 4,
 	'Explore should begin with the four reachable choices, not the complete ROM catalog');

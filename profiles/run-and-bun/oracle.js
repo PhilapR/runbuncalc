@@ -463,24 +463,43 @@ function moveObtainableAt(move) {
 	return gates[move] !== undefined ? gates[move] : null;
 }
 
+/** The TM and tutor location ledger — rows with a prose location, and an
+ * opensAt trainer order where the place could be dated (null = the place is
+ * known but its unlock is not; read as "location known, timing unproven"). */
+function moveItems() {
+	return load('availability').moveItems || [];
+}
+
 /**
  * Coverage statement for move unlocks shown in progression UI.
  *
- * Legal TM/tutor moves are imported, but their overworld locations and dates
- * are not. Only the HM story spine is dated. Consumers must preserve that
- * distinction instead of interpreting an absent date as proof of availability.
+ * TM and tutor locations are imported from the operator's Items Locations
+ * sheet (via pokemon-mono rab-tms-tutors); most rows carry a late-biased
+ * unlock date through LOCATION_UNLOCKS. Rows without a datable place keep
+ * opensAt null — consumers must present those as "location known, timing
+ * unproven", never as available-now.
  */
 function moveAvailability() {
+	const rows = moveItems();
+	if (!rows.length) {
+		return {
+			status: 'undated',
+			available: [],
+			note: 'TM and tutor moves are known, but their locations and unlock timing are not dated yet.',
+		};
+	}
+	const undated = rows.filter(row => row.opensAt === null).length;
 	return {
-		status: 'undated',
-		available: [],
-		note: 'TM and tutor moves are known, but their locations and unlock timing are not dated yet.',
+		status: 'dated',
+		available: rows,
+		note: rows.length + ' TM and tutor locations on file' +
+			(undated ? ', ' + undated + ' without a dated unlock' : ''),
 	};
 }
 
 module.exports = {
 	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
-	moveAvailability,
+	moveAvailability, moveItems,
 	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,

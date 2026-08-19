@@ -40,7 +40,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const RAB = '/workspace/pokemon-mono/engines/rab/backend/src/data';
+const RAB = process.env.RAB_DATA ||
+	'/workspace/pokemon-mono/engines/rab/backend/src/data';
 const OUT_DIR = path.join(__dirname, '..', 'profiles', 'run-and-bun', 'oracle');
 
 // rab locations that name a multi-floor complex map one wild table per floor
@@ -63,7 +64,7 @@ const ALIAS = new Map([
 function loadAnchors() {
 	const db = JSON.parse(fs.readFileSync(path.join(RAB, 'rab-trainers-database.json'), 'utf8'));
 	const list = Array.isArray(db) ? db : db.trainers;
-	const planner = require('../planner.js');
+	const planner = require('../lib/planner.js');
 	const ours = new Map();
 	for (const fight of planner.listFights('run-and-bun').fights) {
 		ours.set(fight.trainer.toLowerCase(), fight.order);
@@ -123,7 +124,7 @@ function resolveMaps(oracle, location) {
 
 /** Earliest run-map fight whose trainer NAME carries the map's name. */
 function ourFightIndex() {
-	const planner = require('../planner.js');
+	const planner = require('../lib/planner.js');
 	const fights = planner.listFights('run-and-bun').fights;
 	return mapName => {
 		let earliest = null;
@@ -227,6 +228,93 @@ function main() {
 	items.sort((a, b) => (a.opensAt === null ? 1 : 0) - (b.opensAt === null ? 1 : 0) ||
 		(a.opensAt || 0) - (b.opensAt || 0) || a.name.localeCompare(b.name));
 
+	// TM AND TUTOR LOCATIONS, from the same source's rab-tms-tutors curation
+	// (itself the operator's Items Locations sheet, transcribed). Each row is
+	// dated by the leading place name in its prose against LOCATION_UNLOCKS —
+	// exact match first, else the LATEST matching sub-area (late-biased,
+	// never early, same philosophy as the map dates: a TM in an unvisited
+	// wing must not be promised at the door). 'Given by Leader X' rows are
+	// fight rewards and date by that fight directly. A row that names no
+	// datable place keeps opensAt null and says so with a flag.
+	const unlockByPlace = new Map(unlocks.map(u => [u.location, u.minOrder]));
+	function datePlace(prose) {
+		const reward = /Leader (\w+)/.exec(prose);
+		if (reward) {
+			const planner = require('../lib/planner.js');
+			const fight = planner.listFights('run-and-bun').fights
+				.filter(f => f.trainer.includes('Leader ' + reward[1]))[0];
+			if (fight) return {place: fight.trainer, opensAt: fight.order, dating: 'fight-reward'};
+		}
+		// Place-name candidates, most to least specific. The comma clause is
+		// the usual form; 'in/at X' catches reward prose; the two-token cut
+		// catches 'Route 115 by the Meteor Falls entrance'. A bare trailing
+		// dot is punctuation, but the dot in 'Mt. Pyre' is not — only split
+		// on comma, and strip one final period.
+		const clean = prose.replace(/\.$/, '');
+		const lead = clean.split(', ')[0].replace(/\.$/, '');
+		const trailing = /(?:\bin|\bat) ([A-Z][\w.']*(?: [A-Z][\w.']*)*)$/.exec(clean.split(', ')[0]) ||
+			/(?:\bin|\bat) ([A-Z][\w.']*(?: [A-Z][\w.']*)*)$/.exec(clean);
+		const candidates = [lead];
+		if (trailing) candidates.push(trailing[1]);
+		candidates.push(lead.split(' ').slice(0, 2).join(' '));
+		for (const place of candidates) {
+			if (unlockByPlace.has(place)) {
+				return {place, opensAt: translate(unlockByPlace.get(place)), dating: 'unlock'};
+			}
+		}
+		for (const place of candidates) {
+			const subAreas = unlocks.filter(u => u.location.startsWith(place + ' '));
+			if (subAreas.length) {
+				const latest = Math.max(...subAreas.map(u => u.minOrder));
+				return {place, opensAt: translate(latest), dating: 'unlock-latest-sub-area'};
+			}
+		}
+		return {place: null, opensAt: null, dating: 'no-datable-place'};
+	}
+	// A row's prose can name its own gate ('requires Surf'): the pickup
+	// waits for BOTH the place and the tool, whichever is later.
+	function hmGate(prose) {
+		// The Bike is not an HM but gates the same way: Rydel's shop opens
+		// with Mauville City.
+		if (/requires a Bike/i.test(prose)) {
+			const mauville = unlockByPlace.get('Mauville City') !== undefined ?
+				unlockByPlace.get('Mauville City') : unlockByPlace.get('Mauville');
+			return mauville !== undefined ? translate(mauville) : null;
+		}
+		const req = /requires (Surf|Dive|Waterfall|Strength|Cut|Rock Smash|Flash|Fly)/i.exec(prose);
+		if (!req) return null;
+		const key = req[1].replace(/\b\w/g, ch => ch.toUpperCase());
+		return hmMoves[key] !== undefined ? hmMoves[key] : null;
+	}
+	function withHmGate(dated, prose) {
+		const gate = hmGate(prose);
+		if (gate === null || dated.opensAt === null) return dated;
+		if (gate > dated.opensAt) {
+			return {place: dated.place, opensAt: gate, dating: dated.dating + '+hm-gate'};
+		}
+		return dated;
+	}
+	const tmSource = fs.readFileSync(path.join(RAB, 'rab-tms-tutors.ts'), 'utf8');
+	const moveItems = [];
+	const tmPattern = /"number":\s*"(TM\d+|HM\d+)",\s*"move":\s*"([^"]+)",\s*"location":\s*"([^"]+)"/g;
+	for (let match; (match = tmPattern.exec(tmSource));) {
+		if (match[1].startsWith('HM')) continue; // hmMoves above carries the HM gates
+		const dated = withHmGate(datePlace(match[3]), match[3]);
+		moveItems.push({name: match[1], move: match[2], kind: 'tm',
+			location: match[3], place: dated.place, opensAt: dated.opensAt,
+			dating: dated.dating});
+	}
+	const tutorBlock = tmSource.slice(tmSource.indexOf('RAB_TUTORS'));
+	const tutorPattern = /"move":\s*"([^"]+)",\s*"location":\s*"([^"]+)"/g;
+	for (let match; (match = tutorPattern.exec(tutorBlock));) {
+		const dated = withHmGate(datePlace(match[2]), match[2]);
+		moveItems.push({name: null, move: match[1], kind: 'tutor',
+			location: match[2], place: dated.place, opensAt: dated.opensAt,
+			dating: dated.dating});
+	}
+	moveItems.sort((a, b) => (a.opensAt === null ? 1 : 0) - (b.opensAt === null ? 1 : 0) ||
+		(a.opensAt || 0) - (b.opensAt || 0) || a.move.localeCompare(b.move));
+
 	const entries = [...byMap.values()].sort((a, b) =>
 		(a.opensAt === null ? 1 : 0) - (b.opensAt === null ? 1 : 0) ||
 		(a.opensAt || 0) - (b.opensAt || 0) || a.name.localeCompare(b.name));
@@ -240,6 +328,7 @@ function main() {
 		methods,
 		hmMoves,
 		items,
+		moveItems,
 		entries,
 	};
 	fs.writeFileSync(path.join(OUT_DIR, 'availability.json'),

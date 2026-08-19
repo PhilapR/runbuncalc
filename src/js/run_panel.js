@@ -516,6 +516,7 @@
 			$replace.append($('<option></option>').attr('value', move).text('Forget ' + move));
 		});
 		refreshTeachableOptions(mon.id);
+		refreshEvolutionFact(mon.id);
 
 		var $ivs = $('#runbun-run-mon-summary-ivs').empty();
 		var missingIvs = [];
@@ -596,6 +597,25 @@
 	// The datalist behind the New move field: everything this Pokemon can
 	// legally learn right now, fetched once per selection. Free text still
 	// works — the teach command is the validator, this is only the menu.
+	var evolutionFor = null;
+	function refreshEvolutionFact(id) {
+		if (!state || !id || evolutionFor === id) return;
+		evolutionFor = id;
+		api('/run/evolutions', {run: state, id: id}).then(function (payload) {
+			if (evolutionFor !== id) return;
+			var rows = payload.evolutions || [];
+			var text = !rows.length ? 'Final form' : rows.map(function (row) {
+				var how = row.method === 'level' ? 'at L' + row.level :
+					row.item ? 'with ' + row.item : row.method;
+				return row.into + ' ' + how + (row.ready === true ? ' — ready now' : '');
+			}).join(' · ');
+			var known = rows.length ? rows.every(function (row) {
+				return row.ready !== null || row.method !== 'level';
+			}) : true;
+			fact($('#runbun-run-mon-facts'), 'Evolution', text, known);
+		}).catch(function (ignore) { /* the fact is optional; Evolve validates */ });
+	}
+
 	var teachableFor = null;
 	function refreshTeachableOptions(id) {
 		if (!state || !id || teachableFor === id) return;
@@ -1035,10 +1055,18 @@
 		});
 
 		var moves = opportunity.moves || {};
+		var reachableMoves = moves.reachable || [];
 		addRow({
-			name: 'TM & tutors',
-			detail: moves.status === 'undated' ? 'Move locations are not mapped yet' :
-				(moves.note || 'No new move access is recorded'),
+			name: moves.status === 'dated' ?
+				moves.count + ' TM' + (moves.count === 1 ? '' : 's') + ' & tutors reachable' :
+				'TM & tutors',
+			detail: moves.status === 'dated' ?
+				(reachableMoves.length ? preview(reachableMoves.map(function (row) {
+					return row.move + ' · ' + displayText(row.place || row.location);
+				}), 2) : 'None reachable yet' +
+					(moves.undated ? ' · ' + moves.undated + ' known places, undated' : '')) :
+				moves.status === 'undated' ? 'Move locations are not mapped yet' :
+					(moves.note || 'No new move access is recorded'),
 			title: moves.note,
 			unknown: moves.status === 'undated' || moves.status === 'unknown',
 		});
@@ -1416,8 +1444,10 @@
 			return api('/run/apply', {run: state, command: body}).then(function (payload) {
 				state = payload.run;
 				// Any applied command may change what a Pokemon can learn
-				// (teach consumes the slot, level-up opens new rows).
+				// (teach consumes the slot, level-up opens new rows) and
+				// whether it is ready to evolve.
 				teachableFor = null;
+				evolutionFor = null;
 				var eventPayload = {command: body};
 				if (body.kind === 'catch') {
 					var added = (state.box || []).filter(function (mon) { return !priorBoxIds[mon.id]; });
