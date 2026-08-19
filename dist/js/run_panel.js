@@ -1979,11 +1979,18 @@
 			// The played verdict outranks the grid and says so first: what
 			// happened in twelve fights beats what the matrix predicted.
 			if (party.adjudication) {
+				// The number carries its method: 'won 12/12 sims' is a
+				// simulation tally, never confusable with the plan's exact
+				// seeded branches. A bare 'Win 100%' read as a promise.
+				var sims = party.adjudication.rollouts;
 				$row.append($('<span class="runbun-run-rank-played"></span>')
 					.toggleClass('is-win', party.adjudication.pWin >= 0.75)
 					.toggleClass('is-loss', party.adjudication.pWin <= 0.25)
-					.text('Win ' + Math.round(party.adjudication.pWin * 100) + '% · ' +
-						party.adjudication.eDeaths.toFixed(1) + ' deaths'));
+					.text(sims ?
+						'won ' + Math.round(party.adjudication.pWin * sims) + '/' + sims +
+							' sims · ' + party.adjudication.eDeaths.toFixed(1) + ' deaths avg' :
+						'Win ' + Math.round(party.adjudication.pWin * 100) + '% · ' +
+							party.adjudication.eDeaths.toFixed(1) + ' deaths'));
 			}
 			var tags = [];
 			if (party.label && party.label !== 'top') tags.push(party.label);
@@ -2079,9 +2086,10 @@
 		$('#runbun-run-routes-note').text(
 			'vs ' + payload.trainer + ' (#' + payload.order + ')' +
 			(payload.cap !== null ? ' at cap ' + payload.cap : '') +
-			' · ' + payload.routesOpen + ' encounter areas open · party answers ' +
-			payload.partyCovers + '/' + payload.enemies +
-			(payload.gated ? ' · ' + payload.gated + ' prospects wait on an HM' : ''));
+			' · ' + payload.routesOpen + ' encounter areas open · your party can KO ' +
+			payload.partyCovers + ' of their ' + payload.enemies +
+			(payload.gated ? ' · ' + payload.gated + ' prospects wait on an HM' : '') +
+			' — each prospect shows how many of their team it could KO');
 		var $list = $('#runbun-run-scout').empty();
 		if (!payload.catches.length) {
 			$list.append($('<li class="runbun-run-scout-empty"></li>')
@@ -2098,8 +2106,13 @@
 				.append($('<span class="runbun-run-scout-ko"></span>')
 					.toggleClass('is-ko', entry.newAnswers > 0)
 					.toggleClass('is-ko-trade', entry.kosConceded > 0)
+					.attr('title', 'Could KO ' + entry.kos + ' of their ' + payload.enemies +
+						(entry.newAnswers ? '; answers ' + entry.newAnswers +
+							' your party currently cannot' : '') +
+						(entry.kosConceded ? '; ' + entry.kosConceded +
+							' of theirs would KO it back' : ''))
 					.text((entry.newAnswers ? '+' + entry.newAnswers + ' new · ' : '') +
-						entry.kos + '/' + payload.enemies + ' KO' +
+						'KOs ' + entry.kos + '/' + payload.enemies +
 						(entry.kosConceded ? ' · KOd by ' + entry.kosConceded : '')));
 			$list.append($row);
 		});
