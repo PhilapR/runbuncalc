@@ -436,8 +436,16 @@
 		});
 		$('#runbun-run').on('click', '.rb-disclose-btn', function () {
 			var $section = $(this).closest('.rb-disclose');
-			setSection($section.attr('data-section'), !$section.hasClass('is-open'));
+			var key = $section.attr('data-section');
+			var opening = !$section.hasClass('is-open');
+			setSection(key, opening);
 			persistSections();
+			// History renders on demand, not at boot; a player opening the
+			// section by its own header must get the real ledger, not the
+			// boot-time zeros and a stuck 'Loading…' line.
+			if (opening && key === 'history') {
+				renderHistory().catch(function () { /* renderHistory writes the error state */ });
+			}
 		});
 	}
 

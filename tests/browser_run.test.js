@@ -2020,6 +2020,14 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	}]);
 	await page.waitForSelector('#runbun-history-attempts .runbun-history-attempt',
 		{state: 'visible', timeout: 10000});
+	// Opening the history section by its own header must render the real
+	// ledger too — not only the Run history button. Close, reopen, re-render.
+	const historyHeader = '.rb-disclose[data-section="history"] .rb-disclose-btn';
+	await page.click(historyHeader);
+	await page.click(historyHeader);
+	await page.waitForFunction(() =>
+		document.querySelector('#runbun-history-tracked').textContent === '1',
+	null, {timeout: 10000});
 	assert.match(await page.textContent('#runbun-history-attempts'), /Wiped/);
 	assert.equal(await page.textContent('#runbun-history-tracked'), '1');
 	assert.match(await page.textContent('#runbun-run-status'), /Run saved as Wiped/);
