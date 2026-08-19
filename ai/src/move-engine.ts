@@ -878,10 +878,20 @@ function actionFailure(
   actor: BattleState['sides'][SideId]['party'][number],
   actionMoveId: string,
   random: () => number,
-): {failure?: ActionFailure; clearStatus?: boolean} {
+): {failure?: ActionFailure; clearStatus?: boolean; sleepTurns?: number; wake?: boolean} {
   if (actor.volatile?.flinch) return {failure: 'flinch'};
-  if (actor.status === 'slp' && actor.statusTurns !== 0 && !['sleeptalk', 'snore'].includes(actionMoveId)) {
-    return {failure: 'sleep'};
+  if (actor.status === 'slp') {
+    // Gen 8 sleep: the counter burns on each ACTION ATTEMPT — a 2-4 counter
+    // is always 1-3 missed turns, whoever moved first. The old boundary
+    // decrement handed a faster sleeper's target one extra missed turn.
+    const earlyBird = state.generation >= 3 && isAbilityActive(actor, state) &&
+      moveId(getEffectiveAbility(actor)) === 'earlybird';
+    const remaining = Math.max(0, (actor.statusTurns ?? 0) - (earlyBird ? 2 : 1));
+    if (remaining > 0) {
+      return ['sleeptalk', 'snore'].includes(actionMoveId) ?
+        {sleepTurns: remaining} : {failure: 'sleep', sleepTurns: remaining};
+    }
+    return {wake: true};
   }
   if (actor.status === 'frz') {
     if (sampleActionRoll(random, 'Freeze') >= 0.2) return {failure: 'freeze'};
@@ -2777,6 +2787,10 @@ export function deriveMoveResolution(
         notes: [`actor failed to act: ${gate.failure}`],
       },
     };
+    if (gate.sleepTurns !== undefined) {
+      resolution.statusTurnsByPokemon = {[actor.id]: gate.sleepTurns};
+      resolution.trace!.notes!.push('sleep counter burned on the attempt');
+    }
     if (gate.failure === 'confusion' && options.facts?.confusionDamage) {
       const damage = sampleDamageFact(options.facts.confusionDamage, random);
       if (damage > 0) addHpDelta(resolution, actor.id, -damage);
@@ -3384,11 +3398,19 @@ export function deriveMoveResolution(
     resolution.trace!.notes!.push(`${action.moveName} consumed Lock-On/Mind Reader accuracy`);
   }
 
+  if (gate.sleepTurns !== undefined) {
+    resolution.statusTurnsByPokemon = {[actor.id]: gate.sleepTurns};
+  }
   if (gate.clearStatus) {
     resolution.statusByPokemon = {[actor.id]: ''};
     resolution.statusTurnsByPokemon = {[actor.id]: null};
     resolution.toxicCounterByPokemon = {[actor.id]: 0};
     resolution.trace!.notes!.push('actor thawed and cleared freeze');
+  } else if (gate.wake) {
+    resolution.statusByPokemon = {[actor.id]: ''};
+    resolution.statusTurnsByPokemon = {[actor.id]: null};
+    resolution.toxicCounterByPokemon = {[actor.id]: 0};
+    resolution.trace!.notes!.push('actor woke on the attempt and acted');
   } else if (actor.status === 'slp' && actor.statusTurns === 0) {
     resolution.statusByPokemon = {[actor.id]: ''};
     resolution.statusTurnsByPokemon = {[actor.id]: null};

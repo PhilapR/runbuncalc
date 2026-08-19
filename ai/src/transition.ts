@@ -537,14 +537,11 @@ function decrementSleep(
   pokemon: BattleState['sides'][SideId]['party'][number],
   generation: BattleState['generation'],
 ) {
-  if (pokemon.status !== 'slp' || pokemon.statusTurns === undefined) return pokemon;
-  const decrement = generation >= 3 && isAbilityActive(pokemon, state) &&
-    moveId(getEffectiveAbility(pokemon)) === 'earlybird' ? 2 : 1;
-  const statusTurns = pokemon.statusTurns - decrement;
-  if (statusTurns <= 0) {
-    return {...pokemon, status: '' as const, statusTurns: undefined, toxicCounter: undefined};
-  }
-  return {...pokemon, statusTurns};
+  // Sleep burns on the action attempt now (Gen 8 semantics, applied in the
+  // move engine's action gate). The boundary leaves the counter alone; this
+  // shim survives only so unrelated duration bookkeeping keeps its shape.
+  void state; void generation;
+  return pokemon;
 }
 
 function decrementSideDurations(state: BattleState, side: BattleState['sides'][SideId]) {

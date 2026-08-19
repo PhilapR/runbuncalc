@@ -3192,7 +3192,9 @@ assert.equal(deriveMoveResolution(awakeSleepTalkState, {
 
 const emptySleepTalkState = state();
 emptySleepTalkState.sides.ai.party[0].status = 'slp';
-emptySleepTalkState.sides.ai.party[0].statusTurns = 1;
+// Turns 2: still asleep after the attempt burn (turns 1 would wake and act
+// under Gen 8 attempt-decremented sleep).
+emptySleepTalkState.sides.ai.party[0].statusTurns = 2;
 emptySleepTalkState.sides.ai.party[0].moves = [{name: 'Sleep Talk'}];
 assert.equal(deriveMoveResolution(emptySleepTalkState, enumerateMoveActions(emptySleepTalkState)[0], {
   hit: true,
@@ -3201,22 +3203,38 @@ assert.equal(deriveMoveResolution(emptySleepTalkState, enumerateMoveActions(empt
 const normalSleepCountdown = state();
 normalSleepCountdown.sides.ai.party[0].status = 'slp';
 normalSleepCountdown.sides.ai.party[0].statusTurns = 3;
-assert.equal(beginNextTurn(normalSleepCountdown).sides.ai.party[0].statusTurns, 2);
+// The boundary leaves sleep alone now — the counter burns on the action
+// attempt (see sleep-decrement.test.ts), so a mon that never attempted
+// keeps its full counter.
+assert.equal(beginNextTurn(normalSleepCountdown).sides.ai.party[0].statusTurns, 3);
+// Sleep burns on the ACTION ATTEMPT (Gen 8), so Early Bird's double
+// decrement rides the gate now, not the turn boundary. The boundary must
+// leave the counter alone in every variant.
 const earlyBirdSleep = state();
 earlyBirdSleep.sides.ai.party[0].ability = 'Early Bird';
 earlyBirdSleep.sides.ai.party[0].status = 'slp';
 earlyBirdSleep.sides.ai.party[0].statusTurns = 3;
-const earlyBirdNextTurn = beginNextTurn(earlyBirdSleep);
-assert.equal(earlyBirdNextTurn.sides.ai.party[0].statusTurns, 1);
-assert.equal(beginNextTurn(earlyBirdNextTurn).sides.ai.party[0].status, '');
+earlyBirdSleep.sides.ai.party[0].moves = [{name: 'Tackle', pp: 35, maxPP: 35}];
+assert.equal(beginNextTurn(earlyBirdSleep).sides.ai.party[0].statusTurns, 3,
+  'the boundary no longer decrements sleep');
+const earlyBirdAttempt = deriveMoveResolution(earlyBirdSleep,
+  enumerateMoveActions(earlyBirdSleep)[0], {hit: true});
+assert.equal(earlyBirdAttempt.statusTurnsByPokemon?.['ai-1'], 1,
+  'Early Bird burns two counter points on the attempt');
 const earlyBirdGen2 = {...earlyBirdSleep, generation: 2 as BattleState['generation']};
-assert.equal(beginNextTurn(earlyBirdGen2).sides.ai.party[0].statusTurns, 2);
+const gen2Attempt = deriveMoveResolution(earlyBirdGen2,
+  enumerateMoveActions(earlyBirdGen2)[0], {hit: true});
+assert.equal(gen2Attempt.statusTurnsByPokemon?.['ai-1'], 2,
+  'Early Bird is single-decrement before gen 3');
 const suppressedEarlyBird = {...earlyBirdSleep, sides: {...earlyBirdSleep.sides,
   ai: {...earlyBirdSleep.sides.ai, party: earlyBirdSleep.sides.ai.party.map(pokemon => ({
     ...pokemon, abilitySuppressed: true,
   }))},
 }};
-assert.equal(beginNextTurn(suppressedEarlyBird).sides.ai.party[0].statusTurns, 2);
+const suppressedAttempt = deriveMoveResolution(suppressedEarlyBird,
+  enumerateMoveActions(suppressedEarlyBird)[0], {hit: true});
+assert.equal(suppressedAttempt.statusTurnsByPokemon?.['ai-1'], 2,
+  'a suppressed Early Bird decrements once');
 
 const naturePowerState = state();
 naturePowerState.sides.ai.party[0].moves = [{name: 'Nature Power'}];
