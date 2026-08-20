@@ -503,6 +503,11 @@ export interface DamageFacts {
   critMax?: number;
   /** Number of sequential hits represented by the per-hit rolls. */
   hits?: number;
+  /** The [min, max] hit count of a VARIABLE multi-hit move. Present only
+   * when the count is rolled: `hits` carries the calculator's fixed pin of
+   * 3, while `min`/`max` span this range instead. Absent when the count is
+   * fixed (Skill Link, Triple Axel, a single hit). */
+  hitRange?: [number, number];
   /** Independent per-hit roll distributions, used by calculator split-hit effects such as Parental Bond. */
   hitRolls?: number[][];
   min: number;

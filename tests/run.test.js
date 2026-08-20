@@ -735,7 +735,15 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	const funded = run.apply(state, {kind: 'acquire', item: 'Heart Scale'});
 	const paid = run.adviseUpgrades(funded, 'Youngster Calvin');
 	assert.equal(paid.upgrades[0].detail, 'Bullet Seed (one Heart Scale)');
-	assert.equal(paid.upgrades[0].delta.koGained, 1);
+	// koGained is 0, not 1. Bullet Seed hits 2-5 times, and 35% of the time it
+	// hits twice. A KO that needs three hits is not one the board may promise,
+	// so the credit is damage, not a KO. This assertion read 1 while the
+	// damage facts were built on the calculator's fixed pin of three hits —
+	// it was pricing a KO the game misses better than a third of the time.
+	assert.equal(paid.upgrades[0].delta.koGained, 0,
+		'a 2-5 hit move never guarantees a KO on its floor of two hits');
+	assert.ok(paid.upgrades[0].delta.damage > paid.upgrades[1].delta.damage * 2,
+		'it still leads, and by a wide margin — on damage it can actually promise');
 
 	// The teach command charges the same price: refused broke, paid funded,
 	// and a move with any free route (Play Rough is also a TM) stays free.

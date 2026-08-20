@@ -74,9 +74,10 @@ as ONE wave with a single golden regen; [stream-safe] can land anytime.
 
 **D11. Sandstorm and hail chip ignore ability immunities — in a permanent-weather hack. [stream-safe]**
 - Location: `ai/src/end-turn.ts:84-98` (only Overcoat/Magic Guard/Safety Goggles + types exempt; grep confirms sandveil/sandrush/sandforce/icebody/snowcloak/slushrush appear in no damage-immunity check).
-- Does vs should: Gen 8: Sand Veil/Sand Rush/Sand Force take no sand chip; Ice Body/Snow Cloak/Slush Rush take no hail chip. Concrete verified failure: Ice Body is charged -1/16 at `:93` and credited +1/16 at `:455-456`, netting 0 instead of +1/16.
+- Does vs should: Gen 8: Sand Veil/Sand Rush/Sand Force take no sand chip; Ice Body/Snow Cloak take no hail chip. Concrete verified failure: Ice Body is charged -1/16 at `:93` and credited +1/16 at `:455-456`, netting 0 instead of +1/16.
+- **Correction (2026-08-20).** This entry first read "Ice Body/Snow Cloak/**Slush Rush** take no hail chip", and the fix shipped that way. Hail is not symmetric with sand: sand exempts all three of its abilities, hail exempts only two. Slush Rush doubles Speed and grants no immunity — `ai/src/abilities.ts` and `ai/src/order.ts` only ever gave it a speed effect. Removed; `weather-berry-spore.test.ts` now pins Slush Rush taking the chip in both weathers.
 - Impact: R&B ability weather is PERMANENT (doc), so enemy Sand Rush/Ice Body mons are mis-chipped every turn all fight — your kill calcs run against phantom-lowered HP.
-- Fix: add the three-ability check to each branch; gate Sand Veil's immunity on `generation >= 4` (immunity began Gen 4; `hasAbility` alone would wrongly grant it in Gen 3).
+- Fix: add the three sand abilities to the sand branch and the two ice ones to the hail branch; gate Sand Veil's immunity on `generation >= 4` (immunity began Gen 4; `hasAbility` alone would wrongly grant it in Gen 3).
 
 **D12. Action-gate order: paralysis checked before confusion/infatuation. [stream-shape]**
 - Location: `ai/src/move-engine.ts:890-903` (order: flinch -> sleep -> freeze -> par -> confusion -> infatuation).

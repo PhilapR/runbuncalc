@@ -41,9 +41,14 @@ const factsState = state();
 const factsAction = move(factsState);
 const facts = calculateActionFacts(factsState, factsAction);
 assert.equal(facts.isMultiHit, true);
+// Scale Shot is a 2-5 hit move. `hits` carries the calculator's fixed pin of
+// three, which is what the sampler falls back to; the BOUNDS span the range
+// the engine actually rolls. Asserting min/max at three hits — as this did —
+// pinned the calculator's display convention as if it were the game.
 assert.equal(facts.damage?.hits, 3);
-assert.equal(facts.damage?.min, facts.damage!.rolls[0] * 3);
-assert.equal(facts.damage?.max, facts.damage!.rolls[facts.damage!.rolls.length - 1] * 3);
+assert.deepEqual(facts.damage?.hitRange, [2, 5]);
+assert.equal(facts.damage?.min, facts.damage!.rolls[0] * 2);
+assert.equal(facts.damage?.max, facts.damage!.rolls[facts.damage!.rolls.length - 1] * 5);
 
 // Two engine draws precede the damage rolls now: the variable multi-hit
 // COUNT (D2) and the critical-hit event (D1). 0.5 holds the count at three

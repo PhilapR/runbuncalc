@@ -96,9 +96,11 @@ function weatherDamage(state: BattleState, pokemon: PokemonState, types: string[
   if (state.generation >= 3 && state.field.weather === 'Hail' && state.generation < 9 &&
     !hasType(types, 'Ice')) {
     // Ice Body nets +1/16 (was charged the chip AND credited the heal,
-    // netting zero); Snow Cloak and Slush Rush take no hail chip either.
-    if (hasAbility(state, pokemon, 'icebody') || hasAbility(state, pokemon, 'snowcloak') ||
-      hasAbility(state, pokemon, 'slushrush')) return 0;
+    // netting zero); Snow Cloak is exempt too. Hail is NOT symmetric with
+    // sand: sand exempts all three of its abilities, hail exempts only these
+    // two. Slush Rush doubles Speed and grants no immunity — it is listed
+    // with the sand abilities above by mistake in older notes.
+    if (hasAbility(state, pokemon, 'icebody') || hasAbility(state, pokemon, 'snowcloak')) return 0;
     return Math.max(1, Math.floor(pokemon.hp.max / 16));
   }
   return 0;

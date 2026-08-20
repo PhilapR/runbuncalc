@@ -36,6 +36,13 @@ assert.equal(hpDelta(base('Run Away', 'Sand')), -6, 'the control still takes 1/1
 assert.equal(hpDelta(base('Ice Body', 'Hail', undefined, 50)), 6,
   'Ice Body heals 1/16 in hail instead of netting zero');
 assert.equal(hpDelta(base('Snow Cloak', 'Hail')), 0, 'Snow Cloak is hail-immune');
+// Hail is NOT symmetric with sand. Sand exempts all three of its abilities
+// (Sand Veil, Sand Rush, Sand Force); hail exempts only Ice Body and Snow
+// Cloak. Slush Rush is a speed ability and nothing else, so it takes the chip.
+assert.equal(hpDelta(base('Slush Rush', 'Hail')), -6,
+  'Slush Rush has no hail immunity in Gen 8');
+assert.equal(hpDelta(base('Slush Rush', 'Sand')), -6,
+  'and none in sand either — it is not a sand ability');
 // Gluttony confusion berry: fires at 1/2 HP, a full phase before 1/4.
 assert.ok(hpDelta(base('Gluttony', undefined, 'Figy Berry', 40)) >= 50,
   'Gluttony fires the confusion berry at half HP');

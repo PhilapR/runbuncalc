@@ -646,6 +646,15 @@ function validateDamageFact(value: unknown, label: string) {
     invalid(`${label}.rolls must contain finite non-negative numbers`);
   }
   if (damage.hits !== undefined) requireInteger(damage.hits, `${label}.hits`, 2, 100);
+  if (damage.hitRange !== undefined) {
+    const range = damage.hitRange;
+    if (!Array.isArray(range) || range.length !== 2) invalid(`${label}.hitRange must be a [min, max] pair`);
+    requireInteger((range as number[])[0], `${label}.hitRange[0]`, 2, 100);
+    requireInteger((range as number[])[1], `${label}.hitRange[1]`, 2, 100);
+    if ((range as number[])[0] >= (range as number[])[1]) {
+      invalid(`${label}.hitRange must widen — a fixed hit count carries no range`);
+    }
+  }
   if (damage.hitRolls !== undefined) {
     if (!Array.isArray(damage.hitRolls) || damage.hitRolls.length < 2 || damage.hitRolls.length > 100 ||
       damage.hitRolls.some(rolls => !Array.isArray(rolls) || !rolls.length ||

@@ -353,7 +353,7 @@ function mapDamageFacts(damage: DamageFacts, map: (value: number) => number): Da
       damage.targetHp,
     );
   }
-  return makeDamageFacts(damage.rolls.map(map), damage.targetHp, damage.hits || 1);
+  return makeDamageFacts(damage.rolls.map(map), damage.targetHp, damage.hits || 1, damage.hitRange);
 }
 
 function isIceFaceActive(state: BattleState, pokemon: PokemonState): boolean {
@@ -720,6 +720,7 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
     splitDamage,
     defenderState.hp.current,
     context.baseFacts.isMultiHit ? context.move.hits : 1,
+    context.baseFacts.multiHitRange,
   );
   // Every damage-shaping guard below applies to the crit distribution too:
   // Sturdy caps a crit at HP-1 exactly as it caps a normal hit, Disguise
@@ -794,6 +795,7 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
       critResult.damage as DamageInput,
       defenderState.hp.current,
       context.baseFacts.isMultiHit ? context.move.hits : 1,
+      context.baseFacts.multiHitRange,
     ));
     damage = {...damage, critRolls: critFacts.rolls, critMax: critFacts.max, critMin: critFacts.min};
   }
