@@ -2162,3 +2162,119 @@ test('evolution readiness reports the ladder and whether the run is there', () =
 	assert.equal(run.evolutionReadiness(leveled, monId).evolutions[0].ready, true,
 		'reaching the level flips readiness');
 });
+
+test('the safety path refuses an empty party and names who a crit can kill', () => {
+	let state = fresh();
+	assert.throws(() => run.safetyPath(state, 'Bug Catcher Rick'),
+		/party is empty/, 'nothing to make safe without a party');
+
+	state = run.apply(state, owned({kind: 'catch', species: 'Mudkip', level: 5}));
+	state = run.apply(state, owned({kind: 'catch', species: 'Poochyena', level: 5}));
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+	const answer = run.safetyPath(state, 'Bug Catcher Rick');
+	assert.equal(answer.trainer, 'Bug Catcher Rick');
+	// Pineco's crit exceeds Poochyena's whole HP bar at this cap; Mudkip's it
+	// does not. The exposure list is the fight's honest death list.
+	const exposedSpecies = answer.exposed.map(entry => entry.species);
+	assert.ok(exposedSpecies.includes('Poochyena'),
+		'Poochyena dies to a crit here and must be listed');
+	assert.ok(!exposedSpecies.includes('Mudkip'),
+		'Mudkip survives every crit in this fight');
+	const killer = answer.exposed.find(entry => entry.species === 'Poochyena').killers[0];
+	assert.equal(typeof killer.enemy, 'string');
+	assert.equal(typeof killer.move, 'string');
+});
+
+test('the safety path answers with an assignment when no build fixes a fight', () => {
+	let state = fresh();
+	state = run.apply(state, owned({kind: 'catch', species: 'Mudkip', level: 5}));
+	state = run.apply(state, owned({kind: 'catch', species: 'Poochyena', level: 5}));
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+	const answer = run.safetyPath(state, 'Bug Catcher Rick');
+	// No teachable move changes what a Pokemon TAKES, so the real answer to a
+	// crit that outdamages a whole HP bar is who to send instead.
+	assert.ok(answer.coverage.length > 0, 'a lethal fight must name its coverage');
+	const row = answer.coverage[0];
+	assert.ok(row.kills.length > 0, 'a coverage row exists because someone dies');
+	assert.ok(row.answers.length === 0 || typeof row.bestAnswer === 'string');
+	if (row.bestAnswer) {
+		assert.ok(!row.kills.includes(row.bestAnswer),
+			'the answer to an enemy is never someone that enemy kills');
+		assert.ok(row.bestAnswerCrit < 100,
+			'a safe answer survives the crit it is answering');
+	}
+	// Every step, if any, must actually reduce lethality and price itself.
+	answer.steps.forEach(step => {
+		assert.ok(step.removes > 0, 'a step that removes nothing is not a step');
+		assert.ok(Array.isArray(step.path) && step.path.length >= 1);
+		assert.equal(typeof step.cost, 'string');
+	});
+});
+
+test('the lethality rule credits an outspeeding floor KO and nothing weaker', () => {
+	// Tested directly because a scan of the whole run map found no live
+	// pairing that exercises this branch: the condition needs a Pokemon that
+	// floor-KOs its opponent AND would die to that opponent's crit. The rule
+	// decides every 'exposed' verdict in the app, so it is pinned here rather
+	// than left to a fixture that does not reach it.
+	const lethalCrit = {critKO: true, critMax: 1.4, move: 'Bite'};
+	assert.equal(run.pairingLethal(
+		{them: lethalCrit, us: {min: 1.05}, speed: 'faster'}), false,
+	'outspeeding with a floor KO means the crit never lands');
+	assert.equal(run.pairingLethal(
+		{them: lethalCrit, us: {min: 1.05}, speed: 'tie'}), true,
+	'a speed tie is not outspeeding');
+	assert.equal(run.pairingLethal(
+		{them: lethalCrit, us: {min: 1.05}, speed: 'slower'}), true,
+	'slower means they swing first');
+	assert.equal(run.pairingLethal(
+		{them: lethalCrit, us: {min: 0.99}, speed: 'faster'}), true,
+	'a 99% floor is not a KO — the roll can leave them alive to crit back');
+	assert.equal(run.pairingLethal(
+		{them: {critKO: false, critMax: 0.5}, us: {min: 0.1}, speed: 'slower'}), false,
+	'a crit that cannot kill is not a lethal pairing');
+	assert.equal(run.pairingLethal(null), false, 'a missing pairing is not lethal');
+});
+
+test('a clean fight reports no exposure, coverage or steps', () => {
+	// A Pokemon that outspeeds and KOs on its WORST roll is never hit, so the
+	// crit that would have killed it never happens. This is the model
+	// decision that makes teaching a move able to buy survival at all; if it
+	// regresses, the safety path silently reports fights as lethal that are
+	// not, and every 'nothing fixes this' answer becomes untrustworthy.
+	let state = fresh();
+	state = run.apply(state, owned({kind: 'catch', species: 'Mudkip', level: 5,
+		ivs: PERFECT_IVS}));
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+	const capped = run.safetyPath(state, 'Youngster Calvin');
+	// Calvin's team cannot crit-kill a capped Mudkip; the fight is clean.
+	assert.deepEqual(capped.exposed, [], 'no exposure means no death list');
+	assert.deepEqual(capped.coverage, [], 'no exposure means nothing to cover');
+	assert.deepEqual(capped.steps, [], 'a safe fight needs no steps');
+	assert.ok(Array.isArray(capped.openRoutes), 'unspent routes are always reported');
+});
+
+test('one bag cannot fund two Pokemon', () => {
+	// Tested directly, for the same reason the lethality rule is: the search
+	// only reaches this ledger when an ITEM step removes a lethal branch, and
+	// no live fixture currently produces one. The rule still decides who gets
+	// the run's only Oran Berry, so it is pinned here rather than left to a
+	// fixture that never exercises it.
+	const bag = {'Oran Berry': 1, Potion: 2};
+	assert.equal(run.affordableFromBag(['Oran Berry'], bag), true);
+	assert.equal(run.affordableFromBag(['Oran Berry', 'Oran Berry'], bag), false,
+		'one berry cannot be claimed twice inside a single option');
+	assert.equal(run.affordableFromBag(['Potion', 'Potion'], bag), true,
+		'two of a doubled item is affordable');
+	assert.equal(run.affordableFromBag(['Potion', 'Potion', 'Potion'], bag), false);
+	assert.equal(run.affordableFromBag(['Max Revive'], bag), false,
+		'an item the bag does not hold is never affordable');
+	assert.equal(run.affordableFromBag([], bag), true, 'a stepless option is free');
+
+	// Spending is what makes the SECOND Pokemon unable to claim the same one.
+	const ledger = Object.assign({}, bag);
+	run.spendFromBag(['Oran Berry'], ledger);
+	assert.equal(ledger['Oran Berry'], 0);
+	assert.equal(run.affordableFromBag(['Oran Berry'], ledger), false,
+		'once spent, the berry is gone for everyone else');
+});
