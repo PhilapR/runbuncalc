@@ -2367,6 +2367,10 @@ table.field {
 	margin: var(--rb-space-xs) 0 0 var(--rb-space-md);
 	font-size: var(--rb-text-body);
 }
+#runbun-run .runbun-run-survival-coverage {
+	margin: var(--rb-space-xs) 0 0 var(--rb-space-md);
+	font-size: var(--rb-text-body);
+}
 #runbun-run .runbun-run-survival-leads {
 	margin: var(--rb-space-xs) 0 0;
 	font-size: var(--rb-text-body);

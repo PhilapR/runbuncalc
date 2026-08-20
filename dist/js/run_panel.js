@@ -2401,6 +2401,24 @@
 					}).slice(0, 2).join(' or ') +
 					(entry.killers.length > 2 ? ' (+' + (entry.killers.length - 2) + ')' : '');
 			}).join(' · ')));
+		// The assignment answer first: when their crit outdamages a whole HP
+		// bar, the fix is not a build — it is who you send in.
+		if (answer.coverage && answer.coverage.length) {
+			$block.append($('<p class="runbun-run-survival-label"></p>')
+				.text('Who can face them and live'));
+			var $cover = $('<ul class="runbun-run-survival-coverage"></ul>');
+			answer.coverage.forEach(function (row) {
+				$cover.append($('<li></li>').text(
+					row.enemy + ' kills ' + row.kills.join(', ') + ' — ' +
+					(row.bestAnswer ?
+						'send ' + row.bestAnswer + ' (takes ' + row.bestAnswerCrit +
+							'% on a crit)' +
+							(row.answers.length > 1 ?
+								', or ' + row.answers.slice(1).join(', ') : '') :
+						'nobody in this party survives it')));
+			});
+			$block.append($cover);
+		}
 		if (answer.steps && answer.steps.length) {
 			$block.append($('<p class="runbun-run-survival-label"></p>')
 				.text('What removes a lethal branch'));
@@ -2408,6 +2426,8 @@
 			answer.steps.slice(0, 4).forEach(function (step) {
 				$list.append($('<li></li>').text(
 					step.species + ': ' + step.detail +
+					(step.path && step.path.length > 1 ?
+						' (' + step.path.length + ' steps)' : '') +
 					' — removes ' + step.removes + ' lethal ' +
 					(step.removes === 1 ? 'matchup' : 'matchups') +
 					(step.remaining ? ', ' + step.remaining + ' still lethal' : ', none left') +
