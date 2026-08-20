@@ -32,6 +32,19 @@ const maps = profiles.getProfile('run-and-bun').oracle.maps();
  * there, so each one needs a reason a human gave, not an inference.
  */
 const OVERRIDES = {
+	MAP_ROUTE109: {
+		opensAt: 42,
+		why: 'Philip, from play: Route 109 is available post Granite Cave — the ' +
+			'Route 107/106 land trainers — and Slateport is post Route 109. The ' +
+			"transcribed 29 put it BEFORE Route 107's own trainers, which run to " +
+			'37, so the tool offered the beach before the stretch that gates it. ' +
+			'42 is the first fight past 37. Smallant\'s community encounter ' +
+			'template (Run & Bun Encounters Template, sheet order) agrees: ' +
+			"Route 104, Dewford, 107, 106, Granite Cave 1F/B1F/B2F, Steven's " +
+			'Room, THEN Route 109, then Slateport. Slateport already sits at 48 ' +
+			'and needs no move once 109 lands at 42.',
+		was: 29,
+	},
 	MAP_PETALBURG_CITY: {
 		opensAt: 11,
 		why: 'Philip, from play: Petalburg is not immediately available. From ' +
@@ -66,7 +79,8 @@ function build() {
 		});
 	}
 
-	for (const [mapId, override] of Object.entries(OVERRIDES)) {
+	for (const mapId of Object.keys(OVERRIDES)) {
+		const override = OVERRIDES[mapId];
 		const entry = byMap.get(mapId);
 		if (!entry || entry.opensAt === override.opensAt) continue;
 		changed.push({
