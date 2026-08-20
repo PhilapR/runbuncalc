@@ -56,10 +56,10 @@
       "line": 4765,
       "claim": "There are two disjoint representations of 'this was a crit'. A sampled crit sets criticalHitTargets but never fires Anger Point; a guaranteed crit fires Anger Point but never appears in the log.",
       "verdict": "confirmed",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "Probed. Machamp Tackle vs Anger Point Tauros, crit sampled: criticalHitTargets=[\"player-1\"], boosts=undefined. Storm Throw (always-crit): criticalHitTargets=undefined, boosts={\"player-1\":{\"atk\":6}}. The 1/16 event Anger Point exists for cannot trigger it."
+      "status": "fixed",
+      "fixed_in": "0ff6e6a",
+      "falsified": 1,
+      "evidence": "Probed. Machamp Tackle vs Anger Point Tauros, crit sampled: criticalHitTargets=[\"player-1\"], boosts=undefined. Storm Throw (always-crit): criticalHitTargets=undefined, boosts={\"player-1\":{\"atk\":6}}. The 1/16 event Anger Point exists for cannot trigger it. Fixed in 0ff6e6a. Both paths now record into criticalHitTargets and Anger Point reads the resolved answer per target, so a spread move can crit one side only. The facts stay as a fallback for callers that supply damage directly instead of sampling."
     },
     {
       "id": "one-crit-draw-covers-every-hit",
@@ -71,10 +71,10 @@
       "line": 49,
       "claim": "criticalByTarget is one boolean per target, so a single crit draw applies to every hit of a multi-hit move. Mainline rolls the crit per hit.",
       "verdict": "confirmed",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "Probed Rock Blast: crit forced gives all hits identical, no-crit gives all hits identical — never mixed. Real 5-hit P(at least one crit) is 27.6% spread across 1-5 crit hits; this engine gives 6.25% all-five and 93.75% none. The mean survives, the distribution does not."
+      "status": "fixed",
+      "fixed_in": "0ff6e6a",
+      "falsified": 1,
+      "evidence": "Probed Rock Blast: crit forced gives all hits identical, no-crit gives all hits identical — never mixed. Real 5-hit P(at least one crit) is 27.6% spread across 1-5 crit hits; this engine gives 6.25% all-five and 93.75% none. The mean survives, the distribution does not. Fixed in 0ff6e6a. Measured after: 30.1% of five-hit Rock Blasts crit over 627 samples against a theoretical 27.6% (1.4 standard errors), with zero all-five crits. The test classifies hits by damage band — ordinary 37-44, crit 56-66, disjoint — because an earlier version counted distinct damage values, which vary from ordinary roll spread regardless, and stayed green when hit 0's flag was applied to all five."
     },
     {
       "id": "sleep-talk-free-turn-on-wake",
@@ -179,7 +179,7 @@
       "status": "open",
       "fixed_in": null,
       "falsified": 0,
-      "evidence": null
+      "evidence": "Widened by 0ff6e6a: a variable multi-hit now draws N crits instead of 1, so seeded replay of any multi-hit move diverges from receipts written before it. Still only schemaVersion is checked."
     },
     {
       "id": "flinch-truant-preempt-sleep-burn",
