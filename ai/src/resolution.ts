@@ -28,7 +28,7 @@ export function sampleDamageResolution(
   action: Extract<MoveAction, {kind: 'move'}>,
   facts: ActionFacts,
   random: () => number = Math.random,
-  criticalByTarget: Record<string, boolean> = {},
+  criticalByTarget: Record<string, boolean[]> = {},
   hitCountOverride?: number,
 ): MoveResolution {
   const damageByTarget: Record<string, number> = {};
@@ -42,11 +42,14 @@ export function sampleDamageResolution(
       (action.targetIds.length === 1 ? facts.damage : undefined);
     if (!targetFacts) continue;
     const hitCount = hitCountOverride ?? targetFacts.hits ?? 1;
-    const critical = criticalByTarget[targetId] === true;
+    // One flag per hit. A shared boolean made every hit of a multi-hit move
+    // crit together or not at all.
+    const criticalHits = criticalByTarget[targetId] || [];
     const hits = targetFacts.hitRolls
       ? targetFacts.hitRolls.map(rolls => pickRoll({rolls, min: 0, max: 0, targetHp: 0,
         possibleKO: false, guaranteedKO: false}, random))
-      : Array.from({length: hitCount}, () => pickRoll(targetFacts, random, critical));
+      : Array.from({length: hitCount}, (unused, index) =>
+        pickRoll(targetFacts, random, criticalHits[index] === true));
     const damage = hits.reduce((total, hit) => total + hit, 0);
     damageByTarget[targetId] = damage;
     damageRollsByTarget[targetId] = damage;

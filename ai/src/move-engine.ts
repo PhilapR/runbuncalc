@@ -4001,17 +4001,38 @@ export function deriveMoveResolution(
       const draw = sampleActionRoll(random, 'Multi-hit count');
       hitCountOverride = draw < 0.35 ? 2 : draw < 0.7 ? 3 : draw < 0.85 ? 4 : 5;
     }
-    const criticalByTarget: Record<string, boolean> = {};
+    // One crit decision PER HIT, not per target. Mainline calls getDamage
+    // inside hitStepMoveHitLoop, so a five-hit Rock Blast gets five 1/16
+    // draws: P(at least one crit) is 1-(15/16)^5 = 27.6%, spread across one
+    // to five critting hits. A single shared draw gives 6.25% all-five and
+    // 93.75% none — the mean survives, the distribution does not, and the
+    // tail this tool exists to plan against is the part that goes wrong.
+    const criticalByTarget: Record<string, boolean[]> = {};
     const critStage = resolutionFacts.attackerCriticalHitStage ?? 0;
     const critChance = critStage >= 3 ? 1 : critStage === 2 ? 0.5 : critStage === 1 ? 0.125 : 1 / 16;
+    const critGuaranteed = resolutionFacts.criticalHit === true ||
+      resolutionFacts.criticalHitGuaranteed === true;
     for (const targetId of actionForTargets.targetIds) {
       const targetFacts = resolutionFacts.damageByTarget?.[targetId] ||
         (actionForTargets.targetIds.length === 1 ? resolutionFacts.damage : undefined);
-      if (!targetFacts?.critRolls?.length) continue;
-      if (sampleActionRoll(random, 'Critical hit') < critChance) criticalByTarget[targetId] = true;
+      if (!targetFacts) continue;
+      const hitCount = hitCountOverride ?? targetFacts.hits ?? 1;
+      if (critGuaranteed) {
+        // Laser Focus and the always-crit four. The calculator already
+        // returned crit damage as `rolls`, so there is nothing to draw and
+        // nothing to multiply — but the crit still HAPPENED, and both the
+        // log and Anger Point were blind to it because this path recorded
+        // nothing. No draw here keeps the seeded sequence unchanged.
+        criticalByTarget[targetId] = new Array(hitCount).fill(true);
+        continue;
+      }
+      if (!targetFacts.critRolls?.length) continue;
+      criticalByTarget[targetId] = Array.from({length: hitCount}, () =>
+        sampleActionRoll(random, 'Critical hit') < critChance);
     }
     const sampled = sampleDamageResolution(actionForTargets, resolutionFacts, random, criticalByTarget, hitCountOverride);
-    const criticalTargets = Object.keys(criticalByTarget);
+    const criticalTargets = Object.keys(criticalByTarget)
+      .filter(targetId => criticalByTarget[targetId].some(Boolean));
     resolution.damageByTarget = sampled.damageByTarget;
     resolution.hitDamageByTarget = sampled.hitDamageByTarget;
     resolution.trace = {
@@ -4777,9 +4798,20 @@ export function deriveMoveResolution(
       }
     }
   }
-  const criticalHit = resolutionFacts?.criticalHit === true || resolutionFacts?.criticalHitGuaranteed === true;
+  // Anger Point needs to know whether a crit ACTUALLY LANDED on this target.
+  // Reading only the facts made it blind to every sampled crit — the 1/16
+  // event the ability exists for — while still firing on the guaranteed
+  // ones. criticalHitTargets is the resolved answer and is now set on both
+  // paths; the facts stay as the fallback for callers that supply damage
+  // directly instead of sampling it.
+  const criticalTargetIds = new Set(resolution.criticalHitTargets || []);
+  const criticalHit = criticalTargetIds.size > 0 ||
+    resolutionFacts?.criticalHit === true || resolutionFacts?.criticalHitGuaranteed === true;
   if (criticalHit && resolution.hit !== false) {
     for (const targetId of targetIds) {
+      // With a resolved answer available, only the targets it names crit —
+      // a spread move can crit one side and not the other.
+      if (criticalTargetIds.size && !criticalTargetIds.has(targetId)) continue;
       const target = getPokemon(state, targetId);
       if (!target || target.id === actor.id || !hasAbility(state, target, 'angerpoint') ||
         ignoresTargetAbility(state, actor.id, target.id, moveCategory)) continue;

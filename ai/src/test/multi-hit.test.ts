@@ -50,17 +50,21 @@ assert.deepEqual(facts.damage?.hitRange, [2, 5]);
 assert.equal(facts.damage?.min, facts.damage!.rolls[0] * 2);
 assert.equal(facts.damage?.max, facts.damage!.rolls[facts.damage!.rolls.length - 1] * 5);
 
-// Two engine draws precede the damage rolls now: the variable multi-hit
-// COUNT (D2) and the critical-hit event (D1). 0.5 holds the count at three
-// (this fixture's expectation) and 0.9 declines the crit, so the per-hit
-// assertions below still read the ordinary roll table.
-// Parental Bond is not a variable multi-hit, so it draws only the crit.
+// Engine draws precede the damage rolls: the variable multi-hit COUNT (D2)
+// once, then the critical-hit event ONCE PER HIT — mainline rolls the crit
+// inside the hit loop, so a three-hit move gets three 1/16 draws, not one.
+// 0.5 holds the count at three (this fixture's expectation) and each 0.9
+// declines that hit's crit, so the per-hit assertions below still read the
+// ordinary roll table. A preamble that is one short lets the remaining hits
+// crit, which is what caught this when the per-hit draw landed.
+// Parental Bond is not a variable multi-hit, so it draws no count — but it
+// is two hits, so it still draws two crits.
 const noCrit = (rest: number, preamble: number[] = [0.9]) => {
   let index = 0;
   return () => (index < preamble.length ? preamble[index++] : rest);
 };
 const sampled = deriveMoveResolution(factsState, factsAction, {
-  facts, hit: true, random: noCrit(0, [0.5, 0.9]),
+  facts, hit: true, random: noCrit(0, [0.5, 0.9, 0.9, 0.9]),
 });
 validateMoveEngineOptions(factsState, factsAction, {facts});
 validateMoveResolution(factsState, factsAction, sampled);
@@ -99,7 +103,7 @@ assert.equal(parentalFacts.damage?.hitRolls?.length, 2);
 assert.equal(parentalFacts.damage?.min,
   parentalFacts.damage!.hitRolls!.reduce((total, rolls) => total + Math.min(...rolls), 0));
 const parentalResolution = deriveMoveResolution(parentalState, parentalAction, {
-  facts: parentalFacts, hit: true, random: noCrit(0),
+  facts: parentalFacts, hit: true, random: noCrit(0, [0.9, 0.9]),
 });
 assert.deepEqual(parentalResolution.hitDamageByTarget?.['player-1'], [
   parentalFacts.damage!.hitRolls![0][0], parentalFacts.damage!.hitRolls![1][0],
