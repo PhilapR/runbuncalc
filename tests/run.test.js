@@ -2325,3 +2325,56 @@ test('one bag cannot fund two Pokemon', () => {
 	assert.equal(run.affordableFromBag(['Oran Berry'], ledger), false,
 		'once spent, the berry is gone for everyone else');
 });
+
+test('a location the data cannot date is reported, never silently dropped', () => {
+	// availability.json dates a location by its FIRST TRAINER. Anywhere
+	// without one — Oldale Town, the whole Safari Zone, Fiery Path, Sky
+	// Pillar, Altering Cave — gets no date at all, and unusedRoutes used to
+	// leave `open` unset for those. Every consumer filters on `route.open`,
+	// and undefined is falsy, so 18 of 69 locations vanished from every
+	// answer at every point in the run. Twelve of them have walk encounters.
+	// Oldale Town is one of the first places a run can catch anything and the
+	// scout would never once mention it.
+	const state = fresh({permadeath: true});
+	const routes = run.unusedRoutes(state).routes;
+
+	const oldale = routes.find(route => route.name === 'Oldale Town');
+	assert.ok(oldale, 'Oldale Town is in the wild tables');
+	assert.equal(oldale.undated, true, 'and it is reported as undated');
+	assert.equal(oldale.opensAt, undefined, 'because nothing dates it');
+	// Undated is not open. Claiming it were would send a fresh run to Sky
+	// Pillar, which is the same error in the other direction.
+	assert.ok(!oldale.open, 'undated is not a licence to call it open');
+
+	const dated = routes.find(route => route.name === 'Route101');
+	assert.equal(dated.opensAt, 0, 'a dated route still carries its date');
+	assert.equal(dated.open, true, 'and Route 101 is open on turn one');
+	assert.equal(dated.undated, undefined, 'a dated route is not flagged undated');
+
+	// The scout counts them out loud. This is the assertion that would have
+	// caught the original bug: the answer must account for every location it
+	// did not scan, the way it already accounts for held ones.
+	const scouted = run.adviseCatches(state, 'Youngster Calvin');
+	const undatedRoutes = routes.filter(route => route.undated);
+	assert.ok(undatedRoutes.length > 0, 'the fixture must have undated locations');
+	assert.equal(scouted.undated.count, undatedRoutes.length,
+		'the scout reports exactly the locations it could not date');
+	assert.ok(scouted.undated.routes.includes('Oldale Town'),
+		'and names Oldale Town among them');
+	assert.match(scouted.undated.why, /first trainer/,
+		'and says why, so the gap reads as missing data rather than as an empty map');
+
+	// The count has to TRACK, not be a constant that happens to match today's
+	// data — asserting it against the current 18 passes just as well when the
+	// number is hardcoded. Catching on an undated location spends it, so the
+	// count must fall and that location must leave the list. This also proves
+	// the underlying tables were fine all along: the catch is accepted, the
+	// tool simply never offered it.
+	const spent = run.apply(state,
+		owned({kind: 'catch', species: 'Ponyta', map: 'Oldale Town', level: 3}));
+	const after = run.adviseCatches(spent, 'Youngster Calvin');
+	assert.equal(after.undated.count, scouted.undated.count - 1,
+		'spending an undated location drops it from the count');
+	assert.ok(!after.undated.routes.includes('Oldale Town'),
+		'and it is no longer named as unscanned');
+});
