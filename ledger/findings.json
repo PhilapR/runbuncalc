@@ -525,6 +525,21 @@
       "fixed_in": null,
       "falsified": 0,
       "evidence": "Counted directly: 123 oracle locations, 83 dated entries, 40 undated. d2a77a9 makes the gap visible rather than silent, but does not close it. Hand-dating needs Philip's call — the file's provenance is 'transcribed', and only Littleroot Town (the starting town) and Oldale Town (walked through in the first minutes) look certain enough to assert without a source."
+    },
+    {
+      "id": "fishing-not-gated-on-a-rod",
+      "source": "review/ui-walkthrough",
+      "raised_on": "2026-08-20",
+      "severity": "high",
+      "area": "solver",
+      "file": "profiles/run-and-bun/oracle/availability.json",
+      "line": null,
+      "claim": "Fishing is gated at order 0 and no rod is modelled, so every rod-only encounter is offered as 'Catchable now' from the very first fight — including locations whose ONLY current encounters are rod-gated.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "Walked the running app. Littleroot Town at fight 0 shows 'Catchable now - 4': Surskit, Lotad, Finneon, Tympole, all labelled Super Rod. Philip's account of the route is that the rod comes from Route 103, so at fight 0 none of those are catchable. availability.json methods reads {walk:0, fish:0, surf:589, rock-smash:139}; lib/run.js contains zero mentions of Old/Good/Super Rod and no rod gate. All 336 fish slots in the game are Super Rod, so one gate would cover every one of them. At fight 0 both Littleroot Town and Route103 offer ONLY rod-gated encounters as available now. Same shape as the Petalburg City defect: the tool offers work the player cannot do yet. Needs Philip's call on the order the rod becomes available before it can be fixed."
     }
   ]
 }
