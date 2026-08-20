@@ -151,3 +151,36 @@ test('the game surface types from the four-step scale, never raw small rems', ()
 	assert.match(mainCss, /#runbun-run th\s*\{\s*font-size:\s*inherit;/,
 		'game tables must reset the upstream th shrink');
 });
+
+test('hover styling never reaches a touch screen, and never takes focus with it', () => {
+	// `:hover` sticks after a tap on touch: the button you just pressed keeps
+	// its hover background and reads as still-selected. This app is responsive
+	// to 640px and is held while playing, so that is the common case.
+	//
+	// The gate is the codemod's own check, which counts braces rather than
+	// matching a regex — a `:hover` inside `@media (max-width: 720px)` is
+	// still an unguarded rule, and a substring search cannot see that.
+	const hover = require('../scripts/gate-hover.js');
+	const unguarded = [];
+	hover.FILES.forEach(relativePath => {
+		const css = fs.readFileSync(path.join(__dirname, '..', relativePath), 'utf8');
+		const work = hover.classify(css);
+		work.wrap.forEach(rule =>
+			unguarded.push(relativePath + ': ' + rule.selector.trim().replace(/\s+/g, ' ')));
+		work.mixed.forEach(rule =>
+			unguarded.push(relativePath + ' (needs splitting): ' +
+				rule.selector.trim().replace(/\s+/g, ' ')));
+	});
+	assert.deepEqual(unguarded, [],
+		'run `node scripts/gate-hover.js --write` — every :hover rule belongs behind @media (hover: hover)');
+
+	// The half of the rule that matters more. Six selector lists paired
+	// :hover with :focus-visible; wrapping those whole would have deleted the
+	// keyboard focus ring on every touch device, which is a worse bug than
+	// the one being fixed. The split must leave focus OUTSIDE the guard.
+	const mainCss = fs.readFileSync(path.join(__dirname, '..', 'src/css/main.css'), 'utf8');
+	for (const match of mainCss.matchAll(/@media \(hover: hover\) \{([\s\S]*?)\n\}/g)) {
+		assert.doesNotMatch(match[1], /:focus-visible/,
+			'a focus-visible selector must never sit behind the hover guard');
+	}
+});

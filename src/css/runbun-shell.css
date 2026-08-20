@@ -95,8 +95,10 @@
 	border-radius: var(--rb-radius) var(--rb-radius) 0 0;
 }
 
-.rb-mode-tab:hover {
-	color: var(--rb-ink);
+@media (hover: hover) {
+	.rb-mode-tab:hover {
+		color: var(--rb-ink);
+	}
 }
 
 .rb-mode-tab:focus-visible {
@@ -270,8 +272,10 @@ body {
 	color: var(--rb-action);
 }
 
-.credits a:hover {
-	color: var(--rb-action-hover);
+@media (hover: hover) {
+	.credits a:hover {
+		color: var(--rb-action-hover);
+	}
 }
 
 .credits .rb-footer-note {
@@ -436,9 +440,11 @@ body[data-rb-mode="tools"] .credits #sets {
 	float: none;
 }
 
-#calc #screen-calc:hover {
-	color: var(--rb-ink);
-	border-color: var(--rb-stroke-strong);
+@media (hover: hover) {
+	#calc #screen-calc:hover {
+		color: var(--rb-ink);
+		border-color: var(--rb-stroke-strong);
+	}
 }
 
 /* —— Buttons (geometry preserved; stadium colors) —— */
@@ -451,12 +457,20 @@ body[data-rb-mode="tools"] .credits #sets {
 	box-shadow: none;
 }
 
-.visually-hidden:focus + .btn,
-.btn:hover {
+.visually-hidden:focus + .btn {
 	z-index: 10;
 	border-color: var(--rb-stroke-strong);
 	background: var(--rb-surface-sunken);
 	color: var(--rb-ink);
+}
+
+@media (hover: hover) {
+	.btn:hover {
+		z-index: 10;
+		border-color: var(--rb-stroke-strong);
+		background: var(--rb-surface-sunken);
+		color: var(--rb-ink);
+	}
 }
 
 .visually-hidden:checked + .btn {
@@ -487,12 +501,14 @@ body[data-rb-mode="tools"] .credits #sets {
 	box-shadow: none;
 }
 
-.rb-btn-primary.btn:hover,
-.ai-panel .rb-btn-primary.btn:hover,
-#runbun-battle .rb-btn-primary.btn:hover {
-	background: var(--rb-action-hover);
-	border-color: var(--rb-action-hover);
-	color: var(--rb-action-ink);
+@media (hover: hover) {
+	.rb-btn-primary.btn:hover,
+	.ai-panel .rb-btn-primary.btn:hover,
+	#runbun-battle .rb-btn-primary.btn:hover {
+		background: var(--rb-action-hover);
+		border-color: var(--rb-action-hover);
+		color: var(--rb-action-ink);
+	}
 }
 
 .rb-btn-secondary.btn,
@@ -707,10 +723,12 @@ legend {
 	margin: 0 0 var(--rb-space-xs);
 }
 
-#calc .trainer-pok:hover,
-#calc .opposite-pok:hover {
-	outline: 2px solid var(--rb-action);
-	outline-offset: 1px;
+@media (hover: hover) {
+	#calc .trainer-pok:hover,
+	#calc .opposite-pok:hover {
+		outline: 2px solid var(--rb-action);
+		outline-offset: 1px;
+	}
 }
 
 /* —— Trainer Wheel (opposing party + trainer browse) —— */
@@ -755,11 +773,13 @@ legend {
 	align-self: center;
 }
 
-#calc .trainer-wheel-nav:hover,
-#calc .trainer-wheel-truck:hover {
-	border-color: var(--rb-stroke-strong);
-	background: var(--rb-surface);
-	color: var(--rb-ink);
+@media (hover: hover) {
+	#calc .trainer-wheel-nav:hover,
+	#calc .trainer-wheel-truck:hover {
+		border-color: var(--rb-stroke-strong);
+		background: var(--rb-surface);
+		color: var(--rb-ink);
+	}
 }
 
 #calc .trainer-wheel-nav:focus-visible,
@@ -898,9 +918,11 @@ legend {
 	padding: calc(0.4rem - 1px) calc(0.35rem - 1px);
 }
 
-#calc .trainer-wheel-slot:not(.is-empty):hover {
-	outline: 2px solid var(--rb-action);
-	outline-offset: 1px;
+@media (hover: hover) {
+	#calc .trainer-wheel-slot:not(.is-empty):hover {
+		outline: 2px solid var(--rb-action);
+		outline-offset: 1px;
+	}
 }
 
 #calc .trainer-wheel > hr {
@@ -1195,11 +1217,13 @@ legend {
 	cursor: pointer;
 }
 
-#dark-theme-toggle:hover,
-#side-arrow-toggle:hover,
-#double-legacy-mode:hover {
-	border-color: var(--rb-stroke-strong);
-	background: var(--rb-surface-sunken);
+@media (hover: hover) {
+	#dark-theme-toggle:hover,
+	#side-arrow-toggle:hover,
+	#double-legacy-mode:hover {
+		border-color: var(--rb-stroke-strong);
+		background: var(--rb-surface-sunken);
+	}
 }
 
 /* —— Responsive —— */

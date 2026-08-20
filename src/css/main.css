@@ -42,19 +42,32 @@ a img {
     top: -8px;
     left: -150px;
 }
-.nav .button.cur,
-.nav .button.cur:hover {
+.nav .button.cur {
     color: #777777;
     background: #f8f8f8;
     -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
-.nav .button.cur:hover {
-    border: solid 1px #888888;
+
+@media (hover: hover) {
+	.nav .button.cur:hover {
+	    color: #777777;
+	    background: #f8f8f8;
+	    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	}
 }
-.nav .button:hover {
-    z-index: 10;
+@media (hover: hover) {
+	.nav .button.cur:hover {
+	    border: solid 1px #888888;
+	}
+}
+@media (hover: hover) {
+	.nav .button:hover {
+	    z-index: 10;
+	}
 }
 .nav .button.nav-first {
     border-top-left-radius: 5px;
@@ -81,9 +94,11 @@ a img {
     border: solid 1px #AAAAAA;
     background: #e3e3e3;
 }
-.button:hover {
-    background: #cfcfcf;
-    border-color: #606060;
+@media (hover: hover) {
+	.button:hover {
+	    background: #cfcfcf;
+	    border-color: #606060;
+	}
 }
 .button:active {
     background: #f2f2f2;
@@ -93,9 +108,11 @@ a img {
     background: hsl(100,30%,93%);
     border-color: hsl(100,30%,70%);
 }
-.greenbutton:hover {
-    background: hsl(100,30%,87%);
-    border-color: hsl(100,30%,41%);
+@media (hover: hover) {
+	.greenbutton:hover {
+	    background: hsl(100,30%,87%);
+	    border-color: hsl(100,30%,41%);
+	}
 }
 .greenbutton:active {
     background: hsl(100,30%,77%);
@@ -139,9 +156,11 @@ html, body {
     box-sizing: border-box;
 }
 
-.trainer-pok:hover,  .opposite-pok:hover{
-    outline: 2px solid;
-    outline-color: #1abc9c;
+@media (hover: hover) {
+	.trainer-pok:hover,  .opposite-pok:hover{
+	    outline: 2px solid;
+	    outline-color: #1abc9c;
+	}
 }
 
 .wrapper {
@@ -206,9 +225,11 @@ th {
     font-size: 1.1em;
     margin: 0.5em 0;
 }
-.big-text #mainResult:hover {  /* indicates the presence of click-to-copy function */
-    cursor: pointer;
-    opacity: 0.7;
+@media (hover: hover) {
+	.big-text #mainResult:hover {  /* indicates the presence of click-to-copy function */
+	    cursor: pointer;
+	    opacity: 0.7;
+	}
 }
 #tooltipText {
     font-size: 0.8em;
@@ -294,11 +315,19 @@ th {
 .btn-mid {
     border-radius: 0;
 }
-.visually-hidden:focus + .btn, /* Add visual indication when focusing on visually hidden elements */
-.btn:hover {
+.visually-hidden:focus + .btn {
     z-index: 10;
     border-color: #777777;
     background: #e3e3e3;
+}
+
+@media (hover: hover) {
+	/* Add visual indication when focusing on visually hidden elements */
+.btn:hover {
+	    z-index: 10;
+	    border-color: #777777;
+	    background: #e3e3e3;
+	}
 }
 .visually-hidden:checked + .btn {
     font-weight: bold;
@@ -637,8 +666,10 @@ table.field {
     color:gray
 }
 
-.deadzone:hover{
-    background: #722323;
+@media (hover: hover) {
+	.deadzone:hover{
+	    background: #722323;
+	}
 }
 .over{
     background: #373232;
@@ -687,9 +718,11 @@ table.field {
 .info-paragraph > b{
     color: rgb(15, 14, 14);
 }
-.info-paragraph > b:hover{
-    background: var(--fieldset-color);
-    color: unset;
+@media (hover: hover) {
+	.info-paragraph > b:hover{
+	    background: var(--fieldset-color);
+	    color: unset;
+	}
 }
 
 .box-frame{
@@ -746,10 +779,12 @@ table.field {
     cursor: pointer;
 }
 
-#close-item-box:hover{
-    background-color: white;
-    overflow: auto;
+@media (hover: hover) {
+	#close-item-box:hover{
+	    background-color: white;
+	    overflow: auto;
     
+	}
 }
 
 .mdiv {
@@ -769,8 +804,10 @@ table.field {
   Z-index: 5;
 }
 
-.box-item-list>img:hover{
-    background: var(--button-hover);
+@media (hover: hover) {
+	.box-item-list>img:hover{
+	    background: var(--button-hover);
+	}
 }
 
 
@@ -1109,8 +1146,10 @@ table.field {
     font-family: var(--rb-font-mono, Consolas, Monaco, monospace);
     font-size: 0.85em;
 }
-.ai-panel-result-row:hover {
-    background: var(--rb-brand-soft, #f0f0f0);
+@media (hover: hover) {
+	.ai-panel-result-row:hover {
+	    background: var(--rb-brand-soft, #f0f0f0);
+	}
 }
 .ai-panel-result-row:focus-visible,
 #runbun-battle .runbun-battle-action-row:focus-visible {
@@ -1542,8 +1581,10 @@ table.field {
 #runbun-battle .runbun-battle-action-row:last-child {
     border-bottom: none;
 }
-#runbun-battle .runbun-battle-action-row:hover {
-    background: var(--rb-brand-soft, #f0f0f0);
+@media (hover: hover) {
+	#runbun-battle .runbun-battle-action-row:hover {
+	    background: var(--rb-brand-soft, #f0f0f0);
+	}
 }
 #runbun-battle .runbun-battle-action-selected {
     background: var(--rb-brand-soft, #e8f4ff);
@@ -2312,9 +2353,11 @@ table.field {
 #runbun-run .runbun-run-opportunity-action {
 	cursor: pointer;
 }
-#runbun-run .runbun-run-opportunity-action:hover {
-	border-color: var(--rb-action);
-	background: var(--rb-action-soft);
+@media (hover: hover) {
+	#runbun-run .runbun-run-opportunity-action:hover {
+		border-color: var(--rb-action);
+		background: var(--rb-action-soft);
+	}
 }
 #runbun-run .runbun-run-opportunity-action:focus-visible {
 	outline: 3px solid var(--rb-focus);
@@ -2547,9 +2590,14 @@ table.field {
 	text-align: left;
 	cursor: pointer;
 }
-#runbun-run .runbun-run-route-choice:hover,
 #runbun-run .runbun-run-route-choice:focus-visible {
 	border-color: var(--rb-action);
+}
+
+@media (hover: hover) {
+	#runbun-run .runbun-run-route-choice:hover {
+		border-color: var(--rb-action);
+	}
 }
 /* The card whose encounter table is on screen: a persistent state, distinct
    from the transient hover/focus ring, so "which route am I looking at?"
@@ -2606,8 +2654,10 @@ table.field {
 #runbun-run .runbun-run-mon:last-child {
 	border-bottom: 0;
 }
-#runbun-run .runbun-run-mon:hover {
-	background: var(--rb-surface-sunken);
+@media (hover: hover) {
+	#runbun-run .runbun-run-mon:hover {
+		background: var(--rb-surface-sunken);
+	}
 }
 /* A lost Pokemon stays in the box and stays readable — striking it out would
    make the one entry a nuzlocke player cares most about the hardest to read. */
@@ -2639,8 +2689,10 @@ table.field {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-#runbun-run .runbun-run-mon-name:hover {
-	color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-mon-name:hover {
+		color: var(--rb-action);
+	}
 }
 #runbun-run .runbun-run-mon-name:focus-visible {
 	outline: 2px solid var(--rb-focus);
@@ -2672,10 +2724,16 @@ table.field {
 	color: inherit;
 	cursor: pointer;
 }
-#runbun-run .runbun-run-encounter:hover,
 #runbun-run .runbun-run-encounter:focus-visible {
 	background: var(--rb-surface-sunken);
 	border-left-color: var(--rb-action);
+}
+
+@media (hover: hover) {
+	#runbun-run .runbun-run-encounter:hover {
+		background: var(--rb-surface-sunken);
+		border-left-color: var(--rb-action);
+	}
 }
 #runbun-run .runbun-run-encounters li.is-owned .runbun-run-encounter {
 	color: var(--rb-ok);
@@ -3174,9 +3232,14 @@ table.field {
 #runbun-run .runbun-history-attempt + .runbun-history-attempt {
 	border-top: 1px solid var(--rb-stroke);
 }
-#runbun-run .runbun-history-attempt-button:hover,
 #runbun-run .runbun-history-attempt-button:focus-visible {
 	background: var(--rb-surface-hover);
+}
+
+@media (hover: hover) {
+	#runbun-run .runbun-history-attempt-button:hover {
+		background: var(--rb-surface-hover);
+	}
 }
 #runbun-run .runbun-history-attempt-button:focus-visible {
 	outline: 2px solid var(--rb-focus);
@@ -3388,9 +3451,11 @@ table.field {
 	background: none;
 	color: var(--rb-ink-muted);
 }
-#runbun-run #runbun-run-undo.btn:hover {
-	color: var(--rb-ink);
-	border-color: var(--rb-stroke);
+@media (hover: hover) {
+	#runbun-run #runbun-run-undo.btn:hover {
+		color: var(--rb-ink);
+		border-color: var(--rb-stroke);
+	}
 }
 #runbun-run .runbun-run-transfer {
 	margin-top: var(--rb-space-lg);
@@ -3544,9 +3609,11 @@ table.field {
 	font-size: var(--rb-text-note);
 	cursor: pointer;
 }
-#runbun-run .runbun-run-add:hover {
-	border-color: var(--rb-action);
-	color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-add:hover {
+		border-color: var(--rb-action);
+		color: var(--rb-action);
+	}
 }
 #runbun-run .runbun-run-add.is-staged {
 	background: var(--rb-brand-soft);
@@ -3650,8 +3717,10 @@ table.field {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-#runbun-run .runbun-run-party-name:hover {
-	color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-party-name:hover {
+		color: var(--rb-action);
+	}
 }
 #runbun-run .runbun-run-party-name:focus-visible {
 	outline: 2px solid var(--rb-focus);
@@ -3669,13 +3738,17 @@ table.field {
 	cursor: pointer;
 	font-size: var(--rb-text-body);
 }
-#runbun-run .runbun-run-party-up:hover {
-	color: var(--rb-action);
-	border-color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-party-up:hover {
+		color: var(--rb-action);
+		border-color: var(--rb-action);
+	}
 }
-#runbun-run .runbun-run-party-rm:hover {
-	color: var(--rb-danger);
-	border-color: var(--rb-danger);
+@media (hover: hover) {
+	#runbun-run .runbun-run-party-rm:hover {
+		color: var(--rb-danger);
+		border-color: var(--rb-danger);
+	}
 }
 #runbun-run .runbun-run-party-hint {
 	font-size: var(--rb-text-section);
@@ -3790,14 +3863,18 @@ table.field {
 	color: var(--rb-ink);
 	cursor: pointer;
 }
-#runbun-run .runbun-run-up-plan:hover {
-	border-color: var(--rb-action);
-	color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-up-plan:hover {
+		border-color: var(--rb-action);
+		color: var(--rb-action);
+	}
 }
-#runbun-run .runbun-run-up-beat:hover {
-	border-color: var(--rb-brand);
-	color: var(--rb-brand-ink);
-	background: var(--rb-brand-soft);
+@media (hover: hover) {
+	#runbun-run .runbun-run-up-beat:hover {
+		border-color: var(--rb-brand);
+		color: var(--rb-brand-ink);
+		background: var(--rb-brand-soft);
+	}
 }
 #runbun-run .runbun-run-up.is-done {
 	color: var(--rb-ink-muted);
@@ -3912,10 +3989,12 @@ table.field {
 	color: var(--rb-ink);
 	cursor: pointer;
 }
-#runbun-run .runbun-run-pickup-take:hover {
-	border-color: var(--rb-brand);
-	color: var(--rb-brand-ink);
-	background: var(--rb-brand-soft);
+@media (hover: hover) {
+	#runbun-run .runbun-run-pickup-take:hover {
+		border-color: var(--rb-brand);
+		color: var(--rb-brand-ink);
+		background: var(--rb-brand-soft);
+	}
 }
 
 /* The split's grab-list: structured rows, not a run-on sentence. */
@@ -3985,8 +4064,10 @@ table.field {
 	font-family: var(--rb-font-body);
 	text-align: left;
 }
-#runbun-run .rb-disclose-btn:hover .rb-disclose-title {
-	color: var(--rb-brand);
+@media (hover: hover) {
+	#runbun-run .rb-disclose-btn:hover .rb-disclose-title {
+		color: var(--rb-brand);
+	}
 }
 #runbun-run .rb-disclose-btn:focus-visible {
 	outline: 2px solid var(--rb-focus);
@@ -4127,12 +4208,20 @@ table.field {
 #runbun-run .runbun-run-starter[data-type="grass"] { border-left-color: var(--rb-type-grass); }
 #runbun-run .runbun-run-starter[data-type="fire"] { border-left-color: var(--rb-type-fire); }
 #runbun-run .runbun-run-starter[data-type="water"] { border-left-color: var(--rb-type-water); }
-#runbun-run .runbun-run-starter:hover {
-	border-color: var(--rb-stroke-strong);
+@media (hover: hover) {
+	#runbun-run .runbun-run-starter:hover {
+		border-color: var(--rb-stroke-strong);
+	}
 }
-#runbun-run .runbun-run-starter[data-type="grass"]:hover { border-left-color: var(--rb-type-grass); }
-#runbun-run .runbun-run-starter[data-type="fire"]:hover { border-left-color: var(--rb-type-fire); }
-#runbun-run .runbun-run-starter[data-type="water"]:hover { border-left-color: var(--rb-type-water); }
+@media (hover: hover) {
+	#runbun-run .runbun-run-starter[data-type="grass"]:hover { border-left-color: var(--rb-type-grass); }
+}
+@media (hover: hover) {
+	#runbun-run .runbun-run-starter[data-type="fire"]:hover { border-left-color: var(--rb-type-fire); }
+}
+@media (hover: hover) {
+	#runbun-run .runbun-run-starter[data-type="water"]:hover { border-left-color: var(--rb-type-water); }
+}
 #runbun-run .runbun-run-starter[aria-pressed="true"] {
 	border-color: var(--rb-brand);
 	background: var(--rb-brand-soft);
