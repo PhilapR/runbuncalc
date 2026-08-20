@@ -1715,26 +1715,55 @@
 				line: 'Same evolution line as a box entry — does not count, re-roll',
 				forms: 'Same line as a box entry, or a regional form of it — does not count, re-roll',
 			}[dupesMode] || 'A dupe under this run\'s rules — does not count, re-roll';
-			found.mons.forEach(function (mon) {
+			// Two lists, not one: what this route can hand over RIGHT NOW,
+			// and what it still owes once an HM arrives. Mixing them made
+			// gated rows read as claimable and sent players into refusals
+			// ("surf is not open here") at the moment they meant to catch.
+			function encounterRow(mon) {
 				var odds = mon.dupe ? 'dupe' :
 					typeof mon.odds === 'number' ? mon.odds + '%' :
 						typeof mon.chance === 'number' ? mon.chance + '%' : '';
-				$list.append($('<li></li>')
+				var gated = mon.methodGated;
+				return $('<li></li>')
 					.toggleClass('is-owned', !!mon.owned)
 					.toggleClass('is-dupe', !!mon.dupe)
+					.toggleClass('is-gated', !!gated)
 					.append($('<button type="button" class="runbun-run-encounter"></button>')
 						.attr('data-species', mon.species)
 						.attr('data-level', mon.minLevel)
 						.attr('data-method', mon.method)
-						.attr('title', mon.dupe ?
-							dupeTitle :
-							typeof mon.odds === 'number' && mon.odds !== mon.chance ?
-								mon.chance + '% raw, ' + mon.odds + '% once dupes are re-rolled' : null)
+						.prop('disabled', !!gated)
+						.attr('title', gated ?
+							mon.method + ' opens at fight #' + gated +
+								' — this one is not claimable yet' :
+							mon.dupe ? dupeTitle :
+								typeof mon.odds === 'number' && mon.odds !== mon.chance ?
+									mon.chance + '% raw, ' + mon.odds + '% once dupes are re-rolled' : null)
 						.text((mon.owned ? '✓ ' : '') + mon.species + '  L' + mon.minLevel +
 							(mon.maxLevel === mon.minLevel ? '' : '-' + mon.maxLevel) +
 							(mon.rod ? '  ' + mon.rod : '') +
-							(odds ? '  · ' + odds : ''))));
-			});
+							(odds ? '  · ' + odds : '') +
+							(gated ? '  · #' + gated : '')));
+			}
+			var claimable = found.mons.filter(function (mon) { return !mon.methodGated; });
+			var waiting = found.mons.filter(function (mon) { return !!mon.methodGated; });
+			if (claimable.length) {
+				$list.append($('<li class="runbun-run-encounter-group"></li>')
+					.text('Catchable now · ' + claimable.length));
+				claimable.forEach(function (mon) { $list.append(encounterRow(mon)); });
+			} else if (found.mons.length) {
+				$list.append($('<li class="runbun-run-encounter-group"></li>')
+					.text('Nothing here is catchable yet'));
+			}
+			if (waiting.length) {
+				var soonest = waiting.reduce(function (min, mon) {
+					return min === null || mon.methodGated < min ? mon.methodGated : min;
+				}, null);
+				$list.append($('<li class="runbun-run-encounter-group"></li>')
+					.text('If you come back · ' + waiting.length +
+						' more from fight #' + soonest));
+				waiting.forEach(function (mon) { $list.append(encounterRow(mon)); });
+			}
 		}).catch(function (error) {
 			status(error.message, 'error');
 		});
