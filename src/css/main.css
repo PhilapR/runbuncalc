@@ -2341,6 +2341,36 @@ table.field {
 #runbun-run .runbun-run-opportunity.is-unknown .runbun-run-opportunity-name {
 	color: var(--rb-ink-muted);
 }
+#runbun-run .runbun-run-survival {
+	margin: var(--rb-space-sm) 0;
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-left: 4px solid var(--rb-stroke-strong);
+	border-radius: 0;
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-survival-verdict {
+	margin: 0;
+	font-weight: 700;
+	font-size: var(--rb-text-body);
+}
+#runbun-run .runbun-run-survival-verdict[data-risk="lethal"] { color: var(--rb-danger); }
+#runbun-run .runbun-run-survival-label {
+	margin: var(--rb-space-xs) 0 0;
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-survival-steps {
+	margin: var(--rb-space-xs) 0 0 var(--rb-space-md);
+	font-size: var(--rb-text-body);
+}
+#runbun-run .runbun-run-survival-leads {
+	margin: var(--rb-space-xs) 0 0;
+	font-size: var(--rb-text-body);
+}
 #runbun-run #runbun-run-ready-risk[data-risk="safe"] { color: var(--rb-ink); }
 #runbun-run #runbun-run-ready-risk[data-risk="thin"] { color: var(--rb-warn-ink); }
 #runbun-run #runbun-run-ready-risk[data-risk="lethal"] {

@@ -2119,6 +2119,13 @@
 		status('Pricing every change against that fight…', '');
 		var body = {run: state};
 		if (trainer) body.trainer = trainer;
+		// Survival first, damage second: the upgrade list answers "what hits
+		// harder", which a party can gain while staying just as dead. This
+		// asks the preparation graph the other question — what, if anything,
+		// removes a lethal branch, and what it costs.
+		api('/run/safety', body).then(renderSurvival).catch(function () {
+			$('#runbun-run-survival').prop('hidden', true);
+		});
 		api('/run/advise', body).then(function (payload) {
 			renderAdvice(payload);
 			stamp('advice');
@@ -2369,6 +2376,60 @@
 			.text(first.theirs + '\u2019s ' + first.move + ' crit KOs ' + first.ours +
 				(verdict.exposed.length > 1 ?
 					' (+' + (verdict.exposed.length - 1) + ' more exposed)' : ''));
+	}
+
+	/**
+	 * The survival answer, rendered above the damage list: who a crit can
+	 * kill, what removes that branch, and — when nothing does — saying so
+	 * plainly instead of offering a damage upgrade as if it were a fix.
+	 */
+	function renderSurvival(answer) {
+		var $block = $('#runbun-run-survival').empty();
+		if (!answer || !answer.exposed || !answer.exposed.length) {
+			$block.prop('hidden', false)
+				.append($('<p class="runbun-run-survival-verdict" data-risk="safe"></p>')
+					.text('No crit in ' + displayText(answer && answer.trainer || 'this fight') +
+						' kills anyone in your party.'));
+			return;
+		}
+		$block.prop('hidden', false);
+		$block.append($('<p class="runbun-run-survival-verdict" data-risk="lethal"></p>')
+			.text(answer.exposed.map(function (entry) {
+				return (entry.species || entry.id) + ' dies to ' +
+					entry.killers.map(function (killer) {
+						return killer.enemy + '\u2019s ' + killer.move;
+					}).slice(0, 2).join(' or ') +
+					(entry.killers.length > 2 ? ' (+' + (entry.killers.length - 2) + ')' : '');
+			}).join(' · ')));
+		if (answer.steps && answer.steps.length) {
+			$block.append($('<p class="runbun-run-survival-label"></p>')
+				.text('What removes a lethal branch'));
+			var $list = $('<ol class="runbun-run-survival-steps"></ol>');
+			answer.steps.slice(0, 4).forEach(function (step) {
+				$list.append($('<li></li>').text(
+					step.species + ': ' + step.detail +
+					' — removes ' + step.removes + ' lethal ' +
+					(step.removes === 1 ? 'matchup' : 'matchups') +
+					(step.remaining ? ', ' + step.remaining + ' still lethal' : ', none left') +
+					' · costs ' + step.cost));
+			});
+			$block.append($list);
+		} else if (answer.saferLeads && answer.saferLeads.length) {
+			$block.append($('<p class="runbun-run-survival-label"></p>')
+				.text('Nothing you can build fixes it — but these lead safely'));
+			$block.append($('<p class="runbun-run-survival-leads"></p>')
+				.text(answer.saferLeads.map(function (lead) {
+					return lead.nickname || lead.species;
+				}).join(', ')));
+		} else {
+			$block.append($('<p class="runbun-run-survival-label"></p>')
+				.text('Nothing available makes this fight crit-safe'));
+			$block.append($('<p class="runbun-run-survival-leads"></p>')
+				.text(answer.openRoutes && answer.openRoutes.length ?
+					'Unspent encounters that could still change it: ' +
+						answer.openRoutes.slice(0, 4).map(displayText).join(', ') :
+					'No unspent encounter is open either — this fight is a risk you take or a level you earn.'));
+		}
 	}
 
 	// ---------------------------------------------------------- matchup board
