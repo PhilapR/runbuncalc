@@ -29,6 +29,21 @@
 	//   for the fleet's zone route:
 	//   "routes": [{"pattern": "runbun.stochastic-inference.dev",
 	//     "zone_name": "stochastic-inference.dev", "custom_domain": true}]
+	// The project ledger — rulings, open questions and review findings —
+	// served read-only at /ledger/*. Left UNBOUND on purpose: a binding with
+	// a placeholder database_id fails every deploy, and provisioning is an
+	// account action, not a code change. To turn it on:
+	//
+	//   npx wrangler d1 create runbun-ledger
+	//   # paste the printed database_id below, then uncomment this block
+	//   node scripts/ledger.js sql > /tmp/ledger.sql
+	//   npx wrangler d1 execute runbun-ledger --remote --file=/tmp/ledger.sql
+	//
+	// Until then the Worker answers /ledger/* with 503 and says why.
+	//
+	// "d1_databases": [
+	//   {"binding": "LEDGER", "database_name": "runbun-ledger", "database_id": "..."}
+	// ],
 	"workers_dev": true,
 	// The advisor and the ranker rebuild matchup rows through the policy —
 	// seconds of CPU, not milliseconds. Needs the paid Workers plan; on the
