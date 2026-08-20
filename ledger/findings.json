@@ -495,6 +495,36 @@
       "fixed_in": null,
       "falsified": 0,
       "evidence": "Original gate: 11.5s under the full suite, 2.5s alone, identical code. A scaling ratio (second 5000 commits over the first) was tried and is also load-sensitive: 0.83-0.94 alone, 2.43 in suite. The loop IS flat — per-1000 blocks measured 88, 94, 67, 57, 49, 54, 65, 55, 61 ms — and an injected O(n) scan does show up at 2.57, but the healthy and loaded ranges overlap so the gate cannot separate them. Needs either a serialized perf lane or an operation counter rather than a clock."
+    },
+    {
+      "id": "undated-locations-dropped-from-every-answer",
+      "source": "philip/play",
+      "raised_on": "2026-08-20",
+      "severity": "critical",
+      "area": "solver",
+      "file": "lib/run.js",
+      "line": 932,
+      "claim": "unusedRoutes only set `open` when availability.json had a date, so an undated location had no `open` property and every consumer's `route.open` filter dropped it. 18 of 69 route-units were excluded from every answer at every point in the run, 12 of them with walk encounters.",
+      "verdict": "confirmed",
+      "status": "fixed",
+      "fixed_in": "d2a77a9",
+      "falsified": 1,
+      "evidence": "Raised by Philip noticing the early towns list no encounters. availability.json's own `method` field says it dates a location by its first trainer, so trainerless places — Oldale Town, Littleroot Town, the whole Safari Zone, Fiery Path, Shoal Cave, Sky Pillar, Mirage Tower, Artisan Cave, Altering Cave, Sootopolis, Ever Grande — get no date. Measured on a fresh run: 4 of 69 offered, 18 dropped. Oldale Town has 7 walkable mons at levels 2-3 and run.apply({kind:'catch',map:'Oldale Town'}) is accepted, so the tables were always fine. Now flagged undated and counted out loud, following the undatedMovesExcluded pattern."
+    },
+    {
+      "id": "forty-locations-carry-no-availability-date",
+      "source": "philip/play",
+      "raised_on": "2026-08-20",
+      "severity": "high",
+      "area": "data",
+      "file": "profiles/run-and-bun/oracle/availability.json",
+      "line": 1,
+      "claim": "availability.json dates 83 of the oracle's 123 locations. The 40 undated ones are exactly those with no trainer standing in them, because the dating method anchors to a location's first trainer. They can now be reported as unknown but still cannot be planned around.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "Counted directly: 123 oracle locations, 83 dated entries, 40 undated. d2a77a9 makes the gap visible rather than silent, but does not close it. Hand-dating needs Philip's call — the file's provenance is 'transcribed', and only Littleroot Town (the starting town) and Oldale Town (walked through in the first minutes) look certain enough to assert without a source."
     }
   ]
 }
