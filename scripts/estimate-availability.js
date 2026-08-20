@@ -40,7 +40,18 @@ const profiles = require(path.join(root, 'profiles'));
 
 const profile = profiles.getProfile('run-and-bun');
 const maps = profile.oracle.maps();
-const dateOf = new Map(availability.entries.map(entry => [entry.map, entry.opensAt]));
+/**
+ * Ground truth is the TRANSCRIBED entries only.
+ *
+ * Once scripts/adopt-availability.js writes derived dates back into this
+ * file, including them here would mean validating the estimator against its
+ * own output — the cross-validation would score itself and report
+ * beautifully. An entry with a provenance field was placed by this script;
+ * it can never be evidence for it.
+ */
+const dateOf = new Map(availability.entries
+	.filter(entry => !entry.provenance && entry.opensAt !== null && entry.opensAt !== undefined)
+	.map(entry => [entry.map, entry.opensAt]));
 
 /** Walk-table level summary, or null when a location has no walk table. */
 function walkLevels(map) {

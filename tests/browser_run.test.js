@@ -487,15 +487,18 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.equal(identifiedStarter.ability, 'Overgrow');
 	assert.equal(identifiedStarter.ivs.atk, 27);
 	assert.equal(identifiedStarter.ivs.spe, 31);
+	// Five, not four. Littleroot Town and Oldale Town joined the openers when
+	// the R&B tracker dated them, and Petalburg City left — it is reachable
+	// only through Route 102. Both changes are Philip's, from play.
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
-		/4 encounter areas/);
+		/5 encounter areas/);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
 		/2 field items/);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
 		/0 TMs & tutors reachableNone reachable yet · \d+ known places, undated/);
 	assert.equal(await page.$$eval('#runbun-run-reachable .runbun-run-route-choice',
-		buttons => buttons.length), 4,
-	'Explore should begin with the four reachable choices, not the complete ROM catalog');
+		buttons => buttons.length), 5,
+	'Explore should begin with the five reachable choices, not the complete ROM catalog');
 
 	await page.click('.runbun-run-opportunity-action[data-kind="items"]');
 	assert.equal(await page.getAttribute(

@@ -47,7 +47,7 @@ Layers declared: `data`, `mechanics`, `policy`, `encounters`, `oracle`, `provena
 Trainer fights in the run map: 362
 
 Oracle datasets:
-- `availability.json`: 83 entries
+- `availability.json`: 116 entries
 - `catch-rates.json`: 2 species
 - `encounters.json`: 131 maps
 - `evolutions.json`: 435 species

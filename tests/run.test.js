@@ -634,9 +634,16 @@ test('route availability: imported unlock dates order the routes view', () => {
 	assert.equal(oracle.areaOf('Underwater Route124'), 'Route124');
 	assert.equal(oracle.areaOf('Route101'), 'Route101');
 
-	// A map the import never dated answers null — unknown, not closed.
-	assert.equal(oracle.availabilityOf('Altering Cave'), null);
+	// A map NOTHING can date answers null — unknown, not closed. Artisan Cave
+	// is the honest example: post-game content the R&B tracker never lists,
+	// so neither the transcribed anchor nor the derived tracker order reaches
+	// it. Altering Cave used to stand here and no longer can — it is dated
+	// now, from the tracker.
+	assert.equal(oracle.availabilityOf('Artisan Cave 1f'), null);
 	assert.equal(oracle.availabilityOf('no such place'), null);
+	// And a location the tracker DID place carries its provenance, so nobody
+	// mistakes a derived date for the original transcription.
+	assert.equal(oracle.availabilityOf('Altering Cave').provenance, 'derived');
 
 	// The routes view: open means the run's NEXT fight is at-or-past the date,
 	// so a fresh run sees Route 101 open and the woods still ahead.
@@ -648,7 +655,7 @@ test('route availability: imported unlock dates order the routes view', () => {
 	const woodsRow = routes.find(route => route.name === 'Petalburg Woods');
 	assert.equal(woodsRow.opensAt, 19);
 	assert.equal(woodsRow.open, false);
-	assert.equal(routes.find(route => route.name === 'Altering Cave').opensAt, undefined);
+	assert.equal(routes.find(route => route.name === 'Artisan Cave').opensAt, undefined);
 
 	// Beating the run forward opens it: position 19 makes fight #19 the last
 	// one beaten, so a map dated to #19 is open.
@@ -776,27 +783,32 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 });
 
 test('a hold saves a location on purpose, and says when the wait pays off', () => {
-	// The canonical case from the operator's own practice: Petalburg City's
-	// rod offers Croagunk today, but its surf water holds Popplio at 50% —
-	// the Primarina line — once Surf exists at #589. The route is walked
-	// past ON PURPOSE, and the tool records the purpose.
+	// The canonical case from the operator's own practice, in Philip's words:
+	// "you could wait and save Littleroot Town for a surfing encounter much
+	// later." Littleroot is reachable from the first fight and holds nothing
+	// but water — the four starters on surf, a Super Rod table below them —
+	// so it is walked past ON PURPOSE, and the tool records the purpose.
+	//
+	// This stood on Petalburg City until Philip corrected its date: Petalburg
+	// is reachable only through Route 102, so it is no longer open at the
+	// start and cannot demonstrate a hold there.
 	let state = run.apply(fresh({permadeath: true}),
-		{kind: 'hold', map: 'Petalburg City', for: 'Popplio'});
-	assert.match(state.log[state.log.length - 1].summary, /held Petalburg City for Popplio/);
+		{kind: 'hold', map: 'Littleroot Town', for: 'Squirtle'});
+	assert.match(state.log[state.log.length - 1].summary, /held Littleroot Town for Squirtle/);
 
 	// The routes view names the wait — and it is not ready at position -1.
-	const route = run.unusedRoutes(state).routes.find(r => r.name === 'Petalburg City');
-	assert.deepEqual(route.held, {for: 'Popplio', ready: false});
+	const route = run.unusedRoutes(state).routes.find(r => r.name === 'Littleroot Town');
+	assert.deepEqual(route.held, {for: 'Squirtle', ready: false});
 
 	// The scout stops nagging about it and says so.
 	const scouted = run.adviseCatches(state);
 	assert.equal(scouted.held, 1);
-	assert.ok(scouted.catches.every(c => c.area !== 'Petalburg City'));
+	assert.ok(scouted.catches.every(c => c.area !== 'Littleroot Town'));
 
 	// Once the run passes the Surf gate, the hold reads READY.
 	const late = JSON.parse(JSON.stringify(state));
 	late.position = 600;
-	const readyRoute = run.unusedRoutes(late).routes.find(r => r.name === 'Petalburg City');
+	const readyRoute = run.unusedRoutes(late).routes.find(r => r.name === 'Littleroot Town');
 	assert.equal(readyRoute.held.ready, true);
 
 	// Waiting for a ghost is refused with the roster; a held location cannot
@@ -804,8 +816,8 @@ test('a hold saves a location on purpose, and says when the wait pays off', () =
 	assert.throws(() => run.apply(fresh({permadeath: true}),
 		{kind: 'hold', map: 'Route101', for: 'Popplio'}),
 	/Popplio does not appear anywhere on Route101/);
-	assert.throws(() => run.apply(state, {kind: 'hold', map: 'Petalburg City'}),
-		/already held for Popplio/);
+	assert.throws(() => run.apply(state, {kind: 'hold', map: 'Littleroot Town'}),
+		/already held for Squirtle/);
 	assert.throws(() => run.apply(state, {kind: 'unhold', map: 'Route101'}),
 		/Route101 is not held/);
 
@@ -818,16 +830,16 @@ test('a hold saves a location on purpose, and says when the wait pays off', () =
 	// A catch that spends the held location resolves the hold, fulfilled or
 	// not; a spent location cannot be held after the fact.
 	const caught = run.apply(state,
-		{kind: 'catch', species: 'Croagunk', map: 'Petalburg City', level: 5, method: 'fish'});
+		{kind: 'catch', species: 'Lotad', map: 'Littleroot Town', level: 3, method: 'fish'});
 	assert.equal(Object.keys(caught.holds).length, 0, 'the catch resolves the hold');
-	assert.throws(() => run.apply(caught, {kind: 'hold', map: 'Petalburg City'}),
-		/already gave its encounter \(Croagunk\)/);
+	assert.throws(() => run.apply(caught, {kind: 'hold', map: 'Littleroot Town'}),
+		/already gave its encounter \(Lotad\)/);
 
 	// Release works and undo replays holds faithfully.
-	const released = run.apply(state, {kind: 'unhold', map: 'Petalburg City'});
+	const released = run.apply(state, {kind: 'unhold', map: 'Littleroot Town'});
 	assert.equal(Object.keys(released.holds).length, 0);
 	const undone = run.undo(released);
-	assert.deepEqual(undone.holds, {'Petalburg City': {for: 'Popplio'}});
+	assert.deepEqual(undone.holds, {'Littleroot Town': {for: 'Squirtle'}});
 });
 
 test('the advisor recommends field pickups, with where to go get them', () => {
@@ -895,9 +907,16 @@ test('the catch advisor scouts only what is really catchable, on the board', () 
 	// The routes view carries the same gate: an open route lists its surf slot
 	// with the order the method starts working, so the forecast never promises
 	// surfing before Surf exists.
-	const petalburg = run.unusedRoutes(state).routes.find(route => route.name === 'Petalburg City');
-	assert.ok(petalburg.open);
-	assert.ok(petalburg.best.some(mon => mon.gated === 589));
+	//
+	// Littleroot Town, not Petalburg City. Petalburg used to sit at order 0
+	// and no longer does — Philip's correction, since you reach it only
+	// through Route 102 and its intro trainers. Littleroot is the better
+	// example anyway: it is open from the first fight and has NOTHING but
+	// surf and fish, so the method gate is the entire story there.
+	const littleroot = run.unusedRoutes(state).routes.find(route => route.name === 'Littleroot Town');
+	assert.ok(littleroot.open, 'the town the run starts in is reachable at once');
+	assert.ok(littleroot.best.every(mon => mon.gated || mon.rod),
+		'and everything in it waits on Surf or a Rod');
 });
 
 test('platform contract: rivals come from the profile, and layers fail by name', () => {
@@ -2022,8 +2041,15 @@ test('pre-fight opportunities show only reachable, unspent work and honest move 
 	const before = run.preFightOpportunities(state);
 	assert.deepEqual(before.before, {trainer: 'Youngster Calvin', order: 0});
 	assert.equal(before.encounters.mode, 'unspent');
+	// Littleroot and Oldale are here and Petalburg is not. Both changes come
+	// from Philip's account of the route, corroborated independently by the
+	// R&B tracker's own order: you start in Littleroot, walk Route 101 to
+	// Oldale, and reach Petalburg only through Route 102. The transcribed
+	// data had Petalburg at order 0 because its first-trainer anchor landed
+	// level with Route 101, and had the two towns nowhere at all because no
+	// trainer stands in either.
 	assert.deepEqual(before.encounters.routes.map(route => route.name),
-		['Route101', 'Route102', 'Route103', 'Petalburg City']);
+		['Route101', 'Route102', 'Route103', 'Littleroot Town', 'Oldale Town']);
 	assert.deepEqual(before.items.pickups.map(item => item.name), ['Potion', 'Oran Berry']);
 	assert.deepEqual(before.items.pickups.map(item => item.map), ['Route101', 'Route102']);
 	// Move locations are imported now: the projection is run-aware, counts
@@ -2338,13 +2364,16 @@ test('a location the data cannot date is reported, never silently dropped', () =
 	const state = fresh({permadeath: true});
 	const routes = run.unusedRoutes(state).routes;
 
-	const oldale = routes.find(route => route.name === 'Oldale Town');
-	assert.ok(oldale, 'Oldale Town is in the wild tables');
-	assert.equal(oldale.undated, true, 'and it is reported as undated');
-	assert.equal(oldale.opensAt, undefined, 'because nothing dates it');
+	// Artisan Cave, not Oldale Town. Oldale stood here until the R&B tracker
+	// dated it; Artisan Cave is post-game content the tracker never lists, so
+	// nothing can reach it and it is the honest remaining example.
+	const undatable = routes.find(route => route.name === 'Artisan Cave');
+	assert.ok(undatable, 'Artisan Cave is in the wild tables');
+	assert.equal(undatable.undated, true, 'and it is reported as undated');
+	assert.equal(undatable.opensAt, undefined, 'because nothing dates it');
 	// Undated is not open. Claiming it were would send a fresh run to Sky
 	// Pillar, which is the same error in the other direction.
-	assert.ok(!oldale.open, 'undated is not a licence to call it open');
+	assert.ok(!undatable.open, 'undated is not a licence to call it open');
 
 	const dated = routes.find(route => route.name === 'Route101');
 	assert.equal(dated.opensAt, 0, 'a dated route still carries its date');
@@ -2359,8 +2388,8 @@ test('a location the data cannot date is reported, never silently dropped', () =
 	assert.ok(undatedRoutes.length > 0, 'the fixture must have undated locations');
 	assert.equal(scouted.undated.count, undatedRoutes.length,
 		'the scout reports exactly the locations it could not date');
-	assert.ok(scouted.undated.routes.includes('Oldale Town'),
-		'and names Oldale Town among them');
+	assert.ok(scouted.undated.routes.includes('Artisan Cave'),
+		'and names Artisan Cave among them');
 	assert.match(scouted.undated.why, /first trainer/,
 		'and says why, so the gap reads as missing data rather than as an empty map');
 
@@ -2371,10 +2400,10 @@ test('a location the data cannot date is reported, never silently dropped', () =
 	// the underlying tables were fine all along: the catch is accepted, the
 	// tool simply never offered it.
 	const spent = run.apply(state,
-		owned({kind: 'catch', species: 'Ponyta', map: 'Oldale Town', level: 3}));
+		owned({kind: 'catch', species: 'Smeargle', map: 'Artisan Cave 1f', level: 40, moves: ['Flamethrower']}));
 	const after = run.adviseCatches(spent, 'Youngster Calvin');
 	assert.equal(after.undated.count, scouted.undated.count - 1,
 		'spending an undated location drops it from the count');
-	assert.ok(!after.undated.routes.includes('Oldale Town'),
+	assert.ok(!after.undated.routes.includes('Artisan Cave'),
 		'and it is no longer named as unscanned');
 });

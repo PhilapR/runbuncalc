@@ -9,7 +9,11 @@ const availability = require('../profiles/run-and-bun/oracle/availability.json')
 const profiles = require('../profiles');
 
 const maps = profiles.getProfile('run-and-bun').oracle.maps();
-const dateOf = new Map(availability.entries.map(entry => [entry.map, entry.opensAt]));
+// Transcribed entries only — the same ground truth the estimator uses. An
+// adopted entry is this script's own output and cannot be evidence for it.
+const dateOf = new Map(availability.entries
+	.filter(entry => !entry.provenance && entry.opensAt !== null && entry.opensAt !== undefined)
+	.map(entry => [entry.map, entry.opensAt]));
 const trainingRows = maps
 	.filter(map => dateOf.has(map.map))
 	.map(map => ({name: map.name, order: dateOf.get(map.map), levels: estimate.walkLevels(map)}))
@@ -61,13 +65,16 @@ test('neighbour disagreement separates the trustworthy estimates from the rest',
 		'Mirage Tower neighbours disagree wildly — the estimate must not read as confident');
 
 	// The separation has to be real, not an artefact of two hand-picked rows.
+	// Measured across every location with a walk table, NOT across "whatever
+	// is undated today" — adopt-availability.js empties that set, and a test
+	// that quietly measures nothing is the failure mode this branch is full
+	// of.
 	const spreads = maps
-		.filter(map => !dateOf.has(map.map))
 		.map(map => estimate.neighbourSpread(estimate.walkLevels(map), trainingRows))
 		.filter(spread => spread !== null);
 	const tight = spreads.filter(spread => spread <= 100).length;
 	assert.ok(tight > 0 && tight < spreads.length,
-		`the banding must actually split the undated set — ${tight} tight of ${spreads.length}`);
+		`the banding must actually split the map — ${tight} tight of ${spreads.length}`);
 });
 
 test('geography only reaches numbered routes, and says nothing about the rest', () => {
@@ -171,14 +178,15 @@ test('an estimate is always a fight the run can actually be at', () => {
 	const orders = new Set(estimate.fightOrders());
 	assert.ok(orders.size > 300, 'the run map has its fights');
 
-	const undated = maps.filter(map => !dateOf.has(map.map));
-	const estimates = undated
+	// Over EVERY location, not just today's undated ones. The estimator has
+	// to be safe whether or not its output has already been adopted.
+	const estimates = maps
 		.map(map => estimate.snapToFight(
 			estimate.predictFromTracker(map.name) ??
 			estimate.predictFromRouteNumber(map.name) ??
 			estimate.predictFromLevel(estimate.walkLevels(map), trainingRows)))
 		.filter(order => order !== null);
-	assert.ok(estimates.length > 25, 'most undated locations get an estimate');
+	assert.ok(estimates.length > 25, 'the estimator answers for most of the map');
 	for (const order of estimates) {
 		assert.ok(orders.has(order),
 			`${order} is not a fight order — no run can ever be at it`);

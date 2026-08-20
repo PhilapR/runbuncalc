@@ -751,7 +751,10 @@ test('a run is created, advanced and summarized entirely through the request', a
 	assert.equal(status.body.box.length, 1);
 	assert.equal(status.body.upcoming[0].trainer, 'Youngster Calvin');
 	assert.equal(status.body.opportunities.before.trainer, 'Youngster Calvin');
-	assert.equal(status.body.opportunities.encounters.count, 4);
+	// Five: Route 101/102/103 plus Littleroot Town and Oldale Town, which the
+	// R&B tracker dated. Petalburg City dropped out — reachable only through
+	// Route 102. Both corrections are Philip's, from play.
+	assert.equal(status.body.opportunities.encounters.count, 5);
 	assert.deepEqual(status.body.opportunities.items.pickups.map(item => item.name),
 		['Potion', 'Oran Berry']);
 	assert.equal(status.body.opportunities.moves.status, 'dated');
