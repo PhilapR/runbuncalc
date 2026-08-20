@@ -535,11 +535,11 @@
       "file": "profiles/run-and-bun/oracle/availability.json",
       "line": null,
       "claim": "Fishing is gated at order 0 and no rod is modelled, so every rod-only encounter is offered as 'Catchable now' from the very first fight — including locations whose ONLY current encounters are rod-gated.",
-      "verdict": "confirmed",
-      "status": "open",
+      "verdict": "refuted",
+      "status": "wontfix",
       "fixed_in": null,
       "falsified": 0,
-      "evidence": "Walked the running app. Littleroot Town at fight 0 shows 'Catchable now - 4': Surskit, Lotad, Finneon, Tympole, all labelled Super Rod. Philip's account of the route is that the rod comes from Route 103, so at fight 0 none of those are catchable. availability.json methods reads {walk:0, fish:0, surf:589, rock-smash:139}; lib/run.js contains zero mentions of Old/Good/Super Rod and no rod gate. All 336 fish slots in the game are Super Rod, so one gate would cover every one of them. At fight 0 both Littleroot Town and Route103 offer ONLY rod-gated encounters as available now. Same shape as the Petalburg City defect: the tool offers work the player cannot do yet. Needs Philip's call on the order the rod becomes available before it can be fixed."
+      "evidence": "Walked the running app. Littleroot Town at fight 0 shows 'Catchable now - 4': Surskit, Lotad, Finneon, Tympole, all labelled Super Rod. Philip's account of the route is that the rod comes from Route 103, so at fight 0 none of those are catchable. availability.json methods reads {walk:0, fish:0, surf:589, rock-smash:139}; lib/run.js contains zero mentions of Old/Good/Super Rod and no rod gate. All 336 fish slots in the game are Super Rod, so one gate would cover every one of them. At fight 0 both Littleroot Town and Route103 offer ONLY rod-gated encounters as available now. Same shape as the Petalburg City defect: the tool offers work the player cannot do yet. Needs Philip's call on the order the rod becomes available before it can be fixed. REFUTED on closer reading, and the error was mine. Youngster Calvin — the fight at order 0 — stands on ROUTE 102 (rab-trainers-database.json gives him location 'Route 102'). Route 103, where Philip says the rod is, has minOrder 0 and is reachable BEFORE him: Oldale has two exits and both trackers order Route 103 ahead of Route 102. So by the first fight the rod is already obtainable, and fish:0 is correct. I asserted 'at fight 0 none of those are catchable' by assuming the player had not detoured north yet, which the canonical route contradicts. The UI also already labels every one of those slots 'Super Rod', so it is not hiding the requirement either. Left recorded rather than deleted: a refuted finding is evidence too, and the next reader should not re-raise it."
     }
   ]
 }
