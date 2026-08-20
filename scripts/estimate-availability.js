@@ -294,6 +294,40 @@ function pick(candidates) {
 	return null;
 }
 
+/**
+ * Every real fight order, so an estimate can be snapped to one.
+ *
+ * `order` counts the enemy Pokemon faced before a fight, so only the values
+ * a fight actually starts on are reachable — 362 of the 1626. Interpolating
+ * between two of them can land on a number the run can never be in:
+ * predictFromRouteNumber produced 17 for Route 105, where the fights either
+ * side sit at 16 and 19. An opensAt of 17 is not early or late, it is not a
+ * state.
+ *
+ * Snapping goes UP, to the next fight at or after the estimate. That follows
+ * availability.json's own rule — "late-biased, never early" — and it is the
+ * safe direction here: too late merely hides a catch you could have made,
+ * too early sends you somewhere you cannot reach yet.
+ */
+let fightOrdersCache;
+function fightOrders() {
+	if (!fightOrdersCache) {
+		const run = require(path.join(root, 'lib/run.js'));
+		const blank = run.createRun({name: 'estimate', now: 't0', permadeath: true});
+		const upcoming = run.upcoming(blank, 4000);
+		const fights = Array.isArray(upcoming) ? upcoming : upcoming.fights || [];
+		fightOrdersCache = fights.map(fight => fight.order).sort((a, b) => a - b);
+	}
+	return fightOrdersCache;
+}
+
+function snapToFight(order) {
+	if (order === null || order === undefined) return null;
+	const orders = fightOrders();
+	const at = orders.find(value => value >= order);
+	return at === undefined ? orders[orders.length - 1] : at;
+}
+
 function main() {
 	const asJson = process.argv.includes('--json');
 	const validation = crossValidate();
@@ -315,7 +349,7 @@ function main() {
 			// The tracker states where a location sits in the playthrough, so
 			// it outranks both inferences. A route number is next — direct
 			// geographic evidence. Wild level is the last resort.
-			estimate: pick([fromTracker, fromRoute, fromLevel]),
+			estimate: snapToFight(pick([fromTracker, fromRoute, fromLevel])),
 			basis: fromTracker !== null ? 'tracker' :
 				fromRoute !== null ? 'route-number' :
 					fromLevel !== null ? 'wild-level' : 'none',
@@ -357,4 +391,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {crossValidate, crossValidateTracker, predictFromLevel, predictFromTracker, predictFromRouteNumber, walkLevels, neighbourSpread, timeline, trackerPosition, normalizeName};
+module.exports = {crossValidate, crossValidateTracker, predictFromLevel, predictFromTracker, predictFromRouteNumber, walkLevels, neighbourSpread, timeline, trackerPosition, normalizeName, snapToFight, fightOrders};

@@ -158,3 +158,37 @@ test('the tracker reaches locations no other signal can, and admits where it sto
 	assert.equal(estimate.predictFromTracker('Artisan Cave 1f'), null,
 		'a location the tracker does not list gets no tracker answer');
 });
+
+test('an estimate is always a fight the run can actually be at', () => {
+	// `order` counts the enemy Pokemon faced before a fight, so only 362 of
+	// the 1626 values are reachable — the ones a fight starts on. Philip
+	// asked whether trainer number would be more specific than this scale.
+	// For real fights the two are the same information, one order per fight.
+	// The difference appears the moment anything INTERPOLATES: linear
+	// interpolation on the Pokemon scale invents values no run can hold.
+	// predictFromRouteNumber gave Route 105 a 17, with the fights either
+	// side at 16 and 19. That is not early, not late — it is not a state.
+	const orders = new Set(estimate.fightOrders());
+	assert.ok(orders.size > 300, 'the run map has its fights');
+
+	const undated = maps.filter(map => !dateOf.has(map.map));
+	const estimates = undated
+		.map(map => estimate.snapToFight(
+			estimate.predictFromTracker(map.name) ??
+			estimate.predictFromRouteNumber(map.name) ??
+			estimate.predictFromLevel(estimate.walkLevels(map), trainingRows)))
+		.filter(order => order !== null);
+	assert.ok(estimates.length > 25, 'most undated locations get an estimate');
+	for (const order of estimates) {
+		assert.ok(orders.has(order),
+			`${order} is not a fight order — no run can ever be at it`);
+	}
+
+	// Snapping goes UP, never down: too late hides a catch, too early sends
+	// the player somewhere they cannot reach. availability.json's own method
+	// note says late-biased, never early, and this follows it.
+	assert.equal(estimate.snapToFight(17), 19, 'an off-boundary value rounds forward');
+	assert.equal(estimate.snapToFight(1304), 1307, 'and so does a late one');
+	assert.equal(estimate.snapToFight(19), 19, 'a value already on a boundary does not move');
+	assert.ok(estimate.snapToFight(0) === 0, 'the very first fight is reachable');
+});
