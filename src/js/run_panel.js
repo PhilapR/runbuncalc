@@ -2360,12 +2360,17 @@
 			payload.grid.forEach(function (row) {
 				var cell = row.versus[i];
 				var side = cell[direction];
-				var colors = heat(side.max);
-				var label = side.move ? Math.round(side.max * 100) + '%' : '—';
+				// Worst case, per the run's own planning rule: what WE can rely
+				// on is the minimum roll; what THEY can do is a crit. Colouring
+				// our side by its maximum was the board's optimism.
+				var shown = direction === 'us' ? side.min :
+					(side.critMax !== undefined ? side.critMax : side.max);
+				var colors = heat(shown);
+				var label = side.move ? Math.round(shown * 100) + '%' : '—';
 				var $cell = $('<td></td>')
 					.text(label)
 					.css({'background-color': colors[0], color: colors[1]})
-					.toggleClass('is-ko', side.guaranteedKO)
+					.toggleClass('is-ko', direction === 'us' ? side.guaranteedKO : !!side.critKO)
 					// Every cell is a doorway: this pairing, one click, in the
 					// full calculator. Keyboard gets the same door.
 					.attr('data-mon-id', mon.id)
@@ -2376,8 +2381,13 @@
 						(side.move ?
 							side.move + ' ' + Math.round(side.min * 100) + '-' +
 								Math.round(side.max * 100) + '%' +
+								(side.critMax !== undefined && side.critMax > side.max ?
+									' · ' + Math.round(side.critMax * 100) + '% on a crit' +
+										(side.critMove && side.critMove !== side.move ?
+											' (' + side.critMove + ')' : '') : '') +
 								(side.guaranteedKO ? ' · guaranteed KO' :
-									side.possibleKO ? ' · possible KO' : '') :
+									side.possibleKO ? ' · possible KO' : '') +
+								(direction === 'them' && side.critKO ? ' · a crit KOs us' : '') :
 							'no damaging move') +
 						(cell.speed ? ' · we are ' + cell.speed : '') +
 						' — open this pairing in the calculator');
@@ -2401,10 +2411,11 @@
 				' · box projected to cap ' + payload.projection.cap +
 					' — the levels the free candy gives you there' :
 				' · box at current levels') +
-			' · dark = harder hit · ring = guaranteed KO · ▲ we are faster');
+			' · dark = harder hit · ring = KO · ▲ we are faster · ' +
+			'our numbers are minimum rolls, theirs assume a critical hit');
 		$matrix.attr('data-trainer', payload.trainer);
-		$matrix.append(matrixTable(payload, 'us', 'Our best hit — % of their HP'));
-		$matrix.append(matrixTable(payload, 'them', "Their best hit back — % of ours"));
+		$matrix.append(matrixTable(payload, 'us', 'What we can rely on — floor roll, % of their HP'));
+		$matrix.append(matrixTable(payload, 'them', 'What we must survive — their crit, % of ours'));
 	}
 
 	function board(trainer) {
@@ -2694,6 +2705,22 @@
 		$('#runbun-run-battle-us-bench').empty()
 			.append(benchChips(viewState.player.bench, viewState.player.active.id));
 
+		// Their worst case, stated plainly. The fight rolls fair dice; the
+		// PLAN behind the next click has to assume the crit lands.
+		var threat = reply.threat;
+		var $threat = $('#runbun-run-battle-threat');
+		if (!threat || !threat.move) {
+			$threat.text('').removeAttr('data-risk');
+		} else {
+			$threat.attr('data-risk', threat.survivesCrit ?
+				(threat.survivesTwoCrits ? 'safe' : 'thin') : 'lethal')
+				.text('Their hardest hit: ' + threat.move + ' ' + threat.max + '%' +
+					(threat.crit > threat.max ? ' — ' + threat.crit + '% on a crit' : '') +
+					' · ' + (!threat.survivesCrit ? 'a crit KOs you' :
+					!threat.survivesTwoCrits ? 'survives one crit, not two' :
+						'survives a crit'));
+		}
+
 		var $log = $('#runbun-run-battle-log');
 		(reply.events || []).forEach(function (event) {
 			$log.append($('<li></li>').text(event.text));
@@ -2718,11 +2745,18 @@
 			} else if (entry.kind === 'move') {
 				$moves.append($('<button type="button" class="btn runbun-run-battle-move"></button>')
 					.attr('data-move', entry.move)
+					.attr('title', entry.damage ?
+						entry.move + ' ' + entry.damage.min + '–' + entry.damage.max + '%' +
+							(entry.damage.crit ? ' · ' + entry.damage.crit + '% on a crit' : '') +
+							(entry.damage.floorKO ? ' · KOs even on its worst roll' : '') :
+						entry.move)
 					.append($('<span class="runbun-run-battle-move-name"></span>').text(entry.move))
 					.append($('<span class="runbun-run-battle-move-dmg"></span>').text(
-						entry.damage ?
-							entry.damage.min + '–' + entry.damage.max + '%' +
-								(entry.damage.guaranteedKO ? ' · KO' : '') : '')));
+						!entry.damage || entry.damage.max === 0 ? '' :
+							entry.damage.min + '%+' +
+								(entry.damage.floorKO ? ' · KOs on any roll' :
+									entry.damage.guaranteedKO ? ' · KO' :
+										' up to ' + entry.damage.max + '%'))));
 			} else {
 				$switches.append($('<button type="button" class="btn runbun-run-battle-switch"></button>')
 					.attr('data-replace', entry.action.replacementId)
