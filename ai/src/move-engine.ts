@@ -36,6 +36,7 @@ import {
 } from './move-metadata';
 import {getActionOrderFacts, getEffectivePokemonSpeed} from './order';
 import {sampleDamageFact, sampleDamageResolution} from './resolution';
+import {canUseSleepOnlyMove} from './sleep';
 import {getCalcSpeciesOverrides, getEffectiveSpecies, getRawStats} from './stat-transforms';
 import {isMimicryActive, mimicryTypeOverride} from './mimicry';
 import {hasPureAbilityEffect, PURE_ABILITY_MOVE_IDS} from './ability-legality';
@@ -3103,7 +3104,7 @@ export function deriveMoveResolution(
       },
     };
   }
-  if (['sleeptalk', 'snore'].includes(id) && (actor.status !== 'slp' || actor.statusTurns === 0)) {
+  if (['sleeptalk', 'snore'].includes(id) && !canUseSleepOnlyMove(actor)) {
     return {
       hit: false,
       trace: {
@@ -4614,9 +4615,23 @@ export function deriveMoveResolution(
       const stench = hasAbility(state, actor, 'stench');
       const carriesOwnFlinch = (options.facts?.secondaryEffects || []).some(
         (effect: {volatile?: {name?: string}}) => effect.volatile?.name === 'flinch');
+      // In mainline the item pushes a REAL secondary (kingsrock.onModifyMove),
+      // so everything that suppresses the move's own flinch suppresses this
+      // one: Shield Dust filters it out, and a Substitute eats the hit it
+      // would ride on. This block asked about neither, and gated on aggregate
+      // damage — which counts damage a Substitute absorbed — so the item
+      // flinched through both.
+      //
+      // effectTargetIds is the set the engine ALREADY computed for "who
+      // receives this move's added effects"; it is where the Substitute
+      // filter lives. Reusing it keeps one source of truth instead of a
+      // second hand-kept copy of the rule.
+      const flinchOutcome = sequentialDamageOutcome(
+        target, resolution.hitDamageByTarget?.[targetId], targetDamage);
       if ((flinchItemHeld || stench) && !carriesOwnFlinch && moveCategory !== 'Status' &&
-        (resolution.damageByTarget?.[targetId] || 0) > 0 && !target.volatile?.flinch &&
-        canApplyVolatile(state, targetId, 'flinch')) {
+        flinchOutcome.directDamage > 0 && !target.volatile?.flinch &&
+        effectTargetIds.includes(targetId) && !blocksSecondaryEffects(state, targetId) &&
+        canApplyVolatile(state, targetId, 'flinch', actor.id, false, moveCategory)) {
         const flinchChance = hasAbility(state, actor, 'serenegrace') ? 0.2 : 0.1;
         if (sampleActionRoll(random, 'Held flinch item') < flinchChance) {
           addVolatile(resolution, [targetId], 'flinch', {turns: 1});
