@@ -28,6 +28,8 @@
  *
  *   node scripts/estimate-availability.js            # cross-validate, then estimate
  *   node scripts/estimate-availability.js --json     # machine-readable
+ *   node scripts/estimate-availability.js --timeline # dated and undated, in run order,
+ *                                                    # anchored to the boss fights
  */
 
 const path = require('path');
@@ -140,6 +142,65 @@ function crossValidate() {
 	return {errors, median, within, n: errors.length};
 }
 
+/**
+ * The whole map in run order, anchored to the fights a player recognises.
+ * Raw order numbers mean nothing to a human; "between Roxanne and Wattson"
+ * means everything, and placing an undated location is a judgement only
+ * someone who has played the hack can make.
+ */
+function timeline(estimates) {
+	const run = require(path.join(root, 'lib/run.js'));
+	const milestones = run.milestones(
+		run.createRun({name: 'timeline', now: 't0', permadeath: true}))
+		.filter(stone => stone.tier === 'boss')
+		.sort((a, b) => a.order - b.order);
+
+	const placed = [];
+	for (const map of maps) {
+		if (dateOf.has(map.map)) {
+			placed.push({name: map.name, order: dateOf.get(map.map), known: true});
+		}
+	}
+	for (const row of estimates) {
+		if (row.estimate === null || row.estimate === undefined) continue;
+		let confidence = 'SCATTERED';
+		if (row.spread === null) confidence = 'route-number';
+		else if (row.spread <= 100) confidence = 'TIGHT';
+		else if (row.spread <= 400) confidence = 'loose';
+		placed.push({name: row.name, order: row.estimate, known: false, confidence});
+	}
+	placed.sort((a, b) => a.order - b.order || (a.known ? -1 : 1));
+
+	// Locations with nothing to go on at all still have to be shown, or the
+	// person placing them will not know they exist.
+	const homeless = estimates.filter(row => row.estimate === null || row.estimate === undefined);
+
+	let index = 0;
+	for (const stone of [...milestones, {trainer: '(end of the run)', order: Infinity}]) {
+		const before = [];
+		while (index < placed.length && placed[index].order < stone.order) {
+			before.push(placed[index]);
+			index += 1;
+		}
+		if (before.length) {
+			for (const row of before) {
+				console.log(row.known
+					? `      ${String(row.order).padStart(4)}  ${row.name}`
+					: `  ??  ${String(row.order).padStart(4)}  ${row.name.padEnd(34)} <- GUESS (${row.confidence})`);
+			}
+		}
+		if (stone.order !== Infinity) {
+			console.log(`--- ${String(stone.order).padStart(4)}  ${stone.trainer} ` +
+				'-'.repeat(Math.max(0, 46 - stone.trainer.length)));
+		}
+	}
+	if (homeless.length) {
+		console.log('');
+		console.log('NO SIGNAL AT ALL (no walk table, so no level to read):');
+		homeless.forEach(row => console.log(`      ????  ${row.name}`));
+	}
+}
+
 function main() {
 	const asJson = process.argv.includes('--json');
 	const validation = crossValidate();
@@ -164,6 +225,10 @@ function main() {
 		};
 	});
 
+	if (process.argv.includes('--timeline')) {
+		timeline(estimates);
+		return;
+	}
 	if (asJson) {
 		console.log(JSON.stringify({validation: {
 			n: validation.n, medianError: validation.median,
@@ -194,4 +259,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {crossValidate, predictFromLevel, predictFromRouteNumber, walkLevels, neighbourSpread};
+module.exports = {crossValidate, predictFromLevel, predictFromRouteNumber, walkLevels, neighbourSpread, timeline};
