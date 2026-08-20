@@ -182,12 +182,11 @@ function timeline(estimates) {
 			before.push(placed[index]);
 			index += 1;
 		}
-		if (before.length) {
-			for (const row of before) {
-				console.log(row.known
-					? `      ${String(row.order).padStart(4)}  ${row.name}`
-					: `  ??  ${String(row.order).padStart(4)}  ${row.name.padEnd(34)} <- GUESS (${row.confidence})`);
-			}
+		for (const row of before) {
+			const order = String(row.order).padStart(4);
+			console.log(row.known ?
+				`      ${order}  ${row.name}` :
+				`  ??  ${order}  ${row.name.padEnd(34)} <- GUESS (${row.confidence})`);
 		}
 		if (stone.order !== Infinity) {
 			console.log(`--- ${String(stone.order).padStart(4)}  ${stone.trainer} ` +
