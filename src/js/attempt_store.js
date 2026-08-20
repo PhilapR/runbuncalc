@@ -328,7 +328,12 @@
 		if (!isObject(entry)) throw error('An archive entry is required.', 'INVALID_ARCHIVE');
 		var result = clone(entry);
 		result.archiveId = archiveId(result);
-		if (!result.archivedAt) result.archivedAt = result.endedAt || now();
+		// Deterministic: normalizing the same record twice must produce the
+		// same bytes, or the shelf's own divergence guard fires on a record
+		// that never changed. A legacy row with no endedAt used to pick up
+		// now() here, so re-importing the migration source on every history
+		// render made it look like a different run each time.
+		if (!result.archivedAt) result.archivedAt = result.endedAt || result.startedAt || null;
 		return result;
 	}
 

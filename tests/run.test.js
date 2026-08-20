@@ -2221,6 +2221,13 @@ test('the lethality rule credits an outspeeding floor KO and nothing weaker', ()
 	assert.equal(run.pairingLethal(
 		{them: lethalCrit, us: {min: 1.05}, speed: 'faster'}), false,
 	'outspeeding with a floor KO means the crit never lands');
+	// Priority ignores Speed: a Mach Punch crit swings first however fast we
+	// are, so the outspeed credit must not apply to it. Without this the app
+	// reports a Pokemon safe against the exact move that kills it.
+	assert.equal(run.pairingLethal(
+		{them: {critKO: true, critMax: 1.4, move: 'Mach Punch', critPriority: true},
+			us: {min: 1.05}, speed: 'faster'}), true,
+	'a priority crit cancels the outspeed credit');
 	assert.equal(run.pairingLethal(
 		{them: lethalCrit, us: {min: 1.05}, speed: 'tie'}), true,
 	'a speed tie is not outspeeding');
@@ -2252,6 +2259,38 @@ test('a clean fight reports no exposure, coverage or steps', () => {
 	assert.deepEqual(capped.coverage, [], 'no exposure means nothing to cover');
 	assert.deepEqual(capped.steps, [], 'a safe fight needs no steps');
 	assert.ok(Array.isArray(capped.openRoutes), 'unspent routes are always reported');
+});
+
+test('an option the bag cannot fund is never offered as a step', () => {
+	// Pinned on the selection rule itself, because no live fixture I could
+	// build produces an item step at all — and an end-to-end assertion that
+	// counts zero claims against a bag passes whether the rule works or not.
+	// The rule matters: an earlier version fell back to the unfunded list
+	// when nothing affordable helped, which handed one Focus Sash to three
+	// Pokemon and called each of them safe.
+	const sashStep = {steps: [{kind: 'give', spec: {item: 'Focus Sash'}, detail: 'Focus Sash'}]};
+	const teachStep = {steps: [{kind: 'teach', detail: 'Bite over Tackle'}]};
+	const twoSashes = {steps: [
+		{kind: 'give', spec: {item: 'Focus Sash'}, detail: 'Focus Sash'},
+		{kind: 'pickup', spec: {item: 'Focus Sash'}, detail: 'Focus Sash @ Route 121'},
+	]};
+
+	const stocked = run.affordableOptions([sashStep, teachStep], {'Focus Sash': 1});
+	assert.equal(stocked.length, 2, 'a funded item and a free teach both stand');
+
+	const empty = run.affordableOptions([sashStep], {});
+	assert.deepEqual(empty, [],
+		'an unfunded option is dropped, never offered as a fallback');
+
+	assert.deepEqual(run.affordableOptions([twoSashes], {'Focus Sash': 1}), [],
+		'one Sash cannot fund an option that claims two');
+
+	// The ledger is what makes the SECOND Pokemon see an empty pool.
+	const ledger = {'Focus Sash': 1};
+	assert.equal(run.affordableOptions([sashStep], ledger).length, 1);
+	run.spendFromBag(['Focus Sash'], ledger);
+	assert.deepEqual(run.affordableOptions([sashStep], ledger), [],
+		'once the first Pokemon claims it, no one else can be told to hold it');
 });
 
 test('one bag cannot fund two Pokemon', () => {
