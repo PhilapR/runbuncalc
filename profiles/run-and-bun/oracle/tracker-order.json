@@ -1,0 +1,205 @@
+{
+	"source": "docs/official/Pokemon Locations.xlsx (the R&B Google-Drive tracker), sheet 'Encounter Tables'",
+	"provenance": "derived",
+	"method": [
+		"The tracker lays each location out as a column pair on the Encounter Tables",
+		"sheet. Its location HEADERS are not stored in cells — they survive only in",
+		"xl/sharedStrings.xml, orphaned from any cell reference, so their order is",
+		"the order the strings were first written and not something the file states",
+		"outright.",
+		"",
+		"That inference is VALIDATED, not assumed: across the 64 dated locations the",
+		"tracker covers, its position rank-correlates with opensAt at 0.85. A wrong",
+		"order could not do that.",
+		"",
+		"0.85 and not the 0.96 an exact-name subset reports. The difference is five",
+		"Meteor Falls rooms, placed here right after Route 114 and dated 1526 by",
+		"availability.json. That is not a mapping error — it is the two files",
+		"answering different questions. The tracker orders by the intended",
+		"playthrough; availability.json orders by a location's FIRST TRAINER. You",
+		"walk past Meteor Falls early; nobody stands there to fight until very late.",
+		"Route 115 is the same shape: tracker #16, date-rank #25.",
+		"",
+		"For deciding what can be CAUGHT, the tracker asks the better question."
+	],
+	"caveat": "Order only. The tracker carries no fight orders, so a position must be interpolated against dated neighbours before it means anything.",
+	"order": [
+		"Littleroot Town",
+		"Route 101",
+		"Oldale Town",
+		"Route 103",
+		"Route 102",
+		"Petalburg City",
+		"Route 104",
+		"Dewford Town",
+		"Route 107",
+		"Route 106",
+		"Granite Cave 1F",
+		"Granite Cave B1F",
+		"Granite Cave B2F",
+		"Steven's Room",
+		"Route 109",
+		"Slateport City",
+		"Route 110",
+		"Petalburg Woods",
+		"Rustboro City",
+		"Route 115",
+		"Route 116",
+		"Rusturf Tunnel",
+		"Verdanturf Town",
+		"Route 117",
+		"Route 111",
+		"Route 118",
+		"Altering Cave",
+		"Mirage Tower 1F",
+		"Mirage Tower 2F",
+		"Mirage Tower 3F",
+		"Mirage Tower 4F",
+		"Route 113",
+		"Fallarbor Town",
+		"Desert Underpass",
+		"Route 114",
+		"Meteor Falls 1F1",
+		"Meteor Falls 1F2",
+		"Meteor Falls B1F1",
+		"Meteor Falls B1F2",
+		"Route 112",
+		"Fiery Path",
+		"Mt. Chimney",
+		"Jagged Pass",
+		"Route 134",
+		"New Mauville (Outside)",
+		"New Mauville (Inside)",
+		"Route 105",
+		"Route 108",
+		"Abandoned Ship B1F Rooms",
+		"Route 119",
+		"Fortree City",
+		"Route 120",
+		"Scorched Slab",
+		"Route 121",
+		"Safari Zone (South)",
+		"Safari Zone (Southwest)",
+		"Safari Zone (Northwest)",
+		"Safari Zone (North)",
+		"Lilycove City",
+		"Route 122",
+		"Route 123",
+		"Magma Hideout Room 1",
+		"Magma Hideout Room 2-4",
+		"Magma Hideout Room 5",
+		"Magma Hideout Room 6-7",
+		"Route 124",
+		"Mossdeep City",
+		"Route 125",
+		"Shoal Cave (Entrance/Inner)",
+		"Shoal Cave (Other Rooms)",
+		"Shoal Cave (Ice Room)",
+		"Route 127",
+		"Route 126",
+		"Sootopolis City",
+		"Route 128",
+		"Route 129",
+		"Ever Grande City",
+		"Seafloor Cavern Entrance",
+		"Seafloor Cavern Rooms 1-5",
+		"Seafloor Cavern Rooms 6-7",
+		"Seafloor Cavern Room 8",
+		"Cave of Origin Entrance/1F",
+		"Route 130",
+		"Route 131",
+		"Pacifidlog Town",
+		"Route 132",
+		"Route 133",
+		"Sky Pillar 1F and 3F",
+		"Sky Pillar 5F",
+		"Victory Road 1F",
+		"Victory Road B1F",
+		"Victory Road B2F",
+		"Underwater"
+	],
+	"groups": {
+		"Shoal Cave (Entrance/Inner)": [
+			"Shoal Cave Low Tide Entrance Room",
+			"Shoal Cave Low Tide Inner Room"
+		],
+		"Shoal Cave (Other Rooms)": [
+			"Shoal Cave Low Tide Stairs Room",
+			"Shoal Cave Low Tide Lower Room"
+		],
+		"Shoal Cave (Ice Room)": [
+			"Shoal Cave Low Tide Ice Room"
+		],
+		"Sky Pillar 1F and 3F": [
+			"Sky Pillar 1f",
+			"Sky Pillar 3f"
+		],
+		"Cave of Origin Entrance/1F": [
+			"Cave Of Origin Entrance",
+			"Cave Of Origin 1f"
+		],
+		"New Mauville (Outside)": [
+			"New Mauville Entrance"
+		],
+		"New Mauville (Inside)": [
+			"New Mauville Inside"
+		],
+		"Safari Zone (South)": [
+			"Safari Zone South"
+		],
+		"Safari Zone (Southwest)": [
+			"Safari Zone Southwest"
+		],
+		"Safari Zone (Northwest)": [
+			"Safari Zone Northwest"
+		],
+		"Safari Zone (North)": [
+			"Safari Zone North"
+		],
+		"Underwater": [
+			"Underwater Route124",
+			"Underwater Route126"
+		],
+		"Meteor Falls 1F1": [
+			"Meteor Falls 1f 1r"
+		],
+		"Meteor Falls 1F2": [
+			"Meteor Falls 1f 2r"
+		],
+		"Meteor Falls B1F1": [
+			"Meteor Falls B1f 1r"
+		],
+		"Meteor Falls B1F2": [
+			"Meteor Falls B1f 2r"
+		],
+		"Steven's Room": [
+			"Granite Cave Stevens Room"
+		],
+		"Seafloor Cavern Rooms 1-5": [
+			"Seafloor Cavern Room1",
+			"Seafloor Cavern Room2",
+			"Seafloor Cavern Room3",
+			"Seafloor Cavern Room4",
+			"Seafloor Cavern Room5"
+		],
+		"Seafloor Cavern Rooms 6-7": [
+			"Seafloor Cavern Room6",
+			"Seafloor Cavern Room7"
+		],
+		"Seafloor Cavern Room 8": [
+			"Seafloor Cavern Room8"
+		]
+	},
+	"absent": {
+		"comment": "In the oracle's wild tables but nowhere in the tracker. Left undated on purpose.",
+		"locations": [
+			"Artisan Cave 1f",
+			"Artisan Cave B1f",
+			"Safari Zone Southeast",
+			"Safari Zone Northeast",
+			"Cave Of Origin Unused Ruby Sapphire Map1",
+			"Cave Of Origin Unused Ruby Sapphire Map2",
+			"Cave Of Origin Unused Ruby Sapphire Map3"
+		]
+	}
+}

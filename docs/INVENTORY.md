@@ -54,6 +54,7 @@ Oracle datasets:
 - `fight-fields.json`: 35 fights
 - `growth.json`: 1114 species
 - `learnsets.json`: 1114 species
+- `tracker-order.json`: 7 species
 
 ## Where game knowledge lives (the provenance registry)
 Every registered claim, by how it is known. A claim missing from this list

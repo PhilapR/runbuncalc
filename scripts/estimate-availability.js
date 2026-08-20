@@ -103,6 +103,73 @@ function neighbourSpread(target, trainingRows, k = 5) {
 	return scored.length ? scored[scored.length - 1] - scored[0] : null;
 }
 
+const tracker = require(path.join(root, 'profiles/run-and-bun/oracle/tracker-order.json'));
+
+function normalizeName(name) {
+	return String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * Tracker position for each oracle location, via the sheet's own grouped
+ * names ("Sky Pillar 1F and 3F" covers two of ours) and a normalised match
+ * for the rest.
+ */
+const trackerPosition = new Map();
+tracker.order.forEach((name, position) => {
+	const members = tracker.groups[name] || [name];
+	for (const member of members) trackerPosition.set(normalizeName(member), position);
+});
+
+/**
+ * Predict an order from the TRACKER's progression order — the strongest
+ * signal available, and the one Philip pointed at.
+ *
+ * The tracker lists the map in the order a player walks it, including every
+ * trainerless place availability.json cannot see. It carries no fight orders
+ * of its own, so a position only means something once it is interpolated
+ * against the dated locations either side of it.
+ *
+ * Rank-correlation against the 64 dated locations it covers is 0.85 — very
+ * slightly BELOW the wild-level signal's 0.87, not above it. (An exact-name
+ * subset shows 0.96, but that subset excludes Meteor Falls, which is exactly
+ * where the two orderings disagree, so quoting it would be quoting the
+ * flattering half of the measurement.)
+ *
+ * It still outranks level, for reasons the correlation does not show:
+ *   - it COVERS places no other signal reaches. Littleroot, Mossdeep,
+ *     Pacifidlog and the Underwater routes have no walk table at all.
+ *   - it separates what level collapses. All four Mirage Tower floors
+ *     landed on one number under the level signal; the tracker orders them.
+ *   - it is a STATED order rather than an inference from a proxy, so a human
+ *     can check it against the game.
+ */
+function predictFromTracker(name, excludeName) {
+	const position = trackerPosition.get(normalizeName(name));
+	if (position === undefined) return null;
+	const anchors = [];
+	for (const map of maps) {
+		if (!dateOf.has(map.map) || map.name === excludeName) continue;
+		const at = trackerPosition.get(normalizeName(map.name));
+		if (at !== undefined) anchors.push({at, order: dateOf.get(map.map)});
+	}
+	if (!anchors.length) return null;
+	// A LOCAL MEDIAN of the nearest anchors in tracker space, not a straight
+	// line between the two immediate neighbours. The first version did the
+	// latter and scored WORSE than the weaker level signal — median 9 against
+	// 6 — because the two orderings, correlated at 0.967, are not perfectly
+	// monotone with each other. One local inversion sends a linear
+	// interpolation a thousand orders wrong: Route 112 predicted 1526 against
+	// an actual 496. A median over a small window absorbs the inversion
+	// instead of amplifying it.
+	const near = anchors
+		.map(row => ({order: row.order, distance: Math.abs(row.at - position)}))
+		.sort((a, b) => a.distance - b.distance)
+		.slice(0, 5)
+		.map(row => row.order)
+		.sort((a, b) => a - b);
+	return near[Math.floor(near.length / 2)];
+}
+
 /** Interpolate a numbered route from its dated numeric neighbours. */
 function predictFromRouteNumber(name) {
 	const number = routeNumber(name);
@@ -164,9 +231,12 @@ function timeline(estimates) {
 	for (const row of estimates) {
 		if (row.estimate === null || row.estimate === undefined) continue;
 		let confidence = 'SCATTERED';
-		if (row.spread === null) confidence = 'route-number';
-		else if (row.spread <= 100) confidence = 'TIGHT';
-		else if (row.spread <= 400) confidence = 'loose';
+		if (row.basis === 'tracker') confidence = 'tracker order';
+		else if (row.basis === 'route-number') confidence = 'route number';
+		else if (row.spread === null) confidence = 'no signal';
+		else if (row.spread <= 100) confidence = 'level: tight';
+		else if (row.spread <= 400) confidence = 'level: loose';
+		else confidence = 'level: scattered';
 		placed.push({name: row.name, order: row.estimate, known: false, confidence});
 	}
 	placed.sort((a, b) => a.order - b.order || (a.known ? -1 : 1));
@@ -200,6 +270,30 @@ function timeline(estimates) {
 	}
 }
 
+/** Leave-one-out for the tracker signal, on every dated location it covers. */
+function crossValidateTracker() {
+	const errors = [];
+	for (const map of maps) {
+		if (!dateOf.has(map.map)) continue;
+		if (trackerPosition.get(normalizeName(map.name)) === undefined) continue;
+		const predicted = predictFromTracker(map.name, map.name);
+		if (predicted === null) continue;
+		errors.push({
+			name: map.name, actual: dateOf.get(map.map), predicted,
+			error: Math.abs(predicted - dateOf.get(map.map)),
+		});
+	}
+	errors.sort((a, b) => a.error - b.error);
+	const within = threshold => errors.filter(row => row.error <= threshold).length / errors.length;
+	return {errors, median: errors[Math.floor(errors.length / 2)].error, within, n: errors.length};
+}
+
+/** First non-null, in order of how much the evidence is worth. */
+function pick(candidates) {
+	for (const value of candidates) if (value !== null && value !== undefined) return value;
+	return null;
+}
+
 function main() {
 	const asJson = process.argv.includes('--json');
 	const validation = crossValidate();
@@ -209,6 +303,7 @@ function main() {
 		const levels = walkLevels(map);
 		const fromLevel = predictFromLevel(levels, trainingRows);
 		const fromRoute = predictFromRouteNumber(map.name);
+		const fromTracker = predictFromTracker(map.name);
 		return {
 			map: map.map,
 			name: map.name,
@@ -216,10 +311,14 @@ function main() {
 			maxLevel: levels ? levels.max : null,
 			fromLevel,
 			fromRoute,
-			// A route number is direct geographic evidence and outranks a
-			// level lookalike; level is the fallback; neither means no answer.
-			estimate: fromRoute !== null ? fromRoute : fromLevel,
-			basis: fromRoute !== null ? 'route-number' : (fromLevel !== null ? 'wild-level' : 'none'),
+			fromTracker,
+			// The tracker states where a location sits in the playthrough, so
+			// it outranks both inferences. A route number is next — direct
+			// geographic evidence. Wild level is the last resort.
+			estimate: pick([fromTracker, fromRoute, fromLevel]),
+			basis: fromTracker !== null ? 'tracker' :
+				fromRoute !== null ? 'route-number' :
+					fromLevel !== null ? 'wild-level' : 'none',
 			spread: neighbourSpread(levels, trainingRows),
 		};
 	});
@@ -258,4 +357,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {crossValidate, predictFromLevel, predictFromRouteNumber, walkLevels, neighbourSpread, timeline};
+module.exports = {crossValidate, crossValidateTracker, predictFromLevel, predictFromTracker, predictFromRouteNumber, walkLevels, neighbourSpread, timeline, trackerPosition, normalizeName};
