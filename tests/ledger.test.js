@@ -49,10 +49,18 @@ test('a fix names a commit that exists, and an open finding names none', () => {
 	assert.ok(fixed.length, 'the ledger records at least one fix to check');
 	for (const row of fixed) {
 		assert.ok(row.fixed_in, `${row.id} is fixed but names no commit`);
+		// ANCESTRY, not existence. `git cat-file -e` was the first version of
+		// this check and it is too weak: a commit that was amended away still
+		// resolves as a dangling object until gc, so the ledger kept pointing
+		// at a SHA that had left the branch and this test stayed green. That
+		// happened here, in this session, one commit after the gate was
+		// written. merge-base --is-ancestor is the question actually meant:
+		// is this fix in the history we are on?
 		assert.doesNotThrow(
-			() => childProcess.execFileSync('git', ['cat-file', '-e', row.fixed_in + '^{commit}'],
+			() => childProcess.execFileSync('git',
+				['merge-base', '--is-ancestor', row.fixed_in, 'HEAD'],
 				{cwd: root, stdio: 'ignore'}),
-			`${row.id} names commit ${row.fixed_in}, which is not in this repository`);
+			`${row.id} names commit ${row.fixed_in}, which is not an ancestor of HEAD`);
 	}
 	for (const row of db.prepare("SELECT id, fixed_in FROM findings WHERE status = 'open'").all()) {
 		assert.equal(row.fixed_in, null, `${row.id} is open but names a fixing commit`);
