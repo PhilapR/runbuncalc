@@ -184,3 +184,28 @@ test('hover styling never reaches a touch screen, and never takes focus with it'
 			'a focus-visible selector must never sit behind the hover guard');
 	}
 });
+
+test('a method gate names what it needs, never a bare number beside a species', () => {
+	// Philip, reading the live app: "it says: If you come back · 4 more from
+	// fight #589 — but that's the pokemon #". He is right. Beside a species
+	// name, "#589" reads as a National Dex number, and #589 is Escavalier.
+	// The fight order was never the useful fact anyway; the player needs to
+	// know the slot wants Surf.
+	const panel = fs.readFileSync(path.join(__dirname, '..', 'src/js/run_panel.js'), 'utf8');
+
+	assert.doesNotMatch(panel, /'\s*·\s*#'\s*\+\s*gated/,
+		'an encounter row must not append a bare #number after a species');
+	assert.doesNotMatch(panel, /more from fight #/,
+		'the come-back header must not quote a bare fight number either');
+
+	// And it must positively say what is needed. A pure absence check would
+	// pass if someone deleted the label entirely.
+	assert.match(panel, /needs\s*'\s*\+\s*methodNeed\(|gateLabel\(mon\.method\)/,
+		'a gated row must name its requirement');
+	assert.match(panel, /more once you have/,
+		'the come-back header must name the requirement');
+	for (const method of ['surf', 'rock-smash', 'fish']) {
+		assert.ok(panel.includes(`'${method}'`) || panel.includes(`${method}:`),
+			`every gateable method needs a player-facing word: ${method}`);
+	}
+});

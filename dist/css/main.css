@@ -2711,8 +2711,25 @@ table.field {
 #runbun-run .runbun-run-encounters li:last-child {
 	border-bottom: 0;
 }
+/* A columnar row, not a sentence.
+ *
+ * Every field was concatenated into one string, so with proportional species
+ * names the level, method and odds started at a different x on every line and
+ * the list read as ragged prose. Fixed columns put level under level.
+ *
+ * The name column is 1fr so it absorbs a long species (Vivillon-Archipelago)
+ * without pushing the numbers out of alignment; the rest are sized to their
+ * widest real content. min-content on the gate column lets it collapse to
+ * nothing on the rows that are not gated. */
 #runbun-run .runbun-run-encounter {
-	display: block;
+	display: grid;
+	/* The name is CAPPED, not 1fr, and a trailing 1fr eats the slack. With
+	 * the name on 1fr the four fields aligned correctly but spread across
+	 * the full container width, leaving a chasm between "Surskit" and its
+	 * level. Grouping them left keeps the row scannable as one unit. */
+	grid-template-columns: minmax(0, 12rem) 4rem 5.5rem 3.5rem minmax(0, 1fr);
+	align-items: baseline;
+	column-gap: var(--rb-space-sm);
 	width: 100%;
 	text-align: left;
 	background: none;
@@ -2723,6 +2740,28 @@ table.field {
 	font-size: var(--rb-text-body);
 	color: inherit;
 	cursor: pointer;
+}
+/* The name may wrap or ellipsise; the numeric columns never do, because a
+ * wrapped number is what breaks a column. */
+#runbun-run .runbun-run-encounter-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#runbun-run .runbun-run-encounter-level,
+#runbun-run .runbun-run-encounter-method,
+#runbun-run .runbun-run-encounter-odds {
+	white-space: nowrap;
+	color: var(--rb-ink-muted);
+}
+/* Odds are the one column read down rather than across, so they get the
+ * tabular figures and a right edge to compare against. */
+#runbun-run .runbun-run-encounter-odds {
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+#runbun-run .runbun-run-encounter-level {
+	font-variant-numeric: tabular-nums;
 }
 #runbun-run .runbun-run-encounter:focus-visible {
 	background: var(--rb-surface-sunken);

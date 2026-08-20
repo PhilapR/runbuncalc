@@ -1672,7 +1672,7 @@
 				$method.append($('<option></option>')
 					.attr('value', mon.method)
 					.prop('disabled', !!gated)
-					.text(gated ? mon.method + ' — opens at fight #' + gated : mon.method));
+					.text(gated ? mon.method + ' — not yet, needs ' + methodNeed(mon.method) : mon.method));
 			});
 			if (openMethods.length) $method.val(openMethods[0]);
 			$('#runbun-run-roll').prop('disabled', !openMethods.length)
@@ -1734,16 +1734,33 @@
 						.attr('data-method', mon.method)
 						.prop('disabled', !!gated)
 						.attr('title', gated ?
-							mon.method + ' opens at fight #' + gated +
-								' — this one is not claimable yet' :
+							'Needs ' + methodNeed(mon.method) +
+								', which arrives at fight number ' + gated +
+								' — not claimable yet' :
 							mon.dupe ? dupeTitle :
 								typeof mon.odds === 'number' && mon.odds !== mon.chance ?
 									mon.chance + '% raw, ' + mon.odds + '% once dupes are re-rolled' : null)
-						.text((mon.owned ? '✓ ' : '') + mon.species + '  L' + mon.minLevel +
-							(mon.maxLevel === mon.minLevel ? '' : '-' + mon.maxLevel) +
-							(mon.rod ? '  ' + mon.rod : '') +
-							(odds ? '  · ' + odds : '') +
-							(gated ? '  · #' + gated : '')));
+						// One SPAN per field, so the CSS grid can put level under
+						// level and odds under odds. This was a single flat
+						// string — "Surskit  L2-3  Super Rod  · 40%" — and with
+						// proportional species names nothing below the first
+						// column could ever line up.
+						.append($('<span class="runbun-run-encounter-name"></span>')
+							.text((mon.owned ? '✓ ' : '') + mon.species))
+						.append($('<span class="runbun-run-encounter-level"></span>')
+							.text('L' + mon.minLevel +
+								(mon.maxLevel === mon.minLevel ? '' : '-' + mon.maxLevel)))
+						.append($('<span class="runbun-run-encounter-method"></span>')
+							.text(mon.rod || ''))
+						.append($('<span class="runbun-run-encounter-odds"></span>')
+							.text(odds)));
+				// No per-row gate label. The group heading above these rows
+				// already reads "4 more once you have Surf", so repeating it
+				// on every line was noise — and worse, it widened one column
+				// on gated rows only, which pushed the level and odds columns
+				// 68px out of line with the claimable rows above them. Every
+				// row now has the same four fields, so they all line up. The
+				// row's own tooltip still names the requirement exactly.
 			}
 			var claimable = found.mons.filter(function (mon) { return !mon.methodGated; });
 			var waiting = found.mons.filter(function (mon) { return !!mon.methodGated; });
@@ -1756,17 +1773,41 @@
 					.text('Nothing here is catchable yet'));
 			}
 			if (waiting.length) {
-				var soonest = waiting.reduce(function (min, mon) {
-					return min === null || mon.methodGated < min ? mon.methodGated : min;
-				}, null);
+				// Name the requirement, not the order. If the waiting slots all
+				// want the same thing, say it; if they differ, stay general
+				// rather than picking one and misleading about the others.
+				var needs = waiting.map(function (mon) { return methodNeed(mon.method); })
+					.filter(function (need, index, all) { return all.indexOf(need) === index; });
 				$list.append($('<li class="runbun-run-encounter-group"></li>')
-					.text('If you come back · ' + waiting.length +
-						' more from fight #' + soonest));
+					.text('If you come back · ' + waiting.length + ' more once you have ' +
+						(needs.length === 1 ? needs[0] : needs.slice(0, -1).join(', ') +
+							' and ' + needs[needs.length - 1])));
 				waiting.forEach(function (mon) { $list.append(encounterRow(mon)); });
 			}
 		}).catch(function (error) {
 			status(error.message, 'error');
 		});
+	}
+
+	// What a gated encounter is ACTUALLY waiting on, in the player's words.
+	//
+	// This used to print the bare fight order — "· #589" — right beside a
+	// species name, where it reads as a National Dex number. #589 is
+	// Escavalier. The number was never the useful fact anyway: what the
+	// player needs to know is that the slot wants Surf.
+	var METHOD_NEEDS = {
+		surf: 'Surf',
+		'rock-smash': 'Rock Smash',
+		fish: 'a Rod',
+	};
+
+	function methodNeed(method) {
+		return METHOD_NEEDS[method] || method;
+	}
+
+	/** "needs Surf", or the raw method when we have no better word for it. */
+	function gateLabel(method) {
+		return 'needs ' + methodNeed(method);
 	}
 
 	function planningFights(trainer, limit) {
