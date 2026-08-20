@@ -306,7 +306,7 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	assert.equal(await page.$$eval('#runbun-run-plan-outlook-list li', rows => rows.length), 2,
 		'the current forecast belongs in the plan; the next two belong in the outlook');
 	assert.match(await page.textContent('#runbun-run-plan-actions'),
-		/PARTIAL PLAN · Pokemon Mono · lead Treecko L5 · \d+\/8 sampled branches deathless/);
+		/PARTIAL PLAN · Pokemon Mono · lead Treecko L5 · \d+ of 8 fair-dice samples came back clean/);
 	assert.match(await page.textContent('#runbun-run-plan-outlook'),
 		/bounded eight-seed checks, not certified safe routes/);
 	assert.equal(await page.textContent('#runbun-run-plan-evidence'),

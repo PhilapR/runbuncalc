@@ -1300,7 +1300,7 @@
 						.text(comparisonText(row.comparison)));
 					$card.append($('<p class="runbun-history-plan-fact"></p>').text(plan ?
 						'Plan · lead ' + (plan.leadSpecies || plan.leadId || 'not recorded') + ' · ' +
-						plan.safeBranches + '/' + plan.branches + ' sampled branches deathless' +
+						plan.safeBranches + '/' + plan.branches + ' fair-dice samples clean' +
 						(Number.isFinite(plan.expectedTurns) ? ' · ' + plan.expectedTurns +
 							' expected turns' : '') + (row.planCount > 1 ?
 							' · latest of ' + row.planCount : '') :
@@ -1882,7 +1882,7 @@
 					.text('Lead ' + (lead ? monLabel(lead) : summary.recommendedLeadId)))
 				.append($('<span class="runbun-run-plan-outlook-result"></span>')
 					.text(summary.safeBranches + '/' + summary.branchesEvaluated +
-						' sampled branches deathless')));
+						' samples clean')));
 		});
 	}
 
@@ -2025,8 +2025,11 @@
 			} else if (forecast) {
 				var summary = forecast.receipt.result.summary;
 				var lead = findBoxed(summary.recommendedLeadId);
-				var branchLabel = summary.safeBranches + '/' + summary.branchesEvaluated +
-					' sampled branches deathless';
+				// A fair-dice sample is evidence, not a guarantee: 8 clean samples
+				// still permit a fight that kills one run in twelve. The wording
+				// says what was measured and nothing more.
+				var branchLabel = summary.safeBranches + ' of ' + summary.branchesEvaluated +
+					' fair-dice samples came back clean';
 				var risk = forecast.receipt.result.safe ? 'no deaths observed' :
 					'worst sampled branch loses ' + summary.deaths;
 				$actions.prepend($('<div class="runbun-run-action is-provider is-top"></div>')
@@ -2310,6 +2313,64 @@
 		});
 	}
 
+	/**
+	 * The run's single worst-case verdict for a fight, from the same cells the
+	 * board colours: which of our party a crit can kill, and how many of their
+	 * Pokemon can do it. Every surface reads this — the readiness strip, the
+	 * plan card, the rank rows — so the app stops speaking four dialects about
+	 * the same risk.
+	 */
+	function worstCaseVerdict(payload) {
+		if (!payload || !payload.grid || !payload.box) return null;
+		var partyIds = (state && state.party) || [];
+		var rows = payload.box.map(function (mon, index) { return {mon: mon, index: index}; })
+			.filter(function (entry) { return partyIds.indexOf(entry.mon.id) !== -1; });
+		if (!rows.length) return null;
+		var lethal = [];
+		rows.forEach(function (entry) {
+			payload.grid.forEach(function (row) {
+				var cell = row.versus[entry.index];
+				if (cell && cell.them && cell.them.critKO) {
+					lethal.push({
+						ours: entry.mon.nickname || entry.mon.species,
+						theirs: row.enemy.species,
+						move: cell.them.critMove || cell.them.move,
+					});
+				}
+			});
+		});
+		var leadId = partyIds[0];
+		var leadRow = rows.filter(function (entry) { return entry.mon.id === leadId; })[0];
+		var leadAtRisk = leadRow ? lethal.some(function (hit) {
+			return hit.ours === (leadRow.mon.nickname || leadRow.mon.species);
+		}) : false;
+		return {
+			lethal: lethal,
+			leadAtRisk: leadAtRisk,
+			exposed: lethal.reduce(function (names, hit) {
+				if (names.indexOf(hit.ours) === -1) names.push(hit.ours);
+				return names;
+			}, []),
+		};
+	}
+
+	function renderWorstCase(verdict) {
+		var $risk = $('#runbun-run-ready-risk');
+		if (!verdict) {
+			$risk.text('Check matchup').removeAttr('data-risk');
+			return;
+		}
+		if (!verdict.lethal.length) {
+			$risk.attr('data-risk', 'safe').text('No crit kills anyone');
+			return;
+		}
+		var first = verdict.lethal[0];
+		$risk.attr('data-risk', verdict.leadAtRisk ? 'lethal' : 'thin')
+			.text(first.theirs + '\u2019s ' + first.move + ' crit KOs ' + first.ours +
+				(verdict.exposed.length > 1 ?
+					' (+' + (verdict.exposed.length - 1) + ' more exposed)' : ''));
+	}
+
 	// ---------------------------------------------------------- matchup board
 
 	/**
@@ -2414,6 +2475,7 @@
 			' · dark = harder hit · ring = KO · ▲ we are faster · ' +
 			'our numbers are minimum rolls, theirs assume a critical hit');
 		$matrix.attr('data-trainer', payload.trainer);
+		renderWorstCase(worstCaseVerdict(payload));
 		$matrix.append(matrixTable(payload, 'us', 'What we can rely on — floor roll, % of their HP'));
 		$matrix.append(matrixTable(payload, 'them', 'What we must survive — their crit, % of ours'));
 	}
