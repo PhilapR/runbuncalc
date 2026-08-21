@@ -23,8 +23,15 @@
  * That makes the run a test of the ADVICE. If following the panel's own
  * displayed reasoning wipes the run, that is a finding about the panel.
  *
+ * It plays with everything the rules allow: field items are collected off the
+ * routes they stand on, held items are given from the bag, and the party is
+ * the one Rank scores highest rather than whatever the box order gave. Items
+ * IN a trainer fight are not offered and must not be — `no-items-in-trainer-
+ * fights` is the ruling, so moves and switches are the whole action set.
+ *
  *   node scripts/ui-playthrough.js
  *   node scripts/ui-playthrough.js --starter=Chimchar --fights=60 --budget=900
+ *   node scripts/ui-playthrough.js --party=box     # skip the ranker
  *   node scripts/ui-playthrough.js --headed        # watch it play
  */
 
@@ -52,6 +59,7 @@ const STARTER = flag('starter', 'Piplup');
 const MAX_FIGHTS = Number(flag('fights', 200));
 const BUDGET_MS = Number(flag('budget', 1500)) * 1000;
 const PLAN_EVERY = Number(flag('plan', 1));
+const PARTY_MODE = flag('party', 'rank');
 const HEADED = process.argv.includes('--headed');
 
 const started = Date.now();
@@ -119,6 +127,7 @@ function readRun(page) {
 			box: run ? run.box.map(mon => ({
 				id: mon.id, species: mon.species, level: mon.level,
 				status: mon.status, moves: (mon.moves || []).slice(),
+				item: mon.item || null,
 			})) : [],
 			bag: run ? run.bag : {},
 		};
@@ -266,6 +275,85 @@ async function takeEncounters(page) {
 	return taken;
 }
 
+/**
+ * Every field item standing on a reachable route. One click records the
+ * pickup, the list redraws without it, so the loop reads the list again
+ * rather than trusting a stale handle — and stops the moment a pass does
+ * not shrink it, because a button that will not clear is a bug, not a queue.
+ */
+async function takeItems(page) {
+	for (let pass = 0; pass < 24; pass++) {
+		if (outOfTime()) return;
+		const items = await page.$$eval('#runbun-run .runbun-run-pickup-take',
+			els => els.map(el => el.getAttribute('data-item')));
+		if (!items.length) return;
+		const button = await page.$('#runbun-run .runbun-run-pickup-take');
+		if (!button) return;
+		const took = await act(page, 'take ' + items[0], () => button.click());
+		if (!took.changed) {
+			note('item', items[0] + ' refused — ' + (took.status || 'no reason given'));
+			return;
+		}
+		note('item', 'picked up ' + items[0]);
+		const left = await page.$$eval('#runbun-run .runbun-run-pickup-take', els => els.length);
+		if (left >= items.length) {
+			problem('items', 'taking ' + items[0] + ' did not clear it from the list');
+			return;
+		}
+	}
+}
+
+/**
+ * A held item is free stats and the run's own opponents all carry one. The
+ * bag holds consumables too and `give` is the only authority on what can be
+ * held, so a refusal teaches the driver rather than repeating.
+ */
+const notHoldable = new Set();
+
+async function equipParty(page) {
+	const view = await readRun(page);
+	const bare = view.box.filter(mon => mon.status !== 'dead' && !mon.item &&
+		view.party.indexOf(mon.id) !== -1);
+	for (const mon of bare) {
+		if (outOfTime()) return;
+		if (!await selectMon(page, mon.id)) continue;
+		const options = await page.$$eval('#runbun-run-hold-item option',
+			els => els.map(el => el.value).filter(Boolean));
+		const wanted = options.find(item => !notHoldable.has(item));
+		if (!wanted) continue;
+		// `give` reads the select, so the choice has to land in the control
+		// and not only in this function.
+		await page.selectOption('#runbun-run-hold-item', wanted);
+		const given = await act(page, 'give ' + wanted, () => page.click('#runbun-run-give'));
+		if (!given.changed) {
+			notHoldable.add(wanted);
+			note('item', wanted + ' cannot be held — ' + (given.status || 'refused'));
+			continue;
+		}
+		note('item', mon.species + ' holds ' + wanted);
+	}
+}
+
+/**
+ * `give` accepts anything in the bag, but the calculator refuses a Potion —
+ * and the refusal only arrives when the run tries to plan or fight, at which
+ * point nothing works until the item comes off. The message says "fix or take
+ * the item", so do exactly that, and never offer that item again.
+ * Recorded as `held-item-picker-offers-what-no-pokemon-can-hold`.
+ */
+async function unbrickHeldItems(page, message) {
+	const blame = /(.+?) \(player-\d+\) holds "(.+?)", which is not an item/.exec(message || '');
+	if (!blame) return false;
+	notHoldable.add(blame[2]);
+	const view = await readRun(page);
+	const mon = view.box.find(entry => entry.species === blame[1] && entry.item === blame[2]);
+	if (!mon || !await selectMon(page, mon.id)) return false;
+	const took = await act(page, 'take ' + blame[2], () => page.click('#runbun-run-take'));
+	note('item', 'took ' + blame[2] + ' back off ' + blame[1] +
+		' — the picker offered an item nothing can hold');
+	return took.changed;
+}
+
 function capOf(view) {
 	const hit = /Level cap (\d+)/.exec(view.cap || '');
 	return hit ? Number(hit[1]) : null;
@@ -298,17 +386,16 @@ async function levelAndEvolve(page) {
 	const view = await readRun(page);
 	const cap = capOf(view);
 	if (cap === null) return;
-	// Only the six that will actually fight. Levelling the whole box is what a
-	// player does not do, and by the twentieth catch it costs more clicks per
-	// fight than the fight does.
-	const fighting = view.box.filter(mon => mon.status !== 'dead').slice(0, PARTY_LIMIT);
+	// The party first, then enough of the reserve to fill a six. Levelling the
+	// whole box is what a player does not do, and by the twentieth catch it
+	// costs more clicks per fight than the fight does.
+	const alive = view.box.filter(mon => mon.status !== 'dead');
+	const fighting = alive.filter(mon => view.party.indexOf(mon.id) !== -1)
+		.concat(alive.filter(mon => view.party.indexOf(mon.id) === -1))
+		.slice(0, PARTY_LIMIT);
 	for (const mon of fighting) {
 		if (outOfTime()) break;
-		const row = await page.$('#runbun-run-box .runbun-run-mon[data-id="' + mon.id +
-			'"] .runbun-run-mon-select');
-		if (!row) continue;
-		await row.click();
-		await page.waitForTimeout(40);
+		if (!await selectMon(page, mon.id)) continue;
 		if (mon.level < cap) {
 			const grew = await act(page, 'level ' + mon.species,
 				() => page.click('#runbun-run-level-cap'));
@@ -340,6 +427,30 @@ async function levelAndEvolve(page) {
 	}
 }
 
+/**
+ * Put a Pokemon on the details screen, wherever it currently lives.
+ *
+ * The PC list holds only the RESERVE — `renderBox` filters out anything in
+ * the committed party — so a box-only selector silently does nothing for the
+ * six that actually fight, and every command keyed on the selection (level,
+ * evolve, give) quietly skips them.
+ */
+async function selectMon(page, id) {
+	const targets = [
+		'#runbun-run-party-strip .runbun-run-party-select[data-id="' + id + '"]',
+		'#runbun-run-box .runbun-run-mon[data-id="' + id + '"] .runbun-run-mon-select',
+	];
+	for (const selector of targets) {
+		const found = await page.$(selector);
+		if (!found) continue;
+		await found.click();
+		await page.waitForTimeout(40);
+		const now = await page.$eval('#runbun-run-selected', el => el.value);
+		if (now === id) return true;
+	}
+	return false;
+}
+
 /** One id per SLOT. `[data-id]` also matches the name, up and remove buttons
  * inside each slot, so it reports every party member four times. */
 function stagedIds(page) {
@@ -347,57 +458,144 @@ function stagedIds(page) {
 		els => els.map(el => el.getAttribute('data-id')));
 }
 
-async function buildParty(page) {
-	const view = await readRun(page);
-	const alive = view.box.filter(mon => mon.status !== 'dead');
-	const wanted = alive.slice(0, PARTY_LIMIT).map(mon => mon.id);
-	// Membership, not order. Order belongs to the plan's recommended lead, and
-	// treating a reorder as "wrong" made this rebuild the party after every
-	// fight for no reason.
-	const sameSet = wanted.length === view.party.length &&
-		wanted.every(id => view.party.indexOf(id) !== -1);
-	if (sameSet) return;
+/** Stage exactly these ids, in this order — click order is lead order — and
+ * commit them as one party command. */
+async function stageParty(page, wanted, why) {
+	const matches = staged => staged.length === wanted.length &&
+		staged.every((id, at) => id === wanted[at]);
 
-	// Toggle against the CURRENT staging, re-read each time. `.runbun-run-add`
-	// is a toggle and a late render resets the staging to the saved party, so a
-	// blind remove-all-then-add-all can end up switching everything back off
-	// and committing an empty party.
-	for (let attempt = 0; attempt < 3; attempt++) {
-		for (const id of await stagedIds(page)) {
-			if (wanted.indexOf(id) !== -1) continue;
-			const remove = await page.$('#runbun-run-party-strip .runbun-run-party-rm[data-id="' +
-				id + '"]');
-			if (remove) await remove.click();
+	// A member that is un-staged but still in the COMMITTED party is on no
+	// list at all — the PC list filters on state.party, the strip renders
+	// stagedParty, and nothing shows the difference. So never un-stage someone
+	// who is staying: drop only the leavers, commit that, and the newcomers
+	// become addable. Recorded as `unstaged-party-member-is-on-no-list`.
+	const leaving = (await stagedIds(page)).filter(id => wanted.indexOf(id) === -1);
+	for (const id of leaving) {
+		const remove = await page.$('#runbun-run-party-strip .runbun-run-party-rm[data-id="' +
+			id + '"]');
+		if (remove) await remove.click();
+		await page.waitForTimeout(30);
+	}
+	if (leaving.length) await act(page, 'drop', () => page.click('#runbun-run-set-party'));
+
+	for (const id of wanted) {
+		if ((await stagedIds(page)).indexOf(id) !== -1) continue;
+		const add = await page.$('#runbun-run-box .runbun-run-mon[data-id="' + id +
+			'"] .runbun-run-add');
+		if (add) await add.click();
+		await page.waitForTimeout(30);
+	}
+
+	// Order is the lead, and the only control that changes it without
+	// un-staging anyone is the strip's up arrow. Selection sort: walk each
+	// wanted slot and bubble the right member into it.
+	for (let slot = 0; slot < wanted.length; slot++) {
+		for (let guard = 0; guard < PARTY_LIMIT; guard++) {
+			const staged = await stagedIds(page);
+			const at = staged.indexOf(wanted[slot]);
+			if (at <= slot) break;
+			const up = await page.$('#runbun-run-party-strip .runbun-run-party-up[data-id="' +
+				wanted[slot] + '"]');
+			if (!up) break;
+			await up.click();
+			await page.waitForTimeout(30);
 		}
-		for (const id of wanted) {
-			if ((await stagedIds(page)).indexOf(id) !== -1) continue;
-			const add = await page.$('#runbun-run-box .runbun-run-mon[data-id="' + id +
-				'"] .runbun-run-add');
-			if (add) await add.click();
-		}
-		const now = await stagedIds(page);
-		if (now.length === wanted.length && wanted.every(id => now.indexOf(id) !== -1)) break;
 	}
 	const finalStaged = await stagedIds(page);
 	if (!finalStaged.length) {
 		problem('party', 'could not stage a party from ' + wanted.length + ' living Pokemon');
-		return;
+		return false;
 	}
 	const offered = await page.evaluate(() => {
 		const el = document.querySelector('.runbun-run-party-commit');
 		return !!el && !el.hidden;
 	});
 	if (!offered) {
-		problem('party', 'staged ' + wanted.length + ' but the panel offers no way to commit');
-		return;
+		// Nothing to commit is the normal answer when the staged six already
+		// IS the party, which is what a stable ranking looks like.
+		if (!matches(finalStaged)) {
+			problem('party', 'staged ' + finalStaged.length + ' of a wanted ' + wanted.length +
+				' but the panel offers no way to commit');
+		}
+		return matches(finalStaged);
 	}
 	const set = await act(page, 'set party', () => page.click('#runbun-run-set-party'));
 	const landed = (await savedRun(page)).party.length;
 	if (landed !== wanted.length) {
 		problem('party', 'committed ' + wanted.length + ' but the run kept ' + landed +
 			' — ' + set.status);
+		return false;
 	}
-	note('party', landed + ' ready — ' + (set.status || 'committed'));
+	note('party', (why || 'party') + ' · ' + landed + ' ready — ' +
+		(set.status || 'committed'));
+	return true;
+}
+
+/** The fallback when the ranker is not being used or could not answer: the
+ * living box in order, membership only. Order belongs to the plan's
+ * recommended lead, so a reorder is not a reason to rebuild. */
+async function buildParty(page) {
+	const view = await readRun(page);
+	const alive = view.box.filter(mon => mon.status !== 'dead');
+	const wanted = alive.slice(0, PARTY_LIMIT).map(mon => mon.id);
+	const sameSet = wanted.length === view.party.length &&
+		wanted.every(id => view.party.indexOf(id) !== -1);
+	if (sameSet) return true;
+	return stageParty(page, wanted, 'box order');
+}
+
+/**
+ * The tool's own answer to "who should fight this": Rank scores every legal
+ * six against the next trainer. Following it is the strongest form of
+ * following the plan — and it is also the only way to find out whether the
+ * ranking is worth anything.
+ *
+ * The rows carry no ids, only species with the lead in brackets, so the six
+ * is matched back to the box by species. The dupes clause keeps that
+ * unambiguous; without it the first living match is taken.
+ */
+async function rankParty(page) {
+	const view = await readRun(page);
+	if (view.box.filter(mon => mon.status !== 'dead').length < 2) return false;
+	await page.evaluate(() => {
+		const list = document.querySelector('#runbun-run-ranking');
+		if (list) list.innerHTML = '';
+	});
+	await page.click('#runbun-run-rank');
+	try {
+		await page.waitForFunction(
+			() => document.querySelectorAll('#runbun-run-ranking li').length > 0,
+			null, {timeout: 180000});
+	} catch (error) {
+		problem('rank', 'the ranker never answered — ' + (await text(page, '#runbun-run-status')));
+		return false;
+	}
+	const top = await page.evaluate(() => {
+		const row = document.querySelector('#runbun-run-ranking li');
+		return {
+			six: (row.querySelector('.runbun-run-rank-six') || {}).textContent || '',
+			whole: row.textContent.trim().replace(/\s+/g, ' '),
+			note: (document.querySelector('#runbun-run-rank-note') || {}).textContent || '',
+		};
+	});
+	note('rank', top.whole);
+	const names = top.six.trim().split(/\s+/).filter(Boolean);
+	const lead = names.find(name => name.charAt(0) === '[');
+	const ordered = (lead ? [lead].concat(names.filter(name => name !== lead)) : names)
+		.map(name => name.replace(/^\[/, '').replace(/\]$/, ''));
+	const alive = view.box.filter(mon => mon.status !== 'dead');
+	const wanted = [];
+	for (const species of ordered) {
+		const mon = alive.find(entry => entry.species === species &&
+			wanted.indexOf(entry.id) === -1);
+		if (mon) wanted.push(mon.id);
+	}
+	if (wanted.length !== ordered.length) {
+		problem('rank', 'the ranked six names ' + ordered.join(', ') +
+			' but only ' + wanted.length + ' matched a living box entry');
+	}
+	if (!wanted.length) return false;
+	return stageParty(page, wanted, 'ranked');
 }
 
 /** The plan before the fight: what the panel says will happen, recorded now so
@@ -412,13 +610,23 @@ async function readPlan(page) {
 		if (el) el.textContent = '';
 	});
 	await page.click('#runbun-run-plan');
+	// A verdict OR a refusal — waiting only for the verdict spends the whole
+	// timeout staring at an error the panel already printed.
 	try {
-		await page.waitForFunction(
-			() => (document.querySelector('#runbun-run-plan-verdict') || {}).textContent,
-			null, {timeout: 120000});
+		await page.waitForFunction(() => {
+			const verdict = (document.querySelector('#runbun-run-plan-verdict') || {}).textContent;
+			const status = document.querySelector('#runbun-run-status');
+			return !!verdict || (status && status.getAttribute('data-kind') === 'error');
+		}, null, {timeout: 120000});
 	} catch (error) {
 		problem('plan', 'the plan never produced a verdict — ' +
 			(await text(page, '#runbun-run-status')));
+		return null;
+	}
+	if (!await text(page, '#runbun-run-plan-verdict')) {
+		const refusal = await text(page, '#runbun-run-status');
+		if (await unbrickHeldItems(page, refusal)) return readPlan(page);
+		problem('plan', 'refused — ' + refusal);
 		return null;
 	}
 	const read = await page.evaluate(() => {
@@ -547,6 +755,25 @@ function decide(view, switchedFor) {
 	return replacement ? {kind: 'switch', pick: replacement, why: 'nothing to click'} : null;
 }
 
+/** Press Fight and wait for the battle OR for the panel to say why not. */
+async function openFight(page) {
+	await page.click('#runbun-run-play');
+	try {
+		await page.waitForFunction(() => {
+			const panel = document.querySelector('#runbun-run-battle');
+			const status = document.querySelector('#runbun-run-status');
+			return (panel && !panel.hidden) ||
+				(status && status.getAttribute('data-kind') === 'error');
+		}, null, {timeout: 30000});
+	} catch (error) {
+		return false;
+	}
+	return page.evaluate(() => {
+		const panel = document.querySelector('#runbun-run-battle');
+		return !!panel && !panel.hidden;
+	});
+}
+
 async function playFight(page, plan) {
 	const switchedFor = new Set();
 	const turns = [];
@@ -671,8 +898,13 @@ async function main() {
 		}
 
 		await takeEncounters(page);
+		await takeItems(page);
 		await levelAndEvolve(page);
+		// The ranker needs a party to exist before it can score sixes, and its
+		// answer replaces whatever box order put there.
 		await buildParty(page);
+		if (PARTY_MODE === 'rank') await rankParty(page);
+		await equipParty(page);
 
 		const ready = await readRun(page);
 		if (ready.playDisabled) {
@@ -697,12 +929,15 @@ async function main() {
 			await followLead(page, plan);
 		}
 
-		await page.click('#runbun-run-play');
-		try {
-			await page.waitForSelector('#runbun-run-battle:not([hidden])', {timeout: 30000});
-		} catch (error) {
-			problem('run', 'the fight never opened — ' + (await text(page, '#runbun-run-status')));
-			break;
+		let opened = await openFight(page);
+		if (!opened) {
+			// The one refusal a player can act on from the message alone.
+			const refusal = await text(page, '#runbun-run-status');
+			if (await unbrickHeldItems(page, refusal)) opened = await openFight(page);
+			if (!opened) {
+				problem('run', 'the fight never opened — ' + refusal);
+				break;
+			}
 		}
 		const played = await playFight(page, plan);
 		fights.push({
