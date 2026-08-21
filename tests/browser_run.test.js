@@ -1328,7 +1328,7 @@ test('a damaged save is handed back for repair, not quietly replaced', {skip}, a
 	await session.context.close();
 });
 
-test('a turn that resolves after its fight is gone is dropped, not thrown', async () => {
+test('a turn that resolves after its fight is gone is dropped, not thrown', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
 	await page.waitForFunction(() => {
@@ -1344,8 +1344,15 @@ test('a turn that resolves after its fight is gone is dropped, not thrown', asyn
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(() =>
 		/takes the lead/.test(document.querySelector('#runbun-run-status').textContent));
-	// Slow the turn down so the abandon lands while it is in flight.
+	// Slow the turn down so the abandon lands while it is in flight, and COUNT
+	// the turns. The staging check below used to be `!!cleared` — that the
+	// abandon button exists in the DOM — which is true whether or not a turn
+	// was ever sent. Guarding the move click with an early return, so no
+	// request is issued at all and the race is physically impossible, left
+	// this test green.
+	let actRequests = 0;
 	await page.route('**/run/battle/act', async route => {
+		actRequests += 1;
 		await new Promise(resolve => setTimeout(resolve, 1200));
 		await route.continue();
 	});
@@ -1355,19 +1362,179 @@ test('a turn that resolves after its fight is gone is dropped, not thrown', asyn
 	// Fire the turn and abandon it in the SAME task, so the abandon lands
 	// while the act request is still in flight — the exact sequence that
 	// used to surface a raw TypeError when the reply came back.
-	const raced = await page.evaluate(() => {
+	await page.evaluate(() => {
 		document.querySelector('.runbun-run-battle-move').click();
-		const cleared = document.querySelector('#runbun-run-battle-abandon');
-		cleared.click();
-		return !!cleared;
+		document.querySelector('#runbun-run-battle-abandon').click();
 	});
-	assert.equal(raced, true, 'the race was actually staged');
+	// The turn really went out, and the fight really was abandoned under it.
+	// Both halves have to be true or there is no race to survive.
+	assert.equal(actRequests, 1,
+		'a turn must actually have been in flight — otherwise nothing is being raced');
+	await page.waitForFunction(
+		() => document.querySelector('#runbun-run-battle').hidden,
+		null, {timeout: 5000});
+
 	await page.waitForTimeout(3000);
-	// The reply belonged to a fight that no longer exists: dropped silently,
-	// never surfaced as a raw TypeError.
-	assert.doesNotMatch(await page.textContent('#runbun-run-status'),
-		/Cannot set properties|Cannot read propert|undefined is not/,
-		'a late turn must not surface a JavaScript error to the player');
+
+	// POSITIVE outcome, not the absence of three hardcoded V8 phrases. The old
+	// check missed anything worded differently — "x is not a function" walks
+	// straight past /Cannot set properties|Cannot read propert|undefined is not/.
+	// session.errors collects every uncaught pageerror, so this catches the
+	// whole class rather than three spellings of it.
+	assert.deepEqual(session.errors, [],
+		'a late turn must not surface any JavaScript error to the player');
+	// And the panel is genuinely back to the run, not wedged mid-fight.
+	assert.equal(await page.isHidden('#runbun-run-battle'), true,
+		'the abandoned fight stays closed when its late reply lands');
+	assert.ok(await page.isVisible('#runbun-run-live'),
+		'and the run is answerable again');
+
+	// The reply must be dropped SILENTLY. Two guards drop it — one on the
+	// success path, one on the failure path — and they fail differently, so
+	// both surfaces have to be checked or one mutation hides behind the other:
+	//
+	//   success guard gone   battle is non-null, the stale reply repaints and
+	//                        re-opens the panel — the isHidden check above
+	//   BOTH guards gone     battle is null, the assignment throws, and the
+	//                        catch writes the failure to the result and status
+	//                        lines. Nothing is thrown to the page and the panel
+	//                        stays shut, so only THIS check sees it.
+	assert.notEqual(await page.getAttribute('#runbun-run-battle-result', 'data-kind'), 'error',
+		'a dropped turn must not report itself as a failed one');
+	assert.doesNotMatch(await page.textContent('#runbun-run-battle-result'),
+		/did not resolve/,
+		'the player never asked for this turn any more — it must not be mentioned');
+	await session.context.close();
+});
+
+test('a late turn never lands on the fight that replaced it', {skip}, async () => {
+	// The success-path guard, isolated.
+	//
+	// The abandon-race test above cannot see it: there the reply arrives with
+	// no fight at all, so `battle` is null, the assignment throws, and the
+	// CATCH guard drops it. Either guard alone suffices, which is why removing
+	// either one alone left that test green — the auditor's exact finding.
+	//
+	// `battle.bundle !== actedOn` is not really about null. It is about the
+	// reply belonging to a DIFFERENT fight, and that only happens when a new
+	// one has started underneath it. Then the success path runs to completion
+	// and writes another battle's state over the live one.
+	const session = await open();
+	const page = session.page;
+	await page.waitForFunction(() => {
+		const button = document.querySelector('#runbun-run-new');
+		const events = button && window.jQuery && window.jQuery._data(button, 'events');
+		return events && events.click;
+	});
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('#runbun-run-box .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(() =>
+		/takes the lead/.test(document.querySelector('#runbun-run-status').textContent));
+
+	// Only the FIRST turn is slowed, so the second fight is live and settled
+	// by the time the first one's reply comes back.
+	let acts = 0;
+	await page.route('**/run/battle/act', async route => {
+		acts += 1;
+		if (acts === 1) await new Promise(resolve => setTimeout(resolve, 1500));
+		await route.continue();
+	});
+
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])');
+	await page.waitForSelector('.runbun-run-battle-move');
+	const firstFoe = await page.textContent('#runbun-run-battle-foe-name');
+
+	// Fire the slow turn, abandon, and immediately open a NEW fight.
+	await page.evaluate(() => {
+		document.querySelector('.runbun-run-battle-move').click();
+		document.querySelector('#runbun-run-battle-abandon').click();
+	});
+	await page.waitForFunction(() => document.querySelector('#runbun-run-battle').hidden);
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])');
+	await page.waitForSelector('.runbun-run-battle-move');
+	assert.equal(acts, 1, 'exactly one turn is in flight, and it belongs to the old fight');
+
+	const secondFoe = await page.textContent('#runbun-run-battle-foe-name');
+	// The LOG is the discriminator, not the opponent's name: both fights are
+	// the same trainer, so the name is identical either way and asserting on
+	// it proves nothing. The new fight is fresh and has no turns in it; the
+	// stale reply carries the old fight's events, and paintBattle APPENDS
+	// them, so a repaint shows up here and nowhere else.
+	const freshLog = await page.$$eval('#runbun-run-battle-log li', rows => rows.length);
+	await page.waitForTimeout(3000);
+
+	// The old fight's reply has landed by now. It must have changed nothing.
+	assert.deepEqual(session.errors, [], 'a stale reply must not throw');
+	assert.ok(await page.isVisible('#runbun-run-battle'),
+		'the NEW fight is still open — the stale reply did not close it');
+	assert.equal(await page.$$eval('#runbun-run-battle-log li', rows => rows.length), freshLog,
+		'the abandoned fight\'s turn must not be written into the fight that replaced it');
+	assert.equal(await page.textContent('#runbun-run-battle-foe-name'), secondFoe,
+		'and the new fight still shows its own opponent');
+	assert.notEqual(await page.getAttribute('#runbun-run-battle-result', 'data-kind'), 'error',
+		'nor report the abandoned turn as a failure');
+	void firstFoe;
+	await session.context.close();
+});
+
+test('a turn that FAILS after its fight is gone is dropped too', {skip}, async () => {
+	// The catch-path guard, isolated.
+	//
+	// The two tests above cannot see it. In both, the request succeeds, so the
+	// success path runs and its own guard is enough to drop the reply — remove
+	// only the catch guard and nothing changes. The catch path only runs when
+	// the turn genuinely fails, and then its guard is the ONLY thing standing
+	// between a dead fight and an error message about it.
+	const session = await open();
+	const page = session.page;
+	await page.waitForFunction(() => {
+		const button = document.querySelector('#runbun-run-new');
+		const events = button && window.jQuery && window.jQuery._data(button, 'events');
+		return events && events.click;
+	});
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('#runbun-run-box .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(() =>
+		/takes the lead/.test(document.querySelector('#runbun-run-status').textContent));
+
+	// The turn goes out and then FAILS, slowly enough to be abandoned first.
+	let attempted = 0;
+	await page.route('**/run/battle/act', async route => {
+		attempted += 1;
+		await new Promise(resolve => setTimeout(resolve, 1200));
+		await route.abort('failed');
+	});
+
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])');
+	await page.waitForSelector('.runbun-run-battle-move');
+	await page.evaluate(() => {
+		document.querySelector('.runbun-run-battle-move').click();
+		document.querySelector('#runbun-run-battle-abandon').click();
+	});
+	assert.equal(attempted, 1, 'a turn must actually have been in flight');
+	await page.waitForFunction(() => document.querySelector('#runbun-run-battle').hidden);
+	await page.waitForTimeout(3000);
+
+	// The failure belongs to a fight the player already walked away from.
+	// Telling them about it is the bug.
+	assert.notEqual(await page.getAttribute('#runbun-run-battle-result', 'data-kind'), 'error',
+		'an abandoned fight must not report its dead turn as a failure');
+	assert.doesNotMatch(await page.textContent('#runbun-run-battle-result'), /did not resolve/,
+		'nor put the failure text on screen');
+	assert.doesNotMatch(await page.textContent('#runbun-run-status'), /did not resolve|failed/i,
+		'nor in the run status line');
+	assert.ok(await page.isVisible('#runbun-run-live'), 'the run is answerable again');
 	await session.context.close();
 });
 
