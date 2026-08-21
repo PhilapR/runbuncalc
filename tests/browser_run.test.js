@@ -29,6 +29,8 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const planningRequest = require('../contracts/ecosystem/v1/planning-request.json');
 const seededProviderReceipt = require('../contracts/ecosystem/v1/seeded-provider-receipt.json');
@@ -2203,5 +2205,71 @@ test('nothing in the run panel overflows, clips its own label, or paints as an e
 		assert.equal(report.documentOverflow, 0,
 			`the page must not scroll sideways at ${where}`);
 	}
+	await opened.context.close();
+});
+
+test('the worst-case cell is a control, and pressing it actually answers', {skip}, async () => {
+	// Found by playing a run. The readiness strip showed "Worst case: Check
+	// matchup" as PLAIN TEXT, beside a button of exactly that name — and that
+	// button runs plan(), which answers a different question (how contested
+	// the opponent's choice is) and never touches this cell. Only board()
+	// computes the worst case, and board() had no control anywhere in the
+	// strip. So the instruction named a button that could not satisfy it, and
+	// following it did nothing at all.
+	const opened = await open();
+	const page = opened.page;
+	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
+	await page.waitForSelector('#runbun-run-undo');
+
+	// A party is needed before a matchup means anything.
+	await page.evaluate(() => {
+		const add = [...document.querySelectorAll('button')]
+			.find(b => /Add .* to staged party/i.test(b.getAttribute('aria-label') || ''));
+		if (add) add.click();
+	});
+	await page.evaluate(() => {
+		const use = [...document.querySelectorAll('button')]
+			.find(b => /^Use this party$/i.test(b.textContent.trim()));
+		if (use) use.click();
+	});
+	await page.waitForFunction(
+		() => /lead/i.test(document.querySelector('#runbun-run-ready-party').textContent),
+		null, {timeout: 15000});
+
+	// Assert on the control only AFTER the strip has re-rendered. Checking it
+	// straight after page load proved nothing: index.template.html ships the
+	// button in the initial markup, so the assertion passed even with
+	// renderWorstCase reverted to writing plain text. The party change forces
+	// a real render through the JS path being tested.
+	const control = await page.$('#runbun-run-ready-risk-check');
+	assert.ok(control,
+		'the unanswered worst-case cell must be a button, not prose');
+	// Where that button comes from matters. renderWorstCase has exactly one
+	// call site — the board render — so its !verdict branch is only a RESTORE
+	// path; the control a player actually meets is shipped by
+	// index.template.html. Reverting the JS alone therefore changes nothing
+	// visible, which is why this asserts the template too.
+	const template = fs.readFileSync(
+		path.join(__dirname, '..', 'src/index.template.html'), 'utf8');
+	assert.match(template,
+		/<dd id="runbun-run-ready-risk">\s*<button[^>]*id="runbun-run-ready-risk-check"/,
+		'the readiness strip must ship the worst-case control, not a bare label');
+	assert.equal(
+		await page.$eval('#runbun-run-ready-risk-check', el => el.tagName),
+		'BUTTON', 'and a real button, so it is reachable by keyboard');
+
+	// Pressing it must produce an answer, not leave the same instruction.
+	await page.click('#runbun-run-ready-risk-check');
+	await page.waitForFunction(
+		() => !document.querySelector('#runbun-run-ready-risk-check'),
+		null, {timeout: 30000});
+	const answered = await page.$eval('#runbun-run-ready-risk',
+		el => ({text: el.textContent.trim(), risk: el.getAttribute('data-risk')}));
+	assert.notEqual(answered.text, 'Check matchup',
+		'the cell must stop asking once it has been asked');
+	assert.ok(['safe', 'thin', 'lethal'].includes(answered.risk),
+		`the cell must carry a verdict, got ${JSON.stringify(answered)}`);
+
 	await opened.context.close();
 });

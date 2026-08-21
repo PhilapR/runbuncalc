@@ -2405,9 +2405,20 @@
 	function renderWorstCase(verdict) {
 		var $risk = $('#runbun-run-ready-risk');
 		if (!verdict) {
-			$risk.text('Check matchup').removeAttr('data-risk');
+			// A real control, not a sentence. This read "Check matchup" as
+			// plain text beside a BUTTON of the same name — and that button
+			// runs plan(), which answers a different question (how decided the
+			// opponent's choice is) and never fills this cell. Only board()
+			// computes the worst case, and board() had no control anywhere in
+			// this strip, so following the instruction did nothing at all.
+			$risk.removeAttr('data-risk').empty().append(
+				$('<button type="button" id="runbun-run-ready-risk-check"' +
+					' class="runbun-run-risk-check"></button>')
+					.text('Check matchup'));
 			return;
 		}
+		// Once there is an answer the cell is prose again, not a control.
+		$risk.empty();
 		if (!verdict.lethal.length) {
 			$risk.attr('data-risk', 'safe').text('No crit kills anyone');
 			return;
@@ -3708,6 +3719,11 @@
 		});
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-board', function () {
 			board($(this).attr('data-trainer'));
+		});
+		// The worst-case cell asks for a matchup; pressing it must produce one.
+		$(document).on('click', '#runbun-run-ready-risk-check', function () {
+			var next = lastStatus && lastStatus.upcoming && lastStatus.upcoming[0];
+			board(next ? next.trainer : undefined);
 		});
 		// The gauntlet rows plan and board like the road ahead. No Beaten button
 		// there on purpose: marking a distant boss beaten silently skips every

@@ -1890,6 +1890,34 @@ table.field {
  * with no children they rendered as a 2px-tall bordered box — a stray rule
  * floating under the party strip, 589px wide against a 1042px column, which
  * read as a broken divider rather than as nothing. */
+/* The worst-case cell in its unanswered state. It reads as the value it will
+ * become, not as a chrome button, because it sits inside a definition list
+ * beside "At the active cap" and "Fresh" — but it IS a control, so it takes a
+ * focus ring and a pointer like one. */
+#runbun-run .runbun-run-risk-check {
+	appearance: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	color: var(--rb-action);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	cursor: pointer;
+}
+#runbun-run .runbun-run-risk-check:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+@media (hover: hover) {
+	#runbun-run .runbun-run-risk-check:hover {
+		color: var(--rb-action-hover);
+	}
+}
+
 #runbun-run .runbun-run-plan-actions:empty,
 #runbun-run .runbun-run-advice:empty,
 #runbun-run .runbun-run-encounters:empty,
