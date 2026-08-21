@@ -690,6 +690,36 @@
       "fixed_in": null,
       "falsified": 0,
       "evidence": "Philip caught it reading a completed test run: 'we didn't level did we...'. Correct — the run had no levelUp command at all, and the box finished at catch levels (Turtwig L5, Lillipup L2, Gossifleur L2, Surskit L2). The battle driver still fought at 'Turtwig L12 · at cap' because it projects to the next milestone (Team Aqua Grunt Petalburg Woods, ace Croagunk, cap 12), so the simulation was fair. But the gap between stored and projected is real work the tool never names: Turtwig 7 levels, Gossifleur 10. In a nuzlocke that is hours of grinding, and preFightOpportunities — the literal 'before this fight' list — has no level key. The projection is right; the silence about how to reach it is not."
+    },
+    {
+      "id": "levelling-never-teaches-anything",
+      "source": "philip/play",
+      "raised_on": "2026-08-21",
+      "severity": "high",
+      "area": "solver",
+      "file": "lib/run.js",
+      "line": 2583,
+      "claim": "The levelUp command raises the level and leaves the moveset untouched, so a Pokemon levelled from 5 to 12 permanently knows only its level-5 moves. Philip: 'We are not fighting with the right movesets because we're not actually leveling the Pokemon. We're just inflating the level to the cap.'",
+      "verdict": "confirmed",
+      "status": "fixed",
+      "fixed_in": "ee686b5",
+      "falsified": 0,
+      "evidence": "Measured: catch Chimchar at L5 (Scratch, Leer, Ember), levelUp to cap -> L12 with the SAME three moves. Its real learnset gives Mach Punch at L10. Every fight after any level-up was fought with a moveset the Pokemon would not have. Fixed so a free slot fills automatically — which is what the game does without asking — while a full moveset is reported for a deliberate teach rather than guessed at, because the game stops and asks which move to forget."
+    },
+    {
+      "id": "projection-inflated-level-not-moveset",
+      "source": "philip/play",
+      "raised_on": "2026-08-21",
+      "severity": "high",
+      "area": "solver",
+      "file": "lib/run.js",
+      "line": 1084,
+      "claim": "partySpecs projects a party to the cap of the fight being planned but copies moves verbatim from the box, so every matchup, plan and safety answer was computed against a moveset the player would not have at that level.",
+      "verdict": "confirmed",
+      "status": "fixed",
+      "fixed_in": "ee686b5",
+      "falsified": 0,
+      "evidence": "Read at lib/run.js:1084 — level was Math.max(mon.level, projected) while moves was mon.moves. Confirmed live in the UI: Chimchar shown as 'L12 - at cap' offering only Scratch, Ember and Leer. The same projectMoves helper now backs both projection and the real levelUp, so the two cannot drift apart."
     }
   ]
 }
