@@ -251,10 +251,10 @@
       "line": 350,
       "claim": "assert.equal(entry.chance, recomputed && entry.chance) evaluates to entry.chance whenever the recomputed value is non-zero, so the assertion compares a value to itself and the recomputed number is discarded.",
       "verdict": "confirmed",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "Read the source. Auditor also shifted the real quote by -5% and by hardcoding the catch rate to 255, both green. The fixture is Poochyena, whose rate IS 255, so the test cannot tell 'reads the rate' from 'hardcodes it' — and the test hardcodes it too."
+      "status": "fixed",
+      "fixed_in": "711599f",
+      "falsified": 1,
+      "evidence": "Read the source. Auditor also shifted the real quote by -5% and by hardcoding the catch rate to 255, both green. The fixture is Poochyena, whose rate IS 255, so the test cannot tell 'reads the rate' from 'hardcodes it' — and the test hardcodes it too. FIXED. The `X && entry.chance` tautology is gone and the quote is compared to a recomputed value from the ORACLE's rate rather than a hardcoded 255 — Poochyena's own rate, which is why the test could not tell 'reads the rate' from 'hardcodes it'. A second species discriminates: Abra at 200, NOT Ralts at 235, because the quote rounds to whole percent and 235 and 255 both land on 34%. Falsified: shift the quote -5% -> RED; hardcode 255 -> RED."
     },
     {
       "id": "abandon-race-anti-vacuity-is-vacuous",
@@ -281,10 +281,10 @@
       "line": 684,
       "claim": "The test claims the suspect-clock flag is part of the hash chain from birth, but deleting it from eventHashInput keeps the test green, because the hash is computed the same wrong way at write and at validate.",
       "verdict": "confirmed",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "Read eventHashInput: it deletes only id and eventHash, so production IS correct and the flag is covered. This is a test gap, not a production bug. Closing it means tampering with a bundle and expecting CORRUPT_EVENT."
+      "status": "fixed",
+      "fixed_in": "711599f",
+      "falsified": 1,
+      "evidence": "Read eventHashInput: it deletes only id and eventHash, so production IS correct and the flag is covered. This is a test gap, not a production bug. Closing it means tampering with a bundle and expecting CORRUPT_EVENT. FIXED. Round-tripping proved nothing because the hash is computed the same way at write and at validate. The test now STRIPS observedAtSuspect from an exported bundle, rechecksums it, and requires CORRUPT_EVENT. Falsified: delete the flag from eventHashInput -> RED."
     },
     {
       "id": "archive-shelf-supersedes-negative-case",
@@ -296,10 +296,10 @@
       "line": 646,
       "claim": "The shelf test only ever passes the correct prior checksum, so weakening the guard to accept any truthy supersedes stays green. A caller shipping supersedes: 'x' would overwrite any archive.",
       "verdict": "confirmed",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "Read the guard: production correctly requires incoming.supersedes === priorMark. Test gap. Closing it means asserting a wrong checksum is rejected with ARCHIVE_CONFLICT."
+      "status": "fixed",
+      "fixed_in": "711599f",
+      "falsified": 1,
+      "evidence": "Read the guard: production correctly requires incoming.supersedes === priorMark. Test gap. Closing it means asserting a wrong checksum is rejected with ARCHIVE_CONFLICT. FIXED. The test only ever passed the CORRECT prior checksum, so weakening the guard to accept any truthy supersedes stayed green. It now asserts that naming the WRONG checksum is still an ARCHIVE_CONFLICT and that the original survives it. Falsified: `if (incoming.supersedes) return;` -> RED."
     },
     {
       "id": "clean-fight-never-reaches-outspeed-credit",
@@ -341,10 +341,10 @@
       "line": 83,
       "claim": "The focus-ring assertion is substring presence in a CSS file, so keeping the selector and deleting its outline declaration stays green. Sibling assertions on the same line use a real regex and do bite.",
       "verdict": "reported",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": null
+      "status": "fixed",
+      "fixed_in": "711599f",
+      "falsified": 1,
+      "evidence": " FIXED. Substring presence replaced with a regex bounded to the rule's OWN braces. The first attempt used a {0,600} window and was still not a check: deleting the selector's outline let it match one from a later rule and stay green. Falsified: keep the selector, delete its outline -> RED."
     },
     {
       "id": "crit-list-drift-uncovered",
