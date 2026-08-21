@@ -394,3 +394,70 @@ test('a seeded fight never touches Math.random, even through random end-turn eff
 		Math.random = realRandom;
 	}
 });
+
+test('the threat line states the attrition race, not just the hardest hit', () => {
+	// A full nuzlocke wiped to Triathlete Mikey's Yanma while the panel read
+	// "survives one crit, not two". That sentence is TRUE and reads as a mild
+	// caution. The real position was two turns to die against eight to kill —
+	// Sonic Boom is a fixed 20 into 34 HP, and the best answer on hand did 5
+	// on its floor into 38 HP. Losing a race four to one is not a caution,
+	// and nothing on screen said it.
+	const mon = (id, species, extra) => Object.assign({
+		id, species, level: 12, hp: {current: 34, max: 34},
+		moves: [{name: 'Scratch', pp: 10, maxPP: 10}],
+	}, extra || {});
+	const position = (playerMoves, foeMoves) => ({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Yanma',
+				{level: 11, hp: {current: 38, max: 38}, moves: foeMoves})]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar',
+				playerMoves ? {moves: playerMoves} : {})]},
+		},
+	});
+
+	const losing = driver.incomingThreat(
+		position(null, [{name: 'Sonic Boom', pp: 10, maxPP: 10}]));
+	// The old verdict still stands and is still true — it is just not enough.
+	assert.equal(losing.survivesCrit, true, 'one Sonic Boom does not kill');
+	assert.equal(losing.survivesTwoCrits, false, 'two do');
+	// The new one names the race.
+	assert.equal(losing.race.outcome, 'lose');
+	assert.equal(losing.race.turnsToDie, 2, 'fixed 20 into 34 HP');
+	assert.equal(losing.race.turnsToKill, 8, 'a 5-damage floor into 38 HP');
+
+	// A better move shortens the race but does not automatically win it.
+	// Ember takes the kill from eight turns to three, and three against two
+	// is still a loss — which is the point: a stronger attack is not a
+	// mitigation when you are already too slow.
+	const withEmber = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	const better = driver.incomingThreat(withEmber);
+	assert.equal(better.race.turnsToKill, 3, 'Ember kills far faster than Scratch');
+	assert.equal(better.race.outcome, 'lose', 'and three turns is still more than two');
+
+	// A TIE goes to the faster side, because the faster side lands the last
+	// hit. Chimchar is slower here, so 3-against-3 is a loss, not a draw.
+	const tied = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	tied.sides.player.party[0].hp = {current: 60, max: 60};
+	const tie = driver.incomingThreat(tied);
+	assert.equal(tie.race.turnsToKill, tie.race.turnsToDie, 'a genuine tie on turns');
+	assert.equal(tie.race.faster, false);
+	assert.equal(tie.race.outcome, 'lose', 'the slower side loses a tie');
+
+	// Enough bulk to outlast it, and the verdict finally flips.
+	const bulky = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	bulky.sides.player.party[0].hp = {current: 100, max: 100};
+	const winning = driver.incomingThreat(bulky);
+	assert.equal(winning.race.turnsToDie, 5);
+	assert.equal(winning.race.outcome, 'win');
+
+	// Nothing that damages it at all is not a slow race, it is an unwinnable
+	// one, and must not read as "9 turns".
+	const helpless = driver.incomingThreat(
+		position([{name: 'Growl', pp: 10, maxPP: 10}], [{name: 'Sonic Boom', pp: 10, maxPP: 10}]));
+	assert.equal(helpless.race.outcome, 'cannot-win');
+	assert.equal(helpless.race.turnsToKill, null, 'no number can describe never');
+});

@@ -2907,13 +2907,26 @@
 		if (!threat || !threat.move) {
 			$threat.text('').removeAttr('data-risk');
 		} else {
-			$threat.attr('data-risk', threat.survivesCrit ?
+			// The RACE first when it is lost, because "survives one crit, not
+			// two" is true and reads as a caution. A nuzlocke wiped to a
+			// Sonic Boom under exactly that sentence: the real position was
+			// two turns to die against eight to kill, and nothing on screen
+			// said so.
+			var race = threat.race;
+			var losing = race && (race.outcome === 'lose' || race.outcome === 'cannot-win');
+			$threat.attr('data-risk', losing ? 'lethal' : threat.survivesCrit ?
 				(threat.survivesTwoCrits ? 'safe' : 'thin') : 'lethal')
 				.text('Their hardest hit: ' + threat.move + ' ' + threat.max + '%' +
 					(threat.crit > threat.max ? ' — ' + threat.crit + '% on a crit' : '') +
 					' · ' + (!threat.survivesCrit ? 'a crit KOs you' :
 					!threat.survivesTwoCrits ? 'survives one crit, not two' :
-						'survives a crit'));
+						'survives a crit') +
+					(!race ? '' : race.outcome === 'cannot-win' ?
+						' · NOTHING HERE DAMAGES IT — you cannot win this race' :
+						' · you need ' + race.turnsToKill + ' turn' +
+							(race.turnsToKill === 1 ? '' : 's') + ' to KO, they need ' +
+							race.turnsToDie + ' — ' +
+							(race.outcome === 'lose' ? 'YOU LOSE THIS RACE' : 'you win it')));
 		}
 
 		var $log = $('#runbun-run-battle-log');
