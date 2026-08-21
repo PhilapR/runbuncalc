@@ -675,6 +675,21 @@
       "fixed_in": null,
       "falsified": 0,
       "evidence": "Measured: 28 field items modelled against 127 location references across the six sheets of Item Locations.xlsx, whose first sheet is 'Heart Scale Location'. Every evolution stone is missing too — Fire, Water, Thunder, Moon, Sun, Dusk — which is the input evolution planning needs most. Plan: docs/MODELLING-GAPS.md phase 2."
+    },
+    {
+      "id": "worst-case-covers-the-ceiling-not-the-race",
+      "source": "review/test-run",
+      "raised_on": "2026-08-21",
+      "severity": "high",
+      "area": "solver",
+      "file": "lib/planner.js",
+      "line": null,
+      "claim": "Worst-case planning names the hardest SINGLE hit and whether a crit kills, but says nothing about an attrition race. A full nuzlocke wiped to repeated fixed-damage chip while the readiness strip read 'No crit kills anyone'.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "Played a complete nuzlocke in the browser. Won 5 fights (Calvin, Rick, Allen, Tiana, Mikey; position 0->9), then wiped: all four survivors died to Triathlete Mikey's Sonic Boom. Measured: Sonic Boom is fixed 20 damage, rolls=[20], min=max=20, every roll identical — no crit and no variance, so possibleKO and guaranteedKO both read false against a 34 HP target it two-shots. The switch logic fired four times, each triggered by the panel's own 'a crit KOs you' line, each into a 100% body, and every switch merely fed the next Pokemon in to be two-shotted. Against a fixed-damage attacker a switch is not a mitigation, and the tool's advice pointed at one. The ceiling verdict is sound; the missing question is 'can I out-race 20 a turn'."
     }
   ]
 }
