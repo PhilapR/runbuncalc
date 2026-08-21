@@ -316,7 +316,7 @@ function toCalcField(
   });
 }
 
-const HIGH_CRIT_MOVES = new Set([
+export const HIGH_CRIT_MOVES = new Set([
   'aeroblast', 'aircutter', 'attackorder', 'blazekick', 'crabhammer', 'crosschop',
   'crosspoison', 'drillrun', 'karatechop', 'leafblade', 'nightslash',
   'poisontail', 'psychocut', 'razorleaf', 'razorwind', 'shadowclaw',
@@ -324,7 +324,7 @@ const HIGH_CRIT_MOVES = new Set([
 ]);
 // Always-crit moves: not a stage bonus, a guarantee. Kept apart so the
 // stage math never double-counts them.
-const ALWAYS_CRIT_MOVES = new Set([
+export const ALWAYS_CRIT_MOVES = new Set([
   'frostbreath', 'stormthrow', 'surgingstrikes', 'wickedblow',
 ]);
 const CRIT_BLOCKING_ABILITIES = new Set(['battlearmor', 'shellarmor', 'magmaarmor']);

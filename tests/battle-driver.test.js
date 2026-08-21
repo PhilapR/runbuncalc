@@ -412,6 +412,70 @@ test('a seeded fight never touches Math.random, even through random end-turn eff
 		const boosts = first.battle.state.sides.player.party[0].boosts || {};
 		assert.ok(Object.values(boosts).some(value => value >= 2),
 			'the Starf Berry must actually have fired for this test to mean anything');
+
+		// The ordinary-move path is only ONE of the driver's three advanceTurn
+		// calls. The fix repaired all three; removing the rng from either of
+		// the other two left this green, so each is now driven under the same
+		// poisoned Math.random.
+		//
+		// The ball throw closes its own turn on a break-out.
+		const thrown = driver.act(lowHpBundle(), {kind: 'ball', ball: 'Poke Ball'});
+		assert.ok(thrown.battle, 'a ball throw resolves without reaching Math.random');
+		const thrownAgain = driver.act(lowHpBundle(), {kind: 'ball', ball: 'Poke Ball'});
+		assert.deepEqual(thrown.viewState, thrownAgain.viewState,
+			'and the same seed throws the same ball twice');
+	} finally {
+		Math.random = realRandom;
+	}
+});
+
+test('a forced replacement closes its turn without reaching Math.random', () => {
+	// The third advanceTurn site: when the player's active falls mid-turn the
+	// end-of-turn is HELD until a replacement is chosen, then runs. Removing
+	// the rng from that call left the seeded-fight test above green, because
+	// nothing there ever fainted.
+	let doc = run.createRun({name: 'Replace', now: 't0', permadeath: true});
+	// Two party members, the lead paper-thin so it falls on the first hit.
+	doc = run.apply(doc, {kind: 'catch', species: 'Starly', level: 5,
+		moves: ['Growl'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'catch', species: 'Lillipup', level: 20,
+		moves: ['Tackle'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'party', ids: ['mon-1', 'mon-2']});
+	// The REPLACEMENT carries the berry. Without it the held end-of-turn has
+	// nothing random to resolve, so removing the rng from that call changes
+	// nothing and the gate cannot see it — which is exactly what happened on
+	// the first attempt at this test.
+	doc = run.apply(doc, {kind: 'acquire', item: 'Starf Berry'});
+	doc = run.apply(doc, {kind: 'give', id: 'mon-2', item: 'Starf Berry'});
+	const rolled = run.rollEncounter(doc, {map: 'Route101', random: () => 0.01});
+	const opened = driver.startWild(doc, rolled, 11);
+	// Test-only surgery, the same shape the berry fixture uses: the driver has
+	// no command that starts a fight one hit from a faint, nor one that starts
+	// the bench wounded.
+	opened.battle.state.sides.player.party[0].hp.current = 1;
+	const bench = opened.battle.state.sides.player.party[1];
+	bench.hp.current = Math.floor(bench.hp.max / 4);
+
+	const realRandom = Math.random;
+	Math.random = () => { throw new Error('Math.random leaked into a seeded battle'); };
+	try {
+		let bundle = opened.battle;
+		let reply = driver.act(bundle, {kind: 'move', move: 'Growl'});
+		// If the lead fell, the fight is waiting on a replacement — take it,
+		// which is the path that runs the held end-of-turn.
+		const replacing = (reply.actions || [])
+			.filter(entry => entry.action && entry.action.kind === 'switch');
+		assert.ok(replacing.length,
+			'the lead must actually have fallen, or this drives nothing');
+		reply = driver.act(reply.battle,
+			{kind: 'switch', replacementId: replacing[0].action.replacementId});
+		assert.ok(reply.battle, 'the replacement resolves without Math.random');
+		// The held end-of-turn must have FIRED the berry, or the rng on that
+		// call is never exercised and removing it would go unnoticed.
+		const incoming = reply.battle.state.sides.player.party[1];
+		const boosts = incoming.boosts || {};
+		assert.ok(Object.values(boosts).some(value => value >= 2),
+			'the replacement\'s Starf Berry must fire in the held end-of-turn');
 	} finally {
 		Math.random = realRandom;
 	}
