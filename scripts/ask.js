@@ -60,9 +60,29 @@ const COMMANDS = {
 		const species = argv[0];
 		if (!species) throw new Error('where needs a species');
 		const found = oracle.whereToFind(species) || [];
-		if (json) return asJson(found);
-		if (!found.length) return console.log(`${species} is not on any wild table.`);
-		console.log(`${species} appears on ${found.length} table(s):`);
+		const availability = oracle.availabilityOfSpecies(species);
+		if (json) return asJson({...availability, tables: found});
+		// "not on any wild table" was the same sentence for a species the hack
+		// deleted and one that arrives as a gift. Those are opposite answers
+		// to a nuzlocke: stop planning around it, or go and collect it.
+		if (availability.status === 'unavailable') {
+			return console.log(`${species} cannot be obtained in Run & Bun — ${availability.reason}.`);
+		}
+		if (availability.status === 'not-modelled') {
+			return console.log(`${species} exists in Run & Bun but has no wild table, so it comes ` +
+				`from a source this tool does not model yet (${availability.notModelled.join(', ')}).\n` +
+				'  This is a gap in the tool, NOT a statement that you cannot get one.');
+		}
+		if (availability.status === 'contested') {
+			console.log(`${species} — SOURCES DISAGREE. ${availability.question}`);
+			console.log(`  the wild tables say: ${availability.wildSource}`);
+			console.log('');
+		}
+		if (availability.status === 'unreachable') {
+			console.log(`${species} has wild tables, but ${availability.reason}:`);
+		} else if (found.length) {
+			console.log(`${species} appears on ${found.length} table(s):`);
+		}
 		for (const row of found) {
 			const when = oracle.availabilityOf(row.name);
 			console.log(`  ${row.name.padEnd(24)} ${row.method.padEnd(6)} ` +

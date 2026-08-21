@@ -146,3 +146,55 @@ test('the starter choice is data, and the page offers exactly that data', () => 
 			`${starter.species} must have an evolution line on file`);
 	}
 });
+
+test('an absence says WHICH kind of absence it is', () => {
+	// The defect: ask.js where Kubfu and ask.js where Caterpie both answered
+	// "not on any wild table". Kubfu is a guaranteed gift; Caterpie was
+	// deleted by the hack. For a nuzlocke those are opposite instructions —
+	// go and collect it, or stop planning around it — and the tool said the
+	// same sentence for both.
+	const oracle = ask.oracle;
+
+	// Deleted by the hack, named in its own Unavailable list.
+	const removed = oracle.availabilityOfSpecies('Caterpie');
+	assert.equal(removed.status, 'unavailable');
+
+	// Generation IX is excluded wholesale — "All of them." with nothing named
+	// — so absence from the species data IS the answer. Enumerating that
+	// generation would be inventing a list the source does not give.
+	assert.equal(oracle.availabilityOfSpecies('Sprigatito').status, 'unavailable');
+
+	// Exists, obtainable, and we simply have not taught the tool the source.
+	for (const gift of ['Kubfu', 'Castform']) {
+		const answer = oracle.availabilityOfSpecies(gift);
+		assert.equal(answer.status, 'not-modelled',
+			`${gift} is a real gift — calling it unavailable would be a lie`);
+		assert.ok(answer.notModelled.includes('gift'), 'it names the sources still missing');
+	}
+
+	// Ordinary wild.
+	const wild = oracle.availabilityOfSpecies('Lillipup');
+	assert.equal(wild.status, 'wild');
+	assert.ok(wild.reachable.length, 'and at least one of its tables is reachable');
+
+	// A table in content nothing can date is not a way to get one. Six species
+	// are named unavailable AND carry wild tables for exactly this reason.
+	const stranded = oracle.availabilityOfSpecies('Smeargle');
+	assert.equal(stranded.status, 'unreachable');
+	assert.ok(stranded.wild.length, 'it does have tables — that is the whole trap');
+
+	// Two species where the author's workbook and the ROM tables disagree.
+	// Claiming either would be inventing certainty, so the tool says so.
+	for (const disputed of ['Geodude', 'Duraludon']) {
+		const answer = oracle.availabilityOfSpecies(disputed);
+		assert.equal(answer.status, 'contested',
+			`${disputed} is a real disagreement and must not be resolved silently`);
+		assert.ok(answer.question, 'a contested answer carries the open question');
+	}
+
+	// Every one of these must be a DIFFERENT answer, or the distinction is
+	// decorative.
+	const statuses = ['Caterpie', 'Kubfu', 'Lillipup', 'Smeargle', 'Geodude']
+		.map(name => oracle.availabilityOfSpecies(name).status);
+	assert.equal(new Set(statuses).size, 5, 'five situations, five answers');
+});

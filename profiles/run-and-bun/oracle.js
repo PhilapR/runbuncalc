@@ -96,6 +96,88 @@ function encountersOn(name) {
 }
 
 /** Every map a species can be caught on, with how. */
+const unavailableData = require('./oracle/unavailable.json');
+
+/**
+ * Every species this hack REMOVED, flattened once.
+ *
+ * Generation IX is listed as "All of them." rather than enumerated, so it
+ * cannot join this set — availabilityOfSpecies reports it by generation
+ * instead. Enumerating it here would be inventing a list the source does
+ * not give.
+ */
+const UNAVAILABLE = new Set();
+for (const generation of Object.keys(unavailableData.generations)) {
+	for (const name of unavailableData.generations[generation].species) UNAVAILABLE.add(name);
+}
+const UNAVAILABLE_WHOLE_GENERATIONS = Object.keys(unavailableData.generations)
+	.filter(generation => unavailableData.generations[generation].all);
+const CONTESTED = new Set(unavailableData.openQuestions.map(row => row.species));
+
+/**
+ * WHY a species cannot be found — the distinction the tool did not have.
+ *
+ * `unavailable` means the hack removed it and no amount of modelling will
+ * bring it back. `not-modelled` means it exists and we have not taught the
+ * tool that source yet: a gift, a trade, a Game Corner reward. Both used to
+ * answer "NOT FINDABLE", which told a nuzlocke player nothing about whether
+ * to keep looking.
+ *
+ * `contested` is the honest third answer for the two species where the
+ * author's workbook and the ROM tables disagree and neither has been shown
+ * wrong. Claiming either would be inventing certainty.
+ */
+function availabilityOfSpecies(species) {
+	// Not in this hack's species data at all. Generation IX is excluded
+	// wholesale — the source says "All of them." rather than naming any — so
+	// absence from the dex IS the answer, and enumerating that generation
+	// here would be inventing a list the source does not give.
+	if (!isKnownSpecies(species)) {
+		return {status: 'unavailable', reason: 'not in this hack\'s species data'};
+	}
+	const wild = whereToFind(species);
+	if (wild.length) {
+		if (CONTESTED.has(species)) {
+			const row = unavailableData.openQuestions.find(entry => entry.species === species);
+			return {status: 'contested', wild, question: row.question, wildSource: row.wildSource};
+		}
+		// A table in unreachable content is not a way to get one. Six species
+		// are listed unavailable AND carry wild tables for exactly this
+		// reason: the ROM keeps tables for areas the game never opens.
+		const reachable = wild.filter(entry => !!availabilityOf(entry.name));
+		if (!reachable.length) {
+			return {
+				status: 'unreachable',
+				wild,
+				reason: 'every wild table for it stands in content nothing can date — ' +
+					'the ROM keeps tables for areas the game does not open',
+			};
+		}
+		return {status: 'wild', wild, reachable};
+	}
+	if (UNAVAILABLE.has(species)) {
+		return {status: 'unavailable', reason: 'named in the hack\'s Unavailable Pokemon list'};
+	}
+	// It exists in this hack and has no wild table, so it comes from a source
+	// we have not modelled: a gift, a trade, a Game Corner reward, a fossil,
+	// an egg, a static. That is a different answer from "you cannot have it".
+	return {status: 'not-modelled', notModelled: NON_WILD_SOURCES_NOT_MODELLED};
+}
+
+/** Does this hack ship the species at all? */
+function isKnownSpecies(species) {
+	try {
+		return !!growthRateOf(species);
+	} catch (error) {
+		return false;
+	}
+}
+
+/** The sources that exist in the game and have no model yet. */
+const NON_WILD_SOURCES_NOT_MODELLED = Object.freeze([
+	'gift', 'trade', 'fossil', 'game-corner', 'egg', 'static',
+]);
+
 function whereToFind(species) {
 	const found = [];
 	for (const map of maps()) {
@@ -498,7 +580,7 @@ function moveAvailability() {
 }
 
 module.exports = {
-	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
 	moveAvailability, moveItems,
 	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,

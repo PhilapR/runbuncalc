@@ -55,6 +55,7 @@ Oracle datasets:
 - `growth.json`: 1114 species
 - `learnsets.json`: 1114 species
 - `tracker-order.json`: 7 species
+- `unavailable.json`: 7 species
 
 ## Where game knowledge lives (the provenance registry)
 Every registered claim, by how it is known. A claim missing from this list
@@ -124,7 +125,7 @@ the reader's warning to verify before trusting.
 - `docs/EVALUATION.md` — 1222266 2026-08-19
 - `docs/FORK_MAP.md` — 98b4a50 2026-08-18
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
-- `docs/MODELLING-GAPS.md` — untracked
+- `docs/MODELLING-GAPS.md` — 563093e 2026-08-21
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
 - `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18
