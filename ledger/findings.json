@@ -780,6 +780,51 @@
 			"fixed_in": null,
 			"falsified": 0,
 			"evidence": "Eight scripted playthroughs (scripts/ui-playthrough.js), eight different parties, all eight lost the forecast and all eight died at Lady Cindy. Before that fight the verdict read \"Lady Cindy — contested by 0.1. Plan for both.\" and the only sign of trouble was the LAST row of the action list, in the same grey as an unavailable option: \"— pokemon-mono seed check unavailable · No unique canonical RAB trainer exists for Team Aqua Grunt Petalburg Woods\" — a different trainer two fights away. renderPlanOutlook(null) then sets hidden on the whole outlook block and the is-top PARTIAL PLAN row is never prepended, so a dead forecast is indistinguishable from a plan that never had one. Compare a working forecast, which is unmissable: \"0 of 8 fair-dice samples came back clean · worst sampled branch loses 1\". Two causes feed it, both recorded separately: [[provider-ability-table-is-vanilla-not-run-and-bun]] and [[provider-cannot-resolve-42-percent-of-the-run-map]]. The batch makes it worse — client.planBatch covers the next three fights and fails as a unit, so an unresolvable trainer two steps ahead removes the forecast for the fight in front of you."
+		},
+		{
+			"id": "held-item-picker-offers-what-no-pokemon-can-hold",
+			"source": "review/test-run",
+			"raised_on": "2026-08-21",
+			"severity": "high",
+			"area": "ui",
+			"file": "src/js/run_panel.js",
+			"line": 616,
+			"claim": "The held-item picker offers every item in the bag, and give accepts any of them. Hand a Pokemon a Potion and the run cannot plan or fight until someone works out which Pokemon is holding what and takes it back.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Reproduced by scripts/ui-playthrough.js playing the panel as offered: it picked the first bag item out of #runbun-run-hold-item and pressed Give. Starly took a Potion, and the next two calls both failed 400 — /run/plan and /run/battle/start — with \"Starly (player-3) holds \"Potion\", which is not an item this game can hold in battle — fix or take the item\" (lib/planner.js:180). The run made no further progress. The rule is already written and exported: planner.holdableItem (lib/planner.js:693). lib/run.js:1376 uses it to filter the advisor's give options under a comment that names this exact hazard — \"Most of a bag is not a held item — Rare Candy, Heart Scales, repels — and handing one to the calculator is a refusal, not a build.\" Neither the give command (lib/run.js:2764) nor the picker consults it, and the picker's own comment claims it offers \"the bag's holdable items\" while filtering only on count > 0."
+		},
+		{
+			"id": "unstaged-party-member-is-on-no-list",
+			"source": "review/test-run",
+			"raised_on": "2026-08-21",
+			"severity": "medium",
+			"area": "ui",
+			"file": "src/js/run_panel.js",
+			"line": 796,
+			"claim": "renderBox builds the PC list from the COMMITTED party while the strip renders the STAGED one, so a member removed from the strip belongs to neither list. It disappears from the screen with no control anywhere to bring it back.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Reproduced in the browser on a run whose only Pokemon was its starter. Before: strip [mon-1], PC list \"Every living Pokemon is in the party.\", zero add buttons. Clicked the strip's x. After: strip empty, PC list STILL \"Every living Pokemon is in the party.\", still zero add buttons — two statements on screen at once that contradict each other, and Piplup on neither list. reserve = alive.filter(mon => state.party.indexOf(mon.id) === -1) at line 796 is the cause: staging is not consulted. The only exits are committing the party you did not want (an empty party is legal and returns the summary \"the party is empty\") or reloading, which re-syncs stagedParty from state.party. It matters because acting on the Rank answer means restaging, and Rank names a six with a lead — see [[rank-answer-is-not-a-control]]."
+		},
+		{
+			"id": "rank-answer-is-not-a-control",
+			"source": "review/test-run",
+			"raised_on": "2026-08-21",
+			"severity": "medium",
+			"area": "ui",
+			"file": "src/js/run_panel.js",
+			"line": 2208,
+			"claim": "Best parties ranks every legal six and renders them as plain list rows. There is no way to press the winner — the player has to read the species names off the row and rebuild that party by hand, in that order, through a staging flow that hides anything it drops.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "renderRanking builds each row as li.runbun-run-rank-row holding spans only, and the block in src/index.template.html:2704 is a bare <ol> with no action. Rows carry no data-id either, so even a script has to match the six back to the box by species name. The rows are worth acting on — a real one from a playthrough reads \"2.885 Piplup Starly Natu Steenee [Surskit] Ponyta won 12/12 sims · 0.1 deaths avg\", lead in brackets. The project already fixed this shape once elsewhere: the browser gate has a test called \"the worst-case cell is a control, and pressing it actually answers\"."
 		}
 	]
 }
