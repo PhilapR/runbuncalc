@@ -60,12 +60,14 @@ const MAX_FIGHTS = Number(flag('fights', 200));
 const BUDGET_MS = Number(flag('budget', 1500)) * 1000;
 const PLAN_EVERY = Number(flag('plan', 1));
 const PARTY_MODE = flag('party', 'rank');
+const ADVICE_ROUNDS = Number(flag('advice', 3));
 const HEADED = process.argv.includes('--headed');
 
 const started = Date.now();
 const journal = [];
 const problems = [];
 const forecastReported = new Set();
+const adviceReported = new Set();
 
 function note(kind, message, extra) {
 	const entry = {at: Math.round((Date.now() - started) / 1000), kind: kind, message: message};
@@ -598,6 +600,137 @@ async function rankParty(page) {
 	return stageParty(page, wanted, 'ranked');
 }
 
+/**
+ * "Best upgrades for the next fight" — the panel prices every teach, give and
+ * pickup available right now against the fight ahead and sorts them by what
+ * they gain. That includes TM and tutor moves, which levelling never reaches,
+ * so a party that only knows its level-up moves is a party playing without
+ * half the planning system.
+ *
+ * The rows are not controls (`rank-answer-is-not-a-control` is the same shape
+ * one panel over), so each one is read and carried out by hand. One at a time,
+ * re-asking after each: applying an upgrade changes every other row's price.
+ */
+async function followAdvice(page, rounds) {
+	for (let round = 0; round < (rounds || 3); round++) {
+		if (outOfTime()) return;
+		await page.evaluate(() => {
+			const list = document.querySelector('#runbun-run-advice');
+			if (list) list.innerHTML = '';
+		});
+		await page.click('#runbun-run-advise');
+		try {
+			await page.waitForFunction(
+				() => document.querySelectorAll('#runbun-run-advice li').length > 0,
+				null, {timeout: 120000});
+		} catch (error) {
+			problem('advise', 'the upgrade list never arrived — ' +
+				(await text(page, '#runbun-run-status')));
+			return;
+		}
+		// The note carries the size of the search AND what was left out of it:
+		// "N available upgrades compared · M TM/tutor moves skipped because
+		// their unlock timing is unknown". The second number is the planning
+		// system's own measure of how much of itself it cannot use.
+		const summary = await text(page, '#runbun-run-advice-note');
+		if (round === 0 && summary && !adviceReported.has(summary.replace(/^[^·]+/, ''))) {
+			adviceReported.add(summary.replace(/^[^·]+/, ''));
+			note('advise', summary);
+		}
+		const rows = await page.$$eval('#runbun-run-advice .runbun-run-advice-row',
+			els => els.map(el => {
+				const part = sel => ((el.querySelector(sel) || {}).textContent || '').trim();
+				return {
+					who: part('.runbun-run-advice-who'),
+					kind: part('.runbun-run-advice-kind'),
+					what: part('.runbun-run-advice-what'),
+					ko: part('.runbun-run-advice-ko'),
+					damage: Number(part('.runbun-run-advice-damage')) || 0,
+				};
+			}));
+		const best = rows.find(row => row.damage > 0 && !appliedAdvice.has(row.who + row.what));
+		if (!best) return;
+		appliedAdvice.add(best.who + best.what);
+		if (!await applyUpgrade(page, best)) return;
+	}
+}
+
+/** Advice already carried out, so a row that reappears priced the same is not
+ * attempted a second time in the same fight. */
+let appliedAdvice = new Set();
+
+/** Map the advice row's `who` — a mon label — back to something selectable. */
+async function idForLabel(page, label) {
+	const rows = await page.evaluate(() => {
+		const seen = [];
+		const push = el => seen.push({
+			id: el.getAttribute('data-id'),
+			label: el.textContent.replace(/at cap$/, '').trim(),
+		});
+		document.querySelectorAll('#runbun-run-party-strip .runbun-run-party-select[data-id]')
+			.forEach(push);
+		document.querySelectorAll('#runbun-run-box .runbun-run-mon-select[data-id]').forEach(push);
+		return seen;
+	});
+	const hit = rows.find(row => row.label === label);
+	return hit ? hit.id : null;
+}
+
+async function applyUpgrade(page, row) {
+	const id = await idForLabel(page, row.who);
+	if (!id) {
+		problem('advise', 'the upgrade names "' + row.who + '", which is on no list');
+		return false;
+	}
+	if (/Pick up/.test(row.kind)) {
+		const item = /^(.+?) \(pickup @ /.exec(row.what);
+		if (!item) return false;
+		const take = await page.$('#runbun-run .runbun-run-pickup-take[data-item="' +
+			item[1] + '"]');
+		if (!take) {
+			problem('advise', 'the upgrade says to pick up ' + item[1] +
+				', and no route on screen offers it');
+			return false;
+		}
+		const took = await act(page, 'take ' + item[1], () => take.click());
+		if (!took.changed) return false;
+		note('advise', 'picked up ' + item[1] + ' because the upgrade list priced it at ' +
+			row.damage);
+		return applyUpgrade(page, {who: row.who, kind: 'Give item',
+			what: item[1], damage: row.damage});
+	}
+	if (!await selectMon(page, id)) return false;
+	if (/Give item/.test(row.kind)) {
+		const item = (/^(.+?)(?: over .+)?$/.exec(row.what) || [])[1];
+		if (!item || notHoldable.has(item)) return false;
+		await page.selectOption('#runbun-run-hold-item', item);
+		const given = await act(page, 'give ' + item, () => page.click('#runbun-run-give'));
+		if (!given.changed) {
+			notHoldable.add(item);
+			return false;
+		}
+		note('advise', row.who + ' holds ' + item + '  (' + row.ko + ' ' + row.damage + ')');
+		return true;
+	}
+	if (/Teach move/.test(row.kind)) {
+		const parsed = /^(.+?)(?: over (.+?))?(?: \(one Heart Scale\))?$/.exec(row.what);
+		if (!parsed) return false;
+		await page.fill('#runbun-run-move', parsed[1]);
+		await page.selectOption('#runbun-run-replace', parsed[2] || '');
+		const taught = await act(page, 'teach ' + parsed[1],
+			() => page.click('#runbun-run-teach'));
+		if (!taught.changed) {
+			note('advise', row.who + ' could not learn ' + parsed[1] + ' — ' + taught.status);
+			return false;
+		}
+		note('advise', row.who + ' learned ' + parsed[1] +
+			(parsed[2] ? ' over ' + parsed[2] : '') +
+			'  (' + row.ko + ' ' + row.damage + ')');
+		return true;
+	}
+	return false;
+}
+
 /** The plan before the fight: what the panel says will happen, recorded now so
  * the fight can be compared against it afterwards. */
 async function readPlan(page) {
@@ -904,6 +1037,11 @@ async function main() {
 		// answer replaces whatever box order put there.
 		await buildParty(page);
 		if (PARTY_MODE === 'rank') await rankParty(page);
+		// Advice is priced against THIS fight and THIS party, so it comes after
+		// the six are chosen. It covers giving and picking up as well as
+		// teaching; equipParty only fills whatever it left bare.
+		appliedAdvice = new Set();
+		await followAdvice(page, ADVICE_ROUNDS);
 		await equipParty(page);
 
 		const ready = await readRun(page);
