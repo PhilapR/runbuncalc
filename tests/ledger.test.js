@@ -65,6 +65,30 @@ test('a fix names a commit that exists, and an open finding names none', () => {
 	for (const row of db.prepare("SELECT id, fixed_in FROM findings WHERE status = 'open'").all()) {
 		assert.equal(row.fixed_in, null, `${row.id} is open but names a fixing commit`);
 	}
+
+	// CONTAINMENT, not just ancestry. The check above proves the SHA is real
+	// and on this branch; it does NOT prove that commit did the work. That
+	// hole opened for real: a bungled `git add` put a fix under the wrong
+	// message and left the ledger pointing at the PREVIOUS commit, and this
+	// test stayed green because the previous commit is of course an ancestor.
+	// A finding that names a file must name a commit that touched it.
+	const located = db.prepare(
+		"SELECT id, fixed_in, file FROM findings WHERE status = 'fixed' AND file IS NOT NULL").all();
+	assert.ok(located.length, 'some fixes name a file to check against');
+	for (const row of located) {
+		const touched = childProcess.execFileSync('git',
+			['show', '--name-only', '--format=', row.fixed_in],
+			{cwd: root, encoding: 'utf8'}).split('\n').map(line => line.trim()).filter(Boolean);
+		// A fix may land beside its file rather than in it — a data file that
+		// feeds it, a test that pins it. Requiring the exact path would force
+		// false precision, so the directory is the unit.
+		const directory = path.dirname(row.file);
+		assert.ok(
+			touched.some(name => name === row.file || path.dirname(name) === directory ||
+				name.startsWith(directory + '/')),
+			`${row.id} says it was fixed in ${row.fixed_in}, but that commit touches ` +
+			`nothing under ${directory} — it names the file ${row.file}`);
+	}
 });
 
 test('every finding points at a file that is really there', () => {
