@@ -720,6 +720,21 @@
       "fixed_in": "ee686b5",
       "falsified": 0,
       "evidence": "Read at lib/run.js:1084 — level was Math.max(mon.level, projected) while moves was mon.moves. Confirmed live in the UI: Chimchar shown as 'L12 - at cap' offering only Scratch, Ember and Leer. The same projectMoves helper now backs both projection and the real levelUp, so the two cannot drift apart."
+    },
+    {
+      "id": "ledger-gate-checks-ancestry-not-content",
+      "source": "review/self",
+      "raised_on": "2026-08-21",
+      "severity": "medium",
+      "area": "tooling",
+      "file": "tests/ledger.test.js",
+      "line": 41,
+      "claim": "The ledger's commit gate asserts fixed_in is an ancestor of HEAD. It does not assert the named commit CONTAINS the fix, so a finding can point at a commit that has nothing to do with it and stay green.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "Happened here. A shell && chain broke on a gitignored path, so two code fixes landed inside a LEDGER commit while findings.json pointed at the ledger commit BEFORE it (a7cd070) — which contains only findings.json. Both findings read as fixed, the gate passed, and the SHA was unrelated to the change. This is the same shape as the defect the gate was built for: a commit message claiming an edit it does not carry. A stronger gate would check that the named commit touches at least one file the finding names, which is cheap since findings already carry a file path."
     }
   ]
 }
