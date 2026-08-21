@@ -356,10 +356,10 @@
       "line": 1,
       "claim": "The fix left both hand-rolled crit lists in place and the test reaches only the calc-adapter copy, so the original defect can be reintroduced in status.ts and stay green. Sky Attack and Snipe Shot are named in a comment but asserted nowhere.",
       "verdict": "reported",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": null
+      "status": "fixed",
+      "fixed_in": "8561b4b",
+      "falsified": 1,
+      "evidence": " FIXED. HIGH_CRIT_MOVES and ALWAYS_CRIT_MOVES are exported from calc-adapter and imported by status.ts, so there is one list rather than two hand-kept copies. status.ts also stopped folding the always-crit four into the high-crit question, which had it believing Focus Energy helps a Wicked Blow. The gate asserts membership by name — 'Sky Attack and Snipe Shot are in the set too' had been prose, and deleting them stayed green — and asserts from SOURCE that status.ts imports rather than declares. My first identity check was itself a tautology: statusModule.HIGH_CRIT_MOVES ?? HIGH_CRIT_MOVES compared the fallback to itself. Falsified: corrupt the canonical list -> RED; delete skyattack/snipeshot -> RED; restore a local copy -> RED."
     },
     {
       "id": "advance-turn-rng-two-of-three-sites",
@@ -371,10 +371,10 @@
       "line": 363,
       "claim": "The Math.random guard covers only the ordinary-move advanceTurn call. Removing the rng from the forced-replacement site or the ball-throw site leaves the test green, and the fix repaired all three.",
       "verdict": "reported",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": null
+      "status": "fixed",
+      "fixed_in": "8561b4b",
+      "falsified": 1,
+      "evidence": " FIXED. The seeded test drove only the ordinary-move advanceTurn; the ball-throw and held-end-of-turn calls were unguarded. It now drives all three under the same poisoned Math.random. The forced-replacement case needed the INCOMING mon to carry the Starf Berry — without it the held end-of-turn has nothing random to resolve, so stripping that rng changed nothing and the first version of the gate passed against the very mutation it existed to catch. Falsified: strip the rng at lines 699, 745 and 806 -> RED, independently."
     },
     {
       "id": "browser-race-test-missing-skip-guard",
