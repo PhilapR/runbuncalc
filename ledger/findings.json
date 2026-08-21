@@ -521,10 +521,10 @@
       "line": 1,
       "claim": "availability.json dates 83 of the oracle's 123 locations. The 40 undated ones are exactly those with no trainer standing in them, because the dating method anchors to a location's first trainer. They can now be reported as unknown but still cannot be planned around.",
       "verdict": "confirmed",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "Counted directly: 123 oracle locations, 83 dated entries, 40 undated. d2a77a9 makes the gap visible rather than silent, but does not close it. Hand-dating needs Philip's call — the file's provenance is 'transcribed', and only Littleroot Town (the starting town) and Oldale Town (walked through in the first minutes) look certain enough to assert without a source."
+      "status": "fixed",
+      "fixed_in": "8ffb2ee",
+      "falsified": 1,
+      "evidence": "Counted directly: 123 oracle locations, 83 dated entries, 40 undated. d2a77a9 makes the gap visible rather than silent, but does not close it. Hand-dating needs Philip's call — the file's provenance is 'transcribed', and only Littleroot Town (the starting town) and Oldale Town (walked through in the first minutes) look certain enough to assert without a source. CLOSED. The R&B tracker order dated 33 of the 40 in 8ffb2ee. Measured now: 7 undated of 123 locations, and all seven are content nothing can date — Artisan Cave and two Safari Zone corners the tracker never lists, plus three unused Cave of Origin maps and Safari Zone Northeast. Undated is now the honest answer for those rather than a gap."
     },
     {
       "id": "fishing-not-gated-on-a-rod",
@@ -614,7 +614,7 @@
       "status": "open",
       "fixed_in": null,
       "falsified": 0,
-      "evidence": "Found via the tracker workbook's 'Other' and 'Game Corner' sheets while checking a starter question. Probed with scripts/ask.js: Kubfu (Mossdeep gift) NOT FINDABLE; Castform (Weather Institute gift) NOT FINDABLE; Growlithe-Hisui (Rustboro trade) NOT FINDABLE. The sheets list: 3 trades (Rustboro Growlithe-Hisui, Fortree Weezing-Galar, Pacifidlog Zorua-Hisui), 3 gifts (Lavaridge 'Egg with a random Hoenn starter', Weather Institute Castform, Mossdeep Kubfu), fossils at Rustboro, and 8 badge-gated Game Corner rewards up to 'Mew, Celebi, Jirachi or Victini' at the Rain Badge. For a run where every encounter is scarce these are the opposite of marginal."
+      "evidence": "Found via the tracker workbook's 'Other' and 'Game Corner' sheets while checking a starter question. Probed with scripts/ask.js: Kubfu (Mossdeep gift) NOT FINDABLE; Castform (Weather Institute gift) NOT FINDABLE; Growlithe-Hisui (Rustboro trade) NOT FINDABLE. The sheets list: 3 trades (Rustboro Growlithe-Hisui, Fortree Weezing-Galar, Pacifidlog Zorua-Hisui), 3 gifts (Lavaridge 'Egg with a random Hoenn starter', Weather Institute Castform, Mossdeep Kubfu), fossils at Rustboro, and 8 badge-gated Game Corner rewards up to 'Mew, Celebi, Jirachi or Victini' at the Rain Badge. For a run where every encounter is scarce these are the opposite of marginal. MERGED with non-wild-species-sources-missing, which the platform audit raised independently: 8 badge-gated Game Corner tiers (ending at 'Mew, Celebi, Jirachi or Victini' on the Rain Badge), 3 in-game trades, the Lavaridge starter egg, Castform, Kubfu and the fossils. Two audits reaching the same defect from different directions is corroboration, not two problems."
     },
     {
       "id": "starters-not-modelled-as-data",
@@ -641,25 +641,10 @@
       "line": null,
       "claim": "The tool cannot distinguish 'this hack removed the species' from 'we do not model that source'. ask.js where Kubfu and ask.js where Caterpie both answer NOT FINDABLE, though one is a guaranteed free gift and the other can never be obtained.",
       "verdict": "confirmed",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "Measured. The hack's own Pokemon Locations.xlsx carries an 'Unavailable Pokemon' sheet naming ~416 species across 8 generation rows; none of it is modelled. For a nuzlocke planner these are the two most different answers possible — one is a Pokemon you are missing, the other is one to stop planning around. Plan: docs/MODELLING-GAPS.md phase 0."
-    },
-    {
-      "id": "non-wild-species-sources-missing",
-      "source": "review/platform-audit",
-      "raised_on": "2026-08-21",
-      "severity": "high",
-      "area": "solver",
-      "file": "profiles/run-and-bun/encounters.js",
-      "line": null,
-      "claim": "Only wild encounters are modelled as a source of Pokemon. The 8 badge-gated Game Corner reward tiers, 3 in-game trades, the Lavaridge starter egg, Castform, Kubfu and the fossils are all absent.",
-      "verdict": "confirmed",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "472 species have a wild source; the Game Corner sheet pays out on every badge, ending at 'Mew, Celebi, Jirachi or Victini' on the Rain Badge. All are gated on progress the tool already tracks. Plan: docs/MODELLING-GAPS.md phase 1."
+      "status": "fixed",
+      "fixed_in": "22bb77f",
+      "falsified": 1,
+      "evidence": "Measured. The hack's own Pokemon Locations.xlsx carries an 'Unavailable Pokemon' sheet naming ~416 species across 8 generation rows; none of it is modelled. For a nuzlocke planner these are the two most different answers possible — one is a Pokemon you are missing, the other is one to stop planning around. Plan: docs/MODELLING-GAPS.md phase 0. FIXED. The hack's own Unavailable list (416 named species across 8 generations, plus Generation IX wholesale) is now profile data, and availabilityOfSpecies returns five distinct answers: unavailable, not-modelled, wild, unreachable, contested. Cross-checking the list against the ROM-derived wild tables found 8 contradictions; 6 are explained by their only source standing in content nothing can date (Safari Zone SE/NE, Artisan Cave), and 2 — Geodude in Magma Hideout, Duraludon in Shoal Cave — are a genuine disagreement recorded as contested rather than resolved silently."
     },
     {
       "id": "engine-debits-currencies-it-cannot-source",
@@ -689,7 +674,7 @@
       "status": "open",
       "fixed_in": null,
       "falsified": 0,
-      "evidence": "Played a complete nuzlocke in the browser. Won 5 fights (Calvin, Rick, Allen, Tiana, Mikey; position 0->9), then wiped: all four survivors died to Triathlete Mikey's Sonic Boom. Measured: Sonic Boom is fixed 20 damage, rolls=[20], min=max=20, every roll identical — no crit and no variance, so possibleKO and guaranteedKO both read false against a 34 HP target it two-shots. The switch logic fired four times, each triggered by the panel's own 'a crit KOs you' line, each into a 100% body, and every switch merely fed the next Pokemon in to be two-shotted. Against a fixed-damage attacker a switch is not a mitigation, and the tool's advice pointed at one. The ceiling verdict is sound; the missing question is 'can I out-race 20 a turn'."
+      "evidence": "Played a complete nuzlocke in the browser. Won 5 fights (Calvin, Rick, Allen, Tiana, Mikey; position 0->9), then wiped: all four survivors died to Triathlete Mikey's Sonic Boom. Measured: Sonic Boom is fixed 20 damage, rolls=[20], min=max=20, every roll identical — no crit and no variance, so possibleKO and guaranteedKO both read false against a 34 HP target it two-shots. The switch logic fired four times, each triggered by the panel's own 'a crit KOs you' line, each into a 100% body, and every switch merely fed the next Pokemon in to be two-shotted. Against a fixed-damage attacker a switch is not a mitigation, and the tool's advice pointed at one. The ceiling verdict is sound; the missing question is 'can I out-race 20 a turn'. REPLAYED from the stored battle.ended event, which carries seed 435922576, 17 turns, outcome lost, and the full 20-action sequence: Tackle, Tackle, switch, Tackle, Tackle, switch, Leafage, Leafage, switch, Bubble x5, switch, Tackle, switch, Leafage, switch, Tackle. Six switches into a Yanma using Sonic Boom, and all four deaths recorded as by:'Sonic Boom' of:'Yanma'. The capture is good; the advice that produced those six switches is the defect."
     },
     {
       "id": "levelling-is-never-listed-as-work",
