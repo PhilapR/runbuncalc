@@ -13,3 +13,4 @@ wf-*.log
 out-*.txt
 .wrangler/
 ledger/ledger.db
+ui-playthrough-out/
