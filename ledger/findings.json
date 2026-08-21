@@ -690,6 +690,21 @@
       "fixed_in": null,
       "falsified": 0,
       "evidence": "Played a complete nuzlocke in the browser. Won 5 fights (Calvin, Rick, Allen, Tiana, Mikey; position 0->9), then wiped: all four survivors died to Triathlete Mikey's Sonic Boom. Measured: Sonic Boom is fixed 20 damage, rolls=[20], min=max=20, every roll identical — no crit and no variance, so possibleKO and guaranteedKO both read false against a 34 HP target it two-shots. The switch logic fired four times, each triggered by the panel's own 'a crit KOs you' line, each into a 100% body, and every switch merely fed the next Pokemon in to be two-shotted. Against a fixed-damage attacker a switch is not a mitigation, and the tool's advice pointed at one. The ceiling verdict is sound; the missing question is 'can I out-race 20 a turn'."
+    },
+    {
+      "id": "levelling-is-never-listed-as-work",
+      "source": "review/test-run",
+      "raised_on": "2026-08-21",
+      "severity": "high",
+      "area": "solver",
+      "file": "lib/run.js",
+      "line": null,
+      "claim": "The tool plans and fights at the level cap but never lists getting there as work. preFightOpportunities returns before/encounters/items/moves and mentions levelling nowhere, so the grind between a catch and the party being planned with is invisible.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "Philip caught it reading a completed test run: 'we didn't level did we...'. Correct — the run had no levelUp command at all, and the box finished at catch levels (Turtwig L5, Lillipup L2, Gossifleur L2, Surskit L2). The battle driver still fought at 'Turtwig L12 · at cap' because it projects to the next milestone (Team Aqua Grunt Petalburg Woods, ace Croagunk, cap 12), so the simulation was fair. But the gap between stored and projected is real work the tool never names: Turtwig 7 levels, Gossifleur 10. In a nuzlocke that is hours of grinding, and preFightOpportunities — the literal 'before this fight' list — has no level key. The projection is right; the silence about how to reach it is not."
     }
   ]
 }
