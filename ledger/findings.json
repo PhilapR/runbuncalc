@@ -540,6 +540,66 @@
       "fixed_in": null,
       "falsified": 0,
       "evidence": "Walked the running app. Littleroot Town at fight 0 shows 'Catchable now - 4': Surskit, Lotad, Finneon, Tympole, all labelled Super Rod. Philip's account of the route is that the rod comes from Route 103, so at fight 0 none of those are catchable. availability.json methods reads {walk:0, fish:0, surf:589, rock-smash:139}; lib/run.js contains zero mentions of Old/Good/Super Rod and no rod gate. All 336 fish slots in the game are Super Rod, so one gate would cover every one of them. At fight 0 both Littleroot Town and Route103 offer ONLY rod-gated encounters as available now. Same shape as the Petalburg City defect: the tool offers work the player cannot do yet. Needs Philip's call on the order the rod becomes available before it can be fixed. REFUTED on closer reading, and the error was mine. Youngster Calvin — the fight at order 0 — stands on ROUTE 102 (rab-trainers-database.json gives him location 'Route 102'). Route 103, where Philip says the rod is, has minOrder 0 and is reachable BEFORE him: Oldale has two exits and both trackers order Route 103 ahead of Route 102. So by the first fight the rod is already obtainable, and fish:0 is correct. I asserted 'at fight 0 none of those are catchable' by assuming the player had not detoured north yet, which the canonical route contradicts. The UI also already labels every one of those slots 'Super Rod', so it is not hiding the requirement either. Left recorded rather than deleted: a refuted finding is evidence too, and the next reader should not re-raise it."
+    },
+    {
+      "id": "gate-order-reads-as-a-dex-number",
+      "source": "review/ui-walkthrough",
+      "raised_on": "2026-08-20",
+      "severity": "medium",
+      "area": "browser",
+      "file": "src/js/run_panel.js",
+      "line": 1747,
+      "claim": "A gated encounter row printed the bare fight order beside the species — 'Squirtle L5 · 30% · #589' — which in a Pokemon app reads as a National Dex number.",
+      "verdict": "confirmed",
+      "status": "fixed",
+      "fixed_in": "725545b",
+      "falsified": 1,
+      "evidence": "Philip reading the live app: 'it says: If you come back · 4 more from fight #589 but thats the pokemon #'. #589 is Escavalier. The order was never the useful fact; the row wants Surf. The heading now says it once in words and the row tooltip carries the number, worded as a fight. Falsified three ways including deleting the label entirely, which a pure absence check would have passed."
+    },
+    {
+      "id": "encounter-rows-were-one-flat-string",
+      "source": "review/ui-walkthrough",
+      "raised_on": "2026-08-20",
+      "severity": "medium",
+      "area": "browser",
+      "file": "src/css/main.css",
+      "line": 2714,
+      "claim": "Each encounter row was a single concatenated string, so with proportional species names the level, method and odds began at a different x on every line. There were no fields to align.",
+      "verdict": "confirmed",
+      "status": "fixed",
+      "fixed_in": "725545b",
+      "falsified": 0,
+      "evidence": "Measured in the browser: rows rendered as '<button>Surskit  L2-3  Super Rod  · 40%</button>' with one text node. After splitting into spans and gridding: one left edge per column across all eight rows (36/203/264/344). Two things only measurement caught — the per-row gate label widened a column on gated rows only, pushing level and odds 68px out of line, and a 1fr name column aligned correctly but sprawled the full 1040px."
+    },
+    {
+      "id": "fixed-btn-width-wraps-then-overflows",
+      "source": "review/ui-walkthrough",
+      "raised_on": "2026-08-20",
+      "severity": "medium",
+      "area": "browser",
+      "file": "src/css/main.css",
+      "line": 268,
+      "claim": "Upstream's base .btn sets a fixed width: 5em. Run-panel labels are variable-length prose, so 'Undo last change' got 67px for 114px of text — wrapping to two lines, then overflowing 42px past the column once nowrap was added.",
+      "verdict": "confirmed",
+      "status": "fixed",
+      "fixed_in": "62cb6f4",
+      "falsified": 1,
+      "evidence": "Measured: box 67px, rendered text right edge 1109 against a container right edge of 1067. The calculator lives with the fixed width by opting into .btn-wide per button. Run-panel buttons now size to their label and cap at the container. A browser gate at 1280x900 and 375x812 now forbids overflow, clipped labels and sideways scroll."
+    },
+    {
+      "id": "empty-containers-painted-their-borders",
+      "source": "review/ui-walkthrough",
+      "raised_on": "2026-08-20",
+      "severity": "low",
+      "area": "browser",
+      "file": "src/css/main.css",
+      "line": 1889,
+      "claim": "runbun-run-plan-actions and runbun-run-advice carry a 1px border, so while empty they painted a 2px-tall bordered box that read as a broken divider.",
+      "verdict": "confirmed",
+      "status": "fixed",
+      "fixed_in": "62cb6f4",
+      "falsified": 1,
+      "evidence": "Measured 589x2 and 615x2 with zero children and no text, inside a 1042px column. Two more turned up once the gate existed: the encounter list and the history list."
     }
   ]
 }
