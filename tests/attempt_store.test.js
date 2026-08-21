@@ -694,6 +694,20 @@ test('the archive shelf refuses silent replacement of a saved run', async () => 
 	const kept = (await store.listArchives())[0];
 	assert.equal(kept.outcome, 'wipe', 'the first archive survives every collision');
 	// A deliberate re-archive names what it replaces — that is the valve.
+	//
+	// The valve has to check WHICH checksum, not merely that one was supplied.
+	// This test only ever passed the correct one, so weakening the guard to
+	// `if (incoming.supersedes) return;` — any truthy value opens it — stayed
+	// green, and a caller shipping `supersedes: 'x'` could have overwritten
+	// any archive on the shelf.
+	await assert.rejects(() => store.archive({attemptId: 'attempt-1', name: 'Wrong key',
+		outcome: 'completed', position: 12, run: run('attempt-1', 12),
+		evidence: {revision: 12, checksum: 'dddd'}, supersedes: 'not-the-prior-checksum'}),
+	error => error.code === 'ARCHIVE_CONFLICT',
+	'naming the WRONG prior checksum is still a collision');
+	assert.equal((await store.listArchives())[0].outcome, 'wipe',
+		'and the original is still there after the bad supersede');
+
 	const superseded = await store.archive({attemptId: 'attempt-1', name: 'Continued run',
 		outcome: 'completed', position: 12, run: run('attempt-1', 12),
 		evidence: {revision: 12, checksum: 'dddd'}, supersedes: first.evidence.checksum});
@@ -722,9 +736,21 @@ test('a backwards wall clock is flagged at commit, never rewritten', async () =>
 		'the backwards timestamp is marked suspect');
 	assert.equal(events[1].observedAt, '2026-08-15T09:00:00.000Z',
 		'the raw value is kept — flagged, never rewritten');
-	// The flag is part of the hash chain from birth: the export round-trips.
+	// The flag is part of the hash chain from birth.
 	const bundle = await store.exportActive();
 	assert.equal(await store.validateBundle(bundle), true);
+
+	// Round-tripping proves nothing on its own: the hash is computed the same
+	// way at write and at validate, so deleting observedAtSuspect from
+	// eventHashInput left this green. The flag is only genuinely chained if
+	// STRIPPING it from an exported bundle makes validation reject.
+	const tampered = JSON.parse(JSON.stringify(bundle));
+	const flagged = tampered.events.find(event => event.observedAtSuspect);
+	assert.ok(flagged, 'the export carries the flagged event');
+	delete flagged.observedAtSuspect;
+	await assert.rejects(() => store.validateBundle(rechecksum(tampered)),
+		error => error.code === 'CORRUPT_EVENT',
+		'removing the suspect flag must break the chain, or it was never in it');
 });
 
 test('a re-anchored mirror commits as run.replaced so its exports stay importable', async () => {

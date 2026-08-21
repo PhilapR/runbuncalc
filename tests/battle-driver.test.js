@@ -344,13 +344,35 @@ test('pre-fight catch odds quote the free ball always and tiered balls only when
 		[['Poke Ball', null], ['Great Ball', 2], ['Ultra Ball', 1]]);
 	// The quote must be the same number the fight's ball buttons compute at
 	// full HP — one formula, two surfaces.
+	//
+	// This read `assert.equal(entry.chance, recomputed && entry.chance)`, and
+	// `X && entry.chance` IS entry.chance whenever X is non-zero — so it
+	// compared a value to itself and threw the recomputed number away. Shifting
+	// the real quote by -5% left it green.
+	//
+	// It also hardcoded 255, which is Poochyena's own rate, so it could not
+	// tell "reads the species rate" from "hardcodes 255". The rate now comes
+	// from the oracle, and a SECOND species with a different rate proves the
+	// formula actually varies with it.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	const fullHp = {hp: {max: 3, current: 3}, status: ''};
+	const poochyenaRate = oracle.catchRateOf('Poochyena');
 	for (const entry of stocked) {
 		assert.equal(entry.chance,
-			Math.round(driver.catchMath(fullHp, 255, driver.BALLS[entry.ball]).chance * 100) &&
-			entry.chance,
-			entry.ball + ' chance must be an integer percentage');
+			Math.round(driver.catchMath(fullHp, poochyenaRate, driver.BALLS[entry.ball]).chance * 100),
+			entry.ball + ' must quote exactly what the fight computes');
 	}
+
+	// A harder species must quote strictly worse odds with the same ball.
+	// Abra at 200 against Poochyena's 255, NOT Ralts at 235: the quote rounds
+	// to a whole percent, and 235 and 255 both land on 34%, so Ralts would
+	// have proved nothing. A discriminator has to survive the rounding.
+	const harder = driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Abra');
+	assert.ok(oracle.catchRateOf('Abra') < poochyenaRate,
+		'the fixture only means something if Abra is genuinely harder');
+	assert.ok(harder[0].chance < stocked[0].chance,
+		`a lower catch rate must quote lower odds — saw ${harder[0].chance}% for Abra ` +
+		`against ${stocked[0].chance}% for Poochyena, so the rate is being read`);
 	assert.ok(stocked[1].chance > stocked[0].chance,
 		'a better ball must quote better odds');
 	assert.throws(() => driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Mewthree'),

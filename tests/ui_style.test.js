@@ -98,9 +98,18 @@ test('action buttons keep readable ink and visible keyboard focus in both themes
 	// are the deepest keyboard surface in the app.
 	assert.match(mainCss, /\.button:focus-visible,[\s\S]{0,600}?outline:\s*2px solid var\(--rb-focus\)/,
 		'keyboard focus ring on .button/.btn must survive the upstream outline reset');
+	// Substring presence proves nothing: the selector could sit in a comment,
+	// or in a rule whose outline was deleted. Keeping `#calc input:focus-visible`
+	// and removing its outline declaration left this green. Assert the rule
+	// actually paints a ring, the way the sibling assertions above already do.
 	['#calc input:focus-visible', '#calc select:focus-visible'].forEach(selector => {
-		assert.ok(mainCss.includes(selector),
-			'the calculator surface must carry a visible focus ring: ' + selector);
+		const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		// Bounded to the rule's OWN braces. A {0,600} window was the first
+		// try and it is not a check at all: deleting this selector's outline
+		// let it match one from a later rule and stay green.
+		assert.match(mainCss,
+			new RegExp(escaped + '[^{}]*\\{[^}]*outline:\\s*2px solid var\\(--rb-focus\\)'),
+			'the calculator surface must PAINT a focus ring, not merely name one: ' + selector);
 	});
 	assert.match(mainCss, /select2-container--focus \.select2-choice[\s\S]{0,120}?outline:\s*2px solid var\(--rb-focus\)/,
 		'select2 dropdowns render their own focus box and need the ring on it');
