@@ -1458,11 +1458,25 @@ test('projecting the party to a cap raises levels and never lowers them', () => 
 		'with no order asked about, the specs are the box as it stands');
 	assert.deepEqual(run.partySpecs(state, {atOrder: 77}).map(m => m.level), [21, 40],
 		'Poochyena rises to Brawly\'s cap; the overlevelled Marill keeps its 40');
-	// Only the level moves: a projection is about the cap, not about the box.
+	// The MOVESET rises with the level. This asserted that only the level
+	// moved and the moves came through untouched, which is how a Chimchar
+	// planned at L12 kept its level-5 moveset and never learned Mach Punch —
+	// every matchup computed against a team the player would not field.
 	const projected = run.partySpecs(state, {atOrder: 77});
 	assert.equal(projected[0].species, 'Poochyena');
-	assert.deepEqual(projected[0].moves, run.findMon(state, 'mon-1').moves);
+	const boxMoves = run.findMon(state, 'mon-1').moves;
+	assert.notDeepEqual(projected[0].moves, boxMoves,
+		'a Pokemon projected from L3 to L21 has learned things on the way');
+	for (const move of boxMoves) {
+		assert.ok(projected[0].moves.includes(move),
+			`projection adds, never drops: ${move} was known at L3`);
+	}
+	assert.equal(new Set(projected[0].moves).size, projected[0].moves.length,
+		'and never repeats a move — a learnset can list one at two levels');
+	assert.ok(projected[0].moves.length <= 4, 'four slots, always');
 	assert.equal(state.box[0].level, 3, 'projection must not write back to the run');
+	assert.deepEqual(run.findMon(state, 'mon-1').moves, boxMoves,
+		'nor write the learned moves back into the box');
 	// A capless run projects nothing, whatever order it is asked about.
 	const free = run.applyAll(fresh({levelCap: 'none'}), [
 		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
@@ -1716,8 +1730,14 @@ test('the advisor prices single changes by what they do to the board', () => {
 	// the story has not handed over by this fight, which the advisor may not
 	// offer (learnable itself stays a capability list).
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	// A move the projected Pokemon ALREADY KNOWS is not a candidate. Levelling
+	// teaches now, so by the cap Poochyena has picked several of these up on
+	// its own, and offering to teach one would be advice to spend a slot on
+	// something the cap hands over for free.
+	const alreadyKnown = new Set(run.partySpecs(state, {atOrder: 0})[0].moves);
 	const teachable = run.learnable(state, 'mon-1', {atLevel: 12}).now
 		.filter(entry => {
+			if (alreadyKnown.has(entry.move)) return false;
 			const gate = oracle.moveObtainableAt(entry.move);
 			const level = entry.sources.some(source =>
 				source.level !== undefined && source.level <= 12);
@@ -1732,15 +1752,25 @@ test('the advisor prices single changes by what they do to the board', () => {
 		.filter(p => require('../lib/planner').holdableItem(p.name)).length;
 	assert.equal(advice.considered, teachable + 1 + 1 + pickups);
 
-	// The deterministic case. Poochyena knows only Tackle, which leaves the
-	// grunt's own Poochyena standing; paid relearner access to Play Rough turns
-	// that cell into a guaranteed KO, and the advisor has to name the price.
+	// The deterministic case. This read "Poochyena knows only Tackle", which
+	// stopped being true when levelling started teaching: by the cap it has
+	// Tackle, Sand Attack, Odor Sleuth and Bite. With a real attacking move
+	// already in hand, the Choice Band flips TWO cells where the paid Play
+	// Rough flips one, so the ranking changed — and it changed for a reason
+	// the old model could not see.
 	const top = advice.upgrades[0];
 	assert.deepEqual({kind: top.kind, id: top.id, detail: top.detail},
-		{kind: 'teach', id: 'mon-1', detail: 'Play Rough (one Heart Scale)'});
-	assert.equal(top.delta.koGained, 1);
+		{kind: 'give', id: 'mon-1', detail: 'Choice Band'});
+	assert.equal(top.delta.koGained, 2);
 	assert.equal(top.delta.koConceded, 0);
 	assert.ok(top.delta.damage > 0, 'a flipped cell also moves the damage');
+
+	// The priced teach is still offered and still names its price — it just
+	// is not the best change any more.
+	const priced = advice.upgrades.find(upgrade => /^Play Rough/.test(upgrade.detail));
+	assert.ok(priced, 'the relearner route is still weighed');
+	assert.match(priced.detail, /\(one Heart Scale\)$/, 'and still names what it costs');
+	assert.equal(priced.delta.koGained, 1);
 
 	// And the claim is the BOARD's claim, cell for cell — the advisor scores by
 	// rebuilding the row through the planner, so an upgrade can never disagree
@@ -1779,10 +1809,18 @@ test('the advisor draws teach candidates at the projected cap, not today\'s leve
 	assert.ok(run.learnable(state, 'mon-1', {atLevel: 12}).now.some(e => e.move === 'Bite'));
 	assert.ok(!run.learnable(state, 'mon-1').now.some(e => e.move === 'Bite'),
 		'without atLevel the line stays at the box level — other callers keep their meaning');
+
+	// Bite is no longer a TEACH candidate, and that is the point: Poochyena
+	// learns it by level 12 on its own, so proposing it would be advice to
+	// spend a move slot on something the cap hands over for free. This test
+	// asserted the opposite until levelling started teaching.
 	const details = run.adviseUpgrades(state).upgrades
 		.filter(u => u.kind === 'teach').map(u => u.detail);
-	assert.ok(details.some(d => /^Bite/.test(d)),
-		`Bite should be weighed at cap 12; teach candidates were: ${details.join(', ')}`);
+	assert.ok(!details.some(d => /^Bite/.test(d)),
+		`Bite is learned by L12, so it must not be offered as a teach: ${details.join(', ')}`);
+	// The projection genuinely knows it at the cap, which is why it drops out.
+	assert.ok(run.partySpecs(state, {atOrder: 0})[0].moves.includes('Bite'),
+		'because the projected Poochyena already has Bite');
 });
 
 test('the advisor only offers a Heart Scale it can pay for and price', () => {
@@ -1792,16 +1830,23 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 	// Same derivation the advisor uses: the capability list minus HMs the
 	// story has not handed over by fight #0, minus egg moves when no Heart
 	// Scale is in the bag to pay the relearner with.
-	const teachableAt = (state, hasScale) => run.learnable(state, 'mon-1', {atLevel: 12}).now
-		.filter(entry => {
-			const gate = oracle.moveObtainableAt(entry.move);
-			const level = entry.sources.some(source =>
-				source.level !== undefined && source.level <= 12);
-			const egg = entry.sources.some(source => /^egg(?:\s|$|\()/.test(source.source));
-			const datedTeach = entry.sources.some(source => source.source === 'teachable') &&
-				gate !== null && gate <= 0;
-			return level || datedTeach || (egg && hasScale);
-		}).length;
+	// ...and minus anything the projected Pokemon has already LEARNED. Levelling
+	// teaches now, so by the cap several of these are in hand and offering to
+	// teach one would be advice to pay for something the cap gives free.
+	const teachableAt = (state, hasScale) => {
+		const known = new Set(run.partySpecs(state, {atOrder: 0})[0].moves);
+		return run.learnable(state, 'mon-1', {atLevel: 12}).now
+			.filter(entry => {
+				if (known.has(entry.move)) return false;
+				const gate = oracle.moveObtainableAt(entry.move);
+				const level = entry.sources.some(source =>
+					source.level !== undefined && source.level <= 12);
+				const egg = entry.sources.some(source => /^egg(?:\s|$|\()/.test(source.source));
+				const datedTeach = entry.sources.some(source => source.source === 'teachable') &&
+					gate !== null && gate <= 0;
+				return level || datedTeach || (egg && hasScale);
+			}).length;
+	};
 	const teachable = teachableAt(
 		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), false);
 	const pickupsAt0 = oracle.itemsObtainableBy(0)

@@ -1085,16 +1085,30 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 	assert.deepEqual(advice.body.projection, {applied: true, cap: 12, from: 'projected'});
 	assert.deepEqual(advice.body.party, [{id: 'mon-1', species: 'Poochyena', nickname: null,
 		level: 12, from: 3}]);
-	// The shortlist arrives whole — ten one-line changes IS the answer.
-	assert.ok(advice.body.upgrades.length > 0 && advice.body.upgrades.length <= 10);
-	const top = advice.body.upgrades[0];
-	assert.equal(top.kind, 'teach');
-	assert.equal(top.id, 'mon-1');
-	assert.equal(top.detail, 'Bite');
+	// The shortlist arrives whole — at most ten one-line changes IS the answer,
+	// and an EMPTY shortlist is an answer too. This asserted a non-empty list
+	// led by "teach Bite", which stopped being true when levelling started
+	// teaching: Poochyena learns Bite by the L12 cap, so paying to teach it
+	// would be advice to buy something the cap gives away. With an empty bag
+	// and its own level-ups covering the board, nothing moves it.
+	assert.ok(advice.body.upgrades.length <= 10, 'the shortlist stays a shortlist');
+	assert.ok(!advice.body.upgrades.some(upgrade => upgrade.detail === 'Bite'),
+		'Bite is learned by L12 and must not be sold as an upgrade');
+	// Whatever survives is still a properly shaped, priced change.
+	for (const upgrade of advice.body.upgrades) {
+		assert.equal(upgrade.id, 'mon-1');
+		assert.ok(upgrade.kind && upgrade.detail, 'every change names what it is');
+	}
 	assert.ok(advice.body.availability.undatedMovesExcluded > 0,
 		'undated TM and tutor routes must not masquerade as early-game access');
-	assert.deepEqual(Object.keys(top.delta).sort(), ['damage', 'koConceded', 'koGained']);
-	assert.ok(top.delta.damage > 0, 'the reachable move must improve the board');
+	// Every change that IS offered carries the same three-part delta. Folded
+	// into the loop above, because there may now be none to lead with.
+	for (const upgrade of advice.body.upgrades) {
+		assert.deepEqual(Object.keys(upgrade.delta).sort(),
+			['damage', 'koConceded', 'koGained']);
+		assert.ok(upgrade.delta.damage > 0 || upgrade.delta.koGained > 0,
+			'a change is only offered if it moves the board');
+	}
 
 	// A misnamed trainer keeps its near-misses, like every other run endpoint.
 	const unknown = await requestJson('/run/advise', {run, trainer: 'Brawly'});

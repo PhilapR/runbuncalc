@@ -354,9 +354,16 @@ test('advise ranks single changes against a fight without writing', () => {
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'advise wrote to the save');
 	assert.match(advice, /Youngster Calvin \(#0\) — \d+ single changes weighed/);
 	assert.match(advice, /party at the cap it is fought under: L12/);
-	// Poochyena knows only Tackle. Undated TM/tutor access is not treated as
-	// available before Calvin, so the advisor leads with the level-up move Bite.
-	assert.match(advice, /^ {2}mon-1 {3}Poochyena {5}teach {7}Bite.*\+\d+\.\d\d bars$/m);
+	// This asserted the advisor leads with "teach Bite". It no longer can, and
+	// that is the fix rather than a regression: levelling teaches now, so by
+	// the L12 cap Poochyena has learned Bite on its own. Advising a player to
+	// pay for a move the cap hands over free was the old behaviour.
+	assert.doesNotMatch(advice, /teach {7}Bite/,
+		'Bite is learned by L12 — offering to teach it would be advice to pay for nothing');
+	// With nothing in the bag and its own level-ups covering the board, the
+	// honest answer is that no single change moves it. Saying so is the
+	// product: an empty list with a reason beats a made-up recommendation.
+	assert.match(advice, /nothing in the party, the bag or its learnsets moves this board/);
 });
 
 test('the recreation verbs: a starter opens the run, a roll suggests, a spend burns', () => {
