@@ -114,11 +114,11 @@ regenerated. Advisory, and deliberately BELOW the drift gate's waterline:
 a stamp changes at the very commit that touches its doc, so gating it
 byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
-- `AGENTS.md` — 98b4a50 2026-08-18
+- `AGENTS.md` — aa01ee3 2026-08-21
 - `README.md` — 98b4a50 2026-08-18
 - `docs/AI_DATA_MODEL.md` — 98b4a50 2026-08-18
 - `docs/CONSTANTS-AUDIT.md` — e67d922 2026-08-20
-- `docs/DATA-ACCESS.md` — untracked
+- `docs/DATA-ACCESS.md` — aa01ee3 2026-08-21
 - `docs/DEPLOY.md` — 98b4a50 2026-08-18
 - `docs/ECOSYSTEM_BRIDGE.md` — deb903a 2026-08-16
 - `docs/EVALUATION.md` — 1222266 2026-08-19

@@ -363,12 +363,12 @@ test('the recreation verbs: a starter opens the run, a roll suggests, a spend bu
 	// The starter is the game's own opening: the pick lands as an L5 gift and
 	// fixes the rival, and the wrong name is refused with the real list.
 	assert.throws(() => cli('new', '--starter', 'Pikachu'),
-		/the starters are Treecko, Torchic, Mudkip/);
-	assert.throws(() => cli('new', '--starter', 'Treecko', '--rival', 'Blaziken'),
-		/Treecko fixes the rival to Swampert/);
-	assert.match(cli('new', '--starter', 'Mudkip', '--nuzlocke'),
-		/Mudkip L5 is in the box; the rival runs Blaziken/);
-	assert.equal(read().box[0].species, 'Mudkip');
+		/the starters are Turtwig, Chimchar, Piplup/);
+	assert.throws(() => cli('new', '--starter', 'Turtwig', '--rival', 'Blaziken'),
+		/Turtwig fixes the rival to Swampert/);
+	assert.match(cli('new', '--starter', 'Piplup', '--nuzlocke'),
+		/Piplup L5 is in the box; the rival runs Blaziken/);
+	assert.equal(read().box[0].species, 'Piplup');
 	assert.equal(read().rules.rival, 'Blaziken');
 
 	// A roll is read-only dice: the save is untouched, and the two ways to
@@ -389,7 +389,7 @@ test('the recreation verbs: a starter opens the run, a roll suggests, a spend bu
 });
 
 test('adjudicate plays the fight and reports the floor without writing', () => {
-	cli('new', '--starter', 'Torchic');
+	cli('new', '--starter', 'Chimchar');
 	cli('party', 'mon-1');
 	const before = fs.readFileSync(file, 'utf8');
 
@@ -403,7 +403,7 @@ test('adjudicate plays the fight and reports the floor without writing', () => {
 });
 
 test('split --rollouts pins the played floor to the sheet', () => {
-	cli('new', '--starter', 'Treecko');
+	cli('new', '--starter', 'Turtwig');
 	cli('party', 'mon-1');
 	const plain = cli('split');
 	assert.ok(!/played \d+ times/.test(plain), 'unasked, the sheet stays a grid');
@@ -427,7 +427,7 @@ test('use consumes from the bag and refuses an empty shelf', () => {
 });
 
 test('playbook is read-only and renders the whole plan: odds, assignments, the line', () => {
-	cli('new', '--starter', 'Treecko');
+	cli('new', '--starter', 'Turtwig');
 	cli('catch', 'Poochyena', '--map', 'Route101', '--level', '3');
 	cli('party', 'mon-1', 'mon-2');
 	const before = fs.readFileSync(file, 'utf8');

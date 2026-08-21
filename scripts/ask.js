@@ -216,17 +216,27 @@ const COMMANDS = {
 	starters(argv, json) {
 		const encounters = profile.encounters || {};
 		const aces = encounters.RIVAL_ACES || null;
+		const starters = encounters.STARTERS || null;
 		const answer = {
-			declaredStarters: encounters.STARTERS || null,
+			starters,
 			rivalAces: aces,
-			note: encounters.STARTERS ? null :
+			note: starters ? null :
 				'This profile does not model starters as data. The choice is hardcoded ' +
 				'in src/index.template.html, and the rival is identified by ace only.',
 		};
 		if (json) return asJson(answer);
-		console.log(`starters: ${answer.declaredStarters ?
-			answer.declaredStarters.join(', ') : 'NOT MODELLED'}`);
-		console.log(`rival aces: ${aces ? aces.join(', ') : 'none declared'}`);
+		if (!starters) {
+			console.log('starters: NOT MODELLED');
+		} else {
+			console.log(`starters — the player picks one of ${starters.length}:`);
+			for (const starter of starters) {
+				console.log(`  ${starter.species.padEnd(10)} ${starter.type.padEnd(6)}` +
+					`  beats the rival's ${starter.beats}`);
+			}
+		}
+		// These two lists are from different generations on purpose.
+		console.log(`rival aces: ${aces ? aces.join(', ') : 'none declared'}` +
+			(starters ? '   (Hoenn — the rival keeps its own line)' : ''));
 		if (answer.note) console.log(`\n  ${answer.note}`);
 	},
 

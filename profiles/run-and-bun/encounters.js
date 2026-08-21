@@ -229,6 +229,30 @@ const RIVAL_VARIANT_PATTERN = /^Trainer Rival .* (Sceptile|Blaziken|Swampert)$/;
 const RIVAL_ACES = ['Sceptile', 'Blaziken', 'Swampert'];
 
 /**
+ * What the game starts YOU with — the Sinnoh trio, not the Hoenn one.
+ *
+ * Run & Bun replaces the player's starter choice while leaving the rival's
+ * teams hand-built around the Hoenn line, so RIVAL_ACES above stays as it is:
+ * these two lists are deliberately from different generations and neither is
+ * a copy of the other.
+ *
+ * `beats` is the rival ace this pick is strong into, which is how the game
+ * decides what the rival takes — you pick Grass, they take the Water one.
+ * That relationship is by TYPE, so it survives the species change untouched.
+ *
+ * Stated as data because it was hardcoded in src/index.template.html and
+ * nowhere else. Nothing could validate it, and that is exactly how it sat
+ * wrong: `node scripts/ask.js starters` reported NOT MODELLED, and the
+ * disagreement about which trio this game uses was only possible because no
+ * file said so.
+ */
+const STARTERS = [
+	{species: 'Turtwig', type: 'grass', beats: 'Swampert'},
+	{species: 'Chimchar', type: 'fire', beats: 'Sceptile'},
+	{species: 'Piplup', type: 'water', beats: 'Blaziken'},
+];
+
+/**
  * Two story fights carry no team or title prefix to anchor on, so they are named
  * outright. "Trainer Chelle " matches her two fights and nothing else — the only
  * other Chelle-ish label is "Cool Trainer Michelle", which the anchor rules out.
@@ -282,6 +306,6 @@ const LEVEL_CAPS = [
 
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,
-	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN, RIVAL_ACES,
+	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN, RIVAL_ACES, STARTERS,
 	LEVEL_CAPS,
 };

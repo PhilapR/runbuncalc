@@ -161,7 +161,7 @@ test('a new run cannot outrun durable bootstrap', {skip}, async () => {
 		return events && events.click;
 	});
 
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
 	assert.equal(await page.isDisabled('#runbun-run-new'), true,
 		'the selected starter must not bypass unfinished durable bootstrap');
 	assert.equal(await page.getAttribute('#runbun-run-new', 'title'),
@@ -225,7 +225,7 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	seededProviderReceipt, 'browser provider must reproduce pokemon-mono canonical receipt exactly');
 
 	await page.check('#runbun-run-new-route');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -308,7 +308,7 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	assert.equal(await page.$$eval('#runbun-run-plan-outlook-list li', rows => rows.length), 2,
 		'the current forecast belongs in the plan; the next two belong in the outlook');
 	assert.match(await page.textContent('#runbun-run-plan-actions'),
-		/PARTIAL PLAN · Pokemon Mono · lead Treecko L5 · \d+ of 8 fair-dice samples came back clean/);
+		/PARTIAL PLAN · Pokemon Mono · lead Turtwig L5 · \d+ of 8 fair-dice samples came back clean/);
 	assert.match(await page.textContent('#runbun-run-plan-outlook'),
 		/bounded eight-seed checks, not certified safe routes/);
 	assert.equal(await page.textContent('#runbun-run-plan-evidence'),
@@ -334,9 +334,9 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	assert.match(await page.textContent('#runbun-run-attribution-state'),
 		/saved with this attempt/);
 	assert.match(await page.textContent('#runbun-run-attribution'),
-		/Modeled roster value.*Baseline · \d+\/4 paired seeds deathless.*IV reference test · Treecko → all 15/s);
+		/Modeled roster value.*Baseline · \d+\/4 paired seeds deathless.*IV reference test · Turtwig → all 15/s);
 	assert.match(await page.textContent('#runbun-run-attribution'),
-		/Replacement test · Treecko → .+ · .*4 paired seeds/s,
+		/Replacement test · Turtwig → .+ · .*4 paired seeds/s,
 		'the caught reserve must be compared on the same fixed seeds');
 	assert.match(await page.textContent('#runbun-run-attribution'),
 		/Model only · same paired seeds · lead reoptimized/);
@@ -375,7 +375,7 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	assert.match(await page.textContent('#runbun-history-planning'),
 		/Actual participation/s);
 	assert.match(await page.textContent('#runbun-history-planning'),
-		/Modeled value · fixed-seed tests.*IV reference test · Treecko → all 15/s);
+		/Modeled value · fixed-seed tests.*IV reference test · Turtwig → all 15/s);
 	assert.doesNotMatch(await page.textContent('#runbun-history-planning'), /\bcarry\b/i);
 
 	const bundle = await page.evaluate(() =>
@@ -406,7 +406,7 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 
@@ -452,7 +452,7 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.equal(await page.getAttribute(
 		'.rb-disclose[data-section="tools"] .rb-disclose-btn', 'aria-expanded'), 'true',
 	'party members should be inspectable without duplicating them in the reserve');
-	assert.match(await page.textContent('#runbun-run-mon-summary-name'), /Treecko · L5/);
+	assert.match(await page.textContent('#runbun-run-mon-summary-name'), /Turtwig · L5/);
 	assert.equal(await page.textContent('#runbun-run-mon-summary-types'), 'Grass');
 	const ownedFacts = await page.textContent('#runbun-run-mon-facts');
 	assert.match(ownedFacts, /AbilityOvergrowNature[A-Z][a-z]+/,
@@ -535,7 +535,7 @@ test('IndexedDB is authoritative and exports a checked replay archive', {skip}, 
 	const page = session.page;
 
 	await page.fill('#runbun-run-new-name', 'Durable run');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await page.waitForFunction(async () => {
@@ -608,7 +608,7 @@ test('IndexedDB is authoritative and exports a checked replay archive', {skip}, 
 test('a v1 browser database upgrades in place before the next command', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	const head = await durableHead(page);
@@ -687,7 +687,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 
 	await page.fill('#runbun-run-new-name', 'Browser Run');
 	await page.check('#runbun-run-new-cap');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -822,10 +822,10 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.click('#runbun-run-open-calc');
 	await page.waitForFunction(() => window.location.hash === '#calc');
 	assert.equal(await page.$eval('.calc-player-column .select2-chosen', el => el.textContent),
-		'Treecko (My Run)', 'the player slot must hold the run set');
+		'Turtwig (My Run)', 'the player slot must hold the run set');
 	const bridged = await page.evaluate(() => {
 		const saved = JSON.parse(window.localStorage.getItem('runbun.run.v1'));
-		const mon = saved.box.find(entry => entry.species === 'Treecko');
+		const mon = saved.box.find(entry => entry.species === 'Turtwig');
 		const p1 = document.querySelector('.calc-player-column');
 		return {
 			level: p1.querySelector('.level').value,
@@ -868,7 +868,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.fill('#runbun-run-observed-iv-spe', '5');
 	await page.click('#runbun-run-record-details');
 	await page.waitForFunction(
-		() => /recorded Treecko/.test(document.querySelector('#runbun-run-status').textContent),
+		() => /recorded Turtwig/.test(document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
 
 	// The Heart Scale button is never disabled, so the refusal is what a player
@@ -920,7 +920,7 @@ test('a catch that could not have happened is refused and changes nothing', {ski
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -956,7 +956,7 @@ test('the run survives a reload, because a playthrough that does not is not one'
 	const page = session.page;
 
 	await page.fill('#runbun-run-new-name', 'Persisted');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -987,7 +987,7 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1065,7 +1065,7 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1106,11 +1106,11 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	assert.equal((await savedRun(page)).position, 0);
 
 	// The box filter narrows without touching the document.
-	await page.fill('#runbun-run-box-filter', 'tree');
+	await page.fill('#runbun-run-box-filter', 'turt');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 5000});
-	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Treecko/);
+	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Turtwig/);
 	assert.equal((await savedRun(page)).box.length, 3, 'filtering is a view, not a command');
 
 	await session.context.close();
@@ -1128,7 +1128,7 @@ test('the rule toggles are individual, and the preset only drives the controls',
 	// ...and any of them can be adjusted after — the form is what is sent.
 	await page.uncheck('#runbun-run-new-route');
 	await page.selectOption('#runbun-run-new-dupes', 'species');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1149,7 +1149,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 
 	await page.fill('#runbun-run-new-name', 'Routes Run');
 	await page.check('#runbun-run-new-nuzlocke');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1197,7 +1197,7 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1240,7 +1240,7 @@ test('a pasted run the server cannot read is refused, and the save survives it',
 	const page = session.page;
 
 	await page.fill('#runbun-run-new-name', 'Keeper');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1305,7 +1305,7 @@ test('a damaged save is handed back for repair, not quietly replaced', {skip}, a
 	// there is, and it needs the text.
 	assert.equal(await page.inputValue('#runbun-run-transfer'), damaged);
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForFunction(
 		() => /starting a run would write over it/.test(
@@ -1336,7 +1336,7 @@ test('a turn that resolves after its fight is gone is dropped, not thrown', asyn
 		const events = button && window.jQuery && window.jQuery._data(button, 'events');
 		return events && events.click;
 	});
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1375,7 +1375,7 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1434,7 +1434,7 @@ test('the page fits a phone: every active mode reflows without page overflow', {
 	// leave layout entirely, so their controls cannot stretch the page.
 	assert.equal(await page.isVisible('#calc'), false,
 		'the inactive calc region should collapse on a phone');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1489,7 +1489,7 @@ test('an answer the run has moved past is marked stale', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1545,7 +1545,7 @@ test('two tabs are one run: a catch in one appears in the other', {skip}, async 
 	await second.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
 	await second.waitForSelector('#runbun-run');
 
-	await first.click('.runbun-run-starter[data-species="Treecko"]');
+	await first.click('.runbun-run-starter[data-species="Turtwig"]');
 	await first.click('#runbun-run-new');
 	await first.waitForSelector('#runbun-run-live:not([hidden])');
 	// The other tab hears the write and shows the run without a reload.
@@ -1580,7 +1580,7 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	// carry it: a beat, or a burial.
 	await page.check('#runbun-run-new-route');
 	await page.check('#runbun-run-new-permadeath');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1700,7 +1700,7 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	// The route rule ON, so the settled roll's "one per route" refusal at the
 	// end is the rule speaking — without it a used route re-rolls legally.
 	await page.check('#runbun-run-new-route');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1791,7 +1791,7 @@ test('a rolled encounter survives a reload: the die was cast, not the page', {sk
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1833,7 +1833,7 @@ test('a hand-recorded faint offers its takeback, and the window is honest', {ski
 	const page = session.page;
 
 	await page.check('#runbun-run-new-permadeath');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1887,18 +1887,18 @@ test('the starter is picked on the setup screen, and the rival follows from it',
 	const page = session.page;
 
 	// Three buttons, one pressed at a time; pressing the pressed one clears.
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
-	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Treecko"]', 'aria-pressed'), 'true');
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
-	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Treecko"]', 'aria-pressed'), 'false');
-	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Mudkip"]', 'aria-pressed'), 'true');
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
-	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Mudkip"]', 'aria-pressed'), 'false');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Turtwig"]', 'aria-pressed'), 'true');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Turtwig"]', 'aria-pressed'), 'false');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Piplup"]', 'aria-pressed'), 'true');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Piplup"]', 'aria-pressed'), 'false');
 
-	// Start with Treecko: the gift is in the box before anything else happens,
-	// and the rival is fixed to the line that answers it — the one Treecko
+	// Start with Turtwig: the gift is in the box before anything else happens,
+	// and the rival is fixed to the line that answers it — the one Turtwig
 	// beats, whose ace is Swampert.
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1906,10 +1906,10 @@ test('the starter is picked on the setup screen, and the rival follows from it',
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 10000});
 	const saved = await savedRun(page);
-	assert.equal(saved.box[0].species, 'Treecko');
+	assert.equal(saved.box[0].species, 'Turtwig');
 	assert.equal(saved.box[0].level, 5);
 	assert.equal(saved.rules.rival, 'Swampert');
-	assert.match(await page.textContent('#runbun-run-status'), /Treecko L5 is in the box/);
+	assert.match(await page.textContent('#runbun-run-status'), /Turtwig L5 is in the box/);
 
 	await session.context.close();
 });
@@ -1918,7 +1918,7 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1956,7 +1956,7 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	// Everything folds by default except what starting a run opens for you:
@@ -2029,12 +2029,12 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	assert.equal(await page.isDisabled('#runbun-run-new'), true);
 	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), null);
 
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
 	assert.equal(await page.isDisabled('#runbun-run-new'), false);
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await page.waitForFunction(
-		() => /Mudkip L5/.test(document.querySelector('#runbun-run-status').textContent),
+		() => /Piplup L5/.test(document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
 	assert.match((await savedRun(page)).attemptId, /^[0-9a-f-]{20,}$|^attempt-/,
 		'a browser attempt should have a stable archive identity');
@@ -2081,7 +2081,7 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	await page.keyboard.up('Space');
 	await page.waitForSelector('#runbun-run-empty:not([hidden])', {timeout: 15000});
 	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), null);
-	assert.match(await page.inputValue('#runbun-run-transfer'), /"Mudkip"/,
+	assert.match(await page.inputValue('#runbun-run-transfer'), /"Piplup"/,
 		'the final save stays in the player\'s hands');
 	const archivedBundle = JSON.parse(await page.inputValue('#runbun-run-transfer'));
 	assert.equal(archivedBundle.modelVersion, '2.0.0');
@@ -2125,7 +2125,7 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	assert.match(await page.textContent('#runbun-run-status'), /already ended/);
 	assert.doesNotMatch(await page.textContent('#runbun-run-status'),
 		/Durable storage became unavailable|could not open/);
-	assert.match(await page.inputValue('#runbun-run-transfer'), /"Mudkip"/,
+	assert.match(await page.inputValue('#runbun-run-transfer'), /"Piplup"/,
 		'the parked quick save stays in the player\'s hands');
 	assert.equal(await page.evaluate(() =>
 		window.RunBunAttemptStore.getDefault().loadActive()), null,
@@ -2149,7 +2149,7 @@ test('nothing in the run panel overflows, clips its own label, or paints as an e
 	// party strip that read as a broken divider.
 	const opened = await open();
 	const page = opened.page;
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
 	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
 	await page.waitForSelector('#runbun-run-undo');
 	await openAllSections(page);
@@ -2218,7 +2218,7 @@ test('the worst-case cell is a control, and pressing it actually answers', {skip
 	// following it did nothing at all.
 	const opened = await open();
 	const page = opened.page;
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
 	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
 	await page.waitForSelector('#runbun-run-undo');
 

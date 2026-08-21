@@ -97,3 +97,52 @@ test('the doc names every command, and every command it names exists', () => {
 			`the doc advertises '${name}', which the CLI does not answer`);
 	}
 });
+
+test('the starter choice is data, and the page offers exactly that data', () => {
+	// The three choices used to live ONLY in src/index.template.html. Nothing
+	// could validate them, and that is precisely how they sat wrong: the page
+	// offered the Hoenn trio while Run & Bun starts you with the Sinnoh one.
+	// `ask.js starters` reported NOT MODELLED, and the disagreement about
+	// which trio this game uses was possible only because no file said so.
+	const profiles = require('../profiles');
+	const encounters = profiles.getProfile('run-and-bun').encounters;
+	const starters = encounters.STARTERS;
+	assert.ok(Array.isArray(starters) && starters.length === 3,
+		'the profile must declare exactly three starters');
+
+	const template = fs.readFileSync(path.join(root, 'src/index.template.html'), 'utf8');
+	const offered = [...template.matchAll(
+		/class="btn runbun-run-starter" data-species="([^"]+)" data-type="([^"]+)" data-rival="([^"]+)"/g)];
+	assert.equal(offered.length, 3, 'the page must offer exactly three starters');
+
+	starters.forEach((starter, index) => {
+		assert.equal(offered[index][1], starter.species,
+			`starter ${index} must be ${starter.species}, the profile's choice`);
+		assert.equal(offered[index][2], starter.type, `${starter.species} type must match`);
+		assert.equal(offered[index][3], starter.beats,
+			`${starter.species} must name the rival ace it beats`);
+		// The label a player reads has to agree with the data attribute driving it.
+		assert.ok(template.includes(
+			`<span class="runbun-run-starter-name">${starter.species}</span>`),
+		`the visible label for ${starter.species} must match its data-species`);
+	});
+
+	// The rival keeps its own generation. These two lists are deliberately
+	// NOT the same trio, so a well-meaning "fix" that aligns them is wrong.
+	const aces = encounters.RIVAL_ACES;
+	assert.deepEqual(aces, ['Sceptile', 'Blaziken', 'Swampert'],
+		'the rival aces stay Hoenn — Run & Bun rebuilt the player starter only');
+	for (const starter of starters) {
+		assert.ok(aces.includes(starter.beats),
+			`${starter.species} must beat a declared rival ace`);
+		assert.ok(!aces.includes(starter.species),
+			`${starter.species} must not itself be a rival ace`);
+	}
+	// Every starter has to be a real species the oracle can answer about.
+	for (const starter of starters) {
+		assert.ok((ask.oracle.levelUpMoves(starter.species) || []).length,
+			`${starter.species} must have a learnset on file`);
+		assert.ok((ask.oracle.evolutionsOf(starter.species) || []).length,
+			`${starter.species} must have an evolution line on file`);
+	}
+});
