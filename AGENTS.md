@@ -71,6 +71,15 @@ to take.
 
 ## Data rules
 
+- **Ask the game before reading its source.** Every fact about Run & Bun —
+  encounters, unlock order, learnsets, evolutions, catch rates, trainer teams
+  — is behind the profile oracle, and `node scripts/ask.js` answers the common
+  questions directly. `docs/DATA-ACCESS.md` documents the full API, including
+  the return shapes that mislead: `levelUpMoves` gives `[level, move]` PAIRS
+  (an object-style `.filter(m => m.level <= 5)` silently returns nothing),
+  `encountersOn` wraps its list under `.mons`, and `availabilityOf` returning
+  `null` means UNDATED, never closed. Re-deriving these by grep is how the
+  same mistakes get made twice.
 - Use stable Pokémon and move IDs in AI state; do not use array positions as
   identity.
 - Treat explicit caller-defined `MoveState` fields as authoritative overlays;

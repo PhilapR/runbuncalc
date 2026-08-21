@@ -600,6 +600,36 @@
       "fixed_in": "62cb6f4",
       "falsified": 1,
       "evidence": "Measured 589x2 and 615x2 with zero children and no text, inside a 1042px column. Two more turned up once the gate existed: the encounter list and the history list."
+    },
+    {
+      "id": "non-wild-sources-not-modelled",
+      "source": "review/data-access",
+      "raised_on": "2026-08-21",
+      "severity": "high",
+      "area": "solver",
+      "file": "profiles/run-and-bun/oracle/encounters.json",
+      "line": null,
+      "claim": "The oracle models only WILD encounter tables. Gifts, in-game trades, Game Corner badge rewards and fossils are invisible, so guaranteed free Pokemon are never offered to a nuzlocke planner.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "Found via the tracker workbook's 'Other' and 'Game Corner' sheets while checking a starter question. Probed with scripts/ask.js: Kubfu (Mossdeep gift) NOT FINDABLE; Castform (Weather Institute gift) NOT FINDABLE; Growlithe-Hisui (Rustboro trade) NOT FINDABLE. The sheets list: 3 trades (Rustboro Growlithe-Hisui, Fortree Weezing-Galar, Pacifidlog Zorua-Hisui), 3 gifts (Lavaridge 'Egg with a random Hoenn starter', Weather Institute Castform, Mossdeep Kubfu), fossils at Rustboro, and 8 badge-gated Game Corner rewards up to 'Mew, Celebi, Jirachi or Victini' at the Rain Badge. For a run where every encounter is scarce these are the opposite of marginal."
+    },
+    {
+      "id": "starters-not-modelled-as-data",
+      "source": "review/data-access",
+      "raised_on": "2026-08-21",
+      "severity": "medium",
+      "area": "solver",
+      "file": "src/index.template.html",
+      "line": 2200,
+      "claim": "The three starter choices are hardcoded in the page template and nowhere in the profile, so nothing can validate them and no tool can answer what the game starts you with.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "`node scripts/ask.js starters` reports 'NOT MODELLED'. Raised when Philip said R&B starts with Piplup, Chimchar and Turtwig. Three independent sources say the Hoenn trio instead: the tracker workbook's Other sheet lists a Lavaridge gift of 'Egg with a random Hoenn starter'; the rab trainer database gives May the ace Sceptile/Blaziken/Swampert across all 17 rival fights; and Piplup/Chimchar/Turtwig appear nowhere in the workbook. UNRESOLVED pending Philip — recorded because the disagreement is only possible at all because the data does not state the answer anywhere."
     }
   ]
 }
