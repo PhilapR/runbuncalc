@@ -265,11 +265,11 @@
       "file": "tests/browser_run.test.js",
       "line": 1326,
       "claim": "The test's own 'the race was actually staged' assertion only proves a DOM button exists. Making a move click send no request at all — race physically impossible — still passes. Either guard can also be deleted alone and it stays green.",
-      "verdict": "reported",
-      "status": "open",
-      "fixed_in": null,
-      "falsified": 0,
-      "evidence": "Auditor's mutation: guard the move click with an early return so no /run/battle/act request is issued. 1/1 pass. Fix is to count requests through page.route rather than assert a node exists."
+      "verdict": "confirmed",
+      "status": "fixed",
+      "fixed_in": "3df343c",
+      "falsified": 1,
+      "evidence": "Auditor's mutation: guard the move click with an early return so no /run/battle/act request is issued. 1/1 pass. Fix is to count requests through page.route rather than assert a node exists. FIXED in 3df343c. Three defects: the anti-vacuity check was !!cleared (a DOM node exists), the outcome was three hardcoded V8 phrases, and it was the one test in the file with no skip guard. The route handler now counts turns; session.errors replaces the phrase matching. The partial-regression blind spot needed two NEW scenarios, because in the original race the request succeeds so both guards run and either suffices: one opens a second fight under the in-flight turn (isolating the success guard, discriminated by the battle LOG since both fights share a trainer and the opponent name is identical either way), one aborts the request (isolating the catch guard). Falsified: no request -> RED; success guard -> RED; catch guard -> RED; both -> RED."
     },
     {
       "id": "observed-at-suspect-not-pinned-in-hash",
