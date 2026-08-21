@@ -627,7 +627,7 @@
       "claim": "The three starter choices are hardcoded in the page template and nowhere in the profile, so nothing can validate them and no tool can answer what the game starts you with.",
       "verdict": "confirmed",
       "status": "fixed",
-      "fixed_in": "PENDING",
+      "fixed_in": "b9c50f3",
       "falsified": 1,
       "evidence": "`node scripts/ask.js starters` reports 'NOT MODELLED'. Raised when Philip said R&B starts with Piplup, Chimchar and Turtwig. Three independent sources say the Hoenn trio instead: the tracker workbook's Other sheet lists a Lavaridge gift of 'Egg with a random Hoenn starter'; the rab trainer database gives May the ace Sceptile/Blaziken/Swampert across all 17 rival fights; and Piplup/Chimchar/Turtwig appear nowhere in the workbook. UNRESOLVED pending Philip — recorded because the disagreement is only possible at all because the data does not state the answer anywhere. RESOLVED by Philip: keep the rival data, fix the player's starter. Run & Bun rebuilt the player starter to the Sinnoh line while leaving the rival's teams hand-built around Hoenn, so the two lists are deliberately from different generations. STARTERS now lives in profiles/run-and-bun/encounters.js beside RIVAL_ACES, the page and lib/play.js both read it instead of holding copies, and a gate asserts the page offers exactly the profile's trio, that the visible label matches its own data-species, and that a well-meaning alignment of the two lists goes red."
     }
