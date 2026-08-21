@@ -2407,3 +2407,47 @@ test('a location the data cannot date is reported, never silently dropped', () =
 	assert.ok(!after.undated.routes.includes('Artisan Cave'),
 		'and it is no longer named as unscanned');
 });
+
+test('a spent route only closes when the run says one encounter per route', () => {
+	// Found by playing a run in the browser. The catch advisor filtered on
+	// `route.used` unconditionally, so a run WITHOUT the nuzlocke rule lost
+	// advice for every route it had already caught on — the route was still
+	// perfectly legal to catch from, and the scout simply stopped mentioning
+	// it. preFightOpportunities had always asked the question correctly, so
+	// the two surfaces disagreed about the same run: 4 against 5.
+	const IVS = {hp: 20, atk: 20, def: 20, spa: 20, spd: 20, spe: 20};
+	function afterCatchingOnRoute101(onePerRoute) {
+		let state = run.apply(fresh({onePerRoute}),
+			owned({kind: 'catch', species: 'Mudkip', level: 5, ivs: IVS}));
+		state = run.apply(state,
+			owned({kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3, ivs: IVS}));
+		const advice = run.adviseCatches(state);
+		const opportunities = run.preFightOpportunities(state);
+		return {
+			adviseCount: advice.routesOpen,
+			adviseOffersIt: advice.catches.some(entry => entry.area === 'Route101'),
+			opportunityCount: opportunities.encounters.count,
+			opportunityListsIt: opportunities.encounters.routes
+				.some(route => route.name === 'Route101'),
+		};
+	}
+
+	// Rule OFF: the route is still legal, so both surfaces must still offer it.
+	const loose = afterCatchingOnRoute101(false);
+	assert.equal(loose.adviseOffersIt, true,
+		'without the rule, a route you have caught on is still catchable');
+	assert.equal(loose.opportunityListsIt, true, 'and the opportunity list agrees');
+
+	// Rule ON: the route is spent, so neither surface may offer it.
+	const nuzlocke = afterCatchingOnRoute101(true);
+	assert.equal(nuzlocke.adviseOffersIt, false, 'with the rule, the route is spent');
+	assert.equal(nuzlocke.opportunityListsIt, false, 'and the opportunity list agrees');
+
+	// The counts are the same question and must never disagree, either way.
+	assert.equal(loose.adviseCount, loose.opportunityCount,
+		'the two surfaces must count the same routes with the rule off');
+	assert.equal(nuzlocke.adviseCount, nuzlocke.opportunityCount,
+		'and with the rule on');
+	assert.equal(loose.adviseCount - nuzlocke.adviseCount, 1,
+		'and the rule must actually cost exactly the one spent route');
+});
