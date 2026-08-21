@@ -2131,3 +2131,77 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 
 	await session.context.close();
 });
+
+test('nothing in the run panel overflows, clips its own label, or paints as an empty rule', {skip}, async () => {
+	// Three layout defects that only a real browser can see, all found by
+	// measuring rather than looking.
+	//
+	// Upstream's base .btn is a FIXED width: 5em. The calculator opts into
+	// .btn-wide per button; the run panel's labels are variable-length prose,
+	// so "Undo last change" was handed 67px for 114px of text — first wrapping
+	// onto two lines, then overflowing 42px past the column once nowrap was
+	// added to stop the wrap.
+	//
+	// And .runbun-run-plan-actions / .runbun-run-advice carry a 1px border, so
+	// while empty they painted a 2px-tall bordered box: a stray rule under the
+	// party strip that read as a broken divider.
+	const opened = await open();
+	const page = opened.page;
+	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
+	await page.waitForSelector('#runbun-run-undo');
+	await openAllSections(page);
+
+	for (const size of [{width: 1280, height: 900}, {width: 375, height: 812}]) {
+		await page.setViewportSize(size);
+		const report = await page.evaluate(() => {
+			const live = document.querySelector('#runbun-run');
+			const box = live.getBoundingClientRect();
+			const overflowing = [...live.querySelectorAll('*')]
+				.filter(el => {
+					const r = el.getBoundingClientRect();
+					return r.width > 0 && r.right > box.right + 1;
+				})
+				.map(el => `${el.tagName}.${String(el.className).slice(0, 40)}`);
+			// A label is CLIPPED only when the box actually cuts it off: the
+			// content is wider AND overflow hides it. On a flex header with
+			// overflow:visible, scrollWidth can exceed clientWidth by a pixel
+			// or two (a scrollbar narrowing the client box is enough) while
+			// nothing is truncated — the first version of this check flagged
+			// all seven section headers for exactly that, and they measure
+			// delta 0 in a real window. Overflow that is merely visible is
+			// caught by the overflowing check above instead.
+			const clipped = [...live.querySelectorAll('button')]
+				.filter(el => {
+					const hides = getComputedStyle(el).overflowX !== 'visible';
+					return hides && el.scrollWidth > el.clientWidth + 2;
+				})
+				.map(el => `${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 32)} ` +
+					`(${el.scrollWidth} into ${el.clientWidth})`);
+			// An element with no children and no text that still paints a
+			// visible horizontal band is a border with nothing to border.
+			const phantomRules = [...live.querySelectorAll('*')]
+				.filter(el => {
+					const r = el.getBoundingClientRect();
+					return r.height > 0 && r.height <= 3 && r.width > 40 &&
+						!el.children.length && !el.textContent.trim();
+				})
+				.map(el => String(el.className).slice(0, 40));
+			return {
+				overflowing, clipped, phantomRules,
+				documentOverflow: document.documentElement.scrollWidth -
+					document.documentElement.clientWidth,
+			};
+		});
+		const where = `${size.width}x${size.height}`;
+		assert.deepEqual(report.overflowing, [],
+			`nothing may extend past the run panel at ${where}`);
+		assert.deepEqual(report.clipped, [],
+			`every button must be wide enough for its own label at ${where}`);
+		assert.deepEqual(report.phantomRules, [],
+			`an empty container must not paint its border at ${where}`);
+		assert.equal(report.documentOverflow, 0,
+			`the page must not scroll sideways at ${where}`);
+	}
+	await opened.context.close();
+});

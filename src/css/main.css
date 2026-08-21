@@ -1886,6 +1886,16 @@ table.field {
    can run down it, top action called out with the brand accent. Boxed rows at
    full width were the single worst thing in the screenshots. */
 #runbun-planner .runbun-planner-actions,
+/* An empty container must not paint. Both of these carry a 1px border, so
+ * with no children they rendered as a 2px-tall bordered box — a stray rule
+ * floating under the party strip, 589px wide against a 1042px column, which
+ * read as a broken divider rather than as nothing. */
+#runbun-run .runbun-run-plan-actions:empty,
+#runbun-run .runbun-run-advice:empty,
+#runbun-run .runbun-run-encounters:empty,
+#runbun-run .runbun-history-attempts:empty {
+	display: none;
+}
 #runbun-run .runbun-run-plan-actions {
 	display: block;
 	max-width: 44rem;
@@ -3549,6 +3559,21 @@ table.field {
 #runbun-run .runbun-run-history-actions .btn,
 #runbun-run .runbun-run-row .btn {
 	margin: 0;
+	/* Upstream's base .btn is a FIXED `width: 5em` (66.7px here), which the
+	 * calculator lives with by opting into .btn-wide / .btn-xwide per button.
+	 * The run panel's labels are variable-length prose, so a fixed width can
+	 * only ever wrap or overflow: "Undo last change" needs 114px and was
+	 * given 67, first wrapping onto two lines and then — once nowrap was
+	 * added — spilling 42px past the column's right edge.
+	 *
+	 * Size to the label instead, and cap at the container so a long label on
+	 * a narrow screen truncates rather than escaping the layout. */
+	flex: none;
+	width: max-content;
+	max-width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* --- My Run at full-game scale --------------------------------------------
