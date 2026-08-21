@@ -97,6 +97,58 @@ function encountersOn(name) {
 
 /** Every map a species can be caught on, with how. */
 const unavailableData = require('./oracle/unavailable.json');
+const sourcesData = require('./oracle/sources.json');
+
+/**
+ * Every non-wild way to get a Pokemon, flattened to species -> sources.
+ *
+ * Built once. A Game Corner tier is a RANDOM draw between its options, so
+ * each option carries the whole set and the odds rather than pretending the
+ * player picks — that is the same shape a wild table already uses.
+ */
+const NON_WILD = new Map();
+function addSource(species, entry) {
+	if (!species) return;
+	if (!NON_WILD.has(species)) NON_WILD.set(species, []);
+	NON_WILD.get(species).push(entry);
+}
+for (const tier of sourcesData.gameCorner.tiers) {
+	for (const species of tier.options) {
+		addSource(species, {
+			kind: 'game-corner', where: 'Game Corner', opensAt: tier.opensAt,
+			gate: tier.badge, after: tier.leader,
+			oneOf: tier.options,
+			chance: Math.round(100 / tier.options.length),
+		});
+	}
+}
+for (const trade of sourcesData.trades) {
+	for (const species of trade.gives) {
+		addSource(species, {
+			kind: 'trade', where: trade.where, opensAt: null,
+			costs: trade.wants,
+		});
+	}
+}
+for (const gift of sourcesData.gifts) {
+	if (gift.species) {
+		addSource(gift.species, {kind: 'gift', where: gift.where, opensAt: gift.opensAt,
+			note: gift.note});
+	}
+	for (const species of gift.options || []) {
+		addSource(species, {kind: 'gift', where: gift.where, opensAt: gift.opensAt,
+			oneOf: gift.options, what: gift.what, note: gift.note});
+	}
+}
+for (const species of sourcesData.roaming.species) {
+	addSource(species, {kind: 'roaming', where: null, opensAt: null,
+		after: sourcesData.roaming.after});
+}
+
+/** Non-wild sources for a species, or an empty list. */
+function nonWildSources(species) {
+	return (NON_WILD.get(species) || []).slice();
+}
 
 /**
  * Every species this hack REMOVED, flattened once.
@@ -135,17 +187,27 @@ function availabilityOfSpecies(species) {
 	if (!isKnownSpecies(species)) {
 		return {status: 'unavailable', reason: 'not in this hack\'s species data'};
 	}
+	// Every route in, wild and otherwise. A species can have BOTH: Larvitar
+	// is a Heat Badge reward AND stands in the grass, and reporting only the
+	// grass would hide a guaranteed one. An earlier version returned on the
+	// first wild table it found and lost the other half.
+	const other = nonWildSources(species);
 	const wild = whereToFind(species);
+
 	if (wild.length) {
 		if (CONTESTED.has(species)) {
 			const row = unavailableData.openQuestions.find(entry => entry.species === species);
-			return {status: 'contested', wild, question: row.question, wildSource: row.wildSource};
+			return {status: 'contested', wild, sources: other,
+				question: row.question, wildSource: row.wildSource};
 		}
 		// A table in unreachable content is not a way to get one. Six species
 		// are listed unavailable AND carry wild tables for exactly this
-		// reason: the ROM keeps tables for areas the game never opens.
+		// reason: the ROM keeps tables for areas the game does not open.
 		const reachable = wild.filter(entry => !!availabilityOf(entry.name));
 		if (!reachable.length) {
+			// ...unless something else hands one over, which changes the answer
+			// completely rather than merely adding to it.
+			if (other.length) return {status: 'obtainable', wild, sources: other};
 			return {
 				status: 'unreachable',
 				wild,
@@ -153,14 +215,18 @@ function availabilityOfSpecies(species) {
 					'the ROM keeps tables for areas the game does not open',
 			};
 		}
-		return {status: 'wild', wild, reachable};
+		return {status: 'wild', wild, reachable, ...(other.length ? {sources: other} : {})};
 	}
+	// A non-wild source is a real way to get one. This is the whole point of
+	// Phase 1: eight Game Corner tiers, three trades, the gifts, the fossils
+	// and seven roaming legendaries used to answer "not modelled".
+	if (other.length) return {status: 'obtainable', sources: other};
 	if (UNAVAILABLE.has(species)) {
 		return {status: 'unavailable', reason: 'named in the hack\'s Unavailable Pokemon list'};
 	}
-	// It exists in this hack and has no wild table, so it comes from a source
-	// we have not modelled: a gift, a trade, a Game Corner reward, a fossil,
-	// an egg, a static. That is a different answer from "you cannot have it".
+	// It exists in this hack and has no route we model, so it comes from a
+	// source we have not taught the tool. That is a different answer from
+	// "you cannot have it".
 	return {status: 'not-modelled', notModelled: NON_WILD_SOURCES_NOT_MODELLED};
 }
 
@@ -580,7 +646,7 @@ function moveAvailability() {
 }
 
 module.exports = {
-	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
 	moveAvailability, moveItems,
 	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,

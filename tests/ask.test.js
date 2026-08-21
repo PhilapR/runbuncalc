@@ -165,11 +165,19 @@ test('an absence says WHICH kind of absence it is', () => {
 	assert.equal(oracle.availabilityOfSpecies('Sprigatito').status, 'unavailable');
 
 	// Exists, obtainable, and we simply have not taught the tool the source.
-	for (const gift of ['Kubfu', 'Castform']) {
-		const answer = oracle.availabilityOfSpecies(gift);
-		assert.equal(answer.status, 'not-modelled',
-			`${gift} is a real gift — calling it unavailable would be a lie`);
-		assert.ok(answer.notModelled.includes('gift'), 'it names the sources still missing');
+	// Kubfu and Castform stood here until Phase 1 modelled the gifts; they
+	// now answer 'obtainable', which is the progression working rather than a
+	// regression. Regirock is the honest remaining example: a static
+	// encounter, real and gettable, with no source on file.
+	const stillMissing = oracle.availabilityOfSpecies('Regirock');
+	assert.equal(stillMissing.status, 'not-modelled',
+		'Regirock is a real static — calling it unavailable would be a lie');
+	assert.ok(stillMissing.notModelled.includes('static'),
+		'and it names the kind of source still missing');
+	// The two that graduated must NOT have gone backwards.
+	for (const modelled of ['Kubfu', 'Castform']) {
+		assert.equal(oracle.availabilityOfSpecies(modelled).status, 'obtainable',
+			`${modelled} is modelled now — Phase 1 taught the tool where it comes from`);
 	}
 
 	// Ordinary wild.
@@ -194,7 +202,64 @@ test('an absence says WHICH kind of absence it is', () => {
 
 	// Every one of these must be a DIFFERENT answer, or the distinction is
 	// decorative.
-	const statuses = ['Caterpie', 'Kubfu', 'Lillipup', 'Smeargle', 'Geodude']
+	const statuses = ['Caterpie', 'Regirock', 'Kubfu', 'Lillipup', 'Smeargle', 'Geodude']
 		.map(name => oracle.availabilityOfSpecies(name).status);
-	assert.equal(new Set(statuses).size, 5, 'five situations, five answers');
+	assert.equal(new Set(statuses).size, 6,
+		'six situations, six answers: unavailable, not-modelled, obtainable, wild, unreachable, contested');
+});
+
+test('a Pokemon that does not come from grass still has a source', () => {
+	// Phase 1 of docs/MODELLING-GAPS.md. The oracle modelled wild encounter
+	// tables and nothing else, so eight badge-gated Game Corner rewards, three
+	// in-game trades, the gifts, the fossils and seven roaming legendaries all
+	// answered "not modelled" — in a nuzlocke, guaranteed Pokemon the catch
+	// advisor never mentioned.
+	const oracle = ask.oracle;
+
+	// A gift the hack hands over. Was 'not-modelled' before this.
+	const kubfu = oracle.availabilityOfSpecies('Kubfu');
+	assert.equal(kubfu.status, 'obtainable');
+	assert.equal(kubfu.sources[0].kind, 'gift');
+
+	// The Rain Badge tier, which is four mythicals on a random draw.
+	const mew = oracle.availabilityOfSpecies('Mew');
+	assert.equal(mew.status, 'obtainable');
+	const corner = mew.sources.find(source => source.kind === 'game-corner');
+	assert.ok(corner, 'Mew comes out of the Game Corner');
+	assert.equal(corner.opensAt, 1364, 'gated on Juan, who hands over the Rain Badge');
+	assert.deepEqual(corner.oneOf, ['Mew', 'Celebi', 'Jirachi', 'Victini']);
+	assert.equal(corner.chance, 25, 'a random draw between four is not a choice');
+
+	// BOTH routes when both exist. Larvitar is a Heat Badge reward AND stands
+	// in the grass; an earlier version returned on the first wild table it
+	// found and silently dropped the guaranteed one.
+	const larvitar = oracle.availabilityOfSpecies('Larvitar');
+	assert.equal(larvitar.status, 'wild');
+	assert.ok(larvitar.wild.length, 'it really is in the grass');
+	assert.ok(larvitar.sources.some(source => source.kind === 'game-corner'),
+		'and the Heat Badge hands one over — both are true');
+
+	// A trade names what it costs, because giving one up is the price.
+	const hisui = oracle.availabilityOfSpecies('Zorua-Hisui');
+	const trade = hisui.sources.find(source => source.kind === 'trade');
+	assert.equal(trade.where, 'Pacifidlog Town');
+	assert.deepEqual(trade.costs, ['Zorua', 'Zoroark']);
+
+	// Roaming legendaries are gated on a story event, not a numbered fight.
+	// A number would be invented; the prose is what the source gives.
+	const latias = oracle.availabilityOfSpecies('Latias');
+	assert.equal(latias.sources[0].kind, 'roaming');
+	assert.equal(latias.sources[0].opensAt, null, 'no fight order is claimed');
+	assert.match(latias.sources[0].after, /Sootopolis/);
+
+	// Every badge tier is gated on a real fight in this run map, and the
+	// workbook's badge ORDER matches those orders — including R&B's swap of
+	// Brawly ahead of Roxanne. That agreement is why these are stated rather
+	// than estimated, so it has to hold.
+	const sources = require('../profiles/run-and-bun/oracle/sources.json');
+	const orders = sources.gameCorner.tiers.map(tier => tier.opensAt);
+	assert.deepEqual(orders, [...orders].sort((a, b) => a - b),
+		'the badge tiers must run in fight order');
+	assert.equal(orders[0], 77, 'Knuckle first — Brawly, not Roxanne');
+	assert.equal(orders[1], 139, 'then Stone');
 });

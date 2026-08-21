@@ -68,6 +68,23 @@ const COMMANDS = {
 		if (availability.status === 'unavailable') {
 			return console.log(`${species} cannot be obtained in Run & Bun — ${availability.reason}.`);
 		}
+		// Non-wild routes, printed whether or not there is also grass. Eight
+		// Game Corner tiers, three trades, the gifts and seven roaming
+		// legendaries were invisible before Phase 1.
+		if (availability.sources && availability.sources.length) {
+			console.log(`${species} — ${availability.sources.length} non-wild source(s):`);
+			for (const route of availability.sources) {
+				const when = route.opensAt !== null && route.opensAt !== undefined ?
+					`from fight ${route.opensAt}` :
+					route.after ? `after ${route.after}` : 'timing not on file';
+				const extra = route.oneOf && route.oneOf.length > 1 ?
+					`  (random: ${route.oneOf.join(', ')} — ${route.chance || Math.round(100 / route.oneOf.length)}% each)` :
+					route.costs ? `  (trade away ${route.costs.join(' or ')})` : '';
+				console.log(`  ${route.kind.padEnd(12)} ${(route.where || 'where not on file').padEnd(18)} ${when}${extra}`);
+			}
+			if (!availability.wild || !availability.wild.length) return;
+			console.log('');
+		}
 		if (availability.status === 'not-modelled') {
 			return console.log(`${species} exists in Run & Bun but has no wild table, so it comes ` +
 				`from a source this tool does not model yet (${availability.notModelled.join(', ')}).\n` +

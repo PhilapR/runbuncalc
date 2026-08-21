@@ -54,6 +54,7 @@ Oracle datasets:
 - `fight-fields.json`: 35 fights
 - `growth.json`: 1114 species
 - `learnsets.json`: 1114 species
+- `sources.json`: 10 species
 - `tracker-order.json`: 7 species
 - `unavailable.json`: 7 species
 
