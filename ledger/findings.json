@@ -630,6 +630,51 @@
       "fixed_in": "b9c50f3",
       "falsified": 1,
       "evidence": "`node scripts/ask.js starters` reports 'NOT MODELLED'. Raised when Philip said R&B starts with Piplup, Chimchar and Turtwig. Three independent sources say the Hoenn trio instead: the tracker workbook's Other sheet lists a Lavaridge gift of 'Egg with a random Hoenn starter'; the rab trainer database gives May the ace Sceptile/Blaziken/Swampert across all 17 rival fights; and Piplup/Chimchar/Turtwig appear nowhere in the workbook. UNRESOLVED pending Philip — recorded because the disagreement is only possible at all because the data does not state the answer anywhere. RESOLVED by Philip: keep the rival data, fix the player's starter. Run & Bun rebuilt the player starter to the Sinnoh line while leaving the rival's teams hand-built around Hoenn, so the two lists are deliberately from different generations. STARTERS now lives in profiles/run-and-bun/encounters.js beside RIVAL_ACES, the page and lib/play.js both read it instead of holding copies, and a gate asserts the page offers exactly the profile's trio, that the visible label matches its own data-species, and that a well-meaning alignment of the two lists goes red."
+    },
+    {
+      "id": "unavailable-and-unmodelled-are-one-word",
+      "source": "review/platform-audit",
+      "raised_on": "2026-08-21",
+      "severity": "high",
+      "area": "solver",
+      "file": "scripts/ask.js",
+      "line": null,
+      "claim": "The tool cannot distinguish 'this hack removed the species' from 'we do not model that source'. ask.js where Kubfu and ask.js where Caterpie both answer NOT FINDABLE, though one is a guaranteed free gift and the other can never be obtained.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "Measured. The hack's own Pokemon Locations.xlsx carries an 'Unavailable Pokemon' sheet naming ~416 species across 8 generation rows; none of it is modelled. For a nuzlocke planner these are the two most different answers possible — one is a Pokemon you are missing, the other is one to stop planning around. Plan: docs/MODELLING-GAPS.md phase 0."
+    },
+    {
+      "id": "non-wild-species-sources-missing",
+      "source": "review/platform-audit",
+      "raised_on": "2026-08-21",
+      "severity": "high",
+      "area": "solver",
+      "file": "profiles/run-and-bun/encounters.js",
+      "line": null,
+      "claim": "Only wild encounters are modelled as a source of Pokemon. The 8 badge-gated Game Corner reward tiers, 3 in-game trades, the Lavaridge starter egg, Castform, Kubfu and the fossils are all absent.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "472 species have a wild source; the Game Corner sheet pays out on every badge, ending at 'Mew, Celebi, Jirachi or Victini' on the Rain Badge. All are gated on progress the tool already tracks. Plan: docs/MODELLING-GAPS.md phase 1."
+    },
+    {
+      "id": "engine-debits-currencies-it-cannot-source",
+      "source": "review/platform-audit",
+      "raised_on": "2026-08-21",
+      "severity": "high",
+      "area": "solver",
+      "file": "lib/run.js",
+      "line": null,
+      "claim": "lib/run.js charges Rare Candy for over-cap levels and a Heart Scale for relearner moves, but neither appears among the 28 modelled field items, so the tool spends currencies it cannot tell you how to earn.",
+      "verdict": "confirmed",
+      "status": "open",
+      "fixed_in": null,
+      "falsified": 0,
+      "evidence": "Measured: 28 field items modelled against 127 location references across the six sheets of Item Locations.xlsx, whose first sheet is 'Heart Scale Location'. Every evolution stone is missing too — Fire, Water, Thunder, Moon, Sun, Dusk — which is the input evolution planning needs most. Plan: docs/MODELLING-GAPS.md phase 2."
     }
   ]
 }
