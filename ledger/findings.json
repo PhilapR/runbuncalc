@@ -774,12 +774,12 @@
 			"area": "ui",
 			"file": "src/js/run_panel.js",
 			"line": 2060,
-			"claim": "The fair-dice forecast is the only part of Plan that speaks about SURVIVING, and when it fails the verdict does not say so. The player is left with an action-ranking margin — \"contested by 0.1. Plan for both.\" — which reads like a judgement on the fight and is not one.",
+			"claim": "The Plan verdict never says whether you survive. Its fair-dice forecast — the only part that does — is dead for most of the game, and when it dies the verdict does not say so. Meanwhile the survival answer EXISTS, is accurate, and is in a different panel behind a different button.",
 			"verdict": "confirmed",
 			"status": "open",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Eight scripted playthroughs (scripts/ui-playthrough.js), eight different parties, all eight lost the forecast and all eight died at Lady Cindy. Before that fight the verdict read \"Lady Cindy — contested by 0.1. Plan for both.\" and the only sign of trouble was the LAST row of the action list, in the same grey as an unavailable option: \"— pokemon-mono seed check unavailable · No unique canonical RAB trainer exists for Team Aqua Grunt Petalburg Woods\" — a different trainer two fights away. renderPlanOutlook(null) then sets hidden on the whole outlook block and the is-top PARTIAL PLAN row is never prepended, so a dead forecast is indistinguishable from a plan that never had one. Compare a working forecast, which is unmissable: \"0 of 8 fair-dice samples came back clean · worst sampled branch loses 1\". Two causes feed it, both recorded separately: [[provider-ability-table-is-vanilla-not-run-and-bun]] and [[provider-cannot-resolve-42-percent-of-the-run-map]]. The batch makes it worse — client.planBatch covers the next three fights and fails as a unit, so an unresolvable trainer two steps ahead removes the forecast for the fight in front of you."
+			"evidence": "Eight scripted playthroughs (scripts/ui-playthrough.js), eight different parties, all eight lost the forecast and all eight died at Lady Cindy. Before that fight the verdict read \"Lady Cindy — contested by 0.1. Plan for both.\" and the only sign of trouble was the LAST row of the action list, in the same grey as an unavailable option: \"— pokemon-mono seed check unavailable · No unique canonical RAB trainer exists for Team Aqua Grunt Petalburg Woods\" — a different trainer two fights away. renderPlanOutlook(null) then sets hidden on the whole outlook block and the is-top PARTIAL PLAN row is never prepended, so a dead forecast is indistinguishable from a plan that never had one. Compare a working forecast, which is unmissable: \"0 of 8 fair-dice samples came back clean · worst sampled branch loses 1\". Two causes feed it, both recorded separately: [[provider-ability-table-is-vanilla-not-run-and-bun]] and [[provider-cannot-resolve-42-percent-of-the-run-map]]. The batch makes it worse — client.planBatch covers the next three fights and fails as a unit, so an unresolvable trainer two steps ahead removes the forecast for the fight in front of you. MEASURED, and this is the part that decides the severity: across twelve scripted playthroughs the Best-parties adjudication called every single outcome. 25 fights were played by the six that Rank scored. The 22 it scored at or above 9/12 clean were ALL won (mean 99% of sims clean, 0.6 deaths avg); the 3 it scored below were ALL wiped (mean 44% clean, 3.7 deaths avg), and two of those named the exact Pokemon nothing on the team answered — \"won 5/12 sims · 3.0 deaths avg · unanswered: Jigglypuff\" before Lady Cindy, \"won 4/12 sims · 4.7 deaths avg · unanswered: Yanma\" before Triathlete Mikey. Both wiped. The Plan verdict for those same two fights read \"contested by 0.1. Plan for both.\" and \"contested by 1.4. Plan for both.\" So the tool is not failing to know — it knows, accurately, and puts it behind Rank parties rather than in the verdict the player reads next to the Fight button."
 		},
 		{
 			"id": "held-item-picker-offers-what-no-pokemon-can-hold",
@@ -825,6 +825,51 @@
 			"fixed_in": null,
 			"falsified": 0,
 			"evidence": "renderRanking builds each row as li.runbun-run-rank-row holding spans only, and the block in src/index.template.html:2704 is a bare <ol> with no action. Rows carry no data-id either, so even a script has to match the six back to the box by species name. The rows are worth acting on — a real one from a playthrough reads \"2.885 Piplup Starly Natu Steenee [Surskit] Ponyta won 12/12 sims · 0.1 deaths avg\", lead in brackets. The project already fixed this shape once elsewhere: the browser gate has a test called \"the worst-case cell is a control, and pressing it actually answers\"."
+		},
+		{
+			"id": "attract-and-cute-charm-ignore-gender",
+			"source": "review/test-run",
+			"raised_on": "2026-08-21",
+			"severity": "high",
+			"area": "engine",
+			"file": "ai/src/actions.ts",
+			"line": 317,
+			"claim": "Attract is the one move whose entire function is a gender check, and it does not make one. Its eligibility asks only about prior infatuation, Oblivious and Aroma Veil — so it lands on a same-gender target, which it must never do. Cute Charm goes through the same path and has the same hole. The line directly above gets it right for Captivate.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Reproduced against the real fight it decides. Lady Cindy (order 16) fields Minccino, Jigglypuff and Phanpy, all three Cute Charm, all three holding an Oran Berry, between them carrying Attract and Thunder Wave and almost nothing else — the fight IS the gender mechanic. Built that state and asked the engine: attacker Minccino gender M, target Piplup gender M, and ai.evaluateActions still enumerates Attract as a usable action. In play it lands: across four scripted playthroughs the battle logs carry 'Attract' six times and 'is immobilized by love' seven. actions.ts:317 reads !target.volatile?.infatuated && canApplyVolatile(state, target.id, 'infatuated', ...), and eligibility.ts:265 checks only prior infatuation, Oblivious and Aroma Veil. Two lines up, captivate carries the full gate — !actor.gender || actor.gender === 'N' || !target.gender || target.gender === 'N' || actor.gender !== target.gender — and move-engine.ts:5930 and status.ts:309 repeat it for the same move. So the rule is written three times, for the move that needs it least. Cute Charm calls the same canApplyVolatile at move-engine.ts:4741. Compounded by [[every-gendered-pokemon-is-male]]: with every Pokemon built as M, a correct Attract would fail every time in this fight, and this one succeeds every time."
+		},
+		{
+			"id": "every-gendered-pokemon-is-male",
+			"source": "review/test-run",
+			"raised_on": "2026-08-21",
+			"severity": "high",
+			"area": "engine",
+			"file": "lib/run.js",
+			"line": 1084,
+			"claim": "Every Pokemon with a gender is built male, including female-only species. Nothing in the run carries gender at all: rollIdentity does not roll one and partySpecs does not pass one, so the engine never sees a real one.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Built one fight state per species through planner.buildFightState and read the gender back. Piplup M, Jigglypuff M, Miltank M, Nidoran-F M — the last two are female-ONLY species. Magnemite and Ditto correctly come back undefined, so the genderless case is handled and the gendered case is not: it is defaulted, not derived. rollIdentity (lib/run.js:133) authors the rolled identity — six IVs, a nature and an ability — and does not author a gender; partySpecs (lib/run.js:1084) forwards species, level, nature, ability, item, moves and IVs, and does not forward one. It matters wherever gender is a rule: Attract and Cute Charm ([[attract-and-cute-charm-ignore-gender]]), Rivalry, Captivate — which DOES check gender and would therefore behave as if every matchup were same-gender — and any breeding or ability-slot question the tool grows into later."
+		},
+		{
+			"id": "advisor-prices-a-tenth-of-the-movepool",
+			"source": "review/test-run",
+			"raised_on": "2026-08-21",
+			"severity": "high",
+			"area": "data",
+			"file": "lib/run.js",
+			"line": 1349,
+			"claim": "Best upgrades for the next fight drops any TM or tutor move whose unlock timing is unknown, and that is most of them. The panel says so in its own note — 9 upgrades compared against 60 moves skipped at the first fight — so the strongest advice surface in the tool runs on roughly a tenth of what a party can learn.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Read straight off #runbun-run-advice-note during a scripted playthrough, four fights sampled: Youngster Calvin (#0) 9 compared / 60 skipped; Fisherman Darian (#14) 9 / 50; Lady Cindy (#16) 3 / 45; Team Aqua Grunt Petalburg Woods (#19) 2 / 36. lib/run.js:1349 is the drop — a teachable route with a null gate from oracle.moveObtainableAt is excluded and counted, which is the right call (offering a move the player cannot yet get is worse than silence) and is why the number is visible at all. The data is partly there: oracle.moveAvailability() returns 78 dated sources, 50 TM and 28 tutor, with zero undated among them. So the table is not missing, it is small relative to the learnsets it is asked about. The consequence shows in play: the advisor mostly offers held items and level-up moves, and the upgrades it did find were worth +0.74, +0.17 and +0.07 damage. Settling this is Philip's open question tm-tutor-dates in DECISIONS.json, which already names the community Item Locations doc as the import; this finding only measures what it is costing."
 		}
 	]
 }
