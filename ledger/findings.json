@@ -830,16 +830,16 @@
 			"id": "attract-and-cute-charm-ignore-gender",
 			"source": "review/test-run",
 			"raised_on": "2026-08-21",
-			"severity": "high",
+			"severity": "warning",
 			"area": "engine",
 			"file": "ai/src/actions.ts",
 			"line": 317,
-			"claim": "Attract is the one move whose entire function is a gender check, and it does not make one. Its eligibility asks only about prior infatuation, Oblivious and Aroma Veil — so it lands on a same-gender target, which it must never do. Cute Charm goes through the same path and has the same hole. The line directly above gets it right for Captivate.",
-			"verdict": "confirmed",
-			"status": "fixed",
-			"fixed_in": "add7f3a",
-			"falsified": 1,
-			"evidence": "Reproduced against the real fight it decides. Lady Cindy (order 16) fields Minccino, Jigglypuff and Phanpy, all three Cute Charm, all three holding an Oran Berry, between them carrying Attract and Thunder Wave and almost nothing else — the fight IS the gender mechanic. Built that state and asked the engine: attacker Minccino gender M, target Piplup gender M, and ai.evaluateActions still enumerates Attract as a usable action. In play it lands: across four scripted playthroughs the battle logs carry 'Attract' six times and 'is immobilized by love' seven. actions.ts:317 reads !target.volatile?.infatuated && canApplyVolatile(state, target.id, 'infatuated', ...), and eligibility.ts:265 checks only prior infatuation, Oblivious and Aroma Veil. Two lines up, captivate carries the full gate — !actor.gender || actor.gender === 'N' || !target.gender || target.gender === 'N' || actor.gender !== target.gender — and move-engine.ts:5930 and status.ts:309 repeat it for the same move. So the rule is written three times, for the move that needs it least. Cute Charm calls the same canApplyVolatile at move-engine.ts:4741. Compounded by [[every-gendered-pokemon-is-male]]: with every Pokemon built as M, a correct Attract would fail every time in this fight, and this one succeeds every time. FIXED in add7f3a: the gate goes in canApplyVolatile on the infatuated branch, so Attract and Cute Charm are covered by one rule. Two existing fixtures asserted the bug and were flipped — volatile-legality's sameGenderAttract, and two of the three Cute Charm rows in model.test that had a female holder infatuating female AND genderless attackers. Neither carried a comment defending itself. Falsified by inverting the comparison to !==, which turns the fixture red (actual false, expected true); an earlier falsification attempt short-circuited the branch, failed to COMPILE, and the suite ran green against a stale dist — worth recording, because that is the trap, not the test."
+			"claim": "RAISED AND WRONG. Claimed Attract must check gender. In Run & Bun it must not: gender-independent Attract is a declared source-of-truth profile mechanic, and an audit had already closed this exact question.",
+			"verdict": "refuted",
+			"status": "wontfix",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Kept as a record of a wrong call, not a defect. The observation was real — Attract lands on same-gender targets, 9 times across four playthroughs — but the conclusion was backwards, and four places in this repository say so:\n  - profiles/run-and-bun/index.js:108 sets mechanics.attractIsGenderIndependent: true, and :194 tags it \"source-of-truth\", the highest provenance tier the profile has.\n  - docs/AI_DATA_MODEL.md:538 — \"Run & Bun Attract is intentionally gender-independent, so same-gender and genderless targets still pass the ordinary volatile-immunity and ability-protection checks.\"\n  - docs/AI_DATA_MODEL.md:620 — \"Attract respects target ability protection without gender gating.\"\n  - docs/INVENTORY.md, audit soul-dew-and-infatuation-verified (2026-08-12) — \"Attract has no gender gate. Both were already implemented and pinned; the audit closed the question rather than changing code.\"\nThe two fixtures I flipped were not a bug locked in by omission; they were the rule, asserted on purpose. The fix add7f3a is reverted in dedb4d0. What should have happened: read the profile mechanics and the battle docs before treating a deviation from mainline as a defect — a hack IS its deviations, and this one is flagged, sourced and audited. Leaves one real question behind, [[cute-charm-gender-gate-undecided]]."
 		},
 		{
 			"id": "every-gendered-pokemon-is-male",
@@ -890,7 +890,7 @@
 			"id": "no-gender-ratio-data-anywhere",
 			"source": "review/test-run",
 			"raised_on": "2026-08-21",
-			"severity": "medium",
+			"severity": "low",
 			"area": "data",
 			"file": "lib/run.js",
 			"line": 133,
@@ -899,7 +899,22 @@
 			"status": "open",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Checked both tables directly. profiles-side calc: Magnemite and Ditto come back gender \"N\", Jigglypuff, Piplup, Miltank, Tauros, Nidoran-F and Combee all come back undefined — including the two that are female-only. ai/node_modules/@smogon/calc answers identically, so this is not the fork having dropped it. genderRatio is undefined everywhere. Consequence, now that [[attract-and-cute-charm-ignore-gender]] is fixed: rollIdentity does not author a gender and partySpecs does not forward one, so owned Pokemon reach the engine with none and infatuation can never apply to them. That is the opposite error to the one just fixed and a smaller one — a lock that cannot happen rather than a lock that always happens — but it is still not the game. Two routes out, and the choice is Philip's: roll a gender from a ratio table that would have to be sourced, or record it as an observed fact the way nature and ability already are (`identify`), since gender is the most visible thing on a summary screen. The trainer side needs the same answer, because Attract needs both."
+			"evidence": "Checked both tables directly. profiles-side calc: Magnemite and Ditto come back gender \"N\", Jigglypuff, Piplup, Miltank, Tauros, Nidoran-F and Combee all come back undefined — including the two that are female-only. ai/node_modules/@smogon/calc answers identically, so this is not the fork having dropped it. genderRatio is undefined everywhere. The consequence is narrower than first written, because Attract is gender-independent here by design and does not need it. What still reads gender is Captivate (which does gate on it) and Cute Charm if [[cute-charm-gender-gate-undecided]] settles that way — both would behave as if every matchup were same-gender. rollIdentity does not author a gender and partySpecs does not forward one, so nothing owned ever carries one. Two routes if it is ever wanted, and the choice is Philip's: source a ratio table, or record it as an observed fact the way nature and ability already are, since gender is the most visible thing on a summary screen."
+		},
+		{
+			"id": "cute-charm-gender-gate-undecided",
+			"source": "review/test-run",
+			"raised_on": "2026-08-22",
+			"severity": "low",
+			"area": "engine",
+			"file": "docs/AI_DATA_MODEL.md",
+			"line": 700,
+			"claim": "The documented Attract override is gender-independence for ATTRACT. Cute Charm shares the eligibility path and is therefore also gender-free, while the battle doc describes it as opposite-gender only. Both cannot be right.",
+			"verdict": "reported",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "docs/AI_DATA_MODEL.md:700 describes the contact boundary as \"Generation III+ Cute Charm infatuates a contacting opposite-gender attacker\" — the vanilla rule. But Cute Charm applies infatuation through the same canApplyVolatile path as Attract, which carries no gender check, and model.test asserts a female holder infatuating female AND genderless attackers. docs/CONSTANTS-AUDIT.md:157 lists \"gender-free infatuation at the eligibility layer\" among honored R&B overrides, which would cover both; the profile flag is named attractIsGenderIndependent, which names only one. Raised as a question, not a defect, and deliberately not acted on: the last time this was treated as a defect it was a wrong call ([[attract-and-cute-charm-ignore-gender]]). Settling it needs either the hack's own documentation or ROM observation."
 		}
 	]
 }
