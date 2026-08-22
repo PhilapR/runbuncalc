@@ -50,6 +50,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ai = require('../ai');
+const calc = require('../calc');
 const startServer = require('../lib/server').startServer;
 
 let chromium = null;
@@ -860,8 +861,19 @@ function scoreMove(entry) {
 	};
 }
 
+/**
+ * The best ATTACK on the bar, or null when there is no attack at all.
+ *
+ * `damaging` is the whole point of the filter. Without it a Pokemon whose
+ * moves are all status scored every one of them at zero, picked the first,
+ * and pressed it again next turn for the same reason: a L12 Abra used Kinesis
+ * seven times running while a Clobbopus ground it to nothing, because Kinesis
+ * was, technically, the highest floor available. Null here is the honest
+ * answer — nothing on this bar hurts anything — and the caller switches.
+ */
 function bestMove(view) {
-	const scored = view.moves.filter(entry => !entry.ball).map(scoreMove);
+	const scored = view.moves.filter(entry => !entry.ball).map(scoreMove)
+		.filter(entry => entry.damaging && entry.max > 0);
 	if (!scored.length) return null;
 	scored.sort((a, b) =>
 		(b.floorKO ? 1 : 0) - (a.floorKO ? 1 : 0) ||
@@ -906,18 +918,98 @@ function bestStatusMove(view) {
 	return scored[0];
 }
 
-function healthiestSwitch(view) {
-	const options = view.switches.map(entry => {
-		const hit = /(\d+)%$/.exec(entry.label);
-		return {id: entry.id, label: entry.label, hp: hit ? Number(hit[1]) : 0};
-	}).filter(entry => entry.hp > 0);
-	options.sort((a, b) => b.hp - a.hp);
-	return options[0] || null;
+/**
+ * Who to send in, not just who has the most health left.
+ *
+ * The switch buttons carry a species and a percentage, and the threat line
+ * above them names the hardest hit coming — "Their hardest hit: Sonic Boom
+ * 56%". A player reads both and sends in the thing that resists; the driver
+ * was reading only the percentage and sending in the healthiest body, which
+ * against a fixed-damage Normal move is exactly the wrong answer. Sonic Boom
+ * killed 13 of 46 Pokemon in one batch and a Ghost-type is immune to it.
+ *
+ * Species typing is the player's own team, shown on the active card and known
+ * to anyone who has looked at their party, so reading it here is not the
+ * driver seeing more than the screen shows.
+ */
+function typesOf(species) {
+	try {
+		const gen = calc.Generations.get(8);
+		const found = gen.species.get(calc.toID(species));
+		return found && found.types ? found.types.slice() : [];
+	} catch (error) {
+		return [];
+	}
 }
 
-function decide(view, memory) {
+/** How hard `moveType` lands on a Pokemon of these types. 0 is immune. */
+function multiplierAgainst(moveType, defenderTypes) {
+	if (!moveType || !defenderTypes.length) return 1;
+	try {
+		const chart = calc.Generations.get(8).types.get(calc.toID(moveType));
+		if (!chart || !chart.effectiveness) return 1;
+		return defenderTypes.reduce((total, type) => {
+			const each = chart.effectiveness[type];
+			return total * (each === undefined ? 1 : each);
+		}, 1);
+	} catch (error) {
+		return 1;
+	}
+}
+
+/** The type of the hardest hit the threat line is warning about. */
+function incomingType(view) {
+	const named = /Their hardest hit: (.+?) \d/.exec(view.threat || '');
+	if (!named) return null;
+	try {
+		return ai.getMoveMetadata(named[1].trim(), 8).type || null;
+	} catch (error) {
+		return null;
+	}
+}
+
+/** Whether a boxed Pokemon owns a move that can damage anything at all. */
+function canAttack(roster, id) {
+	const mon = (roster || []).find(entry => entry.id === id);
+	if (!mon) return true;
+	return (mon.moves || []).some(name => {
+		try {
+			return ai.getMoveMetadata(name, 8).category !== 'Status';
+		} catch (error) {
+			return true;
+		}
+	});
+}
+
+function healthiestSwitch(view, roster) {
+	const incoming = incomingType(view);
+	const options = view.switches.map(entry => {
+		const hit = /(\d+)%$/.exec(entry.label);
+		const species = entry.label.replace(/\s+\d+%$/, '').trim();
+		const taking = multiplierAgainst(incoming, typesOf(species));
+		return {
+			id: entry.id, label: entry.label, species: species,
+			hp: hit ? Number(hit[1]) : 0,
+			taking: taking,
+			// Sending in a Pokemon that cannot damage anything is how Abra
+			// arrived in front of a Clobbopus and pressed Kinesis until it
+			// died. Its own moves are on its summary screen, so this is not
+			// the driver seeing more than the player.
+			armed: canAttack(roster, entry.id),
+		};
+	}).filter(entry => entry.hp > 0);
+	if (!options.length) return null;
+	// Armed first, then resistance, then health. An immune body at 40% takes
+	// the hit a healthy neutral one dies to, and a switch concedes a free turn
+	// either way — so what matters is what that free turn buys.
+	options.sort((a, b) => (b.armed ? 1 : 0) - (a.armed ? 1 : 0) ||
+		a.taking - b.taking || b.hp - a.hp);
+	return options[0];
+}
+
+function decide(view, memory, roster) {
 	if (/Choose the next Pokemon/.test(view.prompt)) {
-		const replacement = healthiestSwitch(view);
+		const replacement = healthiestSwitch(view, roster);
 		return replacement ?
 			{kind: 'switch', pick: replacement, why: 'forced replacement'} :
 			null;
@@ -936,11 +1028,27 @@ function decide(view, memory) {
 	// half the time is worth less than a fresh body taking one hit. Bounded at
 	// two per fight so it cannot become a switch loop, and only into something
 	// healthy enough to take the free hit that switching concedes.
-	if (/infatuated|confused/.test(view.us) && memory.cleared < 2) {
-		const fresh = healthiestSwitch(view);
+	// Budgeted per FIGHT, not per two turns. Lady Cindy fields three Cute
+	// Charm users whose movepool is Attract and Thunder Wave, so a bound of
+	// two was spent by turn seven and a Paras then stood infatuated for five
+	// turns, at 100% HP down to 0, against a Jigglypuff that never dropped
+	// below 78%. Six is a party: more switches than bodies is a loop.
+	if (/infatuated|confused/.test(view.us) && memory.cleared < 6) {
+		const fresh = healthiestSwitch(view, roster);
 		if (fresh && fresh.hp >= 50) {
 			memory.cleared += 1;
 			return {kind: 'switch', pick: fresh, why: 'switching clears it'};
+		}
+	}
+	// Nothing on this bar can hurt it. Standing here pressing a status move
+	// is how a L12 Abra spent seven turns on Kinesis and died to a L9
+	// Clobbopus. Leave — and leave for something that can fight, which is what
+	// `armed` is for. Bounded so a party of pacifists cannot switch forever.
+	if (!move && memory.disarmed < 2) {
+		const armed = healthiestSwitch(view, roster);
+		if (armed && armed.armed) {
+			memory.disarmed += 1;
+			return {kind: 'switch', pick: armed, why: 'nothing here can damage it'};
 		}
 	}
 	const status = bestStatusMove(view);
@@ -952,7 +1060,7 @@ function decide(view, memory) {
 	const losing = /YOU LOSE THIS RACE|NOTHING HERE DAMAGES IT/.test(view.threat);
 	const lethal = view.risk === 'lethal';
 	if ((losing || lethal) && !memory.switchedFor.has(view.foe)) {
-		const replacement = healthiestSwitch(view);
+		const replacement = healthiestSwitch(view, roster);
 		if (replacement) {
 			memory.switchedFor.add(view.foe);
 			return {kind: 'switch', pick: replacement,
@@ -960,7 +1068,17 @@ function decide(view, memory) {
 		}
 	}
 	if (move) return {kind: 'move', pick: move, why: 'highest floor'};
-	const replacement = healthiestSwitch(view);
+	// Last resort has to be a MOVE, not a switch. Falling through to "switch
+	// to whoever is healthiest" with no damaging move anywhere turned Fisherman
+	// Darian into 300 turns of switching: nothing could end it, so nothing did.
+	// Pressing a status move for the second time is a wasted turn; switching
+	// forever is a wasted fight.
+	const anything = view.moves.filter(entry => !entry.ball)[0];
+	if (anything) {
+		return {kind: 'move', pick: {move: anything.move},
+			why: 'nothing damages it — pressing something beats switching forever'};
+	}
+	const replacement = healthiestSwitch(view, roster);
 	return replacement ? {kind: 'switch', pick: replacement, why: 'nothing to click'} : null;
 }
 
@@ -983,8 +1101,8 @@ async function openFight(page) {
 	});
 }
 
-async function playFight(page, plan) {
-	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0};
+async function playFight(page, plan, roster) {
+	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {
@@ -996,7 +1114,7 @@ async function playFight(page, plan) {
 			lastFoe = view.foe;
 			if (view.threat) note('threat', view.foe + ' — ' + view.threat);
 		}
-		const choice = decide(view, memory);
+		const choice = decide(view, memory, roster);
 		if (!choice) {
 			await page.waitForTimeout(200);
 			continue;
@@ -1153,7 +1271,7 @@ async function main() {
 				break;
 			}
 		}
-		const played = await playFight(page, plan);
+		const played = await playFight(page, plan, ready.box);
 		fights.push({
 			trainer: ready.nextTitle.replace(/^Face /, ''),
 			plan: plan, outcome: played.outcome, turns: played.turns.length,
