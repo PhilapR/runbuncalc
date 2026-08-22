@@ -16,9 +16,17 @@
  * move and the threat line above them — and does what those say:
  *
  *   1. a move that KOs on any roll is taken, always;
- *   2. otherwise, if the threat line says the race is lost, switch (once per
+ *   2. otherwise, if this one cannot be finished now and is not already
+ *      locked down, spend the turn taking a turn off IT — sleep over
+ *      paralysis over confusion, once per opposing Pokemon, never while a
+ *      crit would kill us;
+ *   3. otherwise, if the threat line says the race is lost, switch (once per
  *      opposing Pokemon, so a losing race cannot become a switch loop);
- *   3. otherwise take the move with the highest floor.
+ *   4. otherwise take the move with the highest floor.
+ *
+ * Rule 2 is the one that was missing. The driver pressed damage and nothing
+ * else while 36% of every moveset it carried was a status move, and it lost
+ * 8.1% of its turns to status against the opposition's 0.6%.
  *
  * That makes the run a test of the ADVICE. If following the panel's own
  * displayed reasoning wipes the run, that is a finding about the panel.
@@ -38,6 +46,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const ai = require('../ai');
 const startServer = require('../lib/server').startServer;
 
 let chromium = null;
@@ -853,6 +862,42 @@ function bestMove(view) {
 	return scored[0];
 }
 
+/**
+ * What a status move DOES, asked of the engine rather than kept as a second
+ * copy of the list. The driver pressed damage and nothing else, and 36% of
+ * every moveset it carried — 63 of 177 moves across six runs, four of them
+ * Sing — was a status move it never touched, while the opposing AI threw
+ * Thunder Wave and Attract every turn. That asymmetry, not damage, is what
+ * was losing the fights: 8.1% of our turns lost against 0.6% of theirs.
+ */
+function inflictedStatus(moveName) {
+	const id = String(moveName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+	if (ai.STATUS_BY_MOVE[id]) return ai.STATUS_BY_MOVE[id];
+	if (ai.PURE_CONFUSION_MOVE_IDS.has(id)) return 'confusion';
+	return null;
+}
+
+// Sleep costs the most turns, paralysis costs a quarter of them and halves the
+// speed, confusion costs a third and self-damages. Poison and burn are chip,
+// which is a damage race we are already winning, so they rank below.
+const STATUS_WORTH = {slp: 5, par: 4, confusion: 3, frz: 5, tox: 2, psn: 1, brn: 1};
+
+/** The best status move on the bar, or null if none is worth a turn. */
+function bestStatusMove(view) {
+	const scored = view.moves
+		.filter(entry => !entry.ball && !/%/.test(entry.damage || ''))
+		.map(entry => ({
+			move: entry.move,
+			status: inflictedStatus(entry.move),
+			accuracy: ai.getMoveMetadata(entry.move, 8).accuracy,
+		}))
+		.filter(entry => entry.status && STATUS_WORTH[entry.status]);
+	if (!scored.length) return null;
+	scored.sort((a, b) => STATUS_WORTH[b.status] - STATUS_WORTH[a.status] ||
+		(b.accuracy || 100) - (a.accuracy || 100));
+	return scored[0];
+}
+
 function healthiestSwitch(view) {
 	const options = view.switches.map(entry => {
 		const hit = /(\d+)%$/.exec(entry.label);
@@ -862,7 +907,7 @@ function healthiestSwitch(view) {
 	return options[0] || null;
 }
 
-function decide(view, switchedFor) {
+function decide(view, switchedFor, statusedFoes) {
 	if (/Choose the next Pokemon/.test(view.prompt)) {
 		const replacement = healthiestSwitch(view);
 		return replacement ?
@@ -872,6 +917,16 @@ function decide(view, switchedFor) {
 	const move = bestMove(view);
 	if (move && (move.floorKO || move.guaranteedKO)) {
 		return {kind: 'move', pick: move, why: 'it KOs'};
+	}
+	// Cannot end it this turn, and this one is not already locked down: spend
+	// the turn taking THEIR turns away instead. Once per opposing Pokemon, so a
+	// missed Sing cannot become a Sing loop, and never while a crit would kill
+	// us — a turn we might not survive is not a turn to spend on setup.
+	const status = bestStatusMove(view);
+	if (status && view.risk !== 'lethal' && !statusedFoes.has(view.foe)) {
+		statusedFoes.add(view.foe);
+		return {kind: 'move', pick: {move: status.move},
+			why: 'to take a turn off it (' + status.status + ')'};
 	}
 	const losing = /YOU LOSE THIS RACE|NOTHING HERE DAMAGES IT/.test(view.threat);
 	const lethal = view.risk === 'lethal';
@@ -909,6 +964,7 @@ async function openFight(page) {
 
 async function playFight(page, plan) {
 	const switchedFor = new Set();
+	const statusedFoes = new Set();
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {
@@ -920,7 +976,7 @@ async function playFight(page, plan) {
 			lastFoe = view.foe;
 			if (view.threat) note('threat', view.foe + ' — ' + view.threat);
 		}
-		const choice = decide(view, switchedFor);
+		const choice = decide(view, switchedFor, statusedFoes);
 		if (!choice) {
 			await page.waitForTimeout(200);
 			continue;

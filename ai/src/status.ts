@@ -38,7 +38,10 @@ import {PURE_CONFUSION_MOVE_IDS} from './volatile-legality';
 import {hasPureStatTransferEffect, PURE_STAT_TRANSFER_MOVE_IDS} from './stat-transfer-legality';
 import {hasPurePPEffect, PURE_PP_MOVE_IDS} from './pp-legality';
 
-const STATUS_BY_MOVE: Record<string, 'slp' | 'psn' | 'brn' | 'par' | 'tox'> = {
+/** The status each pure status move inflicts. Exported so a consumer can ask
+ * the engine what a move DOES rather than keeping a second copy of the list —
+ * the same reason HIGH_CRIT_MOVES and ALWAYS_CRIT_MOVES are exported. */
+export const STATUS_BY_MOVE: Record<string, 'slp' | 'psn' | 'brn' | 'par' | 'tox'> = {
   darkvoid: 'slp', grasswhistle: 'slp', hypnosis: 'slp', lovelykiss: 'slp',
   sing: 'slp', sleeppowder: 'slp', spore: 'slp',
   poisonpowder: 'psn', poisongas: 'psn', toxic: 'tox', toxicthread: 'psn', willowisp: 'brn', thunderwave: 'par',

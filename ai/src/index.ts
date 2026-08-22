@@ -20,3 +20,4 @@ export * from './switch';
 export * from './transition';
 export * from './resolution';
 export * from './validation';
+export * from './volatile-legality';
