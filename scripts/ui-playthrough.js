@@ -77,6 +77,10 @@ const ADVICE_ROUNDS = Number(flag('advice', 3));
 const RULES = flag('rules', 'hardcore');
 const CATCH_LIMIT = Number(flag('box', 14));
 const TMS = flag('tms', 'advisor');
+// How many times to walk back into a fight that beat us. Under `caps` a wipe
+// costs nothing and retrying is ordinary play; under `hardcore` a wipe has
+// usually already taken the Pokemon that made the attempt worth repeating.
+const RETRIES = Number(flag('retries', 3));
 const HEADED = process.argv.includes('--headed');
 
 const started = Date.now();
@@ -580,7 +584,13 @@ async function stageParty(page, wanted, why) {
 async function buildParty(page) {
 	const view = await readRun(page);
 	const alive = view.box.filter(mon => mon.status !== 'dead');
-	const wanted = alive.slice(0, PARTY_LIMIT).map(mon => mon.id);
+	// `late` takes the NEWEST catches, not the oldest. Box order is catch
+	// order, so the first six are Route 101 fodder while the last six come
+	// from whatever area opened most recently — which by Brawly means Granite
+	// Cave and Route 116 rather than Zigzagoon. It exists because Rank cannot
+	// afford a box big enough to hold both: C(20,6) is 38,760 parties.
+	const wanted = (PARTY_MODE === 'late' ? alive.slice(-PARTY_LIMIT) :
+		alive.slice(0, PARTY_LIMIT)).map(mon => mon.id);
 	const sameSet = wanted.length === view.party.length &&
 		wanted.every(id => view.party.indexOf(id) !== -1);
 	if (sameSet) return true;
@@ -1079,20 +1089,32 @@ function decide(view, memory, roster) {
 			return {kind: 'switch', pick: armed, why: 'nothing here can damage it'};
 		}
 	}
+	const losingRace = /YOU LOSE THIS RACE|NOTHING HERE DAMAGES IT/.test(view.threat);
+	// Status is worth MOST when the race is lost, not least. The old guard
+	// refused it whenever a crit would kill us, which against Camper Gavi's
+	// five is almost every turn — so the driver traded damage it could not win
+	// on and never once put anything to sleep. If we cannot win by attacking,
+	// taking their turn away is the only line there is.
 	const status = bestStatusMove(view);
-	if (status && view.risk !== 'lethal' && !memory.statusedFoes.has(view.foe)) {
+	if (status && (view.risk !== 'lethal' || losingRace) &&
+		!memory.statusedFoes.has(view.foe)) {
 		memory.statusedFoes.add(view.foe);
 		return {kind: 'move', pick: {move: status.move},
 			why: 'to take a turn off it (' + status.status + ')'};
 	}
-	const losing = /YOU LOSE THIS RACE|NOTHING HERE DAMAGES IT/.test(view.threat);
 	const lethal = view.risk === 'lethal';
-	if ((losing || lethal) && !memory.switchedFor.has(view.foe)) {
+	if ((losingRace || lethal) && !memory.switchedFor.has(view.foe)) {
 		const replacement = healthiestSwitch(view, roster);
-		if (replacement) {
+		// Only if the body coming in actually RESISTS. A switch concedes a
+		// free hit, and against a five-Pokemon team the driver was donating
+		// one every time the threat line said the race was lost — switching
+		// from a healthy Prinplup into a Bunnelby that died in two turns.
+		// Swapping one losing matchup for another is worse than attacking.
+		if (replacement && replacement.taking < 1) {
 			memory.switchedFor.add(view.foe);
 			return {kind: 'switch', pick: replacement,
-				why: losing ? 'the panel says the race is lost' : 'a crit KOs us'};
+				why: (losingRace ? 'the race is lost' : 'a crit KOs us') +
+					', and this one resists'};
 		}
 	}
 	if (move) return {kind: 'move', pick: move, why: 'highest floor'};
@@ -1175,10 +1197,19 @@ async function assumeTms(page, roster) {
 			}
 		};
 		const known = (mon.moves || []).slice();
+		// Never trade away the party's only lock. This heuristic picks the
+		// highest base power and replaces the WEAKEST move, which is always
+		// the status one — so it stripped Sing, Stun Spore and Sleep Powder
+		// off every Pokemon and handed Brawly a party that could only trade
+		// damage with a Lopunny that heals itself with Drain Punch. Taking
+		// their turn away is what beat Camper Gavi one fight earlier.
+		const locks = known.filter(name => inflictedStatus(name));
 		const best = offered.filter(name => known.indexOf(name) === -1)
 			.sort((a, b) => power(b) - power(a))[0];
 		if (!best || power(best) === 0) continue;
-		const weakest = known.slice().sort((a, b) => power(a) - power(b))[0];
+		const droppable = known.filter(name => !inflictedStatus(name) || locks.length > 1);
+		if (!droppable.length) continue;
+		const weakest = droppable.slice().sort((a, b) => power(a) - power(b))[0];
 		if (weakest && power(best) <= power(weakest)) continue;
 		await page.fill('#runbun-run-move', best);
 		await page.selectOption('#runbun-run-replace', known.length >= 4 ? weakest : '');
@@ -1436,8 +1467,8 @@ async function main() {
 		const after = await readRun(page);
 		if (after.position === before.position && played.outcome !== 'won') {
 			stalled += 1;
-			if (stalled >= 3) {
-				problem('run', 'three fights with no progress at ' + before.nextTitle);
+			if (stalled >= RETRIES) {
+				problem('run', RETRIES + ' attempts with no progress at ' + before.nextTitle);
 				break;
 			}
 		} else {
