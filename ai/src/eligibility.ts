@@ -262,6 +262,13 @@ export function canApplyVolatile(
   if (volatile === 'confusion' && (target.volatile?.confusion ||
     (!targetAbilityIgnored && hasAbility(state, targetId, 'owntempo')))) return false;
   if (volatile === 'flinch' && !targetAbilityIgnored && hasAbility(state, targetId, 'innerfocus')) return false;
+  // The absence of a gender check here is the RULE, not an oversight. Run &
+  // Bun makes infatuation gender-independent: profile flag
+  // `mechanics.attractIsGenderIndependent`, tagged source-of-truth, stated
+  // twice in docs/AI_DATA_MODEL.md, and settled by the DECISIONS ruling
+  // `soul-dew-and-infatuation-verified` (2026-08-12), which closed the
+  // question without changing code. It has been "fixed" once already and
+  // reverted. tests/runbun_mechanics.test.js now fails if it is gated again.
   if (volatile === 'infatuated' &&
     (target.volatile?.infatuated || (!targetAbilityIgnored && hasAbility(state, targetId, 'oblivious')))) return false;
   if (volatile === 'taunt' &&

@@ -46,6 +46,31 @@ to take.
   not as executable code. A mechanic or move change is not implemented until
   it has corresponding code and tests.
 
+## A deviation from the mainline games is not a bug
+
+This is a hack, and a hack IS its deviations. Before treating behaviour that
+differs from the mainline games as a defect, check all three:
+
+1. `profiles/run-and-bun/index.js` — the `mechanics` block states the rule
+   deltas, and `provenance` says how well each is sourced. `source-of-truth`
+   is the highest tier the profile has.
+2. `docs/AI_DATA_MODEL.md` — describes what the engine models and why,
+   including where it departs from stock Generation 8 on purpose.
+3. `DECISIONS.json` — standing rulings. Several were opened as suspected bugs
+   and closed by an audit *without changing code*; `enforcedBy` on each ruling
+   names the files that hold it up.
+
+`tests/runbun_mechanics.test.js` asks the engine and compares it against the
+profile for every flag it can drive, and requires each declared mechanic to be
+either driven there or listed with a reason. If it fails naming a flag, the
+declaration and the implementation have come apart — decide which is wrong
+rather than changing whichever is easier to reach.
+
+A test asserting behaviour that looks wrong is not automatically a bug locked
+in by omission. Read what it cites before flipping it. Gender-independent
+Attract was "fixed" this way once, against four separate records saying it was
+the rule, and reverted in `dedb4d0`.
+
 ## Build and validation
 
 - Run `npm install` at the repository root; the root `postinstall` provisions

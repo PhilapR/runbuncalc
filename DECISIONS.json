@@ -175,7 +175,8 @@
 			"enforcedBy": [
 				"calc/src/test/fork.test.ts",
 				"ai/src/test/volatile-legality.test.ts",
-				"profiles/run-and-bun/index.js"
+				"profiles/run-and-bun/index.js",
+				"tests/runbun_mechanics.test.js"
 			]
 		},
 		{
