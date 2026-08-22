@@ -76,6 +76,7 @@ const PARTY_MODE = flag('party', 'rank');
 const ADVICE_ROUNDS = Number(flag('advice', 3));
 const RULES = flag('rules', 'hardcore');
 const CATCH_LIMIT = Number(flag('box', 14));
+const TMS = flag('tms', 'advisor');
 const HEADED = process.argv.includes('--headed');
 
 const started = Date.now();
@@ -83,6 +84,7 @@ const journal = [];
 const problems = [];
 const forecastReported = new Set();
 const caughtFrom = new Set();
+const taughtAt = new Map();
 const adviceReported = new Set();
 
 function note(kind, message, extra) {
@@ -1108,8 +1110,87 @@ function decide(view, memory, roster) {
 	return replacement ? {kind: 'switch', pick: replacement, why: 'nothing to click'} : null;
 }
 
+
 /**
- * Press a control without waiting for it to hold still.
+ * EXPERIMENT, not ordinary play: teach the best move the panel says this
+ * Pokemon can learn, on the assumption that the player owns the TM.
+ *
+ * The run stops at Camper Gavi with a party carrying level-up movesets, and
+ * the advisor withholds 82 TM and tutor moves at that exact fight because
+ * their unlock timing is unknown — including the ones that answer the two
+ * Pokemon Rank names as unanswered. `teach` ACCEPTS those moves; only the
+ * advisor withholds them, and correctly, since it cannot say when you get
+ * them. So this asks one question and no other: is the TM data gap really
+ * the wall, or is something else?
+ *
+ * It assumes items the run has not recorded, which is exactly the provenance
+ * the rest of this driver refuses. That is why it is off by default and named
+ * `assume`, and why nothing it produces is a claim about a real run.
+ *
+ * Everything goes through the panel: `#runbun-run-learnable` fetches what the
+ * Pokemon can learn NOW and fills the datalist the player picks from.
+ */
+async function assumeTms(page, roster) {
+	for (const mon of roster.filter(entry => entry.status !== 'dead').slice(0, PARTY_LIMIT)) {
+		if (outOfTime()) return;
+		// Only when something changed. Asking for every party member every
+		// fight cost 150s a fight and taught nothing new.
+		if (taughtAt.get(mon.id) === mon.level) continue;
+		taughtAt.set(mon.id, mon.level);
+		if (!await selectMon(page, mon.id)) continue;
+		// The Learnable button fills a TEXT line, not the datalist — the
+		// datalist is refreshed on selection and is cached per Pokemon, so
+		// clearing it and pressing the button populated nothing and this
+		// taught nothing at all on its first outing.
+		await page.evaluate(() => {
+			const el = document.querySelector('#runbun-run-learn-now');
+			if (el) el.textContent = '';
+		});
+		await press(page, '#runbun-run-learnable');
+		try {
+			await page.waitForFunction(
+				() => ((document.querySelector('#runbun-run-learn-now') || {}).textContent || '')
+					.trim().length > 0,
+				null, {timeout: 20000});
+		} catch (error) {
+			continue;
+		}
+		const listed = await text(page, '#runbun-run-learn-now');
+		if (/^\(nothing\)/.test(listed)) continue;
+		// A starred move is an egg move the relearner charges a Heart Scale
+		// for; this experiment does not assume the bag, only the TM.
+		const offered = listed.split(',').map(entry => entry.trim())
+			.filter(entry => entry && entry.indexOf('*') === -1)
+			// Raw base power would pick Explosion. The advisor refuses a
+			// sacrifice as an upgrade on purpose — "the advisor never teaches
+			// suicide" is its own gate — and an experiment that ignores that
+			// is measuring a different game.
+			.filter(entry => !/^(Explosion|Self-Destruct|Final Gambit|Misty Explosion|Memento|Healing Wish|Lunar Dance)$/.test(entry));
+		const power = name => {
+			try {
+				const meta = ai.getMoveMetadata(name, 8);
+				return meta.category === 'Status' ? 0 : (meta.basePower || 0);
+			} catch (error) {
+				return 0;
+			}
+		};
+		const known = (mon.moves || []).slice();
+		const best = offered.filter(name => known.indexOf(name) === -1)
+			.sort((a, b) => power(b) - power(a))[0];
+		if (!best || power(best) === 0) continue;
+		const weakest = known.slice().sort((a, b) => power(a) - power(b))[0];
+		if (weakest && power(best) <= power(weakest)) continue;
+		await page.fill('#runbun-run-move', best);
+		await page.selectOption('#runbun-run-replace', known.length >= 4 ? weakest : '');
+		const taught = await act(page, 'assume ' + best, () => page.click('#runbun-run-teach'));
+		if (taught.changed) {
+			note('tm', mon.species + ' learned ' + best + ' (' + power(best) + ' BP)' +
+				(known.length >= 4 ? ' over ' + weakest : ''));
+		}
+	}
+}
+
+/** Press a control without waiting for it to hold still.
  *
  * Playwright's click waits for an element to be "stable", and with a large
  * box the panel re-renders often enough that the analysis buttons never are —
@@ -1293,6 +1374,7 @@ async function main() {
 		// teaching; equipParty only fills whatever it left bare.
 		appliedAdvice = new Set();
 		await followAdvice(page, ADVICE_ROUNDS);
+		if (TMS === 'assume') await assumeTms(page, (await readRun(page)).box);
 		await equipParty(page);
 
 		const ready = await readRun(page);
