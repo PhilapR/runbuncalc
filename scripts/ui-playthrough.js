@@ -1169,10 +1169,33 @@ async function main() {
 		if (played.outcome === 'out of time' || played.outcome === 'stuck') break;
 	}
 
+	// What the run actually cost in durable state. The browser is the only
+	// stateful component — the server keeps nothing — so this is the whole
+	// footprint of a playthrough, and it is worth knowing per fight.
+	const durable = await page.evaluate(async () => {
+		const open = indexedDB.open('runbun-attempts');
+		const db = await new Promise((resolve, reject) => {
+			open.onsuccess = () => resolve(open.result);
+			open.onerror = () => reject(open.error);
+		});
+		const out = {};
+		for (const name of Array.from(db.objectStoreNames)) {
+			const rows = await new Promise((resolve, reject) => {
+				const request = db.transaction(name, 'readonly').objectStore(name).getAll();
+				request.onsuccess = () => resolve(request.result);
+				request.onerror = () => reject(request.error);
+			});
+			out[name] = {rows: rows.length, bytes: JSON.stringify(rows).length};
+		}
+		out.localStorage = {bytes: (localStorage.getItem('runbun.run.v1') || '').length};
+		return out;
+	}).catch(() => null);
+
 	const final = await readRun(page);
 	await page.screenshot({path: path.join(OUT, 'final.png'), fullPage: true});
 	const report = {
 		starter: STARTER,
+		durable: durable,
 		forecast: fights.map(fight => fight.plan && fight.plan.forecast).find(Boolean) || 'none',
 		seconds: Math.round((Date.now() - started) / 1000),
 		fights: fights.length,
