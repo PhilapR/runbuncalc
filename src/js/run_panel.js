@@ -2846,6 +2846,19 @@
 			' resumed where it left off.', 'ok');
 	}
 
+	/**
+	 * The conditions a switch would clear, next to the switch buttons.
+	 *
+	 * `status` was on the card and volatiles were not, so infatuation — which
+	 * costs half your turns and IS cleared by switching — showed up only as a
+	 * line in the scrolling log, while paralysis, which switching does not
+	 * clear, was on the name. Exactly backwards for choosing an action.
+	 */
+	function conditions(active) {
+		var shown = (active && active.volatiles) || [];
+		return shown.length ? ' · ' + shown.join(' · ') : '';
+	}
+
 	function hpBar($bar, mon) {
 		var fraction = mon.hp.max ? Math.max(0, mon.hp.current) / mon.hp.max : 0;
 		$bar.css('width', Math.round(fraction * 100) + '%')
@@ -2868,7 +2881,8 @@
 		$('#runbun-run-battle-turn').text(' · turn ' + viewState.turn);
 		$('#runbun-run-battle-foe-name').text(
 			viewState.foe.active.species + ' L' + viewState.foe.active.level +
-			(viewState.foe.active.status ? ' · ' + viewState.foe.active.status : ''));
+			(viewState.foe.active.status ? ' · ' + viewState.foe.active.status : '') +
+			conditions(viewState.foe.active));
 		// Fights are played at the level cap the run can legally reach, so a
 		// mon that is owned below the cap says so — otherwise the jump from
 		// the roster's L5 to a battle L12 reads like a bug, not a rule.
@@ -2886,7 +2900,8 @@
 		$('#runbun-run-battle-us-name').text(
 			viewState.player.active.species + ' L' + viewState.player.active.level +
 			(atCap ? ' · at cap' : '') +
-			(viewState.player.active.status ? ' · ' + viewState.player.active.status : ''))
+			(viewState.player.active.status ? ' · ' + viewState.player.active.status : '') +
+			conditions(viewState.player.active))
 			.attr('title', atCap ?
 				'Fights are played at the run’s level cap: owned L' + ownedLevel +
 					', capped to L' + viewState.player.active.level + ' for this fight.' :

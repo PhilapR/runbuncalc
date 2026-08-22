@@ -16,17 +16,20 @@
  * move and the threat line above them — and does what those say:
  *
  *   1. a move that KOs on any roll is taken, always;
- *   2. otherwise, if this one cannot be finished now and is not already
+ *   2. otherwise, if the card says we are infatuated or confused, switch —
+ *      those are volatiles and the switch reset clears them;
+ *   3. otherwise, if this one cannot be finished now and is not already
  *      locked down, spend the turn taking a turn off IT — sleep over
  *      paralysis over confusion, once per opposing Pokemon, never while a
  *      crit would kill us;
- *   3. otherwise, if the threat line says the race is lost, switch (once per
+ *   4. otherwise, if the threat line says the race is lost, switch (once per
  *      opposing Pokemon, so a losing race cannot become a switch loop);
- *   4. otherwise take the move with the highest floor.
+ *   5. otherwise take the move with the highest floor.
  *
- * Rule 2 is the one that was missing. The driver pressed damage and nothing
- * else while 36% of every moveset it carried was a status move, and it lost
- * 8.1% of its turns to status against the opposition's 0.6%.
+ * Rules 2 and 3 were both missing, and both are about turns rather than
+ * damage. Over 66 scripted fights we out-hit the opposition 44.1% to 25.0%
+ * per hit and lost anyway, giving up 10.6% of our turns to status against
+ * their 2.3%.
  *
  * That makes the run a test of the ADVICE. If following the panel's own
  * displayed reasoning wipes the run, that is a finding about the panel.
@@ -912,7 +915,7 @@ function healthiestSwitch(view) {
 	return options[0] || null;
 }
 
-function decide(view, switchedFor, statusedFoes) {
+function decide(view, memory) {
 	if (/Choose the next Pokemon/.test(view.prompt)) {
 		const replacement = healthiestSwitch(view);
 		return replacement ?
@@ -927,18 +930,31 @@ function decide(view, switchedFor, statusedFoes) {
 	// the turn taking THEIR turns away instead. Once per opposing Pokemon, so a
 	// missed Sing cannot become a Sing loop, and never while a crit would kill
 	// us — a turn we might not survive is not a turn to spend on setup.
+	// Infatuation and confusion are VOLATILE, and the ordinary switch reset
+	// clears them — unlike paralysis, which it does not. So when the card says
+	// we are immobilised, the answer is the switch button: a Pokemon that acts
+	// half the time is worth less than a fresh body taking one hit. Bounded at
+	// two per fight so it cannot become a switch loop, and only into something
+	// healthy enough to take the free hit that switching concedes.
+	if (/infatuated|confused/.test(view.us) && memory.cleared < 2) {
+		const fresh = healthiestSwitch(view);
+		if (fresh && fresh.hp >= 50) {
+			memory.cleared += 1;
+			return {kind: 'switch', pick: fresh, why: 'switching clears it'};
+		}
+	}
 	const status = bestStatusMove(view);
-	if (status && view.risk !== 'lethal' && !statusedFoes.has(view.foe)) {
-		statusedFoes.add(view.foe);
+	if (status && view.risk !== 'lethal' && !memory.statusedFoes.has(view.foe)) {
+		memory.statusedFoes.add(view.foe);
 		return {kind: 'move', pick: {move: status.move},
 			why: 'to take a turn off it (' + status.status + ')'};
 	}
 	const losing = /YOU LOSE THIS RACE|NOTHING HERE DAMAGES IT/.test(view.threat);
 	const lethal = view.risk === 'lethal';
-	if ((losing || lethal) && !switchedFor.has(view.foe)) {
+	if ((losing || lethal) && !memory.switchedFor.has(view.foe)) {
 		const replacement = healthiestSwitch(view);
 		if (replacement) {
-			switchedFor.add(view.foe);
+			memory.switchedFor.add(view.foe);
 			return {kind: 'switch', pick: replacement,
 				why: losing ? 'the panel says the race is lost' : 'a crit KOs us'};
 		}
@@ -968,8 +984,7 @@ async function openFight(page) {
 }
 
 async function playFight(page, plan) {
-	const switchedFor = new Set();
-	const statusedFoes = new Set();
+	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {
@@ -981,7 +996,7 @@ async function playFight(page, plan) {
 			lastFoe = view.foe;
 			if (view.threat) note('threat', view.foe + ' — ' + view.threat);
 		}
-		const choice = decide(view, switchedFor, statusedFoes);
+		const choice = decide(view, memory);
 		if (!choice) {
 			await page.waitForTimeout(200);
 			continue;

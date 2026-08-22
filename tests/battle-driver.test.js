@@ -547,3 +547,36 @@ test('the threat line states the attrition race, not just the hardest hit', () =
 	assert.equal(helpless.race.outcome, 'cannot-win');
 	assert.equal(helpless.race.turnsToKill, null, 'no number can describe never');
 });
+
+test('the card carries the conditions a switch would clear', () => {
+	// `status` was on the card and volatiles were not, so the one condition
+	// switching CURES was the one the screen never showed. Measured over 66
+	// scripted fights, infatuation was 13 of 58 turns we lost — and every one
+	// of them was recoverable by switching, from information that appeared
+	// only as a line in the scrolling battle log.
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const opened = driver.start(doc, 'Youngster Calvin', 7);
+	assert.deepEqual(opened.viewState.player.active.volatiles, [],
+		'a fresh Pokemon carries no conditions');
+
+	// Reach into the live state the way the engine would, then re-read the
+	// card: the point is that the view PROJECTS volatiles, not that this
+	// particular volatile was applied by a move.
+	const state = opened.battle.state;
+	const us = state.sides.player.party[0];
+	us.volatile = {infatuated: {}, leechSeed: {}, roost: {}};
+	const painted = driver.view(state).player.active;
+	assert.ok(painted.volatiles.indexOf('infatuated') !== -1,
+		'infatuation must reach the card — switching is what clears it');
+	assert.ok(painted.volatiles.indexOf('seeded') !== -1, 'Leech Seed too');
+	assert.equal(painted.volatiles.indexOf('roost'), -1,
+		'bookkeeping volatiles stay off the card');
+
+	// Major status still reads separately, because switching does NOT clear
+	// it — the two have to stay distinguishable on screen.
+	us.status = 'par';
+	assert.equal(driver.view(state).player.active.status, 'par');
+});
