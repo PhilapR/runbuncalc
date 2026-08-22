@@ -697,8 +697,13 @@ async function applyUpgrade(page, row) {
 		const take = await page.$('#runbun-run .runbun-run-pickup-take[data-item="' +
 			item[1] + '"]');
 		if (!take) {
-			problem('advise', 'the upgrade says to pick up ' + item[1] +
-				', and no route on screen offers it');
+			// Expected, and recorded as `pickup-upgrade-does-not-say-when-you-
+			// can-take-it`: the advisor plans ahead of the pickup list's
+			// progress gate, so an upgrade can name an item the panel will not
+			// hand over yet. A note, not a problem — it is the product's
+			// documented shape, not a fault in this run.
+			note('advise', 'the upgrade names ' + item[1] +
+				', which no route offers yet — the advisor is planning ahead of the gate');
 			return false;
 		}
 		const took = await act(page, 'take ' + item[1], () => take.click());

@@ -915,6 +915,21 @@
 			"fixed_in": null,
 			"falsified": 0,
 			"evidence": "docs/AI_DATA_MODEL.md:700 describes the contact boundary as \"Generation III+ Cute Charm infatuates a contacting opposite-gender attacker\" — the vanilla rule. But Cute Charm applies infatuation through the same canApplyVolatile path as Attract, which carries no gender check, and model.test asserts a female holder infatuating female AND genderless attackers. docs/CONSTANTS-AUDIT.md:157 lists \"gender-free infatuation at the eligibility layer\" among honored R&B overrides, which would cover both; the profile flag is named attractIsGenderIndependent, which names only one. Raised as a question, not a defect, and deliberately not acted on: the last time this was treated as a defect it was a wrong call ([[attract-and-cute-charm-ignore-gender]]). Settling it needs either the hack's own documentation or ROM observation."
+		},
+		{
+			"id": "pickup-upgrade-does-not-say-when-you-can-take-it",
+			"source": "review/test-run",
+			"raised_on": "2026-08-22",
+			"severity": "medium",
+			"area": "ui",
+			"file": "lib/run.js",
+			"line": 1398,
+			"claim": "The upgrade list offers \"Miracle Seed (pickup @ Route 104)\" as a change to make for the fight ahead, and the panel gives you no button to take it. The split sheet carries the gate — \"Route 104 · from #11\" — and the advice row, which is where the player is told to act, does not.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Eight occurrences across seven of eight scripted playthroughs, all reproducible: the driver read the row, went looking for the matching pickup button, and found none — seven for Miracle Seed and one for Silk Scarf. Both surfaces are deliberate and neither is wrong on its own. The advisor plans AHEAD: oracle.itemsObtainableBy(order) returns anything with opensAt <= the NEXT FIGHT's order, and tests/run.test.js asserts on purpose that a Grass Treecko should be told to go get the Seed before a fisherman at #22. The pickup list gates on PROGRESS: lib/run.js anchorOpen requires the guard fight (the earliest at order >= opensAt - 1) to have been beaten, and the same test asserts the Silk Scarf reads not-reachable at position -1. opensAt is \"the first trainer at the location\", so for the Seed at 11 that guard is Triathlete Mikey — the fight the upgrade is being priced FOR. So the advice is honest advice about a future fight and the button is honest about now; what is missing is that the advice row never says which. The detail string at lib/run.js:1398 is `${name} (pickup @ ${location})` with no gate, while the split sheet appends \" · from #\" + opensAt. Adjacent ruling, though it does not settle this one: egg-moves-ride-the-relearner — \"The advisor may not offer what the bag cannot pay for.\" Deliberately not acted on; both behaviours are asserted on purpose and which one moves is a product call."
 		}
 	]
 }
