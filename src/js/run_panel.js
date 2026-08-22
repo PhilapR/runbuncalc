@@ -532,6 +532,30 @@
 		}
 	}
 
+	/**
+	 * Whether a bag entry is something a Pokemon can actually hold.
+	 *
+	 * Same table the server checks with `planner.holdableItem`, reached the
+	 * same way `speciesTypes` reaches species data — most of a bag is Potions,
+	 * Rare Candy and Heart Scales, and offering one here stored a Pokemon the
+	 * calculator refuses to build. The server is still the authority and
+	 * refuses it by name; this only stops the picker from suggesting a move
+	 * that will be refused.
+	 *
+	 * Unknown on a missing calc means "offer it": a picker that hides the whole
+	 * bag because reference data has not loaded is worse than one that offers
+	 * an item the server will decline with a reason.
+	 */
+	function holdableItem(name) {
+		try {
+			var gen = window.calc && window.calc.Generations && window.calc.Generations.get(8);
+			if (!gen || !gen.items) return true;
+			return !!gen.items.get(dexId(name));
+		} catch (error) {
+			return true;
+		}
+	}
+
 	function appendTypeChips($target, types) {
 		$target.empty();
 		(types || []).forEach(function (type) {
@@ -611,14 +635,18 @@
 		$('#runbun-run-observed-nature').val(mon.nature || '');
 		$('#runbun-run-observed-ability').val(mon.ability || '');
 
-		// The bag's holdable items, for THIS Pokemon. An empty bag says so
-		// rather than offering an empty picker.
+		// The bag's HOLDABLE items — the comment said so long before the filter
+		// did, and the gap between them was a bricked run: a Pokemon handed a
+		// Potion could not be built by the calculator, so the next plan and the
+		// next fight both failed until somebody found who was holding it.
 		var $hold = $('#runbun-run-hold-item').empty();
-		var bagItems = Object.keys((state && state.bag) || {}).filter(function (item) {
+		var carried = Object.keys((state && state.bag) || {}).filter(function (item) {
 			return (state.bag[item] || 0) > 0;
 		}).sort();
+		var bagItems = carried.filter(holdableItem);
 		if (!bagItems.length) {
-			$hold.append($('<option value=""></option>').text('The bag is empty'));
+			$hold.append($('<option value=""></option>').text(carried.length ?
+				'Nothing in the bag can be held' : 'The bag is empty'));
 		}
 		bagItems.forEach(function (item) {
 			$hold.append($('<option></option>').attr('value', item)

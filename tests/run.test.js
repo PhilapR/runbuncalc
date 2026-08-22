@@ -461,6 +461,20 @@ test('the bag conserves items across every move', () => {
 	state = run.apply(state, {kind: 'take', id: 'mon-1'});
 	assert.equal(state.box[0].item, null);
 	assert.deepEqual(state.bag, {Leftovers: 2, 'Sitrus Berry': 1});
+
+	// Most of a bag is not a held item, and `give` used to take any of it. The
+	// refusal then arrived from the calculator, one layer down and one action
+	// later, naming a battle slot rather than a box entry — so the run could
+	// not plan or fight until somebody worked out who was holding what.
+	for (const junk of ['Potion', 'Rare Candy', 'Heart Scale', 'Escape Rope']) {
+		const stocked = run.apply(state, {kind: 'acquire', item: junk});
+		assert.throws(
+			() => run.apply(stocked, {kind: 'give', id: 'mon-1', item: junk}),
+			new RegExp(junk + ' is not an item a Pokemon can hold'),
+			`${junk} must be refused by give, not by the calculator later`);
+		// A refusal leaves the bag exactly as it was.
+		assert.equal(stocked.bag[junk], 1);
+	}
 	// Releasing a holder returns what it held rather than destroying it.
 	const released = run.apply(
 		run.apply(state, {kind: 'give', id: 'mon-1', item: 'Leftovers'}),

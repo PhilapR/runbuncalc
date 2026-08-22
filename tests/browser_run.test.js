@@ -2143,6 +2143,36 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	assert.equal(await page.$('#runbun-run-items .runbun-run-pickup-take'), null,
 		'a gated item must not offer its button');
 
+	// The bag now holds exactly one Potion, and a Potion is not a held item.
+	// The picker used to offer it, `give` used to take it, and the refusal
+	// arrived two actions later from the calculator — naming a battle slot,
+	// not a box entry — with the run unable to plan or fight until somebody
+	// worked out who was holding what.
+	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-mon-select');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-hold-item option').length > 0,
+		null, {timeout: 10000});
+	const offered = await page.$$eval('#runbun-run-hold-item option',
+		els => els.map(el => el.value).filter(Boolean));
+	assert.deepEqual(offered, [],
+		'a bag of nothing but Potions offers nothing to hold');
+	assert.match(await page.textContent('#runbun-run-hold-item'),
+		/Nothing in the bag can be held/,
+		'and says which kind of empty it is — not "the bag is empty", which is false');
+
+	// A real held item appears the moment it is in the bag, so the filter is
+	// the item's nature and not an empty picker.
+	await page.fill('#runbun-run-acquire-item', 'Oran Berry');
+	await page.click('#runbun-run-acquire');
+	await page.waitForFunction(
+		() => Array.from(document.querySelectorAll('#runbun-run-hold-item option'))
+			.some(el => el.value === 'Oran Berry'),
+		null, {timeout: 10000});
+	const withBerry = await page.$$eval('#runbun-run-hold-item option',
+		els => els.map(el => el.value).filter(Boolean));
+	assert.deepEqual(withBerry, ['Oran Berry'],
+		'the berry is offered and the Potion still is not');
+
 	await session.context.close();
 });
 
