@@ -2146,7 +2146,13 @@
 				.append($('<span class="runbun-run-advice-ko"></span>')
 					.toggleClass('is-ko', entry.delta.koGained > entry.delta.koConceded)
 					.toggleClass('is-ko-trade', entry.delta.koConceded > 0)
-					.text(koParts.length ? koParts.join('/') + ' KO' : ''))
+					// A cure answers a turn, not a health bar, and the KO/damage
+					// columns cannot say so — a Cheri Berry reads +0.00 next to
+					// every option that adds damage, which is exactly how the
+					// only counter to a status lock stayed invisible.
+					.text(koParts.length ? koParts.join('/') + ' KO' :
+						entry.delta.statusAnswered ?
+							'answers ' + entry.delta.statusAnswered : ''))
 				.append($('<span class="runbun-run-advice-damage"></span>')
 					.attr('title', 'bars of HP, summed across the fight' +
 						(entry.delta.koConceded ?

@@ -882,6 +882,54 @@ test('the advisor recommends field pickups, with where to go get them', () => {
 	assert.ok(!run.splitPrep(bagged).pickups.some(p => p.name === 'Miracle Seed'));
 });
 
+test('the advisor can price a turn, not only a bar of HP', () => {
+	// Lady Cindy is three Cute Charm users holding Oran Berries whose movepool
+	// is Attract and Thunder Wave. The fight is not a damage race and never
+	// was: measured over six scripted playthroughs we out-hit her side 43.8%
+	// to 25.2% per hit and KO'd 96 to 46, and lost anyway, because 8.1% of our
+	// turns went to status against 0.6% of theirs.
+	//
+	// The counter is a Cheri Berry, and the upgrade list could not show one.
+	// Every candidate was scored through a damage matrix and then dropped
+	// unless it gained a KO or added damage, so an item whose whole value is
+	// a turn scored 0.00 and was deleted before the player saw it.
+	let state = run.apply(fresh({permadeath: true}),
+		owned({kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3}));
+	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
+	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
+	const bare = run.adviseUpgrades(state, 'Lady Cindy');
+	assert.ok(bare.upgrades.every(u => !/Cheri Berry/.test(u.detail)),
+		'nothing to offer while the bag holds no cure');
+
+	const cured = run.apply(state, {kind: 'acquire', item: 'Cheri Berry'});
+	const advice = run.adviseUpgrades(cured, 'Lady Cindy');
+	const cheri = advice.upgrades.find(u => u.detail === 'Cheri Berry');
+	assert.ok(cheri, 'a Cheri Berry must be offered against a team built on Thunder Wave');
+	assert.equal(cheri.delta.damage, 0, 'it adds no damage — that is the whole point');
+	assert.equal(cheri.delta.koGained, 0);
+	assert.equal(cheri.delta.statusAnswered, 2,
+		'two of Cindy\'s three carry Thunder Wave, and the count is per Pokemon');
+
+	// The count is what the fight actually threatens, not a property of the
+	// item: the same berry against a fight with no paralysis answers nothing,
+	// and so is not offered.
+	const elsewhere = run.adviseUpgrades(cured, 'Youngster Calvin');
+	assert.ok(elsewhere.upgrades.every(u => !/Cheri Berry/.test(u.detail)),
+		'a cure for a status this fight cannot inflict is not an upgrade');
+
+	// A cure for the wrong status is not an answer either, even against Cindy.
+	const wrong = run.apply(state, {kind: 'acquire', item: 'Rawst Berry'});
+	assert.ok(run.adviseUpgrades(wrong, 'Lady Cindy').upgrades
+		.every(u => !/Rawst Berry/.test(u.detail)),
+	'nothing on this team burns, so a burn cure answers nothing');
+
+	// Lum covers paralysis among everything else, so it answers the same two.
+	const lum = run.apply(state, {kind: 'acquire', item: 'Lum Berry'});
+	const lumAdvice = run.adviseUpgrades(lum, 'Lady Cindy').upgrades
+		.find(u => u.detail === 'Lum Berry');
+	assert.ok(lumAdvice && lumAdvice.delta.statusAnswered >= 2);
+});
+
 test('the catch advisor scouts only what is really catchable, on the board', () => {
 	// A fresh run: four routes open (opensAt 0), no party, next boss Brawly.
 	const state = fresh({permadeath: true});
