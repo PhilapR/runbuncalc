@@ -74,12 +74,15 @@ const BUDGET_MS = Number(flag('budget', 1500)) * 1000;
 const PLAN_EVERY = Number(flag('plan', 1));
 const PARTY_MODE = flag('party', 'rank');
 const ADVICE_ROUNDS = Number(flag('advice', 3));
+const RULES = flag('rules', 'hardcore');
+const CATCH_LIMIT = Number(flag('box', 14));
 const HEADED = process.argv.includes('--headed');
 
 const started = Date.now();
 const journal = [];
 const problems = [];
 const forecastReported = new Set();
+const caughtFrom = new Set();
 const adviceReported = new Set();
 
 function note(kind, message, extra) {
@@ -249,8 +252,29 @@ async function openAllSections(page) {
 
 async function takeEncounters(page) {
 	const view = await readRun(page);
+	// Stop catching once there are enough bodies to choose between. Without
+	// the one-per-route rule a route can be rolled again every cycle, and the
+	// driver boxed 76 Pokemon by its tenth fight — which is not what a player
+	// does, and which melts the ranker: Rank enumerates every C(box, 6), so
+	// per-fight wall clock went 36s to 120s over that stretch. Recorded as
+	// `rank-enumerates-every-six-with-no-bound`.
+	const alive = view.box.filter(mon => mon.status !== 'dead').length;
+	if (alive >= CATCH_LIMIT) return [];
 	const taken = [];
-	for (const route of view.routes) {
+	// New ground first, and never the same area twice. Without the one-per-
+	// route rule an area stays rollable forever, so walking the list in order
+	// meant re-rolling Route 101 every cycle: fifteen catches came from the
+	// five starting areas, three each, and Route 104, Petalburg Woods and
+	// Granite Cave were never touched. A box of Route 101 species is why Rank
+	// reported "unanswered: Eelektrik, Sunflora" and was right three times.
+	// ONE catch per area, ever, and nothing when no new area is open. Falling
+	// back to the already-used list just re-rolled Route 101: fifteen catches
+	// came from the five starting areas, three each, while Route 104,
+	// Petalburg Woods and Granite Cave went untouched. A box of five Route 101
+	// species is why Rank kept reporting "unanswered" and kept being right.
+	const fresh = view.routes.filter(route => !caughtFrom.has(route.map));
+	if (!fresh.length) return [];
+	for (const route of fresh) {
 		if (outOfTime()) break;
 		const clicked = await page.$('#runbun-run-reachable .runbun-run-route-choice[data-map="' +
 			route.map + '"]');
@@ -280,9 +304,11 @@ async function takeEncounters(page) {
 			() => page.click('#runbun-run-roll-catch'));
 		const boxAfter = (await savedRun(page)).box.length;
 		if (boxAfter > boxBefore) {
+			caughtFrom.add(route.map);
 			taken.push(rolled);
 			note('caught', rolled + '  (' + route.map + ')');
 		} else {
+			caughtFrom.add(route.map);
 			await act(page, 'flee ' + route.map, () => page.click('#runbun-run-roll-flee'));
 			note('lost', rolled + ' refused — ' + (kept.status || 'no reason given'));
 		}
@@ -576,7 +602,7 @@ async function rankParty(page) {
 		const list = document.querySelector('#runbun-run-ranking');
 		if (list) list.innerHTML = '';
 	});
-	await page.click('#runbun-run-rank');
+	await press(page, '#runbun-run-rank');
 	try {
 		await page.waitForFunction(
 			() => document.querySelectorAll('#runbun-run-ranking li').length > 0,
@@ -631,7 +657,7 @@ async function followAdvice(page, rounds) {
 			const list = document.querySelector('#runbun-run-advice');
 			if (list) list.innerHTML = '';
 		});
-		await page.click('#runbun-run-advise');
+		await press(page, '#runbun-run-advise');
 		try {
 			await page.waitForFunction(
 				() => document.querySelectorAll('#runbun-run-advice li').length > 0,
@@ -760,7 +786,7 @@ async function readPlan(page) {
 		const el = document.querySelector('#runbun-run-plan-verdict');
 		if (el) el.textContent = '';
 	});
-	await page.click('#runbun-run-plan');
+	await press(page, '#runbun-run-plan');
 	// A verdict OR a refusal — waiting only for the verdict spends the whole
 	// timeout staring at an error the panel already printed.
 	try {
@@ -1082,9 +1108,26 @@ function decide(view, memory, roster) {
 	return replacement ? {kind: 'switch', pick: replacement, why: 'nothing to click'} : null;
 }
 
+/**
+ * Press a control without waiting for it to hold still.
+ *
+ * Playwright's click waits for an element to be "stable", and with a large
+ * box the panel re-renders often enough that the analysis buttons never are —
+ * a caps run died on `#runbun-run-rank` after eight fights with "element is
+ * not stable". These are ordinary jQuery handlers on a fixed id, so
+ * dispatching the click is the same event the player produces.
+ */
+function press(page, selector) {
+	return page.evaluate(sel => {
+		const el = document.querySelector(sel);
+		if (el) el.click();
+		return !!el;
+	}, selector);
+}
+
 /** Press Fight and wait for the battle OR for the panel to say why not. */
 async function openFight(page) {
-	await page.click('#runbun-run-play');
+	await press(page, '#runbun-run-play');
 	try {
 		await page.waitForFunction(() => {
 			const panel = document.querySelector('#runbun-run-battle');
@@ -1201,18 +1244,32 @@ async function main() {
 		() => document.querySelectorAll('#runbun-run-map option').length > 100,
 		null, {timeout: 20000});
 
-	// A full nuzlocke: caps, permadeath, one encounter per route, dupes by line.
+	// Two rulesets, both the product's own. `hardcore` is the full nuzlocke —
+	// caps, permadeath, one encounter per route, dupes by line — and it is the
+	// harder test: a run ends when the whole box is dead, and the box cannot
+	// refill faster than the walls empty it. `caps` is level caps alone, which
+	// the run document supports directly (a faint "changed nothing" without
+	// permadeath), and is how far the ADVICE can carry a run when losing a
+	// Pokemon is not also losing the run.
 	await page.check('#runbun-run-new-cap');
-	await page.check('#runbun-run-new-nuzlocke');
-	await page.check('#runbun-run-new-permadeath');
-	await page.check('#runbun-run-new-route');
-	await page.selectOption('#runbun-run-new-dupes', 'line');
+	if (RULES === 'hardcore') {
+		await page.check('#runbun-run-new-nuzlocke');
+		await page.check('#runbun-run-new-permadeath');
+		await page.check('#runbun-run-new-route');
+		await page.selectOption('#runbun-run-new-dupes', 'line');
+	} else {
+		await page.uncheck('#runbun-run-new-nuzlocke');
+		await page.uncheck('#runbun-run-new-permadeath');
+		await page.uncheck('#runbun-run-new-route');
+		await page.uncheck('#runbun-run-new-shiny-clause');
+		await page.selectOption('#runbun-run-new-dupes', 'off');
+	}
 	await page.fill('#runbun-run-new-name', 'UI playthrough');
 	await page.click('.runbun-run-starter[data-species="' + STARTER + '"]');
 	await page.waitForFunction(() => !document.querySelector('#runbun-run-new').disabled);
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])', {timeout: 20000});
-	note('start', 'nuzlocke · permadeath · one per route · dupes by line · ' + STARTER);
+	note('start', RULES + ' · ' + STARTER);
 
 	const fights = [];
 	let stalled = 0;

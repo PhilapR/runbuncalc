@@ -930,6 +930,21 @@
 			"fixed_in": null,
 			"falsified": 0,
 			"evidence": "Eight occurrences across seven of eight scripted playthroughs, all reproducible: the driver read the row, went looking for the matching pickup button, and found none — seven for Miracle Seed and one for Silk Scarf. Both surfaces are deliberate and neither is wrong on its own. The advisor plans AHEAD: oracle.itemsObtainableBy(order) returns anything with opensAt <= the NEXT FIGHT's order, and tests/run.test.js asserts on purpose that a Grass Treecko should be told to go get the Seed before a fisherman at #22. The pickup list gates on PROGRESS: lib/run.js anchorOpen requires the guard fight (the earliest at order >= opensAt - 1) to have been beaten, and the same test asserts the Silk Scarf reads not-reachable at position -1. opensAt is \"the first trainer at the location\", so for the Seed at 11 that guard is Triathlete Mikey — the fight the upgrade is being priced FOR. So the advice is honest advice about a future fight and the button is honest about now; what is missing is that the advice row never says which. The detail string at lib/run.js:1398 is `${name} (pickup @ ${location})` with no gate, while the split sheet appends \" · from #\" + opensAt. Adjacent ruling, though it does not settle this one: egg-moves-ride-the-relearner — \"The advisor may not offer what the bag cannot pay for.\" Deliberately not acted on; both behaviours are asserted on purpose and which one moves is a product call."
+		},
+		{
+			"id": "rank-enumerates-every-six-with-no-bound",
+			"source": "review/test-run",
+			"raised_on": "2026-08-22",
+			"severity": "high",
+			"area": "solver",
+			"file": "lib/run.js",
+			"line": 3324,
+			"claim": "Best parties enumerates every legal six in the box with no bound, so its cost is C(box, 6). It is the only accurate survival signal the tool has, and it becomes unusable exactly when the player has the most Pokemon to choose between.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Measured against the real endpoint, box grown one catch at a time: 6 Pokemon is 1 party in 1.5s, 8 is 28 parties in 3.8s, 10 is 210 parties in 6.1s. The enumeration is an unbounded `for (;;)` over combinations at lib/run.js:3324 keeping a bounded top-N — the shortlist is bounded, the search is not. C(n,6) is 924 at 12, 3,003 at 14, 38,760 at 20, 593,775 at 30 and 218,618,940 at 76. Reached in play: a level-caps run (no one-per-route rule, so routes can be rolled again) had 76 catches by its tenth fight, and the driver's wall clock per fight went 36s, 34s, 35s, 32s, 39s, 40s, 45s, 51s, 71s, 120s over exactly that stretch — Rank, not the fights. A nuzlocke hides this because one-per-route holds the box near ten; nothing else does. It matters more than a slow panel: the batch measurement has Rank calling 22 of 22 fights right at or above 9/12 clean and 3 of 3 wrong below it, so this is the accurate signal degrading, while the Plan verdict that stays fast is the one that says nothing about surviving ([[plan-verdict-hides-a-dead-forecast]])."
 		}
 	]
 }
