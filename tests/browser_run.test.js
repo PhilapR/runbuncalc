@@ -110,6 +110,25 @@ async function openAllSections(page) {
 		els => els.forEach(el => { el.open = true; }));
 }
 
+/**
+ * Wait for a route handler to say the request is genuinely out.
+ *
+ * Interception happens on Playwright's side of the wire, asynchronously with
+ * the click that caused it, so reading a request counter straight after the
+ * click races the handler — it fails under load rather than when the product
+ * is wrong. Awaiting the handler's own promise removes the race; the bound
+ * keeps a genuine "no request at all" a loud failure rather than a hung suite.
+ */
+function sentWithin(promise, why, ms) {
+	let timer;
+	return Promise.race([
+		promise.then(() => clearTimeout(timer)),
+		new Promise((resolve, reject) => {
+			timer = setTimeout(() => reject(new Error(why)), ms || 10000);
+		}),
+	]);
+}
+
 async function savedRun(page) {
 	const raw = await page.evaluate(() => window.localStorage.getItem('runbun.run.v1'));
 	return raw ? JSON.parse(raw) : null;
@@ -1351,8 +1370,11 @@ test('a turn that resolves after its fight is gone is dropped, not thrown', {ski
 	// request is issued at all and the race is physically impossible, left
 	// this test green.
 	let actRequests = 0;
+	let turnIsInFlight;
+	const inFlight = new Promise(resolve => { turnIsInFlight = resolve; });
 	await page.route('**/run/battle/act', async route => {
 		actRequests += 1;
+		turnIsInFlight();
 		await new Promise(resolve => setTimeout(resolve, 1200));
 		await route.continue();
 	});
@@ -1368,6 +1390,7 @@ test('a turn that resolves after its fight is gone is dropped, not thrown', {ski
 	});
 	// The turn really went out, and the fight really was abandoned under it.
 	// Both halves have to be true or there is no race to survive.
+	await sentWithin(inFlight, 'no turn was ever sent — nothing is being raced');
 	assert.equal(actRequests, 1,
 		'a turn must actually have been in flight — otherwise nothing is being raced');
 	await page.waitForFunction(
@@ -1509,8 +1532,11 @@ test('a turn that FAILS after its fight is gone is dropped too', {skip}, async (
 
 	// The turn goes out and then FAILS, slowly enough to be abandoned first.
 	let attempted = 0;
+	let turnIsInFlight;
+	const inFlight = new Promise(resolve => { turnIsInFlight = resolve; });
 	await page.route('**/run/battle/act', async route => {
 		attempted += 1;
+		turnIsInFlight();
 		await new Promise(resolve => setTimeout(resolve, 1200));
 		await route.abort('failed');
 	});
@@ -1522,6 +1548,7 @@ test('a turn that FAILS after its fight is gone is dropped too', {skip}, async (
 		document.querySelector('.runbun-run-battle-move').click();
 		document.querySelector('#runbun-run-battle-abandon').click();
 	});
+	await sentWithin(inFlight, 'no turn was ever sent — the catch path is untested');
 	assert.equal(attempted, 1, 'a turn must actually have been in flight');
 	await page.waitForFunction(() => document.querySelector('#runbun-run-battle').hidden);
 	await page.waitForTimeout(3000);
