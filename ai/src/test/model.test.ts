@@ -1744,12 +1744,16 @@ const effectSporeMoldBreaker = contactResolutionAgainst(
   {ability: 'Mold Breaker', species: 'Rattata', gender: 'M'}, () => 0,
 );
 assert.equal(effectSporeMoldBreaker.statusByPokemon, undefined);
+// Cute Charm infatuates on contact only across opposite, known sexes. The
+// same-gender and genderless rows here used to assert `true`, which is the
+// same hole Attract had: the rule was written for Captivate and nowhere on
+// the path infatuation actually takes.
 assert.equal(contactResolutionAgainst({ability: 'Cute Charm', gender: 'F'}, 'Tackle', 9, 10,
   {gender: 'M'}, () => 0).volatileByPokemon?.['ai-1']?.infatuated !== undefined, true);
 assert.equal(contactResolutionAgainst({ability: 'Cute Charm', gender: 'F'}, 'Tackle', 9, 10,
-  {gender: 'F'}, () => 0).volatileByPokemon?.['ai-1']?.infatuated !== undefined, true);
+  {gender: 'F'}, () => 0).volatileByPokemon?.['ai-1']?.infatuated !== undefined, false);
 assert.equal(contactResolutionAgainst({ability: 'Cute Charm', gender: 'F'}, 'Tackle', 9, 10,
-  {gender: 'N'}, () => 0).volatileByPokemon?.['ai-1']?.infatuated !== undefined, true);
+  {gender: 'N'}, () => 0).volatileByPokemon?.['ai-1']?.infatuated !== undefined, false);
 assert.equal(contactResolutionAgainst({ability: 'Cute Charm', gender: 'F'}, 'Tackle', 9, 10,
   {gender: 'M', ability: 'Mold Breaker'}, () => 0).volatileByPokemon, undefined);
 assert.equal(contactResolutionAgainst({ability: 'Gooey'}).boostsByPokemon?.['ai-1']?.spe, -1);

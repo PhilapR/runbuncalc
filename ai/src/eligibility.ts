@@ -264,6 +264,17 @@ export function canApplyVolatile(
   if (volatile === 'flinch' && !targetAbilityIgnored && hasAbility(state, targetId, 'innerfocus')) return false;
   if (volatile === 'infatuated' &&
     (target.volatile?.infatuated || (!targetAbilityIgnored && hasAbility(state, targetId, 'oblivious')))) return false;
+  // Infatuation needs two known, opposite, non-genderless sexes. This is the
+  // whole of what Attract is, and it was the one thing Attract did not check:
+  // the gate lived on Captivate two lines above in actions.ts and nowhere on
+  // the path Attract and Cute Charm actually take. Both pass an actorId — the
+  // Attract user, or the Cute Charm holder the contact was made with — and the
+  // test is symmetric, so one place covers both.
+  if (volatile === 'infatuated' && actorId) {
+    const source = getPokemon(state, actorId);
+    if (!source || !source.gender || source.gender === 'N' ||
+      !target.gender || target.gender === 'N' || source.gender === target.gender) return false;
+  }
   if (volatile === 'taunt' &&
     ((!targetAbilityIgnored && hasAbility(state, targetId, 'oblivious', 'aromaveil')) || allyAromaVeil)) return false;
   if (volatile === 'encore' &&
