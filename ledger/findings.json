@@ -870,6 +870,21 @@
 			"fixed_in": null,
 			"falsified": 0,
 			"evidence": "Read straight off #runbun-run-advice-note during a scripted playthrough, four fights sampled: Youngster Calvin (#0) 9 compared / 60 skipped; Fisherman Darian (#14) 9 / 50; Lady Cindy (#16) 3 / 45; Team Aqua Grunt Petalburg Woods (#19) 2 / 36. lib/run.js:1349 is the drop — a teachable route with a null gate from oracle.moveObtainableAt is excluded and counted, which is the right call (offering a move the player cannot yet get is worse than silence) and is why the number is visible at all. The data is partly there: oracle.moveAvailability() returns 78 dated sources, 50 TM and 28 tutor, with zero undated among them. So the table is not missing, it is small relative to the learnsets it is asked about. The consequence shows in play: the advisor mostly offers held items and level-up moves, and the upgrades it did find were worth +0.74, +0.17 and +0.07 damage. Settling this is Philip's open question tm-tutor-dates in DECISIONS.json, which already names the community Item Locations doc as the import; this finding only measures what it is costing."
+		},
+		{
+			"id": "advisor-cannot-value-anything-but-damage",
+			"source": "review/test-run",
+			"raised_on": "2026-08-21",
+			"severity": "high",
+			"area": "solver",
+			"file": "lib/run.js",
+			"line": 1836,
+			"claim": "Best upgrades scores every candidate through a damage matrix and drops any whose KO delta and damage delta are both zero or less. A status-cure berry moves neither number, so the advisor can never recommend the counter to a status lock — which is what is actually losing the fights.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "The failure mode first: across six scripted runs we out-hit the opposition 43.8% to 25.2% per hit and KO 96 to 46, and still lose, because we lose 27 of 335 turns to status (8.1%) against their 2 of 361 (0.6%). Eleven of ours are Attract and eight are paralysis. The counter to that is a Cheri or a Lum Berry, and the tool cannot get there by two independent routes. First, it does not know the item exists: profiles/run-and-bun/oracle/availability.json carries 28 field items — 18 type-boost, 7 held, 3 consumable — and the only berry among them is Oran. No Cheri, Lum, Persim, Chesto, Pecha, Rawst or Aspear. planner.holdableItem says all of those ARE legal held items, so nothing but the location data is missing, and the source is named in the file: pokemon-mono locations.ts, the same vendored engine whose ability table is vanilla. Second, even with one in the bag it would be filtered out before it was shown: lib/run.js:1836 reads `if (delta.koGained - delta.koConceded <= 0 && delta.damage <= 0) continue;`, and upgradeDelta (line 1281) computes both terms from planner.matchup().grid — sumMax and countKO over a damage grid. A cure moves neither term. So the advisor cannot price defence, cannot price a status cure, and cannot price anything whose value is a turn rather than a bar of HP."
 		}
 	]
 }
