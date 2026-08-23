@@ -274,6 +274,50 @@ test('the ranker finishes a box of 30 in interactive time', () => {
 	assert.ok(ms < 5000, `ranking took ${ms.toFixed(0)}ms; the budget is 5s`);
 });
 
+test('the ranker charges for its shortlist, not for the box', () => {
+	// The gate above measures the ENUMERATION with rollouts:0. The number a
+	// player feels is the other one: the seeded adjudication of the shortlist,
+	// which is a flat cost paid on every press and was gated nowhere.
+	// Measured — box 8 5488ms, box 12 5335ms, box 20 5769ms, box 30 6050ms —
+	// so it does not scale with the box, and a small box does not buy a fast
+	// answer. Pinning it stops that becoming true silently.
+	function boxOf(size) {
+		const catches = [];
+		for (let i = 0; i < size; i++) {
+			catches.push(owned({kind: 'catch', species: 'Poochyena', level: 20}));
+		}
+		return run.applyAll(fresh({levelCap: 'none'}), catches);
+	}
+	const small = boxOf(8);
+	const large = boxOf(20);
+	const time = state => {
+		const at = process.hrtime.bigint();
+		run.rankParties(state, 'Leader Brawly');
+		return Number(process.hrtime.bigint() - at) / 1e6;
+	};
+	const smallMs = time(small);
+	const largeMs = time(large);
+	// Flat, not proportional: C(20,6) is 1,384 times C(8,6), so anything close
+	// to proportional would be minutes. Asserted as ABSOLUTE headroom rather
+	// than a multiple — the adjudication floor is seconds, which makes a ratio
+	// insensitive enough to pass through a real regression. Measured
+	// difference is ~280ms; three seconds is room for a shared runner and
+	// still catches a cost that has started tracking the box.
+	assert.ok(largeMs - smallMs < 3000,
+		`box 20 took ${largeMs.toFixed(0)}ms against box 8's ${smallMs.toFixed(0)}ms, ` +
+		`a gap of ${(largeMs - smallMs).toFixed(0)}ms; the shortlist adjudication ` +
+		'must not scale with the box');
+	// And the enumeration past the gated size is the OTHER cost: still cheap
+	// at 30, which is what makes 76 a surprise rather than a warning.
+	const at = process.hrtime.bigint();
+	const ranked = run.rankParties(boxOf(30), 'Leader Brawly', {rollouts: 0});
+	const bareMs = Number(process.hrtime.bigint() - at) / 1e6;
+	assert.equal(ranked.combinations, 593775);
+	assert.ok(bareMs < smallMs,
+		`enumerating C(30,6) took ${bareMs.toFixed(0)}ms, more than a box-8 ranking ` +
+		`at ${smallMs.toFixed(0)}ms — the enumeration was supposed to be the cheap half`);
+});
+
 test('a named replace is honored below four moves too', () => {
 	// Found live: a Skrelp with two moves taught 'Hydro Pump over Water Gun'
 	// KEPT Water Gun — the replace was silently dropped because a free slot
