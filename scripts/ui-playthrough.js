@@ -1583,7 +1583,17 @@ async function main() {
 		// teaching; equipParty only fills whatever it left bare.
 		appliedAdvice = new Set();
 		await followAdvice(page, ADVICE_ROUNDS);
-		if (TMS === 'assume') await assumeTms(page, (await readRun(page)).box);
+		// The SIX WHO FIGHT, not the six caught first. `box` is every catch in
+		// catch order and `party` is a separate list of ids, so handing the
+		// box straight over taught whoever turned up earliest — fine while the
+		// box was still smaller than a party, and wrong from the seventh catch
+		// on. By Brawly the box is twenty-two deep and the six are chosen by
+		// matchup, so the ones being taught were mostly not the ones fighting.
+		if (TMS === 'assume') {
+			const view = await readRun(page);
+			const byId = new Map(view.box.map(mon => [mon.id, mon]));
+			await assumeTms(page, view.party.map(id => byId.get(id)).filter(Boolean));
+		}
 		await equipParty(page);
 
 		const ready = await readRun(page);
