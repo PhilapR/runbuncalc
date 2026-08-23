@@ -975,6 +975,21 @@
 			"fixed_in": "23dc13a",
 			"falsified": 1,
 			"evidence": "Found while profiling where a fight cycle goes: /run/rank 78%, /run/advise 18%, /run/matrix 4%, and the battle engine itself 1% — a turn is 5ms, opening a fight is 10ms. Within rank, the exhaustive C(box,6) enumeration everyone would suspect is 5%; the other 95% is 4 parties x 12 seeded rollouts.\n\nThe cause is scoreSix: it scores a six by the best answer per enemy column, so swapping the member that answers nothing changes no column and no score. The shortlist it produces is therefore systematically near-duplicates. Measured over twelve fights with a fourteen-strong box and varied IVs: the top four ALWAYS shared five of six members and carried one identical grid score; all four adjudications returned the same pWin and the same eDeaths in eleven of twelve; and playing them reordered the top six ZERO times. Thirty-six of the forty-eight rollouts were replaying one team.\n\nA first attempt at early elimination saved exactly nothing, and that is what exposed this: parties either won 12/12 or lost 0/12 together, so no party ever fell behind another far enough to stop. The degeneracy was the finding, not the optimisation.\n\nFIXED: candidates are now picked for DISTANCE as well as rank — the best six, then the best that differs from every chosen one by at least two members. Same budget when four genuinely different sixes exist; fewer rollouts rather than repeated ones when they do not. Measured 4 adjudications down to a mean of 1.17, 48 rollouts to 14, /run/rank 11,275ms to 5,161ms, and a fight cycle from ~14.5s to ~8.9s. Gated on pairwise distinctness and falsified by adjudicating the first four regardless."
+		},
+		{
+			"id": "matchup-computes-a-crit-band-nobody-reads",
+			"source": "review/self",
+			"raised_on": "2026-08-23",
+			"severity": "low",
+			"area": "solver",
+			"file": "lib/planner.js",
+			"line": 572,
+			"claim": "Every matchup cell computes a crit band for BOTH directions, and nothing reads the player-side one. The crit variant is a second Calc.Move and a second Calc.calculate per damaging move, 10,022 of the 25,975 objects an advise call builds.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Found while profiling the fight cycle. After the ranker fix the cycle is roughly /run/rank 5,161ms, /run/advise 3,081ms, /run/matrix 528ms, and advise builds 25,975 calculator objects — 12,549 at calc-adapter.ts:599 for the move being calculated and 10,022 at :784 for its crit variant, which runs a second full Calc.calculate. The cell keeps critMax for both sides; grepping lib/ and src/js/ finds consumers only for the THEIR side — run.js:1762 reads pairing.them.critMax, the matrix table renders `us` as min and `them` as crit, and the planning rule is stated as \"their crit is what a plan has to survive, and our floor is what a plan may rely on\".\n\nDELIBERATELY NOT ACTED ON. planner.js:570 says in as many words: \"Both travel with the cell so no consumer has to re-derive them from an average.\" That is a design statement about what a cell is, not an oversight, and the last time behaviour that looked redundant was \"fixed\" on inspection it was a declared rule and had to be reverted ([[attract-and-cute-charm-ignore-gender]]). Whether the player-side band is worth its cost is a product call: it is a real saving in the two hottest non-battle endpoints, against a cell contract that currently promises symmetry."
 		}
 	]
 }
