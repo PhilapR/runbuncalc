@@ -46,6 +46,41 @@ to take.
   not as executable code. A mechanic or move change is not implemented until
   it has corresponding code and tests.
 
+## Changing what something costs
+
+Performance work is not one kind of change. The bar differs for each kind.
+Decide which kind you make before you make it. Name that kind in the commit.
+
+1. **Waste** — the output is provably identical. One example: the code builds
+   an object, reads one immutable field, and discards it. Bar: show that the
+   work count fell and that the result did not.
+2. **A cache behind an assumption** — the output stays identical only while
+   something stays true. Bar: probe the dependency to establish that
+   assumption, and do not conclude from a reading of the code. Gate the probe
+   apart from the thing it enables, so the cache cannot outlive its premise.
+   `tests/adjudication_cost.test.js` pins what moves `stats.spe`, which is
+   what makes the speed cache in `ai/src/order.ts` safe across a battle.
+3. **A behaviour change** — the output differs. This is not performance work,
+   even when it is faster, and it must not travel as performance work. Bar: a
+   ledger finding, evidence that the new answer is better, and the usual
+   falsification. The ranker now plays four different sixes; it also costs 54%
+   less, but that is a side effect and not the argument for it.
+4. **A contract change** — it removes something that the design promises. Bar:
+   Philip decides. No consumer reads a value today, and that fact alone does
+   not make the value dead. `planner.js` says that both crit bands travel with
+   a cell, "so no consumer has to re-derive them from an average". That
+   sentence states what a cell is.
+
+Measure work, not time. This repository shares a runner with every other build
+on the machine. A millisecond assertion then measures load as often as it
+measures the product. Three timing gates flaked that way in one session, at
+load averages between 17 and 139. Count objects, calls, or rollouts instead. A
+count is exact, and it moves only when behaviour moves.
+
+Record a cost next to the contract that causes it. Give the measured price of
+each deliberate design choice. A reader cannot weigh a cost that nobody wrote
+down. The next person meets that cost in a profiler, not in the design.
+
 ## A deviation from the mainline games is not a bug
 
 This is a hack, and a hack IS its deviations. Before treating behaviour that
