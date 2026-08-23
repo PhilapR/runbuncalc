@@ -378,13 +378,44 @@ function availableMoveNames(state: BattleState, pokemon: PokemonState): string[]
     .map(move => move.name);
 }
 
+/**
+ * Immutable dex facts about a move, read without building a Move to read them.
+ *
+ * A 12-rollout adjudication constructed 66,768 calculator objects, and 24,480
+ * of them were one line: `new Calc.Move(gen, name).flags?.sound`, built for
+ * every defender move on every damage calculation to read a single boolean.
+ * Another 6,360 existed only to ask whether `flags` was defined at all, and
+ * 2,640 to read a category.
+ *
+ * These depend on nothing but the generation and the move name — they are
+ * properties of the dex entry, not of the battle — so they are cached the way
+ * getMoveMetadata already caches its own lookup. Primitives are returned
+ * rather than the Move itself: a shared mutable calculator object escaping
+ * into a caller is a different and much worse bug than a slow one.
+ */
+const BARE_MOVE_FACTS = new Map<string, {category: Calc.Move['category'];
+  sound: boolean; hasFlags: boolean}>();
+
+function bareMoveFacts(gen: ReturnType<typeof Calc.Generations.get>, moveName: string) {
+  const key = `${gen.num}|${moveName}`;
+  const cached = BARE_MOVE_FACTS.get(key);
+  if (cached) return cached;
+  const move = new Calc.Move(gen, moveName);
+  const facts = {
+    category: move.category,
+    sound: !!move.flags?.sound,
+    hasFlags: move.flags !== undefined,
+  };
+  BARE_MOVE_FACTS.set(key, facts);
+  return facts;
+}
+
 function canonicalCalculatorFallback(
   generation: BattleState['generation'],
   moveName: string,
   metadata: ReturnType<typeof getMoveMetadata>,
 ) {
-  const inherited = new Calc.Move(Calc.Generations.get(generation), moveName);
-  if (inherited.flags !== undefined || metadata.basePower === undefined ||
+  if (bareMoveFacts(Calc.Generations.get(generation), moveName).hasFlags || metadata.basePower === undefined ||
     metadata.type === undefined || metadata.category === undefined) return undefined;
   return {
     basePower: metadata.basePower,
@@ -510,7 +541,7 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
   const attackerMoveCategories = attackerMoveNames.map(moveName => {
     const moveState = attackerState.moves.find(candidate => candidate.name === moveName);
     return (moveState ? getEffectiveMoveMetadata(moveState, state.generation) : getMoveMetadata(moveName, state.generation)).category ||
-      new Calc.Move(gen, moveName).category;
+      bareMoveFacts(gen, moveName).category;
   });
   const moveState = attackerState.moves.find(move => move.name === action.moveName);
   const moveMetadata = moveState
@@ -685,21 +716,21 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
   const defenderMoveCategories = defenderMoveNames.map(moveName => {
     const moveState = defenderState.moves.find(candidate => candidate.name === moveName);
     return (moveState ? getEffectiveMoveMetadata(moveState, context.state.generation) : getMoveMetadata(moveName, context.state.generation)).category ||
-      new Calc.Move(context.gen, moveName).category;
+      bareMoveFacts(context.gen, moveName).category;
   });
   const lastMoveUsed = context.state.lastMoveByPokemon?.[defenderState.id];
   const defenderLastMoveUsed = lastMoveUsed && isMoveAvailable(lastMoveUsed, context.state.generation)
     ? lastMoveUsed : undefined;
   const defenderLastMoveIsStatus = defenderLastMoveUsed === undefined
     ? undefined
-    : new Calc.Move(context.gen, defenderLastMoveUsed).category === 'Status';
+    : bareMoveFacts(context.gen, defenderLastMoveUsed).category === 'Status';
   const defenderHasSoundMove = defenderMoveNames.some(moveName => {
     const moveState = defenderState.moves.find(candidate => candidate.name === moveName);
     const metadata = moveState
       ? getEffectiveMoveMetadata(moveState, context.state.generation)
       : getMoveMetadata(moveName, context.state.generation);
     return !defenderState.volatile?.throatChop &&
-      (metadata.sound === true || !!new Calc.Move(context.gen, moveName).flags?.sound);
+      (metadata.sound === true || bareMoveFacts(context.gen, moveName).sound);
   });
   const field = toCalcField(
     context.state,
