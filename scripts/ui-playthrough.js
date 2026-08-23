@@ -1106,6 +1106,20 @@ function multiplierAgainst(moveType, defenderTypes) {
 }
 
 /**
+ * Moves that take two turns to land one hit: the chargers, the semi-invulnerable
+ * turns, and the ones that spend the turn after. Halved rather than banned,
+ * because a big enough number still wins some races.
+ */
+const TWO_TURN_MOVES = new Set([
+	'Solar Beam', 'Solar Blade', 'Sky Attack', 'Razor Wind', 'Skull Bash',
+	'Ice Burn', 'Freeze Shock', 'Meteor Beam', 'Electro Shot', 'Geomancy',
+	'Bounce', 'Dig', 'Dive', 'Fly', 'Phantom Force', 'Shadow Force',
+	'Hyper Beam', 'Giga Impact', 'Blast Burn', 'Hydro Cannon', 'Frenzy Plant',
+	'Rock Wrecker', 'Roar of Time', 'Prismatic Laser', 'Eternabeam',
+	'Meteor Assault', 'Hyperspace Fury',
+]);
+
+/**
  * The types the next fight will field, read off the matchup board.
  *
  * matrixParty renders that board before any teaching happens, and every cell
@@ -1345,10 +1359,18 @@ async function assumeTms(page, roster) {
 				return base;
 			}
 			const stab = mine.indexOf(meta.type) === -1 ? 1 : 1.5;
-			if (!enemies.length) return base * stab;
+			// A move that spends two turns to hit once is worth half its base
+			// power, and the metadata carries no charge or recharge flag to
+			// read it off — so the list is spelled out, the same way the
+			// sacrifice moves above are. This matters more here than the raw
+			// number suggests: these runs lose on turns, not on damage, and
+			// the first thing the new ranking did was put Solar Beam on an
+			// Exeggcute at 120 base power.
+			const turns = TWO_TURN_MOVES.has(name) ? 0.5 : 1;
+			if (!enemies.length) return base * stab * turns;
 			const lands = enemies.reduce((total, types) =>
 				total + multiplierAgainst(meta.type, types), 0) / enemies.length;
-			return base * stab * lands;
+			return base * stab * turns * lands;
 		};
 		const known = (mon.moves || []).slice();
 		// Never trade away the party's only lock. This heuristic picks the
