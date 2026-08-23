@@ -1105,6 +1105,24 @@ function multiplierAgainst(moveType, defenderTypes) {
 	}
 }
 
+/**
+ * The types the next fight will field, read off the matchup board.
+ *
+ * matrixParty renders that board before any teaching happens, and every cell
+ * carries the enemy it was priced against, so the roster is already on screen
+ * by the time a move has to be chosen.
+ *
+ * Returns [] when no board is up — with --party=rank or box order there is
+ * nothing to read, and the caller falls back to raw power rather than
+ * inventing an opponent.
+ */
+async function upcomingEnemyTypes(page) {
+	const names = await page.evaluate(() => Array.from(new Set(
+		Array.from(document.querySelectorAll('#runbun-run-matrix td[data-enemy]'))
+			.map(cell => cell.getAttribute('data-enemy')))));
+	return names.map(typesOf).filter(types => types.length);
+}
+
 /** The type of the hardest hit the threat line is warning about. */
 function incomingType(view) {
 	const named = /Their hardest hit: (.+?) \d/.exec(view.threat || '');
@@ -1263,6 +1281,8 @@ function decide(view, memory, roster) {
  * Pokemon can learn NOW and fills the datalist the player picks from.
  */
 async function assumeTms(page, roster) {
+	// Read once, not per Pokemon: the board is the same for all six.
+	const enemies = await upcomingEnemyTypes(page);
 	for (const mon of roster.filter(entry => entry.status !== 'dead').slice(0, PARTY_LIMIT)) {
 		if (outOfTime()) return;
 		// Only when something changed. Asking for every party member every
@@ -1298,13 +1318,37 @@ async function assumeTms(page, roster) {
 			// suicide" is its own gate — and an experiment that ignores that
 			// is measuring a different game.
 			.filter(entry => !/^(Explosion|Self-Destruct|Final Gambit|Misty Explosion|Memento|Healing Wish|Lunar Dance)$/.test(entry));
-		const power = name => {
+		const bp = name => {
 			try {
 				const meta = ai.getMoveMetadata(name, 8);
 				return meta.category === 'Status' ? 0 : (meta.basePower || 0);
 			} catch (error) {
 				return 0;
 			}
+		};
+		// Base power is what a move does; effectiveness is what it does to
+		// THEM. Ranked on raw power alone this taught Take Down over Wing
+		// Attack, and 160 of 171 Brawly plans then opened with Brick Break —
+		// a Fighting move into a team that is more than half Fighting. Wing
+		// Attack is 60 BP against Take Down's 90 and lands for twice as much
+		// on four of his six, so priced against the fight in front of us that
+		// ordering flips. STAB is in here for the same reason a 90 BP Ice
+		// Beam lost to a 65 BP Bubble Beam on a Water Pokemon.
+		const mine = typesOf(mon.species);
+		const value = name => {
+			const base = bp(name);
+			if (!base) return 0;
+			let meta;
+			try {
+				meta = ai.getMoveMetadata(name, 8);
+			} catch (error) {
+				return base;
+			}
+			const stab = mine.indexOf(meta.type) === -1 ? 1 : 1.5;
+			if (!enemies.length) return base * stab;
+			const lands = enemies.reduce((total, types) =>
+				total + multiplierAgainst(meta.type, types), 0) / enemies.length;
+			return base * stab * lands;
 		};
 		const known = (mon.moves || []).slice();
 		// Never trade away the party's only lock. This heuristic picks the
@@ -1315,17 +1359,18 @@ async function assumeTms(page, roster) {
 		// their turn away is what beat Camper Gavi one fight earlier.
 		const locks = known.filter(name => inflictedStatus(name));
 		const best = offered.filter(name => known.indexOf(name) === -1)
-			.sort((a, b) => power(b) - power(a))[0];
-		if (!best || power(best) === 0) continue;
+			.sort((a, b) => value(b) - value(a))[0];
+		if (!best || value(best) === 0) continue;
 		const droppable = known.filter(name => !inflictedStatus(name) || locks.length > 1);
 		if (!droppable.length) continue;
-		const weakest = droppable.slice().sort((a, b) => power(a) - power(b))[0];
-		if (weakest && power(best) <= power(weakest)) continue;
+		const weakest = droppable.slice().sort((a, b) => value(a) - value(b))[0];
+		if (weakest && value(best) <= value(weakest)) continue;
 		await page.fill('#runbun-run-move', best);
 		await page.selectOption('#runbun-run-replace', known.length >= 4 ? weakest : '');
 		const taught = await act(page, 'assume ' + best, () => page.click('#runbun-run-teach'));
 		if (taught.changed) {
-			note('tm', mon.species + ' learned ' + best + ' (' + power(best) + ' BP)' +
+			note('tm', mon.species + ' learned ' + best + ' (' + bp(best) + ' BP, ' +
+				Math.round(value(best)) + ' against this fight)' +
 				(known.length >= 4 ? ' over ' + weakest : ''));
 		}
 	}
