@@ -1620,10 +1620,17 @@ async function assumeTms(page, roster) {
 		// off every Pokemon and handed Brawly a party that could only trade
 		// damage with a Lopunny that heals itself with Drain Punch. Taking
 		// their turn away is what beat Camper Gavi one fight earlier.
-		const locks = known.filter(name => inflictedStatus(name));
+		// A lock is any move that plays a line rather than trading damage: the
+		// condition, the Speed drop, the heal, the screen. The rule is the one
+		// that was already here — never trade away the LAST one — generalised,
+		// because the first run after the lines went in taught a Bayleef Solar
+		// Beam over its Synthesis and threw the line away to gain damage.
+		const isLine = name => !!inflictedStatus(name) || SLOW_MOVES.has(name) ||
+			HEAL_MOVES.has(name) || SCREEN_MOVES.has(name);
+		const locks = known.filter(isLine);
 		const ranked = offered.filter(name => known.indexOf(name) === -1)
 			.sort((a, b) => value(b) - value(a));
-		const droppable = known.filter(name => !inflictedStatus(name) || locks.length > 1);
+		const droppable = known.filter(name => !isLine(name) || locks.length > 1);
 		if (!droppable.length) continue;
 		const weakest = droppable.slice().sort((a, b) => value(a) - value(b))[0];
 		// Three candidates, not one. An egg move can be refused for want of a
