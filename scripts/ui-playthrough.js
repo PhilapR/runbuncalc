@@ -1568,6 +1568,13 @@ async function playFight(page, plan, roster) {
 			await page.waitForTimeout(200);
 			continue;
 		}
+		// A sacrifice is rare and load-bearing, so it goes in the log. Every
+		// other turn's `why` lives only in `turns`, which is why the first
+		// attempt to check whether the sacrifice had ever fired came back zero
+		// and proved nothing at all.
+		if (choice.kind === 'switch' && /^spending /.test(choice.why || '')) {
+			note('sac', choice.why + ' — against ' + view.foe);
+		}
 		const selector = choice.kind === 'move' ?
 			'#runbun-run-battle-moves .runbun-run-battle-move[data-move="' +
 				choice.pick.move + '"]' :
