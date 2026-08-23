@@ -1219,6 +1219,31 @@ const BOOST_MOVES = new Set([
 const BOOST_VALUE = 50;
 
 /**
+ * The lines that are actually on the shelf.
+ *
+ * Screens and stat boosts turned out not to be obtainable this early: nine
+ * likely party members at L21 were offered none of them, in `now` or in
+ * `later`. These are what the same Pokemon ARE offered, and the driver ignored
+ * them for the same reason — `inflictedStatus` recognises a CONDITION, so a
+ * move that drops their Speed or restores our HP looked like nothing at all.
+ *
+ * A Speed drop is the direct answer to the sentence the threat line keeps
+ * printing: "you need 2 turns to KO, they need 2 — YOU LOSE THIS RACE". That
+ * race is lost on order, not on damage, and Cotton Spore takes two stages off
+ * it in one turn. Roselia is offered Cotton Spore, Sleep Powder, Stun Spore
+ * and Synthesis, and the driver was pressing none of them.
+ */
+const SLOW_MOVES = new Set([
+	'Cotton Spore', 'String Shot', 'Scary Face', 'Sticky Web', 'Tickle',
+]);
+const SLOW_VALUE = 95;
+const HEAL_MOVES = new Set([
+	'Synthesis', 'Recover', 'Roost', 'Life Dew', 'Moonlight', 'Morning Sun',
+	'Slack Off', 'Soft-Boiled', 'Milk Drink', 'Heal Order', 'Shore Up',
+]);
+const HEAL_VALUE = 85;
+
+/**
  * Moves that take two turns to land one hit: the chargers, the semi-invulnerable
  * turns, and the ones that spend the turn after. Halved rather than banned,
  * because a big enough number still wins some races.
@@ -1405,6 +1430,27 @@ function decide(view, memory, roster) {
 		return {kind: 'move', pick: {move: status.move},
 			why: 'to take a turn off it (' + status.status + ')'};
 	}
+	// The race is lost on ORDER at least as often as on damage: "you need 2
+	// turns to KO, they need 2" is decided by who moves first. Two stages off
+	// their Speed turns that sentence around and costs one turn to do. Once
+	// per opposing Pokemon, so a missed Cotton Spore cannot become a loop.
+	const slow = view.moves.find(entry => !entry.ball && SLOW_MOVES.has(entry.move));
+	if (slow && losingRace && view.risk !== 'lethal' && !memory.slowed.has(view.foe)) {
+		memory.slowed.add(view.foe);
+		return {kind: 'move', pick: {move: slow.move},
+			why: 'setting the race straight with ' + slow.move};
+	}
+	// Healing is worth a turn when it buys back more than one. Below half, a
+	// fifty percent restore puts two more turns between us and the KO the
+	// threat line is counting down to. Twice a fight, never while a crit lands
+	// first, and never instead of a KO.
+	const heal = view.moves.find(entry => !entry.ball && HEAL_MOVES.has(entry.move));
+	if (heal && view.usHp > 0 && view.usHp <= 50 &&
+		view.risk !== 'lethal' && memory.healed < 2) {
+		memory.healed += 1;
+		return {kind: 'move', pick: {move: heal.move},
+			why: 'setting the trade back up with ' + heal.move};
+	}
 	// Setting up is the other half of a line, and it comes AFTER taking their
 	// turn away: a sleeping opponent is what makes the boost free. Only while
 	// we can afford the turn, and twice at most — a third is a Pokemon that
@@ -1542,6 +1588,8 @@ async function assumeTms(page, roster) {
 		const value = name => {
 			// Priced before base power is consulted, because these have none.
 			if (SCREEN_MOVES.has(name)) return SCREEN_VALUE;
+			if (SLOW_MOVES.has(name)) return SLOW_VALUE;
+			if (HEAL_MOVES.has(name)) return HEAL_VALUE;
 			if (BOOST_MOVES.has(name)) return BOOST_VALUE;
 			const base = bp(name);
 			if (!base) return 0;
@@ -1634,7 +1682,7 @@ async function openFight(page) {
 
 async function playFight(page, plan, roster) {
 	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0,
-		sacked: 0, screens: new Set(), boosts: 0};
+		sacked: 0, screens: new Set(), boosts: 0, slowed: new Set(), healed: 0};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {
