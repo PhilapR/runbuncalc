@@ -2,6 +2,7 @@ export * from './actions';
 export * from './accuracy';
 export * from './calc-adapter';
 export * from './decision';
+export * from './dex-facts';
 export * from './end-turn';
 export * from './eligibility';
 export * from './entry-hazards';

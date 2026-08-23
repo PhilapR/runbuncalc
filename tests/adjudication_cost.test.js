@@ -77,19 +77,22 @@ test('a twelve-rollout adjudication stays inside its object budget', () => {
 	const played = driver.adjudicate(doc, 'Leader Brawly', {rollouts: 12});
 	assert.equal(played.rollouts, 12, 'the fixture must actually play twelve');
 
-	// Measured 24,128 Move and 9,168 Pokemon — 33,296 together. It was 66,768
-	// before the immutable dex facts behind `Calc.Move(gen, name).flags?.sound`
-	// and its two neighbours were cached: 24,480 of those existed to read one
-	// boolean, on every damage calculation, for every move the defender owns.
+	// Measured 17,264 Move and 2,450 Pokemon — 19,714 together, from 66,768.
+	// Three caches got it there: the immutable dex facts behind
+	// `Calc.Move(gen, name).flags?.sound` and `.target`, which were 31,344
+	// objects built to read one field each; and unboosted Speed, which was
+	// 6,720 Pokemon built to read one number.
 	const total = moves + pokemon;
-	assert.ok(total < 40000,
+	assert.ok(total < 24000,
 		`an adjudication built ${total.toLocaleString()} calculator objects; ` +
-		'the budget is 40,000 and the measured cost is 33,296');
+		'the budget is 24,000 and the measured cost is 19,714');
 
-	// And the halving specifically: a regression that reintroduced per-call
-	// construction would show up here first, because Moves are what moved.
-	assert.ok(moves < 30000,
-		`${moves.toLocaleString()} Move objects, against a measured 24,128`);
+	// Each half separately, so a regression in one cannot hide behind headroom
+	// in the other.
+	assert.ok(moves < 21000,
+		`${moves.toLocaleString()} Move objects, against a measured 17,264`);
+	assert.ok(pokemon < 4000,
+		`${pokemon.toLocaleString()} Pokemon objects, against a measured 2,450`);
 });
 
 test('the cached dex facts differ by generation, so the key must carry one', () => {
@@ -112,4 +115,58 @@ test('the cached dex facts differ by generation, so the key must carry one', () 
 	assert.equal(ai.getMoveMetadata('Bite', 8).category, 'Physical');
 	assert.equal(ai.getMoveMetadata('Bite', 3).category, 'Special',
 		'asking again the other way round must not have been poisoned');
+});
+
+test('the speed cache rests on what actually moves stats.spe', () => {
+	// order.ts caches unboosted Speed, because building a Pokemon to read one
+	// number was 6,720 constructions in a twelve-rollout adjudication — a
+	// quarter of every calculator object it made. The cache is only safe while
+	// the two lists below hold, and they were established by probing the
+	// calculator rather than by reading it. If a future calculator lets an
+	// item or an ability move base stats, this fails, and the cache has to go
+	// before anything else does.
+	const gen = Calc.Generations.get(8);
+	const EVS = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+	const base = {level: 50, nature: 'Hardy',
+		ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31}, evs: EVS};
+	const spe = extra => new Calc.Pokemon(gen, 'Poochyena',
+		Object.assign({}, base, extra)).stats.spe;
+	const reference = spe({});
+
+	// In the key, because they move it.
+	const keyed = [
+		{label: 'level', extra: {level: 51}},
+		{label: 'nature', extra: {nature: 'Jolly'}},
+		{label: 'ivs.spe', extra: {ivs: Object.assign({}, base.ivs, {spe: 0})}},
+		{label: 'evs.spe', extra: {evs: Object.assign({}, EVS, {spe: 252})}},
+		{label: 'statOverrides.spe',
+			extra: {statOverrides: {hp: 100, atk: 50, def: 50, spa: 50, spd: 50, spe: 999}}},
+		{label: 'overrides.baseStats',
+			extra: {overrides: {baseStats: {hp: 35, atk: 55, def: 35, spa: 30, spd: 30, spe: 200}}}},
+	];
+	for (const probe of keyed) {
+		assert.notEqual(spe(probe.extra), reference,
+			`${probe.label} must move stats.spe — the speed cache keys on it`);
+	}
+
+	// NOT in the key, because they do not move it. These are the ones that
+	// change mid-battle, which is exactly why a cached base speed can be
+	// shared across a fight: order.ts applies each of them by hand afterwards.
+	const unkeyed = [
+		{label: 'boosts', extra: {boosts: {atk: 0, def: 0, spa: 0, spd: 0, spe: 2}}},
+		{label: 'status', extra: {status: 'par'}},
+		{label: 'item', extra: {item: 'Choice Scarf'}},
+		{label: 'ability', extra: {ability: 'Swift Swim'}},
+		{label: 'teraType', extra: {teraType: 'Water'}},
+	];
+	for (const probe of unkeyed) {
+		assert.equal(spe(probe.extra), reference,
+			`${probe.label} must NOT move stats.spe — the speed cache omits it ` +
+			'from its key, and order.ts applies it by hand to the cached base');
+	}
+
+	// The same fact read the other way: because the constructor drops the
+	// boosts it is handed, applying the boost multiplier afterwards is not
+	// double counting.
+	assert.equal(spe({boosts: {atk: 0, def: 0, spa: 0, spd: 0, spe: 6}}), reference);
 });

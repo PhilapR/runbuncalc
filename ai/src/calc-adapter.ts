@@ -1,4 +1,5 @@
 import * as Calc from '@smogon/calc';
+import {bareMoveFacts} from './dex-facts';
 import {getCalculatorAbility, getEffectiveAbility, getGenerationAbility, isAbilityActive, isAbilityAvailable, isSlowStartActive} from './abilities';
 import {enumerateMoveActions, getPokemon, isDisguiseActive, isRainWeather, isSunWeather, isWeatherSuppressed} from './actions';
 import {DamageInput, makeDamageFacts} from './facts';
@@ -376,38 +377,6 @@ function availableMoveNames(state: BattleState, pokemon: PokemonState): string[]
   return pokemon.moves
     .filter(move => isMoveAvailable(move.name, state.generation))
     .map(move => move.name);
-}
-
-/**
- * Immutable dex facts about a move, read without building a Move to read them.
- *
- * A 12-rollout adjudication constructed 66,768 calculator objects, and 24,480
- * of them were one line: `new Calc.Move(gen, name).flags?.sound`, built for
- * every defender move on every damage calculation to read a single boolean.
- * Another 6,360 existed only to ask whether `flags` was defined at all, and
- * 2,640 to read a category.
- *
- * These depend on nothing but the generation and the move name — they are
- * properties of the dex entry, not of the battle — so they are cached the way
- * getMoveMetadata already caches its own lookup. Primitives are returned
- * rather than the Move itself: a shared mutable calculator object escaping
- * into a caller is a different and much worse bug than a slow one.
- */
-const BARE_MOVE_FACTS = new Map<string, {category: Calc.Move['category'];
-  sound: boolean; hasFlags: boolean}>();
-
-function bareMoveFacts(gen: ReturnType<typeof Calc.Generations.get>, moveName: string) {
-  const key = `${gen.num}|${moveName}`;
-  const cached = BARE_MOVE_FACTS.get(key);
-  if (cached) return cached;
-  const move = new Calc.Move(gen, moveName);
-  const facts = {
-    category: move.category,
-    sound: !!move.flags?.sound,
-    hasFlags: move.flags !== undefined,
-  };
-  BARE_MOVE_FACTS.set(key, facts);
-  return facts;
 }
 
 function canonicalCalculatorFallback(

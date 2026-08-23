@@ -1,4 +1,5 @@
 import * as Calc from '@smogon/calc';
+import {bareMoveFacts} from './dex-facts';
 import {getEffectiveAbility, isAbilityActive, isAbilityAvailable} from './abilities';
 import {isItemEffectActive, preventsAbilityChange} from './items';
 import {Action, BattleState, MoveAction, MoveTarget, PokemonState, SideId, SwitchAction, Weather} from './model';
@@ -205,7 +206,7 @@ function targetForMove(state: BattleState, move: PokemonState['moves'][number]):
   // the shared metadata boundary for those names instead of throwing.
   try {
     const gen = Calc.Generations.get(state.generation);
-    return new Calc.Move(gen, move.name).target as MoveTarget;
+    return bareMoveFacts(gen, move.name).target as MoveTarget;
   } catch {
     return getMoveMetadata(move.name, state.generation).target || 'normal';
   }
