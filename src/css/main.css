@@ -2493,6 +2493,19 @@ table.field {
 	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 }
+/* The rolled identity sits with the odds, one notch brighter: the odds are a
+   quote, this is what the die already decided and the keep-or-flee decision
+   turns on it. */
+#runbun-run .runbun-run-roll-identity {
+	display: block;
+	margin-top: var(--rb-space-xs);
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-roll-identity:empty {
+	display: none;
+}
 #runbun-run #runbun-run-roll-method {
 	min-width: 7em;
 }

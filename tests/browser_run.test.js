@@ -2176,6 +2176,51 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	await session.context.close();
 });
 
+test('the roll shows the identity it already rolled, before keep or flee', {skip}, async () => {
+	// The roll authors an identity — six IVs, a nature, an ability — and hands
+	// it straight to the catch command. None of it was on screen, so the one
+	// decision a nuzlocke route allows was made blind to the part of it that
+	// was already decided. IV total is the number that matters most: a wild
+	// roll averages 93 against the flat 186 every trainer is built with.
+	const session = await open();
+	const page = session.page;
+	await page.check('#runbun-run-new-route');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	await page.waitForFunction(
+		() => (document.querySelector('#runbun-run-roll-identity') || {}).textContent,
+		null, {timeout: 10000});
+	const shown = await page.textContent('#runbun-run-roll-identity');
+
+	// It has to be the SAME identity the catch then stores — a quote that
+	// drifts from what lands in the box is worse than no quote.
+	await page.click('#runbun-run-roll-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
+		null, {timeout: 10000});
+	const caught = (await savedRun(page)).box[1];
+	const total = ['hp', 'atk', 'def', 'spa', 'spd', 'spe']
+		.reduce((sum, stat) => sum + caught.ivs[stat], 0);
+	assert.match(shown, new RegExp('IV ' + total + '/186'),
+		'the quoted IV total must be the one the catch stores');
+	assert.ok(shown.includes(caught.nature), `nature ${caught.nature} missing from "${shown}"`);
+	assert.ok(shown.includes(caught.ability), `ability ${caught.ability} missing from "${shown}"`);
+
+	// A settled roll takes its card away, so the quote cannot outlive the
+	// decision it was for.
+	assert.equal(await page.isVisible('#runbun-run-roll-result'), false);
+	await session.context.close();
+});
+
 test('the box says what each Pokemon rolled, against what a trainer gets', {skip}, async () => {
 	// Every trainer Pokemon is built with 31s — 186 total. Every wild catch
 	// keeps what it rolled: a mean of 93, and a spread across a box from about

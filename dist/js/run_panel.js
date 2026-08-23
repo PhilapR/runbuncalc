@@ -2729,6 +2729,20 @@
 			' appeared! (' + rolled.method + ' · ' + rolled.chance + '%)' +
 			(rolled.pull ? ' — ' + rolled.pull.ability + ' pulled the ' +
 				rolled.pull.type + '-type out of the grass!' : ''));
+		// What the die already decided, before the keep-or-flee decision that
+		// depends on it. The roll authors an identity — six IVs, a nature and
+		// an ability — and hands it straight to the catch command; none of it
+		// was on screen. A nuzlocke route gives ONE encounter, and the number
+		// that most decides whether this one is worth building on is the IV
+		// total: a wild roll averages 93 against the flat 186 every trainer
+		// is built with, and the spread across a box is nearly as wide as
+		// that deficit. Asking for keep-or-flee while withholding it made the
+		// decision blind to the only part of it that is already known.
+		$('#runbun-run-roll-identity').text([
+			rolled.ivs ? ivLabel({ivs: rolled.ivs}) : null,
+			rolled.nature || null,
+			rolled.ability || null,
+		].filter(Boolean).join(' · '));
 		$('#runbun-run-roll-result').prop('hidden', false);
 		// The battle/keep/flee decision wants the same numbers the fight's
 		// ball buttons will wear — quoted here at full HP, before committing.
