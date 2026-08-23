@@ -960,6 +960,21 @@
 			"fixed_in": "6c08bb8",
 			"falsified": 1,
 			"evidence": "paintRoll printed species, level, method, encounter chance and a catch-odds quote. rolled.ivs, rolled.nature and rolled.ability were all in hand — run_panel.js:3113 passes exactly those into the catch command, and lib/run.js rollIdentity is documented as \"the one author of a rolled Pokemon identity\" so a client never invents them. They reached the box and the summary screen, one Pokemon at a time, AFTER the decision that depended on them. IV total is the one that matters most and it is measurable: a wild roll averages 93 of 186 while every trainer Pokemon is built with a flat 31 across the board, and the spread inside a single box runs about 56 to 130 — so the difference between the best and worst catch you own is nearly the size of the deficit to every opponent. At L21 that is 3-4 points in every stat, 5% of a Prinplup's HP and 10% of its Defence, landing on both sides of the exchange. FIXED: the card now carries \"IV 118/186 · Adamant · Torrent\" beside the odds. Gated in the browser against the catch that follows — a quote that drifts from what lands in the box is worse than no quote — and falsified by withholding the total, which reddens it."
+		},
+		{
+			"id": "ranker-played-four-copies-of-one-six",
+			"source": "review/self",
+			"raised_on": "2026-08-23",
+			"severity": "high",
+			"area": "solver",
+			"file": "lib/run.js",
+			"line": 3399,
+			"claim": "The ranker spent 48 seeded rollouts — 78% of a fight cycle — adjudicating four candidate sixes that were near-duplicates of each other. It played the same team four times and called it four opinions.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "23dc13a",
+			"falsified": 1,
+			"evidence": "Found while profiling where a fight cycle goes: /run/rank 78%, /run/advise 18%, /run/matrix 4%, and the battle engine itself 1% — a turn is 5ms, opening a fight is 10ms. Within rank, the exhaustive C(box,6) enumeration everyone would suspect is 5%; the other 95% is 4 parties x 12 seeded rollouts.\n\nThe cause is scoreSix: it scores a six by the best answer per enemy column, so swapping the member that answers nothing changes no column and no score. The shortlist it produces is therefore systematically near-duplicates. Measured over twelve fights with a fourteen-strong box and varied IVs: the top four ALWAYS shared five of six members and carried one identical grid score; all four adjudications returned the same pWin and the same eDeaths in eleven of twelve; and playing them reordered the top six ZERO times. Thirty-six of the forty-eight rollouts were replaying one team.\n\nA first attempt at early elimination saved exactly nothing, and that is what exposed this: parties either won 12/12 or lost 0/12 together, so no party ever fell behind another far enough to stop. The degeneracy was the finding, not the optimisation.\n\nFIXED: candidates are now picked for DISTANCE as well as rank — the best six, then the best that differs from every chosen one by at least two members. Same budget when four genuinely different sixes exist; fewer rollouts rather than repeated ones when they do not. Measured 4 adjudications down to a mean of 1.17, 48 rollouts to 14, /run/rank 11,275ms to 5,161ms, and a fight cycle from ~14.5s to ~8.9s. Gated on pairwise distinctness and falsified by adjudicating the first four regardless."
 		}
 	]
 }
