@@ -77,21 +77,27 @@ test('a twelve-rollout adjudication stays inside its object budget', () => {
 	const played = driver.adjudicate(doc, 'Leader Brawly', {rollouts: 12});
 	assert.equal(played.rollouts, 12, 'the fixture must actually play twelve');
 
-	// Measured 17,264 Move and 2,450 Pokemon — 19,714 together, from 66,768.
-	// Three caches got it there: the immutable dex facts behind
-	// `Calc.Move(gen, name).flags?.sound` and `.target`, which were 31,344
-	// objects built to read one field each; and unboosted Speed, which was
-	// 6,720 Pokemon built to read one number.
+	// Measured 10,544 Move and 2,450 Pokemon — 12,994 together, from 66,768.
+	// Four changes got it there. Three cached what does not vary: the dex
+	// facts behind `Calc.Move(gen, name).flags?.sound` and `.target`, which
+	// were 31,344 objects built to read one field each, and unboosted Speed,
+	// which was 6,720 Pokemon built to read one number. The fourth cached
+	// nothing and simply stopped building a Move the caller usually never
+	// read — order.ts made one eagerly for a `??` fallback that the metadata
+	// boundary almost always satisfies first.
+	//
+	// What is left is mostly real work: two Moves per damage calculation, the
+	// ordinary one and the crit variant, each feeding a Calc.calculate.
 	const total = moves + pokemon;
-	assert.ok(total < 24000,
+	assert.ok(total < 16000,
 		`an adjudication built ${total.toLocaleString()} calculator objects; ` +
-		'the budget is 24,000 and the measured cost is 19,714');
+		'the budget is 16,000 and the measured cost is 12,994');
 
 	// Each half separately, so a regression in one cannot hide behind headroom
 	// in the other.
-	assert.ok(moves < 21000,
-		`${moves.toLocaleString()} Move objects, against a measured 17,264`);
-	assert.ok(pokemon < 4000,
+	assert.ok(moves < 13000,
+		`${moves.toLocaleString()} Move objects, against a measured 10,544`);
+	assert.ok(pokemon < 3500,
 		`${pokemon.toLocaleString()} Pokemon objects, against a measured 2,450`);
 });
 

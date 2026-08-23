@@ -69,22 +69,34 @@ function moveOrderData(state: BattleState, action: MoveAction, actor: PokemonSta
   const metadata = moveState
     ? getEffectiveMoveMetadata(moveState, state.generation)
     : getMoveMetadata(action.moveName, state.generation);
+  // Built only if one of the three fallbacks below actually needs it. It was
+  // constructed eagerly and then usually not read at all — the metadata
+  // boundary supplies category, type and priority for almost every move — at
+  // 2,616 Moves per matchup board. It cannot be cached like the bare dex
+  // facts, because ability, item, species and the Z/Max flags all change what
+  // the calculator answers, so laziness is the whole win here.
   let canonicalMove: Calc.Move | undefined;
-  try {
-    canonicalMove = new Calc.Move(gen, action.moveName, {
-      ability: getCalculatorAbility(state, actor),
-      item: getEffectiveCalculatorItem(state, actor),
-      species: getEffectiveSpecies(actor),
-      useZ: action.useZ || moveState?.useZ,
-      useMax: action.useMax || moveState?.useMax,
-    });
-  } catch {
-    // Caller-defined and calculator-fallback moves still have a deterministic
-    // default order slot even when the inherited calculator has no Move entry.
-  }
-  const moveCategory = metadata.category ?? canonicalMove?.category;
-  const moveType = metadata.type ?? canonicalMove?.type;
-  let priority = moveState?.priority ?? metadata.priority ?? canonicalMove?.priority ?? 0;
+  let canonicalBuilt = false;
+  const canonical = (): Calc.Move | undefined => {
+    if (canonicalBuilt) return canonicalMove;
+    canonicalBuilt = true;
+    try {
+      canonicalMove = new Calc.Move(gen, action.moveName, {
+        ability: getCalculatorAbility(state, actor),
+        item: getEffectiveCalculatorItem(state, actor),
+        species: getEffectiveSpecies(actor),
+        useZ: action.useZ || moveState?.useZ,
+        useMax: action.useMax || moveState?.useMax,
+      });
+    } catch {
+      // Caller-defined and calculator-fallback moves still have a deterministic
+      // default order slot even when the inherited calculator has no Move entry.
+    }
+    return canonicalMove;
+  };
+  const moveCategory = metadata.category ?? canonical()?.category;
+  const moveType = metadata.type ?? canonical()?.type;
+  let priority = moveState?.priority ?? metadata.priority ?? canonical()?.priority ?? 0;
   if (isAbilityActive(actor, state) && state.generation >= 5 && id(getEffectiveAbility(actor)) === 'prankster' && moveCategory === 'Status') {
     priority += 1;
   }
