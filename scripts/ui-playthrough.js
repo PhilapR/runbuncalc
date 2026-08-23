@@ -1243,6 +1243,12 @@ const HEAL_MOVES = new Set([
 ]);
 const HEAL_VALUE = 85;
 
+/** Anything that plays a line instead of trading damage. */
+function isLineMove(name) {
+	return !!inflictedStatus(name) || SLOW_MOVES.has(name) || HEAL_MOVES.has(name) ||
+		SCREEN_MOVES.has(name) || BOOST_MOVES.has(name);
+}
+
 /**
  * Moves that take two turns to land one hit: the chargers, the semi-invulnerable
  * turns, and the ones that spend the turn after. Halved rather than banned,
@@ -1529,6 +1535,16 @@ function decide(view, memory, roster) {
 async function assumeTms(page, roster) {
 	// Read once, not per Pokemon: the board is the same for all six.
 	const enemies = await upcomingEnemyTypes(page);
+	// ONE line in the party — not none, and not six. Priced honestly against
+	// damage a slow is worth 95 and a heal 85, which is the right rank for a
+	// fourth moveslot and the wrong rank for a team: real attacks score 150 to
+	// 330, so a line never reached the shortlist and was never taught. The
+	// fight logs showed it exactly — 41 sacrifices went in without a single
+	// Speed drop behind them, because nobody in the party had one to press.
+	//
+	// So the first line the party can get is bought at any price, and every
+	// candidate after that is ranked the ordinary way.
+	let partyHasLine = roster.some(mon => (mon.moves || []).some(isLineMove));
 	for (const mon of roster.filter(entry => entry.status !== 'dead').slice(0, PARTY_LIMIT)) {
 		if (outOfTime()) return;
 		// Only when something changed. Asking for every party member every
@@ -1625,26 +1641,36 @@ async function assumeTms(page, roster) {
 		// that was already here — never trade away the LAST one — generalised,
 		// because the first run after the lines went in taught a Bayleef Solar
 		// Beam over its Synthesis and threw the line away to gain damage.
-		const isLine = name => !!inflictedStatus(name) || SLOW_MOVES.has(name) ||
-			HEAL_MOVES.has(name) || SCREEN_MOVES.has(name);
-		const locks = known.filter(isLine);
-		const ranked = offered.filter(name => known.indexOf(name) === -1)
+		const locks = known.filter(isLineMove);
+		let ranked = offered.filter(name => known.indexOf(name) === -1)
 			.sort((a, b) => value(b) - value(a));
-		const droppable = known.filter(name => !isLine(name) || locks.length > 1);
+		// The party has no line at all: take the best one on offer here first,
+		// ahead of any attack. Only until one lands.
+		if (!partyHasLine) {
+			const lines = ranked.filter(isLineMove);
+			if (lines.length) ranked = lines.concat(ranked.filter(name => !isLineMove(name)));
+		}
+		const droppable = known.filter(name => !isLineMove(name) || locks.length > 1);
 		if (!droppable.length) continue;
 		const weakest = droppable.slice().sort((a, b) => value(a) - value(b))[0];
 		// Three candidates, not one. An egg move can be refused for want of a
 		// Heart Scale, and giving up on the Pokemon at the first refusal would
 		// cost it the ordinary TM underneath — which is what it used to get.
 		for (const best of ranked.slice(0, 3)) {
-			if (value(best) === 0) break;
-			if (weakest && value(best) <= value(weakest)) break;
+			// Buying the party's first line is exempt from the comparison
+			// below: a slow at 95 will never beat the attack it is replacing,
+			// which is the whole reason none was ever taught.
+			const buyingLine = !partyHasLine && isLineMove(best);
+			if (value(best) === 0 && !buyingLine) break;
+			if (!buyingLine && weakest && value(best) <= value(weakest)) break;
 			await page.fill('#runbun-run-move', best);
 			await page.selectOption('#runbun-run-replace', known.length >= 4 ? weakest : '');
 			const taught = await act(page, 'assume ' + best, () => page.click('#runbun-run-teach'));
 			if (taught.changed) {
+				if (isLineMove(best)) partyHasLine = true;
 				note('tm', mon.species + ' learned ' + best + ' (' + bp(best) + ' BP, ' +
-					Math.round(value(best)) + ' against this fight)' +
+					Math.round(value(best)) + ' against this fight' +
+					(buyingLine ? ', the party had no line' : '') + ')' +
 					(known.length >= 4 ? ' over ' + weakest : ''));
 				break;
 			}
