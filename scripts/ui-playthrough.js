@@ -1373,23 +1373,26 @@ function decide(view, memory, roster) {
 		// one every time the threat line said the race was lost — switching
 		// from a healthy Prinplup into a Bunnelby that died in two turns.
 		// Swapping one losing matchup for another is worse than attacking.
-		if (replacement && replacement.taking < 1) {
-			memory.switchedFor.add(view.foe);
-			return {kind: 'switch', pick: replacement,
-				why: (losingRace ? 'the race is lost' : 'a crit KOs us') +
-					', and this one resists'};
-		}
-		// Nothing resists and the race is lost, so the exchange is going to be
-		// paid for either way. Spend a body we do not need instead of the one
-		// we do: the sacrifice takes the hit, and the forced replacement that
-		// follows brings the counter in for free rather than into a hit.
-		// Twice a fight — a third is no longer a tactic, it is the party.
-		const fodder = memory.sacked < 2 ? sacSwitch(view, roster) : null;
+		const answer = replacement && replacement.taking < 1 ? replacement : null;
+		// The sacrifice exists to bring THE ANSWER in free, so it is only
+		// worth paying when there is an answer to bring in. The first version
+		// ran it as a fallback after the resist check had already failed —
+		// which is precisely when nothing is waiting, so it spent a body to
+		// buy nothing and donated a KO. It fired 13 times against Brawly and
+		// moved the wipe from turn 20 to turn 25 without ever winning, which
+		// is what paying for nothing looks like.
+		const fodder = answer && memory.sacked < 2 ? sacSwitch(view, roster) : null;
 		if (fodder) {
 			memory.sacked += 1;
-			memory.switchedFor.add(view.foe);
 			return {kind: 'switch', pick: fodder,
-				why: 'spending ' + fodder.species + ' to bring the answer in free'};
+				why: 'spending ' + fodder.species + ' so ' + answer.species +
+					' comes in free'};
+		}
+		if (answer) {
+			memory.switchedFor.add(view.foe);
+			return {kind: 'switch', pick: answer,
+				why: (losingRace ? 'the race is lost' : 'a crit KOs us') +
+					', and this one resists'};
 		}
 	}
 	if (move) return {kind: 'move', pick: move, why: 'highest floor'};
