@@ -926,6 +926,16 @@ async function applyUpgrade(page, row) {
 	if (/Give item/.test(row.kind)) {
 		const item = (/^(.+?)(?: over .+)?$/.exec(row.what) || [])[1];
 		if (!item || notHoldable.has(item)) return false;
+		// Same failure as the move select below: an item spent by an earlier
+		// row is no longer an option, and selectOption throws rather than
+		// declines.
+		const stocked = await page.evaluate(name => Array.from(
+			document.querySelectorAll('#runbun-run-hold-item option'))
+			.some(el => el.value === name), item);
+		if (!stocked) {
+			note('advise', row.who + ' cannot hold ' + item + ' — not in the bag any more');
+			return false;
+		}
 		await page.selectOption('#runbun-run-hold-item', item);
 		const given = await act(page, 'give ' + item, () => page.click('#runbun-run-give'));
 		if (!given.changed) {
@@ -939,7 +949,24 @@ async function applyUpgrade(page, row) {
 		const parsed = /^(.+?)(?: over (.+?))?(?: \(one Heart Scale\))?$/.exec(row.what);
 		if (!parsed) return false;
 		await page.fill('#runbun-run-move', parsed[1]);
-		await page.selectOption('#runbun-run-replace', parsed[2] || '');
+		// The advice was priced against the moveset as it was, and applying an
+		// earlier row can change it — so the move this row wants to drop is
+		// sometimes already gone. selectOption then retries for thirty seconds
+		// and THROWS, which killed the whole playthrough from inside
+		// followAdvice; k-1, h-2 and h-5 all die exactly here. A row that no
+		// longer applies is an ordinary skip, not the end of the run.
+		const dropping = parsed[2] || '';
+		if (dropping) {
+			const offered = await page.evaluate(name => Array.from(
+				document.querySelectorAll('#runbun-run-replace option'))
+				.some(el => el.value === name), dropping);
+			if (!offered) {
+				note('advise', row.who + ' no longer knows ' + dropping +
+					' — skipping "' + row.what + '"');
+				return false;
+			}
+		}
+		await page.selectOption('#runbun-run-replace', dropping);
 		const taught = await act(page, 'teach ' + parsed[1],
 			() => page.click('#runbun-run-teach'));
 		if (!taught.changed) {
