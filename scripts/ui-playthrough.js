@@ -680,15 +680,62 @@ async function matrixParty(page) {
 		}));
 		const ours = read(tables[0]);
 		const theirs = read(tables[1]);
+		// Per ENEMY, not summed. Who beats whom is the thing a six has to
+		// cover, and a total throws that away before anyone can read it.
 		return ours.map((row, i) => {
 			const against = (theirs[i] || {}).cells || [];
-			const deal = row.cells.reduce((a, b) => a + b, 0);
-			const take = against.reduce((a, b) => a + b, 0);
-			return {name: row.name.trim(), score: deal - take};
+			return {
+				name: row.name.trim(),
+				margins: row.cells.map((deal, j) => deal - (against[j] || 0)),
+			};
 		});
 	});
 	if (scored.length < 2) return false;
-	scored.sort((a, b) => b.score - a.score);
+	// A gym is fought in sequence: six of ours against seven of theirs, one at
+	// a time. Ranking by the SUM of the margins picks six generalists, and
+	// against Brawly it picked six that were each negative overall — the board
+	// read -21, -62, -213, -218, -267, -327 and the fight was lost before it
+	// started. A specialist that beats two of his seven and loses to the rest
+	// sums to something awful and is exactly who should be on the team.
+	//
+	// So: greedily take whoever adds the most on the enemies nobody covers
+	// yet. The sum survives as the tie-break, which is what decides the whole
+	// order when every margin is negative — the old behaviour, kept for the
+	// case where there is genuinely nothing to cover.
+	const covered = new Set();
+	const picked = [];
+	const total = row => row.margins.reduce((a, b) => a + b, 0);
+	while (picked.length < PARTY_LIMIT && picked.length < scored.length) {
+		let best = null;
+		let bestKey = -Infinity;
+		for (const row of scored) {
+			if (picked.indexOf(row) !== -1) continue;
+			let gain = 0;
+			row.margins.forEach((margin, j) => {
+				if (margin > 0 && !covered.has(j)) gain += margin;
+			});
+			const key = gain * 1000 + total(row);
+			if (key > bestKey) {
+				bestKey = key;
+				best = row;
+			}
+		}
+		if (!best) break;
+		best.margins.forEach((margin, j) => {
+			if (margin > 0) covered.add(j);
+		});
+		picked.push(best);
+	}
+	// The covering six lead, and everyone else follows in sum order: the
+	// matcher below drops a row whose species is already spoken for, so it
+	// needs somewhere to fall back to or a box with dupes returns no party.
+	const rest = scored.filter(row => picked.indexOf(row) === -1)
+		.sort((a, b) => total(b) - total(a));
+	scored.length = 0;
+	scored.push(...picked, ...rest);
+	scored.forEach(row => {
+		row.score = total(row);
+	});
 	const view = await readRun(page);
 	const alive = view.box.filter(mon => mon.status !== 'dead');
 	const wanted = [];
