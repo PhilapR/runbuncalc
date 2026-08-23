@@ -512,6 +512,40 @@
 	}
 
 	var IV_LABELS = {hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe'};
+	var IV_MAX_TOTAL = 6 * 31;
+
+	/**
+	 * A Pokemon's IV total, against the 186 every trainer is built with.
+	 *
+	 * The per-stat breakdown is on the summary screen, one Pokemon at a time,
+	 * which is the wrong shape for the question it answers: which of these is
+	 * worth building on. A wild catch rolls a mean of 93 and a spread from
+	 * about 56 to 130 across a box, while every trainer Pokemon is a flat 186
+	 * — so the gap between the best and worst catch in a box is roughly the
+	 * size of the deficit to the opponent, and nothing on screen said so.
+	 *
+	 * A partial record is NOT summed as if the gaps were zero. An imported
+	 * entry with three stats recorded is a different thing from one that
+	 * genuinely rolled low, and the two must not print the same.
+	 */
+	function ivTotal(mon) {
+		var known = 0;
+		var sum = 0;
+		Object.keys(IV_LABELS).forEach(function (stat) {
+			if (!mon.ivs || !Object.prototype.hasOwnProperty.call(mon.ivs, stat)) return;
+			known += 1;
+			sum += Number(mon.ivs[stat]) || 0;
+		});
+		return {sum: sum, known: known, missing: Object.keys(IV_LABELS).length - known};
+	}
+
+	/** The scannable form: "IV 118/186", or what is missing if it cannot say. */
+	function ivLabel(mon) {
+		var total = ivTotal(mon);
+		if (!total.known) return 'IV not recorded';
+		if (total.missing) return 'IV ' + total.sum + '+ · ' + total.missing + ' not recorded';
+		return 'IV ' + total.sum + '/' + IV_MAX_TOTAL;
+	}
 
 	// This panel never rolls an identity. IVs, nature, and ability are
 	// authored by the server's die (/run/encounter, /run/identity) and only
@@ -822,8 +856,18 @@
 		var lost = payload.box.filter(function (mon) { return mon.status === 'dead'; });
 		var party = state.party;
 		var reserve = alive.filter(function (mon) { return party.indexOf(mon.id) === -1; });
+		// The box's IV picture beside its size. The MEDIAN is the honest
+		// summary — a mean moves with one lucky catch — and 186 travels with
+		// it so the number carries its own scale instead of needing one.
+		var totals = alive.filter(function (mon) { return !ivTotal(mon).missing; })
+			.map(function (mon) { return ivTotal(mon).sum; })
+			.sort(function (a, b) { return a - b; });
+		var median = !totals.length ? null : totals.length % 2 ?
+			totals[(totals.length - 1) / 2] :
+			Math.round((totals[totals.length / 2 - 1] + totals[totals.length / 2]) / 2);
 		$('#runbun-run-box-counts').text(reserve.length + ' reserve' +
-			(lost.length ? ' · ' + lost.length + ' lost' : ''));
+			(lost.length ? ' · ' + lost.length + ' lost' : '') +
+			(median === null ? '' : ' · IV median ' + median + '/' + IV_MAX_TOTAL));
 
 		function matches(mon) {
 			if (!filter) return true;
@@ -864,7 +908,8 @@
 					'killed by ' + mon.died.to +
 						(mon.died.move ? "'s " + mon.died.move : '') :
 					[types.length ? types.join('/') : null,
-						mon.ability || 'ability not recorded', mon.item, mon.origin && mon.origin.mapName ?
+						mon.ability || 'ability not recorded', ivLabel(mon),
+						mon.item, mon.origin && mon.origin.mapName ?
 							mon.origin.method + ' · ' + displayText(mon.origin.mapName) :
 							'gift / static / trade']
 						.filter(Boolean).join(' · ')));
@@ -907,6 +952,7 @@
 				$copy.append($('<span class="runbun-run-party-meta"></span>').text(
 					(types.length ? types.join('/') + ' · ' : '') +
 						(mon.ability || 'ability not recorded') + ' · ' +
+						ivLabel(mon) + ' · ' +
 						(mon.item || 'No held item') + ' · ' + mon.moves.length +
 						(mon.moves.length === 1 ? ' move' : ' moves')));
 			}

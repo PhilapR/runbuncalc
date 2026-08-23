@@ -81,6 +81,7 @@ const TMS = flag('tms', 'advisor');
 // costs nothing and retrying is ordinary play; under `hardcore` a wipe has
 // usually already taken the Pokemon that made the attempt worth repeating.
 const RETRIES = Number(flag('retries', 3));
+const BOSS_RETRIES = Number(flag('boss-retries', 40));
 const HEADED = process.argv.includes('--headed');
 
 const started = Date.now();
@@ -152,6 +153,11 @@ function readRun(page) {
 				id: mon.id, species: mon.species, level: mon.level,
 				status: mon.status, moves: (mon.moves || []).slice(),
 				item: mon.item || null,
+				// Trainer teams are built with 31s; a wild catch keeps what it
+				// rolled, mean 15.5. That gap is worth 3-4 points a stat at
+				// L21 — a candidate explanation for why one box beats a wall
+				// and the next cannot, so it has to be recorded to be tested.
+				ivs: mon.ivs || null,
 			})) : [],
 			bag: run ? run.bag : {},
 		};
@@ -366,7 +372,29 @@ async function equipParty(page) {
 		if (!await selectMon(page, mon.id)) continue;
 		const options = await page.$$eval('#runbun-run-hold-item option',
 			els => els.map(el => el.value).filter(Boolean));
-		const wanted = options.find(item => !notHoldable.has(item));
+		// A type-boost item is worth 1.2x to a Pokemon that has that type of
+		// move and nothing at all to one that does not. Handing out the first
+		// holdable item in the bag put Soft Sand on a Pidgeotto, Silk Scarf on
+		// a Litleo and a Poison Barb on a Lumineon — three dead slots.
+		const boosts = {
+			'Miracle Seed': 'Grass', 'Silk Scarf': 'Normal', 'Soft Sand': 'Ground',
+			'Poison Barb': 'Poison', 'Charcoal': 'Fire', 'Mystic Water': 'Water',
+			'Magnet': 'Electric', 'Sharp Beak': 'Flying', 'Twisted Spoon': 'Psychic',
+			'Never-Melt Ice': 'Ice', 'Hard Stone': 'Rock', 'Black Belt': 'Fighting',
+			'Silver Powder': 'Bug', 'Spell Tag': 'Ghost', 'Black Glasses': 'Dark',
+			'Metal Coat': 'Steel', 'Dragon Fang': 'Dragon', 'Pixie Plate': 'Fairy',
+		};
+		const carries = type => (mon.moves || []).some(name => {
+			try {
+				const meta = ai.getMoveMetadata(name, 8);
+				return meta.category !== 'Status' && meta.type === type;
+			} catch (error) {
+				return false;
+			}
+		});
+		const usable = options.filter(item => !notHoldable.has(item));
+		const wanted = usable.find(item => boosts[item] && carries(boosts[item])) ||
+			usable.find(item => !boosts[item]) || usable[0];
 		if (!wanted) continue;
 		// `give` reads the select, so the choice has to land in the control
 		// and not only in this function.
@@ -595,6 +623,88 @@ async function buildParty(page) {
 		wanted.every(id => view.party.indexOf(id) !== -1);
 	if (sameSet) return true;
 	return stageParty(page, wanted, 'box order');
+}
+
+/**
+ * Choose the six from the panel's MATCHUP MATRIX rather than from Rank.
+ *
+ * Rank is the better answer and says so accurately, but it enumerates every
+ * C(box, 6) — 38,760 parties at a box of twenty — so a box big enough to hold
+ * a real answer is a box Rank cannot afford. The matrix is the same scoring
+ * without the enumeration: one row per Pokemon, one column per enemy, our
+ * floor roll against their crit. Cost is linear, so the box can be large.
+ *
+ * The score is the matrix's own two halves, per enemy: what we can rely on
+ * doing minus what we must survive. Summed across their party, that is a
+ * blunter instrument than Rank's lead marginalisation and it is the one that
+ * fits in the time available. Recorded as
+ * `rank-enumerates-every-six-with-no-bound`.
+ */
+async function matrixParty(page) {
+	await page.evaluate(() => {
+		const el = document.querySelector('#runbun-run-matrix');
+		if (el) el.innerHTML = '';
+	});
+	// The readiness cell's Check-matchup button is REPLACED by the verdict it
+	// produces, so it works exactly once and then silently is not there. The
+	// upcoming list's per-trainer Matchups control is stable; its first row is
+	// the next fight.
+	const asked = await page.evaluate(() => {
+		const el = document.querySelector('#runbun-run-upcoming .runbun-run-up-board') ||
+			document.querySelector('#runbun-run-ready-risk-check');
+		if (el) el.click();
+		return !!el;
+	});
+	if (!asked) {
+		problem('matrix', 'no control on screen asks for a matchup board');
+		return false;
+	}
+	try {
+		await page.waitForFunction(
+			() => document.querySelectorAll('#runbun-run-matrix table').length >= 2,
+			null, {timeout: 120000});
+	} catch (error) {
+		problem('matrix', 'the matchup board never rendered — ' +
+			(await text(page, '#runbun-run-status')));
+		return false;
+	}
+	const scored = await page.evaluate(() => {
+		const tables = Array.from(document.querySelectorAll('#runbun-run-matrix table'));
+		if (tables.length < 2) return [];
+		const read = table => Array.from(table.querySelectorAll('tbody tr')).map(row => ({
+			name: (row.querySelector('th') || {}).textContent || '',
+			cells: Array.from(row.querySelectorAll('td')).map(cell => {
+				const hit = /(\d+)/.exec(cell.textContent || '');
+				return hit ? Number(hit[1]) : 0;
+			}),
+		}));
+		const ours = read(tables[0]);
+		const theirs = read(tables[1]);
+		return ours.map((row, i) => {
+			const against = (theirs[i] || {}).cells || [];
+			const deal = row.cells.reduce((a, b) => a + b, 0);
+			const take = against.reduce((a, b) => a + b, 0);
+			return {name: row.name.trim(), score: deal - take};
+		});
+	});
+	if (scored.length < 2) return false;
+	scored.sort((a, b) => b.score - a.score);
+	const view = await readRun(page);
+	const alive = view.box.filter(mon => mon.status !== 'dead');
+	const wanted = [];
+	for (const row of scored) {
+		if (wanted.length >= PARTY_LIMIT) break;
+		// The row header is "<name> L<level>"; match it back to a box entry.
+		const label = row.name.replace(/\s+L\d+$/, '').trim();
+		const mon = alive.find(entry => (entry.species === label) &&
+			wanted.indexOf(entry.id) === -1);
+		if (mon) wanted.push(mon.id);
+	}
+	if (wanted.length < Math.min(PARTY_LIMIT, alive.length)) return false;
+	note('matrix', 'best six by matchup: ' +
+		scored.slice(0, PARTY_LIMIT).map(row => row.name.replace(/\s+L\d+$/, '') +
+			' ' + row.score).join(' · '));
+	return stageParty(page, wanted, 'matrix');
 }
 
 /**
@@ -1400,6 +1510,7 @@ async function main() {
 		// answer replaces whatever box order put there.
 		await buildParty(page);
 		if (PARTY_MODE === 'rank') await rankParty(page);
+		if (PARTY_MODE === 'matrix') await matrixParty(page);
 		// Advice is priced against THIS fight and THIS party, so it comes after
 		// the six are chosen. It covers giving and picking up as well as
 		// teaching; equipParty only fills whatever it left bare.
@@ -1467,8 +1578,24 @@ async function main() {
 		const after = await readRun(page);
 		if (after.position === before.position && played.outcome !== 'won') {
 			stalled += 1;
-			if (stalled >= RETRIES) {
-				problem('run', RETRIES + ' attempts with no progress at ' + before.nextTitle);
+			// Retrying the same six against a wall it cannot answer is not a
+			// plan. Under `caps` an area can be rolled again, so forget which
+			// areas have been used and go back for more Pokemon — the box is
+			// what loses these fights, not the dice. One run beat Brawly and
+			// the next could not pass Camper Gavi with the same policy and a
+			// different roll.
+			if (stalled % 3 === 0 && RULES !== 'hardcore') {
+				caughtFrom.clear();
+				note('run', 'stuck at ' + before.nextTitle + ' — reopening the routes for more');
+			}
+			// A boss is worth grinding; an ordinary trainer that has beaten
+			// us a dozen times means this box cannot do it, and the budget is
+			// better spent on a fresh run than on the same six. Camper Gavi
+			// ate seventy attempts in one run and never fell; Brawly fell on
+			// the thirteenth in another.
+			const boss = /Leader|Elite|Champion|Rival/i.test(before.nextTitle);
+			if (stalled >= (boss ? BOSS_RETRIES : RETRIES)) {
+				problem('run', stalled + ' attempts with no progress at ' + before.nextTitle);
 				break;
 			}
 		} else {

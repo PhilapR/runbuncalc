@@ -2176,6 +2176,95 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	await session.context.close();
 });
 
+test('the box says what each Pokemon rolled, against what a trainer gets', {skip}, async () => {
+	// Every trainer Pokemon is built with 31s — 186 total. Every wild catch
+	// keeps what it rolled: a mean of 93, and a spread across a box from about
+	// 56 to 130. So the gap between the best and worst catch you own is about
+	// the size of the gap to the opponent, and the only place that showed was
+	// the summary screen, one Pokemon at a time, as six separate numbers.
+	const session = await open();
+	const page = session.page;
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+
+	// A catch with every IV recorded prints its total against 186.
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	await page.click('#runbun-run-roll-catch');
+	// Two rows, not one: the reserve list holds the starter as well until a
+	// party is committed.
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
+		null, {timeout: 10000});
+
+	const caught = (await savedRun(page)).box[1];
+	const expected = ['hp', 'atk', 'def', 'spa', 'spd', 'spe']
+		.reduce((sum, stat) => sum + caught.ivs[stat], 0);
+	// Address the CATCH by id: the reserve list also holds the starter, and
+	// the first row is not the one whose roll we just read.
+	const kit = await page.textContent(
+		'#runbun-run-box .runbun-run-mon[data-id="' + caught.id + '"] .runbun-run-mon-kit');
+	assert.match(kit, new RegExp('IV ' + expected + '/186'),
+		'the reserve row carries the rolled total and what it is measured against');
+
+	// The party strip says it too, because that is where the six are chosen.
+	await page.click('#runbun-run-box .runbun-run-mon[data-id="' + caught.id +
+		'"] .runbun-run-add');
+	assert.match(await page.textContent('#runbun-run-party-strip .runbun-run-party-meta'),
+		new RegExp('IV ' + expected + '/186'));
+
+	// A PARTIAL record must not read as a low roll. There is no way to make
+	// one through the panel — every catch fetches a rolled identity first —
+	// so the case that matters is the one the IV note already names: a legacy
+	// or imported save. Import is the honest way to reach it.
+	const partialRun = await page.evaluate(expectedTotal => {
+		const run = JSON.parse(localStorage.getItem('runbun.run.v1'));
+		const mon = run.box[run.box.length - 1];
+		delete mon.ivs.spa;
+		delete mon.ivs.spd;
+		delete mon.ivs.spe;
+		// The LOG is what an import replays, so editing only the box is
+		// undone the moment the run is adopted — the catch command carries
+		// the rolled identity and rebuilds all six.
+		for (const entry of run.log) {
+			if (entry.command && entry.command.kind === 'catch' && entry.command.ivs) {
+				delete entry.command.ivs.spa;
+				delete entry.command.ivs.spd;
+				delete entry.command.ivs.spe;
+			}
+		}
+		return {json: JSON.stringify(run), id: mon.id, expectedTotal: expectedTotal};
+	}, expected);
+	// The transfer box lives in a details that openAllSections leaves shut on
+	// purpose; every other import test opens it by its summary.
+	await page.click('.runbun-run-transfer summary');
+	await page.fill('#runbun-run-transfer', partialRun.json);
+	await page.click('#runbun-run-import');
+	await page.waitForFunction(
+		id => {
+			const row = document.querySelector(
+				'#runbun-run-box .runbun-run-mon[data-id="' + id + '"] .runbun-run-mon-kit');
+			return row && /IV /.test(row.textContent);
+		}, partialRun.id, {timeout: 10000});
+	const partial = await page.textContent(
+		'#runbun-run-box .runbun-run-mon[data-id="' + partialRun.id + '"] .runbun-run-mon-kit');
+	assert.match(partial, /IV \d+\+ · 3 not recorded/,
+		'three unrecorded stats must say so rather than summing as zero');
+	assert.doesNotMatch(partial, /\/186/, 'and must not claim a total it cannot know');
+
+	// The median is built from FULLY known rolls only, so a partial record
+	// cannot drag it down: the starter is the only complete one left.
+	assert.match(await page.textContent('#runbun-run-box-counts'), /IV median \d+\/186/);
+
+	await session.context.close();
+});
+
 test('the panel folds: collapsed headers stay live, opening is for acting', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
