@@ -274,6 +274,48 @@ test('the ranker finishes a box of 30 in interactive time', () => {
 	assert.ok(ms < 5000, `ranking took ${ms.toFixed(0)}ms; the budget is 5s`);
 });
 
+test('the ranker plays four different sixes, not four spellings of one', () => {
+	// scoreSix is the best answer per enemy column, so swapping the member
+	// that answers nothing changes no column and no score. The shortlist that
+	// came out of it was systematically near-duplicates: measured across
+	// twelve fights, the top four always shared five of six members and one
+	// identical grid score, every adjudication returned the same pWin and
+	// eDeaths, and playing them reordered the top six zero times. Thirty-six
+	// of forty-eight rollouts were replaying the same team.
+	const catches = [];
+	for (const species of ['Poochyena', 'Zigzagoon-Galar', 'Ralts', 'Surskit', 'Shroomish',
+		'Makuhita', 'Numel', 'Trapinch', 'Aron', 'Electrike', 'Lotad', 'Seedot']) {
+		catches.push(owned({kind: 'catch', species, level: 5}));
+	}
+	let state = run.applyAll(fresh({levelCap: 'none'}), catches);
+	for (const mon of state.box) {
+		state = run.apply(state, {kind: 'levelUp', id: mon.id, to: 21});
+	}
+	const ranked = run.rankParties(state, 'Leader Brawly');
+	const played = ranked.parties.filter(party => party.adjudication);
+	assert.ok(played.length >= 1, 'something has to be played');
+
+	// Every adjudicated six differs from every other by at least two members.
+	// One-member neighbours are what the shortlist is full of, and playing one
+	// is playing the other.
+	for (let i = 0; i < played.length; i++) {
+		for (let j = i + 1; j < played.length; j++) {
+			const left = new Set(played[i].members.map(member => member.id));
+			const shared = played[j].members.filter(member => left.has(member.id)).length;
+			assert.ok(left.size - shared >= 2,
+				`adjudicated sixes ${i} and ${j} share ${shared} of ${left.size} members; ` +
+				'playing both spends rollouts to ask the same question twice');
+		}
+	}
+
+	// And the played sixes lead the ranking, whatever grid position they came
+	// from — the whole point is that what happened outranks what was predicted.
+	for (let i = 0; i < played.length; i++) {
+		assert.ok(ranked.parties[i].adjudication,
+			'a played six must not sit behind an unplayed one');
+	}
+});
+
 test('the ranker charges for its shortlist, not for the box', () => {
 	// The gate above measures the ENUMERATION with rollouts:0. The number a
 	// player feels is the other one: the seeded adjudication of the shortlist,
