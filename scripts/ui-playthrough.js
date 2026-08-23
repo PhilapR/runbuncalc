@@ -1190,6 +1190,35 @@ function multiplierAgainst(moveType, defenderTypes) {
 }
 
 /**
+ * Moves that damage nothing and win fights anyway.
+ *
+ * The driver had no idea these existed. `bestStatusMove` only recognises a
+ * move that INFLICTS a condition, and the teaching score reads base power, so
+ * every one of these scored zero and was neither taught nor pressed. That
+ * leaves the driver playing one turn at a time with no way to set anything up
+ * — which is the whole answer to a boss that outclasses you.
+ *
+ * A screen is the strongest of them here. Brawly's team is almost entirely
+ * physical — Brick Break, Mach Punch, Retaliate, Sucker Punch, Feint Attack —
+ * and the threat line keeps saying "you need 2 turns to KO, they need 2".
+ * Reflect makes their 2 into 4 for five turns, for the whole side, through
+ * switches. It is the only lever that touches the stat gap head on instead of
+ * working around it.
+ *
+ * The numbers are deliberately modest: a screen prices near a good attack so
+ * it is taught to a Pokemon that has one to spare, and a boost prices below
+ * most attacks so it only lands on somebody with nothing better.
+ */
+const SCREEN_MOVES = new Set(['Reflect', 'Light Screen', 'Aurora Veil']);
+const SCREEN_VALUE = 120;
+const BOOST_MOVES = new Set([
+	'Swords Dance', 'Nasty Plot', 'Calm Mind', 'Dragon Dance', 'Bulk Up',
+	'Iron Defense', 'Agility', 'Shell Smash', 'Quiver Dance', 'Growth',
+	'Howl', 'Work Up', 'Hone Claws', 'Coil', 'Curse',
+]);
+const BOOST_VALUE = 50;
+
+/**
  * Moves that take two turns to land one hit: the chargers, the semi-invulnerable
  * turns, and the ones that spend the turn after. Halved rather than banned,
  * because a big enough number still wins some races.
@@ -1319,6 +1348,17 @@ function decide(view, memory, roster) {
 	if (move && (move.floorKO || move.guaranteedKO)) {
 		return {kind: 'move', pick: move, why: 'it KOs'};
 	}
+	// The line rather than the turn. A screen halves every hit of its kind for
+	// five turns, for the whole side, and it survives the switches that come
+	// after — so against a team that wins the race by a single turn it buys
+	// more than an attack that does not KO. Once per screen per fight, never
+	// on a turn a crit would end, and never instead of a KO.
+	const screen = view.moves.find(entry => !entry.ball && SCREEN_MOVES.has(entry.move));
+	if (screen && !memory.screens.has(screen.move) && view.risk !== 'lethal') {
+		memory.screens.add(screen.move);
+		return {kind: 'move', pick: {move: screen.move},
+			why: 'setting ' + screen.move + ' before trading'};
+	}
 	// Cannot end it this turn, and this one is not already locked down: spend
 	// the turn taking THEIR turns away instead. Once per opposing Pokemon, so a
 	// missed Sing cannot become a Sing loop, and never while a crit would kill
@@ -1364,6 +1404,16 @@ function decide(view, memory, roster) {
 		memory.statusedFoes.add(view.foe);
 		return {kind: 'move', pick: {move: status.move},
 			why: 'to take a turn off it (' + status.status + ')'};
+	}
+	// Setting up is the other half of a line, and it comes AFTER taking their
+	// turn away: a sleeping opponent is what makes the boost free. Only while
+	// we can afford the turn, and twice at most — a third is a Pokemon that
+	// buffed itself to death instead of attacking.
+	const boost = view.moves.find(entry => !entry.ball && BOOST_MOVES.has(entry.move));
+	if (boost && losingRace && view.risk !== 'lethal' && memory.boosts < 2) {
+		memory.boosts += 1;
+		return {kind: 'move', pick: {move: boost.move},
+			why: 'the race is lost straight, so setting up with ' + boost.move};
 	}
 	const lethal = view.risk === 'lethal';
 	if ((losingRace || lethal) && !memory.switchedFor.has(view.foe)) {
@@ -1490,6 +1540,9 @@ async function assumeTms(page, roster) {
 		// Beam lost to a 65 BP Bubble Beam on a Water Pokemon.
 		const mine = typesOf(mon.species);
 		const value = name => {
+			// Priced before base power is consulted, because these have none.
+			if (SCREEN_MOVES.has(name)) return SCREEN_VALUE;
+			if (BOOST_MOVES.has(name)) return BOOST_VALUE;
 			const base = bp(name);
 			if (!base) return 0;
 			let meta;
@@ -1581,7 +1634,7 @@ async function openFight(page) {
 
 async function playFight(page, plan, roster) {
 	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0,
-		sacked: 0};
+		sacked: 0, screens: new Set(), boosts: 0};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {
@@ -1602,8 +1655,8 @@ async function playFight(page, plan, roster) {
 		// other turn's `why` lives only in `turns`, which is why the first
 		// attempt to check whether the sacrifice had ever fired came back zero
 		// and proved nothing at all.
-		if (choice.kind === 'switch' && /^spending /.test(choice.why || '')) {
-			note('sac', choice.why + ' — against ' + view.foe);
+		if (/^(spending|setting) /.test(choice.why || '')) {
+			note('line', choice.why + ' — against ' + view.foe);
 		}
 		const selector = choice.kind === 'move' ?
 			'#runbun-run-battle-moves .runbun-run-battle-move[data-move="' +
