@@ -945,6 +945,21 @@
 			"fixed_in": null,
 			"falsified": 0,
 			"evidence": "Measured against the real endpoint, box grown one catch at a time: 6 Pokemon is 1 party in 1.5s, 8 is 28 parties in 3.8s, 10 is 210 parties in 6.1s. The enumeration is an unbounded `for (;;)` over combinations at lib/run.js:3324 keeping a bounded top-N — the shortlist is bounded, the search is not. C(n,6) is 924 at 12, 3,003 at 14, 38,760 at 20, 593,775 at 30 and 218,618,940 at 76. Reached in play: a level-caps run (no one-per-route rule, so routes can be rolled again) had 76 catches by its tenth fight, and the driver's wall clock per fight went 36s, 34s, 35s, 32s, 39s, 40s, 45s, 51s, 71s, 120s over exactly that stretch — Rank, not the fights. A nuzlocke hides this because one-per-route holds the box near ten; nothing else does. It matters more than a slow panel: the batch measurement has Rank calling 22 of 22 fights right at or above 9/12 clean and 3 of 3 wrong below it, so this is the accurate signal degrading, while the Plan verdict that stays fast is the one that says nothing about surviving ([[plan-verdict-hides-a-dead-forecast]])."
+		},
+		{
+			"id": "roll-card-withholds-the-identity-it-rolled",
+			"source": "review/test-run",
+			"raised_on": "2026-08-23",
+			"severity": "high",
+			"area": "ui",
+			"file": "src/js/run_panel.js",
+			"line": 2728,
+			"claim": "The roll authors a full identity — six IVs, a nature and an ability — hands it straight to the catch command, and shows none of it. A nuzlocke route gives one encounter, and the keep-or-flee decision was made blind to the part of it that was already decided.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "6c08bb8",
+			"falsified": 1,
+			"evidence": "paintRoll printed species, level, method, encounter chance and a catch-odds quote. rolled.ivs, rolled.nature and rolled.ability were all in hand — run_panel.js:3113 passes exactly those into the catch command, and lib/run.js rollIdentity is documented as \"the one author of a rolled Pokemon identity\" so a client never invents them. They reached the box and the summary screen, one Pokemon at a time, AFTER the decision that depended on them. IV total is the one that matters most and it is measurable: a wild roll averages 93 of 186 while every trainer Pokemon is built with a flat 31 across the board, and the spread inside a single box runs about 56 to 130 — so the difference between the best and worst catch you own is nearly the size of the deficit to every opponent. At L21 that is 3-4 points in every stat, 5% of a Prinplup's HP and 10% of its Defence, landing on both sides of the exchange. FIXED: the card now carries \"IV 118/186 · Adamant · Torrent\" beside the odds. Gated in the browser against the catch that follows — a quote that drifts from what lands in the box is worse than no quote — and falsified by withholding the total, which reddens it."
 		}
 	]
 }
