@@ -461,13 +461,23 @@ async function levelAndEvolve(page) {
 	const view = await readRun(page);
 	const cap = capOf(view);
 	if (cap === null) return;
-	// The party first, then enough of the reserve to fill a six. Levelling the
-	// whole box is what a player does not do, and by the twentieth catch it
-	// costs more clicks per fight than the fight does.
+	// EVERYONE under the cap, not the first six. Levelling only a six made the
+	// box decorative: the matrix chooses from twenty-two, but sixteen of them
+	// were four levels down and scored accordingly, so it re-picked the same
+	// six every fight and the depth was an illusion. It also left nothing
+	// spare to sacrifice, which is the move a Nuzlocke has against a boss it
+	// cannot outrace.
+	//
+	// The click cost the six-cap was avoiding is real — the evolution check
+	// below waits on the panel per Pokemon — so this takes everyone who is
+	// actually BEHIND the cap, plus the party. Behind-the-cap is the whole box
+	// on the fight after the cap moves and nobody on every fight after that;
+	// the party is there because evolution shares this loop, and filtering on
+	// level alone would stop evolving anything that had already caught up.
 	const alive = view.box.filter(mon => mon.status !== 'dead');
 	const fighting = alive.filter(mon => view.party.indexOf(mon.id) !== -1)
 		.concat(alive.filter(mon => view.party.indexOf(mon.id) === -1))
-		.slice(0, PARTY_LIMIT);
+		.filter(mon => mon.level < cap || view.party.indexOf(mon.id) !== -1);
 	for (const mon of fighting) {
 		if (outOfTime()) break;
 		if (!await selectMon(page, mon.id)) continue;
@@ -1234,6 +1244,43 @@ function healthiestSwitch(view, roster) {
 	return options[0];
 }
 
+/**
+ * The body to throw away, which is the opposite question to the one above.
+ *
+ * A switch concedes a free hit. Sending the healthiest body means the counter
+ * eats that hit and arrives damaged, which is backwards: the Nuzlocke answer
+ * to a boss you cannot outrace is to spend something you do not need, let it
+ * take the hit, and bring the counter in for free on the replacement.
+ *
+ * This is only affordable because --rules=caps runs with permadeath OFF, so a
+ * faint costs the fight and not the Pokemon. It must never run under hardcore,
+ * where the same move costs a life.
+ *
+ * Expendable means: cannot damage anything anyway, then already hurt, then
+ * worst matched. Returns null when there is nothing to spare — with three
+ * bodies left the sacrifice IS the party.
+ */
+function sacSwitch(view, roster) {
+	if (RULES === 'hardcore') return null;
+	const incoming = incomingType(view);
+	const options = view.switches.map(entry => {
+		const hit = /(\d+)%$/.exec(entry.label);
+		const species = entry.label.replace(/\s+\d+%$/, '').trim();
+		return {
+			id: entry.id, label: entry.label, species: species,
+			hp: hit ? Number(hit[1]) : 0,
+			taking: multiplierAgainst(incoming, typesOf(species)),
+			armed: canAttack(roster, entry.id),
+		};
+	}).filter(entry => entry.hp > 0);
+	// Keep a fighting body and a replacement behind it; below that there is
+	// nothing to spend, only the fight itself.
+	if (options.length < 3) return null;
+	options.sort((a, b) => (a.armed ? 1 : 0) - (b.armed ? 1 : 0) ||
+		a.hp - b.hp || b.taking - a.taking);
+	return options[0];
+}
+
 function decide(view, memory, roster) {
 	if (/Choose the next Pokemon/.test(view.prompt)) {
 		const replacement = healthiestSwitch(view, roster);
@@ -1305,6 +1352,18 @@ function decide(view, memory, roster) {
 				why: (losingRace ? 'the race is lost' : 'a crit KOs us') +
 					', and this one resists'};
 		}
+		// Nothing resists and the race is lost, so the exchange is going to be
+		// paid for either way. Spend a body we do not need instead of the one
+		// we do: the sacrifice takes the hit, and the forced replacement that
+		// follows brings the counter in for free rather than into a hit.
+		// Twice a fight — a third is no longer a tactic, it is the party.
+		const fodder = memory.sacked < 2 ? sacSwitch(view, roster) : null;
+		if (fodder) {
+			memory.sacked += 1;
+			memory.switchedFor.add(view.foe);
+			return {kind: 'switch', pick: fodder,
+				why: 'spending ' + fodder.species + ' to bring the answer in free'};
+		}
 	}
 	if (move) return {kind: 'move', pick: move, why: 'highest floor'};
 	// Last resort has to be a MOVE, not a switch. Falling through to "switch
@@ -1370,10 +1429,14 @@ async function assumeTms(page, roster) {
 		}
 		const listed = await text(page, '#runbun-run-learn-now');
 		if (/^\(nothing\)/.test(listed)) continue;
-		// A starred move is an egg move the relearner charges a Heart Scale
-		// for; this experiment does not assume the bag, only the TM.
-		const offered = listed.split(',').map(entry => entry.trim())
-			.filter(entry => entry && entry.indexOf('*') === -1)
+		// A star marks an egg move the relearner charges a Heart Scale for.
+		// Skipping them left a Pokemon's best moves on the shelf over a
+		// currency this run actually collects and the advisor already knows
+		// how to price. The star is stripped and the move is tried; with no
+		// Heart Scale the panel refuses, `act` reports no change, and the next
+		// candidate down is tried instead.
+		const offered = listed.split(',').map(entry => entry.replace(/\*/g, '').trim())
+			.filter(entry => entry)
 			// Raw base power would pick Explosion. The advisor refuses a
 			// sacrifice as an upgrade on purpose — "the advisor never teaches
 			// suicide" is its own gate — and an experiment that ignores that
@@ -1427,20 +1490,26 @@ async function assumeTms(page, roster) {
 		// damage with a Lopunny that heals itself with Drain Punch. Taking
 		// their turn away is what beat Camper Gavi one fight earlier.
 		const locks = known.filter(name => inflictedStatus(name));
-		const best = offered.filter(name => known.indexOf(name) === -1)
-			.sort((a, b) => value(b) - value(a))[0];
-		if (!best || value(best) === 0) continue;
+		const ranked = offered.filter(name => known.indexOf(name) === -1)
+			.sort((a, b) => value(b) - value(a));
 		const droppable = known.filter(name => !inflictedStatus(name) || locks.length > 1);
 		if (!droppable.length) continue;
 		const weakest = droppable.slice().sort((a, b) => value(a) - value(b))[0];
-		if (weakest && value(best) <= value(weakest)) continue;
-		await page.fill('#runbun-run-move', best);
-		await page.selectOption('#runbun-run-replace', known.length >= 4 ? weakest : '');
-		const taught = await act(page, 'assume ' + best, () => page.click('#runbun-run-teach'));
-		if (taught.changed) {
-			note('tm', mon.species + ' learned ' + best + ' (' + bp(best) + ' BP, ' +
-				Math.round(value(best)) + ' against this fight)' +
-				(known.length >= 4 ? ' over ' + weakest : ''));
+		// Three candidates, not one. An egg move can be refused for want of a
+		// Heart Scale, and giving up on the Pokemon at the first refusal would
+		// cost it the ordinary TM underneath — which is what it used to get.
+		for (const best of ranked.slice(0, 3)) {
+			if (value(best) === 0) break;
+			if (weakest && value(best) <= value(weakest)) break;
+			await page.fill('#runbun-run-move', best);
+			await page.selectOption('#runbun-run-replace', known.length >= 4 ? weakest : '');
+			const taught = await act(page, 'assume ' + best, () => page.click('#runbun-run-teach'));
+			if (taught.changed) {
+				note('tm', mon.species + ' learned ' + best + ' (' + bp(best) + ' BP, ' +
+					Math.round(value(best)) + ' against this fight)' +
+					(known.length >= 4 ? ' over ' + weakest : ''));
+				break;
+			}
 		}
 	}
 }
@@ -1481,7 +1550,8 @@ async function openFight(page) {
 }
 
 async function playFight(page, plan, roster) {
-	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0};
+	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0,
+		sacked: 0};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {
