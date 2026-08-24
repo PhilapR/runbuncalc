@@ -168,3 +168,57 @@ test('the level cap is read off the panel, and its absence is not a zero', () =>
 	assert.equal(policy.capOf({cap: ''}), null);
 	assert.equal(policy.capOf({}), null);
 });
+
+test('a status move is priced by what it takes away, not by its zero base power', () => {
+	const grass = ['Grass'];
+	const worth = name => policy.moveValue(name, grass, []);
+
+	// The defect this pins: every sleep, paralysis and confusion move has no
+	// base power, fell through to zero, and was therefore always the weakest
+	// thing on the bar and the first taught over. 344 went that way across the
+	// recorded runs — 34 Sleep Powders, 28 Sings, 26 Thunder Waves.
+	assert.ok(worth('Sleep Powder') > 0, 'a sleep move is not worth nothing');
+	assert.ok(worth('Sleep Powder') > worth('Tackle'),
+		'and it is worth more than a 40 base power attack');
+
+	// Ordered by the same table the driver trusts when it decides which status
+	// to press: sleep 5, paralysis 4, confusion 3, toxic 2, poison 1.
+	assert.ok(worth('Sleep Powder') > worth('Thunder Wave'));
+	assert.ok(worth('Thunder Wave') > worth('Confuse Ray'));
+	assert.ok(worth('Confuse Ray') > worth('Toxic'));
+	assert.ok(worth('Toxic') > worth('Poison Powder'));
+
+	// Paralysis is a Speed drop plus a chance to skip the turn, so it must not
+	// price below one. That anchoring is what fixes the scale to the others.
+	assert.ok(worth('Thunder Wave') >= worth('Cotton Spore'),
+		'paralysis is a Speed drop and more, so it cannot be worth less');
+});
+
+test('a guaranteed status counts even when the move also does damage', () => {
+	const electric = ['Electric'];
+	// Nuzzle is a guaranteed paralysis carrying 20 base power. Priced as an
+	// attack it is worth 20 and was taught over 41 times.
+	assert.ok(policy.moveValue('Nuzzle', electric, []) >
+		policy.basePowerOf('Nuzzle') * 1.5,
+	'Nuzzle is worth more than its base power, STAB included');
+	assert.equal(policy.moveValue('Nuzzle', electric, []),
+		policy.moveValue('Thunder Wave', electric, []),
+		'because it is worth the paralysis it guarantees');
+
+	// Both branches: moveValue returns early when no upcoming enemies are
+	// known and takes the effectiveness path when they are. The first
+	// falsification of this test only broke the second branch and the test
+	// stayed green, because the fixture never reached it.
+	const foes = [['Water'], ['Flying']];
+	assert.equal(policy.moveValue('Nuzzle', electric, foes),
+		policy.moveValue('Thunder Wave', electric, foes),
+		'the paralysis floor holds on the effectiveness path too');
+
+	// And the floor must not inflate an ordinary attack that merely has a
+	// secondary chance: STATUS_BY_MOVE answers only for guaranteed status, so
+	// these stay priced as the attacks they are.
+	for (const attack of ['Thunderbolt', 'Body Slam', 'Lava Plume']) {
+		assert.equal(policy.moveValue(attack, [], []), policy.basePowerOf(attack),
+			attack + ' has only a secondary chance and must price as an attack');
+	}
+});

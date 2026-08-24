@@ -1322,6 +1322,66 @@ function bestMove(view) {
  * 8.9% of Camper Gavi attempts won against 2.7%, one-sided p = 0.03.
  * `--legacy-rank` restores the old order so that stays reproducible.
  */
+/** A move's base power, or 0 for a status move and for anything unrecognised. */
+function basePowerOf(name) {
+	try {
+		const meta = ai.getMoveMetadata(name, 8);
+		return meta.category === 'Status' ? 0 : (meta.basePower || 0);
+	} catch (error) {
+		return 0;
+	}
+}
+
+/**
+ * What a move is worth to the Pokemon that knows it, in base-power units.
+ *
+ * This decides what gets taught OVER, which decides whether a party still has
+ * a line to play by the time it reaches a wall. It priced screens, Speed
+ * drops, heals and boosts explicitly and then fell through to base power —
+ * which is zero for every sleep, paralysis and confusion move, so those were
+ * always the first thing discarded. 344 went that way across these logs,
+ * including 34 Sleep Powders, 28 Sings, 26 Thunder Waves and 25 Confuse Rays,
+ * and the share of Pokemon carrying any status move fell to 13%. Taking their
+ * turn away is what beat Camper Gavi.
+ *
+ * `mine` are the holder's types, for STAB. `enemies` are the upcoming teams'
+ * type lists, for how often the move lands for more than neutral.
+ */
+function moveValue(name, mine, enemies) {
+	// Priced before base power is consulted, because these have none.
+	if (SCREEN_MOVES.has(name)) return SCREEN_VALUE;
+	if (SLOW_MOVES.has(name)) return SLOW_VALUE;
+	if (HEAL_MOVES.has(name)) return HEAL_VALUE;
+	if (BOOST_MOVES.has(name)) return BOOST_VALUE;
+	// A guaranteed status is worth what it takes away, whether or not the move
+	// also does damage. inflictedStatus answers only for moves that ALWAYS
+	// inflict — Thunderbolt, Body Slam and Lava Plume all come back null — so
+	// taking the larger of the two prices cannot inflate an ordinary attack
+	// that happens to have a secondary effect. Nuzzle is why it is needed: a
+	// guaranteed paralysis carrying 20 base power, priced at 20 and taught
+	// over 41 times.
+	const inflicts = inflictedStatus(name);
+	const asStatus = inflicts ? (STATUS_WORTH[inflicts] || 0) * STATUS_VALUE_PER_WORTH : 0;
+	const base = basePowerOf(name);
+	if (!base) return asStatus;
+	let meta;
+	try {
+		meta = ai.getMoveMetadata(name, 8);
+	} catch (error) {
+		return Math.max(base, asStatus);
+	}
+	const stab = (mine || []).indexOf(meta.type) === -1 ? 1 : 1.5;
+	// A move that spends two turns to hit once is worth half its base power,
+	// and the metadata carries no charge flag to read it off, so the list is
+	// spelled out. These runs lose on turns, not on damage.
+	const turns = TWO_TURN_MOVES.has(name) ? 0.5 : 1;
+	const foes = enemies || [];
+	if (!foes.length) return Math.max(base * stab * turns, asStatus);
+	const lands = foes.reduce((total, types) =>
+		total + multiplierAgainst(meta.type, types), 0) / foes.length;
+	return Math.max(base * stab * turns * lands, asStatus);
+}
+
 function rankMoves(scored) {
 	return scored.sort(LEGACY_RANK ? (a, b) =>
 		(b.floorKO ? 1 : 0) - (a.floorKO ? 1 : 0) ||
@@ -1381,6 +1441,16 @@ function inflictedStatus(moveName) {
 // speed, confusion costs a third and self-damages. Poison and burn are chip,
 // which is a damage race we are already winning, so they rank below.
 const STATUS_WORTH = {slp: 5, par: 4, confusion: 3, frz: 5, tox: 2, psn: 1, brn: 1};
+/**
+ * What one point of STATUS_WORTH is worth in base power.
+ *
+ * Anchored rather than chosen: paralysis is a Speed drop plus a chance to skip
+ * the turn outright, so it must price at least as high as SLOW_VALUE. Worth 4
+ * at 24 a point lands on 96, just above the Speed drop's 95 — which puts sleep
+ * level with a screen at 120 and poison at 24, below every real attack, which
+ * is where chip damage belongs.
+ */
+const STATUS_VALUE_PER_WORTH = 24;
 
 /** The best status move on the bar, or null if none is worth a turn. */
 function bestStatusMove(view) {
@@ -1844,14 +1914,7 @@ async function assumeTms(page, roster) {
 			// suicide" is its own gate — and an experiment that ignores that
 			// is measuring a different game.
 			.filter(entry => !/^(Explosion|Self-Destruct|Final Gambit|Misty Explosion|Memento|Healing Wish|Lunar Dance)$/.test(entry));
-		const bp = name => {
-			try {
-				const meta = ai.getMoveMetadata(name, 8);
-				return meta.category === 'Status' ? 0 : (meta.basePower || 0);
-			} catch (error) {
-				return 0;
-			}
-		};
+		const bp = basePowerOf;
 		// Base power is what a move does; effectiveness is what it does to
 		// THEM. Ranked on raw power alone this taught Take Down over Wing
 		// Attack, and 160 of 171 Brawly plans then opened with Brick Break —
@@ -1861,34 +1924,7 @@ async function assumeTms(page, roster) {
 		// ordering flips. STAB is in here for the same reason a 90 BP Ice
 		// Beam lost to a 65 BP Bubble Beam on a Water Pokemon.
 		const mine = typesOf(mon.species);
-		const value = name => {
-			// Priced before base power is consulted, because these have none.
-			if (SCREEN_MOVES.has(name)) return SCREEN_VALUE;
-			if (SLOW_MOVES.has(name)) return SLOW_VALUE;
-			if (HEAL_MOVES.has(name)) return HEAL_VALUE;
-			if (BOOST_MOVES.has(name)) return BOOST_VALUE;
-			const base = bp(name);
-			if (!base) return 0;
-			let meta;
-			try {
-				meta = ai.getMoveMetadata(name, 8);
-			} catch (error) {
-				return base;
-			}
-			const stab = mine.indexOf(meta.type) === -1 ? 1 : 1.5;
-			// A move that spends two turns to hit once is worth half its base
-			// power, and the metadata carries no charge or recharge flag to
-			// read it off — so the list is spelled out, the same way the
-			// sacrifice moves above are. This matters more here than the raw
-			// number suggests: these runs lose on turns, not on damage, and
-			// the first thing the new ranking did was put Solar Beam on an
-			// Exeggcute at 120 base power.
-			const turns = TWO_TURN_MOVES.has(name) ? 0.5 : 1;
-			if (!enemies.length) return base * stab * turns;
-			const lands = enemies.reduce((total, types) =>
-				total + multiplierAgainst(meta.type, types), 0) / enemies.length;
-			return base * stab * turns * lands;
-		};
+		const value = name => moveValue(name, mine, enemies);
 		const known = (mon.moves || []).slice();
 		// Never trade away the party's only lock. This heuristic picks the
 		// highest base power and replaces the WEAKEST move, which is always
@@ -2400,6 +2436,8 @@ module.exports = {
 	ivNote: ivNote,
 	unreadFlags: unreadFlags,
 	rankMoves: rankMoves,
+	moveValue: moveValue,
+	basePowerOf: basePowerOf,
 };
 
 if (require.main === module) {
