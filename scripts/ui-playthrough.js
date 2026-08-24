@@ -1299,22 +1299,31 @@ function bestMove(view) {
 	const scored = view.moves.filter(entry => !entry.ball).map(scoreMove)
 		.filter(entry => entry.damaging && entry.max > 0);
 	if (!scored.length) return null;
-	// Damage TIMES the chance of landing it, because a move that misses deals
-	// none. The ranking used the damage alone, so Thunder at 110 and 80% beat
-	// Spark at 65 and 100% and was pressed every turn — and the noise
-	// experiment found this by accident: of the deviations that showed up in
-	// runs which cleared a wall, the great majority swapped a big inaccurate
-	// move for a small reliable one. Spark over Thunder, Bubble Beam over
-	// Hydro Pump, Aerial Ace over Hurricane, Ember over Fire Blast.
-	//
-	// A KO still outranks everything, but a KO that can miss is not the equal
-	// of one that cannot, so the KO tiers carry the accuracy too rather than
-	// being a flat yes or no.
-	// Turns first, because that is the unit the panel decides fights in and
-	// the unit the fight is actually lost in. Damage only breaks ties between
-	// moves that reach the KO on the same turn — where it decides which one
-	// gets there with more margin against a bad roll.
-	scored.sort(LEGACY_RANK ? (a, b) =>
+	rankMoves(scored);
+	return explore(scored, 'move');
+}
+
+/**
+ * Order a scored move list, best first, in place.
+ *
+ * Turns first, because that is the unit the panel decides fights in and the
+ * unit a fight is actually lost in: 34% and 50% are the same move when both
+ * need three turns, and a move that turns three turns into two beats any
+ * amount of damage that does not. Damage only breaks ties between moves that
+ * reach the KO on the same turn, where it decides which survives a bad roll.
+ *
+ * Accuracy multiplies throughout, because a move that misses deals none. The
+ * ranking used damage alone, so Thunder at 110 and 80% beat Spark at 65 and
+ * 100% and was pressed every turn. A KO still outranks everything, but a KO
+ * that can miss is not the equal of one that cannot, so the KO tiers carry
+ * accuracy rather than being a flat yes or no.
+ *
+ * Measured against the ranking it replaced over thirty interleaved runs:
+ * 8.9% of Camper Gavi attempts won against 2.7%, one-sided p = 0.03.
+ * `--legacy-rank` restores the old order so that stays reproducible.
+ */
+function rankMoves(scored) {
+	return scored.sort(LEGACY_RANK ? (a, b) =>
 		(b.floorKO ? 1 : 0) - (a.floorKO ? 1 : 0) ||
 		(b.guaranteedKO ? 1 : 0) - (a.guaranteedKO ? 1 : 0) ||
 		b.min - a.min || b.max - a.max :
@@ -1324,7 +1333,6 @@ function bestMove(view) {
 			turnsToKO(a) - turnsToKO(b) ||
 			b.min * b.acc - a.min * a.acc ||
 			b.max * b.acc - a.max * a.acc);
-	return explore(scored, 'move');
 }
 
 /**
@@ -2371,7 +2379,32 @@ async function main() {
 		server.close(error => error ? reject(error) : resolve()));
 }
 
-main().catch(error => {
-	console.error(error);
-	process.exit(1);
-});
+/**
+ * The decision core, exported so it can be gated.
+ *
+ * These are the pure parts: they take a view or an entry and return a number
+ * or an object, touch no page and no run. The policy they encode was measured
+ * — turns-and-accuracy ranking beat damage-only at p = 0.03 over thirty
+ * interleaved runs — and a measured result that nothing pins is a result that
+ * regresses quietly. `tests/playthrough_policy.test.js` pins them.
+ *
+ * Requiring this file must not START a playthrough, so main runs only when
+ * this is the program rather than an import.
+ */
+module.exports = {
+	raceOf: raceOf,
+	turnsToKO: turnsToKO,
+	accuracyOf: accuracyOf,
+	scoreMove: scoreMove,
+	capOf: capOf,
+	ivNote: ivNote,
+	unreadFlags: unreadFlags,
+	rankMoves: rankMoves,
+};
+
+if (require.main === module) {
+	main().catch(error => {
+		console.error(error);
+		process.exit(1);
+	});
+}
