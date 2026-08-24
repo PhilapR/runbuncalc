@@ -79,6 +79,11 @@ const CATCH_LIMIT = Number(flag('box', 14));
 const TMS = flag('tms', 'advisor');
 /** How far past the strongest foe an uncapped run levels. Ignored when a cap exists. */
 const LEVEL_MARGIN = Number(flag('margin', '3'));
+// How often to disobey the ranking at a fight, and how deep to look when we
+// do. Zero keeps the driver deterministic, which is what every measurement so
+// far was taken under.
+const NOISE = Number(flag('noise', '0'));
+const EXPLORE_WIDTH = Number(flag('explore-width', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
 // costs nothing and retrying is ordinary play; under `hardcore` a wipe has
 // usually already taken the Pokemon that made the attempt worth repeating.
@@ -1198,7 +1203,34 @@ function bestMove(view) {
 		(b.floorKO ? 1 : 0) - (a.floorKO ? 1 : 0) ||
 		(b.guaranteedKO ? 1 : 0) - (a.guaranteedKO ? 1 : 0) ||
 		b.min - a.min || b.max - a.max);
-	return scored[0];
+	return explore(scored, 'move');
+}
+
+/**
+ * Occasionally take the second or third choice instead of the first.
+ *
+ * The policy is a function of the state, so twenty retries at a wall re-derive
+ * the same line twenty times and only the dice differ — Wattson was lost in
+ * 27, 29, 28, 31, 29, 34 and 35 turns, which is one strategy sampled seven
+ * times rather than seven strategies. A wall that the top-ranked line cannot
+ * pass is exactly where the ranking is worth disobeying, and retrying is free.
+ *
+ * A KO is never gambled away: the sort puts those first, and if the leader is
+ * one it is returned untouched. Everything below the leader is a judgement
+ * call the ranking makes on a margin, which is what this samples.
+ *
+ * Off unless --noise is given, so every earlier measurement still reproduces.
+ */
+function explore(ranked, what) {
+	if (!NOISE || ranked.length < 2) return ranked[0];
+	if (ranked[0].floorKO || ranked[0].guaranteedKO) return ranked[0];
+	if (Math.random() >= NOISE) return ranked[0];
+	const among = Math.min(ranked.length, EXPLORE_WIDTH);
+	const pick = 1 + Math.floor(Math.random() * (among - 1));
+	note('noise', what + ': took #' + (pick + 1) + ' of ' + among + ' — ' +
+		(ranked[pick].move || ranked[pick].species || '?') +
+		' over ' + (ranked[0].move || ranked[0].species || '?'));
+	return ranked[pick];
 }
 
 /**
@@ -1415,7 +1447,9 @@ function healthiestSwitch(view, roster) {
 	// either way — so what matters is what that free turn buys.
 	options.sort((a, b) => (b.armed ? 1 : 0) - (a.armed ? 1 : 0) ||
 		a.taking - b.taking || b.hp - a.hp);
-	return options[0];
+	// The switch is the same kind of judgement on a margin as the move,
+	// and "who do we send in" is often where a lost fight was decided.
+	return explore(options, 'switch');
 }
 
 /**
