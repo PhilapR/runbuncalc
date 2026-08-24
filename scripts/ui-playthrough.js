@@ -86,6 +86,10 @@ const LEVEL_MARGIN = Number(flag('margin', '3'));
 // restores the damage-only ranking, which is what makes this falsifiable
 // and what the A/B behind it was run against.
 const USE_ACCURACY = flag('accuracy', '1') !== '0';
+// Restores the original ranking — flat KO tiers, then raw damage, no turn
+// count and no accuracy — so the change can be measured against what it
+// replaced rather than argued about.
+const LEGACY_RANK = process.argv.includes('--legacy-rank');
 const NOISE = Number(flag('noise', '0'));
 const EXPLORE_WIDTH = Number(flag('explore-width', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
@@ -1271,12 +1275,16 @@ function bestMove(view) {
 	// the unit the fight is actually lost in. Damage only breaks ties between
 	// moves that reach the KO on the same turn — where it decides which one
 	// gets there with more margin against a bad roll.
-	scored.sort((a, b) =>
-		(b.floorKO ? b.acc : 0) - (a.floorKO ? a.acc : 0) ||
-		(b.guaranteedKO ? b.acc : 0) - (a.guaranteedKO ? a.acc : 0) ||
-		turnsToKO(a) - turnsToKO(b) ||
-		b.min * b.acc - a.min * a.acc ||
-		b.max * b.acc - a.max * a.acc);
+	scored.sort(LEGACY_RANK ? (a, b) =>
+		(b.floorKO ? 1 : 0) - (a.floorKO ? 1 : 0) ||
+		(b.guaranteedKO ? 1 : 0) - (a.guaranteedKO ? 1 : 0) ||
+		b.min - a.min || b.max - a.max :
+		(a, b) =>
+			(b.floorKO ? b.acc : 0) - (a.floorKO ? a.acc : 0) ||
+			(b.guaranteedKO ? b.acc : 0) - (a.guaranteedKO ? a.acc : 0) ||
+			turnsToKO(a) - turnsToKO(b) ||
+			b.min * b.acc - a.min * a.acc ||
+			b.max * b.acc - a.max * a.acc);
 	return explore(scored, 'move');
 }
 
