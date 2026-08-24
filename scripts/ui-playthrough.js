@@ -125,6 +125,10 @@ const USE_ACCURACY = flag('accuracy', '1') !== '0';
 // count and no accuracy — so the change can be measured against what it
 // replaced rather than argued about.
 const LEGACY_RANK = process.argv.includes('--legacy-rank');
+// How many bodies a fight may spend to bring the answer in free. Two is what
+// the tactic was tuned to; 0 disables it, which is what makes it testable
+// rather than a thing everyone assumes is earning its keep.
+const SAC_BUDGET = Number(flag('sac', '2'));
 const NOISE = Number(flag('noise', '0'));
 const EXPLORE_WIDTH = Number(flag('explore-width', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
@@ -1730,7 +1734,8 @@ function decide(view, memory, roster) {
 		// buy nothing and donated a KO. It fired 13 times against Brawly and
 		// moved the wipe from turn 20 to turn 25 without ever winning, which
 		// is what paying for nothing looks like.
-		const fodder = answer && memory.sacked < 2 ? sacSwitch(view, roster) : null;
+		const fodder = answer && memory.sacked < SAC_BUDGET ?
+			sacSwitch(view, roster) : null;
 		if (fodder) {
 			memory.sacked += 1;
 			return {kind: 'switch', pick: fodder,
