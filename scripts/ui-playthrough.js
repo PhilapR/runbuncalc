@@ -1175,6 +1175,43 @@ async function followLead(page, plan) {
 
 /** The damage line under a move, read the way a player reads it. */
 /**
+ * The race, in turns, as the panel itself counts it.
+ *
+ * The threat line ends "you need 3 turns to KO, they need 2 — YOU LOSE THIS
+ * RACE", and the driver was reading only the verdict at the end of that
+ * sentence. The two numbers in front of it are the whole of the panel's
+ * reasoning and they say things the boolean cannot: whether the race is lost
+ * by one turn or by four, and therefore whether it can be flipped at all.
+ *
+ * Returns nulls rather than guesses when the sentence is not there, which is
+ * the case on a forced switch and on the first turn of some fights.
+ */
+function raceOf(view) {
+	const hit = /you need (\d+) turns? to KO, they need (\d+)/.exec(view.threat || '');
+	const lost = /YOU LOSE THIS RACE|NOTHING HERE DAMAGES IT/.test(view.threat || '');
+	if (!hit) return {ours: null, theirs: null, lost: lost, margin: null};
+	const ours = Number(hit[1]);
+	const theirs = Number(hit[2]);
+	return {ours: ours, theirs: theirs, lost: lost, margin: theirs - ours};
+}
+
+/**
+ * How many turns this move needs to KO, on its FLOOR damage.
+ *
+ * The panel counts a fight in turns and the ranking counted it in percent, so
+ * the two disagreed constantly: 34% and 50% are the same move if both need
+ * three turns, and a move that turns three turns into two beats any amount of
+ * damage that does not. Dividing by accuracy prices a miss as the lost turn it
+ * is. The floor rather than the average, because our floor is what a plan may
+ * rely on.
+ */
+function turnsToKO(entry) {
+	if (entry.floorKO) return 1 / (entry.acc || 1);
+	if (!entry.min || entry.min <= 0) return Infinity;
+	return Math.ceil(100 / entry.min) / (entry.acc || 1);
+}
+
+/**
  * A move's chance to land, as a fraction. `true` in the dex means it cannot
  * miss, and an unknown move is assumed to hit rather than be penalised for
  * being unrecognised.
@@ -1230,9 +1267,14 @@ function bestMove(view) {
 	// A KO still outranks everything, but a KO that can miss is not the equal
 	// of one that cannot, so the KO tiers carry the accuracy too rather than
 	// being a flat yes or no.
+	// Turns first, because that is the unit the panel decides fights in and
+	// the unit the fight is actually lost in. Damage only breaks ties between
+	// moves that reach the KO on the same turn — where it decides which one
+	// gets there with more margin against a bad roll.
 	scored.sort((a, b) =>
 		(b.floorKO ? b.acc : 0) - (a.floorKO ? a.acc : 0) ||
 		(b.guaranteedKO ? b.acc : 0) - (a.guaranteedKO ? a.acc : 0) ||
+		turnsToKO(a) - turnsToKO(b) ||
 		b.min * b.acc - a.min * a.acc ||
 		b.max * b.acc - a.max * a.acc);
 	return explore(scored, 'move');
@@ -1576,7 +1618,8 @@ function decide(view, memory, roster) {
 			return {kind: 'switch', pick: armed, why: 'nothing here can damage it'};
 		}
 	}
-	const losingRace = /YOU LOSE THIS RACE|NOTHING HERE DAMAGES IT/.test(view.threat);
+	const race = raceOf(view);
+	const losingRace = race.lost;
 	// Status is worth MOST when the race is lost, not least. The old guard
 	// refused it whenever a crit would kill us, which against Camper Gavi's
 	// five is almost every turn — so the driver traded damage it could not win
@@ -1593,8 +1636,16 @@ function decide(view, memory, roster) {
 	// turns to KO, they need 2" is decided by who moves first. Two stages off
 	// their Speed turns that sentence around and costs one turn to do. Once
 	// per opposing Pokemon, so a missed Cotton Spore cannot become a loop.
+	//
+	// Which is why it now asks HOW LOST. A Speed drop changes the order, never
+	// the turn counts, so it can only win a race that order decides — "you
+	// need 2, they need 2". At "you need 6, they need 2" it spends the one
+	// turn we had on a move that cannot reach the deficit. The boolean could
+	// not tell those apart and spent the turn either way.
 	const slow = view.moves.find(entry => !entry.ball && SLOW_MOVES.has(entry.move));
-	if (slow && losingRace && view.risk !== 'lethal' && !memory.slowed.has(view.foe)) {
+	const orderDecides = race.margin === null || race.margin >= -1;
+	if (slow && losingRace && orderDecides &&
+		view.risk !== 'lethal' && !memory.slowed.has(view.foe)) {
 		memory.slowed.add(view.foe);
 		return {kind: 'move', pick: {move: slow.move},
 			why: 'setting the race straight with ' + slow.move};
