@@ -1450,7 +1450,7 @@ const STATUS_WORTH = {slp: 5, par: 4, confusion: 3, frz: 5, tox: 2, psn: 1, brn:
  * level with a screen at 120 and poison at 24, below every real attack, which
  * is where chip damage belongs.
  */
-const STATUS_VALUE_PER_WORTH = 24;
+const STATUS_VALUE_PER_WORTH = Number(flag('status-value', '24'));
 
 /** The best status move on the bar, or null if none is worth a turn. */
 function bestStatusMove(view) {
