@@ -82,8 +82,20 @@ const LEVEL_MARGIN = Number(flag('margin', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
 // costs nothing and retrying is ordinary play; under `hardcore` a wipe has
 // usually already taken the Pokemon that made the attempt worth repeating.
+// Both defaults are measured rather than chosen. Across every log this
+// directory holds, 1,470 ordinary-trainer wins land on attempt 1 in 96% of
+// cases and 99% by attempt 3, so three is already the right number and is
+// left alone. The 14 boss wins land on attempts 1, 4, 5, 6, 8, 12 and 13 —
+// 64% by attempt 5 but 100% only by 13, so a cap of 5 or 6 would throw away
+// more than a quarter of the boxes that can actually clear a leader.
+//
+// Thirteen is the observed maximum, not a safety margin over it. Twenty
+// attempts at a boss that never falls cost 95-106s of a 314-402s run, close
+// to 30% of the whole thing, and the old default of 40 doubled that for no
+// win it could not already reach. If a win ever lands ON the cap the run
+// says so in the log, which is the signal to raise this.
 const RETRIES = Number(flag('retries', 3));
-const BOSS_RETRIES = Number(flag('boss-retries', 40));
+const BOSS_RETRIES = Number(flag('boss-retries', 13));
 const HEADED = process.argv.includes('--headed');
 
 const started = Date.now();
@@ -316,11 +328,18 @@ async function takeEncounters(page) {
 		const boxBefore = (await savedRun(page)).box.length;
 		const kept = await act(page, 'keep ' + route.map,
 			() => press(page, '#runbun-run-roll-catch'));
-		const boxAfter = (await savedRun(page)).box.length;
+			const afterBox = (await savedRun(page)).box;
+			const boxAfter = afterBox.length;
 		if (boxAfter > boxBefore) {
 			caughtFrom.add(route.map);
 			taken.push(rolled);
-			note('caught', rolled + '  (' + route.map + ')');
+				// The IV total belongs in the log line, not only in the report. A
+				// trainer's Pokemon is a flat 186 and a wild catch averages 93, so
+				// this is the number that says how far below the fight a box starts,
+				// and comparing boxes that clear a wall against boxes that never do
+				// is the whole question.
+				note('caught', rolled + '  (' + route.map + ')' +
+					ivNote(afterBox[boxAfter - 1]));
 		} else {
 			caughtFrom.add(route.map);
 			await act(page, 'flee ' + route.map, () => press(page, '#runbun-run-roll-flee'));
@@ -429,6 +448,25 @@ async function unbrickHeldItems(page, message) {
 	note('item', 'took ' + blame[2] + ' back off ' + blame[1] +
 		' — the picker offered an item nothing can hold');
 	return took.changed;
+}
+
+/**
+ * " · IV 104/186" for a Pokemon whose spread is known, and nothing at all for
+ * one whose is not.
+ *
+ * A run records what it was told; an unrecorded IV is not a zero, so a partial
+ * spread is reported as a floor over the stats that ARE known rather than
+ * summed as though the rest were zeroes. The same rule the panel follows.
+ */
+function ivNote(mon) {
+	const ivs = mon && mon.ivs;
+	if (!ivs) return '';
+	const known = ['hp', 'atk', 'def', 'spa', 'spd', 'spe']
+		.map(stat => ivs[stat]).filter(value => typeof value === 'number');
+	if (!known.length) return '';
+	const total = known.reduce((sum, value) => sum + value, 0);
+	return known.length === 6 ? ' · IV ' + total + '/186' :
+		' · IV ' + total + '+ (' + (6 - known.length) + ' not recorded)';
 }
 
 function capOf(view) {
@@ -2036,6 +2074,16 @@ async function main() {
 				break;
 			}
 		} else {
+			// The retry caps are set from where wins were observed to land, so
+			// a win landing near a cap is the evidence that the observation has
+			// moved. Say so, rather than let a later cap silently discard a box
+			// that could have cleared the fight.
+			const nearBoss = /Leader|Elite|Champion|Rival/i.test(before.nextTitle);
+			const limit = nearBoss ? BOSS_RETRIES : RETRIES;
+			if (stalled && stalled + 1 >= limit - 1) {
+				note('run', 'won at attempt ' + (stalled + 1) + ' of ' + limit +
+					' at ' + before.nextTitle + ' — the retry cap is nearly biting');
+			}
 			stalled = 0;
 		}
 		if (played.outcome === 'out of time' || played.outcome === 'stuck') break;
@@ -2080,11 +2128,20 @@ async function main() {
 		journal: journal,
 		detail: fights,
 	};
-	fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(report, null, '\t'));
+	// One report per run. Every run used to write to the same path, so a
+	// nine-run batch overwrote its own results eight times and left only
+	// the last — which is why a question about the IV spread of the boxes
+	// that cleared a wall could not be answered from a batch that had
+	// already measured it. The name carries the starter and the start
+	// time, so runs sort and never collide.
+	const reportName = flag('report', 'report-' + STARTER + '-' + started + '.json');
+	const reportPath = path.join(OUT, reportName);
+	fs.writeFileSync(reportPath, JSON.stringify(report, null, '\t'));
 
 	console.log('\n=== ' + report.fights + ' fights · ' + report.won + ' won · ' +
 		report.wiped + ' wiped · ' + report.seconds + 's');
 	console.log('reached: ' + report.reached);
+	console.log('report: ' + reportPath);
 	console.log('problems: ' + problems.length);
 	for (const issue of problems.slice(0, 40)) {
 		console.log('  - ' + issue.where + ': ' + issue.message);
