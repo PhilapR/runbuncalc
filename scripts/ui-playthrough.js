@@ -63,9 +63,44 @@ try {
 const OUT = path.join(__dirname, '..', 'ui-playthrough-out');
 const PARTY_LIMIT = 6;
 
+/**
+ * Every flag name this run has ASKED for, whether or not it was supplied.
+ *
+ * A flag the driver never asks for is silently ignored, which is how
+ * --legacy-rank came to be passed to an entire A/B arm without existing: the
+ * control ran the treatment with one term switched off, and the experiment
+ * would have compared a change to a near-copy of itself. Recording what was
+ * asked for makes what was passed-but-never-read a detectable error rather
+ * than a silent one.
+ */
+const ASKED = new Set();
+/** Flags read with argv.includes rather than through `flag`. */
+const BARE = ['legacy-rank', 'headed'];
+
 function flag(name, fallback) {
+	ASKED.add(name);
 	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
 	return hit === undefined ? fallback : hit.slice(name.length + 3);
+}
+
+/** A git value, or null outside a checkout. Never throws: provenance must
+ * not be able to fail a run. */
+function gitOutput(args) {
+	try {
+		return require('node:child_process')
+			.execFileSync('git', args, {cwd: __dirname, encoding: 'utf8'}).trim();
+	} catch (error) {
+		return null;
+	}
+}
+
+/** Flags supplied on the command line that nothing ever read. Typos, mostly. */
+function unreadFlags() {
+	const known = new Set([...ASKED, ...BARE]);
+	return process.argv.slice(2)
+		.filter(arg => arg.startsWith('--'))
+		.map(arg => arg.replace(/^--/, '').split('=')[0])
+		.filter(name => !known.has(name));
 }
 
 const STARTER = flag('starter', 'Piplup');
@@ -2269,8 +2304,30 @@ async function main() {
 	// there was no way to open a playthrough in the app it was driving —
 	// paste this into the transfer box and Import.
 	const runDoc = await savedRun(page).catch(() => null);
+	// Provenance. A report that cannot say which code produced it cannot be
+	// compared with another: an A/B whose arms straddled a mid-run edit reads
+	// exactly like one that did not, and today one did. A tally holding two
+	// revisions is now self-evidently invalid, and `dirty` says the tree had
+	// uncommitted changes so the revision alone does not identify the code.
+	// Resolved BEFORE the provenance block: the audit below reports flags that
+	// nothing asked for, and asking for this one afterwards made it accuse
+	// itself. A guard that cries wolf is a guard that gets ignored.
+	const reportName = flag('report', 'report-' + STARTER + '-' + started + '.json');
+	const provenance = {
+		revision: gitOutput(['rev-parse', 'HEAD']),
+		dirty: gitOutput(['status', '--porcelain']) !== '',
+		argv: process.argv.slice(2),
+		unreadFlags: unreadFlags(),
+		node: process.version,
+		startedAt: new Date(started).toISOString(),
+	};
+	if (provenance.unreadFlags.length) {
+		problem('flags', 'passed but never read: ' +
+			provenance.unreadFlags.map(name => '--' + name).join(', '));
+	}
 	const report = {
 		starter: STARTER,
+		provenance: provenance,
 		run: runDoc,
 		durable: durable,
 		forecast: fights.map(fight => fight.plan && fight.plan.forecast).find(Boolean) || 'none',
@@ -2291,7 +2348,6 @@ async function main() {
 	// that cleared a wall could not be answered from a batch that had
 	// already measured it. The name carries the starter and the start
 	// time, so runs sort and never collide.
-	const reportName = flag('report', 'report-' + STARTER + '-' + started + '.json');
 	const reportPath = path.join(OUT, reportName);
 	fs.writeFileSync(reportPath, JSON.stringify(report, null, '\t'));
 
