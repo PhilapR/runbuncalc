@@ -2173,8 +2173,14 @@ async function main() {
 
 	const final = await readRun(page);
 	await page.screenshot({path: path.join(OUT, 'final.png'), fullPage: true});
+	// The run document itself, so a finished run can be loaded back into the
+	// panel and looked at. The report carried the box but never the run, so
+	// there was no way to open a playthrough in the app it was driving —
+	// paste this into the transfer box and Import.
+	const runDoc = await savedRun(page).catch(() => null);
 	const report = {
 		starter: STARTER,
+		run: runDoc,
 		durable: durable,
 		forecast: fights.map(fight => fight.plan && fight.plan.forecast).find(Boolean) || 'none',
 		seconds: Math.round((Date.now() - started) / 1000),
