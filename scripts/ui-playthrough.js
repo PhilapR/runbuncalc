@@ -401,7 +401,7 @@ async function equipParty(page) {
 		// `give` reads the select, so the choice has to land in the control
 		// and not only in this function.
 		await page.selectOption('#runbun-run-hold-item', wanted);
-		const given = await act(page, 'give ' + wanted, () => page.click('#runbun-run-give'));
+		const given = await act(page, 'give ' + wanted, () => press(page, '#runbun-run-give'));
 		if (!given.changed) {
 			notHoldable.add(wanted);
 			note('item', wanted + ' cannot be held — ' + (given.status || 'refused'));
@@ -464,7 +464,7 @@ async function teachPending(page, mon, status) {
 		await page.fill('#runbun-run-move', move);
 		await page.selectOption('#runbun-run-replace', options[0]);
 		const taught = await act(page, 'teach ' + move,
-			() => page.click('#runbun-run-teach'));
+			() => press(page, '#runbun-run-teach'));
 		if (!taught.changed) {
 			note('teach', mon.species + ' could not learn ' + move + ' — ' + taught.status);
 			return;
@@ -506,7 +506,7 @@ async function levelAndEvolve(page) {
 			// done by the exact-level control.
 			if (capped === null) await page.fill('#runbun-run-level-to', String(cap));
 			const grew = await act(page, 'level ' + mon.species,
-				() => page.click(capped === null ? '#runbun-run-level' : '#runbun-run-level-cap'));
+				() => press(page, capped === null ? '#runbun-run-level' : '#runbun-run-level-cap'));
 			if (grew.changed) {
 				note('level', mon.species + ' L' + mon.level + ' -> L' + cap);
 				await teachPending(page, mon, grew.status);
@@ -530,7 +530,7 @@ async function levelAndEvolve(page) {
 			.some(el => /Evolution/.test(el.textContent) && /ready now/.test(el.textContent)));
 		if (!ready) continue;
 		const evolved = await act(page, 'evolve ' + mon.species,
-			() => page.click('#runbun-run-evolve'));
+			() => press(page, '#runbun-run-evolve'));
 		if (evolved.changed) note('evolve', mon.species + ' — ' + evolved.status);
 	}
 }
@@ -960,7 +960,7 @@ async function applyUpgrade(page, row) {
 			return false;
 		}
 		await page.selectOption('#runbun-run-hold-item', item);
-		const given = await act(page, 'give ' + item, () => page.click('#runbun-run-give'));
+		const given = await act(page, 'give ' + item, () => press(page, '#runbun-run-give'));
 		if (!given.changed) {
 			notHoldable.add(item);
 			return false;
@@ -991,7 +991,7 @@ async function applyUpgrade(page, row) {
 		}
 		await page.selectOption('#runbun-run-replace', dropping);
 		const taught = await act(page, 'teach ' + parsed[1],
-			() => page.click('#runbun-run-teach'));
+			() => press(page, '#runbun-run-teach'));
 		if (!taught.changed) {
 			note('advise', row.who + ' could not learn ' + parsed[1] + ' — ' + taught.status);
 			return false;
@@ -1688,7 +1688,7 @@ async function assumeTms(page, roster) {
 			if (!buyingLine && weakest && value(best) <= value(weakest)) break;
 			await page.fill('#runbun-run-move', best);
 			await page.selectOption('#runbun-run-replace', known.length >= 4 ? weakest : '');
-			const taught = await act(page, 'assume ' + best, () => page.click('#runbun-run-teach'));
+			const taught = await act(page, 'assume ' + best, () => press(page, '#runbun-run-teach'));
 			if (taught.changed) {
 				if (isLineMove(best)) partyHasLine = true;
 				note('tm', mon.species + ' learned ' + best + ' (' + bp(best) + ' BP, ' +
