@@ -1862,15 +1862,28 @@ async function main() {
 		await page.check('#runbun-run-new-route');
 		await page.selectOption('#runbun-run-new-dupes', 'line');
 	} else if (RULES === 'encounters') {
-		// The encounter rule and nothing else. One catch per route, enforced
-		// by the run rather than by this driver's own policy, so the box is
-		// composed the way a Nuzlocke composes it — and then no permadeath and
-		// NO LEVEL CAP, because the point is to get far enough in to see what
-		// the capped runs never reach: the later trainers, the TMs that are
-		// not on the shelf at L21, the rest of the map.
+		// A Nuzlocke without the death. Every encounter rule stays on — one
+		// catch per route and the dupes clause, so the box is composed exactly
+		// the way a real run composes it — and the level caps stay on, so
+		// every fight is still fought at the level it is meant to be fought
+		// at. Only permadeath comes off.
 		//
-		// This is not a legal run and nothing it wins counts. It is a
-		// telescope, and it is labelled as one in the log.
+		// That is the setting that teaches the most per run: the box and the
+		// difficulty are honest, so what happens in a fight means what it
+		// would mean in a real run, but a loss costs the fight instead of
+		// ending the attempt — so one run reaches far more of the map than
+		// hardcore ever does. Its wins do not count as a cleared Nuzlocke.
+		await page.check('#runbun-run-new-cap');
+		await page.check('#runbun-run-new-nuzlocke');
+		await page.uncheck('#runbun-run-new-permadeath');
+		await page.check('#runbun-run-new-route');
+		await page.selectOption('#runbun-run-new-dupes', 'line');
+	} else if (RULES === 'uncapped') {
+		// The telescope: encounters, no permadeath, and NO LEVEL CAP. Nothing
+		// it does resembles a real run — it is for seeing what the capped runs
+		// never reach, because everything past order 139 is unobserved and the
+		// screens and stat boosts are demonstrably not on the shelf at L21.
+		// Levelling falls back to the strongest foe met plus --margin.
 		await page.uncheck('#runbun-run-new-cap');
 		await page.check('#runbun-run-new-nuzlocke');
 		await page.uncheck('#runbun-run-new-permadeath');
