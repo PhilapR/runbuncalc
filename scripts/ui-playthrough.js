@@ -82,6 +82,10 @@ const LEVEL_MARGIN = Number(flag('margin', '3'));
 // How often to disobey the ranking at a fight, and how deep to look when we
 // do. Zero keeps the driver deterministic, which is what every measurement so
 // far was taken under.
+// Weight damage by the chance of landing it. On by default; --accuracy=0
+// restores the damage-only ranking, which is what makes this falsifiable
+// and what the A/B behind it was run against.
+const USE_ACCURACY = flag('accuracy', '1') !== '0';
 const NOISE = Number(flag('noise', '0'));
 const EXPLORE_WIDTH = Number(flag('explore-width', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
@@ -1170,6 +1174,21 @@ async function followLead(page, plan) {
 // ------------------------------------------------------------------ the fight
 
 /** The damage line under a move, read the way a player reads it. */
+/**
+ * A move's chance to land, as a fraction. `true` in the dex means it cannot
+ * miss, and an unknown move is assumed to hit rather than be penalised for
+ * being unrecognised.
+ */
+function accuracyOf(moveName) {
+	try {
+		const accuracy = ai.getMoveMetadata(moveName, 8).accuracy;
+		if (accuracy === true || accuracy === undefined || accuracy === null) return 1;
+		return Number(accuracy) / 100;
+	} catch (error) {
+		return 1;
+	}
+}
+
 function scoreMove(entry) {
 	const damage = entry.damage || '';
 	const floor = /(\d+)%\+/.exec(damage);
@@ -1181,6 +1200,7 @@ function scoreMove(entry) {
 		guaranteedKO: /· KO$/.test(damage),
 		min: floor ? Number(floor[1]) : (range ? Number(range[1]) : 0),
 		max: range ? Number(range[2]) : (floor ? Number(floor[1]) : 0),
+		acc: USE_ACCURACY ? accuracyOf(entry.move) : 1,
 		damaging: !!floor || !!range,
 	};
 }
@@ -1199,10 +1219,22 @@ function bestMove(view) {
 	const scored = view.moves.filter(entry => !entry.ball).map(scoreMove)
 		.filter(entry => entry.damaging && entry.max > 0);
 	if (!scored.length) return null;
+	// Damage TIMES the chance of landing it, because a move that misses deals
+	// none. The ranking used the damage alone, so Thunder at 110 and 80% beat
+	// Spark at 65 and 100% and was pressed every turn — and the noise
+	// experiment found this by accident: of the deviations that showed up in
+	// runs which cleared a wall, the great majority swapped a big inaccurate
+	// move for a small reliable one. Spark over Thunder, Bubble Beam over
+	// Hydro Pump, Aerial Ace over Hurricane, Ember over Fire Blast.
+	//
+	// A KO still outranks everything, but a KO that can miss is not the equal
+	// of one that cannot, so the KO tiers carry the accuracy too rather than
+	// being a flat yes or no.
 	scored.sort((a, b) =>
-		(b.floorKO ? 1 : 0) - (a.floorKO ? 1 : 0) ||
-		(b.guaranteedKO ? 1 : 0) - (a.guaranteedKO ? 1 : 0) ||
-		b.min - a.min || b.max - a.max);
+		(b.floorKO ? b.acc : 0) - (a.floorKO ? a.acc : 0) ||
+		(b.guaranteedKO ? b.acc : 0) - (a.guaranteedKO ? a.acc : 0) ||
+		b.min * b.acc - a.min * a.acc ||
+		b.max * b.acc - a.max * a.acc);
 	return explore(scored, 'move');
 }
 
