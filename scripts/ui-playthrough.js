@@ -82,19 +82,31 @@ const LEVEL_MARGIN = Number(flag('margin', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
 // costs nothing and retrying is ordinary play; under `hardcore` a wipe has
 // usually already taken the Pokemon that made the attempt worth repeating.
-// Both defaults are measured rather than chosen. Across every log this
-// directory holds, 1,470 ordinary-trainer wins land on attempt 1 in 96% of
-// cases and 99% by attempt 3, so three is already the right number and is
-// left alone. The 14 boss wins land on attempts 1, 4, 5, 6, 8, 12 and 13 —
-// 64% by attempt 5 but 100% only by 13, so a cap of 5 or 6 would throw away
-// more than a quarter of the boxes that can actually clear a leader.
+// The boss cap is measured. The 14 boss wins on record land on attempts 1, 4,
+// 5, 6, 8, 12 and 13 — 64% by attempt 5 but 100% only by 13 — so a cap of 5 or
+// 6 throws away more than a quarter of the boxes that can clear a leader.
+// Thirteen is that observed maximum. Twenty attempts at a boss that never
+// falls cost 95-106s of a 314-402s run, and the old default of 40 doubled
+// that for no win it could not already reach.
 //
-// Thirteen is the observed maximum, not a safety margin over it. Twenty
-// attempts at a boss that never falls cost 95-106s of a 314-402s run, close
-// to 30% of the whole thing, and the old default of 40 doubled that for no
-// win it could not already reach. If a win ever lands ON the cap the run
-// says so in the log, which is the signal to raise this.
-const RETRIES = Number(flag('retries', 3));
+// The ordinary cap is NOT the aggregate it looks like. 1,470 ordinary wins
+// land on attempt 1 in 96% of cases and 99% by attempt 3, and a cap of three
+// read off that number sent six of twelve runs to their death at Camper Gavi,
+// against one of nine before it. Three things were wrong with the reading.
+// The statistic conditions on having won, which cannot answer what a cap
+// costs. Its denominator is 1,416 attempt-1 walkovers that never retry at
+// all, so the fights that do retry are invisible in it — and at Camper Gavi
+// itself only 16 of 28 wins arrive by attempt 3, with the latest on 11. And
+// the logs it was measured from were all produced under --retries=12, so a
+// win at attempt 15 could not appear in them: the tail is censored by the
+// setting it was being used to justify.
+//
+// A generous cap is close to free, because it is only ever spent where a run
+// is already stuck. It also buys the thing that actually breaks a wall: every
+// third stall clears caughtFrom and reopens the routes, so twelve attempts is
+// four fresh sets of encounters and three is one. That is why more retries
+// beat a wall a better policy could not.
+const RETRIES = Number(flag('retries', 12));
 const BOSS_RETRIES = Number(flag('boss-retries', 13));
 const HEADED = process.argv.includes('--headed');
 
