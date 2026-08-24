@@ -77,6 +77,8 @@ const ADVICE_ROUNDS = Number(flag('advice', 3));
 const RULES = flag('rules', 'hardcore');
 const CATCH_LIMIT = Number(flag('box', 14));
 const TMS = flag('tms', 'advisor');
+/** How far past the strongest foe an uncapped run levels. Ignored when a cap exists. */
+const LEVEL_MARGIN = Number(flag('margin', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
 // costs nothing and retrying is ordinary play; under `hardcore` a wipe has
 // usually already taken the Pokemon that made the attempt worth repeating.
@@ -434,6 +436,20 @@ function capOf(view) {
 	return hit ? Number(hit[1]) : null;
 }
 
+/**
+ * The strongest thing we have met, which is the only level signal an uncapped
+ * run has.
+ *
+ * `--rules=encounters` switches the level cap off, and lib/run.js answers a
+ * null cap the moment it does — the number the panel shows is the next boss's
+ * ace level, and turning the rule off stops it being computed at all. So the
+ * target becomes the highest opposing level seen so far plus a margin, which
+ * tracks the run's own difficulty curve without needing the rule that was
+ * switched off. It only ever goes up, so a weak trainer cannot pull the party
+ * back down.
+ */
+let strongestFoe = 0;
+
 /** Levelling teaches: a full moveset stops and asks, so the pending move is
  * taught over the oldest one — which is what a player does with Tackle. */
 async function teachPending(page, mon, status) {
@@ -459,7 +475,11 @@ async function teachPending(page, mon, status) {
 
 async function levelAndEvolve(page) {
 	const view = await readRun(page);
-	const cap = capOf(view);
+	const capped = capOf(view);
+	// With the rule on, level to the cap the panel states. With it off there
+	// is no cap to state, so aim a margin past the strongest thing met so far.
+	const cap = capped !== null ? capped :
+		(strongestFoe ? strongestFoe + LEVEL_MARGIN : null);
 	if (cap === null) return;
 	// EVERYONE under the cap, not the first six. Levelling only a six made the
 	// box decorative: the matrix chooses from twenty-two, but sixteen of them
@@ -482,8 +502,11 @@ async function levelAndEvolve(page) {
 		if (outOfTime()) break;
 		if (!await selectMon(page, mon.id)) continue;
 		if (mon.level < cap) {
+			// "Level to cap" needs a cap to exist; without one the same job is
+			// done by the exact-level control.
+			if (capped === null) await page.fill('#runbun-run-level-to', String(cap));
 			const grew = await act(page, 'level ' + mon.species,
-				() => page.click('#runbun-run-level-cap'));
+				() => page.click(capped === null ? '#runbun-run-level' : '#runbun-run-level-cap'));
 			if (grew.changed) {
 				note('level', mon.species + ' L' + mon.level + ' -> L' + cap);
 				await teachPending(page, mon, grew.status);
@@ -1725,6 +1748,10 @@ async function playFight(page, plan, roster) {
 		if (!view.open) break;
 		if (view.foe !== lastFoe) {
 			lastFoe = view.foe;
+			// The card reads "Kubfu L20". In an uncapped run this is the only
+			// thing that says how far along the difficulty curve we are.
+			const met = /\bL(\d+)\b/.exec(view.foe || '');
+			if (met) strongestFoe = Math.max(strongestFoe, Number(met[1]));
 			if (view.threat) note('threat', view.foe + ' — ' + view.threat);
 		}
 		const choice = decide(view, memory, roster);
@@ -1828,13 +1855,30 @@ async function main() {
 	// the run document supports directly (a faint "changed nothing" without
 	// permadeath), and is how far the ADVICE can carry a run when losing a
 	// Pokemon is not also losing the run.
-	await page.check('#runbun-run-new-cap');
 	if (RULES === 'hardcore') {
+		await page.check('#runbun-run-new-cap');
 		await page.check('#runbun-run-new-nuzlocke');
 		await page.check('#runbun-run-new-permadeath');
 		await page.check('#runbun-run-new-route');
 		await page.selectOption('#runbun-run-new-dupes', 'line');
+	} else if (RULES === 'encounters') {
+		// The encounter rule and nothing else. One catch per route, enforced
+		// by the run rather than by this driver's own policy, so the box is
+		// composed the way a Nuzlocke composes it — and then no permadeath and
+		// NO LEVEL CAP, because the point is to get far enough in to see what
+		// the capped runs never reach: the later trainers, the TMs that are
+		// not on the shelf at L21, the rest of the map.
+		//
+		// This is not a legal run and nothing it wins counts. It is a
+		// telescope, and it is labelled as one in the log.
+		await page.uncheck('#runbun-run-new-cap');
+		await page.check('#runbun-run-new-nuzlocke');
+		await page.uncheck('#runbun-run-new-permadeath');
+		await page.check('#runbun-run-new-route');
+		await page.uncheck('#runbun-run-new-shiny-clause');
+		await page.selectOption('#runbun-run-new-dupes', 'off');
 	} else {
+		await page.check('#runbun-run-new-cap');
 		await page.uncheck('#runbun-run-new-nuzlocke');
 		await page.uncheck('#runbun-run-new-permadeath');
 		await page.uncheck('#runbun-run-new-route');
