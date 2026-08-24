@@ -82,12 +82,26 @@ const LEVEL_MARGIN = Number(flag('margin', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
 // costs nothing and retrying is ordinary play; under `hardcore` a wipe has
 // usually already taken the Pokemon that made the attempt worth repeating.
-// The boss cap is measured. The 14 boss wins on record land on attempts 1, 4,
-// 5, 6, 8, 12 and 13 — 64% by attempt 5 but 100% only by 13 — so a cap of 5 or
-// 6 throws away more than a quarter of the boxes that can clear a leader.
-// Thirteen is that observed maximum. Twenty attempts at a boss that never
-// falls cost 95-106s of a 314-402s run, and the old default of 40 doubled
-// that for no win it could not already reach.
+// The boss cap is twenty, and the story of how it got there is the reason it
+// is not thirteen.
+//
+// Fourteen boss wins were on record, landing on attempts 1, 4, 5, 6, 8, 12 and
+// 13, so thirteen was set as "the observed maximum". An A/B against the old
+// setting then won Brawly on attempt FIFTEEN, and that run went on to reach
+// order 139. Under a cap of thirteen it dies at Brawly instead.
+//
+// The mistake was not the arithmetic, it was believing a tail could be read
+// off fourteen samples at all — and the failure is self-confirming, because a
+// cap censors exactly the evidence that would show it is too low. Three runs
+// in the same test stopped on attempt thirteen having never won; whether any
+// of them would have won on fourteen is unknowable, because none was allowed
+// to try. Setting a limit from the maximum of a small sample and then
+// collecting further data under that limit can only ever confirm it.
+//
+// So the cap is set where the cost is tolerable rather than where the
+// evidence runs out: twenty attempts at a boss that never falls cost 95-106s
+// of a 314-402s run, and that is worth paying to keep a run that can win on
+// fifteen. The old default of 40 doubled the cost again for no win yet seen.
 //
 // The ordinary cap is NOT the aggregate it looks like. 1,470 ordinary wins
 // land on attempt 1 in 96% of cases and 99% by attempt 3, and a cap of three
@@ -107,7 +121,7 @@ const LEVEL_MARGIN = Number(flag('margin', '3'));
 // four fresh sets of encounters and three is one. That is why more retries
 // beat a wall a better policy could not.
 const RETRIES = Number(flag('retries', 12));
-const BOSS_RETRIES = Number(flag('boss-retries', 13));
+const BOSS_RETRIES = Number(flag('boss-retries', 20));
 const HEADED = process.argv.includes('--headed');
 
 const started = Date.now();
