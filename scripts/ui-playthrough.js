@@ -293,7 +293,7 @@ async function takeEncounters(page) {
 		const clicked = await page.$('#runbun-run-reachable .runbun-run-route-choice[data-map="' +
 			route.map + '"]');
 		if (!clicked) continue;
-		await clicked.click();
+		await tap(clicked);
 		try {
 			await page.waitForFunction(
 				() => document.querySelectorAll('#runbun-run-encounters li').length > 0,
@@ -303,7 +303,7 @@ async function takeEncounters(page) {
 			continue;
 		}
 		const roll = await act(page, 'roll ' + route.map,
-			() => page.click('#runbun-run-roll'));
+			() => press(page, '#runbun-run-roll'));
 		const showing = await page.evaluate(() => {
 			const el = document.querySelector('#runbun-run-roll-result');
 			return !!el && !el.hidden;
@@ -315,7 +315,7 @@ async function takeEncounters(page) {
 		const rolled = await text(page, '#runbun-run-roll-text');
 		const boxBefore = (await savedRun(page)).box.length;
 		const kept = await act(page, 'keep ' + route.map,
-			() => page.click('#runbun-run-roll-catch'));
+			() => press(page, '#runbun-run-roll-catch'));
 		const boxAfter = (await savedRun(page)).box.length;
 		if (boxAfter > boxBefore) {
 			caughtFrom.add(route.map);
@@ -323,7 +323,7 @@ async function takeEncounters(page) {
 			note('caught', rolled + '  (' + route.map + ')');
 		} else {
 			caughtFrom.add(route.map);
-			await act(page, 'flee ' + route.map, () => page.click('#runbun-run-roll-flee'));
+			await act(page, 'flee ' + route.map, () => press(page, '#runbun-run-roll-flee'));
 			note('lost', rolled + ' refused — ' + (kept.status || 'no reason given'));
 		}
 	}
@@ -344,7 +344,7 @@ async function takeItems(page) {
 		if (!items.length) return;
 		const button = await page.$('#runbun-run .runbun-run-pickup-take');
 		if (!button) return;
-		const took = await act(page, 'take ' + items[0], () => button.click());
+		const took = await act(page, 'take ' + items[0], () => tap(button));
 		if (!took.changed) {
 			note('item', items[0] + ' refused — ' + (took.status || 'no reason given'));
 			return;
@@ -425,7 +425,7 @@ async function unbrickHeldItems(page, message) {
 	const view = await readRun(page);
 	const mon = view.box.find(entry => entry.species === blame[1] && entry.item === blame[2]);
 	if (!mon || !await selectMon(page, mon.id)) return false;
-	const took = await act(page, 'take ' + blame[2], () => page.click('#runbun-run-take'));
+	const took = await act(page, 'take ' + blame[2], () => press(page, '#runbun-run-take'));
 	note('item', 'took ' + blame[2] + ' back off ' + blame[1] +
 		' — the picker offered an item nothing can hold');
 	return took.changed;
@@ -551,7 +551,7 @@ async function selectMon(page, id) {
 	for (const selector of targets) {
 		const found = await page.$(selector);
 		if (!found) continue;
-		await found.click();
+		await tap(found);
 		await page.waitForTimeout(40);
 		const now = await page.$eval('#runbun-run-selected', el => el.value);
 		if (now === id) return true;
@@ -581,16 +581,16 @@ async function stageParty(page, wanted, why) {
 	for (const id of leaving) {
 		const remove = await page.$('#runbun-run-party-strip .runbun-run-party-rm[data-id="' +
 			id + '"]');
-		if (remove) await remove.click();
+		if (remove) await tap(remove);
 		await page.waitForTimeout(30);
 	}
-	if (leaving.length) await act(page, 'drop', () => page.click('#runbun-run-set-party'));
+	if (leaving.length) await act(page, 'drop', () => press(page, '#runbun-run-set-party'));
 
 	for (const id of wanted) {
 		if ((await stagedIds(page)).indexOf(id) !== -1) continue;
 		const add = await page.$('#runbun-run-box .runbun-run-mon[data-id="' + id +
 			'"] .runbun-run-add');
-		if (add) await add.click();
+		if (add) await tap(add);
 		await page.waitForTimeout(30);
 	}
 
@@ -605,7 +605,7 @@ async function stageParty(page, wanted, why) {
 			const up = await page.$('#runbun-run-party-strip .runbun-run-party-up[data-id="' +
 				wanted[slot] + '"]');
 			if (!up) break;
-			await up.click();
+			await tap(up);
 			await page.waitForTimeout(30);
 		}
 	}
@@ -627,7 +627,7 @@ async function stageParty(page, wanted, why) {
 		}
 		return matches(finalStaged);
 	}
-	const set = await act(page, 'set party', () => page.click('#runbun-run-set-party'));
+	const set = await act(page, 'set party', () => press(page, '#runbun-run-set-party'));
 	const landed = (await savedRun(page)).party.length;
 	if (landed !== wanted.length) {
 		problem('party', 'committed ' + wanted.length + ' but the run kept ' + landed +
@@ -938,7 +938,7 @@ async function applyUpgrade(page, row) {
 				', which no route offers yet — the advisor is planning ahead of the gate');
 			return false;
 		}
-		const took = await act(page, 'take ' + item[1], () => take.click());
+		const took = await act(page, 'take ' + item[1], () => tap(take));
 		if (!took.changed) return false;
 		note('advise', 'picked up ' + item[1] + ' because the upgrade list priced it at ' +
 			row.damage);
@@ -1090,11 +1090,11 @@ async function followLead(page, plan) {
 		const up = await page.$('#runbun-run-party-strip .runbun-run-party-up[data-id="' +
 			slots[at].id + '"]');
 		if (!up) break;
-		await up.click();
+		await tap(up);
 		await page.waitForTimeout(40);
 	}
 	const set = await act(page, 'lead ' + plan.lead,
-		() => page.click('#runbun-run-set-party'));
+		() => press(page, '#runbun-run-set-party'));
 	note('plan', 'leading with ' + plan.lead + ' as planned — ' + set.status);
 }
 
@@ -1717,6 +1717,21 @@ function press(page, selector) {
 	}, selector);
 }
 
+/**
+ * `press` for an element we already hold a handle to.
+ *
+ * ElementHandle.click waits for the element to be stable exactly as
+ * page.click does, so staging a party out of a twenty-two strong box died on
+ * an up-arrow that the re-render never let settle. Dispatching on the handle
+ * asks the same question of the same element without the wait.
+ */
+function tap(handle) {
+	return handle ? handle.evaluate(el => {
+		el.click();
+		return true;
+	}) : Promise.resolve(false);
+}
+
 /** Press Fight and wait for the battle OR for the panel to say why not. */
 async function openFight(page) {
 	await press(page, '#runbun-run-play');
@@ -1783,7 +1798,7 @@ async function playFight(page, plan, roster) {
 			did: choice.kind === 'move' ? choice.pick.move : 'switch ' + choice.pick.label,
 			why: choice.why, threat: view.threat,
 		});
-		await button.click();
+		await tap(button);
 		try {
 			await page.waitForFunction(
 				() => !document.querySelector('#runbun-run-battle').hasAttribute('aria-busy'),
@@ -1986,7 +2001,7 @@ async function main() {
 		// Waiting for a change here waits for something that must not happen.
 		const back = await page.$('#runbun-run-battle-abandon');
 		if (back) {
-			await back.click();
+			await tap(back);
 			try {
 				await page.waitForFunction(
 					() => document.querySelector('#runbun-run-battle').hidden,
