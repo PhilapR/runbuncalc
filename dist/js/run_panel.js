@@ -2133,10 +2133,20 @@
 			});
 			if (forecast && forecast.error) {
 				renderPlanOutlook(null);
-				$actions.append($('<div class="runbun-run-action is-provider"></div>')
+				// A dead forecast used to be the LAST row of the action list,
+				// carrying a class with no styling at all, so it read as one
+				// more option that happened to be unavailable. It is not an
+				// option. It is the survival answer failing to arrive, and the
+				// verdict above it does not answer survival either. So it takes
+				// the slot the working forecast takes, at the top, and names the
+				// question that went unanswered rather than only the provider
+				// that broke.
+				$actions.prepend($('<div class="runbun-run-action is-provider is-stale"></div>')
 					.append($('<span class="runbun-run-action-score"></span>').text('—'))
 					.append($('<span class="runbun-run-action-label"></span>')
-						.text('pokemon-mono seed check unavailable · ' + forecast.error.message)));
+						.text('NO SURVIVAL CHECK · nothing here says whether you live through ' +
+							'this fight · pokemon-mono seed check unavailable · ' +
+							forecast.error.message)));
 			} else if (forecast) {
 				var summary = forecast.receipt.result.summary;
 				var lead = findBoxed(summary.recommendedLeadId);

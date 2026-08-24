@@ -328,17 +328,17 @@ async function takeEncounters(page) {
 		const boxBefore = (await savedRun(page)).box.length;
 		const kept = await act(page, 'keep ' + route.map,
 			() => press(page, '#runbun-run-roll-catch'));
-			const afterBox = (await savedRun(page)).box;
-			const boxAfter = afterBox.length;
+		const afterBox = (await savedRun(page)).box;
+		const boxAfter = afterBox.length;
 		if (boxAfter > boxBefore) {
 			caughtFrom.add(route.map);
 			taken.push(rolled);
-				// The IV total belongs in the log line, not only in the report. A
-				// trainer's Pokemon is a flat 186 and a wild catch averages 93, so
-				// this is the number that says how far below the fight a box starts,
-				// and comparing boxes that clear a wall against boxes that never do
-				// is the whole question.
-				note('caught', rolled + '  (' + route.map + ')' +
+			// The IV total belongs in the log line, not only in the report. A
+			// trainer's Pokemon is a flat 186 and a wild catch averages 93, so
+			// this is the number that says how far below the fight a box starts,
+			// and comparing boxes that clear a wall against boxes that never do
+			// is the whole question.
+			note('caught', rolled + '  (' + route.map + ')' +
 					ivNote(afterBox[boxAfter - 1]));
 		} else {
 			caughtFrom.add(route.map);

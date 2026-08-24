@@ -1953,6 +1953,19 @@ table.field {
 	background: var(--rb-brand-soft);
 	font-weight: 700;
 }
+/* A forecast that DIED, not an option that was unavailable. It sits in the
+   top slot the working forecast would have taken, so it has to read as a
+   warning rather than as a recommendation — the brand fill of .is-top would
+   say the opposite of what it means. */
+#runbun-run .runbun-run-action.is-stale {
+	border-left-color: var(--rb-warn);
+	background: var(--rb-warn-soft);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-action.is-stale .runbun-run-action-label,
+#runbun-run .runbun-run-action.is-stale .runbun-run-action-score {
+	color: var(--rb-warn-ink);
+}
 #runbun-planner .runbun-planner-action-score,
 #runbun-run .runbun-run-action-score {
 	font-family: var(--rb-font-mono);

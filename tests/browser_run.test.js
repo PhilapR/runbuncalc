@@ -2291,12 +2291,19 @@ test('the box says what each Pokemon rolled, against what a trainer gets', {skip
 	await page.click('.runbun-run-transfer summary');
 	await page.fill('#runbun-run-transfer', partialRun.json);
 	await page.click('#runbun-run-import');
+	// Wait for the IMPORT, not for the row to mention an IV. The pre-import row
+	// already reads "IV 84/186", so a /IV / condition is true before the click
+	// is even handled: this waited on a state it was already in, read the old
+	// row, and reported the product had summed the missing stats as zero. It
+	// had not. The server echoes {hp,atk,def} and paint renders that faithfully.
+	//
+	// The status line is the one signal that means the adoption finished, and
+	// it is independent of the thing being asserted — so a genuine regression
+	// still fails on the assertion below rather than passing on a lucky race.
 	await page.waitForFunction(
-		id => {
-			const row = document.querySelector(
-				'#runbun-run-box .runbun-run-mon[data-id="' + id + '"] .runbun-run-mon-kit');
-			return row && /IV /.test(row.textContent);
-		}, partialRun.id, {timeout: 10000});
+		() => /Imported run\./.test(
+			(document.querySelector('#runbun-run-status') || {}).textContent || ''),
+		null, {timeout: 10000});
 	const partial = await page.textContent(
 		'#runbun-run-box .runbun-run-mon[data-id="' + partialRun.id + '"] .runbun-run-mon-kit');
 	assert.match(partial, /IV \d+\+ · 3 not recorded/,
