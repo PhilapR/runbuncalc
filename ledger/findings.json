@@ -990,6 +990,22 @@
 			"fixed_in": null,
 			"falsified": 0,
 			"evidence": "Found while profiling the fight cycle. After the ranker fix the cycle is roughly /run/rank 5,161ms, /run/advise 3,081ms, /run/matrix 528ms, and advise builds 25,975 calculator objects — 12,549 at calc-adapter.ts:599 for the move being calculated and 10,022 at :784 for its crit variant, which runs a second full Calc.calculate. The cell keeps critMax for both sides; grepping lib/ and src/js/ finds consumers only for the THEIR side — run.js:1762 reads pairing.them.critMax, the matrix table renders `us` as min and `them` as crit, and the planning rule is stated as \"their crit is what a plan has to survive, and our floor is what a plan may rely on\".\n\nDELIBERATELY NOT ACTED ON. planner.js:570 says in as many words: \"Both travel with the cell so no consumer has to re-derive them from an average.\" That is a design statement about what a cell is, not an oversight, and the last time behaviour that looked redundant was \"fixed\" on inspection it was a declared rule and had to be reverted ([[attract-and-cute-charm-ignore-gender]]). Whether the player-side band is worth its cost is a product call: it is a real saving in the two hottest non-battle endpoints, against a cell contract that currently promises symmetry."
+		},
+		{
+			"id": "a-consumed-item-is-never-consumed",
+			"source": "review/measured",
+			"raised_on": "2026-08-25",
+			"severity": "high",
+			"area": "engine",
+			"file": "lib/run.js",
+			"line": 2897,
+			"claim": "A single-use held item is modelled as permanent. Nothing removes it when it is eaten, so the run keeps crediting an effect that can never happen again and the advisor keeps pricing it.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Give a Chople Berry to an Aron, beat Leader Brawly — whose team is more than half Fighting, which is exactly what makes a Chople Berry fire — and the Aron is still holding it afterwards while the bag reads {}. The only thing in lib/run.js that clears a held item is the unhold command at line 2897; beat does not touch items. The battle engine models consumption correctly (ai/src/berry-effects.ts, lastConsumedItem), so the berry IS eaten inside the fight — nothing writes that back to the run. Scarcity itself IS modelled: the bag decrements on give, and a second give is refused with \"give: the bag has no Chople Berry\", so one berry means one holder. It is only the eating that is missed. Not hypothetical. 162 of the 840 held items recorded across every report in ui-playthrough-out are Oran Berries — 19.3% — and an Oran Berry restores HP once and is gone. Every matchup after the fight that ate it has been pricing a heal that no longer exists. The data already knows the distinction and no code reads it: profiles/run-and-bun/oracle/availability.json tags each item with a kind, and grepping for \"consumable\" across lib, src/js and ai/src returns nothing. The taxonomy is thin besides — 3 consumable, 18 type-boost, 7 held, 50 tm, and 116 entries with no kind at all — and no type-resist berry is catalogued anywhere. Raised by Philip, who pointed out that an Eviolite is reusable and a resist berry is not, and that an advisor cannot price the two the same way.",
+			"enforcedBy": null
 		}
 	]
 }
