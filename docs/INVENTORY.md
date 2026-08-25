@@ -193,3 +193,5 @@ Verification: local copy in session scratchpad 2026-08-11
 # mid-batch commit, deliberate
 
 # mid-batch again
+
+# mid-batch, round three
