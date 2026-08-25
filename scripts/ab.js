@@ -41,6 +41,47 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'ui-playthrough-out');
+
+/**
+ * Run the batch from a detached worktree pinned to one revision.
+ *
+ * Three comparisons in a row were invalidated by a commit landing while they
+ * ran, and detecting that is not the same as preventing it: each time the
+ * runs were already spent. A worktree makes the batch immune — the main tree
+ * can be committed to freely and the playthroughs keep reading the revision
+ * they started on.
+ *
+ * `dist` is tracked, so the worktree gets the exact client bundle the revision
+ * had. The three node_modules directories are gitignored and therefore absent,
+ * so they are symlinked rather than installed: they are the same dependencies
+ * at the same versions, and installing them per batch would cost more than the
+ * batch.
+ */
+function makeWorktree(revision) {
+	const dir = path.join(ROOT, '.ab-worktree');
+	try {
+		execFileSync('git', ['worktree', 'remove', '--force', dir],
+			{cwd: ROOT, stdio: 'ignore'});
+	} catch (error) { /* nothing to remove */ }
+	execFileSync('git', ['worktree', 'add', '--detach', dir, revision],
+		{cwd: ROOT, stdio: 'ignore'});
+	for (const rel of ['node_modules', 'calc/node_modules', 'ai/node_modules']) {
+		const target = path.join(ROOT, rel);
+		if (!fs.existsSync(target)) continue;
+		const link = path.join(dir, rel);
+		fs.mkdirSync(path.dirname(link), {recursive: true});
+		if (!fs.existsSync(link)) fs.symlinkSync(target, link, 'dir');
+	}
+	fs.mkdirSync(path.join(dir, 'ui-playthrough-out'), {recursive: true});
+	return dir;
+}
+
+function dropWorktree(dir) {
+	try {
+		execFileSync('git', ['worktree', 'remove', '--force', dir],
+			{cwd: ROOT, stdio: 'ignore'});
+	} catch (error) { /* leave it for inspection */ }
+}
 const STARTERS = ['Turtwig', 'Chimchar', 'Piplup'];
 
 function flag(name, fallback) {
@@ -66,23 +107,24 @@ function freeGb() {
 	}
 }
 
-function runOnce(spec) {
+function runOnce(spec, home) {
 	return new Promise(resolve => {
-		const log = fs.openSync(path.join(OUT, spec.logName), 'w');
+		const log = fs.openSync(path.join(home, 'ui-playthrough-out', spec.logName), 'w');
 		const child = execFile('node', ['scripts/ui-playthrough.js'].concat(spec.args),
-			{cwd: ROOT, maxBuffer: 1 << 28}, () => {});
+			{cwd: home, maxBuffer: 1 << 28}, () => {});
 		child.stdout.on('data', d => fs.writeSync(log, d));
 		child.stderr.on('data', d => fs.writeSync(log, d));
 		child.on('close', () => {
 			fs.closeSync(log);
-			resolve(readResult(spec));
+			resolve(readResult(spec, home));
 		});
 	});
 }
 
 /** What a finished run is worth to the comparison. */
-function readResult(spec) {
-	const text = fs.readFileSync(path.join(OUT, spec.logName), 'utf8');
+function readResult(spec, home) {
+	const out = path.join(home || ROOT, 'ui-playthrough-out');
+	const text = fs.readFileSync(path.join(out, spec.logName), 'utf8');
 	const orders = (text.match(/\(#(\d+)\)/g) || []).map(s => Number(s.slice(2, -1)));
 	const attempts = name => {
 		const won = (text.match(new RegExp(name + ' — won in', 'g')) || []).length;
@@ -91,7 +133,7 @@ function readResult(spec) {
 	};
 	let provenance = null;
 	try {
-		provenance = JSON.parse(fs.readFileSync(path.join(OUT, spec.reportName), 'utf8')).provenance;
+		provenance = JSON.parse(fs.readFileSync(path.join(out, spec.reportName), 'utf8')).provenance;
 	} catch (error) {
 		provenance = null;
 	}
@@ -191,6 +233,10 @@ async function main() {
 		}
 	}
 
+	const isolate = flag('isolate', '1') !== '0';
+	const home = isolate ? makeWorktree(startRevision) : ROOT;
+	if (isolate) console.log('  isolated in a worktree at ' + startRevision.slice(0, 10));
+
 	const rows = [];
 	let next = 0;
 	const workers = Array.from({length: parallel}, async () => {
@@ -211,11 +257,27 @@ async function main() {
 	});
 	await Promise.all(workers);
 
+	// Bring the evidence back before the worktree goes, then drop it. The logs
+	// and reports are the only durable record of what each run did.
+	if (isolate) {
+		const from = path.join(home, 'ui-playthrough-out');
+		for (const name of fs.readdirSync(from)) {
+			try {
+				fs.copyFileSync(path.join(from, name), path.join(OUT, name));
+			} catch (error) { /* a partial run may leave an unreadable file */ }
+		}
+		dropWorktree(home);
+	}
+
 	// Validity gates. These fail the experiment rather than footnote it.
 	const problems = [];
 	const endRevision = git(['rev-parse', 'HEAD']);
-	if (endRevision !== startRevision) {
+	if (!isolate && endRevision !== startRevision) {
 		problems.push('the revision changed mid-batch: ' + startRevision + ' -> ' + endRevision);
+	}
+	if (isolate && endRevision !== startRevision) {
+		console.log('  (the main tree moved to ' + String(endRevision).slice(0, 10) +
+			' during the batch; the worktree did not, which is the point)');
 	}
 	const revisions = new Set(rows.map(r => r.provenance && r.provenance.revision).filter(Boolean));
 	if (revisions.size > 1) problems.push('runs report ' + revisions.size + ' different revisions');
