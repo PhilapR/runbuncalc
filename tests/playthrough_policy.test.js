@@ -4,18 +4,30 @@
 /**
  * Gate for the playthrough driver's decision core.
  *
- * The driver is 2,300 lines that plays the game unattended, and until now
- * nothing pinned any of it. That mattered once its policy stopped being a
- * guess: ranking moves by turns-to-KO with accuracy beat ranking them by raw
- * damage across thirty interleaved runs, 8.9% of Camper Gavi attempts won
- * against 2.7%. That per-attempt p of 0.03 was OVERSTATED and is corrected
- * here: attempts inside a run share a box, a party and a policy, so they are
- * not the 251 independent trials the test assumed — there were 30. The
- * run-level test on the same data gives p = 0.07. The change still ships,
- * because it leads on every metric and the mechanism is sound, but it is not
- * significant at the conventional bar. A measured result that nothing pins is a
- * result that regresses quietly, and the next person to "simplify" the
- * comparator has no way to know what it cost to find.
+ * The driver is 2,300 lines that plays the game unattended and nothing pinned
+ * any of it. These gates exist for that reason alone, and NOT because the
+ * policy they pin was shown to be better — it was not.
+ *
+ * The ranking they cover was reported three times and the number shrank each
+ * time. First as p = 0.03 from 251 pooled Camper Gavi attempts, which was
+ * wrong: attempts inside a run share a box, a party and a policy, so there
+ * were 30 independent observations and not 251. Then as p = 0.07, the
+ * run-level test on the same batch — which was only ever RECONSTRUCTED, since
+ * that harness recorded no revision. Then twice on frozen code with the
+ * validity gates clean:
+ *
+ *   rank2, sacrifices on:   7/15 legacy vs 8/15 new past Camper Gavi
+ *   rank3, sacrifices off:  9/15 legacy vs 9/15 new — and 5 vs 4 past Brawly
+ *
+ * Dead even, thirty pairs, twice. Turns-and-accuracy is the better MODEL —
+ * turns are the unit the panel decides fights in, and a move that misses deals
+ * nothing — and it buys no measurable wins. It ships because it is not worse
+ * and the reasoning is sound, which is a much weaker claim than the one made
+ * for it originally.
+ *
+ * The gates stay regardless. What they protect is a deliberate comparator that
+ * a later reader would otherwise be free to "simplify" without knowing what it
+ * was, and the fixtures below document its disagreements precisely.
  *
  * These are the pure parts — a view or a scored entry in, a number or an
  * object out. The parts that drive a page are not testable here and are not
