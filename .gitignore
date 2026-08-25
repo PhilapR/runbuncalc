@@ -19,3 +19,4 @@ ui-playthrough-out/
 # ui-playthrough-out/ by re-running experiments/ingest.py.
 experiments/mlflow.db
 experiments/.venv/
+__pycache__/
