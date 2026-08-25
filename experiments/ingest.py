@@ -95,10 +95,58 @@ def metrics_for(arm: Arm) -> dict[str, float]:
     return out
 
 
+def log_playthroughs(rows: list[dict]) -> None:
+    """A child run per PLAYTHROUGH, nested under the comparison.
+
+    One run per comparison was the first shape here, and it is the wrong unit.
+    MLflow's run is one execution, and one execution here is one playthrough —
+    so collapsing thirty into a single row threw away the distribution and left
+    only its mean. That is precisely what could not be seen when this
+    comparison's direction flipped twice before n = 15: a mean moves smoothly
+    while the runs behind it are bimodal, because a box either clears a wall or
+    never does. The children make that visible without any statistics at all.
+    """
+    for row in rows:
+        with mlflow.start_run(run_name=f"{row['arm']}-{row['index']}", nested=True):
+            prov = row.get("provenance") or {}
+            mlflow.set_tags(
+                {
+                    "arm": row["arm"],
+                    "starter": row.get("starter", ""),
+                    "crashed": str(bool(row.get("crashed"))).lower(),
+                }
+            )
+            mlflow.log_params(
+                {
+                    "arm": row["arm"],
+                    "starter": row.get("starter", ""),
+                    "revision": (prov.get("revision") or "")[:10],
+                    "dirty": prov.get("dirty"),
+                }
+            )
+            gavi, brawly = row.get("gavi", {}), row.get("brawly", {})
+            mlflow.log_metrics(
+                {
+                    "order": row.get("order", 0),
+                    "gavi_won": gavi.get("won", 0),
+                    "gavi_attempts": gavi.get("attempts", 0),
+                    "brawly_won": brawly.get("won", 0),
+                    "brawly_attempts": brawly.get("attempts", 0),
+                    "passed_gavi": 1 if gavi.get("won", 0) else 0,
+                    "beat_brawly": 1 if brawly.get("won", 0) else 0,
+                }
+            )
+
+
 def log_comparison(
-    label: str, a: Arm, b: Arm, params: dict, problems: list[str]
+    label: str,
+    a: Arm,
+    b: Arm,
+    params: dict,
+    problems: list[str],
+    rows: list[dict] | None = None,
 ) -> None:
-    """One MLflow run per COMPARISON, because an arm alone means nothing."""
+    """A parent run per COMPARISON, with a child per playthrough beneath it."""
     with mlflow.start_run(run_name=label):
         mlflow.set_tags(
             {
@@ -153,6 +201,8 @@ def log_comparison(
                 "total_runs": a.runs + b.runs,
             }
         )
+        if rows:
+            log_playthroughs(rows)
 
 
 def ingest_structured(path: Path) -> str:
@@ -191,6 +241,7 @@ def ingest_structured(path: Path) -> str:
             "dirty_tree": dirty,
         },
         data.get("problems", []),
+        data.get("rows", []),
     )
     return label
 
@@ -263,11 +314,33 @@ def code_moved_during(window: tuple[str, str]) -> list[str] | None:
 def ingest_tally(path: Path) -> str | None:
     """A shell-era tally: two arms, a line each, and no idea what code ran."""
     arms: dict[str, Arm] = {}
+    # Each line of a tally IS a playthrough, so it can carry a child run even
+    # though the loop that wrote it recorded no provenance. The distribution is
+    # the point: these are the comparisons whose direction flipped mid-batch.
+    rows: list[dict] = []
     for line in path.read_text().splitlines():
         m = TALLY.match(line.strip())
         if not m:
             continue
         arm = arms.setdefault(m.group("arm"), Arm(name=m.group("arm")))
+        rows.append(
+            {
+                "arm": m.group("arm"),
+                "index": arm.runs + 1,
+                "starter": m.group("starter"),
+                "order": int(m.group("order")),
+                "gavi": {
+                    "won": int(m.group("gw") or 0),
+                    "attempts": int(m.group("ga") or 0),
+                },
+                "brawly": {
+                    "won": int(m.group("bw") or 0),
+                    "attempts": int(m.group("ba") or 0),
+                },
+                "crashed": False,
+                "provenance": None,
+            }
+        )
         arm.runs += 1
         arm.orders.append(int(m.group("order")))
         if m.group("ga"):
@@ -316,13 +389,24 @@ def ingest_tally(path: Path) -> str | None:
             "window_end": window[1] if window else None,
         },
         problems,
+        rows,
     )
     return label
 
 
 def main() -> None:
     mlflow.set_tracking_uri(TRACKING)
-    mlflow.set_experiment("playthrough-policy")
+    experiment = mlflow.set_experiment("playthrough-policy")
+    # The onboarding skill reads this tag to decide which path applies. There is
+    # no trained model here — the policy is hand-written JS — but the machinery
+    # in use is the traditional one: params, metrics and runs, no tracing.
+    mlflow.set_experiment_tag("mlflow.experimentKind", "custom_model_development")
+    mlflow.set_experiment_tag(
+        "note",
+        "A/B comparisons of a game-playing policy. No model artifacts: the "
+        "policy is JavaScript, and a run is one playthrough.",
+    )
+    del experiment
 
     done = []
     for path in sorted(OUT.glob("*-ab.json")):
