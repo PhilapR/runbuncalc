@@ -128,7 +128,18 @@ const LEGACY_RANK = process.argv.includes('--legacy-rank');
 // How many bodies a fight may spend to bring the answer in free. Two is what
 // the tactic was tuned to; 0 disables it, which is what makes it testable
 // rather than a thing everyone assumes is earning its keep.
-const SAC_BUDGET = Number(flag('sac', '2'));
+// Zero, measured. Fifteen interleaved pairs on one frozen revision: with the
+// tactic off, 10 of 15 runs got past Camper Gavi against 4 of 15 with it on,
+// and 3 beat Brawly against none. One-sided p = 0.033 on the run-level test —
+// one observation per playthrough, no pooled attempts.
+//
+// The tactic reads as sound and is carefully fenced: it needs a losing race or
+// a lethal crit, the replacement must resist, an answer must be waiting, and
+// it is capped per fight, each fence added for a failure named in the comments
+// below. I read all of that, judged it deliberate, and talked myself out of a
+// guard I had already started writing. It was spending 7.8% of every turn
+// played to make runs worse.
+const SAC_BUDGET = Number(flag('sac', '0'));
 const NOISE = Number(flag('noise', '0'));
 const EXPLORE_WIDTH = Number(flag('explore-width', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
