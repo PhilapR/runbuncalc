@@ -20,3 +20,4 @@ ui-playthrough-out/
 experiments/mlflow.db
 experiments/.venv/
 __pycache__/
+experiments/mlruns/
