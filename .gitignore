@@ -1,4 +1,8 @@
-node_modules/
+# No trailing slash: `node_modules/` matches a directory and NOT a symlink, and
+# scripts/ab.js symlinks node_modules into the worktree it isolates a batch in.
+# That one untracked symlink made every run inside report a dirty tree, which
+# made the harness declare its own comparison invalid.
+node_modules
 eslint-cache/
 .eslintcache
 .DS_Store
