@@ -247,7 +247,7 @@ async function main() {
 			}
 			const spec = queue[next++];
 			if (!spec) return;
-			const row = await runOnce(spec);
+			const row = await runOnce(spec, home);
 			rows.push(row);
 			console.log('  ' + row.arm + ' ' + row.index + ' (' + row.starter + '): order=' +
 				row.order + ' gavi=' + row.gavi.won + '/' + row.gavi.attempts +
