@@ -146,13 +146,18 @@ function summarise(rows, arm) {
 
 async function main() {
 	const pairs = Number(flag('pairs', '20'));
-	// Three, measured. One run takes 118s; three at once take 189s and finish
-	// all three, which is 1.87x the throughput rather than the 3x the core
-	// count suggests — each run slows to about 185s under the contention. Load
-	// reaches 13.2 on 11 cores at three, so four would thrash, and the driver's
-	// 20s waits are what would break first. Correctness held at three: zero
-	// crashes and zero staging failures across the runs that measured this.
-	const parallel = Math.max(1, Number(flag('parallel', '3')));
+	// Six, measured — and the previous three was not. That number came from
+	// reading a load average of 13.2 on 11 cores and INFERRING that four would
+	// thrash, which is the same substituting-reasoning-for-measurement that set
+	// the retry cap wrong earlier. Six runs started together finish in 160s
+	// against 189s for three: 27s a run against 63s, 2.4x the throughput, at the
+	// same load of 13.4. Nothing thrashed and no run timed out.
+	//
+	// What would break first is not CPU but the driver's 20s waits, which
+	// abandon a fight and corrupt the arm rather than merely slowing it. So the
+	// number to watch when raising this is TimeoutErrors, not load: zero across
+	// all six is what licensed it.
+	const parallel = Math.max(1, Number(flag('parallel', '6')));
 	const label = flag('label', 'ab');
 	const armA = flag('a', '').split(' ').filter(Boolean);
 	const armB = flag('b', '').split(' ').filter(Boolean);
