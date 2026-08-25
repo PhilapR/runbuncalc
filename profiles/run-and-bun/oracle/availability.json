@@ -175,7 +175,10 @@
 		},
 		{
 			"name": "Focus Sash",
-			"kind": "held",
+			"kind": "consumable",
+			"transcribedKind": "held",
+			"provenance": "derived",
+			"basis": "ai/src/move-engine.ts calls consumeItem on the holder after a Focus Sash keeps it at 1 HP, so the item is single use. Catalogued as held, which would have priced it as working in every fight.",
 			"location": "Route 121",
 			"opensAt": 808,
 			"rabMinOrder": 230
