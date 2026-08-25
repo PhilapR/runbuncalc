@@ -6,6 +6,9 @@ out which of them can actually be believed.
 
 Two shapes go in:
 
+* `ui-playthrough-out/<label>-measure.json`, written by `scripts/ab.js --measure`.
+  One arm on one revision, for the questions a comparison cannot answer — how
+  good is the product today, and is it better than last week.
 * `ui-playthrough-out/<label>-ab.json`, written by `scripts/ab.js`. These carry
   per-run provenance — the revision, whether the tree was dirty, the argv — and
   the harness's own validity verdict.
@@ -293,6 +296,64 @@ def log_comparison(
             log_playthroughs(rows)
 
 
+def ingest_measurement(path: Path) -> str:
+    """A batch on ONE revision, with no arm to compare it against.
+
+    The comparisons answer "is this policy better than that one". They cannot
+    answer "how good is the product today", and that is the question the
+    forecast rate asks: it moved 2.9% -> 14.5% -> 10.6% -> 19.8% across four
+    fixes, each a single batch, and none of them had a way in here.
+
+    Logged as its own run so the series is chartable over revisions. The arm is
+    named "measurement" rather than control or treatment, because calling a
+    lone batch a control would invite MLflow to line it up against treatments
+    it was never run beside.
+    """
+    data = json.loads(path.read_text())
+    rows = data.get("rows", [])
+    label = data.get("label", path.stem)
+    summary = data.get("summary", {})
+    live = summary.get("forecastLive", 0)
+    dead = summary.get("forecastDead", 0)
+    planned = live + dead
+
+    with mlflow.start_run(run_name=f"{label} (measurement)"):
+        mlflow.set_tags({"kind": "measurement", "label": label})
+        mlflow.log_params(
+            {
+                "harness": "scripts/ab.js --measure",
+                "revision": (data.get("revision") or "")[:10],
+                "flags": " ".join(data.get("flags", [])) or "(defaults)",
+                "shared": " ".join(data.get("shared", [])),
+                "runs": data.get("runs"),
+                "parallel": data.get("parallel"),
+                "source_file": str(path),
+            }
+        )
+        metrics = {
+            "runs": summary.get("runs", 0),
+            "mean_order": summary.get("meanOrder", 0.0),
+            "passed_gavi": summary.get("passedGavi", 0),
+            "beat_brawly": summary.get("beatBrawly", 0),
+            "crashed": summary.get("crashed", 0),
+        }
+        if planned:
+            metrics |= {
+                "forecast_rate": live / planned,
+                "forecast_live": live,
+                "forecast_planned": planned,
+                "forecast_dead_ability": summary.get("forecastAbility", 0),
+                "forecast_dead_trainer": summary.get("forecastTrainer", 0),
+            }
+        mlflow.log_metrics(metrics)
+        for row in rows:
+            row["side"] = "measurement"
+        log_playthroughs(rows)
+        for problem in data.get("problems", []):
+            mlflow.set_tag("problem", problem)
+    return label
+
+
 def ingest_structured(path: Path) -> str:
     data = json.loads(path.read_text())
     arms: dict[str, Arm] = {}
@@ -510,6 +571,8 @@ def main() -> None:
     done = []
     for path in sorted(OUT.glob("*-ab.json")):
         done.append(f"{path.name} -> {ingest_structured(path)} (full provenance)")
+    for path in sorted(OUT.glob("*-measure.json")):
+        done.append(f"{path.name} -> {ingest_measurement(path)} (measurement)")
     for path in sorted(OUT.glob("*-ab.log")) + sorted(OUT.glob("*-batch.log")):
         label = ingest_tally(path)
         if label:

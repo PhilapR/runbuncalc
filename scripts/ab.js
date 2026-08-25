@@ -216,6 +216,10 @@ function summarise(rows, arm) {
 		gaviWon: sum(r => r.gavi.won), gaviAttempts: sum(r => r.gavi.attempts),
 		brawlyWon: sum(r => r.brawly.won), brawlyAttempts: sum(r => r.brawly.attempts),
 		crashed: mine.filter(r => r.crashed).length,
+		forecastLive: sum(r => (r.forecast || {}).live || 0),
+		forecastDead: sum(r => (r.forecast || {}).dead || 0),
+		forecastAbility: sum(r => (r.forecast || {}).ability || 0),
+		forecastTrainer: sum(r => (r.forecast || {}).trainer || 0),
 	};
 }
 
@@ -234,6 +238,13 @@ async function main() {
 	// all six is what licensed it.
 	const parallel = Math.max(1, Number(flag('parallel', '6')));
 	const label = flag('label', 'ab');
+	// MEASUREMENT mode: one arm, no comparison. The most useful numbers this
+	// work produced were not A/Bs — the forecast rate went 2.9% to 19.8% across
+	// four fixes, each step a single batch on one revision — and none of them
+	// could be tracked, because the only path in took two arms. A measurement
+	// reuses everything that makes a comparison trustworthy: the pinned
+	// worktree, the provenance checks, the unread-flag audit.
+	const measure = Number(flag('measure', '0'));
 	const armA = flag('a', '').split(' ').filter(Boolean);
 	const armB = flag('b', '').split(' ').filter(Boolean);
 	// --tms=advisor, NOT assume. The driver already defaults to advisor and this
@@ -275,15 +286,23 @@ async function main() {
 		console.log('  NOTE: the tree is dirty and the worktree is pinned to ' +
 			String(startRevision).slice(0, 10) + ' — uncommitted changes are NOT under test');
 	}
-	console.log('revision ' + String(startRevision).slice(0, 10) + ' · ' + pairs +
-		' pairs · ' + parallel + ' at a time');
-	console.log('  A (control):   ' + (armA.join(' ') || '(defaults)'));
-	console.log('  B (treatment): ' + (armB.join(' ') || '(defaults)'));
+	console.log('revision ' + String(startRevision).slice(0, 10) + ' · ' +
+		(measure ? measure + ' runs (measurement)' : pairs + ' pairs') +
+		' · ' + parallel + ' at a time');
+	if (measure) {
+		console.log('  flags: ' + (armA.join(' ') || '(defaults)'));
+	} else {
+		console.log('  A (control):   ' + (armA.join(' ') || '(defaults)'));
+		console.log('  B (treatment): ' + (armB.join(' ') || '(defaults)'));
+	}
 
 	const queue = [];
-	for (let i = 1; i <= pairs; i++) {
+	const rounds = measure || pairs;
+	const sides = measure ? [{arm: 'M', extra: armA}] :
+		[{arm: 'A', extra: armA}, {arm: 'B', extra: armB}];
+	for (let i = 1; i <= rounds; i++) {
 		const starter = STARTERS[(i - 1) % STARTERS.length];
-		for (const side of [{arm: 'A', extra: armA}, {arm: 'B', extra: armB}]) {
+		for (const side of sides) {
 			const arm = side.arm;
 			const extra = side.extra;
 			const name = label + '-' + arm + '-' + i;
@@ -350,6 +369,34 @@ async function main() {
 	if (unread.size) {
 		problems.push('flags passed but never read: ' + Array.from(unread).join(', ') +
 			' — an arm may not be the arm it claims');
+	}
+
+	if (measure) {
+		const m = summarise(rows, 'M');
+		const planned = m.forecastLive + m.forecastDead;
+		console.log('\n=== ' + label + ' (measurement) ===');
+		console.log('runs=' + m.runs + '  meanOrder=' + m.meanOrder.toFixed(1) +
+			'  passedGavi=' + m.passedGavi + '/' + m.runs +
+			'  beatBrawly=' + m.beatBrawly + '/' + m.runs +
+			(m.crashed ? '  crashed=' + m.crashed : ''));
+		if (planned) {
+			console.log('forecast: ' + m.forecastLive + '/' + planned + ' planned fights = ' +
+				(100 * m.forecastLive / planned).toFixed(1) + '%' +
+				'  (dead: ' + m.forecastAbility + ' ability, ' + m.forecastTrainer + ' trainer)');
+		}
+		const out = {
+			label: label, kind: 'measurement', revision: startRevision,
+			runs: measure, parallel: parallel, flags: armA, shared: shared,
+			rows: rows, summary: m, problems: problems,
+		};
+		fs.writeFileSync(path.join(OUT, label + '-measure.json'), JSON.stringify(out, null, '\t'));
+		if (problems.length) {
+			console.error('\nINVALID — this measurement must not be reported:');
+			problems.forEach(problem => console.error('  - ' + problem));
+			process.exit(1);
+		}
+		console.log('\nvalid: one revision, no unread flags.');
+		return;
 	}
 
 	const a = summarise(rows, 'A');
