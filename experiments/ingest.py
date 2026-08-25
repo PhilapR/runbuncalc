@@ -77,21 +77,29 @@ class Arm:
         return sum(self.orders) / len(self.orders) if self.orders else 0.0
 
 
-def metrics_for(arm: Arm) -> dict[str, float]:
+def metrics_for(arm: Arm, side: str) -> dict[str, float]:
+    """Metrics named by ROLE, not by what the arm happened to be called.
+
+    Naming them after the arms — NEW_passed_gavi, NOSTATUS_mean_order,
+    A_runs — gave five comparisons 84 distinct metric names, so nothing lined
+    up across runs and MLflow drew 84 unrelated single-point charts. `side` is
+    always "control" or "treatment", which makes every comparison chartable on
+    the same axes. Which arm was which is a parameter, where it belongs.
+    """
     out = {
-        f"{arm.name}_runs": arm.runs,
-        f"{arm.name}_mean_order": arm.mean_order,
-        f"{arm.name}_passed_gavi": arm.passed_gavi,
-        f"{arm.name}_beat_brawly": arm.beat_brawly,
-        f"{arm.name}_crashed": arm.crashed,
+        f"{side}_runs": arm.runs,
+        f"{side}_mean_order": arm.mean_order,
+        f"{side}_passed_gavi": arm.passed_gavi,
+        f"{side}_beat_brawly": arm.beat_brawly,
+        f"{side}_crashed": arm.crashed,
     }
     if arm.runs:
-        out[f"{arm.name}_pass_gavi_rate"] = arm.passed_gavi / arm.runs
-        out[f"{arm.name}_beat_brawly_rate"] = arm.beat_brawly / arm.runs
+        out[f"{side}_pass_gavi_rate"] = arm.passed_gavi / arm.runs
+        out[f"{side}_beat_brawly_rate"] = arm.beat_brawly / arm.runs
     if arm.gavi_attempts:
-        out[f"{arm.name}_gavi_attempt_rate"] = arm.gavi_won / arm.gavi_attempts
+        out[f"{side}_gavi_attempt_rate"] = arm.gavi_won / arm.gavi_attempts
     if arm.brawly_attempts:
-        out[f"{arm.name}_brawly_attempt_rate"] = arm.brawly_won / arm.brawly_attempts
+        out[f"{side}_brawly_attempt_rate"] = arm.brawly_won / arm.brawly_attempts
     return out
 
 
@@ -112,6 +120,7 @@ def log_playthroughs(rows: list[dict]) -> None:
             mlflow.set_tags(
                 {
                     "arm": row["arm"],
+                    "side": row.get("side", ""),
                     "starter": row.get("starter", ""),
                     "crashed": str(bool(row.get("crashed"))).lower(),
                 }
@@ -119,6 +128,7 @@ def log_playthroughs(rows: list[dict]) -> None:
             mlflow.log_params(
                 {
                     "arm": row["arm"],
+                    "side": row.get("side", ""),
                     "starter": row.get("starter", ""),
                     "revision": (prov.get("revision") or "")[:10],
                     "dirty": prov.get("dirty"),
@@ -166,7 +176,7 @@ def log_comparison(
             }
         )
         mlflow.log_params({k: v for k, v in params.items() if v is not None})
-        mlflow.log_metrics(metrics_for(a) | metrics_for(b))
+        mlflow.log_metrics(metrics_for(a, "control") | metrics_for(b, "treatment"))
         mlflow.log_metrics(
             {
                 "p_pass_gavi": fisher_one_sided(
@@ -201,6 +211,38 @@ def log_comparison(
                 "total_runs": a.runs + b.runs,
             }
         )
+        # The file the numbers came from, attached to the run that reports
+        # them. Re-deriving a comparison a month from now should not depend on
+        # ui-playthrough-out/ still holding the same file under the same name.
+        source = params.get("source_file")
+        if source and Path(source).exists():
+            mlflow.log_artifact(source, artifact_path="source")
+
+        # The distribution, as text, because it is the thing worth reading and
+        # the parent's metrics can only hold its mean.
+        if rows:
+            lines = []
+            for side in ("control", "treatment"):
+                mine = sorted(r.get("order", 0) for r in rows if r.get("side") == side)
+                arm_name = params.get("arm_a" if side == "control" else "arm_b", side)
+                lines.append(f"{side} ({arm_name}) n={len(mine)}")
+                lines.append("  " + " ".join(str(v) for v in mine))
+            mlflow.log_text("\n".join(lines), "distribution.txt")
+
+        verdict = (
+            "INVALID — " + "; ".join(problems)
+            if problems
+            else "valid"
+            if params.get("provenance") == "full"
+            else "reconstructed: no revision recorded, but nothing the driver "
+            "runs was committed while it ran"
+        )
+        mlflow.set_tag(
+            "mlflow.note.content",
+            f"{params.get('arm_a')} (control) vs {params.get('arm_b')} "
+            f"(treatment), {a.runs + b.runs} playthroughs.\n\n{verdict}",
+        )
+
         if rows:
             log_playthroughs(rows)
 
@@ -221,6 +263,8 @@ def ingest_structured(path: Path) -> str:
         arm.beat_brawly += 1 if brawly.get("won", 0) else 0
         arm.crashed += 1 if row.get("crashed") else 0
 
+    for row in data.get("rows", []):
+        row["side"] = "control" if row["arm"] == "A" else "treatment"
     a = arms.get("A", Arm("A"))
     b = arms.get("B", Arm("B"))
     label = data.get("label", path.stem)
@@ -239,6 +283,7 @@ def ingest_structured(path: Path) -> str:
             "pairs": data.get("pairs"),
             "parallel": data.get("parallel"),
             "dirty_tree": dirty,
+            "source_file": str(path),
         },
         data.get("problems", []),
         data.get("rows", []),
@@ -355,6 +400,8 @@ def ingest_tally(path: Path) -> str | None:
         return None
     names = sorted(arms)
     a, b = arms[names[0]], arms[names[1]]
+    for row in rows:
+        row["side"] = "control" if row["arm"] == names[0] else "treatment"
     label = path.stem
     # These predate the validity gates entirely. The honest verdict is not
     # "valid" but "unknown", and the tag says so rather than implying a check
@@ -387,6 +434,7 @@ def ingest_tally(path: Path) -> str | None:
             "arm_b": names[1],
             "window_start": window[0] if window else None,
             "window_end": window[1] if window else None,
+            "source_file": str(path),
         },
         problems,
         rows,
