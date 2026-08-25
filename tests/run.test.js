@@ -2644,3 +2644,84 @@ test('a spent route only closes when the run says one encounter per route', () =
 	assert.equal(loose.adviseCount - nuzlocke.adviseCount, 1,
 		'and the rule must actually cost exactly the one spent route');
 });
+
+test('skipping the enemy half for a teach candidate changes no answer', () => {
+	// adviseUpgrades stops recomputing how hard the enemy hits us when the only
+	// thing a candidate changes is which moves we know. That is safe because
+	// nothing about our Pokemon's defence moved, and because upgradeDelta
+	// subtracts that half from itself in any case — but "safe because I
+	// reasoned it" is how a wrong optimisation ships, so this compares the
+	// whole advise output with the shortcut on and off.
+	//
+	// It is deliberately NOT taken for a pickup: Eviolite, Focus Sash and the
+	// resist berries are all in the dex, and a resist berry answers one type,
+	// so a single-cell probe would read "unchanged" against an enemy without
+	// that type and be wrong about the next one.
+	const planner = require('../lib/planner');
+	const real = planner.matchup;
+	const IVS = {hp: 20, atk: 18, def: 19, spa: 22, spd: 17, spe: 21};
+	const parties = [
+		['Prinplup', 'Staravia', 'Lombre', 'Flaaffy', 'Bayleef', 'Lumineon'],
+		['Grotle', 'Luxio', 'Gastrodon', 'Beedrill', 'Donphan', 'Ampharos'],
+	];
+	try {
+		for (const species of parties) {
+			let doc = run.applyAll(run.createRun({
+				name: 'splice', now: 't0', levelCap: 'none',
+				permadeath: false, onePerRoute: false,
+			}), species.map(name => ({
+				kind: 'catch', species: name, level: 24, ivs: Object.assign({}, IVS),
+			})));
+			doc = run.apply(doc, {kind: 'party', ids: doc.box.map(mon => mon.id)});
+			for (const fight of ['Camper Gavi', 'Leader Brawly']) {
+				planner.matchup = function (options) {
+					const copy = Object.assign({}, options);
+					delete copy.skipThem;
+					return real.call(this, copy);
+				};
+				const full = JSON.stringify(run.adviseUpgrades(doc, fight));
+				planner.matchup = real;
+				const spliced = JSON.stringify(run.adviseUpgrades(doc, fight));
+				assert.equal(spliced, full,
+					species[0] + ' vs ' + fight + ': the shortcut must not move any number');
+			}
+		}
+	} finally {
+		planner.matchup = real;
+	}
+});
+
+test('a held item can move the enemy half, which is why only teach skips it', () => {
+	// The reason adviseUpgrades takes the shortcut for `teach` and not for
+	// `pickup`. Without this, someone widens the condition to "anything that is
+	// not an evolution", the advise fixtures still pass — their bag happens to
+	// hold only Miracle Seed, Silk Scarf, Soft Sand and Poison Barb, which are
+	// all offensive — and the shortcut is silently wrong the first time a
+	// resist berry or an Eviolite reaches the bag.
+	//
+	// Aron is Steel/Rock, so Brawly's Fighting hits it for 4x. That matters:
+	// a Chople Berry only acts on a move that is already super-effective, so
+	// the same probe on a Pokemon that merely takes Fighting neutrally shows
+	// no change at all and would "prove" the opposite.
+	const planner = require('../lib/planner');
+	const aron = {
+		species: 'Aron', level: 24,
+		moves: ['Headbutt', 'Metal Claw', 'Rock Tomb', 'Harden'],
+		ivs: {hp: 20, atk: 18, def: 19, spa: 22, spd: 17, spe: 21},
+	};
+	const board = item => planner.matchup({
+		trainer: 'Leader Brawly',
+		playerParty: [item ? Object.assign({}, aron, {item: item}) : aron],
+		profileId: 'run-and-bun',
+	}).grid.map(cell => cell.versus[0].them.max);
+
+	const bare = board(null);
+	const movedBy = item => board(item).filter((max, i) => Math.abs(max - bare[i]) > 1e-9).length;
+
+	assert.ok(movedBy('Chople Berry') > 0,
+		'a resist berry changes what the enemy does to us, so a pickup cannot reuse the baseline');
+	assert.ok(movedBy('Eviolite') > 0, 'and so does Eviolite');
+	assert.equal(movedBy('Silk Scarf'), 0,
+		'while a type-boosting item touches only our own damage — which is what makes ' +
+		'the wider shortcut look safe on a bag that happens to hold nothing else');
+});
