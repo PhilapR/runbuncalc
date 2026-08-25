@@ -140,6 +140,29 @@ const LEGACY_RANK = process.argv.includes('--legacy-rank');
 // guard I had already started writing. It was spending 7.8% of every turn
 // played to make runs worse.
 const SAC_BUDGET = Number(flag('sac', '0'));
+
+/**
+ * Which fights to actually PLAY. "bosses" marks every ordinary trainer beaten
+ * without fighting it, and plays only leaders, rivals and the admin bosses.
+ *
+ * The point is practice at the fights worth practising. Most runs die at
+ * Camper Gavi on order 48, so the driver rehearses him hundreds of times and
+ * meets Brawly rarely, Roxanne barely and Wattson almost never — the fights
+ * where the interesting decisions live are the ones it gets least experience
+ * of. This inverts that.
+ *
+ * It marks them BEATEN rather than skipping them, and the difference matters.
+ * lib/run.js is explicit that a skipped fight is not a beaten one and that
+ * "passing Camper Gavi does not open the route he guards", so a skipping mode
+ * would starve the box of the encounters and items those routes carry and
+ * make the bosses harder rather than more practised. Marking beaten keeps the
+ * whole map open: the same routes, the same levelling, the same shelf.
+ *
+ * Nothing this mode wins counts. A boss reached without fighting the road to
+ * it is a boss met with a box the road would not have produced.
+ */
+const ONLY = flag('only', '');
+const BOSS = /Leader|Elite|Champion|Rival|Maxie|Archie|Magma Leader|Aqua Leader/i;
 const NOISE = Number(flag('noise', '0'));
 const EXPLORE_WIDTH = Number(flag('explore-width', '3'));
 // How many times to walk back into a fight that beat us. Under `caps` a wipe
@@ -598,6 +621,35 @@ async function teachPending(page, mon, status) {
 		}
 		note('teach', mon.species + ' learned ' + move + ' over ' + options[0]);
 	}
+}
+
+/**
+ * Mark the next fight beaten from the upcoming list, without playing it.
+ *
+ * The button is keyed on the trainer name, and the next-fight heading reads
+ * "Face Camper Gavi", so the prefix comes off before the lookup.
+ */
+async function markBeaten(page) {
+	// The trainer comes off the upcoming list's own button, not off the
+	// next-fight heading. That heading is not always "Face X" — before a party
+	// exists it reads "Build a party for Youngster Calvin", so stripping a
+	// "Face " prefix produced a selector that matched nothing, and the caller
+	// treated the failure as success and marked the same fight twenty-one
+	// times without ever moving.
+	const next = await page.evaluate(() => {
+		const button = document.querySelector('#runbun-run-upcoming .runbun-run-up-beat');
+		return button ? button.getAttribute('data-trainer') : null;
+	});
+	if (!next) return null;
+	const clicked = await act(page, 'mark ' + next, () => page.evaluate(name => {
+		const button = document.querySelector(
+			'#runbun-run-upcoming .runbun-run-up-beat[data-trainer="' +
+			name.replace(/"/g, '\\"') + '"]');
+		if (!button) return false;
+		button.click();
+		return true;
+	}, next));
+	return clicked ? next : null;
 }
 
 async function levelAndEvolve(page) {
@@ -2234,6 +2286,28 @@ async function main() {
 		if (/run map is complete|run is over/.test(before.nextTitle)) {
 			note('end', before.nextTitle + ' — ' + before.nextDetail);
 			break;
+		}
+
+		// Marked beaten before anything else this cycle, so the routes it
+		// guards open and the encounters and TMs behind them are on the shelf
+		// exactly as they would be for a run that fought it.
+		if (ONLY === 'bosses') {
+			const upcoming = await page.evaluate(() => {
+				const button = document.querySelector('#runbun-run-upcoming .runbun-run-up-beat');
+				return button ? button.getAttribute('data-trainer') : null;
+			});
+			if (upcoming && !BOSS.test(upcoming)) {
+				const marked = await markBeaten(page);
+				if (marked) {
+					note('mark', marked + ' — beaten unfought');
+					continue;
+				}
+				// Never loop on a fight that will not mark. One run pressed the
+				// same non-matching selector twenty-one times and called it
+				// progress; a refusal has to end the run, not repeat.
+				problem('only', 'could not mark ' + upcoming + ' beaten — stopping');
+				break;
+			}
 		}
 
 		await takeEncounters(page);
