@@ -2725,3 +2725,49 @@ test('a held item can move the enemy half, which is why only teach skips it', ()
 		'while a type-boosting item touches only our own damage — which is what makes ' +
 		'the wider shortcut look safe on a bag that happens to hold nothing else');
 });
+
+test('evolving carries the ability by slot, so it stays legal for the new species', () => {
+	// The run kept the ability STRING across evolution, which leaves a Seadra
+	// holding Swift Swim — an ability Seadra cannot have. That is not cosmetic:
+	// the planning provider validates the ability it is handed against the
+	// species, so a stale one throws and the fight loses its survival forecast.
+	// 527 of the recorded forecast failures are exactly this, and every one is
+	// a pre-evolution's ability sitting on an evolved form.
+	//
+	// The games carry the SLOT, so slot one becomes slot one.
+	//
+	// Honest limit: this cannot falsify the slot INDEXING. Every one of the
+	// 1,244 species in the fork's calc data has exactly one ability, so slot is
+	// always zero and hard-coding zero passes this test. What it does pin is
+	// that the ability is remapped at all and lands on something the new
+	// species can legally have — which is the failure that was costing runs
+	// their forecast.
+	const calc = require('../calc');
+	const legal = species => {
+		const found = calc.Generations.get(8).species.get(calc.toID(species));
+		return [...new Set(Object.values(found.abilities || {}).filter(Boolean))];
+	};
+	const cases = [
+		{from: 'Horsea', ability: 'Swift Swim', into: 'Seadra', level: 32},
+		{from: 'Fletchling', ability: 'Keen Eye', into: 'Fletchinder', level: 17},
+		{from: 'Phanpy', ability: 'Cute Charm', into: 'Donphan', level: 25},
+		{from: 'Starly', ability: 'Keen Eye', into: 'Staravia', level: 14},
+	];
+	for (const step of cases) {
+		let doc = run.createRun({
+			name: 'evo', now: 't0', levelCap: 'none', permadeath: false, onePerRoute: false,
+		});
+		doc = run.apply(doc, {
+			kind: 'catch', species: step.from, level: step.level, nature: 'Modest',
+			ability: step.ability, ivs: {hp: 20, atk: 18, def: 19, spa: 22, spd: 17, spe: 21},
+		});
+		assert.equal(doc.box[0].ability, step.ability, 'the roll is what it says it is');
+		doc = run.apply(doc, {kind: 'evolve', id: doc.box[0].id});
+		assert.equal(doc.box[0].species, step.into);
+		assert.ok(legal(step.into).includes(doc.box[0].ability),
+			step.from + ' -> ' + step.into + ' left ' + doc.box[0].ability +
+			', which is not legal for ' + step.into + ' (legal: ' + legal(step.into).join(', ') + ')');
+		assert.notEqual(doc.box[0].ability, step.ability,
+			'and it is not the pre-evolution ability carried across');
+	}
+});
