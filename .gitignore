@@ -21,3 +21,5 @@ experiments/mlflow.db
 experiments/.venv/
 __pycache__/
 experiments/mlruns/
+
+# isolation proof: this commit lands mid-batch on purpose
