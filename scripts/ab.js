@@ -65,12 +65,26 @@ function makeWorktree(revision) {
 	} catch (error) { /* nothing to remove */ }
 	execFileSync('git', ['worktree', 'add', '--detach', dir, revision],
 		{cwd: ROOT, stdio: 'ignore'});
+	// node_modules is SYMLINKED: 512MB across three directories, identical
+	// between the trees, and dependencies do not change inside a batch.
 	for (const rel of ['node_modules', 'calc/node_modules', 'ai/node_modules']) {
 		const target = path.join(ROOT, rel);
 		if (!fs.existsSync(target)) continue;
 		const link = path.join(dir, rel);
 		fs.mkdirSync(path.dirname(link), {recursive: true});
 		if (!fs.existsSync(link)) fs.symlinkSync(target, link, 'dir');
+	}
+	// The build outputs are COPIED, not linked, and the difference is the whole
+	// point of isolating. ai/dist and calc/dist are gitignored, so the worktree
+	// has their source and not their build — and a symlink would put the main
+	// tree's build back in the path, so a rebuild landing mid-batch would leak
+	// straight through. That is the exact failure this exists to prevent: the
+	// commit that invalidated the last comparison was a bundle rebuild. 6.8MB
+	// between them, 165ms to copy, once per batch.
+	for (const rel of ['ai/dist', 'calc/dist']) {
+		const from = path.join(ROOT, rel);
+		if (!fs.existsSync(from)) continue;
+		fs.cpSync(from, path.join(dir, rel), {recursive: true});
 	}
 	fs.mkdirSync(path.join(dir, 'ui-playthrough-out'), {recursive: true});
 	return dir;
