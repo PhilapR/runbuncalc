@@ -217,8 +217,22 @@ async function main() {
 	const label = flag('label', 'ab');
 	const armA = flag('a', '').split(' ').filter(Boolean);
 	const armB = flag('b', '').split(' ').filter(Boolean);
+	// --tms=advisor, NOT assume. The driver already defaults to advisor and this
+	// line overrode it to assume, so every comparison run through this harness
+	// taught moves the run could not have sourced yet — and the outputs were
+	// then reported as findings about the game.
+	//
+	// It is not a small effect. Boss rush against Brawly, twelve pairs,
+	// isolated: with assume, 11 of 12 runs beat him and 11 of 89 attempts won.
+	// With advisor, ZERO of 12 runs and zero of 240 attempts. p = 0.000005. The
+	// difference between "Brawly is a coin flip at 6%" and "Brawly was never
+	// beaten" was entirely this flag.
+	//
+	// assume is still reachable by passing --shared explicitly. It answers a
+	// different question — what a party COULD do with a full TM shelf — and
+	// nothing it produces is a claim about a real run.
 	const shared = (flag('shared',
-		'--rules=encounters --box=22 --party=matrix --tms=assume ' +
+		'--rules=encounters --box=22 --party=matrix --tms=advisor ' +
 		'--fights=90 --budget=480 --plan=1')).split(' ').filter(Boolean);
 
 	const startRevision = git(['rev-parse', 'HEAD']);
