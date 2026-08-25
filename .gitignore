@@ -22,6 +22,9 @@ experiments/.venv/
 __pycache__/
 experiments/mlruns/
 
-# isolation proof: this commit lands mid-batch on purpose
 
-# second isolation proof
+
+# The isolated worktree scripts/ab.js runs a batch in. Removed when the
+# batch ends; ignored so a crashed batch cannot dirty the tree and make the
+# NEXT batch refuse to start.
+.ab-worktree/
