@@ -237,9 +237,24 @@ async function main() {
 
 	const startRevision = git(['rev-parse', 'HEAD']);
 	const startDirty = git(['status', '--porcelain']) !== '';
-	if (startDirty) {
+	const isolate = flag('isolate', '1') !== '0';
+	// Refusing a dirty tree is right when the batch runs IN that tree, and
+	// wrong when it does not. An isolated batch works from a worktree pinned to
+	// a committed revision, so uncommitted changes cannot reach it — the
+	// comparison can name its code exactly. Refusing anyway cost a valid run:
+	// a commit landed between two batches in one script and the second died on
+	// a tree that had been dirty for a moment and had nothing to do with it.
+	//
+	// It still warns, because the uncommitted work is silently NOT under test,
+	// and someone who just edited the driver should hear that rather than
+	// discover it in the result.
+	if (startDirty && !isolate) {
 		console.error('REFUSING: the tree is dirty. A tally cannot name the code that produced it.');
 		process.exit(1);
+	}
+	if (startDirty) {
+		console.log('  NOTE: the tree is dirty and the worktree is pinned to ' +
+			String(startRevision).slice(0, 10) + ' — uncommitted changes are NOT under test');
 	}
 	console.log('revision ' + String(startRevision).slice(0, 10) + ' · ' + pairs +
 		' pairs · ' + parallel + ' at a time');
@@ -261,7 +276,6 @@ async function main() {
 		}
 	}
 
-	const isolate = flag('isolate', '1') !== '0';
 	const home = isolate ? makeWorktree(startRevision) : ROOT;
 	if (isolate) console.log('  isolated in a worktree at ' + startRevision.slice(0, 10));
 
