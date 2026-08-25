@@ -71,6 +71,10 @@ class Arm:
     brawly_won: int = 0
     brawly_attempts: int = 0
     crashed: int = 0
+    forecast_live: int = 0
+    forecast_dead: int = 0
+    forecast_ability: int = 0
+    forecast_trainer: int = 0
 
     @property
     def mean_order(self) -> float:
@@ -100,7 +104,48 @@ def metrics_for(arm: Arm, side: str) -> dict[str, float]:
         out[f"{side}_gavi_attempt_rate"] = arm.gavi_won / arm.gavi_attempts
     if arm.brawly_attempts:
         out[f"{side}_brawly_attempt_rate"] = arm.brawly_won / arm.brawly_attempts
+    # The survival forecast, which is the product metric rather than a policy
+    # one: what share of planned fights could the engine answer "do you live
+    # through this" for. It went 2.9% -> 14.5% -> 10.6% -> 19.8% across four
+    # fixes in a day and lived only in commit messages. The dip in the middle
+    # is why the causes are split out — the trainer resolver looked like a
+    # regression because it let more fights reach the engine, where they hit
+    # the ability wall instead.
+    planned = arm.forecast_live + arm.forecast_dead
+    if planned:
+        out[f"{side}_forecast_rate"] = arm.forecast_live / planned
+        out[f"{side}_forecast_planned"] = planned
+        out[f"{side}_forecast_dead_ability"] = arm.forecast_ability
+        out[f"{side}_forecast_dead_trainer"] = arm.forecast_trainer
     return out
+
+
+def forecast_metrics(forecast: dict) -> dict[str, float]:
+    """What share of this run's planned fights got a survival answer.
+
+    Reported per playthrough as well as per arm, because the spread across runs
+    is wide and a mean hides it. Six runs on one revision came in at 0.0, 3.6,
+    14.8, 25.0, 32.1 and 42.9 percent, for a pooled 19.8 — so the summary
+    number describes none of them and the range is the more useful fact.
+
+    That spread was first written here as "bimodal", by analogy with the wall
+    results where a box either clears Camper Gavi or never does. Measured, it
+    is not: the six sit fairly evenly across the range rather than clustering
+    at two poles. The rate depends on how many refused species a box happens to
+    hold, which is a count rather than a threshold.
+    """
+    live = forecast.get("live", 0)
+    dead = forecast.get("dead", 0)
+    planned = live + dead
+    if not planned:
+        return {}
+    return {
+        "forecast_live": live,
+        "forecast_planned": planned,
+        "forecast_rate": live / planned,
+        "forecast_dead_ability": forecast.get("ability", 0),
+        "forecast_dead_trainer": forecast.get("trainer", 0),
+    }
 
 
 def log_playthroughs(rows: list[dict]) -> None:
@@ -144,6 +189,7 @@ def log_playthroughs(rows: list[dict]) -> None:
                     "brawly_attempts": brawly.get("attempts", 0),
                     "passed_gavi": 1 if gavi.get("won", 0) else 0,
                     "beat_brawly": 1 if brawly.get("won", 0) else 0,
+                    **forecast_metrics(row.get("forecast") or {}),
                 }
             )
 
@@ -262,6 +308,11 @@ def ingest_structured(path: Path) -> str:
         arm.passed_gavi += 1 if gavi.get("won", 0) else 0
         arm.beat_brawly += 1 if brawly.get("won", 0) else 0
         arm.crashed += 1 if row.get("crashed") else 0
+        forecast = row.get("forecast") or {}
+        arm.forecast_live += forecast.get("live", 0)
+        arm.forecast_dead += forecast.get("dead", 0)
+        arm.forecast_ability += forecast.get("ability", 0)
+        arm.forecast_trainer += forecast.get("trainer", 0)
 
     for row in data.get("rows", []):
         row["side"] = "control" if row["arm"] == "A" else "treatment"

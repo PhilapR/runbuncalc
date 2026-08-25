@@ -146,8 +146,26 @@ function readResult(spec, home) {
 		return {won: won, attempts: won + lost};
 	};
 	let provenance = null;
+	let forecast = {live: 0, dead: 0, ability: 0, trainer: 0};
 	try {
-		provenance = JSON.parse(fs.readFileSync(path.join(out, spec.reportName), 'utf8')).provenance;
+		const report = JSON.parse(fs.readFileSync(path.join(out, spec.reportName), 'utf8'));
+		provenance = report.provenance;
+		// The forecast rate is the product metric this work has been moving —
+		// 2.9% of planned fights at the start of the day, 19.8% after three
+		// fixes — and it was tracked in commit messages and nowhere a chart
+		// could reach. It belongs on the run that produced it.
+		for (const fight of report.detail || []) {
+			const actions = (fight.plan && fight.plan.actions) || null;
+			if (!actions) continue;
+			const dead = actions.find(row => /seed check unavailable|NO SURVIVAL CHECK/.test(row));
+			if (!dead) {
+				forecast.live += 1;
+				continue;
+			}
+			forecast.dead += 1;
+			if (/No unique canonical/.test(dead)) forecast.trainer += 1;
+			else if (/Ability/.test(dead)) forecast.ability += 1;
+		}
 	} catch (error) {
 		provenance = null;
 	}
@@ -158,6 +176,7 @@ function readResult(spec, home) {
 		brawly: attempts('Leader Brawly'),
 		roxanne: attempts('Leader Roxanne'),
 		crashed: /TimeoutError|ERR_|Cannot read propert/.test(text),
+		forecast: forecast,
 		provenance: provenance,
 	};
 }
