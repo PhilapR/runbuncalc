@@ -1338,7 +1338,10 @@ function bestMove(view) {
  * accuracy rather than being a flat yes or no.
  *
  * Measured against the ranking it replaced over thirty interleaved runs:
- * 8.9% of Camper Gavi attempts won against 2.7%, one-sided p = 0.03.
+ * 8.9% of Camper Gavi attempts won against 2.7%. The p = 0.03 first claimed
+ * for that pooled attempts across runs, which are not independent — one box
+ * wins on attempt one and another loses all twelve. Per run it is p = 0.07:
+ * ahead on every metric, not significant at 0.05.
  * `--legacy-rank` restores the old order so that stays reproducible.
  */
 /** A move's base power, or 0 for a status move and for anything unrecognised. */
@@ -2439,7 +2442,7 @@ async function main() {
  *
  * These are the pure parts: they take a view or an entry and return a number
  * or an object, touch no page and no run. The policy they encode was measured
- * — turns-and-accuracy ranking beat damage-only at p = 0.03 over thirty
+ * — turns-and-accuracy ranking led damage-only on every metric over thirty
  * interleaved runs — and a measured result that nothing pins is a result that
  * regresses quietly. `tests/playthrough_policy.test.js` pins them.
  *

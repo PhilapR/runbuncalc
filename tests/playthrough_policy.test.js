@@ -8,7 +8,12 @@
  * nothing pinned any of it. That mattered once its policy stopped being a
  * guess: ranking moves by turns-to-KO with accuracy beat ranking them by raw
  * damage across thirty interleaved runs, 8.9% of Camper Gavi attempts won
- * against 2.7%, one-sided p = 0.03. A measured result that nothing pins is a
+ * against 2.7%. That per-attempt p of 0.03 was OVERSTATED and is corrected
+ * here: attempts inside a run share a box, a party and a policy, so they are
+ * not the 251 independent trials the test assumed — there were 30. The
+ * run-level test on the same data gives p = 0.07. The change still ships,
+ * because it leads on every metric and the mechanism is sound, but it is not
+ * significant at the conventional bar. A measured result that nothing pins is a
  * result that regresses quietly, and the next person to "simplify" the
  * comparator has no way to know what it cost to find.
  *
