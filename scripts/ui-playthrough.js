@@ -162,6 +162,24 @@ const SAC_BUDGET = Number(flag('sac', '0'));
  * it is a boss met with a box the road would not have produced.
  */
 const ONLY = flag('only', '');
+
+/**
+ * Re-pick every party member's four moves before EVERY fight, from the full
+ * legal movepool, priced against the team actually being faced.
+ *
+ * assumeTms already reads the whole pool — 33 moves for a Prinplup at L21, not
+ * merely what a TM in the bag would allow, because the engine gates teaching
+ * on legality rather than inventory. What it does not do is revisit the
+ * choice: it skips a Pokemon whose LEVEL has not changed, so a party taught
+ * for Camper Gavi's Bibarel walks into Brawly's five Fighting types still
+ * holding Gavi's moves.
+ *
+ * With this on, each moveset is the best the species could hold for the fight
+ * in front of it, which takes teaching luck out of the measurement. A boss
+ * should be lost to the boss and not to a stale bar. It is not free — the
+ * comment on that skip records 150s a fight — so it stays off by default.
+ */
+const RETEACH = flag('reteach', '');
 const BOSS = /Leader|Elite|Champion|Rival|Maxie|Archie|Magma Leader|Aqua Leader/i;
 const NOISE = Number(flag('noise', '0'));
 const EXPLORE_WIDTH = Number(flag('explore-width', '3'));
@@ -1964,7 +1982,7 @@ async function assumeTms(page, roster) {
 		if (outOfTime()) return;
 		// Only when something changed. Asking for every party member every
 		// fight cost 150s a fight and taught nothing new.
-		if (taughtAt.get(mon.id) === mon.level) continue;
+		if (RETEACH !== 'fight' && taughtAt.get(mon.id) === mon.level) continue;
 		taughtAt.set(mon.id, mon.level);
 		if (!await selectMon(page, mon.id)) continue;
 		// The Learnable button fills a TEXT line, not the datalist — the
@@ -2288,27 +2306,20 @@ async function main() {
 			break;
 		}
 
-		// Marked beaten before anything else this cycle, so the routes it
-		// guards open and the encounters and TMs behind them are on the shelf
-		// exactly as they would be for a run that fought it.
-		if (ONLY === 'bosses') {
-			const upcoming = await page.evaluate(() => {
-				const button = document.querySelector('#runbun-run-upcoming .runbun-run-up-beat');
-				return button ? button.getAttribute('data-trainer') : null;
-			});
-			if (upcoming && !BOSS.test(upcoming)) {
-				const marked = await markBeaten(page);
-				if (marked) {
-					note('mark', marked + ' — beaten unfought');
-					continue;
-				}
-				// Never loop on a fight that will not mark. One run pressed the
-				// same non-matching selector twenty-one times and called it
-				// progress; a refusal has to end the run, not repeat.
-				problem('only', 'could not mark ' + upcoming + ' beaten — stopping');
-				break;
-			}
-		}
+		// Decided here, acted on further down — after the party has been
+		// caught, levelled, taught and chosen.
+		//
+		// The first cut marked the fight here and skipped straight to the next
+		// cycle, which skipped every one of those steps. Boxes still reached
+		// Brawly correctly capped at L21 and with the same fifteen catches, so
+		// it looked right, but they arrived taught 5.6 TMs against 29.5 for a
+		// run that fought the road. Rehearsing a boss with a party five times
+		// worse equipped than the road would have made it measures the
+		// handicap and not the boss.
+		const markThisOne = ONLY === 'bosses' && await page.evaluate(() => {
+			const button = document.querySelector('#runbun-run-upcoming .runbun-run-up-beat');
+			return button ? button.getAttribute('data-trainer') : null;
+		}).then(name => !!name && !BOSS.test(name));
 
 		await takeEncounters(page);
 		await takeItems(page);
@@ -2344,6 +2355,24 @@ async function main() {
 		if (!/^Fight /.test(ready.playLabel)) {
 			problem('run', 'the panel offers "' + ready.playLabel + '" instead of a fight — ' +
 				ready.nextTitle + ' / ' + ready.nextDetail);
+			break;
+		}
+
+		// The party is now built, taught and equipped for this fight. An
+		// ordinary trainer in boss-rush mode is credited here rather than
+		// fought — before the plan is read and before the battle opens, since
+		// the Mark beaten button belongs to the upcoming list and is gone once
+		// a battle is on screen.
+		if (markThisOne) {
+			const marked = await markBeaten(page);
+			if (marked) {
+				note('mark', marked + ' — beaten unfought');
+				continue;
+			}
+			// Never loop on a fight that will not mark. One run pressed a
+			// non-matching selector twenty-one times and called each press
+			// progress; a refusal has to end the run, not repeat.
+			problem('only', 'could not mark ' + ready.nextTitle + ' beaten — stopping');
 			break;
 		}
 
