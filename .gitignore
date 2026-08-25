@@ -23,3 +23,5 @@ __pycache__/
 experiments/mlruns/
 
 # isolation proof: this commit lands mid-batch on purpose
+
+# second isolation proof
