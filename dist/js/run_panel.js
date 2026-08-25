@@ -1906,9 +1906,16 @@
 		var runtime = window.RunBunPokemonProvider;
 		var fights = planningFights(trainer, trainer ? 1 : 3);
 		if (!client || !runtime || !fights || !fights.length) return Promise.resolve(null);
-		var options;
-		try {
-			options = fights.map(function (fight) {
+		// PER FIGHT, not per batch. This map used to throw as a whole, so one
+		// label the engine cannot place — and 28 of the run's 362 fights are
+		// unplaceable even with the trainer-order map — cost the other two
+		// fights their forecast as well.
+		//
+		// A fight that cannot be resolved keeps its slot and carries its own
+		// error, so the array still lines up with `fights` and the panel can
+		// say which fight went unanswered rather than answering none of them.
+		var options = fights.map(function (fight) {
+			try {
 				return {
 					runtime: runtime,
 					run: state,
@@ -1918,14 +1925,21 @@
 					trainerOrder: runtime.resolveTrainerOrder(fight.trainer),
 					revision: currentRevision === null ? logLength() : currentRevision,
 				};
-			});
-		} catch (error) {
-			return Promise.resolve({error: error});
-		}
+			} catch (error) {
+				return {error: error};
+			}
+		});
+		var planned = options.filter(function (option) { return !option.error; });
+		if (!planned.length) return Promise.resolve({error: options[0].error});
 		var planning = typeof client.planBatch === 'function' ?
-			client.planBatch(options) : Promise.all(options.map(client.planRun));
+			client.planBatch(planned) : Promise.all(planned.map(client.planRun));
 		return planning.then(function (results) {
-			return results.map(function (result, index) {
+			// Put the answers back beside the fights they belong to. The
+			// unresolvable ones never went to the engine, so they take their
+			// own error rather than somebody else's answer.
+			var next = 0;
+			return options.map(function (option, index) {
+				var result = option.error ? {error: option.error} : results[next++];
 				return {fight: fights[index], result: result};
 			});
 		}).catch(function (error) { return {error: error}; });
@@ -1937,7 +1951,15 @@
 			return Promise.resolve({count: 0, unavailable: true});
 		}
 		var recordedAt = new Date().toISOString();
-		return attemptStore.recordEvidenceBatch(forecasts.map(function (forecast) {
+		// A fight the engine refused has an error in place of a receipt, and
+		// there is nothing to retain for it. Filtering here rather than
+		// guarding inside the map keeps the count honest: it reports receipts
+		// saved, not fights attempted.
+		var withReceipts = forecasts.filter(function (forecast) {
+			return forecast && forecast.result && forecast.result.receipt;
+		});
+		if (!withReceipts.length) return Promise.resolve({count: 0});
+		return attemptStore.recordEvidenceBatch(withReceipts.map(function (forecast) {
 			return {
 				request: forecast.result.request,
 				receipt: forecast.result.receipt,
@@ -1982,7 +2004,13 @@
 	function renderPlanOutlook(forecasts) {
 		var $outlook = $('#runbun-run-plan-outlook');
 		var $list = $('#runbun-run-plan-outlook-list').empty();
-		var later = Array.isArray(forecasts) ? forecasts.slice(1) : [];
+		// Only the fights that came back with a receipt. Since a batch fails per
+		// fight rather than as a whole, this list can hold a refusal beside an
+		// answer, and a refusal has no summary to read.
+		var later = (Array.isArray(forecasts) ? forecasts.slice(1) : []).filter(
+			function (forecast) {
+				return forecast && forecast.result && forecast.result.receipt;
+			});
 		$outlook.prop('hidden', !later.length);
 		later.forEach(function (forecast) {
 			var summary = forecast.result.receipt.result.summary;
