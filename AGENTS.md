@@ -65,6 +65,21 @@ Decide which kind you make before you make it. Name that kind in the commit.
    ledger finding, evidence that the new answer is better, and the usual
    falsification. The ranker now plays four different sixes; it also costs 54%
    less, but that is a side effect and not the argument for it.
+
+   Evidence means a measurement on frozen code, not a good argument. Three
+   changes in one day passed the argument and failed the measurement: they
+   priced status moves by what they take away, spent a body to bring a counter
+   in free, and added noise to a retry. Each rested on a real mechanism and
+   each read convincingly, and each shipped OFF once thirty interleaved pairs
+   had spoken.
+
+   A fourth ranks moves by turns rather than by damage. That models the game
+   better and bought nothing. It ships because it is no worse.
+
+   So a behaviour change defaults to OFF behind a flag until an experiment on
+   one revision says otherwise, and the flag stays afterwards. `scripts/ab.js`
+   refuses a comparison whose revision moved, whose tree was dirty, or that
+   passed a flag nothing read, because all three happened here.
 4. **A contract change** — it removes something that the design promises. Bar:
    Philip decides. No consumer reads a value today, and that fact alone does
    not make the value dead. `planner.js` says that both crit bands travel with
