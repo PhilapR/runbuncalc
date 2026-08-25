@@ -14,3 +14,8 @@ out-*.txt
 .wrangler/
 ledger/ledger.db
 ui-playthrough-out/
+
+# MLflow tracking database and venv — the runs are reproducible from
+# ui-playthrough-out/ by re-running experiments/ingest.py.
+experiments/mlflow.db
+experiments/.venv/
