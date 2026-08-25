@@ -146,7 +146,13 @@ function summarise(rows, arm) {
 
 async function main() {
 	const pairs = Number(flag('pairs', '20'));
-	const parallel = Math.max(1, Number(flag('parallel', '1')));
+	// Three, measured. One run takes 118s; three at once take 189s and finish
+	// all three, which is 1.87x the throughput rather than the 3x the core
+	// count suggests — each run slows to about 185s under the contention. Load
+	// reaches 13.2 on 11 cores at three, so four would thrash, and the driver's
+	// 20s waits are what would break first. Correctness held at three: zero
+	// crashes and zero staging failures across the runs that measured this.
+	const parallel = Math.max(1, Number(flag('parallel', '3')));
 	const label = flag('label', 'ab');
 	const armA = flag('a', '').split(' ').filter(Boolean);
 	const armB = flag('b', '').split(' ').filter(Boolean);
