@@ -189,3 +189,5 @@ Verification: local copy in session scratchpad 2026-08-11
 ### PokemonRunAndBunHelper (local copy; upstream unknown)
 Python battle helper: find_best_move depth-3 search over a battle state.
 Verification: local copy in session scratchpad 2026-08-11
+
+# mid-batch commit, deliberate
