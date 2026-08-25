@@ -31,6 +31,26 @@ function move(name, min, max, extra) {
 	}, extra || {});
 }
 
+/**
+ * The driver reads its flags from argv at load, so a gate for a flagged
+ * behaviour has to load its own copy with that flag set. This exists because
+ * --status-value now defaults to 0: the pricing it controls was measured and
+ * did NOT improve outcomes, so it ships off. The mechanism is still gated,
+ * because a thing that is off must still be correct when switched on.
+ */
+function loadWith(argv) {
+	const key = require.resolve('../scripts/ui-playthrough.js');
+	const saved = process.argv;
+	delete require.cache[key];
+	try {
+		process.argv = ['node', 'ui-playthrough.js'].concat(argv);
+		return require('../scripts/ui-playthrough.js');
+	} finally {
+		process.argv = saved;
+		delete require.cache[key];
+	}
+}
+
 test('the race is read as numbers, not as a mood', () => {
 	// The panel ends every threat line with this sentence and the driver used
 	// to keep only the verdict. The two numbers in front of it are the whole
@@ -170,8 +190,14 @@ test('the level cap is read off the panel, and its absence is not a zero', () =>
 });
 
 test('a status move is priced by what it takes away, not by its zero base power', () => {
+	const priced = loadWith(['--status-value=24']);
 	const grass = ['Grass'];
-	const worth = name => policy.moveValue(name, grass, []);
+	const worth = name => priced.moveValue(name, grass, []);
+
+	// Off by default, and that is the measured answer rather than an oversight:
+	// fifteen runs an arm said pricing status did not beat leaving it at zero.
+	assert.equal(policy.moveValue('Sleep Powder', grass, []), 0,
+		'the default ships the pricing off, as the A/B decided');
 
 	// The defect this pins: every sleep, paralysis and confusion move has no
 	// base power, fell through to zero, and was therefore always the weakest
@@ -195,6 +221,7 @@ test('a status move is priced by what it takes away, not by its zero base power'
 });
 
 test('a guaranteed status counts even when the move also does damage', () => {
+	const policy = loadWith(['--status-value=24']);
 	const electric = ['Electric'];
 	// Nuzzle is a guaranteed paralysis carrying 20 base power. Priced as an
 	// attack it is worth 20 and was taught over 41 times.
