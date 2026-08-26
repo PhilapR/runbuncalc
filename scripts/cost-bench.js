@@ -213,8 +213,11 @@ function tailArm(size, trainer) {
 
 function main() {
 	const label = flag('label', 'cost');
+	// `''.split(',')` is `['']` and `Number('')` is 0, so an unset flag asked
+	// for position zero and matched nothing. Drop the empty pieces first.
 	const positions = flag('positions', '').split(',')
-		.map(value => Number(value.trim())).filter(value => Number.isFinite(value));
+		.map(value => value.trim()).filter(Boolean)
+		.map(Number).filter(value => Number.isFinite(value));
 	const arms = flag('arms', 'baseline,facts-cache').split(',').map(a => a.trim());
 	const tailSize = Number(flag('tail-box', 76));
 
