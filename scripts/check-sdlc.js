@@ -80,6 +80,28 @@ assert.equal(crypto.createHash('sha256').update(providerArtifact).digest('hex'),
 assert.equal(providerProvenance.repository, 'pokemon-mono');
 assert.equal(providerProvenance.revision, 'bf28a069148903cc02315cc434f91e24816045e2');
 
+// A test file that no script names is not a gate. Three were written, made to
+// fail, and reported as passing — and none of them ran in `npm test`, because
+// the suite lists its files one by one and nothing noticed the new ones were
+// missing. `node --test tests/whatever.test.js` passing by hand is not the
+// same claim as the suite passing, and the difference is invisible in a green
+// run. So the suite now asserts that it knows about every test in the tree.
+// Only the `node --test` invocations count. Listing a file for eslint is not
+// running it, and the first version of this rule accepted that and passed
+// while the test it was meant to protect had been dropped from the suite.
+const runsTests = new Set();
+for (const script of Object.values(pkg.scripts)) {
+	for (const step of script.split('&&')) {
+		if (!/\bnode\s+--test\b/.test(step)) continue;
+		for (const token of step.match(/tests\/[\w.-]+\.test\.js/g) || []) runsTests.add(token);
+	}
+}
+const orphanedTests = fs.readdirSync(path.join(root, 'tests'))
+	.filter(name => name.endsWith('.test.js'))
+	.filter(name => !runsTests.has(`tests/${name}`));
+assert.deepEqual(orphanedTests, [],
+	'these tests are in the tree but no npm script runs them, so they gate nothing');
+
 const source = read('src/index.template.html');
 assert.match(source, /\/src\\\/index\\\.template\\\.html\$/,
 	'source template must redirect to the materialized product entrypoint');

@@ -15,11 +15,21 @@
  * verified against the romhack's own species/base_stats.h; the engine ships a
  * vanilla table. One side is right.
  *
- * The report is evidence for rebuilding the vendored artifact, not an input to
+ * The report was evidence for rebuilding the vendored artifact, not an input to
  * a runtime swap, and this gate holds that line. Forcing the engine's ability
- * would restore 124 forecasts and make 72 of them wrong — Aron's Heavy Metal
- * becomes Sturdy, which survives any hit from full HP. build-trainer-order-map
- * already states the rule: a guess is worse than a gap.
+ * would have restored 124 forecasts and made 72 of them wrong — Aron's Heavy
+ * Metal becomes Sturdy, which survives any hit from full HP.
+ * build-trainer-order-map already states the rule: a guess is worse than a gap.
+ *
+ * THE REPORT IS NOW EMPTY, AND THAT IS THE POINT. The vendored artifact was
+ * rebuilt from a pokemon-mono revision carrying the fork's own
+ * ABILITY_SLOT_CHANGES, so the two tables agree on all 1,244 comparable
+ * species. So the assertion below is inverted from the one it replaced: this
+ * file asserted `entries.length > 0` back when 124 species contradicted, and
+ * kept asserting it after the fix, which is why it failed the moment it was
+ * wired into the suite. An empty report is the fixed state; a non-empty one
+ * means the pin regressed to a vanilla table and 24.3% of catches are about to
+ * lose their forecast again.
  */
 
 const assert = require('node:assert/strict');
@@ -39,8 +49,19 @@ test('the committed map matches a fresh build of both pinned sides', () => {
 		'the map drifted from its sources — rebuild it and read the diff before committing');
 });
 
-test('every entry is a real contradiction, and the engine offers one answer', () => {
-	assert.ok(committed.entries.length > 0);
+test('the engine and the fork agree about every ability they can both name', () => {
+	// What the upstream rebuild bought. Before it, 124 of 1,244 species shared
+	// no ability at all, and the engine refuses any Pokemon whose ability it
+	// does not recognise — 24.3% of the catches these logs record, each one
+	// killing the fair-dice sample for every fight while it sat in the box.
+	assert.equal(committed.contradicted, 0,
+		'the vendored engine contradicts the fork again, so those species lose their forecast');
+	assert.equal(committed.agreed, committed.comparable);
+	assert.ok(committed.comparable > 1200,
+		'far fewer species compared than expected — the engine table did not load');
+});
+
+test('an entry, if one ever appears, is a real contradiction with one answer', () => {
 	for (const entry of committed.entries) {
 		assert.ok(entry.fork.length && entry.engine.length, entry.species);
 		// An entry exists only when NOTHING overlaps. One shared ability and the

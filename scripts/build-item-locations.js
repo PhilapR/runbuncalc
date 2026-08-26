@@ -5,8 +5,8 @@
 /**
  * Build the field-item ledger from the engine's own Item Locations workbook.
  *
- * `availability.json` carried 28 items and 78 TM/tutor rows. The TMs were
- * complete; the items were not, and three whole categories were absent:
+ * `availability.json` carried 28 items where the workbook carries 235, and
+ * three whole categories were absent:
  *
  *     held items and berries   121 upstream,  25 carried,  96 missing
  *     Heart Scales              30 upstream,   0 carried,  all missing
@@ -16,117 +16,237 @@
  * The Heart Scales matter beyond their own row. The relearner charges one for
  * an egg move and no shop sells them, so with none in the ledger every egg
  * move in the game is unreachable — 56 of 171 teachable moves across six
- * mid-run species, 32.7% of the movepool, gone. `heartScale` also sets an IV
- * to 31, so that play was unavailable too.
+ * mid-run species, 32.7% of the movepool. `heartScale` also sets an IV to 31,
+ * so that play was unavailable too.
+ *
+ * TWO ORDER SCALES, AND THIS FILE PUBLISHES THE SECOND ONE. The engine
+ * database numbers its own rows 0-434; this repository's `order` counts
+ * cumulative enemy Pokemon and runs 0-1620. Leader Brawly is engine row 28 and
+ * run-map order 77. `opensAt` is a RUN-MAP order, so every engine number is
+ * translated before it is published — see AGENTS.md, "Two order scales".
+ *
+ * The first version of this builder skipped that step and shipped engine row
+ * indexes under a `method` string that claimed run-map order. 160 of its 164
+ * dated rows were too early, by 591 on average and 1149 at worst, and no gate
+ * caught it: an engine index is a perfectly valid run-map order, just the
+ * wrong one. `availability.json` had carried both numbers side by side for
+ * every item the whole time — Soft Sand, Route 109, `rabMinOrder 13`,
+ * `opensAt 29` — and that contradiction is the cheapest way to see the bug.
  *
  * DATING. An item is only useful to the advisor once it can say WHEN the run
- * can have it, and the workbook gives prose locations with no orders. The
- * existing rule is already written down in availability.json's `method`: the
- * first trainer at that location, late-biased and never early. Both halves
- * matter here.
+ * can have it, and the workbook gives prose, not orders: "Route 126, guarded
+ * by Triathlete Pablo (requires Dive)." Four signals, strongest first.
  *
- *   - `first trainer at the location` is computable: the engine's trainer
- *     database carries a location and an order for all 432 fights across 80
- *     locations, so the earliest order at a place is the earliest a run can
- *     stand there.
- *   - `late-biased, never early` decides the ambiguity. Route 104 exists twice
- *     in that database, South at order 7 and North at 30, and the workbook
- *     says only "Route 104". Taking 7 would let the advisor recommend an item
- *     the run may not be able to reach yet, which is the failure this whole
- *     ledger exists to prevent. So an ambiguous place takes the LATEST of its
- *     candidate firsts.
+ *   1. A STATED REQUIREMENT is a hard floor under everything else. It is read
+ *      from the words rather than from a `requires` clause, because the
+ *      workbook states a dependency both ways — "(requires Waterfall)" and
+ *      "Up the Waterfall northwest of the route" gate the same HM. All the
+ *      moves named count, not the first: "requires Surf and Waterfall" is
+ *      Waterfall's floor, not Surf's. A badge count is a floor of the same
+ *      kind, since "requires 3 badges" is the third leader's order.
+ *   2. A NAMED TRAINER. "guarded by Triathlete Pablo" is direct evidence: the
+ *      item sits behind that fight. Two trainers share a name ten times over,
+ *      so the one at the place the prose names wins, and otherwise the later.
+ *   3. NAMED PLACES, late-biased across all of them, and expanded through
+ *      "Routes 110 and 112".
+ *   4. "Unavailable" said outright, which is a fact rather than a gap.
  *
- * A location with no trainer at all — Petalburg City, Lilycove City, Route 119
- * — is dated `null` and withheld by the advisor, not guessed. That is the same
- * treatment the 22 undated TMs already get, and for the same reason: a guess
+ * WHICH FIGHT DATES A PLACE. The engine splits some places into variants and
+ * they are not all the same kind of thing. "Route 104 (South)" at 7 and
+ * "(North)" at 30 are two halves of one route, and a bare "Route 104" in the
+ * workbook may mean either, so the later one is the only answer that cannot
+ * promise something unreachable. "(Optionals)" is not a place at all — it is
+ * the engine's bucket for optional fights, which stand where the route already
+ * was, so Route 106 opens at its own first fight (11) and not at its optional
+ * group (166). Where a route has ONLY an optional group the group is still the
+ * best evidence there is, so it is used. A parenthetical naming a building is
+ * a different place: "Route 110 (Trick House Door)" is one joke fight behind a
+ * door and does not date Route 110.
+ *
+ * A place with no trainer at all is dated `null` and withheld, not guessed —
+ * the same treatment the 22 undated TMs get, and for the same reason: a guess
  * is worse than a gap.
  *
- * Both sides are pinned, so this is computed once and committed.
- * `tests/item_locations.test.js` rebuilds it and fails on drift.
+ * Every input is pinned: the workbook is transcribed into item-workbook.json,
+ * the trainer database comes from the sha-checked vendored runtime, and the
+ * scale bridge is trainer-orders.json, which has its own gate.
+ * `tests/item_locations.test.js` rebuilds this and fails on drift.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
 
-const ROOT = path.join(__dirname, '..');
-const OUT = path.join(ROOT, 'profiles', 'run-and-bun', 'oracle', 'item-locations.json');
+const runtime = require('@philapr/pokemon-run-runtime');
+const planner = require('../lib/planner');
 
-/** Strip a parenthetical qualifier and trailing punctuation: the workbook
- * writes "Route 104" where the trainer database writes "Route 104 (South)". */
-function normalisePlace(value) {
-	return String(value || '').replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ')
-		.trim().replace(/\.$/, '');
+const ROOT = path.join(__dirname, '..');
+const ORACLE = path.join(ROOT, 'profiles', 'run-and-bun', 'oracle');
+const OUT = path.join(ORACLE, 'item-locations.json');
+const WORKBOOK = path.join(ORACLE, 'item-workbook.json');
+
+const PROFILE = 'run-and-bun';
+
+/** The engine's own trainer rows, from the vendored runtime rather than a
+ * scratch dump, so a rebuild is reproducible. */
+function engineTrainers() {
+	const resolve = runtime.createRabRunRuntimeProvider({}).options.resolveTrainer;
+	const rows = [];
+	for (let order = 0; order <= 434; order += 1) {
+		let trainer;
+		try {
+			trainer = resolve(order);
+		} catch (error) {
+			continue;
+		}
+		if (!trainer || !trainer.location || typeof trainer.order !== 'number') continue;
+		rows.push({name: String(trainer.name || ''), location: String(trainer.location),
+			order: trainer.order});
+	}
+	if (rows.length < 400) throw new Error(`engine trainer table looks wrong: ${rows.length} rows`);
+	return rows;
 }
 
-/** Earliest run-map order at each place, and every candidate for an ambiguous
- * one. Late-bias needs the whole candidate list, not just the minimum. */
-function placeOrders(trainers) {
+/**
+ * Engine row index -> run-map order.
+ *
+ * trainer-orders.json already reconciles the two databases fight by fight, so
+ * the bridge is a lookup rather than a heuristic. An engine row with no anchor
+ * of its own translates through the first anchor AT OR AFTER it, which is an
+ * upper bound: sparsity can only push a date later, and later is the safe side
+ * of "can the run reach this yet". Same rule as scripts/import-availability.js.
+ */
+function scaleBridge() {
+	const map = JSON.parse(fs.readFileSync(path.join(ORACLE, 'trainer-orders.json'), 'utf8'));
+	const ours = new Map();
+	for (const fight of planner.listFights(PROFILE).fights) {
+		ours.set(String(fight.trainer).toLowerCase(), fight.order);
+	}
+	const anchors = [];
+	for (const entry of map.entries) {
+		const our = ours.get(String(entry.trainer).toLowerCase());
+		if (our === undefined) continue;
+		anchors.push({engine: entry.order, our: our});
+	}
+	anchors.sort((a, b) => a.engine - b.engine);
+	if (anchors.length < 300) throw new Error(`too few anchors to translate: ${anchors.length}`);
+	return engineOrder => {
+		for (const anchor of anchors) {
+			if (anchor.engine >= engineOrder) return anchor.our;
+		}
+		return null;
+	};
+}
+
+/** "Route 119 (West), permanent Rain" -> "Route 119". */
+function normalisePlace(value) {
+	return String(value || '').split(',')[0].replace(/\s*\(.*\)\s*$/, '').trim().replace(/\.$/, '');
+}
+
+/** The trailing parenthetical of a location, or null. */
+function qualifierOf(value) {
+	const found = /\(([^)]*)\)\s*$/.exec(String(value || '').split(',')[0]);
+	return found ? found[1].trim() : null;
+}
+
+/**
+ * Earliest run-map order at each place, keeping every candidate an ambiguous
+ * place has so the caller can bias late.
+ *
+ * A variant is one of three kinds. A SECTION is part of the place and counts.
+ * An OPTIONAL group stands where the place already was, so it counts only when
+ * nothing else does. A BUILDING is somewhere else and never counts.
+ */
+function placeOrders(trainers, toRunMap) {
 	const firstAt = new Map();
 	for (const trainer of trainers) {
-		if (!trainer.location || typeof trainer.order !== 'number') continue;
 		const at = firstAt.get(trainer.location);
 		if (at === undefined || trainer.order < at) firstAt.set(trainer.location, trainer.order);
 	}
-	const byPlace = new Map();
+	const sections = new Map();
+	const optionals = new Map();
 	for (const entry of firstAt) {
+		const qualifier = qualifierOf(entry[0]);
+		if (qualifier && /\b(House|Door)\b/i.test(qualifier)) continue;
 		const key = normalisePlace(entry[0]);
-		if (!byPlace.has(key)) byPlace.set(key, []);
-		byPlace.get(key).push(entry[1]);
+		const order = toRunMap(entry[1]);
+		if (order === null) continue;
+		const into = qualifier && /^Optionals$/i.test(qualifier) ? optionals : sections;
+		if (!into.has(key)) into.set(key, []);
+		into.get(key).push(order);
 	}
-	return byPlace;
+	for (const entry of optionals) {
+		if (!sections.has(entry[0])) sections.set(entry[0], entry[1]);
+	}
+	return sections;
 }
 
-/** Order of each named trainer, for a location that names its guard. */
-function trainerOrders(trainers) {
+/** Every run-map order a trainer name is used at, with the places, because ten
+ * names are used twice and Winstrate Vito stands 1020 orders apart. */
+function trainerOrders(trainers, toRunMap) {
 	const byName = new Map();
 	for (const trainer of trainers) {
-		if (!trainer.name || typeof trainer.order !== 'number') continue;
-		const key = String(trainer.name).toLowerCase();
-		const at = byName.get(key);
-		if (at === undefined || trainer.order < at) byName.set(key, trainer.order);
+		if (!trainer.name) continue;
+		const order = toRunMap(trainer.order);
+		if (order === null) continue;
+		for (const key of nameKeys(trainer.name)) {
+			if (!byName.has(key)) byName.set(key, []);
+			byName.get(key).push({order: order, place: normalisePlace(trainer.location)});
+		}
 	}
 	return byName;
+}
+
+/** The spellings a trainer name can be written as. The workbook and the engine
+ * disagree about the space in "CoolTrainer", and the workbook sometimes drops
+ * the class: "Steven" for "Pokemon Trainer Steven". */
+function nameKeys(name) {
+	const full = String(name).toLowerCase().replace(/\bcooltrainer\b/g, 'cool trainer')
+		.replace(/\s+/g, ' ').trim();
+	const keys = new Set([full, full.replace(/\s/g, '')]);
+	const bare = full.replace(
+		/^(pokemon trainer|cool trainer|bug catcher|bird keeper|ruin maniac|team aqua grunt|team magma grunt|gym leader|elite four)\s+/, '');
+	if (bare.length >= 5) keys.add(bare);
+	return keys;
+}
+
+/** Leaders in the order the run fights them, for "requires N badges". */
+function badgeOrders() {
+	const orders = [];
+	for (const fight of planner.listFights(PROFILE).fights) {
+		if (/^Leader\b/i.test(fight.trainer)) orders.push(fight.order);
+	}
+	return orders.sort((a, b) => a - b);
 }
 
 /**
  * Date one prose location, and say which evidence did it.
  *
- * The workbook writes sentences, not place names: "Route 126, guarded by
- * Triathlete Pablo (requires Dive)." and "Berry Trees at Routes 110 and 112."
- * A bare string match against the trainer database dates 48 of 235 rows and
- * calls the other 187 unknown, which is not honest — the place is right there
- * in the prose.
- *
- * Three signals, strongest first:
- *
- *   1. A NAMED TRAINER. "guarded by Triathlete Pablo" is direct evidence: the
- *      item sits behind that fight, so its order is the fight's order. The
- *      existing method already allows this — "a run-map fight named after the
- *      map overrides with direct evidence".
- *   2. NAMED PLACES. Every known place mentioned, including "Routes 110 and
- *      112" expanded to both. Late-biased across them, because an item written
- *      against two places may be at either and the later one cannot mislead.
- *   3. "Unavailable" said outright, which is a fact rather than a gap.
- *
- * Anything else stays null and is withheld. A guess is worse than a gap.
+ * Anything the four signals do not reach stays null and is withheld.
  */
-function dateFor(index, prose, hmGates) {
+function dateFor(index, prose) {
 	const text = String(prose || '');
 	if (/^\s*unavailable\b/i.test(text)) return {opensAt: null, dating: 'unavailable in this game'};
 
-	// The floor the prose declares for itself, applied over whatever the place
-	// or the guard says, because an HM is a hard gate rather than an estimate.
-	// A place's first trainer can be reachable long before the item inside it:
-	// Pidgeotite sits on Route 105, first trainer at order 30, behind water
-	// that needs Surf at 589. Seventeen of the nineteen entries stating a
-	// requirement were dated too early before this, the worst by 999.
+	// 1. The floor the prose declares for itself, over whatever a place or a
+	// guard says, because a gate is hard rather than an estimate. A place's
+	// first trainer can stand there long before the item inside it is
+	// reachable: Water Gem is in the Abandoned Ship, whose first fight is 502,
+	// behind water that needs Dive at 1178.
 	let floor = null;
 	let gatedBy = null;
-	for (const move of Object.keys(hmGates || {})) {
-		if (new RegExp('requires?\\s+(the\\s+)?' + move, 'i').test(text) &&
-			(floor === null || hmGates[move] > floor)) {
-			floor = hmGates[move];
-			gatedBy = move;
+	const raise = (order, reason) => {
+		if (order === null || (floor !== null && order <= floor)) return;
+		floor = order;
+		gatedBy = reason;
+	};
+	for (const move of Object.keys(index.hmGates)) {
+		if (new RegExp('\\b' + move + '\\b', 'i').test(text)) raise(index.hmGates[move], move);
+	}
+	const badges = /\b(\d+)\s+badges?\b/i.exec(text);
+	if (badges) {
+		const nth = Number(badges[1]);
+		if (nth >= 1 && nth <= index.badges.length) {
+			raise(index.badges[nth - 1], nth + ' badges');
 		}
 	}
 	const withFloor = answer => {
@@ -134,30 +254,55 @@ function dateFor(index, prose, hmGates) {
 		return {opensAt: floor, dating: 'gated by ' + gatedBy + ', which opens at ' + floor};
 	};
 
-	for (const entry of index.trainers) {
-		const name = entry[0];
-		if (name.length < 6) continue;
-		if (text.toLowerCase().includes(name)) {
-			return withFloor({opensAt: entry[1], dating: 'the fight that guards it'});
-		}
-	}
-
-	// "Routes 110 and 112" names two places in one phrase.
+	// 3. The places. The prose LEADS with where the item is and mentions any
+	// other place afterwards, so the first one named is the one that dates it.
+	//
+	// Late-bias belongs inside a place, not across places, and conflating the
+	// two was the second bug here. "Berry Trees at Routes 102, 104 and 111"
+	// means the tree grows on all three, so reaching the first is enough — the
+	// latest withheld the game's workhorse berries for most of the run and put
+	// Oran Berry at 387 where availability.json had long said 0. A second place
+	// is usually a landmark: the Black Belt is ON Route 115, and the Meteor
+	// Falls exit is only how the prose points at the corner it sits in.
+	//
+	// Unless the prose says the item is REACHED through that place, which is a
+	// path and therefore a gate. Then it raises the date like an HM does.
 	const expanded = text.replace(/\bRoutes\s+([\d,\s]+?)\s+and\s+(\d+)/gi,
 		(all, list, last) => list.split(/[,\s]+/).filter(Boolean)
 			.concat(last).map(n => 'Route ' + n).join(' '));
-
-	const hits = [];
+	const places = [];
 	for (const entry of index.places) {
 		const place = entry[0];
 		if (place.length < 4) continue;
-		if (new RegExp('\\b' + place.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(expanded)) {
-			hits.push(Math.max.apply(null, entry[1]));
+		const quoted = place.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		// "New Mauville" is not Mauville, and it holds no trainer of its own.
+		const pattern = new RegExp('(?<!\\b(?:New|Old|Near|Outside|Under)\\s)\\b' + quoted + '\\b', 'i');
+		const at = pattern.exec(expanded);
+		if (!at) continue;
+		const opensAt = Math.max.apply(null, entry[1]);
+		places.push({name: place, opensAt: opensAt, at: at.index});
+		if (new RegExp('\\b(?:through|via|from)\\s+(?:the\\s+)?' + quoted + '\\b', 'i').test(expanded)) {
+			raise(opensAt, 'the path through ' + place);
 		}
 	}
-	if (hits.length) {
-		return withFloor({opensAt: Math.max.apply(null, hits),
-			dating: hits.length > 1 ? 'latest of the places it names' : 'the place it names'});
+	places.sort((a, b) => a.at - b.at);
+
+	// 2. A named guard, which is direct evidence and outranks the place.
+	const lower = text.toLowerCase().replace(/\bcooltrainer\b/g, 'cool trainer');
+	for (const entry of index.trainers) {
+		const name = entry[0];
+		if (name.length < 6) continue;
+		if (!lower.includes(name)) continue;
+		const named = places.map(place => place.name);
+		const here = entry[1].filter(stood => named.includes(stood.place));
+		const pick = (here.length ? here : entry[1])
+			.reduce((best, stood) => (stood.order > best.order ? stood : best));
+		return withFloor({opensAt: pick.order, dating: 'the fight that guards it'});
+	}
+
+	if (places.length) {
+		return withFloor({opensAt: places[0].opensAt,
+			dating: places.length > 1 ? 'the first of the places it names' : 'the place it names'});
 	}
 	// Nothing named the place, but a stated requirement is still a real lower
 	// bound and is better evidence than nothing.
@@ -165,27 +310,24 @@ function dateFor(index, prose, hmGates) {
 	return {opensAt: null, dating: 'no trainer or known place in the text'};
 }
 
-function rows(sheet, columns) {
-	const out = [];
-	for (const row of sheet) {
-		const name = row[columns.name];
-		const place = row[columns.place];
-		if (!name || !place) continue;
-		if (String(name).trim() === 'Item') continue;
-		out.push({name: String(name).trim(), place: String(place).trim()});
-	}
-	return out;
-}
-
-function build(workbook, trainers) {
+function build() {
+	const workbook = JSON.parse(fs.readFileSync(WORKBOOK, 'utf8'));
+	const availability = JSON.parse(fs.readFileSync(path.join(ORACLE, 'availability.json'), 'utf8'));
+	const trainers = engineTrainers();
+	const toRunMap = scaleBridge();
 	const index = {
-		places: Array.from(placeOrders(trainers)).sort((a, b) => b[0].length - a[0].length),
-		trainers: Array.from(trainerOrders(trainers)).sort((a, b) => b[0].length - a[0].length),
+		places: Array.from(placeOrders(trainers, toRunMap))
+			.sort((a, b) => b[0].length - a[0].length),
+		trainers: Array.from(trainerOrders(trainers, toRunMap))
+			.sort((a, b) => b[0].length - a[0].length),
+		hmGates: availability.hmMoves,
+		badges: badgeOrders(),
 	};
+
 	const entries = [];
 	const add = (name, kind, place, detail) => {
 		// The detail column often carries the place when the first does not.
-		const dated = dateFor(index, place + ' ' + (detail || ''), workbook.hmGates);
+		const dated = dateFor(index, place + ' ' + (detail || ''));
 		entries.push({
 			name: name, kind: kind, location: place,
 			detail: detail || null,
@@ -208,14 +350,18 @@ function build(workbook, trainers) {
 
 	const dated = entries.filter(entry => entry.opensAt !== null).length;
 	return {
-		schemaVersion: 'runbun.item.locations/1.0.0',
-		source: 'pokemon-mono engines/rab/backend/DOCS/Item Locations.xlsx',
+		schemaVersion: 'runbun.item.locations/1.1.0',
+		source: 'pokemon-mono engines/rab/backend/DOCS/Item Locations.xlsx, via item-workbook.json',
 		provenance: 'transcribed + derived',
-		method: 'opensAt = the first trainer at the location in the engine trainer database, ' +
-			'in RUN MAP ORDER (cumulative enemy Pokemon, not fight number). Late-biased: a ' +
-			'place the database splits (Route 104 South at 7, North at 30) takes the LATEST ' +
-			'of its candidates, because offering an item the run cannot yet fetch is the ' +
-			'failure this ledger prevents. A place with no trainer is null and withheld.',
+		method: 'opensAt is a RUN-MAP order (cumulative enemy Pokemon, 0-1620), not an engine ' +
+			'row index (0-434). It is the first trainer at the place the prose names, ' +
+			'translated through trainer-orders.json. Late-biased: a place the engine splits ' +
+			'(Route 104 South and North) takes the LATEST of its sections, because offering ' +
+			'an item the run cannot fetch is the failure this ledger prevents. An optional ' +
+			'fight group does not date a place that has its own fights, and a building behind ' +
+			'a door is not a section of the route outside it. A stated gate — an HM named in ' +
+			'the prose, or a badge count — is a floor over all of that. A place with no ' +
+			'trainer is null and withheld.',
 		counted: entries.length,
 		dated: dated,
 		undated: entries.length - dated,
@@ -223,5 +369,12 @@ function build(workbook, trainers) {
 	};
 }
 
-module.exports = {build: build, normalisePlace: normalisePlace, dateFor: dateFor,
-	placeOrders: placeOrders, trainerOrders: trainerOrders, rows: rows, OUT: OUT};
+if (require.main === module) {
+	const out = build();
+	fs.writeFileSync(OUT, JSON.stringify(out, null, '\t') + '\n');
+	console.log(`${out.dated} dated of ${out.counted} -> ${path.relative(ROOT, OUT)}`);
+}
+
+module.exports = {build: build, normalisePlace: normalisePlace, qualifierOf: qualifierOf,
+	dateFor: dateFor, placeOrders: placeOrders, trainerOrders: trainerOrders,
+	engineTrainers: engineTrainers, scaleBridge: scaleBridge, OUT: OUT};

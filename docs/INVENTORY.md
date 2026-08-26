@@ -55,6 +55,7 @@ Oracle datasets:
 - `fight-fields.json`: 35 fights
 - `growth.json`: 1114 species
 - `item-locations.json`: 235 entries
+- `item-workbook.json`: 235 rows
 - `learnsets.json`: 1114 species
 - `sources.json`: 10 species
 - `tracker-order.json`: 7 species
@@ -133,7 +134,7 @@ the reader's warning to verify before trusting.
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
 - `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18
-- `docs/RUN_API.md` — untracked
+- `docs/RUN_API.md` — d1a2d52 2026-08-25
 - `docs/SDLC.md` — c11db8f 2026-08-16
 - `docs/STRATEGY.md` — c272bcd 2026-08-25
 - `docs/TASKS.md` — 98b4a50 2026-08-18
