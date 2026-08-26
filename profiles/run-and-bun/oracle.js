@@ -502,9 +502,15 @@ function coverage() {
 const LIMITS = {
 	wildEncountersOnly: true,
 	staticAndGiftEncountersAbsent: true,
-	itemLocationsAbsent: true,
+	// Was `true` from the first oracle import and stayed true after the item
+	// data landed and falsified it. This block is served to clients on
+	// /run/maps, so a stale declaration here tells every consumer the layer
+	// cannot answer a question it has been answering for months: `fieldItems()`
+	// returns located, dated pickups and `api.where` reports them.
+	itemLocationsAbsent: false,
 	note: 'Route rolls cover wild encounters. Starters, gifts, static encounters, trades ' +
-		'and shop stock are scripted events, so add them without choosing a route.',
+		'and shop stock are scripted events, so add them without choosing a route. ' +
+		'Field items ARE located and dated; an undated one is withheld, not guessed.',
 };
 
 /**

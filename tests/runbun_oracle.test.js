@@ -222,6 +222,17 @@ test('level-up moves keep the level, so "not yet" is distinguishable from "never
 test('the oracle states what it does not cover', () => {
 	assert.equal(oracle.LIMITS.wildEncountersOnly, true);
 	assert.equal(oracle.LIMITS.staticAndGiftEncountersAbsent, true);
+	// This block is served to clients on /run/maps, so every flag in it has to
+	// be true of the layer TODAY. `itemLocationsAbsent` was declared in the
+	// first oracle import and left at `true` after the item data landed and
+	// falsified it — this test asserted the other two booleans and pointedly
+	// not that one, so nothing noticed. A declared limit that has been lifted
+	// is worse than no declaration: it tells a consumer not to ask.
+	assert.equal(oracle.LIMITS.itemLocationsAbsent, false);
+	assert.ok(oracle.fieldItems().length > 0,
+		'itemLocationsAbsent is false, so there must be located items to back it');
+	assert.ok(oracle.fieldItems().every(item => item.location),
+		'every field item names where it is');
 	// Castform is the Weather Institute gift: a real Pokemon a player owns, in no
 	// wild table anywhere. That is the gap `LIMITS` exists to declare, and it is
 	// why the run layer must accept a catch with no map behind it.

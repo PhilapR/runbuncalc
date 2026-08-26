@@ -79,6 +79,15 @@ assert.equal(crypto.createHash('sha256').update(providerArtifact).digest('hex'),
 	providerProvenance.artifactSha256, 'vendored pokemon-mono artifact hash drifted');
 assert.equal(providerProvenance.repository, 'pokemon-mono');
 assert.equal(providerProvenance.revision, 'bf28a069148903cc02315cc434f91e24816045e2');
+// The version string names the revision, and it is the copy a reader is most
+// likely to see — `npm ls` and the lockfile print it, PROVENANCE.json is a file
+// you have to open. Re-pinning the bundle to bf28a069 for the ability fix moved
+// the artifact and the provenance and left the version saying `2ae1b7e`, the
+// revision whose vanilla ability table the re-pin existed to replace. The gate
+// below compared the lockfile to package.json — both stale, so both agreed.
+assert.equal(providerPackage.version,
+	`0.1.0-pokemon-mono.${providerProvenance.revision.slice(0, 7)}`,
+	'the vendored version string must name the revision PROVENANCE.json pins');
 
 // A test file that no script names is not a gate. Three were written, made to
 // fail, and reported as passing — and none of them ran in `npm test`, because

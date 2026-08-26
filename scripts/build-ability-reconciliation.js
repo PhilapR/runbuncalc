@@ -5,6 +5,14 @@
 /**
  * Report where the pinned engine's ability table contradicts this fork's.
  *
+ * IT NO LONGER CONTRADICTS IT ANYWHERE, AND THAT IS THE POINT. The vendored
+ * artifact was rebuilt from a pokemon-mono revision carrying the fork's own
+ * ABILITY_SLOT_CHANGES, so the two tables now agree on all 1,244 comparable
+ * species and this report is empty. Everything below in the past tense
+ * describes the state that motivated the rebuild; the pinned bundle gives
+ * Ponyta `Flame Body` today. A non-empty report means the pin has regressed to
+ * a vanilla table and 24.3% of catches are about to lose their forecast again.
+ *
  * This is NOT a reconciliation, and calling it one was the first mistake. A
  * reconciliation implies two defensible readings to be met in the middle. There
  * are not. `profiles/run-and-bun/index.js` marks data.ABILITY_SLOT_CHANGES
@@ -119,10 +127,19 @@ function build() {
 		schemaVersion: 'runbun.ability.reconciliation/1.0.0',
 		engineRevision: engine.revision,
 		provenance: 'derived',
-		note: 'Species where the pinned engine contradicts the fork. `fork` is ' +
-			'source-of-truth, verified against the romhack. `engineWouldForce` is what ' +
-			'the engine accepts instead, recorded as evidence for an upstream rebuild ' +
-			'and NOT applied at runtime: it changes a damage calculation for 72 of these.',
+		// Derived, not typed. This sentence used to end "...for 72 of these" and
+		// went on saying it over an empty `entries` list once the upstream
+		// rebuild landed — a shipped dataset describing rows it does not have.
+		note: entries.length ?
+			'Species where the pinned engine contradicts the fork. `fork` is ' +
+				'source-of-truth, verified against the romhack. `engineWouldForce` is what ' +
+				'the engine accepts instead, recorded as evidence for an upstream rebuild ' +
+				'and NOT applied at runtime: for many of these it changes a damage ' +
+				'calculation, so the forecast would stop being absent and start being wrong.' :
+			'Empty, which is the fixed state. The vendored engine was rebuilt from a ' +
+				'pokemon-mono revision carrying the fork\'s own ABILITY_SLOT_CHANGES, so ' +
+				'both tables agree on every comparable species. A non-empty report means ' +
+				'the pin regressed to a vanilla table.',
 		comparable: comparable,
 		agreed: agreed,
 		contradicted: entries.length,

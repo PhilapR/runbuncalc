@@ -36,16 +36,16 @@
 			"kind": "heart-scale",
 			"location": "Route 109",
 			"detail": "Island with no NPCs (hidden).",
-			"opensAt": 29,
-			"dating": "the place it names"
+			"opensAt": 42,
+			"dating": "gated by a correction from play at Route 109, which opens at 42"
 		},
 		{
 			"name": "Soft Sand",
 			"kind": "held",
 			"location": "Route 109, given by an NPC by the beach.",
 			"detail": null,
-			"opensAt": 29,
-			"dating": "the place it names"
+			"opensAt": 42,
+			"dating": "gated by a correction from play at Route 109, which opens at 42"
 		},
 		{
 			"name": "Rare Candy",
@@ -936,7 +936,7 @@
 			"dating": "the place it names"
 		},
 		{
-			"name": "Cameruptitte",
+			"name": "Cameruptite",
 			"kind": "mega-stone",
 			"location": "Magma Hideout.",
 			"detail": null,

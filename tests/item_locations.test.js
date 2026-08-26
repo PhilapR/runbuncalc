@@ -36,6 +36,7 @@ const builder = require('../scripts/build-item-locations.js');
 const ledger = require('../profiles/run-and-bun/oracle/item-locations.json');
 const availability = require('../profiles/run-and-bun/oracle/availability.json');
 const run = require('../lib/run');
+const estimate = require('../scripts/estimate-availability.js');
 
 /** Items availability.json and the ledger both carry, matched on the name and
  * on availability's place appearing in the ledger's prose. */
@@ -115,14 +116,21 @@ test('no item is dated before a gate its own prose names', () => {
 });
 
 test('every date lands on a real fight of the run map', () => {
-	const doc = run.createRun({
-		name: 'items', now: 't0', levelCap: 'next-milestone-ace',
-		permadeath: false, onePerRoute: false,
-	});
+	// This asked `trainerIndexOf(doc, opensAt) !== null` and proved nothing.
+	// lib/run.js:687 snaps FORWARD to the first fight at or after the value, so
+	// the assertion was a bounds check on [0, 1620]: all 362 trainer numbers
+	// passed, and so did all 435 engine row indexes — the exact scale this
+	// ledger shipped by mistake. Against the buggy ledger at d1a2d52 it stayed
+	// green on 164 of 164 dated rows.
+	//
+	// Membership in the 362 real orders is the question. It catches 103 of
+	// those 164 historical rows.
+	const orders = new Set(estimate.fightOrders());
+	assert.equal(orders.size, 362, 'the run map is 362 fights');
 	for (const entry of ledger.entries) {
 		if (entry.opensAt === null) continue;
-		assert.ok(run.trainerIndexOf(doc, entry.opensAt) !== null,
-			entry.name + ' is dated ' + entry.opensAt + ', which is off the end of the road');
+		assert.ok(orders.has(entry.opensAt),
+			entry.name + ' is dated ' + entry.opensAt + ', which is not any fight of the run map');
 	}
 });
 
@@ -211,4 +219,71 @@ test('every entry says which evidence dated it, or that nothing did', () => {
 				'an undated entry must say why, not merely be blank');
 		}
 	}
+});
+
+test('the anchors the builder documents are the anchors it computes', () => {
+	// The docstring is where a future editor looks for these numbers, and it is
+	// not executable, so it drifts. It carried 7 / 30 / 11 / 166 — the ENGINE
+	// row indexes — through the commit that fixed the scale everywhere else,
+	// because that fix corrected the `method` string and not the prose above it.
+	//
+	// Exporting them makes the prose checkable. Any number a builder's comment
+	// quotes as an order should be a constant this suite also asserts.
+	const toRunMap = builder.scaleBridge();
+	const trainers = builder.engineTrainers();
+	const engine = new Map();
+	for (const trainer of trainers) {
+		const at = engine.get(trainer.location);
+		if (at === undefined || trainer.order < at) engine.set(trainer.location, trainer.order);
+	}
+	for (const place of Object.keys(builder.ANCHORS)) {
+		assert.ok(engine.has(place), place + ' is not a place the engine names');
+		assert.equal(toRunMap(engine.get(place)), builder.ANCHORS[place],
+			place + ' does not open when the builder docstring says it does');
+	}
+	// And the two the ledger actually turns on.
+	assert.equal(builder.ANCHORS['Route 104 (North)'], 90);
+	assert.equal(builder.ANCHORS['Route 106'], 22);
+});
+
+test('the badge ladder has eight rungs and the seventh is Liza, not Tate', () => {
+	// It was derived by counting `/^Leader/` fights, which gives NINE: Tate and
+	// Liza are two Leader-labelled fights at one gym for one badge. The index
+	// slipped from badge 7 on, so "8 badges" resolved to 1130 — Liza — instead
+	// of Juan at 1364, 234 orders early. The bound accepted "9 badges" too, a
+	// count Hoenn does not have.
+	//
+	// Latent when found: no workbook row names more than three badges, and
+	// badges[2] = 224 was right. Gated because the next workbook might.
+	const badges = builder.badgeOrders();
+	assert.equal(badges.length, 8, 'Hoenn has eight badges');
+	assert.deepEqual(badges, [77, 139, 224, 337, 571, 758, 1130, 1364]);
+	// The one the workbook actually uses today.
+	assert.equal(badges[2], 224, '"requires 3 badges" is Wattson');
+});
+
+test('every mega stone resolves against the calc item table', () => {
+	// One of 47 did not: the workbook spells Camerupt's stone `Cameruptitte`.
+	// The typo is upstream's — `unzip -p "Item Locations.xlsx"
+	// xl/sharedStrings.xml` returns `<t>Cameruptitte</t>` — so it is corrected
+	// on the way out and item-workbook.json stays a verbatim transcription.
+	//
+	// Deliberately NOT extended to evolution items: `Everstone` and `Honey` are
+	// spelled correctly and are legitimately absent from the battle-item table.
+	const Calc = require('../calc/dist/data/index.js');
+	const gen = Calc.Generations.get(8);
+	const missing = [];
+	for (const entry of ledger.entries) {
+		if (entry.kind !== 'mega-stone') continue;
+		const key = entry.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+		let item = null;
+		try {
+			item = gen.items.get(key);
+		} catch (error) {
+			item = null;
+		}
+		if (!item) missing.push(entry.name);
+	}
+	assert.deepEqual(missing, [], 'these mega stones cannot be looked up by name');
+	assert.equal(builder.NAME_FIXES.Cameruptitte, 'Cameruptite');
 });

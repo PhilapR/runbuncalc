@@ -281,10 +281,22 @@ function main() {
 				unlockByPlace.get('Mauville City') : unlockByPlace.get('Mauville');
 			return mauville !== undefined ? translate(mauville) : null;
 		}
-		const req = /requires (Surf|Dive|Waterfall|Strength|Cut|Rock Smash|Flash|Fly)/i.exec(prose);
-		if (!req) return null;
-		const key = req[1].replace(/\b\w/g, ch => ch.toUpperCase());
-		return hmMoves[key] !== undefined ? hmMoves[key] : null;
+		// EVERY move the prose names, not the first one. This was a single
+		// `exec` over an alternation, so "requires Surf and Waterfall" matched
+		// Surf and stopped — and TM15 Body Press shipped at 589 when the
+		// Waterfall it also names does not arrive until 1178. The row's own
+		// `dating` read "unlock+hm-gate", so it claimed a gate had been applied.
+		// It had; the wrong one.
+		//
+		// The sibling builder already states the rule at
+		// scripts/build-item-locations.js: "All the moves named count, not the
+		// first: 'requires Surf and Waterfall' is Waterfall's floor, not Surf's."
+		let gate = null;
+		for (const move of Object.keys(hmMoves)) {
+			if (!new RegExp('\\b' + move + '\\b', 'i').test(prose)) continue;
+			if (gate === null || hmMoves[move] > gate) gate = hmMoves[move];
+		}
+		return gate;
 	}
 	function withHmGate(dated, prose) {
 		const gate = hmGate(prose);

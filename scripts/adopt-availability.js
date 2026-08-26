@@ -95,6 +95,88 @@ function build() {
 	return {availability, added, changed};
 }
 
+/**
+ * Carry every map correction into the item rows standing on that map.
+ *
+ * The map table is not the only place a date is written. `items` and
+ * `moveItems` keep their own copy, and this script used to rewrite only
+ * `entries` — the strings `items` and `moveItems` did not appear in the file.
+ * So Route 109 moved to 42 and the Soft Sand on it stayed at 29, which is the
+ * row the advisor actually reads (oracle.js:583). Between orders 29 and 41 the
+ * pickup sheet offered a route the same file says is shut.
+ *
+ * This runs over EVERY corrected entry, not only the ones changed on this
+ * pass, because the corrections are idempotent: once the map row matches its
+ * override the change list is empty, and a fix that only fired on first
+ * application would never repair a file that had already drifted.
+ *
+ * Only rows that are EARLY move. A pickup deeper in a map than its entrance is
+ * legitimately later — Pixie Plate is on Route 124 at 1178 against the map's
+ * 1067 because it needs Dive — so a later date is left exactly as it is.
+ */
+function reconcileItems(availability) {
+	const moved = [];
+	for (const entry of availability.entries || []) {
+		if (entry.provenance !== 'corrected' || typeof entry.opensAt !== 'number') continue;
+		const place = String(entry.name).replace(/([A-Za-z])(\d)/g, '$1 $2').trim().toLowerCase();
+		for (const field of ['items', 'moveItems']) {
+			for (const row of availability[field] || []) {
+				if (typeof row.opensAt !== 'number' || row.opensAt >= entry.opensAt) continue;
+				if (String(row.location || row.place || '').trim().toLowerCase() !== place) continue;
+				moved.push(`${field}: ${row.name} ${row.opensAt} -> ${entry.opensAt} (${entry.name})`);
+				if (row.transcribedOpensAt === undefined) row.transcribedOpensAt = row.opensAt;
+				row.opensAt = entry.opensAt;
+				row.provenance = 'corrected';
+				row.correction = `follows the ${entry.name} correction: ${entry.correction}`;
+			}
+		}
+	}
+	return moved;
+}
+
+/**
+ * Re-apply the HM floor from each row's own prose.
+ *
+ * `scripts/import-availability.js` used a single `exec` over an alternation to
+ * find the gate, so "requires Surf and Waterfall" matched Surf and stopped.
+ * TM15 Body Press shipped at 589 against the Waterfall it names, which does
+ * not arrive until 1178 — and its `dating` said "unlock+hm-gate", so the row
+ * claimed a gate had been applied.
+ *
+ * The importer is fixed, but it reads a pokemon-mono checkout that is not
+ * present here, so it cannot be re-run to repair the committed file. It does
+ * not need to be: the prose and `hmMoves` are both IN the committed file, so
+ * the floor is recomputable from the repository alone. Every move the prose
+ * names counts, and the latest wins.
+ */
+function reconcileGates(availability) {
+	const gates = availability.hmMoves || {};
+	const moved = [];
+	for (const field of ['items', 'moveItems']) {
+		for (const row of availability[field] || []) {
+			if (typeof row.opensAt !== 'number') continue;
+			const prose = String(row.location || '');
+			let floor = null;
+			let named = null;
+			for (const move of Object.keys(gates)) {
+				if (!new RegExp('\\b' + move + '\\b', 'i').test(prose)) continue;
+				if (floor === null || gates[move] > floor) {
+					floor = gates[move];
+					named = move;
+				}
+			}
+			if (floor === null || row.opensAt >= floor) continue;
+			moved.push(`${field}: ${row.name} ${row.opensAt} -> ${floor} (${named})`);
+			if (row.transcribedOpensAt === undefined) row.transcribedOpensAt = row.opensAt;
+			row.opensAt = floor;
+			row.provenance = 'corrected';
+			row.correction = `its own prose names ${named}, which opens at ${floor}; ` +
+				'the importer matched only the first move in the clause';
+		}
+	}
+	return moved;
+}
+
 function apply(state) {
 	const availability = state.availability;
 	for (const entry of state.added) availability.entries.push(entry);
@@ -105,6 +187,8 @@ function apply(state) {
 		entry.provenance = 'corrected';
 		entry.correction = change.why;
 	}
+	reconcileItems(availability);
+	reconcileGates(availability);
 	availability.entries.sort((a, b) =>
 		(a.opensAt ?? 1e9) - (b.opensAt ?? 1e9) || a.map.localeCompare(b.map));
 	// The file's own header has to admit it is no longer purely transcribed.
@@ -147,4 +231,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {build, apply, OVERRIDES};
+module.exports = {build, apply, reconcileItems, reconcileGates, OVERRIDES};

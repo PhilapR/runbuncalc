@@ -52,16 +52,22 @@
  *   4. "Unavailable" said outright, which is a fact rather than a gap.
  *
  * WHICH FIGHT DATES A PLACE. The engine splits some places into variants and
- * they are not all the same kind of thing. "Route 104 (South)" at 7 and
- * "(North)" at 30 are two halves of one route, and a bare "Route 104" in the
- * workbook may mean either, so the later one is the only answer that cannot
- * promise something unreachable. "(Optionals)" is not a place at all — it is
- * the engine's bucket for optional fights, which stand where the route already
- * was, so Route 106 opens at its own first fight (11) and not at its optional
- * group (166). Where a route has ONLY an optional group the group is still the
- * best evidence there is, so it is used. A parenthetical naming a building is
- * a different place: "Route 110 (Trick House Door)" is one joke fight behind a
- * door and does not date Route 110.
+ * they are not all the same kind of thing. "Route 104 (South)" and "(North)"
+ * are two halves of one route — run-map 11 and 90 — and a bare "Route 104" in
+ * the workbook may mean either, so the later one is the only answer that
+ * cannot promise something unreachable. "(Optionals)" is not a place at all —
+ * it is the engine's bucket for optional fights, which stand where the route
+ * already was, so Route 106 opens at its own first fight (22) and not at its
+ * optional group (601). Where a route has ONLY an optional group the group is
+ * still the best evidence there is, so it is used. A parenthetical naming a
+ * building is a different place: "Route 110 (Trick House Door)" is one joke
+ * fight behind a door and does not date Route 110.
+ *
+ * Every number in that paragraph is a RUN-MAP order, and they are exported as
+ * `ANCHORS` so the gate asserts the same values this prose quotes. The first
+ * draft wrote 7, 30, 11 and 166 — the engine row indexes — and when the scale
+ * bug was fixed the `method` string was corrected and this docstring was not.
+ * It is the one place a future editor looks for these anchors.
  *
  * A place with no trainer at all is dated `null` and withheld, not guessed —
  * the same treatment the 22 undated TMs get, and for the same reason: a guess
@@ -85,6 +91,29 @@ const OUT = path.join(ORACLE, 'item-locations.json');
 const WORKBOOK = path.join(ORACLE, 'item-workbook.json');
 
 const PROFILE = 'run-and-bun';
+
+/**
+ * The run-map orders the docstring above quotes, so the two drift together.
+ * Asserted in tests/item_locations.test.js against the built index.
+ */
+const ANCHORS = {
+	'Route 104 (South)': 11,
+	'Route 104 (North)': 90,
+	'Route 106': 22,
+	'Route 106 (Optionals)': 601,
+};
+
+/**
+ * Names the workbook spells differently from the item table, corrected on the
+ * way OUT so item-workbook.json stays a verbatim transcription.
+ *
+ * The typo is upstream's: `unzip -p "Item Locations.xlsx" xl/sharedStrings.xml`
+ * returns `<t>Cameruptitte</t>`. It is the sole failure of 47 mega stones
+ * against the calc item table, and it costs a lookup rather than a date.
+ */
+const NAME_FIXES = {
+	Cameruptitte: 'Cameruptite',
+};
 
 /** The engine's own trainer rows, from the vendored runtime rather than a
  * scratch dump, so a rebuild is reproducible. */
@@ -209,13 +238,30 @@ function nameKeys(name) {
 	return keys;
 }
 
-/** Leaders in the order the run fights them, for "requires N badges". */
+/**
+ * The eight badges in the order the run earns them, for "requires N badges".
+ *
+ * Read, not derived. Counting `/^Leader/` fights gives NINE, because Tate and
+ * Liza are two Leader-labelled fights at one gym for one badge — so the index
+ * slipped from badge 7 on and "8 badges" resolved to 1130 instead of Juan at
+ * 1364, 234 orders early. It was latent only because no workbook row names
+ * more than three badges.
+ *
+ * The list cannot be deduplicated by gym either: `planner.listFights` carries
+ * no gym field. sources.json has the ladder transcribed from the workbook, and
+ * it puts the Mind Badge at Leader Liza, 1130.
+ */
 function badgeOrders() {
-	const orders = [];
-	for (const fight of planner.listFights(PROFILE).fights) {
-		if (/^Leader\b/i.test(fight.trainer)) orders.push(fight.order);
+	const sources = JSON.parse(fs.readFileSync(path.join(ORACLE, 'sources.json'), 'utf8'));
+	const tiers = (sources.gameCorner || {}).tiers || [];
+	const orders = tiers
+		.filter(tier => typeof tier.opensAt === 'number')
+		.map(tier => tier.opensAt)
+		.sort((a, b) => a - b);
+	if (orders.length !== 8) {
+		throw new Error(`the badge ladder must have 8 rungs, sources.json gives ${orders.length}`);
 	}
-	return orders.sort((a, b) => a - b);
+	return orders;
 }
 
 /**
@@ -247,6 +293,24 @@ function dateFor(index, prose) {
 		const nth = Number(badges[1]);
 		if (nth >= 1 && nth <= index.badges.length) {
 			raise(index.badges[nth - 1], nth + ' badges');
+		}
+	}
+	// A place a human has DATED FROM PLAY outranks anything derived from the
+	// trainer database, because the two answer different questions. The first
+	// trainer standing on a route is not the same as the route being reachable:
+	// Route 109's first fight is Tuber Chandler at order 29, and availability
+	// .json records "Philip, from play: Route 109 is available post Granite Cave
+	// ... the transcribed 29 put it BEFORE Route 107's own trainers, which run
+	// to 37". Two rows here were dated 29 against that correction, which is the
+	// too-early direction this ledger exists to prevent.
+	//
+	// Only `corrected` rows are a floor. The other map rows are the SAME
+	// derivation this builder does, through a sparser anchor set, so they run
+	// slightly late by construction — using those as a floor would push 53 rows
+	// past dates that are already exact.
+	for (const place of index.corrections) {
+		if (new RegExp('\\b' + place.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(text)) {
+			raise(place.opensAt, 'a correction from play at ' + place.name);
 		}
 	}
 	const withFloor = answer => {
@@ -322,6 +386,13 @@ function build() {
 			.sort((a, b) => b[0].length - a[0].length),
 		hmGates: availability.hmMoves,
 		badges: badgeOrders(),
+		corrections: (availability.entries || [])
+			.filter(entry => entry.provenance === 'corrected' && typeof entry.opensAt === 'number')
+			.map(entry => ({
+				// "Route109" in the map table, "Route 109" in the workbook prose.
+				name: String(entry.name).replace(/([A-Za-z])(\d)/g, '$1 $2').trim(),
+				opensAt: entry.opensAt,
+			})),
 	};
 
 	const entries = [];
@@ -329,7 +400,7 @@ function build() {
 		// The detail column often carries the place when the first does not.
 		const dated = dateFor(index, place + ' ' + (detail || ''));
 		entries.push({
-			name: name, kind: kind, location: place,
+			name: NAME_FIXES[name] || name, kind: kind, location: place,
 			detail: detail || null,
 			opensAt: dated.opensAt,
 			dating: dated.dating,
@@ -375,6 +446,7 @@ if (require.main === module) {
 	console.log(`${out.dated} dated of ${out.counted} -> ${path.relative(ROOT, OUT)}`);
 }
 
-module.exports = {build: build, normalisePlace: normalisePlace, qualifierOf: qualifierOf,
+module.exports = {build: build, ANCHORS: ANCHORS, NAME_FIXES: NAME_FIXES, badgeOrders: badgeOrders,
+	normalisePlace: normalisePlace, qualifierOf: qualifierOf,
 	dateFor: dateFor, placeOrders: placeOrders, trainerOrders: trainerOrders,
 	engineTrainers: engineTrainers, scaleBridge: scaleBridge, OUT: OUT};

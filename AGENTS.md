@@ -64,8 +64,19 @@ TM16, and TM16 unlocks at fight 26. Say "order N", or convert with
 belongs at the edge: the data is in order, and only presentation wants
 trainers.
 
-`tests/order_scales.test.js` pins the anchors and fails if a dated row is ever
-written in trainer numbers.
+`tests/order_scales.test.js` pins the anchors and asks whether each dated row
+is one of the 362 real fight orders.
+
+It asked something weaker until 2026-08-26, and the difference matters.
+`run.trainerIndexOf` SNAPS FORWARD to the first fight at or after its argument,
+so `trainerIndexOf(doc, x) !== null` only asks whether x is at most 1620. All
+362 trainer numbers passed it, and so did all 435 engine row indexes. Both
+scales this section exists to keep apart went through it unchallenged, and the
+item ledger shipped in the wrong one twice.
+
+Set membership is not a complete test either — 97 of the 362 trainer numbers
+are also real orders — so it is paired with the named anchors, which pin a row
+to the fight its own place names. Use both.
 
 ## Changing what something costs
 

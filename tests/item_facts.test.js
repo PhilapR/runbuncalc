@@ -80,3 +80,66 @@ test('what the run map cannot classify is named, not silently assumed', () => {
 	assert.deepEqual(facts.unknownHeldItems(availability.items).sort(),
 		['Potion', 'Super Potion']);
 });
+
+test('no item is offered before the map it stands on opens', () => {
+	// availability.json holds two records of the same fact and only one of them
+	// receives corrections. `scripts/adopt-availability.js` rewrites
+	// `entries` — the map table — and the strings `items` and `moveItems` do
+	// not appear in that script at all. So when Route 109 was corrected from
+	// play (29 -> 42, "the transcribed 29 put it BEFORE Route 107's own
+	// trainers, which run to 37"), the map row moved and the Soft Sand row on
+	// that map did not.
+	//
+	// The advisor reads the ITEM row, so between orders 29 and 41 it offered a
+	// pickup on a route the same file says is not open. That is the too-early
+	// direction, which costs a player a wasted trip rather than an option.
+	const maps = new Map();
+	for (const entry of availability.entries || []) {
+		const name = String(entry.name).replace(/([A-Za-z])(\d)/g, '$1 $2').trim().toLowerCase();
+		if (typeof entry.opensAt === 'number') maps.set(name, entry);
+	}
+	const early = [];
+	for (const field of ['items', 'moveItems']) {
+		for (const row of availability[field] || []) {
+			if (typeof row.opensAt !== 'number') continue;
+			const place = maps.get(String(row.location || row.place || '').trim().toLowerCase());
+			if (!place) continue;
+			if (row.opensAt < place.opensAt) {
+				early.push(`${field}: ${row.name} at ${row.opensAt} stands on ` +
+					`${place.name}, which opens at ${place.opensAt}` +
+					(place.provenance ? ` (${place.provenance})` : ''));
+			}
+		}
+	}
+	assert.deepEqual(early, [],
+		'these are offered before the run can walk the map they sit on');
+});
+
+test('no TM or item is dated before an HM its own prose names', () => {
+	// `scripts/import-availability.js` found the gate with one `exec` over an
+	// alternation, so "requires Surf and Waterfall" matched Surf and stopped.
+	// TM15 Body Press shipped at 589 against a Waterfall at 1178 — and its
+	// `dating` field read "unlock+hm-gate", so the row asserted that a gate had
+	// been applied. One had. The wrong one.
+	//
+	// Body Press is teachable by 154 species, so from order 589 the advisor
+	// would offer it to any of them whenever it helped.
+	const gates = availability.hmMoves;
+	const early = [];
+	for (const field of ['items', 'moveItems']) {
+		for (const row of availability[field] || []) {
+			if (typeof row.opensAt !== 'number') continue;
+			const prose = String(row.location || '');
+			const named = Object.keys(gates)
+				.filter(move => new RegExp('\\b' + move + '\\b', 'i').test(prose));
+			if (!named.length) continue;
+			const floor = Math.max.apply(null, named.map(move => gates[move]));
+			if (row.opensAt < floor) {
+				early.push(`${field}: ${row.name} at ${row.opensAt} names ` +
+					`${named.join('+')}, the latest of which opens at ${floor}`);
+			}
+		}
+	}
+	assert.deepEqual(early, [],
+		'these are offered before the run has the HM their own prose requires');
+});

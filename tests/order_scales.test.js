@@ -22,6 +22,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const run = require('../lib/run');
+const estimate = require('../scripts/estimate-availability.js');
 const availability = require('../profiles/run-and-bun/oracle/availability.json');
 
 function road() {
@@ -75,11 +76,25 @@ test('the availability ledger is dated in order, not in trainers', () => {
 		'opensAt must resolve to the fight the location names');
 
 	// And a dated row can only ever land on a real fight's order.
+	//
+	// This used to ask `trainerIndexOf(doc, opensAt) !== null`, which reads like
+	// membership and is not. lib/run.js:687 SNAPS FORWARD — it returns the first
+	// fight at or after the value — so the question it answers is only "is this
+	// at most 1620". Every trainer number 1-362 passed it, and so did every
+	// engine row index 0-434, which are the two scales this file exists to keep
+	// apart. Rewriting all 56 dated rows to their own trainer number left the
+	// old assertion green.
+	//
+	// Set membership is the real question. It is not perfect either — 97 of the
+	// 362 trainer numbers happen to also be real orders — so it is paired with
+	// the named anchors above, which pin a row to the fight its place names.
+	const orders = new Set(estimate.fightOrders());
 	const dated = (availability.moveItems || []).filter(row => typeof row.opensAt === 'number');
 	assert.ok(dated.length >= 50, 'the ledger is mostly dated: ' + dated.length + ' rows');
 	for (const row of dated) {
-		assert.ok(run.trainerIndexOf(map.doc, row.opensAt) !== null,
+		assert.ok(orders.has(row.opensAt),
 			row.name + ' (' + row.move + ') is dated at order ' + row.opensAt +
-			', which is past the end of the road — that is a trainer number, not an order');
+			', which is not any fight of the run map — that is a trainer number ' +
+			'or an engine row index, not an order');
 	}
 });
