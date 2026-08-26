@@ -554,6 +554,137 @@ def ingest_tally(path: Path) -> str | None:
     return label
 
 
+def ingest_cost(path: Path) -> str:
+    """What a fight COSTS, per arm, written by `scripts/cost-bench.js`.
+
+    The comparisons say which policy wins and the measurements say how good
+    the product is. Neither says where the time goes, and that gap let three
+    optimisations be argued from a profile nobody had run — one of them turned
+    out to be free work on a stage that was already free.
+
+    Counted in constructed calculator objects, which is the unit the cost gates
+    in this repository settled on: the runner is shared, three timing gates
+    flaked on machine load in one session, and an object is exact. Seconds go in
+    beside it because a player feels seconds, not allocations.
+
+    `arms_agree` is the metric that decides whether the rest can be read. Every
+    arm plays the same fights and fingerprints its own answer — the assignment
+    map, the odds, the top six. An arm that got cheap by getting different is
+    not an optimisation, so a run where this is 0 is tagged `problem` and its
+    ratios mean nothing.
+    """
+    data = json.loads(path.read_text())
+    label = data.get("label", path.stem)
+    arms = data.get("arms", [])
+    results = data.get("results", [])
+    tail = data.get("tail", {})
+
+    def total(arm: str, field: str) -> float:
+        return sum(r["arms"].get(arm, {}).get(field, 0) or 0 for r in results)
+
+    agreed = [r for r in results if r.get("agree") is not False]
+
+    with mlflow.start_run(run_name=f"{label} (cost)"):
+        mlflow.set_tags(
+            {
+                "kind": "cost",
+                "label": label,
+                # Same discipline as the comparisons: a dirty tree cannot name
+                # the code it ran, so it is RECONSTRUCTED at best.
+                "valid": "VALID" if data.get("revision") and not data.get("dirty") else "RECONSTRUCTED",
+                "provenance": "revision" if data.get("revision") else "none",
+            }
+        )
+        mlflow.log_params(
+            {
+                "harness": "scripts/cost-bench.js",
+                "revision": (data.get("revision") or "")[:10],
+                "dirty": data.get("dirty"),
+                "node": data.get("node"),
+                "arms": " ".join(arms),
+                "states": len(results),
+                "positions": ",".join(str(r.get("position")) for r in results),
+                "source_file": str(path),
+            }
+        )
+
+        metrics: dict[str, float] = {
+            "states": len(results),
+            "arms_agree": 1.0 if all(r.get("agree") is not False for r in results) else 0.0,
+        }
+        for arm in arms:
+            safe = re.sub(r"[^0-9a-zA-Z_]+", "_", arm)
+            metrics[f"objects_{safe}"] = total(arm, "objects")
+            metrics[f"ms_{safe}"] = total(arm, "ms")
+        if len(arms) > 1 and total(arms[1], "objects"):
+            metrics["objects_ratio"] = total(arms[0], "objects") / total(arms[1], "objects")
+        if len(arms) > 1 and total(arms[1], "ms"):
+            metrics["ms_ratio"] = total(arms[0], "ms") / total(arms[1], "ms")
+
+        # Per stage, so "the playbook is 81% of it" is a chart rather than a
+        # claim somebody has to take on trust.
+        base = arms[0] if arms else None
+        if base:
+            per_stage: dict[str, float] = {}
+            for row in results:
+                for stage in row["arms"].get(base, {}).get("stages", []) or []:
+                    per_stage[stage["stage"]] = per_stage.get(stage["stage"], 0) + stage["objects"]
+            grand = sum(per_stage.values()) or 1
+            for stage, value in per_stage.items():
+                safe = re.sub(r"[^0-9a-zA-Z_]+", "_", stage)
+                metrics[f"stage_objects_{safe}"] = value
+                metrics[f"stage_share_{safe}"] = value / grand
+
+        # The ranker's cut priced where it bites. On a normal box the
+        # enumeration is free; this is the tail it was written for.
+        cut = tail.get("cut", {})
+        whole = tail.get("wholeBox", {})
+        if cut:
+            metrics |= {
+                "tail_box": tail.get("boxSize", 0),
+                "tail_candidates": cut.get("candidates", 0),
+                "tail_combinations": cut.get("combinations", 0),
+                "tail_ms": cut.get("ms", 0.0),
+                "tail_whole_box_refused": 1.0 if whole.get("refused") else 0.0,
+            }
+        mlflow.log_metrics(metrics)
+
+        if len(agreed) != len(results):
+            mlflow.set_tag(
+                "problem",
+                "an arm answered differently from the others; its ratios are not "
+                "a speedup, they are a different question answered faster",
+            )
+        if whole.get("refused"):
+            mlflow.set_tag("tail_refusal", whole["refused"][:250])
+
+        # One nested run per state, so a single fight can be inspected rather
+        # than only the total.
+        for row in results:
+            with mlflow.start_run(run_name=f"#{row.get('position')} {row.get('trainer')}", nested=True):
+                mlflow.set_tags({"kind": "cost-state", "trainer": row.get("trainer", "")})
+                mlflow.log_params(
+                    {"position": row.get("position"), "source": row.get("source")}
+                )
+                inner: dict[str, float] = {}
+                for arm in arms:
+                    got = row["arms"].get(arm, {})
+                    safe = re.sub(r"[^0-9a-zA-Z_]+", "_", arm)
+                    if "objects" in got:
+                        inner[f"objects_{safe}"] = got["objects"]
+                        inner[f"ms_{safe}"] = got.get("ms", 0.0)
+                    if arm == arms[0]:
+                        inner |= {
+                            "box_size": got.get("boxSize", 0),
+                            "combinations": got.get("combinations", 0),
+                            "explored": got.get("explored", 0),
+                            "variant_rollouts": got.get("variantRollouts", 0),
+                        }
+                inner["agree"] = 1.0 if row.get("agree") is not False else 0.0
+                mlflow.log_metrics(inner)
+    return label
+
+
 def main() -> None:
     mlflow.set_tracking_uri(TRACKING)
     experiment = mlflow.set_experiment("playthrough-policy")
@@ -573,6 +704,8 @@ def main() -> None:
         done.append(f"{path.name} -> {ingest_structured(path)} (full provenance)")
     for path in sorted(OUT.glob("*-measure.json")):
         done.append(f"{path.name} -> {ingest_measurement(path)} (measurement)")
+    for path in sorted(OUT.glob("*-cost.json")):
+        done.append(f"{path.name} -> {ingest_cost(path)} (cost)")
     for path in sorted(OUT.glob("*-ab.log")) + sorted(OUT.glob("*-batch.log")):
         label = ingest_tally(path)
         if label:
