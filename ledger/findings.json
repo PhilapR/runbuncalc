@@ -498,10 +498,10 @@
 			"line": 540,
 			"claim": "Nothing asserts that per-commit cost stays flat as the log grows. The wall-clock assertion that used to stand there was removed because it measured machine load, and no contention-proof replacement was found.",
 			"verdict": "confirmed",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Original gate: 11.5s under the full suite, 2.5s alone, identical code. A scaling ratio (second 5000 commits over the first) was tried and is also load-sensitive: 0.83-0.94 alone, 2.43 in suite. The loop IS flat — per-1000 blocks measured 88, 94, 67, 57, 49, 54, 65, 55, 61 ms — and an injected O(n) scan does show up at 2.57, but the healthy and loaded ranges overlap so the gate cannot separate them. Needs either a serialized perf lane or an operation counter rather than a clock."
+			"status": "fixed",
+			"fixed_in": "dbc294c8ceaea269f3df82ac09872c61d0479a16",
+			"falsified": 1,
+			"evidence": "Original gate: 11.5s under the full suite, 2.5s alone, identical code. A scaling ratio (second 5000 commits over the first) was tried and is also load-sensitive: 0.83-0.94 alone, 2.43 in suite. The loop IS flat — per-1000 blocks measured 88, 94, 67, 57, 49, 54, 65, 55, 61 ms — and an injected O(n) scan does show up at 2.57, but the healthy and loaded ranges overlap so the gate cannot separate them. Needs either a serialized perf lane or an operation counter rather than a clock. FIXED with the operation counter this finding asked for. The claim is algorithmic — a commit is O(1) in the length of the log — so it is counted rather than timed. Every scanning method on Array.prototype is wrapped for the duration of the loop and counts only when the receiver is already large, so a commit that appends and looks nothing up never triggers one while a commit that searches the log does, whichever internal array it searches. That matters because the store does not expose its state, and this needs no access to it. Measured 0 across 4000 commits, and 3501 with a single state.events.some(...) injected after the push: the healthy and regressed ranges no longer overlap, which is exactly what the wall clock and the scaling ratio could not manage. Restored in a finally, or every test after it runs against a patched Array. The same commit retired a SECOND clock gate that had been introduced hours earlier in tests/run.test.js — an absolute 3s budget on the C(30,6) enumeration, which read 585ms alone and 4829ms under the full suite beside this very test. Replaced by asserting combinations, which is exact and moves only when behaviour moves."
 		},
 		{
 			"id": "undated-locations-dropped-from-every-answer",
