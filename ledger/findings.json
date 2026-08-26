@@ -852,7 +852,7 @@
 			"id": "every-gendered-pokemon-is-male",
 			"source": "review/test-run",
 			"raised_on": "2026-08-21",
-			"severity": "high",
+			"severity": "low",
 			"area": "engine",
 			"file": "lib/run.js",
 			"line": 1084,
@@ -861,7 +861,7 @@
 			"status": "open",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Built one fight state per species through planner.buildFightState and read the gender back. Piplup M, Jigglypuff M, Miltank M, Nidoran-F M — the last two are female-ONLY species. Magnemite and Ditto correctly come back undefined, so the genderless case is handled and the gendered case is not: it is defaulted, not derived. rollIdentity (lib/run.js:133) authors the rolled identity — six IVs, a nature and an ability — and does not author a gender; partySpecs (lib/run.js:1084) forwards species, level, nature, ability, item, moves and IVs, and does not forward one. It matters wherever gender is a rule: Attract and Cute Charm ([[attract-and-cute-charm-ignore-gender]]), Rivalry, Captivate — which DOES check gender and would therefore behave as if every matchup were same-gender — and any breeding or ability-slot question the tool grows into later."
+			"evidence": "Built one fight state per species through planner.buildFightState and read the gender back. Piplup M, Jigglypuff M, Miltank M, Nidoran-F M — the last two are female-ONLY species. Magnemite and Ditto correctly come back undefined, so the genderless case is handled and the gendered case is not: it is defaulted, not derived. rollIdentity (lib/run.js:133) authors the rolled identity — six IVs, a nature and an ability — and does not author a gender; partySpecs (lib/run.js:1084) forwards species, level, nature, ability, item, moves and IVs, and does not forward one. The M itself is invented in the vendored calculator, calc/src/pokemon.ts:66, `options.gender || this.species.gender || 'M'` — a form default a web user overrides and a headless run never does. DOWNGRADED high->low on 2026-08-26 after pricing it, which the original entry did not do. Gender has no consumer this run can reach. Infatuation is gender-independent by declared source-of-truth rule, which accounts for Attract and for Cute Charm — the engine's Cute Charm path (ai/src/move-engine.ts:4740) checks no gender itself and defers to canApplyVolatile, inheriting that ruling — so [[attract-and-cute-charm-ignore-gender]] is refuted, not supporting evidence. That leaves Rivalry (calc/src/mechanics/gen789.ts:1028) and Captivate. Scanned all 1624 enemy Pokemon across 362 fights by ability and move name: zero Rivalry, zero Captivate. Of the twelve dex species carrying a gender-reading ability only Phanpy, Buneary and Lopunny are catchable, and all three are Cute Charm. So the fabricated gender is currently inert in both directions. It is also underivable: no gender ratio exists anywhere in the data — the calc species exposes only kind, id, name, baseStats, types, weightkg, abilities, plus gender N for genderless — so a fix means authoring a new sourced table, not reading one. Left open rather than wontfix because that table could arrive. Guarded meanwhile by a tripwire in tests/runbun_mechanics.test.js that fails the day content adds a Rivalry holder or a Captivate user, since either would be priced against a fabrication: Rivalry would read same-gender and take its 1.25x unconditionally, Captivate would never fire."
 		},
 		{
 			"id": "advisor-prices-a-tenth-of-the-movepool",

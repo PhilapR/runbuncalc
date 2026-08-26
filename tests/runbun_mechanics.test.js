@@ -128,6 +128,65 @@ test('Attract ignores gender here, because the profile says it does', () => {
 		false, 'Oblivious still blocks');
 });
 
+test('the gender nobody authors is inert, and a tripwire for the day it is not', () => {
+	// Nothing in this project authors a gender. `rollIdentity` rolls six IVs, a
+	// nature and an ability and stops there; `partySpecs` forwards those and no
+	// gender; and the vendored calculator fills the hole at `calc/src/pokemon.ts`
+	// with `options.gender || this.species.gender || 'M'`. In the web UI that
+	// 'M' is a default a user overrides in the form. Nothing overrides it here,
+	// so every Pokemon on both sides is male, female-only species included.
+	//
+	// That is survivable only because no rule this run can reach reads a gender.
+	// Infatuation is gender-independent by declared rule — the test above — which
+	// accounts for Attract and for Cute Charm, whose engine path defers to
+	// `canApplyVolatile` and inherits the same ruling. That leaves Rivalry and
+	// Captivate, and neither appears anywhere in the run map.
+	//
+	// So this gate does not assert that the gender is right. It asserts that
+	// nothing consumes it, which is the only reason a fabricated one is safe.
+	// Content that adds a Rivalry holder or a Captivate user would be priced
+	// against a fabrication: Rivalry would read same-gender every time and take
+	// its 1.25x unconditionally, and Captivate, which needs opposing genders,
+	// would never fire at all. Both fail silently and in a direction a forecast
+	// cannot see. If this test goes red, author a real gender before the content
+	// lands — do not relax the assertion.
+	const fights = planner.listFights('run-and-bun').fights;
+	const rivalry = [];
+	const captivate = [];
+	let scanned = 0;
+	for (const fight of fights) {
+		for (const mon of fight.party || []) {
+			scanned += 1;
+			if (/^rivalry$/i.test((mon.ability || '').replace(/\s+/g, ''))) {
+				rivalry.push(`${fight.trainer} / ${mon.species}`);
+			}
+			if ((mon.moves || []).some(move => /^captivate$/i.test(String(move).replace(/\s+/g, '')))) {
+				captivate.push(`${fight.trainer} / ${mon.species}`);
+			}
+		}
+	}
+
+	// A scan that reaches nothing would pass both assertions below while proving
+	// nothing, which is the exact shape of gate this repo has been bitten by.
+	assert.ok(scanned > 1500,
+		`the scan must actually reach the run map; it saw ${scanned} Pokemon`);
+	assert.deepEqual(rivalry, [],
+		'Rivalry reads gender, and every gender here is fabricated M');
+	assert.deepEqual(captivate, [],
+		'Captivate needs opposing genders, and every gender here is fabricated M');
+
+	// The premise itself: a female-only species still builds male. When this
+	// stops being true somebody has authored a gender, and the reasoning above
+	// needs revisiting rather than the assertion loosening.
+	const built = planner.buildFightState({
+		profileId: 'run-and-bun',
+		trainer: fights[0].trainer,
+		playerParty: [{species: 'Miltank', level: 20, moves: ['Tackle'], ivs: IVS}]
+	});
+	assert.equal(built.state.sides.player.party[0].gender, 'M',
+		'Miltank is female-only and still builds male: nothing authors a gender');
+});
+
 test('EVs are removed, so every build is a zero-EV build', () => {
 	assert.equal(profile.mechanics.evsRemoved, true);
 	for (const stat of Object.keys(ai.RUN_AND_BUN_EVS)) {
