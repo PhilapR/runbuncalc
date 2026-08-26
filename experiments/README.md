@@ -10,6 +10,39 @@ Five comparisons were run in one day across three generations of harness, and
 putting them side by side was the only way to find out which could be believed.
 The answer was two of five, and both of those only reconstructably.
 
+## What a `kind=cost` run is
+
+The comparisons say which policy wins. The measurements say how good the
+product is today. Neither says where the time goes, and that gap let three
+optimisations be argued from a profile nobody had run — one of them narrowed a
+stage that was already free, because the ranker's enumeration reads cached grid
+cells and 78x the combinations built FEWER calculator objects.
+
+`node scripts/cost-bench.js --label=<name>` writes
+`ui-playthrough-out/<name>-cost.json`; `ingest_cost` loads it. Read
+`objects_*` before `ms_*`: this runner is shared, three timing gates flaked on
+machine load in one session, and a constructed object is exact. Seconds are
+there because a player feels seconds, not allocations.
+
+`stage_share_*` is where the money goes. Measured across six real states:
+playbook 74%, rank 23%, boxMatrix 3%.
+
+The tail metrics price the ranker's cut where it bites rather than where it
+does not. `tail_whole_box_refused=1` is the feature: a box of 76 is 218,618,940
+sixes and used to take 177 seconds.
+
+**`arms_agree` decides whether any of the rest can be read.** Every arm plays
+the same fights and fingerprints its own answer — the assignment map, the odds,
+the top six. An arm that got cheap by getting *different* is not an
+optimisation, whatever it did to the clock, so a run with `arms_agree=0` is
+tagged `problem` and its ratios mean nothing.
+
+The workload is a real run document out of `ui-playthrough-out/`, never a
+constructed box, and the harness refuses rather than substituting one. A box of
+identical early-route Pokemon collapses the ranker's shortlist to a single six
+and wipes to every trainer; two optimisation proposals passed on that box and
+died on real mid-run states.
+
 ## What the `valid` tag means
 
 - **VALID** — the harness recorded a revision, it did not move, the tree was
