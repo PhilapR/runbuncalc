@@ -47,6 +47,18 @@ test('a fix names a commit that exists, and an open finding names none', () => {
 	const db = memoryDb();
 	const fixed = db.prepare("SELECT id, fixed_in FROM findings WHERE status = 'fixed'").all();
 	assert.ok(fixed.length, 'the ledger records at least one fix to check');
+	// A shallow checkout cannot answer ancestry, and it fails identically to a
+	// real breach: `merge-base --is-ancestor` exits non-zero whether the commit
+	// left the branch or was never cloned. CI ran at the default depth of 1 and
+	// reported the first of 39 fixed findings as naming a commit off the
+	// branch, which is a true sentence about a clone with no history and says
+	// nothing about the ledger. Fail on the actual cause instead.
+	const shallow = childProcess.execFileSync('git',
+		['rev-parse', '--is-shallow-repository'],
+		{cwd: root, encoding: 'utf8'}).trim() === 'true';
+	assert.equal(shallow, false,
+		'this is a shallow clone, so no commit can be shown to be an ancestor — ' +
+		'the checkout needs fetch-depth: 0 before this gate means anything');
 	for (const row of fixed) {
 		assert.ok(row.fixed_in, `${row.id} is fixed but names no commit`);
 		// ANCESTRY, not existence. `git cat-file -e` was the first version of
