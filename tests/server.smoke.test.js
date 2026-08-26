@@ -727,6 +727,36 @@ async function newRun(body) {
 	return payload.run;
 }
 
+test('rank bounds its cut knobs on the wire and reports what it cut', async () => {
+	// keepPerColumn and exhaustive are CPU multipliers like rollouts and
+	// adjudicate, so the wire refuses a bad one rather than clamping it — the
+	// same rule the count knobs already follow.
+	const created = await newRun({name: 'rank-knobs', levelCap: 'none'});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	assert.equal(caught.status, 200);
+	const state = caught.body.run;
+
+	const bad = await requestJson('/run/rank',
+		{run: state, trainer: 'Youngster Calvin', rollouts: 0, keepPerColumn: 0});
+	assert.equal(bad.status, 400);
+	assert.match(bad.body.error, /keepPerColumn must be an integer from 1 to 24/);
+
+	const notBoolean = await requestJson('/run/rank',
+		{run: state, trainer: 'Youngster Calvin', rollouts: 0, exhaustive: 'yes'});
+	assert.equal(notBoolean.status, 400);
+	assert.match(notBoolean.body.error, /exhaustive must be true or false/);
+
+	// A box of one is far under the cut threshold, so the shortlist block must
+	// say plainly that nothing was cut rather than leaving it to be inferred.
+	const ok = await requestJson('/run/rank',
+		{run: state, trainer: 'Youngster Calvin', rollouts: 0});
+	assert.equal(ok.status, 200);
+	assert.equal(ok.body.shortlist.cutting, false);
+	assert.equal(ok.body.shortlist.cut, 0);
+	assert.equal(ok.body.shortlist.candidates, ok.body.boxSize);
+	assert.deepEqual(ok.body.shortlist.dropped, []);
+});
+
 test('a run is created, advanced and summarized entirely through the request', async () => {
 	const created = await newRun({name: 'HTTP', levelCap: 'next-milestone-ace'});
 	assert.equal(created.name, 'HTTP');

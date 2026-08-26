@@ -2352,7 +2352,13 @@
 			displayText(payload.trainer) + ' (#' + payload.order + ') · ' +
 			payload.combinations + ' ' +
 				(payload.combinations === 1 ? 'party' : 'parties') +
-				' from ' + payload.boxSize + ' Pokémon' +
+				// A cut box must say so here. "from 36 Pokémon" after the ranker
+				// enumerated a shortlist of eighteen is a claim it did not earn,
+				// and the count beside it is exactly what makes it read as one.
+				(payload.shortlist && payload.shortlist.cutting ?
+					' from ' + payload.shortlist.candidates + ' of ' + payload.boxSize +
+						' Pokémon (' + payload.shortlist.cut + ' answered no enemy)' :
+					' from ' + payload.boxSize + ' Pokémon') +
 			(payload.projection.applied && payload.projection.from === 'projected' ?
 				' · projected to level cap ' + payload.projection.cap : '') +
 			(playedCount ?

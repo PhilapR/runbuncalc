@@ -274,6 +274,75 @@ test('the ranker finishes a box of 30 in interactive time', () => {
 	assert.ok(ms < 5000, `ranking took ${ms.toFixed(0)}ms; the budget is 5s`);
 });
 
+test('the cheap cut keeps the best six and only runs when the box is expensive', () => {
+	// The box that made this necessary was 76 and took 177 SECONDS to enumerate
+	// its 218,618,940 sixes. The cut keeps, per enemy column, the members that
+	// could actually win it — a six is worth exactly what its column winners are
+	// worth — and enumerates only those.
+	//
+	// What must survive the cut is the BEST SIX'S SCORE. What is allowed to move
+	// is which of several equally-scoring sixes is named, because the tiebreak is
+	// lexicographic over member index and the pool changed.
+	function boxOf(levels, species) {
+		let state = fresh({levelCap: 'none'});
+		for (const level of levels) {
+			for (const name of species) {
+				state = run.apply(state, owned({kind: 'catch', species: name, level}));
+			}
+		}
+		return state;
+	}
+	const species = ['Poochyena', 'Zigzagoon-Galar', 'Ralts', 'Surskit', 'Shroomish',
+		'Makuhita', 'Numel', 'Trapinch', 'Aron', 'Electrike', 'Lotad', 'Seedot'];
+	// Three levels of twelve species: 36 members, varied enough that the columns
+	// disagree about who wins them. C(36,6) is 1,947,792, over the threshold.
+	const big = boxOf([22, 30, 38], species);
+
+	// Fights with very different shapes, so this is not one matchup's luck.
+	for (const trainer of ['Leader Brawly', 'Leader Wattson', 'Leader Flannery']) {
+		const cut = run.rankParties(big, trainer, {rollouts: 0});
+		const full = run.rankParties(big, trainer,
+			{rollouts: 0, exhaustive: true, maxCombinations: 1e9});
+		assert.equal(cut.shortlist.cutting, true, `${trainer}: a box of 36 must cut`);
+		assert.equal(full.combinations, 1947792, `${trainer}: C(36,6) exhaustively`);
+		assert.ok(cut.combinations < full.combinations / 100,
+			`${trainer}: the cut enumerated ${cut.combinations} of ${full.combinations}, ` +
+			'which is not a cut worth making');
+		assert.equal(cut.parties[0].score, full.parties[0].score,
+			`${trainer}: the cut changed the best six's score, which is the one thing ` +
+			'it may never do');
+		// The cut is reported, never implied.
+		assert.equal(cut.shortlist.candidates + cut.shortlist.cut, cut.boxSize);
+		assert.equal(cut.shortlist.dropped.length, cut.shortlist.cut);
+		assert.equal(full.shortlist.cutting, false);
+		assert.equal(full.shortlist.candidates, full.boxSize,
+			`${trainer}: exhaustive must enumerate the whole box`);
+	}
+
+	// Below the threshold the cut does not run at all, because a cheap box does
+	// not need one and loses its diversity rows to it: C(7,6) cut to its column
+	// winners is a single six, and "without the star" has nothing to differ with.
+	const small = boxOf([24], species.slice(0, 7));
+	const smallRank = run.rankParties(small, 'Leader Wattson', {rollouts: 0});
+	assert.equal(smallRank.shortlist.cutting, false, 'a box of 7 must not be cut');
+	assert.equal(smallRank.combinations, 7, 'C(7,6), whole');
+	assert.equal(smallRank.shortlist.cut, 0);
+
+	// And the runaway itself is gone. A box of 76 was the finding's case.
+	let wide = fresh({levelCap: 'none'});
+	for (let i = 0; i < 76; i++) {
+		wide = run.apply(wide, owned({kind: 'catch', species: 'Poochyena', level: 30}));
+	}
+	const started = process.hrtime.bigint();
+	const wideRank = run.rankParties(wide, 'Leader Brawly', {rollouts: 0});
+	const ms = Number(process.hrtime.bigint() - started) / 1e6;
+	assert.equal(wideRank.boxSize, 76);
+	assert.ok(wideRank.combinations < 100000,
+		`a box of 76 enumerated ${wideRank.combinations} sixes; the point of the cut ` +
+		'is that 218,618,940 never happens again');
+	assert.ok(ms < 5000, `a box of 76 took ${ms.toFixed(0)}ms; the budget is 5s`);
+});
+
 test('the ranker plays four different sixes, not four spellings of one', () => {
 	// scoreSix is the best answer per enemy column, so swapping the member
 	// that answers nothing changes no column and no score. The shortlist that
