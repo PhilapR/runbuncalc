@@ -831,7 +831,12 @@ def ingest_cost(path: Path) -> str:
                 )
                 mlflow.log_metrics(inner)
 
-    _log_cost_trace(data)
+        # INSIDE the run, and the child loop above has closed. A trace binds to
+        # whichever run is active when it starts, so calling this after the
+        # `with` block left twelve span trees at experiment level and a run
+        # whose Traces tab said "no traces found".
+        _log_cost_trace(data)
+
     return label
 
 

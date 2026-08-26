@@ -24,8 +24,18 @@ combinations built FEWER calculator objects.
 flaked on machine load in one session, and a constructed object is exact.
 Seconds are there because a player feels seconds, not allocations.
 
-`stage_share_*` is where the money goes. Measured across six real states:
-playbook 74%, rank 23%, boxMatrix 3%.
+`objects_share_pct__*` is where the money goes. Measured across six real
+states: playbook 74%, rank 23%, boxMatrix 3%.
+
+`memory_cache_mb__*` charges a memo for its own keys. A cache trades memory
+for compute, and the first version of this benchmark measured one side only.
+The naive whole-state key costs 257MB across six fights. That number is the
+difference between "ship the cache" and "ship a cheaper key first".
+
+Each run also carries its cost JSON as an artifact. Git ignores
+`ui-playthrough-out/`, so the numbers outlive the file they came from. The
+stage timings replay as a trace: the harness records when each stage started
+and ended, so the span tree is the one that ran.
 
 The tail metrics price the ranker's cut where it bites rather than where it
 does not. `tail_whole_box_refused=1` is the feature: a box of 76 is 218,618,940
