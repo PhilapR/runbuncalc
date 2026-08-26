@@ -233,6 +233,40 @@ const MATRIX_PARTY = [
 	{species: 'Mudkip', level: 5, moves: ['Water Gun', 'Tackle', 'Growl']},
 ];
 
+test('only their crit band is computed, because only their crit is a plan\'s problem', () => {
+	// The doctrine this rides on is stated in `matchupDirection`: their crit is
+	// what a plan has to survive, and our floor is what a plan may rely on. So
+	// the player-side band answers a question nobody is allowed to ask, and
+	// building it cost a second Calc.Move and a second Calc.calculate for every
+	// damaging move we could throw — 10,022 of the 25,975 objects an advise
+	// call used to build.
+	//
+	// The fields are ABSENT rather than zeroed. A plausible-looking number
+	// would be a quiet lie about a worst case; an absent one makes
+	// `us.critMax / hp` come back NaN, which is a caller finding out. That is
+	// the same choice `skipThem` makes for the same reason.
+	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: MATRIX_PARTY});
+	let sawThem = 0;
+	for (const cell of matrix.grid) {
+		for (const versus of cell.versus) {
+			for (const field of ['critMax', 'critMove', 'critKO', 'critPriority']) {
+				assert.equal(versus.us[field], undefined,
+					`us.${field} must not be computed: nothing reads it, and reading ` +
+					'it is what builds the crit calculation');
+			}
+			// Their side must still carry it, or the pessimal half of every
+			// plan in this repository quietly became an average.
+			if (versus.them && versus.them.move) {
+				assert.equal(typeof versus.them.critMax, 'number',
+					'them.critMax is what a plan has to survive');
+				assert.equal(typeof versus.them.critKO, 'boolean');
+				sawThem += 1;
+			}
+		}
+	}
+	assert.ok(sawThem > 0, 'the fixture must actually produce an enemy attack to price');
+});
+
 test('the matchup matrix covers every pair in both directions', () => {
 	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: MATRIX_PARTY});
 	assert.equal(matrix.trainer, 'Youngster Calvin');
