@@ -163,6 +163,35 @@ async function driveVisibleBattleToReceipt(page, maxTurns) {
 	});
 }
 
+test('a failed route list does not wedge the panel in its shipping state',
+	{skip}, async () => {
+	// index.template ships New Run disabled under "Loading the run panel…" and
+	// only the bootstrap chain enables it. loadMaps was the one link that could
+	// reject and the only one nobody caught, so an ordinary fetch failure —
+	// offline, a reset connection, a tab waking on a dead radio — left the page
+	// exactly as it shipped, with no message and no way back but a reload.
+		const context = await browser.newContext();
+		await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
+		await context.route('**/run/maps', route => route.abort('failed'));
+		const page = await context.newPage();
+		await page.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
+
+		// Bootstrap must FINISH. A run with no route list is a smaller thing than a
+		// dead page: starter, gift, static and trade need no route.
+		await page.waitForFunction(
+			() => !document.querySelector('#runbun-run-new').disabled ||
+			document.querySelector('.runbun-run-setup-form').getAttribute('aria-busy') === 'false',
+			null, {timeout: 15000});
+		assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'false',
+			'the form must stop claiming it is loading');
+
+		// And it must say what happened, rather than looking merely empty.
+		assert.match(await page.textContent('#runbun-run-status'),
+			/started without its route list/,
+			'a panel that lost its routes has to say so');
+		await context.close();
+	});
+
 test('a new run cannot outrun durable bootstrap', {skip}, async () => {
 	const context = await browser.newContext();
 	await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());

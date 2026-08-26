@@ -1716,7 +1716,16 @@
 	}
 
 	function loadMaps() {
-		return fetch('/run/maps').then(function (response) { return response.json(); })
+		// `.ok` matters as much as the parse. A 500 with an HTML error page
+		// parses as a rejection and a 500 with a JSON body does not, so without
+		// this the panel would build a route list out of an error payload.
+		// api() has checked this since it was written; this call never did.
+		return fetch('/run/maps').then(function (response) {
+			if (!response.ok) {
+				throw new Error('the route list could not be loaded (HTTP ' + response.status + ')');
+			}
+			return response.json();
+		})
 			.then(function (payload) {
 				maps = payload.maps || [];
 				var $select = $('#runbun-run-map').empty();
@@ -4268,6 +4277,22 @@
 				restoreRoll();
 				restoreBattle();
 			}
+		}).catch(function (error) {
+			// Without this the panel keeps the state it SHIPS in: index.template
+			// leaves New Run disabled under "Loading the run panel…" and only
+			// this chain enables it, so one ordinary fetch rejection — offline, a
+			// reset connection, a tab waking on a dead radio — pinned the whole
+			// panel there with no message and no way back short of a reload.
+			//
+			// Finishing initialisation is the point. A run with no route list is
+			// a smaller thing than a dead page: the starter, gift, static and
+			// trade paths need no route, and the player can retry by reloading
+			// once they know that is what to do.
+			initialized = true;
+			refreshStartAvailability();
+			status('The run panel started without its route list — ' +
+				(error && error.message ? error.message : 'the request failed') +
+				'. Runs that need a route cannot be started until you reload.', 'error');
 		});
 	});
 })();
