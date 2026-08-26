@@ -7,8 +7,8 @@ import trainerOrders from '../../profiles/run-and-bun/oracle/trainer-orders.json
 
 const metadata = Object.freeze({
 	repository: 'pokemon-mono',
-	engineRevision: '2ae1b7e5721a2d2ff3b9692df75f65329c891650',
-	artifactSha256: '5503927e7d7cccc85bae88f30c4d73a2c4f7c2c207096c0166693fcb8d108e55',
+	engineRevision: 'bf28a069148903cc02315cc434f91e24816045e2',
+	artifactSha256: '1f14f88abe410deff6ff81f0d13db067db04b0b69ad70b93cc35c8fd85117128',
 	contractRevision: '8e2c3c8f021094814b1b44844c7de4992095d274',
 	contractDigest: '402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75',
 });

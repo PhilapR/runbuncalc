@@ -78,7 +78,7 @@ const providerArtifact = fs.readFileSync(path.join(root, 'vendor', 'pokemon-run-
 assert.equal(crypto.createHash('sha256').update(providerArtifact).digest('hex'),
 	providerProvenance.artifactSha256, 'vendored pokemon-mono artifact hash drifted');
 assert.equal(providerProvenance.repository, 'pokemon-mono');
-assert.equal(providerProvenance.revision, '2ae1b7e5721a2d2ff3b9692df75f65329c891650');
+assert.equal(providerProvenance.revision, 'bf28a069148903cc02315cc434f91e24816045e2');
 
 const source = read('src/index.template.html');
 assert.match(source, /\/src\\\/index\\\.template\\\.html\$/,
@@ -183,7 +183,7 @@ assert.equal(lock.digest, manifest.authority.canonicalDigest);
 sha256(lock.digest, 'canonical contract digest');
 assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.deepEqual(matrix.fixtures.expectedDivergences, []);
-assert.equal(matrix.lanes.engine.revision, '2ae1b7e5721a2d2ff3b9692df75f65329c891650');
+assert.equal(matrix.lanes.engine.revision, 'bf28a069148903cc02315cc434f91e24816045e2');
 assert.equal(matrix.lanes.app.revision, 'ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a');
 assert.equal(matrix.lanes.control.revision, '446776f91ea17eb25054fc3d233f5baa8f8e5c55');
 assert.equal(matrix.lanes.verification.revision, '867461d6ca9ed24b71c447e20dd5fa840b5b0d5c');

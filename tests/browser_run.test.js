@@ -233,7 +233,7 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 		attribute: typeof window.RunBunPokemonProvider.provider.attribute,
 	})), {
 		repository: 'pokemon-mono',
-		revision: '2ae1b7e5721a2d2ff3b9692df75f65329c891650',
+		revision: 'bf28a069148903cc02315cc434f91e24816045e2',
 		plan: 'function',
 		attribute: 'function',
 	});
