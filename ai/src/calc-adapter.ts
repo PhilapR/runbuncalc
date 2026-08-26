@@ -866,7 +866,88 @@ function calculateMoveActionFacts(
   };
 }
 
+/**
+ * The memo in front of `computeActionFacts`.
+ *
+ * The policy prices EVERY candidate action every turn, so this is the hottest
+ * function in a played fight: one playbook at Battle Girl Vivian called it
+ * 20,681 times against 2,407 distinct states, 8.6 calls to a state. It is pure
+ * in `(state, action, options)`, so the repeats are pure recomputation.
+ *
+ * Two keys were tried before this one and both were wrong in a way worth
+ * recording, because each looked right until it was measured.
+ *
+ * A CONTENT key — the whole serialized state — works and is exactly sound. It
+ * also never evicts, so it cost 143MB of key strings for ONE fight, and at the
+ * `Calc.calculate` level it ran SLOWER than the arithmetic it skipped, because
+ * the objects are built constructing the arguments rather than inside the call.
+ *
+ * An IDENTITY key costs nothing to compute and is unsound. Instrumenting 20,681
+ * production calls found zero cases of a state object changing under it, which
+ * is exactly the kind of evidence that invites a wrong conclusion: this file's
+ * own `metadata.test.ts` builds fixtures by editing a state in place and
+ * re-querying it, so the same object legitimately has two different answers.
+ * Shipping identity alone turned a Scope Lens into `undefined` and the suite
+ * caught it immediately.
+ *
+ * So: identity to FIND the table, content to TRUST it. The stamp is compared
+ * on every call, which keeps it exactly sound with no hash and no collision
+ * argument; a state that was edited in place simply misses and rebuilds. The
+ * WeakMap is what makes that affordable — one stamp per live state rather than
+ * one per call, and the whole table dies with the state, so nothing has to
+ * guess a cache size or a TTL.
+ *
+ * The action half of the key is exhaustive by construction rather than by
+ * judgement. `MoveAction` is six fields and this names all six; a seventh must
+ * be added here too, which `ai/src/test/action-facts-memo.test.ts` exists to
+ * catch.
+ */
+interface ActionFactsMemo {
+  stamp: string;
+  table: Map<string, ActionFacts>;
+}
+
+const ACTION_FACTS_BY_STATE = new WeakMap<BattleState, ActionFactsMemo>();
+
+function actionFactsKey(action: Action, options: {reactive?: boolean}): string {
+  const reactive = options.reactive ? '1' : '0';
+  if (action.kind !== 'move') return `${action.kind}|${reactive}`;
+  return `${action.actorId}|${action.moveName}|${(action.targetIds || []).join(',')}|` +
+    `${action.useZ ? 1 : 0}${action.useMax ? 1 : 0}|${reactive}`;
+}
+
 export function calculateActionFacts(
+  state: BattleState,
+  action: Action,
+  options: {reactive?: boolean} = {},
+): ActionFacts {
+  let stamp: string | null;
+  try {
+    stamp = JSON.stringify(state);
+  } catch (error) {
+    // A state that cannot be serialized cannot be stamped, so it is never
+    // cached. Answering slowly beats answering from a table that cannot say
+    // whether it is still describing this position.
+    stamp = null;
+  }
+  if (stamp === null) return computeActionFacts(state, action, options);
+
+  let memo = ACTION_FACTS_BY_STATE.get(state);
+  if (memo === undefined || memo.stamp !== stamp) {
+    memo = {stamp, table: new Map<string, ActionFacts>()};
+    ACTION_FACTS_BY_STATE.set(state, memo);
+  }
+  const key = actionFactsKey(action, options);
+  const hit = memo.table.get(key);
+  // `undefined` is never a cached value: every path below returns an object.
+  if (hit !== undefined) return hit;
+  const facts = computeActionFacts(state, action, options);
+  memo.table.set(key, facts);
+  return facts;
+}
+
+/** The real work. Callers go through `calculateActionFacts`, which memoizes. */
+function computeActionFacts(
   state: BattleState,
   action: Action,
   options: {reactive?: boolean} = {},

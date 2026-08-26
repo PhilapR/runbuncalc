@@ -76,14 +76,19 @@ const adapter = require(path.join(ROOT, 'ai/dist/calc-adapter.js'));
 const driver = require(path.join(ROOT, 'lib/battle-driver'));
 
 /**
- * The facts-level memo, as an ARM rather than as a change to the engine.
+ * The facts-level memo as an ARM, kept for the record of what it cost.
  *
- * Measured 3.04x fewer objects and 2.59x less wall clock over six real states,
- * with byte-identical playbooks. It is not shipped, and benchmarking it here
- * is how it earns the right to be: a lever nobody can price is a lever nobody
- * should pull. The key is the whole serialized input, which is sound by
- * construction and deliberately naive — the point of the measurement is that
- * the placement pays even when the key does not.
+ * This is how the memo earned its way into the engine: 3.04x fewer objects and
+ * 2.59x less wall clock over six real states, byte-identical playbooks. It also
+ * showed what NOT to ship. The key here is the whole serialized input, sound by
+ * construction and deliberately naive, and pricing its memory is what killed
+ * it — 143MB of key strings for one fight, never evicted.
+ *
+ * `calculateActionFacts` now memoizes itself with a key that costs nothing to
+ * keep: identity to find the table, a content stamp to trust it, a WeakMap so
+ * the table dies with the state. So this arm is no longer a default. Running
+ * it puts a second cache in front of a memoized function, which measures the
+ * difference between one cache and two.
  */
 const realFacts = adapter.calculateActionFacts;
 let factsCache = null;
@@ -335,7 +340,12 @@ function main() {
 	const positions = flag('positions', '').split(',')
 		.map(value => value.trim()).filter(Boolean)
 		.map(Number).filter(value => Number.isFinite(value));
-	const arms = flag('arms', 'baseline,facts-cache').split(',').map(a => a.trim());
+	// `baseline` alone by default, because the arm this benchmark was built to
+	// price has SHIPPED: `calculateActionFacts` memoizes itself now, so a
+	// `facts-cache` arm layers a second table on a memoized function and
+	// measures the difference between one cache and two. The machinery stays
+	// for the next question; the arm is not a default.
+	const arms = flag('arms', 'baseline').split(',').map(a => a.trim());
 	const tailSize = Number(flag('tail-box', 76));
 
 	const states = realStates(positions);
