@@ -874,6 +874,11 @@ function calculateMoveActionFacts(
  * 20,681 times against 2,407 distinct states, 8.6 calls to a state. It is pure
  * in `(state, action, options)`, so the repeats are pure recomputation.
  *
+ * Measured over six real mid-run states, positions 73 to 282, playing one
+ * playbook each: 813,358 constructed calculator objects down to 489,657 and
+ * 30,446ms down to 21,583ms. That is 1.66x the work removed and 1.41x the
+ * clock, on identical output.
+ *
  * Two keys were tried before this one and both were wrong in a way worth
  * recording, because each looked right until it was measured.
  *
