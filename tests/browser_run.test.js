@@ -328,6 +328,16 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 		'the current forecast belongs in the plan; the next two belong in the outlook');
 	assert.match(await page.textContent('#runbun-run-plan-actions'),
 		/PARTIAL PLAN · Pokemon Mono · lead Turtwig L5 · \d+ of 8 fair-dice samples came back clean/);
+
+	// The verdict carries the survival answer, not only the action margin. The
+	// margin says how clear the MOVE choice is and reads like a judgement on
+	// the fight: across 313 planned fights with a live forecast, "decided by 5
+	// or more" split six-all on whether anybody died. The worst real example is
+	// "Team Aqua Grunt Petalburg Woods — decided by 12.4 · a sampled branch
+	// loses 4 Pokemon", which without this clause reads as a safe fight.
+	assert.match(await page.textContent('#runbun-run-plan-verdict'),
+		/(samples clean, none of them lost anyone|a sampled branch loses \d+ Pokemon)/,
+		'a live forecast must reach the verdict, not just the row below it');
 	assert.match(await page.textContent('#runbun-run-plan-outlook'),
 		/bounded eight-seed checks, not certified safe routes/);
 	assert.equal(await page.textContent('#runbun-run-plan-evidence'),

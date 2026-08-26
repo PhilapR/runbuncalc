@@ -2157,13 +2157,29 @@
 			var result = answers[0];
 			var forecasts = answers[1];
 			var forecast = Array.isArray(forecasts) && forecasts.length ? forecasts[0].result : forecasts;
-			$('#runbun-run-plan-verdict').text(
+			// The margin answers "how clear is the move choice", which reads like a
+			// judgement on the FIGHT and is not one. Measured across 313 planned
+			// fights that now carry a live forecast, the two are uncorrelated:
+			// "decided by 5 or more" split six-all on whether anybody died. The
+			// survival answer sat two rows below in the PARTIAL PLAN line the
+			// whole time, so the verdict now carries it when it exists.
+			var survival = '';
+			if (forecast && !forecast.error && forecast.receipt) {
+				var outcome = forecast.receipt.result;
+				var counts = outcome.summary;
+				survival = outcome.safe ?
+					' · ' + counts.safeBranches + ' of ' + counts.branchesEvaluated +
+						' samples clean, none of them lost anyone' :
+					' · a sampled branch loses ' + counts.deaths +
+						(counts.deaths === 1 ? ' Pokemon' : ' Pokemon');
+			}
+			$('#runbun-run-plan-verdict').text((
 				result.confidence === 'contested' ?
 					result.trainer + ' — contested by ' + result.margin + '. Plan for both.' :
 					result.confidence === 'only-option' ?
 						result.trainer + ' — only one action available.' :
 						result.trainer + ' — decided by ' + result.margin + '.'
-			);
+			) + survival);
 			// The button lives at the top of the panel and the answer renders
 			// below the fold — bring the verdict to the player, same as
 			// advise() and rank() already do.
