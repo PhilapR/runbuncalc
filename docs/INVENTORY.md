@@ -117,11 +117,11 @@ regenerated. Advisory, and deliberately BELOW the drift gate's waterline:
 a stamp changes at the very commit that touches its doc, so gating it
 byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
-- `AGENTS.md` — ffb9fa8 2026-08-25
+- `AGENTS.md` — c272bcd 2026-08-25
 - `README.md` — 98b4a50 2026-08-18
 - `docs/AI_DATA_MODEL.md` — 98b4a50 2026-08-18
 - `docs/CONSTANTS-AUDIT.md` — e67d922 2026-08-20
-- `docs/DATA-ACCESS.md` — aa01ee3 2026-08-21
+- `docs/DATA-ACCESS.md` — c272bcd 2026-08-25
 - `docs/DEPLOY.md` — 98b4a50 2026-08-18
 - `docs/ECOSYSTEM_BRIDGE.md` — deb903a 2026-08-16
 - `docs/EVALUATION.md` — 1222266 2026-08-19
@@ -132,13 +132,13 @@ the reader's warning to verify before trusting.
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
 - `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18
 - `docs/SDLC.md` — c11db8f 2026-08-16
-- `docs/STRATEGY.md` — 98b4a50 2026-08-18
+- `docs/STRATEGY.md` — c272bcd 2026-08-25
 - `docs/TASKS.md` — 98b4a50 2026-08-18
 - `docs/VALIDATION.md` — 98b4a50 2026-08-18
 - `docs/WORST-CASE-PLANNING.md` — c6a8955 2026-08-19
 
 ## Test files
-`tests/adjudication_cost.test.js` · `tests/ask.test.js` · `tests/attempt_store.test.js` · `tests/availability-estimate.test.js` · `tests/battle-driver.test.js` · `tests/battle_contribution.test.js` · `tests/browser_calc_load.test.js` · `tests/browser_entrypoint.test.js` · `tests/browser_planner.test.js` · `tests/browser_run.test.js` · `tests/game-runtime-adapter.test.js` · `tests/inventory.test.js` · `tests/item_facts.test.js` · `tests/ledger.test.js` · `tests/mega_forms.test.js` · `tests/order_scales.test.js` · `tests/planner.test.js` · `tests/planning_review.test.js` · `tests/play.test.js` · `tests/playthrough_policy.test.js` · `tests/pokemon-bridge.test.js` · `tests/pokemon-provider-client.test.js` · `tests/provider-data.test.js` · `tests/recheck_findings.test.js` · `tests/rl-dataset.test.js` · `tests/rom-band.test.js` · `tests/run.test.js` · `tests/run_history.test.js` · `tests/runbun_mechanics.test.js` · `tests/runbun_oracle.test.js` · `tests/runbun_policy.test.js` · `tests/runbun_sets.test.js` · `tests/runbun_species.test.js` · `tests/server.smoke.test.js` · `tests/sets_to_battle_state.test.js` · `tests/simulate.test.js` · `tests/team.test.js` · `tests/trainer_orders.test.js` · `tests/ui_style.test.js` · `tests/worker-runtime.test.js` · `tests/worker.test.js`
+`tests/adjudication_cost.test.js` · `tests/ask.test.js` · `tests/attempt_store.test.js` · `tests/availability-estimate.test.js` · `tests/battle-driver.test.js` · `tests/battle_contribution.test.js` · `tests/browser_calc_load.test.js` · `tests/browser_entrypoint.test.js` · `tests/browser_planner.test.js` · `tests/browser_run.test.js` · `tests/game-runtime-adapter.test.js` · `tests/inventory.test.js` · `tests/item_facts.test.js` · `tests/ledger.test.js` · `tests/mega_forms.test.js` · `tests/order_scales.test.js` · `tests/planner.test.js` · `tests/planning_review.test.js` · `tests/play.test.js` · `tests/playthrough_policy.test.js` · `tests/pokemon-bridge.test.js` · `tests/pokemon-provider-client.test.js` · `tests/provider-data.test.js` · `tests/recheck_findings.test.js` · `tests/rl-dataset.test.js` · `tests/rom-band.test.js` · `tests/run.test.js` · `tests/run_history.test.js` · `tests/runbun_mechanics.test.js` · `tests/runbun_oracle.test.js` · `tests/runbun_policy.test.js` · `tests/runbun_sets.test.js` · `tests/runbun_species.test.js` · `tests/server.smoke.test.js` · `tests/sets_to_battle_state.test.js` · `tests/simulate.test.js` · `tests/team.test.js` · `tests/tm_sourcing.test.js` · `tests/trainer_orders.test.js` · `tests/ui_style.test.js` · `tests/worker-runtime.test.js` · `tests/worker.test.js`
 
 ## Prior art elsewhere (from ECOSYSTEM.json)
 

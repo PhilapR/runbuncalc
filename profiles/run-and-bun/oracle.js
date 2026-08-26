@@ -602,13 +602,30 @@ function fightFieldOf(trainer) {
 
 /**
  * The progression order an HM MOVE becomes teachable, or null for a move
- * with no known gate. Null means "not dated", which covers every TM — the
- * source dates only the HM story spine — so a null must be read as "assume
- * available", never "never obtainable".
+ * with no known gate. Null means "not dated" — 22 of the 78 TM and tutor rows
+ * have a known place and no proven unlock — so a null must be read as "timing
+ * unproven", never as "never obtainable" and never as "available now".
  */
 function moveObtainableAt(move) {
-	const gates = load('availability').hmMoves || {};
-	return gates[move] !== undefined ? gates[move] : null;
+	const data = load('availability');
+	const gates = data.hmMoves || {};
+	if (gates[move] !== undefined) return gates[move];
+	// The TM and tutor ledger, which this used to ignore. When it was written
+	// the source dated only the HM story spine, so "null covers every TM" was a
+	// true description; moveItems has since arrived with 56 dated rows and the
+	// function kept answering null for all of them. The advisor reads this to
+	// decide whether a teachable move is reachable yet, so every TM failed that
+	// test and was dropped — a party stood in front of Leader Brawly with Icy
+	// Wind, Rock Blast and Feint Attack all reachable and was offered Absorb.
+	//
+	// The EARLIEST dated row wins: a move sold in a late department store and
+	// also lying on an early route is available from the route.
+	let soonest = null;
+	for (const row of data.moveItems || []) {
+		if (row.move !== move || typeof row.opensAt !== 'number') continue;
+		if (soonest === null || row.opensAt < soonest) soonest = row.opensAt;
+	}
+	return soonest;
 }
 
 /** The TM and tutor location ledger — rows with a prose location, and an

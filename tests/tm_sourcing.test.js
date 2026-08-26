@@ -1,0 +1,114 @@
+/* eslint-env node, es6 */
+'use strict';
+
+/**
+ * Gate for whether the advisor can see the TM and tutor ledger at all.
+ *
+ * `moveObtainableAt` decides whether a teachable move is reachable yet, and
+ * for a long time it consulted only `hmMoves` — the eight HM story gates. Its
+ * docstring said so, and said it plainly: "null covers every TM". That was a
+ * true description of the data when it was written. `moveItems` arrived later
+ * with 78 rows and 56 dated unlocks, and nothing connected the two, so every
+ * TM answered null, `datedTeachRoute` was false for all of them, and the
+ * advisor discarded the lot.
+ *
+ * The visible cost: a party at Leader Brawly, with Icy Wind and Rock Blast
+ * both reachable since order 22, was offered Absorb.
+ *
+ * The second half of the gate is the off-by-one that fix exposed. TM16 Seismic
+ * Toss is Brawly's own gym reward and carries HIS order, so a numeric
+ * `gate <= order` test made it advice FOR the Brawly fight — a prize you can
+ * only hold by having already won without it.
+ */
+
+const assert = require('node:assert/strict');
+const test = require('node:test');
+
+const run = require('../lib/run');
+const profile = require('../profiles/run-and-bun');
+
+/** A six-strong party standing immediately before a named fight. */
+function standingBefore(trainer) {
+	let doc = run.createRun({
+		name: 'tm', now: 't0', levelCap: 'next-milestone-ace',
+		permadeath: false, onePerRoute: false,
+	});
+	for (const species of ['Prinplup', 'Staravia', 'Lombre', 'Flaaffy', 'Bayleef', 'Lumineon']) {
+		doc = run.apply(doc, {kind: 'catch', species: species, level: 21,
+			ivs: {hp: 20, atk: 20, def: 20, spa: 20, spd: 20, spe: 20}});
+	}
+	doc = run.apply(doc, {kind: 'party', ids: doc.box.map(mon => mon.id)});
+	const road = run.upcoming(doc, 4000);
+	const fights = Array.isArray(road) ? road : (road.fights || []);
+	for (const fight of fights) {
+		if (new RegExp(trainer).test(fight.trainer)) break;
+		try {
+			doc = run.apply(doc, {kind: 'beat', trainer: fight.trainer});
+		} catch (error) { /* an optional or variant fight the road skips */ }
+	}
+	return doc;
+}
+
+test('a dated TM reports the order it becomes obtainable, not null', () => {
+	const at = move => profile.oracle.moveObtainableAt(move);
+	// HMs kept working throughout; they were the only thing that ever did.
+	assert.equal(at('Surf'), 589);
+	assert.equal(at('Rock Smash'), 139);
+	// These are the ones that answered null while sitting dated in the ledger.
+	assert.equal(at('Feint Attack'), 11);
+	assert.equal(at('Icy Wind'), 22);
+	assert.equal(at('Rock Blast'), 22);
+	assert.equal(at('Seismic Toss'), 77);
+	// A row with a known place and no proven unlock still answers null, which
+	// must read as "timing unproven" and never as "available now".
+	assert.equal(at('Aerial Ace'), null);
+	assert.equal(at('Not A Real Move'), null);
+});
+
+test('no move yet has two dated routes, so the earliest-wins guard is dormant', () => {
+	// moveObtainableAt takes the MINIMUM dated route, because a TM sold in a
+	// late department store and also lying on an early route is available from
+	// the route. No row in the ledger currently exercises that: every move with
+	// a date has exactly one distinct date, so flipping the min to a max
+	// changes nothing and a test asserting "the earliest wins" would pass
+	// against either. Saying that plainly beats a green assertion that proves
+	// nothing — which is what the first version of this test was.
+	//
+	// What is pinned instead is the assumption. The day a move gains a second
+	// dated route, this fails and the min() stops being dormant.
+	const dated = {};
+	for (const row of profile.oracle.moveItems()) {
+		if (typeof row.opensAt !== 'number') continue;
+		(dated[row.move] = dated[row.move] || new Set()).add(row.opensAt);
+	}
+	const multi = Object.keys(dated).filter(move => dated[move].size > 1);
+	assert.deepEqual(multi, [],
+		'a move now has two dated routes: ' + multi.join(', ') +
+		' — the earliest-wins path in moveObtainableAt is live and needs a real test');
+});
+
+test('the advisor offers reachable TMs, and not the prize for the fight itself', () => {
+	const doc = standingBefore('Leader Brawly');
+	const advice = run.adviseUpgrades(doc, 'Leader Brawly');
+	const teaches = (advice.upgrades || []).filter(row => row.kind === 'teach');
+
+	assert.ok(advice.considered > 60,
+		'the whole ledger should widen the candidate set, not a tenth of it: ' +
+		advice.considered);
+	assert.ok(teaches.length > 3,
+		'teachable moves should reach the shortlist: ' + teaches.length);
+
+	// The off-by-one. Seismic Toss is Brawly's reward at Brawly's own order, so
+	// advising it for Brawly is advising a prize won by winning without it.
+	assert.ok(!teaches.some(row => /Seismic Toss/.test(row.detail || '')),
+		'a fight-reward TM must not be advice for the fight that rewards it');
+});
+
+test('and once that fight is beaten, its reward becomes advice', () => {
+	// The complement, so the rule reads as timing and not as a blanket ban.
+	const doc = standingBefore('Leader Roxanne');
+	assert.ok(run.upcoming(doc, 1)[0].order > 77, 'the run is past Brawly');
+	assert.equal(profile.oracle.moveObtainableAt('Seismic Toss'), 77);
+	const advice = run.adviseUpgrades(doc, 'Leader Roxanne');
+	assert.ok(advice.considered > 60, 'candidates: ' + advice.considered);
+});
