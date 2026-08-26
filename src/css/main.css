@@ -4747,6 +4747,15 @@ table.field {
 #runbun-run .runbun-run-advice-what {
 	color: var(--rb-ink);
 }
+/* A one-shot item is priced by the grid as though it lasted the whole fight,
+   so the row says which it is. Muted rather than a warning: the advice is
+   still worth taking, it is the SIZE of the gain that is understated. */
+#runbun-run .runbun-run-advice-once {
+	color: var(--rb-ink-muted);
+	font-size: var(--rb-text-label);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
 #runbun-run .runbun-run-advice-kind {
 	color: var(--rb-ink-muted);
 	font-size: var(--rb-text-label);

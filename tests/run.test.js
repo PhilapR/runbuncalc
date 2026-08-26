@@ -317,6 +317,62 @@ test('the playbook says how many fights its assignment search played', () => {
 	assert.equal(off.variantRollouts, 0);
 });
 
+test('an item upgrade says whether it survives being used', () => {
+	// Philip: an Eviolite is reusable and a resist berry is not, and an advisor
+	// cannot price the two the same way. It still cannot — the grid credits a
+	// held item in every enemy column, so a berry that fires once is scored as
+	// though it fired in all of them, and fixing that needs the run to know
+	// when an item was eaten, which it does not. What it CAN do is say which
+	// kind of item it is offering, and that is the half a player acts on:
+	// swapping a berry for an Eviolite reads as a smaller gain than it is,
+	// because the berry it replaces was overcredited in the baseline.
+	//
+	// `lib/item-facts` derives the answer from the engine's own consumeItem
+	// call sites rather than a hand list, so this moves when the engine does.
+	// Before this it was a module nothing imported.
+	//
+	// TWO fixtures, because one could not exercise both halves. A lone Aron is
+	// the only party where a Chople Berry survives the improvement filter — it
+	// blunts a gym full of Fighting — and it draws no teach offers at all, so
+	// an assertion about teach rows made against it guarded nothing.
+	let berries = fresh({levelCap: 'none'});
+	berries = run.apply(berries, owned({kind: 'catch', species: 'Aron', level: 24}));
+	berries = run.apply(berries, {kind: 'party', ids: [berries.box[0].id]});
+	berries = run.apply(berries, {kind: 'acquire', item: 'Chople Berry'});
+	berries = run.apply(berries, {kind: 'acquire', item: 'Eviolite'});
+	const offered = run.adviseUpgrades(berries, 'Leader Brawly').upgrades
+		.filter(row => row.singleUse !== undefined);
+
+	const berry = offered.find(row => /Chople Berry/.test(row.detail));
+	const eviolite = offered.find(row => /Eviolite/.test(row.detail));
+	assert.ok(berry, 'the fixture must offer the berry, or the true case is unguarded');
+	assert.ok(eviolite, 'and the Eviolite, or the false case is unguarded');
+	assert.equal(berry.singleUse, true, 'a Chople Berry is eaten and gone');
+	assert.equal(eviolite.singleUse, false, 'an Eviolite is worn, not spent');
+
+	// A six-strong party standing at Brawly draws teach offers, which the lone
+	// Aron does not. Only an item may carry the field: a one-shot MOVE is not a
+	// thing, and every consumer would have to decide what it meant.
+	let party = fresh({levelCap: 'next-milestone-ace'});
+	for (const species of ['Prinplup', 'Staravia', 'Lombre', 'Flaaffy', 'Bayleef', 'Lumineon']) {
+		party = run.apply(party, owned({kind: 'catch', species, level: 21}));
+	}
+	party = run.apply(party, {kind: 'party', ids: party.box.map(mon => mon.id)});
+	for (const fight of run.upcoming(party, 4000)) {
+		if (/Leader Brawly/.test(fight.trainer)) break;
+		try {
+			party = run.apply(party, {kind: 'beat', trainer: fight.trainer});
+		} catch (error) { /* an optional or variant fight the road skips */ }
+	}
+	const mixed = run.adviseUpgrades(party, 'Leader Brawly').upgrades;
+	assert.ok(mixed.some(row => row.kind === 'teach'),
+		'the fixture must draw a teach offer, or the leak assertion guards nothing');
+	for (const row of mixed) {
+		if (row.singleUse === undefined) continue;
+		assert.ok(row.kind === 'give' || row.kind === 'pickup',
+			`${row.kind} carries singleUse, and only an item may`);
+	}
+});
 test('the cheap cut keeps the best six and only runs when the box is expensive', () => {
 	// The box that made this necessary was 76 and took 177 SECONDS to enumerate
 	// its 218,618,940 sixes. The cut keeps, per enemy column, the members that

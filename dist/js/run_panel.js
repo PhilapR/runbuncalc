@@ -2296,6 +2296,16 @@
 				.append($('<span class="runbun-run-advice-kind"></span>')
 					.text(kindLabels[entry.kind] || displayText(entry.kind)))
 				.append($('<span class="runbun-run-advice-what"></span>').text(entry.detail))
+				// A one-shot item is a different offer from a permanent one, and the
+				// damage column cannot say so: the grid credits a held item in every
+				// enemy column, so a berry that fires once is priced as though it
+				// fired in all of them. Naming it is what can be told truthfully
+				// until the run tracks what was eaten.
+				.append($('<span class="runbun-run-advice-once"></span>')
+					.attr('title', entry.singleUse ?
+						'used up the first time it works, and the score prices it as ' +
+						'though it lasted the whole fight' : '')
+					.text(entry.singleUse ? 'one-shot' : ''))
 				.append($('<span class="runbun-run-advice-ko"></span>')
 					.toggleClass('is-ko', entry.delta.koGained > entry.delta.koConceded)
 					.toggleClass('is-ko-trade', entry.delta.koConceded > 0)
