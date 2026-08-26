@@ -568,7 +568,11 @@ COST_METRIC_NOTES = {
     "objects_share_pct": "that stage's share of all construction, in percent.",
     "wallclock_ms": "elapsed milliseconds. Secondary — a player feels seconds, "
     "but a shared runner moves this and does not move the object count.",
-    "memory_peak_rss_mb": "peak resident set size while the arm ran.",
+    "memory_process_peak_rss_mb": "peak resident set size of the WHOLE bench "
+    "process, not of any one arm. The arms share a process and RSS is a "
+    "high-water mark, so it cannot be attributed: an earlier version logged it "
+    "per arm and the facts-cache arm read LOWER than baseline while holding "
+    "143MB of keys. Use `memory_cache_mb` for the per-arm number.",
     "memory_cache_mb": "the memo's keys, in megabytes. A cache is a "
     "memory-for-compute trade and this is the side that is easy to forget.",
     "memory_cache_entries": "how many distinct questions the memo held.",
@@ -769,9 +773,15 @@ def ingest_cost(path: Path) -> str:
             key = safe(arm)
             metrics[f"objects_total__{key}"] = total(arm, "objects")
             metrics[f"wallclock_ms__{key}"] = total(arm, "ms")
-            metrics[f"memory_peak_rss_mb__{key}"] = _mb(peak(arm))
             metrics[f"memory_cache_mb__{key}"] = _mb(total(arm, "cacheBytes"))
             metrics[f"memory_cache_entries__{key}"] = total(arm, "cacheEntries")
+        # ONE reading, not one per arm. The arms share a process and RSS is a
+        # high-water mark that does not come back down, so a per-arm name here
+        # promised an attribution the measurement cannot make — and said so
+        # loudly, by reporting the arm holding 143MB of keys as the LOWER of
+        # the two. Per-arm memory is `memory_cache_mb`, which is counted from
+        # the cache's own keys rather than from the process.
+        metrics["memory_process_peak_rss_mb"] = _mb(max(peak(arm) for arm in arms))
         # Every arm against the first, so a third arm does not need new code.
         base = arms[0] if arms else None
         for arm in arms[1:]:
@@ -785,19 +795,25 @@ def ingest_cost(path: Path) -> str:
                     arm, "ms"
                 )
 
-        # Per stage, so "the playbook is most of it" is a chart rather than a
-        # claim somebody has to take on trust.
-        if base:
+        # Per stage AND per arm. An earlier version emitted the split for the
+        # first arm only, under an unsuffixed name, so a chart of
+        # `objects_stage__playbook` silently described the baseline while
+        # sitting beside per-arm totals that did not. Where an optimisation
+        # lands is the whole question, and it cannot be read from one arm.
+        for arm in arms:
             per_stage: dict[str, float] = {}
             for row in results:
-                for stage in row["arms"].get(base, {}).get("stages", []) or []:
+                for stage in row["arms"].get(arm, {}).get("stages", []) or []:
                     per_stage[stage["stage"]] = (
                         per_stage.get(stage["stage"], 0) + stage["objects"]
                     )
             grand = sum(per_stage.values()) or 1
+            key = safe(arm)
             for stage, value in per_stage.items():
-                metrics[f"objects_stage__{safe(stage)}"] = value
-                metrics[f"objects_share_pct__{safe(stage)}"] = 100 * value / grand
+                metrics[f"objects_stage__{safe(stage)}__{key}"] = value
+                metrics[f"objects_share_pct__{safe(stage)}__{key}"] = (
+                    100 * value / grand
+                )
 
         cut = tail.get("cut", {})
         whole = tail.get("wholeBox", {})
@@ -844,7 +860,8 @@ def ingest_cost(path: Path) -> str:
                     if "objects" in got:
                         inner[f"objects_total__{key}"] = got["objects"]
                         inner[f"wallclock_ms__{key}"] = got.get("ms", 0.0)
-                        inner[f"memory_peak_rss_mb__{key}"] = _mb(got.get("peakRss", 0))
+                        # Process-wide, same caveat as the parent run's.
+                        inner["memory_process_peak_rss_mb"] = _mb(got.get("peakRss", 0))
                         inner[f"memory_cache_mb__{key}"] = _mb(got.get("cacheBytes", 0))
                     if arm == base:
                         inner |= {
