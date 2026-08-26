@@ -2772,3 +2772,38 @@ test('evolving carries the ability by slot, so it stays legal for the new specie
 			'and it is not the pre-evolution ability carried across');
 	}
 });
+
+test('an unrecorded IV plans as the floor, never as a perfect one', () => {
+	// playerStateFromEntry filled missing IVs with 31, and a Pokemon caught
+	// without a rolled spread stores ivs {} — so Object.assign({all 31s}, {})
+	// planned it flawless. Optimistic is the dangerous direction: at level 30 it
+	// overstated Speed by five against an average roll, and five points of Speed
+	// flips turn order, which flips a survival verdict.
+	const planner = require('../lib/planner');
+	// The bridge is the setdex one, and it needs the setdex loaded — which
+	// building any fight state does. matchup warms it as a side effect.
+	planner.matchup({trainer: 'Leader Brawly', profileId: 'run-and-bun',
+		playerParty: [{species: 'Poochyena', level: 5, moves: ['Tackle']}]});
+	const bridge = require('../src/js/sets_to_battle_state.js');
+	const build = entry => planner.playerStateFromEntry(bridge,
+		Object.assign({species: 'Poochyena', level: 30, moves: ['Tackle']}, entry),
+		'player-1').state;
+
+	// Assert on the STAT, not the ivs field: the bridge omits IVs from the state
+	// when they are its default of 31, so `ivs: undefined` there MEANS perfect
+	// and reads like an absence. HP is the consequence and cannot be misread.
+	const hp = entry => build(entry).hp.max;
+
+	// OWNED with nothing rolled — ivs is {}, present and empty.
+	assert.equal(hp({ivs: {}}), 61,
+		'a Pokemon the run owns plans at the floor when nothing was rolled');
+	assert.equal(hp({ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31}}), 70,
+		'and at 70 when the spread is actually perfect, which is the number the ' +
+		'unrolled case used to borrow');
+
+	// A PROSPECT is a different question. adviseCatches builds {species, level,
+	// moves} with no ivs key at all, and "is this worth catching" is asked at its
+	// best rather than its worst. Flattening the two broke two existing gates
+	// before this split existed.
+	assert.equal(hp({}), 70, 'an uncaught prospect is still graded at its best');
+});
