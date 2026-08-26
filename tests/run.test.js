@@ -463,13 +463,29 @@ test('the ranker charges for its shortlist, not for the box', () => {
 		'must not scale with the box');
 	// And the enumeration past the gated size is the OTHER cost: still cheap
 	// at 30, which is what makes 76 a surprise rather than a warning.
+	//
+	// This was `bareMs < smallMs` — the box-30 enumeration against a box-8
+	// ranking — and it stopped meaning what it says. Memoizing the engine's
+	// action facts and effective types, and deferring the crit band, took an
+	// adjudication down by about two and a half times, so `smallMs` fell to
+	// 562ms while `bareMs` sat at 593ms and the assertion went red. Nothing
+	// about the enumeration had changed. The comparison was only ever load
+	// bearing while adjudication was seconds and this was milliseconds; with
+	// both cheap it compares a thirty-member GRID against a rollout budget,
+	// which is two unrelated costs.
+	//
+	// So it is an absolute budget now, which is what the claim was really
+	// about: at 30 this is milliseconds, and the box of 76 that opened the
+	// finding was 177 SECONDS. Three seconds is room for a shared runner and
+	// still two orders of magnitude below a cost that has started tracking the
+	// box.
 	const at = process.hrtime.bigint();
 	const ranked = run.rankParties(boxOf(30), 'Leader Brawly', {rollouts: 0});
 	const bareMs = Number(process.hrtime.bigint() - at) / 1e6;
 	assert.equal(ranked.combinations, 593775);
-	assert.ok(bareMs < smallMs,
-		`enumerating C(30,6) took ${bareMs.toFixed(0)}ms, more than a box-8 ranking ` +
-		`at ${smallMs.toFixed(0)}ms — the enumeration was supposed to be the cheap half`);
+	assert.ok(bareMs < 3000,
+		`enumerating C(30,6) took ${bareMs.toFixed(0)}ms; the budget is 3s, and a ` +
+		'cost that has started tracking the box blows through it long before 76');
 });
 
 test('a named replace is honored below four moves too', () => {
