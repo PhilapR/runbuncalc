@@ -84,22 +84,27 @@ test('a ruled move follows its anchor map, and an unruled one still answers null
 		.find(entry => entry.name === name).opensAt;
 
 	for (const move of Object.keys(adopt.MOVE_DATE_RULINGS)) {
-		const anchor = adopt.MOVE_DATE_RULINGS[move].anchor;
-		assert.equal(at(move), orderOf(anchor),
-			`${move} is ruled to follow ${anchor}, and must report that order`);
+		const ruling = adopt.MOVE_DATE_RULINGS[move];
+		// A ruling names a place OR an order, never both and never neither.
+		assert.notEqual(ruling.anchor === undefined, ruling.order === undefined,
+			`${move} must be ruled from an anchor map or from an explicit order`);
+		const expected = ruling.anchor === undefined ? ruling.order : orderOf(ruling.anchor);
+		assert.equal(at(move), expected,
+			`${move} is ruled to ${ruling.anchor || ruling.order}, and must report that order`);
 		assert.match(adopt.MOVE_DATE_RULINGS[move].why, /^Philip, from play:/,
 			'a ruling names the person who supplied the game knowledge');
 	}
 	// The two that were ruled, spelled out, so this test fails if the table is
 	// emptied rather than passing vacuously over nothing.
 	assert.deepEqual(Object.keys(adopt.MOVE_DATE_RULINGS).sort(),
-		['Rock Tomb', 'Swagger']);
+		['Rock Tomb', 'Smart Strike', 'Swagger']);
 
-	// And the rest of the undated set is untouched. Smart Strike sits at
-	// Mauville City, which the map table does not date at all, so a ruling that
-	// it is fine to date still has no order to point at.
-	assert.equal(at('Smart Strike'), null,
-		'Mauville City is not in the map table, so Smart Strike has no anchor yet');
+	// And the rest of the undated set is untouched: 19 rows still answer null,
+	// which is the silence the filter exists to keep.
+	const undated = profile.oracle.moveItems()
+		.filter(row => typeof row.opensAt !== 'number');
+	assert.ok(undated.length > 10,
+		'the undated remainder is counted, not quietly emptied');
 });
 
 test('the ruling refuses rather than guesses when its anchor moves', () => {

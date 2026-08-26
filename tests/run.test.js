@@ -2379,7 +2379,12 @@ test('pre-fight opportunities show only reachable, unspent work and honest move 
 	// hiding it.
 	assert.equal(before.moves.status, 'dated');
 	assert.equal(before.moves.count, 0, 'nothing is reachable before the first fight');
-	assert.ok(before.moves.undated >= 20);
+	// A floor on the REMAINDER, not on a number. This read >= 20 and went red
+	// when three rows were dated on a ruling, which is the mechanism working
+	// rather than breaking: 22 undated became 19. What the assertion is for is
+	// that the remainder is reported at all, so it is written as that.
+	assert.ok(before.moves.undated > 0,
+		'the undated remainder is counted, not hidden');
 	assert.match(before.moves.note, /undated/);
 
 	const collected = run.apply(state, {kind: 'acquire', item: 'Potion'});
@@ -2503,7 +2508,7 @@ test('TM and tutor locations are dated late-biased and projected run-aware', () 
 	const moves = run.preFightOpportunities(fresh({})).moves;
 	assert.equal(moves.status, 'dated');
 	assert.equal(moves.count, 0, 'no TM or tutor is reachable before the first fight');
-	assert.ok(moves.undated >= 20, 'the undated remainder is counted, not hidden');
+	assert.ok(moves.undated > 0, 'the undated remainder is counted, not hidden');
 });
 
 test('evolution readiness reports the ladder and whether the run is there', () => {

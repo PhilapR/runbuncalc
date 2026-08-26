@@ -892,8 +892,11 @@
 			"kind": "tm",
 			"location": "Mauville City. Sold at Lilycove Department Store",
 			"place": null,
-			"opensAt": null,
-			"dating": "no-datable-place"
+			"opensAt": 53,
+			"dating": "unlock",
+			"transcribedOpensAt": null,
+			"provenance": "corrected",
+			"correction": "Philip, from play: fine to date, and Mauville City is right after Route 110. Route 110 sits at 48 and 53 is the first fight past it, which is the same snap the Route 109 override uses. Mauville City is absent from maps() because that list comes from the encounters file and the town has no wild encounters, so there is no anchor to inherit. Philip has said he will correct this if it is wrong; it gates one TM rather than a route."
 		},
 		{
 			"name": "TM29",

@@ -70,9 +70,16 @@ const ITEM_OVERRIDES = {
  * The knowledge that separates these rows from that one is knowledge of the
  * game, which is why each entry names the person who supplied it.
  *
- * `anchor` is the map whose transcribed order the row inherits, so a ruling
- * says WHICH PLACE dates the move rather than inventing a number. If upstream
- * ever supplies its own date this throws instead of silently disagreeing.
+ * A ruling names either an `anchor` — the map whose transcribed order the row
+ * inherits, so it says WHICH PLACE dates the move rather than inventing a
+ * number — or an explicit `order`, for a place the map table cannot supply.
+ * `maps()` is built from the ENCOUNTERS file, so a town with no wild encounters
+ * is simply absent from it; Mauville City is, which is why Smart Strike had
+ * nothing to point at. An `order` must still land on a real fight, so a typo
+ * cannot date a move to a moment that never arrives.
+ *
+ * If upstream ever supplies its own date this throws instead of silently
+ * disagreeing.
  */
 const MOVE_DATE_RULINGS = {
 	'Rock Tomb': {
@@ -86,6 +93,16 @@ const MOVE_DATE_RULINGS = {
 		why: 'Philip, from play: fine to date. The Grunt is inside Slateport ' +
 			'Museum, which is a building in Slateport City rather than a ' +
 			'separate area the map table dates on its own.',
+	},
+	'Smart Strike': {
+		order: 53,
+		why: 'Philip, from play: fine to date, and Mauville City is right after ' +
+			'Route 110. Route 110 sits at 48 and 53 is the first fight past it, ' +
+			'which is the same snap the Route 109 override uses. Mauville City ' +
+			'is absent from maps() because that list comes from the encounters ' +
+			'file and the town has no wild encounters, so there is no anchor to ' +
+			'inherit. Philip has said he will correct this if it is wrong; it ' +
+			'gates one TM rather than a route.',
 	},
 };
 
@@ -103,26 +120,45 @@ function applyMoveDateRulings(availability) {
 		const ruling = MOVE_DATE_RULINGS[move];
 		const row = (availability.moveItems || []).find(entry => entry.move === move);
 		if (!row) continue;
-		const anchor = (availability.entries || [])
-			.find(entry => entry.name === ruling.anchor);
-		if (!anchor || typeof anchor.opensAt !== 'number') {
-			throw new Error('adopt: ' + move + ' is ruled datable from ' +
-				JSON.stringify(ruling.anchor) + ', which the map table does not date — ' +
-				'the anchor moved and this needs a human');
+
+		let order = null;
+		let place = null;
+		if (ruling.anchor !== undefined) {
+			const anchor = (availability.entries || [])
+				.find(entry => entry.name === ruling.anchor);
+			if (!anchor || typeof anchor.opensAt !== 'number') {
+				throw new Error('adopt: ' + move + ' is ruled datable from ' +
+					JSON.stringify(ruling.anchor) + ', which the map table does not date — ' +
+					'the anchor moved and this needs a human');
+			}
+			order = anchor.opensAt;
+			place = ruling.anchor;
+		} else {
+			// An explicit order still has to be a moment the run reaches, or the
+			// move is dated to a fight that never comes and reads as unreachable
+			// forever — the same silence the ruling exists to end.
+			order = ruling.order;
+			place = null;
+			if (!Number.isInteger(order) || estimate.snapToFight(order) !== order) {
+				throw new Error('adopt: ' + move + ' is ruled to order ' +
+					JSON.stringify(order) + ', which is not a fight in the run map — ' +
+					'a ruling must land on a moment the run actually reaches');
+			}
 		}
-		if (row.opensAt === anchor.opensAt) continue;
+
+		if (row.opensAt === order) continue;
 		if (typeof row.opensAt === 'number') {
 			throw new Error('adopt: ' + move + ' is dated ' + row.opensAt +
-				' upstream but ruled to follow ' + ruling.anchor + ' at ' + anchor.opensAt +
+				' upstream but ruled to ' + order +
 				' — a transcription and a person disagree, which needs a human');
 		}
 		row.transcribedOpensAt = row.opensAt === undefined ? null : row.opensAt;
-		row.place = ruling.anchor;
-		row.opensAt = anchor.opensAt;
+		row.place = place;
+		row.opensAt = order;
 		row.dating = 'unlock';
 		row.provenance = 'corrected';
 		row.correction = ruling.why;
-		dated.push(move + ' -> ' + anchor.opensAt + ' (' + ruling.anchor + ')');
+		dated.push(move + ' -> ' + order + (place ? ' (' + place + ')' : ' (ruled)'));
 	}
 	return dated;
 }
