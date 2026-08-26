@@ -11,6 +11,12 @@
 		"falsified is 1 only when the guard was made to FAIL against the restored",
 		"defect. A fix with falsified 0 is a fix nobody has proved is load-bearing.",
 		"",
+		"fixed_in cannot be written by the commit that does the fixing: the hash does",
+		"not exist yet. So it is BACKFILLED — the next commit to touch this file sets",
+		"it, and a fix landing with fixed_in null is unfinished bookkeeping rather",
+		"than a fix without a commit. The same applies to falsified: do the",
+		"falsification in the fixing commit, record the 1 in the backfill.",
+		"",
 		"The two earlier reviews (browser, lib) are recorded at the granularity",
 		"that survived the session; their per-finding detail is in the transcript,",
 		"not here. Findings raised after this file existed are recorded whole."
@@ -1498,9 +1504,9 @@
 			"claim": "The importer rebuilds every item's `kind` from upstream, so a re-import returns Focus Sash to `held` and drops its transcribedKind/provenance/basis. adopt-availability.js has no item-kind path, so the correction lives only in the committed file.",
 			"verdict": "reported",
 			"status": "fixed",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Reported by the audit, not re-derived here. Loud rather than silent — tests/item_facts.test.js:70 fails by name. Fix: move it into an ITEM_OVERRIDES table alongside the existing map OVERRIDES, so corrections survive a re-import the way the Route 109 and Petalburg City ones now do. FIXED. ITEM_OVERRIDES now sits beside the map OVERRIDES in scripts/adopt-availability.js and apply() runs it, so a re-import that restores Focus Sash to upstream \"held\" is corrected back to \"consumable\" with transcribedKind, provenance and a basis naming ai/src/move-engine.ts. Idempotent, so adopt can follow every import. It THROWS rather than correcting if upstream carries a third value, because that means upstream changed its mind and the table must not quietly overrule a new answer. Gated in tests/item_facts.test.js and falsified twice — emptying the table fails it, and so does deleting the call from apply(). The second one mattered: the first version of the gate tested applyItemOverrides directly and passed with the wiring removed, which is the same hole the advise splice gate had.",
+			"fixed_in": "a4c4e82a72e8093480137738f44668756c69c28b",
+			"falsified": 1,
+			"evidence": "Reported by the audit, not re-derived here. Loud rather than silent — tests/item_facts.test.js:70 fails by name. Fix: move it into an ITEM_OVERRIDES table alongside the existing map OVERRIDES, so corrections survive a re-import the way the Route 109 and Petalburg City ones now do. FIXED. ITEM_OVERRIDES now sits beside the map OVERRIDES in scripts/adopt-availability.js and apply() runs it, so a re-import that restores Focus Sash to upstream \"held\" is corrected back to \"consumable\" with transcribedKind, provenance and a basis naming ai/src/move-engine.ts. Idempotent, so adopt can follow every import. It THROWS rather than correcting if upstream carries a third value, because that means upstream changed its mind and the table must not quietly overrule a new answer. Gated in tests/item_facts.test.js and falsified twice — emptying the table fails it, and so does deleting the call from apply(). The second one mattered: the first version of the gate tested applyItemOverrides directly and passed with the wiring removed, which is the same hole the advise splice gate had. The falsification is on record and this entry under-reported it: emptying ITEM_OVERRIDES fails the gate, and so does deleting the applyItemOverrides call from apply(). Recorded as falsified 0 in the fixing commit, which was wrong — the work was done and the field was not updated.",
 			"enforcedBy": null
 		},
 		{
