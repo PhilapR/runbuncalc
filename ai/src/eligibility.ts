@@ -63,7 +63,81 @@ function hasActiveAllyAbility(state: BattleState, pokemonId: string, ...abilitie
     hasAbility(state, allyId, ...abilities));
 }
 
+/**
+ * The memo in front of `computeEffectiveTypesForPokemon`.
+ *
+ * This is a LOOKUP that builds a whole `Calc.Pokemon` to read one field off it,
+ * which is the third instance of that shape in this engine — the other two were
+ * 31,344 objects built for `flags`/`target` and 6,720 built for unboosted
+ * Speed, both since cached. One playbook calls it 19,794 times against 2,537
+ * distinct questions, so 87% of those constructions answer something already
+ * known.
+ *
+ * The key is narrow ON PURPOSE and its width is the whole difficulty. Types do
+ * not depend on the whole battle, but they depend on more than the Pokemon:
+ * `forecastTypeIdentity` reads the weather, and weather can be SUPPRESSED by a
+ * Cloud Nine or Air Lock on either side, so an opposing ability changes this
+ * Pokemon's answer. The key therefore carries the generation, the field, the
+ * Pokemon itself, and the identity, ability and health of every active Pokemon
+ * on both sides.
+ *
+ * That width is asserted, not assumed. `ai/src/test/effective-types-memo.test.ts`
+ * exercises the suppression case directly, and the key was validated against
+ * the full serialized state over six real playthroughs before it shipped: every
+ * collision on the narrow key produced an identical answer. The precedent for
+ * that caution is `defender.isGrounded`, which an earlier narrow key here
+ * omitted and which silently turned a Ground move's full damage roll into zero.
+ *
+ * The WeakMap is the eviction policy: the table hangs off the state and dies
+ * with it. A state edited in place changes the key, misses, and rebuilds.
+ */
+const TYPES_BY_STATE = new WeakMap<BattleState, Map<string, string[]>>();
+
+function effectiveTypesKey(state: BattleState, pokemon: PokemonState): string | null {
+  try {
+    const actives: string[] = [];
+    for (const sideId of ['ai', 'player'] as const) {
+      for (const activeId of state.sides[sideId].activeIds) {
+        const active = getPokemon(state, activeId);
+        if (!active) continue;
+        // Ability, its on/off flag and health: exactly what weather
+        // suppression reads off a bystander.
+        actives.push(`${active.id}:${active.ability || ''}:${active.abilityOn ? 1 : 0}` +
+          `:${active.hp.current}:${JSON.stringify(active.volatile || null)}`);
+      }
+    }
+    return `${state.generation}|${JSON.stringify(state.field)}|` +
+      `${actives.join(';')}|${JSON.stringify(pokemon)}`;
+  } catch (error) {
+    // A Pokemon or field that will not serialize cannot be keyed, so it is
+    // never cached. Answering slowly beats answering from a table that cannot
+    // say whether it still describes this position.
+    return null;
+  }
+}
+
 export function getEffectiveTypesForPokemon(state: BattleState, pokemon: PokemonState): string[] {
+  const key = effectiveTypesKey(state, pokemon);
+  if (key === null) return computeEffectiveTypesForPokemon(state, pokemon);
+  let table = TYPES_BY_STATE.get(state);
+  if (table === undefined) {
+    table = new Map<string, string[]>();
+    TYPES_BY_STATE.set(state, table);
+  }
+  // Every path returns a COPY. The cached array would otherwise escape:
+  // `move-engine` hands this straight to `setTypeOverride`, which stores it on
+  // the resolution and therefore into a later state, and a caller that edited
+  // it there would be editing the table. A two-element slice costs nothing
+  // against the `Calc.Pokemon` this exists to avoid building.
+  const hit = table.get(key);
+  if (hit !== undefined) return hit.slice();
+  const computed = computeEffectiveTypesForPokemon(state, pokemon);
+  table.set(key, computed);
+  return computed.slice();
+}
+
+/** The real work. Callers go through `getEffectiveTypesForPokemon`. */
+function computeEffectiveTypesForPokemon(state: BattleState, pokemon: PokemonState): string[] {
   if (pokemon.typeOverride !== undefined && pokemon.typeOverride.length === 0) return [];
   const gen = Calc.Generations.get(state.generation);
   const itemType = pokemon.typeOverride === undefined ? itemDrivenTypeIdentity(state, pokemon) : undefined;
