@@ -180,6 +180,24 @@ const ONLY = flag('only', '');
  * comment on that skip records 150s a fight — so it stays off by default.
  */
 const RETEACH = flag('reteach', '');
+
+/**
+ * Whether to reorder the party so the fair-dice forecast's recommended lead
+ * goes first, or leave the matrix's own choice alone.
+ *
+ * This only started doing anything at all when the provider re-pin brought the
+ * forecast back: followLead returns immediately without `plan.lead`, and until
+ * bf28a069 the forecast was dead for four fights in five, so there was no lead
+ * to follow and the matrix's pick stood by default. Every in-fight comparison
+ * before that re-pin was therefore run with this lever stuck off, which is
+ * worth knowing before reading those results as evidence about lead choice.
+ *
+ * The two answers disagree by construction. The matrix picks a covering six by
+ * greedy set-cover over the board and orders them by who covers what; the
+ * forecast picks whoever survived the most sampled branches. Neither is
+ * obviously right, so it is a flag and a measurement rather than an opinion.
+ */
+const LEAD = flag('lead', 'forecast');
 const BOSS = /Leader|Elite|Champion|Rival|Maxie|Archie|Magma Leader|Aqua Leader/i;
 const NOISE = Number(flag('noise', '0'));
 const EXPLORE_WIDTH = Number(flag('explore-width', '3'));
@@ -1289,6 +1307,7 @@ async function readPlan(page) {
  * lead choice is the one pre-fight decision that changes every turn after.
  */
 async function followLead(page, plan) {
+	if (LEAD !== 'forecast') return;
 	if (!plan || !plan.lead) return;
 	const slots = await page.$$eval('#runbun-run-party-strip .runbun-run-party-slot[data-id]',
 		els => els.map(el => ({
