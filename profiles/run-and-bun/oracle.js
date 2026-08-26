@@ -612,8 +612,15 @@ function moveObtainableAt(move) {
 }
 
 /** The TM and tutor location ledger — rows with a prose location, and an
- * opensAt trainer order where the place could be dated (null = the place is
- * known but its unlock is not; read as "location known, timing unproven"). */
+ * `opensAt` in RUN MAP ORDER where the place could be dated (null = the place
+ * is known but its unlock is not; read as "location known, timing unproven").
+ *
+ * Run map order counts cumulative enemy POKEMON, not trainers. This comment
+ * said "trainer order" and that is a different number entirely: Leader Brawly
+ * is trainer 26 of 362 and order 77. TM16 settles which one the data uses —
+ * it is Brawly's own gym reward and carries opensAt 77, his order, not 26. The
+ * mislabel is the same one `lib/play.js` printed to players as "opens at fight
+ * #77" for a TM obtainable 51 trainers earlier than that reads. */
 function moveItems() {
 	return load('availability').moveItems || [];
 }
