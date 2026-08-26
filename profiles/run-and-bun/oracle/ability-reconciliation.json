@@ -1,0 +1,1251 @@
+{
+	"schemaVersion": "runbun.ability.reconciliation/1.0.0",
+	"engineRevision": "2ae1b7e5721a2d2ff3b9692df75f65329c891650",
+	"provenance": "derived",
+	"note": "Species where the pinned engine contradicts the fork. `fork` is source-of-truth, verified against the romhack. `engineWouldForce` is what the engine accepts instead, recorded as evidence for an upstream rebuild and NOT applied at runtime: it changes a damage calculation for 72 of these.",
+	"comparable": 1244,
+	"agreed": 1120,
+	"contradicted": 124,
+	"entries": [
+		{
+			"species": "Abomasnow",
+			"fork": [
+				"Soundproof"
+			],
+			"engine": [
+				"Snow Warning"
+			],
+			"engineWouldForce": "Snow Warning"
+		},
+		{
+			"species": "Aggron",
+			"fork": [
+				"Heavy Metal"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Aron",
+			"fork": [
+				"Heavy Metal"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Boldore",
+			"fork": [
+				"Solid Rock"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Bounsweet",
+			"fork": [
+				"Sweet Veil"
+			],
+			"engine": [
+				"Leaf Guard"
+			],
+			"engineWouldForce": "Leaf Guard"
+		},
+		{
+			"species": "Buneary",
+			"fork": [
+				"Cute Charm"
+			],
+			"engine": [
+				"Run Away"
+			],
+			"engineWouldForce": "Run Away"
+		},
+		{
+			"species": "Bunnelby",
+			"fork": [
+				"Cheek Pouch"
+			],
+			"engine": [
+				"Pickup"
+			],
+			"engineWouldForce": "Pickup"
+		},
+		{
+			"species": "Centiskorch",
+			"fork": [
+				"Flame Body"
+			],
+			"engine": [
+				"Flash Fire"
+			],
+			"engineWouldForce": "Flash Fire"
+		},
+		{
+			"species": "Chandelure",
+			"fork": [
+				"Shadow Tag"
+			],
+			"engine": [
+				"Flash Fire"
+			],
+			"engineWouldForce": "Flash Fire"
+		},
+		{
+			"species": "Clefable",
+			"fork": [
+				"Unaware"
+			],
+			"engine": [
+				"Cute Charm"
+			],
+			"engineWouldForce": "Cute Charm"
+		},
+		{
+			"species": "Clefairy",
+			"fork": [
+				"Friend Guard"
+			],
+			"engine": [
+				"Cute Charm"
+			],
+			"engineWouldForce": "Cute Charm"
+		},
+		{
+			"species": "Cleffa",
+			"fork": [
+				"Friend Guard"
+			],
+			"engine": [
+				"Cute Charm"
+			],
+			"engineWouldForce": "Cute Charm"
+		},
+		{
+			"species": "Comfey",
+			"fork": [
+				"Triage"
+			],
+			"engine": [
+				"Flower Veil"
+			],
+			"engineWouldForce": "Flower Veil"
+		},
+		{
+			"species": "Corviknight",
+			"fork": [
+				"Unnerve"
+			],
+			"engine": [
+				"Pressure"
+			],
+			"engineWouldForce": "Pressure"
+		},
+		{
+			"species": "Corvisquire",
+			"fork": [
+				"Unnerve"
+			],
+			"engine": [
+				"Keen Eye"
+			],
+			"engineWouldForce": "Keen Eye"
+		},
+		{
+			"species": "Croagunk",
+			"fork": [
+				"Poison Touch"
+			],
+			"engine": [
+				"Anticipation"
+			],
+			"engineWouldForce": "Anticipation"
+		},
+		{
+			"species": "Cutiefly",
+			"fork": [
+				"Sweet Veil"
+			],
+			"engine": [
+				"Honey Gather"
+			],
+			"engineWouldForce": "Honey Gather"
+		},
+		{
+			"species": "Delcatty",
+			"fork": [
+				"Normalize"
+			],
+			"engine": [
+				"Cute Charm"
+			],
+			"engineWouldForce": "Cute Charm"
+		},
+		{
+			"species": "Diggersby",
+			"fork": [
+				"Cheek Pouch"
+			],
+			"engine": [
+				"Pickup"
+			],
+			"engineWouldForce": "Pickup"
+		},
+		{
+			"species": "Diglett",
+			"fork": [
+				"Arena Trap"
+			],
+			"engine": [
+				"Sand Veil"
+			],
+			"engineWouldForce": "Sand Veil"
+		},
+		{
+			"species": "Dugtrio",
+			"fork": [
+				"Arena Trap"
+			],
+			"engine": [
+				"Sand Veil"
+			],
+			"engineWouldForce": "Sand Veil"
+		},
+		{
+			"species": "Electabuzz",
+			"fork": [
+				"Vital Spirit"
+			],
+			"engine": [
+				"Static"
+			],
+			"engineWouldForce": "Static"
+		},
+		{
+			"species": "Electivire",
+			"fork": [
+				"Vital Spirit"
+			],
+			"engine": [
+				"Motor Drive"
+			],
+			"engineWouldForce": "Motor Drive"
+		},
+		{
+			"species": "Electrode-Hisui",
+			"fork": [
+				"Aftermath"
+			],
+			"engine": [
+				"Soundproof"
+			],
+			"engineWouldForce": "Soundproof"
+		},
+		{
+			"species": "Elekid",
+			"fork": [
+				"Vital Spirit"
+			],
+			"engine": [
+				"Static"
+			],
+			"engineWouldForce": "Static"
+		},
+		{
+			"species": "Enamorus",
+			"fork": [
+				"Healer"
+			],
+			"engine": [
+				"Cute Charm"
+			],
+			"engineWouldForce": "Cute Charm"
+		},
+		{
+			"species": "Escavalier",
+			"fork": [
+				"Overcoat"
+			],
+			"engine": [
+				"Swarm"
+			],
+			"engineWouldForce": "Swarm"
+		},
+		{
+			"species": "Exeggutor-Alola",
+			"fork": [
+				"Harvest"
+			],
+			"engine": [
+				"Frisk"
+			],
+			"engineWouldForce": "Frisk"
+		},
+		{
+			"species": "Ferroseed",
+			"fork": [
+				"Anticipation"
+			],
+			"engine": [
+				"Iron Barbs"
+			],
+			"engineWouldForce": "Iron Barbs"
+		},
+		{
+			"species": "Ferrothorn",
+			"fork": [
+				"Anticipation"
+			],
+			"engine": [
+				"Iron Barbs"
+			],
+			"engineWouldForce": "Iron Barbs"
+		},
+		{
+			"species": "Fletchling",
+			"fork": [
+				"Keen Eye"
+			],
+			"engine": [
+				"Big Pecks"
+			],
+			"engineWouldForce": "Big Pecks"
+		},
+		{
+			"species": "Frillish",
+			"fork": [
+				"Cursed Body"
+			],
+			"engine": [
+				"Water Absorb"
+			],
+			"engineWouldForce": "Water Absorb"
+		},
+		{
+			"species": "Froslass",
+			"fork": [
+				"Cursed Body"
+			],
+			"engine": [
+				"Snow Cloak"
+			],
+			"engineWouldForce": "Snow Cloak"
+		},
+		{
+			"species": "Gabite",
+			"fork": [
+				"Rough Skin"
+			],
+			"engine": [
+				"Sand Veil"
+			],
+			"engineWouldForce": "Sand Veil"
+		},
+		{
+			"species": "Gallade",
+			"fork": [
+				"Inner Focus"
+			],
+			"engine": [
+				"Steadfast"
+			],
+			"engineWouldForce": "Steadfast"
+		},
+		{
+			"species": "Garchomp",
+			"fork": [
+				"Rough Skin"
+			],
+			"engine": [
+				"Sand Veil"
+			],
+			"engineWouldForce": "Sand Veil"
+		},
+		{
+			"species": "Gible",
+			"fork": [
+				"Rough Skin"
+			],
+			"engine": [
+				"Sand Veil"
+			],
+			"engineWouldForce": "Sand Veil"
+		},
+		{
+			"species": "Gigalith",
+			"fork": [
+				"Solid Rock"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Golduck",
+			"fork": [
+				"Swift Swim"
+			],
+			"engine": [
+				"Damp"
+			],
+			"engineWouldForce": "Damp"
+		},
+		{
+			"species": "Goodra",
+			"fork": [
+				"Gooey"
+			],
+			"engine": [
+				"Sap Sipper"
+			],
+			"engineWouldForce": "Sap Sipper"
+		},
+		{
+			"species": "Goodra-Hisui",
+			"fork": [
+				"Gooey"
+			],
+			"engine": [
+				"Sap Sipper"
+			],
+			"engineWouldForce": "Sap Sipper"
+		},
+		{
+			"species": "Goomy",
+			"fork": [
+				"Gooey"
+			],
+			"engine": [
+				"Sap Sipper"
+			],
+			"engineWouldForce": "Sap Sipper"
+		},
+		{
+			"species": "Grimer",
+			"fork": [
+				"Poison Touch"
+			],
+			"engine": [
+				"Stench"
+			],
+			"engineWouldForce": "Stench"
+		},
+		{
+			"species": "Hakamo-o",
+			"fork": [
+				"Overcoat"
+			],
+			"engine": [
+				"Bulletproof"
+			],
+			"engineWouldForce": "Bulletproof"
+		},
+		{
+			"species": "Hatenna",
+			"fork": [
+				"Synchronize"
+			],
+			"engine": [
+				"Healer"
+			],
+			"engineWouldForce": "Healer"
+		},
+		{
+			"species": "Hatterene",
+			"fork": [
+				"Synchronize"
+			],
+			"engine": [
+				"Healer"
+			],
+			"engineWouldForce": "Healer"
+		},
+		{
+			"species": "Hattrem",
+			"fork": [
+				"Synchronize"
+			],
+			"engine": [
+				"Healer"
+			],
+			"engineWouldForce": "Healer"
+		},
+		{
+			"species": "Hitmonchan",
+			"fork": [
+				"Inner Focus"
+			],
+			"engine": [
+				"Keen Eye"
+			],
+			"engineWouldForce": "Keen Eye"
+		},
+		{
+			"species": "Jangmo-o",
+			"fork": [
+				"Overcoat"
+			],
+			"engine": [
+				"Bulletproof"
+			],
+			"engineWouldForce": "Bulletproof"
+		},
+		{
+			"species": "Jellicent",
+			"fork": [
+				"Cursed Body"
+			],
+			"engine": [
+				"Water Absorb"
+			],
+			"engineWouldForce": "Water Absorb"
+		},
+		{
+			"species": "Karrablast",
+			"fork": [
+				"No Guard"
+			],
+			"engine": [
+				"Swarm"
+			],
+			"engineWouldForce": "Swarm"
+		},
+		{
+			"species": "Kecleon",
+			"fork": [
+				"Protean"
+			],
+			"engine": [
+				"Color Change"
+			],
+			"engineWouldForce": "Color Change"
+		},
+		{
+			"species": "Kingler",
+			"fork": [
+				"Sheer Force"
+			],
+			"engine": [
+				"Hyper Cutter"
+			],
+			"engineWouldForce": "Hyper Cutter"
+		},
+		{
+			"species": "Kommo-o",
+			"fork": [
+				"Overcoat"
+			],
+			"engine": [
+				"Bulletproof"
+			],
+			"engineWouldForce": "Bulletproof"
+		},
+		{
+			"species": "Krabby",
+			"fork": [
+				"Sheer Force"
+			],
+			"engine": [
+				"Hyper Cutter"
+			],
+			"engineWouldForce": "Hyper Cutter"
+		},
+		{
+			"species": "Lairon",
+			"fork": [
+				"Heavy Metal"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Lampent",
+			"fork": [
+				"Shadow Tag"
+			],
+			"engine": [
+				"Flash Fire"
+			],
+			"engineWouldForce": "Flash Fire"
+		},
+		{
+			"species": "Larvesta",
+			"fork": [
+				"Swarm"
+			],
+			"engine": [
+				"Flame Body"
+			],
+			"engineWouldForce": "Flame Body"
+		},
+		{
+			"species": "Ledian",
+			"fork": [
+				"Rattled"
+			],
+			"engine": [
+				"Swarm"
+			],
+			"engineWouldForce": "Swarm"
+		},
+		{
+			"species": "Ledyba",
+			"fork": [
+				"Rattled"
+			],
+			"engine": [
+				"Swarm"
+			],
+			"engineWouldForce": "Swarm"
+		},
+		{
+			"species": "Linoone-Galar",
+			"fork": [
+				"Gluttony"
+			],
+			"engine": [
+				"Pickup"
+			],
+			"engineWouldForce": "Pickup"
+		},
+		{
+			"species": "Litleo",
+			"fork": [
+				"Unnerve"
+			],
+			"engine": [
+				"Rivalry"
+			],
+			"engineWouldForce": "Rivalry"
+		},
+		{
+			"species": "Litwick",
+			"fork": [
+				"Shadow Tag"
+			],
+			"engine": [
+				"Flash Fire"
+			],
+			"engineWouldForce": "Flash Fire"
+		},
+		{
+			"species": "Luxio",
+			"fork": [
+				"Intimidate"
+			],
+			"engine": [
+				"Rivalry"
+			],
+			"engineWouldForce": "Rivalry"
+		},
+		{
+			"species": "Luxray",
+			"fork": [
+				"Intimidate"
+			],
+			"engine": [
+				"Rivalry"
+			],
+			"engineWouldForce": "Rivalry"
+		},
+		{
+			"species": "Lycanroc",
+			"fork": [
+				"Sand Rush"
+			],
+			"engine": [
+				"Keen Eye"
+			],
+			"engineWouldForce": "Keen Eye"
+		},
+		{
+			"species": "Lycanroc-Midnight",
+			"fork": [
+				"No Guard"
+			],
+			"engine": [
+				"Keen Eye"
+			],
+			"engineWouldForce": "Keen Eye"
+		},
+		{
+			"species": "Maractus",
+			"fork": [
+				"Chlorophyll"
+			],
+			"engine": [
+				"Water Absorb"
+			],
+			"engineWouldForce": "Water Absorb"
+		},
+		{
+			"species": "Meowth-Galar",
+			"fork": [
+				"Run Away"
+			],
+			"engine": [
+				"Pickup"
+			],
+			"engineWouldForce": "Pickup"
+		},
+		{
+			"species": "Morelull",
+			"fork": [
+				"Effect Spore"
+			],
+			"engine": [
+				"Illuminate"
+			],
+			"engineWouldForce": "Illuminate"
+		},
+		{
+			"species": "Mudbray",
+			"fork": [
+				"Tangling Hair"
+			],
+			"engine": [
+				"Own Tempo"
+			],
+			"engineWouldForce": "Own Tempo"
+		},
+		{
+			"species": "Mudsdale",
+			"fork": [
+				"Tangling Hair"
+			],
+			"engine": [
+				"Own Tempo"
+			],
+			"engineWouldForce": "Own Tempo"
+		},
+		{
+			"species": "Muk",
+			"fork": [
+				"Poison Touch"
+			],
+			"engine": [
+				"Stench"
+			],
+			"engineWouldForce": "Stench"
+		},
+		{
+			"species": "Munna",
+			"fork": [
+				"Synchronize"
+			],
+			"engine": [
+				"Forewarn"
+			],
+			"engineWouldForce": "Forewarn"
+		},
+		{
+			"species": "Musharna",
+			"fork": [
+				"Synchronize"
+			],
+			"engine": [
+				"Forewarn"
+			],
+			"engineWouldForce": "Forewarn"
+		},
+		{
+			"species": "Nosepass",
+			"fork": [
+				"Magnet Pull"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Overqwil",
+			"fork": [
+				"Intimidate"
+			],
+			"engine": [
+				"Poison Point"
+			],
+			"engineWouldForce": "Poison Point"
+		},
+		{
+			"species": "Phanpy",
+			"fork": [
+				"Cute Charm"
+			],
+			"engine": [
+				"Pickup"
+			],
+			"engineWouldForce": "Pickup"
+		},
+		{
+			"species": "Ponyta",
+			"fork": [
+				"Flame Body"
+			],
+			"engine": [
+				"Run Away"
+			],
+			"engineWouldForce": "Run Away"
+		},
+		{
+			"species": "Probopass",
+			"fork": [
+				"Magnet Pull"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Psyduck",
+			"fork": [
+				"Swift Swim"
+			],
+			"engine": [
+				"Damp"
+			],
+			"engineWouldForce": "Damp"
+		},
+		{
+			"species": "Pyroar",
+			"fork": [
+				"Unnerve"
+			],
+			"engine": [
+				"Rivalry"
+			],
+			"engineWouldForce": "Rivalry"
+		},
+		{
+			"species": "Qwilfish",
+			"fork": [
+				"Intimidate"
+			],
+			"engine": [
+				"Poison Point"
+			],
+			"engineWouldForce": "Poison Point"
+		},
+		{
+			"species": "Qwilfish-Hisui",
+			"fork": [
+				"Intimidate"
+			],
+			"engine": [
+				"Poison Point"
+			],
+			"engineWouldForce": "Poison Point"
+		},
+		{
+			"species": "Rapidash",
+			"fork": [
+				"Flame Body"
+			],
+			"engine": [
+				"Run Away"
+			],
+			"engineWouldForce": "Run Away"
+		},
+		{
+			"species": "Rhydon",
+			"fork": [
+				"Reckless"
+			],
+			"engine": [
+				"Lightning Rod"
+			],
+			"engineWouldForce": "Lightning Rod"
+		},
+		{
+			"species": "Rhyhorn",
+			"fork": [
+				"Reckless"
+			],
+			"engine": [
+				"Lightning Rod"
+			],
+			"engineWouldForce": "Lightning Rod"
+		},
+		{
+			"species": "Rhyperior",
+			"fork": [
+				"Solid Rock"
+			],
+			"engine": [
+				"Lightning Rod"
+			],
+			"engineWouldForce": "Lightning Rod"
+		},
+		{
+			"species": "Ribombee",
+			"fork": [
+				"Sweet Veil"
+			],
+			"engine": [
+				"Honey Gather"
+			],
+			"engineWouldForce": "Honey Gather"
+		},
+		{
+			"species": "Roggenrola",
+			"fork": [
+				"Weak Armor"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Rookidee",
+			"fork": [
+				"Unnerve"
+			],
+			"engine": [
+				"Keen Eye"
+			],
+			"engineWouldForce": "Keen Eye"
+		},
+		{
+			"species": "Sandshrew-Alola",
+			"fork": [
+				"Slush Rush"
+			],
+			"engine": [
+				"Snow Cloak"
+			],
+			"engineWouldForce": "Snow Cloak"
+		},
+		{
+			"species": "Sandslash-Alola",
+			"fork": [
+				"Slush Rush"
+			],
+			"engine": [
+				"Snow Cloak"
+			],
+			"engineWouldForce": "Snow Cloak"
+		},
+		{
+			"species": "Sawk",
+			"fork": [
+				"Mold Breaker"
+			],
+			"engine": [
+				"Sturdy"
+			],
+			"engineWouldForce": "Sturdy"
+		},
+		{
+			"species": "Shiinotic",
+			"fork": [
+				"Effect Spore"
+			],
+			"engine": [
+				"Illuminate"
+			],
+			"engineWouldForce": "Illuminate"
+		},
+		{
+			"species": "Shinx",
+			"fork": [
+				"Intimidate"
+			],
+			"engine": [
+				"Rivalry"
+			],
+			"engineWouldForce": "Rivalry"
+		},
+		{
+			"species": "Sigilyph",
+			"fork": [
+				"Tinted Lens"
+			],
+			"engine": [
+				"Wonder Skin"
+			],
+			"engineWouldForce": "Wonder Skin"
+		},
+		{
+			"species": "Sizzlipede",
+			"fork": [
+				"Flame Body"
+			],
+			"engine": [
+				"Flash Fire"
+			],
+			"engineWouldForce": "Flash Fire"
+		},
+		{
+			"species": "Skitty",
+			"fork": [
+				"Normalize"
+			],
+			"engine": [
+				"Cute Charm"
+			],
+			"engineWouldForce": "Cute Charm"
+		},
+		{
+			"species": "Skuntank",
+			"fork": [
+				"Keen Eye"
+			],
+			"engine": [
+				"Stench"
+			],
+			"engineWouldForce": "Stench"
+		},
+		{
+			"species": "Sliggoo",
+			"fork": [
+				"Gooey"
+			],
+			"engine": [
+				"Sap Sipper"
+			],
+			"engineWouldForce": "Sap Sipper"
+		},
+		{
+			"species": "Sliggoo-Hisui",
+			"fork": [
+				"Gooey"
+			],
+			"engine": [
+				"Sap Sipper"
+			],
+			"engineWouldForce": "Sap Sipper"
+		},
+		{
+			"species": "Sneasler",
+			"fork": [
+				"Inner Focus"
+			],
+			"engine": [
+				"Pressure"
+			],
+			"engineWouldForce": "Pressure"
+		},
+		{
+			"species": "Snover",
+			"fork": [
+				"Soundproof"
+			],
+			"engine": [
+				"Snow Warning"
+			],
+			"engineWouldForce": "Snow Warning"
+		},
+		{
+			"species": "Starmie",
+			"fork": [
+				"Natural Cure"
+			],
+			"engine": [
+				"Illuminate"
+			],
+			"engineWouldForce": "Illuminate"
+		},
+		{
+			"species": "Staryu",
+			"fork": [
+				"Natural Cure"
+			],
+			"engine": [
+				"Illuminate"
+			],
+			"engineWouldForce": "Illuminate"
+		},
+		{
+			"species": "Steenee",
+			"fork": [
+				"Sweet Veil"
+			],
+			"engine": [
+				"Leaf Guard"
+			],
+			"engineWouldForce": "Leaf Guard"
+		},
+		{
+			"species": "Stunky",
+			"fork": [
+				"Keen Eye"
+			],
+			"engine": [
+				"Stench"
+			],
+			"engineWouldForce": "Stench"
+		},
+		{
+			"species": "Teddiursa",
+			"fork": [
+				"Quick Feet"
+			],
+			"engine": [
+				"Pickup"
+			],
+			"engineWouldForce": "Pickup"
+		},
+		{
+			"species": "Throh",
+			"fork": [
+				"Mold Breaker"
+			],
+			"engine": [
+				"Guts"
+			],
+			"engineWouldForce": "Guts"
+		},
+		{
+			"species": "Togekiss",
+			"fork": [
+				"Super Luck"
+			],
+			"engine": [
+				"Hustle"
+			],
+			"engineWouldForce": "Hustle"
+		},
+		{
+			"species": "Togepi",
+			"fork": [
+				"Super Luck"
+			],
+			"engine": [
+				"Hustle"
+			],
+			"engineWouldForce": "Hustle"
+		},
+		{
+			"species": "Togetic",
+			"fork": [
+				"Super Luck"
+			],
+			"engine": [
+				"Hustle"
+			],
+			"engineWouldForce": "Hustle"
+		},
+		{
+			"species": "Torkoal",
+			"fork": [
+				"Shell Armor"
+			],
+			"engine": [
+				"White Smoke"
+			],
+			"engineWouldForce": "White Smoke"
+		},
+		{
+			"species": "Toxicroak",
+			"fork": [
+				"Poison Touch"
+			],
+			"engine": [
+				"Anticipation"
+			],
+			"engineWouldForce": "Anticipation"
+		},
+		{
+			"species": "Trapinch",
+			"fork": [
+				"Arena Trap"
+			],
+			"engine": [
+				"Hyper Cutter"
+			],
+			"engineWouldForce": "Hyper Cutter"
+		},
+		{
+			"species": "Tsareena",
+			"fork": [
+				"Sweet Veil"
+			],
+			"engine": [
+				"Leaf Guard"
+			],
+			"engineWouldForce": "Leaf Guard"
+		},
+		{
+			"species": "Tyranitar",
+			"fork": [
+				"Unnerve"
+			],
+			"engine": [
+				"Sand Stream"
+			],
+			"engineWouldForce": "Sand Stream"
+		},
+		{
+			"species": "Vespiquen",
+			"fork": [
+				"Unnerve"
+			],
+			"engine": [
+				"Pressure"
+			],
+			"engineWouldForce": "Pressure"
+		},
+		{
+			"species": "Volcarona",
+			"fork": [
+				"Swarm"
+			],
+			"engine": [
+				"Flame Body"
+			],
+			"engineWouldForce": "Flame Body"
+		},
+		{
+			"species": "Voltorb-Hisui",
+			"fork": [
+				"Aftermath"
+			],
+			"engine": [
+				"Soundproof"
+			],
+			"engineWouldForce": "Soundproof"
+		},
+		{
+			"species": "Weavile",
+			"fork": [
+				"Inner Focus"
+			],
+			"engine": [
+				"Pressure"
+			],
+			"engineWouldForce": "Pressure"
+		},
+		{
+			"species": "Yanma",
+			"fork": [
+				"Compound Eyes"
+			],
+			"engine": [
+				"Speed Boost"
+			],
+			"engineWouldForce": "Speed Boost"
+		},
+		{
+			"species": "Yanmega",
+			"fork": [
+				"Tinted Lens"
+			],
+			"engine": [
+				"Speed Boost"
+			],
+			"engineWouldForce": "Speed Boost"
+		}
+	]
+}
