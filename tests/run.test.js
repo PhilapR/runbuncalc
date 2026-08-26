@@ -636,18 +636,24 @@ test('the ranker charges for its shortlist, not for the box', () => {
 	// both cheap it compares a thirty-member GRID against a rollout budget,
 	// which is two unrelated costs.
 	//
-	// So it is an absolute budget now, which is what the claim was really
-	// about: at 30 this is milliseconds, and the box of 76 that opened the
-	// finding was 177 SECONDS. Three seconds is room for a shared runner and
-	// still two orders of magnitude below a cost that has started tracking the
-	// box.
-	const at = process.hrtime.bigint();
+	// It was then an absolute 3s budget, and that was the same mistake wearing
+	// a different number. Measured alone it is 585ms; under the full suite,
+	// beside a test that commits ten thousand times, it hit 4829ms and went
+	// red on code nothing had touched. A clock cannot be rescued by choosing a
+	// kinder threshold — the healthy and loaded ranges overlap, which is the
+	// same finding `no-cpu-scaling-gate-for-commit` recorded about this repo.
+	//
+	// So there is no clock here at all. The claim was always about WORK: the
+	// enumeration must not grow with the box. `combinations` is that number,
+	// it is exact, and it moves only when behaviour moves. A box of 30 is
+	// 593,775 sixes whether the machine is idle or on fire, and the box of 76
+	// that opened the finding is 218,618,940 — which the cut refuses rather
+	// than enumerates, asserted in its own test above.
 	const ranked = run.rankParties(boxOf(30), 'Leader Brawly', {rollouts: 0});
-	const bareMs = Number(process.hrtime.bigint() - at) / 1e6;
-	assert.equal(ranked.combinations, 593775);
-	assert.ok(bareMs < 3000,
-		`enumerating C(30,6) took ${bareMs.toFixed(0)}ms; the budget is 3s, and a ` +
-		'cost that has started tracking the box blows through it long before 76');
+	assert.equal(ranked.combinations, 593775,
+		'C(30,6) exhaustively: the enumeration is bounded by the box, not by a clock');
+	assert.equal(ranked.shortlist.cutting, false,
+		'and a box of 30 is still under the cut threshold, so this is the whole box');
 });
 
 test('a named replace is honored below four moves too', () => {

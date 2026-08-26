@@ -570,8 +570,8 @@ test('10k compact revisions stay bounded and archives grow linearly', {timeout: 
 	assert.equal(bundle.events.length, 10000);
 	assert.equal(bundle.head.revision, 10000);
 	assert.equal(bundle.snapshots.length, 201);
-	// There is deliberately NO wall-clock assertion here, and that is a
-	// deliberate retreat rather than an oversight.
+	// There is deliberately no wall-clock assertion HERE, and the gap it left
+	// is closed by `a commit never walks the log it is appending to` below.
 	//
 	// This line used to read `Date.now() - startedAt < 10000`. It went red
 	// under the full suite at 11.5s and green alone at 2.5s, with no code
@@ -588,12 +588,76 @@ test('10k compact revisions stay bounded and archives grow linearly', {timeout: 
 	// byte-growth assertion below is the linear-growth gate this test is
 	// named for, and it does not care how loaded the box is.
 	//
-	// Tracked as `no-cpu-scaling-gate-for-commit` in the ledger so the gap
-	// is recorded rather than quietly dropped.
+	// The gap was tracked as `no-cpu-scaling-gate-for-commit` until an
+	// operation counter replaced the clock — see the test below.
 	assert.ok(loopEndedAt >= halfwayAt, 'the commit loop ran to completion');
 	assert.ok(finalBytes / halfwayBytes < 2.15,
 		'serialized archive growth remains approximately linear');
 	assert.equal(await store.validateBundle(bundle), true);
+});
+
+test('a commit never walks the log it is appending to', {timeout: 30000}, async () => {
+	// The gate the wall clock could not be. The old assertion read
+	// `Date.now() - startedAt < 10000`, went red under the full suite at 11.5s
+	// and green alone at 2.5s on identical code, and a scaling ratio was no
+	// better: 0.83-0.94 alone against 2.43 in suite. Both measured the machine.
+	//
+	// What is actually being claimed is algorithmic — a commit is O(1) in the
+	// length of the log — so it is counted rather than timed. Every scanning
+	// method on Array.prototype is wrapped for the duration and told to count
+	// only when the receiver is already LARGE. A commit that appends and looks
+	// nothing up never triggers one; a commit that starts searching the log
+	// does, whichever internal array it searches, which is why this needs no
+	// access to the store's private state.
+	//
+	// Measured: 0 over 4000 commits. With a single `state.events.some(...)`
+	// injected after the push, 3501. There is no overlap to tune a threshold
+	// against, and no load on the box can move either number.
+	const scanning = ['indexOf', 'lastIndexOf', 'find', 'findIndex', 'filter',
+		'some', 'every', 'includes', 'forEach', 'map', 'reduce', 'slice', 'sort', 'join'];
+	const LARGE = 500;
+	const originals = {};
+	let walked = 0;
+	// Patching a builtin is exactly what the rule forbids and exactly what
+	// this measurement is: the claim is about work the store does, and no
+	// vantage point outside the builtin can see it without reaching into the
+	// store's private state. Every patch is undone in the `finally` below.
+	/* eslint-disable no-extend-native */
+	for (const name of scanning) {
+		originals[name] = Array.prototype[name];
+		Object.defineProperty(Array.prototype, name, {
+			value: function (...args) {
+				if (this.length >= LARGE) walked += 1;
+				return originals[name].apply(this, args);
+			},
+			writable: true, configurable: true,
+		});
+	}
+
+	try {
+		const store = Store.createMemoryStore();
+		for (let revision = 1; revision <= 4000; revision++) {
+			await store.commit({
+				run: {attemptId: 'walk', profileId: 'run-and-bun', value: revision},
+				expectedRevision: revision - 1,
+				commandId: 'walk-' + revision,
+				event: event(revision === 1 ? 'run.started' : 'command.applied',
+					revision === 1 ? {} : {command: {value: revision}}),
+			});
+		}
+	} finally {
+		// Restored whatever happened, or every test after this one runs against
+		// a patched Array.
+		for (const name of scanning) {
+			Object.defineProperty(Array.prototype, name,
+				{value: originals[name], writable: true, configurable: true});
+		}
+		/* eslint-enable no-extend-native */
+	}
+
+	assert.equal(walked, 0,
+		`a commit scanned a large array ${walked} times across 4000 commits; ` +
+		'appending to a log must not read it');
 });
 
 test('growing run logs are stored once, not copied into every receipt', {timeout: 30000}, async () => {
