@@ -54,6 +54,79 @@ const ITEM_OVERRIDES = {
 	},
 };
 
+/**
+ * TM and tutor rows a human has ruled datable.
+ *
+ * These start life as `dating: 'no-datable-place'` — the transcriber knew where
+ * the move is and would not say when, and `moveObtainableAt` answers null so
+ * the advisor stays silent rather than offering something unreachable. That
+ * filter is right and is not what this table relaxes.
+ *
+ * What it records is a ruling. Deriving these from the map table was tried and
+ * REVERTED: Aerial Ace says "Route 111", the map dates Route 111 at 192, and
+ * Route 111 has a desert section behind the Mach Bike — so the location string
+ * carrying no gating clause is not evidence that none exists.
+ * `tests/tm_sourcing.test.js` pins Aerial Ace at null for exactly that reason.
+ * The knowledge that separates these rows from that one is knowledge of the
+ * game, which is why each entry names the person who supplied it.
+ *
+ * `anchor` is the map whose transcribed order the row inherits, so a ruling
+ * says WHICH PLACE dates the move rather than inventing a number. If upstream
+ * ever supplies its own date this throws instead of silently disagreeing.
+ */
+const MOVE_DATE_RULINGS = {
+	'Rock Tomb': {
+		anchor: 'Rusturf Tunnel',
+		why: 'Philip, from play: fine to date. The NPC is inside Rusturf Tunnel ' +
+			'and nothing further gates the gift, so the tunnel\'s own order is ' +
+			'the move\'s. 145 already sits above the Rock Smash floor at 139.',
+	},
+	Swagger: {
+		anchor: 'Slateport City',
+		why: 'Philip, from play: fine to date. The Grunt is inside Slateport ' +
+			'Museum, which is a building in Slateport City rather than a ' +
+			'separate area the map table dates on its own.',
+	},
+};
+
+/**
+ * Re-apply the rulings above, and refuse rather than guess.
+ *
+ * Idempotent: a row already sitting on its ruled order is left alone. A row
+ * that upstream has since dated ITSELF, to something else, is a disagreement
+ * between a transcription and a person, and this script is not the place to
+ * settle it.
+ */
+function applyMoveDateRulings(availability) {
+	const dated = [];
+	for (const move of Object.keys(MOVE_DATE_RULINGS)) {
+		const ruling = MOVE_DATE_RULINGS[move];
+		const row = (availability.moveItems || []).find(entry => entry.move === move);
+		if (!row) continue;
+		const anchor = (availability.entries || [])
+			.find(entry => entry.name === ruling.anchor);
+		if (!anchor || typeof anchor.opensAt !== 'number') {
+			throw new Error('adopt: ' + move + ' is ruled datable from ' +
+				JSON.stringify(ruling.anchor) + ', which the map table does not date — ' +
+				'the anchor moved and this needs a human');
+		}
+		if (row.opensAt === anchor.opensAt) continue;
+		if (typeof row.opensAt === 'number') {
+			throw new Error('adopt: ' + move + ' is dated ' + row.opensAt +
+				' upstream but ruled to follow ' + ruling.anchor + ' at ' + anchor.opensAt +
+				' — a transcription and a person disagree, which needs a human');
+		}
+		row.transcribedOpensAt = row.opensAt === undefined ? null : row.opensAt;
+		row.place = ruling.anchor;
+		row.opensAt = anchor.opensAt;
+		row.dating = 'unlock';
+		row.provenance = 'corrected';
+		row.correction = ruling.why;
+		dated.push(move + ' -> ' + anchor.opensAt + ' (' + ruling.anchor + ')');
+	}
+	return dated;
+}
+
 const OVERRIDES = {
 	MAP_ROUTE109: {
 		opensAt: 42,
@@ -240,6 +313,9 @@ function apply(state) {
 		entry.correction = change.why;
 	}
 	applyItemOverrides(availability);
+	// Before reconcileGates, so a newly dated row still meets the HM floor its
+	// own prose names.
+	applyMoveDateRulings(availability);
 	reconcileItems(availability);
 	reconcileGates(availability);
 	availability.entries.sort((a, b) =>
@@ -285,4 +361,4 @@ function main() {
 if (require.main === module) main();
 
 module.exports = {build, apply, reconcileItems, reconcileGates, applyItemOverrides,
-	OVERRIDES, ITEM_OVERRIDES};
+	applyMoveDateRulings, OVERRIDES, ITEM_OVERRIDES, MOVE_DATE_RULINGS};

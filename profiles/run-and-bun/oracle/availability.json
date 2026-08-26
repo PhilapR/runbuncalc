@@ -870,9 +870,12 @@
 			"move": "Rock Tomb",
 			"kind": "tm",
 			"location": "Given by an NPC in Rusturf Tunnel. Sold at Lilycove Department Store",
-			"place": null,
-			"opensAt": null,
-			"dating": "no-datable-place"
+			"place": "Rusturf Tunnel",
+			"opensAt": 145,
+			"dating": "unlock",
+			"transcribedOpensAt": null,
+			"provenance": "corrected",
+			"correction": "Philip, from play: fine to date. The NPC is inside Rusturf Tunnel and nothing further gates the gift, so the tunnel's own order is the move's. 145 already sits above the Rock Smash floor at 139."
 		},
 		{
 			"name": "TM40",
@@ -924,9 +927,12 @@
 			"move": "Swagger",
 			"kind": "tm",
 			"location": "Given by Grunt NPC inside Slateport Museum",
-			"place": null,
-			"opensAt": null,
-			"dating": "no-datable-place"
+			"place": "Slateport City",
+			"opensAt": 48,
+			"dating": "unlock",
+			"transcribedOpensAt": null,
+			"provenance": "corrected",
+			"correction": "Philip, from play: fine to date. The Grunt is inside Slateport Museum, which is a building in Slateport City rather than a separate area the map table dates on its own."
 		}
 	],
 	"entries": [

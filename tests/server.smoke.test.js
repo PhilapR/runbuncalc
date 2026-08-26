@@ -1159,8 +1159,25 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 		assert.equal(upgrade.id, 'mon-1');
 		assert.ok(upgrade.kind && upgrade.detail, 'every change names what it is');
 	}
-	assert.ok(advice.body.availability.undatedMovesExcluded > 0,
-		'undated TM and tutor routes must not masquerade as early-game access');
+	// The property is that a move whose timing is unknown is never OFFERED, and
+	// that the count of what was dropped is reported rather than swallowed.
+	//
+	// This asserted `undatedMovesExcluded > 0`, which was a proxy: it proved the
+	// filter had something to do rather than that it did the right thing. The
+	// proxy broke when Swagger was dated to Slateport City at 48 on Philip's
+	// ruling — it was the one undated move this Poochyena could learn, and it is
+	// now excluded for being unreached at order 0 instead of for being undated.
+	// That is a better reason, and the count going to zero is the improvement
+	// rather than a regression.
+	assert.equal(typeof advice.body.availability.undatedMovesExcluded, 'number',
+		'what the advisor dropped is counted, never swallowed');
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	for (const upgrade of advice.body.upgrades) {
+		if (upgrade.kind !== 'teach') continue;
+		assert.notEqual(oracle.moveObtainableAt(upgrade.detail), null,
+			`${upgrade.detail} has no proven unlock and must never be offered as ` +
+			'early-game access');
+	}
 	// Every change that IS offered carries the same three-part delta. Folded
 	// into the loop above, because there may now be none to lead with.
 	for (const upgrade of advice.body.upgrades) {

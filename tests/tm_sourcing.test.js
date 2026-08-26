@@ -65,6 +65,70 @@ test('a dated TM reports the order it becomes obtainable, not null', () => {
 	assert.equal(at('Not A Real Move'), null);
 });
 
+test('a ruled move follows its anchor map, and an unruled one still answers null', () => {
+	// Two rows a human dated. They arrived as `dating: 'no-datable-place'` —
+	// the transcriber knew where the move was and would not say when — and
+	// deriving a date from the map table was tried once and reverted, because
+	// Aerial Ace names Route 111 and Route 111 has a desert behind the Mach
+	// Bike. What separates these from that one is knowledge of the game, so
+	// each carries the name of the person who supplied it in
+	// `MOVE_DATE_RULINGS`.
+	//
+	// Asserted against the ANCHOR rather than against a literal, so a ruling
+	// says which place dates the move instead of freezing a number that the
+	// map table might later move.
+	const adopt = require('../scripts/adopt-availability.js');
+	const availability = require('../profiles/run-and-bun/oracle/availability.json');
+	const at = move => profile.oracle.moveObtainableAt(move);
+	const orderOf = name => (availability.entries || [])
+		.find(entry => entry.name === name).opensAt;
+
+	for (const move of Object.keys(adopt.MOVE_DATE_RULINGS)) {
+		const anchor = adopt.MOVE_DATE_RULINGS[move].anchor;
+		assert.equal(at(move), orderOf(anchor),
+			`${move} is ruled to follow ${anchor}, and must report that order`);
+		assert.match(adopt.MOVE_DATE_RULINGS[move].why, /^Philip, from play:/,
+			'a ruling names the person who supplied the game knowledge');
+	}
+	// The two that were ruled, spelled out, so this test fails if the table is
+	// emptied rather than passing vacuously over nothing.
+	assert.deepEqual(Object.keys(adopt.MOVE_DATE_RULINGS).sort(),
+		['Rock Tomb', 'Swagger']);
+
+	// And the rest of the undated set is untouched. Smart Strike sits at
+	// Mauville City, which the map table does not date at all, so a ruling that
+	// it is fine to date still has no order to point at.
+	assert.equal(at('Smart Strike'), null,
+		'Mauville City is not in the map table, so Smart Strike has no anchor yet');
+});
+
+test('the ruling refuses rather than guesses when its anchor moves', () => {
+	// The failure this exists for: someone renames or removes a map and the
+	// ruling silently stops applying, or upstream starts supplying its own date
+	// and the two disagree without anyone noticing. Both throw.
+	const adopt = require('../scripts/adopt-availability.js');
+	const clone = () => JSON.parse(JSON.stringify(
+		require('../profiles/run-and-bun/oracle/availability.json')));
+
+	const noAnchor = clone();
+	noAnchor.entries = noAnchor.entries.filter(entry => entry.name !== 'Rusturf Tunnel');
+	noAnchor.moveItems.find(row => row.move === 'Rock Tomb').opensAt = null;
+	assert.throws(() => adopt.applyMoveDateRulings(noAnchor),
+		/the map table does not date/,
+		'a ruling whose anchor vanished must refuse, not fall back to a guess');
+
+	const disagrees = clone();
+	disagrees.moveItems.find(row => row.move === 'Rock Tomb').opensAt = 999;
+	assert.throws(() => adopt.applyMoveDateRulings(disagrees),
+		/a transcription and a person disagree/,
+		'an upstream date that contradicts the ruling needs a human, not a winner');
+
+	// Idempotent: the committed file is already ruled, so re-applying changes
+	// nothing. An adoption that kept rewriting would churn the file forever.
+	assert.deepEqual(adopt.applyMoveDateRulings(clone()), [],
+		're-applying a ruling already in the file must be a no-op');
+});
+
 test('no move yet has two dated routes, so the earliest-wins guard is dormant', () => {
 	// moveObtainableAt takes the MINIMUM dated route, because a TM sold in a
 	// late department store and also lying on an early route is available from
