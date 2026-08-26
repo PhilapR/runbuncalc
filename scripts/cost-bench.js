@@ -73,6 +73,7 @@ Object.defineProperty(Calc, 'Pokemon', {value: CountedPokemon, writable: true});
 
 const run = require(path.join(ROOT, 'lib/run'));
 const adapter = require(path.join(ROOT, 'ai/dist/calc-adapter.js'));
+const driver = require(path.join(ROOT, 'lib/battle-driver'));
 
 /**
  * The facts-level memo, as an ARM rather than as a change to the engine.
@@ -162,13 +163,74 @@ function samplePeakRss() {
 // tree MLflow can render as a trace.
 const ORIGIN = process.hrtime.bigint();
 
+/**
+ * The span recorder, and why it goes deeper than the three stages.
+ *
+ * The first version recorded boxMatrix, rank and playbook and stopped. That
+ * trace was a redrawing of three numbers the metrics already carried, and it
+ * hid the only thing a hierarchy is good for: `playbook` is not one unit of
+ * work, it is a power set of assignment variants, each of which PLAYS the
+ * fight, plus a final line that plays it twelve more times. Roughly fifty
+ * playthroughs behind one bar.
+ *
+ * So `adjudicate` and `playbook` are wrapped at the driver, and every call
+ * becomes a span under whichever stage was running. Sixteen sibling variant
+ * spans is the shape of the cost, and it is visible rather than asserted.
+ */
+let spans = [];
+let spanStack = [];
+let spanSeq = 0;
+
+function withSpan(name, attributes, work) {
+	const id = `s${spanSeq++}`;
+	const parent = spanStack.length ? spanStack[spanStack.length - 1] : null;
+	const objectsBefore = moves + pokemon;
+	const started = process.hrtime.bigint();
+	const record = {
+		id, parentId: parent, name,
+		startOffsetMs: Number(started - ORIGIN) / 1e6,
+		attributes: attributes || {},
+	};
+	spans.push(record);
+	spanStack.push(id);
+	try {
+		return work();
+	} finally {
+		spanStack.pop();
+		const ended = process.hrtime.bigint();
+		record.endOffsetMs = Number(ended - ORIGIN) / 1e6;
+		record.ms = Number(ended - started) / 1e6;
+		// Objects built anywhere inside this span, children included. A parent
+		// therefore reads as the total it is responsible for, which is the
+		// question "where did the work go" rather than "who allocated it".
+		record.objects = (moves + pokemon) - objectsBefore;
+	}
+}
+
+// `lib/run.js` requires the driver lazily inside its functions, and the module
+// cache means these wrappers are the ones it reaches.
+const realAdjudicate = driver.adjudicate;
+const realPlaybook = driver.playbook;
+driver.adjudicate = function (doc, trainerName, options) {
+	const rollouts = (options && options.rollouts) !== undefined ? options.rollouts : 12;
+	return withSpan('adjudicate', {rollouts, trainer: trainerName},
+		() => realAdjudicate.apply(this, arguments));
+};
+driver.playbook = function (doc, trainerName, options) {
+	const rollouts = (options && options.rollouts) !== undefined ? options.rollouts : 12;
+	return withSpan('playbook-line', {rollouts, trainer: trainerName},
+		() => realPlaybook.apply(this, arguments));
+};
+
 function measure(label, work) {
 	moves = 0;
 	pokemon = 0;
 	const stopRss = samplePeakRss();
 	const heapBefore = process.memoryUsage().heapUsed;
 	const started = process.hrtime.bigint();
-	const value = work();
+	// A stage is a span too, so the adjudications the driver runs inside it
+	// land as its children rather than as orphans at the root.
+	const value = withSpan(label, {stage: label}, work);
 	const ended = process.hrtime.bigint();
 	return {
 		stage: label,
@@ -185,6 +247,9 @@ function measure(label, work) {
 /** One state, one arm: the stages a player actually waits for. */
 function stagesFor(doc, trainer, arm) {
 	factsCache = arm === 'facts-cache' ? new Map() : null;
+	spans = [];
+	spanStack = [];
+	spanSeq = 0;
 	const grid = measure('boxMatrix', () => run.boxMatrix(doc, trainer));
 	const ranked = measure('rank', () => run.rankParties(doc, trainer));
 	const book = measure('playbook', () => run.fightPlaybook(doc, trainer));
@@ -205,6 +270,9 @@ function stagesFor(doc, trainer, arm) {
 			startOffsetMs: entry.startOffsetMs, endOffsetMs: entry.endOffsetMs,
 			peakRss: entry.peakRss, heapGrowth: entry.heapGrowth,
 		})),
+		// The nested truth behind those three bars: every adjudication the
+		// driver ran, under the stage that ran it.
+		spans: spans.slice(),
 		objects: grid.objects + ranked.objects + book.objects,
 		ms: grid.ms + ranked.ms + book.ms,
 		peakRss: Math.max(grid.peakRss, ranked.peakRss, book.peakRss),

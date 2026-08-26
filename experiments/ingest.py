@@ -620,12 +620,20 @@ def _cost_description(data: dict, metrics: dict[str, float]) -> str:
 
 
 def _log_cost_trace(data: dict) -> None:
-    """Replay the recorded stage timings as a trace.
+    """Replay the recorded spans as a trace.
 
-    The harness records when each stage started and ended, not merely how long
-    it took, so the span tree here is the one that actually ran rather than a
-    drawing of it. Timestamps are offsets from the benchmark process's own
-    origin, shifted onto the wall clock at the run's recorded time.
+    The harness records when every span started and ended, not merely how long
+    it took, so this tree is the one that actually ran rather than a drawing of
+    it. Timestamps are offsets from the benchmark process's own origin, shifted
+    onto the wall clock at the run's recorded time.
+
+    The first version of this walked `stages` and stopped at three spans per
+    trace — a redrawing of three numbers the metrics already carried, which
+    hid the only thing a hierarchy is good for. `playbook` is not one unit of
+    work. It is a power set of assignment variants, each of which PLAYS the
+    fight, and a final line that plays it twelve more times. Sixteen sibling
+    `adjudicate` spans at four rollouts each is the shape of that cost, and a
+    reader should be able to see it rather than take it on trust.
     """
     client = mlflow.tracking.MlflowClient()
     stamp = data.get("recordedAt")
@@ -635,13 +643,17 @@ def _log_cost_trace(data: dict) -> None:
         base_ns = int(dt.datetime.fromisoformat(stamp).timestamp() * 1e9)
     except ValueError:
         return
+
+    def at(offset_ms: float) -> int:
+        return base_ns + int(offset_ms * 1e6)
+
     for row in data.get("results", []):
         for arm, got in (row.get("arms") or {}).items():
-            stages = got.get("stages") or []
-            if not stages:
+            recorded = got.get("spans") or []
+            if not recorded:
                 continue
-            start = min(s["startOffsetMs"] for s in stages)
-            end = max(s["endOffsetMs"] for s in stages)
+            start = min(s["startOffsetMs"] for s in recorded)
+            end = max(s.get("endOffsetMs", s["startOffsetMs"]) for s in recorded)
             root = client.start_trace(
                 name=f"{arm} #{row.get('position')} {row.get('trainer')}",
                 span_type="CHAIN",
@@ -650,31 +662,46 @@ def _log_cost_trace(data: dict) -> None:
                     "position": row.get("position"),
                     "trainer": row.get("trainer"),
                     "calc_objects": got.get("objects"),
+                    "wallclock_ms": round(got.get("ms", 0), 1),
+                    "spans_recorded": len(recorded),
                 },
-                start_time_ns=base_ns + int(start * 1e6),
+                start_time_ns=at(start),
             )
-            for stage in stages:
+            # The harness appends a span before running its body, so parents
+            # always precede their children and one pass can resolve every
+            # parent id to a span that already exists.
+            made: dict[str, object] = {}
+            opened = []
+            for entry in recorded:
+                parent = made.get(entry.get("parentId")) or root
+                attributes = {
+                    "calc_objects": entry.get("objects"),
+                    "ms": round(entry.get("ms", 0), 1),
+                }
+                attributes |= {
+                    key: value
+                    for key, value in (entry.get("attributes") or {}).items()
+                    if value is not None
+                }
                 span = client.start_span(
-                    name=stage["stage"],
+                    name=entry["name"],
                     trace_id=root.trace_id,
-                    parent_id=root.span_id,
+                    parent_id=parent.span_id,
                     span_type="TOOL",
-                    attributes={
-                        "calc_objects": stage["objects"],
-                        "ms": round(stage["ms"], 1),
-                        "peak_rss_mb": _mb(stage.get("peakRss", 0)),
-                    },
-                    start_time_ns=base_ns + int(stage["startOffsetMs"] * 1e6),
+                    attributes=attributes,
+                    start_time_ns=at(entry["startOffsetMs"]),
                 )
+                made[entry["id"]] = span
+                opened.append((span, entry))
+            # Children close before parents, which is the reverse of the order
+            # they opened in.
+            for span, entry in reversed(opened):
                 client.end_span(
                     trace_id=root.trace_id,
                     span_id=span.span_id,
-                    end_time_ns=base_ns + int(stage["endOffsetMs"] * 1e6),
+                    end_time_ns=at(entry.get("endOffsetMs", entry["startOffsetMs"])),
                 )
-            client.end_trace(
-                trace_id=root.trace_id,
-                end_time_ns=base_ns + int(end * 1e6),
-            )
+            client.end_trace(trace_id=root.trace_id, end_time_ns=at(end))
 
 
 def ingest_cost(path: Path) -> str:
