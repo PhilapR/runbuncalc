@@ -703,6 +703,32 @@ function moveObtainableAt(move) {
  * it is Brawly's own gym reward and carries opensAt 77, his order, not 26. The
  * mislabel is the same one `lib/play.js` printed to players as "opens at fight
  * #77" for a TM obtainable 51 trainers earlier than that reads. */
+/**
+ * Where a spent currency actually comes from.
+ *
+ * The run CHARGES a Rare Candy per level over the cap and a Heart Scale per
+ * relearned move, and for a long time it could not say where either is found:
+ * `fieldItems` models 28 items and neither currency, nor any evolution stone,
+ * is among them. The workbook has held the answer the whole time — 30 Heart
+ * Scale locations and 14 Rare Candy — and nothing read it.
+ *
+ * Places only, deliberately. Dating them would mean inferring an unlock from a
+ * place name, which is the inference `moveObtainableAt` refuses for TMs and
+ * which produced this repository's worst data bug. Telling a player WHERE is
+ * the whole of what the refusal was missing; WHEN is a separate question with
+ * a separate standard of proof.
+ */
+function currencySources(name) {
+	const sheet = name === 'Heart Scale' ? 'heartScales' :
+		name === 'Rare Candy' ? 'rareCandies' : null;
+	if (!sheet) return [];
+	const workbook = load('item-workbook');
+	return (workbook[sheet] || []).map(row => ({
+		place: row.place || null,
+		detail: row.detail || null,
+	}));
+}
+
 function moveItems() {
 	return load('availability').moveItems || [];
 }
@@ -750,6 +776,7 @@ module.exports = {
 	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
 	unavailableNamesWithoutGrowthKey,
 	moveAvailability, moveItems,
+	currencySources,
 	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,

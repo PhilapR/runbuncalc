@@ -317,6 +317,58 @@ test('the playbook says how many fights its assignment search played', () => {
 	assert.equal(off.variantRollouts, 0);
 });
 
+test('a refusal that charges a currency says where to earn it', () => {
+	// The run debits a Rare Candy per level over the cap and a Heart Scale per
+	// relearned move, and `fieldItems` models 28 items with neither among them —
+	// so it spent currencies it could not tell you how to get. The workbook has
+	// held 30 Heart Scale locations and 14 Rare Candy the whole time, read by
+	// nothing, which is the same shape as `lib/item-facts` before it had a
+	// consumer.
+	//
+	// PLACES, not dates. Inferring an unlock from a place name is what
+	// `moveObtainableAt` refuses to do for TMs, and for the same reason: a
+	// location string carrying no gating clause is not evidence that none
+	// exists. Where is the whole of what these refusals were missing.
+	let state = fresh({levelCap: 'next-milestone-ace'});
+	state = run.apply(state, owned({kind: 'catch', species: 'Turtwig', level: 5}));
+	state = run.apply(state, {kind: 'party', ids: [state.box[0].id]});
+
+	assert.throws(
+		() => run.apply(state, {kind: 'levelUp', id: state.box[0].id, to: 20}),
+		error => {
+			assert.match(error.message, /costs a Rare Candy/, 'still names the price');
+			assert.match(error.message, /known sources/, 'and now names where to get one');
+			assert.match(error.message, /Route 110/, 'by place, from the workbook');
+			return true;
+		});
+
+	assert.throws(
+		() => run.apply(state, {kind: 'heartScale', id: state.box[0].id, stat: 'atk'}),
+		error => {
+			assert.match(error.message, /no shop\s+sells them|no shop sells them/,
+				'still says the shops do not stock them');
+			assert.match(error.message, /known sources/, 'and now names where they lie');
+			assert.match(error.message, /Route 104/, 'by place, from the workbook');
+			return true;
+		});
+
+	// The prefix survives, or the wire stops turning these into 400s and starts
+	// returning 500s: `lib/run-api.js` keys on the command name at the front.
+	try {
+		run.apply(state, {kind: 'levelUp', id: state.box[0].id, to: 20});
+		assert.fail('expected a refusal');
+	} catch (error) {
+		assert.match(error.message, /^levelUp: /, 'the refusal still leads with its command');
+	}
+
+	// An item the run does not charge for gets no invented source list.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	assert.deepEqual(oracle.currencySources('Potion'), [],
+		'only a charged currency has sources to name');
+	assert.ok(oracle.currencySources('Heart Scale').length > 10);
+	assert.ok(oracle.currencySources('Rare Candy').length > 5);
+});
+
 test('the list before a fight names the levelling nobody had listed', () => {
 	// Philip, reading a completed run: 'we didn't level did we...'. The run had
 	// no levelUp command at all and the box sat at catch levels, while the
