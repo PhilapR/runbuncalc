@@ -1493,14 +1493,14 @@
 			"raised_on": "2026-08-26",
 			"severity": "medium",
 			"area": "tooling",
-			"file": "scripts/import-availability.js",
-			"line": 222,
+			"file": "scripts/adopt-availability.js",
+			"line": 34,
 			"claim": "The importer rebuilds every item's `kind` from upstream, so a re-import returns Focus Sash to `held` and drops its transcribedKind/provenance/basis. adopt-availability.js has no item-kind path, so the correction lives only in the committed file.",
 			"verdict": "reported",
-			"status": "open",
+			"status": "fixed",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Reported by the audit, not re-derived here. Loud rather than silent — tests/item_facts.test.js:70 fails by name. Fix: move it into an ITEM_OVERRIDES table alongside the existing map OVERRIDES, so corrections survive a re-import the way the Route 109 and Petalburg City ones now do.",
+			"evidence": "Reported by the audit, not re-derived here. Loud rather than silent — tests/item_facts.test.js:70 fails by name. Fix: move it into an ITEM_OVERRIDES table alongside the existing map OVERRIDES, so corrections survive a re-import the way the Route 109 and Petalburg City ones now do. FIXED. ITEM_OVERRIDES now sits beside the map OVERRIDES in scripts/adopt-availability.js and apply() runs it, so a re-import that restores Focus Sash to upstream \"held\" is corrected back to \"consumable\" with transcribedKind, provenance and a basis naming ai/src/move-engine.ts. Idempotent, so adopt can follow every import. It THROWS rather than correcting if upstream carries a third value, because that means upstream changed its mind and the table must not quietly overrule a new answer. Gated in tests/item_facts.test.js and falsified twice — emptying the table fails it, and so does deleting the call from apply(). The second one mattered: the first version of the gate tested applyItemOverrides directly and passed with the wiring removed, which is the same hole the advise splice gate had.",
 			"enforcedBy": null
 		},
 		{

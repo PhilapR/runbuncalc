@@ -143,3 +143,49 @@ test('no TM or item is dated before an HM its own prose names', () => {
 	assert.deepEqual(early, [],
 		'these are offered before the run has the HM their own prose requires');
 });
+
+test('the Focus Sash correction survives a re-import', () => {
+	// The correction lived only in the committed file. import-availability.js
+	// reads `kind` straight from upstream's `type:` field, so the next import
+	// would put Focus Sash back to `held` and drop the provenance with it —
+	// loud, because the gate above fails by name, but not durable.
+	const adopt = require('../scripts/adopt-availability.js');
+
+	const reimported = {items: [{name: 'Focus Sash', kind: 'held', location: 'x'}]};
+	assert.deepEqual(adopt.applyItemOverrides(reimported), ['Focus Sash']);
+	assert.equal(reimported.items[0].kind, 'consumable');
+	assert.equal(reimported.items[0].transcribedKind, 'held',
+		'the upstream value stays visible, as transcribedOpensAt does for a map');
+	assert.equal(reimported.items[0].provenance, 'derived');
+	assert.match(reimported.items[0].basis, /move-engine\.ts calls consumeItem/,
+		'and the basis names the code that settles it');
+
+	// Re-running is free, so adopt can be run after every import without
+	// accumulating corrections.
+	assert.deepEqual(adopt.applyItemOverrides(reimported), []);
+
+	// If upstream carries a third value it has changed its mind, and this table
+	// must not quietly overrule a new answer.
+	assert.throws(() => adopt.applyItemOverrides({items: [{name: 'Focus Sash', kind: 'type-boost'}]}),
+		/neither the correction .* nor the .* it corrected/);
+
+	// And the committed file already agrees, so adopt is a no-op against it today.
+	assert.deepEqual(adopt.applyItemOverrides(availability), []);
+
+	// apply() must actually CALL it. Testing the function alone left this open:
+	// deleting the call from apply passed every assertion above, which is the
+	// same hole a gate on the advise splice had — the unit works and the wiring
+	// is gone.
+	const state = {
+		availability: {
+			entries: [],
+			items: [{name: 'Focus Sash', kind: 'held', location: 'x'}],
+			moveItems: [],
+		},
+		added: [],
+		changed: [],
+	};
+	adopt.apply(state);
+	assert.equal(state.availability.items[0].kind, 'consumable',
+		'apply must run the item overrides, not merely export them');
+});

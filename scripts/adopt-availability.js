@@ -31,6 +31,29 @@ const maps = profiles.getProfile('run-and-bun').oracle.maps();
  * Corrections to TRANSCRIBED entries. These override data that was already
  * there, so each one needs a reason a human gave, not an inference.
  */
+/**
+ * Item corrections that must survive a re-import.
+ *
+ * import-availability.js reads `kind` straight from upstream's `type:` field,
+ * so anything corrected in the committed file is restored to the upstream value
+ * the next time the importer runs. The map OVERRIDES below exist for the same
+ * reason; this is the item-shaped half, which was missing.
+ *
+ * A correction here has to be checkable rather than asserted, because the whole
+ * point is that it outlives the person who made it.
+ */
+const ITEM_OVERRIDES = {
+	'Focus Sash': {
+		kind: 'consumable',
+		was: 'held',
+		why: 'ai/src/move-engine.ts calls consumeItem on the holder the moment a ' +
+			'Focus Sash keeps it at 1 HP, so the item is single use. Upstream ' +
+			'types it `held`, which prices it as working in every fight. ' +
+			'lib/item-facts.js derives the same answer from the engine and ' +
+			'tests/item_facts.test.js fails by name if the two disagree.',
+	},
+};
+
 const OVERRIDES = {
 	MAP_ROUTE109: {
 		opensAt: 42,
@@ -177,6 +200,35 @@ function reconcileGates(availability) {
 	return moved;
 }
 
+/**
+ * Put the item corrections back after an import has overwritten them.
+ *
+ * Silent when the value already agrees, so re-running is free. It refuses when
+ * upstream carries a value that is neither the correction nor the thing it
+ * corrected — that means upstream has changed its mind and a human needs to
+ * look, rather than have this table quietly overrule a new answer.
+ */
+function applyItemOverrides(availability) {
+	const corrected = [];
+	for (const name of Object.keys(ITEM_OVERRIDES)) {
+		const override = ITEM_OVERRIDES[name];
+		const row = (availability.items || []).find(item => item.name === name);
+		if (!row) continue;
+		if (row.kind === override.kind) continue;
+		if (row.kind !== override.was) {
+			throw new Error('adopt: ' + name + ' is now "' + row.kind + '" upstream, which is ' +
+				'neither the correction "' + override.kind + '" nor the "' + override.was +
+				'" it corrected — upstream changed its mind and this needs a human');
+		}
+		row.transcribedKind = row.kind;
+		row.kind = override.kind;
+		row.provenance = 'derived';
+		row.basis = override.why;
+		corrected.push(name);
+	}
+	return corrected;
+}
+
 function apply(state) {
 	const availability = state.availability;
 	for (const entry of state.added) availability.entries.push(entry);
@@ -187,6 +239,7 @@ function apply(state) {
 		entry.provenance = 'corrected';
 		entry.correction = change.why;
 	}
+	applyItemOverrides(availability);
 	reconcileItems(availability);
 	reconcileGates(availability);
 	availability.entries.sort((a, b) =>
@@ -231,4 +284,5 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {build, apply, reconcileItems, reconcileGates, OVERRIDES};
+module.exports = {build, apply, reconcileItems, reconcileGates, applyItemOverrides,
+	OVERRIDES, ITEM_OVERRIDES};
