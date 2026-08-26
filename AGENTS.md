@@ -46,6 +46,27 @@ to take.
   not as executable code. A mechanic or move change is not implemented until
   it has corresponding code and tests.
 
+## Two order scales, and `#` means only one of them
+
+`order` counts cumulative enemy POKEMON before a fight. A player counts
+TRAINERS. Leader Brawly is order 77 and the 26th fight of 362. The two numbers
+are far apart, and they get further apart as the run goes on.
+
+`#N` in this repository always means ORDER. `#48 Camper Gavi` is order 48, not
+fight 48 — Camper Gavi is the 17th trainer. Every dated source is in order:
+LEVEL_CAPS, availability's items and moveItems, the HM gates, a fight's own
+`order` field.
+
+Do not write "fight #N" for an order. That phrasing sent a reader 51 trainers
+and two gyms past a TM unlock. `lib/play.js` printed "opens at fight #77" for
+TM16, and TM16 unlocks at fight 26. Say "order N", or convert with
+`run.trainerIndexOf(run, order)` and say "fight #N" truthfully. The converter
+belongs at the edge: the data is in order, and only presentation wants
+trainers.
+
+`tests/order_scales.test.js` pins the anchors and fails if a dated row is ever
+written in trainer numbers.
+
 ## Changing what something costs
 
 Performance work is not one kind of change. The bar differs for each kind.

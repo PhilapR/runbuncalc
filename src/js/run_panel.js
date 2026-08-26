@@ -1009,7 +1009,15 @@
 		prep.gauntlet.forEach(function (fight) {
 			var $row = $('<li class="runbun-run-split-fight"></li>')
 				.toggleClass('is-boss-row', fight.tier === 'boss');
-			$row.append($('<span class="runbun-run-up-order"></span>').text('#' + fight.order));
+			// "#77" alone reads as a fight number and is not one: order counts
+			// cumulative enemy Pokemon, so Brawly is #77 and the 26th fight.
+			// The cell stays short because the column is narrow; the title and
+			// the label carry the scale.
+			$row.append($('<span class="runbun-run-up-order"></span>')
+				.attr('title', 'Run map order ' + fight.order +
+					' — counts enemy Pokemon faced, not fights')
+				.attr('aria-label', 'order ' + fight.order)
+				.text('#' + fight.order));
 			$row.append($('<span class="runbun-run-up-name"></span>')
 				.text(displayText(fight.trainer)));
 			$row.append($('<span class="runbun-run-up-tier"></span>')
@@ -1083,7 +1091,15 @@
 		var $list = $('#runbun-run-upcoming').empty();
 		(payload.upcoming || []).forEach(function (fight, index) {
 			var $row = $('<li class="runbun-run-up"></li>').toggleClass('is-next', index === 0);
-			$row.append($('<span class="runbun-run-up-order"></span>').text('#' + fight.order));
+			// "#77" alone reads as a fight number and is not one: order counts
+			// cumulative enemy Pokemon, so Brawly is #77 and the 26th fight.
+			// The cell stays short because the column is narrow; the title and
+			// the label carry the scale.
+			$row.append($('<span class="runbun-run-up-order"></span>')
+				.attr('title', 'Run map order ' + fight.order +
+					' — counts enemy Pokemon faced, not fights')
+				.attr('aria-label', 'order ' + fight.order)
+				.text('#' + fight.order));
 			$row.append($('<span class="runbun-run-up-name"></span>')
 				.text(displayText(fight.trainer)));
 			if (fight.tier) {

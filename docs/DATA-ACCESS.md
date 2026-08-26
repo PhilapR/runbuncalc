@@ -115,7 +115,8 @@ odds: pWin 1.0, eDeaths 0, pDeathless 1.0  (12 rollouts)
 ```
 
 Playing a run by those assignments instead of "pick the biggest number"
-was the difference between wiping on fight #2 and reaching fight #11.
+was the difference between wiping on the 2nd fight and reaching the 11th.
+(Fights counted as trainers here, not as `order` — see AGENTS.md.)
 
 ## What is NOT modelled
 

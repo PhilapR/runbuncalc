@@ -2134,7 +2134,7 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	assert.equal((await savedRun(page)).bag.Potion, 1);
 
 	// An item the story has not opened yet is shown waiting, not hidden and
-	// not collectable: Route 104's Miracle Seed opens at fight #11.
+	// not collectable: Route 104's Miracle Seed opens at ORDER 11.
 	await selectManualMap(page, 'Route104');
 	await page.waitForFunction(
 		() => /Miracle Seed/.test(document.querySelector('#runbun-run-items').textContent),

@@ -444,7 +444,7 @@ test('the level caps are the game\'s own ladder, all twenty-three rows', () => {
 	assert.equal(capped.cap, 12);
 	assert.equal(capped.trainer, 'Team Aqua Grunt Petalburg Woods');
 	assert.equal(capped.ace, 'Croagunk');
-	// The rival boundary holds for a declared rival: fight #253 is the
+	// The rival boundary holds for a declared rival: order 253 is the
 	// Sceptile variant, invisible to a Swampert run, but the cap segment is
 	// the triplet's — 38 through #265, 42 after.
 	assert.equal(run.capAt(state, 253), 38);
@@ -757,7 +757,7 @@ test('route availability: imported unlock dates order the routes view', () => {
 	assert.equal(woodsRow.open, false);
 	assert.equal(routes.find(route => route.name === 'Artisan Cave').opensAt, undefined);
 
-	// Beating the run forward opens it: position 19 makes fight #19 the last
+	// Beating the run forward opens it: position 19 makes order 19 the last
 	// one beaten, so a map dated to #19 is open.
 	const advanced = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Petalburg Woods'});
 	assert.equal(run.unusedRoutes(advanced).routes
@@ -865,7 +865,7 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	assert.ok(!pooch.log[pooch.log.length - 1].summary.includes('Heart Scale'));
 
 	// And never an HM the story has not handed over: Lotad's Surf gates at
-	// #589, so an advisor for fight #3 may not offer it. TMs carry no dates
+	// order 589, so an advisor at order 3 may not offer it. TMs carry no dates
 	// in the source, so only the HM spine is gated.
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	assert.equal(oracle.moveObtainableAt('Surf'), 589);
@@ -957,7 +957,7 @@ test('the advisor recommends field pickups, with where to go get them', () => {
 	assert.match(seed.detail, /Miracle Seed \(pickup @ Route 104\)/);
 	assert.ok(seed.delta.damage > 0);
 
-	// Not before the overworld has handed it out: fight #0 predates every
+	// Not before the overworld has handed it out: order 0 predates every
 	// type-boost pickup, so none may be offered there.
 	const early = run.adviseUpgrades(state, 'Youngster Calvin');
 	assert.ok(early.upgrades.every(u => !/Miracle Seed|Silk Scarf|Soft Sand/.test(u.detail)),
@@ -1895,7 +1895,7 @@ test('the advisor prices single changes by what they do to the board', () => {
 			return level || datedTeach || egg;
 		}).length;
 	// ...plus every holdable field pickup the overworld has handed out by
-	// fight #0 that the run has not collected (the advisor's fourth kind).
+	// order 0 that the run has not collected (the advisor's fourth kind).
 	const pickups = oracle.itemsObtainableBy(0)
 		.filter(p => require('../lib/planner').holdableItem(p.name)).length;
 	assert.equal(advice.considered, teachable + 1 + 1 + pickups);
@@ -1976,7 +1976,7 @@ test('the advisor only offers a Heart Scale it can pay for and price', () => {
 		ivs: Object.assign({}, PERFECT_IVS, {spe: 5})});
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	// Same derivation the advisor uses: the capability list minus HMs the
-	// story has not handed over by fight #0, minus egg moves when no Heart
+	// story has not handed over by order 0, minus egg moves when no Heart
 	// Scale is in the bag to pay the relearner with.
 	// ...and minus anything the projected Pokemon has already LEARNED. Levelling
 	// teaches now, so by the cap several of these are in hand and offering to
@@ -2145,7 +2145,8 @@ test('the roll draws the route\'s encounter from the same tables a catch is chec
 	assert.throws(() => run.rollEncounter(kept, {map: 'Route101', random: () => 0}),
 		/roll: Route101 already gave its encounter/);
 	// Neither does a method whose HM has not been handed over (rock smash
-	// opens at fight #139; a fresh run stands at the very start).
+	// opens at ORDER 139, which is Leader Roxanne and the 45th fight; a
+	// fresh run stands at the very start).
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	// An unreachable route refuses BEFORE its methods do, naming its guard —
 	// so the method probe needs a map whose guard falls before the HM gate.
