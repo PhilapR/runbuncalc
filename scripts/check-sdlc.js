@@ -54,6 +54,24 @@ assert.match(deployWorkflow,
 	/if \[ -z "\$SITE_AUTH_PASSWORD" \]; then[\s\S]*preserving the existing Worker secret/,
 	'an absent optional password must preserve the existing private Worker secret');
 
+// The TEST workflow was never gated, and that is where CI broke. c133af8
+// strengthened the ledger gate to ask whether a fix is an ANCESTOR of HEAD,
+// which a shallow clone cannot answer — and actions/checkout defaults to a
+// depth of one. Every run since failed on the first of the 39 findings that
+// name a fix, reporting "not an ancestor of HEAD", which is a true statement
+// about a clone with no history and a false one about the ledger.
+//
+// Gated here rather than left to be rediscovered: the suite that runs in CI
+// now asserts the shape of the workflow that runs it.
+const testWorkflow = read('.github/workflows/test.yml');
+assert.match(testWorkflow, /uses: actions\/checkout@[^\n]*\n(\s+)with:\n[\s\S]*?fetch-depth: 0/,
+	'the test checkout needs fetch-depth: 0 — tests/ledger.test.js asks whether a ' +
+	'fixing commit is an ancestor of HEAD, and a shallow clone has no history to ask');
+assert.match(testWorkflow, /run: npm run test/,
+	'the test workflow must actually run the suite');
+assert.match(testWorkflow, /playwright-core install[^\n]*chromium/,
+	'the browser gates need Chromium installed, or they skip and prove nothing');
+
 const providerProvenance = json('vendor/pokemon-run-runtime/PROVENANCE.json');
 const providerArtifact = fs.readFileSync(path.join(root, 'vendor', 'pokemon-run-runtime',
 	providerProvenance.artifact));
