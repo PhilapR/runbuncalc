@@ -669,6 +669,21 @@
 			"evidence": "Measured: 28 field items modelled against 127 location references across the six sheets of Item Locations.xlsx, whose first sheet is 'Heart Scale Location'. Every evolution stone is missing too — Fire, Water, Thunder, Moon, Sun, Dusk — which is the input evolution planning needs most. Plan: docs/MODELLING-GAPS.md phase 2. FIXED, and the data turned out to be already here. item-workbook.json holds 30 Heart Scale locations and 14 Rare Candy, each with a place and a hiding spot, and no code read it — the same shape lib/item-facts was in before it got a consumer. oracle.currencySources(name) exposes them and both refusals now end with the sources: levelUp adds 13 known sources: Route 110, Route 116, Mauville City, and 10 more; heartScale adds 19 known sources: Route 104, Route 106, Route 118, and 16 more. PLACES, NOT DATES, deliberately. 27 of the 30 Heart Scale rows and 9 of the 14 Rare Candy rows do join a dated map, so dating them looks easy, and it is the same inference moveObtainableAt refuses for TMs — a location string with no gating clause is not evidence that no gate exists. Where was the whole of what the refusal was missing; when is a separate question with a separate standard of proof and it is Philip to answer. The evolution stones stay out for a different reason rather than the same one: their sheet stores prose in the place column, Sold at Mauville City Pokemon Mart and the like, so 0 of 23 join anything and a list built from it would be a sentence pretending to be a place. That half of the claim — every evolution stone missing, which is the input evolution planning needs most — is NOT closed by this and is worth its own entry. Gate in tests/run.test.js made to fail four ways: silence the clause, drop it from either refusal alone, and drop the command prefix, which matters because run-api keys its 400s on it and losing it turns a refusal into a 500."
 		},
 		{
+			"id": "evolution-stones-have-prose-where-a-place-should-be",
+			"source": "review/test-run",
+			"raised_on": "2026-08-26",
+			"severity": "medium",
+			"area": "data",
+			"file": "profiles/run-and-bun/oracle/item-workbook.json",
+			"line": null,
+			"claim": "The evolution-item sheet stores prose where every other sheet stores a place, so none of its 23 rows can be joined to a map and evolution planning has no source list at all.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Split out of engine-debits-currencies-it-cannot-source, which closed the half about Rare Candy and Heart Scales and could not close this one. Re-derived here: heartScales joins 27 of 30 rows to a dated map by place name and rareCandies 9 of 14, while evolutionItems joins 0 of 23. The reason is shape, not coverage — the sheet's place column holds sentences. \"Sold at Mauville City Pokemon Mart. Given 1x from NPC Cutter in Rustboro City.\" and \"Granite Cave, ice floor, at the L shaped rock formation before the stairs (hidden).\" are both places, a shop and a condition, or two places, in one string. A source list built from that column would print a sentence where the other two print a route. The 23 rows name Everstone, Moon Stone, Fire Stone, Water Stone and the rest, which is the input evolution planning needs most: `adviseUpgrades` already offers an evolution the run has earned, and cannot say where the stone for it is. Fixing this is a parse rather than an import — the places are IN the prose and several are shops rather than ground items, which is a distinction the other sheets never had to make."
+		},
+		{
 			"id": "worst-case-covers-the-ceiling-not-the-race",
 			"source": "review/test-run",
 			"raised_on": "2026-08-21",
