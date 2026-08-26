@@ -101,6 +101,41 @@ test('a twelve-rollout adjudication stays inside its object budget', () => {
 		`${pokemon.toLocaleString()} Pokemon objects, against a measured 2,450`);
 });
 
+test('the playbook search budget buys real rollouts, not just a reported number', () => {
+	// The assignment search is the most expensive stage in the library: every
+	// variant it explores is a PLAYED fight. So the budget has to be checked
+	// where the work is, in objects. A gate that reads the number back out of
+	// the response cannot tell a knob that reaches `adjudicate` from one that
+	// is reported and then ignored — the first version of this gate could not,
+	// and pinning the search back at four passed it.
+	//
+	// Measured on this fixture, sixteen variants explored each time:
+	//   variantRollouts 1 ->  28,654 objects
+	//   variantRollouts 4 ->  80,556 objects
+	//   variantRollouts 8 -> 149,804 objects
+	// Linear in the budget, which is what "each variant is a played fight"
+	// predicts and what a pinned constant would flatten.
+	const doc = party();
+
+	moves = 0;
+	pokemon = 0;
+	const cheap = run.fightPlaybook(doc, 'Leader Brawly', {rollouts: 8, variantRollouts: 1});
+	const cheapObjects = moves + pokemon;
+
+	moves = 0;
+	pokemon = 0;
+	const careful = run.fightPlaybook(doc, 'Leader Brawly', {rollouts: 8, variantRollouts: 8});
+	const carefulObjects = moves + pokemon;
+
+	assert.equal(cheap.explored, careful.explored,
+		'the same variants must be explored; only the evidence per variant changes');
+	assert.ok(cheap.explored > 1, 'the fixture must actually exercise the search');
+	assert.ok(carefulObjects > cheapObjects * 2,
+		`eight rollouts a variant built ${carefulObjects.toLocaleString()} objects against ` +
+		`one rollout's ${cheapObjects.toLocaleString()}; the budget is not reaching the ` +
+		'search, it is only being reported back');
+});
+
 test('the cached dex facts differ by generation, so the key must carry one', () => {
 	// A cache keyed on the move name alone would answer with whichever
 	// generation ran first — the classic bug a cache introduces, and one a

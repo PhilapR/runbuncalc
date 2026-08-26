@@ -274,6 +274,49 @@ test('the ranker finishes a box of 30 in interactive time', () => {
 	assert.ok(ms < 5000, `ranking took ${ms.toFixed(0)}ms; the budget is 5s`);
 });
 
+test('the playbook says how many fights its assignment search played', () => {
+	// The assignment search is the most expensive thing this library does —
+	// profiled at 81% of a plan-then-rank-then-playbook sequence, because every
+	// variant it explores is a PLAYED fight, not a table read. `explored` alone
+	// reads as a count of cheap things, so the rollouts behind each one are
+	// reported beside it.
+	//
+	// It is also the accurate half, and the budget was the one knob a caller
+	// could not reach: `rollouts` sized the final line while the search stayed
+	// pinned at four. Measured over eight real mid-run states, four and twelve
+	// chose a different variant in half of them and twelve was never worse.
+	let state = fresh({levelCap: 'none'});
+	for (const species of ['Poochyena', 'Zigzagoon-Galar', 'Ralts', 'Surskit',
+		'Shroomish', 'Makuhita']) {
+		state = run.apply(state, owned({kind: 'catch', species, level: 24}));
+	}
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+
+	const standard = run.fightPlaybook(state, 'Youngster Calvin');
+	assert.equal(standard.variantRollouts, 4,
+		'four is what the tool has always paid and must stay the default');
+	assert.ok(standard.explored > 0, 'the search must actually run');
+	assert.ok(standard.explored <= 16,
+		`explored ${standard.explored} variants; the power set is bounded at 2^4`);
+
+	// The knob reaches the search rather than only the final line.
+	const careful = run.fightPlaybook(state, 'Youngster Calvin', {variantRollouts: 8});
+	assert.equal(careful.variantRollouts, 8);
+
+	// And it can never ask for more per variant than the whole call allows,
+	// which would price a search above the line it exists to choose.
+	const clamped = run.fightPlaybook(state, 'Youngster Calvin',
+		{rollouts: 3, variantRollouts: 12});
+	assert.equal(clamped.variantRollouts, 3,
+		'variantRollouts is capped by rollouts, not independent of it');
+
+	// A search that did not run reports no per-variant cost, rather than a
+	// budget it never spent.
+	const off = run.fightPlaybook(state, 'Youngster Calvin', {optimize: false});
+	assert.equal(off.explored, 0);
+	assert.equal(off.variantRollouts, 0);
+});
+
 test('the cheap cut keeps the best six and only runs when the box is expensive', () => {
 	// The box that made this necessary was 76 and took 177 SECONDS to enumerate
 	// its 218,618,940 sixes. The cut keeps, per enemy column, the members that

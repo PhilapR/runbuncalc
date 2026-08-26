@@ -757,6 +757,36 @@ test('rank bounds its cut knobs on the wire and reports what it cut', async () =
 	assert.deepEqual(ok.body.shortlist.dropped, []);
 });
 
+test('the playbook search budget is reachable over the wire and bounded', async () => {
+	// The assignment search decides the plan and costs more than everything
+	// else in a fight put together, so its budget is a knob rather than a
+	// constant — and a bounded one, like every other CPU multiplier here.
+	const created = await newRun({name: 'playbook-knobs', levelCap: 'none'});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	assert.equal(caught.status, 200);
+	const partied = await requestJson('/run/apply',
+		{run: caught.body.run, command: {kind: 'party', ids: [caught.body.run.box[0].id]}});
+	assert.equal(partied.status, 200);
+	const state = partied.body.run;
+
+	const bad = await requestJson('/run/playbook',
+		{run: state, trainer: 'Youngster Calvin', variantRollouts: 0});
+	assert.equal(bad.status, 400);
+	assert.match(bad.body.error, /variantRollouts must be an integer from 1 to 24/);
+
+	const tooMany = await requestJson('/run/playbook',
+		{run: state, trainer: 'Youngster Calvin', variantRollouts: 25});
+	assert.equal(tooMany.status, 400);
+
+	// A one-Pokemon party has nothing to reassign, so the search does not run
+	// and must report no per-variant cost rather than a budget it never spent.
+	const ok = await requestJson('/run/playbook',
+		{run: state, trainer: 'Youngster Calvin', rollouts: 2});
+	assert.equal(ok.status, 200);
+	assert.equal(ok.body.explored, 0);
+	assert.equal(ok.body.variantRollouts, 0);
+});
+
 test('a run is created, advanced and summarized entirely through the request', async () => {
 	const created = await newRun({name: 'HTTP', levelCap: 'next-milestone-ace'});
 	assert.equal(created.name, 'HTTP');
