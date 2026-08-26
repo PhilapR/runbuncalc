@@ -135,15 +135,49 @@ function realStates(wanted) {
 	return spread;
 }
 
+/**
+ * Peak resident memory while some work runs.
+ *
+ * A cache is a memory-for-compute trade and this benchmark spent its first
+ * version measuring only one side of it. `process.memoryUsage()` is a point
+ * reading, so the peak needs sampling: 25ms is fine against stages that take
+ * hundreds of milliseconds, and it costs a syscall.
+ */
+function samplePeakRss() {
+	let peak = process.memoryUsage().rss;
+	const timer = setInterval(() => {
+		const now = process.memoryUsage().rss;
+		if (now > peak) peak = now;
+	}, 25);
+	timer.unref();
+	return function stop() {
+		clearInterval(timer);
+		const now = process.memoryUsage().rss;
+		return Math.max(peak, now);
+	};
+}
+
+// One origin for the whole process, so every stage can say WHEN it ran and
+// not merely how long it took. That turns a list of durations into a span
+// tree MLflow can render as a trace.
+const ORIGIN = process.hrtime.bigint();
+
 function measure(label, work) {
 	moves = 0;
 	pokemon = 0;
+	const stopRss = samplePeakRss();
+	const heapBefore = process.memoryUsage().heapUsed;
 	const started = process.hrtime.bigint();
 	const value = work();
+	const ended = process.hrtime.bigint();
 	return {
 		stage: label,
 		objects: moves + pokemon,
-		ms: Number(process.hrtime.bigint() - started) / 1e6,
+		ms: Number(ended - started) / 1e6,
+		startOffsetMs: Number(started - ORIGIN) / 1e6,
+		endOffsetMs: Number(ended - ORIGIN) / 1e6,
+		peakRss: stopRss(),
+		heapGrowth: process.memoryUsage().heapUsed - heapBefore,
 		value,
 	};
 }
@@ -154,13 +188,28 @@ function stagesFor(doc, trainer, arm) {
 	const grid = measure('boxMatrix', () => run.boxMatrix(doc, trainer));
 	const ranked = measure('rank', () => run.rankParties(doc, trainer));
 	const book = measure('playbook', () => run.fightPlaybook(doc, trainer));
+	// Read the cache BEFORE dropping it: its size is the price of the speedup,
+	// and the first version of this benchmark never charged for it.
+	const cacheEntries = factsCache ? factsCache.size : 0;
+	let cacheBytes = 0;
+	if (factsCache) {
+		// The keys are the serialized inputs, which dominate; two bytes a
+		// character is the V8 string cost, and the values are shared references
+		// to objects the run built anyway.
+		for (const key of factsCache.keys()) cacheBytes += key.length * 2;
+	}
 	factsCache = null;
 	return {
 		stages: [grid, ranked, book].map(entry => ({
 			stage: entry.stage, objects: entry.objects, ms: entry.ms,
+			startOffsetMs: entry.startOffsetMs, endOffsetMs: entry.endOffsetMs,
+			peakRss: entry.peakRss, heapGrowth: entry.heapGrowth,
 		})),
 		objects: grid.objects + ranked.objects + book.objects,
 		ms: grid.ms + ranked.ms + book.ms,
+		peakRss: Math.max(grid.peakRss, ranked.peakRss, book.peakRss),
+		cacheEntries,
+		cacheBytes,
 		// The answer itself, so an arm that got cheap by getting wrong is
 		// visible rather than merely fast.
 		fingerprint: JSON.stringify({
