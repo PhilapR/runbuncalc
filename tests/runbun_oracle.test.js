@@ -296,3 +296,35 @@ test('growth rates come from the decomp, and the curves are the Gen 3 functions'
 	// (PIKACHU_BASE_STATS-style) the first importer silently skipped.
 	assert.equal(oracle.coverage().growthRatedSpecies, 1114);
 });
+
+test('a removed species answers "unavailable", whatever the list spells it', () => {
+	// 38 of the 416 enumerated names were not keys of growth.json, so the join
+	// dropped them and `where Mewtwo` answered "not-modelled" — a gap in the
+	// tool — about a species the hack removed. That is the two-answers-in-one-
+	// word failure the dataset exists to end, and it was live for every name
+	// the two files spelled differently.
+	const oracle = require('../profiles/run-and-bun/oracle.js');
+
+	// One of each disagreement: a trailing full stop, a curly apostrophe, and
+	// the three form suffixes the growth table writes shorter.
+	for (const species of ['Mewtwo', 'Ho-Oh', 'Arceus', 'Farfetch’d',
+		'Vulpix-Alola', 'Slowpoke-Galar', 'Braviary-Hisui', 'Type: Null']) {
+		const answer = oracle.availabilityOfSpecies(species);
+		assert.equal(answer.status, 'unavailable',
+			species + ' is on the removed list and must say so, not "not-modelled"');
+	}
+
+	// The resolution is by EXISTING key only, so it cannot invent a species.
+	//
+	// Honest limit: the "exactly one candidate" rule is NOT exercised by this
+	// data. Loosening it to "take the first match" leaves every assertion here
+	// passing, because no name in the list currently generates two spellings
+	// that both exist as growth keys. It is written strict because the day the
+	// candidate list grows is not the day anyone rereads this line — the same
+	// reason the Mega slot indexing is written by slot while every species has
+	// one ability.
+	const unjoined = oracle.unavailableNamesWithoutGrowthKey();
+	assert.deepEqual(unjoined, ['Aegislash'],
+		'the only name left unjoined is the one that needs a ruling: the growth ' +
+		'table carries Aegislash-Shield and Aegislash-Blade, and picking is not spelling');
+});

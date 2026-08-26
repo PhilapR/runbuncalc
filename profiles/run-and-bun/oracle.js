@@ -158,9 +158,68 @@ function nonWildSources(species) {
  * instead. Enumerating it here would be inventing a list the source does
  * not give.
  */
+/**
+ * The removed-species list and the growth table spell some names differently,
+ * and the join dropped every one that disagreed.
+ *
+ * 38 of the 416 enumerated names were not keys of growth.json, so the set never
+ * contained them and `where Mewtwo` answered "a gap in the tool, NOT a
+ * statement that you cannot get one" about a species the hack removed — which
+ * is the exact two-answers-in-one-word failure this dataset exists to end.
+ *
+ * Three kinds of disagreement, none of them about the game:
+ *
+ *   - a trailing full stop caught by the transcription ("Mewtwo.", "Ho-Oh.",
+ *     "Arceus.", "Marowak-Alolan.", "Braviary-Hisuian.")
+ *   - a form suffix the growth table writes shorter (-Alolan against -Alola,
+ *     -Galarian against -Galar, -Hisuian against -Hisui) or differently
+ *     ("Type-Null" against "Type: Null", -Sandy-Cloak against -Sandy,
+ *     -Ice-Rider against -Ice)
+ *   - a straight apostrophe where the table uses a curly one (Farfetch'd)
+ *
+ * A candidate is only accepted when it is the ONE spelling that exists as a
+ * growth key, so this cannot invent a species or pick between two. 37 of the 38
+ * resolve that way. The one that does not is recorded rather than dropped:
+ * "Aegislash" is bare where the table carries Aegislash-Shield and
+ * Aegislash-Blade, and deciding whether the source meant both forms is a
+ * ruling about the game, not a spelling.
+ */
+function growthKeyFor(name) {
+	const growth = load('growth');
+	if (Object.prototype.hasOwnProperty.call(growth, name)) return name;
+	const base = name.replace(/\.$/, '');
+	const candidates = new Set([
+		base,
+		base.replace(/-Alolan$/, '-Alola')
+			.replace(/-Galarian$/, '-Galar')
+			.replace(/-Hisuian$/, '-Hisui'),
+		base.replace('Type-Null', 'Type: Null'),
+		base.replace(/'/g, '\u2019'),
+		base.replace(/-Sandy-Cloak$/, '-Sandy').replace(/-Trash-Cloak$/, '-Trash'),
+		base.replace(/-Eternal-Flower$/, '-Eternal'),
+		base.replace(/-Ice-Rider$/, '-Ice').replace(/-Shadow-Rider$/, '-Shadow'),
+	]);
+	const found = [...candidates].filter(candidate =>
+		Object.prototype.hasOwnProperty.call(growth, candidate));
+	return found.length === 1 ? found[0] : null;
+}
+
 const UNAVAILABLE = new Set();
+/** Enumerated names that no single growth key answers to. Named, not dropped. */
+const UNAVAILABLE_UNJOINED = [];
 for (const generation of Object.keys(unavailableData.generations)) {
-	for (const name of unavailableData.generations[generation].species) UNAVAILABLE.add(name);
+	for (const name of unavailableData.generations[generation].species) {
+		const key = growthKeyFor(name);
+		if (key === null) {
+			UNAVAILABLE_UNJOINED.push(name);
+			UNAVAILABLE.add(name);
+			continue;
+		}
+		UNAVAILABLE.add(key);
+		// The written spelling still has to answer, because callers ask with
+		// whatever the source gave them.
+		if (key !== name) UNAVAILABLE.add(name);
+	}
 }
 const UNAVAILABLE_WHOLE_GENERATIONS = Object.keys(unavailableData.generations)
 	.filter(generation => unavailableData.generations[generation].all);
@@ -675,8 +734,21 @@ function moveAvailability() {
 	};
 }
 
+/**
+ * Enumerated removed-species names that no single growth key answers to.
+ *
+ * Exported so the gap is checkable rather than folklore. One name is on it:
+ * "Aegislash", where the growth table carries Aegislash-Shield and
+ * Aegislash-Blade and choosing between them — or claiming both — is a ruling
+ * about what the source meant.
+ */
+function unavailableNamesWithoutGrowthKey() {
+	return UNAVAILABLE_UNJOINED.slice();
+}
+
 module.exports = {
 	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	unavailableNamesWithoutGrowthKey,
 	moveAvailability, moveItems,
 	fightFieldOf, itemsObtainableBy, fieldItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
