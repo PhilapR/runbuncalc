@@ -1256,6 +1256,34 @@
 			$list.append($row);
 		}
 
+		// Levelling goes FIRST, because it is the only row here that is work you
+		// already own rather than something to go and find, and because a plan
+		// that reads "at cap" while the box sits at catch levels is the one way
+		// this list could mislead. The projection is right; the grind to meet it
+		// was simply never named.
+		var levels = opportunity.levels || {};
+		if (levels.cap) {
+			addRow({
+				// No kind, so no action button. `kind` drives a reveal-and-scroll
+				// and there is no section to send anyone to: the party is already
+				// on screen, and a button that does nothing is worse than none.
+				kind: null,
+				name: levels.levelsNeeded ?
+					levels.levelsNeeded + ' level' + (levels.levelsNeeded === 1 ? '' : 's') + ' to the cap' :
+					'Party is at the cap',
+				detail: levels.levelsNeeded ?
+					preview(levels.behind.map(function (row) {
+						return displayText(row.nickname || row.species) + ' L' + row.level +
+							' \u2192 L' + row.to;
+					}), 3) :
+					'Every party member is at level ' + levels.cap,
+				title: levels.setBy ?
+					'Cap ' + levels.cap + ' is set by ' + displayText(levels.setBy.trainer) +
+						(levels.setBy.ace ? " (" + displayText(levels.setBy.ace) + ")" : '') :
+					undefined,
+			});
+		}
+
 		var encounters = opportunity.encounters || {count: 0, routes: []};
 		addRow({
 			kind: encounters.count ? 'encounters' : null,

@@ -317,6 +317,60 @@ test('the playbook says how many fights its assignment search played', () => {
 	assert.equal(off.variantRollouts, 0);
 });
 
+test('the list before a fight names the levelling nobody had listed', () => {
+	// Philip, reading a completed run: 'we didn't level did we...'. The run had
+	// no levelUp command at all and the box sat at catch levels, while the
+	// driver fought at 'Turtwig L12 · at cap' because the plan projects to the
+	// next milestone. The projection is RIGHT and stays right — a plan drawn at
+	// current levels is a plan for a team nobody fields — so the bug was never
+	// the numbers. It was that `preFightOpportunities`, the literal
+	// before-this-fight list, had keys for encounters, items and moves and no
+	// key for the hours of grinding between the two.
+	//
+	// This is that run: Turtwig L5, and three L2s, against Team Aqua Grunt
+	// Petalburg Woods' Croagunk at cap 12.
+	let state = fresh({levelCap: 'next-milestone-ace'});
+	for (const caught of [['Turtwig', 5], ['Lillipup', 2], ['Gossifleur', 2], ['Surskit', 2]]) {
+		state = run.apply(state, owned({kind: 'catch', species: caught[0], level: caught[1]}));
+	}
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+
+	const levels = run.preFightOpportunities(state).levels;
+	assert.equal(levels.cap, 12, 'the cap the next fight is planned at');
+	assert.equal(levels.setBy.trainer, 'Team Aqua Grunt Petalburg Woods',
+		'and which fight sets it, so the grind has a destination');
+	assert.equal(levels.setBy.ace, 'Croagunk');
+
+	// The whole point: a number for the work. Seven levels for the Turtwig and
+	// ten for each L2 is 37, and a run that never levelled was told none of it.
+	assert.equal(levels.levelsNeeded, 37);
+	assert.deepEqual(levels.behind.map(row => [row.species, row.level, row.gain]),
+		[['Turtwig', 5, 7], ['Lillipup', 2, 10], ['Gossifleur', 2, 10], ['Surskit', 2, 10]]);
+	assert.match(levels.note, /4 of 4 below the cap of 12, 37 levels between them/);
+
+	// A party already at the cap owes nothing, and must say so rather than
+	// omitting the key — an absent key reads as "not modelled", which is the
+	// exact silence this closes.
+	let levelled = state;
+	for (const mon of state.box) {
+		levelled = run.apply(levelled, {kind: 'levelUp', id: mon.id, to: 12});
+	}
+	const atCap = run.preFightOpportunities(levelled).levels;
+	assert.equal(atCap.levelsNeeded, 0);
+	assert.deepEqual(atCap.behind, []);
+	assert.match(atCap.note, /the whole party is at the cap of 12/);
+
+	// Over the cap is not work owed. The projection raises and never lowers, so
+	// a Pokemon past the line fights at its own level and is nobody's grind.
+	// Levelling past the cap costs a Rare Candy per level, which is the run's
+	// own rule and a separate open finding — the bag has to fund it.
+	let funded = levelled;
+	for (let i = 0; i < 8; i++) funded = run.apply(funded, {kind: 'acquire', item: 'Rare Candy'});
+	const over = run.apply(funded, {kind: 'levelUp', id: funded.box[0].id, to: 20});
+	assert.equal(run.preFightOpportunities(over).levels.levelsNeeded, 0,
+		'a Pokemon above the cap owes no levels');
+});
+
 test('an item upgrade says whether it survives being used', () => {
 	// Philip: an Eviolite is reusable and a resist berry is not, and an advisor
 	// cannot price the two the same way. It still cannot — the grid credits a
