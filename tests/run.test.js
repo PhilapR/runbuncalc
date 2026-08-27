@@ -1685,6 +1685,49 @@ test('the run plans the next fight with the party it actually has', () => {
 	assert.ok(plan.actions.length > 1);
 });
 
+test('a plan names the threshold set the samples cannot price', () => {
+	// Battle Girl Lilith's Mankey holds Focus Sash + Reversal. The fair-dice
+	// sampler is known blind to HP-threshold power — the pinned provider's
+	// bundle carries the move name and no scaling formula — and it forecast
+	// "worst sampled branch loses 1" fourteen times while the Mankey swept six
+	// Pokemon in twelve of them. The plan cannot fix the sampler, but it can
+	// refuse to stay quiet about the set: the threat rides the plan itself, so
+	// every consumer — panel, driver, calibration — sees the same warning.
+	let state = run.apply(fresh(), owned(MARILL));
+	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
+
+	const lilith = run.planNext(state, {trainer: 'Battle Girl Lilith'});
+	assert.deepEqual(lilith.thresholdThreats,
+		[{species: 'Mankey', move: 'Reversal', holds: 'Focus Sash'}],
+		'sash Reversal is exactly the set the sampler under-prices');
+
+	// Flail and a pinch berry are the same mechanic wearing other names, and
+	// this one sits at fight #14 — the earliest place the blindness can bite.
+	const darian = run.planNext(state, {trainer: 'Fisherman Darian'});
+	assert.deepEqual(darian.thresholdThreats,
+		[{species: 'Magikarp', move: 'Flail', holds: 'Focus Sash'}]);
+
+	// A trainer with no such set must report an EMPTY list, not a missing key:
+	// an absent key reads as "not modelled", and this is modelled.
+	const calvin = run.planNext(state, {trainer: 'Youngster Calvin'});
+	assert.deepEqual(calvin.thresholdThreats, []);
+
+	// A pinch BERRY anchors the state just as a sash does.
+	const marc = run.planNext(state, {trainer: 'Hiker Marc'});
+	assert.deepEqual(marc.thresholdThreats,
+		[{species: 'Lairon', move: 'Reversal', holds: 'Custap Berry'}]);
+
+	// And a threshold move WITHOUT an anchor is not the threat. Tuber Hailey's
+	// Mienfoo carries Reversal with a Black Belt: nothing guarantees it the
+	// pinch state, so its Reversal is a damage roll like any other and naming
+	// it would teach the player to ignore the warning. The first version of
+	// this gate had no such fixture, and dropping the anchor requirement
+	// passed it.
+	const hailey = run.planNext(state, {trainer: 'Tuber Hailey'});
+	assert.deepEqual(hailey.thresholdThreats, [],
+		'Reversal without a sash, pinch berry, Sturdy or Endure is not named');
+});
+
 test('a look-ahead plan fights with the party the run will legally have', () => {
 	// Planning Brawly from the start of the run used to field a level 3 Poochyena
 	// against his level 21 party and report every damage roll from it — an answer

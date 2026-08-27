@@ -1715,6 +1715,60 @@ test('the page fits a phone: every active mode reflows without page overflow', {
 	await context.close();
 });
 
+test('the verdict warns about a sash-threshold set the samples cannot price', {skip}, async () => {
+	// Fisherman Darian's Magikarp holds Focus Sash + Flail — the earliest of 41
+	// fights whose danger scales with the enemy's own missing health, a scaling
+	// the fair-dice sampler is known blind to. Battle Girl Lilith's version of
+	// this set was forecast "worst sampled branch loses 1" fourteen times and
+	// swept six Pokemon in twelve. The warning must reach the DOM the player
+	// reads, not only the plan object.
+	const session = await open();
+	const page = session.page;
+
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.fill('#runbun-run-catch-species', 'Poochyena');
+	await page.fill('#runbun-run-catch-level', '3');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 10000});
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party.length === 1,
+		null, {timeout: 10000});
+
+	// Plan Darian from the road-ahead list — the panel shows eight upcoming
+	// fights and he is the sixth.
+	await page.click('.runbun-run-up-plan[data-trainer="Fisherman Darian"]');
+	await page.waitForFunction(
+		() => /CAUTION/.test(document.querySelector('#runbun-run-plan-verdict').textContent),
+		null, {timeout: 20000});
+	const warned = await page.textContent('#runbun-run-plan-verdict');
+	assert.match(warned, /Magikarp holds Focus Sash \+ Flail/,
+		'the set is named, not gestured at');
+	assert.match(warned, /under-price pinch moves/,
+		'and the reason is stated: the samples cannot price this');
+
+	// A fight with no such set must NOT carry the warning — a caution on every
+	// verdict is a caution on none.
+	await page.click('#runbun-run-plan');
+	await page.waitForFunction(
+		() => /decided|contested|only one/.test(
+			document.querySelector('#runbun-run-plan-verdict').textContent) &&
+			!/CAUTION/.test(document.querySelector('#runbun-run-plan-verdict').textContent),
+		null, {timeout: 20000});
+
+	await session.context.close();
+});
+
 test('an answer the run has moved past is marked stale', {skip}, async () => {
 	// Plan, Advise, Rank, Routes and Board are computed against the run AS IT
 	// WAS. That is fine — they are on-demand questions — but an advisor sheet

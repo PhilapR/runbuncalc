@@ -2210,13 +2210,26 @@
 					' · a sampled branch loses ' + counts.deaths +
 						(counts.deaths === 1 ? ' Pokemon' : ' Pokemon');
 			}
+			// A clean sample against a set the sampler cannot price is not the
+			// same claim as a clean sample elsewhere. Lilith's sash Mankey was
+			// forecast "worst sampled branch loses 1" fourteen times and swept
+			// the party in twelve — so a threshold set is named on the verdict
+			// itself, whether or not a forecast arrived, because the threat is
+			// true either way.
+			var caution = '';
+			if (result.thresholdThreats && result.thresholdThreats.length) {
+				caution = ' · CAUTION: ' + result.thresholdThreats.map(function (threat) {
+					return threat.species + ' holds ' + threat.holds + ' + ' + threat.move;
+				}).join(', ') + ' — the samples under-price pinch moves, keep a faster ' +
+					'finisher or chip damage in hand';
+			}
 			$('#runbun-run-plan-verdict').text((
 				result.confidence === 'contested' ?
 					result.trainer + ' — contested by ' + result.margin + '. Plan for both.' :
 					result.confidence === 'only-option' ?
 						result.trainer + ' — only one action available.' :
 						result.trainer + ' — decided by ' + result.margin + '.'
-			) + survival);
+			) + survival + caution);
 			// The button lives at the top of the panel and the answer renders
 			// below the fold — bring the verdict to the player, same as
 			// advise() and rank() already do.
