@@ -684,6 +684,21 @@
 			"evidence": "Split out of engine-debits-currencies-it-cannot-source, which closed the half about Rare Candy and Heart Scales and could not close this one. Re-derived here: heartScales joins 27 of 30 rows to a dated map by place name and rareCandies 9 of 14, while evolutionItems joins 0 of 23. The reason is shape, not coverage — the sheet's place column holds sentences. \"Sold at Mauville City Pokemon Mart. Given 1x from NPC Cutter in Rustboro City.\" and \"Granite Cave, ice floor, at the L shaped rock formation before the stairs (hidden).\" are both places, a shop and a condition, or two places, in one string. A source list built from that column would print a sentence where the other two print a route. The 23 rows name Everstone, Moon Stone, Fire Stone, Water Stone and the rest, which is the input evolution planning needs most: `adviseUpgrades` already offers an evolution the run has earned, and cannot say where the stone for it is. Fixing this is a parse rather than an import — the places are IN the prose and several are shops rather than ground items, which is a distinction the other sheets never had to make."
 		},
 		{
+			"id": "the-fair-dice-sampler-cannot-price-a-threshold-set",
+			"source": "review/test-run",
+			"raised_on": "2026-08-26",
+			"severity": "high",
+			"area": "engine",
+			"file": "vendor/pokemon-run-runtime/index.js",
+			"line": null,
+			"claim": "The fair-dice survival sampler does not scale Reversal, Flail or Endeavor with the user's missing health, so an enemy that holds a sash or pinch berry with one of those moves is forecast as a scratch and plays as a sweep. 41 fights in the run map carry the set.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Found by the calibration curve, not by anyone reading code: win rate by predicted losses ran 100 / 81.5 / 98.2 / 100 down the buckets, and a verdict predicting ONE loss losing more often than one predicting three is a bucket that means something other than what it says. Every loss in that bucket was Battle Girl Lilith: 12 of 14 attempts, each forecast \"decided by 9 · a sampled branch loses 1 Pokemon\". The transcript shows why — her Mankey holds Focus Sash + Reversal, survives our best hit at 2%, and one-shots six consecutive slower switch-ins with max-power STAB Reversal before any of them moves. Predicted 1, actual 7. The blindness is structural: the pinned provider bundle contains the string Reversal exactly once, as a move-table name, with no HP-threshold power formula anywhere, while the engine that PLAYS the fight implements the scaling (calc gen789, case Reversal) — which is why the played sweep is real and the sampled scratch is not. Sized against the run map: 51 threshold movers, 41 anchored by sash, pinch berry, Sturdy or Endure, from Fisherman Darian's Flail Magikarp at order 14 to Reversal Urshifu and Crabominable on two Elite Four teams. Over the post-perf batch, 23 of 30 threshold fights lost two or more MORE than predicted (loss_mae 2.6 overall), and excluding them repairs the whole curve: the loses-1 bucket goes 81.5% to 100.0% and both monotonicity breaks vanish. MITIGATED in 11519d9: planNext returns thresholdThreats and the verdict appends a CAUTION naming the set — an unanchored threshold mover is deliberately not named, so the warning stays rare enough to read. NOT FIXED here, because the sampler is the pinned vendor provider and re-pinning it is the other session's surface; the fix is Reversal/Flail/Endeavor power scaling in the provider, and this entry plus tags.underpriced = true in MLflow is the acceptance test waiting for it. Every mispriced fight carries a trace with the transcript as events and an expectation/feedback pair, QC-verified complete (455 traces, 7,765 turn spans, 17,061 events)."
+		},
+		{
 			"id": "worst-case-covers-the-ceiling-not-the-race",
 			"source": "review/test-run",
 			"raised_on": "2026-08-21",
