@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "fastexcel>=0.21.0",
+    "litellm",
     "mlflow>=3.15.1",
     "polars>=1.44.0",
 ]
