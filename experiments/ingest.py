@@ -27,12 +27,21 @@ from __future__ import annotations
 import datetime as dt
 import json
 import math
+import os
 import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
+# Trace export is asynchronous by default and its queue is sized for a live
+# app, not a batch loader: 455 fight traces overflowed it and spans were
+# silently dropped ("Queue full, dropping Span"), leaving 166 of 491 traces in
+# the store. This is an offline ingest; slow and complete beats fast and
+# partial.
+os.environ.setdefault("MLFLOW_ENABLE_ASYNC_TRACE_LOGGING", "false")
+
 import mlflow
+from mlflow.entities import SpanEvent
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "ui-playthrough-out"
@@ -718,7 +727,132 @@ CALIBRATION_METRIC_NOTES = {
         "that number. This is the calibration curve; step 0 is the clean bucket."
     ),
     "sample_by_predicted_losses": "how many fights sit behind each point of that curve.",
+    "safe_win_rate_by_predicted_losses": (
+        "the same curve restricted to fights with no sash/pinch-berry plus "
+        "Reversal/Flail/Endeavor on the other side — the sets the fair-dice "
+        "sampler is known blind to. The gap between the curves is the price "
+        "of that blindness, not noise."
+    ),
+    "threshold_fights": "planned fights whose enemy carries such a set.",
+    "threshold_underpriced": (
+        "threshold fights where actual deaths beat the predicted count by two "
+        "or more — the sweep the sample called a scratch."
+    ),
+    "loss_mae": "mean |predicted - actual| deaths over fights that predicted a number.",
 }
+
+
+def _log_fight_traces(client, data: dict) -> None:
+    """One trace per evaluation, so a bad forecast is one click, not a dig.
+
+    Finding why Battle Girl Lilith's 'worst sampled branch loses 1' lost
+    twelve fights took reading raw report JSON by hand. Every evaluation
+    already carries a turn-by-turn timeline; this replays it as spans under a
+    root that states the claim and the outcome side by side, tagged so the
+    mispriced ones can be filtered to directly.
+    """
+    stamp = data.get("recordedAt")
+    if not stamp:
+        return
+    try:
+        base_ns = int(dt.datetime.fromisoformat(stamp).timestamp() * 1e9)
+    except ValueError:
+        return
+    for i, fight in enumerate(data.get("evaluations", [])):
+        # Synthetic clock: one second per fight, one ms per turn. The reports
+        # do not record per-turn wall time and the tree is the point.
+        start = base_ns + i * 1_000_000_000
+        threats = fight.get("thresholdThreats") or []
+        predicted = fight.get("predictedLosses")
+        actual = fight.get("actualLosses", 0)
+        root = client.start_trace(
+            name=f"{fight.get('trainer')} #{i} {fight.get('outcome')}",
+            span_type="CHAIN",
+            attributes={
+                "trainer": fight.get("trainer"),
+                "outcome": fight.get("outcome"),
+                "predicted_losses": predicted,
+                "actual_losses": actual,
+                "underpriced_by": (actual - predicted)
+                if predicted is not None
+                else None,
+                "stance": fight.get("stance"),
+                "margin": fight.get("margin"),
+                "threshold_threats": "; ".join(
+                    f"{t['species']} {t['move']} ({t['holds']})" for t in threats
+                ),
+                "verdict": str(fight.get("verdict"))[:400],
+                "report": fight.get("report"),
+            },
+            # Tags are the searchable surface: `tags.outcome = 'wiped'` or
+            # `tags.underpriced = 'true'` in the trace filter, with no need to
+            # know which span carries which attribute.
+            tags={
+                "trainer": str(fight.get("trainer")),
+                "outcome": str(fight.get("outcome")),
+                "threshold": "true" if threats else "false",
+                "underpriced": "true"
+                if predicted is not None and actual > predicted + 1
+                else "false",
+            },
+            start_time_ns=start,
+        )
+        # The transcript, line by line, as span EVENTS — "Foe Mankey used
+        # Reversal. (100% to Tirtouga)" belongs on the trace itself, not only
+        # in a JSON artifact one more click away. Timestamps are the same
+        # synthetic clock the spans use.
+        for k, line in enumerate(fight.get("log") or []):
+            root.add_event(
+                SpanEvent(name=str(line)[:200], timestamp=start + k * 500_000)
+            )
+        timeline = fight.get("timeline") or []
+        for turn, state in enumerate(timeline):
+            span = client.start_span(
+                name=f"turn {turn}: {state.get('us')} vs {state.get('foe')}",
+                trace_id=root.trace_id,
+                parent_id=root.span_id,
+                span_type="TOOL",
+                attributes={
+                    "us": state.get("us"),
+                    "us_hp_pct": state.get("usHp"),
+                    "foe": state.get("foe"),
+                    "foe_hp_pct": state.get("foeHp"),
+                    "bench": ", ".join(state.get("bench") or []),
+                },
+                start_time_ns=start + turn * 1_000_000,
+            )
+            client.end_span(
+                trace_id=root.trace_id,
+                span_id=span.span_id,
+                end_time_ns=start + (turn + 1) * 1_000_000,
+            )
+        client.end_trace(
+            trace_id=root.trace_id,
+            end_time_ns=start + (len(timeline) + 1) * 1_000_000,
+        )
+        # The claim and the grade, as first-class assessments rather than
+        # attributes: an EXPECTATION is what the plan promised, FEEDBACK is
+        # what the fight did to that promise. This is the reviewable unit —
+        # the UI's review surface and `search_traces` both key on it, and
+        # `trace_qc.py` refuses an ingest where any fight lacks its pair.
+        # Logged AFTER end_trace, because an assessment attaches to a
+        # persisted trace and a live one is not persisted yet.
+        if predicted is not None:
+            mlflow.log_expectation(
+                trace_id=root.trace_id, name="predicted_losses", value=predicted
+            )
+            mlflow.log_feedback(
+                trace_id=root.trace_id, name="actual_losses", value=actual
+            )
+            mlflow.log_feedback(
+                trace_id=root.trace_id,
+                name="verdict_held",
+                value=actual <= predicted + 1,
+                rationale=(
+                    f"plan said {predicted}, fight lost {actual}"
+                    + ("; threshold set on the enemy side" if threats else "")
+                ),
+            )
 
 
 def ingest_calibration(path: Path) -> str:
@@ -785,6 +919,48 @@ def ingest_calibration(path: Path) -> str:
         mlflow.log_metric("monotonicity_breaks", len(breaks))
         if breaks:
             mlflow.set_tag("monotonicity", "; ".join(breaks)[:480])
+
+        # The honest curve: threshold-set fights excluded. When the full curve
+        # breaks monotonicity and this one does not, the break IS the sampler's
+        # known blindness rather than a mystery.
+        for row in data.get("curveExcludingThresholdThreats", []):
+            step = int(row["predictedLosses"])
+            mlflow.log_metric(
+                "safe_win_rate_by_predicted_losses", row["winRate"], step=step
+            )
+            mlflow.log_metric("safe_sample_by_predicted_losses", row["n"], step=step)
+
+        evaluations = data.get("evaluations", [])
+        if evaluations:
+            threshold = [e for e in evaluations if e.get("thresholdThreats")]
+            underpriced = [
+                e
+                for e in threshold
+                if e.get("predictedLosses") is not None
+                and e.get("actualLosses", 0) > e["predictedLosses"] + 1
+            ]
+            errors = [
+                abs(e["actualLosses"] - e["predictedLosses"])
+                for e in evaluations
+                if e.get("predictedLosses") is not None
+            ]
+            mlflow.log_metrics(
+                {
+                    "threshold_fights": len(threshold),
+                    "threshold_underpriced": len(underpriced),
+                    "loss_mae": (sum(errors) / len(errors)) if errors else 0.0,
+                }
+            )
+            # An artifact per evaluation: claim, outcome, timeline, transcript.
+            # One click to the fight, instead of an archaeology dig through
+            # report JSON when a bucket goes wrong.
+            for i, fight in enumerate(evaluations):
+                slug = re.sub(r"[^0-9a-zA-Z]+", "-", str(fight.get("trainer", "")))
+                mlflow.log_text(
+                    json.dumps(fight, indent=2),
+                    f"fights/{i:03d}-{slug}-{fight.get('outcome')}.json",
+                )
+            _log_fight_traces(mlflow.tracking.MlflowClient(), data)
 
         mlflow.log_text(json.dumps(data, indent=2), "calibration.json")
         mlflow.log_text(

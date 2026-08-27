@@ -78,3 +78,60 @@ Use `p_pass_gavi` and `p_beat_brawly`, which have one observation per run.
 
 The ratio is still worth having: it says how many attempts a wall costs, which
 is a claim about efficiency rather than about significance.
+
+## The tracking standard
+
+Every batch gets one label and up to three runs on it, each answering a
+question the others cannot:
+
+- **measurement** (`ab.js --measure`) — how far runs get. Reach, walls,
+  forecast rate.
+- **cost** (`cost-bench.js`) — where the work goes, counted in constructed
+  calculator objects because wall clock measures the shared runner.
+- **calibration** (`plan-calibration.js`) — whether the plan told the truth,
+  fight by fight.
+
+One revision per label. The `valid` tag is `VALID` only when every report in
+the batch names the same revision; anything else is `POOLED` and must not be
+charted as one product.
+
+### Metrics
+
+Named by role, never by arm. Curves go in **stepped** (`log_metric(...,
+step=n)`) so the shape is one chart, not n charts. Every run carries a
+`METRICS.md` artifact defining its metric names, because a chart legend is
+all a reader gets.
+
+### Traces: one per evaluation
+
+A fight is an evaluation, and each one gets a full trace:
+
+- **root span** — the claim and the grade side by side: `predicted_losses`,
+  `actual_losses`, `underpriced_by`, the verdict string the player read.
+- **turn spans** — one per timeline entry, HP on both sides, the bench.
+- **events** — the transcript, line by line, on the root. "Foe Mankey used
+  Reversal. (100% to Tirtouga)" belongs on the trace, not one click away.
+- **tags** — the searchable dimensions: `outcome`, `trainer`, `threshold`,
+  `underpriced`. `tags.underpriced = 'true'` in the filter box is the whole
+  triage workflow.
+- **assessments** — `predicted_losses` as an *expectation*, `actual_losses`
+  and `verdict_held` as *feedback* with a rationale. Logged after
+  `end_trace`, because assessments attach to persisted traces only.
+- **artifacts** — `fights/NNN-trainer-outcome.json`, the complete record.
+
+Batch ingest must set `MLFLOW_ENABLE_ASYNC_TRACE_LOGGING=false` (ingest.py
+does). The async queue is sized for a live app and silently dropped 60% of
+the first batch — "Queue full, dropping Span" in a scrollback nobody reads.
+
+### Review is required, and it refuses
+
+`uv run python trace_qc.py <label>` recounts everything against the source
+JSON: traces against evaluations, turn spans against timeline entries, events
+against transcript lines, assessments against predicted fights. Any mismatch
+is exit 1. A pass stamps `qc_*` metrics and `qc = PASS` on the calibration
+run — **a calibration run without that tag has not been reviewed** and its
+traces must not be cited.
+
+Ingest is not idempotent: re-running it duplicates runs and traces. Delete
+the label's calibration run and wipe the trace tables before re-ingesting,
+then re-run QC.
