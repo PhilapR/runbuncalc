@@ -555,3 +555,19 @@ test('a pinned box parses exactly or refuses at startup', () => {
 	assert.throws(() => policy.parsePinBox('Blipbug:five'), /cannot read/);
 	assert.throws(() => policy.parsePinBox('Blipbug:5,,'), /cannot read/);
 });
+
+test('the A/B harness forwards `--` args and refuses its own typos', () => {
+	// The harness docblock promised "everything after `--` is passed to both
+	// arms" and nothing implemented it: a pinned-box experiment ran six runs
+	// with no pin, the treatment was inert, and the batch printed VALID — the
+	// exact bug class the harness exists to refuse, committed by the harness.
+	const ab = require('../scripts/ab.js');
+	assert.deepEqual(
+		ab.parseAbArgv(['node', 'ab.js', '--pairs=6', '--', '--pin-box=Blipbug:5', '--x=1']),
+		{own: ['--pairs=6'], passthrough: ['--pin-box=Blipbug:5', '--x=1']});
+	assert.deepEqual(ab.parseAbArgv(['node', 'ab.js', '--pairs=6']),
+		{own: ['--pairs=6'], passthrough: []});
+	// A bare `--` forwards nothing and owns nothing extra.
+	assert.deepEqual(ab.parseAbArgv(['node', 'ab.js', '--']),
+		{own: [], passthrough: []});
+});

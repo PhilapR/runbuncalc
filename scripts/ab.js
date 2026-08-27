@@ -98,9 +98,37 @@ function dropWorktree(dir) {
 }
 const STARTERS = ['Turtwig', 'Chimchar', 'Piplup'];
 
+/**
+ * The harness's own argv, held to the discipline it imposes on the driver.
+ *
+ * The docblock promised "everything after `--` is passed to both arms" and
+ * nothing implemented it: a `--pin-box` experiment ran six pinned-box runs
+ * with no pin, the treatment was inert, and the batch still printed VALID —
+ * the exact class of bug this harness exists to refuse ("the control
+ * silently ran the treatment with a term switched off"), committed by the
+ * harness itself. So the promise is implemented, and an own-flag nothing
+ * reads is now a refusal, because the driver-side unread audit cannot see an
+ * argument that was dropped before the driver was spawned.
+ */
+function parseAbArgv(argv) {
+	const dash = argv.indexOf('--');
+	return {
+		own: dash === -1 ? argv.slice(2) : argv.slice(2, dash),
+		passthrough: dash === -1 ? [] : argv.slice(dash + 1),
+	};
+}
+const ARGV = parseAbArgv(process.argv);
+const READ_FLAGS = new Set();
 function flag(name, fallback) {
-	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
+	READ_FLAGS.add(name);
+	const hit = ARGV.own.find(arg => arg.startsWith('--' + name + '='));
 	return hit === undefined ? fallback : hit.slice(name.length + 3);
+}
+function unreadOwnFlags() {
+	return ARGV.own.filter(arg => {
+		const hit = /^--([^=]+)=/.exec(arg);
+		return !hit || !READ_FLAGS.has(hit[1]);
+	});
 }
 
 function git(args) {
@@ -263,7 +291,14 @@ async function main() {
 	// nothing it produces is a claim about a real run.
 	const shared = (flag('shared',
 		'--rules=encounters --box=22 --party=matrix --tms=advisor ' +
-		'--fights=90 --budget=480 --plan=1')).split(' ').filter(Boolean);
+		'--fights=90 --budget=480 --plan=1')).split(' ').filter(Boolean)
+		.concat(ARGV.passthrough);
+	const unrecognised = unreadOwnFlags();
+	if (unrecognised.length) {
+		console.error('ab: unrecognised argument(s) ' + unrecognised.join(' ') +
+			' — driver flags go after `--`, e.g. `-- --pin-box=...`');
+		process.exit(1);
+	}
 
 	const startRevision = git(['rev-parse', 'HEAD']);
 	const startDirty = git(['status', '--porcelain']) !== '';
@@ -438,4 +473,4 @@ if (require.main === module) {
 	});
 }
 
-module.exports = {fisher: fisher, summarise: summarise};
+module.exports = {fisher: fisher, summarise: summarise, parseAbArgv: parseAbArgv};
