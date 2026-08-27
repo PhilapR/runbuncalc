@@ -1284,6 +1284,31 @@
 			});
 		}
 
+		// The threshold demand, right under the levelling: when the next fight
+		// holds a sash-threshold set, a party with no priority attack is walking
+		// into Lilith's Mankey — six slower Pokemon swept from 2% HP because
+		// nothing could move first. Informational row, same as levels: there is
+		// no section to send anyone to, the teach form is already on screen.
+		var prep = opportunity.thresholdPrep || {threats: []};
+		if (prep.threats.length) {
+			addRow({
+				kind: null,
+				name: prep.covered ? 'Priority answer ready' : 'No priority answer',
+				detail: prep.covered ?
+					preview(prep.priorityAnswers.map(function (row) {
+						return displayText(row.species) + ' knows ' + row.move;
+					}), 2) :
+					(prep.teachable.length ?
+						'Teach ' + preview(prep.teachable.map(function (row) {
+							return row.move + ' to ' + displayText(row.species);
+						}), 2) :
+						'Nothing in the party can learn one \u2014 bring chip damage or a faster lead'),
+				title: prep.threats.map(function (threat) {
+					return threat.species + ' holds ' + threat.holds + ' + ' + threat.move;
+				}).join('; '),
+			});
+		}
+
 		var encounters = opportunity.encounters || {count: 0, routes: []};
 		addRow({
 			kind: encounters.count ? 'encounters' : null,

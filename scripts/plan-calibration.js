@@ -150,10 +150,22 @@ function main() {
 				if (!threats.length) bump(byLossesSafe, claim.predictedLosses, won);
 			}
 			// What actually happened, counted off the transcript rather than
-			// inferred from the outcome: our faints are the lines that do not
-			// start with "Foe".
-			const actualLosses = (fight.log || []).filter(line =>
-				/fainted!$/.test(line) && !/^Foe /.test(line)).length;
+			// inferred from the outcome. Faint lines carry no side prefix —
+			// "Makuhita fainted!" is the enemy and "Pidgeotto fainted!" is ours
+			// — so the first version of this counted BOTH sides and reported
+			// medians of nine deaths from a six-slot party. Ours are the names
+			// the timeline puts on our side of the field or bench.
+			const ourNames = new Set();
+			for (const state of fight.detail || []) {
+				if (state.us) ourNames.add(String(state.us).replace(/ L\d+.*$/, ''));
+				for (const entry of state.bench || []) {
+					ourNames.add(String(entry).replace(/ \d+%$/, ''));
+				}
+			}
+			const actualLosses = (fight.log || []).filter(line => {
+				const fell = line.match(/^(.+) fainted!$/);
+				return fell && ourNames.has(fell[1]);
+			}).length;
 			perFight.push({
 				report: name, index,
 				trainer: fight.trainer,

@@ -1685,6 +1685,60 @@ test('the run plans the next fight with the party it actually has', () => {
 	assert.ok(plan.actions.length > 1);
 });
 
+test('before a threshold fight, the list demands a priority answer', () => {
+	// The enforcement half of the threshold warning. Lilith's sash Mankey swept
+	// six SLOWER Pokemon from 2% HP — nothing alive could move first, so
+	// nothing could collect a 1-HP kill. A priority move ignores the speeds,
+	// which makes it the tool the fight demands, and preFightOpportunities now
+	// refuses to stay quiet when the party lacks one.
+	const IVS = {hp: 20, atk: 20, def: 20, spa: 20, spd: 20, spe: 20};
+	let state = fresh({levelCap: 'none'});
+	state = run.apply(state, {kind: 'catch', species: 'Poochyena', level: 12, ivs: IVS});
+	// A second member who could ALSO learn a priority move (Marill: Aqua Jet),
+	// so "stops shopping once covered" is observable: without it, an emptied
+	// teachable list after teaching Poochyena proves nothing, because the
+	// taught move simply left its own learnable set — which is exactly how the
+	// first falsification of this gate failed to fire.
+	state = run.apply(state, {kind: 'catch', species: 'Marill', level: 12, ivs: IVS});
+	state = run.apply(state, {kind: 'party', ids: [state.box[0].id, state.box[1].id]});
+	for (const trainer of ['Youngster Calvin', 'Bug Catcher Rick', 'Youngster Allen',
+		'Lass Tiana', 'Triathlete Mikey']) {
+		state = run.apply(state, {kind: 'beat', trainer});
+	}
+
+	// Standing before Fisherman Darian and his sash Flail Magikarp.
+	const prep = run.preFightOpportunities(state).thresholdPrep;
+	assert.deepEqual(prep.threats,
+		[{species: 'Magikarp', move: 'Flail', holds: 'Focus Sash'}]);
+	assert.equal(prep.covered, false, 'Poochyena at 12 has no priority attack');
+	assert.deepEqual(prep.teachable,
+		[{id: 'mon-1', species: 'Poochyena', move: 'Sucker Punch'},
+			{id: 'mon-2', species: 'Marill', move: 'Aqua Jet'}],
+		'every fix is named, and each is one that Pokemon can actually learn');
+	// Snatch is +4 priority and learnable RIGHT NOW, and it must not be here:
+	// status priority cannot collect a 1-HP kill, which is the whole job.
+	assert.ok(!prep.teachable.some(row => row.move === 'Snatch'),
+		'status priority is not an answer');
+
+	// Teach the suggestion — through the run's own economy, which charges a
+	// Heart Scale for an egg move — and the demand is satisfied.
+	state = run.apply(state, {kind: 'acquire', item: 'Heart Scale'});
+	state = run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Sucker Punch',
+		replace: state.box[0].moves[0]});
+	const after = run.preFightOpportunities(state).thresholdPrep;
+	assert.equal(after.covered, true);
+	assert.deepEqual(after.priorityAnswers,
+		[{id: 'mon-1', species: 'Poochyena', move: 'Sucker Punch'}]);
+	assert.deepEqual(after.teachable, [],
+		'once covered it stops shopping: the point is a missing tool, not a catalogue');
+
+	// A next fight with no threshold set reports the quiet shape, not a missing
+	// key — absent reads as "not modelled", and this is modelled.
+	const calm = run.preFightOpportunities(run.apply(fresh({levelCap: 'none'}),
+		{kind: 'catch', species: 'Poochyena', level: 12, ivs: IVS})).thresholdPrep;
+	assert.deepEqual(calm, {threats: [], priorityAnswers: [], teachable: [], covered: true});
+});
+
 test('a plan names the threshold set the samples cannot price', () => {
 	// Battle Girl Lilith's Mankey holds Focus Sash + Reversal. The fair-dice
 	// sampler is known blind to HP-threshold power — the pinned provider's
