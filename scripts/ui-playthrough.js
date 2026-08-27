@@ -212,6 +212,11 @@ const SCREEN_CONTROL = flag('screen-control', '1') !== '0';
 // need 3, they need 2" races the walls are made of, where a Speed drop only
 // reorders them. `0` removes the rule entirely, which is the control arm.
 const ATTACK_DROP = flag('attack-drop', '1') !== '0';
+// How a level-up teach chooses its victim. The old rule was options[0] —
+// whatever sat first in the replace select — which is how Spheal learned
+// Charm over Ice Ball 27 times and the advisor then bought the slot back 27
+// times with Brine. `0` restores that, as the control arm.
+const SMART_REPLACE = flag('smart-replace', '1') !== '0';
 
 /**
  * Whether to reorder the party so the fair-dice forecast's recommended lead
@@ -670,6 +675,36 @@ let strongestFoe = 0;
 
 /** Levelling teaches: a full moveset stops and asks, so the pending move is
  * taught over the oldest one — which is what a player does with Tackle. */
+/**
+ * Which known move a level-up teach should replace.
+ *
+ * Deterministic and value-ordered, with two guards the plain argmin gets
+ * wrong. A STATUS arrival never takes the mon's last attack — that is how a
+ * L12 Abra ended up all-status, pressing Kinesis seven turns into a L9
+ * Clobbopus — and control moves the play rules can now press (drops, slow
+ * moves, screens, heals) are only spent when nothing better is on the bar,
+ * per Philip's note that a kept drop can be worth more than a fourth attack.
+ */
+function pickReplace(options, incoming, species) {
+	if (!options || !options.length) return null;
+	if (!SMART_REPLACE) return options[0];
+	const damaging = name => basePowerOf(name) > 0;
+	const attacks = options.filter(damaging);
+	const weakestAttack = attacks.slice()
+		.sort((a, b) => basePowerOf(a) - basePowerOf(b))[0];
+	if (attacks.length > 1 || (damaging(incoming) && attacks.length === 1)) {
+		return weakestAttack;
+	}
+	const controls = options.filter(name => !damaging(name));
+	if (controls.length) {
+		const mine = typesOf(species);
+		return controls.slice().sort((a, b) =>
+			moveValue(a, mine, []) - moveValue(b, mine, []) ||
+			options.indexOf(a) - options.indexOf(b))[0];
+	}
+	return options[0];
+}
+
 async function teachPending(page, mon, status) {
 	const hit = /so (.+?) must be taught over something/.exec(status);
 	if (!hit) return;
@@ -679,15 +714,16 @@ async function teachPending(page, mon, status) {
 		const options = await page.$$eval('#runbun-run-replace option',
 			els => els.map(el => el.value).filter(Boolean));
 		if (!options.length) return;
+		const replace = pickReplace(options, move, mon.species);
 		await page.fill('#runbun-run-move', move);
-		await page.selectOption('#runbun-run-replace', options[0]);
+		await page.selectOption('#runbun-run-replace', replace);
 		const taught = await act(page, 'teach ' + move,
 			() => press(page, '#runbun-run-teach'));
 		if (!taught.changed) {
 			note('teach', mon.species + ' could not learn ' + move + ' — ' + taught.status);
 			return;
 		}
-		note('teach', mon.species + ' learned ' + move + ' over ' + options[0]);
+		note('teach', mon.species + ' learned ' + move + ' over ' + replace);
 	}
 }
 
@@ -2720,6 +2756,7 @@ async function main() {
  * this is the program rather than an import.
  */
 module.exports = {
+	pickReplace: pickReplace,
 	decide: decide,
 	isSlowControl: isSlowControl,
 	raceOf: raceOf,

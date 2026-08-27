@@ -460,3 +460,43 @@ test('a lost race into a physical hitter halves the hit', () => {
 	assert.notEqual(legacy.decide(view, memory(), []).pick.move, 'Charm',
 		'the control arm never presses an Attack drop');
 });
+
+test('a level-up teach replaces the right move, not the first-listed one', () => {
+	// Spheal learned Charm over Ice Ball 27 times because teachPending took
+	// options[0], and the advisor then bought the slot back 27 times with
+	// Brine. Traced through the journals: 48 of 48 attributable drop teaches
+	// were level-up arrivals, 72 of 85 churned out again before the walls.
+	// The choice is value-ordered now, with two guards.
+
+	// An incoming ATTACK takes the weakest attack — never the first-listed.
+	assert.equal(policy.pickReplace(
+		['Charm', 'Bubble Beam', 'Water Gun', 'Growl'], 'Ice Beam', 'Marill'),
+	'Water Gun', 'the weakest attack goes, not whatever sat first');
+
+	// A STATUS arrival never takes the last attack: an all-status mon is how
+	// a L12 Abra pressed Kinesis seven turns into a L9 Clobbopus and died.
+	assert.equal(policy.pickReplace(
+		['Tackle', 'Charm', 'Growl', 'Baby-Doll Eyes'], 'Sing', 'Marill'),
+	'Charm', 'the last attack survives a status arrival');
+
+	// An incoming attack MAY take the last attack — the bar keeps one either
+	// way.
+	assert.equal(policy.pickReplace(
+		['Tackle', 'Charm', 'Growl', 'Baby-Doll Eyes'], 'Bubble Beam', 'Marill'),
+	'Tackle');
+
+	// Control moves the play rules press are spent only when nothing better
+	// is on the bar: with two attacks up, the drop survives even listed first.
+	assert.equal(policy.pickReplace(
+		['Icy Wind', 'Charm', 'Bubble Beam', 'Tackle'], 'Surf', 'Marill'),
+	'Tackle', 'the drop and the slow move outlive the weakest attack');
+
+	// Empty options is a null, not a throw — the caller skips the teach.
+	assert.equal(policy.pickReplace([], 'Surf', 'Marill'), null);
+
+	// The control arm restores options[0] exactly.
+	const legacy = loadWith(['--smart-replace=0']);
+	assert.equal(legacy.pickReplace(
+		['Charm', 'Bubble Beam', 'Water Gun', 'Growl'], 'Ice Beam', 'Marill'),
+	'Charm', 'the control arm takes whatever sits first');
+});
