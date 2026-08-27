@@ -135,3 +135,22 @@ traces must not be cited.
 Ingest is not idempotent: re-running it duplicates runs and traces. Delete
 the label's calibration run and wipe the trace tables before re-ingesting,
 then re-run QC.
+
+### Retention
+
+After a batch is calibrated, ingested, and QC-passed, the raw artifacts are
+redundant and can go:
+
+- **delete** the per-run driver `.log` files (raw stdout — a proven-broken
+  instrument for analysis; the journal lives in the reports) and screenshots
+- **delete** the batch's `report-*.json` once its calibration JSON exists —
+  every fight's verdict, timeline and transcript is embedded there and
+  QC-verified in MLflow
+- **keep** every `*-calibration.json` (QC audits against them), the
+  measure/ab/cost summaries, the old shell-loop tally logs (ingest re-reads
+  them), and the historical pre-batch reports — those carry the deep run
+  documents all real-state sampling depends on and cannot be regenerated
+- **never delete** `mlflow.db` or `mlruns/` — they are the system of record
+
+Run `trace_qc.py` for every label after cleaning; a PASS proves the record
+survived the deletion.
