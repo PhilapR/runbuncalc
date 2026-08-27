@@ -571,3 +571,19 @@ test('the A/B harness forwards `--` args and refuses its own typos', () => {
 	assert.deepEqual(ab.parseAbArgv(['node', 'ab.js', '--']),
 		{own: [], passthrough: []});
 });
+
+test('a free slot takes a tool move the other teach paths skip', () => {
+	// Dottler reached L17 pinned with TWO moves and no Reflect: teachPending
+	// fires only on the full-moveset prompt, and the advisor prices teaches by
+	// damage delta, which a screen does not have. The free-slot filler teaches
+	// only TOOL moves — things the play rules actually press — so it can add a
+	// Reflect and can never spend a slot on one more mediocre attack.
+	for (const move of ['Reflect', 'Light Screen', 'Icy Wind', 'Charm',
+		'Cotton Spore', 'Aqua Jet', 'Rock Blast']) {
+		assert.ok(policy.isToolTeach(move), move + ' is a tool worth a free slot');
+	}
+	for (const move of ['Tackle', 'Bubble Beam', 'Hyper Beam', 'Splash']) {
+		assert.ok(!policy.isToolTeach(move),
+			move + ' is not — plain damage is the advisor\'s job, and Splash is nobody\'s');
+	}
+});

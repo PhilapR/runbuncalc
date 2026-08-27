@@ -231,6 +231,18 @@ const SMART_REPLACE = flag('smart-replace', '1') !== '0';
  * on an empty pin — an A/B whose treatment silently failed to apply is how
  * this repository measured box luck at p=0.05 once already.
  */
+// Tool moves into FREE slots. Dottler reached L17 pinned with two moves and
+// no Reflect, because every teach path had a reason to skip it: teachPending
+// fires only on the full-moveset prompt, and the advisor prices teaches by
+// damage delta, which a screen does not have. A mon with an empty slot and a
+// learnable move the play rules press should hold that move. Free slots
+// ONLY — this never replaces, so it cannot fight the advisor's choices.
+const FILL_TOOL_SLOTS = flag('fill-tool-slots', '1') !== '0';
+function isToolTeach(name) {
+	return SCREEN_MOVES.has(name) || SLOW_MOVES.has(name) ||
+		DAMAGING_SLOW_MOVES.has(name) || ATTACK_DROP_MOVES.has(name) ||
+		attackUtility(name);
+}
 const PIN_BOX = parsePinBox(flag('pin-box', ''));
 function parsePinBox(spec) {
 	if (!spec) return [];
@@ -494,6 +506,45 @@ async function openAllSections(page) {
  * own escape hatch for recording what happened, and a pinned species is not
  * claimed to be on whatever route the selector happened to hold.
  */
+const toolFilledAt = new Map();
+async function fillToolSlots(page) {
+	if (!FILL_TOOL_SLOTS) return;
+	const doc = await savedRun(page);
+	if (!doc) return;
+	for (const id of doc.party || []) {
+		if (outOfTime()) return;
+		const mon = (doc.box || []).find(entry => entry.id === id);
+		if (!mon || (mon.moves || []).length >= 4) continue;
+		if (toolFilledAt.get(mon.id) === mon.level) continue;
+		toolFilledAt.set(mon.id, mon.level);
+		if (!await selectMon(page, mon.id)) continue;
+		await page.evaluate(() => {
+			const el = document.querySelector('#runbun-run-learn-now');
+			if (el) el.textContent = '';
+		});
+		await press(page, '#runbun-run-learnable');
+		try {
+			await page.waitForFunction(
+				() => ((document.querySelector('#runbun-run-learn-now') || {}).textContent || '')
+					.trim().length > 0,
+				null, {timeout: 20000});
+		} catch (error) { continue; }
+		const listed = await text(page, '#runbun-run-learn-now');
+		if (/^\(nothing\)/.test(listed)) continue;
+		const tools = listed.split(',').map(entry => entry.replace(/\*/g, '').trim())
+			.filter(entry => entry && isToolTeach(entry) &&
+				!(mon.moves || []).includes(entry));
+		if (!tools.length) continue;
+		await page.fill('#runbun-run-move', tools[0]);
+		await page.$eval('#runbun-run-replace', el => { el.value = ''; }).catch(() => {});
+		const taught = await act(page, 'tool ' + tools[0],
+			() => press(page, '#runbun-run-teach'));
+		note('tool', taught.changed ?
+			mon.species + ' learned ' + tools[0] + ' into a free slot' :
+			mon.species + ' could not learn ' + tools[0] + ' — ' + taught.status);
+	}
+}
+
 let pinnedDone = false;
 async function pinBox(page) {
 	if (pinnedDone || !PIN_BOX.length) return;
@@ -2631,6 +2682,9 @@ async function main() {
 		// Quick Attack scores nothing against a full-HP grid and everything
 		// against a 1-HP survivor.
 		await prepareForThreshold(page);
+		// And any tool move a FREE slot could hold: the teach paths above all
+		// have a reason to skip a zero-damage move on a mon with room.
+		await fillToolSlots(page);
 		// The SIX WHO FIGHT, not the six caught first. `box` is every catch in
 		// catch order and `party` is a separate list of ids, so handing the
 		// box straight over taught whoever turned up earliest — fine while the
@@ -2861,6 +2915,7 @@ async function main() {
  * this is the program rather than an import.
  */
 module.exports = {
+	isToolTeach: isToolTeach,
 	parsePinBox: parsePinBox,
 	pickReplace: pickReplace,
 	decide: decide,
