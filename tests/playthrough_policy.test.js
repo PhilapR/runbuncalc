@@ -354,3 +354,50 @@ test('a lost race reaches for speed control, lethal turn or not', () => {
 	assert.equal(legacySlow.pick.move, 'Cotton Spore',
 		'the legacy arm still plays a pure-status drop off a lethal turn');
 });
+
+test('a lost race on a lethal turn still sets the screen', () => {
+	// The third instance of one over-caution: status moves, then speed drops,
+	// now screens. Reflect was taught once and pressed never across 118 Brawly
+	// attempts, because at a wall every turn reads lethal and the screen rule
+	// refused lethal turns — while Brawly's team is almost entirely physical
+	// and a screen halves all of it for five turns.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0});
+	const view = {
+		foe: 'Makuhita L18',
+		usHp: 70,
+		risk: 'lethal',
+		threat: 'Makuhita L18 — Their hardest hit: Brick Break 61% — 92% on a crit ' +
+			'· you need 3 turns to KO, they need 2 — YOU LOSE THIS RACE',
+		moves: [
+			{move: 'Bubble Beam', damage: '34%+', title: '34–41%'},
+			{move: 'Reflect', damage: '', title: ''},
+		],
+		switches: [],
+	};
+	const chosen = policy.decide(view, memory(), []);
+	assert.equal(chosen.pick.move, 'Reflect',
+		'a lost race on a lethal turn is exactly when halving their side pays');
+
+	// A WINNING race on a lethal turn attacks instead: the exception is for
+	// races already lost, not a licence to set up while ahead under fire.
+	const winning = Object.assign({}, view, {
+		threat: 'Makuhita L18 — Their hardest hit: Brick Break 61% ' +
+			'· you need 1 turn to KO, they need 2 — you win it',
+	});
+	assert.notEqual(policy.decide(winning, memory(), []).pick.move, 'Reflect',
+		'ahead under fire, the answer is the attack');
+
+	// The control arm refuses the lethal turn, exactly as the old policy did.
+	const legacy = loadWith(['--screen-control=0']);
+	assert.notEqual(legacy.decide(view, memory(), []).pick.move, 'Reflect',
+		'the control arm must refuse the lethal turn');
+
+	// And BOTH arms still set screens off a lethal turn — the old rule is the
+	// old rule, not a casualty of the flag.
+	const calm = Object.assign({}, view, {risk: ''});
+	assert.equal(policy.decide(calm, memory(), []).pick.move, 'Reflect');
+	assert.equal(legacy.decide(calm, memory(), []).pick.move, 'Reflect',
+		'the control arm still screens when no crit threatens');
+});

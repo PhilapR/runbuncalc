@@ -196,6 +196,14 @@ const THRESHOLD_PREP = flag('threshold-prep', '1') !== '0';
 // lethal turns refused), which is the control arm of the A/B that isolates
 // it.
 const SPEED_CONTROL = flag('speed-control', '1') !== '0';
+// Screens on lethal turns when the race is lost — the third instance of the
+// same over-caution, after status (fixed) and speed drops (fixed, isolated
+// at 50-0). Reflect was taught once and pressed never across 118 Brawly
+// attempts, because at a wall every turn reads lethal and the screen rule
+// refused lethal turns. Brawly's team is almost entirely physical; a screen
+// halves all of it for five turns, for the whole side, and survives the
+// switches. `0` restores the old refusal, which is the control arm.
+const SCREEN_CONTROL = flag('screen-control', '1') !== '0';
 
 /**
  * Whether to reorder the party so the fair-dice forecast's recommended lead
@@ -1905,8 +1913,12 @@ function decide(view, memory, roster) {
 	// after — so against a team that wins the race by a single turn it buys
 	// more than an attack that does not KO. Once per screen per fight, never
 	// on a turn a crit would end, and never instead of a KO.
+	// The race is read here as well as below: the lost-race exception needs
+	// it, and raceOf is a pure read of the threat line.
+	const screenRace = raceOf(view);
 	const screen = view.moves.find(entry => !entry.ball && SCREEN_MOVES.has(entry.move));
-	if (screen && !memory.screens.has(screen.move) && view.risk !== 'lethal') {
+	if (screen && !memory.screens.has(screen.move) &&
+		(view.risk !== 'lethal' || (SCREEN_CONTROL && screenRace.lost))) {
 		memory.screens.add(screen.move);
 		return {kind: 'move', pick: {move: screen.move},
 			why: 'setting ' + screen.move + ' before trading'};
