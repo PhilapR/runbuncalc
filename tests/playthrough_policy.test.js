@@ -403,11 +403,16 @@ test('a lost race on a lethal turn still sets the screen', () => {
 });
 
 test('a lost race into a physical hitter halves the hit', () => {
-	// Third instance of taught-but-never-pressed, at scale: Charm x41,
-	// Baby-Doll Eyes x17, Feather Dance x17 taught across 48 runs, zero
-	// presses in 801 wall fights. A -2 Attack drop halves a physical
-	// attacker's damage and so DOUBLES their turns-to-KO — it rescues races a
-	// Speed drop cannot, because reordering never changes the counts.
+	// Third instance of a drop nobody pressed: zero presses in 801 wall
+	// fights. The teach counts (Charm x41 and kin) turned out to be LEVEL-UP
+	// arrivals rather than advisor picks — traced through the journals, 48 of
+	// 48 attributable teaches came from level-up prompts, and 72 of 85 were
+	// churned out again before the walls — so the pressed-zero has two causes:
+	// no play rule knew the drops existed, and most bars no longer carried
+	// them. Free Growl-class arrivals DO survive to the walls, which is what
+	// this rule reaches for. A -2 Attack drop halves a physical attacker's
+	// damage and so DOUBLES their turns-to-KO — it rescues races a Speed drop
+	// cannot, because reordering never changes the counts.
 	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
 		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
 		slowed: new Set(), healed: 0});
