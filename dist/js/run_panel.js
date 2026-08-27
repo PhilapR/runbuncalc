@@ -835,7 +835,7 @@
 		$('#runbun-run-spine-note').text(spine.length ?
 			done + ' / ' + spine.length + ' milestones' +
 				(next ? ' · next: ' + displayText(next.trainer) +
-					' (#' + next.order + ')' : ' — all beaten') :
+					' (#' + (next.fightNumber != null ? next.fightNumber : next.order) + ')' : ' — all beaten') :
 			'');
 	}
 
@@ -2341,7 +2341,7 @@
 		};
 		payload.party.forEach(function (mon) { byId[mon.id] = mon; });
 		$('#runbun-run-advice-note').text(
-			displayText(payload.trainer) + ' (#' + payload.order + ') · ' +
+			displayText(payload.trainer) + ' (#' + (payload.fightNumber != null ? payload.fightNumber : payload.order) + ') · ' +
 			payload.considered + ' available upgrades compared' +
 			(payload.projection.applied && payload.projection.from === 'projected' ?
 				' · party projected to level cap ' + payload.projection.cap : '') +
@@ -2430,7 +2430,7 @@
 			return party.adjudication;
 		}).length;
 		$('#runbun-run-rank-note').text(
-			displayText(payload.trainer) + ' (#' + payload.order + ') · ' +
+			displayText(payload.trainer) + ' (#' + (payload.fightNumber != null ? payload.fightNumber : payload.order) + ') · ' +
 			payload.combinations + ' ' +
 				(payload.combinations === 1 ? 'party' : 'parties') +
 				// A cut box must say so here. "from 36 Pokémon" after the ranker
@@ -2562,7 +2562,7 @@
 	/** The catch advisor: what the open routes could add, on the board. */
 	function renderScout(payload) {
 		$('#runbun-run-routes-note').text(
-			'vs ' + payload.trainer + ' (#' + payload.order + ')' +
+			'vs ' + payload.trainer + ' (#' + (payload.fightNumber != null ? payload.fightNumber : payload.order) + ')' +
 			(payload.cap !== null ? ' at cap ' + payload.cap : '') +
 			' · ' + payload.routesOpen + ' encounter areas open · your party can KO ' +
 			payload.partyCovers + ' of their ' + payload.enemies +
@@ -2846,7 +2846,7 @@
 	function renderMatrix(payload) {
 		var $matrix = $('#runbun-run-matrix').empty();
 		$('#runbun-run-matrix-note').text(
-			payload.trainer + ' (#' + payload.order + ')' +
+			payload.trainer + ' (#' + (payload.fightNumber != null ? payload.fightNumber : payload.order) + ')' +
 			(payload.projection.applied && payload.projection.from === 'projected' ?
 				' · box projected to cap ' + payload.projection.cap +
 					' — the levels the free candy gives you there' :

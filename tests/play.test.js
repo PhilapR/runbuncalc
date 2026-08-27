@@ -131,7 +131,7 @@ test('rank is read-only and renders the shortlist with its lead', () => {
 	const before = fs.readFileSync(file, 'utf8');
 	const ranked = cli('rank');
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'rank must not write');
-	assert.match(ranked, /Youngster Calvin \(#0\)/);
+	assert.match(ranked, /Youngster Calvin \(#1\)/);
 	assert.match(ranked, /\[\w+\]/, 'the lead is bracketed');
 	assert.match(ranked, /assumes free switches/);
 });
@@ -141,7 +141,7 @@ test('scout is read-only and grades open routes against the boss', () => {
 	const before = fs.readFileSync(file, 'utf8');
 	const scouted = cli('scout');
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'scout must not write');
-	assert.match(scouted, /vs Leader Brawly \(#77\) at cap 21/);
+	assert.match(scouted, /vs Leader Brawly \(#26\) at cap 21/);
 	assert.match(scouted, /routes open/);
 	assert.match(scouted, /wait on an HM/);
 	assert.doesNotMatch(scouted, / surf\b/, 'no surf prospects before Surf');
@@ -213,7 +213,7 @@ test('plan runs the whole stack from the save file', () => {
 	cli('catch', 'Mudkip', '--level', '5');
 	cli('party', 'mon-1');
 	const plan = cli('plan');
-	assert.match(plan, /Youngster Calvin \(#0\)/);
+	assert.match(plan, /Youngster Calvin \(#1\)/);
 	assert.match(plan, /decided by|contested by|only one action/);
 	// A named trainer overrides the run's position, for looking ahead.
 	assert.match(cli('plan', 'Leader Brawly'), /Leader Brawly/);
@@ -294,7 +294,7 @@ test('matrix renders the whole box against a trainer, both directions', () => {
 	const grid = cli('matrix');
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'matrix wrote to the save');
 
-	assert.match(grid, /Youngster Calvin \(#0\)/);
+	assert.match(grid, /Youngster Calvin \(#1\)/);
 	// The levels on screen are the ones the fight is actually fought at, said out
 	// loud — a grid that silently raised them would look like the box.
 	assert.match(grid, /box at the cap it is fought under: L12 \(projected\)/);
@@ -310,7 +310,7 @@ test('matrix renders the whole box against a trainer, both directions', () => {
 	// A named trainer looks ahead, and a fight that can kill says so — the mark
 	// is the difference between a plan and a gamble, so it must render.
 	const brawly = cli('matrix', 'Leader', 'Brawly');
-	assert.match(brawly, /Leader Brawly \(#77\)/);
+	assert.match(brawly, /Leader Brawly \(#26\)/);
 	assert.match(brawly, /box at the cap it is fought under: L21/);
 	assert.match(brawly, / KO\b/);
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'matrix wrote to the save');
@@ -352,7 +352,7 @@ test('advise ranks single changes against a fight without writing', () => {
 
 	const advice = cli('advise');
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'advise wrote to the save');
-	assert.match(advice, /Youngster Calvin \(#0\) — \d+ single changes weighed/);
+	assert.match(advice, /Youngster Calvin \(#1\) — \d+ single changes weighed/);
 	assert.match(advice, /party at the cap it is fought under: L12/);
 	// This asserted the advisor leads with "teach Bite". It no longer can, and
 	// that is the fix rather than a regression: levelling teaches now, so by
@@ -404,7 +404,7 @@ test('adjudicate plays the fight and reports the floor without writing', () => {
 		/--rollouts must be an integer from 1 to 100/);
 	const report = cli('adjudicate', '--rollouts', '3');
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'adjudicate must not write');
-	assert.match(report, /Youngster Calvin \(#0\) — the current party, played 3 times/);
+	assert.match(report, /Youngster Calvin \(#1\) — the current party, played 3 times/);
 	assert.match(report, /P\(win\) \d+% {2}· {2}\d+\.\d deaths expected {2}· {2}deathless \d+%/);
 	assert.match(report, /a lower bound, not a promise/);
 });
@@ -440,7 +440,7 @@ test('playbook is read-only and renders the whole plan: odds, assignments, the l
 	const before = fs.readFileSync(file, 'utf8');
 	const book = cli('playbook', '--rollouts', '3');
 	assert.equal(fs.readFileSync(file, 'utf8'), before, 'playbook must not write');
-	assert.match(book, /Youngster Calvin \(#0\) — the playbook, played 3 times/);
+	assert.match(book, /Youngster Calvin \(#1\) — the playbook, played 3 times/);
 	assert.match(book, /odds: P\(win\) \d+%/);
 	assert.match(book, /endings: /);
 	assert.match(book, /assignments — who answers whom:/);

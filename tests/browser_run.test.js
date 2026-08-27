@@ -833,7 +833,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-matrix table').length === 2,
 		null, {timeout: 15000});
-	assert.match(await page.textContent('#runbun-run-matrix-note'), /Youngster Calvin \(#0\)/);
+	assert.match(await page.textContent('#runbun-run-matrix-note'), /Youngster Calvin \(#1\)/);
 	const cells = await page.$$eval('#runbun-run-matrix td', els => els.map(el => el.textContent));
 	// Every board cell is a doorway: one click opens this exact pairing in
 	// the calculator — our mon with its rolled identity, their mon by set.
@@ -957,7 +957,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 			'#runbun-run-advice .runbun-run-advice-empty') !== null,
 		null, {timeout: 30000});
 	assert.match(await page.textContent('#runbun-run-advice-note'),
-		/Youngster Calvin \(#0\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
+		/Youngster Calvin \(#1\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
 	const rows = await page.$$eval('#runbun-run-advice .runbun-run-advice-row',
 		els => els.map(el => el.textContent));
 	assert.ok(rows.length <= 10, 'the advisor offers a shortlist, not a catalogue');
@@ -1228,7 +1228,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 	await page.click('#runbun-run-scout-btn');
 	await page.waitForSelector('#runbun-run-scout .runbun-run-scout-row');
 	assert.match(await page.textContent('#runbun-run-routes-note'),
-		/vs Leader Brawly \(#77\) at cap 21/);
+		/vs Leader Brawly \(#26\) at cap 21/);
 	const scouted = await page.$$eval('#runbun-run-scout .runbun-run-scout-row',
 		els => els.map(el => el.textContent));
 	assert.ok(scouted.length >= 1);
