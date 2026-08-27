@@ -266,3 +266,68 @@ test('a guaranteed status counts even when the move also does damage', () => {
 			attack + ' has only a secondary chance and must price as an attack');
 	}
 });
+
+test('a lost race reaches for speed control, lethal turn or not', () => {
+	// Icy Wind was taught 36 times in one batch and pressed ZERO times in 118
+	// Brawly attempts. Two separate causes, both pinned here: it is a DAMAGING
+	// speed drop, and the race rule read only the pure-status set; and the
+	// rule refused to fire on any turn a crit could kill us, which at a wall
+	// is nearly every turn — the same over-caution the status rule had already
+	// been cured of, one rule up.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0});
+	// A lost-on-order race: two turns each way, they move first, a crit kills.
+	const view = {
+		foe: 'Makuhita L18',
+		usHp: 62,
+		risk: 'lethal',
+		threat: 'Makuhita L18 — Their hardest hit: Arm Thrust 55% — 83% on a crit ' +
+			'· you need 2 turns to KO, they need 2 — YOU LOSE THIS RACE',
+		// The shapes the panel really renders: a floor as "48%+" in the damage
+		// cell and the roll range in the tooltip, en dash and all.
+		moves: [
+			{move: 'Bubble Beam', damage: '48%+', title: '48–57%'},
+			{move: 'Icy Wind', damage: '21%+', title: '21–25%'},
+		],
+		switches: [],
+	};
+	const chosen = policy.decide(view, memory(), []);
+	assert.equal(chosen.kind, 'move');
+	assert.equal(chosen.pick.move, 'Icy Wind',
+		'a damaging Speed drop is speed control, and a lethal turn on a lost ' +
+		'race is exactly when order is the only line left');
+
+	// Once per foe: the same fight must not loop the drop.
+	const remembered = memory();
+	remembered.slowed.add('Makuhita L18');
+	const second = policy.decide(view, remembered, []);
+	assert.notEqual(second.pick && second.pick.move, 'Icy Wind',
+		'the drop is spent once per opposing Pokemon');
+
+	// A race lost on DAMAGE is not rescued by order: at "you need 6, they
+	// need 2" the drop cannot reach the deficit and must not be pressed.
+	const hopeless = Object.assign({}, view, {
+		threat: 'Makuhita L18 — Their hardest hit: Arm Thrust 55% ' +
+			'· you need 6 turns to KO, they need 2 — YOU LOSE THIS RACE',
+	});
+	const chosen2 = policy.decide(hopeless, memory(), []);
+	assert.notEqual(chosen2.pick && chosen2.pick.move, 'Icy Wind',
+		'order cannot rescue a four-turn deficit');
+
+	// The membership itself, so a rename in either set is caught: every
+	// guaranteed damaging drop counts, pure-status drops still count, and an
+	// ordinary attack does not.
+	for (const move of ['Icy Wind', 'Electroweb', 'Rock Tomb', 'Low Sweep',
+		'Cotton Spore', 'String Shot']) {
+		assert.ok(policy.isSlowControl(move), move + ' is speed control');
+	}
+	assert.ok(!policy.isSlowControl('Bubble Beam'));
+	assert.ok(!policy.isSlowControl('Tackle'));
+
+	// And the advisor economy is untouched: Icy Wind still prices as the
+	// attack it is, not at the pure-status SLOW_VALUE — repricing it would
+	// shuffle every teach decision as a side effect of a play-policy fix.
+	assert.ok(policy.moveValue('Icy Wind', ['Ice'], []) < 90,
+		'Icy Wind teaches at its damage price, not the status-drop price');
+});

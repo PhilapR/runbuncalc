@@ -1734,6 +1734,19 @@ const BOOST_VALUE = 50;
 const SLOW_MOVES = new Set([
 	'Cotton Spore', 'String Shot', 'Scary Face', 'Sticky Web', 'Tickle',
 ]);
+// The DAMAGING speed drops, kept out of SLOW_MOVES on purpose: that set also
+// prices teaching (moveValue returns SLOW_VALUE for its members) and these
+// already price correctly as attacks. What they could not do was be PLAYED as
+// speed control — the race rule read only the pure-status set, so Icy Wind
+// was taught 36 times in one batch and pressed zero times in 118 Brawly
+// attempts. Every move here drops Speed on every hit, not as a chance.
+const DAMAGING_SLOW_MOVES = new Set([
+	'Icy Wind', 'Electroweb', 'Bulldoze', 'Rock Tomb', 'Low Sweep', 'Mud Shot',
+	'Glaciate', 'Drum Beating',
+]);
+function isSlowControl(name) {
+	return SLOW_MOVES.has(name) || DAMAGING_SLOW_MOVES.has(name);
+}
 const SLOW_VALUE = 95;
 const HEAL_MOVES = new Set([
 	'Synthesis', 'Recover', 'Roost', 'Life Dew', 'Moonlight', 'Morning Sun',
@@ -1947,10 +1960,16 @@ function decide(view, memory, roster) {
 	// need 2, they need 2". At "you need 6, they need 2" it spends the one
 	// turn we had on a move that cannot reach the deficit. The boolean could
 	// not tell those apart and spent the turn either way.
-	const slow = view.moves.find(entry => !entry.ball && SLOW_MOVES.has(entry.move));
+	// Both sets: a damaging drop is strictly better in most spots, because the
+	// turn is not spent — it chips while it flips the order. There is no
+	// lethal-risk clause here any more, and that is the status rule's lesson
+	// applied: this rule only ever fires on a LOST race, and a turn we might
+	// not survive spent on damage loses exactly as hard as one spent taking
+	// the order back. The old clause was why Icy Wind fired zero times in 118
+	// Brawly attempts — at a wall, nearly every turn reads lethal.
+	const slow = view.moves.find(entry => !entry.ball && isSlowControl(entry.move));
 	const orderDecides = race.margin === null || race.margin >= -1;
-	if (slow && losingRace && orderDecides &&
-		view.risk !== 'lethal' && !memory.slowed.has(view.foe)) {
+	if (slow && losingRace && orderDecides && !memory.slowed.has(view.foe)) {
 		memory.slowed.add(view.foe);
 		return {kind: 'move', pick: {move: slow.move},
 			why: 'setting the race straight with ' + slow.move};
@@ -2646,6 +2665,8 @@ async function main() {
  * this is the program rather than an import.
  */
 module.exports = {
+	decide: decide,
+	isSlowControl: isSlowControl,
 	raceOf: raceOf,
 	turnsToKO: turnsToKO,
 	accuracyOf: accuracyOf,
