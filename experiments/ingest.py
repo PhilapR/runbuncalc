@@ -788,6 +788,11 @@ def _log_fight_traces(client, data: dict) -> None:
             # `tags.underpriced = 'true'` in the trace filter, with no need to
             # know which span carries which attribute.
             tags={
+                # The batch this evaluation belongs to. Without it the store is
+                # one undifferentiated pool: QC counted every trace in the
+                # experiment against one label's source and failed the moment a
+                # second label landed.
+                "label": str(data.get("label", "")),
                 "trainer": str(fight.get("trainer")),
                 "outcome": str(fight.get("outcome")),
                 "threshold": "true" if threats else "false",

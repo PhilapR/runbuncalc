@@ -10,7 +10,9 @@ none, because it is trusted.
 So every count here is checked against the calibration JSON the traces were
 built from, and a mismatch is an exit code, not a log line:
 
-  * one trace per evaluation, found by exact count
+  * one trace per evaluation, found by exact count — FILTERED TO THE LABEL
+    under audit, because the store holds every batch and counting the pool
+    against one batch's source fails the moment a second label lands
   * one turn span per timeline entry, summed across the batch
   * one span event per transcript line (as capped at ingest)
   * the root attributes a reviewer filters on, present on every root
@@ -71,7 +73,11 @@ def audit(label: str) -> int:
         return 1
     run = runs[0]
 
-    traces = client.search_traces([experiment.experiment_id], max_results=5000)
+    traces = client.search_traces(
+        [experiment.experiment_id],
+        filter_string=f"tags.label = '{label}'",
+        max_results=5000,
+    )
     failures: list[str] = []
 
     # One trace per evaluation. Counted, not sampled.
@@ -102,9 +108,10 @@ def audit(label: str) -> int:
             missing_attributes += 1
         assessments = getattr(trace.info, "assessments", None) or []
         names = {a.name for a in assessments}
-        if root.attributes.get("predicted_losses") is not None:
-            if not {"predicted_losses", "actual_losses", "verdict_held"} <= names:
-                missing_assessments += 1
+        if root.attributes.get("predicted_losses") is not None and not (
+            {"predicted_losses", "actual_losses", "verdict_held"} <= names
+        ):
+            missing_assessments += 1
 
     if turn_spans != expected_turns:
         failures.append(
