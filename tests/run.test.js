@@ -1764,16 +1764,22 @@ test('a skipped Gavi steps aside going out and stands first coming back', () => 
 	assert.equal(forward[0].trainer, 'Team Aqua Grunt Museum #1');
 	assert.equal(forward[1].trainer, 'Team Aqua Grunt Museum #2');
 
-	// Beating a museum grunt moves the run PAST the debt, and the debt then
-	// stands first again: the player went and did the other thing.
+	// The grunts are BACK TO BACK, no heals, no way out to fight Gavi in the
+	// middle — the operator's correction, encoded off the shared name stem.
+	// After grunt #1 the road must offer grunt #2, not the debt.
 	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #1'});
-	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi',
-		'past the skip, the owed fight is the nearest thing left standing');
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Team Aqua Grunt Museum #2',
+		'a debt must not interrupt a gauntlet');
+
+	// The gauntlet done, the debt stands first: the player went and did the
+	// other thing, and the owed fight is the nearest thing left standing.
+	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'});
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi');
 
 	// Settling the debt does not move the run, and clears the skip.
 	state = run.apply(state, {kind: 'beat', trainer: 'Camper Gavi'});
 	assert.equal(state.skipped, undefined);
-	assert.equal(run.upcoming(state, 1)[0].trainer, 'Team Aqua Grunt Museum #2');
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Battle Girl Laura');
 });
 
 test('a plan names the threshold set the samples cannot price', () => {
