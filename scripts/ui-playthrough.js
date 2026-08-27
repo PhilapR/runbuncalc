@@ -204,6 +204,14 @@ const SPEED_CONTROL = flag('speed-control', '1') !== '0';
 // halves all of it for five turns, for the whole side, and survives the
 // switches. `0` restores the old refusal, which is the control arm.
 const SCREEN_CONTROL = flag('screen-control', '1') !== '0';
+// Attack drops as a play policy — the third instance of taught-but-never-
+// pressed. Charm was taught 41 times, Baby-Doll Eyes 17, Feather Dance 17
+// across 48 runs, and none was pressed once in 801 wall fights, because no
+// play rule knew they existed. Charm at -2 roughly halves a physical
+// attacker's damage, which DOUBLES their turns-to-KO — it flips the "you
+// need 3, they need 2" races the walls are made of, where a Speed drop only
+// reorders them. `0` removes the rule entirely, which is the control arm.
+const ATTACK_DROP = flag('attack-drop', '1') !== '0';
 
 /**
  * Whether to reorder the party so the fair-dice forecast's recommended lead
@@ -1763,6 +1771,14 @@ const DAMAGING_SLOW_MOVES = new Set([
 function isSlowControl(name) {
 	return SLOW_MOVES.has(name) || DAMAGING_SLOW_MOVES.has(name);
 }
+// Physical-attack drops. Their value condition differs from a Speed drop's:
+// a Speed drop can only reorder a race, so it needs the margin close; a -2
+// Attack drop halves their damage and so doubles their turn count, which can
+// rescue a race lost by more. It only pays into a PHYSICAL threat, which the
+// threat line names.
+const ATTACK_DROP_MOVES = new Set([
+	'Charm', 'Baby-Doll Eyes', 'Feather Dance', 'Growl', 'Tail Whip',
+]);
 const SLOW_VALUE = 95;
 const HEAL_MOVES = new Set([
 	'Synthesis', 'Recover', 'Roost', 'Life Dew', 'Moonlight', 'Morning Sun',
@@ -1995,6 +2011,23 @@ function decide(view, memory, roster) {
 		memory.slowed.add(view.foe);
 		return {kind: 'move', pick: {move: slow.move},
 			why: 'setting the race straight with ' + slow.move};
+	}
+	// Their hardest hit is physical and the race is lost: halve it. -2 Attack
+	// doubles their turns-to-KO, which rescues deficits a Speed drop cannot
+	// reach. Lethal turns allowed for the family reason — on a lost race a
+	// turn spent on damage loses exactly as hard. Once per opposing Pokemon.
+	if (ATTACK_DROP && losingRace && !memory.slowed.has('atk:' + view.foe)) {
+		const drop = view.moves.find(entry => !entry.ball && ATTACK_DROP_MOVES.has(entry.move));
+		const named = /Their hardest hit: (.+?) \d/.exec(view.threat || '');
+		let physical = false;
+		try {
+			physical = !!named && ai.getMoveMetadata(named[1].trim(), 8).category === 'Physical';
+		} catch (error) { physical = false; }
+		if (drop && physical) {
+			memory.slowed.add('atk:' + view.foe);
+			return {kind: 'move', pick: {move: drop.move},
+				why: 'halving ' + (named ? named[1].trim() : 'their hit') + ' with ' + drop.move};
+		}
 	}
 	// Healing is worth a turn when it buys back more than one. Below half, a
 	// fifty percent restore puts two more turns between us and the KO the

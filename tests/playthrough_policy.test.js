@@ -401,3 +401,57 @@ test('a lost race on a lethal turn still sets the screen', () => {
 	assert.equal(legacy.decide(calm, memory(), []).pick.move, 'Reflect',
 		'the control arm still screens when no crit threatens');
 });
+
+test('a lost race into a physical hitter halves the hit', () => {
+	// Third instance of taught-but-never-pressed, at scale: Charm x41,
+	// Baby-Doll Eyes x17, Feather Dance x17 taught across 48 runs, zero
+	// presses in 801 wall fights. A -2 Attack drop halves a physical
+	// attacker's damage and so DOUBLES their turns-to-KO — it rescues races a
+	// Speed drop cannot, because reordering never changes the counts.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0});
+	// Lost by two: order cannot fix this (the slow rule refuses at margin -2),
+	// but halving Brick Break turns "they need 2" into "they need 4".
+	const view = {
+		foe: 'Makuhita L18',
+		usHp: 80,
+		risk: 'lethal',
+		threat: 'Makuhita L18 — Their hardest hit: Brick Break 55% — 83% on a crit ' +
+			'· you need 4 turns to KO, they need 2 — YOU LOSE THIS RACE',
+		moves: [
+			{move: 'Bubble Beam', damage: '26%+', title: '26–31%'},
+			{move: 'Charm', damage: '', title: ''},
+		],
+		switches: [],
+	};
+	const chosen = policy.decide(view, memory(), []);
+	assert.equal(chosen.pick.move, 'Charm',
+		'a lost race into a physical hit reaches for the Attack drop');
+	assert.match(chosen.why, /halving Brick Break/);
+
+	// Against a SPECIAL hitter the drop does nothing and must not be pressed.
+	const special = Object.assign({}, view, {
+		threat: 'Makuhita L18 — Their hardest hit: Shock Wave 55% ' +
+			'· you need 4 turns to KO, they need 2 — YOU LOSE THIS RACE',
+	});
+	assert.notEqual(policy.decide(special, memory(), []).pick.move, 'Charm',
+		'-2 Attack does not touch a special move');
+
+	// Once per foe.
+	const spent = memory();
+	spent.slowed.add('atk:Makuhita L18');
+	assert.notEqual(policy.decide(view, spent, []).pick.move, 'Charm');
+
+	// A WON race attacks: the drop is a rescue, not an opener.
+	const winning = Object.assign({}, view, {
+		threat: 'Makuhita L18 — Their hardest hit: Brick Break 55% ' +
+			'· you need 1 turn to KO, they need 3 — you win it',
+	});
+	assert.notEqual(policy.decide(winning, memory(), []).pick.move, 'Charm');
+
+	// The control arm has no rule at all.
+	const legacy = loadWith(['--attack-drop=0']);
+	assert.notEqual(legacy.decide(view, memory(), []).pick.move, 'Charm',
+		'the control arm never presses an Attack drop');
+});
