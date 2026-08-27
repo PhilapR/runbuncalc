@@ -330,4 +330,27 @@ test('a lost race reaches for speed control, lethal turn or not', () => {
 	// shuffle every teach decision as a side effect of a play-policy fix.
 	assert.ok(policy.moveValue('Icy Wind', ['Ice'], []) < 90,
 		'Icy Wind teaches at its damage price, not the status-drop price');
+
+	// --speed-control=0 restores the OLD policy exactly — pure-status drops
+	// only, lethal turns refused — because that is the control arm of the A/B
+	// that isolates this. A control that is not the old behaviour proves
+	// nothing about the change.
+	const legacy = loadWith(['--speed-control=0']);
+	const legacyChoice = legacy.decide(view, memory(), []);
+	assert.notEqual(legacyChoice.pick && legacyChoice.pick.move, 'Icy Wind',
+		'the control arm must not reach for a damaging drop');
+	// And the OLD rule survives in it: a pure-status drop still fires on a
+	// lost-on-order race when the turn is not lethal. A control arm that
+	// dropped the old rule too would compare the change against a third
+	// policy nobody ever ran.
+	const calmView = Object.assign({}, view, {
+		risk: '',
+		moves: [
+			{move: 'Bubble Beam', damage: '48%+', title: '48–57%'},
+			{move: 'Cotton Spore', damage: '', title: ''},
+		],
+	});
+	const legacySlow = legacy.decide(calmView, memory(), []);
+	assert.equal(legacySlow.pick.move, 'Cotton Spore',
+		'the legacy arm still plays a pure-status drop off a lethal turn');
 });

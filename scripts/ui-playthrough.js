@@ -188,6 +188,14 @@ const RETEACH = flag('reteach', '');
 // alive could move first; a priority move ignores the speeds. `0` turns it
 // off, which is the control arm of the A/B that prices this.
 const THRESHOLD_PREP = flag('threshold-prep', '1') !== '0';
+// Speed control as a play policy: damaging drops count as slow moves, and a
+// lost race may reach for one even on a lethal turn. Both halves shipped as
+// unconditional baseline, so the 42-0 threshold-fight record against the
+// prior revision's 18-12 is a cross-revision reading — suggestive, not an
+// isolation. `0` restores the old behaviour exactly (pure-status drops only,
+// lethal turns refused), which is the control arm of the A/B that isolates
+// it.
+const SPEED_CONTROL = flag('speed-control', '1') !== '0';
 
 /**
  * Whether to reorder the party so the fair-dice forecast's recommended lead
@@ -1967,9 +1975,11 @@ function decide(view, memory, roster) {
 	// not survive spent on damage loses exactly as hard as one spent taking
 	// the order back. The old clause was why Icy Wind fired zero times in 118
 	// Brawly attempts — at a wall, nearly every turn reads lethal.
-	const slow = view.moves.find(entry => !entry.ball && isSlowControl(entry.move));
+	const slow = view.moves.find(entry => !entry.ball &&
+		(SPEED_CONTROL ? isSlowControl(entry.move) : SLOW_MOVES.has(entry.move)));
 	const orderDecides = race.margin === null || race.margin >= -1;
-	if (slow && losingRace && orderDecides && !memory.slowed.has(view.foe)) {
+	if (slow && losingRace && orderDecides &&
+		(SPEED_CONTROL || view.risk !== 'lethal') && !memory.slowed.has(view.foe)) {
 		memory.slowed.add(view.foe);
 		return {kind: 'move', pick: {move: slow.move},
 			why: 'setting the race straight with ' + slow.move};
