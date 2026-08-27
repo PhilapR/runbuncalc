@@ -494,6 +494,42 @@ test('a level-up teach replaces the right move, not the first-listed one', () =>
 	// Empty options is a null, not a throw — the caller skips the teach.
 	assert.equal(policy.pickReplace([], 'Surf', 'Marill'), null);
 
+	// DOMINANCE, which is Philip's Spheal example: Water Pulse next to Bubble
+	// Beam is a worse Water button — same type, less expected power — so it
+	// goes before Mud Shot does, even though Mud Shot's raw number is lower.
+	// Coverage survives; redundancy pays.
+	// Rock Throw is the WEAKEST attack on this bar (50 against Water Pulse's
+	// 60) and it still survives, because it is the only Rock button while
+	// Water Pulse is a worse copy of Bubble Beam. The first version of this
+	// fixture used a bar where the dominated move was also the weakest plain
+	// attack, and removing the dominance step passed it — the two paths gave
+	// one answer.
+	assert.equal(policy.pickReplace(
+		['Bubble Beam', 'Water Pulse', 'Rock Throw', 'Growl'], 'Ice Beam', 'Marill'),
+	'Water Pulse', 'the dominated same-type attack goes before the coverage move');
+
+	// Priority is worth more than its number: Aqua Jet is 40 next to Bubble
+	// Beam's 65 and same-typed, and it still stays — it collects the 1-HP
+	// survivors the threshold work exists for. (The first version of this
+	// fixture used Mud Shot and failed correctly: Mud Shot is a guaranteed
+	// speed drop, so the rule spares it too.)
+	assert.equal(policy.pickReplace(
+		['Aqua Jet', 'Bubble Beam', 'Rock Throw', 'Growl'], 'Surf', 'Marill'),
+	'Rock Throw', 'priority is never counted dominated; the plain attack goes');
+
+	// Multi-hit base power is per HIT: Rock Blast reads 25 and its real work
+	// is 2-5 hits and a broken sash. It is not dominated by Rock Throw.
+	assert.equal(policy.pickReplace(
+		['Rock Blast', 'Rock Throw', 'Bubble Beam', 'Growl'], 'Surf', 'Marill'),
+	'Rock Throw', 'multi-hit is spared; the plain same-type attack goes');
+
+	// CONSISTENCY: expected power is BP discounted by accuracy, so Zap Cannon
+	// (120 at 50%, expecting 60) goes before Spark (65 at 100%). Raw base
+	// power reads Spark as the weaker move and gets this exactly backwards.
+	assert.equal(policy.pickReplace(
+		['Zap Cannon', 'Spark', 'Growl'], 'Thunderbolt', 'Marill'),
+	'Zap Cannon', 'a coin-flip cannon is worth less than a reliable 65');
+
 	// The control arm restores options[0] exactly.
 	const legacy = loadWith(['--smart-replace=0']);
 	assert.equal(legacy.pickReplace(

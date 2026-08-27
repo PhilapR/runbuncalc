@@ -685,15 +685,61 @@ let strongestFoe = 0;
  * moves, screens, heals) are only spent when nothing better is on the bar,
  * per Philip's note that a kept drop can be worth more than a fourth attack.
  */
+// Multi-hit moves whose listed base power is per HIT, so a raw comparison
+// reads Rock Blast as a 25 and dominated by everything — while its real work
+// is 2-5 hits, sash-breaking included. The metadata carries no hits field,
+// so the guard is by name and deliberately the common cases only.
+const MULTI_HIT_MOVES = new Set([
+	'Rock Blast', 'Bullet Seed', 'Icicle Spear', 'Pin Missile', 'Arm Thrust',
+	'Fury Swipes', 'Double Slap', 'Bone Rush', 'Tail Slap', 'Water Shuriken',
+	'Scale Shot', 'Double Hit', 'Dual Wingbeat', 'Double Kick', 'Fury Attack',
+]);
+
+/** BP discounted by accuracy: the consistency half of "consistent and big". */
+function expectedPower(name) {
+	return basePowerOf(name) * (accuracyOf(name) || 1);
+}
+
+/** A damaging move worth keeping beyond its number: priority collects
+ * 1-HP survivors, spread hits the field, multi-hit breaks sashes, and a
+ * damaging drop is speed control the play rules press. */
+function attackUtility(name) {
+	if (DAMAGING_SLOW_MOVES.has(name) || MULTI_HIT_MOVES.has(name)) return true;
+	try {
+		const meta = ai.getMoveMetadata(name, 8);
+		return (meta.priority || 0) > 0 ||
+			meta.target === 'allAdjacent' || meta.target === 'allAdjacentFoes';
+	} catch (error) {
+		return false;
+	}
+}
+
 function pickReplace(options, incoming, species) {
 	if (!options || !options.length) return null;
 	if (!SMART_REPLACE) return options[0];
 	const damaging = name => basePowerOf(name) > 0;
 	const attacks = options.filter(damaging);
-	const weakestAttack = attacks.slice()
-		.sort((a, b) => basePowerOf(a) - basePowerOf(b))[0];
 	if (attacks.length > 1 || (damaging(incoming) && attacks.length === 1)) {
-		return weakestAttack;
+		// DOMINATED first: a weaker attack of the SAME TYPE as a stronger one
+		// on the same bar adds nothing — Water Pulse next to Bubble Beam is a
+		// worse Water button — so it goes before any coverage move does,
+		// whatever their raw numbers say. Utility attacks are never counted
+		// dominated; their worth is not their number.
+		const typeOf = name => {
+			try { return ai.getMoveMetadata(name, 8).type || null; } catch (error) { return null; }
+		};
+		const dominated = attacks.filter(a => !attackUtility(a) && attacks.some(b =>
+			b !== a && typeOf(b) !== null && typeOf(b) === typeOf(a) &&
+			expectedPower(b) > expectedPower(a)));
+		if (dominated.length) {
+			return dominated.sort((a, b) => expectedPower(a) - expectedPower(b))[0];
+		}
+		// Otherwise the weakest by EXPECTED power — accuracy folded in — and
+		// among the plain attacks first: a spread, priority, multi-hit or
+		// drop move outlives a plain attack of similar size.
+		const plain = attacks.filter(a => !attackUtility(a));
+		const pool = plain.length ? plain : attacks;
+		return pool.slice().sort((a, b) => expectedPower(a) - expectedPower(b))[0];
 	}
 	const controls = options.filter(name => !damaging(name));
 	if (controls.length) {
