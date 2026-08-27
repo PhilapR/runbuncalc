@@ -1739,6 +1739,43 @@ test('before a threshold fight, the list demands a priority answer', () => {
 	assert.deepEqual(calm, {threats: [], priorityAnswers: [], teachable: [], covered: true});
 });
 
+test('a skipped Gavi steps aside going out and stands first coming back', () => {
+	// The operator's ruling: Camper Gavi is MEANT to be tough because he can
+	// be passed and taken after the museum Aqua Grunts. The engine had the
+	// whole loop — skip declares the debt, beat settles it in place — but
+	// upcoming() sorted the owed fight first ALWAYS, so the play surface
+	// offered a skipped Gavi again on the very next cycle and the skip was a
+	// no-op. Now the declaration means something in both directions.
+	const IVS = {hp: 20, atk: 20, def: 20, spa: 20, spd: 20, spe: 20};
+	const planner = require('../lib/planner');
+	let state = fresh({levelCap: 'none'});
+	state = run.apply(state, {kind: 'catch', species: 'Poochyena', level: 20, ivs: IVS});
+	state = run.apply(state, {kind: 'party', ids: [state.box[0].id]});
+	for (const fight of planner.listFights('run-and-bun').fights) {
+		if (fight.order >= 48) break;
+		try { state = run.apply(state, {kind: 'beat', trainer: fight.trainer}); } catch (error) { /* variant */ }
+	}
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi');
+
+	// Skipping sends the road FORWARD — and the map itself vindicates the
+	// ruling: the next fights are the museum grunts.
+	state = run.apply(state, {kind: 'skip', trainer: 'Camper Gavi'});
+	const forward = run.upcoming(state, 2);
+	assert.equal(forward[0].trainer, 'Team Aqua Grunt Museum #1');
+	assert.equal(forward[1].trainer, 'Team Aqua Grunt Museum #2');
+
+	// Beating a museum grunt moves the run PAST the debt, and the debt then
+	// stands first again: the player went and did the other thing.
+	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #1'});
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi',
+		'past the skip, the owed fight is the nearest thing left standing');
+
+	// Settling the debt does not move the run, and clears the skip.
+	state = run.apply(state, {kind: 'beat', trainer: 'Camper Gavi'});
+	assert.equal(state.skipped, undefined);
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Team Aqua Grunt Museum #2');
+});
+
 test('a plan names the threshold set the samples cannot price', () => {
 	// Battle Girl Lilith's Mankey holds Focus Sash + Reversal. The fair-dice
 	// sampler is known blind to HP-threshold power — the pinned provider's

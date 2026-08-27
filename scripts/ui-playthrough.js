@@ -238,6 +238,13 @@ const SMART_REPLACE = flag('smart-replace', '1') !== '0';
 // learnable move the play rules press should hold that move. Free slots
 // ONLY — this never replaces, so it cannot fight the advisor's choices.
 const FILL_TOOL_SLOTS = flag('fill-tool-slots', '1') !== '0';
+// When a fight has eaten the retry budget and the panel offers a skip for
+// it — the profile's declared reorderable fights, Camper Gavi first among
+// them — take the skip instead of ending the run. The operator's ruling:
+// Gavi is MEANT to be passed and taken after the museum grunts, and the
+// road now honours that (a skipped fight steps aside going out and stands
+// first once the run moves past it). `0` restores give-up-and-break.
+const SKIP_WALLS = flag('skip-walls', '1') !== '0';
 function isToolTeach(name) {
 	return SCREEN_MOVES.has(name) || SLOW_MOVES.has(name) ||
 		DAMAGING_SLOW_MOVES.has(name) || ATTACK_DROP_MOVES.has(name) ||
@@ -2792,6 +2799,22 @@ async function main() {
 			// the thirteenth in another.
 			const boss = /Leader|Elite|Champion|Rival/i.test(before.nextTitle);
 			if (stalled >= (boss ? BOSS_RETRIES : RETRIES)) {
+				// Before giving up: if this exact fight is one the profile
+				// declares reorderable, the panel renders a Skip button for it,
+				// and pressing it is what the game intends — Gavi is meant to
+				// be passed and taken after the museum grunts. The button's
+				// presence IS the legality check; a required-in-place fight
+				// never renders one.
+				const trainerName = before.nextTitle.replace(/^Face /, '');
+				const skip = SKIP_WALLS ? await page.$(
+					'.runbun-run-up-skip[data-trainer="' + trainerName + '"]') : null;
+				if (skip) {
+					await tap(skip);
+					note('skip', 'skipped ' + trainerName + ' after ' + stalled +
+						' attempts — owed, taking the road forward first');
+					stalled = 0;
+					continue;
+				}
 				problem('run', stalled + ' attempts with no progress at ' + before.nextTitle);
 				break;
 			}

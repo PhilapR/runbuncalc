@@ -1114,6 +1114,11 @@
 					.attr('data-trainer', fight.trainer).text('Plan fight'))
 				.append($('<button type="button" class="runbun-run-up-board"></button>')
 					.attr('data-trainer', fight.trainer).text('Matchups'))
+				// The declared exceptions only: the engine refuses a skip on a
+				// required-in-place fight, so the button never shows one.
+				.append(fight.skippable && !fight.skipped ?
+					$('<button type="button" class="runbun-run-up-skip"></button>')
+						.attr('data-trainer', fight.trainer).text('Skip for now') : null)
 				.append($('<button type="button" class="runbun-run-up-beat"></button>')
 					.attr('data-trainer', fight.trainer).text('Mark beaten')));
 			$list.append($row);
@@ -3999,6 +4004,11 @@
 
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-plan', function () {
 			plan($(this).attr('data-trainer'));
+		});
+		// A skip is a run command like any other: declared, durable, refusable.
+		// The engine polices legality; the road ahead re-renders with the debt.
+		$('#runbun-run-upcoming').on('click', '.runbun-run-up-skip', function () {
+			command({kind: 'skip', trainer: $(this).attr('data-trainer')});
 		});
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-board', function () {
 			board($(this).attr('data-trainer'));
