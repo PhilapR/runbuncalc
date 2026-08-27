@@ -52,6 +52,7 @@ const path = require('node:path');
 const ai = require('../ai');
 const calc = require('../calc');
 const startServer = require('../lib/server').startServer;
+const runLib = require('../lib/run');
 
 let chromium = null;
 try {
@@ -180,6 +181,13 @@ const ONLY = flag('only', '');
  * comment on that skip records 150s a fight — so it stays off by default.
  */
 const RETEACH = flag('reteach', '');
+// Act on the plan's threshold warning: when the NEXT fight holds a sash or
+// pinch-berry Reversal/Flail/Endeavor set and the party has no priority
+// attack, teach the one preFightOpportunities names before walking in.
+// Lilith's sash Mankey swept six slower Pokemon from 2% because nothing
+// alive could move first; a priority move ignores the speeds. `0` turns it
+// off, which is the control arm of the A/B that prices this.
+const THRESHOLD_PREP = flag('threshold-prep', '1') !== '0';
 
 /**
  * Whether to reorder the party so the fair-dice forecast's recommended lead
@@ -1086,6 +1094,56 @@ async function rankParty(page) {
  * one panel over), so each one is read and carried out by hand. One at a time,
  * re-asking after each: applying an upgrade changes every other row's price.
  */
+/**
+ * The threshold demand, acted on. `thresholdPrep` is computed by the same
+ * lib the server runs, against the saved run document — the driver does not
+ * parse it back out of the DOM it rendered into. Teaches through the panel's
+ * own form so every rule holds: an egg move still costs a Heart Scale, and a
+ * refusal is noted rather than fought.
+ */
+async function prepareForThreshold(page) {
+	if (!THRESHOLD_PREP) return;
+	const doc = await savedRun(page);
+	if (!doc) return;
+	let prep;
+	try {
+		prep = runLib.preFightOpportunities(doc).thresholdPrep;
+	} catch (error) {
+		return;
+	}
+	if (!prep || !prep.threats.length) return;
+	const threat = prep.threats.map(t => t.species + ' (' + t.holds + ' + ' + t.move + ')').join(', ');
+	if (prep.covered) {
+		note('threshold', 'priority answer in hand for ' + threat + ': ' +
+			prep.priorityAnswers.map(row => row.species + "'s " + row.move).join(', '));
+		return;
+	}
+	if (!prep.teachable.length) {
+		note('threshold', 'no priority answer for ' + threat + ' and nothing can learn one');
+		return;
+	}
+	for (const row of prep.teachable) {
+		if (outOfTime()) return;
+		if (!await selectMon(page, row.id)) continue;
+		const options = await page.$$eval('#runbun-run-replace option',
+			els => els.map(el => el.value).filter(Boolean));
+		// Replace the weakest attack by base power; a mon under four moves
+		// teaches into the free slot.
+		const weakest = options.slice()
+			.sort((a, b) => basePowerOf(a) - basePowerOf(b))[0];
+		await page.fill('#runbun-run-move', row.move);
+		if (weakest) await page.selectOption('#runbun-run-replace', weakest);
+		const taught = await act(page, 'teach ' + row.move,
+			() => press(page, '#runbun-run-teach'));
+		if (taught.changed) {
+			note('threshold', row.species + ' learned ' + row.move + ' against ' + threat +
+				(weakest ? ' over ' + weakest : ''));
+			return;
+		}
+		note('threshold', row.species + ' could not learn ' + row.move + ' — ' + taught.status);
+	}
+}
+
 async function followAdvice(page, rounds) {
 	for (let round = 0; round < (rounds || 3); round++) {
 		if (outOfTime()) return;
@@ -2353,6 +2411,11 @@ async function main() {
 		// teaching; equipParty only fills whatever it left bare.
 		appliedAdvice = new Set();
 		await followAdvice(page, ADVICE_ROUNDS);
+		// After the priced upgrades, the unpriced demand: a priority answer for
+		// a sash-threshold set, which the advisor's damage deltas cannot see —
+		// Quick Attack scores nothing against a full-HP grid and everything
+		// against a 1-HP survivor.
+		await prepareForThreshold(page);
 		// The SIX WHO FIGHT, not the six caught first. `box` is every catch in
 		// catch order and `party` is a separate list of ids, so handing the
 		// box straight over taught whoever turned up earliest — fine while the
