@@ -174,9 +174,10 @@ function readResult(spec, home) {
 		return {won: won, attempts: won + lost};
 	};
 	let provenance = null;
+	let report = null;
 	let forecast = {live: 0, dead: 0, ability: 0, trainer: 0};
 	try {
-		const report = JSON.parse(fs.readFileSync(path.join(out, spec.reportName), 'utf8'));
+		report = JSON.parse(fs.readFileSync(path.join(out, spec.reportName), 'utf8'));
 		provenance = report.provenance;
 		// The forecast rate is the product metric this work has been moving —
 		// 2.9% of planned fights at the start of the day, 19.8% after three
@@ -197,9 +198,20 @@ function readResult(spec, home) {
 	} catch (error) {
 		provenance = null;
 	}
+	// The run DOCUMENT is the reach, not the journal. The old line scraped
+	// every (#N) out of the driver's stdout, which was a scraper on a display
+	// format: the day the surfaces switched from Pokemon orders to trainer
+	// numbers, every batch summary silently changed scale — meanOrder 63
+	// became meanOrder 26 for the same reach, incomparable with every batch
+	// before it. run.position is the durable order-scale truth in the same
+	// report; the scrape survives only as the fallback for a crashed run
+	// that never wrote one.
+	const position = report && report.run && Number.isFinite(report.run.position) ?
+		report.run.position : null;
 	return {
 		arm: spec.arm, index: spec.index, starter: spec.starter,
-		order: orders.length ? Math.max.apply(null, orders) : 0,
+		order: position !== null ? position :
+			(orders.length ? Math.max.apply(null, orders) : 0),
 		gavi: attempts('Camper Gavi'),
 		brawly: attempts('Leader Brawly'),
 		roxanne: attempts('Leader Roxanne'),
