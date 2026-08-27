@@ -536,3 +536,22 @@ test('a level-up teach replaces the right move, not the first-listed one', () =>
 		['Charm', 'Bubble Beam', 'Water Gun', 'Growl'], 'Ice Beam', 'Marill'),
 	'Charm', 'the control arm takes whatever sits first');
 });
+
+test('a pinned box parses exactly or refuses at startup', () => {
+	// The screens A/B measured p=0.05 on an INERT treatment because no rolled
+	// box kept a screen learner. A pinned box exists to make that class of
+	// experiment possible — so a malformed pin must refuse at startup, not
+	// run a 480-second batch on an empty box.
+	assert.deepEqual(policy.parsePinBox('Blipbug:5,Poochyena:5'),
+		[{species: 'Blipbug', level: 5}, {species: 'Poochyena', level: 5}]);
+	// Names with the characters real species use.
+	assert.deepEqual(policy.parsePinBox("Farfetch'd:10, Mr. Mime:12, Ho-Oh:70"),
+		[{species: "Farfetch'd", level: 10}, {species: 'Mr. Mime', level: 12},
+			{species: 'Ho-Oh', level: 70}]);
+	// Empty means no pin, silently — the ordinary un-pinned run.
+	assert.deepEqual(policy.parsePinBox(''), []);
+	// Malformed REFUSES, naming the entry.
+	assert.throws(() => policy.parsePinBox('Blipbug'), /cannot read "Blipbug"/);
+	assert.throws(() => policy.parsePinBox('Blipbug:five'), /cannot read/);
+	assert.throws(() => policy.parsePinBox('Blipbug:5,,'), /cannot read/);
+});

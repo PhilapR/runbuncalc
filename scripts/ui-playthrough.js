@@ -217,6 +217,32 @@ const ATTACK_DROP = flag('attack-drop', '1') !== '0';
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
 // times with Brine. `0` restores that, as the control arm.
 const SMART_REPLACE = flag('smart-replace', '1') !== '0';
+/**
+ * A pinned box: exact species at exact levels, caught at run start, and NO
+ * route encounters at all. Two jobs. It activates rules that box luck never
+ * reaches — the screens A/B measured p=0.05 on an INERT treatment because no
+ * rolled box ever carried a screen learner it kept, while a pinned Dottler
+ * knows Reflect from level 10. And it removes box luck from wall
+ * experiments entirely, which is why every run-level A/B so far has flipped
+ * direction: Camper Gavi is decided by which coverage the box rolled, not by
+ * the policy under test.
+ *
+ * Malformed input REFUSES at startup rather than running a 480-second batch
+ * on an empty pin — an A/B whose treatment silently failed to apply is how
+ * this repository measured box luck at p=0.05 once already.
+ */
+const PIN_BOX = parsePinBox(flag('pin-box', ''));
+function parsePinBox(spec) {
+	if (!spec) return [];
+	return String(spec).split(',').map(entry => {
+		const hit = /^\s*([A-Za-z0-9'.:\- ]+?)\s*:\s*(\d+)\s*$/.exec(entry);
+		if (!hit) {
+			throw new Error('pin-box: cannot read ' + JSON.stringify(entry) +
+				' — the shape is Species:level, comma-separated');
+		}
+		return {species: hit[1], level: Number(hit[2])};
+	});
+}
 
 /**
  * Whether to reorder the party so the fair-dice forecast's recommended lead
@@ -460,6 +486,35 @@ async function openAllSections(page) {
 }
 
 // ------------------------------------------------------------------ the player
+
+/**
+ * Catch the pinned box through the panel's own scripted-catch form, so the
+ * server's die authors every identity and every engine rule still holds. The
+ * map selector is CLEARED for the duration: a mapless catch is the engine's
+ * own escape hatch for recording what happened, and a pinned species is not
+ * claimed to be on whatever route the selector happened to hold.
+ */
+let pinnedDone = false;
+async function pinBox(page) {
+	if (pinnedDone || !PIN_BOX.length) return;
+	pinnedDone = true;
+	const hadMap = await page.$eval('#runbun-run-map', el => el.value).catch(() => '');
+	await page.$eval('#runbun-run-map', el => { el.value = ''; }).catch(() => {});
+	for (const pin of PIN_BOX) {
+		if (outOfTime()) return;
+		await page.fill('#runbun-run-catch-species', pin.species);
+		await page.fill('#runbun-run-catch-level', String(pin.level));
+		const caught = await act(page, 'pin ' + pin.species,
+			() => press(page, '#runbun-run-catch'));
+		note('pin', caught.changed ?
+			'pinned ' + pin.species + ' L' + pin.level :
+			'could not pin ' + pin.species + ' — ' + caught.status);
+	}
+	if (hadMap) {
+		await page.$eval('#runbun-run-map', (el, value) => { el.value = value; }, hadMap)
+			.catch(() => {});
+	}
+}
 
 async function takeEncounters(page) {
 	const view = await readRun(page);
@@ -2554,7 +2609,11 @@ async function main() {
 			return button ? button.getAttribute('data-trainer') : null;
 		}).then(name => !!name && !BOSS.test(name));
 
-		await takeEncounters(page);
+		if (PIN_BOX.length) {
+			await pinBox(page);
+		} else {
+			await takeEncounters(page);
+		}
 		await takeItems(page);
 		await levelAndEvolve(page);
 		// The ranker needs a party to exist before it can score sixes, and its
@@ -2802,6 +2861,7 @@ async function main() {
  * this is the program rather than an import.
  */
 module.exports = {
+	parsePinBox: parsePinBox,
 	pickReplace: pickReplace,
 	decide: decide,
 	isSlowControl: isSlowControl,
