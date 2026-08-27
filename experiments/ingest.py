@@ -708,6 +708,95 @@ def _log_cost_trace(data: dict) -> None:
             client.end_trace(trace_id=root.trace_id, end_time_ns=at(end))
 
 
+CALIBRATION_METRIC_NOTES = {
+    "fights": "fights recorded across every report in the batch.",
+    "planned_rate": "share of those fights that carried a plan verdict at all.",
+    "clean_win_rate": "win rate where the verdict said no sampled branch lost anyone.",
+    "clean_share": "share of all planned fights the verdict was willing to call clean.",
+    "win_rate_by_predicted_losses": (
+        "win rate against the number of losses the verdict predicted, stepped by "
+        "that number. This is the calibration curve; step 0 is the clean bucket."
+    ),
+    "sample_by_predicted_losses": "how many fights sit behind each point of that curve.",
+}
+
+
+def ingest_calibration(path: Path) -> str:
+    """Does the plan predict the fight, written by `scripts/plan-calibration.js`.
+
+    Reach says how far a run got and cost says what it took. Neither asks the
+    question the planning surface exists to answer, and a run that reaches
+    order 63 with a forecast nobody can trust is not the same product as one
+    that reaches 63 knowing which fights it would lose.
+
+    The curve goes in STEPPED rather than as one metric per bucket, because
+    the shape is the finding: a verdict that is monotonic in predicted losses
+    is calibrated, and one that is not has a bucket that means something other
+    than what it says.
+    """
+    data = json.loads(path.read_text())
+    label = data.get("label", path.stem)
+    curve = data.get("curve", [])
+    clean = data.get("clean", {})
+    planned = data.get("planned", 0)
+
+    with mlflow.start_run(run_name=f"{label} (calibration)"):
+        mlflow.set_tags(
+            {
+                "kind": "calibration",
+                "label": label,
+                # One revision or the truth is two products averaged together.
+                "valid": "VALID" if data.get("revision") else "POOLED",
+            }
+        )
+        mlflow.log_params(
+            {
+                "harness": "scripts/plan-calibration.js",
+                "revision": data.get("revision")
+                or ",".join(data.get("revisions", []))[:64],
+                "reports": data.get("reports"),
+                "source_file": str(path),
+            }
+        )
+        metrics = {
+            "fights": data.get("fights", 0),
+            "planned": planned,
+            "planned_rate": data.get("plannedRate") or 0.0,
+            "clean_n": clean.get("n", 0),
+            "clean_win_rate": clean.get("winRate") or 0.0,
+            "clean_share": (clean.get("n", 0) / planned) if planned else 0.0,
+        }
+        mlflow.log_metrics(metrics)
+
+        # The curve, as a chartable series indexed by predicted losses.
+        for row in curve:
+            step = int(row["predictedLosses"])
+            mlflow.log_metric("win_rate_by_predicted_losses", row["winRate"], step=step)
+            mlflow.log_metric("sample_by_predicted_losses", row["n"], step=step)
+
+        # Monotonicity is the property a reader should not have to eyeball. A
+        # verdict predicting MORE losses should not win MORE often.
+        breaks = [
+            f"{curve[i]['predictedLosses']}->{curve[i + 1]['predictedLosses']}"
+            f" ({curve[i]['winRate']:.2f} to {curve[i + 1]['winRate']:.2f})"
+            for i in range(len(curve) - 1)
+            if curve[i + 1]["winRate"] > curve[i]["winRate"] + 1e-9
+        ]
+        mlflow.log_metric("monotonicity_breaks", len(breaks))
+        if breaks:
+            mlflow.set_tag("monotonicity", "; ".join(breaks)[:480])
+
+        mlflow.log_text(json.dumps(data, indent=2), "calibration.json")
+        mlflow.log_text(
+            "\n".join(
+                ["# Calibration metrics", ""]
+                + [f"- `{k}` — {v}" for k, v in CALIBRATION_METRIC_NOTES.items()]
+            ),
+            "METRICS.md",
+        )
+    return label
+
+
 def ingest_cost(path: Path) -> str:
     """What a fight COSTS, per arm, written by `scripts/cost-bench.js`.
 
@@ -905,6 +994,8 @@ def main() -> None:
         done.append(f"{path.name} -> {ingest_measurement(path)} (measurement)")
     for path in sorted(OUT.glob("*-cost.json")):
         done.append(f"{path.name} -> {ingest_cost(path)} (cost)")
+    for path in sorted(OUT.glob("*-calibration.json")):
+        done.append(f"{path.name} -> {ingest_calibration(path)} (calibration)")
     for path in sorted(OUT.glob("*-ab.log")) + sorted(OUT.glob("*-batch.log")):
         label = ingest_tally(path)
         if label:
