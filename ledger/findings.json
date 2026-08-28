@@ -1721,6 +1721,21 @@
 			"verdict": "confirmed",
 			"status": "open",
 			"evidence": "Probe 2026-08-28: state.sides.player.party[].moves = [{name}] at start, [{name, timesUsed}] after use; no maxPP, no decrement, no Struggle path observed. The stall-break policy rule works around the policy half; the engine half stands open. Fork rule check needed before modeling: whether Run & Bun alters PP at all."
+		},
+		{
+			"id": "the-starter-rolled-like-a-wild-catch",
+			"source": "review/philip",
+			"raised_on": "2026-08-28",
+			"severity": "high",
+			"area": "engine",
+			"file": "lib/run.js",
+			"line": 183,
+			"claim": "Run & Bun guarantees three perfect IVs on the starter (operator ruling), and /run/identity rolled every scripted gift uniformly like a wild catch. The archive is the proof nobody noticed: across 72 banked runs, 59 starters had zero perfect IVs, 11 had one, 2 had two, none had three — the uniform distribution exactly, on the one body every run owns.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "4648ae1",
+			"falsified": 0,
+			"evidence": "Fix: rollIdentity({perfectIvs: 3}) picks the stats from the same draw stream (replay holds), /run/identity passes 3 for its whole scripted-gift class (starter, gift, static, trade — split the class if the hack does). Gates at lib and server level, both failed first. Measured at the gym walls via counterfactual starter-3iv (gymcf3): 0/30, 0/30, 1/30 — identical to baseline, because one corrected body does not move a six-death wall (whole-box max IVs moves Wattson to 15/30). The correction matters where the starter IS the run: the early game before the box fills, which the battery cannot price and the browser loop can. Every banked run predates the fix and keeps its recorded under-rolled facts."
 		}
 	]
 }

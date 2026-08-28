@@ -8,6 +8,12 @@
 			"seeds": 30
 		},
 		{
+			"name": "Leader Brawly · starter-3iv",
+			"report": "ui-playthrough-out/counterfactual-brawly-starter-3iv.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
 			"name": "Leader Brawly · max-ivs",
 			"report": "ui-playthrough-out/counterfactual-brawly-max-ivs.json",
 			"trainer": "Leader Brawly",
@@ -38,6 +44,12 @@
 			"seeds": 30
 		},
 		{
+			"name": "Leader Roxanne · starter-3iv",
+			"report": "ui-playthrough-out/counterfactual-roxanne-starter-3iv.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
 			"name": "Leader Roxanne · max-ivs",
 			"report": "ui-playthrough-out/counterfactual-roxanne-max-ivs.json",
 			"trainer": "Leader Roxanne",
@@ -64,6 +76,12 @@
 		{
 			"name": "Leader Wattson · baseline",
 			"report": "ui-playthrough-out/counterfactual-wattson-baseline.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · starter-3iv",
+			"report": "ui-playthrough-out/counterfactual-wattson-starter-3iv.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},

@@ -63,8 +63,33 @@ function teachSlow(doc) {
 	mon.moves = mon.moves.slice(0, 3).concat('Icy Wind');
 }
 
+/**
+ * The correction, not the ceiling: only the starter line gets its three
+ * guaranteed perfect IVs (the gift rule the model missed until 2026-08-28),
+ * picked by a seeded die so the variant is reproducible. Every banked box
+ * under-rolled exactly this body, so this variant measures what the bug
+ * cost at each wall.
+ */
+const STARTER_LINES = [
+	['Turtwig', 'Grotle', 'Torterra'], ['Chimchar', 'Monferno', 'Infernape'],
+	['Piplup', 'Prinplup', 'Empoleon'],
+];
+function fixStarterIvs(doc) {
+	const line = STARTER_LINES.flat();
+	const starter = doc.box.find(mon => line.includes(mon.species));
+	if (!starter) return;
+	let seed = 7;
+	const draw = () => (seed = (seed * 48271) % 2147483647) / 2147483647;
+	const stats = Object.keys(starter.ivs);
+	for (let i = 0; i < 3; i++) {
+		const pick = Math.floor(draw() * stats.length);
+		starter.ivs[stats.splice(pick, 1)[0]] = 31;
+	}
+}
+
 const VARIANTS = [
 	{name: 'baseline', mutate: () => {}},
+	{name: 'starter-3iv', mutate: fixStarterIvs},
 	{name: 'max-ivs', mutate: maxIvs},
 	{name: 'screens', mutate: teachScreens},
 	{name: 'slow', mutate: teachSlow},
