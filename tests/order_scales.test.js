@@ -98,3 +98,26 @@ test('the availability ledger is dated in order, not in trainers', () => {
 			'or an engine row index, not an order');
 	}
 });
+
+test('the A/B harness reports reach in trainers, not in Pokemon', () => {
+	// skipwall3 printed "meanOrder=73.0" for a run whose player would say
+	// "27 trainers beaten" — order scale on a human-facing summary. The
+	// harness must convert at the edge like every other surface.
+	const ab = require('../scripts/ab.js');
+	const map = road();
+
+	// A finished run document at Brawly's order reads as the 26th fight.
+	assert.equal(ab.reachOf(map.doc, 77, []), 26, 'position converts to a trainer number');
+	// No run document (a crashed run): the journal scrape already speaks
+	// trainer numbers, so the max passes through unconverted.
+	assert.equal(ab.reachOf(null, null, [4, 26, 12]), 26);
+	assert.equal(ab.reachOf(map.doc, 0, []), 0, 'an unstarted run has beaten nobody');
+
+	const rows = [
+		{arm: 'A', fight: 20, gavi: {won: 0, attempts: 0}, brawly: {won: 0, attempts: 0}},
+		{arm: 'A', fight: 30, gavi: {won: 1, attempts: 2}, brawly: {won: 0, attempts: 5}},
+	];
+	const s = ab.summarise(rows, 'A');
+	assert.equal(s.meanFight, 25, 'the summary means the trainer numbers');
+	assert.equal(s.meanOrder, undefined, 'and no longer carries the order-scale name');
+});

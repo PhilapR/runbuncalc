@@ -34,6 +34,7 @@
  */
 
 const childProcess = require('node:child_process');
+const runtime = require('../lib/run.js');
 const execFile = childProcess.execFile;
 const execFileSync = childProcess.execFileSync;
 const fs = require('node:fs');
@@ -164,6 +165,22 @@ function runOnce(spec, home) {
 }
 
 /** What a finished run is worth to the comparison. */
+/**
+ * Reach as the number a player would say: trainers beaten, not Pokemon.
+ *
+ * `position` is order-scale (cumulative enemy Pokemon) and stays on the row
+ * as the durable machine truth; this converts at the presentation edge, the
+ * same as every other surface. The scraped journal numbers already ARE
+ * trainer numbers, so the crash fallback passes through unconverted.
+ */
+function reachOf(run, position, scraped) {
+	if (Number.isFinite(position)) {
+		if (position <= 0) return 0;
+		return runtime.trainerIndexOf(run, position) || 0;
+	}
+	return scraped.length ? Math.max.apply(null, scraped) : 0;
+}
+
 function readResult(spec, home) {
 	const out = path.join(home || ROOT, 'ui-playthrough-out');
 	const text = fs.readFileSync(path.join(out, spec.logName), 'utf8');
@@ -201,17 +218,16 @@ function readResult(spec, home) {
 	// The run DOCUMENT is the reach, not the journal. The old line scraped
 	// every (#N) out of the driver's stdout, which was a scraper on a display
 	// format: the day the surfaces switched from Pokemon orders to trainer
-	// numbers, every batch summary silently changed scale — meanOrder 63
-	// became meanOrder 26 for the same reach, incomparable with every batch
-	// before it. run.position is the durable order-scale truth in the same
-	// report; the scrape survives only as the fallback for a crashed run
-	// that never wrote one.
+	// numbers, every batch summary silently changed scale. run.position is
+	// the durable order-scale truth in the same report; reachOf converts it
+	// to the trainer number every summary now speaks, and the scrape
+	// survives only as the fallback for a crashed run that never wrote one.
 	const position = report && report.run && Number.isFinite(report.run.position) ?
 		report.run.position : null;
 	return {
 		arm: spec.arm, index: spec.index, starter: spec.starter,
-		order: position !== null ? position :
-			(orders.length ? Math.max.apply(null, orders) : 0),
+		order: position,
+		fight: reachOf(report && report.run, position, orders),
 		gavi: attempts('Camper Gavi'),
 		brawly: attempts('Leader Brawly'),
 		roxanne: attempts('Leader Roxanne'),
@@ -250,7 +266,7 @@ function summarise(rows, arm) {
 	const sum = f => mine.reduce((a, r) => a + f(r), 0);
 	return {
 		arm: arm, runs: mine.length,
-		meanOrder: mine.length ? sum(r => r.order) / mine.length : 0,
+		meanFight: mine.length ? sum(r => r.fight) / mine.length : 0,
 		passedGavi: mine.filter(r => r.gavi.won > 0).length,
 		beatBrawly: mine.filter(r => r.brawly.won > 0).length,
 		gaviWon: sum(r => r.gavi.won), gaviAttempts: sum(r => r.gavi.attempts),
@@ -376,8 +392,8 @@ async function main() {
 			if (!spec) return;
 			const row = await runOnce(spec, home);
 			rows.push(row);
-			console.log('  ' + row.arm + ' ' + row.index + ' (' + row.starter + '): order=' +
-				row.order + ' gavi=' + row.gavi.won + '/' + row.gavi.attempts +
+			console.log('  ' + row.arm + ' ' + row.index + ' (' + row.starter + '): fight=' +
+				row.fight + ' gavi=' + row.gavi.won + '/' + row.gavi.attempts +
 				' brawly=' + row.brawly.won + '/' + row.brawly.attempts +
 				(row.crashed ? '  CRASHED' : ''));
 		}
@@ -422,7 +438,7 @@ async function main() {
 		const m = summarise(rows, 'M');
 		const planned = m.forecastLive + m.forecastDead;
 		console.log('\n=== ' + label + ' (measurement) ===');
-		console.log('runs=' + m.runs + '  meanOrder=' + m.meanOrder.toFixed(1) +
+		console.log('runs=' + m.runs + '  meanFight=' + m.meanFight.toFixed(1) +
 			'  passedGavi=' + m.passedGavi + '/' + m.runs +
 			'  beatBrawly=' + m.beatBrawly + '/' + m.runs +
 			(m.crashed ? '  crashed=' + m.crashed : ''));
@@ -451,7 +467,7 @@ async function main() {
 	console.log('\n=== ' + label + ' ===');
 	for (const s of [a, b]) {
 		console.log(s.arm.padEnd(2) + ' runs=' + String(s.runs).padEnd(4) +
-			'meanOrder=' + s.meanOrder.toFixed(1).padEnd(8) +
+			'meanFight=' + s.meanFight.toFixed(1).padEnd(8) +
 			'passedGavi=' + s.passedGavi + '/' + s.runs + '  ' +
 			'beatBrawly=' + s.beatBrawly + '/' + s.runs + '  ' +
 			'gavi=' + s.gaviWon + '/' + s.gaviAttempts +
@@ -485,4 +501,4 @@ if (require.main === module) {
 	});
 }
 
-module.exports = {fisher: fisher, summarise: summarise, parseAbArgv: parseAbArgv};
+module.exports = {fisher: fisher, summarise: summarise, parseAbArgv: parseAbArgv, reachOf: reachOf};

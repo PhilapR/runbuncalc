@@ -75,7 +75,12 @@ class Arm:
 
     name: str
     runs: int = 0
-    orders: list[int] = field(default_factory=list)
+    # Reach per run, in the scale the source file recorded: "fight" (trainer
+    # numbers, the modern harness) or "order" (cumulative enemy Pokemon, the
+    # batches before the trainer-number sweep). The scale names the metric so
+    # the two never chart on one axis by accident.
+    reaches: list[int] = field(default_factory=list)
+    scale: str = "fight"
     passed_gavi: int = 0
     beat_brawly: int = 0
     gavi_won: int = 0
@@ -89,8 +94,15 @@ class Arm:
     forecast_trainer: int = 0
 
     @property
-    def mean_order(self) -> float:
-        return sum(self.orders) / len(self.orders) if self.orders else 0.0
+    def mean_reach(self) -> float:
+        return sum(self.reaches) / len(self.reaches) if self.reaches else 0.0
+
+    def add_reach(self, row: dict) -> None:
+        if row.get("fight") is not None:
+            self.reaches.append(row["fight"])
+        else:
+            self.reaches.append(row.get("order") or 0)
+            self.scale = "order"
 
 
 def metrics_for(arm: Arm, side: str) -> dict[str, float]:
@@ -104,7 +116,7 @@ def metrics_for(arm: Arm, side: str) -> dict[str, float]:
     """
     out = {
         f"{side}_runs": arm.runs,
-        f"{side}_mean_order": arm.mean_order,
+        f"{side}_mean_{arm.scale}": arm.mean_reach,
         f"{side}_passed_gavi": arm.passed_gavi,
         f"{side}_beat_brawly": arm.beat_brawly,
         f"{side}_crashed": arm.crashed,
@@ -192,9 +204,14 @@ def log_playthroughs(rows: list[dict]) -> None:
                 }
             )
             gavi, brawly = row.get("gavi", {}), row.get("brawly", {})
+            reach = {}
+            if row.get("fight") is not None:
+                reach["fight"] = row["fight"]
+            if row.get("order") is not None:
+                reach["order"] = row["order"]
             mlflow.log_metrics(
-                {
-                    "order": row.get("order", 0),
+                reach
+                | {
                     "gavi_won": gavi.get("won", 0),
                     "gavi_attempts": gavi.get("attempts", 0),
                     "brawly_won": brawly.get("won", 0),
@@ -281,7 +298,11 @@ def log_comparison(
         if rows:
             lines = []
             for side in ("control", "treatment"):
-                mine = sorted(r.get("order", 0) for r in rows if r.get("side") == side)
+                mine = sorted(
+                    (r.get("fight") if r.get("fight") is not None else r.get("order", 0))
+                    for r in rows
+                    if r.get("side") == side
+                )
                 arm_name = params.get("arm_a" if side == "control" else "arm_b", side)
                 lines.append(f"{side} ({arm_name}) n={len(mine)}")
                 lines.append("  " + " ".join(str(v) for v in mine))
@@ -341,11 +362,14 @@ def ingest_measurement(path: Path) -> str:
         )
         metrics = {
             "runs": summary.get("runs", 0),
-            "mean_order": summary.get("meanOrder", 0.0),
             "passed_gavi": summary.get("passedGavi", 0),
             "beat_brawly": summary.get("beatBrawly", 0),
             "crashed": summary.get("crashed", 0),
         }
+        if summary.get("meanFight") is not None:
+            metrics["mean_fight"] = summary["meanFight"]
+        elif summary.get("meanOrder") is not None:
+            metrics["mean_order"] = summary["meanOrder"]
         if planned:
             metrics |= {
                 "forecast_rate": live / planned,
@@ -369,7 +393,7 @@ def ingest_structured(path: Path) -> str:
     for row in data.get("rows", []):
         arm = arms.setdefault(row["arm"], Arm(name=row["arm"]))
         arm.runs += 1
-        arm.orders.append(row.get("order", 0))
+        arm.add_reach(row)
         gavi, brawly = row.get("gavi", {}), row.get("brawly", {})
         arm.gavi_won += gavi.get("won", 0)
         arm.gavi_attempts += gavi.get("attempts", 0)
@@ -413,7 +437,7 @@ def ingest_structured(path: Path) -> str:
 
 
 TALLY = re.compile(
-    r"^(?P<arm>[A-Z]+)\s+\d+\s+\((?P<starter>\w+)\):.*?order=(?P<order>\d+)"
+    r"^(?P<arm>[A-Z]+)\s+\d+\s+\((?P<starter>\w+)\):.*?(?P<scale>fight|order)=(?P<reach>\d+)"
     r"(?:.*?gavi=(?P<gw>\d+)/(?P<ga>\d+))?"
     r"(?:.*?brawly=(?P<bw>\d+)/(?P<ba>\d+))?"
 )
@@ -494,7 +518,7 @@ def ingest_tally(path: Path) -> str | None:
                 "arm": m.group("arm"),
                 "index": arm.runs + 1,
                 "starter": m.group("starter"),
-                "order": int(m.group("order")),
+                m.group("scale"): int(m.group("reach")),
                 "gavi": {
                     "won": int(m.group("gw") or 0),
                     "attempts": int(m.group("ga") or 0),
@@ -508,7 +532,7 @@ def ingest_tally(path: Path) -> str | None:
             }
         )
         arm.runs += 1
-        arm.orders.append(int(m.group("order")))
+        arm.add_reach(rows[-1])
         if m.group("ga"):
             arm.gavi_won += int(m.group("gw"))
             arm.gavi_attempts += int(m.group("ga"))
