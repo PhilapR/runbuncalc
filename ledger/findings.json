@@ -1648,6 +1648,21 @@
 			"falsified": 0,
 			"evidence": "Raised by Philip reading the panel: \"what is contested by 0.1 or 4.12? What does this actually even mean? The unit is not clear.\" It is the gap between the enemy AI's best action score and its second best, on Run & Bun's own internal decision scale. planner.js:468 computes it as top.score minus runnerUp.score. The scale is the ROM hack's AI tuning, exported from ai/src/scoring.ts: a setup move starts at SETUP_BASE_SCORE 6, SETUP_INCAPACITATED_BONUS adds 3 when the target cannot act, a Weakness Policy partner scores 12, holding no item at all scores -20. So \"decided by 4.12\" is roughly two thirds of a whole setup move's baseline worth of preference, and \"contested by 0.1\" is the AI being all but indifferent between two moves. Neither of those readings is available to anyone looking at the panel. Measured across 490 planned fights: minimum 0, p25 1.4, median 6.4, p75 6.4, maximum 26.4. By band: 95 under 0.5, 45 between 0.5 and 2, 71 between 2 and 5, 241 between 5 and 10, 38 at 10 or more. The median sits almost exactly on one setup move, which is the closest thing to a natural unit the scale has. What is on screen is a bare decimal with no unit, no legend and no sense of what counts as large. A player cannot tell whether 4.12 is decisive or negligible, and the two words that carry it — \"decided\" and \"contested\" — sound like verdicts on the FIGHT rather than on the move choice. That misreading is the subject of plan-verdict-hides-a-dead-forecast, and 5689615 addressed half of it by appending the survival answer. The unit problem is the other half and is untouched: the number is now sitting next to a sentence anyone can read, which makes its own opacity more obvious rather than less. Not fixed here. Whether to name the unit, band it in words, or drop the number for a phrase is a product decision.",
 			"enforcedBy": null
+		},
+		{
+			"id": "the-heal-gate-was-an-empty-interval",
+			"source": "batch/skipwall4",
+			"raised_on": "2026-08-27",
+			"severity": "high",
+			"area": "play-policy",
+			"file": "scripts/ui-playthrough.js",
+			"line": 2255,
+			"claim": "The heal rule could never fire at a wall: it required usHp <= 50 AND risk !== lethal, but risk=lethal means a crit kills, which against a 47% hardest hit is every HP under 50 — the firing window was the empty interval (47, 50]. Bayleef carried Synthesis into all nine Brawly attempts of skipwall4 A7 and pressed it zero times, including at 3% HP.",
+			"verdict": "confirmed",
+			"status": "closed",
+			"fixed_in": "20369fd",
+			"falsified": 0,
+			"evidence": "skipwall4-A-calibration.json, report-skipwall4-A-7.json: 11 Bayleef attack-turns at <=50% HP across nine Brawly attempts, all under a lethal-class threat, zero Synthesis presses; the win (eval index 40) lost 5 of 6 on pure variance. Fourth instance of the lethal-clause family after status, speed drops (isolated 50-0) and screens. Gate: tests/playthrough_policy.test.js 'a heal fires when the healed body changes the fight' — failed before the fix, passes after; --heal-control=0 preserves the old gate as the A/B control arm."
 		}
 	]
 }
