@@ -710,3 +710,53 @@ test('a switch is refused when Pursuit would kill the body on the way out', () =
 	const blind = legacy.decide(caught, memory(), []);
 	assert.equal(blind.kind, 'switch', 'the control arm keeps switching');
 });
+
+test('a body the next hit kills is banked, not spent on a finisher tick', () => {
+	// The measured death economy at Brawly: bodies fight to single-digit HP
+	// and die to 5% ticks, 700+ deaths a batch, while A7's one win came from
+	// a 24% Seadra banked early and brought back to finish Scraggy. When the
+	// incoming hit kills us, we cannot KO first, and a healthy body waits,
+	// the chip is worth more later than the one attack it would trade for.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0, banked: 0});
+	const base = {
+		foe: 'Hitmontop L20',
+		usHp: 20,
+		// risk 'thin', not 'lethal', and no LOSE-RACE sentence — on purpose:
+		// the lethal-resist switch and the lost-race switch must not be the
+		// rules that fire, because banking is about OUR body's death against
+		// the plain hit, not the crit flag and not their matchup.
+		risk: 'thin',
+		threat: 'Their hardest hit: Mach Punch 47% — 69% on a crit · a crit KOs you ' +
+			'· you need 2 turns to KO, they need 1 — you win it',
+		moves: [{move: 'Tackle', damage: '12%+', title: '12–15%'}],
+		switches: [{id: 'x1', label: 'Marill 100%'}],
+	};
+
+	const banked = policy.decide(base, memory(), []);
+	assert.equal(banked.kind, 'switch', 'the hit kills it and the body banks');
+	assert.match(banked.why, /banking/, 'and says so');
+
+	// Still healthy enough to trade: a 45% body against a 47% hit is a fair
+	// spend, not a chip worth banking.
+	const sturdy = policy.decide(Object.assign({}, base, {usHp: 45}), memory(), []);
+	assert.notEqual(sturdy.kind, 'switch');
+
+	// Nothing healthy waiting: banking into a chipped body just shuffles the
+	// deaths around.
+	const alone = policy.decide(Object.assign({}, base,
+		{switches: [{id: 'x1', label: 'Marill 30%'}]}), memory(), []);
+	assert.notEqual(alone.kind, 'switch');
+
+	// A killing Pursuit closes the door the guard built.
+	const caught = policy.decide(Object.assign({}, base, {
+		threat: base.threat + ' · Pursuit KOs anything that switches out',
+	}), memory(), []);
+	assert.notEqual(caught.kind, 'switch');
+
+	// And the control arm spends the body the way every batch measured.
+	const legacy = loadWith(['--bank-bodies=0']);
+	const spent = legacy.decide(base, memory(), []);
+	assert.notEqual(spent.kind, 'switch', 'the control arm stays in');
+});

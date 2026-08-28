@@ -225,6 +225,12 @@ const HEAL_CONTROL = flag('heal-control', '1') !== '0';
 // donated KO, so the turn stays on damage. `0` removes the guard, which is
 // the control arm.
 const PURSUIT_GUARD = flag('pursuit-guard', '1') !== '0';
+// Bank a body the next hit kills instead of spending it on one more attack.
+// The measured death economy at Brawly is 700+ deaths a batch, most of them
+// bodies that fought to single-digit HP and died to a finisher tick — while
+// the one A7 win came from a 24% Seadra banked early and brought back to
+// finish Scraggy. `0` spends the body, which is the control arm.
+const BANK_BODIES = flag('bank-bodies', '1') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
@@ -2283,6 +2289,27 @@ function decide(view, memory, roster) {
 		return {kind: 'move', pick: {move: heal.move},
 			why: 'setting the trade back up with ' + heal.move};
 	}
+	// The hit kills us, we cannot KO first, and a healthy body is waiting:
+	// bank the chip. Staying in trades the whole body for one more attack;
+	// leaving keeps a finisher for the tail of the fight, which is where A7's
+	// win came from. Only a BADLY chipped body (35% and under) — at 45%
+	// against a 47% hit the trade is still fair — and only behind a body
+	// healthy enough (50%+) that this is a bank and not a shuffle. The
+	// Pursuit guard above already closed this door when leaving is the death.
+	if (BANK_BODIES && !pursuitCaught && view.usHp > 0 && view.usHp <= 35 &&
+		memory.banked < 3) {
+		const named = /Their hardest hit: (.+?) (\d+)%/.exec(view.threat || '');
+		const killed = named && Number(named[2]) >= view.usHp;
+		if (killed) {
+			const fresh = healthiestSwitch(view, roster);
+			if (fresh && fresh.hp >= 50) {
+				memory.banked += 1;
+				return {kind: 'switch', pick: fresh,
+					why: 'banking the body — ' + named[1].trim() +
+						' kills it, and the tail of the fight needs it'};
+			}
+		}
+	}
 	// Setting up is the other half of a line, and it comes AFTER taking their
 	// turn away: a sleeping opponent is what makes the boost free. Only while
 	// we can afford the turn, and twice at most — a third is a Pokemon that
@@ -2523,7 +2550,8 @@ async function openFight(page) {
 
 async function playFight(page, plan, roster) {
 	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0,
-		sacked: 0, screens: new Set(), boosts: 0, slowed: new Set(), healed: 0};
+		sacked: 0, screens: new Set(), boosts: 0, slowed: new Set(), healed: 0,
+		banked: 0};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {
