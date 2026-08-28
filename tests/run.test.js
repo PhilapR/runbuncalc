@@ -3248,3 +3248,31 @@ test('an unrecorded IV plans as the floor, never as a perfect one', () => {
 	// before this split existed.
 	assert.equal(hp({}), 70, 'an uncaught prospect is still graded at its best');
 });
+
+test('a scripted gift rolls its three guaranteed perfect IVs', () => {
+	// Run & Bun guarantees three perfect IVs on the starter (operator ruling,
+	// 2026-08-28). The model rolled it like a wild catch: across 72 banked
+	// runs, 59 starters had ZERO perfect IVs, 11 had one, 2 had two, none had
+	// three — the uniform distribution exactly, and the starter is the one
+	// body every run owns. The gym counterfactuals (gymcf2) measured IVs as
+	// the only lever that moves a wall, which is what makes this modelling
+	// hole a wall-height error and not a detail.
+	const stream = values => {
+		let i = 0;
+		return () => values[i++ % values.length];
+	};
+	// A deliberately terrible stream: every raw roll would be IV 3.
+	const gift = run.rollIdentity('Torchic', stream([0.1]), {perfectIvs: 3});
+	const perfect = Object.values(gift.ivs).filter(v => v === 31).length;
+	assert.equal(perfect, 3, 'three stats are perfect whatever the dice said');
+	assert.ok(Object.values(gift.ivs).some(v => v === 3),
+		'the other stats still come from the die');
+
+	// The same stream twice authors the same identity — replay holds.
+	const again = run.rollIdentity('Torchic', stream([0.1]), {perfectIvs: 3});
+	assert.deepEqual(again.ivs, gift.ivs);
+
+	// A wild catch is untouched: no opts, no guarantee.
+	const wild = run.rollIdentity('Torchic', stream([0.1]));
+	assert.equal(Object.values(wild.ivs).filter(v => v === 31).length, 0);
+});

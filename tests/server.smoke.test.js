@@ -1238,6 +1238,11 @@ test('the recreation rides HTTP: a roll, a spend, and one played turn', async ()
 	assert.deepEqual(Object.keys(authored.body.identity.ivs).sort(),
 		['atk', 'def', 'hp', 'spa', 'spd', 'spe']);
 	assert.ok(authored.body.identity.nature && authored.body.identity.ability);
+	// A scripted gift carries Run & Bun's three guaranteed perfect IVs. The
+	// uniform roll served here for months produced 59 zero-perfect starters
+	// in 72 banked runs.
+	assert.ok(Object.values(authored.body.identity.ivs).filter(v => v === 31).length >= 3,
+		'a gift identity carries at least three perfect IVs');
 	const nameless = await requestJson('/run/identity', {});
 	assert.equal(nameless.status, 400);
 	assert.match(nameless.body.error, /species is required/);
