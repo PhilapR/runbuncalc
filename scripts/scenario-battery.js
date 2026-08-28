@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-env node, es6 */
 'use strict';
 
 /**
@@ -30,7 +31,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const driver = require('../lib/battle-driver.js');
-const {viewOf} = require('../lib/battle-view.js');
+const viewOf = require('../lib/battle-view.js').viewOf;
 
 function flag(name, fallback) {
 	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));

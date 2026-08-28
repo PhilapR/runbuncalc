@@ -1,5 +1,5 @@
-var SETDEX_SS = {"Kirlia":{"Trainer Wally Mauville":{"level":43 ,"ability":"Synchronize","moves":[],"nature":"Modest","item":"","index":209},},
-"Zigzagoon-Galar":{"Trainer Wally Mauville":{"level":7 ,"ability":"Gluttony","moves":[],"nature":"Bashful","item":"","index":210},},
+var SETDEX_SS = {"Kirlia":{"Trainer Wally Mauville":{"level":43 ,"ability":"Synchronize","moves":["Hypnosis","Dazzling Gleam","Future Sight","Imprison"],"nature":"Modest","item":"","index":209},},
+"Zigzagoon-Galar":{"Trainer Wally Mauville":{"level":7 ,"ability":"Gluttony","moves":["Tackle","Sand Attack","Rock Smash"],"nature":"Bashful","item":"","index":210},},
 "Treecko":{"Trainer Rival Route 103 Sceptile":{"level":5 ,"ability":"Overgrow","moves":["Absorb","Leer","Pound"],"nature":"Bashful","item":"","index":0},},
 "Torchic":{"Trainer Rival Route 103 Blaziken":{"level":5 ,"ability":"Blaze","moves":["Scratch","Growl","Ember"],"nature":"Bashful","item":"","index":1},},
 "Mudkip":{"Trainer Rival Route 103 Swampert":{"level":5 ,"ability":"Torrent","moves":["Tackle","Growl","Water Gun"],"nature":"Bashful","item":"","index":2},},

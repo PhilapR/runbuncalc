@@ -309,7 +309,7 @@ function pick(candidates) {
  * Every real fight order, so an estimate can be snapped to one.
  *
  * `order` counts the enemy Pokemon faced before a fight, so only the values
- * a fight actually starts on are reachable — 362 of the 1626. Interpolating
+ * a fight actually starts on are reachable — 366 of the 1626. Interpolating
  * between two of them can land on a number the run can never be in:
  * predictFromRouteNumber produced 17 for Route 105, where the fights either
  * side sit at 16 and 19. An opensAt of 17 is not early or late, it is not a

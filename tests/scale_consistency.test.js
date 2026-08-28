@@ -45,11 +45,11 @@ test('every dated order in availability.json is a fight the run can be at', () =
 			probe(row.opensAt, `${key}/${row.name || row.map}`);
 		}
 	}
-	for (const [move, value] of Object.entries(availability.hmMoves)) {
-		probe(value, `hmMoves/${move}`);
+	for (const move of Object.keys(availability.hmMoves)) {
+		probe(availability.hmMoves[move], `hmMoves/${move}`);
 	}
-	for (const [method, value] of Object.entries(availability.methods)) {
-		probe(value, `methods/${method}`);
+	for (const method of Object.keys(availability.methods)) {
+		probe(availability.methods[method], `methods/${method}`);
 	}
 });
 
@@ -97,4 +97,25 @@ test('the engine bridge resolves the zero row', () => {
 	const sceptile = rows.find(row => row.trainer === 'Trainer Rival Route 103 Sceptile');
 	assert.ok(sceptile, 'the Route 103 Sceptile variant must be bridged');
 	assert.equal(sceptile.order, 0, 'and it is the engine database\'s row zero');
+});
+
+test('every fight of the run map can actually be started', () => {
+	// The close-review find: Mauville Wally landed with empty movesets (the
+	// official doc's "no listed moves means level-up moves" convention, which
+	// this engine does NOT apply), and driver.start threw "needs at least one
+	// move" — an unplayable fight in the mandatory spine, caught by no gate
+	// because nothing ever built every fight. This does, cheaply: the state
+	// builder validates species, moves, abilities and items on the way in.
+	const buildFightState = planner.buildFightState;
+	const party = [{species: 'Poochyena', level: 12,
+		moves: ['Tackle'], ivs: {hp: 15, atk: 15, def: 15, spa: 15, spd: 15, spe: 15}}];
+	const broken = [];
+	for (const fight of fights) {
+		try {
+			buildFightState({trainer: fight.trainer, playerParty: party});
+		} catch (error) {
+			broken.push(fight.trainer + ' — ' + error.message);
+		}
+	}
+	assert.deepEqual(broken, [], 'every fight must be startable');
 });

@@ -15,7 +15,7 @@ fails when they diverge, so that should not last.
 ## The two order scales
 
 `order` counts cumulative enemy POKEMON. A player counts TRAINERS. Leader
-Brawly is order 77 and the 26th fight of 362. `#N` always means order. See
+Brawly is order 80 and the 29th fight of 366. `#N` always means order. See
 AGENTS.md; `run.trainerIndexOf(run, order)` converts.
 
 ## Reading a run

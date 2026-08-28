@@ -49,7 +49,7 @@ to take.
 ## Two order scales, and `#` means only one of them
 
 `order` counts cumulative enemy POKEMON before a fight. A player counts
-TRAINERS. Leader Brawly is order 77 and the 26th fight of 362. The two numbers
+TRAINERS. Leader Brawly is order 80 and the 29th fight of 366. The two numbers
 are far apart, and they get further apart as the run goes on.
 
 `#N` in this repository always means ORDER. `#48 Camper Gavi` is order 48, not
@@ -69,7 +69,7 @@ is one of the 362 real fight orders.
 
 It asked something weaker until 2026-08-26, and the difference matters.
 `run.trainerIndexOf` SNAPS FORWARD to the first fight at or after its argument,
-so `trainerIndexOf(doc, x) !== null` only asks whether x is at most 1620. All
+so `trainerIndexOf(doc, x) !== null` only asks whether x is at most 1625. All
 362 trainer numbers passed it, and so did all 435 engine row indexes. Both
 scales this section exists to keep apart went through it unchallenged, and the
 item ledger shipped in the wrong one twice.
