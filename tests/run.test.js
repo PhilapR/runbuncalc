@@ -720,10 +720,10 @@ test('the level caps are the game\'s own ladder, all twenty-three rows', () => {
 	// of 16; Fallarbor Vito's 48 exists with no badge; and no cap lifts at
 	// Chelle's Mt Pyre fight or Maxie's Space Center raid).
 	const DOC_LADDER = [
-		[19, 12], [56, 17], [77, 21], [139, 25], [181, 32], [224, 35],
-		[265, 38], [337, 42], [434, 48], [519, 54], [571, 57], [696, 65],
-		[714, 66], [758, 69], [855, 73], [927, 76], [1009, 79], [1056, 81],
-		[1130, 85], [1247, 89], [1364, 91], [1454, 95], [1620, 99],
+		[22, 12], [59, 17], [80, 21], [142, 25], [184, 32], [229, 35],
+		[270, 38], [342, 42], [439, 48], [524, 54], [576, 57], [701, 65],
+		[719, 66], [763, 69], [860, 73], [932, 76], [1014, 79], [1061, 81],
+		[1135, 85], [1252, 89], [1369, 91], [1459, 95], [1625, 99],
 	];
 	const state = fresh({permadeath: true, rival: 'Swampert'});
 	let previous = -1;
@@ -742,9 +742,9 @@ test('the level caps are the game\'s own ladder, all twenty-three rows', () => {
 	assert.equal(capped.ace, 'Croagunk');
 	// The rival boundary holds for a declared rival: order 253 is the
 	// Sceptile variant, invisible to a Swampert run, but the cap segment is
-	// the triplet's — 38 through #265, 42 after.
-	assert.equal(run.capAt(state, 253), 38);
-	assert.equal(run.capAt(state, 266), 42);
+	// the triplet's — 38 through #270, 42 after.
+	assert.equal(run.capAt(state, 258), 38);
+	assert.equal(run.capAt(state, 271), 42);
 });
 
 test('the level cap follows boss tiers, not badges', () => {
@@ -972,7 +972,7 @@ test('a loss carries its epitaph, and the trainer named must be real', () => {
 	assert.equal(mon.status, 'dead');
 	assert.equal(mon.died.to, 'Leader Brawly');
 	assert.equal(mon.died.move, 'Drain Punch');
-	assert.equal(mon.died.order, 77);
+	assert.equal(mon.died.order, 80);
 	assert.match(state.log[state.log.length - 1].summary, /Leader Brawly's Drain Punch/);
 
 	// The epitaph is optional: a bare faint still records that it happened here.
@@ -1013,16 +1013,16 @@ test('route availability: imported unlock dates order the routes view', () => {
 
 	// Petalburg Woods is the import's hardest case: rab's proxy dates it
 	// post-Brawly because it labels the in-woods grunt "Route 104 (South)",
-	// but this run map NAMES a fight after the woods at #19 — direct evidence
+	// but this run map NAMES a fight after the woods at #22 — direct evidence
 	// that outranks the proxy.
 	const woods = oracle.availabilityOf('Petalburg Woods');
-	assert.equal(woods.opensAt, 19);
+	assert.equal(woods.opensAt, 22);
 	assert.equal(woods.method, 'our-fight');
 
 	// A multi-floor complex expands to every floor: rab says "Victory Road",
-	// all three of our wild tables inherit the date (post-Juan, #1364).
-	assert.equal(oracle.availabilityOf('Victory Road B1f').opensAt, 1382);
-	assert.equal(oracle.availabilityOf('Victory Road B2f').opensAt, 1382);
+	// all three of our wild tables inherit the date (post-Juan, #1369).
+	assert.equal(oracle.availabilityOf('Victory Road B1f').opensAt, 1387);
+	assert.equal(oracle.availabilityOf('Victory Road B2f').opensAt, 1387);
 
 	// And the nuzlocke unit folds the floors into one location.
 	assert.equal(oracle.areaOf('Victory Road B2f'), 'Victory Road');
@@ -1049,7 +1049,7 @@ test('route availability: imported unlock dates order the routes view', () => {
 	assert.equal(r101.opensAt, 0);
 	assert.equal(r101.open, true);
 	const woodsRow = routes.find(route => route.name === 'Petalburg Woods');
-	assert.equal(woodsRow.opensAt, 19);
+	assert.equal(woodsRow.opensAt, 22);
 	assert.equal(woodsRow.open, false);
 	assert.equal(routes.find(route => route.name === 'Artisan Cave').opensAt, undefined);
 
@@ -1161,11 +1161,11 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	assert.ok(!pooch.log[pooch.log.length - 1].summary.includes('Heart Scale'));
 
 	// And never an HM the story has not handed over: Lotad's Surf gates at
-	// order 589, so an advisor at order 3 may not offer it. TMs carry no dates
+	// order 594, so an advisor at order 3 may not offer it. TMs carry no dates
 	// in the source, so only the HM spine is gated.
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
-	assert.equal(oracle.moveObtainableAt('Surf'), 589);
-	assert.equal(oracle.moveObtainableAt('Rock Smash'), 139);
+	assert.equal(oracle.moveObtainableAt('Surf'), 594);
+	assert.equal(oracle.moveObtainableAt('Rock Smash'), 142);
 	assert.equal(oracle.moveObtainableAt('Tackle'), null);
 	let wet = run.apply(fresh({permadeath: true}),
 		owned({kind: 'catch', species: 'Lotad', map: 'Petalburg City', level: 5,
@@ -1336,7 +1336,7 @@ test('the catch advisor scouts only what is really catchable, on the board', () 
 	assert.equal(out.enemies, 6);
 
 	// Petalburg City's surf slots are geography the run can reach but water it
-	// cannot ride: Surf gates at #589, so they are counted out, not proposed.
+	// cannot ride: Surf gates at #594, so they are counted out, not proposed.
 	assert.ok(out.gated >= 1, 'surf prospects before Surf must be gated');
 	assert.ok(out.catches.every(c => c.method !== 'surf'));
 	// Fishing is open from the start — Run & Bun's one rod is given on Route 103.
@@ -1500,6 +1500,7 @@ test('the split sheet is the gauntlet with its caps, and it moves with the run',
 	// each under the cap in force when it is fought — the Museum pair shares
 	// the authored 17.
 	assert.deepEqual(prep.gauntlet.map(f => [f.trainer, f.tier, f.cap]), [
+		['Trainer Rival Route 103 Swampert', 'story', 12],
 		['Team Aqua Grunt Petalburg Woods', 'story', 12],
 		['Team Aqua Grunt Museum #1', 'story', 17],
 		['Team Aqua Grunt Museum #2', 'story', 17],
@@ -1572,7 +1573,9 @@ test('nuzlocke: the encounter list is a forecast — odds, dupes, and a used rou
 
 test('position fast-forwards; a declared skip is the one way back', () => {
 	let state = run.apply(fresh(), {kind: 'beat', trainer: 'Youngster Calvin'});
-	assert.equal(state.position, 0);
+	// Calvin sits past the Route 103 rival trio, so beating him fast-forwards
+	// the road over them: position is his order on the restored map.
+	assert.equal(state.position, 3);
 	assert.equal(run.upcoming(state, 1)[0].trainer, 'Bug Catcher Rick');
 	// Beating ahead is the fast-forward: the road behind fell on the way,
 	// and walking it back is refused — that is how a run is recorded.
@@ -1592,27 +1595,27 @@ test('a skipped guard keeps his route closed until he actually falls', () => {
 	let state = run.apply(fresh({onePerRoute: true}),
 		{kind: 'skip', trainer: 'Camper Gavi', for: 'a box that can afford him'});
 	assert.match(state.log[state.log.length - 1].summary,
-		/skipping Camper Gavi \(#48\) — waiting for a box that can afford him/);
+		/skipping Camper Gavi \(#51\) — waiting for a box that can afford him/);
 	// Never twice, and the skipped fight leads the road once passed.
 	assert.throws(() => run.apply(state, {kind: 'skip', trainer: 'Camper Gavi'}),
 		/already being skipped/);
 	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'});
-	assert.deepEqual(state.skipped, [48]);
+	assert.deepEqual(state.skipped, [51]);
 	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi');
 	// Passed, not beaten: the electric grass he guards stays shut.
 	assert.throws(() => run.rollEncounter(state, {map: 'Route110'}),
-		/Route110 is not reachable yet — Camper Gavi \(#48\) guards it/);
+		/Route110 is not reachable yet — Camper Gavi \(#51\) guards it/);
 	// While he stands the debt is VISIBLE: mandatory-but-delayed is owed.
-	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 48}]);
+	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 51}]);
 	// An OPTIONAL skip is different: never owed, and simply not the road.
 	state = run.apply(state, {kind: 'skip', trainer: 'Triathlete Pablo'});
-	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 48}],
+	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 51}],
 		'an optional skip is not a debt');
 	assert.ok(!run.upcoming(state, 500).some(fight => fight.trainer === 'Triathlete Pablo'),
 		'a skipped optional fight leaves the road entirely');
 	// Beat him late and the route opens, position unmoved, the debt settled.
 	state = run.apply(state, {kind: 'beat', trainer: 'Camper Gavi'});
-	assert.equal(state.position, 56);
+	assert.equal(state.position, 59);
 	assert.deepEqual(run.summarize(state).owed, []);
 	const rolled = run.rollEncounter(state, {map: 'Route110', random: () => 0.01});
 	assert.ok(rolled.species, 'the guarded route rolls once the guard falls');
@@ -1677,7 +1680,8 @@ test('the run plans the next fight with the party it actually has', () => {
 	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
 
 	const plan = run.planNext(state);
-	assert.equal(plan.trainer, 'Youngster Calvin', 'the run starts before the first fight');
+	assert.equal(plan.trainer, 'Trainer Rival Route 103 Sceptile',
+		'the run starts before the first fight — the Route 103 rival since 2026-08-28');
 	// The party is the player's own box, never a borrowed trainer build.
 	assert.equal(plan.borrowedPlayerBuild, false);
 	assert.equal(plan.state.sides.player.party[0].species, 'Azumarill');
@@ -1752,7 +1756,7 @@ test('a skipped Gavi steps aside going out and stands first coming back', () => 
 	state = run.apply(state, {kind: 'catch', species: 'Poochyena', level: 20, ivs: IVS});
 	state = run.apply(state, {kind: 'party', ids: [state.box[0].id]});
 	for (const fight of planner.listFights('run-and-bun').fights) {
-		if (fight.order >= 48) break;
+		if (fight.order >= 51) break;
 		try { state = run.apply(state, {kind: 'beat', trainer: fight.trainer}); } catch (error) { /* variant */ }
 	}
 	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi');
@@ -1890,7 +1894,7 @@ test('the summary states where the run has got to', () => {
 		{kind: 'acquire', item: 'Leftovers'},
 	]);
 	const summary = run.summarize(state);
-	assert.equal(summary.position, 0);
+	assert.equal(summary.position, 3);
 	assert.equal(summary.next.trainer, 'Bug Catcher Rick');
 	assert.equal(summary.boxed, 1);
 	assert.equal(summary.lost, 0);
@@ -1907,11 +1911,12 @@ test('the summary states where the run has got to', () => {
 test('the story spine derives beaten from position, not from bookkeeping', () => {
 	const state = fresh();
 	const spine = run.milestones(state);
-	// 44: nine badge battles, eight Elite Four rounds, the Champion, nine rival
-	// battles, seven admin battles, five team-leader battles, Wally, Steven, both
-	// Chelle fights and Dumbass Soupercell.
-	assert.equal(spine.length, 44, 'every milestone fight in the map');
-	assert.equal(spine[0].trainer, 'Leader Brawly');
+	// 47: nine badge battles, eight Elite Four rounds, the Champion, twelve
+	// rival battles (the restored Route 103 trio included), seven admin battles,
+	// five team-leader battles, Wally, Steven, both Chelle fights and Dumbass
+	// Soupercell.
+	assert.equal(spine.length, 47, 'every milestone fight in the map');
+	assert.equal(spine[0].trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(spine[spine.length - 1].trainer, 'Champion Wallace');
 	assert.ok(spine.every(m => !m.beaten), 'a fresh run has beaten nothing');
 
@@ -1919,12 +1924,13 @@ test('the story spine derives beaten from position, not from bookkeeping', () =>
 	// both rounds of rivals included — with no per-trainer bookkeeping.
 	const later = run.apply(state, {kind: 'beat', trainer: 'Leader Norman'});
 	const after = run.milestones(later);
-	assert.equal(after.filter(m => m.beaten).length, 8);
+	assert.equal(after.filter(m => m.beaten).length, 11);
 	assert.equal(after.filter(m => m.beaten).pop().trainer, 'Leader Norman');
 	assert.equal(after.filter(m => !m.beaten)[0].trainer, 'Magma Admin Tabitha Mt Chimney');
 	// Milestones carry their tier so the spine can draw badges taller than
 	// story bosses.
-	assert.equal(after[0].tier, 'boss');
+	assert.equal(after[0].tier, 'story', 'the Route 103 rival opens the spine');
+	assert.equal(after.find(m => m.trainer === 'Leader Brawly').tier, 'boss');
 	assert.equal(after.find(m => m.trainer === 'Magma Admin Tabitha Mt Chimney').tier, 'story');
 });
 
@@ -2002,13 +2008,13 @@ test('the cap at a fight is the cap of the stretch that fight belongs to', () =>
 	// not at Roxanne's 25.
 	assert.equal(run.capAt(state, 77), 21);
 	// The first filler AFTER a cap fight has already moved to the next stretch —
-	// #57 is past the Museum grunts (#56), so it is played under Brawly's 21.
-	assert.equal(run.capAt(state, 57), 21);
-	assert.equal(run.capAt(state, 59), 21, 'route filler mid-stretch, still Brawly');
-	// Filler BEFORE a cap fight is still under it: #20 sits between the Petalburg
-	// Woods grunt (#19) and the Museum grunts (#53), so 17.
-	assert.equal(run.capAt(state, 20), 17);
-	assert.equal(run.capAt(state, 53), 17, "the Museum grunt's own order");
+	// #60 is past the Museum grunts (#59), so it is played under Brawly's 21.
+	assert.equal(run.capAt(state, 60), 21);
+	assert.equal(run.capAt(state, 62), 21, 'route filler mid-stretch, still Brawly');
+	// Filler BEFORE a cap fight is still under it: #23 sits between the Petalburg
+	// Woods grunt (#22) and the Museum grunts (#56), so 17.
+	assert.equal(run.capAt(state, 23), 17);
+	assert.equal(run.capAt(state, 56), 17, "the Museum grunt's own order");
 	// The start of the run, before any fight, is the first story boss' 12 — the
 	// same answer `levelCap` gives a fresh run, from the other direction.
 	assert.equal(run.capAt(state, -1), 12);
@@ -2017,8 +2023,8 @@ test('the cap at a fight is the cap of the stretch that fight belongs to', () =>
 	assert.equal(run.levelCap(state).cap, run.capAt(state, state.position + 1));
 
 	// Nothing boss-tier past the Champion, so nothing sets a cap there.
-	assert.equal(run.capAt(state, 1620), 99, 'the Champion fight plays under the authored 99');
-	assert.equal(run.capAt(state, 1621), null);
+	assert.equal(run.capAt(state, 1625), 99, 'the Champion fight plays under the authored 99');
+	assert.equal(run.capAt(state, 1626), null);
 	// And a run that declines caps has none anywhere.
 	assert.equal(run.capAt(fresh({levelCap: 'none'}), 77), null);
 
@@ -2145,11 +2151,11 @@ test('a declared rival collapses the variant fights to the ones this run can see
 	// identical ace levels; a run faces exactly one, fixed by its starter.
 	const declared = fresh({rival: 'Swampert'});
 	const spine = run.milestones(declared);
-	assert.equal(spine.length, 38, '44 minus the six variants this run never sees');
+	assert.equal(spine.length, 39, '47 minus the eight variants this run never sees');
 	assert.deepEqual(
 		spine.filter(m => /Rival/.test(m.trainer)).map(m => m.trainer),
-		['Trainer Rival Cycling Road Swampert', 'Trainer Rival Bridge Swampert',
-			'Trainer Rival Lilycove Swampert']
+		['Trainer Rival Route 103 Swampert', 'Trainer Rival Cycling Road Swampert',
+			'Trainer Rival Bridge Swampert', 'Trainer Rival Lilycove Swampert']
 	);
 
 	// A fight the run can never see cannot be beaten.
@@ -2168,7 +2174,7 @@ test('a declared rival collapses the variant fights to the ones this run can see
 	assert.equal(cap.cap, 38);
 
 	// Undeclared stays honest: everything visible, nothing refused.
-	assert.equal(run.milestones(fresh()).length, 44);
+	assert.equal(run.milestones(fresh()).length, 47);
 	assert.ok(run.apply(fresh(), {kind: 'beat', trainer: 'Trainer Rival Cycling Road Sceptile'}));
 
 	// Undo replays with the rule intact.
@@ -2191,9 +2197,9 @@ test('the box matrix compares the WHOLE box, at the cap the fight is fought unde
 	const matrix = run.boxMatrix(state);
 	// With no trainer named it compares the fight actually next, which for a
 	// fresh run is the run map's opening battle.
-	assert.equal(matrix.trainer, 'Youngster Calvin');
+	assert.equal(matrix.trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(matrix.order, 0);
-	assert.equal(matrix.grid.length, 3);
+	assert.equal(matrix.grid.length, 1, 'the rival brings one Treecko');
 
 	// Every alive box entry gets a row, party or not.
 	assert.deepEqual(matrix.box.map(entry => entry.id), ['mon-1', 'mon-2']);
@@ -2210,13 +2216,13 @@ test('the box matrix compares the WHOLE box, at the cap the fight is fought unde
 
 	// A named trainer projects to ITS cap, not the run's current one.
 	const ahead = run.boxMatrix(state, 'Leader Brawly');
-	assert.equal(ahead.order, 77);
+	assert.equal(ahead.order, 80);
 	assert.deepEqual(ahead.projection, {applied: true, cap: 21, from: 'projected'});
 	assert.deepEqual(ahead.grid[0].versus.map(row => row.level), [21, 21]);
 	// The same projection `partySpecs` applies, because it IS `partySpecs`.
 	assert.deepEqual(ahead.grid[0].versus.map(row => row.level),
 		run.partySpecs(run.apply(state, {kind: 'party', ids: ['mon-1', 'mon-2']}),
-			{atOrder: 77}).map(spec => spec.level));
+			{atOrder: 80}).map(spec => spec.level));
 
 	assert.throws(() => run.boxMatrix(state, 'Leader Brawley'), /no fight named/);
 });
@@ -2293,12 +2299,15 @@ test('the advisor prices single changes by what they do to the board', () => {
 		{kind: 'acquire', item: 'Heart Scale'},
 		{kind: 'acquire', item: 'Rare Candy', count: 3},
 		{kind: 'acquire', item: 'Choice Band'},
+		// Clear the Route 103 rival trio so the advice is still priced against
+		// Youngster Calvin, the matchup this fixture's deltas were derived on.
+		{kind: 'beat', trainer: 'Trainer Rival Route 103 Swampert'},
 	]);
 	const before = JSON.stringify(state);
 	const advice = run.adviseUpgrades(state);
 	assert.equal(JSON.stringify(state), before, 'asking a question must not move the run');
 	assert.equal(advice.trainer, 'Youngster Calvin');
-	assert.equal(advice.order, 0);
+	assert.equal(advice.order, 3);
 	// The board's projection, because it is the board's numbers: a level 3 catch
 	// stands in front of that grunt at 12.
 	assert.deepEqual(advice.projection, {applied: true, cap: 12, from: 'projected'});
@@ -2640,7 +2649,7 @@ test('the field items standing on a location, with the log as the collection rec
 	assert.ok(seed, 'Route 104 holds a Miracle Seed');
 	assert.equal(seed.open, false);
 	assert.equal(seed.collected, false);
-	assert.equal(seed.opensAt, 11);
+	assert.equal(seed.opensAt, 14);
 
 	// Route 101's Potion opens at the very start — and collecting it is the
 	// acquire the bag already records, not a new kind of event.
@@ -2669,7 +2678,7 @@ test('the field items standing on a location, with the log as the collection rec
 test('pre-fight opportunities show only reachable, unspent work and honest move timing', () => {
 	const state = fresh({permadeath: true});
 	const before = run.preFightOpportunities(state);
-	assert.deepEqual(before.before, {trainer: 'Youngster Calvin', order: 0});
+	assert.deepEqual(before.before, {trainer: 'Trainer Rival Route 103 Sceptile', order: 0});
 	assert.equal(before.encounters.mode, 'unspent');
 	// Littleroot and Oldale are here and Petalburg is not. Both changes come
 	// from Philip's account of the route, corroborated independently by the

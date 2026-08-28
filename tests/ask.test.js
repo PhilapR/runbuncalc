@@ -226,7 +226,7 @@ test('a Pokemon that does not come from grass still has a source', () => {
 	assert.equal(mew.status, 'obtainable');
 	const corner = mew.sources.find(source => source.kind === 'game-corner');
 	assert.ok(corner, 'Mew comes out of the Game Corner');
-	assert.equal(corner.opensAt, 1364, 'gated on Juan, who hands over the Rain Badge');
+	assert.equal(corner.opensAt, 1369, 'gated on Juan, who hands over the Rain Badge');
 	assert.deepEqual(corner.oneOf, ['Mew', 'Celebi', 'Jirachi', 'Victini']);
 	assert.equal(corner.chance, 25, 'a random draw between four is not a choice');
 
@@ -260,6 +260,6 @@ test('a Pokemon that does not come from grass still has a source', () => {
 	const orders = sources.gameCorner.tiers.map(tier => tier.opensAt);
 	assert.deepEqual(orders, [...orders].sort((a, b) => a - b),
 		'the badge tiers must run in fight order');
-	assert.equal(orders[0], 77, 'Knuckle first — Brawly, not Roxanne');
-	assert.equal(orders[1], 139, 'then Stone');
+	assert.equal(orders[0], 80, 'Knuckle first — Brawly, not Roxanne');
+	assert.equal(orders[1], 142, 'then Stone');
 });

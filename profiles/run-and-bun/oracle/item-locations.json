@@ -12,7 +12,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 102, 104 and 111.",
 			"detail": "30 to 90.",
-			"opensAt": 0,
+			"opensAt": 3,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -20,7 +20,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 102, 104 and 114.",
 			"detail": "30 to 90.",
-			"opensAt": 0,
+			"opensAt": 3,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -28,7 +28,7 @@
 			"kind": "heart-scale",
 			"location": "Route 106",
 			"detail": "Rock furthest north-west at the beach connected to Dewford (hidden).",
-			"opensAt": 22,
+			"opensAt": 25,
 			"dating": "the place it names"
 		},
 		{
@@ -36,23 +36,23 @@
 			"kind": "heart-scale",
 			"location": "Route 109",
 			"detail": "Island with no NPCs (hidden).",
-			"opensAt": 42,
-			"dating": "gated by a correction from play at Route 109, which opens at 42"
+			"opensAt": 45,
+			"dating": "gated by a correction from play at Route 109, which opens at 45"
 		},
 		{
 			"name": "Soft Sand",
 			"kind": "held",
 			"location": "Route 109, given by an NPC by the beach.",
 			"detail": null,
-			"opensAt": 42,
-			"dating": "gated by a correction from play at Route 109, which opens at 42"
+			"opensAt": 45,
+			"dating": "gated by a correction from play at Route 109, which opens at 45"
 		},
 		{
 			"name": "Rare Candy",
 			"kind": "rare-candy",
 			"location": "Route 110",
 			"detail": "By Cycling Road's south gate, guarded by Camper Gavi.",
-			"opensAt": 48,
+			"opensAt": 51,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -60,7 +60,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 104 and 114.",
 			"detail": "30 to 90.",
-			"opensAt": 90,
+			"opensAt": 93,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -68,7 +68,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 114, 116. Given 10x from an NPC at Route 104.",
 			"detail": "30 to 90.",
-			"opensAt": 90,
+			"opensAt": 93,
 			"dating": "the place it names"
 		},
 		{
@@ -76,7 +76,7 @@
 			"kind": "heart-scale",
 			"location": "Route 104",
 			"detail": "North-west corner of the beach (hidden).",
-			"opensAt": 90,
+			"opensAt": 93,
 			"dating": "the place it names"
 		},
 		{
@@ -84,7 +84,7 @@
 			"kind": "held",
 			"location": "Route 104, in the area only accessible through Petalburg Woods.",
 			"detail": null,
-			"opensAt": 90,
+			"opensAt": 93,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -92,23 +92,23 @@
 			"kind": "held",
 			"location": "Petalburg Woods, given by an NPC past the Cut tree.",
 			"detail": null,
-			"opensAt": 103,
-			"dating": "gated by Cut, which opens at 103"
+			"opensAt": 106,
+			"dating": "gated by Cut, which opens at 106"
 		},
 		{
 			"name": "Silver Powder",
 			"kind": "held",
 			"location": "Petalburg Woods, past the Cut tree.",
 			"detail": null,
-			"opensAt": 103,
-			"dating": "gated by Cut, which opens at 103"
+			"opensAt": 106,
+			"dating": "gated by Cut, which opens at 106"
 		},
 		{
 			"name": "Rare Candy",
 			"kind": "rare-candy",
 			"location": "Route 116",
 			"detail": "Behind Rich Boy Dawson. Possible to permanently miss.",
-			"opensAt": 109,
+			"opensAt": 112,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -116,7 +116,7 @@
 			"kind": "held",
 			"location": "Rusturf Tunnel, north-west corner.",
 			"detail": null,
-			"opensAt": 145,
+			"opensAt": 148,
 			"dating": "the place it names"
 		},
 		{
@@ -124,7 +124,7 @@
 			"kind": "held",
 			"location": "Rusturf Tunnel, north-east corner, past the smashable rocks.",
 			"detail": null,
-			"opensAt": 145,
+			"opensAt": 148,
 			"dating": "the place it names"
 		},
 		{
@@ -132,15 +132,15 @@
 			"kind": "held",
 			"location": "Route 116, in the separate area only accesible through Rusturf Tunnel (hidden).",
 			"detail": null,
-			"opensAt": 145,
-			"dating": "gated by the path through Rusturf Tunnel, which opens at 145"
+			"opensAt": 148,
+			"dating": "gated by the path through Rusturf Tunnel, which opens at 148"
 		},
 		{
 			"name": "Fire Stone",
 			"kind": "evolution",
 			"location": "Sold at Mauville City Pokémon Mart.",
 			"detail": null,
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the place it names"
 		},
 		{
@@ -148,7 +148,7 @@
 			"kind": "evolution",
 			"location": "Sold at Mauville City Pokémon Mart.",
 			"detail": null,
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the place it names"
 		},
 		{
@@ -156,7 +156,7 @@
 			"kind": "evolution",
 			"location": "Sold at Mauville City Pokémon Mart.",
 			"detail": null,
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the place it names"
 		},
 		{
@@ -164,7 +164,7 @@
 			"kind": "evolution",
 			"location": "Sold at Mauville City Pokémon Mart. Given 1x from NPC Cutter in Rustboro City.",
 			"detail": null,
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the place it names"
 		},
 		{
@@ -172,7 +172,7 @@
 			"kind": "rare-candy",
 			"location": "Mauville City",
 			"detail": "Given by an NPC inside one of the houses.",
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the place it names"
 		},
 		{
@@ -180,7 +180,7 @@
 			"kind": "evolution",
 			"location": "Sold at Mauville City and Fallarbor Town Pokémon Marts.",
 			"detail": null,
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -188,7 +188,7 @@
 			"kind": "evolution",
 			"location": "Sold at Mauville City Pokémon Mart.",
 			"detail": null,
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the place it names"
 		},
 		{
@@ -196,7 +196,7 @@
 			"kind": "evolution",
 			"location": "Sold at Mauville City Pokémon Mart.",
 			"detail": null,
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the place it names"
 		},
 		{
@@ -204,7 +204,7 @@
 			"kind": "evolution",
 			"location": "Sold at Mauville City Pokémon Mart.",
 			"detail": null,
-			"opensAt": 206,
+			"opensAt": 209,
 			"dating": "the place it names"
 		},
 		{
@@ -212,7 +212,7 @@
 			"kind": "evolution",
 			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
 			"detail": null,
-			"opensAt": 224,
+			"opensAt": 229,
 			"dating": "only its 3 badges gate is known"
 		},
 		{
@@ -220,7 +220,7 @@
 			"kind": "evolution",
 			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
 			"detail": null,
-			"opensAt": 224,
+			"opensAt": 229,
 			"dating": "only its 3 badges gate is known"
 		},
 		{
@@ -228,7 +228,7 @@
 			"kind": "evolution",
 			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
 			"detail": null,
-			"opensAt": 224,
+			"opensAt": 229,
 			"dating": "only its 3 badges gate is known"
 		},
 		{
@@ -236,7 +236,7 @@
 			"kind": "held",
 			"location": "Sold at Petalburg City (requires 3 badges).",
 			"detail": null,
-			"opensAt": 224,
+			"opensAt": 229,
 			"dating": "only its 3 badges gate is known"
 		},
 		{
@@ -244,7 +244,7 @@
 			"kind": "evolution",
 			"location": "Sold at Petalburg City (requires 3 badges).",
 			"detail": null,
-			"opensAt": 224,
+			"opensAt": 229,
 			"dating": "only its 3 badges gate is known"
 		},
 		{
@@ -252,7 +252,7 @@
 			"kind": "held",
 			"location": "Sold at Petalburg City (requires 3 badges).",
 			"detail": null,
-			"opensAt": 224,
+			"opensAt": 229,
 			"dating": "only its 3 badges gate is known"
 		},
 		{
@@ -260,7 +260,7 @@
 			"kind": "evolution",
 			"location": "Sold at Petalburg City (requires 3 badges).",
 			"detail": null,
-			"opensAt": 224,
+			"opensAt": 229,
 			"dating": "only its 3 badges gate is known"
 		},
 		{
@@ -268,7 +268,7 @@
 			"kind": "evolution",
 			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
 			"detail": null,
-			"opensAt": 224,
+			"opensAt": 229,
 			"dating": "only its 3 badges gate is known"
 		},
 		{
@@ -276,15 +276,15 @@
 			"kind": "held",
 			"location": "Route 104, given by an NPC outside of the Flower Shop after obtaining 3 badges.",
 			"detail": null,
-			"opensAt": 224,
-			"dating": "gated by 3 badges, which opens at 224"
+			"opensAt": 229,
+			"dating": "gated by 3 badges, which opens at 229"
 		},
 		{
 			"name": "Aspear Berry",
 			"kind": "berry",
 			"location": "Berry Trees at Routes 110 and 112.",
 			"detail": "30 to 90.",
-			"opensAt": 230,
+			"opensAt": 235,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -292,7 +292,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 110, 111, 112, 115, 117, 118 and 121.",
 			"detail": "12 to 36.",
-			"opensAt": 230,
+			"opensAt": 235,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -300,7 +300,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Route 103.",
 			"detail": "1 to 3.",
-			"opensAt": 282,
+			"opensAt": 287,
 			"dating": "the place it names"
 		},
 		{
@@ -308,7 +308,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 103 and 104.",
 			"detail": "30 to 90.",
-			"opensAt": 282,
+			"opensAt": 287,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -316,7 +316,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 111, 115, 118 and 121.",
 			"detail": "9 to 27.",
-			"opensAt": 387,
+			"opensAt": 392,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -324,7 +324,7 @@
 			"kind": "rare-candy",
 			"location": "Route 111",
 			"detail": "Rock at the north-east area of the desert (hidden, requires Go-Goggles).",
-			"opensAt": 387,
+			"opensAt": 392,
 			"dating": "the place it names"
 		},
 		{
@@ -332,7 +332,7 @@
 			"kind": "held",
 			"location": "Route 111, south corner of the desert (requires Go-Goggles)",
 			"detail": null,
-			"opensAt": 387,
+			"opensAt": 392,
 			"dating": "the place it names"
 		},
 		{
@@ -340,7 +340,7 @@
 			"kind": "held",
 			"location": "Route 111, past the desert (requires Mach Bike).",
 			"detail": null,
-			"opensAt": 387,
+			"opensAt": 392,
 			"dating": "the place it names"
 		},
 		{
@@ -348,7 +348,7 @@
 			"kind": "held",
 			"location": "Route 113.",
 			"detail": null,
-			"opensAt": 400,
+			"opensAt": 405,
 			"dating": "the place it names"
 		},
 		{
@@ -356,7 +356,7 @@
 			"kind": "held",
 			"location": "Route 113.",
 			"detail": null,
-			"opensAt": 400,
+			"opensAt": 405,
 			"dating": "the place it names"
 		},
 		{
@@ -364,7 +364,7 @@
 			"kind": "held",
 			"location": "Route 113, behind Parasol Lady Madeline. Possible to permanently miss.",
 			"detail": null,
-			"opensAt": 428,
+			"opensAt": 433,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -372,7 +372,7 @@
 			"kind": "evolution",
 			"location": "Sold at Fallarbor Town Pokémon Mart.",
 			"detail": null,
-			"opensAt": 434,
+			"opensAt": 439,
 			"dating": "the place it names"
 		},
 		{
@@ -380,7 +380,7 @@
 			"kind": "held",
 			"location": "Fallarbor Town, sold at the mart.",
 			"detail": null,
-			"opensAt": 434,
+			"opensAt": 439,
 			"dating": "the place it names"
 		},
 		{
@@ -388,7 +388,7 @@
 			"kind": "evolution",
 			"location": "Sold at Fallarbor Town Pokémon Mart.",
 			"detail": null,
-			"opensAt": 434,
+			"opensAt": 439,
 			"dating": "the place it names"
 		},
 		{
@@ -396,7 +396,7 @@
 			"kind": "held",
 			"location": "Fallarbor Town or Lilycove City, sold at the mart/department store.",
 			"detail": null,
-			"opensAt": 434,
+			"opensAt": 439,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -404,7 +404,7 @@
 			"kind": "evolution",
 			"location": "Sold at Fallarbor Town Pokémon Mart.",
 			"detail": null,
-			"opensAt": 434,
+			"opensAt": 439,
 			"dating": "the place it names"
 		},
 		{
@@ -412,7 +412,7 @@
 			"kind": "evolution",
 			"location": "Sold at Fallarbor Town and Fortree City Pokémon Marts.",
 			"detail": null,
-			"opensAt": 434,
+			"opensAt": 439,
 			"dating": "the place it names"
 		},
 		{
@@ -420,7 +420,7 @@
 			"kind": "held",
 			"location": "Route 114, at the rock straight south after dropping down the ledge (hidden).",
 			"detail": null,
-			"opensAt": 440,
+			"opensAt": 445,
 			"dating": "the place it names"
 		},
 		{
@@ -428,7 +428,7 @@
 			"kind": "held",
 			"location": "Route 115, by the Meteor Falls southern exit.",
 			"detail": null,
-			"opensAt": 481,
+			"opensAt": 486,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -436,7 +436,7 @@
 			"kind": "heart-scale",
 			"location": "Route 115",
 			"detail": "South-west corner of the beach connected to the Meteor Falls exit (hidden).",
-			"opensAt": 481,
+			"opensAt": 486,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -444,7 +444,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 115.",
 			"detail": "1 or 2.",
-			"opensAt": 481,
+			"opensAt": 486,
 			"dating": "the place it names"
 		},
 		{
@@ -452,7 +452,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 115.",
 			"detail": "1 or 2.",
-			"opensAt": 481,
+			"opensAt": 486,
 			"dating": "the place it names"
 		},
 		{
@@ -460,7 +460,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 115.",
 			"detail": "1 or 2.",
-			"opensAt": 481,
+			"opensAt": 486,
 			"dating": "the place it names"
 		},
 		{
@@ -468,7 +468,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 112 and 117.",
 			"detail": "30 to 90.",
-			"opensAt": 500,
+			"opensAt": 505,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -476,7 +476,7 @@
 			"kind": "berry",
 			"location": "Berry Trees at Routes 112 and 116.",
 			"detail": "30 to 90.",
-			"opensAt": 500,
+			"opensAt": 505,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -484,7 +484,7 @@
 			"kind": "held",
 			"location": "Jagged Pass, dropping down by eastern side.",
 			"detail": null,
-			"opensAt": 525,
+			"opensAt": 530,
 			"dating": "the place it names"
 		},
 		{
@@ -492,7 +492,7 @@
 			"kind": "heart-scale",
 			"location": "Petalburg City",
 			"detail": "Surf past the northern pond.",
-			"opensAt": 589,
+			"opensAt": 594,
 			"dating": "only its Surf gate is known"
 		},
 		{
@@ -500,15 +500,15 @@
 			"kind": "mega-stone",
 			"location": "Route 104, (requires Surf).",
 			"detail": null,
-			"opensAt": 589,
-			"dating": "gated by Surf, which opens at 589"
+			"opensAt": 594,
+			"dating": "gated by Surf, which opens at 594"
 		},
 		{
 			"name": "Rare Candy",
 			"kind": "rare-candy",
 			"location": "Petalburg City",
 			"detail": "Surf accross the southern pond, right side (hidden, requires Surf).",
-			"opensAt": 589,
+			"opensAt": 594,
 			"dating": "only its Surf gate is known"
 		},
 		{
@@ -516,7 +516,7 @@
 			"kind": "mega-stone",
 			"location": "Route 105, guarded by Bird Keeper Josue & Ruin Maniac Andres (requires Surf).",
 			"detail": null,
-			"opensAt": 595,
+			"opensAt": 600,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -524,7 +524,7 @@
 			"kind": "heart-scale",
 			"location": "Route 105",
 			"detail": "Furthest south-west island (hidden).",
-			"opensAt": 595,
+			"opensAt": 600,
 			"dating": "the place it names"
 		},
 		{
@@ -532,7 +532,7 @@
 			"kind": "mega-stone",
 			"location": "Route 108, guarded by Sailor Cory & CoolTrainer Carolina (requires Surf)",
 			"detail": null,
-			"opensAt": 601,
+			"opensAt": 606,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -540,7 +540,7 @@
 			"kind": "rare-candy",
 			"location": "Route 108",
 			"detail": "Rock at the island directly south-east of the Abandoned Ship (hidden, requires Surf).",
-			"opensAt": 601,
+			"opensAt": 606,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -548,7 +548,7 @@
 			"kind": "mega-stone",
 			"location": "Abandoned Ship, guarded by Ruin Maniac Garrison & Tuber Jani.",
 			"detail": null,
-			"opensAt": 607,
+			"opensAt": 612,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -556,7 +556,7 @@
 			"kind": "held",
 			"location": "Abandoned Ship.",
 			"detail": null,
-			"opensAt": 607,
+			"opensAt": 612,
 			"dating": "the place it names"
 		},
 		{
@@ -564,7 +564,7 @@
 			"kind": "held",
 			"location": "Abandoned Ship.",
 			"detail": null,
-			"opensAt": 607,
+			"opensAt": 612,
 			"dating": "the place it names"
 		},
 		{
@@ -572,7 +572,7 @@
 			"kind": "heart-scale",
 			"location": "Route 118",
 			"detail": "Rock at the south-west corner of the beach connected to Mauville (hidden).",
-			"opensAt": 613,
+			"opensAt": 618,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -580,7 +580,7 @@
 			"kind": "heart-scale",
 			"location": "Route 118",
 			"detail": "Rock at the south-west corner of the beach connected to Route 119 (hidden).",
-			"opensAt": 613,
+			"opensAt": 618,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -588,7 +588,7 @@
 			"kind": "held",
 			"location": "Route 119, east past the stairs leading to Psychic Dayton & Ninja Boy Takashi.",
 			"detail": null,
-			"opensAt": 665,
+			"opensAt": 670,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -596,7 +596,7 @@
 			"kind": "held",
 			"location": "Held by the gifted Castform from Weather Institute.",
 			"detail": null,
-			"opensAt": 678,
+			"opensAt": 683,
 			"dating": "the place it names"
 		},
 		{
@@ -604,7 +604,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "6 to 18.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -612,7 +612,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "1 to 3.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -620,7 +620,7 @@
 			"kind": "held",
 			"location": "Route 119, eastern side of the first tall grass area.",
 			"detail": null,
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -628,7 +628,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "1 to 18.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -636,7 +636,7 @@
 			"kind": "held",
 			"location": "Route 119, surfing south past the bridge, in the tall grass (hidden).",
 			"detail": null,
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -644,7 +644,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "1 to 3.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -652,7 +652,7 @@
 			"kind": "held",
 			"location": "Route 119, on the non grass tile to the east of the cycling NPC (hidden).",
 			"detail": null,
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -660,7 +660,7 @@
 			"kind": "held",
 			"location": "Route 119, western side of the first tall grass area.",
 			"detail": null,
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -668,7 +668,7 @@
 			"kind": "heart-scale",
 			"location": "Route 119",
 			"detail": "South of the bridge past the Weather Institute.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -676,7 +676,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "6 to 18.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -684,7 +684,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "2 to 5.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -692,7 +692,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "6 to 18.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -700,7 +700,7 @@
 			"kind": "held",
 			"location": "Route 119, at the dead end heading north-west past the first bridge.",
 			"detail": null,
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -708,7 +708,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "2 to 5.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -716,7 +716,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
 			"detail": "1 to 18.",
-			"opensAt": 702,
+			"opensAt": 707,
 			"dating": "the place it names"
 		},
 		{
@@ -724,7 +724,7 @@
 			"kind": "mega-stone",
 			"location": "Route 120.",
 			"detail": null,
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -732,7 +732,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -740,7 +740,7 @@
 			"kind": "held",
 			"location": "Route 120, at the tall grass maze.",
 			"detail": null,
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -748,7 +748,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -756,7 +756,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -764,7 +764,7 @@
 			"kind": "heart-scale",
 			"location": "Route 120",
 			"detail": "End of the north-west corridor at the tall grass maze (hidden).",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -772,7 +772,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -780,7 +780,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -788,7 +788,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "2 to 5.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -796,7 +796,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -804,7 +804,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -812,7 +812,7 @@
 			"kind": "held",
 			"location": "Route 120.",
 			"detail": null,
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -820,7 +820,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -828,7 +828,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
 			"detail": "1 to 3.",
-			"opensAt": 764,
+			"opensAt": 769,
 			"dating": "the place it names"
 		},
 		{
@@ -836,7 +836,7 @@
 			"kind": "mega-stone",
 			"location": "Route 121.",
 			"detail": null,
-			"opensAt": 804,
+			"opensAt": 809,
 			"dating": "the place it names"
 		},
 		{
@@ -844,7 +844,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 121.",
 			"detail": "1 or 2.",
-			"opensAt": 804,
+			"opensAt": 809,
 			"dating": "the place it names"
 		},
 		{
@@ -852,7 +852,7 @@
 			"kind": "rare-candy",
 			"location": "Route 121",
 			"detail": "Alongside the path between Safari Zone and Lilycove City.",
-			"opensAt": 804,
+			"opensAt": 809,
 			"dating": "the first of the places it names"
 		},
 		{
@@ -860,7 +860,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 121.",
 			"detail": "2 to 4.",
-			"opensAt": 804,
+			"opensAt": 809,
 			"dating": "the place it names"
 		},
 		{
@@ -868,7 +868,7 @@
 			"kind": "mega-stone",
 			"location": "Lilycove City.",
 			"detail": null,
-			"opensAt": 843,
+			"opensAt": 848,
 			"dating": "the place it names"
 		},
 		{
@@ -876,7 +876,7 @@
 			"kind": "evolution",
 			"location": "Sold at Lilycove City Deparment Store.",
 			"detail": null,
-			"opensAt": 843,
+			"opensAt": 848,
 			"dating": "the place it names"
 		},
 		{
@@ -884,7 +884,7 @@
 			"kind": "heart-scale",
 			"location": "Lilycove City",
 			"detail": "Rock at the south-west corner of the beach (hidden).",
-			"opensAt": 843,
+			"opensAt": 848,
 			"dating": "the place it names"
 		},
 		{
@@ -892,7 +892,7 @@
 			"kind": "mega-stone",
 			"location": "Lilycove City, given by an NPC at the north-east area of the city.",
 			"detail": null,
-			"opensAt": 843,
+			"opensAt": 848,
 			"dating": "the place it names"
 		},
 		{
@@ -900,7 +900,7 @@
 			"kind": "rare-candy",
 			"location": "Lilycove City",
 			"detail": "Given by an NPC inside one of the houses.",
-			"opensAt": 843,
+			"opensAt": 848,
 			"dating": "the place it names"
 		},
 		{
@@ -908,7 +908,7 @@
 			"kind": "held",
 			"location": "Mt. Pyre, fourth floor, accessible by dropping down the holes.",
 			"detail": null,
-			"opensAt": 861,
+			"opensAt": 866,
 			"dating": "the place it names"
 		},
 		{
@@ -916,7 +916,7 @@
 			"kind": "rare-candy",
 			"location": "Mt. Pyre",
 			"detail": "Second Floor. Accessible by dropping down the holes from the top.",
-			"opensAt": 861,
+			"opensAt": 866,
 			"dating": "the place it names"
 		},
 		{
@@ -924,7 +924,7 @@
 			"kind": "rare-candy",
 			"location": "Mt. Pyre",
 			"detail": "North-east corner of the Summit, between two gravestones (hidden).",
-			"opensAt": 861,
+			"opensAt": 866,
 			"dating": "the place it names"
 		},
 		{
@@ -932,7 +932,7 @@
 			"kind": "held",
 			"location": "Mt. Pyre, third floor.",
 			"detail": null,
-			"opensAt": 861,
+			"opensAt": 866,
 			"dating": "the place it names"
 		},
 		{
@@ -940,7 +940,7 @@
 			"kind": "mega-stone",
 			"location": "Magma Hideout.",
 			"detail": null,
-			"opensAt": 936,
+			"opensAt": 941,
 			"dating": "the place it names"
 		},
 		{
@@ -948,7 +948,7 @@
 			"kind": "mega-stone",
 			"location": "Magma Hideout.",
 			"detail": null,
-			"opensAt": 936,
+			"opensAt": 941,
 			"dating": "the place it names"
 		},
 		{
@@ -956,7 +956,7 @@
 			"kind": "heart-scale",
 			"location": "Aqua Hideout",
 			"detail": "Generator room alongside a static Electrode-H encounter.",
-			"opensAt": 1015,
+			"opensAt": 1020,
 			"dating": "the place it names"
 		},
 		{
@@ -964,7 +964,7 @@
 			"kind": "mega-stone",
 			"location": "Aqua Hideout.",
 			"detail": null,
-			"opensAt": 1015,
+			"opensAt": 1020,
 			"dating": "the place it names"
 		},
 		{
@@ -972,7 +972,7 @@
 			"kind": "mega-stone",
 			"location": "Route 125, guarded by Bird Keeper Presley & Expert Auron.",
 			"detail": null,
-			"opensAt": 1078,
+			"opensAt": 1083,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -980,7 +980,7 @@
 			"kind": "mega-stone",
 			"location": "Given by Steven after the events at the Mossdeep Space Center.",
 			"detail": null,
-			"opensAt": 1169,
+			"opensAt": 1174,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -988,7 +988,7 @@
 			"kind": "heart-scale",
 			"location": "Route 124",
 			"detail": "Underwater (hidden).",
-			"opensAt": 1172,
+			"opensAt": 1177,
 			"dating": "the place it names"
 		},
 		{
@@ -996,7 +996,7 @@
 			"kind": "heart-scale",
 			"location": "Route 124",
 			"detail": "Underwater (hidden).",
-			"opensAt": 1172,
+			"opensAt": 1177,
 			"dating": "the place it names"
 		},
 		{
@@ -1004,31 +1004,31 @@
 			"kind": "heart-scale",
 			"location": "Route 119",
 			"detail": "At the small piece of land just before the Waterfall, right side (hidden).",
-			"opensAt": 1178,
-			"dating": "gated by Waterfall, which opens at 1178"
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
 		},
 		{
 			"name": "Heart Scale",
 			"kind": "heart-scale",
 			"location": "Route 124",
 			"detail": "Dive and ressurface at the north-west area of the route.",
-			"opensAt": 1178,
-			"dating": "gated by Dive, which opens at 1178"
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
 		},
 		{
 			"name": "Heart Scale",
 			"kind": "heart-scale",
 			"location": "Route 124",
 			"detail": "Dive and ressurface at the west area of the route.",
-			"opensAt": 1178,
-			"dating": "gated by Dive, which opens at 1178"
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
 		},
 		{
 			"name": "Heart Scale",
 			"kind": "heart-scale",
 			"location": "Route 126",
 			"detail": "Underwater (hidden).",
-			"opensAt": 1178,
+			"opensAt": 1183,
 			"dating": "the place it names"
 		},
 		{
@@ -1036,7 +1036,7 @@
 			"kind": "heart-scale",
 			"location": "Route 126",
 			"detail": "Underwater (hidden).",
-			"opensAt": 1178,
+			"opensAt": 1183,
 			"dating": "the place it names"
 		},
 		{
@@ -1044,39 +1044,39 @@
 			"kind": "heart-scale",
 			"location": "Route 114",
 			"detail": "Up the Waterfall northwest of the route.",
-			"opensAt": 1178,
-			"dating": "gated by Waterfall, which opens at 1178"
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
 		},
 		{
 			"name": "Heart Scale",
 			"kind": "heart-scale",
 			"location": "Route 119",
 			"detail": "Up the Waterfall north of the route (requires Acro Bike).",
-			"opensAt": 1178,
-			"dating": "gated by Waterfall, which opens at 1178"
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
 		},
 		{
 			"name": "Swampertite",
 			"kind": "mega-stone",
 			"location": "Route 119 (requires Waterfall and the Acro Bike).",
 			"detail": null,
-			"opensAt": 1178,
-			"dating": "gated by Waterfall, which opens at 1178"
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
 		},
 		{
 			"name": "Water Gem",
 			"kind": "held",
 			"location": "Abandoned Ship (requires Dive).",
 			"detail": null,
-			"opensAt": 1178,
-			"dating": "gated by Dive, which opens at 1178"
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
 		},
 		{
 			"name": "Aerodactylite",
 			"kind": "mega-stone",
 			"location": "Route 126, guarded by Triathlete Pablo (requires Dive).",
 			"detail": null,
-			"opensAt": 1184,
+			"opensAt": 1189,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -1084,7 +1084,7 @@
 			"kind": "heart-scale",
 			"location": "Route 127",
 			"detail": "North-west corner of the route.",
-			"opensAt": 1190,
+			"opensAt": 1195,
 			"dating": "the place it names"
 		},
 		{
@@ -1092,7 +1092,7 @@
 			"kind": "heart-scale",
 			"location": "Route 127",
 			"detail": "Underwater (hidden).",
-			"opensAt": 1190,
+			"opensAt": 1195,
 			"dating": "the place it names"
 		},
 		{
@@ -1100,7 +1100,7 @@
 			"kind": "mega-stone",
 			"location": "Route 127, guarded by CoolTrainer Athena & Bird Keeper Aidan.",
 			"detail": null,
-			"opensAt": 1196,
+			"opensAt": 1201,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -1108,7 +1108,7 @@
 			"kind": "mega-stone",
 			"location": "Route 127, guarded by Fisherman Roger & Black Belt Koji.",
 			"detail": null,
-			"opensAt": 1202,
+			"opensAt": 1207,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -1116,7 +1116,7 @@
 			"kind": "heart-scale",
 			"location": "Route 128",
 			"detail": "Furthest south-west island (hidden).",
-			"opensAt": 1208,
+			"opensAt": 1213,
 			"dating": "the place it names"
 		},
 		{
@@ -1124,7 +1124,7 @@
 			"kind": "heart-scale",
 			"location": "Route 128",
 			"detail": "Furthest east of the smaller islands, by the L-shaped rock (hidden).",
-			"opensAt": 1208,
+			"opensAt": 1213,
 			"dating": "the place it names"
 		},
 		{
@@ -1132,7 +1132,7 @@
 			"kind": "held",
 			"location": "Seafloor Cavern.",
 			"detail": null,
-			"opensAt": 1214,
+			"opensAt": 1219,
 			"dating": "the place it names"
 		},
 		{
@@ -1140,7 +1140,7 @@
 			"kind": "heart-scale",
 			"location": "Route 128",
 			"detail": "One tile to the east of CoolTrainer Ruben (hidden).",
-			"opensAt": 1214,
+			"opensAt": 1219,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -1148,7 +1148,7 @@
 			"kind": "mega-stone",
 			"location": "Route 133, guarded by Expert Mollie & Expert Conor.",
 			"detail": null,
-			"opensAt": 1313,
+			"opensAt": 1318,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -1156,7 +1156,7 @@
 			"kind": "heart-scale",
 			"location": "Route 132",
 			"detail": "Second island in the southern area of the route.",
-			"opensAt": 1313,
+			"opensAt": 1318,
 			"dating": "the place it names"
 		},
 		{
@@ -1164,7 +1164,7 @@
 			"kind": "rare-candy",
 			"location": "Route 132",
 			"detail": "First island in the northern area of the route.",
-			"opensAt": 1313,
+			"opensAt": 1318,
 			"dating": "the place it names"
 		},
 		{
@@ -1172,7 +1172,7 @@
 			"kind": "heart-scale",
 			"location": "Route 134",
 			"detail": "Long island in the middle of the route.",
-			"opensAt": 1319,
+			"opensAt": 1324,
 			"dating": "the place it names"
 		},
 		{
@@ -1180,7 +1180,7 @@
 			"kind": "mega-stone",
 			"location": "Victory Road.",
 			"detail": null,
-			"opensAt": 1370,
+			"opensAt": 1375,
 			"dating": "the place it names"
 		},
 		{
@@ -1188,7 +1188,7 @@
 			"kind": "mega-stone",
 			"location": "Victory Road.",
 			"detail": null,
-			"opensAt": 1370,
+			"opensAt": 1375,
 			"dating": "the place it names"
 		},
 		{
@@ -1196,7 +1196,7 @@
 			"kind": "mega-stone",
 			"location": "Victory Road, ice room, north-west exit of the sliding puzzle.",
 			"detail": null,
-			"opensAt": 1370,
+			"opensAt": 1375,
 			"dating": "the place it names"
 		},
 		{
@@ -1204,7 +1204,7 @@
 			"kind": "heart-scale",
 			"location": "Victory Road",
 			"detail": "Ice floor, eastern corner, highest elevation (hidden).",
-			"opensAt": 1370,
+			"opensAt": 1375,
 			"dating": "the place it names"
 		},
 		{
@@ -1212,7 +1212,7 @@
 			"kind": "heart-scale",
 			"location": "Victory Road",
 			"detail": "Ice floor, western corner, highest elevation (hidden).",
-			"opensAt": 1370,
+			"opensAt": 1375,
 			"dating": "the place it names"
 		},
 		{
@@ -1220,7 +1220,7 @@
 			"kind": "held",
 			"location": "Victory Road.",
 			"detail": null,
-			"opensAt": 1370,
+			"opensAt": 1375,
 			"dating": "the place it names"
 		},
 		{
@@ -1228,7 +1228,7 @@
 			"kind": "mega-stone",
 			"location": "Victory Road.",
 			"detail": null,
-			"opensAt": 1370,
+			"opensAt": 1375,
 			"dating": "the place it names"
 		},
 		{
@@ -1236,7 +1236,7 @@
 			"kind": "mega-stone",
 			"location": "Given by Winstrate Vito by the end of Victory Road after you defeat him.",
 			"detail": null,
-			"opensAt": 1454,
+			"opensAt": 1459,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -1244,7 +1244,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1252,7 +1252,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1260,7 +1260,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1268,7 +1268,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1276,7 +1276,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1284,7 +1284,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1292,7 +1292,7 @@
 			"kind": "held",
 			"location": "Route 123 (requires Waterfall).",
 			"detail": null,
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1300,7 +1300,7 @@
 			"kind": "held",
 			"location": "Route 123 (requires Waterfall).",
 			"detail": null,
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1308,7 +1308,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1316,7 +1316,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1324,7 +1324,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1332,7 +1332,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1340,7 +1340,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1348,7 +1348,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1356,7 +1356,7 @@
 			"kind": "rare-candy",
 			"location": "Route 123",
 			"detail": "South-east corner, past the Cut trees (hidden).",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1364,7 +1364,7 @@
 			"kind": "held",
 			"location": "Route 123 (requires Waterfall).",
 			"detail": null,
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1372,7 +1372,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1380,7 +1380,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1388,7 +1388,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1396,7 +1396,7 @@
 			"kind": "mega-stone",
 			"location": "Route 123 (requires Waterfall).",
 			"detail": null,
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1404,7 +1404,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1412,7 +1412,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1420,7 +1420,7 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 123.",
 			"detail": "1 to 2.",
-			"opensAt": 1460,
+			"opensAt": 1465,
 			"dating": "the place it names"
 		},
 		{
@@ -1428,7 +1428,7 @@
 			"kind": "mega-stone",
 			"location": "Route 123, guarded by Bug Catcher Davis (requires Waterfall).",
 			"detail": null,
-			"opensAt": 1490,
+			"opensAt": 1495,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -1436,7 +1436,7 @@
 			"kind": "mega-stone",
 			"location": "Meteor Falls (requires Surf).",
 			"detail": null,
-			"opensAt": 1520,
+			"opensAt": 1525,
 			"dating": "the place it names"
 		},
 		{
@@ -1444,7 +1444,7 @@
 			"kind": "held",
 			"location": "Meteor Falls (requires Surf and Waterfall).",
 			"detail": null,
-			"opensAt": 1520,
+			"opensAt": 1525,
 			"dating": "the place it names"
 		},
 		{
@@ -1452,31 +1452,31 @@
 			"kind": "held",
 			"location": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall).",
 			"detail": null,
-			"opensAt": 1520,
-			"dating": "gated by the path through Meteor Falls, which opens at 1520"
+			"opensAt": 1525,
+			"dating": "gated by the path through Meteor Falls, which opens at 1525"
 		},
 		{
 			"name": "Galladite",
 			"kind": "mega-stone",
 			"location": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall).",
 			"detail": null,
-			"opensAt": 1520,
-			"dating": "gated by the path through Meteor Falls, which opens at 1520"
+			"opensAt": 1525,
+			"dating": "gated by the path through Meteor Falls, which opens at 1525"
 		},
 		{
 			"name": "Gardevoirite",
 			"kind": "mega-stone",
 			"location": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall).",
 			"detail": null,
-			"opensAt": 1520,
-			"dating": "gated by the path through Meteor Falls, which opens at 1520"
+			"opensAt": 1525,
+			"dating": "gated by the path through Meteor Falls, which opens at 1525"
 		},
 		{
 			"name": "Pixie Plate",
 			"kind": "held",
 			"location": "Meteor Falls, first floor, north-east corner.",
 			"detail": null,
-			"opensAt": 1520,
+			"opensAt": 1525,
 			"dating": "the place it names"
 		},
 		{
@@ -1484,7 +1484,7 @@
 			"kind": "held",
 			"location": "Meteor Falls (requires Surf and Waterfall).",
 			"detail": null,
-			"opensAt": 1520,
+			"opensAt": 1525,
 			"dating": "the place it names"
 		},
 		{
@@ -1492,7 +1492,7 @@
 			"kind": "held",
 			"location": "Meteor Falls, first floor, north-west corner.",
 			"detail": null,
-			"opensAt": 1520,
+			"opensAt": 1525,
 			"dating": "the place it names"
 		},
 		{

@@ -22,7 +22,7 @@ const ai = require('../ai');
 
 test('the run map loads in authored playthrough order', () => {
 	const fights = planner.loadRunMap();
-	assert.equal(fights.length, 362, 'expected every battle in the run map');
+	assert.equal(fights.length, 366, 'expected every battle in the run map');
 
 	for (let i = 1; i < fights.length; i++) {
 		assert.ok(
@@ -32,14 +32,15 @@ test('the run map loads in authored playthrough order', () => {
 	}
 
 	// The first fight is the run's opening battle. If this moves, either the
-	// progression index changed or the opening trainer did.
-	assert.equal(fights[0].trainer, 'Youngster Calvin');
+	// progression index changed or the opening trainer did — as it did on
+	// 2026-08-28, when the lost Route 103 rival was restored to the front.
+	assert.equal(fights[0].trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(fights[0].order, 0);
 });
 
 test('the caches are keyed by profile: a warm cache never answers for a stranger', () => {
 	// The failure this pins was silent: an unkeyed module-level cache, once
-	// warmed by run-and-bun, served its 362 fights to ANY profile id — so an
+	// warmed by run-and-bun, served its 366 fights to ANY profile id — so an
 	// unknown game got a confident wrong answer instead of a refusal.
 	planner.loadRunMap('run-and-bun');
 	assert.throws(() => planner.loadRunMap('bogus-game'), /unknown profile/i);
@@ -146,14 +147,14 @@ test('a party is grouped whole, including duplicate species', () => {
 	assert.equal(phil.party.length, 3);
 	assert.deepEqual(phil.party.map(m => m.species), ['Luvdisc', 'Luvdisc', 'Luvdisc']);
 	// Party order follows the progression index, not object key order.
-	assert.deepEqual(phil.party.map(m => m.index), [638, 639, 640]);
+	assert.deepEqual(phil.party.map(m => m.index), [643, 644, 645]);
 });
 
 test('listFights carries the coverage caveat', () => {
 	// A planner that reports fights without reporting what it is missing invites
 	// a caller to treat the run map as a complete trainer census. It is not.
 	const listed = planner.listFights();
-	assert.equal(listed.fights.length, 362);
+	assert.equal(listed.fights.length, 366);
 	assert.equal(listed.coverage.completeTrainerCensus, false);
 	assert.ok(listed.coverage.coversMandatoryProgression);
 });
@@ -270,7 +271,7 @@ test('only their crit band is computed, because only their crit is a plan\'s pro
 test('the matchup matrix covers every pair in both directions', () => {
 	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: MATRIX_PARTY});
 	assert.equal(matrix.trainer, 'Youngster Calvin');
-	assert.equal(matrix.order, 0);
+	assert.equal(matrix.order, 3);
 	assert.equal(matrix.borrowedPlayerBuild, false);
 
 	// A grid is only a grid if it is complete: one block per opposing Pokemon,

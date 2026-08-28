@@ -195,8 +195,8 @@ test('an estimate is always a fight the run can actually be at', () => {
 	// Snapping goes UP, never down: too late hides a catch, too early sends
 	// the player somewhere they cannot reach. availability.json's own method
 	// note says late-biased, never early, and this follows it.
-	assert.equal(estimate.snapToFight(17), 19, 'an off-boundary value rounds forward');
-	assert.equal(estimate.snapToFight(1304), 1307, 'and so does a late one');
+	assert.equal(estimate.snapToFight(18), 19, 'an off-boundary value rounds forward');
+	assert.equal(estimate.snapToFight(1304), 1306, 'and so does a late one');
 	assert.equal(estimate.snapToFight(19), 19, 'a value already on a boundary does not move');
 	assert.ok(estimate.snapToFight(0) === 0, 'the very first fight is reachable');
 });

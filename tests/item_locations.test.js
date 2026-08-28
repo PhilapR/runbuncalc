@@ -75,10 +75,10 @@ test('the ledger and availability.json agree about which order scale this is', (
 });
 
 test('the scale bridge anchors on a fight both databases name', () => {
-	// Leader Brawly is engine row 28 and run-map order 77 — lib/run.js says so
+	// Leader Brawly is engine row 28 and run-map order 80 — lib/run.js says so
 	// outright, and AGENTS.md documents the two scales. If this ever returns 28
 	// the builder is publishing engine indexes again.
-	assert.equal(builder.scaleBridge()(28), 77);
+	assert.equal(builder.scaleBridge()(28), 80);
 });
 
 test('the committed ledger is what the builder produces', () => {
@@ -118,15 +118,15 @@ test('no item is dated before a gate its own prose names', () => {
 test('every date lands on a real fight of the run map', () => {
 	// This asked `trainerIndexOf(doc, opensAt) !== null` and proved nothing.
 	// lib/run.js:687 snaps FORWARD to the first fight at or after the value, so
-	// the assertion was a bounds check on [0, 1620]: all 362 trainer numbers
+	// the assertion was a bounds check on [0, 1625]: all 366 trainer numbers
 	// passed, and so did all 435 engine row indexes — the exact scale this
 	// ledger shipped by mistake. Against the buggy ledger at d1a2d52 it stayed
 	// green on 164 of 164 dated rows.
 	//
-	// Membership in the 362 real orders is the question. It catches 103 of
+	// Membership in the 366 real orders is the question. It catches 103 of
 	// those 164 historical rows.
 	const orders = new Set(estimate.fightOrders());
-	assert.equal(orders.size, 362, 'the run map is 362 fights');
+	assert.equal(orders.size, 366, 'the run map is 366 fights');
 	for (const entry of ledger.entries) {
 		if (entry.opensAt === null) continue;
 		assert.ok(orders.has(entry.opensAt),
@@ -150,39 +150,39 @@ test('the categories that were entirely missing are present and dated', () => {
 });
 
 test('a Heart Scale is reachable before Brawly, which is what unlocks egg moves', () => {
-	// The whole point. Brawly is order 77, and Route 106 carries a Heart Scale
+	// The whole point. Brawly is order 80, and Route 106 carries a Heart Scale
 	// at 22, so a run can relearn an egg move before the first wall it loses to.
 	const early = ledger.entries.filter(entry =>
-		entry.kind === 'heart-scale' && entry.opensAt !== null && entry.opensAt <= 77);
+		entry.kind === 'heart-scale' && entry.opensAt !== null && entry.opensAt <= 80);
 	assert.ok(early.length > 0,
 		'no Heart Scale before Brawly means the egg movepool is still dead for that fight');
 });
 
 test('an ambiguous place takes the LATER of its sections, never the earlier', () => {
 	// Late-bias, the rule availability.json states as "never early". The engine
-	// splits Route 104 into South at run-map 11 and North at 90 while the
-	// workbook says only "Route 104"; the item may be in either half, so 90 is
+	// splits Route 104 into South at run-map 14 and North at 93 while the
+	// workbook says only "Route 104"; the item may be in either half, so 93 is
 	// the only answer that cannot promise something unreached.
 	//
 	// This assertion exists because the first version of this gate did not
-	// catch the flip: early-bias dated it 11, and every other assertion still
+	// catch the flip: early-bias dated it 14, and every other assertion still
 	// passed, because 11 is a real fight order and still before Brawly.
 	const scale = ledger.entries.find(entry =>
 		entry.kind === 'heart-scale' && entry.location === 'Route 104');
 	assert.ok(scale, 'Route 104 carries a Heart Scale in the workbook');
-	assert.equal(scale.opensAt, 90,
-		'Route 104 splits 11/90 in the trainer database; late-bias must take 90');
+	assert.equal(scale.opensAt, 93,
+		'Route 104 splits 14/93 in the trainer database; late-bias must take 93');
 });
 
 test('an optional fight group does not date a place that has its own fights', () => {
 	// "(Optionals)" is the engine's bucket for optional trainers, not a place.
 	// They stand where the route already was, so Route 106 opens at its own
-	// first fight, 22, and not at its optional group, 601 — which would have
+	// first fight, 25, and not at its optional group, 606 — which would have
 	// withheld the earliest Heart Scale in the game and put it past Brawly.
 	const scale = ledger.entries.find(entry =>
 		entry.kind === 'heart-scale' && /^Route 106\b/.test(entry.location));
 	assert.ok(scale, 'Route 106 carries a Heart Scale in the workbook');
-	assert.equal(scale.opensAt, 22, 'Route 106 opens at 22; its optional group is 601');
+	assert.equal(scale.opensAt, 25, 'Route 106 opens at 25; its optional group is 606');
 });
 
 test('the first place the prose names is the one that dates the item', () => {
@@ -193,9 +193,9 @@ test('the first place the prose names is the one that dates the item', () => {
 	// Berry until 804 when it grows on Route 110 at 230.
 	const oran = ledger.entries.find(entry => entry.name === 'Oran Berry');
 	assert.ok(oran, 'the workbook lists an Oran Berry');
-	assert.equal(oran.opensAt, 0, 'Oran Berry grows on Route 102, which is order 0');
+	assert.equal(oran.opensAt, 3, 'Oran Berry grows on Route 102, whose first fight is order 3');
 	const sitrus = ledger.entries.find(entry => entry.name === 'Sitrus Berry');
-	assert.equal(sitrus.opensAt, 230, 'Sitrus Berry grows on Route 110, which is order 230');
+	assert.equal(sitrus.opensAt, 235, 'Sitrus Berry grows on Route 110, which is order 235');
 });
 
 test('a qualified place is not the place it is named after', () => {
@@ -242,24 +242,24 @@ test('the anchors the builder documents are the anchors it computes', () => {
 			place + ' does not open when the builder docstring says it does');
 	}
 	// And the two the ledger actually turns on.
-	assert.equal(builder.ANCHORS['Route 104 (North)'], 90);
-	assert.equal(builder.ANCHORS['Route 106'], 22);
+	assert.equal(builder.ANCHORS['Route 104 (North)'], 93);
+	assert.equal(builder.ANCHORS['Route 106'], 25);
 });
 
 test('the badge ladder has eight rungs and the seventh is Liza, not Tate', () => {
 	// It was derived by counting `/^Leader/` fights, which gives NINE: Tate and
 	// Liza are two Leader-labelled fights at one gym for one badge. The index
 	// slipped from badge 7 on, so "8 badges" resolved to 1130 — Liza — instead
-	// of Juan at 1364, 234 orders early. The bound accepted "9 badges" too, a
+	// of Juan at 1369, 234 orders early. The bound accepted "9 badges" too, a
 	// count Hoenn does not have.
 	//
 	// Latent when found: no workbook row names more than three badges, and
-	// badges[2] = 224 was right. Gated because the next workbook might.
+	// badges[2] = 229 was right. Gated because the next workbook might.
 	const badges = builder.badgeOrders();
 	assert.equal(badges.length, 8, 'Hoenn has eight badges');
-	assert.deepEqual(badges, [77, 139, 224, 337, 571, 758, 1130, 1364]);
+	assert.deepEqual(badges, [80, 142, 229, 342, 576, 763, 1135, 1369]);
 	// The one the workbook actually uses today.
-	assert.equal(badges[2], 224, '"requires 3 badges" is Wattson');
+	assert.equal(badges[2], 229, '"requires 3 badges" is Wattson');
 });
 
 test('every mega stone resolves against the calc item table', () => {

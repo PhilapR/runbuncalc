@@ -140,10 +140,10 @@ test('the run map declares itself a progression spine, not a full trainer census
 	// All three starter variants of each rival battle must survive together —
 	// dropping one would silently give a player the wrong opponent for their run.
 	const rivals = [...labels].filter(t => /^Trainer Rival /.test(t));
-	assert.equal(rivals.length, 9, `expected 9 rival battles (3 locations x 3 starters), found ${rivals.length}`);
+	assert.equal(rivals.length, 12, `expected 12 rival battles (4 locations x 3 starters), found ${rivals.length}`);
 	for (const starter of ['Blaziken', 'Sceptile', 'Swampert']) {
 		const n = rivals.filter(t => t.endsWith(starter)).length;
-		assert.equal(n, 3, `expected 3 rival battles for the ${starter} route, found ${n}`);
+		assert.equal(n, 4, `expected 4 rival battles for the ${starter} route, found ${n}`);
 	}
 });
 

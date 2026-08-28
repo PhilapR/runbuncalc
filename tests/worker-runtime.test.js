@@ -193,7 +193,9 @@ test('workerd completes the first run transaction and reports the road ahead', a
 	const status = await post('/run/status', {run: caughtBody.run, upcomingCount: 8});
 	assert.equal(status.status, 200);
 	const statusBody = await status.json();
-	assert.equal(statusBody.status.next.trainer, 'Youngster Calvin');
+	// The restored Route 103 rival opens the road; this run declared the
+	// Swampert rival, so his variant is the one it can see.
+	assert.equal(statusBody.status.next.trainer, 'Trainer Rival Route 103 Swampert');
 });
 
 test('workerd and Node resolve the same seeded fight and plan byte-identically', async () => {

@@ -60,8 +60,10 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 		{species: 'Pidgey', map: 'Route102', level: 5},
 	]);
 	const opened = driver.start(doc, undefined, 42);
-	// The next unbeaten fight, unasked: the recreation's "next" is the run's.
-	assert.equal(opened.battle.trainer, 'Youngster Calvin');
+	// The next unbeaten fight, unasked: the recreation's "next" is the run's —
+	// and since 2026-08-28 the run opens where the game does, on the Route 103
+	// rival (undeclared rival: the first variant).
+	assert.equal(opened.battle.trainer, 'Trainer Rival Route 103 Sceptile');
 	// The party enters at the projected cap — the infinite candy IS the XP
 	// system, so a level 3 catch fights at what it will be leveled to.
 	assert.equal(opened.viewState.player.active.level, 12);

@@ -76,7 +76,11 @@ function build(profileId) {
 	// end to end.
 	const teams = new Map();
 	let highest = 0;
-	for (let order = 1; order <= 2000; order++) {
+	// From ZERO: the engine database is 0-based and its row 0 is the Route 103
+	// rival's Treecko. This loop started at 1 for as long as that fight was
+	// missing from our own map, which kept the off-by-one latent — the day the
+	// fight was restored, its by-team match came back "candidates: 0".
+	for (let order = 0; order <= 2000; order++) {
 		let trainer = null;
 		try {
 			trainer = byOrder(order);

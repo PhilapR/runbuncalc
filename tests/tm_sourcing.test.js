@@ -13,7 +13,7 @@
  * advisor discarded the lot.
  *
  * The visible cost: a party at Leader Brawly, with Icy Wind and Rock Blast
- * both reachable since order 22, was offered Absorb.
+ * both reachable since order 25, was offered Absorb.
  *
  * The second half of the gate is the off-by-one that fix exposed. TM16 Seismic
  * Toss is Brawly's own gym reward and carries HIS order, so a numeric
@@ -52,13 +52,13 @@ function standingBefore(trainer) {
 test('a dated TM reports the order it becomes obtainable, not null', () => {
 	const at = move => profile.oracle.moveObtainableAt(move);
 	// HMs kept working throughout; they were the only thing that ever did.
-	assert.equal(at('Surf'), 589);
-	assert.equal(at('Rock Smash'), 139);
+	assert.equal(at('Surf'), 594);
+	assert.equal(at('Rock Smash'), 142);
 	// These are the ones that answered null while sitting dated in the ledger.
-	assert.equal(at('Feint Attack'), 11);
-	assert.equal(at('Icy Wind'), 22);
-	assert.equal(at('Rock Blast'), 22);
-	assert.equal(at('Seismic Toss'), 77);
+	assert.equal(at('Feint Attack'), 14);
+	assert.equal(at('Icy Wind'), 25);
+	assert.equal(at('Rock Blast'), 25);
+	assert.equal(at('Seismic Toss'), 80);
 	// A row with a known place and no proven unlock still answers null, which
 	// must read as "timing unproven" and never as "available now".
 	assert.equal(at('Aerial Ace'), null);
@@ -177,7 +177,7 @@ test('and once that fight is beaten, its reward becomes advice', () => {
 	// The complement, so the rule reads as timing and not as a blanket ban.
 	const doc = standingBefore('Leader Roxanne');
 	assert.ok(run.upcoming(doc, 1)[0].order > 77, 'the run is past Brawly');
-	assert.equal(profile.oracle.moveObtainableAt('Seismic Toss'), 77);
+	assert.equal(profile.oracle.moveObtainableAt('Seismic Toss'), 80);
 	const advice = run.adviseUpgrades(doc, 'Leader Roxanne');
 	assert.ok(advice.considered > 60, 'candidates: ' + advice.considered);
 });

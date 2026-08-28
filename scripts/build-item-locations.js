@@ -21,8 +21,8 @@
  *
  * TWO ORDER SCALES, AND THIS FILE PUBLISHES THE SECOND ONE. The engine
  * database numbers its own rows 0-434; this repository's `order` counts
- * cumulative enemy Pokemon and runs 0-1620. Leader Brawly is engine row 28 and
- * run-map order 77. `opensAt` is a RUN-MAP order, so every engine number is
+ * cumulative enemy Pokemon and runs 0-1625. Leader Brawly is engine row 28 and
+ * run-map order 80. `opensAt` is a RUN-MAP order, so every engine number is
  * translated before it is published — see AGENTS.md, "Two order scales".
  *
  * The first version of this builder skipped that step and shipped engine row
@@ -53,12 +53,12 @@
  *
  * WHICH FIGHT DATES A PLACE. The engine splits some places into variants and
  * they are not all the same kind of thing. "Route 104 (South)" and "(North)"
- * are two halves of one route — run-map 11 and 90 — and a bare "Route 104" in
+ * are two halves of one route — run-map 14 and 93 — and a bare "Route 104" in
  * the workbook may mean either, so the later one is the only answer that
  * cannot promise something unreachable. "(Optionals)" is not a place at all —
  * it is the engine's bucket for optional fights, which stand where the route
- * already was, so Route 106 opens at its own first fight (22) and not at its
- * optional group (601). Where a route has ONLY an optional group the group is
+ * already was, so Route 106 opens at its own first fight (25) and not at its
+ * optional group (606). Where a route has ONLY an optional group the group is
  * still the best evidence there is, so it is used. A parenthetical naming a
  * building is a different place: "Route 110 (Trick House Door)" is one joke
  * fight behind a door and does not date Route 110.
@@ -97,10 +97,10 @@ const PROFILE = 'run-and-bun';
  * Asserted in tests/item_locations.test.js against the built index.
  */
 const ANCHORS = {
-	'Route 104 (South)': 11,
-	'Route 104 (North)': 90,
-	'Route 106': 22,
-	'Route 106 (Optionals)': 601,
+	'Route 104 (South)': 14,
+	'Route 104 (North)': 93,
+	'Route 106': 25,
+	'Route 106 (Optionals)': 606,
 };
 
 /**

@@ -277,6 +277,12 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 
 	// One real route roll supplies the reserve used by the replacement test.
 	// Its owned IVs are facts from the roll, and must survive reconstruction.
@@ -467,6 +473,15 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would. Only the road
+	// section opens for it — the box must still open by itself below.
+	await page.click('.rb-disclose[data-section="road"] .rb-disclose-btn');
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 
 	assert.match(await page.textContent('#runbun-run-next-title'),
 		/Build a party for Youngster Calvin/);
@@ -749,6 +764,12 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 	// The start form has to actually go away. It was setting `hidden` correctly
 	// and staying on screen anyway: a `display: flex` rule in this panel's own CSS
 	// outranks the UA stylesheet's `[hidden] {display:none}` on specificity.
@@ -809,19 +830,20 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.ok(await page.$$eval('#runbun-run-split-gauntlet .runbun-run-split-fight',
 		els => els.length) >= 4, 'the gauntlet lists the boss-tier fights');
 
-	// The story spine renders one tick per milestone, none beaten yet — 38,
-	// because the declared rival pruned the other two variants of every
-	// rival milestone.
-	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 38);
-	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 0);
-	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 38 milestones/);
+	// The story spine renders one tick per milestone — 39 now that the Route
+	// 103 rival is restored, because the declared rival pruned the other two
+	// variants of every rival milestone. The one beaten tick is that rival,
+	// cleared above so Calvin is this test's fight.
+	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 39);
+	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 1);
+	assert.match(await page.textContent('#runbun-run-spine-note'), /1 \/ 39 milestones/);
 
 	await page.click('#runbun-run-plan');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-plan-actions .runbun-run-action').length > 1,
 		null, {timeout: 15000});
 	const verdict = await page.textContent('#runbun-run-plan-verdict');
-	// The run starts before the first battle in the map, so this is fight zero.
+	// With the Route 103 rival cleared, Calvin is the next battle in the map.
 	assert.match(verdict, /Youngster Calvin/);
 	assert.match(verdict, /decided by|contested by|only one action/);
 
@@ -833,7 +855,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-matrix table').length === 2,
 		null, {timeout: 15000});
-	assert.match(await page.textContent('#runbun-run-matrix-note'), /Youngster Calvin \(#1\)/);
+	assert.match(await page.textContent('#runbun-run-matrix-note'), /Youngster Calvin \(#2\)/);
 	const cells = await page.$$eval('#runbun-run-matrix td', els => els.map(el => el.textContent));
 	// Every board cell is a doorway: one click opens this exact pairing in
 	// the calculator — our mon with its rolled identity, their mon by set.
@@ -957,7 +979,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 			'#runbun-run-advice .runbun-run-advice-empty') !== null,
 		null, {timeout: 30000});
 	assert.match(await page.textContent('#runbun-run-advice-note'),
-		/Youngster Calvin \(#1\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
+		/Youngster Calvin \(#2\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
 	const rows = await page.$$eval('#runbun-run-advice .runbun-run-advice-row',
 		els => els.map(el => el.textContent));
 	assert.ok(rows.length <= 10, 'the advisor offers a shortlist, not a catalogue');
@@ -1049,6 +1071,12 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
@@ -1127,6 +1155,12 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -1161,7 +1195,9 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 		() => /Bug Catcher Rick/.test(
 			document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
 		null, {timeout: 10000});
-	assert.equal((await savedRun(page)).position, 0);
+	// Calvin sits at run-map order 3 now that the Route 103 rival trio
+	// stands ahead of him.
+	assert.equal((await savedRun(page)).position, 3);
 
 	// The box filter narrows without touching the document.
 	await page.fill('#runbun-run-box-filter', 'turt');
@@ -1228,7 +1264,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 	await page.click('#runbun-run-scout-btn');
 	await page.waitForSelector('#runbun-run-scout .runbun-run-scout-row');
 	assert.match(await page.textContent('#runbun-run-routes-note'),
-		/vs Leader Brawly \(#26\) at cap 21/);
+		/vs Leader Brawly \(#27\) at cap 21/);
 	const scouted = await page.$$eval('#runbun-run-scout .runbun-run-scout-row',
 		els => els.map(el => el.textContent));
 	assert.ok(scouted.length >= 1);
@@ -1871,6 +1907,12 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 
 	// Roll Route 101's one encounter off its real table. What comes up is
 	// advice until a button writes it — so the box must still be empty here.
@@ -1937,10 +1979,12 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	const saved = await savedRun(page);
 	const status = await page.textContent('#runbun-run-status');
 	if (/Won against/.test(status)) {
-		assert.ok(saved.position >= 0, 'a won fight must be marked beaten');
+		assert.ok(saved.position >= 3, 'a won fight must be marked beaten');
 	} else {
 		assert.match(status, /Wiped against/);
-		assert.equal(saved.position, -1, 'a wipe must not advance the run');
+		// The cleared Route 103 rival stands at order 1; a wipe against
+		// Calvin must leave the run there, not move it past him.
+		assert.equal(saved.position, 1, 'a wipe must not advance the run');
 		const fallen = saved.box.find(mon => mon.status === 'dead');
 		assert.ok(fallen, 'a wipe buries the fighter');
 		assert.equal(fallen.died.to, 'Youngster Calvin',
@@ -1954,7 +1998,7 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	assert.equal(completed.payload.kind, 'trainer');
 	assert.equal(completed.payload.trainer, 'Youngster Calvin');
 	assert.equal(completed.payload.trainerOrder, 3);
-	assert.equal(completed.payload.progressionOrder, 0);
+	assert.equal(completed.payload.progressionOrder, 3);
 	assert.equal(completed.payload.outcome, /Won against/.test(status) ? 'won' : 'lost');
 	assert.equal(completed.payload.contributionVersion, 1);
 	assert.equal(completed.payload.contributionComplete, true);
@@ -2230,12 +2274,13 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	assert.equal((await savedRun(page)).bag.Potion, 1);
 
 	// An item the story has not opened yet is shown waiting, not hidden and
-	// not collectable: Route 104's Miracle Seed opens at ORDER 11.
+	// not collectable: Route 104's Miracle Seed opens at ORDER 14 (11 before
+	// the Route 103 rival trio rejoined the map ahead of it).
 	await selectManualMap(page, 'Route104');
 	await page.waitForFunction(
 		() => /Miracle Seed/.test(document.querySelector('#runbun-run-items').textContent),
 		null, {timeout: 10000});
-	assert.match(await page.textContent('#runbun-run-items'), /opens at #11/);
+	assert.match(await page.textContent('#runbun-run-items'), /opens at #14/);
 	assert.equal(await page.$('#runbun-run-items .runbun-run-pickup-take'), null,
 		'a gated item must not offer its button');
 
@@ -2437,7 +2482,7 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="split"]'),
 		/Brawly · \d+ fights/);
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="road"]'),
-		/#0 Youngster Calvin/);
+		/#1 Trainer Rival Route 103 Blaziken/);
 
 	// The roster opened with the run, and the ledger is there to act on.
 	await page.waitForSelector('#runbun-run-box', {state: 'visible', timeout: 5000});

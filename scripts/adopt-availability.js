@@ -86,7 +86,7 @@ const MOVE_DATE_RULINGS = {
 		anchor: 'Rusturf Tunnel',
 		why: 'Philip, from play: fine to date. The NPC is inside Rusturf Tunnel ' +
 			'and nothing further gates the gift, so the tunnel\'s own order is ' +
-			'the move\'s. 145 already sits above the Rock Smash floor at 139.',
+			'the move\'s. 148 already sits above the Rock Smash floor at 142.',
 	},
 	Swagger: {
 		anchor: 'Slateport City',
@@ -95,9 +95,9 @@ const MOVE_DATE_RULINGS = {
 			'separate area the map table dates on its own.',
 	},
 	'Smart Strike': {
-		order: 53,
+		order: 56,
 		why: 'Philip, from play: fine to date, and Mauville City is right after ' +
-			'Route 110. Route 110 sits at 48 and 53 is the first fight past it, ' +
+			'Route 110. Route 110 sits at 51 and 56 is the first fight past it, ' +
 			'which is the same snap the Route 109 override uses. Mauville City ' +
 			'is absent from maps() because that list comes from the encounters ' +
 			'file and the town has no wild encounters, so there is no anchor to ' +
@@ -165,20 +165,20 @@ function applyMoveDateRulings(availability) {
 
 const OVERRIDES = {
 	MAP_ROUTE109: {
-		opensAt: 42,
+		opensAt: 45,
 		why: 'Philip, from play: Route 109 is available post Granite Cave — the ' +
 			'Route 107/106 land trainers — and Slateport is post Route 109. The ' +
 			"transcribed 29 put it BEFORE Route 107's own trainers, which run to " +
-			'37, so the tool offered the beach before the stretch that gates it. ' +
-			'42 is the first fight past 37. Smallant\'s community encounter ' +
+			'40, so the tool offered the beach before the stretch that gates it. ' +
+			'45 is the first fight past 40. Smallant\'s community encounter ' +
 			'template (Run & Bun Encounters Template, sheet order) agrees: ' +
 			"Route 104, Dewford, 107, 106, Granite Cave 1F/B1F/B2F, Steven's " +
-			'Room, THEN Route 109, then Slateport. Slateport already sits at 48 ' +
+			'Room, THEN Route 109, then Slateport. Slateport already sits at 51 ' +
 			'and needs no move once 109 lands at 42.',
 		was: 29,
 	},
 	MAP_PETALBURG_CITY: {
-		opensAt: 11,
+		opensAt: 14,
 		why: 'Philip, from play: Petalburg is not immediately available. From ' +
 			'Littleroot you walk Route 101 to Oldale, which has two ways out — ' +
 			'Route 103 north and Route 102 west. Petalburg is only reachable ' +

@@ -6,10 +6,10 @@
  * were mistaken for each other in prose and in output.
  *
  * `order` counts cumulative enemy POKEMON. A player counts TRAINERS. Leader
- * Brawly is order 77 and the 26th fight of 362, so the two numbers differ by
+ * Brawly is order 80 and the 29th fight of 366, so the two numbers differ by
  * enough to send a reader most of a badge past whatever they were looking for
- * — `lib/play.js` printed "opens at fight #77" for a TM that unlocks at fight
- * 26, and `oracle.js` documented the availability ledger's `opensAt` as a
+ * — `lib/play.js` printed "opens at fight #77" for a TM that unlocked at what
+ * was then fight 26, and `oracle.js` documented the availability ledger's `opensAt` as a
  * "trainer order" when it is not one.
  *
  * Every dated source in the profile is in ORDER: LEVEL_CAPS, availability's
@@ -36,25 +36,25 @@ function road() {
 
 test('order counts Pokemon, and the road counts trainers', () => {
 	const map = road();
-	assert.equal(map.fights.length, 362, 'the run map is 362 trainers long');
+	assert.equal(map.fights.length, 366, 'the run map is 366 trainers long');
 
 	const brawly = map.fights.findIndex(fight => /Leader Brawly/.test(fight.trainer));
-	assert.equal(brawly + 1, 26, 'Brawly is the 26th trainer');
-	assert.equal(map.fights[brawly].order, 77, 'and sits at order 77');
+	assert.equal(brawly + 1, 29, 'Brawly is the 29th trainer');
+	assert.equal(map.fights[brawly].order, 80, 'and sits at order 80');
 
 	// The two are not merely different, they are different BY CONSTRUCTION:
 	// order is the running total of enemy Pokemon before the fight.
 	let pokemon = 0;
 	for (let i = 0; i < brawly; i++) pokemon += (map.fights[i].party || []).length;
-	assert.equal(pokemon, 77,
+	assert.equal(pokemon, 80,
 		'order is the cumulative count of enemy Pokemon, which is what makes it not a fight number');
 });
 
 test('the converter maps an order to the fight a player would count', () => {
 	const map = road();
-	assert.equal(run.trainerIndexOf(map.doc, 77), 26, 'Brawly');
-	assert.equal(run.trainerIndexOf(map.doc, 139), 45, 'Roxanne');
-	assert.equal(run.trainerIndexOf(map.doc, 224), 65, 'Wattson');
+	assert.equal(run.trainerIndexOf(map.doc, 80), 29, 'Brawly');
+	assert.equal(run.trainerIndexOf(map.doc, 142), 48, 'Roxanne');
+	assert.equal(run.trainerIndexOf(map.doc, 229), 69, 'Wattson');
 	// Past the end of the road there is no fight to name, and inventing one
 	// would be worse than saying so.
 	assert.equal(run.trainerIndexOf(map.doc, 999999), null);
@@ -70,7 +70,7 @@ test('the availability ledger is dated in order, not in trainers', () => {
 	// Aqua grunt in Petalburg Woods, three badges away from this TM.
 	const tm16 = (availability.moveItems || []).find(row => row.name === 'TM16');
 	assert.ok(tm16, 'TM16 must be in the ledger');
-	assert.equal(tm16.opensAt, 77);
+	assert.equal(tm16.opensAt, 80);
 	assert.match(String(tm16.place), /Brawly/);
 	assert.match(String(byOrder.get(tm16.opensAt)), /Brawly/,
 		'opensAt must resolve to the fight the location names');
@@ -107,7 +107,7 @@ test('the A/B harness reports reach in trainers, not in Pokemon', () => {
 	const map = road();
 
 	// A finished run document at Brawly's order reads as the 26th fight.
-	assert.equal(ab.reachOf(map.doc, 77, []), 26, 'position converts to a trainer number');
+	assert.equal(ab.reachOf(map.doc, 80, []), 29, 'position converts to a trainer number');
 	// No run document (a crashed run): the journal scrape already speaks
 	// trainer numbers, so the max passes through unconverted.
 	assert.equal(ab.reachOf(null, null, [4, 26, 12]), 26);

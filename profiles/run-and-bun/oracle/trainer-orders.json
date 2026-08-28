@@ -18,13 +18,37 @@
 		"instead of absent."
 	],
 	"profileId": "run-and-bun",
-	"fights": 362,
+	"fights": 366,
 	"engineTrainers": 434,
 	"resolvedByName": 210,
-	"resolvedByTeam": 124,
+	"resolvedByTeam": 128,
 	"unmatchedCount": 28,
 	"crossChecked": 191,
 	"entries": [
+		{
+			"trainer": "Trainer Rival Route 103 Sceptile",
+			"order": 0,
+			"by": "team",
+			"engineName": "Pokemon Trainer May",
+			"isDouble": false,
+			"doublePartner": null
+		},
+		{
+			"trainer": "Trainer Rival Route 103 Blaziken",
+			"order": 1,
+			"by": "team",
+			"engineName": "Pokemon Trainer May",
+			"isDouble": false,
+			"doublePartner": null
+		},
+		{
+			"trainer": "Trainer Rival Route 103 Swampert",
+			"order": 2,
+			"by": "team",
+			"engineName": "Pokemon Trainer May",
+			"isDouble": false,
+			"doublePartner": null
+		},
 		{
 			"trainer": "Youngster Calvin",
 			"order": 3,
@@ -331,6 +355,14 @@
 			"trainer": "Psychic Edward",
 			"order": 58,
 			"by": "name"
+		},
+		{
+			"trainer": "Trainer Wally Mauville",
+			"order": 59,
+			"by": "team",
+			"engineName": "Pokemon Trainer Wally",
+			"isDouble": false,
+			"doublePartner": null
 		},
 		{
 			"trainer": "Guitarist Kirk",

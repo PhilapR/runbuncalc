@@ -58,13 +58,13 @@ const INVARIANTS = {
 	 * This was previously named `trainerCount`, which was wrong and understated
 	 * the roster by about a sixth.
 	 */
-	battleCount: 362,
+	battleCount: 366,
 	/** Battle labels naming two trainers at once. */
 	pairedBattles: 46,
 	/** Solo + (paired x 2). Not the distinct-trainer count; see above. */
-	trainerSlots: 408,
+	trainerSlots: 412,
 	/** Raw entry keys, which exceed battleCount by the number of duplicates. */
-	labelCount: 365,
+	labelCount: 369,
 	/** Entries carrying an explicit `trainer` because they are extra copies. */
 	duplicateEntries: 3,
 	/** The progression sequence starts here. */
@@ -114,14 +114,13 @@ const INVARIANTS = {
  * so any automated count of it carries parse error. Treat these as the shape of
  * the gap, not a precise inventory.
  *
- * One absence is NOT route filler and is left explicitly unresolved: vanilla
- * Emerald's mandatory pre-Wattson Wally fight and the early rival fights before
- * Cycling Road have no counterpart anywhere in this map — the only Wally here is
- * Victory Road, and the earliest rival is Cycling Road. Whether Run & Bun cut
- * them or whether they were lost on the way into this data cannot be settled
- * from the decomp, which carries no trainer parties at all. Recorded as unknown
- * rather than asserted either way, because "dekzeh removed them" and "we lost
- * them" are different claims and nothing available distinguishes the two.
+ * The two absences this note once left unresolved are SETTLED (2026-08-28):
+ * the official 1.07 Trainer Battles document lists both, so the hack kept
+ * them and this data had lost them. The Route 103 rival trio (Treecko,
+ * Torchic and Mudkip at L5 — the game's first fight, before Youngster
+ * Calvin) and Mauville Wally (Kirlia L43 with a Galarian Zigzagoon L7,
+ * between Route 117 and the gym) are now in the map, and every order-dated
+ * source shifted with the insertions: +3 from the start, +2 more past 209.
  *
  * Not filled from that dump: it is a community transcription, and this project
  * does not take community sources as authoritative for values. Recorded so a
@@ -136,14 +135,14 @@ const COVERAGE = {
 	approximatePartyMembersAbsent: 189,
 	absentKind: 'optional route trainers, overwhelmingly Swimmers and other water-route filler',
 	comparedAgainst: 'community transcription of the Run & Bun trainer-battle document',
-	// Not filler, and not decidable: vanilla's mandatory pre-Wattson Wally and the
-	// early rival fights are absent, and the decomp has no trainer data to say
-	// whether the hack cut them or this data lost them.
-	earlyStoryFightsUnverified: ['pre-Wattson Wally', 'early rival fights'],
+	// Settled 2026-08-28 against the official Trainer Battles document: the
+	// pre-Wattson Wally and Route 103 rival fights were data loss, not cuts,
+	// and both are restored above.
+	earlyStoryFightsUnverified: [],
 };
 
 const KNOWN_GAPS = {
-	indices: [789, 790],
+	indices: [794, 795],
 	trainer: 'Bug Maniac Jeffrey',
 	note: 'two of three Vivillon lost to a [species][label] key collision',
 };
@@ -284,29 +283,29 @@ const MILESTONE_PATTERN =
  * variant's order, so the boundary holds whichever rival a run declares.
  */
 const LEVEL_CAPS = [
-	{trainer: 'Team Aqua Grunt Petalburg Woods', order: 19, cap: 12},
-	{trainer: 'Team Aqua Grunt Museum #2', order: 56, cap: 17},
-	{trainer: 'Leader Brawly', order: 77, cap: 21},
-	{trainer: 'Leader Roxanne', order: 139, cap: 25},
-	{trainer: 'Trainer Chelle Daycare', order: 181, cap: 32},
-	{trainer: 'Leader Wattson', order: 224, cap: 35},
-	{trainer: 'Trainer Rival Cycling Road', order: 265, cap: 38},
-	{trainer: 'Leader Norman', order: 337, cap: 42},
-	{trainer: 'Winstrate Vito Fallarbor', order: 434, cap: 48},
-	{trainer: 'Magma Leader Maxie Mt Chimney', order: 519, cap: 54},
-	{trainer: 'Leader Flannery', order: 571, cap: 57},
-	{trainer: 'Aqua Admin Shelly Weather Institute', order: 696, cap: 65},
-	{trainer: 'Trainer Rival Bridge', order: 714, cap: 66},
-	{trainer: 'Leader Winona', order: 758, cap: 69},
-	{trainer: 'Trainer Rival Lilycove', order: 855, cap: 73},
-	{trainer: 'Aqua Leader Archie Mt Pyre', order: 927, cap: 76},
-	{trainer: 'Magma Leader Maxie Magma Hideout', order: 1009, cap: 79},
-	{trainer: 'Aqua Admin Matt Aqua Hideout', order: 1056, cap: 81},
-	{trainer: 'Leader Liza', order: 1130, cap: 85},
-	{trainer: 'Aqua Leader Archie Seafloor Cavern', order: 1247, cap: 89},
-	{trainer: 'Leader Juan', order: 1364, cap: 91},
-	{trainer: 'Winstrate Vito VR', order: 1454, cap: 95},
-	{trainer: 'Champion Wallace', order: 1620, cap: 99},
+	{trainer: 'Team Aqua Grunt Petalburg Woods', order: 22, cap: 12},
+	{trainer: 'Team Aqua Grunt Museum #2', order: 59, cap: 17},
+	{trainer: 'Leader Brawly', order: 80, cap: 21},
+	{trainer: 'Leader Roxanne', order: 142, cap: 25},
+	{trainer: 'Trainer Chelle Daycare', order: 184, cap: 32},
+	{trainer: 'Leader Wattson', order: 229, cap: 35},
+	{trainer: 'Trainer Rival Cycling Road', order: 270, cap: 38},
+	{trainer: 'Leader Norman', order: 342, cap: 42},
+	{trainer: 'Winstrate Vito Fallarbor', order: 439, cap: 48},
+	{trainer: 'Magma Leader Maxie Mt Chimney', order: 524, cap: 54},
+	{trainer: 'Leader Flannery', order: 576, cap: 57},
+	{trainer: 'Aqua Admin Shelly Weather Institute', order: 701, cap: 65},
+	{trainer: 'Trainer Rival Bridge', order: 719, cap: 66},
+	{trainer: 'Leader Winona', order: 763, cap: 69},
+	{trainer: 'Trainer Rival Lilycove', order: 860, cap: 73},
+	{trainer: 'Aqua Leader Archie Mt Pyre', order: 932, cap: 76},
+	{trainer: 'Magma Leader Maxie Magma Hideout', order: 1014, cap: 79},
+	{trainer: 'Aqua Admin Matt Aqua Hideout', order: 1061, cap: 81},
+	{trainer: 'Leader Liza', order: 1135, cap: 85},
+	{trainer: 'Aqua Leader Archie Seafloor Cavern', order: 1252, cap: 89},
+	{trainer: 'Leader Juan', order: 1369, cap: 91},
+	{trainer: 'Winstrate Vito VR', order: 1459, cap: 95},
+	{trainer: 'Champion Wallace', order: 1625, cap: 99},
 ];
 
 module.exports = {
