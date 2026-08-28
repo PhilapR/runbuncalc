@@ -1751,6 +1751,21 @@
 			"fixed_in": "e418ec1",
 			"falsified": 0,
 			"evidence": "Undocumented in the official 1.07 dump: Trainer Battles.txt lists all three variants of each rival fight with no selection rule, and Mechanic Changes.txt (read end to end) never states it — a direction error in careful data, unfalsifiable by any source the repo held. Fixed by ruling: STARTERS field renamed beats -> rival with flipped values; play.js, ask.js, template, panel follow; the direction pins in ask, play and browser_run failed against the corrected code first. Banked runs keep their recorded wrong rival as historical fact. Related sweep the same day: gift IVs are likewise undocumented everywhere (locations workbook scanned sheet by sheet, mechanics, AI doc, learnsets, tracker lua, public docs) — the starter 3-perfect rule and this direction are both operator rulings, recorded as such."
+		},
+		{
+			"id": "the-run-map-lost-its-first-fight-and-mauville-wally",
+			"source": "review/philip",
+			"raised_on": "2026-08-28",
+			"severity": "high",
+			"area": "data",
+			"file": "src/js/data/sets/gen8.js",
+			"line": 1,
+			"claim": "The run map was missing the game's first fight (the Route 103 rival trio) and pre-Wattson Mauville Wally. The coverage note had recorded both as undecidable — data loss or hack cut. The official 1.07 Trainer Battles document settles it: both exist in the game, so this data had lost them. Every date, cap, availability gate and display number sat on a scale three-to-five Pokemon short.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "c9ee0e4",
+			"falsified": 0,
+			"evidence": "Restored with a full-scale migration (+3 from the start, +2 more past old-206) across fourteen order-bearing stores, ~40 test pins in eleven files, and 240 banked run documents (position, skipped, orderScale stamp). The insertion surfaced two latent defects, both fixed in the same commit: the engine-row scan in build-trainer-order-map.js started at 1 against a 0-based database (row 0 is the rival's Treecko — the off-by-one was invisible exactly as long as the fight was missing from our side), and availability.json stores the HM gate twice (methods vs hmMoves) with nothing comparing the copies — surf slots opened five fights early for half a day mid-migration. tests/scale_consistency.test.js now gates membership, the twice-stored HM gate, label-derived LEVEL_CAPS and badge tiers, and engine row zero; each gate failed on injected drift before being trusted. The id-scale audit (workflow, 24 agents) that ran alongside is the standing inventory: rulings and stores that reference trainer LABELS survived the insertion untouched; every store of raw orders needed hand migration."
 		}
 	]
 }
