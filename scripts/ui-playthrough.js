@@ -225,12 +225,17 @@ const HEAL_CONTROL = flag('heal-control', '1') !== '0';
 // donated KO, so the turn stays on damage. `0` removes the guard, which is
 // the control arm.
 const PURSUIT_GUARD = flag('pursuit-guard', '1') !== '0';
-// Bank a body the next hit kills instead of spending it on one more attack.
-// The measured death economy at Brawly is 700+ deaths a batch, most of them
-// bodies that fought to single-digit HP and died to a finisher tick — while
-// the one A7 win came from a 24% Seadra banked early and brought back to
-// finish Scraggy. `0` spends the body, which is the control arm.
-const BANK_BODIES = flag('bank-bodies', '1') !== '0';
+// Bank a body the next hit kills instead of spending it. FALSIFIED TWICE
+// and off by default: brbank1 killed the broad rule (foes downed fell 3.60
+// to 2.79 per attempt, deaths unchanged), brbank2 killed the they-act-first
+// version the diagnosis had left standing (2.94 to 2.67, deaths unchanged
+// again). The mechanic that beats it is the faint's FREE ENTRY: a chip that
+// stays and dies brings its replacement in without taking a hit, while a
+// banked chip makes the fresh body eat one on the way in — so every bank
+// trades ~40% of a healthy body for a ~10% chip that died on re-entry
+// anyway. Preservation has to happen in place (heals) or not at all. `1`
+// re-arms the rule for experiments.
+const BANK_BODIES = flag('bank-bodies', '0') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27

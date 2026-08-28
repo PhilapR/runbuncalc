@@ -712,11 +712,13 @@ test('a switch is refused when Pursuit would kill the body on the way out', () =
 });
 
 test('a body the next hit kills is banked, not spent on a finisher tick', () => {
-	// brbank1 falsified the broad version — banking every killable body cost
-	// 2.4 attacks an attempt and the chips died on re-entry anyway. What
-	// survives is the body that dies BEFORE it acts: they move first and the
-	// hit covers us, so staying in loses the body and the turn both, and the
-	// free hit the switch concedes costs nothing the stay would not.
+	// Falsified twice and OFF by default. brbank1 killed the broad version
+	// (banking every killable body cost 2.4 attacks an attempt); brbank2
+	// killed the they-act-first version too, because a chip that stays and
+	// dies brings its replacement in FREE while a banked chip makes the
+	// fresh body eat a hit on the way in. The rule survives behind
+	// --bank-bodies=1 for experiments, and this gate pins both the armed
+	// shape and the dead default.
 	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
 		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
 		slowed: new Set(), healed: 0, banked: 0});
@@ -734,36 +736,36 @@ test('a body the next hit kills is banked, not spent on a finisher tick', () => 
 		switches: [{id: 'x1', label: 'Marill 100%'}],
 	};
 
-	const banked = policy.decide(base, memory(), []);
-	assert.equal(banked.kind, 'switch', 'dead before acting, so the body banks');
+	// The default spends the body the way both batches measured is right.
+	const dead = policy.decide(base, memory(), []);
+	assert.notEqual(dead.kind, 'switch', 'banking is off by default');
+
+	const armed = loadWith(['--bank-bodies=1']);
+	const banked = armed.decide(base, memory(), []);
+	assert.equal(banked.kind, 'switch', 'armed: dead before acting, so the body banks');
 	assert.match(banked.why, /banking/, 'and says so');
 
 	// We act first: the chip gets its attack before it goes, which is a fair
-	// trade brbank1 proved is better kept. It stays.
-	const faster = policy.decide(Object.assign({}, base, {
+	// trade brbank1 proved is better kept. It stays even armed.
+	const faster = armed.decide(Object.assign({}, base, {
 		threat: base.threat.replace(' · they act first', ''),
 	}), memory(), []);
 	assert.notEqual(faster.kind, 'switch', 'a body that acts first trades, not banks');
 
 	// Still healthy enough to trade: a 45% body against a 47% hit is a fair
-	// spend, not a chip worth banking.
-	const sturdy = policy.decide(Object.assign({}, base, {usHp: 45}), memory(), []);
+	// spend, not a chip worth banking — even armed.
+	const sturdy = armed.decide(Object.assign({}, base, {usHp: 45}), memory(), []);
 	assert.notEqual(sturdy.kind, 'switch');
 
 	// Nothing healthy waiting: banking into a chipped body just shuffles the
 	// deaths around.
-	const alone = policy.decide(Object.assign({}, base,
+	const alone = armed.decide(Object.assign({}, base,
 		{switches: [{id: 'x1', label: 'Marill 30%'}]}), memory(), []);
 	assert.notEqual(alone.kind, 'switch');
 
 	// A killing Pursuit closes the door the guard built.
-	const caught = policy.decide(Object.assign({}, base, {
+	const caught = armed.decide(Object.assign({}, base, {
 		threat: base.threat + ' · Pursuit KOs anything that switches out',
 	}), memory(), []);
 	assert.notEqual(caught.kind, 'switch');
-
-	// And the control arm spends the body the way every batch measured.
-	const legacy = loadWith(['--bank-bodies=0']);
-	const spent = legacy.decide(base, memory(), []);
-	assert.notEqual(spent.kind, 'switch', 'the control arm stays in');
 });
