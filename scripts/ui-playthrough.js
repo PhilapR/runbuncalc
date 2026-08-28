@@ -2617,6 +2617,11 @@ async function playFight(page, plan, roster) {
 			bench: view.bench,
 			offered: view.switches.map(entry => entry.label),
 			did: choice.kind === 'move' ? choice.pick.move : 'switch ' + choice.pick.label,
+			// The engine's race price for the body sent in, when one was
+			// carried. brsend1 could not say whether its treatment ever
+			// fired, because the timeline recorded the label and dropped the
+			// price — a mechanism check needs the treatment visible.
+			race: choice.kind === 'switch' ? choice.pick.race || null : undefined,
 			why: choice.why, threat: view.threat,
 		});
 		await tap(button);
