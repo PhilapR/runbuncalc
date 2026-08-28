@@ -1659,7 +1659,7 @@
 			"line": 2255,
 			"claim": "The heal rule could never fire at a wall: it required usHp <= 50 AND risk !== lethal, but risk=lethal means a crit kills, which against a 47% hardest hit is every HP under 50 — the firing window was the empty interval (47, 50]. Bayleef carried Synthesis into all nine Brawly attempts of skipwall4 A7 and pressed it zero times, including at 3% HP.",
 			"verdict": "confirmed",
-			"status": "closed",
+			"status": "fixed",
 			"fixed_in": "20369fd",
 			"falsified": 0,
 			"evidence": "skipwall4-A-calibration.json, report-skipwall4-A-7.json: 11 Bayleef attack-turns at <=50% HP across nine Brawly attempts, all under a lethal-class threat, zero Synthesis presses; the win (eval index 40) lost 5 of 6 on pure variance. Fourth instance of the lethal-clause family after status, speed drops (isolated 50-0) and screens. Gate: tests/playthrough_policy.test.js 'a heal fires when the healed body changes the fight' — failed before the fix, passes after; --heal-control=0 preserves the old gate as the A/B control arm."
