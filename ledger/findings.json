@@ -1690,9 +1690,9 @@
 			"claim": "The first bank-bodies rule switched out every body (<=35% HP) the hardest hit could kill. brbank1 (8 pairs, skip-walls shared, revision 547ae1d, VALID, QC PASS both arms) falsified it: control beat Brawly 4/8, treatment 1/8; Gavi attempts won 13.1% vs 8.7%. Mechanism: 2.0 banks per Brawly attempt donated free hits and robbed 2.4 attacks (19.4 to 17.0 per attempt), foes downed fell 3.60 to 2.79, and our deaths were unchanged (5.94 vs 5.99) — the banked chips died on re-entry anyway. Preservation without a fight-ending clock buys nothing.",
 			"verdict": "confirmed",
 			"status": "fixed",
-			"fixed_in": "0fad497",
+			"fixed_in": "6ce1d3b",
 			"falsified": 0,
-			"evidence": "Rule narrowed to the one case the diagnosis left standing: they act first AND the hit covers us, so the body dies before its attack either way and the conceded free hit costs nothing extra. The engine now prints \" they act first\" on the threat line (race.faster was computed and never shown). The broad arm remains reproducible as brbank1."
+			"evidence": "Rule narrowed to the one case the diagnosis left standing: they act first AND the hit covers us, so the body dies before its attack either way and the conceded free hit costs nothing extra. The engine now prints \" they act first\" on the threat line (race.faster was computed and never shown). brbank2 (8 pairs, revision 45a047f, VALID, QC PASS) then falsified the narrowed rule too: foes downed per attempt 2.94 vs 2.67, deaths unchanged, Gavi attempts won 14.3% vs 9.6%. The faint grants a FREE ENTRY, a bank concedes a hit on the incoming body, so both versions trade a healthy body's hit for a chip that dies on re-entry. Retired to --bank-bodies=1 (default off) in 6ce1d3b. Preservation must happen in place: heals, screens, speed control."
 		}
 	]
 }
