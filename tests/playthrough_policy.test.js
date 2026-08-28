@@ -800,3 +800,53 @@ test('a forced replacement sends the body that wins the race', () => {
 	const old = legacy.decide(view, memory(), []);
 	assert.equal(old.pick.id, 'x2', 'the control arm sends by resist');
 });
+
+test('ten turns of no progress on a foe breaks the line', () => {
+	// battery1, Aroma Lady Daisy seed 2: Centiskorch pressed Fire Blast 342
+	// times into a Florges that healed every chip back — both at full, forever,
+	// until the guard. The policy had no concept of "this line cannot finish":
+	// it re-derived the same best move from the same view every turn. The
+	// detector watches the foe's LOWEST HP; ten turns without a new floor is a
+	// dead line, and the answer is a body it has not tried yet.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0, banked: 0, stallTried: new Set(),
+		progress: null});
+	const view = hp => ({
+		prompt: 'What will Centiskorch do?',
+		foe: 'Florges L39', usHp: 100, foeHp: hp, risk: 'safe',
+		threat: 'Their hardest hit: Moonblast 18% · survives a crit ' +
+			'· you need 5 turns to KO, they need 6 — you win it',
+		moves: [{move: 'Fire Blast', damage: '21%+ up to 23%', title: 'Fire Blast 21–23%'}],
+		switches: [{id: 'x1', label: 'Donphan 100%'}],
+	});
+
+	const mind = memory();
+	let out;
+	// The foe floor reaches 77 and never drops again; HP oscillates as it heals.
+	for (const hp of [100, 79, 100, 77, 100, 78, 100, 79, 100, 78, 100, 79, 100, 78]) {
+		out = policy.decide(view(hp), mind, []);
+	}
+	assert.equal(out.kind, 'switch', 'a dead line changes bodies');
+	assert.match(out.why, /no progress/, 'and says why');
+
+	// Fresh eyes reset the clock: the same detector must not fire while the
+	// floor is still falling.
+	const falling = memory();
+	let alive;
+	for (const hp of [100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 8, 6]) {
+		alive = policy.decide(view(hp), falling, []);
+	}
+	assert.equal(alive.kind, 'move', 'progress keeps the line');
+
+	// The control arm grinds forever, which is what battery1 measured.
+	const legacy = loadWith(['--stall-break=0']);
+	const blind = legacy.decide(view(100), (() => {
+		const m = memory();
+		for (const hp of [100, 79, 100, 77, 100, 78, 100, 79, 100, 78, 100, 79, 100, 78]) {
+			legacy.decide(view(hp), m, []);
+		}
+		return m;
+	})(), []);
+	assert.equal(blind.kind, 'move', 'the control arm keeps pressing');
+});

@@ -241,6 +241,13 @@ const BANK_BODIES = flag('bank-bodies', '0') !== '0';
 // extra health is spent losing. `0` restores armed/resist/health order, as
 // the control arm.
 const RACE_SENDS = flag('race-sends', '1') !== '0';
+// Break a line that stopped landing. battery1's Aroma Lady Daisy scenario:
+// Centiskorch pressed Fire Blast 342 times into a Florges that healed every
+// chip back — the policy re-derived the same best move from the same view
+// forever, because no rule watched whether the fight was MOVING. Ten turns
+// without a new low on the foe's HP is a dead line. `0` grinds forever, as
+// the control arm.
+const STALL_BREAK = flag('stall-break', '1') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
@@ -2177,6 +2184,20 @@ function decide(view, memory, roster) {
 			{kind: 'switch', pick: replacement, why: 'forced replacement'} :
 			null;
 	}
+	// The progress clock, kept before any rule can return: the foe's lowest
+	// HP seen, and how many turns since it last fell. Every rule below is a
+	// judgement about THIS turn; this is the only one that can notice thirty
+	// identical turns going nowhere.
+	if (STALL_BREAK) {
+		if (!memory.progress || memory.progress.foe !== view.foe) {
+			memory.progress = {foe: view.foe, floor: view.foeHp, since: 0};
+		} else if (view.foeHp < memory.progress.floor) {
+			memory.progress.floor = view.foeHp;
+			memory.progress.since = 0;
+		} else {
+			memory.progress.since += 1;
+		}
+	}
 	const move = bestMove(view);
 	if (move && (move.floorKO || move.guaranteedKO)) {
 		return {kind: 'move', pick: move, why: 'it KOs'};
@@ -2372,6 +2393,23 @@ function decide(view, memory, roster) {
 			return {kind: 'switch', pick: answer,
 				why: (losingRace ? 'the race is lost' : 'a crit KOs us') +
 					', and this one resists'};
+		}
+	}
+	// A line that stopped landing: ten turns without a new low on the foe is
+	// a stall (a healer outpacing the chip, a decayed attacker), and pressing
+	// the same best move again is how 342 Fire Blasts happened. Try a body
+	// this stall has not tried; when everyone has had a turn at it, keep
+	// attacking — a bad line beats a switch loop.
+	if (STALL_BREAK && move && !pursuitCaught &&
+		memory.progress && memory.progress.since >= 10) {
+		const fresh = healthiestSwitch(Object.assign({}, view, {
+			switches: view.switches.filter(entry => !memory.stallTried.has(entry.id)),
+		}), roster);
+		if (fresh) {
+			memory.stallTried.add(fresh.id);
+			memory.progress = null;
+			return {kind: 'switch', pick: fresh,
+				why: 'no progress in 10 turns — trying ' + fresh.species};
 		}
 	}
 	if (move) return {kind: 'move', pick: move, why: 'highest floor'};
@@ -2574,7 +2612,7 @@ async function openFight(page) {
 async function playFight(page, plan, roster) {
 	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0,
 		sacked: 0, screens: new Set(), boosts: 0, slowed: new Set(), healed: 0,
-		banked: 0};
+		banked: 0, stallTried: new Set(), progress: null};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {

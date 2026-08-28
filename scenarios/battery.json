@@ -1,0 +1,95 @@
+{
+	"comment": "Post-Brawly scenario battery: banked run documents at a spread of depths, each fighting the next trainers on its own road. Curated 2026-08-28 from the ui-playthrough-out archive.",
+	"scenarios": [
+		{
+			"name": "Leader Brawly @26",
+			"report": "ui-playthrough-out/report-brbank1-A-1.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne @45",
+			"report": "ui-playthrough-out/report-br-1.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson @65",
+			"report": "ui-playthrough-out/report-sac-A-11.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "School Kid Jerry & Johnson @36",
+			"report": "ui-playthrough-out/report-brheal1-B-2.json",
+			"trainer": "School Kid Jerry & Johnson",
+			"seeds": 20
+		},
+		{
+			"name": "Bug Catcher Jose @37",
+			"report": "ui-playthrough-out/report-brheal1-B-2.json",
+			"trainer": "Bug Catcher Jose",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Mike @46",
+			"report": "ui-playthrough-out/report-br-6.json",
+			"trainer": "Hiker Mike",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @47",
+			"report": "ui-playthrough-out/report-br-6.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @53",
+			"report": "ui-playthrough-out/report-forecast-today-M-6.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Sr. And Jr. Anna And Meg @54",
+			"report": "ui-playthrough-out/report-forecast-today-M-6.json",
+			"trainer": "Sr. And Jr. Anna And Meg",
+			"seeds": 20
+		},
+		{
+			"name": "Psychic Edward @60",
+			"report": "ui-playthrough-out/report-pf-2.json",
+			"trainer": "Psychic Edward",
+			"seeds": 20
+		},
+		{
+			"name": "Guitarist Kirk @61",
+			"report": "ui-playthrough-out/report-pf-2.json",
+			"trainer": "Guitarist Kirk",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Abigail @67",
+			"report": "ui-playthrough-out/report-acc-11.json",
+			"trainer": "Triathlete Abigail",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Anthony @68",
+			"report": "ui-playthrough-out/report-acc-11.json",
+			"trainer": "Triathlete Anthony",
+			"seeds": 20
+		},
+		{
+			"name": "Pokéfan Miguel @78",
+			"report": "ui-playthrough-out/report-flannery-3.json",
+			"trainer": "Pokéfan Miguel",
+			"seeds": 20
+		},
+		{
+			"name": "Aroma Lady Daisy @79",
+			"report": "ui-playthrough-out/report-flannery-3.json",
+			"trainer": "Aroma Lady Daisy",
+			"seeds": 20
+		}
+	]
+}
