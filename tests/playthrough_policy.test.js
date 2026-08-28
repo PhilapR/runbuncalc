@@ -671,3 +671,42 @@ test('a heal fires when the healed body changes the fight, lethal turn or not', 
 	assert.equal(legacyHeal.pick.move, 'Synthesis',
 		'and the legacy arm still heals on a calm turn under half');
 });
+
+test('a switch is refused when Pursuit would kill the body on the way out', () => {
+	// The heal fix keeps a body alive in place; this keeps it alive in
+	// transit. Pursuit doubles on a switch-out and the Run & Bun AI clicks
+	// it on the prediction, so a lost-race switch under a killing Pursuit
+	// hands over the KO the switch was meant to dodge.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0});
+	const base = {
+		foe: 'Hitmontop L20',
+		usHp: 70,
+		risk: 'lethal',
+		threat: 'Hitmontop L20 — Their hardest hit: Brick Break 45% — 67% on a crit ' +
+			'· a crit KOs you · you need 3 turns to KO, they need 2 — YOU LOSE THIS RACE',
+		moves: [{move: 'Tackle', damage: '12%+', title: '12–15%'}],
+		switches: [{id: 'x1', label: 'Haunter 100%'}],
+	};
+
+	// Without the warning the old rule stands: the race is lost, Haunter is
+	// immune to the hit, the switch is right.
+	const open = policy.decide(base, memory(), []);
+	assert.equal(open.kind, 'switch',
+		'a resist switch off a lost race is still the play when nothing punishes it');
+
+	// With the engine naming a killing Pursuit, the same switch is a donated
+	// KO — the turn stays on damage.
+	const caught = Object.assign({}, base, {
+		threat: base.threat + ' · Pursuit KOs anything that switches out',
+	});
+	const held = policy.decide(caught, memory(), []);
+	assert.notEqual(held.kind, 'switch',
+		'a switch into a killing Pursuit donates the KO it was dodging');
+
+	// --pursuit-guard=0 restores the old rule exactly, as the control arm.
+	const legacy = loadWith(['--pursuit-guard=0']);
+	const blind = legacy.decide(caught, memory(), []);
+	assert.equal(blind.kind, 'switch', 'the control arm keeps switching');
+});

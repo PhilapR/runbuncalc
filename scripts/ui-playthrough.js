@@ -219,6 +219,12 @@ const ATTACK_DROP = flag('attack-drop', '1') !== '0';
 // (47, 50]. The gate now asks whether the healed body survives the hit the
 // current one dies to. `0` restores the old lethal refusal, the control arm.
 const HEAL_CONTROL = flag('heal-control', '1') !== '0';
+// No voluntary switch under a killing Pursuit. Twelve of the forty-eight
+// deaths in skipwall4 A7's Brawly wipes were Pursuit's, and the engine now
+// prices the doubled catch on the threat line — a switch it would kill is a
+// donated KO, so the turn stays on damage. `0` removes the guard, which is
+// the control arm.
+const PURSUIT_GUARD = flag('pursuit-guard', '1') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
@@ -2180,7 +2186,14 @@ function decide(view, memory, roster) {
 	// two was spent by turn seven and a Paras then stood infatuated for five
 	// turns, at 100% HP down to 0, against a Jigglypuff that never dropped
 	// below 78%. Six is a party: more switches than bodies is a loop.
-	if (/infatuated|confused/.test(view.us) && memory.cleared < 6) {
+	// Every VOLUNTARY switch below is off while a killing Pursuit stands: the
+	// engine prices the doubled catch on the threat line, and a switch it
+	// kills hands over the exact KO the switch was meant to dodge. The forced
+	// replacement above is untouched — a faint is not a switch-out and
+	// Pursuit does not punish it.
+	const pursuitCaught = PURSUIT_GUARD &&
+		/Pursuit KOs anything that switches out/.test(view.threat || '');
+	if (/infatuated|confused/.test(view.us) && memory.cleared < 6 && !pursuitCaught) {
 		const fresh = healthiestSwitch(view, roster);
 		if (fresh && fresh.hp >= 50) {
 			memory.cleared += 1;
@@ -2191,7 +2204,7 @@ function decide(view, memory, roster) {
 	// is how a L12 Abra spent seven turns on Kinesis and died to a L9
 	// Clobbopus. Leave — and leave for something that can fight, which is what
 	// `armed` is for. Bounded so a party of pacifists cannot switch forever.
-	if (!move && memory.disarmed < 2) {
+	if (!move && memory.disarmed < 2 && !pursuitCaught) {
 		const armed = healthiestSwitch(view, roster);
 		if (armed && armed.armed) {
 			memory.disarmed += 1;
@@ -2281,7 +2294,7 @@ function decide(view, memory, roster) {
 			why: 'the race is lost straight, so setting up with ' + boost.move};
 	}
 	const lethal = view.risk === 'lethal';
-	if ((losingRace || lethal) && !memory.switchedFor.has(view.foe)) {
+	if ((losingRace || lethal) && !memory.switchedFor.has(view.foe) && !pursuitCaught) {
 		const replacement = healthiestSwitch(view, roster);
 		// Only if the body coming in actually RESISTS. A switch concedes a
 		// free hit, and against a five-Pokemon team the driver was donating

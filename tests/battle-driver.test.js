@@ -580,3 +580,46 @@ test('the card carries the conditions a switch would clear', () => {
 	us.status = 'par';
 	assert.equal(driver.view(state).player.active.status, 'par');
 });
+
+test('the threat line prices Pursuit against a switch-out', () => {
+	// Twelve of the forty-eight deaths in skipwall4 A7's Brawly wipes came
+	// from Hitmontop's Pursuit, and the driver kept offering switches into
+	// it: nothing on the threat line said the move exists, let alone that it
+	// doubles on the way out. The engine can see the foe's whole movepool —
+	// the same loop that finds the hardest hit now prices the doubled catch.
+	const mon = (id, species, extra) => Object.assign({
+		id, species, level: 20, hp: {current: 60, max: 60},
+		moves: [{name: 'Scratch', pp: 10, maxPP: 10}],
+	}, extra || {});
+	const position = hp => ({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Hitmontop',
+				{moves: [{name: 'Pursuit', pp: 10, maxPP: 10},
+					{name: 'Brick Break', pp: 10, maxPP: 10}]})]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar',
+				{hp: {current: hp, max: 60}})]},
+		},
+	});
+
+	const healthy = driver.incomingThreat(position(60));
+	assert.ok(healthy.pursuit, 'a foe holding Pursuit is named on the threat');
+	assert.ok(healthy.pursuit.max > 0, 'the catch is priced');
+	assert.equal(healthy.pursuit.kills, false, 'a healthy body walks out alive');
+
+	// The doubled hit is the number that matters: a body the plain Pursuit
+	// leaves standing still dies on the way out.
+	const clipped = driver.incomingThreat(position(Math.ceil(healthy.pursuit.max * 0.6 / 100 * 60)));
+	assert.equal(clipped.pursuit.kills, true, 'the doubled catch kills what the plain hit spares');
+
+	// No Pursuit, no field — the sentence must not appear against foes that
+	// cannot punish the switch.
+	const plain = driver.incomingThreat({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Hitmontop')]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar')]},
+		},
+	});
+	assert.equal(plain.pursuit, null);
+});

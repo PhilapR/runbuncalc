@@ -3201,7 +3201,11 @@
 						' · you need ' + race.turnsToKill + ' turn' +
 							(race.turnsToKill === 1 ? '' : 's') + ' to KO, they need ' +
 							race.turnsToDie + ' — ' +
-							(race.outcome === 'lose' ? 'YOU LOSE THIS RACE' : 'you win it')));
+							(race.outcome === 'lose' ? 'YOU LOSE THIS RACE' : 'you win it')) +
+					// Only when the doubled catch kills: a Pursuit the body
+					// walks away from is not a warning worth a sentence.
+					(threat.pursuit && threat.pursuit.kills ?
+						' · Pursuit KOs anything that switches out' : ''));
 		}
 
 		var $log = $('#runbun-run-battle-log');
