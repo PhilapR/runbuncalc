@@ -236,6 +236,11 @@ const PURSUIT_GUARD = flag('pursuit-guard', '1') !== '0';
 // anyway. Preservation has to happen in place (heals) or not at all. `1`
 // re-arms the rule for experiments.
 const BANK_BODIES = flag('bank-bodies', '0') !== '0';
+// A forced replacement sends the body that WINS the race, not the healthiest
+// one: the engine now prices every candidate's attrition race, and a loser's
+// extra health is spent losing. `0` restores armed/resist/health order, as
+// the control arm.
+const RACE_SENDS = flag('race-sends', '1') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
@@ -468,6 +473,7 @@ function readBattle(page) {
 				'#runbun-run-battle-switches .runbun-run-battle-switch')).map(el => ({
 				id: el.getAttribute('data-replace'),
 				label: el.textContent.trim(),
+				race: el.getAttribute('data-race') || null,
 			})),
 			// The bench is the only place a Pokemon that never acts can be seen
 			// losing HP, so a wipe that nobody clicked for is explainable.
@@ -2101,6 +2107,7 @@ function healthiestSwitch(view, roster) {
 			id: entry.id, label: entry.label, species: species,
 			hp: hit ? Number(hit[1]) : 0,
 			taking: taking,
+			race: entry.race || null,
 			// Sending in a Pokemon that cannot damage anything is how Abra
 			// arrived in front of a Clobbopus and pressed Kinesis until it
 			// died. Its own moves are on its summary screen, so this is not
@@ -2109,10 +2116,17 @@ function healthiestSwitch(view, roster) {
 		};
 	}).filter(entry => entry.hp > 0);
 	if (!options.length) return null;
-	// Armed first, then resistance, then health. An immune body at 40% takes
+	// The race first, when the engine priced one: a winner at 40% beats a
+	// loser at 100%, because the loser's health is spent losing. Only forced
+	// replacements carry the price — a voluntary switch falls through to the
+	// old order, which is the next line.
+	// Then armed, then resistance, then health. An immune body at 40% takes
 	// the hit a healthy neutral one dies to, and a switch concedes a free turn
 	// either way — so what matters is what that free turn buys.
-	options.sort((a, b) => (b.armed ? 1 : 0) - (a.armed ? 1 : 0) ||
+	const raceRank = entry => RACE_SENDS && entry.race ?
+		{win: 0, lose: 2, 'cannot-win': 3}[entry.race] ?? 1 : 1;
+	options.sort((a, b) => raceRank(a) - raceRank(b) ||
+		(b.armed ? 1 : 0) - (a.armed ? 1 : 0) ||
 		a.taking - b.taking || b.hp - a.hp);
 	// The switch is the same kind of judgement on a margin as the move,
 	// and "who do we send in" is often where a lost fight was decided.

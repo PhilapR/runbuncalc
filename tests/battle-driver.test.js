@@ -623,3 +623,34 @@ test('the threat line prices Pursuit against a switch-out', () => {
 	});
 	assert.equal(plain.pursuit, null);
 });
+
+test('a forced replacement offers each candidate with its race priced', () => {
+	// Who gets sent in after a faint is where fights are spent: the driver
+	// picked by resist-vs-one-move and HP, which is how Bayleef was sent
+	// into an Ice Beam Poliwhirl. attritionRace already answers "who runs
+	// out of HP first" for the active body — seating each candidate in a
+	// cloned state asks it for the bench too.
+	const mon = (id, species, level, moves, hp) => ({
+		id, species, level, hp: hp || {current: 60, max: 60},
+		moves: moves.map(name => ({name, pp: 10, maxPP: 10})),
+	});
+	const state = {
+		generation: 8, mode: 'Singles', turn: 3, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [
+				mon('ai-1', 'Machop', 10, ['Karate Chop'])]},
+			player: {activeIds: ['player-1'], party: [
+				mon('player-1', 'Skitty', 10, ['Scratch'], {current: 0, max: 40}),
+				mon('player-2', 'Marill', 30, ['Water Gun']),
+				mon('player-3', 'Caterpie', 5, ['Tackle']),
+			]},
+		},
+	};
+	const offered = driver.legalActions(state);
+	assert.equal(offered.length, 2, 'the fainted body is not on offer');
+	const byId = Object.fromEntries(offered.map(entry => [entry.action.replacementId, entry]));
+	assert.ok(byId['player-2'].race, 'every candidate carries a race');
+	assert.equal(byId['player-2'].race.outcome, 'win', 'a L30 Marill outlasts a L10 Machop');
+	assert.ok(byId['player-3'].race, 'the hopeless candidate carries one too');
+	assert.equal(byId['player-3'].race.outcome, 'lose', 'a L5 Caterpie does not');
+});

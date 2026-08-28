@@ -3248,8 +3248,15 @@
 									entry.damage.guaranteedKO ? ' · KO' :
 										' up to ' + entry.damage.max + '%'))));
 			} else {
+				// The race rides a data attribute and a tooltip, never the
+				// text: the driver parses "Species NN%" off the label, and a
+				// suffix would cost it the health number.
 				$switches.append($('<button type="button" class="btn runbun-run-battle-switch"></button>')
 					.attr('data-replace', entry.action.replacementId)
+					.attr('data-race', entry.race ? entry.race.outcome : null)
+					.attr('title', entry.race ?
+						'you need ' + entry.race.turnsToKill + ', they need ' +
+							entry.race.turnsToDie : null)
 					.text(entry.species + ' ' +
 						Math.round(Math.max(0, entry.hp.current) / entry.hp.max * 100) + '%'));
 			}

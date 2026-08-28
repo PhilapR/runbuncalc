@@ -769,3 +769,34 @@ test('a body the next hit kills is banked, not spent on a finisher tick', () => 
 	}), memory(), []);
 	assert.notEqual(caught.kind, 'switch');
 });
+
+test('a forced replacement sends the body that wins the race', () => {
+	// The engine now prices every replacement candidate; the driver used to
+	// sort by armed, resist, health — which sent the healthiest loser. A
+	// race winner at 40% beats a race loser at 100%, because the loser's
+	// extra HP is spent losing.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0, banked: 0});
+	const view = {
+		prompt: 'Choose the next Pokemon.',
+		foe: 'Machop L10',
+		threat: 'Their hardest hit: Karate Chop 30% · survives a crit',
+		moves: [],
+		// Rattata takes Karate Chop at 2x and still wins its race; Haunter is
+		// immune to it and loses anyway. Resist-order sends the immune loser,
+		// which is exactly the habit the race price exists to break.
+		switches: [
+			{id: 'x1', label: 'Rattata 40%', race: 'win'},
+			{id: 'x2', label: 'Haunter 100%', race: 'lose'},
+		],
+	};
+	const sent = policy.decide(view, memory(), []);
+	assert.equal(sent.kind, 'switch');
+	assert.equal(sent.pick.id, 'x1', 'the race winner goes in, not the best resist');
+
+	// The control arm keeps the old order and sends the immune loser.
+	const legacy = loadWith(['--race-sends=0']);
+	const old = legacy.decide(view, memory(), []);
+	assert.equal(old.pick.id, 'x2', 'the control arm sends by resist');
+});
