@@ -1693,6 +1693,34 @@
 			"fixed_in": "6ce1d3b",
 			"falsified": 0,
 			"evidence": "Rule narrowed to the one case the diagnosis left standing: they act first AND the hit covers us, so the body dies before its attack either way and the conceded free hit costs nothing extra. The engine now prints \" they act first\" on the threat line (race.faster was computed and never shown). brbank2 (8 pairs, revision 45a047f, VALID, QC PASS) then falsified the narrowed rule too: foes downed per attempt 2.94 vs 2.67, deaths unchanged, Gavi attempts won 14.3% vs 9.6%. The faint grants a FREE ENTRY, a bank concedes a hit on the incoming body, so both versions trade a healthy body's hit for a chip that dies on re-entry. Retired to --bank-bodies=1 (default off) in 6ce1d3b. Preservation must happen in place: heals, screens, speed control."
+		},
+		{
+			"id": "the-policy-could-not-see-a-stalled-line",
+			"source": "experiment/battery1",
+			"raised_on": "2026-08-28",
+			"severity": "high",
+			"area": "play-policy",
+			"file": "scripts/ui-playthrough.js",
+			"line": 2300,
+			"claim": "decide() re-derived the same best move from the same view every turn with no rule watching whether the fight was moving. battery1 (the first headless scenario battery, post-Brawly documents) caught it: Aroma Lady Daisy at fight 79 went 1/20 with 17 fights hitting the 400-turn guard — Centiskorch pressed Fire Blast 342 times into a Florges that healed every chip back — and Bug Catcher Jose at 37 burned 130 turns a fight the same way.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "841fbe9",
+			"falsified": 0,
+			"evidence": "Fix: a progress clock on the foe lowest HP; ten turns without a new floor switches to a body the stall has not tried, bounded by the bench, never under a killing Pursuit. Measured on the same battery: Daisy 1/20 (17 stuck) -> 14/20 (4 stuck), Jose fights end in 20 turns instead of 130, all twelve healthy scenarios byte-identical. --stall-break=0 is the control arm."
+		},
+		{
+			"id": "pp-is-never-spent-so-a-stall-is-infinite",
+			"source": "experiment/battery1",
+			"raised_on": "2026-08-28",
+			"severity": "medium",
+			"area": "engine",
+			"file": "lib/battle-driver.js",
+			"line": 1,
+			"claim": "Battle-state moves carry no PP fields — only a timesUsed counter nothing reads — so a move can be pressed forever and a mutual stall (healer vs chip) never ends. In the real game PP exhausts and Struggle ends the fight; the engine diverges exactly in the scenarios where the divergence decides the outcome (342 identical Fire Blasts in battery1).",
+			"verdict": "confirmed",
+			"status": "open",
+			"evidence": "Probe 2026-08-28: state.sides.player.party[].moves = [{name}] at start, [{name, timesUsed}] after use; no maxPP, no decrement, no Struggle path observed. The stall-break policy rule works around the policy half; the engine half stands open. Fork rule check needed before modeling: whether Run & Bun alters PP at all."
 		}
 	]
 }
