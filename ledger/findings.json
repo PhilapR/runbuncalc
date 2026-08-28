@@ -1678,6 +1678,21 @@
 			"fixed_in": "fcde1cb",
 			"falsified": 0,
 			"evidence": "brpursuit1 (6 pairs, skip-walls shared, revision 75bddbe, VALID, QC PASS both arms): control switched under a killing-Pursuit sentence 5 times in 170 sentence-turns, treatment 0 in 181 — the guard removes the event entirely. Tally null at this n (0/6 Brawly both arms): the addressable event is ~5 per 120 wall attempts, because most Pursuit deaths (85 vs 76 in the batch) are finisher ticks on bodies staying in at single-digit HP, which is the preservation problem, not the switch problem. Gates: battle-driver prices the doubled catch; policy refuses the switch only under the sentence; both failed first."
+		},
+		{
+			"id": "banking-every-killable-body-loses-the-attack-war",
+			"source": "experiment/brbank1",
+			"raised_on": "2026-08-28",
+			"severity": "high",
+			"area": "play-policy",
+			"file": "scripts/ui-playthrough.js",
+			"line": 2270,
+			"claim": "The first bank-bodies rule switched out every body (<=35% HP) the hardest hit could kill. brbank1 (8 pairs, skip-walls shared, revision 547ae1d, VALID, QC PASS both arms) falsified it: control beat Brawly 4/8, treatment 1/8; Gavi attempts won 13.1% vs 8.7%. Mechanism: 2.0 banks per Brawly attempt donated free hits and robbed 2.4 attacks (19.4 to 17.0 per attempt), foes downed fell 3.60 to 2.79, and our deaths were unchanged (5.94 vs 5.99) — the banked chips died on re-entry anyway. Preservation without a fight-ending clock buys nothing.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "0fad497",
+			"falsified": 0,
+			"evidence": "Rule narrowed to the one case the diagnosis left standing: they act first AND the hit covers us, so the body dies before its attack either way and the conceded free hit costs nothing extra. The engine now prints \" they act first\" on the threat line (race.faster was computed and never shown). The broad arm remains reproducible as brbank1."
 		}
 	]
 }
