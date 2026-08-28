@@ -371,12 +371,12 @@ test('the recreation verbs: a starter opens the run, a roll suggests, a spend bu
 	// fixes the rival, and the wrong name is refused with the real list.
 	assert.throws(() => cli('new', '--starter', 'Pikachu'),
 		/the starters are Turtwig, Chimchar, Piplup/);
-	assert.throws(() => cli('new', '--starter', 'Turtwig', '--rival', 'Blaziken'),
-		/Turtwig fixes the rival to Swampert/);
+	assert.throws(() => cli('new', '--starter', 'Turtwig', '--rival', 'Swampert'),
+		/Turtwig fixes the rival to Blaziken/);
 	assert.match(cli('new', '--starter', 'Piplup', '--nuzlocke'),
-		/Piplup L5 is in the box; the rival runs Blaziken/);
+		/Piplup L5 is in the box; the rival runs Sceptile/);
 	assert.equal(read().box[0].species, 'Piplup');
-	assert.equal(read().rules.rival, 'Blaziken');
+	assert.equal(read().rules.rival, 'Sceptile');
 
 	// A roll is read-only dice: the save is untouched, and the two ways to
 	// settle it come back paste-ready, carrying the run file.

@@ -3688,7 +3688,7 @@
 					onePerRoute: $('#runbun-run-new-route').is(':checked'),
 					shinyClause: $('#runbun-run-new-shiny-clause').is(':checked'),
 					dupesClause: $('#runbun-run-new-dupes').val(),
-					// The starter names the rival: they take the one yours beats, so
+					// The starter names the rival: they take the one that beats yours, so
 					// declaring it removes the other two variants of every rival
 					// fight from the spine, the road ahead and the caps.
 					rival: $starter.length ? $starter.attr('data-rival') : undefined,

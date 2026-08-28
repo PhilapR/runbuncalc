@@ -119,8 +119,8 @@ test('the starter choice is data, and the page offers exactly that data', () => 
 		assert.equal(offered[index][1], starter.species,
 			`starter ${index} must be ${starter.species}, the profile's choice`);
 		assert.equal(offered[index][2], starter.type, `${starter.species} type must match`);
-		assert.equal(offered[index][3], starter.beats,
-			`${starter.species} must name the rival ace it beats`);
+		assert.equal(offered[index][3], starter.rival,
+			`${starter.species} must name the rival ace that counters it`);
 		// The label a player reads has to agree with the data attribute driving it.
 		assert.ok(template.includes(
 			`<span class="runbun-run-starter-name">${starter.species}</span>`),
@@ -133,8 +133,8 @@ test('the starter choice is data, and the page offers exactly that data', () => 
 	assert.deepEqual(aces, ['Sceptile', 'Blaziken', 'Swampert'],
 		'the rival aces stay Hoenn — Run & Bun rebuilt the player starter only');
 	for (const starter of starters) {
-		assert.ok(aces.includes(starter.beats),
-			`${starter.species} must beat a declared rival ace`);
+		assert.ok(aces.includes(starter.rival),
+			`${starter.species} must name a declared rival ace as its counter`);
 		assert.ok(!aces.includes(starter.species),
 			`${starter.species} must not itself be a rival ace`);
 	}

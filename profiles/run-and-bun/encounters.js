@@ -236,9 +236,14 @@ const RIVAL_ACES = ['Sceptile', 'Blaziken', 'Swampert'];
  * these two lists are deliberately from different generations and neither is
  * a copy of the other.
  *
- * `beats` is the rival ace this pick is strong into, which is how the game
- * decides what the rival takes — you pick Grass, they take the Water one.
- * That relationship is by TYPE, so it survives the species change untouched.
+ * `rival` is the ace the rival takes: the Hoenn starter whose type BEATS
+ * your pick (operator ruling, 2026-08-28 — this is a difficulty hack, and
+ * the rival counters you). The first version had the friendly-rival
+ * direction — you pick Grass, they take the Water one you beat — which is
+ * vanilla Emerald's rule and the wrong game's manners: every banked run
+ * declared the wrong rival and carried the wrong three variants in its
+ * spine. The relationship is by TYPE, so it survives the Sinnoh-for-Hoenn
+ * species swap untouched.
  *
  * Stated as data because it was hardcoded in src/index.template.html and
  * nowhere else. Nothing could validate it, and that is exactly how it sat
@@ -247,9 +252,9 @@ const RIVAL_ACES = ['Sceptile', 'Blaziken', 'Swampert'];
  * file said so.
  */
 const STARTERS = [
-	{species: 'Turtwig', type: 'grass', beats: 'Swampert'},
-	{species: 'Chimchar', type: 'fire', beats: 'Sceptile'},
-	{species: 'Piplup', type: 'water', beats: 'Blaziken'},
+	{species: 'Turtwig', type: 'grass', rival: 'Blaziken'},
+	{species: 'Chimchar', type: 'fire', rival: 'Swampert'},
+	{species: 'Piplup', type: 'water', rival: 'Sceptile'},
 ];
 
 /**

@@ -2195,7 +2195,10 @@ test('the starter is picked on the setup screen, and the rival follows from it',
 	const saved = await savedRun(page);
 	assert.equal(saved.box[0].species, 'Turtwig');
 	assert.equal(saved.box[0].level, 5);
-	assert.equal(saved.rules.rival, 'Swampert');
+	// The rival counters the pick: Turtwig fixes them to Blaziken (operator
+	// ruling, 2026-08-28 — the first model had vanilla Emerald's friendly
+	// direction and gave every run the wrong three spine variants).
+	assert.equal(saved.rules.rival, 'Blaziken');
 	assert.match(await page.textContent('#runbun-run-status'), /Turtwig L5 is in the box/);
 
 	await session.context.close();

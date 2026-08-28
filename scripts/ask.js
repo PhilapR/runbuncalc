@@ -268,7 +268,7 @@ const COMMANDS = {
 			console.log(`starters — the player picks one of ${starters.length}:`);
 			for (const starter of starters) {
 				console.log(`  ${starter.species.padEnd(10)} ${starter.type.padEnd(6)}` +
-					`  beats the rival's ${starter.beats}`);
+					`  the rival counters with ${starter.rival}`);
 			}
 		}
 		// These two lists are from different generations on purpose.
