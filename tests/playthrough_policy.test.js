@@ -587,3 +587,87 @@ test('a free slot takes a tool move the other teach paths skip', () => {
 			move + ' is not — plain damage is the advisor\'s job, and Splash is nobody\'s');
 	}
 });
+
+test('a heal fires when the healed body changes the fight, lethal turn or not', () => {
+	// The fourth instance of one over-caution: status, speed drops, screens,
+	// now heals. Bayleef carried Synthesis into nine Brawly attempts and
+	// pressed it ZERO times: against a 47% Mach Punch every HP under 50 reads
+	// lethal, and over 50 the rule declines by design — the window between
+	// them is the empty interval (47, 50]. The gate now asks what the heal
+	// BUYS instead of whether a crit could land.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0});
+	const base = {
+		foe: 'Poliwhirl L20',
+		usHp: 40,
+		risk: 'lethal',
+		threat: 'Poliwhirl L20 — Their hardest hit: Ice Beam 53% — 79% on a crit ' +
+			'· a crit KOs you · you need 2 turns to KO, they need 1 — YOU LOSE THIS RACE',
+		moves: [
+			{move: 'Magical Leaf', damage: '35%+', title: '35–42%'},
+			{move: 'Synthesis', damage: '', title: ''},
+		],
+		switches: [],
+	};
+
+	// The rescue: 40% dies to 53%, 90% does not, and Ice Beam has no
+	// priority so the heal resolves first when we are faster. This is the
+	// MOST valuable heal there is, and it is the one the old gate refused.
+	const rescued = policy.decide(base, memory(), []);
+	assert.equal(rescued.pick.move, 'Synthesis',
+		'a heal that converts a KO into a survived hit is worth the turn');
+
+	// A priority hit does not wait for the heal: at 10% into Mach Punch 47%
+	// the body is dead before Synthesis resolves, so the turn goes to damage.
+	const jabbed = Object.assign({}, base, {
+		usHp: 10,
+		foe: 'Hitmontop L20',
+		threat: 'Hitmontop L20 — Their hardest hit: Mach Punch 47% — 69% on a crit ' +
+			'· a crit KOs you · you need 3 turns to KO, they need 1 — YOU LOSE THIS RACE',
+	});
+	const spent = policy.decide(jabbed, memory(), []);
+	assert.notEqual(spent.pick && spent.pick.move, 'Synthesis',
+		'a priority hit lands before the heal, so the heal buys nothing');
+
+	// Chip range: the plain hit does not kill us even now, the lethal flag is
+	// crit fear, and crit fear is the bug this family of fixes keeps removing.
+	const chipped = Object.assign({}, base, {
+		usHp: 45,
+		threat: 'Poliwhirl L20 — Their hardest hit: Bubble Beam 20% — 30% on a crit ' +
+			'· a crit KOs you · you need 3 turns to KO, they need 3',
+	});
+	const topped = policy.decide(chipped, memory(), []);
+	assert.equal(topped.pick.move, 'Synthesis',
+		'a heal against chip damage fires whatever the crit flag says');
+
+	// Wasted: 30% + 50 = 80, and an 85% hit kills the healed body too. The
+	// turn goes to damage, exactly as before.
+	const doomed = Object.assign({}, base, {
+		usHp: 30,
+		threat: 'Poliwhirl L20 — Their hardest hit: Hydro Pump 85% — 100% on a crit ' +
+			'· a crit KOs you · you need 2 turns to KO, they need 1 — YOU LOSE THIS RACE',
+	});
+	const traded = policy.decide(doomed, memory(), []);
+	assert.notEqual(traded.pick && traded.pick.move, 'Synthesis',
+		'a heal the next hit erases is a wasted turn');
+
+	// Twice a fight, still.
+	const capped = memory();
+	capped.healed = 2;
+	const done = policy.decide(base, capped, []);
+	assert.notEqual(done.pick && done.pick.move, 'Synthesis',
+		'the two-heal cap holds');
+
+	// --heal-control=0 restores the OLD gate exactly — no heal on any lethal
+	// turn — because that is the control arm of the A/B that isolates this.
+	const legacy = loadWith(['--heal-control=0']);
+	const refused = legacy.decide(base, memory(), []);
+	assert.notEqual(refused.pick && refused.pick.move, 'Synthesis',
+		'the control arm must keep the lethal refusal');
+	const calm = Object.assign({}, base, {risk: '', usHp: 45, threat:
+		'Poliwhirl L20 — Their hardest hit: Bubble Beam 20% · you need 3 turns to KO, they need 3'});
+	const legacyHeal = legacy.decide(calm, memory(), []);
+	assert.equal(legacyHeal.pick.move, 'Synthesis',
+		'and the legacy arm still heals on a calm turn under half');
+});

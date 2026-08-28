@@ -212,6 +212,13 @@ const SCREEN_CONTROL = flag('screen-control', '1') !== '0';
 // need 3, they need 2" races the walls are made of, where a Speed drop only
 // reorders them. `0` removes the rule entirely, which is the control arm.
 const ATTACK_DROP = flag('attack-drop', '1') !== '0';
+// Heals judged by what they buy — the fourth instance of the same
+// over-caution. Bayleef carried Synthesis into nine Brawly attempts and
+// pressed it zero times: against a 47% Mach Punch every HP under the rule's
+// 50 ceiling reads lethal, so the old gate's window was the empty interval
+// (47, 50]. The gate now asks whether the healed body survives the hit the
+// current one dies to. `0` restores the old lethal refusal, the control arm.
+const HEAL_CONTROL = flag('heal-control', '1') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
@@ -2030,6 +2037,30 @@ function incomingType(view) {
 	}
 }
 
+/**
+ * Whether a heal changes this fight, judged on the hit the threat line names.
+ *
+ * Three answers. The plain hit is chip (it does not kill us even now): heal
+ * freely — the lethal flag on such a turn is crit fear, the bug this family
+ * of fixes keeps removing. The hit kills us now but not after the heal: this
+ * is the rescue, the most valuable heal there is, worth it whenever the hit
+ * waits for the heal — a priority jab does not, so Mach Punch refuses it.
+ * The hit kills the healed body too: the turn is wasted, spend it on damage.
+ * No parseable threat falls back to the old gate rather than guessing.
+ */
+function healWorthIt(view) {
+	const named = /Their hardest hit: (.+?) (\d+)%/.exec(view.threat || '');
+	if (!named) return view.risk !== 'lethal';
+	const pct = Number(named[2]);
+	if (pct < view.usHp) return true;
+	if (pct >= Math.min(100, view.usHp + 50)) return false;
+	let priority = 0;
+	try {
+		priority = ai.getMoveMetadata(named[1].trim(), 8).priority || 0;
+	} catch (error) { priority = 0; }
+	return priority <= 0;
+}
+
 /** Whether a boxed Pokemon owns a move that can damage anything at all. */
 function canAttack(roster, id) {
 	const mon = (roster || []).find(entry => entry.id === id);
@@ -2226,11 +2257,15 @@ function decide(view, memory, roster) {
 	}
 	// Healing is worth a turn when it buys back more than one. Below half, a
 	// fifty percent restore puts two more turns between us and the KO the
-	// threat line is counting down to. Twice a fight, never while a crit lands
-	// first, and never instead of a KO.
+	// threat line is counting down to. Twice a fight, and never instead of a
+	// KO. What it is NOT gated on any more is the crit flag: `lethal` means a
+	// CRIT kills, which at a wall is every turn, and that clause is why
+	// Synthesis fired zero times in nine Brawly attempts. healWorthIt asks
+	// the question the flag cannot — does the healed body survive the hit
+	// the current one dies to, and does the hit wait for the heal.
 	const heal = view.moves.find(entry => !entry.ball && HEAL_MOVES.has(entry.move));
-	if (heal && view.usHp > 0 && view.usHp <= 50 &&
-		view.risk !== 'lethal' && memory.healed < 2) {
+	if (heal && view.usHp > 0 && view.usHp <= 50 && memory.healed < 2 &&
+		(HEAL_CONTROL ? healWorthIt(view) : view.risk !== 'lethal')) {
 		memory.healed += 1;
 		return {kind: 'move', pick: {move: heal.move},
 			why: 'setting the trade back up with ' + heal.move};
