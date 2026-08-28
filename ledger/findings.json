@@ -1663,6 +1663,21 @@
 			"fixed_in": "20369fd",
 			"falsified": 0,
 			"evidence": "skipwall4-A-calibration.json, report-skipwall4-A-7.json: 11 Bayleef attack-turns at <=50% HP across nine Brawly attempts, all under a lethal-class threat, zero Synthesis presses; the win (eval index 40) lost 5 of 6 on pure variance. Fourth instance of the lethal-clause family after status, speed drops (isolated 50-0) and screens. Gate: tests/playthrough_policy.test.js 'a heal fires when the healed body changes the fight' — failed before the fix, passes after; --heal-control=0 preserves the old gate as the A/B control arm."
+		},
+		{
+			"id": "a-switch-under-pursuit-donates-the-ko",
+			"source": "review/philip",
+			"raised_on": "2026-08-27",
+			"severity": "medium",
+			"area": "play-policy",
+			"file": "scripts/ui-playthrough.js",
+			"line": 2185,
+			"claim": "The driver offered voluntary switches while the foe held Pursuit, which doubles on a switch-out and which the Run & Bun AI clicks on the prediction — a switch it kills hands over the exact KO the switch was meant to dodge. Raised by Philip after the skipwall4 A7 dig: the heal fix keeps a body alive in place, not in transit.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "fcde1cb",
+			"falsified": 0,
+			"evidence": "brpursuit1 (6 pairs, skip-walls shared, revision 75bddbe, VALID, QC PASS both arms): control switched under a killing-Pursuit sentence 5 times in 170 sentence-turns, treatment 0 in 181 — the guard removes the event entirely. Tally null at this n (0/6 Brawly both arms): the addressable event is ~5 per 120 wall attempts, because most Pursuit deaths (85 vs 76 in the batch) are finisher ticks on bodies staying in at single-digit HP, which is the preservation problem, not the switch problem. Gates: battle-driver prices the doubled catch; policy refuses the switch only under the sentence; both failed first."
 		}
 	]
 }
