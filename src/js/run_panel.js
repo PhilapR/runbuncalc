@@ -3201,7 +3201,10 @@
 						' · you need ' + race.turnsToKill + ' turn' +
 							(race.turnsToKill === 1 ? '' : 's') + ' to KO, they need ' +
 							race.turnsToDie + ' — ' +
-							(race.outcome === 'lose' ? 'YOU LOSE THIS RACE' : 'you win it')) +
+							(race.outcome === 'lose' ? 'YOU LOSE THIS RACE' : 'you win it') +
+							// Who acts first decides whether a body the next
+							// hit kills gets its attack off before it goes.
+							(race.faster === false ? ' · they act first' : '')) +
 					// Only when the doubled catch kills: a Pursuit the body
 					// walks away from is not a warning worth a sentence.
 					(threat.pursuit && threat.pursuit.kills ?

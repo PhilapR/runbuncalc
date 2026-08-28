@@ -2289,15 +2289,19 @@ function decide(view, memory, roster) {
 		return {kind: 'move', pick: {move: heal.move},
 			why: 'setting the trade back up with ' + heal.move};
 	}
-	// The hit kills us, we cannot KO first, and a healthy body is waiting:
-	// bank the chip. Staying in trades the whole body for one more attack;
-	// leaving keeps a finisher for the tail of the fight, which is where A7's
-	// win came from. Only a BADLY chipped body (35% and under) — at 45%
-	// against a 47% hit the trade is still fair — and only behind a body
-	// healthy enough (50%+) that this is a bank and not a shuffle. The
-	// Pursuit guard above already closed this door when leaving is the death.
+	// The hit kills us, THEY ACT FIRST, and a healthy body is waiting: bank
+	// the chip, because it dies before its attack either way. brbank1
+	// falsified the broad version of this rule — banking every body a hit
+	// could kill donated two free hits an attempt, robbed 2.4 attacks, and
+	// the chips died on re-entry anyway (foes downed fell 3.60 to 2.79 per
+	// attempt, our deaths unchanged). The one case the diagnosis left
+	// standing is the body that never gets its attack: staying in loses the
+	// body AND the turn, so the free hit the switch concedes costs nothing
+	// extra. The engine says who acts first on the threat line; without the
+	// sentence the body stays and trades. The Pursuit guard above already
+	// closed this door when leaving is the death.
 	if (BANK_BODIES && !pursuitCaught && view.usHp > 0 && view.usHp <= 35 &&
-		memory.banked < 3) {
+		memory.banked < 3 && / they act first/.test(view.threat || '')) {
 		const named = /Their hardest hit: (.+?) (\d+)%/.exec(view.threat || '');
 		const killed = named && Number(named[2]) >= view.usHp;
 		if (killed) {
@@ -2306,7 +2310,7 @@ function decide(view, memory, roster) {
 				memory.banked += 1;
 				return {kind: 'switch', pick: fresh,
 					why: 'banking the body — ' + named[1].trim() +
-						' kills it, and the tail of the fight needs it'};
+						' kills it before it acts'};
 			}
 		}
 	}

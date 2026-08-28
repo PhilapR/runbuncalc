@@ -712,11 +712,11 @@ test('a switch is refused when Pursuit would kill the body on the way out', () =
 });
 
 test('a body the next hit kills is banked, not spent on a finisher tick', () => {
-	// The measured death economy at Brawly: bodies fight to single-digit HP
-	// and die to 5% ticks, 700+ deaths a batch, while A7's one win came from
-	// a 24% Seadra banked early and brought back to finish Scraggy. When the
-	// incoming hit kills us, we cannot KO first, and a healthy body waits,
-	// the chip is worth more later than the one attack it would trade for.
+	// brbank1 falsified the broad version — banking every killable body cost
+	// 2.4 attacks an attempt and the chips died on re-entry anyway. What
+	// survives is the body that dies BEFORE it acts: they move first and the
+	// hit covers us, so staying in loses the body and the turn both, and the
+	// free hit the switch concedes costs nothing the stay would not.
 	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
 		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
 		slowed: new Set(), healed: 0, banked: 0});
@@ -729,14 +729,21 @@ test('a body the next hit kills is banked, not spent on a finisher tick', () => 
 		// the plain hit, not the crit flag and not their matchup.
 		risk: 'thin',
 		threat: 'Their hardest hit: Mach Punch 47% — 69% on a crit · a crit KOs you ' +
-			'· you need 2 turns to KO, they need 1 — you win it',
+			'· you need 2 turns to KO, they need 1 — you win it · they act first',
 		moves: [{move: 'Tackle', damage: '12%+', title: '12–15%'}],
 		switches: [{id: 'x1', label: 'Marill 100%'}],
 	};
 
 	const banked = policy.decide(base, memory(), []);
-	assert.equal(banked.kind, 'switch', 'the hit kills it and the body banks');
+	assert.equal(banked.kind, 'switch', 'dead before acting, so the body banks');
 	assert.match(banked.why, /banking/, 'and says so');
+
+	// We act first: the chip gets its attack before it goes, which is a fair
+	// trade brbank1 proved is better kept. It stays.
+	const faster = policy.decide(Object.assign({}, base, {
+		threat: base.threat.replace(' · they act first', ''),
+	}), memory(), []);
+	assert.notEqual(faster.kind, 'switch', 'a body that acts first trades, not banks');
 
 	// Still healthy enough to trade: a 45% body against a 47% hit is a fair
 	// spend, not a chip worth banking.
