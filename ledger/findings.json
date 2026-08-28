@@ -1736,6 +1736,21 @@
 			"fixed_in": "4648ae1",
 			"falsified": 0,
 			"evidence": "Fix: rollIdentity({perfectIvs: 3}) picks the stats from the same draw stream (replay holds), /run/identity passes 3 for its whole scripted-gift class (starter, gift, static, trade — split the class if the hack does). Gates at lib and server level, both failed first. Measured at the gym walls via counterfactual starter-3iv (gymcf3): 0/30, 0/30, 1/30 — identical to baseline, because one corrected body does not move a six-death wall (whole-box max IVs moves Wattson to 15/30). The correction matters where the starter IS the run: the early game before the box fills, which the battery cannot price and the browser loop can. Every banked run predates the fix and keeps its recorded under-rolled facts."
+		},
+		{
+			"id": "the-rival-took-the-wrong-starter",
+			"source": "review/philip",
+			"raised_on": "2026-08-28",
+			"severity": "high",
+			"area": "data",
+			"file": "profiles/run-and-bun/encounters.js",
+			"line": 240,
+			"claim": "The model gave the rival the Hoenn ace the PLAYER beats (vanilla Emerald friendly direction: Turtwig -> Swampert). Operator ruling: Run & Bun rival counters your pick (Turtwig -> Blaziken, Chimchar -> Swampert, Piplup -> Sceptile). Every run that declared a starter carried the wrong rival: wrong spine variants for every rival fight, wrong level-cap anchor trainers at the rival bosses (Cycling Road L38, Route 119 L66, Lilycove L73), wrong playbooks and matchup boards for those fights.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "e418ec1",
+			"falsified": 0,
+			"evidence": "Undocumented in the official 1.07 dump: Trainer Battles.txt lists all three variants of each rival fight with no selection rule, and Mechanic Changes.txt (read end to end) never states it — a direction error in careful data, unfalsifiable by any source the repo held. Fixed by ruling: STARTERS field renamed beats -> rival with flipped values; play.js, ask.js, template, panel follow; the direction pins in ask, play and browser_run failed against the corrected code first. Banked runs keep their recorded wrong rival as historical fact. Related sweep the same day: gift IVs are likewise undocumented everywhere (locations workbook scanned sheet by sheet, mechanics, AI doc, learnsets, tracker lua, public docs) — the starter 3-perfect rule and this direction are both operator rulings, recorded as such."
 		}
 	]
 }
