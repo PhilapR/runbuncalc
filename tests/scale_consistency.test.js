@@ -187,3 +187,26 @@ test('the run map and the engine agree on every double battle', () => {
 	assert.deepEqual(disagree, [],
 		'every fight the engine flags as doubles must be doubles on the map');
 });
+
+test('every dated ledger item is served by exactly one collect surface', () => {
+	// The Heart Scales sat dated-but-unserved for a week; then the held items;
+	// then the stones; then 28 Mega Stones were still orphaned. The pattern is
+	// one hole at a time, so this closes the class: every dated row of the
+	// item ledger must be reachable — sold at a mart (shopItems), standing on
+	// a route (fieldItems), or deduplicated into the curated availability row
+	// that names the same item at the same place. Undated rows stay honestly
+	// unserved: a place that cannot say when cannot be offered.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const ledger = require('../profiles/run-and-bun/oracle/item-locations.json');
+	const shop = new Set(oracle.shopItems().map(row => row.name + '|' + row.location));
+	const field = new Set(oracle.fieldItems().map(row => row.name + '|' + row.location));
+	const curated = new Set(availability.items.map(row =>
+		row.name + '|' + String(row.location || '').slice(0, 12)));
+	const orphans = ledger.entries
+		.filter(row => row.opensAt !== null && row.opensAt !== undefined)
+		.filter(row => !shop.has(row.name + '|' + row.location) &&
+			!field.has(row.name + '|' + row.location) &&
+			!curated.has(row.name + '|' + String(row.location || '').slice(0, 12)))
+		.map(row => row.kind + '/' + row.name);
+	assert.deepEqual(orphans, [], 'a dated item nobody can collect is a hole, not a policy');
+});

@@ -665,7 +665,7 @@ function fieldItems() {
 		const taken = new Set(curated.map(row =>
 			row.name + '|' + String(row.location || '').slice(0, 12)));
 		const fromLedger = ledger
-			.filter(row => ['heart-scale', 'rare-candy', 'held', 'berry'].includes(row.kind) &&
+			.filter(row => ['heart-scale', 'rare-candy', 'held', 'berry', 'evolution', 'mega-stone'].includes(row.kind) &&
 				row.opensAt !== null && row.opensAt !== undefined &&
 				!/^Sold at /.test(row.location || '') &&
 				!taken.has(row.name + '|' + String(row.location || '').slice(0, 12)))
