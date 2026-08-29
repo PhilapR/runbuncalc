@@ -1790,8 +1790,10 @@
 			"line": 2484,
 			"claim": "Two Heart Scales sit on the corridor (Route 106 at order 25, Route 109 at 45, per the item ledger) but no run — browser or headless — ever acquired one: fieldItems, the flow both drivers sweep for pickups, does not serve the item ledger heart-scale rows, so the scale-investment advice (keyAnswer-marked heartScale upgrades) is structurally unexercisable before the corridor ends. Seventeen treatment runs across two instruments spent zero scales.",
 			"verdict": "confirmed",
-			"status": "open",
-			"evidence": "brkeys1/1b/2 (browser, 2 treatment runs) and hrkeys1/2 (headless, 15 treatment runs each): scaleSpends 0 everywhere while the advisor machinery is gated green in tests/fight_dossiers.test.js. What unblocks it: serve heart-scale ledger rows through the pickup flow (fieldItems or a sibling), or an acquire path keyed on the item ledger. Until then Phase 3 of the leader-keys plan is advice without ammunition."
+			"status": "fixed",
+			"evidence": "brkeys1/1b/2 (browser, 2 treatment runs) and hrkeys1/2 (headless, 15 treatment runs each): scaleSpends 0 everywhere while the advisor machinery is gated green in tests/fight_dossiers.test.js. What unblocks it: serve heart-scale ledger rows through the pickup flow (fieldItems or a sibling), or an acquire path keyed on the item ledger. Until then Phase 3 of the leader-keys plan is advice without ammunition. FIXED in d5cbce0 at every layer (oracle fieldItems serves ledger currencies; acquire gained a placed WHERE so one of thirty same-named scales crosses off alone; panel, browser driver and headless harness all collect). First verified spend: hrscale smoke, treatment run, 2 scales.",
+			"fixed_in": "d5cbce0",
+			"falsified": 0
 		}
 	]
 }
