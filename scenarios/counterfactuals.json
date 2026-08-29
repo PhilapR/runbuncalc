@@ -38,6 +38,18 @@
 			"seeds": 30
 		},
 		{
+			"name": "Leader Brawly · key-box",
+			"report": "ui-playthrough-out/counterfactual-brawly-key-box.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Brawly · key-box-max-ivs",
+			"report": "ui-playthrough-out/counterfactual-brawly-key-box-max-ivs.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
 			"name": "Leader Roxanne · baseline",
 			"report": "ui-playthrough-out/counterfactual-roxanne-baseline.json",
 			"trainer": "Leader Roxanne",
@@ -74,6 +86,18 @@
 			"seeds": 30
 		},
 		{
+			"name": "Leader Roxanne · key-box",
+			"report": "ui-playthrough-out/counterfactual-roxanne-key-box.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · key-box-max-ivs",
+			"report": "ui-playthrough-out/counterfactual-roxanne-key-box-max-ivs.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
 			"name": "Leader Wattson · baseline",
 			"report": "ui-playthrough-out/counterfactual-wattson-baseline.json",
 			"trainer": "Leader Wattson",
@@ -106,6 +130,18 @@
 		{
 			"name": "Leader Wattson · the-lot",
 			"report": "ui-playthrough-out/counterfactual-wattson-the-lot.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · key-box",
+			"report": "ui-playthrough-out/counterfactual-wattson-key-box.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · key-box-max-ivs",
+			"report": "ui-playthrough-out/counterfactual-wattson-key-box-max-ivs.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		}

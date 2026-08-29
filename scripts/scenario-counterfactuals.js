@@ -88,6 +88,33 @@ function fixStarterIvs(doc) {
 	}
 }
 
+/**
+ * The dossier's measured pick: the six period-catchable species that best
+ * answer this leader's whole team (scripts/leader-dossier.js names them from
+ * the engine's own matchup grid). Neutral nature, species-default ability,
+ * period IVs, last-four level-up moves — a box a player could actually go
+ * catch. This is the composition hypothesis with names on it.
+ */
+function keyBox(doc, trainer) {
+	const dossiers = JSON.parse(fs.readFileSync('ui-playthrough-out/leader-dossiers.json', 'utf8'));
+	const entry = dossiers.find(d => d.trainer === trainer);
+	if (!entry || !entry.keyBox) throw new Error('no dossier key box for ' + trainer);
+	const learnsets = require('../profiles/run-and-bun/oracle/learnsets.json');
+	const calc = require('../calc');
+	const box = entry.keyBox.map((species, index) => {
+		const rows = (learnsets.levelUp && learnsets.levelUp[species]) || [];
+		const moves = [...new Set(rows.filter(r => r[0] <= entry.cap).map(r => r[1]))].slice(-4);
+		const found = calc.Generations.get(8).species.get(calc.toID(species));
+		const ability = found && found.abilities ? Object.values(found.abilities)[0] : null;
+		return {id: 'key-' + (index + 1), species, nickname: null, level: entry.cap,
+			nature: 'Bashful', ability, item: null, moves,
+			ivs: {hp: 15, atk: 15, def: 15, spa: 15, spd: 15, spe: 15},
+			status: 'party', origin: {kind: 'counterfactual'}};
+	});
+	doc.box = box;
+	doc.party = box.map(mon => mon.id);
+}
+
 const VARIANTS = [
 	{name: 'baseline', mutate: () => {}},
 	{name: 'starter-3iv', mutate: fixStarterIvs},
@@ -95,6 +122,8 @@ const VARIANTS = [
 	{name: 'screens', mutate: teachScreens},
 	{name: 'slow', mutate: teachSlow},
 	{name: 'the-lot', mutate: doc => { maxIvs(doc); teachScreens(doc); teachSlow(doc); }},
+	{name: 'key-box', mutate: (doc, trainer) => keyBox(doc, trainer)},
+	{name: 'key-box-max-ivs', mutate: (doc, trainer) => { keyBox(doc, trainer); maxIvs(doc); }},
 ];
 
 function main() {
@@ -103,7 +132,7 @@ function main() {
 		const source = JSON.parse(fs.readFileSync(site.report, 'utf8'));
 		for (const variant of VARIANTS) {
 			const doc = structuredClone(source.run);
-			variant.mutate(doc);
+			variant.mutate(doc, site.trainer);
 			const file = path.join('ui-playthrough-out',
 				'counterfactual-' + site.gym + '-' + variant.name + '.json');
 			fs.writeFileSync(file, JSON.stringify({run: doc}, null, '\t'));
