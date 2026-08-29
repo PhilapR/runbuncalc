@@ -321,6 +321,10 @@ async function main() {
 		'--rules=encounters --box=22 --party=matrix --tms=advisor ' +
 		'--fights=90 --budget=480 --plan=1')).split(' ').filter(Boolean)
 		.concat(ARGV.passthrough);
+	// Read BEFORE the unread-flags check, or the check itself refuses a
+	// legitimate flag: `--isolate=0` was rejected as unrecognised for as long
+	// as its read sat below this line.
+	const isolate = flag('isolate', '1') !== '0';
 	const unrecognised = unreadOwnFlags();
 	if (unrecognised.length) {
 		console.error('ab: unrecognised argument(s) ' + unrecognised.join(' ') +
@@ -330,8 +334,7 @@ async function main() {
 
 	const startRevision = git(['rev-parse', 'HEAD']);
 	const startDirty = git(['status', '--porcelain']) !== '';
-	const isolate = flag('isolate', '1') !== '0';
-	// Refusing a dirty tree is right when the batch runs IN that tree, and
+		// Refusing a dirty tree is right when the batch runs IN that tree, and
 	// wrong when it does not. An isolated batch works from a worktree pinned to
 	// a committed revision, so uncommitted changes cannot reach it — the
 	// comparison can name its code exactly. Refusing anyway cost a valid run:
