@@ -124,3 +124,16 @@ test('a double battle travels the wire as skippable, and says it is a double', (
 	assert.equal(row.isDouble, true, 'and says it is a double');
 	assert.equal(row.skippable, true, 'and can be skipped past');
 });
+
+test('the shop travels the wire beside the status', () => {
+	// Stones fund every evolve row the advisor prices; a client that cannot
+	// see the shop cannot buy them. Same silent-omission class as fightNumber.
+	const api = require('../lib/run-api').api;
+	let doc = fresh().doc;
+	doc = run.apply(doc, {kind: 'beat', trainer: 'Guitarist Kirk'});
+	const reply = api.status({run: doc, upcomingCount: 2});
+	assert.ok(Array.isArray(reply.shop), 'the shop list rides the status reply');
+	const fire = reply.shop.find(item => item.name === 'Fire Stone');
+	assert.ok(fire, 'the open mart sells the Fire Stone');
+	assert.equal(fire.bought, false);
+});

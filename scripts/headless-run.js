@@ -64,6 +64,7 @@ function armFlags(spec) {
 	return {
 		keyCatches: flags['key-catches'] !== '0',
 		keyScales: flags['key-scales'] !== '0',
+		keyEvolve: flags['key-evolve'] !== '0',
 	};
 }
 
@@ -143,7 +144,18 @@ function sweepItems(doc, tally) {
 
 /** Teach and (treatment) scale-spend from the same advice the panel shows. */
 function followAdvice(doc, treatment, tally) {
-	for (let round = 0; round < 3; round++) {
+	// The marts first: a stone the bag holds is an evolve row the advisor
+	// can price. One buy per row, receipts in the log.
+	if (treatment.keyEvolve) {
+		try {
+			for (const item of run.shopItems(doc)) {
+				if (item.bought || item.kind !== 'evolution') continue;
+				doc = run.apply(doc, {kind: 'acquire', item: item.name, where: item.location});
+				tally.stoneBuys = (tally.stoneBuys || 0) + 1;
+			}
+		} catch (error) { /* a refused buy is a skipped buy */ }
+	}
+	for (let round = 0; round < 5; round++) {
 		let advice;
 		try {
 			advice = run.adviseUpgrades(doc);
@@ -151,13 +163,22 @@ function followAdvice(doc, treatment, tally) {
 			return doc;
 		}
 		const row = advice.upgrades.find(entry =>
-			entry.kind === 'teach' || (entry.kind === 'heartScale' && treatment.keyScales));
+			entry.kind === 'teach' ||
+			(entry.kind === 'heartScale' && treatment.keyScales) ||
+			(entry.kind === 'evolve' && treatment.keyEvolve) ||
+			(entry.kind === 'give' && entry.item));
 		if (!row) return doc;
 		try {
 			if (row.kind === 'teach') {
 				const move = /learn (.+?)(?:\s+\(|$)/.exec(row.detail);
 				if (!move) return doc;
 				doc = run.apply(doc, {kind: 'teach', id: row.id, move: move[1].trim()});
+			} else if (row.kind === 'evolve') {
+				doc = run.apply(doc, {kind: 'evolve', id: row.id});
+				tally.evolves = (tally.evolves || 0) + 1;
+			} else if (row.kind === 'give') {
+				doc = run.apply(doc, {kind: 'give', id: row.id, item: row.item});
+				tally.gives = (tally.gives || 0) + 1;
 			} else {
 				const stat = /^(HP|Attack|Defense|Sp\. Atk|Sp\. Def|Speed) IV/.exec(row.detail);
 				if (!stat) return doc;
@@ -211,6 +232,7 @@ function playRun(policy, starter, seed, treatment) {
 	doc = run.apply(doc, {kind: 'party', ids: [doc.box[0].id]});
 
 	const tally = {catches: 0, keyRolls: 0, scaleSpends: 0, pickups: 0,
+		stoneBuys: 0, evolves: 0, gives: 0,
 		trainers: {}, fights: 0};
 	const caughtFrom = new Set();
 	let attempts = 0;
@@ -276,6 +298,7 @@ function playRun(policy, starter, seed, treatment) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives,
 	};
 }
 
@@ -290,6 +313,8 @@ function summarise(rows) {
 		gaviWon: sum(r => r.gavi.wins), gaviAttempts: sum(r => r.gavi.attempts),
 		brawlyWon: sum(r => r.brawly.wins), brawlyAttempts: sum(r => r.brawly.attempts),
 		keyRolls: sum(r => r.keyRolls), scaleSpends: sum(r => r.scaleSpends),
+		stoneBuys: sum(r => r.stoneBuys || 0), evolves: sum(r => r.evolves || 0),
+		gives: sum(r => r.gives || 0),
 	};
 }
 
@@ -311,7 +336,9 @@ function main() {
 			console.log('  ' + arm + ' ' + (k + 1) + ' (' + row.starter + '): fight=' +
 				row.fight + ' gavi=' + row.gavi.wins + '/' + row.gavi.attempts +
 				' brawly=' + row.brawly.wins + '/' + row.brawly.attempts +
-				' keyRolls=' + row.keyRolls + ' scales=' + row.scaleSpends);
+				' keyRolls=' + row.keyRolls + ' scales=' + row.scaleSpends +
+				' stones=' + (row.stoneBuys || 0) + ' evolves=' + (row.evolves || 0) +
+				' gives=' + (row.gives || 0));
 		}
 	}
 	const a = summarise(rows.filter(r => r.arm === 'A'));
@@ -325,7 +352,8 @@ function main() {
 			'  beatBrawly=' + s.beatBrawly + '/' + s.runs +
 			'  gavi=' + s.gaviWon + '/' + s.gaviAttempts +
 			'  brawly=' + s.brawlyWon + '/' + s.brawlyAttempts +
-			'  keyRolls=' + s.keyRolls + '  scales=' + s.scaleSpends);
+			'  keyRolls=' + s.keyRolls + '  scales=' + s.scaleSpends +
+			'  stones=' + s.stoneBuys + '  evolves=' + s.evolves + '  gives=' + s.gives);
 	}
 	// Paired wins: per seed, which arm reached further.
 	let bFurther = 0, aFurther = 0, even = 0;

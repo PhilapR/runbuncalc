@@ -262,6 +262,11 @@ const KEY_CATCHES = flag('key-catches', '1') !== '0';
 // Spend Heart Scales the advisor's way. `0` leaves scale rows unapplied, as
 // the control arm of the same A/B.
 const KEY_SCALES = flag('key-scales', '1') !== '0';
+// Buy open evolution stock and act on the advisor's Evolve rows. The stone
+// probes measured the developed stone box at 16/30 vs Wattson — the best
+// wall result recorded — and every link but this one already existed in a
+// run. `0` is the control arm.
+const KEY_EVOLVE = flag('key-evolve', '1') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
@@ -1453,6 +1458,19 @@ async function prepareForThreshold(page) {
 }
 
 async function followAdvice(page, rounds) {
+	// The marts first: stones fund the evolve rows the advisor is about to
+	// price, and a row it cannot fund is a row it will not offer. Bounded by
+	// the panel itself — a bought row renders as a receipt, not a button.
+	if (KEY_EVOLVE) {
+		for (let buys = 0; buys < 20; buys++) {
+			const buy = await page.$('#runbun-run-shop .runbun-run-shop-buy');
+			if (!buy) break;
+			const item = await buy.getAttribute('data-item');
+			const bought = await act(page, 'buy ' + item, () => tap(buy));
+			if (!bought.changed) break;
+			note('run', 'bought ' + item + ' from the open mart');
+		}
+	}
 	for (let round = 0; round < (rounds || 3); round++) {
 		if (outOfTime()) return;
 		await page.evaluate(() => {
@@ -1564,6 +1582,18 @@ async function applyUpgrade(page, row) {
 			return false;
 		}
 		note('advise', row.who + ' spent a Heart Scale: ' + row.what);
+		return true;
+	}
+	if (/Evolve/.test(row.kind)) {
+		if (!KEY_EVOLVE) return false;
+		const evolved = await act(page, 'evolve ' + row.who,
+			() => press(page, '#runbun-run-evolve'));
+		if (!evolved.changed) {
+			note('advise', row.who + ' did not evolve — ' + evolved.status);
+			return false;
+		}
+		note('advise', row.who + ' evolved: ' + row.what +
+			'  (' + row.ko + ' ' + row.damage + ')');
 		return true;
 	}
 	if (/Give item/.test(row.kind)) {

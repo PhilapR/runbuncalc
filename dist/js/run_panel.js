@@ -1242,6 +1242,26 @@
 		$('#runbun-run-opportunities-fight').text(
 			opportunity.before.trainer || '#' + opportunity.before.order);
 
+		// The open marts. A bought row stays as its own receipt — one buy per
+		// row, because nothing models money and a free stone must not be an
+		// infinite one.
+		var $shop = $('#runbun-run-shop').empty();
+		(payload.shop || []).forEach(function (item) {
+			var $row = $('<li class="runbun-run-item"></li>')
+				.toggleClass('is-collected', item.bought)
+				.append($('<span class="runbun-run-item-name"></span>').text(item.name))
+				.append($('<span class="runbun-run-item-kind"></span>').text(item.kind));
+			if (item.bought) {
+				$row.append($('<span class="runbun-run-item-state"></span>').text('✓ bought'));
+			} else {
+				$row.append($('<button type="button" class="runbun-run-shop-buy"></button>')
+					.attr('data-item', item.name)
+					.attr('data-where', item.location)
+					.text('Buy ' + item.name));
+			}
+			$shop.append($row);
+		});
+
 		function preview(values, limit) {
 			var shown = values.slice(0, limit);
 			return shown.join(' · ') + (values.length > limit ? ' · +' + (values.length - limit) : '');
@@ -3776,6 +3796,11 @@
 		$('#runbun-run-map').on('change', showEncounters);
 		// One handler for every "Picked up" button — the items-here list and
 		// the split sheet's grab-list both record through the same acquire.
+		$('#runbun-run').on('click', '.runbun-run-shop-buy', function () {
+			var item = $(this).attr('data-item');
+			var where = $(this).attr('data-where');
+			command({kind: 'acquire', item: item, where: where || undefined});
+		});
 		$('#runbun-run').on('click', '.runbun-run-pickup-take', function () {
 			var item = $(this).attr('data-item');
 			// The place travels with the take: thirty Heart Scales share one

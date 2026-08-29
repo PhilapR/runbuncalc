@@ -656,12 +656,22 @@ function fieldItems() {
 		// cannot say when its item is reachable, and the collect surface
 		// must never offer what the road cannot.
 		const ledger = load('item-locations').entries || [];
-		const currencies = ledger
-			.filter(row => (row.kind === 'heart-scale' || row.kind === 'rare-candy') &&
-				row.opensAt !== null && row.opensAt !== undefined)
+		// Currencies, held items and berries — everything a route hands over.
+		// Sold-at rows are the SHOP's, not the road's, and 44 dated held rows
+		// sat here unserved, starving every Give-item advice row. Dedup
+		// against the curated availability rows by name+location prefix so
+		// one physical item never renders twice.
+		const curated = load('availability').items || [];
+		const taken = new Set(curated.map(row =>
+			row.name + '|' + String(row.location || '').slice(0, 12)));
+		const fromLedger = ledger
+			.filter(row => ['heart-scale', 'rare-candy', 'held', 'berry'].includes(row.kind) &&
+				row.opensAt !== null && row.opensAt !== undefined &&
+				!/^Sold at /.test(row.location || '') &&
+				!taken.has(row.name + '|' + String(row.location || '').slice(0, 12)))
 			.map(row => ({name: row.name, kind: row.kind,
 				location: row.location, opensAt: row.opensAt}));
-		cache.fieldItems = (load('availability').items || []).concat(currencies);
+		cache.fieldItems = curated.concat(fromLedger);
 	}
 	return cache.fieldItems;
 }
@@ -674,6 +684,18 @@ function fieldItems() {
  * scripts/import-fight-fields.js); a `note`-only entry (Route 129's erratic
  * weather) declares a condition that CANNOT be a static field.
  */
+/** Dated sold-at ledger rows: the marts the road has reached sell these. */
+function shopItems() {
+	if (!cache.shopItems) {
+		cache.shopItems = (load('item-locations').entries || [])
+			.filter(row => /^Sold at /.test(row.location || '') &&
+				row.opensAt !== null && row.opensAt !== undefined)
+			.map(row => ({name: row.name, kind: row.kind,
+				location: row.location, opensAt: row.opensAt}));
+	}
+	return cache.shopItems;
+}
+
 function fightFieldOf(trainer) {
 	if (!cache.fightFields) {
 		cache.fightFields = load('fight-fields').fields;
@@ -809,7 +831,7 @@ module.exports = {
 	unavailableNamesWithoutGrowthKey,
 	moveAvailability, moveItems,
 	currencySources,
-	fightFieldOf, itemsObtainableBy, fieldItems,
+	fightFieldOf, itemsObtainableBy, fieldItems, shopItems,
 	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp, catchRateOf,

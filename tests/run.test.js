@@ -3324,3 +3324,40 @@ test('a Heart Scale on the road reaches the bag, one instance at a time', () => 
 		.find(item => item.name === 'Heart Scale').collected, false,
 	'and the Route 109 scale is NOT — collected is per place, not per name');
 });
+
+test('the shop sells what the road has opened, and a stone can be bought once', () => {
+	// Stones are shop stock — "Sold at Mauville City Pokémon Mart", open at
+	// order 209 — so they can never ride the route-pickup flow, and without
+	// them every evolve row the advisor prices is unreachable in a run. The
+	// shop surface lists dated sold-at ledger rows the position has opened;
+	// buying is an acquire with a where, bounded to one per shop row because
+	// nothing models money yet and unbounded free stones would be a cheat,
+	// not a model.
+	let state = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+	]);
+	assert.equal(run.shopItems(state).length, 0,
+		'nothing is sold before the road reaches a mart');
+	state = run.apply(state, {kind: 'beat', trainer: 'Guitarist Kirk'});
+	const stock = run.shopItems(state);
+	const fire = stock.find(item => item.name === 'Fire Stone');
+	assert.ok(fire, 'the Mauville mart is open past order 209');
+	assert.equal(fire.bought, false);
+	state = run.apply(state, {kind: 'acquire', item: 'Fire Stone', where: fire.location});
+	assert.equal(state.bag['Fire Stone'], 1);
+	assert.equal(run.shopItems(state).find(item => item.name === 'Fire Stone').bought, true,
+		'a bought row says so, which is what bounds the driver to one');
+});
+
+test('the ledger\'s held items and berries are field pickups too', () => {
+	// The Give-item advice rows price held items the bag could never fund:
+	// 44 dated held rows sat in the ledger unserved, the same hole the Heart
+	// Scales came out of.
+	let state = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'},
+	]);
+	const r109 = run.fieldItems(state, 'Route109');
+	assert.ok(r109.some(item => item.kind === 'held'),
+		'Route 109 shows its ledger held item');
+});
