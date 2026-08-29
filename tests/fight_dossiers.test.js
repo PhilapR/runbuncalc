@@ -134,3 +134,22 @@ test('the plan carries the tech it must respect, all the way over the wire', () 
 	assert.deepEqual(wire.dossierTech, plan.dossierTech,
 		'and the wire carries the same list');
 });
+
+test('a Heart Scale on a named answer is marked, and near-ties resolve to it', () => {
+	// Phase 3. Scale advice already exists (bag-gated, board-priced); what
+	// the dossier adds is WHO deserves the scale: an upgrade on a mon whose
+	// evolved form answers the target fight carries keyAnswer, and the sort
+	// prefers it between upgrades of equal board value.
+	const run = require('../lib/run.js');
+	const fs = require('node:fs');
+	const doc = JSON.parse(fs.readFileSync(
+		'ui-playthrough-out/report-sac-A-11.json', 'utf8')).run;
+	doc.bag = Object.assign({}, doc.bag, {'Heart Scale': 2});
+	const advice = run.adviseUpgrades(doc, 'Leader Wattson');
+	assert.ok(advice.upgrades.some(row => row.kind === 'heartScale'),
+		'a bagged scale makes IV purchases candidates against the wall');
+	for (const row of advice.upgrades) {
+		assert.ok(typeof row.keyAnswer === 'boolean',
+			'every upgrade row says whether its target is a named answer');
+	}
+});

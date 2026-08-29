@@ -2371,8 +2371,12 @@
 			if (entry.delta.koGained > 0) koParts.push('+' + entry.delta.koGained);
 			if (entry.delta.koConceded > 0) koParts.push('-' + entry.delta.koConceded);
 			$list.append($('<li class="runbun-run-advice-row"></li>')
+				.toggleClass('is-key-answer', !!entry.keyAnswer)
 				.append($('<span class="runbun-run-advice-who"></span>')
-					.text(mon.species ? monLabel(mon) : 'Selected Pokémon'))
+					// A named answer for this fight, per the dossier: the body
+					// the plan itself says the investment belongs on.
+					.text((entry.keyAnswer ? 'KEY · ' : '') +
+						(mon.species ? monLabel(mon) : 'Selected Pokémon')))
 				.append($('<span class="runbun-run-advice-kind"></span>')
 					.text(kindLabels[entry.kind] || displayText(entry.kind)))
 				.append($('<span class="runbun-run-advice-what"></span>').text(entry.detail))
