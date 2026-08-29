@@ -42,6 +42,18 @@
 			"report": "ui-playthrough-out/strat-developed-wattson.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · stone-box",
+			"report": "ui-playthrough-out/strat-stones-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · stone-box-developed",
+			"report": "ui-playthrough-out/strat-stones-dev-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
 		}
 	]
 }

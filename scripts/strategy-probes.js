@@ -148,6 +148,34 @@ function main() {
 			trainer: boss, seeds: 30});
 	}
 
+	// Stone evolutions: all eight basic stones open at order 209, twenty
+	// fights before Wattson. No stone form enters his ANSWER lists (his
+	// answers are level-evolving Ground bodies), but stone forms are raw
+	// quality — and the developed stone box measured 16/30, the best wall
+	// result ever recorded, beating the real deep-run box at max IVs. The
+	// full chain is catch the pre-evolution, learn its moves, stone late,
+	// then develop against the wall.
+	const STONE_PRE = {Arcanine: 'Growlithe', Starmie: 'Staryu', Ludicolo: 'Lombre',
+		Kingdra: 'Seadra', Weavile: 'Sneasel', Gliscor: 'Gligar'};
+	let stoneDoc = boxDoc('ui-playthrough-out/counterfactual-wattson-baseline.json',
+		Object.keys(STONE_PRE), 35);
+	for (const entry of stoneDoc.box) {
+		entry.moves = dossier.lastFourMoves(STONE_PRE[entry.species], 35);
+	}
+	fs.writeFileSync('ui-playthrough-out/strat-stones-wattson.json',
+		JSON.stringify({run: stoneDoc}, null, '	'));
+	manifest.push({name: 'Leader Wattson · stone-box',
+		report: 'ui-playthrough-out/strat-stones-wattson.json',
+		trainer: 'Leader Wattson', seeds: 30});
+	const stoned = develop(structuredClone(stoneDoc), 'Leader Wattson',
+		fights.find(entry => entry.trainer === 'Leader Wattson').order);
+	console.log('Leader Wattson stone-developed:', JSON.stringify(stoned.applied));
+	fs.writeFileSync('ui-playthrough-out/strat-stones-dev-wattson.json',
+		JSON.stringify({run: stoned.doc}, null, '	'));
+	manifest.push({name: 'Leader Wattson · stone-box-developed',
+		report: 'ui-playthrough-out/strat-stones-dev-wattson.json',
+		trainer: 'Leader Wattson', seeds: 30});
+
 	fs.writeFileSync('scenarios/strategies.json', JSON.stringify({
 		comment: 'New-strategy probes: intimidate cycling, the giant-killer ' +
 			'Endeavor line, and the developed-choice ceiling. From ' +
