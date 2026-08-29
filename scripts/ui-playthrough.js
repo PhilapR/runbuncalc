@@ -254,6 +254,9 @@ const STALL_BREAK = flag('stall-break', '1') !== '0';
 // key species missed because its route was rolled last is a self-inflicted
 // loss. `0` keeps the old new-ground-in-list-order walk, as the control arm.
 const KEY_CATCHES = flag('key-catches', '1') !== '0';
+// Spend Heart Scales the advisor's way. `0` leaves scale rows unapplied, as
+// the control arm of the same A/B.
+const KEY_SCALES = flag('key-scales', '1') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
@@ -1531,6 +1534,7 @@ async function applyUpgrade(page, row) {
 	// advisor only offers the row while a scale is in the bag, and the
 	// server refusal (no scale, already 31) comes back on the status line.
 	if (/Heart Scale/.test(row.kind)) {
+		if (!KEY_SCALES) return false;
 		const stat = /^(HP|Attack|Defense|Sp\. Atk|Sp\. Def|Speed) IV/.exec(row.what);
 		if (!stat) return false;
 		const statKeys = {HP: 'hp', Attack: 'atk', Defense: 'def',
