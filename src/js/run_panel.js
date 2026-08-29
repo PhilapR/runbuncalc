@@ -1370,6 +1370,7 @@
 		routes.forEach(function (route) {
 			$routes.append($('<button type="button" class="runbun-run-route-choice"></button>')
 				.attr('data-map', route.map)
+				.attr('data-name', route.name)
 				.attr('aria-pressed', 'false')
 				.append($('<span class="runbun-run-route-choice-name"></span>')
 					.text(displayText(route.name)))
@@ -2347,6 +2348,7 @@
 			evolve: 'Evolve',
 			pickup: 'Pick up item',
 			give: 'Give item',
+			heartScale: 'Heart Scale',
 		};
 		payload.party.forEach(function (mon) { byId[mon.id] = mon; });
 		$('#runbun-run-advice-note').text(
@@ -2372,11 +2374,14 @@
 			if (entry.delta.koConceded > 0) koParts.push('-' + entry.delta.koConceded);
 			$list.append($('<li class="runbun-run-advice-row"></li>')
 				.toggleClass('is-key-answer', !!entry.keyAnswer)
+				// A named answer for this fight, per the dossier: the body the
+				// plan itself says the investment belongs on. Its own span —
+				// the driver maps `who` text back to a party label, so the
+				// marker must never ride inside it.
+				.append($('<span class="runbun-run-advice-key"></span>')
+					.text(entry.keyAnswer ? 'KEY' : ''))
 				.append($('<span class="runbun-run-advice-who"></span>')
-					// A named answer for this fight, per the dossier: the body
-					// the plan itself says the investment belongs on.
-					.text((entry.keyAnswer ? 'KEY · ' : '') +
-						(mon.species ? monLabel(mon) : 'Selected Pokémon')))
+					.text(mon.species ? monLabel(mon) : 'Selected Pokémon'))
 				.append($('<span class="runbun-run-advice-kind"></span>')
 					.text(kindLabels[entry.kind] || displayText(entry.kind)))
 				.append($('<span class="runbun-run-advice-what"></span>').text(entry.detail))
@@ -2588,7 +2593,11 @@
 			return;
 		}
 		payload.catches.forEach(function (entry) {
+			// Raw names on data attributes: the driver matches them against
+			// the route buttons' own raw names, never against display text.
 			var $row = $('<li class="runbun-run-scout-row"></li>')
+				.attr('data-area', entry.area)
+				.attr('data-key', entry.keyAnswer ? '1' : null)
 				.append($('<span class="runbun-run-scout-species"></span>')
 					.text(entry.species + ' L' + entry.level))
 				.append($('<span class="runbun-run-scout-where"></span>')

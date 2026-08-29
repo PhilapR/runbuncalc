@@ -248,6 +248,12 @@ const RACE_SENDS = flag('race-sends', '1') !== '0';
 // without a new low on the foe's HP is a dead line. `0` grinds forever, as
 // the control arm.
 const STALL_BREAK = flag('stall-break', '1') !== '0';
+// Roll the routes that hold the wall's NAMED ANSWERS first. The catch is
+// still the nuzlocke die — the choice this makes is only WHICH grass gets
+// rolled before which — but the dossier says whose grass matters, and a
+// key species missed because its route was rolled last is a self-inflicted
+// loss. `0` keeps the old new-ground-in-list-order walk, as the control arm.
+const KEY_CATCHES = flag('key-catches', '1') !== '0';
 // How a level-up teach chooses its victim. The old rule was options[0] —
 // whatever sat first in the replace select — which is how Spheal learned
 // Charm over Ice Ball 27 times and the advisor then bought the slot back 27
@@ -425,7 +431,10 @@ function readRun(page) {
 			routes: Array.from(document.querySelectorAll(
 				'#runbun-run-reachable .runbun-run-route-choice')).map(el => ({
 				map: el.getAttribute('data-map'),
-				name: (el.querySelector('.runbun-run-route-choice-name') || {}).textContent || '',
+				// The RAW name, matching the scout rows' data-area — display
+				// text is for humans and diverges on spacing.
+				name: el.getAttribute('data-name') ||
+					(el.querySelector('.runbun-run-route-choice-name') || {}).textContent || '',
 				action: (el.querySelector('.runbun-run-route-choice-action') || {}).textContent || '',
 			})),
 			party: run ? run.party.slice() : [],
@@ -633,8 +642,31 @@ async function takeEncounters(page) {
 	// came from the five starting areas, three each, while Route 104,
 	// Petalburg Woods and Granite Cave went untouched. A box of five Route 101
 	// species is why Rank kept reporting "unanswered" and kept being right.
-	const fresh = view.routes.filter(route => !caughtFrom.has(route.map));
+	let fresh = view.routes.filter(route => !caughtFrom.has(route.map));
 	if (!fresh.length) return [];
+	if (KEY_CATCHES && fresh.length > 1) {
+		// The scout prices every open prospect against the split boss and
+		// marks the dossier's named answers; its rows carry raw area names
+		// exactly so this sort can read them.
+		try {
+			await press(page, '#runbun-run-scout-btn');
+			await page.waitForFunction(() =>
+				document.querySelectorAll('#runbun-run-scout li').length > 0,
+			null, {timeout: 60000});
+			const keyAreas = new Set(await page.$$eval(
+				'#runbun-run-scout .runbun-run-scout-row[data-key="1"]',
+				els => els.map(el => el.getAttribute('data-area'))));
+			if (keyAreas.size) {
+				const named = fresh.filter(route => keyAreas.has(route.name));
+				if (named.length) {
+					note('run', 'rolling ' + named.map(route => route.name).join(', ') +
+						' first — the scout marks them as holding named answers for the wall');
+				}
+				fresh = fresh.slice().sort((a, b) =>
+					(keyAreas.has(b.name) ? 1 : 0) - (keyAreas.has(a.name) ? 1 : 0));
+			}
+		} catch (error) { /* no scout, no reordering — the walk still happens */ }
+	}
 	for (const route of fresh) {
 		if (outOfTime()) break;
 		const clicked = await page.$('#runbun-run-reachable .runbun-run-route-choice[data-map="' +
@@ -1494,6 +1526,25 @@ async function applyUpgrade(page, row) {
 			what: item[1], damage: row.damage});
 	}
 	if (!await selectMon(page, id)) return false;
+	// "HP IV 15 → 31" — the stat name is the first word of the detail, and
+	// the panel's own select + button is the same path a player walks. The
+	// advisor only offers the row while a scale is in the bag, and the
+	// server refusal (no scale, already 31) comes back on the status line.
+	if (/Heart Scale/.test(row.kind)) {
+		const stat = /^(HP|Attack|Defense|Sp\. Atk|Sp\. Def|Speed) IV/.exec(row.what);
+		if (!stat) return false;
+		const statKeys = {HP: 'hp', Attack: 'atk', Defense: 'def',
+			'Sp. Atk': 'spa', 'Sp. Def': 'spd', Speed: 'spe'};
+		await page.selectOption('#runbun-run-iv-stat', statKeys[stat[1]]);
+		const spent = await act(page, 'heart scale ' + row.who,
+			() => press(page, '#runbun-run-heartscale'));
+		if (!spent.changed) {
+			note('advise', row.who + ' kept its IVs — ' + spent.status);
+			return false;
+		}
+		note('advise', row.who + ' spent a Heart Scale: ' + row.what);
+		return true;
+	}
 	if (/Give item/.test(row.kind)) {
 		const item = (/^(.+?)(?: over .+)?$/.exec(row.what) || [])[1];
 		if (!item || notHoldable.has(item)) return false;
