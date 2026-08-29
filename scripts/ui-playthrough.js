@@ -684,6 +684,18 @@ async function takeEncounters(page) {
 			problem('encounters', 'no encounter table rendered for ' + route.map);
 			continue;
 		}
+		// Take every open field pickup this route shows before rolling — the
+		// Heart Scales included, which is what funds the scale advice. A
+		// player walks the grass and grabs what is lying there; seventeen
+		// treatment runs spent zero scales because no flow ever did this.
+		for (let takes = 0; takes < 6; takes++) {
+			const take = await page.$('#runbun-run .runbun-run-pickup-take');
+			if (!take) break;
+			const item = await take.getAttribute('data-item');
+			const took = await act(page, 'take ' + item, () => tap(take));
+			if (!took.changed) break;
+			note('run', 'picked up ' + item + ' on ' + route.map);
+		}
 		const roll = await act(page, 'roll ' + route.map,
 			() => press(page, '#runbun-run-roll'));
 		const showing = await page.evaluate(() => {

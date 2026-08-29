@@ -133,7 +133,7 @@ function sweepItems(doc, tally) {
 		for (const row of rows) {
 			if (!row.open || row.collected) continue;
 			try {
-				doc = run.apply(doc, {kind: 'acquire', item: row.name});
+				doc = run.apply(doc, {kind: 'acquire', item: row.name, where: row.location});
 				tally.pickups += 1;
 			} catch (error) { /* a refused acquire takes nothing */ }
 		}

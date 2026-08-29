@@ -647,7 +647,23 @@ function itemsObtainableBy(order) {
 
 /** The whole field-item ledger, location and all — the guided view's source. */
 function fieldItems() {
-	return load('availability').items || [];
+	if (!cache.fieldItems) {
+		// The 28 curated availability rows, PLUS the item ledger's dated
+		// currencies. Seventeen treatment runs across two instruments spent
+		// zero Heart Scales while two sat on the corridor, because this
+		// answer never served the ledger — the advisor priced scale
+		// purchases a bag could not fund. Only dated rows: an undated place
+		// cannot say when its item is reachable, and the collect surface
+		// must never offer what the road cannot.
+		const ledger = load('item-locations').entries || [];
+		const currencies = ledger
+			.filter(row => (row.kind === 'heart-scale' || row.kind === 'rare-candy') &&
+				row.opensAt !== null && row.opensAt !== undefined)
+			.map(row => ({name: row.name, kind: row.kind,
+				location: row.location, opensAt: row.opensAt}));
+		cache.fieldItems = (load('availability').items || []).concat(currencies);
+	}
+	return cache.fieldItems;
 }
 
 /**

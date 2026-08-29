@@ -3297,3 +3297,30 @@ test('a double battle is delayable: skip it, owe it, settle it late', () => {
 	assert.deepEqual(run.summarize(state).owed.map(o => o.trainer), ['Twins Gina And Mia'],
 		'and it stays owed until beaten');
 });
+
+test('a Heart Scale on the road reaches the bag, one instance at a time', () => {
+	// Seventeen treatment runs across two instruments spent zero scales while
+	// two sat on the corridor: fieldItems served availability's 28 curated
+	// rows and never the item ledger's currencies. And with thirty scales in
+	// the game all named alike, collected-tracking by NAME would mark the
+	// Route 109 scale taken the moment Route 106's was — so an acquire may
+	// now say WHERE, and only that instance is crossed off.
+	let state = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'},
+	]);
+	const r106 = run.fieldItems(state, 'Route106');
+	const scale106 = r106.find(item => item.name === 'Heart Scale');
+	assert.ok(scale106, 'the ledger scale on Route 106 is a field item now');
+	assert.equal(scale106.open, true, 'and the road there is open');
+	assert.equal(scale106.collected, false);
+
+	state = run.apply(state, {kind: 'acquire', item: 'Heart Scale', where: 'Route 106'});
+	assert.equal(state.bag['Heart Scale'], 1, 'the scale lands in the bag');
+	assert.equal(run.fieldItems(state, 'Route106')
+		.find(item => item.name === 'Heart Scale').collected, true,
+	'the taken instance is crossed off');
+	assert.equal(run.fieldItems(state, 'Route109')
+		.find(item => item.name === 'Heart Scale').collected, false,
+	'and the Route 109 scale is NOT — collected is per place, not per name');
+});

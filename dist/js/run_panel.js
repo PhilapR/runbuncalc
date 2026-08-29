@@ -1049,7 +1049,9 @@
 							(item.reachable ? '' : ' · from #' + item.opensAt)));
 				if (item.reachable) {
 					$row.append($('<button type="button" class="runbun-run-pickup-take"></button>')
-						.attr('data-item', item.name).text('Take ' + item.name));
+						.attr('data-item', item.name)
+						.attr('data-where', item.location)
+						.text('Take ' + item.name));
 				}
 				$pickups.append($row);
 			});
@@ -1861,7 +1863,9 @@
 					$row.append($('<span class="runbun-run-item-state"></span>').text('✓ collected'));
 				} else if (item.open) {
 					$row.append($('<button type="button" class="runbun-run-pickup-take"></button>')
-						.attr('data-item', item.name).text('Take ' + item.name));
+						.attr('data-item', item.name)
+						.attr('data-where', item.location)
+						.text('Take ' + item.name));
 				} else {
 					$row.append($('<span class="runbun-run-item-state"></span>')
 						.text('opens at #' + item.opensAt));
@@ -3774,9 +3778,13 @@
 		// the split sheet's grab-list both record through the same acquire.
 		$('#runbun-run').on('click', '.runbun-run-pickup-take', function () {
 			var item = $(this).attr('data-item');
-			command({kind: 'acquire', item: item}).then(function (accepted) {
-				if (accepted) showEncounters();
-			});
+			// The place travels with the take: thirty Heart Scales share one
+			// name, and only a placed acquire crosses off its own instance.
+			var where = $(this).attr('data-where');
+			command({kind: 'acquire', item: item, where: where || undefined})
+				.then(function (accepted) {
+					if (accepted) showEncounters();
+				});
 		});
 		$('#runbun-run-box-filter').on('input', function () {
 			if (lastStatus) renderBox(lastStatus);
