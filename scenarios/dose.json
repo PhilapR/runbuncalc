@@ -1,0 +1,53 @@
+{
+	"comment": "Heart Scale dose-response: k advisor-greedy IV purchases against the wall, then 30 seeds. Validates the scale-allocation math of 2026-08-29.",
+	"scenarios": [
+		{
+			"name": "Leader Wattson · 3 scales",
+			"report": "ui-playthrough-out/dose-wattson-3.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · 9 scales",
+			"report": "ui-playthrough-out/dose-wattson-9.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · 15 scales",
+			"report": "ui-playthrough-out/dose-wattson-15.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · 23 scales",
+			"report": "ui-playthrough-out/dose-wattson-28.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · 3 scales",
+			"report": "ui-playthrough-out/dose-roxanne-3.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · 9 scales",
+			"report": "ui-playthrough-out/dose-roxanne-9.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · 15 scales",
+			"report": "ui-playthrough-out/dose-roxanne-15.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · 15 scales",
+			"report": "ui-playthrough-out/dose-roxanne-28.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		}
+	]
+}
