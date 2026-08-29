@@ -52,6 +52,7 @@ Oracle datasets:
 - `catch-rates.json`: 2 species
 - `encounters.json`: 131 maps
 - `evolutions.json`: 435 species
+- `fight-dossiers.json`: 3 species
 - `fight-fields.json`: 35 fights
 - `growth.json`: 1114 species
 - `item-locations.json`: 235 entries
@@ -130,6 +131,7 @@ the reader's warning to verify before trusting.
 - `docs/EVALUATION.md` — 1222266 2026-08-19
 - `docs/FORK_MAP.md` — 98b4a50 2026-08-18
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
+- `docs/LEADER-KEYS.md` — d6905fc 2026-08-28
 - `docs/MODELLING-GAPS.md` — 563093e 2026-08-21
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
@@ -142,7 +144,7 @@ the reader's warning to verify before trusting.
 - `docs/WORST-CASE-PLANNING.md` — c6a8955 2026-08-19
 
 ## Test files
-`tests/ability_reconciliation.test.js` · `tests/adjudication_cost.test.js` · `tests/ask.test.js` · `tests/attempt_store.test.js` · `tests/availability-estimate.test.js` · `tests/battle-driver.test.js` · `tests/battle_contribution.test.js` · `tests/battle_view.test.js` · `tests/browser_calc_load.test.js` · `tests/browser_entrypoint.test.js` · `tests/browser_planner.test.js` · `tests/browser_run.test.js` · `tests/game-runtime-adapter.test.js` · `tests/inventory.test.js` · `tests/item_facts.test.js` · `tests/item_locations.test.js` · `tests/ledger.test.js` · `tests/mega_forms.test.js` · `tests/order_scales.test.js` · `tests/planner.test.js` · `tests/planning_review.test.js` · `tests/play.test.js` · `tests/playthrough_policy.test.js` · `tests/pokemon-bridge.test.js` · `tests/pokemon-provider-client.test.js` · `tests/provider-data.test.js` · `tests/recheck_findings.test.js` · `tests/rl-dataset.test.js` · `tests/rom-band.test.js` · `tests/run.test.js` · `tests/run_api.test.js` · `tests/run_history.test.js` · `tests/runbun_mechanics.test.js` · `tests/runbun_oracle.test.js` · `tests/runbun_policy.test.js` · `tests/runbun_sets.test.js` · `tests/runbun_species.test.js` · `tests/scale_consistency.test.js` · `tests/server.smoke.test.js` · `tests/sets_to_battle_state.test.js` · `tests/simulate.test.js` · `tests/team.test.js` · `tests/tm_sourcing.test.js` · `tests/trainer_orders.test.js` · `tests/ui_style.test.js` · `tests/worker-runtime.test.js` · `tests/worker.test.js`
+`tests/ability_reconciliation.test.js` · `tests/adjudication_cost.test.js` · `tests/ask.test.js` · `tests/attempt_store.test.js` · `tests/availability-estimate.test.js` · `tests/battle-driver.test.js` · `tests/battle_contribution.test.js` · `tests/battle_view.test.js` · `tests/browser_calc_load.test.js` · `tests/browser_entrypoint.test.js` · `tests/browser_planner.test.js` · `tests/browser_run.test.js` · `tests/fight_dossiers.test.js` · `tests/game-runtime-adapter.test.js` · `tests/inventory.test.js` · `tests/item_facts.test.js` · `tests/item_locations.test.js` · `tests/ledger.test.js` · `tests/mega_forms.test.js` · `tests/order_scales.test.js` · `tests/planner.test.js` · `tests/planning_review.test.js` · `tests/play.test.js` · `tests/playthrough_policy.test.js` · `tests/pokemon-bridge.test.js` · `tests/pokemon-provider-client.test.js` · `tests/provider-data.test.js` · `tests/recheck_findings.test.js` · `tests/rl-dataset.test.js` · `tests/rom-band.test.js` · `tests/run.test.js` · `tests/run_api.test.js` · `tests/run_history.test.js` · `tests/runbun_mechanics.test.js` · `tests/runbun_oracle.test.js` · `tests/runbun_policy.test.js` · `tests/runbun_sets.test.js` · `tests/runbun_species.test.js` · `tests/scale_consistency.test.js` · `tests/server.smoke.test.js` · `tests/sets_to_battle_state.test.js` · `tests/simulate.test.js` · `tests/team.test.js` · `tests/tm_sourcing.test.js` · `tests/trainer_orders.test.js` · `tests/ui_style.test.js` · `tests/worker-runtime.test.js` · `tests/worker.test.js`
 
 ## Prior art elsewhere (from ECOSYSTEM.json)
 
