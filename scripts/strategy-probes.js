@@ -119,7 +119,8 @@ function main() {
 		'Leader Roxanne': ['Staravia', 'Donphan', 'Hitmonchan', 'Hariyama', 'Buizel', 'Kadabra'],
 		'Leader Wattson': ['Staraptor', 'Donphan', 'Crustle', 'Bewear', 'Floatzel', 'Kadabra'],
 	};
-	for (const [boss, team] of Object.entries(KILLERS)) {
+	for (const boss of Object.keys(KILLERS)) {
+		const team = KILLERS[boss];
 		const gym = boss.split(' ')[1].toLowerCase();
 		const doc = boxDoc('ui-playthrough-out/counterfactual-' + gym + '-baseline.json',
 			team, CAPS[boss], {Dwebble: 'Sturdy', Donphan: 'Sturdy', Crustle: 'Sturdy'});
@@ -135,7 +136,8 @@ function main() {
 		'Leader Roxanne': ['Hariyama', 'Hitmonchan', 'Palpitoad', 'Sneasel', 'Sandshrew-Alola', 'Octillery'],
 		'Leader Wattson': ['Excadrill', 'Bewear', 'Rhydon', 'Krookodile', 'Mudsdale', 'Piloswine'],
 	};
-	for (const [boss, team] of Object.entries(choiceTeams)) {
+	for (const boss of Object.keys(choiceTeams)) {
+		const team = choiceTeams[boss];
 		const gym = boss.split(' ')[1].toLowerCase();
 		const fight = fights.find(entry => entry.trainer === boss);
 		let doc = boxDoc('ui-playthrough-out/counterfactual-' + gym + '-baseline.json',

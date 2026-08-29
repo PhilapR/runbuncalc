@@ -66,8 +66,9 @@ function lineOf(species) {
 	// evolves into the other's line, and evolveTo already canonicalises the
 	// caught form upward. Use the evolved form's line root by walking the
 	// evolutions table backwards once.
-	for (const [from, paths] of Object.entries(evolutions)) {
-		if ((paths || []).some(p => p.into === species)) return lineOf(from);
+	for (const from of Object.keys(evolutions)) {
+		const paths = evolutions[from] || [];
+		if (paths.some(p => p.into === species)) return lineOf(from);
 	}
 	return species;
 }

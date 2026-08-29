@@ -341,7 +341,7 @@ async function main() {
 
 	const startRevision = git(['rev-parse', 'HEAD']);
 	const startDirty = git(['status', '--porcelain']) !== '';
-		// Refusing a dirty tree is right when the batch runs IN that tree, and
+	// Refusing a dirty tree is right when the batch runs IN that tree, and
 	// wrong when it does not. An isolated batch works from a worktree pinned to
 	// a committed revision, so uncommitted changes cannot reach it — the
 	// comparison can name its code exactly. Refusing anyway cost a valid run:
