@@ -248,6 +248,11 @@ const RACE_SENDS = flag('race-sends', '1') !== '0';
 // without a new low on the foe's HP is a dead line. `0` grinds forever, as
 // the control arm.
 const STALL_BREAK = flag('stall-break', '1') !== '0';
+// The giant-killer line. Endeavor's floor prices at ~zero, so bestMove can
+// never surface the one move whose value explodes when we are hurt — zero
+// presses in the first strategy probe. Fire it when we are low, they are
+// high, and the cut is worth more than our best chip. `0` is the control.
+const ENDEAVOR_LINE = flag('endeavor-line', '1') !== '0';
 // Roll the routes that hold the wall's NAMED ANSWERS first. The catch is
 // still the nuzlocke die — the choice this makes is only WHICH grass gets
 // rolled before which — but the dossier says whose grass matters, and a
@@ -2462,6 +2467,18 @@ function decide(view, memory, roster) {
 					', and this one resists'};
 		}
 	}
+	// Cut a healthy foe down to our own HP. Only while the gap is wide (40+
+	// points), only from low health, and twice a fight — after the cut, the
+	// KO rules and priority finishers take over on a foe at our old HP.
+	if (ENDEAVOR_LINE && view.usHp > 0 && view.usHp <= 35 &&
+		(view.foeHp || 0) - view.usHp >= 40 && (memory.endeavored || 0) < 2) {
+		const endeavor = view.moves.find(entry => !entry.ball && entry.move === 'Endeavor');
+		if (endeavor) {
+			memory.endeavored = (memory.endeavored || 0) + 1;
+			return {kind: 'move', pick: {move: 'Endeavor'},
+				why: 'cutting them from ' + view.foeHp + '% to our ' + view.usHp + '% with Endeavor'};
+		}
+	}
 	// A line that stopped landing: ten turns without a new low on the foe is
 	// a stall (a healer outpacing the chip, a decayed attacker), and pressing
 	// the same best move again is how 342 Fire Blasts happened. Try a body
@@ -2679,7 +2696,7 @@ async function openFight(page) {
 async function playFight(page, plan, roster) {
 	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0,
 		sacked: 0, screens: new Set(), boosts: 0, slowed: new Set(), healed: 0,
-		banked: 0, stallTried: new Set(), progress: null};
+		banked: 0, stallTried: new Set(), progress: null, endeavored: 0};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {

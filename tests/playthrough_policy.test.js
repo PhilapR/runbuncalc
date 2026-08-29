@@ -850,3 +850,35 @@ test('ten turns of no progress on a foe breaks the line', () => {
 	})(), []);
 	assert.equal(blind.kind, 'move', 'the control arm keeps pressing');
 });
+
+test('a hurt body cuts a healthy foe down with Endeavor', () => {
+	// The giant-killer probe measured ZERO Endeavor presses in 8 fights: the
+	// engine floors variable damage at ~0, so bestMove never surfaces the
+	// one move whose value EXPLODES when we are hurt. The same shape as
+	// Icy Wind and the screens before it — a line the pricer cannot see.
+	// Fire when we are low, they are high, and the gap is worth a turn.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0, banked: 0, stallTried: new Set(),
+		progress: null, endeavored: 0});
+	const view = {
+		prompt: 'What will Staravia do?',
+		foe: 'Kubfu L20', usHp: 20, foeHp: 95, risk: 'thin',
+		threat: 'Their hardest hit: Brick Break 45% · survives a crit ' +
+			'· you need 4 turns to KO, they need 1 — you win it',
+		moves: [
+			{move: 'Endeavor', damage: '', title: 'Endeavor'},
+			{move: 'Wing Attack', damage: '22%+ up to 26%', title: 'Wing Attack 22–26%'},
+		],
+		switches: [],
+	};
+	const cut = policy.decide(view, memory(), []);
+	assert.equal(cut.pick.move, 'Endeavor', 'the gap is 75 points — cut it');
+	assert.match(cut.why, /Endeavor|cut/i);
+
+	// From health, or into an already-chipped foe, it is a wasted turn.
+	const healthy = policy.decide(Object.assign({}, view, {usHp: 80}), memory(), []);
+	assert.notEqual(healthy.pick.move, 'Endeavor');
+	const chipped = policy.decide(Object.assign({}, view, {foeHp: 30}), memory(), []);
+	assert.notEqual(chipped.pick.move, 'Endeavor');
+});

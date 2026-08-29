@@ -1,0 +1,47 @@
+{
+	"comment": "New-strategy probes: intimidate cycling, the giant-killer Endeavor line, and the developed-choice ceiling. From scripts/strategy-probes.js.",
+	"scenarios": [
+		{
+			"name": "Leader Brawly · intimidate-cycle",
+			"report": "ui-playthrough-out/strat-intimidate.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Brawly · giant-killer",
+			"report": "ui-playthrough-out/strat-giantkiller-brawly.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · giant-killer",
+			"report": "ui-playthrough-out/strat-giantkiller-roxanne.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · giant-killer",
+			"report": "ui-playthrough-out/strat-giantkiller-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Brawly · developed-choice",
+			"report": "ui-playthrough-out/strat-developed-brawly.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · developed-choice",
+			"report": "ui-playthrough-out/strat-developed-roxanne.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · developed-choice",
+			"report": "ui-playthrough-out/strat-developed-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		}
+	]
+}

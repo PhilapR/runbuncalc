@@ -42,7 +42,7 @@ function freshMemory() {
 	return {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0,
 		disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
 		slowed: new Set(), healed: 0, banked: 0,
-		stallTried: new Set(), progress: null};
+		stallTried: new Set(), progress: null, endeavored: 0};
 }
 
 /**
