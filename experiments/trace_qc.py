@@ -87,7 +87,10 @@ def audit(label: str) -> int:
         )
 
     expected_turns = sum(len(e.get("timeline") or []) for e in evaluations)
-    expected_events = sum(len(e.get("log") or []) for e in evaluations)
+    # MLflow drops span events past 128 per span; ingest writes at most 128
+    # and stamps transcript_truncated with the remainder. The full transcript
+    # always lives in the fights/NNN artifact, so QC expects the cap.
+    expected_events = sum(min(len(e.get("log") or []), 128) for e in evaluations)
     turn_spans = 0
     root_events = 0
     missing_attributes = 0

@@ -830,10 +830,17 @@ def _log_fight_traces(client, data: dict) -> None:
         # Reversal. (100% to Tirtouga)" belongs on the trace itself, not only
         # in a JSON artifact one more click away. Timestamps are the same
         # synthetic clock the spans use.
-        for k, line in enumerate(fight.get("log") or []):
+        # MLflow silently drops span events past 128 per span, which turned
+        # two 602-line marathon fights into a 948-event QC deficit. The
+        # trace carries the first 128 with an honest truncation attribute;
+        # the fights/NNN artifact always holds the whole transcript.
+        log_lines = fight.get("log") or []
+        for k, line in enumerate(log_lines[:128]):
             root.add_event(
                 SpanEvent(name=str(line)[:200], timestamp=start + k * 500_000)
             )
+        if len(log_lines) > 128:
+            root.set_attribute("transcript_truncated", str(len(log_lines) - 128))
         timeline = fight.get("timeline") or []
         for turn, state in enumerate(timeline):
             span = client.start_span(
