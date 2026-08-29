@@ -325,6 +325,13 @@ async function main() {
 	// legitimate flag: `--isolate=0` was rejected as unrecognised for as long
 	// as its read sat below this line.
 	const isolate = flag('isolate', '1') !== '0';
+	// The abort floor in whole GB. Three was calibrated for six parallel
+	// browser runs and their worktree; a sequential non-isolated batch needs
+	// a fraction of that headroom, and on a machine where another app's
+	// updater is eating the margin, the difference is whether the
+	// measurement happens at all. Two is the hard deck — below that macOS
+	// itself starts failing writes.
+	const floor = Math.max(2, Number(flag('floor', '3')) || 3);
 	const unrecognised = unreadOwnFlags();
 	if (unrecognised.length) {
 		console.error('ab: unrecognised argument(s) ' + unrecognised.join(' ') +
@@ -387,8 +394,8 @@ async function main() {
 	let next = 0;
 	const workers = Array.from({length: parallel}, async () => {
 		for (;;) {
-			if (freeGb() < 3) {
-				console.error('ABORT: under 3G free');
+			if (freeGb() < floor) {
+				console.error('ABORT: under ' + floor + 'G free');
 				return;
 			}
 			const spec = queue[next++];
