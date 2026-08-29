@@ -2888,6 +2888,19 @@ async function main() {
 			await followLead(page, plan);
 		}
 
+		// A double battle refuses to open — doubles are real doubles and this
+		// stack plays one active (operator ruling, 2026-08-28) — so the skip
+		// is pressed BEFORE the door rather than burning the retry budget on
+		// refusals. The panel marks the skip button of a doubles fight.
+		const doublesSkip = SKIP_WALLS ? await page.$(
+			'.runbun-run-up-skip[data-double="1"][data-trainer="' +
+			ready.nextTitle.replace(/^Face /, '') + '"]') : null;
+		if (doublesSkip) {
+			await tap(doublesSkip);
+			note('skip', 'skipped ' + ready.nextTitle.replace(/^Face /, '') +
+				' — a double battle, owed until doubles play exists');
+			continue;
+		}
 		let opened = await openFight(page);
 		if (!opened) {
 			// The one refusal a player can act on from the message alone.

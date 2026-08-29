@@ -1118,7 +1118,11 @@
 				// required-in-place fight, so the button never shows one.
 				.append(fight.skippable && !fight.skipped ?
 					$('<button type="button" class="runbun-run-up-skip"></button>')
-						.attr('data-trainer', fight.trainer).text('Skip for now') : null)
+						.attr('data-trainer', fight.trainer)
+						// A double battle refuses to open, so the driver skips
+						// it BEFORE the door; the attribute is how it knows.
+						.attr('data-double', fight.isDouble ? '1' : null)
+						.text('Skip for now') : null)
 				.append($('<button type="button" class="runbun-run-up-beat"></button>')
 					.attr('data-trainer', fight.trainer).text('Mark beaten')));
 			$list.append($row);

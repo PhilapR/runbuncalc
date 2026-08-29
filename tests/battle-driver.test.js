@@ -656,3 +656,14 @@ test('a forced replacement offers each candidate with its race priced', () => {
 	assert.ok(byId['player-3'].race, 'the hopeless candidate carries one too');
 	assert.equal(byId['player-3'].race.outcome, 'lose', 'a L5 Caterpie does not');
 });
+
+test('a double battle refuses to start as singles', () => {
+	// The operator's ruling: doubles are real doubles. Until the play stack
+	// runs two actives, pretending is worse than refusing — every past
+	// "win" against an And-spelled pair was adjudicated in the wrong mode.
+	// The run layer lets a doubles fight be skipped and owed instead.
+	const doc = docWith([{species: 'Skitty', map: 'Route101', level: 2}]);
+	assert.throws(() => driver.start(doc, 'Twins Gina And Mia', 7),
+		/double battle.*not modeled|doubles.*skip/i,
+		'a doubles fight must refuse play, naming the skip as the way past');
+});

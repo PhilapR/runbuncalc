@@ -104,3 +104,23 @@ test('the doc states the shapes it is gated on', () => {
 			'docs/RUN_API.md no longer states: ' + claim);
 	}
 });
+
+test('a double battle travels the wire as skippable, and says it is a double', () => {
+	// Doubles are real doubles (operator ruling, 2026-08-28): play refuses
+	// them, so the client must be OFFERED the skip — and the driver skips
+	// before the door only if the row says which fights are doubles. Both
+	// fields ride the status whitelist; dropping either is the same silent
+	// class as the fightNumber and thresholdThreats omissions before it.
+	const api = require('../lib/run-api').api;
+	const planner = require('../lib/planner');
+	const fights = planner.loadRunMap('run-and-bun');
+	const firstDouble = fights.find(fight => fight.isDouble);
+	const before = fights[fights.indexOf(firstDouble) - 1];
+	let doc = fresh().doc;
+	doc = run.apply(doc, {kind: 'beat', trainer: before.trainer});
+	const reply = api.status({run: doc, upcomingCount: 3});
+	const row = reply.upcoming.find(entry => entry.trainer === firstDouble.trainer);
+	assert.ok(row, 'the doubles fight is on the road');
+	assert.equal(row.isDouble, true, 'and says it is a double');
+	assert.equal(row.skippable, true, 'and can be skipped past');
+});

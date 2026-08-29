@@ -167,34 +167,23 @@ test('every fight-fields key is a label the run map actually uses', () => {
 	assert.deepEqual(orphans, [], 'a fight-fields key must name a real fight');
 });
 
-test('the label-derived isDouble disagrees with the engine on a DECLARED list only', () => {
-	// The run map derives isDouble from `trainer.includes('&')`, but the
-	// game spells many pairs "And" — and the engine's own flag says eighteen
-	// fights we plan as singles are doubles, Leader Juan and the Route 119
-	// rival among them. Whether to model them as doubles is an open ruling;
-	// until then the gap is DECLARED, so a new disagreement (or a fixed one)
-	// fails here instead of hiding in the pile.
-	const KNOWN_SINGLES_THAT_ARE_DOUBLES = [
-		'Elite Four PhoebeDouble', 'Elite Four SidneyDouble', 'Leader Juan',
-		'Old Couple John And Jay', 'Sis And Bro Lila And Roy',
-		'Sis And Bro Reli And Ian', 'Sr. And Jr. Anna And Meg',
-		'Sr. And Jr. Kim And Iris', 'Sr. And Jr. Tyra And Ivy',
-		'Trainer Rival Bridge Blaziken', 'Trainer Rival Bridge Sceptile',
-		'Trainer Rival Bridge Swampert', 'Twins Amy And Liv',
-		'Twins Gina And Mia', 'Twins Miu And Yuki', 'Twins Tori And Tia',
-		'Young Couple Brian And Casey', 'Young Couple Dez And Luke',
-	];
+test('the run map and the engine agree on every double battle', () => {
+	// The '&' convention alone missed eighteen doubles the game spells "And"
+	// or fields from one trainer — Leader Juan, the Route 119 rival, both
+	// Elite Four Double variants. The profile's DOUBLES_FORMAT list closed
+	// the gap (operator ruling 2026-08-28: doubles are real doubles), and
+	// this holds the two sources at zero disagreement: a new engine flag or
+	// a renamed label fails here, not in a wrong-mode forecast.
 	const rows = Object.values(trainerOrders).find(value =>
 		Array.isArray(value) && value.length > 50);
 	const disagree = rows
 		.filter(row => row.isDouble !== undefined && row.isDouble !== null)
 		.filter(row => {
-			const fight = orderOf.has(row.trainer) &&
-				fights.find(entry => entry.trainer === row.trainer);
+			const fight = fights.find(entry => entry.trainer === row.trainer);
 			return fight && fight.isDouble !== row.isDouble;
 		})
 		.map(row => row.trainer)
 		.sort();
-	assert.deepEqual(disagree, KNOWN_SINGLES_THAT_ARE_DOUBLES,
-		'an isDouble disagreement must be declared here, in both directions');
+	assert.deepEqual(disagree, [],
+		'every fight the engine flags as doubles must be doubles on the map');
 });

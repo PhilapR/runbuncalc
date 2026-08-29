@@ -291,6 +291,26 @@ const MILESTONE_PATTERN =
  * tests/scale_consistency.test.js pins battles/lastOrder to the live map so
  * a map edit cannot ship without bumping the id here.
  */
+/**
+ * Fights the game plays in DOUBLES format that the '&' label convention
+ * cannot see: single trainers who field two at once (Leader Juan, the Route
+ * 119 rival boss, the Elite Four Double variants) and pairs the map spells
+ * "And". Transcribed from the engine database's own isDouble flags, which
+ * mark exactly these eighteen; the reconciliation gate in
+ * tests/scale_consistency.test.js holds the two sources at zero
+ * disagreement. The run map ORs this set with the '&' convention.
+ */
+const DOUBLES_FORMAT = new Set([
+	'Elite Four PhoebeDouble', 'Elite Four SidneyDouble', 'Leader Juan',
+	'Old Couple John And Jay', 'Sis And Bro Lila And Roy',
+	'Sis And Bro Reli And Ian', 'Sr. And Jr. Anna And Meg',
+	'Sr. And Jr. Kim And Iris', 'Sr. And Jr. Tyra And Ivy',
+	'Trainer Rival Bridge Blaziken', 'Trainer Rival Bridge Sceptile',
+	'Trainer Rival Bridge Swampert', 'Twins Amy And Liv',
+	'Twins Gina And Mia', 'Twins Miu And Yuki', 'Twins Tori And Tia',
+	'Young Couple Brian And Casey', 'Young Couple Dez And Luke',
+]);
+
 const ORDER_SCALE = {
 	id: 'route103-wally-2026-08-28',
 	battles: 366,
@@ -326,5 +346,5 @@ const LEVEL_CAPS = [
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,
 	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN, RIVAL_ACES, STARTERS,
-	LEVEL_CAPS, ORDER_SCALE,
+	LEVEL_CAPS, ORDER_SCALE, DOUBLES_FORMAT,
 };

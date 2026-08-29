@@ -1,5 +1,5 @@
 {
-	"comment": "Post-Brawly scenario battery: banked run documents at a spread of depths, each fighting the next trainers on its own road. Curated 2026-08-28 from the ui-playthrough-out archive.",
+	"comment": "Post-Brawly scenario battery: banked run documents at a spread of depths, each fighting the next trainers on its own road. Curated 2026-08-28 from the ui-playthrough-out archive. Double battles are excluded (operator ruling 2026-08-28: doubles are real doubles, and play refuses them until two-active play exists).",
 	"scenarios": [
 		{
 			"name": "Leader Brawly @26",
@@ -18,12 +18,6 @@
 			"report": "ui-playthrough-out/report-sac-A-11.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
-		},
-		{
-			"name": "School Kid Jerry & Johnson @36",
-			"report": "ui-playthrough-out/report-brheal1-B-2.json",
-			"trainer": "School Kid Jerry & Johnson",
-			"seeds": 20
 		},
 		{
 			"name": "Bug Catcher Jose @37",
@@ -47,12 +41,6 @@
 			"name": "Breeder Isaac @53",
 			"report": "ui-playthrough-out/report-forecast-today-M-6.json",
 			"trainer": "Breeder Isaac",
-			"seeds": 20
-		},
-		{
-			"name": "Sr. And Jr. Anna And Meg @54",
-			"report": "ui-playthrough-out/report-forecast-today-M-6.json",
-			"trainer": "Sr. And Jr. Anna And Meg",
 			"seeds": 20
 		},
 		{
@@ -80,9 +68,9 @@
 			"seeds": 20
 		},
 		{
-			"name": "Pokéfan Miguel @78",
+			"name": "Pok\u00e9fan Miguel @78",
 			"report": "ui-playthrough-out/report-flannery-3.json",
-			"trainer": "Pokéfan Miguel",
+			"trainer": "Pok\u00e9fan Miguel",
 			"seeds": 20
 		},
 		{

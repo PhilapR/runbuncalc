@@ -3285,3 +3285,15 @@ test('a scripted gift rolls its three guaranteed perfect IVs', () => {
 	const wild = run.rollIdentity('Torchic', stream([0.1]));
 	assert.equal(Object.values(wild.ivs).filter(v => v === 31).length, 0);
 });
+
+test('a double battle is delayable: skip it, owe it, settle it late', () => {
+	// Doubles are real doubles (operator ruling, 2026-08-28), and the play
+	// stack cannot run them yet — so the road must be allowed to go around
+	// them the way it goes around Camper Gavi: skipped, visible as owed,
+	// settled whenever they fall.
+	const state = run.apply(fresh({onePerRoute: true}),
+		{kind: 'skip', trainer: 'Twins Gina And Mia', for: 'doubles play is not modeled yet'});
+	assert.ok((state.skipped || []).length, 'the doubles fight can be declared skipped');
+	assert.deepEqual(run.summarize(state).owed.map(o => o.trainer), ['Twins Gina And Mia'],
+		'and it stays owed until beaten');
+});
