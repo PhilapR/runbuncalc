@@ -78,9 +78,28 @@ function playScenario(policy, doc, trainer, seed) {
 	return {result: 'stuck', turns: 400, deaths: null};
 }
 
+/**
+ * A banked document pairs its stored orders with trainers resolved against
+ * the CURRENT map; on a stale scale the position silently means a different
+ * road. Refuse rather than misread — the 2026-08-28 insertion is why the
+ * stamp exists.
+ */
+function requireScale(doc) {
+	const profile = require('../profiles').getProfile(doc.profileId);
+	const scale = profile.encounters && profile.encounters.ORDER_SCALE;
+	if (!scale) return doc;
+	if (doc.orderScale !== scale.id) {
+		throw new Error('this document\'s orders are on scale ' +
+			(doc.orderScale ? JSON.stringify(doc.orderScale) : '(unstamped)') +
+			' but the map is on ' + JSON.stringify(scale.id) +
+			' — migrate the document before playing it');
+	}
+	return doc;
+}
+
 function runScenario(policy, scenario) {
 	const report = JSON.parse(fs.readFileSync(scenario.report, 'utf8'));
-	const doc = report.run;
+	const doc = requireScale(report.run);
 	const seeds = scenario.seeds || 20;
 	const out = {name: scenario.name, trainer: scenario.trainer,
 		report: path.basename(scenario.report), position: doc.position,
@@ -130,4 +149,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playScenario, runScenario, freshMemory};
+module.exports = {playScenario, runScenario, freshMemory, requireScale};

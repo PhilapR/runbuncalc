@@ -95,14 +95,18 @@ const MOVE_DATE_RULINGS = {
 			'separate area the map table dates on its own.',
 	},
 	'Smart Strike': {
-		order: 56,
+		// By LABEL, not by raw order: the prose always defined this date as
+		// "the first fight past Route 110", and that fight has a name the map
+		// resolves — so the ruling survives a map insertion the way a stored
+		// integer (53, then 56) did not.
+		anchorTrainer: 'Team Aqua Grunt Museum #1',
 		why: 'Philip, from play: fine to date, and Mauville City is right after ' +
-			'Route 110. Route 110 sits at 51 and 56 is the first fight past it, ' +
-			'which is the same snap the Route 109 override uses. Mauville City ' +
-			'is absent from maps() because that list comes from the encounters ' +
-			'file and the town has no wild encounters, so there is no anchor to ' +
-			'inherit. Philip has said he will correct this if it is wrong; it ' +
-			'gates one TM rather than a route.',
+			'Route 110 — the first fight past it is the museum\'s first grunt, ' +
+			'and his label is the anchor. Mauville City is absent from maps() ' +
+			'because that list comes from the encounters file and the town has ' +
+			'no wild encounters, so there is no map anchor to inherit. Philip ' +
+			'has said he will correct this if it is wrong; it gates one TM ' +
+			'rather than a route.',
 	},
 };
 
@@ -123,7 +127,20 @@ function applyMoveDateRulings(availability) {
 
 		let order = null;
 		let place = null;
-		if (ruling.anchor !== undefined) {
+		if (ruling.anchorTrainer !== undefined) {
+			// A fight label resolves through the live map, so the date moves
+			// WITH the map — the form every ruling should take when the moment
+			// it describes is a fight rather than a place.
+			const fight = require('../lib/planner').loadRunMap('run-and-bun')
+				.find(entry => entry.trainer === ruling.anchorTrainer);
+			if (!fight) {
+				throw new Error('adopt: ' + move + ' is anchored to ' +
+					JSON.stringify(ruling.anchorTrainer) +
+					', which names no fight of the run map — the label rotted and this needs a human');
+			}
+			order = fight.order;
+			place = ruling.anchorTrainer;
+		} else if (ruling.anchor !== undefined) {
 			const anchor = (availability.entries || [])
 				.find(entry => entry.name === ruling.anchor);
 			if (!anchor || typeof anchor.opensAt !== 'number') {
@@ -146,7 +163,16 @@ function applyMoveDateRulings(availability) {
 			}
 		}
 
-		if (row.opensAt === order) continue;
+		if (row.opensAt === order) {
+			// Same date, drifted words: the number-only skip is how three raw
+			// orders froze inside correction prose across a map migration.
+			if (row.correction !== ruling.why || row.place !== place) {
+				row.correction = ruling.why;
+				row.place = place;
+				dated.push(move + ' prose refreshed at ' + order);
+			}
+			continue;
+		}
 		if (typeof row.opensAt === 'number') {
 			throw new Error('adopt: ' + move + ' is dated ' + row.opensAt +
 				' upstream but ruled to ' + order +

@@ -282,6 +282,21 @@ const MILESTONE_PATTERN =
  * it plays under `cap`. Rival rows carry the triplet's PREFIX and its last
  * variant's order, so the boundary holds whichever rival a run declares.
  */
+/**
+ * The order scale this map's numbers live on, named so a document can say
+ * which vintage its stored orders belong to. The 2026-08-28 insertion left
+ * 240 banked documents stranded on the previous scale with nothing but a
+ * hand-added tag nothing read; now createRun stamps every document with
+ * this id, readers of banked documents refuse a mismatch, and the gate in
+ * tests/scale_consistency.test.js pins battles/lastOrder to the live map so
+ * a map edit cannot ship without bumping the id here.
+ */
+const ORDER_SCALE = {
+	id: 'route103-wally-2026-08-28',
+	battles: 366,
+	lastOrder: 1625,
+};
+
 const LEVEL_CAPS = [
 	{trainer: 'Team Aqua Grunt Petalburg Woods', order: 22, cap: 12},
 	{trainer: 'Team Aqua Grunt Museum #2', order: 59, cap: 17},
@@ -311,5 +326,5 @@ const LEVEL_CAPS = [
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,
 	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN, RIVAL_ACES, STARTERS,
-	LEVEL_CAPS,
+	LEVEL_CAPS, ORDER_SCALE,
 };

@@ -83,14 +83,22 @@ test('a ruled move follows its anchor map, and an unruled one still answers null
 	const orderOf = name => (availability.entries || [])
 		.find(entry => entry.name === name).opensAt;
 
+	const planner = require('../lib/planner');
+	const fightOrderOf = name => planner.loadRunMap('run-and-bun')
+		.find(fight => fight.trainer === name).order;
 	for (const move of Object.keys(adopt.MOVE_DATE_RULINGS)) {
 		const ruling = adopt.MOVE_DATE_RULINGS[move];
-		// A ruling names a place OR an order, never both and never neither.
-		assert.notEqual(ruling.anchor === undefined, ruling.order === undefined,
-			`${move} must be ruled from an anchor map or from an explicit order`);
-		const expected = ruling.anchor === undefined ? ruling.order : orderOf(ruling.anchor);
+		// A ruling names a place, a fight, or an order — exactly one of them.
+		const forms = [ruling.anchor, ruling.anchorTrainer, ruling.order]
+			.filter(value => value !== undefined).length;
+		assert.equal(forms, 1,
+			`${move} must be ruled from exactly one of: anchor map, anchor trainer, explicit order`);
+		const expected = ruling.anchor !== undefined ? orderOf(ruling.anchor) :
+			ruling.anchorTrainer !== undefined ? fightOrderOf(ruling.anchorTrainer) :
+				ruling.order;
 		assert.equal(at(move), expected,
-			`${move} is ruled to ${ruling.anchor || ruling.order}, and must report that order`);
+			`${move} is ruled to ${ruling.anchor || ruling.anchorTrainer || ruling.order}, ` +
+			'and must report that order');
 		assert.match(adopt.MOVE_DATE_RULINGS[move].why, /^Philip, from play:/,
 			'a ruling names the person who supplied the game knowledge');
 	}
@@ -180,4 +188,51 @@ test('and once that fight is beaten, its reward becomes advice', () => {
 	assert.equal(profile.oracle.moveObtainableAt('Seismic Toss'), 80);
 	const advice = run.adviseUpgrades(doc, 'Leader Roxanne');
 	assert.ok(advice.considered > 60, 'candidates: ' + advice.considered);
+});
+
+test('a trainer-anchored ruling derives its order from the label and refreshes stale prose', () => {
+	// The Route 103 insertion audit's lesson: rulings written against LABELS
+	// survived the map change untouched; the one written as a raw order (Smart
+	// Strike, 53) had to be hand-shifted, and its prose froze at the old
+	// numbers because the idempotence check compared only the number. Smart
+	// Strike is now anchored to the trainer its why-prose always described,
+	// and a ruled row whose prose has drifted gets it rewritten in place.
+	const adopt = require('../scripts/adopt-availability.js');
+	const clone = () => JSON.parse(JSON.stringify(
+		require('../profiles/run-and-bun/oracle/availability.json')));
+
+	const ruling = adopt.MOVE_DATE_RULINGS['Smart Strike'];
+	assert.equal(ruling.anchorTrainer, 'Team Aqua Grunt Museum #1',
+		'Smart Strike is anchored to the first fight past Route 110, by label');
+	assert.equal(ruling.order, undefined, 'and carries no raw order to rot');
+
+	// The label resolves through the live map, so the committed row agrees.
+	const planner = require('../lib/planner');
+	const museum = planner.loadRunMap('run-and-bun')
+		.find(fight => fight.trainer === 'Team Aqua Grunt Museum #1');
+	const row = clone().moveItems.find(entry => entry.move === 'Smart Strike');
+	assert.equal(row.opensAt, museum.order);
+
+	// A renamed anchor refuses, the same as a vanished map anchor.
+	const renamed = clone();
+	renamed.moveItems.find(entry => entry.move === 'Smart Strike').opensAt = null;
+	const broken = Object.assign({}, ruling, {anchorTrainer: 'No Such Trainer'});
+	const saved = adopt.MOVE_DATE_RULINGS['Smart Strike'];
+	adopt.MOVE_DATE_RULINGS['Smart Strike'] = broken;
+	try {
+		assert.throws(() => adopt.applyMoveDateRulings(renamed),
+			/names no fight of the run map/,
+			'a rotted trainer label must refuse, not guess');
+	} finally {
+		adopt.MOVE_DATE_RULINGS['Smart Strike'] = saved;
+	}
+
+	// Frozen prose thaws: same order, stale correction text -> rewritten.
+	const stale = clone();
+	stale.moveItems.find(entry => entry.move === 'Smart Strike').correction = 'old words';
+	const out = adopt.applyMoveDateRulings(stale);
+	assert.ok(out.some(line => /Smart Strike.*prose/.test(line)),
+		'the refresh is reported, not silent');
+	assert.equal(stale.moveItems.find(entry => entry.move === 'Smart Strike').correction,
+		ruling.why, 'and the row carries the ruling\'s current words');
 });

@@ -875,7 +875,7 @@
 			"dating": "unlock",
 			"transcribedOpensAt": null,
 			"provenance": "corrected",
-			"correction": "Philip, from play: fine to date. The NPC is inside Rusturf Tunnel and nothing further gates the gift, so the tunnel's own order is the move's. 145 already sits above the Rock Smash floor at 139."
+			"correction": "Philip, from play: fine to date. The NPC is inside Rusturf Tunnel and nothing further gates the gift, so the tunnel's own order is the move's. 148 already sits above the Rock Smash floor at 142."
 		},
 		{
 			"name": "TM40",
@@ -891,12 +891,12 @@
 			"move": "Smart Strike",
 			"kind": "tm",
 			"location": "Mauville City. Sold at Lilycove Department Store",
-			"place": null,
+			"place": "Team Aqua Grunt Museum #1",
 			"opensAt": 56,
 			"dating": "unlock",
 			"transcribedOpensAt": null,
 			"provenance": "corrected",
-			"correction": "Philip, from play: fine to date, and Mauville City is right after Route 110. Route 110 sits at 48 and 53 is the first fight past it, which is the same snap the Route 109 override uses. Mauville City is absent from maps() because that list comes from the encounters file and the town has no wild encounters, so there is no anchor to inherit. Philip has said he will correct this if it is wrong; it gates one TM rather than a route."
+			"correction": "Philip, from play: fine to date, and Mauville City is right after Route 110 — the first fight past it is the museum's first grunt, and his label is the anchor. Mauville City is absent from maps() because that list comes from the encounters file and the town has no wild encounters, so there is no map anchor to inherit. Philip has said he will correct this if it is wrong; it gates one TM rather than a route."
 		},
 		{
 			"name": "TM29",

@@ -1766,6 +1766,19 @@
 			"fixed_in": "c9ee0e4",
 			"falsified": 0,
 			"evidence": "Restored with a full-scale migration (+3 from the start, +2 more past old-206) across fourteen order-bearing stores, ~40 test pins in eleven files, and 240 banked run documents (position, skipped, orderScale stamp). The insertion surfaced two latent defects, both fixed in the same commit: the engine-row scan in build-trainer-order-map.js started at 1 against a 0-based database (row 0 is the rival's Treecko — the off-by-one was invisible exactly as long as the fight was missing from our side), and availability.json stores the HM gate twice (methods vs hmMoves) with nothing comparing the copies — surf slots opened five fights early for half a day mid-migration. tests/scale_consistency.test.js now gates membership, the twice-stored HM gate, label-derived LEVEL_CAPS and badge tiers, and engine row zero; each gate failed on injected drift before being trusted. The id-scale audit (workflow, 24 agents) that ran alongside is the standing inventory: rulings and stores that reference trainer LABELS survived the insertion untouched; every store of raw orders needed hand migration."
+		},
+		{
+			"id": "eighteen-doubles-are-planned-as-singles",
+			"source": "review/id-scale-audit",
+			"raised_on": "2026-08-28",
+			"severity": "high",
+			"area": "engine",
+			"file": "lib/planner.js",
+			"line": 104,
+			"claim": "The run map derives isDouble from trainer.includes(&), but the game spells most pairs And — and the engine database's own isDouble flag marks eighteen fights we plan and adjudicate as singles as doubles: Leader Juan, both Elite Four Double variants, the Route 119 rival boss (all three variants), and thirteen And-spelled pairs. Every forecast, playbook and battery result for those fights is computed in the wrong battle mode.",
+			"verdict": "confirmed",
+			"status": "open",
+			"evidence": "Measured 2026-08-28 by joining trainer-orders.json engine isDouble flags against the map's label-derived flag: 128 engine rows carry the flag, 18 disagree, all in the same direction (engine says double, label says single). The list is DECLARED in tests/scale_consistency.test.js so it cannot grow or shrink silently. What blocks the fix is a modeling decision, not code: whether the doubles engine mode is trusted for planning these fights, and how the driver plays a 2-active battle (decide() is single-active). Until ruled, the declared list is the honest state."
 		}
 	]
 }

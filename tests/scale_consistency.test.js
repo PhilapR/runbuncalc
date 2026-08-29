@@ -119,3 +119,82 @@ test('every fight of the run map can actually be started', () => {
 	}
 	assert.deepEqual(broken, [], 'every fight must be startable');
 });
+
+test('the profile declares its order scale, and every run wears it from birth', () => {
+	// The insertion left 240 banked documents stranded on an old scale, and
+	// the only thing that said so was a hand-added tag nothing read. Now the
+	// profile DECLARES the scale, the declaration must match the live map
+	// (so a map edit cannot ship without bumping the id), and createRun
+	// stamps every new document with it.
+	const run = require('../lib/run.js');
+	const scale = encounters.ORDER_SCALE;
+	assert.ok(scale && scale.id, 'the profile names its order scale');
+	assert.equal(scale.battles, fights.length,
+		'the declared battle count must match the map — bump the scale id when the map changes');
+	assert.equal(scale.lastOrder, fights[fights.length - 1].order,
+		'and so must the last order');
+	const doc = run.createRun({name: 'stamp', now: 't0'});
+	assert.equal(doc.orderScale, scale.id, 'a new run is stamped at birth');
+	// The banked archive was hand-stamped with this exact id during the
+	// migration, so declaring it here retroactively blesses those documents.
+	assert.equal(scale.id, 'route103-wally-2026-08-28');
+});
+
+test('the scenario battery refuses a document from another scale', () => {
+	// A banked doc pairs its position with trainers resolved against the
+	// CURRENT map; on a stale scale the position silently means a different
+	// road. The battery is the main consumer of banked documents, so it
+	// refuses rather than misreads.
+	const battery = require('../scripts/scenario-battery.js');
+	const run = require('../lib/run.js');
+	const doc = run.createRun({name: 'probe', now: 't0'});
+	doc.orderScale = 'some-older-map-2026-01-01';
+	assert.throws(() => battery.requireScale(doc),
+		/some-older-map-2026-01-01.*route103-wally-2026-08-28|scale/,
+		'a mismatched scale is a refusal, not a misread');
+	delete doc.orderScale;
+	assert.throws(() => battery.requireScale(doc), /scale/,
+		'an unstamped document is refused the same way');
+});
+
+test('every fight-fields key is a label the run map actually uses', () => {
+	// The one oracle file whose consumers join purely on the label string had
+	// no coverage at all: a renamed trainer would silently drop its weather
+	// or terrain. All 35 keys resolve today; this keeps it that way.
+	const fightFields = require('../profiles/run-and-bun/oracle/fight-fields.json');
+	const labels = new Set(fights.map(fight => fight.trainer));
+	const orphans = Object.keys(fightFields.fields).filter(key => !labels.has(key));
+	assert.deepEqual(orphans, [], 'a fight-fields key must name a real fight');
+});
+
+test('the label-derived isDouble disagrees with the engine on a DECLARED list only', () => {
+	// The run map derives isDouble from `trainer.includes('&')`, but the
+	// game spells many pairs "And" — and the engine's own flag says eighteen
+	// fights we plan as singles are doubles, Leader Juan and the Route 119
+	// rival among them. Whether to model them as doubles is an open ruling;
+	// until then the gap is DECLARED, so a new disagreement (or a fixed one)
+	// fails here instead of hiding in the pile.
+	const KNOWN_SINGLES_THAT_ARE_DOUBLES = [
+		'Elite Four PhoebeDouble', 'Elite Four SidneyDouble', 'Leader Juan',
+		'Old Couple John And Jay', 'Sis And Bro Lila And Roy',
+		'Sis And Bro Reli And Ian', 'Sr. And Jr. Anna And Meg',
+		'Sr. And Jr. Kim And Iris', 'Sr. And Jr. Tyra And Ivy',
+		'Trainer Rival Bridge Blaziken', 'Trainer Rival Bridge Sceptile',
+		'Trainer Rival Bridge Swampert', 'Twins Amy And Liv',
+		'Twins Gina And Mia', 'Twins Miu And Yuki', 'Twins Tori And Tia',
+		'Young Couple Brian And Casey', 'Young Couple Dez And Luke',
+	];
+	const rows = Object.values(trainerOrders).find(value =>
+		Array.isArray(value) && value.length > 50);
+	const disagree = rows
+		.filter(row => row.isDouble !== undefined && row.isDouble !== null)
+		.filter(row => {
+			const fight = orderOf.has(row.trainer) &&
+				fights.find(entry => entry.trainer === row.trainer);
+			return fight && fight.isDouble !== row.isDouble;
+		})
+		.map(row => row.trainer)
+		.sort();
+	assert.deepEqual(disagree, KNOWN_SINGLES_THAT_ARE_DOUBLES,
+		'an isDouble disagreement must be declared here, in both directions');
+});
