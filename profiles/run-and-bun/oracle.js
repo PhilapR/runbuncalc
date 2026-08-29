@@ -772,7 +772,23 @@ function unavailableNamesWithoutGrowthKey() {
 	return UNAVAILABLE_UNJOINED.slice();
 }
 
+/**
+ * The precomputed fight dossier: threat metrics, tech flags and named
+ * answers, built offline by scripts/build-fight-dossiers.js so a runtime
+ * consumer pays a dictionary lookup. Null for a trainer the map does not
+ * know — a consumer treats that as "no dossier", never as an error.
+ */
+let DOSSIER_INDEX = null;
+function fightDossierOf(trainer) {
+	if (!DOSSIER_INDEX) {
+		const doc = require('./oracle/fight-dossiers.json');
+		DOSSIER_INDEX = new Map(doc.fights.map(row => [row.trainer, row]));
+	}
+	return DOSSIER_INDEX.get(trainer) || null;
+}
+
 module.exports = {
+	fightDossierOf,
 	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
 	unavailableNamesWithoutGrowthKey,
 	moveAvailability, moveItems,

@@ -83,3 +83,54 @@ test('the rows carry the shape the consumers read, with the known anchors', () =
 		}
 	}
 });
+
+test('the catch advisor reads the dossier: named answers surface and outrank', () => {
+	// Phase 2 of the leader-keys plan. The advisor already prices every
+	// prospect against the target fight, but its sort counts KOs without
+	// asking who survives the reply — the dossier's answer criterion does.
+	// A prospect whose evolved-at-cap form is on the target's answer list is
+	// flagged and outranks everything, and the payload names the list so
+	// the panel can say WHY.
+	const profiles = require('../profiles');
+	const oracleLayer = profiles.getProfile('run-and-bun').oracle;
+	const row = oracleLayer.fightDossierOf('Leader Wattson');
+	assert.ok(row && row.keyBox.includes('Excadrill'),
+		'the oracle accessor serves the Wattson row');
+	assert.equal(oracleLayer.fightDossierOf('No Such Trainer'), null,
+		'an unknown trainer answers null, never throws');
+
+	const run = require('../lib/run.js');
+	const fs = require('node:fs');
+	const doc = JSON.parse(fs.readFileSync(
+		'ui-playthrough-out/report-sac-A-11.json', 'utf8')).run;
+	const advice = run.adviseCatches(doc, 'Leader Wattson');
+	assert.ok(Array.isArray(advice.keyAnswers) && advice.keyAnswers.includes('Excadrill'),
+		'the advice names the answer list it consulted');
+	for (const row2 of advice.catches) {
+		assert.ok(typeof row2.keyAnswer === 'boolean',
+			'every catch row says whether it is a named answer');
+	}
+	const firstMiss = advice.catches.findIndex(entry => !entry.keyAnswer);
+	const lastHit = advice.catches.map(entry => entry.keyAnswer).lastIndexOf(true);
+	if (firstMiss !== -1 && lastHit !== -1) {
+		assert.ok(lastHit < firstMiss || advice.catches[firstMiss - 1].keyAnswer !== false,
+			'named answers sort before everything that is not one');
+	}
+});
+
+test('the plan carries the tech it must respect, all the way over the wire', () => {
+	// The whitelist is the silent-omission trap that ate fightNumber and
+	// thresholdThreats before it: the field must survive /run/plan, not just
+	// planNext.
+	const run = require('../lib/run.js');
+	const api = require('../lib/run-api').api;
+	const fs = require('node:fs');
+	const doc = JSON.parse(fs.readFileSync(
+		'ui-playthrough-out/report-sac-A-11.json', 'utf8')).run;
+	const plan = run.planNext(doc, {trainer: 'Leader Wattson'});
+	assert.ok(plan.dossierTech.some(line => /Magnezone: Sturdy, Custap Berry/.test(line)),
+		'the plan names the Sturdy+Custap trap');
+	const wire = api.plan({run: doc, trainer: 'Leader Wattson'});
+	assert.deepEqual(wire.dossierTech, plan.dossierTech,
+		'and the wire carries the same list');
+});

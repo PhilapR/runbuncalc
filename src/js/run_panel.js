@@ -2257,6 +2257,11 @@
 				}).join(', ') + ' — the samples under-price pinch moves, keep a faster ' +
 					'finisher or chip damage in hand';
 			}
+			// The kit's declared tech, from the fight-dossier oracle: the
+			// punishes a plan must respect before any move choice matters.
+			if (result.dossierTech && result.dossierTech.length) {
+				caution += ' · TECH: ' + result.dossierTech.join(' · ');
+			}
 			$('#runbun-run-plan-verdict').text((
 				result.confidence === 'contested' ?
 					result.trainer + ' — contested by ' + result.margin + '. Plan for both.' :
@@ -2586,6 +2591,7 @@
 					.text(displayText(entry.name) + ' · ' + entry.chance + '%' +
 						(entry.method === 'walk' ? '' : ' ' + entry.method)))
 				.append($('<span class="runbun-run-scout-ko"></span>')
+					.toggleClass('is-key-answer', !!entry.keyAnswer)
 					.toggleClass('is-ko', entry.newAnswers > 0)
 					.toggleClass('is-ko-trade', entry.kosConceded > 0)
 					.attr('title', 'Could KO ' + entry.kos + ' of their ' + payload.enemies +
@@ -2593,7 +2599,8 @@
 							' your party currently cannot' : '') +
 						(entry.kosConceded ? '; ' + entry.kosConceded +
 							' of theirs would KO it back' : ''))
-					.text((entry.newAnswers ? '+' + entry.newAnswers + ' new · ' : '') +
+					.text((entry.keyAnswer ? 'KEY · ' : '') +
+						(entry.newAnswers ? '+' + entry.newAnswers + ' new · ' : '') +
 						'KOs ' + entry.kos + '/' + payload.enemies +
 						(entry.kosConceded ? ' · KOd by ' + entry.kosConceded : '')));
 			$list.append($row);
