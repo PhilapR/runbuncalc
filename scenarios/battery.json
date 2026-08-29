@@ -1,5 +1,26 @@
 {
 	"comment": "Post-Brawly scenario battery: banked run documents at a spread of depths, each fighting the next trainers on its own road. Curated 2026-08-28 from the ui-playthrough-out archive. Double battles are excluded (operator ruling 2026-08-28: doubles are real doubles, and play refuses them until two-active play exists).",
+	"generator": null,
+	"measured": [
+		{
+			"label": "battery1",
+			"measured_in": "841fbe9",
+			"date": "2026-08-28",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "battery1-nostall",
+			"measured_in": "841fbe9",
+			"date": "2026-08-28",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "battery2-stall",
+			"measured_in": "841fbe9",
+			"date": "2026-08-28",
+			"verdict": "reconstructed"
+		}
+	],
 	"scenarios": [
 		{
 			"name": "Leader Brawly @26",
@@ -68,9 +89,9 @@
 			"seeds": 20
 		},
 		{
-			"name": "Pok\u00e9fan Miguel @78",
+			"name": "Pokéfan Miguel @78",
 			"report": "ui-playthrough-out/report-flannery-3.json",
-			"trainer": "Pok\u00e9fan Miguel",
+			"trainer": "Pokéfan Miguel",
 			"seeds": 20
 		},
 		{

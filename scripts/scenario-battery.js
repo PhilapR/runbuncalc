@@ -27,6 +27,7 @@
  * the policy module reads the same argv this script was launched with.
  */
 
+const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -36,6 +37,32 @@ const viewOf = require('../lib/battle-view.js').viewOf;
 function flag(name, fallback) {
 	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
 	return hit ? hit.split('=').slice(1).join('=') : fallback;
+}
+
+/**
+ * What code produced these numbers. ab.js has recorded this from its first
+ * batch; the battery did not, and every batch before 2026-08-29 had its
+ * revision reconstructed from file mtimes against the git log — the weak
+ * form ingest.py labels "reconstructed". Recording it here is what lets a
+ * manifest's `measured` stamp be checked instead of trusted, and `dirty` is
+ * the honest asterisk: this repo's habit is to run first and commit after,
+ * so the stamp in the manifest names the commit that CARRIES the batch, not
+ * this revision.
+ */
+function provenance() {
+	const git = args => {
+		try {
+			return childProcess.execFileSync('git', args,
+				{cwd: path.join(__dirname, '..'), encoding: 'utf8'}).trim();
+		} catch (error) {
+			return null;
+		}
+	};
+	return {
+		revision: git(['rev-parse', 'HEAD']),
+		dirty: git(['status', '--porcelain']) !== '',
+		date: new Date().toISOString(),
+	};
 }
 
 function freshMemory() {
@@ -143,7 +170,8 @@ function main() {
 	}
 	const outPath = path.join('ui-playthrough-out', label + '-battery.json');
 	fs.writeFileSync(outPath, JSON.stringify({label, results,
-		argv: process.argv.slice(2)}, null, '\t'));
+		argv: process.argv.slice(2), manifest: manifest || null,
+		provenance: provenance()}, null, '\t'));
 	console.log('\nwrote ' + outPath);
 }
 

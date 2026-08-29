@@ -1,5 +1,14 @@
 {
 	"comment": "Best assemblable teams under table-choice encounters (one catch per route, dupes clause respected), from scripts/choice-teams.js. A win rate here prices the CHOICE rule itself against rolled boxes.",
+	"generator": "scripts/choice-teams.js",
+	"measured": [
+		{
+			"label": "choice1",
+			"measured_in": "572a5d1",
+			"date": "2026-08-29",
+			"verdict": "reconstructed"
+		}
+	],
 	"scenarios": [
 		{
 			"name": "Leader Brawly · choice-team",

@@ -1,5 +1,14 @@
 {
 	"comment": "Heart Scale dose-response: k advisor-greedy IV purchases against the wall, then 30 seeds. Validates the scale-allocation math of 2026-08-29.",
+	"generator": "scripts/scale-dose.js",
+	"measured": [
+		{
+			"label": "dose1",
+			"measured_in": "c9f1791",
+			"date": "2026-08-29",
+			"verdict": "reconstructed"
+		}
+	],
 	"scenarios": [
 		{
 			"name": "Leader Wattson · 3 scales",

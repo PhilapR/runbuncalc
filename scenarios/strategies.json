@@ -1,5 +1,34 @@
 {
 	"comment": "New-strategy probes: intimidate cycling, the giant-killer Endeavor line, and the developed-choice ceiling. From scripts/strategy-probes.js.",
+	"generator": "scripts/strategy-probes.js",
+	"measured": [
+		{
+			"label": "strat1",
+			"measured_in": "7774aaf",
+			"date": "2026-08-29",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "strat2",
+			"measured_in": "7774aaf",
+			"date": "2026-08-29",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "stones1",
+			"measured_in": "7111b1a",
+			"date": "2026-08-29",
+			"verdict": "reconstructed",
+			"note": "ad-hoc --report run of the stone-box scenario before its manifest row landed"
+		},
+		{
+			"label": "stones2",
+			"measured_in": "7111b1a",
+			"date": "2026-08-29",
+			"verdict": "reconstructed",
+			"note": "ad-hoc --report run of stone-box-developed before its manifest row landed"
+		}
+	],
 	"scenarios": [
 		{
 			"name": "Leader Brawly · intimidate-cycle",

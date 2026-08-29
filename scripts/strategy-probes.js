@@ -26,6 +26,7 @@
  */
 
 const fs = require('node:fs');
+const manifestStore = require('../lib/manifest');
 const run = require('../lib/run.js');
 const dossier = require('../lib/dossier');
 const planner = require('../lib/planner');
@@ -178,12 +179,13 @@ function main() {
 		report: 'ui-playthrough-out/strat-stones-dev-wattson.json',
 		trainer: 'Leader Wattson', seeds: 30});
 
-	fs.writeFileSync('scenarios/strategies.json', JSON.stringify({
+	manifestStore.writeManifest('scenarios/strategies.json', {
 		comment: 'New-strategy probes: intimidate cycling, the giant-killer ' +
 			'Endeavor line, and the developed-choice ceiling. From ' +
 			'scripts/strategy-probes.js.',
+		generator: 'scripts/strategy-probes.js',
 		scenarios: manifest,
-	}, null, '\t') + '\n');
+	});
 	console.log('wrote scenarios/strategies.json (' + manifest.length + ' probes)');
 }
 

@@ -18,6 +18,7 @@
  */
 
 const fs = require('node:fs');
+const manifestStore = require('../lib/manifest');
 const run = require('../lib/run.js');
 
 const SITES = [
@@ -57,9 +58,10 @@ for (const site of SITES) {
 		console.log(gym, 'dose', dose, '-> spent', spent);
 	}
 }
-fs.writeFileSync('scenarios/dose.json', JSON.stringify({
+manifestStore.writeManifest('scenarios/dose.json', {
 	comment: 'Heart Scale dose-response: k advisor-greedy IV purchases against ' +
 		'the wall, graded by the battery. Derived docs regenerate from this script.',
+	generator: 'scripts/scale-dose.js',
 	scenarios: manifest,
-}, null, '\t') + '\n');
+});
 console.log('manifest written');

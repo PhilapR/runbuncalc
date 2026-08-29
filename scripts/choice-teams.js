@@ -23,6 +23,7 @@
  */
 
 const fs = require('node:fs');
+const manifestStore = require('../lib/manifest');
 const planner = require('../lib/planner');
 const dossier = require('../lib/dossier');
 const availability = require('../profiles/run-and-bun/oracle/availability.json');
@@ -171,12 +172,13 @@ function main() {
 		manifest.push({name: wall.trainer + ' · choice-team-max-ivs', report: outMax,
 			trainer: wall.trainer, seeds: 30});
 	}
-	fs.writeFileSync('scenarios/choice.json', JSON.stringify({
+	manifestStore.writeManifest('scenarios/choice.json', {
 		comment: 'Best assemblable teams under table-choice encounters (one catch ' +
 			'per route, dupes clause respected), from scripts/choice-teams.js. ' +
 			'A win rate here prices the CHOICE rule itself against rolled boxes.',
+		generator: 'scripts/choice-teams.js',
 		scenarios: manifest,
-	}, null, '\t') + '\n');
+	});
 	console.log('\nwrote scenarios/choice.json');
 }
 
