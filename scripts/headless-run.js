@@ -215,12 +215,21 @@ function playRun(policy, starter, seed, treatment) {
 	const caughtFrom = new Set();
 	let attempts = 0;
 	let fightSeed = seed;
+	// Advice and party ranking are board-rebuild expensive; the browser
+	// driver pays them occasionally, not per turn of the loop. They re-run
+	// only when the box or bag actually changed — the first cut ran them
+	// every cycle and a single run stretched toward twenty minutes.
+	let lastShape = '';
 
 	while (tally.fights < FIGHT_BUDGET) {
 		doc = sweepCatches(doc, caughtFrom, random, treatment, tally);
 		doc = sweepItems(doc, tally);
-		doc = followAdvice(doc, treatment, tally);
-		doc = bestParty(doc);
+		const shape = doc.box.length + '|' + JSON.stringify(doc.bag) + '|' + doc.position;
+		if (shape !== lastShape) {
+			lastShape = shape;
+			doc = followAdvice(doc, treatment, tally);
+			doc = bestParty(doc);
+		}
 		const ahead = run.upcoming(doc, 1);
 		if (!ahead.length) break;
 		const next = ahead[0];
