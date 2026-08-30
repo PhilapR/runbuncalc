@@ -146,6 +146,10 @@ function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
 	// require time, and the gate loads this module with its own argv.
 	const policy = require('./ui-playthrough.js');
+	// A model flag, not a policy flag: it changes what the fight IS. The
+	// receipt's argv records it, so an arm that ran fuel-free can never be
+	// mistaken for one that ran with real PP.
+	driver.setPPModel(flag('pp-model', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = manifest ?

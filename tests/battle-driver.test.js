@@ -667,3 +667,45 @@ test('a double battle refuses to start as singles', () => {
 		/double battle.*not modeled|doubles.*skip/i,
 		'a doubles fight must refuse play, naming the skip as the way past');
 });
+
+test('the PP model is a switch: off leaves fuel infinite, on fills and spends it', () => {
+	// The recorded default is OFF — every fixture in this file was recorded
+	// fuel-free, and the finding that made PP a switch lives in
+	// docs/MODELLING-GAPS.md (2026-08-30 addendum). ON must fill both
+	// sides' tanks at construction and the engine must then spend them.
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const off = driver.start(doc, undefined, 42);
+	for (const mon of [...off.battle.state.sides.player.party,
+		...off.battle.state.sides.ai.party]) {
+		for (const move of mon.moves) {
+			assert.equal(move.pp, undefined,
+				`off is the default: ${mon.id} ${move.name} must not carry pp`);
+		}
+	}
+	driver.setPPModel(true);
+	try {
+		const on = driver.start(doc, undefined, 42);
+		for (const mon of [...on.battle.state.sides.player.party,
+			...on.battle.state.sides.ai.party]) {
+			for (const move of mon.moves) {
+				assert.ok(Number.isInteger(move.pp) && move.pp > 0,
+					`on: ${mon.id} ${move.name} must carry pp`);
+				assert.equal(move.pp, move.maxPP,
+					`on: ${mon.id} ${move.name} opens with a full tank`);
+			}
+		}
+		const activeId = on.battle.state.sides.player.activeIds[0];
+		const pick = on.actions.find(action => action.kind === 'move');
+		const reply = driver.act(on.battle, {kind: 'move', move: pick.move});
+		const active = reply.battle.state.sides.player.party
+			.find(mon => mon.id === activeId);
+		const spent = active.moves.find(move => move.name === pick.move);
+		assert.equal(spent.pp, spent.maxPP - 1,
+			'the engine spends the pp the driver filled');
+	} finally {
+		driver.setPPModel(false);
+	}
+});
