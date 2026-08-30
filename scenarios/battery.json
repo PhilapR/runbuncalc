@@ -19,6 +19,13 @@
 			"measured_in": "841fbe9",
 			"date": "2026-08-28",
 			"verdict": "reconstructed"
+		},
+		{
+			"label": "battery3",
+			"measured_in": "365cdd2",
+			"date": "2026-08-30",
+			"verdict": "recorded",
+			"note": "first batch under the receipt discipline; plain policy, clean tree at 3371469"
 		}
 	],
 	"scenarios": [
