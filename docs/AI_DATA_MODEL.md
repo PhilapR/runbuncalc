@@ -393,7 +393,10 @@ active-ID-only state and are cleared when a slot switches.
 - `PokemonState.disguiseBroken` records the Run & Bun Disguise lifecycle. An
   intact Disguise converts the first positive direct or delayed move hit into
   zero damage and marks the effect broken; switching resets it for the next
-  entry. Calculator adapter facts apply the same protection before scoring.
+  entry. Calculator adapter facts apply the same protection before scoring,
+  and mark the guarded forecast with `DamageFacts.zeroedByGuard` (`'disguise'`
+  or `'iceface'`): the marker is what lets the move resolution tell a landed,
+  guard-breaking hit from a type immunity once the rolls are already zero.
 - `BattleState.delayedMoves` stores already-sampled Future Sight/Doom Desire
   damage and Wish healing fractions until their due turn boundary. The move
   resolution schedules the effect without applying it immediately;

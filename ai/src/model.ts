@@ -510,6 +510,12 @@ export interface DamageFacts {
   hitRange?: [number, number];
   /** Independent per-hit roll distributions, used by calculator split-hit effects such as Parental Bond. */
   hitRolls?: number[][];
+  /**
+   * Set when an intact Disguise or Ice Face converted an otherwise positive
+   * forecast to zero. The hit still lands: the move engine breaks the guarding
+   * effect instead of treating the zero as an immunity.
+   */
+  zeroedByGuard?: 'disguise' | 'iceface';
   min: number;
   max: number;
   targetHp: number;

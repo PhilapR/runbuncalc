@@ -1794,6 +1794,21 @@
 			"evidence": "brkeys1/1b/2 (browser, 2 treatment runs) and hrkeys1/2 (headless, 15 treatment runs each): scaleSpends 0 everywhere while the advisor machinery is gated green in tests/fight_dossiers.test.js. What unblocks it: serve heart-scale ledger rows through the pickup flow (fieldItems or a sibling), or an acquire path keyed on the item ledger. Until then Phase 3 of the leader-keys plan is advice without ammunition. FIXED in d5cbce0 at every layer (oracle fieldItems serves ledger currencies; acquire gained a placed WHERE so one of thirty same-named scales crosses off alone; panel, browser driver and headless harness all collect). First verified spend: hrscale smoke, treatment run, 2 scales.",
 			"fixed_in": "77a9f20",
 			"falsified": 0
+		},
+		{
+			"id": "disguise-never-breaks-in-the-composed-pipeline",
+			"source": "review/disguise-defect-report",
+			"raised_on": "2026-08-30",
+			"severity": "high",
+			"area": "engine",
+			"file": "ai/src/calc-adapter.ts",
+			"line": 736,
+			"claim": "applyDamageGuards zeroes the whole forecast while Disguise is intact and the adapter labels any zero-max forecast isImmune; the move engine drops 'immune' targets before its Disguise block and gated the break on nonzero directDamage besides, so in the composed pipeline (calculateActionFacts → deriveMoveResolution) the first positive hit the contract promises never exists: disguiseBroken is never set and Mimikyu is invincible. Ice Face shares the guard shape and the same hole. Unit tests stayed green because model.test.ts hand-builds facts with positive damage, bypassing the adapter zeroing.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"evidence": "Pokéfan Miguel @78 (report-flannery-3, fight #287): 0/6 wins pre-fix, 6 deaths/fight, Mimikyu ending every fight at 100% HP with disguiseBroken never set. Post-fix probe: 14/20, disguiseBroken=true in all 20 seeds, Mimikyu taken to 0 HP in every win; the 6 losses are attrition after the break (3 end with Mimikyu untouched because the box was already spent), not the guard. Fix: DamageFacts.zeroedByGuard ('disguise'|'iceface') set by the adapter guards, isImmune excludes guarded zeros, the resolution Disguise/Ice Face blocks accept the marker as the landed hit; the Disguise guard also gained the ignoresTargetAbility check Ice Face already had (Mold Breaker forecasts were wrongly zeroed too). Composed gate: ai/src/test/disguise-pipeline.test.ts, failed on the missing break before the fix. VOID: every prior measurement in which a Mimikyu or Eiscue holder fought is void as evidence — the fight ended with the holder untouched, and the planner grid's KO booleans (lib/planner.js, guaranteedKO/possibleKO carried into cells) embedded the same guarded zeros, so grid-derived rankings against those holders are void with it. The Miguel scenario is the measured instance; any battery or A/B whose corridor crossed another holder needs the same asterisk.",
+			"fixed_in": "99ad9ce",
+			"falsified": 1
 		}
 	]
 }
