@@ -729,16 +729,17 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
     const semiInvulnerable = defenderState.volatile?.charge?.moveName &&
       SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(defenderState.volatile.charge.moveName)) &&
       !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(context.move.name));
-    let guarded = semiInvulnerable ||
-      (context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
-        isDisguiseActive(context.state, defenderState) && input.max > 0)
-      ? makeDamageFacts([0], defenderState.hp.current)
-      : input;
+    let guarded = semiInvulnerable ? makeDamageFacts([0], defenderState.hp.current) : input;
+    if (!semiInvulnerable && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
+      isDisguiseActive(context.state, defenderState) && input.max > 0 &&
+      !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category)) {
+      guarded = {...makeDamageFacts([0], defenderState.hp.current), zeroedByGuard: 'disguise'};
+    }
     if (context.state.generation >= 8 && context.move.category === 'Physical' &&
       !context.baseFacts.isMultiHit && !defenderState.substituteHp && guarded.max > 0 &&
       isIceFaceActive(context.state, defenderState) &&
       !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category)) {
-      guarded = makeDamageFacts([0], defenderState.hp.current);
+      guarded = {...makeDamageFacts([0], defenderState.hp.current), zeroedByGuard: 'iceface'};
     }
     if (context.state.generation >= 8 && context.move.category !== 'Status' &&
       moveId(context.move.type) === 'fire' && defenderState.volatile?.tarShot && guarded.max > 0) {
@@ -866,7 +867,7 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
       !context.state.sides[defenderSide].effects?.luckyChant,
     criticalHit: context.baseFacts.criticalHitGuaranteed &&
       !context.state.sides[defenderSide].effects?.luckyChant,
-    isImmune: damage.max === 0,
+    isImmune: damage.max === 0 && !damage.zeroedByGuard,
   };
 }
 

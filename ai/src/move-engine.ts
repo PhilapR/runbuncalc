@@ -2047,6 +2047,15 @@ function sequentialDamageOutcome(
   return {directDamage, hitCount, fainted: hp <= 0};
 }
 
+/**
+ * Calculator facts arrive with Disguise/Ice Face hits already zeroed for
+ * scoring; the marker is the only remaining evidence that the hit landed and
+ * must still break the guard.
+ */
+function zeroedByGuardFor(facts: ActionFacts | undefined, targetId: string): 'disguise' | 'iceface' | undefined {
+  return (facts?.damageByTarget?.[targetId] ?? facts?.damage)?.zeroedByGuard;
+}
+
 function directDamageTotal(
   state: BattleState,
   resolution: MoveResolution,
@@ -2397,7 +2406,8 @@ function isDamageImmuneTarget(
     !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(action.moveName))) return true;
   if (!facts || facts.moveCategory === 'Status') return false;
   if (action.targetIds.length === 1) return facts.isImmune === true;
-  return facts.damageByTarget?.[targetId]?.max === 0;
+  const targetDamage = facts.damageByTarget?.[targetId];
+  return targetDamage?.max === 0 && !targetDamage.zeroedByGuard;
 }
 
 function eligibleTargetIds(
@@ -4300,7 +4310,8 @@ export function deriveMoveResolution(
         ? sequentialDamageOutcome(target, resolution.hitDamageByTarget?.[targetId],
           resolution.damageByTarget?.[targetId] || 0)
         : undefined;
-      if (target && !!damageOutcome?.directDamage &&
+      if (target &&
+        (!!damageOutcome?.directDamage || zeroedByGuardFor(resolutionFacts, targetId) === 'disguise') &&
         isDisguiseActive(state, target) && !ignoresTargetAbility(state, actor.id, targetId, moveCategory)) {
         const blocked = resolution.hitDamageByTarget
           ? adjustFirstDirectSequentialHit(resolution, target, targetId, () => 0)
@@ -4393,7 +4404,8 @@ export function deriveMoveResolution(
       const damageOutcome = target
         ? sequentialDamageOutcome(target, resolution.hitDamageByTarget?.[targetId], damage)
         : undefined;
-      if (!target || target.id === actor.id || !damageOutcome?.directDamage ||
+      if (!target || target.id === actor.id ||
+        (!damageOutcome?.directDamage && zeroedByGuardFor(resolutionFacts, targetId) !== 'iceface') ||
         !isIceFaceActive(state, target) || ignoresTargetAbility(state, actor.id, targetId, moveCategory)) continue;
       const adjusted = resolution.hitDamageByTarget
         ? adjustFirstDirectSequentialHit(resolution, target, targetId, () => 0)

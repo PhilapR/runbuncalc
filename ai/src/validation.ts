@@ -673,6 +673,9 @@ function validateDamageFact(value: unknown, label: string) {
   for (const property of ['possibleKO', 'guaranteedKO']) {
     if (typeof damage[property] !== 'boolean') invalid(`${label}.${property} must be boolean`);
   }
+  if (damage.zeroedByGuard !== undefined && damage.zeroedByGuard !== 'disguise' && damage.zeroedByGuard !== 'iceface') {
+    invalid(`${label}.zeroedByGuard must be 'disguise' or 'iceface'`);
+  }
 }
 
 function validateDamageFacts(state: BattleState, action: MoveAction, values: unknown, label: string) {
