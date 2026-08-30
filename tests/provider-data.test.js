@@ -5,7 +5,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
-const {computeDiff, vendorSpecies} = require('../scripts/diff-provider-data.js');
+const providerDiff = require('../scripts/diff-provider-data.js');
+const computeDiff = providerDiff.computeDiff;
+const vendorSpecies = providerDiff.vendorSpecies;
 
 const LEDGER = path.join(__dirname, '..', 'vendor', 'pokemon-run-runtime', 'DATA-DIVERGENCES.json');
 

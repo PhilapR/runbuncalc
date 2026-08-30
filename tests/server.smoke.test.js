@@ -549,84 +549,84 @@ test('Replay sample trace is served and each frame validates over HTTP', async (
 });
 
 test('planner lists the run map and carries its coverage caveat', async () => {
-	const {status, body} = await getJson('/planner/fights');
-	assert.equal(status, 200);
+	const res = await getJson('/planner/fights');
+	assert.equal(res.status, 200);
 	// 366 with the restored Route 103 rival trio and Mauville Wally in the map.
-	assert.equal(body.fights.length, 366);
+	assert.equal(res.body.fights.length, 366);
 	// The caveat travels with the list. A client that only reads `fights` would
 	// otherwise present a progression spine as a complete trainer census.
-	assert.equal(body.coverage.completeTrainerCensus, false);
-	assert.ok(body.coverage.coversMandatoryProgression);
-	assert.equal(body.fights[0].trainer, 'Trainer Rival Route 103 Sceptile');
+	assert.equal(res.body.coverage.completeTrainerCensus, false);
+	assert.ok(res.body.coverage.coversMandatoryProgression);
+	assert.equal(res.body.fights[0].trainer, 'Trainer Rival Route 103 Sceptile');
 });
 
 test('planner reports what is next from a point in the run', async () => {
 	// After Calvin — order 3 now that the Route 103 rival trio opens the map —
 	// the road continues with Bug Catcher Rick.
-	const {status, body} = await getJson('/planner/upcoming?after=3&count=3');
-	assert.equal(status, 200);
-	assert.equal(body.fights.length, 3);
-	assert.equal(body.fights[0].trainer, 'Bug Catcher Rick');
-	for (const fight of body.fights) assert.ok(fight.order > 3);
+	const res = await getJson('/planner/upcoming?after=3&count=3');
+	assert.equal(res.status, 200);
+	assert.equal(res.body.fights.length, 3);
+	assert.equal(res.body.fights[0].trainer, 'Bug Catcher Rick');
+	for (const fight of res.body.fights) assert.ok(fight.order > 3);
 });
 
 test('planner rejects a bad count rather than clamping it silently', async () => {
-	const {status, body} = await getJson('/planner/upcoming?count=999');
-	assert.equal(status, 400);
-	assert.match(body.error, /count must be an integer/);
+	const res = await getJson('/planner/upcoming?count=999');
+	assert.equal(res.status, 400);
+	assert.match(res.body.error, /count must be an integer/);
 });
 
 test('an unknown trainer is a client error and suggests the real name', async () => {
-	const {status, body} = await getJson('/planner/fight?trainer=Calvin');
-	assert.equal(status, 400);
-	assert.equal(body.code, 'UnknownTrainer');
-	assert.match(body.error, /did you mean.*Youngster Calvin/s);
+	const res = await getJson('/planner/fight?trainer=Calvin');
+	assert.equal(res.status, 400);
+	assert.equal(res.body.code, 'UnknownTrainer');
+	assert.match(res.body.error, /did you mean.*Youngster Calvin/s);
 });
 
 test('planner predicts an opponent turn with ranked actions and a margin', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Youngster Calvin',
 		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
 	});
-	assert.equal(status, 200);
-	assert.equal(body.trainer, 'Youngster Calvin');
-	assert.ok(body.actions.length > 1);
-	for (let i = 1; i < body.actions.length; i++) {
-		assert.ok(body.actions[i - 1].score >= body.actions[i].score, 'actions must be ranked');
+	assert.equal(res.status, 200);
+	assert.equal(res.body.trainer, 'Youngster Calvin');
+	assert.ok(res.body.actions.length > 1);
+	for (let i = 1; i < res.body.actions.length; i++) {
+		assert.ok(res.body.actions[i - 1].score >= res.body.actions[i].score, 'actions must be ranked');
 	}
-	for (const action of body.actions) {
+	for (const action of res.body.actions) {
 		assert.ok(action.label && !/undefined/.test(action.label), `unresolved label: ${action.label}`);
 	}
-	assert.ok(['decided', 'contested', 'only-option'].includes(body.confidence));
+	assert.ok(['decided', 'contested', 'only-option'].includes(res.body.confidence));
 	// The position is large and rarely wanted; it is opt-in.
-	assert.equal(body.state, undefined);
+	assert.equal(res.body.state, undefined);
 });
 
 test('planner returns the position only when asked', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Youngster Calvin',
 		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
 		includeState: true,
 	});
-	assert.equal(status, 200);
-	assert.equal(body.state.generation, 8);
-	assert.equal(body.state.sides.ai.party.length, 3);
+	assert.equal(res.status, 200);
+	assert.equal(res.body.state.generation, 8);
+	assert.equal(res.body.state.sides.ai.party.length, 3);
 });
 
 test('planning without a team is a 400, not a guess', async () => {
-	const {status, body} = await requestJson('/planner/predict', {trainer: 'Youngster Calvin'});
-	assert.equal(status, 400);
-	assert.match(body.error, /playerParty is required/);
+	const res = await requestJson('/planner/predict', {trainer: 'Youngster Calvin'});
+	assert.equal(res.status, 400);
+	assert.match(res.body.error, /playerParty is required/);
 });
 
 test('an unknown set is a client error rather than a 500', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Youngster Calvin',
 		playerParty: [{species: 'Azumarill', setLabel: 'Not A Real Set'}],
 	});
-	assert.equal(status, 400);
-	assert.equal(body.code, 'InvalidPlannerRequest');
-	assert.match(body.error, /Unknown set/);
+	assert.equal(res.status, 400);
+	assert.equal(res.body.code, 'InvalidPlannerRequest');
+	assert.match(res.body.error, /Unknown set/);
 });
 
 const PLAYER_PASTE = [
@@ -639,41 +639,41 @@ const PLAYER_PASTE = [
 ].join('\n');
 
 test('a Showdown paste is a first-class way to name the player team', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerPaste: PLAYER_PASTE,
 		includeState: true,
 	});
-	assert.equal(status, 200);
-	const mon = body.state.sides.player.party[0];
+	assert.equal(res.status, 200);
+	const mon = res.body.state.sides.player.party[0];
 	assert.equal(mon.species, 'Swampert');
 	assert.equal(mon.level, 45);
 	assert.equal(mon.item, 'Leftovers');
 	// The player declared this box, so nothing was borrowed.
-	assert.equal(body.borrowedPlayerBuild, false);
-	assert.deepEqual(body.notes, []);
+	assert.equal(res.body.borrowedPlayerBuild, false);
+	assert.deepEqual(res.body.notes, []);
 });
 
 test('a borrowed trainer build is reported as such on every prediction', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerParty: [{species: 'Metagross', setLabel: 'Trainer Steven Space Center'}],
 	});
-	assert.equal(status, 200);
+	assert.equal(res.status, 200);
 	// Steven's level 89 Metagross is not a box any player holds, and the AI scores
 	// against it. A client that cannot tell will present it as a plan.
-	assert.equal(body.borrowedPlayerBuild, true);
+	assert.equal(res.body.borrowedPlayerBuild, true);
 });
 
 test('a double battle says over HTTP that it was ranked as a Singles exchange', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'School Kid Jerry & Johnson',
 		playerPaste: PLAYER_PASTE,
 	});
-	assert.equal(status, 200);
+	assert.equal(res.status, 200);
 	// The flag exists in the library; a client that never receives it presents a
 	// 1v1 ranking of a 2v2 fight with no caveat attached.
-	assert.equal(body.plannedAsSingles, true);
+	assert.equal(res.body.plannedAsSingles, true);
 	const single = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerPaste: PLAYER_PASTE,
@@ -682,23 +682,23 @@ test('a double battle says over HTTP that it was ranked as a Singles exchange', 
 });
 
 test('a paste and a party at once is refused rather than silently preferred', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerPaste: PLAYER_PASTE,
 		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
 	});
-	assert.equal(status, 400);
-	assert.match(body.error, /not both/);
+	assert.equal(res.status, 400);
+	assert.match(res.body.error, /not both/);
 });
 
 test('an unreadable paste is a 400 naming the line, not a 500', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerPaste: 'Swampertt\n- Earthquake',
 	});
-	assert.equal(status, 400);
-	assert.equal(body.code, 'InvalidPlannerRequest');
-	assert.match(body.error, /Pokemon 1 \(Swampertt\): unknown species/);
+	assert.equal(res.status, 400);
+	assert.equal(res.body.code, 'InvalidPlannerRequest');
+	assert.match(res.body.error, /Pokemon 1 \(Swampertt\): unknown species/);
 
 	const move = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
@@ -725,9 +725,9 @@ const RUN_CATCH = ownedCatch(
 	{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3});
 
 async function newRun(body) {
-	const {status, body: payload} = await requestJson('/run/new', body || {});
-	assert.equal(status, 200);
-	return payload.run;
+	const res = await requestJson('/run/new', body || {});
+	assert.equal(res.status, 200);
+	return res.body.run;
 }
 
 test('rank bounds its cut knobs on the wire and reports what it cut', async () => {
@@ -891,12 +891,12 @@ test('audit regressions: the new endpoints refuse with reasons, never 500', asyn
 test('the ranker answers over HTTP, and refuses what it cannot rank', async () => {
 	const created = await newRun({name: 'Rank'});
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
-	const {status, body} = await requestJson('/run/rank', {run: caught.body.run});
-	assert.equal(status, 200);
+	const res = await requestJson('/run/rank', {run: caught.body.run});
+	assert.equal(res.status, 200);
 	// The restored Route 103 rival is the first fight the ranker targets.
-	assert.equal(body.trainer, 'Trainer Rival Route 103 Sceptile');
-	assert.equal(body.parties[0].label, 'top');
-	assert.ok(body.caveats.length >= 2);
+	assert.equal(res.body.trainer, 'Trainer Rival Route 103 Sceptile');
+	assert.equal(res.body.parties[0].label, 'top');
+	assert.ok(res.body.caveats.length >= 2);
 
 	// An empty box is a 400 with the reason, exactly like the matrix.
 	const empty = await requestJson('/run/rank', {run: created});
@@ -906,12 +906,12 @@ test('the ranker answers over HTTP, and refuses what it cannot rank', async () =
 
 test('the catch advisor answers over HTTP with the reachable prospects', async () => {
 	const created = await newRun({name: 'Scout', permadeath: true});
-	const {status, body} = await requestJson('/run/scout', {run: created});
-	assert.equal(status, 200);
-	assert.equal(body.trainer, 'Leader Brawly');
-	assert.ok(body.routesOpen >= 4);
-	assert.ok(body.gated >= 1, 'pre-Surf water is gated, not proposed');
-	assert.ok(body.catches.every(c => c.method !== 'surf'));
+	const res = await requestJson('/run/scout', {run: created});
+	assert.equal(res.status, 200);
+	assert.equal(res.body.trainer, 'Leader Brawly');
+	assert.ok(res.body.routesOpen >= 4);
+	assert.ok(res.body.gated >= 1, 'pre-Surf water is gated, not proposed');
+	assert.ok(res.body.catches.every(c => c.method !== 'surf'));
 
 	// A finished target is a 400 with the reason, like every advisor.
 	const unknown = await requestJson('/run/scout', {run: created, trainer: 'Nobody'});
@@ -921,13 +921,13 @@ test('the catch advisor answers over HTTP with the reachable prospects', async (
 test('the routes view answers over HTTP with the spent and the still-open', async () => {
 	const created = await newRun({name: 'Routes', permadeath: true});
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
-	const {status, body} = await requestJson('/run/routes', {run: caught.body.run});
-	assert.equal(status, 200);
+	const res = await requestJson('/run/routes', {run: caught.body.run});
+	assert.equal(res.status, 200);
 	// One row per LOCATION, not per wild table: Granite Cave's floors, Mt
 	// Pyre's nine maps and both underwater routes fold into their locations.
-	assert.ok(body.routes.length > 60 && body.routes.length < 100,
+	assert.ok(res.body.routes.length > 60 && res.body.routes.length < 100,
 		'every location answers, grouped by the route rule\'s unit');
-	const spent = body.routes.find(route => route.name === 'Route101');
+	const spent = res.body.routes.find(route => route.name === 'Route101');
 	assert.equal(spent.used.species, 'Lillipup');
 	assert.ok(spent.best.length > 0 && spent.best[0].chance > 0);
 });
@@ -944,8 +944,8 @@ test('a late-game run document still fits through the request body', async () =>
 	};
 	const big = {...good, log: Array.from({length: 2000}, () => entry)};
 	assert.ok(Buffer.byteLength(JSON.stringify(big)) > 150 * 1024, 'probe must exceed the stock limit');
-	const {status} = await requestJson('/run/status', {run: big});
-	assert.equal(status, 200, 'a long-running save must not be refused for its size');
+	const res = await requestJson('/run/status', {run: big});
+	assert.equal(res.status, 200, 'a long-running save must not be refused for its size');
 });
 
 test('a command that could not have happened is a 400 with the reason', async () => {
@@ -999,11 +999,13 @@ test('a run of the right version but the wrong shape is a 400 naming the field',
 		[{...good, position: 'start'}, /position/],
 		[{...good, nextId: null}, /nextId/],
 	];
-	for (const [run, field] of shapes) {
-		const {status, body} = await requestJson('/run/status', {run});
-		assert.equal(status, 400, `malformed run must not 500: ${JSON.stringify(run).slice(0, 80)}`);
-		assert.equal(body.code, 'InvalidRun');
-		assert.match(body.error, field);
+	for (const shape of shapes) {
+		const run = shape[0];
+		const field = shape[1];
+		const res = await requestJson('/run/status', {run});
+		assert.equal(res.status, 400, `malformed run must not 500: ${JSON.stringify(run).slice(0, 80)}`);
+		assert.equal(res.body.code, 'InvalidRun');
+		assert.match(res.body.error, field);
 	}
 
 	// The panel's import box accepts pasted JSON, and this is what a curious

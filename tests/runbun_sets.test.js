@@ -23,14 +23,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
+const loadSetdex = require('../lib/setdex-loader').loadSetdex;
+
 const GEN8_SETS = path.join(__dirname, '..', 'src', 'js', 'data', 'sets', 'gen8.js');
 const GENERATED_BANNER = 'AUTOMATICALLY GENERATED';
-
-function loadSetdex(filePath, globalName) {
-	const source = fs.readFileSync(filePath, 'utf8');
-	// The file is `var SETDEX_XX = {...};` — evaluate it and hand back the object.
-	return new Function(`${source}\nreturn ${globalName};`)();
-}
 
 test('Run & Bun trainer sets are authored, not generated from an upstream set source', () => {
 	const source = fs.readFileSync(GEN8_SETS, 'utf8');
