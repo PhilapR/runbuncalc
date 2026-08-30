@@ -26,6 +26,20 @@
 			"date": "2026-08-30",
 			"verdict": "recorded",
 			"note": "first batch under the receipt discipline; plain policy, clean tree at 3371469"
+		},
+		{
+			"label": "pp-econ-a",
+			"measured_in": "6d468ff",
+			"date": "2026-08-30",
+			"verdict": "recorded",
+			"note": "PP-model A/B control (fuel-free); first batch after the Disguise fix merged, so Miguel reads 14/20 against battery3's 1/20"
+		},
+		{
+			"label": "pp-econ-b",
+			"measured_in": "ca3161d",
+			"date": "2026-08-30",
+			"verdict": "recorded",
+			"note": "PP-model A/B treatment (--pp-model=1); Daisy 18/20 stuck 0, Jose 6/20, leaders unmoved — fuel resolves stalls, not walls"
 		}
 	],
 	"scenarios": [
