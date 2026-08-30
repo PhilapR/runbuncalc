@@ -1,0 +1,195 @@
+{
+	"label": "gymcf1",
+	"manifest": "scenarios/counterfactuals.json",
+	"argv": [
+		"--manifest=scenarios/counterfactuals.json",
+		"--label=gymcf1"
+	],
+	"provenance": {
+		"revision": null,
+		"dirty": null,
+		"date": "2026-08-28T19:13:20.163Z"
+	},
+	"results": [
+		{
+			"name": "Leader Brawly · baseline",
+			"trainer": "Leader Brawly",
+			"report": "counterfactual-brawly-baseline.json",
+			"position": 73,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 532
+		},
+		{
+			"name": "Leader Brawly · max-ivs",
+			"trainer": "Leader Brawly",
+			"report": "counterfactual-brawly-max-ivs.json",
+			"position": 73,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 604
+		},
+		{
+			"name": "Leader Brawly · screens",
+			"trainer": "Leader Brawly",
+			"report": "counterfactual-brawly-screens.json",
+			"position": 73,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 566
+		},
+		{
+			"name": "Leader Brawly · slow",
+			"trainer": "Leader Brawly",
+			"report": "counterfactual-brawly-slow.json",
+			"position": 73,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 532
+		},
+		{
+			"name": "Leader Brawly · the-lot",
+			"trainer": "Leader Brawly",
+			"report": "counterfactual-brawly-the-lot.json",
+			"position": 73,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 577
+		},
+		{
+			"name": "Leader Roxanne · baseline",
+			"trainer": "Leader Roxanne",
+			"report": "counterfactual-roxanne-baseline.json",
+			"position": 135,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 512
+		},
+		{
+			"name": "Leader Roxanne · max-ivs",
+			"trainer": "Leader Roxanne",
+			"report": "counterfactual-roxanne-max-ivs.json",
+			"position": 135,
+			"seeds": 30,
+			"wins": 7,
+			"losses": 23,
+			"stuck": 0,
+			"deaths": 172,
+			"turns": 584
+		},
+		{
+			"name": "Leader Roxanne · screens",
+			"trainer": "Leader Roxanne",
+			"report": "counterfactual-roxanne-screens.json",
+			"position": 135,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 544
+		},
+		{
+			"name": "Leader Roxanne · slow",
+			"trainer": "Leader Roxanne",
+			"report": "counterfactual-roxanne-slow.json",
+			"position": 135,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 543
+		},
+		{
+			"name": "Leader Roxanne · the-lot",
+			"trainer": "Leader Roxanne",
+			"report": "counterfactual-roxanne-the-lot.json",
+			"position": 135,
+			"seeds": 30,
+			"wins": 5,
+			"losses": 25,
+			"stuck": 0,
+			"deaths": 170,
+			"turns": 581
+		},
+		{
+			"name": "Leader Wattson · baseline",
+			"trainer": "Leader Wattson",
+			"report": "counterfactual-wattson-baseline.json",
+			"position": 210,
+			"seeds": 30,
+			"wins": 1,
+			"losses": 29,
+			"stuck": 0,
+			"deaths": 179,
+			"turns": 514
+		},
+		{
+			"name": "Leader Wattson · max-ivs",
+			"trainer": "Leader Wattson",
+			"report": "counterfactual-wattson-max-ivs.json",
+			"position": 210,
+			"seeds": 30,
+			"wins": 15,
+			"losses": 15,
+			"stuck": 0,
+			"deaths": 154,
+			"turns": 585
+		},
+		{
+			"name": "Leader Wattson · screens",
+			"trainer": "Leader Wattson",
+			"report": "counterfactual-wattson-screens.json",
+			"position": 210,
+			"seeds": 30,
+			"wins": 1,
+			"losses": 29,
+			"stuck": 0,
+			"deaths": 179,
+			"turns": 549
+		},
+		{
+			"name": "Leader Wattson · slow",
+			"trainer": "Leader Wattson",
+			"report": "counterfactual-wattson-slow.json",
+			"position": 210,
+			"seeds": 30,
+			"wins": 1,
+			"losses": 29,
+			"stuck": 0,
+			"deaths": 179,
+			"turns": 511
+		},
+		{
+			"name": "Leader Wattson · the-lot",
+			"trainer": "Leader Wattson",
+			"report": "counterfactual-wattson-the-lot.json",
+			"position": 210,
+			"seeds": 30,
+			"wins": 9,
+			"losses": 21,
+			"stuck": 0,
+			"deaths": 168,
+			"turns": 657
+		}
+	]
+}

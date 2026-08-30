@@ -1,0 +1,99 @@
+{
+	"label": "strat1",
+	"manifest": "scenarios/strategies.json",
+	"argv": [
+		"--manifest=scenarios/strategies.json",
+		"--label=strat1"
+	],
+	"provenance": {
+		"revision": null,
+		"dirty": null,
+		"date": "2026-08-29T20:49:31.423Z"
+	},
+	"results": [
+		{
+			"name": "Leader Brawly · intimidate-cycle",
+			"trainer": "Leader Brawly",
+			"report": "strat-intimidate.json",
+			"position": 76,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 492
+		},
+		{
+			"name": "Leader Brawly · giant-killer",
+			"trainer": "Leader Brawly",
+			"report": "strat-giantkiller-brawly.json",
+			"position": 76,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 489
+		},
+		{
+			"name": "Leader Roxanne · giant-killer",
+			"trainer": "Leader Roxanne",
+			"report": "strat-giantkiller-roxanne.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 472
+		},
+		{
+			"name": "Leader Wattson · giant-killer",
+			"trainer": "Leader Wattson",
+			"report": "strat-giantkiller-wattson.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 412
+		},
+		{
+			"name": "Leader Brawly · developed-choice",
+			"trainer": "Leader Brawly",
+			"report": "strat-developed-brawly.json",
+			"position": 76,
+			"seeds": 30,
+			"wins": 1,
+			"losses": 29,
+			"stuck": 0,
+			"deaths": 178,
+			"turns": 678
+		},
+		{
+			"name": "Leader Roxanne · developed-choice",
+			"trainer": "Leader Roxanne",
+			"report": "strat-developed-roxanne.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 529
+		},
+		{
+			"name": "Leader Wattson · developed-choice",
+			"trainer": "Leader Wattson",
+			"report": "strat-developed-wattson.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 3,
+			"losses": 27,
+			"stuck": 0,
+			"deaths": 174,
+			"turns": 485
+		}
+	]
+}

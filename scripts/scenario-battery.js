@@ -168,11 +168,20 @@ function main() {
 			'turns/fight=' + (row.turns / row.seeds).toFixed(1) +
 			(row.stuck ? '  STUCK=' + row.stuck : ''));
 	}
+	const receipt = {label, manifest: manifest || null,
+		argv: process.argv.slice(2), provenance: provenance(), results};
 	const outPath = path.join('ui-playthrough-out', label + '-battery.json');
-	fs.writeFileSync(outPath, JSON.stringify({label, results,
-		argv: process.argv.slice(2), manifest: manifest || null,
-		provenance: provenance()}, null, '\t'));
-	console.log('\nwrote ' + outPath);
+	fs.writeFileSync(outPath, JSON.stringify(receipt, null, '\t'));
+	// The receipt is the same document in a TRACKED home. ui-playthrough-out
+	// is gitignored, so the recorded revision above dies with the volume and
+	// no gate can read it. A receipt committed with the batch is what lets a
+	// manifest's `measured` stamp carry verdict "recorded": the provenance
+	// gate checks the receipt's revision is an ancestor of the carrying
+	// commit, instead of trusting the stamp's author.
+	const receiptPath = path.join('scenarios', 'receipts', label + '.json');
+	fs.mkdirSync(path.dirname(receiptPath), {recursive: true});
+	fs.writeFileSync(receiptPath, JSON.stringify(receipt, null, '\t') + '\n');
+	console.log('\nwrote ' + outPath + ' and ' + receiptPath);
 }
 
 if (require.main === module) main();

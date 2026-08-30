@@ -104,11 +104,79 @@ test('a measured stamp names a batch and the commit that carries it', () => {
 				['show', '--name-only', '--format=', entry.measured_in],
 				{cwd: root, encoding: 'utf8'})
 				.split('\n').map(line => line.trim()).filter(Boolean);
-			assert.ok(touched.includes(file),
+			// The carrying commit touches the manifest OR the batch's receipt.
+			// The first alone would refuse a re-measure of an unchanged
+			// manifest: run the battery again, and the only new file the
+			// carrying commit holds is the receipt.
+			const receiptPath = path.join('scenarios', 'receipts', entry.label + '.json');
+			assert.ok(touched.includes(file) || touched.includes(receiptPath),
 				`${file}/${entry.label} says commit ${entry.measured_in} carries ` +
-				`the batch, but that commit does not touch ${file}`);
+				`the batch, but that commit touches neither ${file} nor ${receiptPath}`);
+
+			// A "recorded" verdict is the strong claim — the battery wrote its
+			// own revision — so the gate demands the evidence: a tracked
+			// receipt, committed with the batch, whose revision precedes the
+			// carrying commit on this branch. Anything less is what
+			// "reconstructed" is for.
+			if (entry.verdict === 'recorded') {
+				assert.ok(fs.existsSync(path.join(root, receiptPath)),
+					`${file}/${entry.label} claims verdict recorded but has no ` +
+					`receipt at ${receiptPath}`);
+				const receipt = JSON.parse(
+					fs.readFileSync(path.join(root, receiptPath), 'utf8'));
+				const revision = (receipt.provenance || {}).revision;
+				assert.ok(revision,
+					`${receiptPath} records no revision — the verdict cannot be recorded`);
+				assert.doesNotThrow(
+					() => childProcess.execFileSync('git',
+						['merge-base', '--is-ancestor', revision, entry.measured_in],
+						{cwd: root, stdio: 'ignore'}),
+					`${receiptPath} says the batch ran at ${revision}, which does not ` +
+					`precede the carrying commit ${entry.measured_in} on this branch`);
+				assert.ok(touched.includes(receiptPath),
+					`${file}/${entry.label} is recorded, so the carrying commit ` +
+					`${entry.measured_in} must be the one that landed ${receiptPath}`);
+			}
 		}
 	}
 	assert.ok(stamps > 0, 'at least one manifest records a measurement — ' +
 		'a gate that checks an empty set proves nothing');
+});
+
+test('every receipt is a batch the repository can still name', () => {
+	// The receipt directory is the tracked half of ui-playthrough-out: the
+	// battery writes both, git keeps one. A receipt may be unstamped — a
+	// batch lands one commit before its stamp, and the suite must be green
+	// in between — but it may not be malformed, mislabelled, or point at a
+	// revision that left the branch.
+	const dir = path.join(root, 'scenarios', 'receipts');
+	const files = fs.readdirSync(dir).filter(name => name.endsWith('.json'));
+	assert.ok(files.length, 'scenarios/receipts holds receipts');
+	for (const name of files) {
+		const receipt = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
+		assert.equal(receipt.label + '.json', name,
+			`${name} carries the label ${receipt.label} — the filename lies`);
+		assert.ok(Array.isArray(receipt.argv),
+			`${name} records no argv, so nobody can rerun the batch`);
+		assert.ok(Array.isArray(receipt.results) && receipt.results.length,
+			`${name} carries no results`);
+		const prov = receipt.provenance || {};
+		assert.ok(!Number.isNaN(Date.parse(prov.date || '')),
+			`${name} has no parseable date`);
+		if (receipt.manifest !== null) {
+			assert.ok(fs.existsSync(path.join(root, receipt.manifest)),
+				`${name} names manifest ${receipt.manifest}, which does not exist`);
+		}
+		// null revision: a back-filled receipt for a batch that ran before
+		// the battery recorded provenance (pre-2026-08-29). Its stamp says
+		// "reconstructed" and this gate holds it to nothing more.
+		if (prov.revision !== null) {
+			assert.doesNotThrow(
+				() => childProcess.execFileSync('git',
+					['merge-base', '--is-ancestor', prov.revision, 'HEAD'],
+					{cwd: root, stdio: 'ignore'}),
+				`${name} says the batch ran at ${prov.revision}, ` +
+				'which is not an ancestor of HEAD');
+		}
+	}
 });

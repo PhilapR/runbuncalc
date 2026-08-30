@@ -1,0 +1,111 @@
+{
+	"label": "dose1",
+	"manifest": "scenarios/dose.json",
+	"argv": [
+		"--manifest=scenarios/dose.json",
+		"--label=dose1"
+	],
+	"provenance": {
+		"revision": null,
+		"dirty": null,
+		"date": "2026-08-29T06:44:46.539Z"
+	},
+	"results": [
+		{
+			"name": "Leader Wattson · 3 scales",
+			"trainer": "Leader Wattson",
+			"report": "dose-wattson-3.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 527
+		},
+		{
+			"name": "Leader Wattson · 9 scales",
+			"trainer": "Leader Wattson",
+			"report": "dose-wattson-9.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 4,
+			"losses": 26,
+			"stuck": 0,
+			"deaths": 175,
+			"turns": 553
+		},
+		{
+			"name": "Leader Wattson · 15 scales",
+			"trainer": "Leader Wattson",
+			"report": "dose-wattson-15.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 9,
+			"losses": 21,
+			"stuck": 0,
+			"deaths": 165,
+			"turns": 576
+		},
+		{
+			"name": "Leader Wattson · 23 scales",
+			"trainer": "Leader Wattson",
+			"report": "dose-wattson-28.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 15,
+			"losses": 15,
+			"stuck": 0,
+			"deaths": 154,
+			"turns": 584
+		},
+		{
+			"name": "Leader Roxanne · 3 scales",
+			"trainer": "Leader Roxanne",
+			"report": "dose-roxanne-3.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 534
+		},
+		{
+			"name": "Leader Roxanne · 9 scales",
+			"trainer": "Leader Roxanne",
+			"report": "dose-roxanne-9.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 549
+		},
+		{
+			"name": "Leader Roxanne · 15 scales",
+			"trainer": "Leader Roxanne",
+			"report": "dose-roxanne-15.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 556
+		},
+		{
+			"name": "Leader Roxanne · 15 scales",
+			"trainer": "Leader Roxanne",
+			"report": "dose-roxanne-28.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 556
+		}
+	]
+}
