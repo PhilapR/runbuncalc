@@ -55,6 +55,12 @@ to take.
 - Keep the root `lint`, `compile`, `build`, and `test` scripts explicitly
   calculator-first, then AI. The AI package consumes the local `calc/` junction,
   so this ordering keeps its compiled dependency boundary stable.
+- The root `lint` and `test` gates run eslint on the full directories `src`,
+  `profiles`, `lib`, `tests`, `scripts`, and `fixtures`. Do not add a
+  hand-written file list to a gate; a stale list narrows the gate without a
+  signal. Put an exclusion in `.eslintignore`. The gates do not use `--cache`;
+  a stale cache hid five errors before (commit 01d5e1a). `npm run lint:fast`
+  keeps `--cache` for a quick local pass. It is not the gate.
 - The AI package test command compiles `ai/src/test/*.ts` and discovers every
   compiled `dist/test/*.test.js` fixture automatically; adding a fixture does
   not require maintaining a second hand-written command list.
