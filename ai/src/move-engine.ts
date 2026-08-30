@@ -4313,7 +4313,11 @@ export function deriveMoveResolution(
       if (target &&
         (!!damageOutcome?.directDamage || zeroedByGuardFor(resolutionFacts, targetId) === 'disguise') &&
         isDisguiseActive(state, target) && !ignoresTargetAbility(state, actor.id, targetId, moveCategory)) {
-        const blocked = resolution.hitDamageByTarget
+        // Per-target, not the whole record: a guarded (pre-zeroed) fact never
+        // carries a hit array for its own target, but another target of the
+        // same action can — and an all-zero hit array would make the adjust
+        // helper report no hit to block, silently skipping the break.
+        const blocked = resolution.hitDamageByTarget?.[targetId]
           ? adjustFirstDirectSequentialHit(resolution, target, targetId, () => 0)
           : (resolution.damageByTarget![targetId] = 0, true);
         if (!blocked) continue;
@@ -4407,11 +4411,11 @@ export function deriveMoveResolution(
       if (!target || target.id === actor.id ||
         (!damageOutcome?.directDamage && zeroedByGuardFor(resolutionFacts, targetId) !== 'iceface') ||
         !isIceFaceActive(state, target) || ignoresTargetAbility(state, actor.id, targetId, moveCategory)) continue;
-      const adjusted = resolution.hitDamageByTarget
+      const adjusted = resolution.hitDamageByTarget?.[targetId]
         ? adjustFirstDirectSequentialHit(resolution, target, targetId, () => 0)
         : !resolutionFacts?.isMultiHit;
       if (!adjusted) continue;
-      if (!resolution.hitDamageByTarget) resolution.damageByTarget![targetId] = 0;
+      if (!resolution.hitDamageByTarget?.[targetId]) resolution.damageByTarget![targetId] = 0;
       setSpeciesOverride(resolution, target.id, 'Eiscue-Noice');
       resolution.trace!.notes!.push(`Ice Face blocked the first physical hit and changed ${target.id} to Noice Face`);
     }

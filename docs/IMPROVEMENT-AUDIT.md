@@ -22,10 +22,13 @@ Nothing in this document has been *played* in the STRATEGY.md sense.
 A proposal graduates out of here by running its named battery or ab.js
 arm and, if it survives, earning a stamp or a STRATEGY.md section.
 
-## Two verified defects (fix sessions in flight)
+## Two verified defects (both fixed, 2026-08-30)
 
-Both were spun off into their own sessions on 2026-08-30; their ledger
-entries land with their fixes.
+Both were spun off into their own sessions on 2026-08-30 and both fixes
+have landed on this branch: the Disguise deadlock in 99ad9ce with
+ledger entry `disguise-never-breaks-in-the-composed-pipeline` (050cad3),
+and the lint gate in the merge of claude/focused-borg-dbf6ca. The
+sections below stand as the record of the defects as found.
 
 ### 1. The Disguise break deadlock — Mimikyu is invincible in simulation
 
@@ -168,8 +171,8 @@ names, not implemented ones.
 
 | Proposal | Mechanism | Measure |
 |---|---|---|
-| Fix Disguise/Ice Face break | one layer owns the reduction; composed-pipeline test; ledger entry | Miguel scenario 20 seeds pre/post; full battery4 |
-| Make PP real | fill `pp`/`maxPP` at state construction; expose in view; policy tiebreak on PP | full-manifest A/B `pp-econ-A/B` |
+| Fix Disguise/Ice Face break — LANDED (99ad9ce) | one layer owns the reduction; composed-pipeline test; ledger entry | measured: Miguel 1/20 → 14/20 (pp-econ-a vs battery3) |
+| Make PP real — LANDED as a switch, off by default (7bba84c) | fill `pp`/`maxPP` at state construction; view exposure and policy tiebreak still open | measured: pp-econ-a/b — Daisy 14→18 with stuck 4→0, Jose 1→6, leaders unmoved |
 
 ### Fight policy
 

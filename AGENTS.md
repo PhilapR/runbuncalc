@@ -156,10 +156,12 @@ These rules come from measured failures. Each rule names its incident.
 - Stamp each measured manifest in `scenarios/`. Add a `measured` entry that
   names the batch label and the commit that carries the batch. Stamp in the
   commit after the batch lands, the same as a ledger `fixed_in`. The battery
-  writes a receipt to `scenarios/receipts/<label>.json`; commit the receipt
-  with the batch. `tests/manifest_provenance.test.js` verifies each stamp
-  against the branch, and each `recorded` stamp against its receipt. Before
-  this gate, only session memory recorded the four void batches.
+  writes a receipt to `scenarios/receipts/<label>.json`; commit it with the
+  batch, before the next batch runs — an uncommitted receipt marks the
+  successor dirty.
+  `tests/manifest_provenance.test.js` verifies each stamp against the
+  branch, and each `recorded` stamp against its receipt. Before this gate,
+  only session memory recorded the four void batches.
 
 ## A deviation from the mainline games is not a bug
 
