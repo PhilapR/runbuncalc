@@ -140,3 +140,39 @@ these must too, because the workbooks are community documents and have
 already been wrong once in this session (`docs/CONSTANTS-AUDIT.md` D11).
 Transcribe with the source named, gate what can be gated, and mark
 estimates as estimates.
+
+## Addendum 2026-08-30 — one gap is in the fights after all
+
+The audit above says the gaps are all in the game world and the battle
+engine is mature. One gap sits inside the fights: **PP**.
+
+The engine models PP completely — `ai/src/transition.ts` (~900) deducts
+it whenever the move defines it, `ai/src/actions.ts:666` filters a move
+at `pp === 0`, and the exhaustion path forces Struggle. But the bridge
+never supplies it: `moveStatesFromNames` in
+`src/js/sets_to_battle_state.js` builds every move as `{name}` only, so
+both sides of every simulated fight carry `pp: undefined` — infinite
+fuel. Verified live 2026-08-30 by two independent readers, from the
+bridge side and from the engine side.
+
+The consequence is measured in batch `battery3`
+(`scenarios/receipts/battery3.json`): Aroma Lady Daisy @79 averages 111
+turns/fight with four seeds hitting the 400-turn guard, inside a
+heal-versus-chip equilibrium (Synthesis + Leftovers banking ~31%/turn
+against ~25%/turn expected chip) that the real game always resolves by
+PP exhaustion — Synthesis and Fire Blast both carry 8 PP. The stall is
+free in simulation and impossible live, and every turn-hungry policy
+comparison inherits the distortion. Reproduce:
+
+```bash
+node scripts/scenario-battery.js --report=ui-playthrough-out/report-flannery-3.json \
+  --trainer="Aroma Lady Daisy" --seeds=20 --label=probe-pp-gap
+# delete scenarios/receipts/probe-pp-gap.json after reading it
+```
+
+The fix shape is small because the engine half already exists: fill
+`pp`/`maxPP` where battle state is constructed (`ai/src/move-metadata.ts`
+:400 already computes `maxPP` per move), expose remaining PP in
+`lib/battle-view.js`, and A/B the battery with the model on and off
+before trusting it. Diagnosis and the full proposal backlog:
+`IMPROVEMENT-AUDIT.md`.
