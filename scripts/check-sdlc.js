@@ -111,6 +111,34 @@ const orphanedTests = fs.readdirSync(path.join(root, 'tests'))
 assert.deepEqual(orphanedTests, [],
 	'these tests are in the tree but no npm script runs them, so they gate nothing');
 
+// The same species, one step further out. A test the suite DOES name can
+// still gate nothing if it reads a path git does not carry: it passes on the
+// machine that has the file and ENOENTs everywhere else. Five did — the
+// banked reports in ui-playthrough-out/ — so every CI run failed those five
+// while the suite was green on the author's disk, which is the worst place
+// for a gate to disagree with itself. Fixtures a test needs live in the
+// tree (fixtures/banked-runs/ is the shelf for run documents, extracted by
+// scripts/extract-run-fixture.js); gitignored output directories are for
+// artifacts nothing gates on.
+const ignoredDirs = read('.gitignore').split('\n')
+	.map(line => line.trim())
+	.filter(line => line && !line.startsWith('#') && line.endsWith('/'))
+	.map(line => line.replace(/\/$/, ''));
+const readingIgnored = [];
+for (const name of fs.readdirSync(path.join(root, 'tests'))
+	.filter(file => file.endsWith('.test.js'))) {
+	const body = read(`tests/${name}`);
+	for (const dir of ignoredDirs) {
+		// Quoted literals only: a comment naming the directory is how a test
+		// explains why it no longer reads from it.
+		const quoted = new RegExp(`['"\`]${dir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`);
+		if (quoted.test(body)) readingIgnored.push(`tests/${name} -> ${dir}/`);
+	}
+}
+assert.deepEqual(readingIgnored, [],
+	'these tests read gitignored paths, so they cannot pass anywhere but the ' +
+	'machine that happens to hold the file — bank the fixture in the tree instead');
+
 const source = read('src/index.template.html');
 assert.match(source, /\/src\\\/index\\\.template\\\.html\$/,
 	'source template must redirect to the materialized product entrypoint');

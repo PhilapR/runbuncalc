@@ -22,6 +22,14 @@ const driver = require('../lib/battle-driver.js');
 const battery = require('../scripts/scenario-battery.js');
 const run = require('../lib/run.js');
 
+// The banked run document, tracked. Both fights below used to read it out of
+// the report in gitignored ui-playthrough-out/, so they ran on one machine
+// and ENOENT'd in CI. fixtures/banked-runs/MANIFEST.json names the report it
+// came from; scripts/extract-run-fixture.js redoes the extraction.
+const bankedRun = () => JSON.parse(require('node:fs').readFileSync(
+	require('node:path').join(__dirname, '..', 'fixtures', 'banked-runs',
+		'flannery-3.run.json'), 'utf8'));
+
 test('the threat sentence matches the panel and feeds the driver parsers', () => {
 	const threat = {
 		move: 'Mach Punch', max: 47, crit: 69,
@@ -77,29 +85,26 @@ test('move text round-trips through scoreMove exactly', () => {
 test('a banked deep run plays a whole fight headless, deterministically', () => {
 	// The point of the bridge: a real archived run document, a trainer the
 	// browser never reached, the real policy — no page anywhere.
-	const report = JSON.parse(require('node:fs').readFileSync(
-		'ui-playthrough-out/report-flannery-3.json', 'utf8'));
-	assert.ok(report.run.position > 77, 'the fixture must live past Brawly');
-	const ahead = run.upcoming(report.run, 2);
+	const doc = bankedRun();
+	assert.ok(doc.position > 77, 'the fixture must live past Brawly');
+	const ahead = run.upcoming(doc, 2);
 	const fight = (Array.isArray(ahead) ? ahead : ahead.fights)[0];
 	assert.ok(fight, 'the archive run must still have a road');
 
-	const first = battery.playScenario(policy, report.run, fight.trainer, 7);
+	const first = battery.playScenario(policy, doc, fight.trainer, 7);
 	assert.ok(['win', 'loss'].includes(first.result),
 		'the fight must END, got ' + first.result);
 	assert.ok(first.turns > 0);
 
-	const again = battery.playScenario(policy, report.run, fight.trainer, 7);
+	const again = battery.playScenario(policy, doc, fight.trainer, 7);
 	assert.deepEqual(again, first, 'same seed, same fight, same tape');
 
-	const other = battery.playScenario(policy, report.run, fight.trainer, 8);
+	const other = battery.playScenario(policy, doc, fight.trainer, 8);
 	assert.ok(other.result, 'a different seed still ends');
 });
 
 test('the bridge view carries what decide() reads, from a live reply', () => {
-	const opened = driver.start(JSON.parse(require('node:fs').readFileSync(
-		'ui-playthrough-out/report-flannery-3.json', 'utf8')).run,
-	'Pokéfan Miguel', 3);
+	const opened = driver.start(bankedRun(), 'Pokéfan Miguel', 3);
 	const view = bridge.viewOf(Object.assign({}, opened, {phase: 'choose'}));
 	assert.match(view.prompt, /^What will /);
 	assert.match(view.us, / L\d+/);

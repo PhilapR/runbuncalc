@@ -154,3 +154,14 @@ redundant and can go:
 
 Run `trace_qc.py` for every label after cleaning; a PASS proves the record
 survived the deletion.
+
+"Cannot be regenerated" and "gitignored" are a contradiction this directory
+held for a while: the deep run documents are irreplaceable, and they lived
+only on one disk, where a stray clean or a dead volume ends them. Two states
+the cost bench sampled in August (`report-fin-2`, `report-fin-3`) are already
+gone. A run document that anything else depends on — a gate, a manifest, a
+recorded batch — belongs in the tree: `node scripts/extract-run-fixture.js
+ui-playthrough-out/report-X.json` banks the run document alone (a fifth of a
+report's bytes) into `fixtures/banked-runs/`, with its source and hash in that
+directory's `MANIFEST.json`. `npm run check:sdlc` refuses a test that reads a
+gitignored path, which is how the five that did were found.

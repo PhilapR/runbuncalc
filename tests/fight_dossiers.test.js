@@ -22,6 +22,13 @@ const planner = require('../lib/planner');
 const encounters = require('../profiles/run-and-bun/encounters.js');
 const oracle = require('../profiles/run-and-bun/oracle/fight-dossiers.json');
 
+// The banked run document, tracked. It used to be read out of the report in
+// gitignored ui-playthrough-out/, so these three assertions ran on one
+// machine and ENOENT'd in CI. fixtures/banked-runs/MANIFEST.json names the
+// report it was extracted from; scripts/extract-run-fixture.js redoes it.
+const BANKED_WATTSON = require('node:path')
+	.join(__dirname, '..', 'fixtures', 'banked-runs', 'sac-A-11.run.json');
+
 const INPUTS = {
 	setdex: 'src/js/data/sets/gen8.js',
 	learnsets: 'profiles/run-and-bun/oracle/learnsets.json',
@@ -102,7 +109,7 @@ test('the catch advisor reads the dossier: named answers surface and outrank', (
 	const run = require('../lib/run.js');
 	const fs = require('node:fs');
 	const doc = JSON.parse(fs.readFileSync(
-		'ui-playthrough-out/report-sac-A-11.json', 'utf8')).run;
+		BANKED_WATTSON, 'utf8'));
 	const advice = run.adviseCatches(doc, 'Leader Wattson');
 	assert.ok(Array.isArray(advice.keyAnswers) && advice.keyAnswers.includes('Excadrill'),
 		'the advice names the answer list it consulted');
@@ -126,7 +133,7 @@ test('the plan carries the tech it must respect, all the way over the wire', () 
 	const api = require('../lib/run-api').api;
 	const fs = require('node:fs');
 	const doc = JSON.parse(fs.readFileSync(
-		'ui-playthrough-out/report-sac-A-11.json', 'utf8')).run;
+		BANKED_WATTSON, 'utf8'));
 	const plan = run.planNext(doc, {trainer: 'Leader Wattson'});
 	assert.ok(plan.dossierTech.some(line => /Magnezone: Sturdy, Custap Berry/.test(line)),
 		'the plan names the Sturdy+Custap trap');
@@ -143,7 +150,7 @@ test('a Heart Scale on a named answer is marked, and near-ties resolve to it', (
 	const run = require('../lib/run.js');
 	const fs = require('node:fs');
 	const doc = JSON.parse(fs.readFileSync(
-		'ui-playthrough-out/report-sac-A-11.json', 'utf8')).run;
+		BANKED_WATTSON, 'utf8'));
 	doc.bag = Object.assign({}, doc.bag, {'Heart Scale': 2});
 	const advice = run.adviseUpgrades(doc, 'Leader Wattson');
 	assert.ok(advice.upgrades.some(row => row.kind === 'heartScale'),
