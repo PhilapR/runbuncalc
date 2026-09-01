@@ -1,6 +1,12 @@
 import {ActionFacts, DamageFacts, MoveAction, MoveResolution} from './model';
 
-function pickRoll(facts: DamageFacts, random: () => number): number {
+function pickRoll(facts: DamageFacts, random: () => number, critical = false): number {
+  if (critical && facts.critRolls?.length) {
+    const critSample = random();
+    if (!Number.isFinite(critSample)) throw new Error('Damage sampler must return a finite number');
+    const critBounded = Math.max(0, Math.min(0.999999999999, critSample));
+    return facts.critRolls[Math.floor(critBounded * facts.critRolls.length)];
+  }
   if (!facts.rolls.length) return 0;
   const sample = random();
   if (!Number.isFinite(sample)) throw new Error('Damage sampler must return a finite number');
@@ -22,6 +28,8 @@ export function sampleDamageResolution(
   action: Extract<MoveAction, {kind: 'move'}>,
   facts: ActionFacts,
   random: () => number = Math.random,
+  criticalByTarget: Record<string, boolean[]> = {},
+  hitCountOverride?: number,
 ): MoveResolution {
   const damageByTarget: Record<string, number> = {};
   const damageRollsByTarget: Record<string, number> = {};
@@ -33,11 +41,15 @@ export function sampleDamageResolution(
     const targetFacts = damageFactsByTarget[targetId] ||
       (action.targetIds.length === 1 ? facts.damage : undefined);
     if (!targetFacts) continue;
-    const hitCount = targetFacts.hits || 1;
+    const hitCount = hitCountOverride ?? targetFacts.hits ?? 1;
+    // One flag per hit. A shared boolean made every hit of a multi-hit move
+    // crit together or not at all.
+    const criticalHits = criticalByTarget[targetId] || [];
     const hits = targetFacts.hitRolls
       ? targetFacts.hitRolls.map(rolls => pickRoll({rolls, min: 0, max: 0, targetHp: 0,
         possibleKO: false, guaranteedKO: false}, random))
-      : Array.from({length: hitCount}, () => pickRoll(targetFacts, random));
+      : Array.from({length: hitCount}, (unused, index) =>
+        pickRoll(targetFacts, random, criticalHits[index] === true));
     const damage = hits.reduce((total, hit) => total + hit, 0);
     damageByTarget[targetId] = damage;
     damageRollsByTarget[targetId] = damage;

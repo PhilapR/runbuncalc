@@ -1,0 +1,50 @@
+{
+	"comment": "Best assemblable teams under table-choice encounters (one catch per route, dupes clause respected), from scripts/choice-teams.js. A win rate here prices the CHOICE rule itself against rolled boxes.",
+	"generator": "scripts/choice-teams.js",
+	"measured": [
+		{
+			"label": "choice1",
+			"measured_in": "572a5d1",
+			"date": "2026-08-29",
+			"verdict": "reconstructed"
+		}
+	],
+	"scenarios": [
+		{
+			"name": "Leader Brawly · choice-team",
+			"report": "ui-playthrough-out/choice-brawly.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Brawly · choice-team-max-ivs",
+			"report": "ui-playthrough-out/choice-brawly-max.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · choice-team",
+			"report": "ui-playthrough-out/choice-roxanne.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · choice-team-max-ivs",
+			"report": "ui-playthrough-out/choice-roxanne-max.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · choice-team",
+			"report": "ui-playthrough-out/choice-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · choice-team-max-ivs",
+			"report": "ui-playthrough-out/choice-wattson-max.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		}
+	]
+}

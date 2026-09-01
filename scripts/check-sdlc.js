@@ -54,13 +54,105 @@ assert.match(deployWorkflow,
 	/if \[ -z "\$SITE_AUTH_PASSWORD" \]; then[\s\S]*preserving the existing Worker secret/,
 	'an absent optional password must preserve the existing private Worker secret');
 
+// The TEST workflow was never gated, and that is where CI broke. c133af8
+// strengthened the ledger gate to ask whether a fix is an ANCESTOR of HEAD,
+// which a shallow clone cannot answer — and actions/checkout defaults to a
+// depth of one. Every run since failed on the first of the 39 findings that
+// name a fix, reporting "not an ancestor of HEAD", which is a true statement
+// about a clone with no history and a false one about the ledger.
+//
+// Gated here rather than left to be rediscovered: the suite that runs in CI
+// now asserts the shape of the workflow that runs it.
+const testWorkflow = read('.github/workflows/test.yml');
+assert.match(testWorkflow, /uses: actions\/checkout@[^\n]*\n(\s+)with:\n[\s\S]*?fetch-depth: 0/,
+	'the test checkout needs fetch-depth: 0 — tests/ledger.test.js asks whether a ' +
+	'fixing commit is an ancestor of HEAD, and a shallow clone has no history to ask');
+assert.match(testWorkflow, /run: npm run test/,
+	'the test workflow must actually run the suite');
+assert.match(testWorkflow, /playwright-core install[^\n]*chromium/,
+	'the browser gates need Chromium installed, or they skip and prove nothing');
+
 const providerProvenance = json('vendor/pokemon-run-runtime/PROVENANCE.json');
 const providerArtifact = fs.readFileSync(path.join(root, 'vendor', 'pokemon-run-runtime',
 	providerProvenance.artifact));
 assert.equal(crypto.createHash('sha256').update(providerArtifact).digest('hex'),
 	providerProvenance.artifactSha256, 'vendored pokemon-mono artifact hash drifted');
 assert.equal(providerProvenance.repository, 'pokemon-mono');
-assert.equal(providerProvenance.revision, '2ae1b7e5721a2d2ff3b9692df75f65329c891650');
+assert.equal(providerProvenance.revision, 'bf28a069148903cc02315cc434f91e24816045e2');
+// The version string names the revision, and it is the copy a reader is most
+// likely to see — `npm ls` and the lockfile print it, PROVENANCE.json is a file
+// you have to open. Re-pinning the bundle to bf28a069 for the ability fix moved
+// the artifact and the provenance and left the version saying `2ae1b7e`, the
+// revision whose vanilla ability table the re-pin existed to replace. The gate
+// below compared the lockfile to package.json — both stale, so both agreed.
+assert.equal(providerPackage.version,
+	`0.1.0-pokemon-mono.${providerProvenance.revision.slice(0, 7)}`,
+	'the vendored version string must name the revision PROVENANCE.json pins');
+
+// A test file that no script runs is not a gate. Three were written, made to
+// fail, and reported as passing — and none of them ran in `npm test`, because
+// the suite listed its files one by one and nothing noticed the new ones were
+// missing. `node --test tests/whatever.test.js` passing by hand is not the
+// same claim as the suite passing, and the difference is invisible in a green
+// run. So the suite asserts that it knows about every test in the tree.
+//
+// The suite now globs the directory rather than naming files, which removes
+// the way that bug happened. This rule survives it because a glob is a claim
+// about one directory, not about the tree: a test dropped in some other
+// directory is orphaned exactly as before. Only the `node --test` invocations
+// count. Listing a file for eslint is not running it, and the first version of
+// this rule accepted that and passed while the test it was meant to protect
+// had been dropped from the suite.
+const globbedDirs = new Set();
+const namedTests = new Set();
+for (const script of Object.values(pkg.scripts)) {
+	for (const step of script.split('&&')) {
+		if (!/\bnode\s+--test\b/.test(step)) continue;
+		for (const glob of step.match(/[\w.-]+\/\*\*\/\*\.test\.js/g) || []) {
+			globbedDirs.add(glob.split('/')[0]);
+		}
+		for (const token of step.match(/[\w.-]+\/[\w.-]+\.test\.js/g) || []) namedTests.add(token);
+	}
+}
+const orphanedTests = [];
+for (const dir of ['tests', 'fixtures']) {
+	if (globbedDirs.has(dir)) continue;
+	for (const name of fs.readdirSync(path.join(root, dir))) {
+		if (name.endsWith('.test.js') && !namedTests.has(`${dir}/${name}`)) {
+			orphanedTests.push(`${dir}/${name}`);
+		}
+	}
+}
+assert.deepEqual(orphanedTests, [],
+	'these tests are in the tree but no npm script runs them, so they gate nothing');
+
+// The same species, one step further out. A test the suite DOES name can
+// still gate nothing if it reads a path git does not carry: it passes on the
+// machine that has the file and ENOENTs everywhere else. Five did — the
+// banked reports in ui-playthrough-out/ — so every CI run failed those five
+// while the suite was green on the author's disk, which is the worst place
+// for a gate to disagree with itself. Fixtures a test needs live in the
+// tree (fixtures/banked-runs/ is the shelf for run documents, extracted by
+// scripts/extract-run-fixture.js); gitignored output directories are for
+// artifacts nothing gates on.
+const ignoredDirs = read('.gitignore').split('\n')
+	.map(line => line.trim())
+	.filter(line => line && !line.startsWith('#') && line.endsWith('/'))
+	.map(line => line.replace(/\/$/, ''));
+const readingIgnored = [];
+for (const name of fs.readdirSync(path.join(root, 'tests'))
+	.filter(file => file.endsWith('.test.js'))) {
+	const body = read(`tests/${name}`);
+	for (const dir of ignoredDirs) {
+		// Quoted literals only: a comment naming the directory is how a test
+		// explains why it no longer reads from it.
+		const quoted = new RegExp(`['"\`]${dir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/`);
+		if (quoted.test(body)) readingIgnored.push(`tests/${name} -> ${dir}/`);
+	}
+}
+assert.deepEqual(readingIgnored, [],
+	'these tests read gitignored paths, so they cannot pass anywhere but the ' +
+	'machine that happens to hold the file — bank the fixture in the tree instead');
 
 const source = read('src/index.template.html');
 assert.match(source, /\/src\\\/index\\\.template\\\.html\$/,
@@ -165,7 +257,7 @@ assert.equal(lock.digest, manifest.authority.canonicalDigest);
 sha256(lock.digest, 'canonical contract digest');
 assert.deepEqual(matrix.fixtures.unexpectedDivergences, []);
 assert.deepEqual(matrix.fixtures.expectedDivergences, []);
-assert.equal(matrix.lanes.engine.revision, '2ae1b7e5721a2d2ff3b9692df75f65329c891650');
+assert.equal(matrix.lanes.engine.revision, 'bf28a069148903cc02315cc434f91e24816045e2');
 assert.equal(matrix.lanes.app.revision, 'ad0e0bcc11e7f80a6cee9177fd3dc0fe36bc3e2a');
 assert.equal(matrix.lanes.control.revision, '446776f91ea17eb25054fc3d233f5baa8f8e5c55');
 assert.equal(matrix.lanes.verification.revision, '867461d6ca9ed24b71c447e20dd5fa840b5b0d5c');

@@ -55,20 +55,32 @@ export function normalizeDamageHitRolls(damage: DamageInput): number[][] | undef
     rolls.length ? rolls.map(roll => Math.max(0, roll)) : [0]);
 }
 
-export function makeDamageFacts(damage: DamageInput, targetHp: number, hits = 1): DamageFacts {
+export function makeDamageFacts(
+  damage: DamageInput,
+  targetHp: number,
+  hits = 1,
+  hitRange?: [number, number],
+): DamageFacts {
   const hitRolls = normalizeDamageHitRolls(damage);
   const rolls = normalizeDamageRolls(damage);
   const hitCount = hitRolls ? hitRolls.length : Math.max(1, Math.floor(hits));
+  // A variable multi-hit rolls its count when it resolves; the calculator
+  // pins it at 3 for its damage display. Planning has to span the real
+  // range or it lies in both directions at once — a floor built on 3 hits
+  // overstates what we can rely on (the move can hit twice), and a ceiling
+  // built on 3 understates what we must survive (it can hit five times).
+  const spread = !hitRolls && hitRange && hitRange[0] !== hitRange[1] ? hitRange : undefined;
   const min = hitRolls
     ? hitRolls.reduce((total, perHit) => total + Math.min(...perHit), 0)
-    : Math.min(...rolls) * hitCount;
+    : Math.min(...rolls) * (spread ? spread[0] : hitCount);
   const max = hitRolls
     ? hitRolls.reduce((total, perHit) => total + Math.max(...perHit), 0)
-    : Math.max(...rolls) * hitCount;
+    : Math.max(...rolls) * (spread ? spread[1] : hitCount);
 
   return {
     rolls,
     ...(hitCount > 1 ? {hits: hitCount} : {}),
+    ...(spread ? {hitRange: spread} : {}),
     ...(hitRolls ? {hitRolls} : {}),
     min,
     max,

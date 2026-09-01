@@ -51,7 +51,7 @@ function parseAnnotation(location) {
 function main() {
 	const db = JSON.parse(fs.readFileSync(path.join(RAB, 'rab-trainers-database.json'), 'utf8'));
 	const list = Array.isArray(db) ? db : db.trainers;
-	const planner = require('../planner.js');
+	const planner = require('../lib/planner.js');
 	const ours = new Map();
 	for (const fight of planner.listFights('run-and-bun').fights) {
 		ours.set(fight.trainer.toLowerCase(), fight.trainer);

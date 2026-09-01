@@ -87,11 +87,20 @@ function weatherDamage(state: BattleState, pokemon: PokemonState, types: string[
     hasActiveWeatherItem(state, pokemon, 'safetygoggles')) return 0;
   if (state.generation >= 2 && state.field.weather === 'Sand' &&
     !hasType(types, 'Rock', 'Ground', 'Steel')) {
+    // Sand Rush/Sand Force always exempt; Sand Veil's immunity began Gen 4.
+    if (hasAbility(state, pokemon, 'sandrush') || hasAbility(state, pokemon, 'sandforce') ||
+      (state.generation >= 4 && hasAbility(state, pokemon, 'sandveil'))) return 0;
     const denominator = state.generation === 2 ? 8 : 16;
     return Math.max(1, Math.floor(pokemon.hp.max / denominator));
   }
   if (state.generation >= 3 && state.field.weather === 'Hail' && state.generation < 9 &&
     !hasType(types, 'Ice')) {
+    // Ice Body nets +1/16 (was charged the chip AND credited the heal,
+    // netting zero); Snow Cloak is exempt too. Hail is NOT symmetric with
+    // sand: sand exempts all three of its abilities, hail exempts only these
+    // two. Slush Rush doubles Speed and grants no immunity — it is listed
+    // with the sand abilities above by mistake in older notes.
+    if (hasAbility(state, pokemon, 'icebody') || hasAbility(state, pokemon, 'snowcloak')) return 0;
     return Math.max(1, Math.floor(pokemon.hp.max / 16));
   }
   return 0;
@@ -103,9 +112,13 @@ function grassyTerrainDelta(state: BattleState, pokemon: PokemonState): number {
   return Math.max(1, Math.floor(pokemon.hp.max / 16));
 }
 
-function volatileRecoveryDelta(pokemon: PokemonState): number {
-  if (!pokemon.volatile?.aquaRing && !pokemon.volatile?.ingrain) return 0;
-  return Math.max(1, Math.floor(pokemon.hp.max / 16));
+function volatileRecoveryDelta(state: BattleState, pokemon: PokemonState): number {
+  // Each heals 1/16 independently — they stack — and Big Root boosts both.
+  const sixteenth = Math.max(1, Math.floor(pokemon.hp.max / 16));
+  let total = 0;
+  if (pokemon.volatile?.aquaRing) total += drainRecoveryAmount(state, pokemon, sixteenth);
+  if (pokemon.volatile?.ingrain) total += drainRecoveryAmount(state, pokemon, sixteenth);
+  return total;
 }
 
 function addDelta(resolution: EndTurnResolution, pokemonId: string, delta: number) {
@@ -625,9 +638,12 @@ function applyConfusionBerry(
   projectedHp: number,
   random: () => number,
 ) {
+  const confusionBerryThreshold = state.generation >= 4 && hasAbility(state, pokemon, 'gluttony')
+    ? Math.floor(pokemon.hp.max / 2)
+    : Math.floor(pokemon.hp.max / 4);
   if (state.generation < 3 || !itemEffectsActive(state, pokemon) ||
     !CONFUSION_BERRIES.has(id(pokemon.item)) || projectedHp <= 0 ||
-    projectedHp > Math.floor(pokemon.hp.max / 4)) return;
+    projectedHp > confusionBerryThreshold) return;
   if (!pokemon.volatile?.healBlock) {
     addDelta(resolution, pokemon.id, Math.floor(pokemon.hp.max / 2) * berryEffectMultiplier(state, pokemon));
   }
@@ -890,7 +906,7 @@ export function deriveEndTurnResolution(state: BattleState, options: EndTurnOpti
     const grassyTerrain = grassyTerrainDelta(state, pokemon);
     if (grassyTerrain) delta += grassyTerrain;
 
-    const volatileRecovery = volatileRecoveryDelta(pokemon);
+    const volatileRecovery = volatileRecoveryDelta(state, pokemon);
     if (volatileRecovery) delta += volatileRecovery;
 
     const gmaxDamage = residualGmaxDamage(state, pokemon, types, magicGuard);
@@ -949,7 +965,9 @@ export function deriveEndTurnResolution(state: BattleState, options: EndTurnOpti
     }
 
     const yawn = pokemon.volatile?.yawn;
-    if (yawn) {
+    // Only the SECOND end-of-turn converts: turns 2 is the grace turn Gen 8
+    // gives the target to switch or act, and the boundary ticks it to 1.
+    if (yawn && (yawn.turns ?? 1) <= 1) {
       if (!pokemon.status && canApplyMajorStatus(
         state,
         yawn.sourceId || pokemon.id,
@@ -957,7 +975,11 @@ export function deriveEndTurnResolution(state: BattleState, options: EndTurnOpti
         'slp',
       )) {
         setStatus(resolution, pokemon.id, 'slp');
-        setStatusTurns(resolution, pokemon.id, 2);
+        // Yawn inflicts ordinary sleep — a rolled 2-4 counter, like every
+        // other sleep site in this engine. The hardcoded 2 always granted
+        // the shortest possible nap.
+        setStatusTurns(resolution, pokemon.id,
+          Math.floor(Math.max(0, Math.min(0.999999999999, random())) * 3) + 2);
       }
       setVolatile(resolution, pokemon.id, 'yawn', null);
     }

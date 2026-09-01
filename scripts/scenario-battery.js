@@ -1,0 +1,193 @@
+#!/usr/bin/env node
+/* eslint-env node, es6 */
+'use strict';
+
+/**
+ * Scenario battery: the playthrough policy, exercised past where runs die.
+ *
+ * Live runs end at Brawly's door (fight ~25 of 362), so every policy A/B so
+ * far has graded the same narrow corridor — and graded it through a browser,
+ * at ~25 minutes a batch, with box luck swamping n=8. This runner plays
+ * single fights HEADLESSLY: a banked run document (any depth — the archive
+ * holds 112 past Brawly, the deepest at order 282), a named trainer ahead of
+ * it, N seeds, the real engine, and the real decide() policy reading the
+ * same view text the panel renders (lib/battle-view.js is the bridge, with
+ * parity gates).
+ *
+ * What it is NOT: a run. No teaching, no shopping, no healing between
+ * fights, no attempt loop — one fight from the document's exact box state,
+ * repeated across seeds. A scenario win rate is a statement about the
+ * policy in that position, not about a run's chance of getting there.
+ *
+ *   node scripts/scenario-battery.js --manifest=scenarios/battery.json
+ *   node scripts/scenario-battery.js --report=ui-playthrough-out/report-X.json \
+ *     --trainer="Leader Wattson" --seeds=20
+ *
+ * Policy flags (--race-sends=0, --bank-bodies=1, ...) pass straight through:
+ * the policy module reads the same argv this script was launched with.
+ */
+
+const childProcess = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const driver = require('../lib/battle-driver.js');
+const viewOf = require('../lib/battle-view.js').viewOf;
+
+function flag(name, fallback) {
+	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
+	return hit ? hit.split('=').slice(1).join('=') : fallback;
+}
+
+/**
+ * What code produced these numbers. ab.js has recorded this from its first
+ * batch; the battery did not, and every batch before 2026-08-29 had its
+ * revision reconstructed from file mtimes against the git log — the weak
+ * form ingest.py labels "reconstructed". Recording it here is what lets a
+ * manifest's `measured` stamp be checked instead of trusted, and `dirty` is
+ * the honest asterisk: this repo's habit is to run first and commit after,
+ * so the stamp in the manifest names the commit that CARRIES the batch, not
+ * this revision.
+ */
+function provenance() {
+	const git = args => {
+		try {
+			return childProcess.execFileSync('git', args,
+				{cwd: path.join(__dirname, '..'), encoding: 'utf8'}).trim();
+		} catch (error) {
+			return null;
+		}
+	};
+	return {
+		revision: git(['rev-parse', 'HEAD']),
+		dirty: git(['status', '--porcelain']) !== '',
+		date: new Date().toISOString(),
+	};
+}
+
+function freshMemory() {
+	return {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0,
+		disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0, banked: 0,
+		stallTried: new Set(), progress: null, endeavored: 0};
+}
+
+/**
+ * One fight, engine only, decided by the real policy.
+ *
+ * The guard is generous because a stall is a finding, not a crash: a policy
+ * that cannot end a fight reports 'stuck' and the scenario counts it.
+ */
+function playScenario(policy, doc, trainer, seed) {
+	const roster = (doc.box || []).map(mon => ({id: mon.id, moves: mon.moves}));
+	let reply = driver.start(doc, trainer, seed);
+	let battle = reply.battle;
+	const memory = freshMemory();
+	let guard = 0;
+	while (guard++ < 400) {
+		if (reply.result) {
+			return {result: reply.result, turns: battle.state.turn,
+				deaths: (reply.deaths || []).length};
+		}
+		// start() carries no phase; a forced replacement offers only switches.
+		const phase = reply.phase ||
+			(reply.actions.some(entry => entry.kind === 'move') ? 'choose' : 'replace');
+		const view = viewOf(Object.assign({}, reply, {phase}));
+		const choice = policy.decide(view, memory, roster) ||
+			{kind: reply.actions[0].kind, pick: reply.actions[0].kind === 'move' ?
+				{move: reply.actions[0].move} : {id: reply.actions[0].action.replacementId}};
+		const action = choice.kind === 'move' ?
+			{kind: 'move', move: choice.pick.move} :
+			{kind: 'switch', replacementId: choice.pick.id};
+		reply = driver.act(battle, action);
+		battle = reply.battle;
+	}
+	return {result: 'stuck', turns: 400, deaths: null};
+}
+
+/**
+ * A banked document pairs its stored orders with trainers resolved against
+ * the CURRENT map; on a stale scale the position silently means a different
+ * road. Refuse rather than misread — the 2026-08-28 insertion is why the
+ * stamp exists.
+ */
+function requireScale(doc) {
+	const profile = require('../profiles').getProfile(doc.profileId);
+	const scale = profile.encounters && profile.encounters.ORDER_SCALE;
+	if (!scale) return doc;
+	if (doc.orderScale !== scale.id) {
+		throw new Error('this document\'s orders are on scale ' +
+			(doc.orderScale ? JSON.stringify(doc.orderScale) : '(unstamped)') +
+			' but the map is on ' + JSON.stringify(scale.id) +
+			' — migrate the document before playing it');
+	}
+	return doc;
+}
+
+function runScenario(policy, scenario) {
+	const report = JSON.parse(fs.readFileSync(scenario.report, 'utf8'));
+	const doc = requireScale(report.run);
+	const seeds = scenario.seeds || 20;
+	const out = {name: scenario.name, trainer: scenario.trainer,
+		report: path.basename(scenario.report), position: doc.position,
+		seeds, wins: 0, losses: 0, stuck: 0, deaths: 0, turns: 0};
+	for (let seed = 1; seed <= seeds; seed++) {
+		const played = playScenario(policy, doc, scenario.trainer, seed);
+		if (played.result === 'win') out.wins += 1;
+		else if (played.result === 'stuck') out.stuck += 1;
+		else out.losses += 1;
+		out.deaths += played.deaths || 0;
+		out.turns += played.turns || 0;
+	}
+	return out;
+}
+
+function main() {
+	// Loaded here, not at the top: the policy reads its flags from argv at
+	// require time, and the gate loads this module with its own argv.
+	const policy = require('./ui-playthrough.js');
+	// A model flag, not a policy flag: it changes what the fight IS. The
+	// receipt's argv records it, so an arm that ran fuel-free can never be
+	// mistaken for one that ran with real PP.
+	driver.setPPModel(flag('pp-model', '0') === '1');
+	const label = flag('label', 'battery');
+	const manifest = flag('manifest', '');
+	const scenarios = manifest ?
+		JSON.parse(fs.readFileSync(manifest, 'utf8')).scenarios :
+		[{name: flag('trainer', ''), report: flag('report', ''),
+			trainer: flag('trainer', ''), seeds: Number(flag('seeds', '20'))}];
+	if (!scenarios.length || !scenarios[0].report) {
+		console.error('need --manifest=FILE or --report=FILE --trainer=NAME');
+		process.exit(1);
+	}
+	const results = [];
+	for (const scenario of scenarios) {
+		const row = runScenario(policy, scenario);
+		results.push(row);
+		console.log(
+			row.name.padEnd(34) +
+			('#' + row.position).padEnd(6) +
+			(row.wins + '/' + row.seeds).padEnd(7) +
+			'deaths/fight=' + (row.deaths / row.seeds).toFixed(2).padEnd(6) +
+			'turns/fight=' + (row.turns / row.seeds).toFixed(1) +
+			(row.stuck ? '  STUCK=' + row.stuck : ''));
+	}
+	const receipt = {label, manifest: manifest || null,
+		argv: process.argv.slice(2), provenance: provenance(), results};
+	const outPath = path.join('ui-playthrough-out', label + '-battery.json');
+	fs.writeFileSync(outPath, JSON.stringify(receipt, null, '\t'));
+	// The receipt is the same document in a TRACKED home. ui-playthrough-out
+	// is gitignored, so the recorded revision above dies with the volume and
+	// no gate can read it. A receipt committed with the batch is what lets a
+	// manifest's `measured` stamp carry verdict "recorded": the provenance
+	// gate checks the receipt's revision is an ancestor of the carrying
+	// commit, instead of trusting the stamp's author.
+	const receiptPath = path.join('scenarios', 'receipts', label + '.json');
+	fs.mkdirSync(path.dirname(receiptPath), {recursive: true});
+	fs.writeFileSync(receiptPath, JSON.stringify(receipt, null, '\t') + '\n');
+	console.log('\nwrote ' + outPath + ' and ' + receiptPath);
+}
+
+if (require.main === module) main();
+
+module.exports = {playScenario, runScenario, freshMemory, requireScale};

@@ -81,13 +81,54 @@
 			.replace(/\bSpace center\b/g, 'Space Center');
 	}
 
+	/**
+	 * A refusal arrives as 'teach: Poochyena cannot learn ...' — the prefix
+	 * is the command's name, useful in a log, noise in the game's voice. The
+	 * strip is presentation-only: journals and receipts keep the raw text.
+	 */
+	var COMMAND_PREFIX = new RegExp('^(teach|catch|evolve|levelUp|faint|party|use|' +
+		'give|take|heartScale|acquire|release|nickname|beat|skip|battle|plan|' +
+		'import|identify|hold|unhold|spend|undo|run|roll): ');
+	function speakable(message) {
+		var text = String(message || '');
+		var stripped = text.replace(COMMAND_PREFIX, '');
+		if (stripped !== text && stripped) {
+			return stripped.charAt(0).toUpperCase() + stripped.slice(1);
+		}
+		return text;
+	}
+
+	var COUNTERS_KEY = 'runbun.counters.v1';
+	function bumpCounter(group, key) {
+		try {
+			var counters = JSON.parse(window.localStorage.getItem(COUNTERS_KEY)) || {};
+			counters[group] = counters[group] || {};
+			counters[group][key] = (counters[group][key] || 0) + 1;
+			window.localStorage.setItem(COUNTERS_KEY, JSON.stringify(counters));
+		} catch (ignore) { /* a lost count is a lost count, never a lost run */ }
+	}
+
+	// The engine identity fights are recorded under: the deployed revision
+	// when the page can learn it, and the pinned provider always.
+	var appRevision = null;
+	function learnAppRevision() {
+		fetch('/__runbun/meta').then(function (response) {
+			return response.ok ? response.json() : null;
+		}).then(function (meta) {
+			if (meta && meta.revision) appRevision = meta.revision;
+		}).catch(function (ignore) { /* dev servers have no meta; null is honest */ });
+	}
+
 	function status(message, kind) {
-		$('#runbun-run-status').text(displayText(message)).attr('data-kind', kind || '');
+		$('#runbun-run-status').text(displayText(speakable(message)))
+			.attr('data-kind', kind || '');
 	}
 
 	function refreshStartAvailability() {
 		var hasStarter = $('.runbun-run-starter[aria-pressed="true"]').length > 0;
-		$('#runbun-run-new').prop('disabled', !initialized || !hasStarter);
+		$('#runbun-run-new').prop('disabled', !initialized || !hasStarter)
+			.attr('title', !initialized ? 'Loading the run panel…' :
+				!hasStarter ? 'Pick a starter first' : 'Begin the run');
 		$('.runbun-run-setup-form').attr('aria-busy', initialized ? 'false' : 'true');
 	}
 
@@ -167,7 +208,16 @@
 			},
 		}).then(function (receipt) {
 			currentRevision = receipt.revision;
-			mirror(state);
+			// The mirror is a convenience copy. Its failure (quota, privacy
+			// mode) must never demote a session whose durable commit just
+			// SUCCEEDED — that inversion turned a full localStorage into a
+			// memory-only run.
+			try {
+				mirror(state);
+			} catch (ignored) {
+				status('Saved durably. The compatibility copy could not be ' +
+					'written (browser storage is full); the run itself is safe.', 'error');
+			}
 			return receipt;
 		}).catch(function (error) {
 			// Neither conflict is evidence that storage died: revision means
@@ -178,7 +228,9 @@
 			// A browser can disable or evict IndexedDB independently of localStorage.
 			// Keep the accepted run recoverable, but say that durability degraded.
 			attemptStore = null;
-			mirror(state);
+			try {
+				mirror(state);
+			} catch (ignored) { /* memory only now; the status below still renders */ }
 			status('Durable storage became unavailable; kept a compatibility copy. ' +
 				error.message, 'error');
 			return {revision: null, fallback: true};
@@ -202,10 +254,27 @@
 					state = restoreLegacy();
 					currentRevision = head.revision;
 					restoredFrom = 'compatibility storage (ahead of durable)';
-					status('This browser\'s quick save is ahead of durable storage ' +
-						'— continuing from the quick save. The next accepted ' +
-						'command re-anchors durability.', 'error');
-					return state;
+					// Re-anchor NOW, as a lifecycle event: run.replaced
+					// snapshots the whole adopted run, so the ledger's
+					// materialized-log check keeps holding for every later
+					// export. Silently absorbing the mirror into the next
+					// ordinary command manufactured archives that failed
+					// their own re-import as CORRUPT_LOG.
+					var mirrorLog = (state.log || []).length;
+					return persist('run.replaced', {
+						reason: 'compatibility copy ran ahead of durable storage',
+					}, 'replace-' + state.attemptId + '-' + mirrorLog).then(function () {
+						status('This browser\'s quick save was ahead of durable ' +
+							'storage — re-anchored and continuing.', 'ok');
+						return state;
+					}).catch(function (ignored) {
+						// Degraded again: the mirror keeps the run playable and
+						// the next healthy boot retries this same re-anchor.
+						status('This browser\'s quick save is ahead of durable storage ' +
+							'— continuing from the quick save. The next healthy start ' +
+							're-anchors durability.', 'error');
+						return state;
+					});
 				}
 				if (choice.parked === 'mirror') {
 					// A mirror from a DIFFERENT attempt is someone's run. It
@@ -416,8 +485,16 @@
 		});
 		$('#runbun-run').on('click', '.rb-disclose-btn', function () {
 			var $section = $(this).closest('.rb-disclose');
-			setSection($section.attr('data-section'), !$section.hasClass('is-open'));
+			var key = $section.attr('data-section');
+			var opening = !$section.hasClass('is-open');
+			setSection(key, opening);
 			persistSections();
+			// History renders on demand, not at boot; a player opening the
+			// section by its own header must get the real ledger, not the
+			// boot-time zeros and a stuck 'Loading…' line.
+			if (opening && key === 'history') {
+				renderHistory().catch(function () { /* renderHistory writes the error state */ });
+			}
 		});
 	}
 
@@ -435,6 +512,40 @@
 	}
 
 	var IV_LABELS = {hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe'};
+	var IV_MAX_TOTAL = 6 * 31;
+
+	/**
+	 * A Pokemon's IV total, against the 186 every trainer is built with.
+	 *
+	 * The per-stat breakdown is on the summary screen, one Pokemon at a time,
+	 * which is the wrong shape for the question it answers: which of these is
+	 * worth building on. A wild catch rolls a mean of 93 and a spread from
+	 * about 56 to 130 across a box, while every trainer Pokemon is a flat 186
+	 * — so the gap between the best and worst catch in a box is roughly the
+	 * size of the deficit to the opponent, and nothing on screen said so.
+	 *
+	 * A partial record is NOT summed as if the gaps were zero. An imported
+	 * entry with three stats recorded is a different thing from one that
+	 * genuinely rolled low, and the two must not print the same.
+	 */
+	function ivTotal(mon) {
+		var known = 0;
+		var sum = 0;
+		Object.keys(IV_LABELS).forEach(function (stat) {
+			if (!mon.ivs || !Object.prototype.hasOwnProperty.call(mon.ivs, stat)) return;
+			known += 1;
+			sum += Number(mon.ivs[stat]) || 0;
+		});
+		return {sum: sum, known: known, missing: Object.keys(IV_LABELS).length - known};
+	}
+
+	/** The scannable form: "IV 118/186", or what is missing if it cannot say. */
+	function ivLabel(mon) {
+		var total = ivTotal(mon);
+		if (!total.known) return 'IV not recorded';
+		if (total.missing) return 'IV ' + total.sum + '+ · ' + total.missing + ' not recorded';
+		return 'IV ' + total.sum + '/' + IV_MAX_TOTAL;
+	}
 
 	// This panel never rolls an identity. IVs, nature, and ability are
 	// authored by the server's die (/run/encounter, /run/identity) and only
@@ -452,6 +563,30 @@
 			return species && species.types ? species.types.slice() : [];
 		} catch (error) {
 			return [];
+		}
+	}
+
+	/**
+	 * Whether a bag entry is something a Pokemon can actually hold.
+	 *
+	 * Same table the server checks with `planner.holdableItem`, reached the
+	 * same way `speciesTypes` reaches species data — most of a bag is Potions,
+	 * Rare Candy and Heart Scales, and offering one here stored a Pokemon the
+	 * calculator refuses to build. The server is still the authority and
+	 * refuses it by name; this only stops the picker from suggesting a move
+	 * that will be refused.
+	 *
+	 * Unknown on a missing calc means "offer it": a picker that hides the whole
+	 * bag because reference data has not loaded is worse than one that offers
+	 * an item the server will decline with a reason.
+	 */
+	function holdableItem(name) {
+		try {
+			var gen = window.calc && window.calc.Generations && window.calc.Generations.get(8);
+			if (!gen || !gen.items) return true;
+			return !!gen.items.get(dexId(name));
+		} catch (error) {
+			return true;
 		}
 	}
 
@@ -483,7 +618,7 @@
 		var id = $('#runbun-run-selected').val();
 		var mon = findBoxed(id);
 		$('#runbun-run-mon-empty').prop('hidden', !!mon);
-		$('#runbun-run-mon-summary, #runbun-run-mon-record').prop('hidden', !mon);
+		$('#runbun-run-mon-summary, #runbun-run-mon-record, #runbun-run-mon-tools').prop('hidden', !mon);
 		if (!mon) return;
 
 		var displayName = mon.nickname || mon.species;
@@ -505,6 +640,17 @@
 			$moves.append($('<span class="runbun-run-move"></span>').text(move));
 		});
 
+		// The forget slot is a closed set: this Pokemon's own moves. An empty
+		// first choice covers the free-slot teach (fewer than four moves).
+		var $replace = $('#runbun-run-replace').empty()
+			.append($('<option value=""></option>').text(mon.moves.length < 4 ?
+				'Into an empty slot' : 'Choose the move to forget'));
+		mon.moves.forEach(function (move) {
+			$replace.append($('<option></option>').attr('value', move).text('Forget ' + move));
+		});
+		refreshTeachableOptions(mon.id);
+		refreshEvolutionFact(mon.id);
+
 		var $ivs = $('#runbun-run-mon-summary-ivs').empty();
 		var missingIvs = [];
 		Object.keys(IV_LABELS).forEach(function (stat) {
@@ -522,6 +668,143 @@
 			'Your IVs drive damage, speed, and survival. Trainer teams use 31; wild encounters use their roll.');
 		$('#runbun-run-observed-nature').val(mon.nature || '');
 		$('#runbun-run-observed-ability').val(mon.ability || '');
+
+		// The bag's HOLDABLE items — the comment said so long before the filter
+		// did, and the gap between them was a bricked run: a Pokemon handed a
+		// Potion could not be built by the calculator, so the next plan and the
+		// next fight both failed until somebody found who was holding it.
+		var $hold = $('#runbun-run-hold-item').empty();
+		var carried = Object.keys((state && state.bag) || {}).filter(function (item) {
+			return (state.bag[item] || 0) > 0;
+		}).sort();
+		var bagItems = carried.filter(holdableItem);
+		if (!bagItems.length) {
+			$hold.append($('<option value=""></option>').text(carried.length ?
+				'Nothing in the bag can be held' : 'The bag is empty'));
+		}
+		bagItems.forEach(function (item) {
+			$hold.append($('<option></option>').attr('value', item)
+				.text(item + ' ×' + state.bag[item]));
+		});
+		$('#runbun-run-give').prop('disabled', !bagItems.length);
+		$('#runbun-run-take').prop('disabled', !mon.item)
+			.attr('title', mon.item ? 'Put ' + mon.item + ' back in the bag' :
+				(mon.nickname || mon.species) + ' is not holding anything');
+	}
+
+	/**
+	 * The run -> calculator bridge: load THIS Pokemon, with its exact rolled
+	 * identity, into the calculator's player slot. The set rides the live
+	 * setdex under one well-known name — never localStorage, because the run
+	 * is the authority and a persisted copy would go stale on the next
+	 * level-up. Level is projected to the active cap, the same projection
+	 * every planning surface uses.
+	 */
+	var RUN_SET_NAME = 'My Run';
+	function openInCalculator(mon, enemySetId) {
+		var dex = window.SETDEX_SS;
+		if (!dex || !window.jQuery) {
+			status('The calculator has not finished loading yet.', 'error');
+			return;
+		}
+		var cap = lastStatus && lastStatus.status && lastStatus.status.levelCap ?
+			lastStatus.status.levelCap.cap : null;
+		var level = cap === null || cap === undefined ?
+			mon.level : Math.max(mon.level, cap);
+		var ivs = mon.ivs || {};
+		dex[mon.species] = dex[mon.species] || {};
+		dex[mon.species][RUN_SET_NAME] = {
+			level: level,
+			nature: mon.nature || undefined,
+			ability: mon.ability || undefined,
+			item: mon.item || undefined,
+			moves: mon.moves.slice(0, 4),
+			// The calculator's legacy stat keys; the run's rolled IVs.
+			ivs: {hp: ivs.hp, at: ivs.atk, df: ivs.def,
+				sa: ivs.spa, sd: ivs.spd, sp: ivs.spe},
+			evs: {},
+			isCustomSet: true,
+		};
+		var setId = mon.species + ' (' + RUN_SET_NAME + ')';
+		if (typeof window.topPokemonIcon === 'function') {
+			window.topPokemonIcon(setId, $('#p1mon')[0]);
+		}
+		$('.player').val(setId);
+		$('.player').change();
+		$('.player .select2-chosen').text(setId);
+		var opponentLabel = window.CURRENT_TRAINER || 'the loaded trainer';
+		if (enemySetId && dex[enemySetId.split(' (')[0]] &&
+			dex[enemySetId.split(' (')[0]][enemySetId.split(' (')[1].slice(0, -1)]) {
+			if (typeof window.topPokemonIcon === 'function') {
+				window.topPokemonIcon(enemySetId, $('#p2mon')[0]);
+			}
+			$('.opposing').val(enemySetId);
+			$('.opposing').change();
+			$('.opposing .select2-chosen').text(enemySetId);
+			opponentLabel = enemySetId;
+		}
+		window.location.hash = '#calc';
+		status((mon.nickname || mon.species) + ' L' + level +
+			(level !== mon.level ? ' (projected to the cap)' : '') +
+			' is in the calculator against ' + opponentLabel + '.', 'ok');
+	}
+
+	/**
+	 * The calculator's player slot, made run-aware from the calculator's own
+	 * tab: the run's living party as one-click chips. Without this the only
+	 * path was the details panel's "Check in calculator" button on the Play
+	 * tab, so a player already in the calculator had to leave it, find the
+	 * mon, and come back — or hand-enter six IVs the run already knows.
+	 */
+	function renderCalcParty() {
+		var $strip = $('#runbun-calc-party');
+		if (!$strip.length) return;
+		var party = (state && state.party || []).map(findBoxed).filter(Boolean);
+		$strip.prop('hidden', !party.length);
+		var $list = $('#runbun-calc-party-list').empty();
+		party.forEach(function (mon, index) {
+			$list.append($('<button type="button" class="btn runbun-calc-party-chip"></button>')
+				.attr('title', 'Load ' + (mon.nickname || mon.species) +
+					' — its rolled IVs, nature and ability — into the calculator')
+				.append($('<span class="runbun-calc-party-slot"></span>').text(index + 1))
+				.append($('<span></span>').text((mon.nickname || mon.species) + ' L' + mon.level))
+				.on('click', function () { openInCalculator(mon); }));
+		});
+	}
+
+	// The datalist behind the New move field: everything this Pokemon can
+	// legally learn right now, fetched once per selection. Free text still
+	// works — the teach command is the validator, this is only the menu.
+	var evolutionFor = null;
+	function refreshEvolutionFact(id) {
+		if (!state || !id || evolutionFor === id) return;
+		evolutionFor = id;
+		api('/run/evolutions', {run: state, id: id}).then(function (payload) {
+			if (evolutionFor !== id) return;
+			var rows = payload.evolutions || [];
+			var text = !rows.length ? 'Final form' : rows.map(function (row) {
+				var how = row.method === 'level' ? 'at L' + row.level :
+					row.item ? 'with ' + row.item : row.method;
+				return row.into + ' ' + how + (row.ready === true ? ' — ready now' : '');
+			}).join(' · ');
+			var known = rows.length ? rows.every(function (row) {
+				return row.ready !== null || row.method !== 'level';
+			}) : true;
+			fact($('#runbun-run-mon-facts'), 'Evolution', text, known);
+		}).catch(function (ignore) { /* the fact is optional; Evolve validates */ });
+	}
+
+	var teachableFor = null;
+	function refreshTeachableOptions(id) {
+		if (!state || !id || teachableFor === id) return;
+		teachableFor = id;
+		api('/run/learnable', {run: state, id: id}).then(function (payload) {
+			if (teachableFor !== id) return;
+			var $options = $('#runbun-run-move-options').empty();
+			payload.now.forEach(function (entry) {
+				$options.append($('<option></option>').attr('value', entry.move));
+			});
+		}).catch(function (ignore) { /* the menu is optional; teach validates */ });
 	}
 
 	// ------------------------------------------------------------------- spine
@@ -552,7 +835,7 @@
 		$('#runbun-run-spine-note').text(spine.length ?
 			done + ' / ' + spine.length + ' milestones' +
 				(next ? ' · next: ' + displayText(next.trainer) +
-					' (#' + next.order + ')' : ' — all beaten') :
+					' (#' + (next.fightNumber != null ? next.fightNumber : next.order) + ')' : ' — all beaten') :
 			'');
 	}
 
@@ -573,8 +856,18 @@
 		var lost = payload.box.filter(function (mon) { return mon.status === 'dead'; });
 		var party = state.party;
 		var reserve = alive.filter(function (mon) { return party.indexOf(mon.id) === -1; });
+		// The box's IV picture beside its size. The MEDIAN is the honest
+		// summary — a mean moves with one lucky catch — and 186 travels with
+		// it so the number carries its own scale instead of needing one.
+		var totals = alive.filter(function (mon) { return !ivTotal(mon).missing; })
+			.map(function (mon) { return ivTotal(mon).sum; })
+			.sort(function (a, b) { return a - b; });
+		var median = !totals.length ? null : totals.length % 2 ?
+			totals[(totals.length - 1) / 2] :
+			Math.round((totals[totals.length / 2 - 1] + totals[totals.length / 2]) / 2);
 		$('#runbun-run-box-counts').text(reserve.length + ' reserve' +
-			(lost.length ? ' · ' + lost.length + ' lost' : ''));
+			(lost.length ? ' · ' + lost.length + ' lost' : '') +
+			(median === null ? '' : ' · IV median ' + median + '/' + IV_MAX_TOTAL));
 
 		function matches(mon) {
 			if (!filter) return true;
@@ -615,7 +908,8 @@
 					'killed by ' + mon.died.to +
 						(mon.died.move ? "'s " + mon.died.move : '') :
 					[types.length ? types.join('/') : null,
-						mon.ability || 'ability not recorded', mon.item, mon.origin && mon.origin.mapName ?
+						mon.ability || 'ability not recorded', ivLabel(mon),
+						mon.item, mon.origin && mon.origin.mapName ?
 							mon.origin.method + ' · ' + displayText(mon.origin.mapName) :
 							'gift / static / trade']
 						.filter(Boolean).join(' · ')));
@@ -658,6 +952,7 @@
 				$copy.append($('<span class="runbun-run-party-meta"></span>').text(
 					(types.length ? types.join('/') + ' · ' : '') +
 						(mon.ability || 'ability not recorded') + ' · ' +
+						ivLabel(mon) + ' · ' +
 						(mon.item || 'No held item') + ' · ' + mon.moves.length +
 						(mon.moves.length === 1 ? ' move' : ' moves')));
 			}
@@ -714,7 +1009,15 @@
 		prep.gauntlet.forEach(function (fight) {
 			var $row = $('<li class="runbun-run-split-fight"></li>')
 				.toggleClass('is-boss-row', fight.tier === 'boss');
-			$row.append($('<span class="runbun-run-up-order"></span>').text('#' + fight.order));
+			// "#77" alone reads as a fight number and is not one: order counts
+			// cumulative enemy Pokemon, so Brawly is #77 and the 26th fight.
+			// The cell stays short because the column is narrow; the title and
+			// the label carry the scale.
+			$row.append($('<span class="runbun-run-up-order"></span>')
+				.attr('title', 'Run map order ' + fight.order +
+					' — counts enemy Pokemon faced, not fights')
+				.attr('aria-label', 'order ' + fight.order)
+				.text('#' + fight.order));
 			$row.append($('<span class="runbun-run-up-name"></span>')
 				.text(displayText(fight.trainer)));
 			$row.append($('<span class="runbun-run-up-tier"></span>')
@@ -746,7 +1049,9 @@
 							(item.reachable ? '' : ' · from #' + item.opensAt)));
 				if (item.reachable) {
 					$row.append($('<button type="button" class="runbun-run-pickup-take"></button>')
-						.attr('data-item', item.name).text('Take ' + item.name));
+						.attr('data-item', item.name)
+						.attr('data-where', item.location)
+						.text('Take ' + item.name));
 				}
 				$pickups.append($row);
 			});
@@ -788,7 +1093,15 @@
 		var $list = $('#runbun-run-upcoming').empty();
 		(payload.upcoming || []).forEach(function (fight, index) {
 			var $row = $('<li class="runbun-run-up"></li>').toggleClass('is-next', index === 0);
-			$row.append($('<span class="runbun-run-up-order"></span>').text('#' + fight.order));
+			// "#77" alone reads as a fight number and is not one: order counts
+			// cumulative enemy Pokemon, so Brawly is #77 and the 26th fight.
+			// The cell stays short because the column is narrow; the title and
+			// the label carry the scale.
+			$row.append($('<span class="runbun-run-up-order"></span>')
+				.attr('title', 'Run map order ' + fight.order +
+					' — counts enemy Pokemon faced, not fights')
+				.attr('aria-label', 'order ' + fight.order)
+				.text('#' + fight.order));
 			$row.append($('<span class="runbun-run-up-name"></span>')
 				.text(displayText(fight.trainer)));
 			if (fight.tier) {
@@ -803,6 +1116,15 @@
 					.attr('data-trainer', fight.trainer).text('Plan fight'))
 				.append($('<button type="button" class="runbun-run-up-board"></button>')
 					.attr('data-trainer', fight.trainer).text('Matchups'))
+				// The declared exceptions only: the engine refuses a skip on a
+				// required-in-place fight, so the button never shows one.
+				.append(fight.skippable && !fight.skipped ?
+					$('<button type="button" class="runbun-run-up-skip"></button>')
+						.attr('data-trainer', fight.trainer)
+						// A double battle refuses to open, so the driver skips
+						// it BEFORE the door; the attribute is how it knows.
+						.attr('data-double', fight.isDouble ? '1' : null)
+						.text('Skip for now') : null)
 				.append($('<button type="button" class="runbun-run-up-beat"></button>')
 					.attr('data-trainer', fight.trainer).text('Mark beaten')));
 			$list.append($row);
@@ -849,10 +1171,27 @@
 			$('#runbun-run-next-detail').text('All required fights cleared');
 			$play.text('Run complete').prop('disabled', true)
 				.attr('title', 'No required trainer remains');
-			$plan.prop('disabled', true);
-			$value.prop('disabled', true);
-			$advise.prop('disabled', true);
-			$rank.prop('disabled', true);
+			$plan.prop('disabled', true).attr('title', 'No required trainer remains');
+			$value.prop('disabled', true).attr('title', 'No required trainer remains');
+			$advise.prop('disabled', true).attr('title', 'No required trainer remains');
+			$rank.prop('disabled', true).attr('title', 'No required trainer remains');
+			return;
+		}
+
+		// A nuzlocke with nothing left alive is over: offering "choose your
+		// party" from an empty box is a dead end, and the player has just
+		// watched their last Pokemon fall.
+		if (!alive.length) {
+			$('#runbun-run-next-title').text('The run is over');
+			$('#runbun-run-next-detail').text(
+				payload.box.length + ' caught · none left standing · ' +
+				displayText(next.trainer) + ' still stands');
+			$play.text('End this run').prop('disabled', false)
+				.attr('title', 'Nothing is left alive — save this run to history');
+			$plan.prop('disabled', true).attr('title', 'Nothing is left alive');
+			$value.prop('disabled', true).attr('title', 'Nothing is left alive');
+			$advise.prop('disabled', true).attr('title', 'Nothing is left alive');
+			$rank.prop('disabled', true).attr('title', 'Nothing is left alive');
 			return;
 		}
 
@@ -863,10 +1202,12 @@
 				(firstAvailable ? ' · ' + monLabel(firstAvailable) + ' available' : ''));
 			$play.text('Choose your party').prop('disabled', false)
 				.attr('title', 'Open the roster and choose a lead before fighting');
-			$plan.prop('disabled', true);
-			$value.prop('disabled', true);
-			$advise.prop('disabled', true);
-			$rank.prop('disabled', !alive.length);
+			$plan.prop('disabled', true).attr('title', 'Choose a party first');
+			$value.prop('disabled', true).attr('title', 'Choose a party first');
+			$advise.prop('disabled', true).attr('title', 'Choose a party first');
+			$rank.prop('disabled', !alive.length).attr('title', alive.length ?
+				'Score every legal party against the next fight' :
+				'Catch a Pokémon first');
 			return;
 		}
 
@@ -877,10 +1218,15 @@
 			' · fresh');
 		$play.text('Fight ' + displayText(next.trainer)).prop('disabled', false)
 			.attr('title', 'Play the next trainer fight turn by turn');
-		$plan.prop('disabled', false);
-		$value.prop('disabled', false);
-		$advise.prop('disabled', false);
-		$rank.prop('disabled', !alive.length);
+		$plan.prop('disabled', false)
+			.attr('title', 'Sample the next fight with your current party');
+		$value.prop('disabled', false)
+			.attr('title', 'Run modeled replacement and IV tests on this roster');
+		$advise.prop('disabled', false)
+			.attr('title', 'Price candidate builds against the next fight');
+		$rank.prop('disabled', !alive.length).attr('title', alive.length ?
+			'Score every legal party against the next fight' :
+			'Catch a Pokémon first');
 	}
 
 	/** A compact, actionable scan of what can still happen before the fight. */
@@ -895,6 +1241,26 @@
 		$section.prop('hidden', false);
 		$('#runbun-run-opportunities-fight').text(
 			opportunity.before.trainer || '#' + opportunity.before.order);
+
+		// The open marts. A bought row stays as its own receipt — one buy per
+		// row, because nothing models money and a free stone must not be an
+		// infinite one.
+		var $shop = $('#runbun-run-shop').empty();
+		(payload.shop || []).forEach(function (item) {
+			var $row = $('<li class="runbun-run-item"></li>')
+				.toggleClass('is-collected', item.bought)
+				.append($('<span class="runbun-run-item-name"></span>').text(item.name))
+				.append($('<span class="runbun-run-item-kind"></span>').text(item.kind));
+			if (item.bought) {
+				$row.append($('<span class="runbun-run-item-state"></span>').text('✓ bought'));
+			} else {
+				$row.append($('<button type="button" class="runbun-run-shop-buy"></button>')
+					.attr('data-item', item.name)
+					.attr('data-where', item.location)
+					.text('Buy ' + item.name));
+			}
+			$shop.append($row);
+		});
 
 		function preview(values, limit) {
 			var shown = values.slice(0, limit);
@@ -921,6 +1287,59 @@
 			$list.append($row);
 		}
 
+		// Levelling goes FIRST, because it is the only row here that is work you
+		// already own rather than something to go and find, and because a plan
+		// that reads "at cap" while the box sits at catch levels is the one way
+		// this list could mislead. The projection is right; the grind to meet it
+		// was simply never named.
+		var levels = opportunity.levels || {};
+		if (levels.cap) {
+			addRow({
+				// No kind, so no action button. `kind` drives a reveal-and-scroll
+				// and there is no section to send anyone to: the party is already
+				// on screen, and a button that does nothing is worse than none.
+				kind: null,
+				name: levels.levelsNeeded ?
+					levels.levelsNeeded + ' level' + (levels.levelsNeeded === 1 ? '' : 's') + ' to the cap' :
+					'Party is at the cap',
+				detail: levels.levelsNeeded ?
+					preview(levels.behind.map(function (row) {
+						return displayText(row.nickname || row.species) + ' L' + row.level +
+							' \u2192 L' + row.to;
+					}), 3) :
+					'Every party member is at level ' + levels.cap,
+				title: levels.setBy ?
+					'Cap ' + levels.cap + ' is set by ' + displayText(levels.setBy.trainer) +
+						(levels.setBy.ace ? " (" + displayText(levels.setBy.ace) + ")" : '') :
+					undefined,
+			});
+		}
+
+		// The threshold demand, right under the levelling: when the next fight
+		// holds a sash-threshold set, a party with no priority attack is walking
+		// into Lilith's Mankey — six slower Pokemon swept from 2% HP because
+		// nothing could move first. Informational row, same as levels: there is
+		// no section to send anyone to, the teach form is already on screen.
+		var prep = opportunity.thresholdPrep || {threats: []};
+		if (prep.threats.length) {
+			addRow({
+				kind: null,
+				name: prep.covered ? 'Priority answer ready' : 'No priority answer',
+				detail: prep.covered ?
+					preview(prep.priorityAnswers.map(function (row) {
+						return displayText(row.species) + ' knows ' + row.move;
+					}), 2) :
+					(prep.teachable.length ?
+						'Teach ' + preview(prep.teachable.map(function (row) {
+							return row.move + ' to ' + displayText(row.species);
+						}), 2) :
+						'Nothing in the party can learn one \u2014 bring chip damage or a faster lead'),
+				title: prep.threats.map(function (threat) {
+					return threat.species + ' holds ' + threat.holds + ' + ' + threat.move;
+				}).join('; '),
+			});
+		}
+
 		var encounters = opportunity.encounters || {count: 0, routes: []};
 		addRow({
 			kind: encounters.count ? 'encounters' : null,
@@ -943,10 +1362,18 @@
 		});
 
 		var moves = opportunity.moves || {};
+		var reachableMoves = moves.reachable || [];
 		addRow({
-			name: 'TM & tutors',
-			detail: moves.status === 'undated' ? 'Move locations are not mapped yet' :
-				(moves.note || 'No new move access is recorded'),
+			name: moves.status === 'dated' ?
+				moves.count + ' TM' + (moves.count === 1 ? '' : 's') + ' & tutors reachable' :
+				'TM & tutors',
+			detail: moves.status === 'dated' ?
+				(reachableMoves.length ? preview(reachableMoves.map(function (row) {
+					return row.move + ' · ' + displayText(row.place || row.location);
+				}), 2) : 'None reachable yet' +
+					(moves.undated ? ' · ' + moves.undated + ' known places, undated' : '')) :
+				moves.status === 'undated' ? 'Move locations are not mapped yet' :
+					(moves.note || 'No new move access is recorded'),
 			title: moves.note,
 			unknown: moves.status === 'undated' || moves.status === 'unknown',
 		});
@@ -965,6 +1392,7 @@
 		routes.forEach(function (route) {
 			$routes.append($('<button type="button" class="runbun-run-route-choice"></button>')
 				.attr('data-map', route.map)
+				.attr('data-name', route.name)
 				.attr('aria-pressed', 'false')
 				.append($('<span class="runbun-run-route-choice-name"></span>')
 					.text(displayText(route.name)))
@@ -1047,7 +1475,7 @@
 						.text(comparisonText(row.comparison)));
 					$card.append($('<p class="runbun-history-plan-fact"></p>').text(plan ?
 						'Plan · lead ' + (plan.leadSpecies || plan.leadId || 'not recorded') + ' · ' +
-						plan.safeBranches + '/' + plan.branches + ' sampled branches deathless' +
+						plan.safeBranches + '/' + plan.branches + ' fair-dice samples clean' +
 						(Number.isFinite(plan.expectedTurns) ? ' · ' + plan.expectedTurns +
 							' expected turns' : '') + (row.planCount > 1 ?
 							' · latest of ' + row.planCount : '') :
@@ -1126,6 +1554,25 @@
 					renderPlanningReview(entry);
 				});
 				$row.append($button);
+				if (attemptStore && entry.attemptId) {
+					$row.append($('<button type="button" class="btn runbun-history-attempt-export"></button>')
+						.attr('title', 'Put this run\'s checked archive in the transfer box')
+						.text('Export')
+						.on('click', function () {
+							attemptStore.exportAttempt(entry.attemptId).then(function (bundle) {
+								if (!bundle) {
+									status('No durable archive exists for this run.', 'error');
+									return;
+								}
+								$('#runbun-run-transfer').val(JSON.stringify(bundle))
+									.closest('details').prop('open', true);
+								status((entry.name || 'The run') + '\'s archive is in the ' +
+									'transfer box — copy it somewhere safe.', 'ok');
+							}).catch(function (error) {
+								status(error.message, 'error');
+							});
+						}));
+				}
 				$attempts.append($row);
 			});
 
@@ -1238,9 +1685,11 @@
 		writeSummary('road', payload.upcoming && payload.upcoming.length ?
 			'#' + payload.upcoming[0].order + ' ' + payload.upcoming[0].trainer : 'nothing ahead');
 		var selected = $('#runbun-run-selected').val();
-		writeSummary('tools', selected || 'select a Pokémon');
+		var selectedMon = selected ? findBoxed(selected) : null;
+		writeSummary('tools', selectedMon ? monLabel(selectedMon) : 'select a Pokémon');
 		if (!$('#runbun-run-map').val()) writeSummary('catch', 'pick a route');
 		refreshStale();
+		renderCalcParty();
 		return payload;
 	}
 
@@ -1323,6 +1772,11 @@
 			(state && state.box || []).forEach(function (mon) { priorBoxIds[mon.id] = true; });
 			return api('/run/apply', {run: state, command: body}).then(function (payload) {
 				state = payload.run;
+				// Any applied command may change what a Pokemon can learn
+				// (teach consumes the slot, level-up opens new rows) and
+				// whether it is ready to evolve.
+				teachableFor = null;
+				evolutionFor = null;
 				var eventPayload = {command: body};
 				if (body.kind === 'catch') {
 					var added = (state.box || []).filter(function (mon) { return !priorBoxIds[mon.id]; });
@@ -1334,6 +1788,7 @@
 				});
 			}).catch(function (error) {
 				if (error && error.code === 'REVISION_CONFLICT') return recoverConflict(error);
+				bumpCounter('refusals', body.kind || 'unknown');
 				// The refusal message is the feature: it says why this could not have
 				// happened in the game, not merely that the form was wrong.
 				status(error.message, 'error');
@@ -1346,7 +1801,16 @@
 	}
 
 	function loadMaps() {
-		return fetch('/run/maps').then(function (response) { return response.json(); })
+		// `.ok` matters as much as the parse. A 500 with an HTML error page
+		// parses as a rejection and a 500 with a JSON body does not, so without
+		// this the panel would build a route list out of an error payload.
+		// api() has checked this since it was written; this call never did.
+		return fetch('/run/maps').then(function (response) {
+			if (!response.ok) {
+				throw new Error('the route list could not be loaded (HTTP ' + response.status + ')');
+			}
+			return response.json();
+		})
 			.then(function (payload) {
 				maps = payload.maps || [];
 				var $select = $('#runbun-run-map').empty();
@@ -1377,13 +1841,28 @@
 						'Route used — its encounter got away; nothing kept.'));
 			}
 			// The roll button rolls the methods this map actually has.
+			// The method picker offers what this run can actually use. A method
+			// still waiting on its HM stays visible (it is the route's future)
+			// but is disabled and says why — offering it live sent the player
+			// into "surf is not open here", a refusal they could not act on.
 			var $method = $('#runbun-run-roll-method').empty();
 			var seen = {};
+			var openMethods = [];
 			found.mons.forEach(function (mon) {
 				if (seen[mon.method]) return;
 				seen[mon.method] = true;
-				$method.append($('<option></option>').attr('value', mon.method).text(mon.method));
+				var gated = mon.methodGated;
+				if (!gated) openMethods.push(mon.method);
+				$method.append($('<option></option>')
+					.attr('value', mon.method)
+					.prop('disabled', !!gated)
+					.text(gated ? mon.method + ' — not yet, needs ' + methodNeed(mon.method) : mon.method));
 			});
+			if (openMethods.length) $method.val(openMethods[0]);
+			$('#runbun-run-roll').prop('disabled', !openMethods.length)
+				.attr('title', openMethods.length ?
+					'Find one random wild Pokémon from this location' :
+					'No encounter method here is open yet — the HMs that unlock them are still ahead');
 			// The guided half of "what is here": the field items standing on
 			// this location. An open, uncollected one carries the button that
 			// records the pickup; a collected one stays as the record it is.
@@ -1404,7 +1883,9 @@
 					$row.append($('<span class="runbun-run-item-state"></span>').text('✓ collected'));
 				} else if (item.open) {
 					$row.append($('<button type="button" class="runbun-run-pickup-take"></button>')
-						.attr('data-item', item.name).text('Take ' + item.name));
+						.attr('data-item', item.name)
+						.attr('data-where', item.location)
+						.text('Take ' + item.name));
 				} else {
 					$row.append($('<span class="runbun-run-item-state"></span>')
 						.text('opens at #' + item.opensAt));
@@ -1420,29 +1901,99 @@
 				line: 'Same evolution line as a box entry — does not count, re-roll',
 				forms: 'Same line as a box entry, or a regional form of it — does not count, re-roll',
 			}[dupesMode] || 'A dupe under this run\'s rules — does not count, re-roll';
-			found.mons.forEach(function (mon) {
+			// Two lists, not one: what this route can hand over RIGHT NOW,
+			// and what it still owes once an HM arrives. Mixing them made
+			// gated rows read as claimable and sent players into refusals
+			// ("surf is not open here") at the moment they meant to catch.
+			function encounterRow(mon) {
 				var odds = mon.dupe ? 'dupe' :
 					typeof mon.odds === 'number' ? mon.odds + '%' :
 						typeof mon.chance === 'number' ? mon.chance + '%' : '';
-				$list.append($('<li></li>')
+				var gated = mon.methodGated;
+				return $('<li></li>')
 					.toggleClass('is-owned', !!mon.owned)
 					.toggleClass('is-dupe', !!mon.dupe)
+					.toggleClass('is-gated', !!gated)
 					.append($('<button type="button" class="runbun-run-encounter"></button>')
 						.attr('data-species', mon.species)
 						.attr('data-level', mon.minLevel)
 						.attr('data-method', mon.method)
-						.attr('title', mon.dupe ?
-							dupeTitle :
-							typeof mon.odds === 'number' && mon.odds !== mon.chance ?
-								mon.chance + '% raw, ' + mon.odds + '% once dupes are re-rolled' : null)
-						.text((mon.owned ? '✓ ' : '') + mon.species + '  L' + mon.minLevel +
-							(mon.maxLevel === mon.minLevel ? '' : '-' + mon.maxLevel) +
-							(mon.rod ? '  ' + mon.rod : '') +
-							(odds ? '  · ' + odds : ''))));
-			});
+						.prop('disabled', !!gated)
+						.attr('title', gated ?
+							'Needs ' + methodNeed(mon.method) +
+								', which arrives at fight number ' + gated +
+								' — not claimable yet' :
+							mon.dupe ? dupeTitle :
+								typeof mon.odds === 'number' && mon.odds !== mon.chance ?
+									mon.chance + '% raw, ' + mon.odds + '% once dupes are re-rolled' : null)
+						// One SPAN per field, so the CSS grid can put level under
+						// level and odds under odds. This was a single flat
+						// string — "Surskit  L2-3  Super Rod  · 40%" — and with
+						// proportional species names nothing below the first
+						// column could ever line up.
+						.append($('<span class="runbun-run-encounter-name"></span>')
+							.text((mon.owned ? '✓ ' : '') + mon.species))
+						.append($('<span class="runbun-run-encounter-level"></span>')
+							.text('L' + mon.minLevel +
+								(mon.maxLevel === mon.minLevel ? '' : '-' + mon.maxLevel)))
+						.append($('<span class="runbun-run-encounter-method"></span>')
+							.text(mon.rod || ''))
+						.append($('<span class="runbun-run-encounter-odds"></span>')
+							.text(odds)));
+				// No per-row gate label. The group heading above these rows
+				// already reads "4 more once you have Surf", so repeating it
+				// on every line was noise — and worse, it widened one column
+				// on gated rows only, which pushed the level and odds columns
+				// 68px out of line with the claimable rows above them. Every
+				// row now has the same four fields, so they all line up. The
+				// row's own tooltip still names the requirement exactly.
+			}
+			var claimable = found.mons.filter(function (mon) { return !mon.methodGated; });
+			var waiting = found.mons.filter(function (mon) { return !!mon.methodGated; });
+			if (claimable.length) {
+				$list.append($('<li class="runbun-run-encounter-group"></li>')
+					.text('Catchable now · ' + claimable.length));
+				claimable.forEach(function (mon) { $list.append(encounterRow(mon)); });
+			} else if (found.mons.length) {
+				$list.append($('<li class="runbun-run-encounter-group"></li>')
+					.text('Nothing here is catchable yet'));
+			}
+			if (waiting.length) {
+				// Name the requirement, not the order. If the waiting slots all
+				// want the same thing, say it; if they differ, stay general
+				// rather than picking one and misleading about the others.
+				var needs = waiting.map(function (mon) { return methodNeed(mon.method); })
+					.filter(function (need, index, all) { return all.indexOf(need) === index; });
+				$list.append($('<li class="runbun-run-encounter-group"></li>')
+					.text('If you come back · ' + waiting.length + ' more once you have ' +
+						(needs.length === 1 ? needs[0] : needs.slice(0, -1).join(', ') +
+							' and ' + needs[needs.length - 1])));
+				waiting.forEach(function (mon) { $list.append(encounterRow(mon)); });
+			}
 		}).catch(function (error) {
 			status(error.message, 'error');
 		});
+	}
+
+	// What a gated encounter is ACTUALLY waiting on, in the player's words.
+	//
+	// This used to print the bare fight order — "· #589" — right beside a
+	// species name, where it reads as a National Dex number. #589 is
+	// Escavalier. The number was never the useful fact anyway: what the
+	// player needs to know is that the slot wants Surf.
+	var METHOD_NEEDS = {
+		surf: 'Surf',
+		'rock-smash': 'Rock Smash',
+		fish: 'a Rod',
+	};
+
+	function methodNeed(method) {
+		return METHOD_NEEDS[method] || method;
+	}
+
+	/** "needs Surf", or the raw method when we have no better word for it. */
+	function gateLabel(method) {
+		return 'needs ' + methodNeed(method);
 	}
 
 	function planningFights(trainer, limit) {
@@ -1467,9 +2018,16 @@
 		var runtime = window.RunBunPokemonProvider;
 		var fights = planningFights(trainer, trainer ? 1 : 3);
 		if (!client || !runtime || !fights || !fights.length) return Promise.resolve(null);
-		var options;
-		try {
-			options = fights.map(function (fight) {
+		// PER FIGHT, not per batch. This map used to throw as a whole, so one
+		// label the engine cannot place — and 28 of the run's 362 fights are
+		// unplaceable even with the trainer-order map — cost the other two
+		// fights their forecast as well.
+		//
+		// A fight that cannot be resolved keeps its slot and carries its own
+		// error, so the array still lines up with `fights` and the panel can
+		// say which fight went unanswered rather than answering none of them.
+		var options = fights.map(function (fight) {
+			try {
 				return {
 					runtime: runtime,
 					run: state,
@@ -1479,14 +2037,21 @@
 					trainerOrder: runtime.resolveTrainerOrder(fight.trainer),
 					revision: currentRevision === null ? logLength() : currentRevision,
 				};
-			});
-		} catch (error) {
-			return Promise.resolve({error: error});
-		}
+			} catch (error) {
+				return {error: error};
+			}
+		});
+		var planned = options.filter(function (option) { return !option.error; });
+		if (!planned.length) return Promise.resolve({error: options[0].error});
 		var planning = typeof client.planBatch === 'function' ?
-			client.planBatch(options) : Promise.all(options.map(client.planRun));
+			client.planBatch(planned) : Promise.all(planned.map(client.planRun));
 		return planning.then(function (results) {
-			return results.map(function (result, index) {
+			// Put the answers back beside the fights they belong to. The
+			// unresolvable ones never went to the engine, so they take their
+			// own error rather than somebody else's answer.
+			var next = 0;
+			return options.map(function (option, index) {
+				var result = option.error ? {error: option.error} : results[next++];
 				return {fight: fights[index], result: result};
 			});
 		}).catch(function (error) { return {error: error}; });
@@ -1498,7 +2063,15 @@
 			return Promise.resolve({count: 0, unavailable: true});
 		}
 		var recordedAt = new Date().toISOString();
-		return attemptStore.recordEvidenceBatch(forecasts.map(function (forecast) {
+		// A fight the engine refused has an error in place of a receipt, and
+		// there is nothing to retain for it. Filtering here rather than
+		// guarding inside the map keeps the count honest: it reports receipts
+		// saved, not fights attempted.
+		var withReceipts = forecasts.filter(function (forecast) {
+			return forecast && forecast.result && forecast.result.receipt;
+		});
+		if (!withReceipts.length) return Promise.resolve({count: 0});
+		return attemptStore.recordEvidenceBatch(withReceipts.map(function (forecast) {
 			return {
 				request: forecast.result.request,
 				receipt: forecast.result.receipt,
@@ -1543,7 +2116,13 @@
 	function renderPlanOutlook(forecasts) {
 		var $outlook = $('#runbun-run-plan-outlook');
 		var $list = $('#runbun-run-plan-outlook-list').empty();
-		var later = Array.isArray(forecasts) ? forecasts.slice(1) : [];
+		// Only the fights that came back with a receipt. Since a batch fails per
+		// fight rather than as a whole, this list can hold a refusal beside an
+		// answer, and a refusal has no summary to read.
+		var later = (Array.isArray(forecasts) ? forecasts.slice(1) : []).filter(
+			function (forecast) {
+				return forecast && forecast.result && forecast.result.receipt;
+			});
 		$outlook.prop('hidden', !later.length);
 		later.forEach(function (forecast) {
 			var summary = forecast.result.receipt.result.summary;
@@ -1558,7 +2137,7 @@
 					.text('Lead ' + (lead ? monLabel(lead) : summary.recommendedLeadId)))
 				.append($('<span class="runbun-run-plan-outlook-result"></span>')
 					.text(summary.safeBranches + '/' + summary.branchesEvaluated +
-						' sampled branches deathless')));
+						' samples clean')));
 		});
 	}
 
@@ -1624,6 +2203,7 @@
 		$('#runbun-run-attribution').prop('hidden', false);
 		$('#runbun-run-attribution-state').removeAttr('data-kind')
 			.text('Running fixed-seed replacement and IV reference tests…');
+		$('#runbun-run-attribution')[0].scrollIntoView({block: 'center'});
 		$('#runbun-run-attribution-tests').empty();
 		attemptStore.inspectAttempt(analysisAttemptId).then(function (inspected) {
 			if (!inspected || !inspected.head || inspected.head.revision !== analysisRevision) {
@@ -1673,13 +2253,51 @@
 			var result = answers[0];
 			var forecasts = answers[1];
 			var forecast = Array.isArray(forecasts) && forecasts.length ? forecasts[0].result : forecasts;
-			$('#runbun-run-plan-verdict').text(
+			// The margin answers "how clear is the move choice", which reads like a
+			// judgement on the FIGHT and is not one. Measured across 313 planned
+			// fights that now carry a live forecast, the two are uncorrelated:
+			// "decided by 5 or more" split six-all on whether anybody died. The
+			// survival answer sat two rows below in the PARTIAL PLAN line the
+			// whole time, so the verdict now carries it when it exists.
+			var survival = '';
+			if (forecast && !forecast.error && forecast.receipt) {
+				var outcome = forecast.receipt.result;
+				var counts = outcome.summary;
+				survival = outcome.safe ?
+					' · ' + counts.safeBranches + ' of ' + counts.branchesEvaluated +
+						' samples clean, none of them lost anyone' :
+					' · a sampled branch loses ' + counts.deaths +
+						(counts.deaths === 1 ? ' Pokemon' : ' Pokemon');
+			}
+			// A clean sample against a set the sampler cannot price is not the
+			// same claim as a clean sample elsewhere. Lilith's sash Mankey was
+			// forecast "worst sampled branch loses 1" fourteen times and swept
+			// the party in twelve — so a threshold set is named on the verdict
+			// itself, whether or not a forecast arrived, because the threat is
+			// true either way.
+			var caution = '';
+			if (result.thresholdThreats && result.thresholdThreats.length) {
+				caution = ' · CAUTION: ' + result.thresholdThreats.map(function (threat) {
+					return threat.species + ' holds ' + threat.holds + ' + ' + threat.move;
+				}).join(', ') + ' — the samples under-price pinch moves, keep a faster ' +
+					'finisher or chip damage in hand';
+			}
+			// The kit's declared tech, from the fight-dossier oracle: the
+			// punishes a plan must respect before any move choice matters.
+			if (result.dossierTech && result.dossierTech.length) {
+				caution += ' · TECH: ' + result.dossierTech.join(' · ');
+			}
+			$('#runbun-run-plan-verdict').text((
 				result.confidence === 'contested' ?
 					result.trainer + ' — contested by ' + result.margin + '. Plan for both.' :
 					result.confidence === 'only-option' ?
 						result.trainer + ' — only one action available.' :
 						result.trainer + ' — decided by ' + result.margin + '.'
-			);
+			) + survival + caution);
+			// The button lives at the top of the panel and the answer renders
+			// below the fold — bring the verdict to the player, same as
+			// advise() and rank() already do.
+			$('#runbun-run-plan-verdict')[0].scrollIntoView({block: 'center'});
 			var $actions = $('#runbun-run-plan-actions').empty();
 			result.actions.slice(0, 6).forEach(function (action, i) {
 				$actions.append($('<div class="runbun-run-action"></div>')
@@ -1689,15 +2307,28 @@
 			});
 			if (forecast && forecast.error) {
 				renderPlanOutlook(null);
-				$actions.append($('<div class="runbun-run-action is-provider"></div>')
+				// A dead forecast used to be the LAST row of the action list,
+				// carrying a class with no styling at all, so it read as one
+				// more option that happened to be unavailable. It is not an
+				// option. It is the survival answer failing to arrive, and the
+				// verdict above it does not answer survival either. So it takes
+				// the slot the working forecast takes, at the top, and names the
+				// question that went unanswered rather than only the provider
+				// that broke.
+				$actions.prepend($('<div class="runbun-run-action is-provider is-stale"></div>')
 					.append($('<span class="runbun-run-action-score"></span>').text('—'))
 					.append($('<span class="runbun-run-action-label"></span>')
-						.text('pokemon-mono seed check unavailable · ' + forecast.error.message)));
+						.text('NO SURVIVAL CHECK · nothing here says whether you live through ' +
+							'this fight · pokemon-mono seed check unavailable · ' +
+							forecast.error.message)));
 			} else if (forecast) {
 				var summary = forecast.receipt.result.summary;
 				var lead = findBoxed(summary.recommendedLeadId);
-				var branchLabel = summary.safeBranches + '/' + summary.branchesEvaluated +
-					' sampled branches deathless';
+				// A fair-dice sample is evidence, not a guarantee: 8 clean samples
+				// still permit a fight that kills one run in twelve. The wording
+				// says what was measured and nothing more.
+				var branchLabel = summary.safeBranches + ' of ' + summary.branchesEvaluated +
+					' fair-dice samples came back clean';
 				var risk = forecast.receipt.result.safe ? 'no deaths observed' :
 					'worst sampled branch loses ' + summary.deaths;
 				$actions.prepend($('<div class="runbun-run-action is-provider is-top"></div>')
@@ -1741,10 +2372,11 @@
 			evolve: 'Evolve',
 			pickup: 'Pick up item',
 			give: 'Give item',
+			heartScale: 'Heart Scale',
 		};
 		payload.party.forEach(function (mon) { byId[mon.id] = mon; });
 		$('#runbun-run-advice-note').text(
-			displayText(payload.trainer) + ' (#' + payload.order + ') · ' +
+			displayText(payload.trainer) + ' (#' + (payload.fightNumber != null ? payload.fightNumber : payload.order) + ') · ' +
 			payload.considered + ' available upgrades compared' +
 			(payload.projection.applied && payload.projection.from === 'projected' ?
 				' · party projected to level cap ' + payload.projection.cap : '') +
@@ -1765,15 +2397,38 @@
 			if (entry.delta.koGained > 0) koParts.push('+' + entry.delta.koGained);
 			if (entry.delta.koConceded > 0) koParts.push('-' + entry.delta.koConceded);
 			$list.append($('<li class="runbun-run-advice-row"></li>')
+				.toggleClass('is-key-answer', !!entry.keyAnswer)
+				// A named answer for this fight, per the dossier: the body the
+				// plan itself says the investment belongs on. Its own span —
+				// the driver maps `who` text back to a party label, so the
+				// marker must never ride inside it.
+				.append($('<span class="runbun-run-advice-key"></span>')
+					.text(entry.keyAnswer ? 'KEY' : ''))
 				.append($('<span class="runbun-run-advice-who"></span>')
 					.text(mon.species ? monLabel(mon) : 'Selected Pokémon'))
 				.append($('<span class="runbun-run-advice-kind"></span>')
 					.text(kindLabels[entry.kind] || displayText(entry.kind)))
 				.append($('<span class="runbun-run-advice-what"></span>').text(entry.detail))
+				// A one-shot item is a different offer from a permanent one, and the
+				// damage column cannot say so: the grid credits a held item in every
+				// enemy column, so a berry that fires once is priced as though it
+				// fired in all of them. Naming it is what can be told truthfully
+				// until the run tracks what was eaten.
+				.append($('<span class="runbun-run-advice-once"></span>')
+					.attr('title', entry.singleUse ?
+						'used up the first time it works, and the score prices it as ' +
+						'though it lasted the whole fight' : '')
+					.text(entry.singleUse ? 'one-shot' : ''))
 				.append($('<span class="runbun-run-advice-ko"></span>')
 					.toggleClass('is-ko', entry.delta.koGained > entry.delta.koConceded)
 					.toggleClass('is-ko-trade', entry.delta.koConceded > 0)
-					.text(koParts.length ? koParts.join('/') + ' KO' : ''))
+					// A cure answers a turn, not a health bar, and the KO/damage
+					// columns cannot say so — a Cheri Berry reads +0.00 next to
+					// every option that adds damage, which is exactly how the
+					// only counter to a status lock stayed invisible.
+					.text(koParts.length ? koParts.join('/') + ' KO' :
+						entry.delta.statusAnswered ?
+							'answers ' + entry.delta.statusAnswered : ''))
 				.append($('<span class="runbun-run-advice-damage"></span>')
 					.attr('title', 'bars of HP, summed across the fight' +
 						(entry.delta.koConceded ?
@@ -1787,6 +2442,13 @@
 		status('Pricing every change against that fight…', '');
 		var body = {run: state};
 		if (trainer) body.trainer = trainer;
+		// Survival first, damage second: the upgrade list answers "what hits
+		// harder", which a party can gain while staying just as dead. This
+		// asks the preparation graph the other question — what, if anything,
+		// removes a lethal branch, and what it costs.
+		api('/run/safety', body).then(renderSurvival).catch(function () {
+			$('#runbun-run-survival').prop('hidden', true);
+		});
 		api('/run/advise', body).then(function (payload) {
 			renderAdvice(payload);
 			stamp('advice');
@@ -1810,10 +2472,16 @@
 			return party.adjudication;
 		}).length;
 		$('#runbun-run-rank-note').text(
-			displayText(payload.trainer) + ' (#' + payload.order + ') · ' +
+			displayText(payload.trainer) + ' (#' + (payload.fightNumber != null ? payload.fightNumber : payload.order) + ') · ' +
 			payload.combinations + ' ' +
 				(payload.combinations === 1 ? 'party' : 'parties') +
-				' from ' + payload.boxSize + ' Pokémon' +
+				// A cut box must say so here. "from 36 Pokémon" after the ranker
+				// enumerated a shortlist of eighteen is a claim it did not earn,
+				// and the count beside it is exactly what makes it read as one.
+				(payload.shortlist && payload.shortlist.cutting ?
+					' from ' + payload.shortlist.candidates + ' of ' + payload.boxSize +
+						' Pokémon (' + payload.shortlist.cut + ' answered no enemy)' :
+					' from ' + payload.boxSize + ' Pokémon') +
 			(payload.projection.applied && payload.projection.from === 'projected' ?
 				' · projected to level cap ' + payload.projection.cap : '') +
 			(playedCount ?
@@ -1831,11 +2499,18 @@
 			// The played verdict outranks the grid and says so first: what
 			// happened in twelve fights beats what the matrix predicted.
 			if (party.adjudication) {
+				// The number carries its method: 'won 12/12 sims' is a
+				// simulation tally, never confusable with the plan's exact
+				// seeded branches. A bare 'Win 100%' read as a promise.
+				var sims = party.adjudication.rollouts;
 				$row.append($('<span class="runbun-run-rank-played"></span>')
 					.toggleClass('is-win', party.adjudication.pWin >= 0.75)
 					.toggleClass('is-loss', party.adjudication.pWin <= 0.25)
-					.text('Win ' + Math.round(party.adjudication.pWin * 100) + '% · ' +
-						party.adjudication.eDeaths.toFixed(1) + ' deaths'));
+					.text(sims ?
+						'won ' + Math.round(party.adjudication.pWin * sims) + '/' + sims +
+							' sims · ' + party.adjudication.eDeaths.toFixed(1) + ' deaths avg' :
+						'Win ' + Math.round(party.adjudication.pWin * 100) + '% · ' +
+							party.adjudication.eDeaths.toFixed(1) + ' deaths'));
 			}
 			var tags = [];
 			if (party.label && party.label !== 'top') tags.push(party.label);
@@ -1929,11 +2604,12 @@
 	/** The catch advisor: what the open routes could add, on the board. */
 	function renderScout(payload) {
 		$('#runbun-run-routes-note').text(
-			'vs ' + payload.trainer + ' (#' + payload.order + ')' +
+			'vs ' + payload.trainer + ' (#' + (payload.fightNumber != null ? payload.fightNumber : payload.order) + ')' +
 			(payload.cap !== null ? ' at cap ' + payload.cap : '') +
-			' · ' + payload.routesOpen + ' encounter areas open · party answers ' +
-			payload.partyCovers + '/' + payload.enemies +
-			(payload.gated ? ' · ' + payload.gated + ' prospects wait on an HM' : ''));
+			' · ' + payload.routesOpen + ' encounter areas open · your party can KO ' +
+			payload.partyCovers + ' of their ' + payload.enemies +
+			(payload.gated ? ' · ' + payload.gated + ' prospects wait on an HM' : '') +
+			' — each prospect shows how many of their team it could KO');
 		var $list = $('#runbun-run-scout').empty();
 		if (!payload.catches.length) {
 			$list.append($('<li class="runbun-run-scout-empty"></li>')
@@ -1941,17 +2617,28 @@
 			return;
 		}
 		payload.catches.forEach(function (entry) {
+			// Raw names on data attributes: the driver matches them against
+			// the route buttons' own raw names, never against display text.
 			var $row = $('<li class="runbun-run-scout-row"></li>')
+				.attr('data-area', entry.area)
+				.attr('data-key', entry.keyAnswer ? '1' : null)
 				.append($('<span class="runbun-run-scout-species"></span>')
 					.text(entry.species + ' L' + entry.level))
 				.append($('<span class="runbun-run-scout-where"></span>')
 					.text(displayText(entry.name) + ' · ' + entry.chance + '%' +
 						(entry.method === 'walk' ? '' : ' ' + entry.method)))
 				.append($('<span class="runbun-run-scout-ko"></span>')
+					.toggleClass('is-key-answer', !!entry.keyAnswer)
 					.toggleClass('is-ko', entry.newAnswers > 0)
 					.toggleClass('is-ko-trade', entry.kosConceded > 0)
-					.text((entry.newAnswers ? '+' + entry.newAnswers + ' new · ' : '') +
-						entry.kos + '/' + payload.enemies + ' KO' +
+					.attr('title', 'Could KO ' + entry.kos + ' of their ' + payload.enemies +
+						(entry.newAnswers ? '; answers ' + entry.newAnswers +
+							' your party currently cannot' : '') +
+						(entry.kosConceded ? '; ' + entry.kosConceded +
+							' of theirs would KO it back' : ''))
+					.text((entry.keyAnswer ? 'KEY · ' : '') +
+						(entry.newAnswers ? '+' + entry.newAnswers + ' new · ' : '') +
+						'KOs ' + entry.kos + '/' + payload.enemies +
 						(entry.kosConceded ? ' · KOd by ' + entry.kosConceded : '')));
 			$list.append($row);
 		});
@@ -1966,6 +2653,149 @@
 		}).catch(function (error) {
 			status(error.message, 'error');
 		});
+	}
+
+	/**
+	 * The run's single worst-case verdict for a fight, from the same cells the
+	 * board colours: which of our party a crit can kill, and how many of their
+	 * Pokemon can do it. Every surface reads this — the readiness strip, the
+	 * plan card, the rank rows — so the app stops speaking four dialects about
+	 * the same risk.
+	 */
+	function worstCaseVerdict(payload) {
+		if (!payload || !payload.grid || !payload.box) return null;
+		var partyIds = (state && state.party) || [];
+		var rows = payload.box.map(function (mon, index) { return {mon: mon, index: index}; })
+			.filter(function (entry) { return partyIds.indexOf(entry.mon.id) !== -1; });
+		if (!rows.length) return null;
+		var lethal = [];
+		rows.forEach(function (entry) {
+			payload.grid.forEach(function (row) {
+				var cell = row.versus[entry.index];
+				if (cell && cell.them && cell.them.critKO) {
+					lethal.push({
+						ours: entry.mon.nickname || entry.mon.species,
+						theirs: row.enemy.species,
+						move: cell.them.critMove || cell.them.move,
+					});
+				}
+			});
+		});
+		var leadId = partyIds[0];
+		var leadRow = rows.filter(function (entry) { return entry.mon.id === leadId; })[0];
+		var leadAtRisk = leadRow ? lethal.some(function (hit) {
+			return hit.ours === (leadRow.mon.nickname || leadRow.mon.species);
+		}) : false;
+		return {
+			lethal: lethal,
+			leadAtRisk: leadAtRisk,
+			exposed: lethal.reduce(function (names, hit) {
+				if (names.indexOf(hit.ours) === -1) names.push(hit.ours);
+				return names;
+			}, []),
+		};
+	}
+
+	function renderWorstCase(verdict) {
+		var $risk = $('#runbun-run-ready-risk');
+		if (!verdict) {
+			// A real control, not a sentence. This read "Check matchup" as
+			// plain text beside a BUTTON of the same name — and that button
+			// runs plan(), which answers a different question (how decided the
+			// opponent's choice is) and never fills this cell. Only board()
+			// computes the worst case, and board() had no control anywhere in
+			// this strip, so following the instruction did nothing at all.
+			$risk.removeAttr('data-risk').empty().append(
+				$('<button type="button" id="runbun-run-ready-risk-check"' +
+					' class="runbun-run-risk-check"></button>')
+					.text('Check matchup'));
+			return;
+		}
+		// Once there is an answer the cell is prose again, not a control.
+		$risk.empty();
+		if (!verdict.lethal.length) {
+			$risk.attr('data-risk', 'safe').text('No crit kills anyone');
+			return;
+		}
+		var first = verdict.lethal[0];
+		$risk.attr('data-risk', verdict.leadAtRisk ? 'lethal' : 'thin')
+			.text(first.theirs + '\u2019s ' + first.move + ' crit KOs ' + first.ours +
+				(verdict.exposed.length > 1 ?
+					' (+' + (verdict.exposed.length - 1) + ' more exposed)' : ''));
+	}
+
+	/**
+	 * The survival answer, rendered above the damage list: who a crit can
+	 * kill, what removes that branch, and — when nothing does — saying so
+	 * plainly instead of offering a damage upgrade as if it were a fix.
+	 */
+	function renderSurvival(answer) {
+		var $block = $('#runbun-run-survival').empty();
+		if (!answer || !answer.exposed || !answer.exposed.length) {
+			$block.prop('hidden', false)
+				.append($('<p class="runbun-run-survival-verdict" data-risk="safe"></p>')
+					.text('No crit in ' + displayText(answer && answer.trainer || 'this fight') +
+						' kills anyone in your party.'));
+			return;
+		}
+		$block.prop('hidden', false);
+		$block.append($('<p class="runbun-run-survival-verdict" data-risk="lethal"></p>')
+			.text(answer.exposed.map(function (entry) {
+				return (entry.species || entry.id) + ' dies to ' +
+					entry.killers.map(function (killer) {
+						return killer.enemy + '\u2019s ' + killer.move;
+					}).slice(0, 2).join(' or ') +
+					(entry.killers.length > 2 ? ' (+' + (entry.killers.length - 2) + ')' : '');
+			}).join(' · ')));
+		// The assignment answer first: when their crit outdamages a whole HP
+		// bar, the fix is not a build — it is who you send in.
+		if (answer.coverage && answer.coverage.length) {
+			$block.append($('<p class="runbun-run-survival-label"></p>')
+				.text('Who can face them and live'));
+			var $cover = $('<ul class="runbun-run-survival-coverage"></ul>');
+			answer.coverage.forEach(function (row) {
+				$cover.append($('<li></li>').text(
+					row.enemy + ' kills ' + row.kills.join(', ') + ' — ' +
+					(row.bestAnswer ?
+						'send ' + row.bestAnswer + ' (takes ' + row.bestAnswerCrit +
+							'% on a crit)' +
+							(row.answers.length > 1 ?
+								', or ' + row.answers.slice(1).join(', ') : '') :
+						'nobody in this party survives it')));
+			});
+			$block.append($cover);
+		}
+		if (answer.steps && answer.steps.length) {
+			$block.append($('<p class="runbun-run-survival-label"></p>')
+				.text('What removes a lethal branch'));
+			var $list = $('<ol class="runbun-run-survival-steps"></ol>');
+			answer.steps.slice(0, 4).forEach(function (step) {
+				$list.append($('<li></li>').text(
+					step.species + ': ' + step.detail +
+					(step.path && step.path.length > 1 ?
+						' (' + step.path.length + ' steps)' : '') +
+					' — removes ' + step.removes + ' lethal ' +
+					(step.removes === 1 ? 'matchup' : 'matchups') +
+					(step.remaining ? ', ' + step.remaining + ' still lethal' : ', none left') +
+					' · costs ' + step.cost));
+			});
+			$block.append($list);
+		} else if (answer.saferLeads && answer.saferLeads.length) {
+			$block.append($('<p class="runbun-run-survival-label"></p>')
+				.text('Nothing you can build fixes it — but these lead safely'));
+			$block.append($('<p class="runbun-run-survival-leads"></p>')
+				.text(answer.saferLeads.map(function (lead) {
+					return lead.nickname || lead.species;
+				}).join(', ')));
+		} else {
+			$block.append($('<p class="runbun-run-survival-label"></p>')
+				.text('Nothing available makes this fight crit-safe'));
+			$block.append($('<p class="runbun-run-survival-leads"></p>')
+				.text(answer.openRoutes && answer.openRoutes.length ?
+					'Unspent encounters that could still change it: ' +
+						answer.openRoutes.slice(0, 4).map(displayText).join(', ') :
+					'No unspent encounter is open either — this fight is a risk you take or a level you earn.'));
+		}
 	}
 
 	// ---------------------------------------------------------- matchup board
@@ -2018,20 +2848,37 @@
 			payload.grid.forEach(function (row) {
 				var cell = row.versus[i];
 				var side = cell[direction];
-				var colors = heat(side.max);
-				var label = side.move ? Math.round(side.max * 100) + '%' : '—';
+				// Worst case, per the run's own planning rule: what WE can rely
+				// on is the minimum roll; what THEY can do is a crit. Colouring
+				// our side by its maximum was the board's optimism.
+				var shown = direction === 'us' ? side.min :
+					(side.critMax !== undefined ? side.critMax : side.max);
+				var colors = heat(shown);
+				var label = side.move ? Math.round(shown * 100) + '%' : '—';
 				var $cell = $('<td></td>')
 					.text(label)
 					.css({'background-color': colors[0], color: colors[1]})
-					.toggleClass('is-ko', side.guaranteedKO)
+					.toggleClass('is-ko', direction === 'us' ? side.guaranteedKO : !!side.critKO)
+					// Every cell is a doorway: this pairing, one click, in the
+					// full calculator. Keyboard gets the same door.
+					.attr('data-mon-id', mon.id)
+					.attr('data-enemy', row.enemy.species)
+					.attr('role', 'button')
+					.attr('tabindex', '0')
 					.attr('title', (direction === 'us' ? ours : row.enemy.species) + ': ' +
 						(side.move ?
 							side.move + ' ' + Math.round(side.min * 100) + '-' +
 								Math.round(side.max * 100) + '%' +
+								(side.critMax !== undefined && side.critMax > side.max ?
+									' · ' + Math.round(side.critMax * 100) + '% on a crit' +
+										(side.critMove && side.critMove !== side.move ?
+											' (' + side.critMove + ')' : '') : '') +
 								(side.guaranteedKO ? ' · guaranteed KO' :
-									side.possibleKO ? ' · possible KO' : '') :
+									side.possibleKO ? ' · possible KO' : '') +
+								(direction === 'them' && side.critKO ? ' · a crit KOs us' : '') :
 							'no damaging move') +
-						(cell.speed ? ' · we are ' + cell.speed : ''));
+						(cell.speed ? ' · we are ' + cell.speed : '') +
+						' — open this pairing in the calculator');
 				if (cell.speed && SPEED_GLYPH[cell.speed]) {
 					$cell.append($('<span class="runbun-run-matrix-speed" aria-hidden="true"></span>')
 						.text(SPEED_GLYPH[cell.speed]));
@@ -2047,14 +2894,17 @@
 	function renderMatrix(payload) {
 		var $matrix = $('#runbun-run-matrix').empty();
 		$('#runbun-run-matrix-note').text(
-			payload.trainer + ' (#' + payload.order + ')' +
+			payload.trainer + ' (#' + (payload.fightNumber != null ? payload.fightNumber : payload.order) + ')' +
 			(payload.projection.applied && payload.projection.from === 'projected' ?
 				' · box projected to cap ' + payload.projection.cap +
 					' — the levels the free candy gives you there' :
 				' · box at current levels') +
-			' · dark = harder hit · ring = guaranteed KO · ▲ we are faster');
-		$matrix.append(matrixTable(payload, 'us', 'Our best hit — % of their HP'));
-		$matrix.append(matrixTable(payload, 'them', "Their best hit back — % of ours"));
+			' · dark = harder hit · ring = KO · ▲ we are faster · ' +
+			'our numbers are minimum rolls, theirs assume a critical hit');
+		$matrix.attr('data-trainer', payload.trainer);
+		renderWorstCase(worstCaseVerdict(payload));
+		$matrix.append(matrixTable(payload, 'us', 'What we can rely on — floor roll, % of their HP'));
+		$matrix.append(matrixTable(payload, 'them', 'What we must survive — their crit, % of ours'));
 	}
 
 	function board(trainer) {
@@ -2093,7 +2943,33 @@
 			' appeared! (' + rolled.method + ' · ' + rolled.chance + '%)' +
 			(rolled.pull ? ' — ' + rolled.pull.ability + ' pulled the ' +
 				rolled.pull.type + '-type out of the grass!' : ''));
+		// What the die already decided, before the keep-or-flee decision that
+		// depends on it. The roll authors an identity — six IVs, a nature and
+		// an ability — and hands it straight to the catch command; none of it
+		// was on screen. A nuzlocke route gives ONE encounter, and the number
+		// that most decides whether this one is worth building on is the IV
+		// total: a wild roll averages 93 against the flat 186 every trainer
+		// is built with, and the spread across a box is nearly as wide as
+		// that deficit. Asking for keep-or-flee while withholding it made the
+		// decision blind to the only part of it that is already known.
+		$('#runbun-run-roll-identity').text([
+			rolled.ivs ? ivLabel({ivs: rolled.ivs}) : null,
+			rolled.nature || null,
+			rolled.ability || null,
+		].filter(Boolean).join(' · '));
 		$('#runbun-run-roll-result').prop('hidden', false);
+		// The battle/keep/flee decision wants the same numbers the fight's
+		// ball buttons will wear — quoted here at full HP, before committing.
+		var oddsSpecies = rolled.species;
+		$('#runbun-run-roll-odds').text('');
+		api('/run/catch-odds', {run: state, species: oddsSpecies}).then(function (payload) {
+			if (!rolled || rolled.species !== oddsSpecies) return;
+			$('#runbun-run-roll-odds').text('Catch at full HP: ' +
+				payload.odds.map(function (entry) {
+					return entry.ball + ' ' + entry.chance + '%' +
+						(entry.held !== null ? ' ×' + entry.held : '');
+				}).join(' · '));
+		}).catch(function (ignore) { /* the quote is optional; the fight still shows odds */ });
 	}
 
 	function persistRoll() {
@@ -2272,6 +3148,19 @@
 			' resumed where it left off.', 'ok');
 	}
 
+	/**
+	 * The conditions a switch would clear, next to the switch buttons.
+	 *
+	 * `status` was on the card and volatiles were not, so infatuation — which
+	 * costs half your turns and IS cleared by switching — showed up only as a
+	 * line in the scrolling log, while paralysis, which switching does not
+	 * clear, was on the name. Exactly backwards for choosing an action.
+	 */
+	function conditions(active) {
+		var shown = (active && active.volatiles) || [];
+		return shown.length ? ' · ' + shown.join(' · ') : '';
+	}
+
 	function hpBar($bar, mon) {
 		var fraction = mon.hp.max ? Math.max(0, mon.hp.current) / mon.hp.max : 0;
 		$bar.css('width', Math.round(fraction * 100) + '%')
@@ -2294,7 +3183,8 @@
 		$('#runbun-run-battle-turn').text(' · turn ' + viewState.turn);
 		$('#runbun-run-battle-foe-name').text(
 			viewState.foe.active.species + ' L' + viewState.foe.active.level +
-			(viewState.foe.active.status ? ' · ' + viewState.foe.active.status : ''));
+			(viewState.foe.active.status ? ' · ' + viewState.foe.active.status : '') +
+			conditions(viewState.foe.active));
 		// Fights are played at the level cap the run can legally reach, so a
 		// mon that is owned below the cap says so — otherwise the jump from
 		// the roster's L5 to a battle L12 reads like a bug, not a rule.
@@ -2312,7 +3202,8 @@
 		$('#runbun-run-battle-us-name').text(
 			viewState.player.active.species + ' L' + viewState.player.active.level +
 			(atCap ? ' · at cap' : '') +
-			(viewState.player.active.status ? ' · ' + viewState.player.active.status : ''))
+			(viewState.player.active.status ? ' · ' + viewState.player.active.status : '') +
+			conditions(viewState.player.active))
 			.attr('title', atCap ?
 				'Fights are played at the run’s level cap: owned L' + ownedLevel +
 					', capped to L' + viewState.player.active.level + ' for this fight.' :
@@ -2331,6 +3222,42 @@
 			.append(benchChips(viewState.foe.bench, viewState.foe.active.id));
 		$('#runbun-run-battle-us-bench').empty()
 			.append(benchChips(viewState.player.bench, viewState.player.active.id));
+
+		// Their worst case, stated plainly. The fight rolls fair dice; the
+		// PLAN behind the next click has to assume the crit lands.
+		var threat = reply.threat;
+		var $threat = $('#runbun-run-battle-threat');
+		if (!threat || !threat.move) {
+			$threat.text('').removeAttr('data-risk');
+		} else {
+			// The RACE first when it is lost, because "survives one crit, not
+			// two" is true and reads as a caution. A nuzlocke wiped to a
+			// Sonic Boom under exactly that sentence: the real position was
+			// two turns to die against eight to kill, and nothing on screen
+			// said so.
+			var race = threat.race;
+			var losing = race && (race.outcome === 'lose' || race.outcome === 'cannot-win');
+			$threat.attr('data-risk', losing ? 'lethal' : threat.survivesCrit ?
+				(threat.survivesTwoCrits ? 'safe' : 'thin') : 'lethal')
+				.text('Their hardest hit: ' + threat.move + ' ' + threat.max + '%' +
+					(threat.crit > threat.max ? ' — ' + threat.crit + '% on a crit' : '') +
+					' · ' + (!threat.survivesCrit ? 'a crit KOs you' :
+					!threat.survivesTwoCrits ? 'survives one crit, not two' :
+						'survives a crit') +
+					(!race ? '' : race.outcome === 'cannot-win' ?
+						' · NOTHING HERE DAMAGES IT — you cannot win this race' :
+						' · you need ' + race.turnsToKill + ' turn' +
+							(race.turnsToKill === 1 ? '' : 's') + ' to KO, they need ' +
+							race.turnsToDie + ' — ' +
+							(race.outcome === 'lose' ? 'YOU LOSE THIS RACE' : 'you win it') +
+							// Who acts first decides whether a body the next
+							// hit kills gets its attack off before it goes.
+							(race.faster === false ? ' · they act first' : '')) +
+					// Only when the doubled catch kills: a Pursuit the body
+					// walks away from is not a warning worth a sentence.
+					(threat.pursuit && threat.pursuit.kills ?
+						' · Pursuit KOs anything that switches out' : ''));
+		}
 
 		var $log = $('#runbun-run-battle-log');
 		(reply.events || []).forEach(function (event) {
@@ -2356,14 +3283,28 @@
 			} else if (entry.kind === 'move') {
 				$moves.append($('<button type="button" class="btn runbun-run-battle-move"></button>')
 					.attr('data-move', entry.move)
+					.attr('title', entry.damage ?
+						entry.move + ' ' + entry.damage.min + '–' + entry.damage.max + '%' +
+							(entry.damage.crit ? ' · ' + entry.damage.crit + '% on a crit' : '') +
+							(entry.damage.floorKO ? ' · KOs even on its worst roll' : '') :
+						entry.move)
 					.append($('<span class="runbun-run-battle-move-name"></span>').text(entry.move))
 					.append($('<span class="runbun-run-battle-move-dmg"></span>').text(
-						entry.damage ?
-							entry.damage.min + '–' + entry.damage.max + '%' +
-								(entry.damage.guaranteedKO ? ' · KO' : '') : '')));
+						!entry.damage || entry.damage.max === 0 ? '' :
+							entry.damage.min + '%+' +
+								(entry.damage.floorKO ? ' · KOs on any roll' :
+									entry.damage.guaranteedKO ? ' · KO' :
+										' up to ' + entry.damage.max + '%'))));
 			} else {
+				// The race rides a data attribute and a tooltip, never the
+				// text: the driver parses "Species NN%" off the label, and a
+				// suffix would cost it the health number.
 				$switches.append($('<button type="button" class="btn runbun-run-battle-switch"></button>')
 					.attr('data-replace', entry.action.replacementId)
+					.attr('data-race', entry.race ? entry.race.outcome : null)
+					.attr('title', entry.race ?
+						'you need ' + entry.race.turnsToKill + ', they need ' +
+							entry.race.turnsToDie : null)
 					.text(entry.species + ' ' +
 						Math.round(Math.max(0, entry.hp.current) / entry.hp.max * 100) + '%'));
 			}
@@ -2379,6 +3320,7 @@
 		status('Sending out…', '');
 		return api(path, body).then(function (payload) {
 			battle = {bundle: payload.battle, log: []};
+			bumpCounter('battleStarted', payload.battle.trainer);
 			$('#runbun-run-battle').removeAttr('data-result');
 			$('#runbun-run-battle-result').text('');
 			$('#runbun-run-battle-abandon').text('Leave fight without saving')
@@ -2434,9 +3376,16 @@
 		battleBusy = true;
 		setBattleBusy(true);
 		$('#runbun-run-battle-result').removeAttr('data-kind').text('');
-		api('/run/battle/act', {battle: battle.bundle, action: chosen}).then(function (reply) {
+		// The bundle this turn was sent from: if the fight is abandoned (or a
+		// stale one invalidated) while the turn is in flight, the reply
+		// belongs to a battle that no longer exists. Dropping it is correct —
+		// nothing was written — and it beats the raw TypeError the player saw
+		// when the handler dereferenced a cleared battle.
+		var actedOn = battle.bundle;
+		api('/run/battle/act', {battle: actedOn, action: chosen}).then(function (reply) {
 			battleBusy = false;
 			setBattleBusy(false);
+			if (!battle || battle.bundle !== actedOn) return;
 			battle.bundle = reply.battle;
 			paintBattle(reply);
 			if (reply.result) {
@@ -2447,6 +3396,7 @@
 		}).catch(function (error) {
 			battleBusy = false;
 			setBattleBusy(false);
+			if (!battle || battle.bundle !== actedOn) return;
 			$('#runbun-run-battle-result').attr('data-kind', 'error')
 				.text('That turn did not resolve — ' + error.message + ' Try again.');
 			status(error.message, 'error');
@@ -2491,7 +3441,15 @@
 				trainerOrder: canonicalTrainerOrder,
 				progressionOrder: Number.isInteger(completedBundle.order) ? completedBundle.order : null,
 				seed: completedBundle.seed,
-				outcome: won ? 'won' : 'lost',
+				actions: (completedBundle.tape || []).slice(),
+				engine: {
+					app: appRevision,
+					provider: window.RunBunPokemonProvider &&
+						window.RunBunPokemonProvider.metadata &&
+						window.RunBunPokemonProvider.metadata.engineRevision || null,
+				},
+				outcome: won ? 'won' :
+					reply.result === 'catch' ? 'caught' : 'lost',
 				turns: reply.viewState && Number.isInteger(reply.viewState.turn) ?
 					reply.viewState.turn : completedBundle.state.turn,
 				leadId: completedBundle.party && completedBundle.party[0] ?
@@ -2707,6 +3665,9 @@
 	function abandonBattle() {
 		var completed = $('#runbun-run-battle-abandon').attr('data-complete') === 'true';
 		var wasWild = !!(battle && battle.bundle && battle.bundle.wild);
+		if (!completed && battle && battle.bundle) {
+			bumpCounter('battleAbandoned', battle.bundle.trainer);
+		}
 		battle = null;
 		clearBattleSave();
 		$('#runbun-run-battle').prop('hidden', true);
@@ -2775,7 +3736,7 @@
 					onePerRoute: $('#runbun-run-new-route').is(':checked'),
 					shinyClause: $('#runbun-run-new-shiny-clause').is(':checked'),
 					dupesClause: $('#runbun-run-new-dupes').val(),
-					// The starter names the rival: they take the one yours beats, so
+					// The starter names the rival: they take the one that beats yours, so
 					// declaring it removes the other two variants of every rival
 					// fight from the spine, the road ahead and the caps.
 					rival: $starter.length ? $starter.attr('data-rival') : undefined,
@@ -2835,11 +3796,20 @@
 		$('#runbun-run-map').on('change', showEncounters);
 		// One handler for every "Picked up" button — the items-here list and
 		// the split sheet's grab-list both record through the same acquire.
+		$('#runbun-run').on('click', '.runbun-run-shop-buy', function () {
+			var item = $(this).attr('data-item');
+			var where = $(this).attr('data-where');
+			command({kind: 'acquire', item: item, where: where || undefined});
+		});
 		$('#runbun-run').on('click', '.runbun-run-pickup-take', function () {
 			var item = $(this).attr('data-item');
-			command({kind: 'acquire', item: item}).then(function (accepted) {
-				if (accepted) showEncounters();
-			});
+			// The place travels with the take: thirty Heart Scales share one
+			// name, and only a placed acquire crosses off its own instance.
+			var where = $(this).attr('data-where');
+			command({kind: 'acquire', item: item, where: where || undefined})
+				.then(function (accepted) {
+					if (accepted) showEncounters();
+				});
 		});
 		$('#runbun-run-box-filter').on('input', function () {
 			if (lastStatus) renderBox(lastStatus);
@@ -2935,7 +3905,7 @@
 				'#runbun-run-losses .runbun-run-mon[data-id="' + id + '"]').addClass('is-selected');
 			var mon = findBoxed(id);
 			renderSelectedMon();
-			writeSummary('tools', mon ? monLabel(mon) : id);
+			writeSummary('tools', mon ? monLabel(mon) : 'select a Pokémon');
 			if (!reveal) return;
 			revealSection('tools');
 			var selected = document.querySelector('#runbun-run-mon-summary');
@@ -3054,6 +4024,36 @@
 		$('#runbun-run-release').on('click', function () {
 			command({kind: 'release', id: $('#runbun-run-selected').val()});
 		});
+		function openMatrixPairing(cell) {
+			var mon = findBoxed(cell.attr('data-mon-id'));
+			var trainer = cell.closest('#runbun-run-matrix').attr('data-trainer');
+			if (!mon || !trainer) return;
+			openInCalculator(mon, cell.attr('data-enemy') + ' (' + trainer + ')');
+		}
+		$('#runbun-run-matrix').on('click', 'td[data-mon-id]', function () {
+			openMatrixPairing($(this));
+		});
+		$('#runbun-run-matrix').on('keydown', 'td[data-mon-id]', function (event) {
+			if (event.key !== 'Enter' && event.key !== ' ') return;
+			event.preventDefault();
+			openMatrixPairing($(this));
+		});
+		$('#runbun-run-open-calc').on('click', function () {
+			var mon = findBoxed($('#runbun-run-selected').val());
+			if (!mon) return;
+			openInCalculator(mon);
+		});
+		$('#runbun-run-give').on('click', function () {
+			var id = $('#runbun-run-selected').val();
+			var item = $('#runbun-run-hold-item').val();
+			if (!id || !item) return;
+			command({kind: 'give', id: id, item: item});
+		});
+		$('#runbun-run-take').on('click', function () {
+			var id = $('#runbun-run-selected').val();
+			if (!id) return;
+			command({kind: 'take', id: id});
+		});
 		$('#runbun-run-learnable').on('click', function () {
 			api('/run/learnable', {run: state, id: $('#runbun-run-selected').val()})
 				.then(function (payload) {
@@ -3065,6 +4065,7 @@
 					var later = payload.later.map(function (entry) {
 						return entry.move + ' @' + entry.level;
 					});
+					$('#runbun-run-learn').prop('hidden', false);
 					$('#runbun-run-learn-now').text(now.join(', ') || '(nothing)');
 					$('#runbun-run-learn-later').text(later.join(', ') || '(nothing left)');
 				}).catch(function (error) {
@@ -3075,8 +4076,18 @@
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-plan', function () {
 			plan($(this).attr('data-trainer'));
 		});
+		// A skip is a run command like any other: declared, durable, refusable.
+		// The engine polices legality; the road ahead re-renders with the debt.
+		$('#runbun-run-upcoming').on('click', '.runbun-run-up-skip', function () {
+			command({kind: 'skip', trainer: $(this).attr('data-trainer')});
+		});
 		$('#runbun-run-upcoming').on('click', '.runbun-run-up-board', function () {
 			board($(this).attr('data-trainer'));
+		});
+		// The worst-case cell asks for a matchup; pressing it must produce one.
+		$(document).on('click', '#runbun-run-ready-risk-check', function () {
+			var next = lastStatus && lastStatus.upcoming && lastStatus.upcoming[0];
+			board(next ? next.trainer : undefined);
 		});
 		// The gauntlet rows plan and board like the road ahead. No Beaten button
 		// there on purpose: marking a distant boss beaten silently skips every
@@ -3166,6 +4177,22 @@
 		$('#runbun-run-roll-catch').on('click', function () { settleRoll(true); });
 		$('#runbun-run-roll-flee').on('click', function () { settleRoll(false); });
 		$('#runbun-run-play').on('click', function () {
+			// Nothing alive: the only honest next action is ending the run.
+			if (state && lastStatus && !(lastStatus.box || []).some(function (mon) {
+				return mon.status !== 'dead';
+			})) {
+				revealSection('history');
+				var transfer = document.querySelector('.runbun-run-transfer');
+				if (transfer) {
+					transfer.open = true;
+					transfer.scrollIntoView({block: 'center'});
+				}
+				var outcome = document.querySelector('#runbun-run-end-outcome');
+				if (outcome) outcome.value = 'wipe';
+				status('Every Pokémon is gone. Press and hold End run to save this ' +
+					'attempt to your history.', 'error');
+				return;
+			}
 			if (!state || state.party.length) {
 				startBattle();
 				return;
@@ -3378,6 +4405,22 @@
 		bindDisclosures();
 		bind();
 		window.addEventListener('storage', syncFromOtherTab);
+		learnAppRevision();
+		if (window.navigator && navigator.storage && navigator.storage.persist) {
+			navigator.storage.persist().then(function (granted) {
+				window.__runbunStoragePersisted = granted;
+			}).catch(function (ignore) { /* denial is legal; eviction risk stands */ });
+		}
+		// The bag and scripted-catch fields offer the game's own vocabulary:
+		// every Gen 8 item and species, one-time menus. Free text still
+		// passes through; the commands stay the validators.
+		try {
+			var gen = window.calc.Generations.get(8);
+			var $items = $('#runbun-run-item-options');
+			for (var item of gen.items) $items.append($('<option></option>').attr('value', item.name));
+			var $species = $('#runbun-run-species-options');
+			for (var species of gen.species) $species.append($('<option></option>').attr('value', species.name));
+		} catch (ignore) { /* menus are optional; commands validate */ }
 		restoreDurable().then(loadMaps).then(render).then(function () {
 			initialized = true;
 			refreshStartAvailability();
@@ -3397,6 +4440,22 @@
 				restoreRoll();
 				restoreBattle();
 			}
+		}).catch(function (error) {
+			// Without this the panel keeps the state it SHIPS in: index.template
+			// leaves New Run disabled under "Loading the run panel…" and only
+			// this chain enables it, so one ordinary fetch rejection — offline, a
+			// reset connection, a tab waking on a dead radio — pinned the whole
+			// panel there with no message and no way back short of a reload.
+			//
+			// Finishing initialisation is the point. A run with no route list is
+			// a smaller thing than a dead page: the starter, gift, static and
+			// trade paths need no route, and the player can retry by reloading
+			// once they know that is what to do.
+			initialized = true;
+			refreshStartAvailability();
+			status('The run panel started without its route list — ' +
+				(error && error.message ? error.message : 'the request failed') +
+				'. Runs that need a route cannot be started until you reload.', 'error');
 		});
 	});
 })();

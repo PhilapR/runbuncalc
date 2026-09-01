@@ -402,7 +402,7 @@ export function validateMoveResolution(
   if (!resolution || typeof resolution !== 'object' || Array.isArray(resolution)) invalid('resolution must be an object');
   const candidate = resolution as Record<string, unknown>;
   const allowed = new Set([
-    'hit', 'actionFailure', 'damageByTarget', 'hitDamageByTarget', 'hpDeltaByPokemon', 'itemByPokemon', 'allySwitchByPokemon', 'itemCorrodedByPokemon', 'consumedItemByPokemon',
+    'hit', 'actionFailure', 'criticalHitTargets', 'damageByTarget', 'hitDamageByTarget', 'hpDeltaByPokemon', 'itemByPokemon', 'allySwitchByPokemon', 'itemCorrodedByPokemon', 'consumedItemByPokemon',
     'substituteHpByPokemon', 'statusByPokemon', 'statusTurnsByPokemon', 'disguiseBrokenByPokemon',
     'isSaltCureByPokemon', 'toxicCounterByPokemon', 'boostsByPokemon', 'resetBoostsByPokemon',
     'setBoostsByPokemon', 'volatileByPokemon', 'typeOverrideByPokemon', 'abilityOverrideByPokemon', 'noAbilityByPokemon',
@@ -646,6 +646,15 @@ function validateDamageFact(value: unknown, label: string) {
     invalid(`${label}.rolls must contain finite non-negative numbers`);
   }
   if (damage.hits !== undefined) requireInteger(damage.hits, `${label}.hits`, 2, 100);
+  if (damage.hitRange !== undefined) {
+    const range = damage.hitRange;
+    if (!Array.isArray(range) || range.length !== 2) invalid(`${label}.hitRange must be a [min, max] pair`);
+    requireInteger((range as number[])[0], `${label}.hitRange[0]`, 2, 100);
+    requireInteger((range as number[])[1], `${label}.hitRange[1]`, 2, 100);
+    if ((range as number[])[0] >= (range as number[])[1]) {
+      invalid(`${label}.hitRange must widen — a fixed hit count carries no range`);
+    }
+  }
   if (damage.hitRolls !== undefined) {
     if (!Array.isArray(damage.hitRolls) || damage.hitRolls.length < 2 || damage.hitRolls.length > 100 ||
       damage.hitRolls.some(rolls => !Array.isArray(rolls) || !rolls.length ||
@@ -663,6 +672,9 @@ function validateDamageFact(value: unknown, label: string) {
   }
   for (const property of ['possibleKO', 'guaranteedKO']) {
     if (typeof damage[property] !== 'boolean') invalid(`${label}.${property} must be boolean`);
+  }
+  if (damage.zeroedByGuard !== undefined && damage.zeroedByGuard !== 'disguise' && damage.zeroedByGuard !== 'iceface') {
+    invalid(`${label}.zeroedByGuard must be 'disguise' or 'iceface'`);
   }
 }
 
@@ -692,7 +704,7 @@ export function validateMoveEngineOptions(
   if (!candidate.facts || typeof candidate.facts !== 'object' || Array.isArray(candidate.facts)) invalid('move-engine facts must be an object');
   const facts = candidate.facts as Record<string, unknown>;
   const allowed = new Set<keyof ActionFacts>([
-    'damage', 'damageByTarget', 'confusionDamage', 'moveCategory', 'moveType', 'fieldTerrain', 'moveAccuracy', 'isMultiHit',
+    'damage', 'damageByTarget', 'confusionDamage', 'moveCategory', 'moveType', 'fieldTerrain', 'moveAccuracy', 'isMultiHit', 'multiHitRange',
     'secondaryEffects', 'battleMode', 'priority', 'attackerSpeed', 'attackerCriticalHitStage',
     'criticalHitGuaranteed', 'criticalHit', 'attackerHp', 'attackerHpPercent', 'defenderSpeed', 'opponentSpeeds',
     'attackerAbility', 'attackerPartnerAbility', 'attackerPartnerItem', 'attackerPartnerTypes', 'attackerPartnerMoves',

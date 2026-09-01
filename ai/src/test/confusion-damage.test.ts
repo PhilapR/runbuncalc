@@ -35,12 +35,12 @@ validateMoveEngineOptions(fixture, action, {facts});
 
 const resolution = deriveMoveResolution(fixture, action, {
   facts,
-  random: () => 0.9,
+  random: () => 0.2,
 });
 assert.equal(resolution.hit, false);
 assert.equal(resolution.actionFailure, 'confusion');
 assert.equal(resolution.damageByTarget, undefined);
-const expectedDamage = facts.confusionDamage.rolls[Math.floor(0.9 * facts.confusionDamage.rolls.length)];
+const expectedDamage = facts.confusionDamage.rolls[Math.floor(0.2 * facts.confusionDamage.rolls.length)];
 assert.equal(resolution.hpDeltaByPokemon?.['ai-1'], -expectedDamage);
 assert.equal(resolution.trace?.damageRollsByTarget?.['ai-1'], expectedDamage);
 
@@ -49,7 +49,7 @@ assert.equal(next.sides.ai.party[0].hp.current, fixture.sides.ai.party[0].hp.cur
 assert.equal(next.sides.player.party[0].hp.current, 300);
 assert.equal(next.lastResolution?.actionFailure, 'confusion');
 
-const callerSuppliedNoFacts = deriveMoveResolution(fixture, action, {random: () => 0.9});
+const callerSuppliedNoFacts = deriveMoveResolution(fixture, action, {random: () => 0.2});
 assert.equal(callerSuppliedNoFacts.hpDeltaByPokemon, undefined);
 
 // A PARTIAL boosts table — def touched by a Leer, atk never touched — used to

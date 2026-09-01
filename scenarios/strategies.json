@@ -1,0 +1,88 @@
+{
+	"comment": "New-strategy probes: intimidate cycling, the giant-killer Endeavor line, and the developed-choice ceiling. From scripts/strategy-probes.js.",
+	"generator": "scripts/strategy-probes.js",
+	"measured": [
+		{
+			"label": "strat1",
+			"measured_in": "7774aaf",
+			"date": "2026-08-29",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "strat2",
+			"measured_in": "7774aaf",
+			"date": "2026-08-29",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "stones1",
+			"measured_in": "7111b1a",
+			"date": "2026-08-29",
+			"verdict": "reconstructed",
+			"note": "ad-hoc --report run of the stone-box scenario before its manifest row landed"
+		},
+		{
+			"label": "stones2",
+			"measured_in": "7111b1a",
+			"date": "2026-08-29",
+			"verdict": "reconstructed",
+			"note": "ad-hoc --report run of stone-box-developed before its manifest row landed"
+		}
+	],
+	"scenarios": [
+		{
+			"name": "Leader Brawly · intimidate-cycle",
+			"report": "ui-playthrough-out/strat-intimidate.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Brawly · giant-killer",
+			"report": "ui-playthrough-out/strat-giantkiller-brawly.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · giant-killer",
+			"report": "ui-playthrough-out/strat-giantkiller-roxanne.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · giant-killer",
+			"report": "ui-playthrough-out/strat-giantkiller-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Brawly · developed-choice",
+			"report": "ui-playthrough-out/strat-developed-brawly.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne · developed-choice",
+			"report": "ui-playthrough-out/strat-developed-roxanne.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · developed-choice",
+			"report": "ui-playthrough-out/strat-developed-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · stone-box",
+			"report": "ui-playthrough-out/strat-stones-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson · stone-box-developed",
+			"report": "ui-playthrough-out/strat-stones-dev-wattson.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		}
+	]
+}

@@ -1,0 +1,197 @@
+{
+	"source": "docs/official/Pokemon Locations.xlsx, sheets 'Game Corner' and 'Other' (the R&B author's own workbook)",
+	"provenance": "transcribed",
+	"purpose": [
+		"Where a Pokemon comes from when it does NOT come from grass.",
+		"",
+		"The oracle modelled wild encounter tables and nothing else, so eight",
+		"badge-gated Game Corner rewards, three in-game trades, a starter egg,",
+		"Castform, Kubfu, the fossils and seven roaming legendaries were all",
+		"invisible. In a nuzlocke those are guaranteed Pokemon the catch advisor",
+		"never mentioned."
+	],
+	"gates": [
+		"`opensAt` is a fight order on the same scale as availability.json: the",
+		"number of enemy Pokemon faced before that fight. A badge reward opens at",
+		"the order of the leader who hands the badge over.",
+		"",
+		"The badge ORDER in the workbook matches this run map's fight orders",
+		"exactly, including R&B's swap of Brawly ahead of Roxanne. Two",
+		"independent sources agreeing on a non-obvious ordering is the reason",
+		"these dates are stated rather than estimated."
+	],
+	"unknowns": [
+		"Three gifts are named by the workbook with no location given: the",
+		"starter egg, Castform and Kubfu. Their `opensAt` is null and `where` is",
+		"null rather than guessed. Vanilla Emerald would put the egg at Lavaridge",
+		"and Castform at the Weather Institute, but this hack moves things and a",
+		"vanilla assumption is exactly how the Slush Rush error got in.",
+		"",
+		"The roaming legendaries are gated on 'the story event at Sootopolis",
+		"City' rather than a numbered fight, so they carry `after` prose and a",
+		"null order."
+	],
+	"gameCorner": {
+		"note": "Each badge unlocks a new set. The Pokemon received is RANDOM between the options, so these are odds, not a choice.",
+		"tiers": [
+			{
+				"badge": "Knuckle Badge",
+				"leader": "Leader Brawly",
+				"opensAt": 80,
+				"options": [
+					"Smoochum",
+					"Elekid",
+					"Magby"
+				]
+			},
+			{
+				"badge": "Stone Badge",
+				"leader": "Leader Roxanne",
+				"opensAt": 142,
+				"options": [
+					"Tauros",
+					"Miltank"
+				]
+			},
+			{
+				"badge": "Dynamo Badge",
+				"leader": "Leader Wattson",
+				"opensAt": 229,
+				"options": [
+					"Throh",
+					"Sawk"
+				]
+			},
+			{
+				"badge": "Balance Badge",
+				"leader": "Leader Norman",
+				"opensAt": 342,
+				"options": [
+					"Pinsir",
+					"Heracross"
+				]
+			},
+			{
+				"badge": "Heat Badge",
+				"leader": "Leader Flannery",
+				"opensAt": 576,
+				"options": [
+					"Larvitar",
+					"Beldum"
+				]
+			},
+			{
+				"badge": "Feather Badge",
+				"leader": "Leader Winona",
+				"opensAt": 763,
+				"options": [
+					"Dratini",
+					"Bagon",
+					"Deino"
+				]
+			},
+			{
+				"badge": "Mind Badge",
+				"leader": "Leader Liza",
+				"opensAt": 1135,
+				"options": [
+					"Gible",
+					"Goomy",
+					"Jangmo-o",
+					"Dreepy"
+				]
+			},
+			{
+				"badge": "Rain Badge",
+				"leader": "Leader Juan",
+				"opensAt": 1369,
+				"options": [
+					"Mew",
+					"Celebi",
+					"Jirachi",
+					"Victini"
+				]
+			}
+		]
+	},
+	"trades": [
+		{
+			"where": "Rustboro City",
+			"wants": [
+				"Growlithe",
+				"Arcanine"
+			],
+			"gives": [
+				"Growlithe-Hisui",
+				"Arcanine-Hisui"
+			]
+		},
+		{
+			"where": "Fortree City",
+			"wants": [
+				"Weezing"
+			],
+			"gives": [
+				"Weezing-Galar"
+			]
+		},
+		{
+			"where": "Pacifidlog Town",
+			"wants": [
+				"Zorua",
+				"Zoroark"
+			],
+			"gives": [
+				"Zorua-Hisui",
+				"Zoroark-Hisui"
+			]
+		}
+	],
+	"gifts": [
+		{
+			"species": null,
+			"what": "Egg with a random Hoenn starter",
+			"where": null,
+			"opensAt": null,
+			"options": [
+				"Treecko",
+				"Torchic",
+				"Mudkip"
+			],
+			"note": "The workbook names the gift but not where it is handed over."
+		},
+		{
+			"species": "Castform",
+			"where": null,
+			"opensAt": null,
+			"note": "Named with no location in the source."
+		},
+		{
+			"species": "Kubfu",
+			"where": null,
+			"opensAt": null,
+			"note": "Named with no location in the source."
+		}
+	],
+	"fossils": {
+		"revivedAt": "Devon Corp",
+		"note": "One random fossil is available at Mirage Tower; every other fossil except Fossilized Drake and Fossilized Dino is at the Desert Underpass.",
+		"where": [
+			"Mirage Tower",
+			"Desert Underpass"
+		]
+	},
+	"roaming": {
+		"after": "the story event at Sootopolis City",
+		"opensAt": null,
+		"species": [
+			"Latias",
+			"Latios",
+			"Cresselia",
+			"Tornadus",
+			"Thundurus",
+			"Landorus",
+			"Enamorus"
+		]
+	}
+}

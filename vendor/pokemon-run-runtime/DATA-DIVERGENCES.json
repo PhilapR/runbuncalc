@@ -1,0 +1,94 @@
+{
+	"schemaVersion": "pokemon.provider.data-divergences/1.0.0",
+	"providerRevision": "bf28a069148903cc02315cc434f91e24816045e2",
+	"providerArtifactSha256": "1f14f88abe410deff6ff81f0d13db067db04b0b69ad70b93cc35c8fd85117128",
+	"meaning": "Fields where the pinned provider's embedded species data disagrees with the fork's decomp-verified tables. Planning receipts for teams holding these species are computed from the vendor values. Retired by curating mono's species table to R&B values and re-pinning.",
+	"speciesCompared": 1244,
+	"divergenceCount": 14,
+	"entries": [
+		{
+			"species": "Cresselia",
+			"field": "baseStats.def",
+			"vendor": 110,
+			"fork": 120
+		},
+		{
+			"species": "Cresselia",
+			"field": "baseStats.spd",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Kleavor",
+			"field": "baseStats.atk",
+			"vendor": 130,
+			"fork": 135
+		},
+		{
+			"species": "Kleavor",
+			"field": "baseStats.spd",
+			"vendor": 75,
+			"fork": 70
+		},
+		{
+			"species": "Zacian",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zacian-Crowned",
+			"field": "baseStats.atk",
+			"vendor": 150,
+			"fork": 170
+		},
+		{
+			"species": "Zamazenta",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.def",
+			"vendor": 140,
+			"fork": 145
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.spd",
+			"vendor": 140,
+			"fork": 145
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.hp",
+			"vendor": 60,
+			"fork": 55
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.atk",
+			"vendor": 105,
+			"fork": 100
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.spa",
+			"vendor": 120,
+			"fork": 125
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.spe",
+			"vendor": 105,
+			"fork": 110
+		}
+	]
+}

@@ -222,6 +222,17 @@ test('level-up moves keep the level, so "not yet" is distinguishable from "never
 test('the oracle states what it does not cover', () => {
 	assert.equal(oracle.LIMITS.wildEncountersOnly, true);
 	assert.equal(oracle.LIMITS.staticAndGiftEncountersAbsent, true);
+	// This block is served to clients on /run/maps, so every flag in it has to
+	// be true of the layer TODAY. `itemLocationsAbsent` was declared in the
+	// first oracle import and left at `true` after the item data landed and
+	// falsified it — this test asserted the other two booleans and pointedly
+	// not that one, so nothing noticed. A declared limit that has been lifted
+	// is worse than no declaration: it tells a consumer not to ask.
+	assert.equal(oracle.LIMITS.itemLocationsAbsent, false);
+	assert.ok(oracle.fieldItems().length > 0,
+		'itemLocationsAbsent is false, so there must be located items to back it');
+	assert.ok(oracle.fieldItems().every(item => item.location),
+		'every field item names where it is');
 	// Castform is the Weather Institute gift: a real Pokemon a player owns, in no
 	// wild table anywhere. That is the gap `LIMITS` exists to declare, and it is
 	// why the run layer must accept a catch with no map behind it.
@@ -284,4 +295,36 @@ test('growth rates come from the decomp, and the curves are the Gen 3 functions'
 	// 1114, up from 1016: ninety-nine species had macro-defined growth rates
 	// (PIKACHU_BASE_STATS-style) the first importer silently skipped.
 	assert.equal(oracle.coverage().growthRatedSpecies, 1114);
+});
+
+test('a removed species answers "unavailable", whatever the list spells it', () => {
+	// 38 of the 416 enumerated names were not keys of growth.json, so the join
+	// dropped them and `where Mewtwo` answered "not-modelled" — a gap in the
+	// tool — about a species the hack removed. That is the two-answers-in-one-
+	// word failure the dataset exists to end, and it was live for every name
+	// the two files spelled differently.
+	const oracle = require('../profiles/run-and-bun/oracle.js');
+
+	// One of each disagreement: a trailing full stop, a curly apostrophe, and
+	// the three form suffixes the growth table writes shorter.
+	for (const species of ['Mewtwo', 'Ho-Oh', 'Arceus', 'Farfetch’d',
+		'Vulpix-Alola', 'Slowpoke-Galar', 'Braviary-Hisui', 'Type: Null']) {
+		const answer = oracle.availabilityOfSpecies(species);
+		assert.equal(answer.status, 'unavailable',
+			species + ' is on the removed list and must say so, not "not-modelled"');
+	}
+
+	// The resolution is by EXISTING key only, so it cannot invent a species.
+	//
+	// Honest limit: the "exactly one candidate" rule is NOT exercised by this
+	// data. Loosening it to "take the first match" leaves every assertion here
+	// passing, because no name in the list currently generates two spellings
+	// that both exist as growth keys. It is written strict because the day the
+	// candidate list grows is not the day anyone rereads this line — the same
+	// reason the Mega slot indexing is written by slot while every species has
+	// one ability.
+	const unjoined = oracle.unavailableNamesWithoutGrowthKey();
+	assert.deepEqual(unjoined, ['Aegislash'],
+		'the only name left unjoined is the one that needs a ruling: the growth ' +
+		'table carries Aegislash-Shield and Aegislash-Blade, and picking is not spelling');
 });

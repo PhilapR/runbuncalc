@@ -1,0 +1,149 @@
+/* eslint-env node, es6 */
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert');
+const fs = require('fs');
+const path = require('path');
+const childProcess = require('child_process');
+const sqlite = require('node:sqlite');
+
+const ledger = require('../scripts/ledger.js');
+
+const root = path.join(__dirname, '..');
+
+function memoryDb() {
+	const db = new sqlite.DatabaseSync(':memory:');
+	ledger.load(db);
+	return db;
+}
+
+test('the ledger loads, and its vocabularies are enforced by the schema', () => {
+	const db = memoryDb();
+	const counts = db.prepare('SELECT COUNT(*) AS n FROM findings').get();
+	assert.ok(counts.n > 0, 'the ledger holds findings');
+
+	// The CHECK constraints are the point: a severity or a status nobody
+	// recognises is how a ledger quietly stops being queryable. `list
+	// --severity=hgih` returning nothing must mean nothing matches, never
+	// that a row was filed under a typo.
+	const insert = () => db.prepare(`INSERT INTO findings
+		(id, source, raised_on, severity, area, claim, verdict, status)
+		VALUES ('x', 's', '2026-01-01', ?, 'a', 'c', ?, ?)`);
+	assert.throws(() => insert().run('showstopper', 'confirmed', 'open'),
+		/CHECK|constraint/i, 'an unknown severity is refused');
+	assert.throws(() => insert().run('high', 'probably', 'open'),
+		/CHECK|constraint/i, 'an unknown verdict is refused');
+	assert.throws(() => insert().run('high', 'confirmed', 'sorted'),
+		/CHECK|constraint/i, 'an unknown status is refused');
+});
+
+test('a fix names a commit that exists, and an open finding names none', () => {
+	// This is the gate that matters. The defect that cost this branch the most
+	// was a commit message claiming an edit that never reached disk — the
+	// supersedes wiring in run_history.js. A ledger that records "fixed in
+	// abc1234" without checking abc1234 exists reproduces exactly that error
+	// at the project level, and reads as progress while being fiction.
+	const db = memoryDb();
+	const fixed = db.prepare("SELECT id, fixed_in FROM findings WHERE status = 'fixed'").all();
+	assert.ok(fixed.length, 'the ledger records at least one fix to check');
+	// A shallow checkout cannot answer ancestry, and it fails identically to a
+	// real breach: `merge-base --is-ancestor` exits non-zero whether the commit
+	// left the branch or was never cloned. CI ran at the default depth of 1 and
+	// reported the first of 39 fixed findings as naming a commit off the
+	// branch, which is a true sentence about a clone with no history and says
+	// nothing about the ledger. Fail on the actual cause instead.
+	const shallow = childProcess.execFileSync('git',
+		['rev-parse', '--is-shallow-repository'],
+		{cwd: root, encoding: 'utf8'}).trim() === 'true';
+	assert.equal(shallow, false,
+		'this is a shallow clone, so no commit can be shown to be an ancestor — ' +
+		'the checkout needs fetch-depth: 0 before this gate means anything');
+	for (const row of fixed) {
+		assert.ok(row.fixed_in, `${row.id} is fixed but names no commit`);
+		// ANCESTRY, not existence. `git cat-file -e` was the first version of
+		// this check and it is too weak: a commit that was amended away still
+		// resolves as a dangling object until gc, so the ledger kept pointing
+		// at a SHA that had left the branch and this test stayed green. That
+		// happened here, in this session, one commit after the gate was
+		// written. merge-base --is-ancestor is the question actually meant:
+		// is this fix in the history we are on?
+		assert.doesNotThrow(
+			() => childProcess.execFileSync('git',
+				['merge-base', '--is-ancestor', row.fixed_in, 'HEAD'],
+				{cwd: root, stdio: 'ignore'}),
+			`${row.id} names commit ${row.fixed_in}, which is not an ancestor of HEAD`);
+	}
+	for (const row of db.prepare("SELECT id, fixed_in FROM findings WHERE status = 'open'").all()) {
+		assert.equal(row.fixed_in, null, `${row.id} is open but names a fixing commit`);
+	}
+
+	// CONTAINMENT, not just ancestry. The check above proves the SHA is real
+	// and on this branch; it does NOT prove that commit did the work. That
+	// hole opened for real: a bungled `git add` put a fix under the wrong
+	// message and left the ledger pointing at the PREVIOUS commit, and this
+	// test stayed green because the previous commit is of course an ancestor.
+	// A finding that names a file must name a commit that touched it.
+	const located = db.prepare(
+		"SELECT id, fixed_in, file FROM findings WHERE status = 'fixed' AND file IS NOT NULL").all();
+	assert.ok(located.length, 'some fixes name a file to check against');
+	for (const row of located) {
+		const touched = childProcess.execFileSync('git',
+			['show', '--name-only', '--format=', row.fixed_in],
+			{cwd: root, encoding: 'utf8'}).split('\n').map(line => line.trim()).filter(Boolean);
+		// A fix may land beside its file rather than in it — a data file that
+		// feeds it, a test that pins it. Requiring the exact path would force
+		// false precision, so the directory is the unit.
+		const directory = path.dirname(row.file);
+		assert.ok(
+			touched.some(name => name === row.file || path.dirname(name) === directory ||
+				name.startsWith(directory + '/')),
+			`${row.id} says it was fixed in ${row.fixed_in}, but that commit touches ` +
+			`nothing under ${directory} — it names the file ${row.file}`);
+	}
+});
+
+test('every finding points at a file that is really there', () => {
+	// A finding whose path has moved is worse than no finding: it sends the
+	// next reader to a file that cannot show the defect, and they conclude it
+	// was already fixed.
+	const db = memoryDb();
+	const rows = db.prepare('SELECT id, file FROM findings WHERE file IS NOT NULL').all();
+	assert.ok(rows.length, 'findings carry file paths');
+	for (const row of rows) {
+		assert.ok(fs.existsSync(path.join(root, row.file)),
+			`${row.id} points at ${row.file}, which does not exist`);
+	}
+});
+
+test('a fix is only called falsified when the guard was made to fail', () => {
+	// Not a claim that every fix IS falsified — several honestly are not, and
+	// `ledger.js stats` reports that count on purpose. What this pins is that
+	// the flag cannot be set on a finding that records no fix at all, which
+	// would let "falsified" drift into meaning "we feel good about it".
+	const db = memoryDb();
+	for (const row of db.prepare('SELECT id, status, falsified FROM findings').all()) {
+		if (row.falsified) {
+			assert.equal(row.status, 'fixed',
+				`${row.id} is marked falsified but is not fixed`);
+		}
+	}
+});
+
+test('the emitted D1 SQL rebuilds the same ledger, byte for byte in row terms', () => {
+	// The deployed surface must answer from identical data. Emitting SQL that
+	// silently drops or mangles a row would give the worker a different
+	// ledger from the one in git, and the git one is the record.
+	const emitted = childProcess.execFileSync(process.execPath,
+		[path.join(root, 'scripts', 'ledger.js'), 'sql'], {cwd: root, encoding: 'utf8'});
+	const rebuilt = new sqlite.DatabaseSync(':memory:');
+	rebuilt.exec(emitted);
+
+	const direct = memoryDb();
+	for (const table of ['decisions', 'open_questions', 'findings']) {
+		assert.deepEqual(
+			rebuilt.prepare(`SELECT * FROM ${table} ORDER BY id`).all(),
+			direct.prepare(`SELECT * FROM ${table} ORDER BY id`).all(),
+			`${table} must survive the round trip through D1 SQL`);
+	}
+});

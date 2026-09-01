@@ -1,0 +1,1019 @@
+{
+	"schemaVersion": "runbun.item.workbook/1.0.0",
+	"source": "pokemon-mono engines/rab/backend/DOCS/Item Locations.xlsx",
+	"provenance": "transcribed",
+	"note": "Verbatim rows of the engine operator do not-edit-by-hand item workbook, read with polars and pinned here so scripts/build-item-locations.js is reproducible. The prose is the workbook words, unaltered; all dating is derived from it in the builder.",
+	"sheets": {
+		"heartScales": 30,
+		"rareCandies": 14,
+		"heldItems": 68,
+		"berries": 53,
+		"evolutionItems": 23,
+		"megaStones": 47
+	},
+	"heartScales": [
+		{
+			"place": "Route 104",
+			"detail": "North-west corner of the beach (hidden)."
+		},
+		{
+			"place": "Route 106",
+			"detail": "Rock furthest north-west at the beach connected to Dewford (hidden)."
+		},
+		{
+			"place": "Route 118",
+			"detail": "Rock at the south-west corner of the beach connected to Mauville (hidden)."
+		},
+		{
+			"place": "Route 115",
+			"detail": "South-west corner of the beach connected to the Meteor Falls exit (hidden)."
+		},
+		{
+			"place": "Petalburg City",
+			"detail": "Surf past the northern pond."
+		},
+		{
+			"place": "Route 105",
+			"detail": "Furthest south-west island (hidden)."
+		},
+		{
+			"place": "Route 109",
+			"detail": "Island with no NPCs (hidden)."
+		},
+		{
+			"place": "Route 118",
+			"detail": "Rock at the south-west corner of the beach connected to Route 119 (hidden)."
+		},
+		{
+			"place": "Route 119",
+			"detail": "South of the bridge past the Weather Institute."
+		},
+		{
+			"place": "Route 119",
+			"detail": "At the small piece of land just before the Waterfall, right side (hidden)."
+		},
+		{
+			"place": "Route 120",
+			"detail": "End of the north-west corridor at the tall grass maze (hidden)."
+		},
+		{
+			"place": "Lilycove City",
+			"detail": "Rock at the south-west corner of the beach (hidden)."
+		},
+		{
+			"place": "Aqua Hideout",
+			"detail": "Generator room alongside a static Electrode-H encounter."
+		},
+		{
+			"place": "Route 124",
+			"detail": "Dive and ressurface at the north-west area of the route."
+		},
+		{
+			"place": "Route 124",
+			"detail": "Dive and ressurface at the west area of the route."
+		},
+		{
+			"place": "Route 124",
+			"detail": "Underwater (hidden)."
+		},
+		{
+			"place": "Route 124",
+			"detail": "Underwater (hidden)."
+		},
+		{
+			"place": "Route 126",
+			"detail": "Underwater (hidden)."
+		},
+		{
+			"place": "Route 126",
+			"detail": "Underwater (hidden)."
+		},
+		{
+			"place": "Route 127",
+			"detail": "North-west corner of the route."
+		},
+		{
+			"place": "Route 127",
+			"detail": "Underwater (hidden)."
+		},
+		{
+			"place": "Route 128",
+			"detail": "One tile to the east of CoolTrainer Ruben (hidden)."
+		},
+		{
+			"place": "Route 128",
+			"detail": "Furthest south-west island (hidden)."
+		},
+		{
+			"place": "Route 128",
+			"detail": "Furthest east of the smaller islands, by the L-shaped rock (hidden)."
+		},
+		{
+			"place": "Route 132",
+			"detail": "Second island in the southern area of the route."
+		},
+		{
+			"place": "Route 134",
+			"detail": "Long island in the middle of the route."
+		},
+		{
+			"place": "Route 114",
+			"detail": "Up the Waterfall northwest of the route."
+		},
+		{
+			"place": "Route 119",
+			"detail": "Up the Waterfall north of the route (requires Acro Bike)."
+		},
+		{
+			"place": "Victory Road",
+			"detail": "Ice floor, eastern corner, highest elevation (hidden)."
+		},
+		{
+			"place": "Victory Road",
+			"detail": "Ice floor, western corner, highest elevation (hidden)."
+		}
+	],
+	"rareCandies": [
+		{
+			"place": "Route 110",
+			"detail": "By Cycling Road's south gate, guarded by Camper Gavi."
+		},
+		{
+			"place": "Route 116",
+			"detail": "Behind Rich Boy Dawson. Possible to permanently miss."
+		},
+		{
+			"place": "Mauville City",
+			"detail": "Given by an NPC inside one of the houses."
+		},
+		{
+			"place": "Route 111",
+			"detail": "Rock at the north-east area of the desert (hidden, requires Go-Goggles)."
+		},
+		{
+			"place": "Lavaridge Town",
+			"detail": "South-west corner inside the hot spring (hidden)."
+		},
+		{
+			"place": "Petalburg City",
+			"detail": "Surf accross the southern pond, right side (hidden, requires Surf)."
+		},
+		{
+			"place": "Route 108",
+			"detail": "Rock at the island directly south-east of the Abandoned Ship (hidden, requires Surf)."
+		},
+		{
+			"place": "Route 121",
+			"detail": "Alongside the path between Safari Zone and Lilycove City."
+		},
+		{
+			"place": "Lilycove City",
+			"detail": "Given by an NPC inside one of the houses."
+		},
+		{
+			"place": "Route 123",
+			"detail": "South-east corner, past the Cut trees (hidden)."
+		},
+		{
+			"place": "Mt. Pyre",
+			"detail": "Second Floor. Accessible by dropping down the holes from the top."
+		},
+		{
+			"place": "Mt. Pyre",
+			"detail": "North-east corner of the Summit, between two gravestones (hidden)."
+		},
+		{
+			"place": "Shoal Cave",
+			"detail": "Only accesible during high tide."
+		},
+		{
+			"place": "Route 132",
+			"detail": "First island in the northern area of the route."
+		}
+	],
+	"heldItems": [
+		{
+			"name": "Silk Scarf",
+			"place": "Dewford Town, given by an NPC inside one of the houses."
+		},
+		{
+			"name": "Nevermelt Ice",
+			"place": "Granite Cave."
+		},
+		{
+			"name": "Soft Sand",
+			"place": "Route 109, given by an NPC by the beach."
+		},
+		{
+			"name": "Black Glasses",
+			"place": "Slateport City, given by an NPC inside the Battle Tent."
+		},
+		{
+			"name": "Poison Barb",
+			"place": "Route 104, in the area only accessible through Petalburg Woods."
+		},
+		{
+			"name": "Miracle Seed",
+			"place": "Petalburg Woods, given by an NPC past the Cut tree."
+		},
+		{
+			"name": "Silver Powder",
+			"place": "Petalburg Woods, past the Cut tree."
+		},
+		{
+			"name": "Hard Stone",
+			"place": "Rusturf Tunnel, north-west corner."
+		},
+		{
+			"name": "Sharp Beak",
+			"place": "Route 111, past the desert (requires Mach Bike)."
+		},
+		{
+			"name": "Pixie Plate",
+			"place": "Meteor Falls, first floor, north-east corner."
+		},
+		{
+			"name": "Black Belt",
+			"place": "Route 115, by the Meteor Falls southern exit."
+		},
+		{
+			"name": "Metal Coat",
+			"place": "Fallarbor Town or Lilycove City, sold at the mart/department store."
+		},
+		{
+			"name": "Dragon Fang",
+			"place": "Jagged Pass, dropping down by eastern side."
+		},
+		{
+			"name": "Charcoal",
+			"place": "Lavaridge Town, given by an NPC inside one of the houses."
+		},
+		{
+			"name": "Magnet",
+			"place": "New Mauville."
+		},
+		{
+			"name": "Mystic Water",
+			"place": "Abandoned Ship."
+		},
+		{
+			"name": "Twisted Spoon",
+			"place": "Abandoned Ship."
+		},
+		{
+			"name": "Spell Tag",
+			"place": "Mt. Pyre, third floor."
+		},
+		{
+			"name": "Rock Gem",
+			"place": "Route 111, south corner of the desert (requires Go-Goggles)"
+		},
+		{
+			"name": "Dark Gem",
+			"place": "Route 113."
+		},
+		{
+			"name": "Poison Gem",
+			"place": "Route 113."
+		},
+		{
+			"name": "Ground Gem",
+			"place": "Route 114, at the rock straight south after dropping down the ledge (hidden)."
+		},
+		{
+			"name": "Steel Gem",
+			"place": "Meteor Falls, first floor, north-west corner."
+		},
+		{
+			"name": "Electric Gem",
+			"place": "New Mauville."
+		},
+		{
+			"name": "Grass Gem",
+			"place": "Route 119, on the non grass tile to the east of the cycling NPC (hidden)."
+		},
+		{
+			"name": "Flying Gem",
+			"place": "Route 119, surfing south past the bridge, in the tall grass (hidden)."
+		},
+		{
+			"name": "Fire Gem",
+			"place": "Scorched Slab."
+		},
+		{
+			"name": "Psychic Gem",
+			"place": "Route 120."
+		},
+		{
+			"name": "Bug Gem",
+			"place": "Route 120, at the tall grass maze."
+		},
+		{
+			"name": "Normal Gem",
+			"place": "Safari Zone, north-west zone."
+		},
+		{
+			"name": "Ghost Gem",
+			"place": "Mt. Pyre, fourth floor, accessible by dropping down the holes."
+		},
+		{
+			"name": "Ice Gem",
+			"place": "Shoal Cave."
+		},
+		{
+			"name": "Fighting Gem",
+			"place": "Shoal Cave, given by an NPC."
+		},
+		{
+			"name": "Water Gem",
+			"place": "Abandoned Ship (requires Dive)."
+		},
+		{
+			"name": "Fairy Gem",
+			"place": "Seafloor Cavern."
+		},
+		{
+			"name": "Dragon Gem",
+			"place": "Meteor Falls (requires Surf and Waterfall)."
+		},
+		{
+			"name": "Wide Lens",
+			"place": "Rustboro City, given by an NPC at the Pokémon Trainer's School."
+		},
+		{
+			"name": "Muscle Band",
+			"place": "Rusturf Tunnel, north-east corner, past the smashable rocks."
+		},
+		{
+			"name": "Wise Glasses",
+			"place": "Route 116, in the separate area only accesible through Rusturf Tunnel (hidden)."
+		},
+		{
+			"name": "Protective Pads",
+			"place": "Verdanturf Town, given by an NPC at the Battle Tent."
+		},
+		{
+			"name": "Zoom Lens",
+			"place": "New Mauville."
+		},
+		{
+			"name": "Razor Claw",
+			"place": "Sold at Petalburg City (requires 3 badges)."
+		},
+		{
+			"name": "Razor Fang",
+			"place": "Sold at Petalburg City (requires 3 badges)."
+		},
+		{
+			"name": "King's Rock",
+			"place": "Fallarbor Town, sold at the mart."
+		},
+		{
+			"name": "Life Orb",
+			"place": "Held by the gifted Castform from Weather Institute."
+		},
+		{
+			"name": "Metronome",
+			"place": "Safari Zone, south-east area."
+		},
+		{
+			"name": "Shell Bell",
+			"place": "Shoal Cave, ice room."
+		},
+		{
+			"name": "Expert Belt",
+			"place": "Sootopolis City, given by an NPC inside one of the houses."
+		},
+		{
+			"name": "Assault Vest",
+			"place": "Slateport Harbor, swap a Scanner, Leftovers, Choice Band, Scarf or Specs for it."
+		},
+		{
+			"name": "Leftovers",
+			"place": "Slateport Harbor, swap a Scanner, Assault Vest, Choice Band, Scarf, Specs for it."
+		},
+		{
+			"name": "Choice Band",
+			"place": "Slateport Harbor, swap a Scanner, Assault Vest, Leftovers, Choice Scarf or Specs for it."
+		},
+		{
+			"name": "Choice Scarf",
+			"place": "Slateport Harbor, swap a Scanner, Assault Vest, Leftovers, Choice Band or Specs for it."
+		},
+		{
+			"name": "Choice Specs",
+			"place": "Slateport Harbor, swap a Scanner, Assault Vest, Leftovers, Choice Band or Scarf for it."
+		},
+		{
+			"name": "Rocky Helmet",
+			"place": "Meteor Falls (requires Surf and Waterfall)."
+		},
+		{
+			"name": "Heavy Duty Boots",
+			"place": "Victory Road."
+		},
+		{
+			"name": "White Herb",
+			"place": "Route 104, given by an NPC outside of the Flower Shop after obtaining 3 badges."
+		},
+		{
+			"name": "Shed Shell",
+			"place": "Route 113, behind Parasol Lady Madeline. Possible to permanently miss."
+		},
+		{
+			"name": "Electric Seed",
+			"place": "Route 119, eastern side of the first tall grass area."
+		},
+		{
+			"name": "Grassy Seed",
+			"place": "Route 119, western side of the first tall grass area."
+		},
+		{
+			"name": "Misty Seed",
+			"place": "Route 119, east past the stairs leading to Psychic Dayton & Ninja Boy Takashi."
+		},
+		{
+			"name": "Psychic Seed",
+			"place": "Route 119, at the dead end heading north-west past the first bridge."
+		},
+		{
+			"name": "Power Herb",
+			"place": "Safari Zone, north-east area."
+		},
+		{
+			"name": "Mental Herb",
+			"place": "Safari Zone, south-west area."
+		},
+		{
+			"name": "Room Service",
+			"place": "Fortree City, given by an NPC after meeting his Wingull in Mossdeep City."
+		},
+		{
+			"name": "Eject Button",
+			"place": "Route 123 (requires Waterfall)."
+		},
+		{
+			"name": "Eject Pack",
+			"place": "Route 123 (requires Waterfall)."
+		},
+		{
+			"name": "Red Card",
+			"place": "Route 123 (requires Waterfall)."
+		},
+		{
+			"name": "Focus Sash",
+			"place": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall)."
+		}
+	],
+	"berries": [
+		{
+			"name": "Oran Berry",
+			"place": "Berry Trees at Routes 102, 104 and 111.",
+			"yield": "30 to 90."
+		},
+		{
+			"name": "Pecha Berry",
+			"place": "Berry Trees at Routes 102, 104 and 114.",
+			"yield": "30 to 90."
+		},
+		{
+			"name": "Cheri Berry",
+			"place": "Berry Trees at Routes 104 and 114.",
+			"yield": "30 to 90."
+		},
+		{
+			"name": "Chesto Berry",
+			"place": "Berry Trees at Routes 114, 116. Given 10x from an NPC at Route 104.",
+			"yield": "30 to 90."
+		},
+		{
+			"name": "Leppa Berry",
+			"place": "Berry Trees at Routes 103 and 104.",
+			"yield": "30 to 90."
+		},
+		{
+			"name": "Rawst Berry",
+			"place": "Berry Trees at Routes 112 and 116.",
+			"yield": "30 to 90."
+		},
+		{
+			"name": "Persim Berry",
+			"place": "Berry Trees at Routes 112 and 117.",
+			"yield": "30 to 90."
+		},
+		{
+			"name": "Aspear Berry",
+			"place": "Berry Trees at Routes 110 and 112.",
+			"yield": "30 to 90."
+		},
+		{
+			"name": "Sitrus Berry",
+			"place": "Berry Trees at Routes 110, 111, 112, 115, 117, 118 and 121.",
+			"yield": "12 to 36."
+		},
+		{
+			"name": "Lum Berry",
+			"place": "Berry Trees at Routes 111, 115, 118 and 121.",
+			"yield": "9 to 27."
+		},
+		{
+			"name": "Lansat Berry",
+			"place": "Berry Trees at Route 103.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Starf Berry",
+			"place": "Berry Tree at Route 121.",
+			"yield": "2 to 4."
+		},
+		{
+			"name": "Custap Berry",
+			"place": "Berry Tree at Route 121.",
+			"yield": "1 or 2."
+		},
+		{
+			"name": "Liechi Berry",
+			"place": "Berry Tree at Route 115.",
+			"yield": "1 or 2."
+		},
+		{
+			"name": "Salac Berry",
+			"place": "Berry Tree at Route 115.",
+			"yield": "1 or 2."
+		},
+		{
+			"name": "Petaya Berry",
+			"place": "Berry Tree at Route 115.",
+			"yield": "1 or 2."
+		},
+		{
+			"name": "Mago Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "6 to 18."
+		},
+		{
+			"name": "Aguav Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "6 to 18."
+		},
+		{
+			"name": "Iapapa Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "6 to 18."
+		},
+		{
+			"name": "Ganlon Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Apicot Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Rowap Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "2 to 5."
+		},
+		{
+			"name": "Jaboca Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "2 to 5."
+		},
+		{
+			"name": "Figy Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "1 to 18."
+		},
+		{
+			"name": "Wiki Berry",
+			"place": "Berry Tree at Route 119.",
+			"yield": "1 to 18."
+		},
+		{
+			"name": "Watmel Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Belue Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Pomeg Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Kelpsy Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Qualot Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Hondew Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Micle Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "2 to 5."
+		},
+		{
+			"name": "Cornn Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Durin Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Pinap Berry",
+			"place": "Berry Tree at Route 120.",
+			"yield": "1 to 3."
+		},
+		{
+			"name": "Chilan Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Occa Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Passho berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Wacan Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Rindo Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Yache Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Chople Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Kebia Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Shuca Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Coba Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Payapa Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Tanga Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Charti Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Kasib Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Haban Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Colbur Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Babiri Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		},
+		{
+			"name": "Roseli Berry",
+			"place": "Berry Tree at Route 123.",
+			"yield": "1 to 2."
+		}
+	],
+	"evolutionItems": [
+		{
+			"name": "Everstone",
+			"place": "Granite Cave, ice floor, at the 'L' shaped rock formation before the stairs (hidden)."
+		},
+		{
+			"name": "Moon Stone",
+			"place": "Sold at Mauville City Pokémon Mart. Given 1x from NPC Cutter in Rustboro City."
+		},
+		{
+			"name": "Fire Stone",
+			"place": "Sold at Mauville City Pokémon Mart."
+		},
+		{
+			"name": "Water Stone",
+			"place": "Sold at Mauville City Pokémon Mart."
+		},
+		{
+			"name": "Thunder Stone",
+			"place": "Sold at Mauville City Pokémon Mart."
+		},
+		{
+			"name": "Leaf Stone",
+			"place": "Sold at Mauville City Pokémon Mart."
+		},
+		{
+			"name": "Ice Stone",
+			"place": "Sold at Mauville City Pokémon Mart."
+		},
+		{
+			"name": "Sun Stone",
+			"place": "Sold at Mauville City Pokémon Mart."
+		},
+		{
+			"name": "Shiny Stone",
+			"place": "Sold at Mauville City and Fallarbor Town Pokémon Marts."
+		},
+		{
+			"name": "Razor Claw",
+			"place": "Sold at Petalburg City (requires 3 badges)."
+		},
+		{
+			"name": "Razor Fang",
+			"place": "Sold at Petalburg City (requires 3 badges)."
+		},
+		{
+			"name": "Dragon Scale",
+			"place": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts."
+		},
+		{
+			"name": "Upgrade",
+			"place": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts."
+		},
+		{
+			"name": "Electirizer",
+			"place": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts."
+		},
+		{
+			"name": "Magmarizer",
+			"place": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts."
+		},
+		{
+			"name": "Dusk Stone",
+			"place": "Sold at Fallarbor Town Pokémon Mart."
+		},
+		{
+			"name": "King's Rock",
+			"place": "Sold at Fallarbor Town Pokémon Mart."
+		},
+		{
+			"name": "Metal Coat",
+			"place": "Sold at Fallarbor Town Pokémon Mart."
+		},
+		{
+			"name": "Protector",
+			"place": "Sold at Fallarbor Town and Fortree City Pokémon Marts."
+		},
+		{
+			"name": "Dubious Disc",
+			"place": "Sold at Fortree City Pokémon Mart."
+		},
+		{
+			"name": "Prism Scale",
+			"place": "Sold at Fortree City Pokémon Mart."
+		},
+		{
+			"name": "Dawn Stone",
+			"place": "Sold at Lilycove City Deparment Store."
+		},
+		{
+			"name": "Honey",
+			"place": "Sold at Lavaridge Town Pokémon Mart."
+		}
+	],
+	"megaStones": [
+		{
+			"name": "Absolite",
+			"place": "Route 121."
+		},
+		{
+			"name": "Aerodactylite",
+			"place": "Route 126, guarded by Triathlete Pablo (requires Dive)."
+		},
+		{
+			"name": "Aggronite",
+			"place": "Meteor Falls (requires Surf)."
+		},
+		{
+			"name": "Alakazite",
+			"place": "Given by Winstrate Vito by the end of Victory Road after you defeat him."
+		},
+		{
+			"name": "Altarianite",
+			"place": "Route 120."
+		},
+		{
+			"name": "Ampharosite",
+			"place": "New Mauville."
+		},
+		{
+			"name": "Audinite",
+			"place": "Abandoned Ship, guarded by Ruin Maniac Garrison & Tuber Jani."
+		},
+		{
+			"name": "Banettite",
+			"place": "Route 127, guarded by Fisherman Roger & Black Belt Koji."
+		},
+		{
+			"name": "Beedrillite",
+			"place": "Route 105, guarded by Bird Keeper Josue & Ruin Maniac Andres (requires Surf)."
+		},
+		{
+			"name": "Blastoisinite",
+			"place": "Lilycove City."
+		},
+		{
+			"name": "Cameruptitte",
+			"place": "Magma Hideout."
+		},
+		{
+			"name": "Charizardite X",
+			"place": "Victory Road."
+		},
+		{
+			"name": "Galladite",
+			"place": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall)."
+		},
+		{
+			"name": "Garchompite",
+			"place": "Safari Zone, north area."
+		},
+		{
+			"name": "Gardevoirite",
+			"place": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall)."
+		},
+		{
+			"name": "Gengarite",
+			"place": "Victory Road."
+		},
+		{
+			"name": "Glalitite",
+			"place": "Victory Road, ice room, north-west exit of the sliding puzzle."
+		},
+		{
+			"name": "Gyaradosite",
+			"place": "Route 133, guarded by Expert Mollie & Expert Conor."
+		},
+		{
+			"name": "Heracronite",
+			"place": "Lilycove City, given by an NPC at the north-east area of the city."
+		},
+		{
+			"name": "Houndoominite",
+			"place": "Magma Hideout."
+		},
+		{
+			"name": "Lopunnite",
+			"place": "Route 108, guarded by Sailor Cory & CoolTrainer Carolina (requires Surf)"
+		},
+		{
+			"name": "Manectite",
+			"place": "Route 125, guarded by Bird Keeper Presley & Expert Auron."
+		},
+		{
+			"name": "Mawilite",
+			"place": "Cave of Origin."
+		},
+		{
+			"name": "Medichamite",
+			"place": "Mossdeep City."
+		},
+		{
+			"name": "Pidgeotite",
+			"place": "Route 104, (requires Surf)."
+		},
+		{
+			"name": "Pinsirite",
+			"place": "Route 127, guarded by CoolTrainer Athena & Bird Keeper Aidan."
+		},
+		{
+			"name": "Scizorite",
+			"place": "Route 123, guarded by Bug Catcher Davis (requires Waterfall)."
+		},
+		{
+			"name": "Sharpedonite",
+			"place": "Aqua Hideout."
+		},
+		{
+			"name": "Slowbronite",
+			"place": "Route 123 (requires Waterfall)."
+		},
+		{
+			"name": "Steelixite",
+			"place": "Given by Steven after the events at the Mossdeep Space Center."
+		},
+		{
+			"name": "Swampertite",
+			"place": "Route 119 (requires Waterfall and the Acro Bike)."
+		},
+		{
+			"name": "Venusaurite",
+			"place": "Victory Road."
+		},
+		{
+			"name": "Abomasite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Blazikenite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Charizardite Y",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Diancite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Kangaskhanite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Latiasite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Latiosite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Lucarionite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Metagrossite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Mewtwonite X",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Mewtwonite Y",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Sablenite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Salamencite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Sceptilite",
+			"place": "Unavailable."
+		},
+		{
+			"name": "Tyranitarite",
+			"place": "Unavailable."
+		}
+	]
+}

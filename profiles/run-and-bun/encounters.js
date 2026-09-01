@@ -58,13 +58,13 @@ const INVARIANTS = {
 	 * This was previously named `trainerCount`, which was wrong and understated
 	 * the roster by about a sixth.
 	 */
-	battleCount: 362,
+	battleCount: 366,
 	/** Battle labels naming two trainers at once. */
 	pairedBattles: 46,
 	/** Solo + (paired x 2). Not the distinct-trainer count; see above. */
-	trainerSlots: 408,
+	trainerSlots: 412,
 	/** Raw entry keys, which exceed battleCount by the number of duplicates. */
-	labelCount: 365,
+	labelCount: 369,
 	/** Entries carrying an explicit `trainer` because they are extra copies. */
 	duplicateEntries: 3,
 	/** The progression sequence starts here. */
@@ -114,14 +114,13 @@ const INVARIANTS = {
  * so any automated count of it carries parse error. Treat these as the shape of
  * the gap, not a precise inventory.
  *
- * One absence is NOT route filler and is left explicitly unresolved: vanilla
- * Emerald's mandatory pre-Wattson Wally fight and the early rival fights before
- * Cycling Road have no counterpart anywhere in this map — the only Wally here is
- * Victory Road, and the earliest rival is Cycling Road. Whether Run & Bun cut
- * them or whether they were lost on the way into this data cannot be settled
- * from the decomp, which carries no trainer parties at all. Recorded as unknown
- * rather than asserted either way, because "dekzeh removed them" and "we lost
- * them" are different claims and nothing available distinguishes the two.
+ * The two absences this note once left unresolved are SETTLED (2026-08-28):
+ * the official 1.07 Trainer Battles document lists both, so the hack kept
+ * them and this data had lost them. The Route 103 rival trio (Treecko,
+ * Torchic and Mudkip at L5 — the game's first fight, before Youngster
+ * Calvin) and Mauville Wally (Kirlia L43 with a Galarian Zigzagoon L7,
+ * between Route 117 and the gym) are now in the map, and every order-dated
+ * source shifted with the insertions: +3 from the start, +2 more past 209.
  *
  * Not filled from that dump: it is a community transcription, and this project
  * does not take community sources as authoritative for values. Recorded so a
@@ -136,14 +135,14 @@ const COVERAGE = {
 	approximatePartyMembersAbsent: 189,
 	absentKind: 'optional route trainers, overwhelmingly Swimmers and other water-route filler',
 	comparedAgainst: 'community transcription of the Run & Bun trainer-battle document',
-	// Not filler, and not decidable: vanilla's mandatory pre-Wattson Wally and the
-	// early rival fights are absent, and the decomp has no trainer data to say
-	// whether the hack cut them or this data lost them.
-	earlyStoryFightsUnverified: ['pre-Wattson Wally', 'early rival fights'],
+	// Settled 2026-08-28 against the official Trainer Battles document: the
+	// pre-Wattson Wally and Route 103 rival fights were data loss, not cuts,
+	// and both are restored above.
+	earlyStoryFightsUnverified: [],
 };
 
 const KNOWN_GAPS = {
-	indices: [789, 790],
+	indices: [794, 795],
 	trainer: 'Bug Maniac Jeffrey',
 	note: 'two of three Vivillon lost to a [species][label] key collision',
 };
@@ -229,6 +228,35 @@ const RIVAL_VARIANT_PATTERN = /^Trainer Rival .* (Sceptile|Blaziken|Swampert)$/;
 const RIVAL_ACES = ['Sceptile', 'Blaziken', 'Swampert'];
 
 /**
+ * What the game starts YOU with — the Sinnoh trio, not the Hoenn one.
+ *
+ * Run & Bun replaces the player's starter choice while leaving the rival's
+ * teams hand-built around the Hoenn line, so RIVAL_ACES above stays as it is:
+ * these two lists are deliberately from different generations and neither is
+ * a copy of the other.
+ *
+ * `rival` is the ace the rival takes: the Hoenn starter whose type BEATS
+ * your pick (operator ruling, 2026-08-28 — this is a difficulty hack, and
+ * the rival counters you). The first version had the friendly-rival
+ * direction — you pick Grass, they take the Water one you beat — which is
+ * vanilla Emerald's rule and the wrong game's manners: every banked run
+ * declared the wrong rival and carried the wrong three variants in its
+ * spine. The relationship is by TYPE, so it survives the Sinnoh-for-Hoenn
+ * species swap untouched.
+ *
+ * Stated as data because it was hardcoded in src/index.template.html and
+ * nowhere else. Nothing could validate it, and that is exactly how it sat
+ * wrong: `node scripts/ask.js starters` reported NOT MODELLED, and the
+ * disagreement about which trio this game uses was only possible because no
+ * file said so.
+ */
+const STARTERS = [
+	{species: 'Turtwig', type: 'grass', rival: 'Blaziken'},
+	{species: 'Chimchar', type: 'fire', rival: 'Swampert'},
+	{species: 'Piplup', type: 'water', rival: 'Sceptile'},
+];
+
+/**
  * Two story fights carry no team or title prefix to anchor on, so they are named
  * outright. "Trainer Chelle " matches her two fights and nothing else — the only
  * other Chelle-ish label is "Cool Trainer Michelle", which the anchor rules out.
@@ -254,34 +282,69 @@ const MILESTONE_PATTERN =
  * it plays under `cap`. Rival rows carry the triplet's PREFIX and its last
  * variant's order, so the boundary holds whichever rival a run declares.
  */
+/**
+ * The order scale this map's numbers live on, named so a document can say
+ * which vintage its stored orders belong to. The 2026-08-28 insertion left
+ * 240 banked documents stranded on the previous scale with nothing but a
+ * hand-added tag nothing read; now createRun stamps every document with
+ * this id, readers of banked documents refuse a mismatch, and the gate in
+ * tests/scale_consistency.test.js pins battles/lastOrder to the live map so
+ * a map edit cannot ship without bumping the id here.
+ */
+/**
+ * Fights the game plays in DOUBLES format that the '&' label convention
+ * cannot see: single trainers who field two at once (Leader Juan, the Route
+ * 119 rival boss, the Elite Four Double variants) and pairs the map spells
+ * "And". Transcribed from the engine database's own isDouble flags, which
+ * mark exactly these eighteen; the reconciliation gate in
+ * tests/scale_consistency.test.js holds the two sources at zero
+ * disagreement. The run map ORs this set with the '&' convention.
+ */
+const DOUBLES_FORMAT = new Set([
+	'Elite Four PhoebeDouble', 'Elite Four SidneyDouble', 'Leader Juan',
+	'Old Couple John And Jay', 'Sis And Bro Lila And Roy',
+	'Sis And Bro Reli And Ian', 'Sr. And Jr. Anna And Meg',
+	'Sr. And Jr. Kim And Iris', 'Sr. And Jr. Tyra And Ivy',
+	'Trainer Rival Bridge Blaziken', 'Trainer Rival Bridge Sceptile',
+	'Trainer Rival Bridge Swampert', 'Twins Amy And Liv',
+	'Twins Gina And Mia', 'Twins Miu And Yuki', 'Twins Tori And Tia',
+	'Young Couple Brian And Casey', 'Young Couple Dez And Luke',
+]);
+
+const ORDER_SCALE = {
+	id: 'route103-wally-2026-08-28',
+	battles: 366,
+	lastOrder: 1625,
+};
+
 const LEVEL_CAPS = [
-	{trainer: 'Team Aqua Grunt Petalburg Woods', order: 19, cap: 12},
-	{trainer: 'Team Aqua Grunt Museum #2', order: 56, cap: 17},
-	{trainer: 'Leader Brawly', order: 77, cap: 21},
-	{trainer: 'Leader Roxanne', order: 139, cap: 25},
-	{trainer: 'Trainer Chelle Daycare', order: 181, cap: 32},
-	{trainer: 'Leader Wattson', order: 224, cap: 35},
-	{trainer: 'Trainer Rival Cycling Road', order: 265, cap: 38},
-	{trainer: 'Leader Norman', order: 337, cap: 42},
-	{trainer: 'Winstrate Vito Fallarbor', order: 434, cap: 48},
-	{trainer: 'Magma Leader Maxie Mt Chimney', order: 519, cap: 54},
-	{trainer: 'Leader Flannery', order: 571, cap: 57},
-	{trainer: 'Aqua Admin Shelly Weather Institute', order: 696, cap: 65},
-	{trainer: 'Trainer Rival Bridge', order: 714, cap: 66},
-	{trainer: 'Leader Winona', order: 758, cap: 69},
-	{trainer: 'Trainer Rival Lilycove', order: 855, cap: 73},
-	{trainer: 'Aqua Leader Archie Mt Pyre', order: 927, cap: 76},
-	{trainer: 'Magma Leader Maxie Magma Hideout', order: 1009, cap: 79},
-	{trainer: 'Aqua Admin Matt Aqua Hideout', order: 1056, cap: 81},
-	{trainer: 'Leader Liza', order: 1130, cap: 85},
-	{trainer: 'Aqua Leader Archie Seafloor Cavern', order: 1247, cap: 89},
-	{trainer: 'Leader Juan', order: 1364, cap: 91},
-	{trainer: 'Winstrate Vito VR', order: 1454, cap: 95},
-	{trainer: 'Champion Wallace', order: 1620, cap: 99},
+	{trainer: 'Team Aqua Grunt Petalburg Woods', order: 22, cap: 12},
+	{trainer: 'Team Aqua Grunt Museum #2', order: 59, cap: 17},
+	{trainer: 'Leader Brawly', order: 80, cap: 21},
+	{trainer: 'Leader Roxanne', order: 142, cap: 25},
+	{trainer: 'Trainer Chelle Daycare', order: 184, cap: 32},
+	{trainer: 'Leader Wattson', order: 229, cap: 35},
+	{trainer: 'Trainer Rival Cycling Road', order: 270, cap: 38},
+	{trainer: 'Leader Norman', order: 342, cap: 42},
+	{trainer: 'Winstrate Vito Fallarbor', order: 439, cap: 48},
+	{trainer: 'Magma Leader Maxie Mt Chimney', order: 524, cap: 54},
+	{trainer: 'Leader Flannery', order: 576, cap: 57},
+	{trainer: 'Aqua Admin Shelly Weather Institute', order: 701, cap: 65},
+	{trainer: 'Trainer Rival Bridge', order: 719, cap: 66},
+	{trainer: 'Leader Winona', order: 763, cap: 69},
+	{trainer: 'Trainer Rival Lilycove', order: 860, cap: 73},
+	{trainer: 'Aqua Leader Archie Mt Pyre', order: 932, cap: 76},
+	{trainer: 'Magma Leader Maxie Magma Hideout', order: 1014, cap: 79},
+	{trainer: 'Aqua Admin Matt Aqua Hideout', order: 1061, cap: 81},
+	{trainer: 'Leader Liza', order: 1135, cap: 85},
+	{trainer: 'Aqua Leader Archie Seafloor Cavern', order: 1252, cap: 89},
+	{trainer: 'Leader Juan', order: 1369, cap: 91},
+	{trainer: 'Winstrate Vito VR', order: 1459, cap: 95},
+	{trainer: 'Champion Wallace', order: 1625, cap: 99},
 ];
 
 module.exports = {
 	GLOBAL, SOURCE, INVARIANTS, KNOWN_GAPS, COVERAGE,
-	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN, RIVAL_ACES,
-	LEVEL_CAPS,
+	BOSS_PATTERN, STORY_BOSS_PATTERN, MILESTONE_PATTERN, RIVAL_VARIANT_PATTERN, RIVAL_ACES, STARTERS,
+	LEVEL_CAPS, ORDER_SCALE, DOUBLES_FORMAT,
 };

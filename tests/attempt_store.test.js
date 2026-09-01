@@ -541,6 +541,8 @@ test('10k compact revisions stay bounded and archives grow linearly', {timeout: 
 	const store = Store.createMemoryStore();
 	const startedAt = Date.now();
 	let halfwayBytes = 0;
+	let halfwayAt = 0;
+	let firstHalfMs = 0;
 	for (let revision = 1; revision <= 10000; revision++) {
 		await store.commit({
 			run: {attemptId: 'scale-10k', profileId: 'run-and-bun', value: revision},
@@ -550,18 +552,112 @@ test('10k compact revisions stay bounded and archives grow linearly', {timeout: 
 				revision === 1 ? {} : {command: {value: revision}}),
 		});
 		if (revision === 5000) {
+			// The halfway export is measured OUT of both halves. It serializes
+			// 5000 events, so leaving it in makes the second half look 3.5x the
+			// first and the scaling gate below fires on the measurement rather
+			// than on the code.
+			firstHalfMs = Date.now() - startedAt;
 			halfwayBytes = Buffer.byteLength(JSON.stringify(await store.exportActive()));
+			halfwayAt = Date.now();
 		}
 	}
+	// Both halves must measure COMMITS only. The halfway export is excluded
+	// above; this stops the final full export — which serializes all 10000
+	// events — from being charged to the second half.
+	const loopEndedAt = Date.now();
 	const bundle = await store.exportActive();
 	const finalBytes = Buffer.byteLength(JSON.stringify(bundle));
 	assert.equal(bundle.events.length, 10000);
 	assert.equal(bundle.head.revision, 10000);
 	assert.equal(bundle.snapshots.length, 201);
-	assert.ok(Date.now() - startedAt < 10000, '10k compact commits and exports stay interactive');
+	// There is deliberately no wall-clock assertion HERE, and the gap it left
+	// is closed by `a commit never walks the log it is appending to` below.
+	//
+	// This line used to read `Date.now() - startedAt < 10000`. It went red
+	// under the full suite at 11.5s and green alone at 2.5s, with no code
+	// change between them — it was measuring machine load. Replacing it with
+	// a scaling ratio (second 5000 commits over the first) looked right and
+	// is not: the halves run minutes apart, so a suite that is busier later
+	// skews them. Measured 0.83-0.94 alone, 2.43 under the full suite, on
+	// identical code. A gate that fires on load teaches you to ignore it,
+	// which is worse than not having one.
+	//
+	// What survives is deterministic. The commit loop IS bounded — measured
+	// per-1000-commit blocks alone: 88, 94, 67, 57, 49, 54, 65, 55, 61 ms,
+	// flat — but nothing in a parallel suite can assert that honestly. The
+	// byte-growth assertion below is the linear-growth gate this test is
+	// named for, and it does not care how loaded the box is.
+	//
+	// The gap was tracked as `no-cpu-scaling-gate-for-commit` until an
+	// operation counter replaced the clock — see the test below.
+	assert.ok(loopEndedAt >= halfwayAt, 'the commit loop ran to completion');
 	assert.ok(finalBytes / halfwayBytes < 2.15,
 		'serialized archive growth remains approximately linear');
 	assert.equal(await store.validateBundle(bundle), true);
+});
+
+test('a commit never walks the log it is appending to', {timeout: 30000}, async () => {
+	// The gate the wall clock could not be. The old assertion read
+	// `Date.now() - startedAt < 10000`, went red under the full suite at 11.5s
+	// and green alone at 2.5s on identical code, and a scaling ratio was no
+	// better: 0.83-0.94 alone against 2.43 in suite. Both measured the machine.
+	//
+	// What is actually being claimed is algorithmic — a commit is O(1) in the
+	// length of the log — so it is counted rather than timed. Every scanning
+	// method on Array.prototype is wrapped for the duration and told to count
+	// only when the receiver is already LARGE. A commit that appends and looks
+	// nothing up never triggers one; a commit that starts searching the log
+	// does, whichever internal array it searches, which is why this needs no
+	// access to the store's private state.
+	//
+	// Measured: 0 over 4000 commits. With a single `state.events.some(...)`
+	// injected after the push, 3501. There is no overlap to tune a threshold
+	// against, and no load on the box can move either number.
+	const scanning = ['indexOf', 'lastIndexOf', 'find', 'findIndex', 'filter',
+		'some', 'every', 'includes', 'forEach', 'map', 'reduce', 'slice', 'sort', 'join'];
+	const LARGE = 500;
+	const originals = {};
+	let walked = 0;
+	// Patching a builtin is exactly what the rule forbids and exactly what
+	// this measurement is: the claim is about work the store does, and no
+	// vantage point outside the builtin can see it without reaching into the
+	// store's private state. Every patch is undone in the `finally` below.
+	/* eslint-disable no-extend-native */
+	for (const name of scanning) {
+		originals[name] = Array.prototype[name];
+		Object.defineProperty(Array.prototype, name, {
+			value: function (...args) {
+				if (this.length >= LARGE) walked += 1;
+				return originals[name].apply(this, args);
+			},
+			writable: true, configurable: true,
+		});
+	}
+
+	try {
+		const store = Store.createMemoryStore();
+		for (let revision = 1; revision <= 4000; revision++) {
+			await store.commit({
+				run: {attemptId: 'walk', profileId: 'run-and-bun', value: revision},
+				expectedRevision: revision - 1,
+				commandId: 'walk-' + revision,
+				event: event(revision === 1 ? 'run.started' : 'command.applied',
+					revision === 1 ? {} : {command: {value: revision}}),
+			});
+		}
+	} finally {
+		// Restored whatever happened, or every test after this one runs against
+		// a patched Array.
+		for (const name of scanning) {
+			Object.defineProperty(Array.prototype, name,
+				{value: originals[name], writable: true, configurable: true});
+		}
+		/* eslint-enable no-extend-native */
+	}
+
+	assert.equal(walked, 0,
+		`a commit scanned a large array ${walked} times across 4000 commits; ` +
+		'appending to a log must not read it');
 });
 
 test('growing run logs are stored once, not copied into every receipt', {timeout: 30000}, async () => {
@@ -641,4 +737,118 @@ test('a Littleroot runtime fixture rebuilds through the real run reducer', async
 	assert.deepEqual(rebuilt.run, current);
 	const expected = adapter.replay(littleroot).run;
 	assert.deepEqual(rebuilt.run, expected);
+});
+
+test('the archive shelf refuses silent replacement of a saved run', async () => {
+	const store = Store.createMemoryStore();
+	await started(store);
+	const first = await store.archive({attemptId: 'attempt-1', name: 'First run',
+		outcome: 'wipe', position: 3, run: run('attempt-1', 3),
+		evidence: {revision: 3, checksum: 'aaaa'}});
+	// Same shelf slot, different content, no supersede: refused loudly.
+	await assert.rejects(() => store.archive({attemptId: 'attempt-1', name: 'Rewritten',
+		outcome: 'completed', position: 9, run: run('attempt-1', 9),
+		evidence: {revision: 9, checksum: 'bbbb'}}),
+	error => error.code === 'ARCHIVE_CONFLICT');
+	await assert.rejects(() => store.importArchives([{attemptId: 'attempt-1',
+		name: 'Legacy shadow', outcome: 'reset', position: 1, run: run('attempt-1', 1),
+		evidence: {revision: 1, checksum: 'cccc'}}]),
+	error => error.code === 'ARCHIVE_CONFLICT');
+	// The shelf still holds the original.
+	const kept = (await store.listArchives())[0];
+	assert.equal(kept.outcome, 'wipe', 'the first archive survives every collision');
+	// A deliberate re-archive names what it replaces — that is the valve.
+	//
+	// The valve has to check WHICH checksum, not merely that one was supplied.
+	// This test only ever passed the correct one, so weakening the guard to
+	// `if (incoming.supersedes) return;` — any truthy value opens it — stayed
+	// green, and a caller shipping `supersedes: 'x'` could have overwritten
+	// any archive on the shelf.
+	await assert.rejects(() => store.archive({attemptId: 'attempt-1', name: 'Wrong key',
+		outcome: 'completed', position: 12, run: run('attempt-1', 12),
+		evidence: {revision: 12, checksum: 'dddd'}, supersedes: 'not-the-prior-checksum'}),
+	error => error.code === 'ARCHIVE_CONFLICT',
+	'naming the WRONG prior checksum is still a collision');
+	assert.equal((await store.listArchives())[0].outcome, 'wipe',
+		'and the original is still there after the bad supersede');
+
+	const superseded = await store.archive({attemptId: 'attempt-1', name: 'Continued run',
+		outcome: 'completed', position: 12, run: run('attempt-1', 12),
+		evidence: {revision: 12, checksum: 'dddd'}, supersedes: first.evidence.checksum});
+	assert.equal(superseded.outcome, 'completed');
+	// Idempotent same-content puts stay legal (the legacy DB re-import path).
+	await store.importArchives([JSON.parse(JSON.stringify(superseded))]);
+	assert.equal((await store.listArchives()).length, 1);
+});
+
+test('a backwards wall clock is flagged at commit, never rewritten', async () => {
+	const store = Store.createMemoryStore();
+	await store.commit({
+		run: run('attempt-1', 0), expectedRevision: 0, commandId: 'start-1',
+		event: {kind: 'run.started', payload: {snapshot: run('attempt-1', 0)},
+			observedAt: '2026-08-15T10:00:00.000Z'},
+	});
+	await store.commit({
+		run: run('attempt-1', 1), expectedRevision: 1, commandId: 'change-1',
+		event: {kind: 'command.applied', payload: {command: {value: 1}},
+			observedAt: '2026-08-15T09:00:00.000Z'},
+	});
+	const events = await store.listEvents('attempt-1');
+	assert.equal(events[0].observedAtSuspect, undefined,
+		'a forward clock carries no flag');
+	assert.equal(events[1].observedAtSuspect, true,
+		'the backwards timestamp is marked suspect');
+	assert.equal(events[1].observedAt, '2026-08-15T09:00:00.000Z',
+		'the raw value is kept — flagged, never rewritten');
+	// The flag is part of the hash chain from birth.
+	const bundle = await store.exportActive();
+	assert.equal(await store.validateBundle(bundle), true);
+
+	// Round-tripping proves nothing on its own: the hash is computed the same
+	// way at write and at validate, so deleting observedAtSuspect from
+	// eventHashInput left this green. The flag is only genuinely chained if
+	// STRIPPING it from an exported bundle makes validation reject.
+	const tampered = JSON.parse(JSON.stringify(bundle));
+	const flagged = tampered.events.find(event => event.observedAtSuspect);
+	assert.ok(flagged, 'the export carries the flagged event');
+	delete flagged.observedAtSuspect;
+	await assert.rejects(() => store.validateBundle(rechecksum(tampered)),
+		error => error.code === 'CORRUPT_EVENT',
+		'removing the suspect flag must break the chain, or it was never in it');
+});
+
+test('a re-anchored mirror commits as run.replaced so its exports stay importable', async () => {
+	function runLog(id, value, log) {
+		return {attemptId: id, value: value, log: log, updatedAt: TIME};
+	}
+	// The failure being healed: a degraded session appends to the mirror
+	// only; on recovery the next command absorbs the mirror-grown log into
+	// ONE command.applied, whose single logEntry cannot re-materialize the
+	// whole log — the attempt's own export then fails import as CORRUPT_LOG.
+	const broken = Store.createMemoryStore();
+	await broken.commit({run: runLog('attempt-1', 0, []), expectedRevision: 0,
+		commandId: 'start', event: event('run.started', {})});
+	await broken.commit({run: runLog('attempt-1', 3, [{kind: 'a'}, {kind: 'b'}, {kind: 'c'}]), expectedRevision: 1,
+		commandId: 'absorb', event: event('command.applied', {command: {kind: 'c'}})});
+	const brokenBundle = await broken.exportActive();
+	await assert.rejects(() => broken.validateBundle(brokenBundle),
+		error => error.code === 'CORRUPT_LOG',
+		'the absorbed log must fail its own export — this is the defect being healed');
+
+	// The cure: adopting the ahead mirror is a lifecycle event. run.replaced
+	// snapshots the full adopted run, so materialization restarts from it.
+	const healed = Store.createMemoryStore();
+	await healed.commit({run: runLog('attempt-1', 0, []), expectedRevision: 0,
+		commandId: 'start', event: event('run.started', {})});
+	await healed.commit({run: runLog('attempt-1', 2, [{kind: 'a'}, {kind: 'b'}]), expectedRevision: 1,
+		commandId: 'replace-2', event: event('run.replaced',
+			{reason: 'compatibility copy ran ahead of durable storage'})});
+	await healed.commit({run: runLog('attempt-1', 3, [{kind: 'a'}, {kind: 'b'}, {kind: 'c'}]), expectedRevision: 2,
+		commandId: 'next', event: event('command.applied', {command: {kind: 'c'}})});
+	const bundle = await healed.exportActive();
+	assert.equal(await healed.validateBundle(bundle), true,
+		'a re-anchored attempt must export archives that import cleanly');
+	const fresh = Store.createMemoryStore();
+	const imported = await fresh.importBundle(bundle);
+	assert.equal(imported.duplicate, false, 'the healed archive round-trips');
 });

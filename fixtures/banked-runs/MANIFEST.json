@@ -1,0 +1,20 @@
+{
+	"runs": [
+		{
+			"file": "flannery-3.run.json",
+			"source": "ui-playthrough-out/report-flannery-3.json",
+			"position": 287,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "3ac829f37d6e90aaaeadb7927b8111b7a725a64346a5effd35442ea65d6ca66a"
+		},
+		{
+			"file": "sac-A-11.run.json",
+			"source": "ui-playthrough-out/report-sac-A-11.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "1c39c8b54a735a0b06e457cf5c5c218ae74a35b43214a2e561e656f1e7ce41b0"
+		}
+	]
+}

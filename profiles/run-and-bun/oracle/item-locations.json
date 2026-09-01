@@ -1,0 +1,1891 @@
+{
+	"schemaVersion": "runbun.item.locations/1.1.0",
+	"source": "pokemon-mono engines/rab/backend/DOCS/Item Locations.xlsx, via item-workbook.json",
+	"provenance": "transcribed + derived",
+	"method": "opensAt is a RUN-MAP order (cumulative enemy Pokemon, 0-1620), not an engine row index (0-434). It is the first trainer at the place the prose names, translated through trainer-orders.json. Late-biased: a place the engine splits (Route 104 South and North) takes the LATEST of its sections, because offering an item the run cannot fetch is the failure this ledger prevents. An optional fight group does not date a place that has its own fights, and a building behind a door is not a section of the route outside it. A stated gate — an HM named in the prose, or a badge count — is a floor over all of that. A place with no trainer is null and withheld.",
+	"counted": 235,
+	"dated": 186,
+	"undated": 49,
+	"entries": [
+		{
+			"name": "Oran Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 102, 104 and 111.",
+			"detail": "30 to 90.",
+			"opensAt": 3,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Pecha Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 102, 104 and 114.",
+			"detail": "30 to 90.",
+			"opensAt": 3,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 106",
+			"detail": "Rock furthest north-west at the beach connected to Dewford (hidden).",
+			"opensAt": 25,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 109",
+			"detail": "Island with no NPCs (hidden).",
+			"opensAt": 45,
+			"dating": "gated by a correction from play at Route 109, which opens at 45"
+		},
+		{
+			"name": "Soft Sand",
+			"kind": "held",
+			"location": "Route 109, given by an NPC by the beach.",
+			"detail": null,
+			"opensAt": 45,
+			"dating": "gated by a correction from play at Route 109, which opens at 45"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Route 110",
+			"detail": "By Cycling Road's south gate, guarded by Camper Gavi.",
+			"opensAt": 51,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Cheri Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 104 and 114.",
+			"detail": "30 to 90.",
+			"opensAt": 93,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Chesto Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 114, 116. Given 10x from an NPC at Route 104.",
+			"detail": "30 to 90.",
+			"opensAt": 93,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 104",
+			"detail": "North-west corner of the beach (hidden).",
+			"opensAt": 93,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Poison Barb",
+			"kind": "held",
+			"location": "Route 104, in the area only accessible through Petalburg Woods.",
+			"detail": null,
+			"opensAt": 93,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Miracle Seed",
+			"kind": "held",
+			"location": "Petalburg Woods, given by an NPC past the Cut tree.",
+			"detail": null,
+			"opensAt": 106,
+			"dating": "gated by Cut, which opens at 106"
+		},
+		{
+			"name": "Silver Powder",
+			"kind": "held",
+			"location": "Petalburg Woods, past the Cut tree.",
+			"detail": null,
+			"opensAt": 106,
+			"dating": "gated by Cut, which opens at 106"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Route 116",
+			"detail": "Behind Rich Boy Dawson. Possible to permanently miss.",
+			"opensAt": 112,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Hard Stone",
+			"kind": "held",
+			"location": "Rusturf Tunnel, north-west corner.",
+			"detail": null,
+			"opensAt": 148,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Muscle Band",
+			"kind": "held",
+			"location": "Rusturf Tunnel, north-east corner, past the smashable rocks.",
+			"detail": null,
+			"opensAt": 148,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Wise Glasses",
+			"kind": "held",
+			"location": "Route 116, in the separate area only accesible through Rusturf Tunnel (hidden).",
+			"detail": null,
+			"opensAt": 148,
+			"dating": "gated by the path through Rusturf Tunnel, which opens at 148"
+		},
+		{
+			"name": "Fire Stone",
+			"kind": "evolution",
+			"location": "Sold at Mauville City Pokémon Mart.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Ice Stone",
+			"kind": "evolution",
+			"location": "Sold at Mauville City Pokémon Mart.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Leaf Stone",
+			"kind": "evolution",
+			"location": "Sold at Mauville City Pokémon Mart.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Moon Stone",
+			"kind": "evolution",
+			"location": "Sold at Mauville City Pokémon Mart. Given 1x from NPC Cutter in Rustboro City.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Mauville City",
+			"detail": "Given by an NPC inside one of the houses.",
+			"opensAt": 209,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Shiny Stone",
+			"kind": "evolution",
+			"location": "Sold at Mauville City and Fallarbor Town Pokémon Marts.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Sun Stone",
+			"kind": "evolution",
+			"location": "Sold at Mauville City Pokémon Mart.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Thunder Stone",
+			"kind": "evolution",
+			"location": "Sold at Mauville City Pokémon Mart.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Water Stone",
+			"kind": "evolution",
+			"location": "Sold at Mauville City Pokémon Mart.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Dragon Scale",
+			"kind": "evolution",
+			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "only its 3 badges gate is known"
+		},
+		{
+			"name": "Electirizer",
+			"kind": "evolution",
+			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "only its 3 badges gate is known"
+		},
+		{
+			"name": "Magmarizer",
+			"kind": "evolution",
+			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "only its 3 badges gate is known"
+		},
+		{
+			"name": "Razor Claw",
+			"kind": "held",
+			"location": "Sold at Petalburg City (requires 3 badges).",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "only its 3 badges gate is known"
+		},
+		{
+			"name": "Razor Claw",
+			"kind": "evolution",
+			"location": "Sold at Petalburg City (requires 3 badges).",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "only its 3 badges gate is known"
+		},
+		{
+			"name": "Razor Fang",
+			"kind": "held",
+			"location": "Sold at Petalburg City (requires 3 badges).",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "only its 3 badges gate is known"
+		},
+		{
+			"name": "Razor Fang",
+			"kind": "evolution",
+			"location": "Sold at Petalburg City (requires 3 badges).",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "only its 3 badges gate is known"
+		},
+		{
+			"name": "Upgrade",
+			"kind": "evolution",
+			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "only its 3 badges gate is known"
+		},
+		{
+			"name": "White Herb",
+			"kind": "held",
+			"location": "Route 104, given by an NPC outside of the Flower Shop after obtaining 3 badges.",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "gated by 3 badges, which opens at 229"
+		},
+		{
+			"name": "Aspear Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 110 and 112.",
+			"detail": "30 to 90.",
+			"opensAt": 235,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Sitrus Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 110, 111, 112, 115, 117, 118 and 121.",
+			"detail": "12 to 36.",
+			"opensAt": 235,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Lansat Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Route 103.",
+			"detail": "1 to 3.",
+			"opensAt": 287,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Leppa Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 103 and 104.",
+			"detail": "30 to 90.",
+			"opensAt": 287,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Lum Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 111, 115, 118 and 121.",
+			"detail": "9 to 27.",
+			"opensAt": 392,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Route 111",
+			"detail": "Rock at the north-east area of the desert (hidden, requires Go-Goggles).",
+			"opensAt": 392,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rock Gem",
+			"kind": "held",
+			"location": "Route 111, south corner of the desert (requires Go-Goggles)",
+			"detail": null,
+			"opensAt": 392,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Sharp Beak",
+			"kind": "held",
+			"location": "Route 111, past the desert (requires Mach Bike).",
+			"detail": null,
+			"opensAt": 392,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Dark Gem",
+			"kind": "held",
+			"location": "Route 113.",
+			"detail": null,
+			"opensAt": 405,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Poison Gem",
+			"kind": "held",
+			"location": "Route 113.",
+			"detail": null,
+			"opensAt": 405,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Shed Shell",
+			"kind": "held",
+			"location": "Route 113, behind Parasol Lady Madeline. Possible to permanently miss.",
+			"detail": null,
+			"opensAt": 433,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Dusk Stone",
+			"kind": "evolution",
+			"location": "Sold at Fallarbor Town Pokémon Mart.",
+			"detail": null,
+			"opensAt": 439,
+			"dating": "the place it names"
+		},
+		{
+			"name": "King's Rock",
+			"kind": "held",
+			"location": "Fallarbor Town, sold at the mart.",
+			"detail": null,
+			"opensAt": 439,
+			"dating": "the place it names"
+		},
+		{
+			"name": "King's Rock",
+			"kind": "evolution",
+			"location": "Sold at Fallarbor Town Pokémon Mart.",
+			"detail": null,
+			"opensAt": 439,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Metal Coat",
+			"kind": "held",
+			"location": "Fallarbor Town or Lilycove City, sold at the mart/department store.",
+			"detail": null,
+			"opensAt": 439,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Metal Coat",
+			"kind": "evolution",
+			"location": "Sold at Fallarbor Town Pokémon Mart.",
+			"detail": null,
+			"opensAt": 439,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Protector",
+			"kind": "evolution",
+			"location": "Sold at Fallarbor Town and Fortree City Pokémon Marts.",
+			"detail": null,
+			"opensAt": 439,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Ground Gem",
+			"kind": "held",
+			"location": "Route 114, at the rock straight south after dropping down the ledge (hidden).",
+			"detail": null,
+			"opensAt": 445,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Black Belt",
+			"kind": "held",
+			"location": "Route 115, by the Meteor Falls southern exit.",
+			"detail": null,
+			"opensAt": 486,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 115",
+			"detail": "South-west corner of the beach connected to the Meteor Falls exit (hidden).",
+			"opensAt": 486,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Liechi Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 115.",
+			"detail": "1 or 2.",
+			"opensAt": 486,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Petaya Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 115.",
+			"detail": "1 or 2.",
+			"opensAt": 486,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Salac Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 115.",
+			"detail": "1 or 2.",
+			"opensAt": 486,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Persim Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 112 and 117.",
+			"detail": "30 to 90.",
+			"opensAt": 505,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Rawst Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 112 and 116.",
+			"detail": "30 to 90.",
+			"opensAt": 505,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Dragon Fang",
+			"kind": "held",
+			"location": "Jagged Pass, dropping down by eastern side.",
+			"detail": null,
+			"opensAt": 530,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Petalburg City",
+			"detail": "Surf past the northern pond.",
+			"opensAt": 594,
+			"dating": "only its Surf gate is known"
+		},
+		{
+			"name": "Pidgeotite",
+			"kind": "mega-stone",
+			"location": "Route 104, (requires Surf).",
+			"detail": null,
+			"opensAt": 594,
+			"dating": "gated by Surf, which opens at 594"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Petalburg City",
+			"detail": "Surf accross the southern pond, right side (hidden, requires Surf).",
+			"opensAt": 594,
+			"dating": "only its Surf gate is known"
+		},
+		{
+			"name": "Beedrillite",
+			"kind": "mega-stone",
+			"location": "Route 105, guarded by Bird Keeper Josue & Ruin Maniac Andres (requires Surf).",
+			"detail": null,
+			"opensAt": 600,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 105",
+			"detail": "Furthest south-west island (hidden).",
+			"opensAt": 600,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Lopunnite",
+			"kind": "mega-stone",
+			"location": "Route 108, guarded by Sailor Cory & CoolTrainer Carolina (requires Surf)",
+			"detail": null,
+			"opensAt": 606,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Route 108",
+			"detail": "Rock at the island directly south-east of the Abandoned Ship (hidden, requires Surf).",
+			"opensAt": 606,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Audinite",
+			"kind": "mega-stone",
+			"location": "Abandoned Ship, guarded by Ruin Maniac Garrison & Tuber Jani.",
+			"detail": null,
+			"opensAt": 612,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Mystic Water",
+			"kind": "held",
+			"location": "Abandoned Ship.",
+			"detail": null,
+			"opensAt": 612,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Twisted Spoon",
+			"kind": "held",
+			"location": "Abandoned Ship.",
+			"detail": null,
+			"opensAt": 612,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 118",
+			"detail": "Rock at the south-west corner of the beach connected to Mauville (hidden).",
+			"opensAt": 618,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 118",
+			"detail": "Rock at the south-west corner of the beach connected to Route 119 (hidden).",
+			"opensAt": 618,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Misty Seed",
+			"kind": "held",
+			"location": "Route 119, east past the stairs leading to Psychic Dayton & Ninja Boy Takashi.",
+			"detail": null,
+			"opensAt": 670,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Life Orb",
+			"kind": "held",
+			"location": "Held by the gifted Castform from Weather Institute.",
+			"detail": null,
+			"opensAt": 683,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Aguav Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "6 to 18.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Apicot Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "1 to 3.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Electric Seed",
+			"kind": "held",
+			"location": "Route 119, eastern side of the first tall grass area.",
+			"detail": null,
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Figy Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "1 to 18.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Flying Gem",
+			"kind": "held",
+			"location": "Route 119, surfing south past the bridge, in the tall grass (hidden).",
+			"detail": null,
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Ganlon Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "1 to 3.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Grass Gem",
+			"kind": "held",
+			"location": "Route 119, on the non grass tile to the east of the cycling NPC (hidden).",
+			"detail": null,
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Grassy Seed",
+			"kind": "held",
+			"location": "Route 119, western side of the first tall grass area.",
+			"detail": null,
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 119",
+			"detail": "South of the bridge past the Weather Institute.",
+			"opensAt": 707,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Iapapa Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "6 to 18.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Jaboca Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "2 to 5.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Mago Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "6 to 18.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Psychic Seed",
+			"kind": "held",
+			"location": "Route 119, at the dead end heading north-west past the first bridge.",
+			"detail": null,
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rowap Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "2 to 5.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Wiki Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 119.",
+			"detail": "1 to 18.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Altarianite",
+			"kind": "mega-stone",
+			"location": "Route 120.",
+			"detail": null,
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Belue Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Bug Gem",
+			"kind": "held",
+			"location": "Route 120, at the tall grass maze.",
+			"detail": null,
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Cornn Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Durin Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 120",
+			"detail": "End of the north-west corridor at the tall grass maze (hidden).",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Hondew Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Kelpsy Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Micle Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "2 to 5.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Pinap Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Pomeg Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Psychic Gem",
+			"kind": "held",
+			"location": "Route 120.",
+			"detail": null,
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Qualot Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Watmel Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 120.",
+			"detail": "1 to 3.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Absolite",
+			"kind": "mega-stone",
+			"location": "Route 121.",
+			"detail": null,
+			"opensAt": 809,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Custap Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 121.",
+			"detail": "1 or 2.",
+			"opensAt": 809,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Route 121",
+			"detail": "Alongside the path between Safari Zone and Lilycove City.",
+			"opensAt": 809,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Starf Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 121.",
+			"detail": "2 to 4.",
+			"opensAt": 809,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Blastoisinite",
+			"kind": "mega-stone",
+			"location": "Lilycove City.",
+			"detail": null,
+			"opensAt": 848,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Dawn Stone",
+			"kind": "evolution",
+			"location": "Sold at Lilycove City Deparment Store.",
+			"detail": null,
+			"opensAt": 848,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Lilycove City",
+			"detail": "Rock at the south-west corner of the beach (hidden).",
+			"opensAt": 848,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heracronite",
+			"kind": "mega-stone",
+			"location": "Lilycove City, given by an NPC at the north-east area of the city.",
+			"detail": null,
+			"opensAt": 848,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Lilycove City",
+			"detail": "Given by an NPC inside one of the houses.",
+			"opensAt": 848,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Ghost Gem",
+			"kind": "held",
+			"location": "Mt. Pyre, fourth floor, accessible by dropping down the holes.",
+			"detail": null,
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Mt. Pyre",
+			"detail": "Second Floor. Accessible by dropping down the holes from the top.",
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Mt. Pyre",
+			"detail": "North-east corner of the Summit, between two gravestones (hidden).",
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Spell Tag",
+			"kind": "held",
+			"location": "Mt. Pyre, third floor.",
+			"detail": null,
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Cameruptite",
+			"kind": "mega-stone",
+			"location": "Magma Hideout.",
+			"detail": null,
+			"opensAt": 941,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Houndoominite",
+			"kind": "mega-stone",
+			"location": "Magma Hideout.",
+			"detail": null,
+			"opensAt": 941,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Aqua Hideout",
+			"detail": "Generator room alongside a static Electrode-H encounter.",
+			"opensAt": 1020,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Sharpedonite",
+			"kind": "mega-stone",
+			"location": "Aqua Hideout.",
+			"detail": null,
+			"opensAt": 1020,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Manectite",
+			"kind": "mega-stone",
+			"location": "Route 125, guarded by Bird Keeper Presley & Expert Auron.",
+			"detail": null,
+			"opensAt": 1083,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Steelixite",
+			"kind": "mega-stone",
+			"location": "Given by Steven after the events at the Mossdeep Space Center.",
+			"detail": null,
+			"opensAt": 1174,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 124",
+			"detail": "Underwater (hidden).",
+			"opensAt": 1177,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 124",
+			"detail": "Underwater (hidden).",
+			"opensAt": 1177,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 119",
+			"detail": "At the small piece of land just before the Waterfall, right side (hidden).",
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 124",
+			"detail": "Dive and ressurface at the north-west area of the route.",
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 124",
+			"detail": "Dive and ressurface at the west area of the route.",
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 126",
+			"detail": "Underwater (hidden).",
+			"opensAt": 1183,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 126",
+			"detail": "Underwater (hidden).",
+			"opensAt": 1183,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 114",
+			"detail": "Up the Waterfall northwest of the route.",
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 119",
+			"detail": "Up the Waterfall north of the route (requires Acro Bike).",
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"name": "Swampertite",
+			"kind": "mega-stone",
+			"location": "Route 119 (requires Waterfall and the Acro Bike).",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"name": "Water Gem",
+			"kind": "held",
+			"location": "Abandoned Ship (requires Dive).",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
+		},
+		{
+			"name": "Aerodactylite",
+			"kind": "mega-stone",
+			"location": "Route 126, guarded by Triathlete Pablo (requires Dive).",
+			"detail": null,
+			"opensAt": 1189,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 127",
+			"detail": "North-west corner of the route.",
+			"opensAt": 1195,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 127",
+			"detail": "Underwater (hidden).",
+			"opensAt": 1195,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Pinsirite",
+			"kind": "mega-stone",
+			"location": "Route 127, guarded by CoolTrainer Athena & Bird Keeper Aidan.",
+			"detail": null,
+			"opensAt": 1201,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Banettite",
+			"kind": "mega-stone",
+			"location": "Route 127, guarded by Fisherman Roger & Black Belt Koji.",
+			"detail": null,
+			"opensAt": 1207,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 128",
+			"detail": "Furthest south-west island (hidden).",
+			"opensAt": 1213,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 128",
+			"detail": "Furthest east of the smaller islands, by the L-shaped rock (hidden).",
+			"opensAt": 1213,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Fairy Gem",
+			"kind": "held",
+			"location": "Seafloor Cavern.",
+			"detail": null,
+			"opensAt": 1219,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 128",
+			"detail": "One tile to the east of CoolTrainer Ruben (hidden).",
+			"opensAt": 1219,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Gyaradosite",
+			"kind": "mega-stone",
+			"location": "Route 133, guarded by Expert Mollie & Expert Conor.",
+			"detail": null,
+			"opensAt": 1318,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 132",
+			"detail": "Second island in the southern area of the route.",
+			"opensAt": 1318,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Route 132",
+			"detail": "First island in the northern area of the route.",
+			"opensAt": 1318,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Route 134",
+			"detail": "Long island in the middle of the route.",
+			"opensAt": 1324,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Charizardite X",
+			"kind": "mega-stone",
+			"location": "Victory Road.",
+			"detail": null,
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Gengarite",
+			"kind": "mega-stone",
+			"location": "Victory Road.",
+			"detail": null,
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Glalitite",
+			"kind": "mega-stone",
+			"location": "Victory Road, ice room, north-west exit of the sliding puzzle.",
+			"detail": null,
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Victory Road",
+			"detail": "Ice floor, eastern corner, highest elevation (hidden).",
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heart Scale",
+			"kind": "heart-scale",
+			"location": "Victory Road",
+			"detail": "Ice floor, western corner, highest elevation (hidden).",
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Heavy Duty Boots",
+			"kind": "held",
+			"location": "Victory Road.",
+			"detail": null,
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Venusaurite",
+			"kind": "mega-stone",
+			"location": "Victory Road.",
+			"detail": null,
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Alakazite",
+			"kind": "mega-stone",
+			"location": "Given by Winstrate Vito by the end of Victory Road after you defeat him.",
+			"detail": null,
+			"opensAt": 1459,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Babiri Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Charti Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Chilan Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Chople Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Coba Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Colbur Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Eject Button",
+			"kind": "held",
+			"location": "Route 123 (requires Waterfall).",
+			"detail": null,
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Eject Pack",
+			"kind": "held",
+			"location": "Route 123 (requires Waterfall).",
+			"detail": null,
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Haban Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Kasib Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Kebia Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Occa Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Passho berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Payapa Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Route 123",
+			"detail": "South-east corner, past the Cut trees (hidden).",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Red Card",
+			"kind": "held",
+			"location": "Route 123 (requires Waterfall).",
+			"detail": null,
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rindo Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Roseli Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Shuca Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Slowbronite",
+			"kind": "mega-stone",
+			"location": "Route 123 (requires Waterfall).",
+			"detail": null,
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Tanga Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Wacan Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Yache Berry",
+			"kind": "berry",
+			"location": "Berry Tree at Route 123.",
+			"detail": "1 to 2.",
+			"opensAt": 1465,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Scizorite",
+			"kind": "mega-stone",
+			"location": "Route 123, guarded by Bug Catcher Davis (requires Waterfall).",
+			"detail": null,
+			"opensAt": 1495,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Aggronite",
+			"kind": "mega-stone",
+			"location": "Meteor Falls (requires Surf).",
+			"detail": null,
+			"opensAt": 1525,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Dragon Gem",
+			"kind": "held",
+			"location": "Meteor Falls (requires Surf and Waterfall).",
+			"detail": null,
+			"opensAt": 1525,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Focus Sash",
+			"kind": "held",
+			"location": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall).",
+			"detail": null,
+			"opensAt": 1525,
+			"dating": "gated by the path through Meteor Falls, which opens at 1525"
+		},
+		{
+			"name": "Galladite",
+			"kind": "mega-stone",
+			"location": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall).",
+			"detail": null,
+			"opensAt": 1525,
+			"dating": "gated by the path through Meteor Falls, which opens at 1525"
+		},
+		{
+			"name": "Gardevoirite",
+			"kind": "mega-stone",
+			"location": "Route 115, from the Meteor Falls northern exit (requires Surf and Waterfall).",
+			"detail": null,
+			"opensAt": 1525,
+			"dating": "gated by the path through Meteor Falls, which opens at 1525"
+		},
+		{
+			"name": "Pixie Plate",
+			"kind": "held",
+			"location": "Meteor Falls, first floor, north-east corner.",
+			"detail": null,
+			"opensAt": 1525,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Rocky Helmet",
+			"kind": "held",
+			"location": "Meteor Falls (requires Surf and Waterfall).",
+			"detail": null,
+			"opensAt": 1525,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Steel Gem",
+			"kind": "held",
+			"location": "Meteor Falls, first floor, north-west corner.",
+			"detail": null,
+			"opensAt": 1525,
+			"dating": "the place it names"
+		},
+		{
+			"name": "Abomasite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Ampharosite",
+			"kind": "mega-stone",
+			"location": "New Mauville.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Assault Vest",
+			"kind": "held",
+			"location": "Slateport Harbor, swap a Scanner, Leftovers, Choice Band, Scarf or Specs for it.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Black Glasses",
+			"kind": "held",
+			"location": "Slateport City, given by an NPC inside the Battle Tent.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Blazikenite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Charcoal",
+			"kind": "held",
+			"location": "Lavaridge Town, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Charizardite Y",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Choice Band",
+			"kind": "held",
+			"location": "Slateport Harbor, swap a Scanner, Assault Vest, Leftovers, Choice Scarf or Specs for it.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Choice Scarf",
+			"kind": "held",
+			"location": "Slateport Harbor, swap a Scanner, Assault Vest, Leftovers, Choice Band or Specs for it.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Choice Specs",
+			"kind": "held",
+			"location": "Slateport Harbor, swap a Scanner, Assault Vest, Leftovers, Choice Band or Scarf for it.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Diancite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Dubious Disc",
+			"kind": "evolution",
+			"location": "Sold at Fortree City Pokémon Mart.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Electric Gem",
+			"kind": "held",
+			"location": "New Mauville.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Everstone",
+			"kind": "evolution",
+			"location": "Granite Cave, ice floor, at the 'L' shaped rock formation before the stairs (hidden).",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Expert Belt",
+			"kind": "held",
+			"location": "Sootopolis City, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Fighting Gem",
+			"kind": "held",
+			"location": "Shoal Cave, given by an NPC.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Fire Gem",
+			"kind": "held",
+			"location": "Scorched Slab.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Garchompite",
+			"kind": "mega-stone",
+			"location": "Safari Zone, north area.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Honey",
+			"kind": "evolution",
+			"location": "Sold at Lavaridge Town Pokémon Mart.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Ice Gem",
+			"kind": "held",
+			"location": "Shoal Cave.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Kangaskhanite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Latiasite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Latiosite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Leftovers",
+			"kind": "held",
+			"location": "Slateport Harbor, swap a Scanner, Assault Vest, Choice Band, Scarf, Specs for it.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Lucarionite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Magnet",
+			"kind": "held",
+			"location": "New Mauville.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Mawilite",
+			"kind": "mega-stone",
+			"location": "Cave of Origin.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Medichamite",
+			"kind": "mega-stone",
+			"location": "Mossdeep City.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Mental Herb",
+			"kind": "held",
+			"location": "Safari Zone, south-west area.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Metagrossite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Metronome",
+			"kind": "held",
+			"location": "Safari Zone, south-east area.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Mewtwonite X",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Mewtwonite Y",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Nevermelt Ice",
+			"kind": "held",
+			"location": "Granite Cave.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Normal Gem",
+			"kind": "held",
+			"location": "Safari Zone, north-west zone.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Power Herb",
+			"kind": "held",
+			"location": "Safari Zone, north-east area.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Prism Scale",
+			"kind": "evolution",
+			"location": "Sold at Fortree City Pokémon Mart.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Protective Pads",
+			"kind": "held",
+			"location": "Verdanturf Town, given by an NPC at the Battle Tent.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Lavaridge Town",
+			"detail": "South-west corner inside the hot spring (hidden).",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Shoal Cave",
+			"detail": "Only accesible during high tide.",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Room Service",
+			"kind": "held",
+			"location": "Fortree City, given by an NPC after meeting his Wingull in Mossdeep City.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Sablenite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Salamencite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Sceptilite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Shell Bell",
+			"kind": "held",
+			"location": "Shoal Cave, ice room.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Silk Scarf",
+			"kind": "held",
+			"location": "Dewford Town, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Tyranitarite",
+			"kind": "mega-stone",
+			"location": "Unavailable.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Wide Lens",
+			"kind": "held",
+			"location": "Rustboro City, given by an NPC at the Pokémon Trainer's School.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Zoom Lens",
+			"kind": "held",
+			"location": "New Mauville.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		}
+	]
+}

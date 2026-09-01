@@ -1,4 +1,5 @@
 import * as Calc from '@smogon/calc';
+import {bareMoveFacts} from './dex-facts';
 import {getCalculatorAbility, getEffectiveAbility, getGenerationAbility, isAbilityActive, isAbilityAvailable, isSlowStartActive} from './abilities';
 import {enumerateMoveActions, getPokemon, isDisguiseActive, isRainWeather, isSunWeather, isWeatherSuppressed} from './actions';
 import {DamageInput, makeDamageFacts} from './facts';
@@ -316,12 +317,16 @@ function toCalcField(
   });
 }
 
-const HIGH_CRIT_MOVES = new Set([
+export const HIGH_CRIT_MOVES = new Set([
   'aeroblast', 'aircutter', 'attackorder', 'blazekick', 'crabhammer', 'crosschop',
-  'crosspoison', 'drillrun', 'frostbreath', 'karatechop', 'leafblade', 'nightslash',
-  'poisonjab', 'poisonsting', 'psychocut', 'razorleaf', 'razorwind',
-  'shadowclaw', 'slash', 'spacialrend', 'stoneedge', 'stormthrow', 'surgingstrikes',
-  'wickedblow',
+  'crosspoison', 'drillrun', 'karatechop', 'leafblade', 'nightslash',
+  'poisontail', 'psychocut', 'razorleaf', 'razorwind', 'shadowclaw',
+  'skyattack', 'slash', 'snipeshot', 'spacialrend', 'stoneedge',
+]);
+// Always-crit moves: not a stage bonus, a guarantee. Kept apart so the
+// stage math never double-counts them.
+export const ALWAYS_CRIT_MOVES = new Set([
+  'frostbreath', 'stormthrow', 'surgingstrikes', 'wickedblow',
 ]);
 const CRIT_BLOCKING_ABILITIES = new Set(['battlearmor', 'shellarmor', 'magmaarmor']);
 
@@ -349,7 +354,7 @@ function mapDamageFacts(damage: DamageFacts, map: (value: number) => number): Da
       damage.targetHp,
     );
   }
-  return makeDamageFacts(damage.rolls.map(map), damage.targetHp, damage.hits || 1);
+  return makeDamageFacts(damage.rolls.map(map), damage.targetHp, damage.hits || 1, damage.hitRange);
 }
 
 function isIceFaceActive(state: BattleState, pokemon: PokemonState): boolean {
@@ -379,8 +384,7 @@ function canonicalCalculatorFallback(
   moveName: string,
   metadata: ReturnType<typeof getMoveMetadata>,
 ) {
-  const inherited = new Calc.Move(Calc.Generations.get(generation), moveName);
-  if (inherited.flags !== undefined || metadata.basePower === undefined ||
+  if (bareMoveFacts(Calc.Generations.get(generation), moveName).hasFlags || metadata.basePower === undefined ||
     metadata.type === undefined || metadata.category === undefined) return undefined;
   return {
     basePower: metadata.basePower,
@@ -506,7 +510,7 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
   const attackerMoveCategories = attackerMoveNames.map(moveName => {
     const moveState = attackerState.moves.find(candidate => candidate.name === moveName);
     return (moveState ? getEffectiveMoveMetadata(moveState, state.generation) : getMoveMetadata(moveName, state.generation)).category ||
-      new Calc.Move(gen, moveName).category;
+      bareMoveFacts(gen, moveName).category;
   });
   const moveState = attackerState.moves.find(move => move.name === action.moveName);
   const moveMetadata = moveState
@@ -626,6 +630,11 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
         ? true
         : moveMetadata.accuracy,
       isMultiHit: move.hits > 1 || isParentalBondSplit(state, attackerState, move),
+      // The calculator resolves a variable multi-hit to a fixed 3 for its
+      // damage display; a sampling engine has to roll the count instead.
+      multiHitRange: getCalculatorAbility(state, attackerState) === 'Skill Link'
+        ? undefined
+        : moveMetadata.multiHitRange,
       secondaryEffects: moveMetadata.secondaryEffects,
       battleMode: state.mode,
       // Use the shared action-order boundary so ability-granted priority is
@@ -633,7 +642,8 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
       priority: getActionOrderFacts(state, action).priority,
       attackerSpeed: attacker.stats.spe,
       attackerCriticalHitStage: criticalHitStage(state, attackerState, action.moveName),
-      criticalHitGuaranteed: !!attackerState.volatile?.laserFocus,
+      criticalHitGuaranteed: !!attackerState.volatile?.laserFocus ||
+        ALWAYS_CRIT_MOVES.has(moveId(action.moveName)),
       attackerHp: attackerState.hp.current,
       attackerHpPercent: attackerState.hp.max > 0
         ? attackerState.hp.current / attackerState.hp.max * 100
@@ -675,21 +685,21 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
   const defenderMoveCategories = defenderMoveNames.map(moveName => {
     const moveState = defenderState.moves.find(candidate => candidate.name === moveName);
     return (moveState ? getEffectiveMoveMetadata(moveState, context.state.generation) : getMoveMetadata(moveName, context.state.generation)).category ||
-      new Calc.Move(context.gen, moveName).category;
+      bareMoveFacts(context.gen, moveName).category;
   });
   const lastMoveUsed = context.state.lastMoveByPokemon?.[defenderState.id];
   const defenderLastMoveUsed = lastMoveUsed && isMoveAvailable(lastMoveUsed, context.state.generation)
     ? lastMoveUsed : undefined;
   const defenderLastMoveIsStatus = defenderLastMoveUsed === undefined
     ? undefined
-    : new Calc.Move(context.gen, defenderLastMoveUsed).category === 'Status';
+    : bareMoveFacts(context.gen, defenderLastMoveUsed).category === 'Status';
   const defenderHasSoundMove = defenderMoveNames.some(moveName => {
     const moveState = defenderState.moves.find(candidate => candidate.name === moveName);
     const metadata = moveState
       ? getEffectiveMoveMetadata(moveState, context.state.generation)
       : getMoveMetadata(moveName, context.state.generation);
     return !defenderState.volatile?.throatChop &&
-      (metadata.sound === true || !!new Calc.Move(context.gen, moveName).flags?.sound);
+      (metadata.sound === true || bareMoveFacts(context.gen, moveName).sound);
   });
   const field = toCalcField(
     context.state,
@@ -710,48 +720,111 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
     splitDamage,
     defenderState.hp.current,
     context.baseFacts.isMultiHit ? context.move.hits : 1,
+    context.baseFacts.multiHitRange,
   );
-  const semiInvulnerable = defenderState.volatile?.charge?.moveName &&
-    SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(defenderState.volatile.charge.moveName)) &&
-    !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(context.move.name));
-  let damage = semiInvulnerable ||
-    (context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
-      isDisguiseActive(context.state, defenderState) && rawDamage.max > 0)
-    ? makeDamageFacts([0], defenderState.hp.current)
-    : rawDamage;
-  if (context.state.generation >= 8 && context.move.category === 'Physical' &&
-    !context.baseFacts.isMultiHit && !defenderState.substituteHp && damage.max > 0 &&
-    isIceFaceActive(context.state, defenderState) &&
-    !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category)) {
-    damage = makeDamageFacts([0], defenderState.hp.current);
-  }
-  if (context.state.generation >= 8 && context.move.category !== 'Status' &&
-    moveId(context.move.type) === 'fire' && defenderState.volatile?.tarShot && damage.max > 0) {
-    damage = mapDamageFacts(damage, roll => roll * 2);
-  }
-  if (context.state.generation >= 9 && defenderState.volatile?.glaiveRush &&
-    context.move.category !== 'Status' && damage.max > 0) {
-    damage = mapDamageFacts(damage, roll => roll * 2);
-  }
-  if (context.state.generation >= 5 && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
-    defenderState.hp.current === defenderState.hp.max && !defenderState.substituteHp &&
-    isAbilityActive(defenderState, context.state) && moveId(getEffectiveAbility(defenderState) || '') === 'sturdy' &&
-    damage.max >= defenderState.hp.current) {
-    damage = makeDamageFacts(
-      damage.rolls.map(roll => Math.min(roll, Math.max(0, defenderState.hp.current - 1))),
-      defenderState.hp.current,
-      damage.hits,
-    );
-  }
-  if (context.state.generation >= 4 && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
-    defenderState.hp.current === defenderState.hp.max && !defenderState.substituteHp &&
-    isItemEffectActive(context.state, defenderState) && moveId(defenderState.item || '') === 'focussash' &&
-    damage.max >= defenderState.hp.current) {
-    damage = makeDamageFacts(
-      damage.rolls.map(roll => Math.min(roll, Math.max(0, defenderState.hp.current - 1))),
-      defenderState.hp.current,
-      damage.hits,
-    );
+  // Every damage-shaping guard below applies to the crit distribution too:
+  // Sturdy caps a crit at HP-1 exactly as it caps a normal hit, Disguise
+  // eats a crit whole. Extracted so the crit pass cannot drift from it.
+  const applyDamageGuards = (input: DamageFacts): DamageFacts => {
+    const semiInvulnerable = defenderState.volatile?.charge?.moveName &&
+      SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(defenderState.volatile.charge.moveName)) &&
+      !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(context.move.name));
+    let guarded = semiInvulnerable ? makeDamageFacts([0], defenderState.hp.current) : input;
+    if (!semiInvulnerable && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
+      isDisguiseActive(context.state, defenderState) && input.max > 0 &&
+      !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category)) {
+      guarded = {...makeDamageFacts([0], defenderState.hp.current), zeroedByGuard: 'disguise'};
+    }
+    if (context.state.generation >= 8 && context.move.category === 'Physical' &&
+      !context.baseFacts.isMultiHit && !defenderState.substituteHp && guarded.max > 0 &&
+      isIceFaceActive(context.state, defenderState) &&
+      !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category)) {
+      guarded = {...makeDamageFacts([0], defenderState.hp.current), zeroedByGuard: 'iceface'};
+    }
+    if (context.state.generation >= 8 && context.move.category !== 'Status' &&
+      moveId(context.move.type) === 'fire' && defenderState.volatile?.tarShot && guarded.max > 0) {
+      guarded = mapDamageFacts(guarded, roll => roll * 2);
+    }
+    if (context.state.generation >= 9 && defenderState.volatile?.glaiveRush &&
+      context.move.category !== 'Status' && guarded.max > 0) {
+      guarded = mapDamageFacts(guarded, roll => roll * 2);
+    }
+    if (context.state.generation >= 5 && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
+      defenderState.hp.current === defenderState.hp.max && !defenderState.substituteHp &&
+      isAbilityActive(defenderState, context.state) && moveId(getEffectiveAbility(defenderState) || '') === 'sturdy' &&
+      guarded.max >= defenderState.hp.current) {
+      guarded = makeDamageFacts(
+        guarded.rolls.map(roll => Math.min(roll, Math.max(0, defenderState.hp.current - 1))),
+        defenderState.hp.current,
+        guarded.hits,
+      );
+    }
+    if (context.state.generation >= 4 && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
+      defenderState.hp.current === defenderState.hp.max && !defenderState.substituteHp &&
+      isItemEffectActive(context.state, defenderState) && moveId(defenderState.item || '') === 'focussash' &&
+      guarded.max >= defenderState.hp.current) {
+      guarded = makeDamageFacts(
+        guarded.rolls.map(roll => Math.min(roll, Math.max(0, defenderState.hp.current - 1))),
+        defenderState.hp.current,
+        guarded.hits,
+      );
+    }
+    return guarded;
+  };
+  let damage = applyDamageGuards(rawDamage);
+
+  // The crit distribution, computed once beside the normal one. Without it
+  // P(crit) was zero in every sampled outcome outside Laser Focus — the
+  // engine knew the crit STAGE and had no consumer for it.
+  const critBlocked = !!context.state.sides[defenderSide].effects?.luckyChant ||
+    (isAbilityActive(defenderState, context.state) &&
+      isAbilityAvailable(context.state.generation, getEffectiveAbility(defenderState)) &&
+      CRIT_BLOCKING_ABILITIES.has(moveId(getEffectiveAbility(defenderState) || '')));
+  if (context.move.category !== 'Status' && damage.max > 0 &&
+    !context.baseFacts.criticalHitGuaranteed && !critBlocked) {
+    // DEFERRED, because most of these are never asked for. The band costs a
+    // second `Calc.Move` and a second `Calc.calculate` — together the largest
+    // remaining source of constructed objects in a played fight — while the
+    // policy prices EVERY candidate action and only the chosen one ever has
+    // its crit sampled. Counted over six real playthroughs: 151,170 bands
+    // computed, 31,583 ever read. 79.1% of the work was thrown away.
+    //
+    // The three properties stay enumerable accessors with the same names and
+    // the same values, so `Object.keys`, spread, `JSON.stringify` and
+    // `deepEqual` behave exactly as before — they force the computation, which
+    // is correct, and is what makes deferring it safe rather than a contract
+    // change. One closure serves all three because one calculation produces
+    // all three, and it runs at most once per damage object.
+    const withCrit: typeof damage = {...damage};
+    let computed: ReturnType<typeof applyDamageGuards> | null = null;
+    const band = () => {
+      if (computed === null) {
+        const critMove = new Calc.Move(context.gen, context.move.name, {
+          ...(context.move as unknown as {originalOptions?: object}).originalOptions,
+          ability: getCalculatorAbility(context.state, context.attackerState),
+          item: context.move.item,
+          species: getEffectiveSpecies(context.attackerState),
+          isCrit: true,
+          hits: context.move.hits,
+          overrides: (context.move as unknown as {overrides?: object}).overrides,
+        });
+        const critResult = Calc.calculate(context.gen, context.attacker, defender, critMove, field);
+        computed = applyDamageGuards(makeDamageFacts(
+          critResult.damage as DamageInput,
+          defenderState.hp.current,
+          context.baseFacts.isMultiHit ? context.move.hits : 1,
+          context.baseFacts.multiHitRange,
+        ));
+      }
+      return computed;
+    };
+    Object.defineProperty(withCrit, 'critRolls',
+      {get: () => band().rolls, enumerable: true, configurable: true});
+    Object.defineProperty(withCrit, 'critMax',
+      {get: () => band().max, enumerable: true, configurable: true});
+    Object.defineProperty(withCrit, 'critMin',
+      {get: () => band().min, enumerable: true, configurable: true});
+    damage = withCrit;
   }
 
   return {
@@ -785,6 +858,7 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
     isSuperEffective: typeMultiplier(context.gen, context.move.type, defender)! > 1,
     isHighCrit: !context.state.sides[defenderSide].effects?.luckyChant &&
       (HIGH_CRIT_MOVES.has(moveId(context.move.name)) ||
+      ALWAYS_CRIT_MOVES.has(moveId(context.move.name)) ||
       !!context.attackerState.volatile?.laserFocus) &&
       !(isAbilityActive(defenderState, context.state) &&
         isAbilityAvailable(context.state.generation, getEffectiveAbility(defenderState)) &&
@@ -793,7 +867,7 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
       !context.state.sides[defenderSide].effects?.luckyChant,
     criticalHit: context.baseFacts.criticalHitGuaranteed &&
       !context.state.sides[defenderSide].effects?.luckyChant,
-    isImmune: damage.max === 0,
+    isImmune: damage.max === 0 && !damage.zeroedByGuard,
   };
 }
 
@@ -819,7 +893,93 @@ function calculateMoveActionFacts(
   };
 }
 
+/**
+ * The memo in front of `computeActionFacts`.
+ *
+ * The policy prices EVERY candidate action every turn, so this is the hottest
+ * function in a played fight: one playbook at Battle Girl Vivian called it
+ * 20,681 times against 2,407 distinct states, 8.6 calls to a state. It is pure
+ * in `(state, action, options)`, so the repeats are pure recomputation.
+ *
+ * Measured over six real mid-run states, positions 73 to 282, playing one
+ * playbook each: 813,358 constructed calculator objects down to 489,657 and
+ * 30,446ms down to 21,583ms. That is 1.66x the work removed and 1.41x the
+ * clock, on identical output.
+ *
+ * Two keys were tried before this one and both were wrong in a way worth
+ * recording, because each looked right until it was measured.
+ *
+ * A CONTENT key — the whole serialized state — works and is exactly sound. It
+ * also never evicts, so it cost 143MB of key strings for ONE fight, and at the
+ * `Calc.calculate` level it ran SLOWER than the arithmetic it skipped, because
+ * the objects are built constructing the arguments rather than inside the call.
+ *
+ * An IDENTITY key costs nothing to compute and is unsound. Instrumenting 20,681
+ * production calls found zero cases of a state object changing under it, which
+ * is exactly the kind of evidence that invites a wrong conclusion: this file's
+ * own `metadata.test.ts` builds fixtures by editing a state in place and
+ * re-querying it, so the same object legitimately has two different answers.
+ * Shipping identity alone turned a Scope Lens into `undefined` and the suite
+ * caught it immediately.
+ *
+ * So: identity to FIND the table, content to TRUST it. The stamp is compared
+ * on every call, which keeps it exactly sound with no hash and no collision
+ * argument; a state that was edited in place simply misses and rebuilds. The
+ * WeakMap is what makes that affordable — one stamp per live state rather than
+ * one per call, and the whole table dies with the state, so nothing has to
+ * guess a cache size or a TTL.
+ *
+ * The action half of the key is exhaustive by construction rather than by
+ * judgement. `MoveAction` is six fields and this names all six; a seventh must
+ * be added here too, which `ai/src/test/action-facts-memo.test.ts` exists to
+ * catch.
+ */
+interface ActionFactsMemo {
+  stamp: string;
+  table: Map<string, ActionFacts>;
+}
+
+const ACTION_FACTS_BY_STATE = new WeakMap<BattleState, ActionFactsMemo>();
+
+function actionFactsKey(action: Action, options: {reactive?: boolean}): string {
+  const reactive = options.reactive ? '1' : '0';
+  if (action.kind !== 'move') return `${action.kind}|${reactive}`;
+  return `${action.actorId}|${action.moveName}|${(action.targetIds || []).join(',')}|` +
+    `${action.useZ ? 1 : 0}${action.useMax ? 1 : 0}|${reactive}`;
+}
+
 export function calculateActionFacts(
+  state: BattleState,
+  action: Action,
+  options: {reactive?: boolean} = {},
+): ActionFacts {
+  let stamp: string | null;
+  try {
+    stamp = JSON.stringify(state);
+  } catch (error) {
+    // A state that cannot be serialized cannot be stamped, so it is never
+    // cached. Answering slowly beats answering from a table that cannot say
+    // whether it is still describing this position.
+    stamp = null;
+  }
+  if (stamp === null) return computeActionFacts(state, action, options);
+
+  let memo = ACTION_FACTS_BY_STATE.get(state);
+  if (memo === undefined || memo.stamp !== stamp) {
+    memo = {stamp, table: new Map<string, ActionFacts>()};
+    ACTION_FACTS_BY_STATE.set(state, memo);
+  }
+  const key = actionFactsKey(action, options);
+  const hit = memo.table.get(key);
+  // `undefined` is never a cached value: every path below returns an object.
+  if (hit !== undefined) return hit;
+  const facts = computeActionFacts(state, action, options);
+  memo.table.set(key, facts);
+  return facts;
+}
+
+/** The real work. Callers go through `calculateActionFacts`, which memoizes. */
+function computeActionFacts(
   state: BattleState,
   action: Action,
   options: {reactive?: boolean} = {},

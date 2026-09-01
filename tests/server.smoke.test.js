@@ -549,81 +549,84 @@ test('Replay sample trace is served and each frame validates over HTTP', async (
 });
 
 test('planner lists the run map and carries its coverage caveat', async () => {
-	const {status, body} = await getJson('/planner/fights');
-	assert.equal(status, 200);
-	assert.equal(body.fights.length, 362);
+	const res = await getJson('/planner/fights');
+	assert.equal(res.status, 200);
+	// 366 with the restored Route 103 rival trio and Mauville Wally in the map.
+	assert.equal(res.body.fights.length, 366);
 	// The caveat travels with the list. A client that only reads `fights` would
 	// otherwise present a progression spine as a complete trainer census.
-	assert.equal(body.coverage.completeTrainerCensus, false);
-	assert.ok(body.coverage.coversMandatoryProgression);
-	assert.equal(body.fights[0].trainer, 'Youngster Calvin');
+	assert.equal(res.body.coverage.completeTrainerCensus, false);
+	assert.ok(res.body.coverage.coversMandatoryProgression);
+	assert.equal(res.body.fights[0].trainer, 'Trainer Rival Route 103 Sceptile');
 });
 
 test('planner reports what is next from a point in the run', async () => {
-	const {status, body} = await getJson('/planner/upcoming?after=0&count=3');
-	assert.equal(status, 200);
-	assert.equal(body.fights.length, 3);
-	assert.equal(body.fights[0].trainer, 'Bug Catcher Rick');
-	for (const fight of body.fights) assert.ok(fight.order > 0);
+	// After Calvin — order 3 now that the Route 103 rival trio opens the map —
+	// the road continues with Bug Catcher Rick.
+	const res = await getJson('/planner/upcoming?after=3&count=3');
+	assert.equal(res.status, 200);
+	assert.equal(res.body.fights.length, 3);
+	assert.equal(res.body.fights[0].trainer, 'Bug Catcher Rick');
+	for (const fight of res.body.fights) assert.ok(fight.order > 3);
 });
 
 test('planner rejects a bad count rather than clamping it silently', async () => {
-	const {status, body} = await getJson('/planner/upcoming?count=999');
-	assert.equal(status, 400);
-	assert.match(body.error, /count must be an integer/);
+	const res = await getJson('/planner/upcoming?count=999');
+	assert.equal(res.status, 400);
+	assert.match(res.body.error, /count must be an integer/);
 });
 
 test('an unknown trainer is a client error and suggests the real name', async () => {
-	const {status, body} = await getJson('/planner/fight?trainer=Calvin');
-	assert.equal(status, 400);
-	assert.equal(body.code, 'UnknownTrainer');
-	assert.match(body.error, /did you mean.*Youngster Calvin/s);
+	const res = await getJson('/planner/fight?trainer=Calvin');
+	assert.equal(res.status, 400);
+	assert.equal(res.body.code, 'UnknownTrainer');
+	assert.match(res.body.error, /did you mean.*Youngster Calvin/s);
 });
 
 test('planner predicts an opponent turn with ranked actions and a margin', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Youngster Calvin',
 		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
 	});
-	assert.equal(status, 200);
-	assert.equal(body.trainer, 'Youngster Calvin');
-	assert.ok(body.actions.length > 1);
-	for (let i = 1; i < body.actions.length; i++) {
-		assert.ok(body.actions[i - 1].score >= body.actions[i].score, 'actions must be ranked');
+	assert.equal(res.status, 200);
+	assert.equal(res.body.trainer, 'Youngster Calvin');
+	assert.ok(res.body.actions.length > 1);
+	for (let i = 1; i < res.body.actions.length; i++) {
+		assert.ok(res.body.actions[i - 1].score >= res.body.actions[i].score, 'actions must be ranked');
 	}
-	for (const action of body.actions) {
+	for (const action of res.body.actions) {
 		assert.ok(action.label && !/undefined/.test(action.label), `unresolved label: ${action.label}`);
 	}
-	assert.ok(['decided', 'contested', 'only-option'].includes(body.confidence));
+	assert.ok(['decided', 'contested', 'only-option'].includes(res.body.confidence));
 	// The position is large and rarely wanted; it is opt-in.
-	assert.equal(body.state, undefined);
+	assert.equal(res.body.state, undefined);
 });
 
 test('planner returns the position only when asked', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Youngster Calvin',
 		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
 		includeState: true,
 	});
-	assert.equal(status, 200);
-	assert.equal(body.state.generation, 8);
-	assert.equal(body.state.sides.ai.party.length, 3);
+	assert.equal(res.status, 200);
+	assert.equal(res.body.state.generation, 8);
+	assert.equal(res.body.state.sides.ai.party.length, 3);
 });
 
 test('planning without a team is a 400, not a guess', async () => {
-	const {status, body} = await requestJson('/planner/predict', {trainer: 'Youngster Calvin'});
-	assert.equal(status, 400);
-	assert.match(body.error, /playerParty is required/);
+	const res = await requestJson('/planner/predict', {trainer: 'Youngster Calvin'});
+	assert.equal(res.status, 400);
+	assert.match(res.body.error, /playerParty is required/);
 });
 
 test('an unknown set is a client error rather than a 500', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Youngster Calvin',
 		playerParty: [{species: 'Azumarill', setLabel: 'Not A Real Set'}],
 	});
-	assert.equal(status, 400);
-	assert.equal(body.code, 'InvalidPlannerRequest');
-	assert.match(body.error, /Unknown set/);
+	assert.equal(res.status, 400);
+	assert.equal(res.body.code, 'InvalidPlannerRequest');
+	assert.match(res.body.error, /Unknown set/);
 });
 
 const PLAYER_PASTE = [
@@ -636,41 +639,41 @@ const PLAYER_PASTE = [
 ].join('\n');
 
 test('a Showdown paste is a first-class way to name the player team', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerPaste: PLAYER_PASTE,
 		includeState: true,
 	});
-	assert.equal(status, 200);
-	const mon = body.state.sides.player.party[0];
+	assert.equal(res.status, 200);
+	const mon = res.body.state.sides.player.party[0];
 	assert.equal(mon.species, 'Swampert');
 	assert.equal(mon.level, 45);
 	assert.equal(mon.item, 'Leftovers');
 	// The player declared this box, so nothing was borrowed.
-	assert.equal(body.borrowedPlayerBuild, false);
-	assert.deepEqual(body.notes, []);
+	assert.equal(res.body.borrowedPlayerBuild, false);
+	assert.deepEqual(res.body.notes, []);
 });
 
 test('a borrowed trainer build is reported as such on every prediction', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerParty: [{species: 'Metagross', setLabel: 'Trainer Steven Space Center'}],
 	});
-	assert.equal(status, 200);
+	assert.equal(res.status, 200);
 	// Steven's level 89 Metagross is not a box any player holds, and the AI scores
 	// against it. A client that cannot tell will present it as a plan.
-	assert.equal(body.borrowedPlayerBuild, true);
+	assert.equal(res.body.borrowedPlayerBuild, true);
 });
 
 test('a double battle says over HTTP that it was ranked as a Singles exchange', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'School Kid Jerry & Johnson',
 		playerPaste: PLAYER_PASTE,
 	});
-	assert.equal(status, 200);
+	assert.equal(res.status, 200);
 	// The flag exists in the library; a client that never receives it presents a
 	// 1v1 ranking of a 2v2 fight with no caveat attached.
-	assert.equal(body.plannedAsSingles, true);
+	assert.equal(res.body.plannedAsSingles, true);
 	const single = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerPaste: PLAYER_PASTE,
@@ -679,23 +682,23 @@ test('a double battle says over HTTP that it was ranked as a Singles exchange', 
 });
 
 test('a paste and a party at once is refused rather than silently preferred', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerPaste: PLAYER_PASTE,
 		playerParty: [{species: 'Azumarill', setLabel: 'Leader Norman'}],
 	});
-	assert.equal(status, 400);
-	assert.match(body.error, /not both/);
+	assert.equal(res.status, 400);
+	assert.match(res.body.error, /not both/);
 });
 
 test('an unreadable paste is a 400 naming the line, not a 500', async () => {
-	const {status, body} = await requestJson('/planner/predict', {
+	const res = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
 		playerPaste: 'Swampertt\n- Earthquake',
 	});
-	assert.equal(status, 400);
-	assert.equal(body.code, 'InvalidPlannerRequest');
-	assert.match(body.error, /Pokemon 1 \(Swampertt\): unknown species/);
+	assert.equal(res.status, 400);
+	assert.equal(res.body.code, 'InvalidPlannerRequest');
+	assert.match(res.body.error, /Pokemon 1 \(Swampertt\): unknown species/);
 
 	const move = await requestJson('/planner/predict', {
 		trainer: 'Leader Norman',
@@ -722,10 +725,70 @@ const RUN_CATCH = ownedCatch(
 	{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3});
 
 async function newRun(body) {
-	const {status, body: payload} = await requestJson('/run/new', body || {});
-	assert.equal(status, 200);
-	return payload.run;
+	const res = await requestJson('/run/new', body || {});
+	assert.equal(res.status, 200);
+	return res.body.run;
 }
+
+test('rank bounds its cut knobs on the wire and reports what it cut', async () => {
+	// keepPerColumn and exhaustive are CPU multipliers like rollouts and
+	// adjudicate, so the wire refuses a bad one rather than clamping it — the
+	// same rule the count knobs already follow.
+	const created = await newRun({name: 'rank-knobs', levelCap: 'none'});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	assert.equal(caught.status, 200);
+	const state = caught.body.run;
+
+	const bad = await requestJson('/run/rank',
+		{run: state, trainer: 'Youngster Calvin', rollouts: 0, keepPerColumn: 0});
+	assert.equal(bad.status, 400);
+	assert.match(bad.body.error, /keepPerColumn must be an integer from 1 to 24/);
+
+	const notBoolean = await requestJson('/run/rank',
+		{run: state, trainer: 'Youngster Calvin', rollouts: 0, exhaustive: 'yes'});
+	assert.equal(notBoolean.status, 400);
+	assert.match(notBoolean.body.error, /exhaustive must be true or false/);
+
+	// A box of one is far under the cut threshold, so the shortlist block must
+	// say plainly that nothing was cut rather than leaving it to be inferred.
+	const ok = await requestJson('/run/rank',
+		{run: state, trainer: 'Youngster Calvin', rollouts: 0});
+	assert.equal(ok.status, 200);
+	assert.equal(ok.body.shortlist.cutting, false);
+	assert.equal(ok.body.shortlist.cut, 0);
+	assert.equal(ok.body.shortlist.candidates, ok.body.boxSize);
+	assert.deepEqual(ok.body.shortlist.dropped, []);
+});
+
+test('the playbook search budget is reachable over the wire and bounded', async () => {
+	// The assignment search decides the plan and costs more than everything
+	// else in a fight put together, so its budget is a knob rather than a
+	// constant — and a bounded one, like every other CPU multiplier here.
+	const created = await newRun({name: 'playbook-knobs', levelCap: 'none'});
+	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
+	assert.equal(caught.status, 200);
+	const partied = await requestJson('/run/apply',
+		{run: caught.body.run, command: {kind: 'party', ids: [caught.body.run.box[0].id]}});
+	assert.equal(partied.status, 200);
+	const state = partied.body.run;
+
+	const bad = await requestJson('/run/playbook',
+		{run: state, trainer: 'Youngster Calvin', variantRollouts: 0});
+	assert.equal(bad.status, 400);
+	assert.match(bad.body.error, /variantRollouts must be an integer from 1 to 24/);
+
+	const tooMany = await requestJson('/run/playbook',
+		{run: state, trainer: 'Youngster Calvin', variantRollouts: 25});
+	assert.equal(tooMany.status, 400);
+
+	// A one-Pokemon party has nothing to reassign, so the search does not run
+	// and must report no per-variant cost rather than a budget it never spent.
+	const ok = await requestJson('/run/playbook',
+		{run: state, trainer: 'Youngster Calvin', rollouts: 2});
+	assert.equal(ok.status, 200);
+	assert.equal(ok.body.explored, 0);
+	assert.equal(ok.body.variantRollouts, 0);
+});
 
 test('a run is created, advanced and summarized entirely through the request', async () => {
 	const created = await newRun({name: 'HTTP', levelCap: 'next-milestone-ace'});
@@ -734,7 +797,7 @@ test('a run is created, advanced and summarized entirely through the request', a
 
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
 	assert.equal(caught.status, 200);
-	assert.match(caught.body.summary, /caught Lillipup \(mon-1\) at level 3 on Route101/);
+	assert.match(caught.body.summary, /caught Lillipup at level 3 on Route101/);
 	assert.equal(caught.body.status.boxed, 1);
 	// The level cap is derived from the run map and names the fight that sets
 	// it — the next story boss of any tier, not the next badge.
@@ -749,17 +812,25 @@ test('a run is created, advanced and summarized entirely through the request', a
 	const status = await requestJson('/run/status', {run: caught.body.run});
 	assert.equal(status.status, 200);
 	assert.equal(status.body.box.length, 1);
-	assert.equal(status.body.upcoming[0].trainer, 'Youngster Calvin');
-	assert.equal(status.body.opportunities.before.trainer, 'Youngster Calvin');
-	assert.equal(status.body.opportunities.encounters.count, 4);
+	// The restored Route 103 rival opens the road; an undeclared run shows
+	// the first variant, Sceptile.
+	assert.equal(status.body.upcoming[0].trainer, 'Trainer Rival Route 103 Sceptile');
+	assert.equal(status.body.opportunities.before.trainer, 'Trainer Rival Route 103 Sceptile');
+	// Five: Route 101/102/103 plus Littleroot Town and Oldale Town, which the
+	// R&B tracker dated. Petalburg City dropped out — reachable only through
+	// Route 102. Both corrections are Philip's, from play.
+	assert.equal(status.body.opportunities.encounters.count, 5);
 	assert.deepEqual(status.body.opportunities.items.pickups.map(item => item.name),
 		['Potion', 'Oran Berry']);
-	assert.equal(status.body.opportunities.moves.status, 'undated');
+	assert.equal(status.body.opportunities.moves.status, 'dated');
+	assert.equal(status.body.opportunities.moves.count, 0,
+		'no TM or tutor is reachable before the first fight');
 
 	// The story spine travels with every status, and how far ahead to look is
 	// the client's call, bounded.
-	assert.equal(status.body.milestones.length, 44);
-	assert.equal(status.body.milestones[0].trainer, 'Leader Brawly');
+	// 47 with the restored Route 103 rival trio, which now leads the spine.
+	assert.equal(status.body.milestones.length, 47);
+	assert.equal(status.body.milestones[0].trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(status.body.milestones[0].beaten, false);
 	const wide = await requestJson('/run/status', {run: caught.body.run, upcomingCount: 8});
 	assert.equal(wide.body.upcoming.length, 8);
@@ -772,13 +843,15 @@ test('the split sheet travels with status and answers on its own endpoint', asyn
 	const status = await requestJson('/run/status', {run: created});
 	assert.equal(status.status, 200);
 	assert.equal(status.body.splitPrep.split.boss, 'Leader Brawly');
-	assert.equal(status.body.splitPrep.gauntlet.length, 4);
+	// Five: the restored Route 103 rival joined the boss-tier fights on the
+	// road to Brawly.
+	assert.equal(status.body.splitPrep.gauntlet.length, 5);
 
 	const sheet = await requestJson('/run/split', {run: created});
 	assert.equal(sheet.status, 200);
 	assert.equal(sheet.body.split.index, 1);
-	assert.equal(sheet.body.gauntlet[3].trainer, 'Leader Brawly');
-	assert.equal(sheet.body.gauntlet[3].cap, 21);
+	assert.equal(sheet.body.gauntlet[4].trainer, 'Leader Brawly');
+	assert.equal(sheet.body.gauntlet[4].cap, 21);
 });
 
 test('audit regressions: the new endpoints refuse with reasons, never 500', async () => {
@@ -818,11 +891,12 @@ test('audit regressions: the new endpoints refuse with reasons, never 500', asyn
 test('the ranker answers over HTTP, and refuses what it cannot rank', async () => {
 	const created = await newRun({name: 'Rank'});
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
-	const {status, body} = await requestJson('/run/rank', {run: caught.body.run});
-	assert.equal(status, 200);
-	assert.equal(body.trainer, 'Youngster Calvin');
-	assert.equal(body.parties[0].label, 'top');
-	assert.ok(body.caveats.length >= 2);
+	const res = await requestJson('/run/rank', {run: caught.body.run});
+	assert.equal(res.status, 200);
+	// The restored Route 103 rival is the first fight the ranker targets.
+	assert.equal(res.body.trainer, 'Trainer Rival Route 103 Sceptile');
+	assert.equal(res.body.parties[0].label, 'top');
+	assert.ok(res.body.caveats.length >= 2);
 
 	// An empty box is a 400 with the reason, exactly like the matrix.
 	const empty = await requestJson('/run/rank', {run: created});
@@ -832,12 +906,12 @@ test('the ranker answers over HTTP, and refuses what it cannot rank', async () =
 
 test('the catch advisor answers over HTTP with the reachable prospects', async () => {
 	const created = await newRun({name: 'Scout', permadeath: true});
-	const {status, body} = await requestJson('/run/scout', {run: created});
-	assert.equal(status, 200);
-	assert.equal(body.trainer, 'Leader Brawly');
-	assert.ok(body.routesOpen >= 4);
-	assert.ok(body.gated >= 1, 'pre-Surf water is gated, not proposed');
-	assert.ok(body.catches.every(c => c.method !== 'surf'));
+	const res = await requestJson('/run/scout', {run: created});
+	assert.equal(res.status, 200);
+	assert.equal(res.body.trainer, 'Leader Brawly');
+	assert.ok(res.body.routesOpen >= 4);
+	assert.ok(res.body.gated >= 1, 'pre-Surf water is gated, not proposed');
+	assert.ok(res.body.catches.every(c => c.method !== 'surf'));
 
 	// A finished target is a 400 with the reason, like every advisor.
 	const unknown = await requestJson('/run/scout', {run: created, trainer: 'Nobody'});
@@ -847,13 +921,13 @@ test('the catch advisor answers over HTTP with the reachable prospects', async (
 test('the routes view answers over HTTP with the spent and the still-open', async () => {
 	const created = await newRun({name: 'Routes', permadeath: true});
 	const caught = await requestJson('/run/apply', {run: created, command: RUN_CATCH});
-	const {status, body} = await requestJson('/run/routes', {run: caught.body.run});
-	assert.equal(status, 200);
+	const res = await requestJson('/run/routes', {run: caught.body.run});
+	assert.equal(res.status, 200);
 	// One row per LOCATION, not per wild table: Granite Cave's floors, Mt
 	// Pyre's nine maps and both underwater routes fold into their locations.
-	assert.ok(body.routes.length > 60 && body.routes.length < 100,
+	assert.ok(res.body.routes.length > 60 && res.body.routes.length < 100,
 		'every location answers, grouped by the route rule\'s unit');
-	const spent = body.routes.find(route => route.name === 'Route101');
+	const spent = res.body.routes.find(route => route.name === 'Route101');
 	assert.equal(spent.used.species, 'Lillipup');
 	assert.ok(spent.best.length > 0 && spent.best[0].chance > 0);
 });
@@ -870,8 +944,8 @@ test('a late-game run document still fits through the request body', async () =>
 	};
 	const big = {...good, log: Array.from({length: 2000}, () => entry)};
 	assert.ok(Buffer.byteLength(JSON.stringify(big)) > 150 * 1024, 'probe must exceed the stock limit');
-	const {status} = await requestJson('/run/status', {run: big});
-	assert.equal(status, 200, 'a long-running save must not be refused for its size');
+	const res = await requestJson('/run/status', {run: big});
+	assert.equal(res.status, 200, 'a long-running save must not be refused for its size');
 });
 
 test('a command that could not have happened is a 400 with the reason', async () => {
@@ -925,11 +999,13 @@ test('a run of the right version but the wrong shape is a 400 naming the field',
 		[{...good, position: 'start'}, /position/],
 		[{...good, nextId: null}, /nextId/],
 	];
-	for (const [run, field] of shapes) {
-		const {status, body} = await requestJson('/run/status', {run});
-		assert.equal(status, 400, `malformed run must not 500: ${JSON.stringify(run).slice(0, 80)}`);
-		assert.equal(body.code, 'InvalidRun');
-		assert.match(body.error, field);
+	for (const shape of shapes) {
+		const run = shape[0];
+		const field = shape[1];
+		const res = await requestJson('/run/status', {run});
+		assert.equal(res.status, 400, `malformed run must not 500: ${JSON.stringify(run).slice(0, 80)}`);
+		assert.equal(res.body.code, 'InvalidRun');
+		assert.match(res.body.error, field);
 	}
 
 	// The panel's import box accepts pasted JSON, and this is what a curious
@@ -952,7 +1028,8 @@ test('the run plans the next fight with its own party, never a borrowed build', 
 
 	const plan = await requestJson('/run/plan', {run});
 	assert.equal(plan.status, 200);
-	assert.equal(plan.body.trainer, 'Youngster Calvin');
+	// The restored Route 103 rival is the run's next fight.
+	assert.equal(plan.body.trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(plan.body.borrowedPlayerBuild, false);
 	assert.ok(plan.body.actions.length > 1);
 
@@ -1016,11 +1093,15 @@ test('the map list is served without a run, and states its own limits', async ()
 test('the box matrix is served whole, and an unknown trainer is a 400', async () => {
 	let run = await newRun();
 	run = (await requestJson('/run/apply', {run, command: RUN_CATCH})).body.run;
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin's three-mon party, so clear the rival the way a player would.
+	run = (await requestJson('/run/apply', {run,
+		command: {kind: 'beat', trainer: 'Trainer Rival Route 103 Swampert'}})).body.run;
 
 	const matrix = await requestJson('/run/matrix', {run});
 	assert.equal(matrix.status, 200);
 	assert.equal(matrix.body.trainer, 'Youngster Calvin');
-	assert.equal(matrix.body.order, 0);
+	assert.equal(matrix.body.order, 3);
 	// The grid arrives whole. A client that had to fetch a cell at a time would
 	// be back to asking one damage calculation per matchup, which is the thing
 	// this endpoint exists to stop.
@@ -1073,23 +1154,56 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 
 	const advice = await requestJson('/run/advise', {run});
 	assert.equal(advice.status, 200);
-	assert.equal(advice.body.trainer, 'Youngster Calvin');
+	// The restored Route 103 rival is the first fight the advisor weighs; an
+	// undeclared run shows the first variant, at run-map order 0.
+	assert.equal(advice.body.trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(advice.body.order, 0);
 	assert.ok(advice.body.considered > 0);
 	// The same projection the board sends, because these are the board's numbers.
 	assert.deepEqual(advice.body.projection, {applied: true, cap: 12, from: 'projected'});
 	assert.deepEqual(advice.body.party, [{id: 'mon-1', species: 'Poochyena', nickname: null,
 		level: 12, from: 3}]);
-	// The shortlist arrives whole — ten one-line changes IS the answer.
-	assert.ok(advice.body.upgrades.length > 0 && advice.body.upgrades.length <= 10);
-	const top = advice.body.upgrades[0];
-	assert.equal(top.kind, 'teach');
-	assert.equal(top.id, 'mon-1');
-	assert.equal(top.detail, 'Bite');
-	assert.ok(advice.body.availability.undatedMovesExcluded > 0,
-		'undated TM and tutor routes must not masquerade as early-game access');
-	assert.deepEqual(Object.keys(top.delta).sort(), ['damage', 'koConceded', 'koGained']);
-	assert.ok(top.delta.damage > 0, 'the reachable move must improve the board');
+	// The shortlist arrives whole — at most ten one-line changes IS the answer,
+	// and an EMPTY shortlist is an answer too. This asserted a non-empty list
+	// led by "teach Bite", which stopped being true when levelling started
+	// teaching: Poochyena learns Bite by the L12 cap, so paying to teach it
+	// would be advice to buy something the cap gives away. With an empty bag
+	// and its own level-ups covering the board, nothing moves it.
+	assert.ok(advice.body.upgrades.length <= 10, 'the shortlist stays a shortlist');
+	assert.ok(!advice.body.upgrades.some(upgrade => upgrade.detail === 'Bite'),
+		'Bite is learned by L12 and must not be sold as an upgrade');
+	// Whatever survives is still a properly shaped, priced change.
+	for (const upgrade of advice.body.upgrades) {
+		assert.equal(upgrade.id, 'mon-1');
+		assert.ok(upgrade.kind && upgrade.detail, 'every change names what it is');
+	}
+	// The property is that a move whose timing is unknown is never OFFERED, and
+	// that the count of what was dropped is reported rather than swallowed.
+	//
+	// This asserted `undatedMovesExcluded > 0`, which was a proxy: it proved the
+	// filter had something to do rather than that it did the right thing. The
+	// proxy broke when Swagger was dated to Slateport City at 48 on Philip's
+	// ruling — it was the one undated move this Poochyena could learn, and it is
+	// now excluded for being unreached at order 0 instead of for being undated.
+	// That is a better reason, and the count going to zero is the improvement
+	// rather than a regression.
+	assert.equal(typeof advice.body.availability.undatedMovesExcluded, 'number',
+		'what the advisor dropped is counted, never swallowed');
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	for (const upgrade of advice.body.upgrades) {
+		if (upgrade.kind !== 'teach') continue;
+		assert.notEqual(oracle.moveObtainableAt(upgrade.detail), null,
+			`${upgrade.detail} has no proven unlock and must never be offered as ` +
+			'early-game access');
+	}
+	// Every change that IS offered carries the same three-part delta. Folded
+	// into the loop above, because there may now be none to lead with.
+	for (const upgrade of advice.body.upgrades) {
+		assert.deepEqual(Object.keys(upgrade.delta).sort(),
+			['damage', 'koConceded', 'koGained']);
+		assert.ok(upgrade.delta.damage > 0 || upgrade.delta.koGained > 0,
+			'a change is only offered if it moves the board');
+	}
 
 	// A misnamed trainer keeps its near-misses, like every other run endpoint.
 	const unknown = await requestJson('/run/advise', {run, trainer: 'Brawly'});
@@ -1142,6 +1256,11 @@ test('the recreation rides HTTP: a roll, a spend, and one played turn', async ()
 	assert.deepEqual(Object.keys(authored.body.identity.ivs).sort(),
 		['atk', 'def', 'hp', 'spa', 'spd', 'spe']);
 	assert.ok(authored.body.identity.nature && authored.body.identity.ability);
+	// A scripted gift carries Run & Bun's three guaranteed perfect IVs. The
+	// uniform roll served here for months produced 59 zero-perfect starters
+	// in 72 banked runs.
+	assert.ok(Object.values(authored.body.identity.ivs).filter(v => v === 31).length >= 3,
+		'a gift identity carries at least three perfect IVs');
 	const nameless = await requestJson('/run/identity', {});
 	assert.equal(nameless.status, 400);
 	assert.match(nameless.body.error, /species is required/);
@@ -1163,7 +1282,8 @@ test('the recreation rides HTTP: a roll, a spend, and one played turn', async ()
 		{run, command: {kind: 'party', ids: ['mon-1']}})).body.run;
 	const started = await requestJson('/run/battle/start', {run, seed: 42});
 	assert.equal(started.status, 200);
-	assert.equal(started.body.battle.trainer, 'Youngster Calvin');
+	// The run's next fight is the restored Route 103 rival.
+	assert.equal(started.body.battle.trainer, 'Trainer Rival Route 103 Sceptile');
 	const move = started.body.actions.find(action => action.kind === 'move');
 	assert.ok(move, 'the opening offers a move');
 	const acted = await requestJson('/run/battle/act',

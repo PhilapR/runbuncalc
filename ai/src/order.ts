@@ -69,22 +69,34 @@ function moveOrderData(state: BattleState, action: MoveAction, actor: PokemonSta
   const metadata = moveState
     ? getEffectiveMoveMetadata(moveState, state.generation)
     : getMoveMetadata(action.moveName, state.generation);
+  // Built only if one of the three fallbacks below actually needs it. It was
+  // constructed eagerly and then usually not read at all — the metadata
+  // boundary supplies category, type and priority for almost every move — at
+  // 2,616 Moves per matchup board. It cannot be cached like the bare dex
+  // facts, because ability, item, species and the Z/Max flags all change what
+  // the calculator answers, so laziness is the whole win here.
   let canonicalMove: Calc.Move | undefined;
-  try {
-    canonicalMove = new Calc.Move(gen, action.moveName, {
-      ability: getCalculatorAbility(state, actor),
-      item: getEffectiveCalculatorItem(state, actor),
-      species: getEffectiveSpecies(actor),
-      useZ: action.useZ || moveState?.useZ,
-      useMax: action.useMax || moveState?.useMax,
-    });
-  } catch {
-    // Caller-defined and calculator-fallback moves still have a deterministic
-    // default order slot even when the inherited calculator has no Move entry.
-  }
-  const moveCategory = metadata.category ?? canonicalMove?.category;
-  const moveType = metadata.type ?? canonicalMove?.type;
-  let priority = moveState?.priority ?? metadata.priority ?? canonicalMove?.priority ?? 0;
+  let canonicalBuilt = false;
+  const canonical = (): Calc.Move | undefined => {
+    if (canonicalBuilt) return canonicalMove;
+    canonicalBuilt = true;
+    try {
+      canonicalMove = new Calc.Move(gen, action.moveName, {
+        ability: getCalculatorAbility(state, actor),
+        item: getEffectiveCalculatorItem(state, actor),
+        species: getEffectiveSpecies(actor),
+        useZ: action.useZ || moveState?.useZ,
+        useMax: action.useMax || moveState?.useMax,
+      });
+    } catch {
+      // Caller-defined and calculator-fallback moves still have a deterministic
+      // default order slot even when the inherited calculator has no Move entry.
+    }
+    return canonicalMove;
+  };
+  const moveCategory = metadata.category ?? canonical()?.category;
+  const moveType = metadata.type ?? canonical()?.type;
+  let priority = moveState?.priority ?? metadata.priority ?? canonical()?.priority ?? 0;
   if (isAbilityActive(actor, state) && state.generation >= 5 && id(getEffectiveAbility(actor)) === 'prankster' && moveCategory === 'Status') {
     priority += 1;
   }
@@ -104,9 +116,50 @@ function moveOrderData(state: BattleState, action: MoveAction, actor: PokemonSta
   return {priority, movesLast, category: moveCategory};
 }
 
+/**
+ * Unboosted Speed, cached, because building a Pokemon to read one number was
+ * 6,720 constructions in a twelve-rollout adjudication — a quarter of all the
+ * calculator objects it made. Speed is asked for constantly: every action the
+ * AI scores wants to know whether it moves first.
+ *
+ * The key is every input that actually moves `stats.spe`, established by
+ * probing the calculator rather than by reading it, and pinned by
+ * `tests/adjudication_cost.test.js` so the cache cannot outlive its
+ * assumption:
+ *
+ *   MOVES it   level, nature, ivs.spe, evs.spe, statOverrides.spe,
+ *              overrides.baseStats.spe, and the effective species
+ *   does NOT   boosts, status, item, ability, teraType
+ *
+ * That second list is why this is safe to share across a battle: the things
+ * that change mid-fight are exactly the things the constructor ignores. They
+ * are applied below, by hand, to the cached base — which the same probe
+ * confirms is not double counting, since the constructor drops the boosts it
+ * is handed.
+ */
+const BASE_SPEED = new Map<string, number>();
+
+function baseSpeed(state: BattleState, pokemon: PokemonState): number {
+  const overrides = getCalcSpeciesOverrides(Calc.Generations.get(state.generation), pokemon);
+  const key = [
+    state.generation,
+    getEffectiveSpecies(pokemon),
+    pokemon.level,
+    pokemon.nature || '',
+    pokemon.ivs?.spe,
+    RUN_AND_BUN_EVS.spe,
+    pokemon.statOverrides?.spe,
+    (overrides as {baseStats?: {spe?: number}} | undefined)?.baseStats?.spe,
+  ].join('|');
+  const cached = BASE_SPEED.get(key);
+  if (cached !== undefined) return cached;
+  const computed = calcPokemon(state, pokemon).stats.spe;
+  BASE_SPEED.set(key, computed);
+  return computed;
+}
+
 function effectiveSpeed(state: BattleState, pokemon: PokemonState): number {
-  const calculated = calcPokemon(state, pokemon);
-  let speed = calculated.stats.spe;
+  let speed = baseSpeed(state, pokemon);
   const stage = pokemon.boosts?.spe || 0;
   speed *= stage >= 0 ? (2 + stage) / 2 : 2 / (2 - stage);
   if (isSlowStartActive(state, pokemon)) speed *= 0.5;
@@ -138,7 +191,11 @@ function effectiveSpeed(state: BattleState, pokemon: PokemonState): number {
       const terrainActive = ability === 'quarkdrive' && terrain === 'Electric';
       const itemActive = isItemEffectActive(state, pokemon) && id(pokemon.item) === 'boosterenergy';
       const volatileActive = !!getBoosterEnergyVolatile(state, pokemon);
-      if ((weatherActive || terrainActive || itemActive || volatileActive) && mostProficientStat(calculated) === 'spe') {
+      // Only this branch needs the whole Pokemon, and only when a Booster
+      // Energy trigger is live — so it is built here rather than for every
+      // speed lookup in the battle.
+      if ((weatherActive || terrainActive || itemActive || volatileActive) &&
+        mostProficientStat(calcPokemon(state, pokemon)) === 'spe') {
         speed *= 1.5;
       }
     }

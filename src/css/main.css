@@ -42,19 +42,32 @@ a img {
     top: -8px;
     left: -150px;
 }
-.nav .button.cur,
-.nav .button.cur:hover {
+.nav .button.cur {
     color: #777777;
     background: #f8f8f8;
     -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
     box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
-.nav .button.cur:hover {
-    border: solid 1px #888888;
+
+@media (hover: hover) {
+	.nav .button.cur:hover {
+	    color: #777777;
+	    background: #f8f8f8;
+	    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	    -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	}
 }
-.nav .button:hover {
-    z-index: 10;
+@media (hover: hover) {
+	.nav .button.cur:hover {
+	    border: solid 1px #888888;
+	}
+}
+@media (hover: hover) {
+	.nav .button:hover {
+	    z-index: 10;
+	}
 }
 .nav .button.nav-first {
     border-top-left-radius: 5px;
@@ -81,9 +94,11 @@ a img {
     border: solid 1px #AAAAAA;
     background: #e3e3e3;
 }
-.button:hover {
-    background: #cfcfcf;
-    border-color: #606060;
+@media (hover: hover) {
+	.button:hover {
+	    background: #cfcfcf;
+	    border-color: #606060;
+	}
 }
 .button:active {
     background: #f2f2f2;
@@ -93,9 +108,11 @@ a img {
     background: hsl(100,30%,93%);
     border-color: hsl(100,30%,70%);
 }
-.greenbutton:hover {
-    background: hsl(100,30%,87%);
-    border-color: hsl(100,30%,41%);
+@media (hover: hover) {
+	.greenbutton:hover {
+	    background: hsl(100,30%,87%);
+	    border-color: hsl(100,30%,41%);
+	}
 }
 .greenbutton:active {
     background: hsl(100,30%,77%);
@@ -139,9 +156,11 @@ html, body {
     box-sizing: border-box;
 }
 
-.trainer-pok:hover,  .opposite-pok:hover{
-    outline: 2px solid;
-    outline-color: #1abc9c;
+@media (hover: hover) {
+	.trainer-pok:hover,  .opposite-pok:hover{
+	    outline: 2px solid;
+	    outline-color: #1abc9c;
+	}
 }
 
 .wrapper {
@@ -206,9 +225,11 @@ th {
     font-size: 1.1em;
     margin: 0.5em 0;
 }
-.big-text #mainResult:hover {  /* indicates the presence of click-to-copy function */
-    cursor: pointer;
-    opacity: 0.7;
+@media (hover: hover) {
+	.big-text #mainResult:hover {  /* indicates the presence of click-to-copy function */
+	    cursor: pointer;
+	    opacity: 0.7;
+	}
 }
 #tooltipText {
     font-size: 0.8em;
@@ -294,11 +315,19 @@ th {
 .btn-mid {
     border-radius: 0;
 }
-.visually-hidden:focus + .btn, /* Add visual indication when focusing on visually hidden elements */
-.btn:hover {
+.visually-hidden:focus + .btn {
     z-index: 10;
     border-color: #777777;
     background: #e3e3e3;
+}
+
+@media (hover: hover) {
+	/* Add visual indication when focusing on visually hidden elements */
+.btn:hover {
+	    z-index: 10;
+	    border-color: #777777;
+	    background: #e3e3e3;
+	}
 }
 .visually-hidden:checked + .btn {
     font-weight: bold;
@@ -637,8 +666,10 @@ table.field {
     color:gray
 }
 
-.deadzone:hover{
-    background: #722323;
+@media (hover: hover) {
+	.deadzone:hover{
+	    background: #722323;
+	}
 }
 .over{
     background: #373232;
@@ -687,9 +718,11 @@ table.field {
 .info-paragraph > b{
     color: rgb(15, 14, 14);
 }
-.info-paragraph > b:hover{
-    background: var(--fieldset-color);
-    color: unset;
+@media (hover: hover) {
+	.info-paragraph > b:hover{
+	    background: var(--fieldset-color);
+	    color: unset;
+	}
 }
 
 .box-frame{
@@ -746,10 +779,12 @@ table.field {
     cursor: pointer;
 }
 
-#close-item-box:hover{
-    background-color: white;
-    overflow: auto;
+@media (hover: hover) {
+	#close-item-box:hover{
+	    background-color: white;
+	    overflow: auto;
     
+	}
 }
 
 .mdiv {
@@ -769,8 +804,10 @@ table.field {
   Z-index: 5;
 }
 
-.box-item-list>img:hover{
-    background: var(--button-hover);
+@media (hover: hover) {
+	.box-item-list>img:hover{
+	    background: var(--button-hover);
+	}
 }
 
 
@@ -1109,8 +1146,10 @@ table.field {
     font-family: var(--rb-font-mono, Consolas, Monaco, monospace);
     font-size: 0.85em;
 }
-.ai-panel-result-row:hover {
-    background: var(--rb-brand-soft, #f0f0f0);
+@media (hover: hover) {
+	.ai-panel-result-row:hover {
+	    background: var(--rb-brand-soft, #f0f0f0);
+	}
 }
 .ai-panel-result-row:focus-visible,
 #runbun-battle .runbun-battle-action-row:focus-visible {
@@ -1542,8 +1581,10 @@ table.field {
 #runbun-battle .runbun-battle-action-row:last-child {
     border-bottom: none;
 }
-#runbun-battle .runbun-battle-action-row:hover {
-    background: var(--rb-brand-soft, #f0f0f0);
+@media (hover: hover) {
+	#runbun-battle .runbun-battle-action-row:hover {
+	    background: var(--rb-brand-soft, #f0f0f0);
+	}
 }
 #runbun-battle .runbun-battle-action-selected {
     background: var(--rb-brand-soft, #e8f4ff);
@@ -1798,7 +1839,7 @@ table.field {
 	border-radius: var(--rb-radius-control);
 	color: var(--rb-ink);
 	font-family: var(--rb-font-body);
-	font-size: 0.9rem;
+	font-size: var(--rb-text-note);
 	line-height: 1.4;
 	text-align: left;
 }
@@ -1823,7 +1864,7 @@ table.field {
 	color: var(--rb-ink-muted);
 	margin: 0;
 	max-width: 76ch;
-	font-size: 0.875rem;
+	font-size: var(--rb-text-body);
 }
 
 /* --- shared: section labels ------------------------------------------------ */
@@ -1832,7 +1873,7 @@ table.field {
 	display: block;
 	font-family: var(--rb-font-brand);
 	font-weight: 700;
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	color: var(--rb-ink-muted);
@@ -1845,6 +1886,44 @@ table.field {
    can run down it, top action called out with the brand accent. Boxed rows at
    full width were the single worst thing in the screenshots. */
 #runbun-planner .runbun-planner-actions,
+/* An empty container must not paint. Both of these carry a 1px border, so
+ * with no children they rendered as a 2px-tall bordered box — a stray rule
+ * floating under the party strip, 589px wide against a 1042px column, which
+ * read as a broken divider rather than as nothing. */
+/* The worst-case cell in its unanswered state. It reads as the value it will
+ * become, not as a chrome button, because it sits inside a definition list
+ * beside "At the active cap" and "Fresh" — but it IS a control, so it takes a
+ * focus ring and a pointer like one. */
+#runbun-run .runbun-run-risk-check {
+	appearance: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	color: var(--rb-action);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	cursor: pointer;
+}
+#runbun-run .runbun-run-risk-check:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+@media (hover: hover) {
+	#runbun-run .runbun-run-risk-check:hover {
+		color: var(--rb-action-hover);
+	}
+}
+
+#runbun-run .runbun-run-plan-actions:empty,
+#runbun-run .runbun-run-advice:empty,
+#runbun-run .runbun-run-encounters:empty,
+#runbun-run .runbun-history-attempts:empty {
+	display: none;
+}
 #runbun-run .runbun-run-plan-actions {
 	display: block;
 	max-width: 44rem;
@@ -1862,7 +1941,7 @@ table.field {
 	padding: var(--rb-space-xs) var(--rb-space-sm);
 	border: 0;
 	border-left: 3px solid transparent;
-	font-size: 0.875rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-planner .runbun-planner-action + .runbun-planner-action,
 #runbun-run .runbun-run-action + .runbun-run-action {
@@ -1873,6 +1952,19 @@ table.field {
 	border-left-color: var(--rb-brand);
 	background: var(--rb-brand-soft);
 	font-weight: 700;
+}
+/* A forecast that DIED, not an option that was unavailable. It sits in the
+   top slot the working forecast would have taken, so it has to read as a
+   warning rather than as a recommendation — the brand fill of .is-top would
+   say the opposite of what it means. */
+#runbun-run .runbun-run-action.is-stale {
+	border-left-color: var(--rb-warn);
+	background: var(--rb-warn-soft);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-action.is-stale .runbun-run-action-label,
+#runbun-run .runbun-run-action.is-stale .runbun-run-action-score {
+	color: var(--rb-warn-ink);
 }
 #runbun-planner .runbun-planner-action-score,
 #runbun-run .runbun-run-action-score {
@@ -1925,7 +2017,7 @@ table.field {
 #runbun-run .runbun-run-plan-evidence:not(:empty) {
 	max-width: 44rem;
 	margin-top: var(--rb-space-xs);
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 }
 
@@ -1963,7 +2055,7 @@ table.field {
 	border-radius: var(--rb-radius-control);
 	background: var(--rb-surface-sunken);
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	line-height: 1.45;
 }
 
@@ -1983,7 +2075,7 @@ table.field {
 	gap: var(--rb-space-sm);
 	padding: var(--rb-space-sm) var(--rb-space-md);
 	border-left: 3px solid var(--rb-warn);
-	font-size: 0.8125rem;
+	font-size: var(--rb-text-body);
 }
 
 #runbun-run .runbun-run-plan-outlook-row + .runbun-run-plan-outlook-row {
@@ -2008,7 +2100,7 @@ table.field {
 
 #runbun-run .runbun-run-plan-outlook-note {
 	margin: var(--rb-space-xs) 0 0;
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 }
 
 @media (max-width: 720px) {
@@ -2027,7 +2119,7 @@ table.field {
 	color: var(--rb-ink);
 	padding: var(--rb-space-sm) var(--rb-space-md);
 	border-radius: var(--rb-radius-control);
-	font-size: 0.875rem;
+	font-size: var(--rb-text-body);
 	max-width: 76ch;
 }
 /* Caveats about the team the plan was built for. Warned only when the build is
@@ -2042,7 +2134,7 @@ table.field {
 	color: var(--rb-ink-muted);
 	border-radius: var(--rb-radius-control);
 	max-width: 76ch;
-	font-size: 0.875rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-planner .runbun-planner-caveats.is-warning {
 	border-left-color: var(--rb-warn);
@@ -2064,13 +2156,13 @@ table.field {
 	display: grid;
 	gap: var(--rb-space-xs);
 	color: var(--rb-ink-muted);
-	font-size: 0.82rem;
+	font-size: var(--rb-text-body);
 	flex: 1 1 22rem;
 }
 #runbun-planner .runbun-planner-select {
 	width: 100%;
 	font-family: var(--rb-font-mono);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 	padding: var(--rb-space-xs) var(--rb-space-sm);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
@@ -2109,13 +2201,13 @@ table.field {
 #runbun-planner .runbun-planner-mon-moves {
 	color: var(--rb-ink-muted);
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 }
 #runbun-planner .runbun-planner-team {
 	width: 100%;
 	box-sizing: border-box;
 	font-family: var(--rb-font-mono);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 	padding: var(--rb-space-sm);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
@@ -2139,7 +2231,7 @@ table.field {
 #runbun-run .runbun-run-limits {
 	max-width: 76ch;
 	color: var(--rb-ink-muted);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 	margin: var(--rb-space-xs) 0 0;
 }
 /* Attempt-sheet overview: the same three facts a paper tracker keeps pinned
@@ -2168,7 +2260,7 @@ table.field {
 	border-left: 1px solid var(--rb-stroke);
 }
 #runbun-run .runbun-run-metric-label {
-	font-size: 0.68rem;
+	font-size: var(--rb-text-label);
 	font-weight: 700;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -2184,13 +2276,13 @@ table.field {
 }
 #runbun-run .runbun-run-position {
 	font-family: var(--rb-font-body);
-	font-size: 0.9rem;
+	font-size: var(--rb-text-note);
 	font-weight: 600;
 	color: var(--rb-ink);
 }
 #runbun-run .runbun-run-cap:not(:empty) {
 	font-family: var(--rb-font-mono);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 	color: var(--rb-warn-ink);
 }
 
@@ -2216,7 +2308,7 @@ table.field {
 #runbun-run .runbun-run-next-eyebrow {
 	display: block;
 	margin-bottom: var(--rb-space-xs);
-	font-size: 0.68rem;
+	font-size: var(--rb-text-label);
 	font-weight: 800;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
@@ -2234,7 +2326,7 @@ table.field {
 	max-width: 50ch;
 	margin: var(--rb-space-xs) 0 var(--rb-space-sm);
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	line-height: 1.4;
 	color: var(--rb-ink-muted);
 }
@@ -2251,7 +2343,7 @@ table.field {
 	background: var(--rb-surface-raised);
 }
 #runbun-run .runbun-run-ready dt {
-	font-size: 0.66rem;
+	font-size: var(--rb-text-label);
 	font-weight: 700;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -2260,7 +2352,7 @@ table.field {
 #runbun-run .runbun-run-ready dd {
 	margin: 0.15rem 0 0;
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	font-weight: 600;
 	color: var(--rb-ink);
 	overflow-wrap: anywhere;
@@ -2274,7 +2366,7 @@ table.field {
 #runbun-run .runbun-run-opportunities-label {
 	display: block;
 	margin-bottom: var(--rb-space-xs);
-	font-size: 0.68rem;
+	font-size: var(--rb-text-label);
 	font-weight: 800;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -2312,21 +2404,23 @@ table.field {
 #runbun-run .runbun-run-opportunity-action {
 	cursor: pointer;
 }
-#runbun-run .runbun-run-opportunity-action:hover {
-	border-color: var(--rb-action);
-	background: var(--rb-action-soft);
+@media (hover: hover) {
+	#runbun-run .runbun-run-opportunity-action:hover {
+		border-color: var(--rb-action);
+		background: var(--rb-action-soft);
+	}
 }
 #runbun-run .runbun-run-opportunity-action:focus-visible {
 	outline: 3px solid var(--rb-focus);
 	outline-offset: 2px;
 }
 #runbun-run .runbun-run-opportunity-name {
-	font-size: 0.76rem;
+	font-size: var(--rb-text-section);
 	font-weight: 800;
 }
 #runbun-run .runbun-run-opportunity-detail {
 	grid-column: 1 / -1;
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	line-height: 1.4;
 	color: var(--rb-ink-muted);
 	overflow-wrap: anywhere;
@@ -2340,6 +2434,93 @@ table.field {
 }
 #runbun-run .runbun-run-opportunity.is-unknown .runbun-run-opportunity-name {
 	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-survival {
+	margin: var(--rb-space-sm) 0;
+	padding: var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-left: 4px solid var(--rb-stroke-strong);
+	border-radius: 0;
+	background: var(--rb-surface-raised);
+}
+#runbun-run .runbun-run-survival-verdict {
+	margin: 0;
+	font-weight: 700;
+	font-size: var(--rb-text-body);
+}
+#runbun-run .runbun-run-survival-verdict[data-risk="lethal"] { color: var(--rb-danger); }
+#runbun-run .runbun-run-survival-label {
+	margin: var(--rb-space-xs) 0 0;
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-survival-steps {
+	margin: var(--rb-space-xs) 0 0 var(--rb-space-md);
+	font-size: var(--rb-text-body);
+}
+#runbun-run .runbun-run-survival-coverage {
+	margin: var(--rb-space-xs) 0 0 var(--rb-space-md);
+	font-size: var(--rb-text-body);
+}
+#runbun-run .runbun-run-survival-leads {
+	margin: var(--rb-space-xs) 0 0;
+	font-size: var(--rb-text-body);
+}
+#runbun-run #runbun-run-ready-risk[data-risk="safe"] { color: var(--rb-ink); }
+#runbun-run #runbun-run-ready-risk[data-risk="thin"] { color: var(--rb-warn-ink); }
+#runbun-run #runbun-run-ready-risk[data-risk="lethal"] {
+	color: var(--rb-danger);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-battle-threat {
+	margin: var(--rb-space-xs) 0 0;
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-battle-threat[data-risk="thin"] { color: var(--rb-warn-ink); }
+#runbun-run .runbun-run-battle-threat[data-risk="lethal"] {
+	color: var(--rb-danger);
+	font-weight: 700;
+}
+#runbun-run .runbun-run-encounter-group {
+	margin-top: var(--rb-space-xs);
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--rb-ink-muted);
+}
+#runbun-run .runbun-run-encounters li.is-gated .runbun-run-encounter {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+#runbun-run .runbun-run-roll-odds {
+	display: block;
+	margin-top: var(--rb-space-xs);
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	color: var(--rb-ink-muted);
+}
+/* The rolled identity sits with the odds, one notch brighter: the odds are a
+   quote, this is what the die already decided and the keep-or-flee decision
+   turns on it. */
+#runbun-run .runbun-run-roll-identity {
+	display: block;
+	margin-top: var(--rb-space-xs);
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	color: var(--rb-ink);
+}
+#runbun-run .runbun-run-roll-identity:empty {
+	display: none;
+}
+#runbun-run #runbun-run-roll-method {
+	min-width: 7em;
 }
 #runbun-run .runbun-run-next-actions {
 	display: grid;
@@ -2473,9 +2654,14 @@ table.field {
 	text-align: left;
 	cursor: pointer;
 }
-#runbun-run .runbun-run-route-choice:hover,
 #runbun-run .runbun-run-route-choice:focus-visible {
 	border-color: var(--rb-action);
+}
+
+@media (hover: hover) {
+	#runbun-run .runbun-run-route-choice:hover {
+		border-color: var(--rb-action);
+	}
 }
 /* The card whose encounter table is on screen: a persistent state, distinct
    from the transient hover/focus ring, so "which route am I looking at?"
@@ -2495,7 +2681,7 @@ table.field {
 #runbun-run .runbun-run-route-choice-action,
 #runbun-run .runbun-run-reachable-empty {
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-run-reachable-empty {
@@ -2512,7 +2698,7 @@ table.field {
 #runbun-run .runbun-run-manual-map summary {
 	cursor: pointer;
 	color: var(--rb-ink-muted);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 }
 #runbun-run .runbun-run-manual-map[open] .runbun-run-field {
 	margin-top: var(--rb-space-xs);
@@ -2532,8 +2718,10 @@ table.field {
 #runbun-run .runbun-run-mon:last-child {
 	border-bottom: 0;
 }
-#runbun-run .runbun-run-mon:hover {
-	background: var(--rb-surface-sunken);
+@media (hover: hover) {
+	#runbun-run .runbun-run-mon:hover {
+		background: var(--rb-surface-sunken);
+	}
 }
 /* A lost Pokemon stays in the box and stays readable — striking it out would
    make the one entry a nuzlocke player cares most about the hardest to read. */
@@ -2546,7 +2734,7 @@ table.field {
 }
 #runbun-run .runbun-run-mon-slot {
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 	align-self: center;
 	text-align: center;
@@ -2565,8 +2753,10 @@ table.field {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-#runbun-run .runbun-run-mon-name:hover {
-	color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-mon-name:hover {
+		color: var(--rb-action);
+	}
 }
 #runbun-run .runbun-run-mon-name:focus-visible {
 	outline: 2px solid var(--rb-focus);
@@ -2575,7 +2765,7 @@ table.field {
 #runbun-run .runbun-run-mon-kit,
 #runbun-run .runbun-run-mon-moves {
 	grid-column: 2 / -1;
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 	font-family: var(--rb-font-mono);
 }
@@ -2585,8 +2775,25 @@ table.field {
 #runbun-run .runbun-run-encounters li:last-child {
 	border-bottom: 0;
 }
+/* A columnar row, not a sentence.
+ *
+ * Every field was concatenated into one string, so with proportional species
+ * names the level, method and odds started at a different x on every line and
+ * the list read as ragged prose. Fixed columns put level under level.
+ *
+ * The name column is 1fr so it absorbs a long species (Vivillon-Archipelago)
+ * without pushing the numbers out of alignment; the rest are sized to their
+ * widest real content. min-content on the gate column lets it collapse to
+ * nothing on the rows that are not gated. */
 #runbun-run .runbun-run-encounter {
-	display: block;
+	display: grid;
+	/* The name is CAPPED, not 1fr, and a trailing 1fr eats the slack. With
+	 * the name on 1fr the four fields aligned correctly but spread across
+	 * the full container width, leaving a chasm between "Surskit" and its
+	 * level. Grouping them left keeps the row scannable as one unit. */
+	grid-template-columns: minmax(0, 12rem) 4rem 5.5rem 3.5rem minmax(0, 1fr);
+	align-items: baseline;
+	column-gap: var(--rb-space-sm);
 	width: 100%;
 	text-align: left;
 	background: none;
@@ -2594,14 +2801,42 @@ table.field {
 	border-left: 3px solid transparent;
 	padding: var(--rb-space-xs) var(--rb-space-sm);
 	font-family: var(--rb-font-mono);
-	font-size: 0.82rem;
+	font-size: var(--rb-text-body);
 	color: inherit;
 	cursor: pointer;
 }
-#runbun-run .runbun-run-encounter:hover,
+/* The name may wrap or ellipsise; the numeric columns never do, because a
+ * wrapped number is what breaks a column. */
+#runbun-run .runbun-run-encounter-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+#runbun-run .runbun-run-encounter-level,
+#runbun-run .runbun-run-encounter-method,
+#runbun-run .runbun-run-encounter-odds {
+	white-space: nowrap;
+	color: var(--rb-ink-muted);
+}
+/* Odds are the one column read down rather than across, so they get the
+ * tabular figures and a right edge to compare against. */
+#runbun-run .runbun-run-encounter-odds {
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+#runbun-run .runbun-run-encounter-level {
+	font-variant-numeric: tabular-nums;
+}
 #runbun-run .runbun-run-encounter:focus-visible {
 	background: var(--rb-surface-sunken);
 	border-left-color: var(--rb-action);
+}
+
+@media (hover: hover) {
+	#runbun-run .runbun-run-encounter:hover {
+		background: var(--rb-surface-sunken);
+		border-left-color: var(--rb-action);
+	}
 }
 #runbun-run .runbun-run-encounters li.is-owned .runbun-run-encounter {
 	color: var(--rb-ok);
@@ -2615,7 +2850,7 @@ table.field {
 }
 #runbun-run .runbun-run-route-used {
 	padding: var(--rb-space-xs) var(--rb-space-sm);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-warn-ink);
 	background: var(--rb-warn-soft);
 	border-left: 3px solid var(--rb-warn);
@@ -2645,7 +2880,7 @@ table.field {
 #runbun-run .runbun-run-field input[type="text"],
 #runbun-run .runbun-run-selected {
 	font-family: var(--rb-font-mono);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 	padding: var(--rb-space-xs) var(--rb-space-sm);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
@@ -2663,12 +2898,12 @@ table.field {
 	display: flex;
 	flex-direction: column;
 	gap: var(--rb-space-xs);
-	font-size: 0.82rem;
+	font-size: var(--rb-text-body);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-run-field select {
 	font-family: var(--rb-font-mono);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 	padding: var(--rb-space-xs) var(--rb-space-sm);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
@@ -2682,7 +2917,7 @@ table.field {
 	display: flex;
 	gap: var(--rb-space-xs);
 	align-items: center;
-	font-size: 0.9rem;
+	font-size: var(--rb-text-note);
 }
 #runbun-run .runbun-run-rules-detail {
 	display: grid;
@@ -2716,7 +2951,7 @@ table.field {
 }
 #runbun-run .runbun-run-newgame-heading span {
 	font-family: var(--rb-font-mono);
-	font-size: 0.68rem;
+	font-size: var(--rb-text-label);
 	font-weight: 800;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
@@ -2790,7 +3025,7 @@ table.field {
 	border-radius: var(--rb-radius-control);
 	color: var(--rb-ink-muted);
 	font-family: var(--rb-font-mono);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 	text-align: center;
 }
 #runbun-run .runbun-run-mon-summary {
@@ -2819,7 +3054,7 @@ table.field {
 }
 #runbun-run .runbun-run-mon-summary-species {
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-run-type-list,
@@ -2835,7 +3070,7 @@ table.field {
 	border-radius: var(--rb-radius-control);
 	background: var(--rb-surface-sunken);
 	font-family: var(--rb-font-mono);
-	font-size: 0.7rem;
+	font-size: var(--rb-text-label);
 }
 #runbun-run .runbun-run-type {
 	font-weight: 700;
@@ -2859,7 +3094,7 @@ table.field {
 #runbun-run .runbun-run-fact dt,
 #runbun-run .runbun-run-mon-subhead {
 	font-family: var(--rb-font-mono);
-	font-size: 0.65rem;
+	font-size: var(--rb-text-label);
 	font-weight: 700;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -2867,7 +3102,7 @@ table.field {
 }
 #runbun-run .runbun-run-fact dd {
 	margin: 2px 0 0;
-	font-size: 0.84rem;
+	font-size: var(--rb-text-body);
 	overflow-wrap: anywhere;
 }
 #runbun-run .runbun-run-mon-subhead {
@@ -2875,7 +3110,7 @@ table.field {
 }
 #runbun-run .runbun-run-model-note {
 	margin: 0 0 var(--rb-space-sm);
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-run-iv-readout,
@@ -2894,7 +3129,7 @@ table.field {
 }
 #runbun-run .runbun-run-iv span,
 #runbun-run .runbun-run-iv small {
-	font-size: 0.62rem;
+	font-size: var(--rb-text-label);
 }
 #runbun-run .runbun-run-iv strong {
 	font-size: 1rem;
@@ -2907,7 +3142,7 @@ table.field {
 }
 #runbun-run .runbun-run-mon-record summary {
 	cursor: pointer;
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	font-weight: 700;
 }
 #runbun-run .runbun-run-record-grid {
@@ -2947,14 +3182,14 @@ table.field {
 }
 #runbun-run .runbun-run-iv-entry legend {
 	margin-bottom: var(--rb-space-xs);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	font-weight: 700;
 }
 #runbun-run .runbun-run-iv-entry label {
 	display: grid;
 	gap: 2px;
 	font-family: var(--rb-font-mono);
-	font-size: 0.65rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 }
 #runbun-run #runbun-run-record-details.btn {
@@ -2981,7 +3216,7 @@ table.field {
 #runbun-run .runbun-run-bag,
 #runbun-run .runbun-run-learn {
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 	overflow-wrap: anywhere;
 }
@@ -3040,7 +3275,7 @@ table.field {
 	border-left: 1px solid var(--rb-stroke);
 }
 #runbun-run .runbun-run-history-metrics span {
-	font-size: 0.66rem;
+	font-size: var(--rb-text-label);
 	font-weight: 700;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -3054,7 +3289,7 @@ table.field {
 #runbun-run .runbun-history-state,
 #runbun-run .runbun-history-caveat {
 	max-width: 72ch;
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	line-height: 1.5;
 	color: var(--rb-ink-muted);
 }
@@ -3100,9 +3335,14 @@ table.field {
 #runbun-run .runbun-history-attempt + .runbun-history-attempt {
 	border-top: 1px solid var(--rb-stroke);
 }
-#runbun-run .runbun-history-attempt-button:hover,
 #runbun-run .runbun-history-attempt-button:focus-visible {
 	background: var(--rb-surface-hover);
+}
+
+@media (hover: hover) {
+	#runbun-run .runbun-history-attempt-button:hover {
+		background: var(--rb-surface-hover);
+	}
 }
 #runbun-run .runbun-history-attempt-button:focus-visible {
 	outline: 2px solid var(--rb-focus);
@@ -3124,13 +3364,13 @@ table.field {
 }
 #runbun-run .runbun-history-attempt-outcome {
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-brand-ink);
 }
 #runbun-run .runbun-history-attempt-position {
 	grid-column: 1 / -1;
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-history-table-wrap {
@@ -3143,13 +3383,18 @@ table.field {
 	width: 100%;
 	border-collapse: collapse;
 	background: var(--rb-surface-raised);
-	font-size: 0.76rem;
+	font-size: var(--rb-text-section);
 }
 #runbun-run .runbun-history-species caption {
 	padding: var(--rb-space-xs) var(--rb-space-sm);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	text-align: left;
 	color: var(--rb-ink-muted);
+}
+/* Upstream's global th{font-size:0.8em} compounds with any table's own
+   size and lands below the legibility floor; game tables size themselves. */
+#runbun-run th {
+	font-size: inherit;
 }
 #runbun-run .runbun-history-species th,
 #runbun-run .runbun-history-species td {
@@ -3206,11 +3451,11 @@ table.field {
 }
 #runbun-run .runbun-history-plan-head strong {
 	font-family: var(--rb-font-brand);
-	font-size: 0.9rem;
+	font-size: var(--rb-text-note);
 }
 #runbun-run .runbun-history-plan-head span {
 	font-family: var(--rb-font-mono);
-	font-size: 0.68rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-history-plan-verdict {
@@ -3221,13 +3466,13 @@ table.field {
 #runbun-run .runbun-history-plan-fact {
 	margin: 0;
 	font-family: var(--rb-font-mono);
-	font-size: 0.875rem;
+	font-size: var(--rb-text-body);
 	line-height: 1.45;
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-history-contribution-label {
 	margin-top: var(--rb-space-xs);
-	font-size: 0.7rem;
+	font-size: var(--rb-text-label);
 	font-weight: 800;
 	letter-spacing: 0.07em;
 	text-transform: uppercase;
@@ -3248,7 +3493,7 @@ table.field {
 	border-radius: var(--rb-radius-control);
 	background: var(--rb-surface-sunken);
 	font-family: var(--rb-font-mono);
-	font-size: 0.82rem;
+	font-size: var(--rb-text-body);
 	line-height: 1.4;
 	overflow-wrap: anywhere;
 }
@@ -3258,7 +3503,7 @@ table.field {
 #runbun-run .runbun-run-endrun-outcome {
 	display: grid;
 	gap: 0.2rem;
-	font-size: 0.7rem;
+	font-size: var(--rb-text-label);
 	font-weight: 700;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
@@ -3272,7 +3517,7 @@ table.field {
 	background: var(--rb-surface-raised);
 	color: var(--rb-ink);
 	font-family: var(--rb-font-body);
-	font-size: 0.82rem;
+	font-size: var(--rb-text-body);
 	font-weight: 600;
 	text-transform: none;
 }
@@ -3309,13 +3554,15 @@ table.field {
 	background: none;
 	color: var(--rb-ink-muted);
 }
-#runbun-run #runbun-run-undo.btn:hover {
-	color: var(--rb-ink);
-	border-color: var(--rb-stroke);
+@media (hover: hover) {
+	#runbun-run #runbun-run-undo.btn:hover {
+		color: var(--rb-ink);
+		border-color: var(--rb-stroke);
+	}
 }
 #runbun-run .runbun-run-transfer {
 	margin-top: var(--rb-space-lg);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-transfer summary {
 	cursor: pointer;
@@ -3326,7 +3573,7 @@ table.field {
 	box-sizing: border-box;
 	margin-top: var(--rb-space-sm);
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
 	background: var(--rb-surface-sunken);
@@ -3340,7 +3587,7 @@ table.field {
 	border-left: 3px solid var(--rb-stroke);
 	background: var(--rb-surface-sunken);
 	font-family: var(--rb-font-mono);
-	font-size: 0.82rem;
+	font-size: var(--rb-text-body);
 	max-width: 76ch;
 }
 #runbun-run .runbun-run-status[data-kind="ok"] {
@@ -3357,7 +3604,7 @@ table.field {
    heading — a sentence in letter-spaced small caps reads like shouting. */
 #runbun-planner .runbun-planner-team-hint {
 	margin: 0 0 var(--rb-space-xs);
-	font-size: 0.82rem;
+	font-size: var(--rb-text-body);
 	color: var(--rb-ink-muted);
 }
 /* The legacy .btn geometry carries negative margins so calc buttons can fuse
@@ -3366,6 +3613,21 @@ table.field {
 #runbun-run .runbun-run-history-actions .btn,
 #runbun-run .runbun-run-row .btn {
 	margin: 0;
+	/* Upstream's base .btn is a FIXED `width: 5em` (66.7px here), which the
+	 * calculator lives with by opting into .btn-wide / .btn-xwide per button.
+	 * The run panel's labels are variable-length prose, so a fixed width can
+	 * only ever wrap or overflow: "Undo last change" needs 114px and was
+	 * given 67, first wrapping onto two lines and then — once nowrap was
+	 * added — spilling 42px past the column's right edge.
+	 *
+	 * Size to the label instead, and cap at the container so a long label on
+	 * a narrow screen truncates rather than escaping the layout. */
+	flex: none;
+	width: max-content;
+	max-width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* --- My Run at full-game scale --------------------------------------------
@@ -3411,7 +3673,7 @@ table.field {
 }
 #runbun-run .runbun-run-spine-note {
 	font-family: var(--rb-font-mono);
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 	white-space: nowrap;
 }
@@ -3426,13 +3688,13 @@ table.field {
 }
 #runbun-run .runbun-run-box-counts {
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 }
 #runbun-run #runbun-run-box-filter {
 	width: 9rem;
 	font-family: var(--rb-font-mono);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 	padding: 2px var(--rb-space-sm);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
@@ -3443,7 +3705,7 @@ table.field {
 	padding: var(--rb-space-md);
 	color: var(--rb-ink-muted);
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	text-align: center;
 }
 #runbun-run .runbun-run-losses-label {
@@ -3462,12 +3724,14 @@ table.field {
 	background: var(--rb-surface-raised);
 	color: var(--rb-ink-muted);
 	font-family: var(--rb-font-mono);
-	font-size: 0.95rem;
+	font-size: var(--rb-text-note);
 	cursor: pointer;
 }
-#runbun-run .runbun-run-add:hover {
-	border-color: var(--rb-action);
-	color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-add:hover {
+		border-color: var(--rb-action);
+		color: var(--rb-action);
+	}
 }
 #runbun-run .runbun-run-add.is-staged {
 	background: var(--rb-brand-soft);
@@ -3477,7 +3741,7 @@ table.field {
 #runbun-run .runbun-run-at-cap {
 	margin-left: var(--rb-space-xs);
 	font-family: var(--rb-font-mono);
-	font-size: 0.68rem;
+	font-size: var(--rb-text-label);
 	font-weight: 400;
 	color: var(--rb-warn-ink);
 	background: var(--rb-warn-soft);
@@ -3507,7 +3771,7 @@ table.field {
 	border-left: 3px solid var(--rb-brand);
 	border-radius: var(--rb-radius-control);
 	background: var(--rb-surface-raised);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 	min-width: 0;
 }
 #runbun-run .runbun-run-party-slot.is-empty {
@@ -3518,7 +3782,7 @@ table.field {
 	color: var(--rb-ink-muted);
 	background: none;
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 }
 #runbun-run .runbun-run-party-slot.is-summary {
 	grid-column: 1 / -1;
@@ -3528,7 +3792,7 @@ table.field {
 }
 #runbun-run .runbun-run-party-order {
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	font-weight: 700;
 	color: var(--rb-brand-ink);
 	width: 1rem;
@@ -3556,7 +3820,7 @@ table.field {
 }
 #runbun-run .runbun-run-party-role {
 	font-family: var(--rb-font-mono);
-	font-size: 0.62rem;
+	font-size: var(--rb-text-label);
 	font-weight: 700;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -3565,14 +3829,16 @@ table.field {
 #runbun-run .runbun-run-party-meta {
 	min-width: 0;
 	font-family: var(--rb-font-mono);
-	font-size: 0.68rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
-#runbun-run .runbun-run-party-name:hover {
-	color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-party-name:hover {
+		color: var(--rb-action);
+	}
 }
 #runbun-run .runbun-run-party-name:focus-visible {
 	outline: 2px solid var(--rb-focus);
@@ -3588,18 +3854,22 @@ table.field {
 	background: none;
 	color: var(--rb-ink-muted);
 	cursor: pointer;
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 }
-#runbun-run .runbun-run-party-up:hover {
-	color: var(--rb-action);
-	border-color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-party-up:hover {
+		color: var(--rb-action);
+		border-color: var(--rb-action);
+	}
 }
-#runbun-run .runbun-run-party-rm:hover {
-	color: var(--rb-danger);
-	border-color: var(--rb-danger);
+@media (hover: hover) {
+	#runbun-run .runbun-run-party-rm:hover {
+		color: var(--rb-danger);
+		border-color: var(--rb-danger);
+	}
 }
 #runbun-run .runbun-run-party-hint {
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 }
 
@@ -3622,7 +3892,7 @@ table.field {
 #runbun-run .runbun-run-split-summary {
 	margin-bottom: var(--rb-space-sm);
 	font-family: var(--rb-font-mono);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-run-split-gauntlet {
@@ -3641,7 +3911,7 @@ table.field {
 	gap: var(--rb-space-sm);
 	padding: var(--rb-space-xs) var(--rb-space-sm);
 	border-left: 3px solid transparent;
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-split-fight + .runbun-run-split-fight {
 	border-top: 1px solid var(--rb-stroke);
@@ -3652,7 +3922,7 @@ table.field {
 }
 #runbun-run .runbun-run-ahead-hint {
 	margin: 0 0 var(--rb-space-sm);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 	color: var(--rb-ink-muted);
 	max-width: 76ch;
 }
@@ -3672,7 +3942,7 @@ table.field {
 	gap: var(--rb-space-sm);
 	padding: var(--rb-space-xs) var(--rb-space-sm);
 	border-left: 3px solid transparent;
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-up + .runbun-run-up {
 	border-top: 1px solid var(--rb-stroke);
@@ -3683,7 +3953,7 @@ table.field {
 }
 #runbun-run .runbun-run-up-order {
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 	width: 3.2rem;
 }
@@ -3694,7 +3964,7 @@ table.field {
 }
 #runbun-run .runbun-run-up-meta {
 	font-family: var(--rb-font-mono);
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-run-up-actions {
@@ -3703,7 +3973,7 @@ table.field {
 }
 #runbun-run .runbun-run-up-plan,
 #runbun-run .runbun-run-up-beat {
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	padding: 2px var(--rb-space-sm);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
@@ -3711,14 +3981,18 @@ table.field {
 	color: var(--rb-ink);
 	cursor: pointer;
 }
-#runbun-run .runbun-run-up-plan:hover {
-	border-color: var(--rb-action);
-	color: var(--rb-action);
+@media (hover: hover) {
+	#runbun-run .runbun-run-up-plan:hover {
+		border-color: var(--rb-action);
+		color: var(--rb-action);
+	}
 }
-#runbun-run .runbun-run-up-beat:hover {
-	border-color: var(--rb-brand);
-	color: var(--rb-brand-ink);
-	background: var(--rb-brand-soft);
+@media (hover: hover) {
+	#runbun-run .runbun-run-up-beat:hover {
+		border-color: var(--rb-brand);
+		color: var(--rb-brand-ink);
+		background: var(--rb-brand-soft);
+	}
 }
 #runbun-run .runbun-run-up.is-done {
 	color: var(--rb-ink-muted);
@@ -3759,7 +4033,7 @@ table.field {
    cap. Route filler carries no badge at all. */
 #runbun-run .runbun-run-up-tier {
 	font-family: var(--rb-font-mono);
-	font-size: 0.68rem;
+	font-size: var(--rb-text-label);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 	padding: 0 5px;
@@ -3799,7 +4073,7 @@ table.field {
 	align-items: center;
 	gap: var(--rb-space-sm);
 	padding: var(--rb-space-xs) var(--rb-space-sm);
-	font-size: 0.82rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-item + .runbun-run-item {
 	border-top: 1px solid var(--rb-stroke);
@@ -3810,12 +4084,12 @@ table.field {
 }
 #runbun-run .runbun-run-item-kind {
 	font-family: var(--rb-font-mono);
-	font-size: 0.7rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-run-item-state {
 	font-family: var(--rb-font-mono);
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .runbun-run-item.is-collected {
@@ -3825,7 +4099,7 @@ table.field {
 	color: var(--rb-ok);
 }
 #runbun-run .runbun-run-pickup-take {
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	padding: 2px var(--rb-space-sm);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
@@ -3833,10 +4107,12 @@ table.field {
 	color: var(--rb-ink);
 	cursor: pointer;
 }
-#runbun-run .runbun-run-pickup-take:hover {
-	border-color: var(--rb-brand);
-	color: var(--rb-brand-ink);
-	background: var(--rb-brand-soft);
+@media (hover: hover) {
+	#runbun-run .runbun-run-pickup-take:hover {
+		border-color: var(--rb-brand);
+		color: var(--rb-brand-ink);
+		background: var(--rb-brand-soft);
+	}
 }
 
 /* The split's grab-list: structured rows, not a run-on sentence. */
@@ -3849,7 +4125,7 @@ table.field {
 	background: var(--rb-surface-sunken);
 }
 #runbun-run .runbun-run-split-pickups-label {
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -3859,14 +4135,14 @@ table.field {
 	display: flex;
 	align-items: center;
 	gap: var(--rb-space-sm);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-pickup-name {
 	font-weight: 600;
 }
 #runbun-run .runbun-run-pickup-where {
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 	flex: 1;
 }
@@ -3906,15 +4182,17 @@ table.field {
 	font-family: var(--rb-font-body);
 	text-align: left;
 }
-#runbun-run .rb-disclose-btn:hover .rb-disclose-title {
-	color: var(--rb-brand);
+@media (hover: hover) {
+	#runbun-run .rb-disclose-btn:hover .rb-disclose-title {
+		color: var(--rb-brand);
+	}
 }
 #runbun-run .rb-disclose-btn:focus-visible {
 	outline: 2px solid var(--rb-focus);
 	outline-offset: -2px;
 }
 #runbun-run .rb-disclose-title {
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -3928,7 +4206,7 @@ table.field {
 	white-space: nowrap;
 	text-align: right;
 	font-family: var(--rb-font-mono);
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 }
 #runbun-run .rb-disclose-chev {
@@ -4006,7 +4284,7 @@ table.field {
 	position: relative;
 }
 #runbun-run .runbun-run-endrun-hint {
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 	flex: 1;
 	min-width: 12rem;
@@ -4033,33 +4311,63 @@ table.field {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 2px;
+	gap: 3px;
 	min-width: 0;
 	text-align: left;
-	padding: var(--rb-space-sm);
+	padding: var(--rb-space-md) var(--rb-space-sm);
+	/* The type accent rides the left edge: identity at a glance without
+	   painting the whole card. */
 	border: 1px solid var(--rb-stroke);
+	border-left: 4px solid var(--rb-stroke-strong);
 	border-radius: var(--rb-radius-control);
 	background: var(--rb-surface-raised);
 	cursor: pointer;
+}
+#runbun-run .runbun-run-starter[data-type="grass"] { border-left-color: var(--rb-type-grass); }
+#runbun-run .runbun-run-starter[data-type="fire"] { border-left-color: var(--rb-type-fire); }
+#runbun-run .runbun-run-starter[data-type="water"] { border-left-color: var(--rb-type-water); }
+@media (hover: hover) {
+	#runbun-run .runbun-run-starter:hover {
+		border-color: var(--rb-stroke-strong);
+	}
+}
+@media (hover: hover) {
+	#runbun-run .runbun-run-starter[data-type="grass"]:hover { border-left-color: var(--rb-type-grass); }
+}
+@media (hover: hover) {
+	#runbun-run .runbun-run-starter[data-type="fire"]:hover { border-left-color: var(--rb-type-fire); }
+}
+@media (hover: hover) {
+	#runbun-run .runbun-run-starter[data-type="water"]:hover { border-left-color: var(--rb-type-water); }
 }
 #runbun-run .runbun-run-starter[aria-pressed="true"] {
 	border-color: var(--rb-brand);
 	background: var(--rb-brand-soft);
 	box-shadow: inset 0 0 0 1px var(--rb-brand);
 }
+#runbun-run .runbun-run-starter[aria-pressed="true"] .runbun-run-starter-name::after {
+	content: " ✓";
+	color: var(--rb-brand-ink);
+}
 #runbun-run .runbun-run-starter-name {
 	font-family: var(--rb-font-brand);
 	font-weight: 700;
+	font-size: 1.05rem;
 }
 #runbun-run .runbun-run-starter-note {
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
+	color: var(--rb-ink-muted);
+	min-width: 0;
+}
+#runbun-run .runbun-run-starter-rival {
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 	min-width: 0;
 }
 #runbun-run .runbun-run-starter-hint {
 	margin: var(--rb-space-xs) 0 0;
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 }
 
@@ -4083,7 +4391,7 @@ table.field {
 }
 #runbun-run .runbun-run-split-played {
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 	color: var(--rb-ink-muted);
 	align-self: center;
 }
@@ -4103,7 +4411,7 @@ table.field {
 	background: var(--rb-surface-sunken);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-snackbar[hidden] {
 	display: none;
@@ -4148,7 +4456,7 @@ table.field {
 }
 #runbun-run .runbun-run-roll-text {
 	font-family: var(--rb-font-mono);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-battle {
 	margin-top: var(--rb-space-lg);
@@ -4208,7 +4516,7 @@ table.field {
 #runbun-run .runbun-run-battle-meta {
 	min-height: 1em;
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 	overflow-wrap: anywhere;
 }
@@ -4240,7 +4548,7 @@ table.field {
 }
 #runbun-run .runbun-run-battle-chip {
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	padding: 1px var(--rb-space-xs);
 	border: 1px solid var(--rb-stroke);
 	border-radius: var(--rb-radius-control);
@@ -4256,7 +4564,7 @@ table.field {
 }
 #runbun-run .runbun-run-battle-prompt {
 	font-family: var(--rb-font-mono);
-	font-size: 0.85rem;
+	font-size: var(--rb-text-body);
 	min-height: 1.2em;
 }
 #runbun-run .runbun-run-battle-result:not(:empty) {
@@ -4299,7 +4607,7 @@ table.field {
 }
 #runbun-run .runbun-run-battle-move-dmg {
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink-muted);
 }
 /* The ball is an action like the moves, but not one of them: same card,
@@ -4322,7 +4630,7 @@ table.field {
 	border-radius: var(--rb-radius-control);
 	background: var(--rb-surface-sunken);
 	font-family: var(--rb-font-mono);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 }
 
 #runbun-run .runbun-run-matrix-block {
@@ -4333,7 +4641,7 @@ table.field {
 #runbun-run .runbun-run-matrix-note {
 	margin: 0 0 var(--rb-space-xs);
 	color: var(--rb-ink-muted);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 }
 #runbun-run .runbun-run-matrix {
 	overflow-x: auto;
@@ -4351,13 +4659,13 @@ table.field {
 	border-collapse: separate;
 	border-spacing: 2px;
 	font-family: var(--rb-font-mono);
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 	font-variant-numeric: tabular-nums;
 }
 #runbun-run .runbun-run-matrix-table caption {
 	text-align: left;
 	font-family: var(--rb-font-body);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	color: var(--rb-ink-muted);
@@ -4366,7 +4674,7 @@ table.field {
 #runbun-run .runbun-run-matrix-table th {
 	font-family: var(--rb-font-body);
 	font-weight: 600;
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	color: var(--rb-ink);
 	text-align: left;
 	padding: 2px 6px 2px 0;
@@ -4393,7 +4701,7 @@ table.field {
 	position: absolute;
 	top: 2px;
 	right: 3px;
-	font-size: 0.62rem;
+	font-size: var(--rb-text-label);
 	opacity: 0.85;
 }
 
@@ -4409,7 +4717,7 @@ table.field {
 #runbun-run .runbun-run-advice-note {
 	margin: 0 0 var(--rb-space-xs);
 	color: var(--rb-ink-muted);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 }
 #runbun-run .runbun-run-advice {
 	list-style: none;
@@ -4426,7 +4734,7 @@ table.field {
 	gap: var(--rb-space-sm);
 	align-items: baseline;
 	padding: var(--rb-space-xs) var(--rb-space-sm);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-advice-row + .runbun-run-advice-row {
 	border-top: 1px solid var(--rb-stroke);
@@ -4439,9 +4747,18 @@ table.field {
 #runbun-run .runbun-run-advice-what {
 	color: var(--rb-ink);
 }
+/* A one-shot item is priced by the grid as though it lasted the whole fight,
+   so the row says which it is. Muted rather than a warning: the advice is
+   still worth taking, it is the SIZE of the gain that is understated. */
+#runbun-run .runbun-run-advice-once {
+	color: var(--rb-ink-muted);
+	font-size: var(--rb-text-label);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
 #runbun-run .runbun-run-advice-kind {
 	color: var(--rb-ink-muted);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 }
@@ -4465,7 +4782,7 @@ table.field {
 #runbun-run .runbun-run-advice-empty {
 	padding: var(--rb-space-sm);
 	color: var(--rb-ink-muted);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 }
 
 #runbun-run .runbun-run-rank-block,
@@ -4478,7 +4795,7 @@ table.field {
 #runbun-run .runbun-run-routes-note {
 	margin: var(--rb-space-xs) 0;
 	color: var(--rb-ink-muted);
-	font-size: 0.78rem;
+	font-size: var(--rb-text-section);
 }
 #runbun-run .runbun-run-ranking,
 #runbun-run .runbun-run-scout,
@@ -4512,7 +4829,7 @@ table.field {
 	gap: var(--rb-space-sm);
 	align-items: baseline;
 	padding: var(--rb-space-xs) var(--rb-space-sm);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-rank-row {
 	grid-template-columns: 4rem 1fr auto;
@@ -4547,7 +4864,7 @@ table.field {
    wipe-band red, the undecided middle stays ink. */
 #runbun-run .runbun-run-rank-played {
 	font-family: var(--rb-font-mono);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	padding: 1px var(--rb-space-xs);
 	border-radius: var(--rb-radius-control);
 	border: 1px solid var(--rb-stroke);
@@ -4567,7 +4884,7 @@ table.field {
 
 #runbun-run .runbun-run-rank-tag {
 	color: var(--rb-ink-muted);
-	font-size: 0.72rem;
+	font-size: var(--rb-text-label);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 }
@@ -4576,7 +4893,7 @@ table.field {
 #runbun-run .runbun-run-rank-unanswered {
 	grid-column: 1 / -1;
 	color: var(--rb-warn-ink);
-	font-size: 0.75rem;
+	font-size: var(--rb-text-section);
 }
 #runbun-run .runbun-run-scout-ko.is-ko {
 	color: var(--rb-danger);
@@ -4588,7 +4905,7 @@ table.field {
 #runbun-run .runbun-run-scout-empty {
 	padding: var(--rb-space-sm);
 	color: var(--rb-ink-muted);
-	font-size: 0.8rem;
+	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-route-row.is-open .runbun-run-route-when {
 	color: var(--rb-ok, #1b7a3d);
@@ -4604,4 +4921,91 @@ table.field {
 #runbun-run .runbun-run-route-row.is-held .runbun-run-route-when {
 	color: var(--rb-warn-ink);
 	font-weight: 700;
+}
+
+/* Fork overlay: upstream removed .button outlines wholesale; keyboard users
+   get the shell's focus ring back without re-adding pointer-focus noise.
+   The calculator is ~200 inputs and selects deep — a keyboard user tabbing
+   a damage matchup had no idea which field they were in, which is the one
+   accessibility failure that makes the whole surface unusable by keyboard. */
+.button:focus-visible,
+.btn:focus-visible,
+#calc input:focus-visible,
+#calc select:focus-visible,
+#calc textarea:focus-visible,
+#calc [tabindex]:focus-visible,
+#sets-bridge input:focus-visible,
+#sets-bridge select:focus-visible,
+#ai-panel input:focus-visible,
+#ai-panel select:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
+}
+
+/* The select2 dropdowns the calculator uses for species and sets render
+   their own focus state; the ring rides the visible box, not the hidden
+   native input behind it. */
+#calc .select2-container--focus .select2-choice,
+#calc .select2-container-active .select2-choice {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 1px;
+}
+
+.runbun-calc-party {
+	display: flex;
+	align-items: center;
+	gap: var(--rb-space-sm);
+	flex-wrap: wrap;
+	margin-bottom: var(--rb-space-sm);
+	padding: var(--rb-space-xs) var(--rb-space-sm);
+	border: 1px solid var(--rb-stroke);
+	border-left: 3px solid var(--rb-brand);
+	border-radius: 0;
+	background: var(--rb-surface-raised);
+}
+.runbun-calc-party-label {
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--rb-ink-muted);
+}
+.runbun-calc-party-list {
+	display: flex;
+	gap: var(--rb-space-xs);
+	flex-wrap: wrap;
+}
+.runbun-calc-party-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--rb-space-xs);
+	min-height: 32px;
+	margin: 0;
+	padding: 0.2rem 0.55rem;
+	font-size: var(--rb-text-body);
+}
+.runbun-calc-party-chip .runbun-calc-party-slot {
+	font-family: var(--rb-font-mono);
+	font-size: var(--rb-text-label);
+	color: var(--rb-ink-muted);
+}
+
+/* Mobile floors, LAST in the file on purpose: the component rules above set
+   compact fonts with equal specificity, and the later rule must win. */
+@media (max-width: 860px) {
+	#runbun-run input[type="text"],
+	#runbun-run input[type="search"],
+	#runbun-run input[type="number"],
+	#runbun-run select,
+	#runbun-run textarea {
+		/* Under 16px, focusing an input makes iOS Safari zoom the page.
+		   !important because the compact component rules above outrank any
+		   flat selector; this floor must win every one of those fights. */
+		font-size: 16px !important;
+	}
+	#runbun-run .runbun-run-check {
+		/* The label is the touch target, not the 13px box inside it. */
+		min-height: 44px;
+		align-items: center;
+	}
 }

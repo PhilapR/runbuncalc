@@ -1,4 +1,5 @@
 import * as Calc from '@smogon/calc';
+import {bareMoveFacts} from './dex-facts';
 import {getEffectiveAbility, isAbilityActive, isAbilityAvailable} from './abilities';
 import {isItemEffectActive, preventsAbilityChange} from './items';
 import {Action, BattleState, MoveAction, MoveTarget, PokemonState, SideId, SwitchAction, Weather} from './model';
@@ -32,6 +33,7 @@ import {PURE_CONFUSION_MOVE_IDS} from './volatile-legality';
 import {hasPureStatTransferEffect, PURE_STAT_TRANSFER_MOVE_IDS} from './stat-transfer-legality';
 import {hasPureTypeEffect, PURE_TYPE_MOVE_IDS} from './type-legality';
 import {hasPurePPEffect, PURE_PP_MOVE_IDS} from './pp-legality';
+import {canUseSleepOnlyMove} from './sleep';
 
 const SELF_TARGET_MOVES = new Set([
   'acidarmor', 'agility', 'amnesia', 'aquaring', 'assist', 'autotomize', 'barrier', 'bellydrum', 'bulkup', 'calmmind',
@@ -204,7 +206,7 @@ function targetForMove(state: BattleState, move: PokemonState['moves'][number]):
   // the shared metadata boundary for those names instead of throwing.
   try {
     const gen = Calc.Generations.get(state.generation);
-    return new Calc.Move(gen, move.name).target as MoveTarget;
+    return bareMoveFacts(gen, move.name).target as MoveTarget;
   } catch {
     return getMoveMetadata(move.name, state.generation).target || 'normal';
   }
@@ -591,7 +593,7 @@ function canUseMove(state: BattleState, actor: PokemonState, move: PokemonState[
     return false;
   }
   if (id === 'belch' && (state.generation < 6 || !isBerry(actor.lastConsumedItem))) return false;
-  if (['sleeptalk', 'snore'].includes(id) && (actor.status !== 'slp' || actor.statusTurns === 0)) return false;
+  if (['sleeptalk', 'snore'].includes(id) && !canUseSleepOnlyMove(actor)) return false;
   const stockpileCount = actor.volatile?.stockpile?.stacks || 0;
   if (id === 'stockpile' && stockpileCount >= 3) return false;
   if ((id === 'swallow' || id === 'spitup') && stockpileCount === 0) return false;

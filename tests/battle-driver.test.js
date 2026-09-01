@@ -60,8 +60,10 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 		{species: 'Pidgey', map: 'Route102', level: 5},
 	]);
 	const opened = driver.start(doc, undefined, 42);
-	// The next unbeaten fight, unasked: the recreation's "next" is the run's.
-	assert.equal(opened.battle.trainer, 'Youngster Calvin');
+	// The next unbeaten fight, unasked: the recreation's "next" is the run's —
+	// and since 2026-08-28 the run opens where the game does, on the Route 103
+	// rival (undeclared rival: the first variant).
+	assert.equal(opened.battle.trainer, 'Trainer Rival Route 103 Sceptile');
 	// The party enters at the projected cap — the infinite candy IS the XP
 	// system, so a level 3 catch fights at what it will be leveled to.
 	assert.equal(opened.viewState.player.active.level, 12);
@@ -89,7 +91,9 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 
 test('move forecasts stay on max HP and a miss says that it missed', () => {
 	const doc = docWith([{species: 'Mudkip', map: undefined, level: 5}]);
-	const opened = driver.start(doc, 'Youngster Calvin', 0);
+	// Seed 1 scripts hit-then-miss now; seed 0 did before the engine started
+	// sampling critical hits (constants audit D1) and reshaped every stream.
+	const opened = driver.start(doc, 'Youngster Calvin', 1);
 	const firstWaterGun = opened.actions.find(action => action.move === 'Water Gun');
 	assert.ok(firstWaterGun && firstWaterGun.damage,
 		'Water Gun should carry a damage forecast');
@@ -328,4 +332,380 @@ test('the playbook: same seeds same tape, honest spread, a line that replays the
 	// Odds must agree with adjudicate — one tape deck, two readouts.
 	const adjudicated = driver.adjudicate(doc, 'Youngster Calvin', {rollouts: 6});
 	assert.deepEqual(first.odds, adjudicated);
+});
+
+test('pre-fight catch odds quote the free ball always and tiered balls only when held', () => {
+	const driver = require('../lib/battle-driver');
+	const bare = driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Poochyena');
+	assert.deepEqual(bare.map(entry => entry.ball), ['Poke Ball'],
+		'an empty bag still quotes the free baseline');
+	assert.equal(bare[0].held, null, 'the free ball is uncounted');
+	const stocked = driver.catchOddsAtFullHp(
+		{profileId: 'run-and-bun', bag: {'Great Ball': 2, 'Ultra Ball': 1}}, 'Poochyena');
+	assert.deepEqual(stocked.map(entry => [entry.ball, entry.held]),
+		[['Poke Ball', null], ['Great Ball', 2], ['Ultra Ball', 1]]);
+	// The quote must be the same number the fight's ball buttons compute at
+	// full HP — one formula, two surfaces.
+	//
+	// This read `assert.equal(entry.chance, recomputed && entry.chance)`, and
+	// `X && entry.chance` IS entry.chance whenever X is non-zero — so it
+	// compared a value to itself and threw the recomputed number away. Shifting
+	// the real quote by -5% left it green.
+	//
+	// It also hardcoded 255, which is Poochyena's own rate, so it could not
+	// tell "reads the species rate" from "hardcodes 255". The rate now comes
+	// from the oracle, and a SECOND species with a different rate proves the
+	// formula actually varies with it.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const fullHp = {hp: {max: 3, current: 3}, status: ''};
+	const poochyenaRate = oracle.catchRateOf('Poochyena');
+	for (const entry of stocked) {
+		assert.equal(entry.chance,
+			Math.round(driver.catchMath(fullHp, poochyenaRate, driver.BALLS[entry.ball]).chance * 100),
+			entry.ball + ' must quote exactly what the fight computes');
+	}
+
+	// A harder species must quote strictly worse odds with the same ball.
+	// Abra at 200 against Poochyena's 255, NOT Ralts at 235: the quote rounds
+	// to a whole percent, and 235 and 255 both land on 34%, so Ralts would
+	// have proved nothing. A discriminator has to survive the rounding.
+	const harder = driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Abra');
+	assert.ok(oracle.catchRateOf('Abra') < poochyenaRate,
+		'the fixture only means something if Abra is genuinely harder');
+	assert.ok(harder[0].chance < stocked[0].chance,
+		`a lower catch rate must quote lower odds — saw ${harder[0].chance}% for Abra ` +
+		`against ${stocked[0].chance}% for Poochyena, so the rate is being read`);
+	assert.ok(stocked[1].chance > stocked[0].chance,
+		'a better ball must quote better odds');
+	assert.throws(() => driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Mewthree'),
+		/no catch rate/, 'an unknown species is refused, not quoted at 0');
+});
+
+test('a seeded fight never touches Math.random, even through random end-turn effects', () => {
+	// Starf Berry under 25% HP is the deterministic trigger: the end-turn
+	// resolver samples a random stat to boost. Before the fix the driver's
+	// three advanceTurn calls passed no rng, so this fell through to
+	// Math.random — invisible to every fixture fight that never reached a
+	// random branch (the exact green-on-broken shape AGENTS rule 5 names).
+	// A L20 holder that knows only Growl: it can never KO the wild (a
+	// finished fight skips end-of-turn), and the L3 wild cannot KO it.
+	let doc = run.createRun({name: 'Recreation', now: 't0', permadeath: true});
+	doc = run.apply(doc, {kind: 'catch', species: 'Starly', level: 20,
+		moves: ['Growl'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'party', ids: ['mon-1']});
+	doc = run.apply(doc, {kind: 'acquire', item: 'Starf Berry'});
+	doc = run.apply(doc, {kind: 'give', id: 'mon-1', item: 'Starf Berry'});
+	const rolled = run.rollEncounter(doc, {map: 'Route101', random: () => 0.01});
+	function lowHpBundle() {
+		const opened = driver.startWild(doc, rolled, 7);
+		// Test-only surgery: the driver has no command that starts a fight
+		// wounded, and the berry only wakes at a quarter health.
+		const holder = opened.battle.state.sides.player.party[0];
+		holder.hp.current = Math.floor(holder.hp.max / 4);
+		return opened.battle;
+	}
+	const realRandom = Math.random;
+	Math.random = () => { throw new Error('Math.random leaked into a seeded battle'); };
+	try {
+		const first = driver.act(lowHpBundle(), {kind: 'move', move: 'Growl'});
+		const second = driver.act(lowHpBundle(), {kind: 'move', move: 'Growl'});
+		assert.deepEqual(first.viewState, second.viewState,
+			'the same seed and step must resolve the random berry identically');
+		const boosts = first.battle.state.sides.player.party[0].boosts || {};
+		assert.ok(Object.values(boosts).some(value => value >= 2),
+			'the Starf Berry must actually have fired for this test to mean anything');
+
+		// The ordinary-move path is only ONE of the driver's three advanceTurn
+		// calls. The fix repaired all three; removing the rng from either of
+		// the other two left this green, so each is now driven under the same
+		// poisoned Math.random.
+		//
+		// The ball throw closes its own turn on a break-out.
+		const thrown = driver.act(lowHpBundle(), {kind: 'ball', ball: 'Poke Ball'});
+		assert.ok(thrown.battle, 'a ball throw resolves without reaching Math.random');
+		const thrownAgain = driver.act(lowHpBundle(), {kind: 'ball', ball: 'Poke Ball'});
+		assert.deepEqual(thrown.viewState, thrownAgain.viewState,
+			'and the same seed throws the same ball twice');
+	} finally {
+		Math.random = realRandom;
+	}
+});
+
+test('a forced replacement closes its turn without reaching Math.random', () => {
+	// The third advanceTurn site: when the player's active falls mid-turn the
+	// end-of-turn is HELD until a replacement is chosen, then runs. Removing
+	// the rng from that call left the seeded-fight test above green, because
+	// nothing there ever fainted.
+	let doc = run.createRun({name: 'Replace', now: 't0', permadeath: true});
+	// Two party members, the lead paper-thin so it falls on the first hit.
+	doc = run.apply(doc, {kind: 'catch', species: 'Starly', level: 5,
+		moves: ['Growl'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'catch', species: 'Lillipup', level: 20,
+		moves: ['Tackle'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'party', ids: ['mon-1', 'mon-2']});
+	// The REPLACEMENT carries the berry. Without it the held end-of-turn has
+	// nothing random to resolve, so removing the rng from that call changes
+	// nothing and the gate cannot see it — which is exactly what happened on
+	// the first attempt at this test.
+	doc = run.apply(doc, {kind: 'acquire', item: 'Starf Berry'});
+	doc = run.apply(doc, {kind: 'give', id: 'mon-2', item: 'Starf Berry'});
+	const rolled = run.rollEncounter(doc, {map: 'Route101', random: () => 0.01});
+	const opened = driver.startWild(doc, rolled, 11);
+	// Test-only surgery, the same shape the berry fixture uses: the driver has
+	// no command that starts a fight one hit from a faint, nor one that starts
+	// the bench wounded.
+	opened.battle.state.sides.player.party[0].hp.current = 1;
+	const bench = opened.battle.state.sides.player.party[1];
+	bench.hp.current = Math.floor(bench.hp.max / 4);
+
+	const realRandom = Math.random;
+	Math.random = () => { throw new Error('Math.random leaked into a seeded battle'); };
+	try {
+		let bundle = opened.battle;
+		let reply = driver.act(bundle, {kind: 'move', move: 'Growl'});
+		// If the lead fell, the fight is waiting on a replacement — take it,
+		// which is the path that runs the held end-of-turn.
+		const replacing = (reply.actions || [])
+			.filter(entry => entry.action && entry.action.kind === 'switch');
+		assert.ok(replacing.length,
+			'the lead must actually have fallen, or this drives nothing');
+		reply = driver.act(reply.battle,
+			{kind: 'switch', replacementId: replacing[0].action.replacementId});
+		assert.ok(reply.battle, 'the replacement resolves without Math.random');
+		// The held end-of-turn must have FIRED the berry, or the rng on that
+		// call is never exercised and removing it would go unnoticed.
+		const incoming = reply.battle.state.sides.player.party[1];
+		const boosts = incoming.boosts || {};
+		assert.ok(Object.values(boosts).some(value => value >= 2),
+			'the replacement\'s Starf Berry must fire in the held end-of-turn');
+	} finally {
+		Math.random = realRandom;
+	}
+});
+
+test('the threat line states the attrition race, not just the hardest hit', () => {
+	// A full nuzlocke wiped to Triathlete Mikey's Yanma while the panel read
+	// "survives one crit, not two". That sentence is TRUE and reads as a mild
+	// caution. The real position was two turns to die against eight to kill —
+	// Sonic Boom is a fixed 20 into 34 HP, and the best answer on hand did 5
+	// on its floor into 38 HP. Losing a race four to one is not a caution,
+	// and nothing on screen said it.
+	const mon = (id, species, extra) => Object.assign({
+		id, species, level: 12, hp: {current: 34, max: 34},
+		moves: [{name: 'Scratch', pp: 10, maxPP: 10}],
+	}, extra || {});
+	const position = (playerMoves, foeMoves) => ({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Yanma',
+				{level: 11, hp: {current: 38, max: 38}, moves: foeMoves})]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar',
+				playerMoves ? {moves: playerMoves} : {})]},
+		},
+	});
+
+	const losing = driver.incomingThreat(
+		position(null, [{name: 'Sonic Boom', pp: 10, maxPP: 10}]));
+	// The old verdict still stands and is still true — it is just not enough.
+	assert.equal(losing.survivesCrit, true, 'one Sonic Boom does not kill');
+	assert.equal(losing.survivesTwoCrits, false, 'two do');
+	// The new one names the race.
+	assert.equal(losing.race.outcome, 'lose');
+	assert.equal(losing.race.turnsToDie, 2, 'fixed 20 into 34 HP');
+	assert.equal(losing.race.turnsToKill, 8, 'a 5-damage floor into 38 HP');
+
+	// A better move shortens the race but does not automatically win it.
+	// Ember takes the kill from eight turns to three, and three against two
+	// is still a loss — which is the point: a stronger attack is not a
+	// mitigation when you are already too slow.
+	const withEmber = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	const better = driver.incomingThreat(withEmber);
+	assert.equal(better.race.turnsToKill, 3, 'Ember kills far faster than Scratch');
+	assert.equal(better.race.outcome, 'lose', 'and three turns is still more than two');
+
+	// A TIE goes to the faster side, because the faster side lands the last
+	// hit. Chimchar is slower here, so 3-against-3 is a loss, not a draw.
+	const tied = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	tied.sides.player.party[0].hp = {current: 60, max: 60};
+	const tie = driver.incomingThreat(tied);
+	assert.equal(tie.race.turnsToKill, tie.race.turnsToDie, 'a genuine tie on turns');
+	assert.equal(tie.race.faster, false);
+	assert.equal(tie.race.outcome, 'lose', 'the slower side loses a tie');
+
+	// Enough bulk to outlast it, and the verdict finally flips.
+	const bulky = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	bulky.sides.player.party[0].hp = {current: 100, max: 100};
+	const winning = driver.incomingThreat(bulky);
+	assert.equal(winning.race.turnsToDie, 5);
+	assert.equal(winning.race.outcome, 'win');
+
+	// Nothing that damages it at all is not a slow race, it is an unwinnable
+	// one, and must not read as "9 turns".
+	const helpless = driver.incomingThreat(
+		position([{name: 'Growl', pp: 10, maxPP: 10}], [{name: 'Sonic Boom', pp: 10, maxPP: 10}]));
+	assert.equal(helpless.race.outcome, 'cannot-win');
+	assert.equal(helpless.race.turnsToKill, null, 'no number can describe never');
+});
+
+test('the card carries the conditions a switch would clear', () => {
+	// `status` was on the card and volatiles were not, so the one condition
+	// switching CURES was the one the screen never showed. Measured over 66
+	// scripted fights, infatuation was 13 of 58 turns we lost — and every one
+	// of them was recoverable by switching, from information that appeared
+	// only as a line in the scrolling battle log.
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const opened = driver.start(doc, 'Youngster Calvin', 7);
+	assert.deepEqual(opened.viewState.player.active.volatiles, [],
+		'a fresh Pokemon carries no conditions');
+
+	// Reach into the live state the way the engine would, then re-read the
+	// card: the point is that the view PROJECTS volatiles, not that this
+	// particular volatile was applied by a move.
+	const state = opened.battle.state;
+	const us = state.sides.player.party[0];
+	us.volatile = {infatuated: {}, leechSeed: {}, roost: {}};
+	const painted = driver.view(state).player.active;
+	assert.ok(painted.volatiles.indexOf('infatuated') !== -1,
+		'infatuation must reach the card — switching is what clears it');
+	assert.ok(painted.volatiles.indexOf('seeded') !== -1, 'Leech Seed too');
+	assert.equal(painted.volatiles.indexOf('roost'), -1,
+		'bookkeeping volatiles stay off the card');
+
+	// Major status still reads separately, because switching does NOT clear
+	// it — the two have to stay distinguishable on screen.
+	us.status = 'par';
+	assert.equal(driver.view(state).player.active.status, 'par');
+});
+
+test('the threat line prices Pursuit against a switch-out', () => {
+	// Twelve of the forty-eight deaths in skipwall4 A7's Brawly wipes came
+	// from Hitmontop's Pursuit, and the driver kept offering switches into
+	// it: nothing on the threat line said the move exists, let alone that it
+	// doubles on the way out. The engine can see the foe's whole movepool —
+	// the same loop that finds the hardest hit now prices the doubled catch.
+	const mon = (id, species, extra) => Object.assign({
+		id, species, level: 20, hp: {current: 60, max: 60},
+		moves: [{name: 'Scratch', pp: 10, maxPP: 10}],
+	}, extra || {});
+	const position = hp => ({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Hitmontop',
+				{moves: [{name: 'Pursuit', pp: 10, maxPP: 10},
+					{name: 'Brick Break', pp: 10, maxPP: 10}]})]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar',
+				{hp: {current: hp, max: 60}})]},
+		},
+	});
+
+	const healthy = driver.incomingThreat(position(60));
+	assert.ok(healthy.pursuit, 'a foe holding Pursuit is named on the threat');
+	assert.ok(healthy.pursuit.max > 0, 'the catch is priced');
+	assert.equal(healthy.pursuit.kills, false, 'a healthy body walks out alive');
+
+	// The doubled hit is the number that matters: a body the plain Pursuit
+	// leaves standing still dies on the way out.
+	const clipped = driver.incomingThreat(position(Math.ceil(healthy.pursuit.max * 0.6 / 100 * 60)));
+	assert.equal(clipped.pursuit.kills, true, 'the doubled catch kills what the plain hit spares');
+
+	// No Pursuit, no field — the sentence must not appear against foes that
+	// cannot punish the switch.
+	const plain = driver.incomingThreat({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Hitmontop')]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar')]},
+		},
+	});
+	assert.equal(plain.pursuit, null);
+});
+
+test('a forced replacement offers each candidate with its race priced', () => {
+	// Who gets sent in after a faint is where fights are spent: the driver
+	// picked by resist-vs-one-move and HP, which is how Bayleef was sent
+	// into an Ice Beam Poliwhirl. attritionRace already answers "who runs
+	// out of HP first" for the active body — seating each candidate in a
+	// cloned state asks it for the bench too.
+	const mon = (id, species, level, moves, hp) => ({
+		id, species, level, hp: hp || {current: 60, max: 60},
+		moves: moves.map(name => ({name, pp: 10, maxPP: 10})),
+	});
+	const state = {
+		generation: 8, mode: 'Singles', turn: 3, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [
+				mon('ai-1', 'Machop', 10, ['Karate Chop'])]},
+			player: {activeIds: ['player-1'], party: [
+				mon('player-1', 'Skitty', 10, ['Scratch'], {current: 0, max: 40}),
+				mon('player-2', 'Marill', 30, ['Water Gun']),
+				mon('player-3', 'Caterpie', 5, ['Tackle']),
+			]},
+		},
+	};
+	const offered = driver.legalActions(state);
+	assert.equal(offered.length, 2, 'the fainted body is not on offer');
+	const byId = Object.fromEntries(offered.map(entry => [entry.action.replacementId, entry]));
+	assert.ok(byId['player-2'].race, 'every candidate carries a race');
+	assert.equal(byId['player-2'].race.outcome, 'win', 'a L30 Marill outlasts a L10 Machop');
+	assert.ok(byId['player-3'].race, 'the hopeless candidate carries one too');
+	assert.equal(byId['player-3'].race.outcome, 'lose', 'a L5 Caterpie does not');
+});
+
+test('a double battle refuses to start as singles', () => {
+	// The operator's ruling: doubles are real doubles. Until the play stack
+	// runs two actives, pretending is worse than refusing — every past
+	// "win" against an And-spelled pair was adjudicated in the wrong mode.
+	// The run layer lets a doubles fight be skipped and owed instead.
+	const doc = docWith([{species: 'Skitty', map: 'Route101', level: 2}]);
+	assert.throws(() => driver.start(doc, 'Twins Gina And Mia', 7),
+		/double battle.*not modeled|doubles.*skip/i,
+		'a doubles fight must refuse play, naming the skip as the way past');
+});
+
+test('the PP model is a switch: off leaves fuel infinite, on fills and spends it', () => {
+	// The recorded default is OFF — every fixture in this file was recorded
+	// fuel-free, and the finding that made PP a switch lives in
+	// docs/MODELLING-GAPS.md (2026-08-30 addendum). ON must fill both
+	// sides' tanks at construction and the engine must then spend them.
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const off = driver.start(doc, undefined, 42);
+	for (const mon of [...off.battle.state.sides.player.party,
+		...off.battle.state.sides.ai.party]) {
+		for (const move of mon.moves) {
+			assert.equal(move.pp, undefined,
+				`off is the default: ${mon.id} ${move.name} must not carry pp`);
+		}
+	}
+	driver.setPPModel(true);
+	try {
+		const on = driver.start(doc, undefined, 42);
+		for (const mon of [...on.battle.state.sides.player.party,
+			...on.battle.state.sides.ai.party]) {
+			for (const move of mon.moves) {
+				assert.ok(Number.isInteger(move.pp) && move.pp > 0,
+					`on: ${mon.id} ${move.name} must carry pp`);
+				assert.equal(move.pp, move.maxPP,
+					`on: ${mon.id} ${move.name} opens with a full tank`);
+			}
+		}
+		const activeId = on.battle.state.sides.player.activeIds[0];
+		const pick = on.actions.find(action => action.kind === 'move');
+		const reply = driver.act(on.battle, {kind: 'move', move: pick.move});
+		const active = reply.battle.state.sides.player.party
+			.find(mon => mon.id === activeId);
+		const spent = active.moves.find(move => move.name === pick.move);
+		assert.equal(spent.pp, spent.maxPP - 1,
+			'the engine spends the pp the driver filled');
+	} finally {
+		driver.setPPModel(false);
+	}
 });

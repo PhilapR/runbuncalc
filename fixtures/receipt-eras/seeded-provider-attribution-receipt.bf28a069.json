@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "pokemon.bridge.attribution.receipt/1.0.0",
+  "receiptId": "receipt_98aa7f6c883126e2bb564e88",
+  "requestId": "req_calvin_attribution_001",
+  "producer": {
+    "repository": "pokemon-mono",
+    "revision": "2ae1b7e5721a2d2ff3b9692df75f65329c891650",
+    "engine": "run-and-bun",
+    "engineVersion": "0.2.0"
+  },
+  "input": {
+    "attemptId": "attempt_calvin_attribution",
+    "revision": 42,
+    "stateHash": "1111111111111111111111111111111111111111111111111111111111111111",
+    "profileRevision": "rab-profile-fixture-v1",
+    "requestHash": "77fbd1c032b3acd569f35f13fa95227f7bacf399d58c5e66e5888f321ee3249c",
+    "baselineTeamHash": "87c63e7bcefbee452d63234e26c52a2bbab4836f46dc8acd18c384c664f8856b",
+    "plannerRevision": "seeded-monte-carlo-lead-planner-v1",
+    "trainerOrder": 3,
+    "policy": "reoptimize-lead-v1",
+    "maxCandidateBranches": 100,
+    "seeds": [
+      1450,
+      1451
+    ],
+    "interventionIds": [
+      "replace-mudkip-with-poochyena",
+      "treecko-all-15-reference"
+    ]
+  },
+  "result": {
+    "status": "complete",
+    "baseline": {
+      "recommendedLeadId": "owned-treecko-1",
+      "startingTotalHP": 40,
+      "safeBranches": 0,
+      "losses": 2,
+      "totalDeaths": 4,
+      "expectedTurns": 9,
+      "branchOutcomes": [
+        {
+          "seed": 1450,
+          "victory": false,
+          "deaths": 2,
+          "turns": 8,
+          "totalHPRemaining": 0
+        },
+        {
+          "seed": 1451,
+          "victory": false,
+          "deaths": 2,
+          "turns": 10,
+          "totalHPRemaining": 0
+        }
+      ]
+    },
+    "interventions": [
+      {
+        "interventionId": "replace-mudkip-with-poochyena",
+        "kind": "replace-party-member",
+        "targetId": "owned-mudkip-1",
+        "effectiveTeamHash": "b18bc1e7cefffe8c86f01a8fa3eb07f414a4babd5aead82053e7990755efea26",
+        "outcome": {
+          "recommendedLeadId": "owned-treecko-1",
+          "startingTotalHP": 38,
+          "safeBranches": 0,
+          "losses": 2,
+          "totalDeaths": 4,
+          "expectedTurns": 11,
+          "branchOutcomes": [
+            {
+              "seed": 1450,
+              "victory": false,
+              "deaths": 2,
+              "turns": 10,
+              "totalHPRemaining": 0
+            },
+            {
+              "seed": 1451,
+              "victory": false,
+              "deaths": 2,
+              "turns": 12,
+              "totalHPRemaining": 0
+            }
+          ]
+        },
+        "delta": {
+          "safeBranches": 0,
+          "wins": 0,
+          "deaths": 0,
+          "expectedTurns": 2,
+          "totalHPRemaining": 0,
+          "changedOutcomeBranches": 0,
+          "changedDeathlessBranches": 0
+        }
+      },
+      {
+        "interventionId": "treecko-all-15-reference",
+        "kind": "normalize-ivs",
+        "targetId": "owned-treecko-1",
+        "effectiveTeamHash": "beb54dd8f004134f07116595b47ada6ffbed7a35971659f4ffb64a3886cfb6eb",
+        "outcome": {
+          "recommendedLeadId": "owned-treecko-1",
+          "startingTotalHP": 40,
+          "safeBranches": 0,
+          "losses": 2,
+          "totalDeaths": 4,
+          "expectedTurns": 9,
+          "branchOutcomes": [
+            {
+              "seed": 1450,
+              "victory": false,
+              "deaths": 2,
+              "turns": 8,
+              "totalHPRemaining": 0
+            },
+            {
+              "seed": 1451,
+              "victory": false,
+              "deaths": 2,
+              "turns": 10,
+              "totalHPRemaining": 0
+            }
+          ]
+        },
+        "delta": {
+          "safeBranches": 0,
+          "wins": 0,
+          "deaths": 0,
+          "expectedTurns": 0,
+          "totalHPRemaining": 0,
+          "changedOutcomeBranches": 0,
+          "changedDeathlessBranches": 0
+        }
+      }
+    ],
+    "summary": {
+      "seedPairsEvaluated": 4,
+      "candidateBranchesEvaluated": 12
+    },
+    "outputHash": "81b4c374bfd6d2896024e8f7d7107cafc1e45179bf9b1ec394c0fcafab4b1814"
+  },
+  "evidence": {
+    "contractVersion": "1.0.0",
+    "deterministic": true,
+    "replayHash": "78a5b950a60ff7a3d3fb965a772043ab04c7b91183c05c53a8876114e7f02f98",
+    "expectedDivergences": [],
+    "unexpectedDivergences": []
+  }
+}

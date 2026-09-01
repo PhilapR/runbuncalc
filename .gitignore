@@ -1,4 +1,8 @@
-node_modules/
+# No trailing slash: `node_modules/` matches a directory and NOT a symlink, and
+# scripts/ab.js symlinks node_modules into the worktree it isolates a batch in.
+# That one untracked symlink made every run inside report a dirty tree, which
+# made the harness declare its own comparison invalid.
+node_modules
 eslint-cache/
 .eslintcache
 .DS_Store
@@ -12,3 +16,19 @@ dist-worker/
 wf-*.log
 out-*.txt
 .wrangler/
+ledger/ledger.db
+ui-playthrough-out/
+
+# MLflow tracking database and venv — the runs are reproducible from
+# ui-playthrough-out/ by re-running experiments/ingest.py.
+experiments/mlflow.db
+experiments/.venv/
+__pycache__/
+experiments/mlruns/
+
+
+
+# The isolated worktree scripts/ab.js runs a batch in. Removed when the
+# batch ends; ignored so a crashed batch cannot dirty the tree and make the
+# NEXT batch refuse to start.
+.ab-worktree/

@@ -1,4 +1,5 @@
 import {getPokemon, isRainWeather, isSunWeather, sideForPokemon} from './actions';
+import {ALWAYS_CRIT_MOVES, HIGH_CRIT_MOVES} from './calc-adapter';
 import {hasPureAbilityEffect, PURE_ABILITY_MOVE_IDS} from './ability-legality';
 import {hasMoveCopyEffect, PURE_MOVE_COPY_IDS} from './copy-legality';
 import {hasCallMoveEffect, PURE_CALL_MOVE_IDS} from './call-legality';
@@ -37,7 +38,10 @@ import {PURE_CONFUSION_MOVE_IDS} from './volatile-legality';
 import {hasPureStatTransferEffect, PURE_STAT_TRANSFER_MOVE_IDS} from './stat-transfer-legality';
 import {hasPurePPEffect, PURE_PP_MOVE_IDS} from './pp-legality';
 
-const STATUS_BY_MOVE: Record<string, 'slp' | 'psn' | 'brn' | 'par' | 'tox'> = {
+/** The status each pure status move inflicts. Exported so a consumer can ask
+ * the engine what a move DOES rather than keeping a second copy of the list —
+ * the same reason HIGH_CRIT_MOVES and ALWAYS_CRIT_MOVES are exported. */
+export const STATUS_BY_MOVE: Record<string, 'slp' | 'psn' | 'brn' | 'par' | 'tox'> = {
   darkvoid: 'slp', grasswhistle: 'slp', hypnosis: 'slp', lovelykiss: 'slp',
   sing: 'slp', sleeppowder: 'slp', spore: 'slp',
   poisonpowder: 'psn', poisongas: 'psn', toxic: 'tox', toxicthread: 'psn', willowisp: 'brn', thunderwave: 'par',
@@ -71,11 +75,16 @@ const WEATHER_RECOVERY_MOVES = new Set(['moonlight', 'morningsun', 'synthesis'])
 const ALLY_HEALING_MOVES = new Set(['floralhealing', 'healpulse', 'pollenpuff']);
 const ALLY_TEAM_HEALING_MOVES = new Set(['junglehealing', 'lifedew']);
 const ALLY_TEAM_CLEANSE_MOVES = new Set(['aromatherapy', 'healbell']);
-const HIGH_CRIT_MOVES = new Set([
-  'aeroblast', 'aircutter', 'attackorder', 'blazekick', 'crabhammer', 'crosschop',
-  'drillrun', 'leafblade', 'nightslash', 'poisonjab', 'razorleaf', 'shadowclaw',
-  'slash', 'spacialrend', 'stoneedge', 'strangesteam', 'surgingstrikes', 'wickedblow',
-]);
+// THE list, imported rather than mirrored. This was a second hand-kept copy
+// that "mirrors calc-adapter's set", and two hand-kept copies of the same
+// answer is how they drifted apart the first time — the old one carried
+// strangesteam, a confusion move, and missed seven others. Corrupting one
+// copy could not be seen from the other.
+//
+// It also folded in the four ALWAYS-crit moves, which made this policy
+// believe Focus Energy helps a Wicked Blow. It does not: a move that always
+// crits gains nothing from a crit-stage boost, so only the HIGH-crit set
+// belongs in the question below.
 const CRIT_SETUP_ABILITIES = new Set(['superluck', 'sniper']);
 const CRIT_BLOCKING_ABILITIES = new Set(['battlearmor', 'shellarmor', 'magmaarmor']);
 const ROLE_PLAY_ABILITIES = new Set(['hugepower', 'purepower', 'protean', 'toughclaws']);
@@ -916,7 +925,8 @@ function statusBaseScore(
   if (id === 'focusenergy' || id === 'laserfocus') {
     const hasCritSetup = CRIT_SETUP_ABILITIES.has(moveId(evaluation.facts.attackerAbility || '')) ||
       moveId(evaluation.facts.attackerItem || '') === 'scopelens' ||
-      (evaluation.facts.attackerMoves || []).some(move => HIGH_CRIT_MOVES.has(moveId(move)));
+      (evaluation.facts.attackerMoves || []).some(move =>
+        HIGH_CRIT_MOVES.has(moveId(move)) && !ALWAYS_CRIT_MOVES.has(moveId(move)));
     return [{score: hasCritSetup ? 7 : 6, probability: 1}];
   }
   if (id === 'encore') {

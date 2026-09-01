@@ -29,6 +29,8 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const planningRequest = require('../contracts/ecosystem/v1/planning-request.json');
 const seededProviderReceipt = require('../contracts/ecosystem/v1/seeded-provider-receipt.json');
@@ -108,6 +110,25 @@ async function openAllSections(page) {
 		els => els.forEach(el => { el.open = true; }));
 }
 
+/**
+ * Wait for a route handler to say the request is genuinely out.
+ *
+ * Interception happens on Playwright's side of the wire, asynchronously with
+ * the click that caused it, so reading a request counter straight after the
+ * click races the handler — it fails under load rather than when the product
+ * is wrong. Awaiting the handler's own promise removes the race; the bound
+ * keeps a genuine "no request at all" a loud failure rather than a hung suite.
+ */
+function sentWithin(promise, why, ms) {
+	let timer;
+	return Promise.race([
+		promise.then(() => clearTimeout(timer)),
+		new Promise((resolve, reject) => {
+			timer = setTimeout(() => reject(new Error(why)), ms || 10000);
+		}),
+	]);
+}
+
 async function savedRun(page) {
 	const raw = await page.evaluate(() => window.localStorage.getItem('runbun.run.v1'));
 	return raw ? JSON.parse(raw) : null;
@@ -142,6 +163,35 @@ async function driveVisibleBattleToReceipt(page, maxTurns) {
 	});
 }
 
+test('a failed route list does not wedge the panel in its shipping state',
+	{skip}, async () => {
+	// index.template ships New Run disabled under "Loading the run panel…" and
+	// only the bootstrap chain enables it. loadMaps was the one link that could
+	// reject and the only one nobody caught, so an ordinary fetch failure —
+	// offline, a reset connection, a tab waking on a dead radio — left the page
+	// exactly as it shipped, with no message and no way back but a reload.
+		const context = await browser.newContext();
+		await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
+		await context.route('**/run/maps', route => route.abort('failed'));
+		const page = await context.newPage();
+		await page.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
+
+		// Bootstrap must FINISH. A run with no route list is a smaller thing than a
+		// dead page: starter, gift, static and trade need no route.
+		await page.waitForFunction(
+			() => !document.querySelector('#runbun-run-new').disabled ||
+			document.querySelector('.runbun-run-setup-form').getAttribute('aria-busy') === 'false',
+			null, {timeout: 15000});
+		assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'false',
+			'the form must stop claiming it is loading');
+
+		// And it must say what happened, rather than looking merely empty.
+		assert.match(await page.textContent('#runbun-run-status'),
+			/started without its route list/,
+			'a panel that lost its routes has to say so');
+		await context.close();
+	});
+
 test('a new run cannot outrun durable bootstrap', {skip}, async () => {
 	const context = await browser.newContext();
 	await context.route(/fonts\.(googleapis|gstatic)\.com/, route => route.abort());
@@ -159,9 +209,11 @@ test('a new run cannot outrun durable bootstrap', {skip}, async () => {
 		return events && events.click;
 	});
 
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
 	assert.equal(await page.isDisabled('#runbun-run-new'), true,
 		'the selected starter must not bypass unfinished durable bootstrap');
+	assert.equal(await page.getAttribute('#runbun-run-new', 'title'),
+		'Loading the run panel…', 'a disabled start button must say why');
 	assert.equal(await page.getAttribute('.runbun-run-setup-form', 'aria-busy'), 'true');
 	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
 	assert.equal(await savedRun(page), null, 'a programmatic early click must not create a fallback save');
@@ -210,7 +262,7 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 		attribute: typeof window.RunBunPokemonProvider.provider.attribute,
 	})), {
 		repository: 'pokemon-mono',
-		revision: '2ae1b7e5721a2d2ff3b9692df75f65329c891650',
+		revision: 'bf28a069148903cc02315cc434f91e24816045e2',
 		plan: 'function',
 		attribute: 'function',
 	});
@@ -221,10 +273,16 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	seededProviderReceipt, 'browser provider must reproduce pokemon-mono canonical receipt exactly');
 
 	await page.check('#runbun-run-new-route');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 
 	// One real route roll supplies the reserve used by the replacement test.
 	// Its owned IVs are facts from the roll, and must survive reconstruction.
@@ -234,6 +292,12 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 		null, {timeout: 10000});
 	await page.click('#runbun-run-roll');
 	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	// The battle/keep/flee decision reads its odds before committing —
+	// quoted at full HP by the same formula the fight's ball buttons use.
+	await page.waitForFunction(
+		() => /Catch at full HP: Poke Ball \d+%/.test(
+			document.querySelector('#runbun-run-roll-odds').textContent),
+		null, {timeout: 10000});
 	await page.click('#runbun-run-roll-catch');
 	await page.waitForFunction(
 		() => JSON.parse(localStorage.getItem('runbun.run.v1')).box.length === 2,
@@ -298,7 +362,17 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	assert.equal(await page.$$eval('#runbun-run-plan-outlook-list li', rows => rows.length), 2,
 		'the current forecast belongs in the plan; the next two belong in the outlook');
 	assert.match(await page.textContent('#runbun-run-plan-actions'),
-		/PARTIAL PLAN · Pokemon Mono · lead Treecko L5 · \d+\/8 sampled branches deathless/);
+		/PARTIAL PLAN · Pokemon Mono · lead Turtwig L5 · \d+ of 8 fair-dice samples came back clean/);
+
+	// The verdict carries the survival answer, not only the action margin. The
+	// margin says how clear the MOVE choice is and reads like a judgement on
+	// the fight: across 313 planned fights with a live forecast, "decided by 5
+	// or more" split six-all on whether anybody died. The worst real example is
+	// "Team Aqua Grunt Petalburg Woods — decided by 12.4 · a sampled branch
+	// loses 4 Pokemon", which without this clause reads as a safe fight.
+	assert.match(await page.textContent('#runbun-run-plan-verdict'),
+		/(samples clean, none of them lost anyone|a sampled branch loses \d+ Pokemon)/,
+		'a live forecast must reach the verdict, not just the row below it');
 	assert.match(await page.textContent('#runbun-run-plan-outlook'),
 		/bounded eight-seed checks, not certified safe routes/);
 	assert.equal(await page.textContent('#runbun-run-plan-evidence'),
@@ -324,9 +398,9 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	assert.match(await page.textContent('#runbun-run-attribution-state'),
 		/saved with this attempt/);
 	assert.match(await page.textContent('#runbun-run-attribution'),
-		/Modeled roster value.*Baseline · \d+\/4 paired seeds deathless.*IV reference test · Treecko → all 15/s);
+		/Modeled roster value.*Baseline · \d+\/4 paired seeds deathless.*IV reference test · Turtwig → all 15/s);
 	assert.match(await page.textContent('#runbun-run-attribution'),
-		/Replacement test · Treecko → .+ · .*4 paired seeds/s,
+		/Replacement test · Turtwig → .+ · .*4 paired seeds/s,
 		'the caught reserve must be compared on the same fixed seeds');
 	assert.match(await page.textContent('#runbun-run-attribution'),
 		/Model only · same paired seeds · lead reoptimized/);
@@ -365,7 +439,7 @@ test('the page plans through the pinned pokemon-mono browser provider', {skip, t
 	assert.match(await page.textContent('#runbun-history-planning'),
 		/Actual participation/s);
 	assert.match(await page.textContent('#runbun-history-planning'),
-		/Modeled value · fixed-seed tests.*IV reference test · Treecko → all 15/s);
+		/Modeled value · fixed-seed tests.*IV reference test · Turtwig → all 15/s);
 	assert.doesNotMatch(await page.textContent('#runbun-history-planning'), /\bcarry\b/i);
 
 	const bundle = await page.evaluate(() =>
@@ -396,9 +470,18 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
+
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would. Only the road
+	// section opens for it — the box must still open by itself below.
+	await page.click('.rb-disclose[data-section="road"] .rb-disclose-btn');
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 
 	assert.match(await page.textContent('#runbun-run-next-title'),
 		/Build a party for Youngster Calvin/);
@@ -442,7 +525,7 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.equal(await page.getAttribute(
 		'.rb-disclose[data-section="tools"] .rb-disclose-btn', 'aria-expanded'), 'true',
 	'party members should be inspectable without duplicating them in the reserve');
-	assert.match(await page.textContent('#runbun-run-mon-summary-name'), /Treecko · L5/);
+	assert.match(await page.textContent('#runbun-run-mon-summary-name'), /Turtwig · L5/);
 	assert.equal(await page.textContent('#runbun-run-mon-summary-types'), 'Grass');
 	const ownedFacts = await page.textContent('#runbun-run-mon-facts');
 	assert.match(ownedFacts, /AbilityOvergrowNature[A-Z][a-z]+/,
@@ -479,15 +562,18 @@ test('a new run presents the next valid decision before the fight', {skip}, asyn
 	assert.equal(identifiedStarter.ability, 'Overgrow');
 	assert.equal(identifiedStarter.ivs.atk, 27);
 	assert.equal(identifiedStarter.ivs.spe, 31);
+	// Five, not four. Littleroot Town and Oldale Town joined the openers when
+	// the R&B tracker dated them, and Petalburg City left — it is reachable
+	// only through Route 102. Both changes are Philip's, from play.
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
-		/4 encounter areas/);
+		/5 encounter areas/);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
 		/2 field items/);
 	assert.match(await page.textContent('#runbun-run-opportunity-list'),
-		/TM & tutorsMove locations are not mapped yet/);
+		/0 TMs & tutors reachableNone reachable yet · \d+ known places, undated/);
 	assert.equal(await page.$$eval('#runbun-run-reachable .runbun-run-route-choice',
-		buttons => buttons.length), 4,
-	'Explore should begin with the four reachable choices, not the complete ROM catalog');
+		buttons => buttons.length), 5,
+	'Explore should begin with the five reachable choices, not the complete ROM catalog');
 
 	await page.click('.runbun-run-opportunity-action[data-kind="items"]');
 	assert.equal(await page.getAttribute(
@@ -522,7 +608,7 @@ test('IndexedDB is authoritative and exports a checked replay archive', {skip}, 
 	const page = session.page;
 
 	await page.fill('#runbun-run-new-name', 'Durable run');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await page.waitForFunction(async () => {
@@ -595,7 +681,7 @@ test('IndexedDB is authoritative and exports a checked replay archive', {skip}, 
 test('a v1 browser database upgrades in place before the next command', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	const head = await durableHead(page);
@@ -674,10 +760,16 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 
 	await page.fill('#runbun-run-new-name', 'Browser Run');
 	await page.check('#runbun-run-new-cap');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 	// The start form has to actually go away. It was setting `hidden` correctly
 	// and staying on screen anyway: a `display: flex` rule in this panel's own CSS
 	// outranks the UA stylesheet's `[hidden] {display:none}` on specificity.
@@ -738,19 +830,20 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	assert.ok(await page.$$eval('#runbun-run-split-gauntlet .runbun-run-split-fight',
 		els => els.length) >= 4, 'the gauntlet lists the boss-tier fights');
 
-	// The story spine renders one tick per milestone, none beaten yet — 38,
-	// because the declared rival pruned the other two variants of every
-	// rival milestone.
-	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 38);
-	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 0);
-	assert.match(await page.textContent('#runbun-run-spine-note'), /0 \/ 38 milestones/);
+	// The story spine renders one tick per milestone — 39 now that the Route
+	// 103 rival is restored, because the declared rival pruned the other two
+	// variants of every rival milestone. The one beaten tick is that rival,
+	// cleared above so Calvin is this test's fight.
+	assert.equal(await page.$$eval('#runbun-run-spine li', els => els.length), 39);
+	assert.equal(await page.$$eval('#runbun-run-spine li.is-beaten', els => els.length), 1);
+	assert.match(await page.textContent('#runbun-run-spine-note'), /1 \/ 39 milestones/);
 
 	await page.click('#runbun-run-plan');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-plan-actions .runbun-run-action').length > 1,
 		null, {timeout: 15000});
 	const verdict = await page.textContent('#runbun-run-plan-verdict');
-	// The run starts before the first battle in the map, so this is fight zero.
+	// With the Route 103 rival cleared, Calvin is the next battle in the map.
 	assert.match(verdict, /Youngster Calvin/);
 	assert.match(verdict, /decided by|contested by|only one action/);
 
@@ -762,20 +855,100 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-matrix table').length === 2,
 		null, {timeout: 15000});
-	assert.match(await page.textContent('#runbun-run-matrix-note'), /Youngster Calvin \(#0\)/);
+	assert.match(await page.textContent('#runbun-run-matrix-note'), /Youngster Calvin \(#2\)/);
 	const cells = await page.$$eval('#runbun-run-matrix td', els => els.map(el => el.textContent));
+	// Every board cell is a doorway: one click opens this exact pairing in
+	// the calculator — our mon with its rolled identity, their mon by set.
+	await page.click('#runbun-run-matrix td[data-mon-id]');
+	await page.waitForFunction(() => window.location.hash === '#calc');
+	assert.match(await page.$eval('.calc-player-column .select2-chosen', el => el.textContent),
+		/\(My Run\)$/, 'the pairing must load our run mon on the player side');
+	assert.match(await page.$eval('.calc-opponent-column .select2-chosen', el => el.textContent),
+		/\(Youngster Calvin\)$/, 'the pairing must load the trainer set opposite');
+	await page.evaluate(() => { window.location.hash = '#runbun-run'; });
 	assert.ok(cells.length >= 2, 'both directions should render cells');
 	assert.ok(cells.every(text => /%|—/.test(text)), 'every cell is a percent or an honest dash');
 
 	// Pin this owned stat to a deterministic non-perfect value before testing the
 	// economy. Game-owned Pokemon already have all six IVs; this is an edit, not
 	// filling an unknown.
+	// The editor toolbench acts on the SELECTED Pokemon; before a selection
+	// exists it is a bench of levers wired to nothing, and it hides.
+	assert.equal(await page.$eval('#runbun-run-mon-tools', el => el.hidden), true,
+		'the details editor must hide until a Pokemon is selected');
 	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-mon-select');
+	assert.equal(await page.$eval('#runbun-run-mon-tools', el => el.hidden), false,
+		'selecting a Pokemon reveals its editor');
+	// Constrained inputs offer the game's own vocabulary: the forget slot is
+	// a select of THIS Pokemon's moves, the new-move field carries a menu of
+	// what it can legally learn, and the bag/species fields carry the full
+	// Gen 8 item and species lists. Free text still passes through — the
+	// commands stay the validators.
+	assert.deepEqual(
+		await page.$$eval('#runbun-run-replace option', opts => opts.map(o => o.value).filter(Boolean)),
+		await page.$$eval('#runbun-run-mon-summary-moves .runbun-run-move', els => els.map(el => el.textContent)),
+		'the forget select must list exactly the selected Pokemon\'s moves');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-move-options option').length > 3,
+		null, {timeout: 10000});
+	assert.ok(await page.$eval('#runbun-run-item-options', el => el.children.length > 100),
+		'the bag item field must offer the item vocabulary');
+	assert.ok(await page.$eval('#runbun-run-species-options', el => el.children.length > 500),
+		'the scripted-catch species field must offer the species vocabulary');
+	// The run -> calculator bridge: one click loads THIS Pokemon's exact
+	// rolled identity into the player slot, level projected to the cap, and
+	// lands on the calculator tab. The set lives only in the live setdex —
+	// never persisted, because the run is the authority.
+	await page.click('#runbun-run-open-calc');
+	await page.waitForFunction(() => window.location.hash === '#calc');
+	assert.equal(await page.$eval('.calc-player-column .select2-chosen', el => el.textContent),
+		'Turtwig (My Run)', 'the player slot must hold the run set');
+	const bridged = await page.evaluate(() => {
+		const saved = JSON.parse(window.localStorage.getItem('runbun.run.v1'));
+		const mon = saved.box.find(entry => entry.species === 'Turtwig');
+		const p1 = document.querySelector('.calc-player-column');
+		return {
+			level: p1.querySelector('.level').value,
+			nature: p1.querySelector('.nature').value,
+			calcIvs: ['hp', 'at', 'df', 'sa', 'sd', 'sp']
+				.map(k => p1.querySelector('.' + k + ' .ivs').value).join(','),
+			runIvs: [mon.ivs.hp, mon.ivs.atk, mon.ivs.def,
+				mon.ivs.spa, mon.ivs.spd, mon.ivs.spe].join(','),
+			persisted: window.localStorage.customsets || null,
+		};
+	});
+	assert.equal(bridged.level, '12', 'the bridged level must be projected to the cap');
+	assert.equal(bridged.calcIvs, bridged.runIvs,
+		'the calculator must carry the run\'s exact rolled IVs');
+	assert.equal(bridged.persisted, null,
+		'the run set must never leak into persistent custom sets');
+	// The calculator's own tab is run-aware: the party rides in as chips, so
+	// a player already in the calculator never has to leave it to load their
+	// own Pokemon (or hand-enter six IVs the run already knows).
+	assert.equal(await page.isVisible('#runbun-calc-party'), true,
+		'an active run shows its party in the calculator');
+	await page.click('.runbun-calc-party-chip');
+	const fromChip = await page.evaluate(() => {
+		const p1 = document.querySelector('.calc-player-column');
+		const saved = JSON.parse(window.localStorage.getItem('runbun.run.v1'));
+		const mon = saved.box.find(entry => entry.id === saved.party[0]);
+		return {
+			chosen: p1.querySelector('.select2-chosen').textContent,
+			calcIvs: ['hp', 'at', 'df', 'sa', 'sd', 'sp']
+				.map(k => p1.querySelector('.' + k + ' .ivs').value).join(','),
+			runIvs: [mon.ivs.hp, mon.ivs.atk, mon.ivs.def,
+				mon.ivs.spa, mon.ivs.spd, mon.ivs.spe].join(','),
+		};
+	});
+	assert.match(fromChip.chosen, /\(My Run\)$/, 'the chip loads the run set');
+	assert.equal(fromChip.calcIvs, fromChip.runIvs,
+		'a party chip carries the run\'s exact rolled IVs');
+	await page.evaluate(() => { window.location.hash = '#runbun-run'; });
 	await page.click('#runbun-run-mon-record summary');
 	await page.fill('#runbun-run-observed-iv-spe', '5');
 	await page.click('#runbun-run-record-details');
 	await page.waitForFunction(
-		() => /recorded Treecko/.test(document.querySelector('#runbun-run-status').textContent),
+		() => /recorded Turtwig/.test(document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
 
 	// The Heart Scale button is never disabled, so the refusal is what a player
@@ -806,7 +979,7 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 			'#runbun-run-advice .runbun-run-advice-empty') !== null,
 		null, {timeout: 30000});
 	assert.match(await page.textContent('#runbun-run-advice-note'),
-		/Youngster Calvin \(#0\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
+		/Youngster Calvin \(#2\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
 	const rows = await page.$$eval('#runbun-run-advice .runbun-run-advice-row',
 		els => els.map(el => el.textContent));
 	assert.ok(rows.length <= 10, 'the advisor offers a shortlist, not a catalogue');
@@ -827,7 +1000,7 @@ test('a catch that could not have happened is refused and changes nothing', {ski
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -863,7 +1036,7 @@ test('the run survives a reload, because a playthrough that does not is not one'
 	const page = session.page;
 
 	await page.fill('#runbun-run-new-name', 'Persisted');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -894,10 +1067,16 @@ test('a fight survives a reload, and a fight from a moved run does not', {skip},
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-add');
 	await page.click('#runbun-run-set-party');
 	await page.waitForFunction(
@@ -972,10 +1151,16 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 	await selectManualMap(page, 'Route101');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
@@ -1010,14 +1195,16 @@ test('lead order is click order, and marking a fight beaten moves the run', {ski
 		() => /Bug Catcher Rick/.test(
 			document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
 		null, {timeout: 10000});
-	assert.equal((await savedRun(page)).position, 0);
+	// Calvin sits at run-map order 3 now that the Route 103 rival trio
+	// stands ahead of him.
+	assert.equal((await savedRun(page)).position, 3);
 
 	// The box filter narrows without touching the document.
-	await page.fill('#runbun-run-box-filter', 'tree');
+	await page.fill('#runbun-run-box-filter', 'turt');
 	await page.waitForFunction(
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 5000});
-	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Treecko/);
+	assert.match(await page.textContent('#runbun-run-box .runbun-run-mon-name'), /Turtwig/);
 	assert.equal((await savedRun(page)).box.length, 3, 'filtering is a view, not a command');
 
 	await session.context.close();
@@ -1035,7 +1222,7 @@ test('the rule toggles are individual, and the preset only drives the controls',
 	// ...and any of them can be adjusted after — the form is what is sent.
 	await page.uncheck('#runbun-run-new-route');
 	await page.selectOption('#runbun-run-new-dupes', 'species');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1056,7 +1243,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 
 	await page.fill('#runbun-run-new-name', 'Routes Run');
 	await page.check('#runbun-run-new-nuzlocke');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1077,7 +1264,7 @@ test('routes, scout and rank render in the panel with the availability data', {s
 	await page.click('#runbun-run-scout-btn');
 	await page.waitForSelector('#runbun-run-scout .runbun-run-scout-row');
 	assert.match(await page.textContent('#runbun-run-routes-note'),
-		/vs Leader Brawly \(#77\) at cap 21/);
+		/vs Leader Brawly \(#27\) at cap 21/);
 	const scouted = await page.$$eval('#runbun-run-scout .runbun-run-scout-row',
 		els => els.map(el => el.textContent));
 	assert.ok(scouted.length >= 1);
@@ -1104,7 +1291,7 @@ test('undo rewinds the saved run one command', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1147,7 +1334,7 @@ test('a pasted run the server cannot read is refused, and the save survives it',
 	const page = session.page;
 
 	await page.fill('#runbun-run-new-name', 'Keeper');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1212,7 +1399,7 @@ test('a damaged save is handed back for repair, not quietly replaced', {skip}, a
 	// there is, and it needs the text.
 	assert.equal(await page.inputValue('#runbun-run-transfer'), damaged);
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForFunction(
 		() => /starting a run would write over it/.test(
@@ -1235,11 +1422,229 @@ test('a damaged save is handed back for repair, not quietly replaced', {skip}, a
 	await session.context.close();
 });
 
+test('a turn that resolves after its fight is gone is dropped, not thrown', {skip}, async () => {
+	const session = await open();
+	const page = session.page;
+	await page.waitForFunction(() => {
+		const button = document.querySelector('#runbun-run-new');
+		const events = button && window.jQuery && window.jQuery._data(button, 'events');
+		return events && events.click;
+	});
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('#runbun-run-box .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(() =>
+		/takes the lead/.test(document.querySelector('#runbun-run-status').textContent));
+	// Slow the turn down so the abandon lands while it is in flight, and COUNT
+	// the turns. The staging check below used to be `!!cleared` — that the
+	// abandon button exists in the DOM — which is true whether or not a turn
+	// was ever sent. Guarding the move click with an early return, so no
+	// request is issued at all and the race is physically impossible, left
+	// this test green.
+	let actRequests = 0;
+	let turnIsInFlight;
+	const inFlight = new Promise(resolve => { turnIsInFlight = resolve; });
+	await page.route('**/run/battle/act', async route => {
+		actRequests += 1;
+		turnIsInFlight();
+		await new Promise(resolve => setTimeout(resolve, 1200));
+		await route.continue();
+	});
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])');
+	await page.waitForSelector('.runbun-run-battle-move');
+	// Fire the turn and abandon it in the SAME task, so the abandon lands
+	// while the act request is still in flight — the exact sequence that
+	// used to surface a raw TypeError when the reply came back.
+	await page.evaluate(() => {
+		document.querySelector('.runbun-run-battle-move').click();
+		document.querySelector('#runbun-run-battle-abandon').click();
+	});
+	// The turn really went out, and the fight really was abandoned under it.
+	// Both halves have to be true or there is no race to survive.
+	await sentWithin(inFlight, 'no turn was ever sent — nothing is being raced');
+	assert.equal(actRequests, 1,
+		'a turn must actually have been in flight — otherwise nothing is being raced');
+	await page.waitForFunction(
+		() => document.querySelector('#runbun-run-battle').hidden,
+		null, {timeout: 5000});
+
+	await page.waitForTimeout(3000);
+
+	// POSITIVE outcome, not the absence of three hardcoded V8 phrases. The old
+	// check missed anything worded differently — "x is not a function" walks
+	// straight past /Cannot set properties|Cannot read propert|undefined is not/.
+	// session.errors collects every uncaught pageerror, so this catches the
+	// whole class rather than three spellings of it.
+	assert.deepEqual(session.errors, [],
+		'a late turn must not surface any JavaScript error to the player');
+	// And the panel is genuinely back to the run, not wedged mid-fight.
+	assert.equal(await page.isHidden('#runbun-run-battle'), true,
+		'the abandoned fight stays closed when its late reply lands');
+	assert.ok(await page.isVisible('#runbun-run-live'),
+		'and the run is answerable again');
+
+	// The reply must be dropped SILENTLY. Two guards drop it — one on the
+	// success path, one on the failure path — and they fail differently, so
+	// both surfaces have to be checked or one mutation hides behind the other:
+	//
+	//   success guard gone   battle is non-null, the stale reply repaints and
+	//                        re-opens the panel — the isHidden check above
+	//   BOTH guards gone     battle is null, the assignment throws, and the
+	//                        catch writes the failure to the result and status
+	//                        lines. Nothing is thrown to the page and the panel
+	//                        stays shut, so only THIS check sees it.
+	assert.notEqual(await page.getAttribute('#runbun-run-battle-result', 'data-kind'), 'error',
+		'a dropped turn must not report itself as a failed one');
+	assert.doesNotMatch(await page.textContent('#runbun-run-battle-result'),
+		/did not resolve/,
+		'the player never asked for this turn any more — it must not be mentioned');
+	await session.context.close();
+});
+
+test('a late turn never lands on the fight that replaced it', {skip}, async () => {
+	// The success-path guard, isolated.
+	//
+	// The abandon-race test above cannot see it: there the reply arrives with
+	// no fight at all, so `battle` is null, the assignment throws, and the
+	// CATCH guard drops it. Either guard alone suffices, which is why removing
+	// either one alone left that test green — the auditor's exact finding.
+	//
+	// `battle.bundle !== actedOn` is not really about null. It is about the
+	// reply belonging to a DIFFERENT fight, and that only happens when a new
+	// one has started underneath it. Then the success path runs to completion
+	// and writes another battle's state over the live one.
+	const session = await open();
+	const page = session.page;
+	await page.waitForFunction(() => {
+		const button = document.querySelector('#runbun-run-new');
+		const events = button && window.jQuery && window.jQuery._data(button, 'events');
+		return events && events.click;
+	});
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('#runbun-run-box .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(() =>
+		/takes the lead/.test(document.querySelector('#runbun-run-status').textContent));
+
+	// Only the FIRST turn is slowed, so the second fight is live and settled
+	// by the time the first one's reply comes back.
+	let acts = 0;
+	await page.route('**/run/battle/act', async route => {
+		acts += 1;
+		if (acts === 1) await new Promise(resolve => setTimeout(resolve, 1500));
+		await route.continue();
+	});
+
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])');
+	await page.waitForSelector('.runbun-run-battle-move');
+	const firstFoe = await page.textContent('#runbun-run-battle-foe-name');
+
+	// Fire the slow turn, abandon, and immediately open a NEW fight.
+	await page.evaluate(() => {
+		document.querySelector('.runbun-run-battle-move').click();
+		document.querySelector('#runbun-run-battle-abandon').click();
+	});
+	await page.waitForFunction(() => document.querySelector('#runbun-run-battle').hidden);
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])');
+	await page.waitForSelector('.runbun-run-battle-move');
+	assert.equal(acts, 1, 'exactly one turn is in flight, and it belongs to the old fight');
+
+	const secondFoe = await page.textContent('#runbun-run-battle-foe-name');
+	// The LOG is the discriminator, not the opponent's name: both fights are
+	// the same trainer, so the name is identical either way and asserting on
+	// it proves nothing. The new fight is fresh and has no turns in it; the
+	// stale reply carries the old fight's events, and paintBattle APPENDS
+	// them, so a repaint shows up here and nowhere else.
+	const freshLog = await page.$$eval('#runbun-run-battle-log li', rows => rows.length);
+	await page.waitForTimeout(3000);
+
+	// The old fight's reply has landed by now. It must have changed nothing.
+	assert.deepEqual(session.errors, [], 'a stale reply must not throw');
+	assert.ok(await page.isVisible('#runbun-run-battle'),
+		'the NEW fight is still open — the stale reply did not close it');
+	assert.equal(await page.$$eval('#runbun-run-battle-log li', rows => rows.length), freshLog,
+		'the abandoned fight\'s turn must not be written into the fight that replaced it');
+	assert.equal(await page.textContent('#runbun-run-battle-foe-name'), secondFoe,
+		'and the new fight still shows its own opponent');
+	assert.notEqual(await page.getAttribute('#runbun-run-battle-result', 'data-kind'), 'error',
+		'nor report the abandoned turn as a failure');
+	void firstFoe;
+	await session.context.close();
+});
+
+test('a turn that FAILS after its fight is gone is dropped too', {skip}, async () => {
+	// The catch-path guard, isolated.
+	//
+	// The two tests above cannot see it. In both, the request succeeds, so the
+	// success path runs and its own guard is enough to drop the reply — remove
+	// only the catch guard and nothing changes. The catch path only runs when
+	// the turn genuinely fails, and then its guard is the ONLY thing standing
+	// between a dead fight and an error message about it.
+	const session = await open();
+	const page = session.page;
+	await page.waitForFunction(() => {
+		const button = document.querySelector('#runbun-run-new');
+		const events = button && window.jQuery && window.jQuery._data(button, 'events');
+		return events && events.click;
+	});
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('#runbun-run-box .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(() =>
+		/takes the lead/.test(document.querySelector('#runbun-run-status').textContent));
+
+	// The turn goes out and then FAILS, slowly enough to be abandoned first.
+	let attempted = 0;
+	let turnIsInFlight;
+	const inFlight = new Promise(resolve => { turnIsInFlight = resolve; });
+	await page.route('**/run/battle/act', async route => {
+		attempted += 1;
+		turnIsInFlight();
+		await new Promise(resolve => setTimeout(resolve, 1200));
+		await route.abort('failed');
+	});
+
+	await page.click('#runbun-run-play');
+	await page.waitForSelector('#runbun-run-battle:not([hidden])');
+	await page.waitForSelector('.runbun-run-battle-move');
+	await page.evaluate(() => {
+		document.querySelector('.runbun-run-battle-move').click();
+		document.querySelector('#runbun-run-battle-abandon').click();
+	});
+	await sentWithin(inFlight, 'no turn was ever sent — the catch path is untested');
+	assert.equal(attempted, 1, 'a turn must actually have been in flight');
+	await page.waitForFunction(() => document.querySelector('#runbun-run-battle').hidden);
+	await page.waitForTimeout(3000);
+
+	// The failure belongs to a fight the player already walked away from.
+	// Telling them about it is the bug.
+	assert.notEqual(await page.getAttribute('#runbun-run-battle-result', 'data-kind'), 'error',
+		'an abandoned fight must not report its dead turn as a failure');
+	assert.doesNotMatch(await page.textContent('#runbun-run-battle-result'), /did not resolve/,
+		'nor put the failure text on screen');
+	assert.doesNotMatch(await page.textContent('#runbun-run-status'), /did not resolve|failed/i,
+		'nor in the run status line');
+	assert.ok(await page.isVisible('#runbun-run-live'), 'the run is answerable again');
+	await session.context.close();
+});
+
 test('a change asked for while another is in flight is refused, not merged', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1260,7 +1665,13 @@ test('a change asked for while another is in flight is refused, not merged', {sk
 	await page.fill('#runbun-run-catch-species', 'Poochyena');
 	await page.fill('#runbun-run-catch-level', '3');
 	await page.click('#runbun-run-catch');
-	await page.click('#runbun-run-undo');
+	// Deterministic mid-flight click, immune to machine speed on both
+	// sides: wait for the synchronous 'Working…' marker so the flight has
+	// begun, then click programmatically — page.click's actionability wait
+	// would idle on the busy-disabled button until the flight ends.
+	await page.waitForFunction(
+		() => /Working/.test(document.querySelector('#runbun-run-status').textContent));
+	await page.evaluate(() => document.querySelector('#runbun-run-undo').click());
 	// Refused out loud: a button that quietly does nothing reads as broken.
 	assert.match(await page.textContent('#runbun-run-status'), /One change at a time/);
 	assert.equal(await page.getAttribute('#runbun-run-status', 'data-kind'), 'error');
@@ -1292,7 +1703,7 @@ test('the page fits a phone: every active mode reflows without page overflow', {
 	// leave layout entirely, so their controls cannot stretch the page.
 	assert.equal(await page.isVisible('#calc'), false,
 		'the inactive calc region should collapse on a phone');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1340,6 +1751,60 @@ test('the page fits a phone: every active mode reflows without page overflow', {
 	await context.close();
 });
 
+test('the verdict warns about a sash-threshold set the samples cannot price', {skip}, async () => {
+	// Fisherman Darian's Magikarp holds Focus Sash + Flail — the earliest of 41
+	// fights whose danger scales with the enemy's own missing health, a scaling
+	// the fair-dice sampler is known blind to. Battle Girl Lilith's version of
+	// this set was forecast "worst sampled branch loses 1" fourteen times and
+	// swept six Pokemon in twelve. The warning must reach the DOM the player
+	// reads, not only the plan object.
+	const session = await open();
+	const page = session.page;
+
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.fill('#runbun-run-catch-species', 'Poochyena');
+	await page.fill('#runbun-run-catch-level', '3');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
+		null, {timeout: 10000});
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party.length === 1,
+		null, {timeout: 10000});
+
+	// Plan Darian from the road-ahead list — the panel shows eight upcoming
+	// fights and he is the sixth.
+	await page.click('.runbun-run-up-plan[data-trainer="Fisherman Darian"]');
+	await page.waitForFunction(
+		() => /CAUTION/.test(document.querySelector('#runbun-run-plan-verdict').textContent),
+		null, {timeout: 20000});
+	const warned = await page.textContent('#runbun-run-plan-verdict');
+	assert.match(warned, /Magikarp holds Focus Sash \+ Flail/,
+		'the set is named, not gestured at');
+	assert.match(warned, /under-price pinch moves/,
+		'and the reason is stated: the samples cannot price this');
+
+	// A fight with no such set must NOT carry the warning — a caution on every
+	// verdict is a caution on none.
+	await page.click('#runbun-run-plan');
+	await page.waitForFunction(
+		() => /decided|contested|only one/.test(
+			document.querySelector('#runbun-run-plan-verdict').textContent) &&
+			!/CAUTION/.test(document.querySelector('#runbun-run-plan-verdict').textContent),
+		null, {timeout: 20000});
+
+	await session.context.close();
+});
+
 test('an answer the run has moved past is marked stale', {skip}, async () => {
 	// Plan, Advise, Rank, Routes and Board are computed against the run AS IT
 	// WAS. That is fine — they are on-demand questions — but an advisor sheet
@@ -1347,7 +1812,7 @@ test('an answer the run has moved past is marked stale', {skip}, async () => {
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1403,7 +1868,7 @@ test('two tabs are one run: a catch in one appears in the other', {skip}, async 
 	await second.goto(`${baseUrl}/index.html#runbun-run`, {waitUntil: 'domcontentloaded'});
 	await second.waitForSelector('#runbun-run');
 
-	await first.click('.runbun-run-starter[data-species="Treecko"]');
+	await first.click('.runbun-run-starter[data-species="Turtwig"]');
 	await first.click('#runbun-run-new');
 	await first.waitForSelector('#runbun-run-live:not([hidden])');
 	// The other tab hears the write and shows the run without a reload.
@@ -1438,10 +1903,16 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	// carry it: a beat, or a burial.
 	await page.check('#runbun-run-new-route');
 	await page.check('#runbun-run-new-permadeath');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
+	// The restored Route 103 rival stands first; this test's subject is
+	// Calvin, so clear the rival the way a player would.
+	await page.click('#runbun-run-upcoming .runbun-run-up.is-next .runbun-run-up-beat');
+	await page.waitForFunction(() => /Youngster Calvin/.test(
+		document.querySelector('#runbun-run-upcoming .runbun-run-up.is-next').textContent),
+	null, {timeout: 10000});
 
 	// Roll Route 101's one encounter off its real table. What comes up is
 	// advice until a button writes it — so the box must still be empty here.
@@ -1508,10 +1979,12 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	const saved = await savedRun(page);
 	const status = await page.textContent('#runbun-run-status');
 	if (/Won against/.test(status)) {
-		assert.ok(saved.position >= 0, 'a won fight must be marked beaten');
+		assert.ok(saved.position >= 3, 'a won fight must be marked beaten');
 	} else {
 		assert.match(status, /Wiped against/);
-		assert.equal(saved.position, -1, 'a wipe must not advance the run');
+		// The cleared Route 103 rival stands at order 1; a wipe against
+		// Calvin must leave the run there, not move it past him.
+		assert.equal(saved.position, 1, 'a wipe must not advance the run');
 		const fallen = saved.box.find(mon => mon.status === 'dead');
 		assert.ok(fallen, 'a wipe buries the fighter');
 		assert.equal(fallen.died.to, 'Youngster Calvin',
@@ -1525,7 +1998,7 @@ test('the recreation: roll the route, catch or lose it, and play the fight to a 
 	assert.equal(completed.payload.kind, 'trainer');
 	assert.equal(completed.payload.trainer, 'Youngster Calvin');
 	assert.equal(completed.payload.trainerOrder, 3);
-	assert.equal(completed.payload.progressionOrder, 0);
+	assert.equal(completed.payload.progressionOrder, 3);
 	assert.equal(completed.payload.outcome, /Won against/.test(status) ? 'won' : 'lost');
 	assert.equal(completed.payload.contributionVersion, 1);
 	assert.equal(completed.payload.contributionComplete, true);
@@ -1558,7 +2031,7 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	// The route rule ON, so the settled roll's "one per route" refusal at the
 	// end is the rule speaking — without it a used route re-rolls legally.
 	await page.check('#runbun-run-new-route');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1621,6 +2094,18 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	} else {
 		assert.equal(saved.box.length, 1, 'a killed encounter keeps nothing');
 	}
+	// The receipt speaks the wild vocabulary: the box said Gotcha, so the
+	// event must say caught — a catch recorded as 'lost' poisons every
+	// downstream reader of wild battle.ended events.
+	const completed = await page.evaluate(async () => {
+		const store = window.RunBunAttemptStore.getDefault();
+		const head = await store.loadActive();
+		const inspected = await store.inspectAttempt(head.attemptId);
+		return inspected.events.filter(event => event.kind === 'battle.ended').at(-1);
+	});
+	assert.equal(completed.payload.kind, 'wild');
+	assert.equal(completed.payload.outcome, /Gotcha/.test(status) ? 'caught' : 'won',
+		'a caught wild is caught, not lost; a killed one is won');
 	assert.equal(await page.textContent('#runbun-run-battle-abandon'), 'Return to run',
 		'a settled wild fight keeps its result visible until the player continues');
 	await page.click('#runbun-run-battle-abandon');
@@ -1637,7 +2122,7 @@ test('a rolled encounter survives a reload: the die was cast, not the page', {sk
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1679,7 +2164,7 @@ test('a hand-recorded faint offers its takeback, and the window is honest', {ski
 	const page = session.page;
 
 	await page.check('#runbun-run-new-permadeath');
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1733,18 +2218,18 @@ test('the starter is picked on the setup screen, and the rival follows from it',
 	const page = session.page;
 
 	// Three buttons, one pressed at a time; pressing the pressed one clears.
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
-	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Treecko"]', 'aria-pressed'), 'true');
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
-	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Treecko"]', 'aria-pressed'), 'false');
-	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Mudkip"]', 'aria-pressed'), 'true');
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
-	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Mudkip"]', 'aria-pressed'), 'false');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Turtwig"]', 'aria-pressed'), 'true');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Turtwig"]', 'aria-pressed'), 'false');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Piplup"]', 'aria-pressed'), 'true');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	assert.equal(await page.getAttribute('.runbun-run-starter[data-species="Piplup"]', 'aria-pressed'), 'false');
 
-	// Start with Treecko: the gift is in the box before anything else happens,
-	// and the rival is fixed to the line that answers it — the one Treecko
+	// Start with Turtwig: the gift is in the box before anything else happens,
+	// and the rival is fixed to the line that answers it — the one Turtwig
 	// beats, whose ace is Swampert.
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1752,10 +2237,13 @@ test('the starter is picked on the setup screen, and the rival follows from it',
 		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 1,
 		null, {timeout: 10000});
 	const saved = await savedRun(page);
-	assert.equal(saved.box[0].species, 'Treecko');
+	assert.equal(saved.box[0].species, 'Turtwig');
 	assert.equal(saved.box[0].level, 5);
-	assert.equal(saved.rules.rival, 'Swampert');
-	assert.match(await page.textContent('#runbun-run-status'), /Treecko L5 is in the box/);
+	// The rival counters the pick: Turtwig fixes them to Blaziken (operator
+	// ruling, 2026-08-28 — the first model had vanilla Emerald's friendly
+	// direction and gave every run the wrong three spine variants).
+	assert.equal(saved.rules.rival, 'Blaziken');
+	assert.match(await page.textContent('#runbun-run-status'), /Turtwig L5 is in the box/);
 
 	await session.context.close();
 });
@@ -1764,7 +2252,7 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await openAllSections(page);
@@ -1786,14 +2274,186 @@ test('items are guided onto their routes: listed where they stand, one tap to co
 	assert.equal((await savedRun(page)).bag.Potion, 1);
 
 	// An item the story has not opened yet is shown waiting, not hidden and
-	// not collectable: Route 104's Miracle Seed opens at fight #11.
+	// not collectable: Route 104's Miracle Seed opens at ORDER 14 (11 before
+	// the Route 103 rival trio rejoined the map ahead of it).
 	await selectManualMap(page, 'Route104');
 	await page.waitForFunction(
 		() => /Miracle Seed/.test(document.querySelector('#runbun-run-items').textContent),
 		null, {timeout: 10000});
-	assert.match(await page.textContent('#runbun-run-items'), /opens at #11/);
+	assert.match(await page.textContent('#runbun-run-items'), /opens at #14/);
 	assert.equal(await page.$('#runbun-run-items .runbun-run-pickup-take'), null,
 		'a gated item must not offer its button');
+
+	// The bag now holds exactly one Potion, and a Potion is not a held item.
+	// The picker used to offer it, `give` used to take it, and the refusal
+	// arrived two actions later from the calculator — naming a battle slot,
+	// not a box entry — with the run unable to plan or fight until somebody
+	// worked out who was holding what.
+	await page.click('#runbun-run-box .runbun-run-mon .runbun-run-mon-select');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-hold-item option').length > 0,
+		null, {timeout: 10000});
+	const offered = await page.$$eval('#runbun-run-hold-item option',
+		els => els.map(el => el.value).filter(Boolean));
+	assert.deepEqual(offered, [],
+		'a bag of nothing but Potions offers nothing to hold');
+	assert.match(await page.textContent('#runbun-run-hold-item'),
+		/Nothing in the bag can be held/,
+		'and says which kind of empty it is — not "the bag is empty", which is false');
+
+	// A real held item appears the moment it is in the bag, so the filter is
+	// the item's nature and not an empty picker.
+	await page.fill('#runbun-run-acquire-item', 'Oran Berry');
+	await page.click('#runbun-run-acquire');
+	await page.waitForFunction(
+		() => Array.from(document.querySelectorAll('#runbun-run-hold-item option'))
+			.some(el => el.value === 'Oran Berry'),
+		null, {timeout: 10000});
+	const withBerry = await page.$$eval('#runbun-run-hold-item option',
+		els => els.map(el => el.value).filter(Boolean));
+	assert.deepEqual(withBerry, ['Oran Berry'],
+		'the berry is offered and the Potion still is not');
+
+	await session.context.close();
+});
+
+test('the roll shows the identity it already rolled, before keep or flee', {skip}, async () => {
+	// The roll authors an identity — six IVs, a nature, an ability — and hands
+	// it straight to the catch command. None of it was on screen, so the one
+	// decision a nuzlocke route allows was made blind to the part of it that
+	// was already decided. IV total is the number that matters most: a wild
+	// roll averages 93 against the flat 186 every trainer is built with.
+	const session = await open();
+	const page = session.page;
+	await page.check('#runbun-run-new-route');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	await page.waitForFunction(
+		() => (document.querySelector('#runbun-run-roll-identity') || {}).textContent,
+		null, {timeout: 10000});
+	const shown = await page.textContent('#runbun-run-roll-identity');
+
+	// It has to be the SAME identity the catch then stores — a quote that
+	// drifts from what lands in the box is worse than no quote.
+	await page.click('#runbun-run-roll-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
+		null, {timeout: 10000});
+	const caught = (await savedRun(page)).box[1];
+	const total = ['hp', 'atk', 'def', 'spa', 'spd', 'spe']
+		.reduce((sum, stat) => sum + caught.ivs[stat], 0);
+	assert.match(shown, new RegExp('IV ' + total + '/186'),
+		'the quoted IV total must be the one the catch stores');
+	assert.ok(shown.includes(caught.nature), `nature ${caught.nature} missing from "${shown}"`);
+	assert.ok(shown.includes(caught.ability), `ability ${caught.ability} missing from "${shown}"`);
+
+	// A settled roll takes its card away, so the quote cannot outlive the
+	// decision it was for.
+	assert.equal(await page.isVisible('#runbun-run-roll-result'), false);
+	await session.context.close();
+});
+
+test('the box says what each Pokemon rolled, against what a trainer gets', {skip}, async () => {
+	// Every trainer Pokemon is built with 31s — 186 total. Every wild catch
+	// keeps what it rolled: a mean of 93, and a spread across a box from about
+	// 56 to 130. So the gap between the best and worst catch you own is about
+	// the size of the gap to the opponent, and the only place that showed was
+	// the summary screen, one Pokemon at a time, as six separate numbers.
+	const session = await open();
+	const page = session.page;
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+
+	// A catch with every IV recorded prints its total against 186.
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-roll');
+	await page.waitForSelector('#runbun-run-roll-result:not([hidden])', {timeout: 10000});
+	await page.click('#runbun-run-roll-catch');
+	// Two rows, not one: the reserve list holds the starter as well until a
+	// party is committed.
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
+		null, {timeout: 10000});
+
+	const caught = (await savedRun(page)).box[1];
+	const expected = ['hp', 'atk', 'def', 'spa', 'spd', 'spe']
+		.reduce((sum, stat) => sum + caught.ivs[stat], 0);
+	// Address the CATCH by id: the reserve list also holds the starter, and
+	// the first row is not the one whose roll we just read.
+	const kit = await page.textContent(
+		'#runbun-run-box .runbun-run-mon[data-id="' + caught.id + '"] .runbun-run-mon-kit');
+	assert.match(kit, new RegExp('IV ' + expected + '/186'),
+		'the reserve row carries the rolled total and what it is measured against');
+
+	// The party strip says it too, because that is where the six are chosen.
+	await page.click('#runbun-run-box .runbun-run-mon[data-id="' + caught.id +
+		'"] .runbun-run-add');
+	assert.match(await page.textContent('#runbun-run-party-strip .runbun-run-party-meta'),
+		new RegExp('IV ' + expected + '/186'));
+
+	// A PARTIAL record must not read as a low roll. There is no way to make
+	// one through the panel — every catch fetches a rolled identity first —
+	// so the case that matters is the one the IV note already names: a legacy
+	// or imported save. Import is the honest way to reach it.
+	const partialRun = await page.evaluate(expectedTotal => {
+		const run = JSON.parse(localStorage.getItem('runbun.run.v1'));
+		const mon = run.box[run.box.length - 1];
+		delete mon.ivs.spa;
+		delete mon.ivs.spd;
+		delete mon.ivs.spe;
+		// The LOG is what an import replays, so editing only the box is
+		// undone the moment the run is adopted — the catch command carries
+		// the rolled identity and rebuilds all six.
+		for (const entry of run.log) {
+			if (entry.command && entry.command.kind === 'catch' && entry.command.ivs) {
+				delete entry.command.ivs.spa;
+				delete entry.command.ivs.spd;
+				delete entry.command.ivs.spe;
+			}
+		}
+		return {json: JSON.stringify(run), id: mon.id, expectedTotal: expectedTotal};
+	}, expected);
+	// The transfer box lives in a details that openAllSections leaves shut on
+	// purpose; every other import test opens it by its summary.
+	await page.click('.runbun-run-transfer summary');
+	await page.fill('#runbun-run-transfer', partialRun.json);
+	await page.click('#runbun-run-import');
+	// Wait for the IMPORT, not for the row to mention an IV. The pre-import row
+	// already reads "IV 84/186", so a /IV / condition is true before the click
+	// is even handled: this waited on a state it was already in, read the old
+	// row, and reported the product had summed the missing stats as zero. It
+	// had not. The server echoes {hp,atk,def} and paint renders that faithfully.
+	//
+	// The status line is the one signal that means the adoption finished, and
+	// it is independent of the thing being asserted — so a genuine regression
+	// still fails on the assertion below rather than passing on a lucky race.
+	await page.waitForFunction(
+		() => /Imported run\./.test(
+			(document.querySelector('#runbun-run-status') || {}).textContent || ''),
+		null, {timeout: 10000});
+	const partial = await page.textContent(
+		'#runbun-run-box .runbun-run-mon[data-id="' + partialRun.id + '"] .runbun-run-mon-kit');
+	assert.match(partial, /IV \d+\+ · 3 not recorded/,
+		'three unrecorded stats must say so rather than summing as zero');
+	assert.doesNotMatch(partial, /\/186/, 'and must not claim a total it cannot know');
+
+	// The median is built from FULLY known rolls only, so a partial record
+	// cannot drag it down: the starter is the only complete one left.
+	assert.match(await page.textContent('#runbun-run-box-counts'), /IV median \d+\/186/);
 
 	await session.context.close();
 });
@@ -1802,7 +2462,7 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 	const session = await open();
 	const page = session.page;
 
-	await page.click('.runbun-run-starter[data-species="Treecko"]');
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	// Everything folds by default except what starting a run opens for you:
@@ -1822,7 +2482,7 @@ test('the panel folds: collapsed headers stay live, opening is for acting', {ski
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="split"]'),
 		/Brawly · \d+ fights/);
 	assert.match(await page.textContent('.rb-disclose-summary[data-summary="road"]'),
-		/#0 Youngster Calvin/);
+		/#1 Trainer Rival Route 103 Blaziken/);
 
 	// The roster opened with the run, and the ledger is there to act on.
 	await page.waitForSelector('#runbun-run-box', {state: 'visible', timeout: 5000});
@@ -1875,15 +2535,21 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	assert.equal(await page.isDisabled('#runbun-run-new'), true);
 	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), null);
 
-	await page.click('.runbun-run-starter[data-species="Mudkip"]');
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
 	assert.equal(await page.isDisabled('#runbun-run-new'), false);
 	await page.click('#runbun-run-new');
 	await page.waitForSelector('#runbun-run-live:not([hidden])');
 	await page.waitForFunction(
-		() => /Mudkip L5/.test(document.querySelector('#runbun-run-status').textContent),
+		() => /Piplup L5/.test(document.querySelector('#runbun-run-status').textContent),
 		null, {timeout: 10000});
 	assert.match((await savedRun(page)).attemptId, /^[0-9a-f-]{20,}$|^attempt-/,
 		'a browser attempt should have a stable archive identity');
+	// A fresh run has no party yet: every disabled planning tool names the
+	// unlock instead of sitting mute.
+	assert.equal(await page.getAttribute('#runbun-run-plan', 'title'),
+		'Choose a party first', 'disabled Check matchup must say why');
+	assert.equal(await page.getAttribute('#runbun-run-value', 'title'),
+		'Choose a party first', 'disabled Test roster value must say why');
 
 	// Ending a run rides the kit's hold-to-confirm: a short press releases
 	// early and nothing happens — the fill sprang back, the run stands.
@@ -1921,7 +2587,7 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	await page.keyboard.up('Space');
 	await page.waitForSelector('#runbun-run-empty:not([hidden])', {timeout: 15000});
 	assert.equal(await page.evaluate(() => window.localStorage.getItem('runbun.run.v1')), null);
-	assert.match(await page.inputValue('#runbun-run-transfer'), /"Mudkip"/,
+	assert.match(await page.inputValue('#runbun-run-transfer'), /"Piplup"/,
 		'the final save stays in the player\'s hands');
 	const archivedBundle = JSON.parse(await page.inputValue('#runbun-run-transfer'));
 	assert.equal(archivedBundle.modelVersion, '2.0.0');
@@ -1941,6 +2607,14 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	}]);
 	await page.waitForSelector('#runbun-history-attempts .runbun-history-attempt',
 		{state: 'visible', timeout: 10000});
+	// Opening the history section by its own header must render the real
+	// ledger too — not only the Run history button. Close, reopen, re-render.
+	const historyHeader = '.rb-disclose[data-section="history"] .rb-disclose-btn';
+	await page.click(historyHeader);
+	await page.click(historyHeader);
+	await page.waitForFunction(() =>
+		document.querySelector('#runbun-history-tracked').textContent === '1',
+	null, {timeout: 10000});
 	assert.match(await page.textContent('#runbun-history-attempts'), /Wiped/);
 	assert.equal(await page.textContent('#runbun-history-tracked'), '1');
 	assert.match(await page.textContent('#runbun-run-status'), /Run saved as Wiped/);
@@ -1957,11 +2631,151 @@ test('no starter, no run — and ending one is a held, deliberate act', {skip}, 
 	assert.match(await page.textContent('#runbun-run-status'), /already ended/);
 	assert.doesNotMatch(await page.textContent('#runbun-run-status'),
 		/Durable storage became unavailable|could not open/);
-	assert.match(await page.inputValue('#runbun-run-transfer'), /"Mudkip"/,
+	assert.match(await page.inputValue('#runbun-run-transfer'), /"Piplup"/,
 		'the parked quick save stays in the player\'s hands');
 	assert.equal(await page.evaluate(() =>
 		window.RunBunAttemptStore.getDefault().loadActive()), null,
 	'the archived attempt must not become active again');
 
 	await session.context.close();
+});
+
+test('nothing in the run panel overflows, clips its own label, or paints as an empty rule', {skip}, async () => {
+	// Three layout defects that only a real browser can see, all found by
+	// measuring rather than looking.
+	//
+	// Upstream's base .btn is a FIXED width: 5em. The calculator opts into
+	// .btn-wide per button; the run panel's labels are variable-length prose,
+	// so "Undo last change" was handed 67px for 114px of text — first wrapping
+	// onto two lines, then overflowing 42px past the column once nowrap was
+	// added to stop the wrap.
+	//
+	// And .runbun-run-plan-actions / .runbun-run-advice carry a 1px border, so
+	// while empty they painted a 2px-tall bordered box: a stray rule under the
+	// party strip that read as a broken divider.
+	const opened = await open();
+	const page = opened.page;
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
+	await page.waitForSelector('#runbun-run-undo');
+	await openAllSections(page);
+
+	for (const size of [{width: 1280, height: 900}, {width: 375, height: 812}]) {
+		await page.setViewportSize(size);
+		const report = await page.evaluate(() => {
+			const live = document.querySelector('#runbun-run');
+			const box = live.getBoundingClientRect();
+			const overflowing = [...live.querySelectorAll('*')]
+				.filter(el => {
+					const r = el.getBoundingClientRect();
+					return r.width > 0 && r.right > box.right + 1;
+				})
+				.map(el => `${el.tagName}.${String(el.className).slice(0, 40)}`);
+			// A label is CLIPPED only when the box actually cuts it off: the
+			// content is wider AND overflow hides it. On a flex header with
+			// overflow:visible, scrollWidth can exceed clientWidth by a pixel
+			// or two (a scrollbar narrowing the client box is enough) while
+			// nothing is truncated — the first version of this check flagged
+			// all seven section headers for exactly that, and they measure
+			// delta 0 in a real window. Overflow that is merely visible is
+			// caught by the overflowing check above instead.
+			const clipped = [...live.querySelectorAll('button')]
+				.filter(el => {
+					const hides = getComputedStyle(el).overflowX !== 'visible';
+					return hides && el.scrollWidth > el.clientWidth + 2;
+				})
+				.map(el => `${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 32)} ` +
+					`(${el.scrollWidth} into ${el.clientWidth})`);
+			// An element with no children and no text that still paints a
+			// visible horizontal band is a border with nothing to border.
+			const phantomRules = [...live.querySelectorAll('*')]
+				.filter(el => {
+					const r = el.getBoundingClientRect();
+					return r.height > 0 && r.height <= 3 && r.width > 40 &&
+						!el.children.length && !el.textContent.trim();
+				})
+				.map(el => String(el.className).slice(0, 40));
+			return {
+				overflowing, clipped, phantomRules,
+				documentOverflow: document.documentElement.scrollWidth -
+					document.documentElement.clientWidth,
+			};
+		});
+		const where = `${size.width}x${size.height}`;
+		assert.deepEqual(report.overflowing, [],
+			`nothing may extend past the run panel at ${where}`);
+		assert.deepEqual(report.clipped, [],
+			`every button must be wide enough for its own label at ${where}`);
+		assert.deepEqual(report.phantomRules, [],
+			`an empty container must not paint its border at ${where}`);
+		assert.equal(report.documentOverflow, 0,
+			`the page must not scroll sideways at ${where}`);
+	}
+	await opened.context.close();
+});
+
+test('the worst-case cell is a control, and pressing it actually answers', {skip}, async () => {
+	// Found by playing a run. The readiness strip showed "Worst case: Check
+	// matchup" as PLAIN TEXT, beside a button of exactly that name — and that
+	// button runs plan(), which answers a different question (how contested
+	// the opponent's choice is) and never touches this cell. Only board()
+	// computes the worst case, and board() had no control anywhere in the
+	// strip. So the instruction named a button that could not satisfy it, and
+	// following it did nothing at all.
+	const opened = await open();
+	const page = opened.page;
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.evaluate(() => document.querySelector('#runbun-run-new').click());
+	await page.waitForSelector('#runbun-run-undo');
+
+	// A party is needed before a matchup means anything.
+	await page.evaluate(() => {
+		const add = [...document.querySelectorAll('button')]
+			.find(b => /Add .* to staged party/i.test(b.getAttribute('aria-label') || ''));
+		if (add) add.click();
+	});
+	await page.evaluate(() => {
+		const use = [...document.querySelectorAll('button')]
+			.find(b => /^Use this party$/i.test(b.textContent.trim()));
+		if (use) use.click();
+	});
+	await page.waitForFunction(
+		() => /lead/i.test(document.querySelector('#runbun-run-ready-party').textContent),
+		null, {timeout: 15000});
+
+	// Assert on the control only AFTER the strip has re-rendered. Checking it
+	// straight after page load proved nothing: index.template.html ships the
+	// button in the initial markup, so the assertion passed even with
+	// renderWorstCase reverted to writing plain text. The party change forces
+	// a real render through the JS path being tested.
+	const control = await page.$('#runbun-run-ready-risk-check');
+	assert.ok(control,
+		'the unanswered worst-case cell must be a button, not prose');
+	// Where that button comes from matters. renderWorstCase has exactly one
+	// call site — the board render — so its !verdict branch is only a RESTORE
+	// path; the control a player actually meets is shipped by
+	// index.template.html. Reverting the JS alone therefore changes nothing
+	// visible, which is why this asserts the template too.
+	const template = fs.readFileSync(
+		path.join(__dirname, '..', 'src/index.template.html'), 'utf8');
+	assert.match(template,
+		/<dd id="runbun-run-ready-risk">\s*<button[^>]*id="runbun-run-ready-risk-check"/,
+		'the readiness strip must ship the worst-case control, not a bare label');
+	assert.equal(
+		await page.$eval('#runbun-run-ready-risk-check', el => el.tagName),
+		'BUTTON', 'and a real button, so it is reachable by keyboard');
+
+	// Pressing it must produce an answer, not leave the same instruction.
+	await page.click('#runbun-run-ready-risk-check');
+	await page.waitForFunction(
+		() => !document.querySelector('#runbun-run-ready-risk-check'),
+		null, {timeout: 30000});
+	const answered = await page.$eval('#runbun-run-ready-risk',
+		el => ({text: el.textContent.trim(), risk: el.getAttribute('data-risk')}));
+	assert.notEqual(answered.text, 'Check matchup',
+		'the cell must stop asking once it has been asked');
+	assert.ok(['safe', 'thin', 'lethal'].includes(answered.risk),
+		`the cell must carry a verdict, got ${JSON.stringify(answered)}`);
+
+	await opened.context.close();
 });

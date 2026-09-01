@@ -1,0 +1,10 @@
+{
+	"schemaVersion": "runbun.ability.reconciliation/1.0.0",
+	"engineRevision": "bf28a069148903cc02315cc434f91e24816045e2",
+	"provenance": "derived",
+	"note": "Empty, which is the fixed state. The vendored engine was rebuilt from a pokemon-mono revision carrying the fork's own ABILITY_SLOT_CHANGES, so both tables agree on every comparable species. A non-empty report means the pin regressed to a vanilla table.",
+	"comparable": 1244,
+	"agreed": 1244,
+	"contradicted": 0,
+	"entries": []
+}

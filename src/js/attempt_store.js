@@ -210,6 +210,10 @@
 			stateHash: input.stateHash,
 			previousEventHash: head && head.lastEventHash ? head.lastEventHash : null,
 		};
+		if (head && head.lastObservedAt && event.observedAt &&
+			event.observedAt < head.lastObservedAt) {
+			event.observedAtSuspect = true;
+		}
 		if (input.event.compatibility) event.compatibility = clone(input.event.compatibility);
 		var contract = runtimeContract();
 		if (contract) {
@@ -263,6 +267,7 @@
 				run: clone(input.run),
 				stateHash: input.stateHash,
 				lastEventHash: event.eventHash,
+				lastObservedAt: event.observedAt || (state.heads[input.attemptId] || {}).lastObservedAt || null,
 			};
 			state.activeAttemptId = input.attemptId;
 			state.idempotency[key] = {
@@ -299,11 +304,36 @@
 		return 'archive-' + Date.now() + '-' + Math.random().toString(16).slice(2);
 	}
 
+	/**
+	 * The shelf never silently replaces a saved run. Identical content is an
+	 * idempotent re-put (the legacy-DB import path); divergent content under
+	 * the same slot is refused unless the newcomer names what it replaces —
+	 * `supersedes: <the prior archive's evidence checksum>` is the valve for
+	 * a deliberate re-archive (re-import, continue, end again).
+	 */
+	function guardShelfReplace(existing, incoming) {
+		if (!existing) return;
+		var prior = clone(existing);
+		var next = clone(incoming);
+		delete prior.supersedes;
+		delete next.supersedes;
+		if (canonical(prior) === canonical(next)) return;
+		var priorMark = existing.evidence && existing.evidence.checksum;
+		if (incoming.supersedes && priorMark && incoming.supersedes === priorMark) return;
+		throw error('Archive ' + incoming.archiveId + ' already holds a different run. ' +
+			'A deliberate re-archive must name what it replaces (supersedes).', 'ARCHIVE_CONFLICT');
+	}
+
 	function normalizeArchive(entry) {
 		if (!isObject(entry)) throw error('An archive entry is required.', 'INVALID_ARCHIVE');
 		var result = clone(entry);
 		result.archiveId = archiveId(result);
-		if (!result.archivedAt) result.archivedAt = result.endedAt || now();
+		// Deterministic: normalizing the same record twice must produce the
+		// same bytes, or the shelf's own divergence guard fires on a record
+		// that never changed. A legacy row with no endedAt used to pick up
+		// now() here, so re-importing the migration source on every history
+		// render made it look like a different run each time.
+		if (!result.archivedAt) result.archivedAt = result.endedAt || result.startedAt || null;
 		return result;
 	}
 
@@ -1246,6 +1276,7 @@
 			archive: function (entry) {
 				var value = normalizeArchive(entry);
 				return enqueue(function () {
+					guardShelfReplace(state.archives[value.archiveId], value);
 					state.archives[value.archiveId] = clone(value);
 					if (state.activeAttemptId === value.attemptId) state.activeAttemptId = null;
 					return clone(value);
@@ -1258,6 +1289,9 @@
 				if (!Array.isArray(records)) return Promise.reject(error('Archive records must be an array.', 'INVALID_ARCHIVE'));
 				var values = records.map(normalizeArchive);
 				return enqueue(function () {
+					values.forEach(function (value) {
+						guardShelfReplace(state.archives[value.archiveId], value);
+					});
 					values.forEach(function (value) { state.archives[value.archiveId] = clone(value); });
 					return values.map(clone);
 				});
@@ -1523,7 +1557,8 @@
 										if (currentRevision !== prepared.expectedRevision) throw error('Revision conflict.', 'REVISION_CONFLICT', {expectedRevision: prepared.expectedRevision, actualRevision: currentRevision});
 										tx.objectStore('events').put(event);
 										if (shouldSnapshot(event.kind, event.revision)) tx.objectStore('snapshots').put({id: event.id, attemptId: prepared.attemptId, revision: event.revision, run: clone(prepared.snapshotRun), stateHash: prepared.snapshotHash, logRevision: isSnapshotKind(event.kind) ? event.revision : 0});
-										heads.put({attemptId: prepared.attemptId, revision: event.revision, run: clone(prepared.run), stateHash: prepared.stateHash, lastEventHash: event.eventHash});
+										heads.put({attemptId: prepared.attemptId, revision: event.revision, run: clone(prepared.run), stateHash: prepared.stateHash, lastEventHash: event.eventHash,
+											lastObservedAt: event.observedAt || (head && head.lastObservedAt) || null});
 										idempotency.put({id: prepared.attemptId + '::' + prepared.commandId,
 											attemptId: prepared.attemptId, commandId: prepared.commandId,
 											fingerprint: fp, revision: event.revision, stateHash: prepared.stateHash,
@@ -1608,8 +1643,11 @@
 				var value = normalizeArchive(entry);
 				return enqueue(function () {
 					return transaction(['archives', 'meta'], 'readwrite', function (tx) {
-						tx.objectStore('archives').put(value);
-						return requestValue(tx.objectStore('meta').get('activeAttemptId')).then(function (active) {
+						return requestValue(tx.objectStore('archives').get(value.archiveId)).then(function (existing) {
+							guardShelfReplace(existing, value);
+							tx.objectStore('archives').put(value);
+							return requestValue(tx.objectStore('meta').get('activeAttemptId'));
+						}).then(function (active) {
 							if (active && active.value === value.attemptId) {
 								tx.objectStore('meta').delete('activeAttemptId');
 							}
@@ -1622,7 +1660,20 @@
 			importArchives: function (records) {
 				if (!Array.isArray(records)) return Promise.reject(error('Archive records must be an array.', 'INVALID_ARCHIVE'));
 				var values = records.map(normalizeArchive);
-				return enqueue(function () { return transaction(['archives'], 'readwrite', function (tx) { values.forEach(function (value) { tx.objectStore('archives').put(value); }); return values; }); });
+				return enqueue(function () {
+					return transaction(['archives'], 'readwrite', function (tx) {
+						var shelf = tx.objectStore('archives');
+						var checks = values.map(function (value) {
+							return requestValue(shelf.get(value.archiveId)).then(function (existing) {
+								guardShelfReplace(existing, value);
+							});
+						});
+						return Promise.all(checks).then(function () {
+							values.forEach(function (value) { shelf.put(value); });
+							return values;
+						});
+					});
+				});
 			},
 			inspectAttempt: inspectAttempt,
 			listEvents: listEvents,
