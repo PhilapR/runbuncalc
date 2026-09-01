@@ -89,25 +89,40 @@ assert.equal(providerPackage.version,
 	`0.1.0-pokemon-mono.${providerProvenance.revision.slice(0, 7)}`,
 	'the vendored version string must name the revision PROVENANCE.json pins');
 
-// A test file that no script names is not a gate. Three were written, made to
+// A test file that no script runs is not a gate. Three were written, made to
 // fail, and reported as passing — and none of them ran in `npm test`, because
-// the suite lists its files one by one and nothing noticed the new ones were
+// the suite listed its files one by one and nothing noticed the new ones were
 // missing. `node --test tests/whatever.test.js` passing by hand is not the
 // same claim as the suite passing, and the difference is invisible in a green
-// run. So the suite now asserts that it knows about every test in the tree.
-// Only the `node --test` invocations count. Listing a file for eslint is not
-// running it, and the first version of this rule accepted that and passed
-// while the test it was meant to protect had been dropped from the suite.
-const runsTests = new Set();
+// run. So the suite asserts that it knows about every test in the tree.
+//
+// The suite now globs the directory rather than naming files, which removes
+// the way that bug happened. This rule survives it because a glob is a claim
+// about one directory, not about the tree: a test dropped in some other
+// directory is orphaned exactly as before. Only the `node --test` invocations
+// count. Listing a file for eslint is not running it, and the first version of
+// this rule accepted that and passed while the test it was meant to protect
+// had been dropped from the suite.
+const globbedDirs = new Set();
+const namedTests = new Set();
 for (const script of Object.values(pkg.scripts)) {
 	for (const step of script.split('&&')) {
 		if (!/\bnode\s+--test\b/.test(step)) continue;
-		for (const token of step.match(/tests\/[\w.-]+\.test\.js/g) || []) runsTests.add(token);
+		for (const glob of step.match(/[\w.-]+\/\*\*\/\*\.test\.js/g) || []) {
+			globbedDirs.add(glob.split('/')[0]);
+		}
+		for (const token of step.match(/[\w.-]+\/[\w.-]+\.test\.js/g) || []) namedTests.add(token);
 	}
 }
-const orphanedTests = fs.readdirSync(path.join(root, 'tests'))
-	.filter(name => name.endsWith('.test.js'))
-	.filter(name => !runsTests.has(`tests/${name}`));
+const orphanedTests = [];
+for (const dir of ['tests', 'fixtures']) {
+	if (globbedDirs.has(dir)) continue;
+	for (const name of fs.readdirSync(path.join(root, dir))) {
+		if (name.endsWith('.test.js') && !namedTests.has(`${dir}/${name}`)) {
+			orphanedTests.push(`${dir}/${name}`);
+		}
+	}
+}
 assert.deepEqual(orphanedTests, [],
 	'these tests are in the tree but no npm script runs them, so they gate nothing');
 
