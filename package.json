@@ -59,9 +59,8 @@
     "import-oracle": "node scripts/import-oracle.js",
     "inventory": "node scripts/inventory.js",
     "build": "npm run build --prefix calc && npm run build --prefix ai && node build view && node scripts/build-pokemon-provider.js",
-    "test": "npm run test --prefix calc && npm run test --prefix ai && node build view && npm run check:sdlc && node --test tests/ui_style.test.js && npm run test:server && npm run test:worker-runtime && eslint src profiles lib tests scripts fixtures --ext js",
-    "pretest:server": "node --test tests/rl-dataset.test.js tests/battle_contribution.test.js",
-    "test:server": "node --test tests/ask.test.js tests/ledger.test.js tests/manifest_provenance.test.js tests/recheck_findings.test.js tests/availability-estimate.test.js tests/mega_forms.test.js tests/item_facts.test.js tests/trainer_orders.test.js tests/inventory.test.js tests/provider-data.test.js tests/server.smoke.test.js tests/browser_planner.test.js tests/browser_entrypoint.test.js tests/browser_run.test.js tests/battle-driver.test.js tests/planner.test.js tests/pokemon-bridge.test.js tests/pokemon-provider-client.test.js tests/simulate.test.js tests/team.test.js lib/run.js tests/run.test.js tests/attempt_store.test.js tests/run_history.test.js tests/planning_review.test.js tests/play.test.js tests/game-runtime-adapter.test.js tests/worker.test.js tests/runbun_policy.test.js tests/runbun_mechanics.test.js tests/adjudication_cost.test.js tests/playthrough_policy.test.js tests/tm_sourcing.test.js tests/order_scales.test.js tests/scale_consistency.test.js tests/fight_dossiers.test.js tests/battle_view.test.js tests/sets_to_battle_state.test.js tests/runbun_sets.test.js tests/runbun_species.test.js tests/runbun_oracle.test.js tests/rom-band.test.js tests/browser_calc_load.test.js fixtures/ui.test.js tests/ability_reconciliation.test.js tests/item_locations.test.js tests/run_api.test.js",
+    "test": "npm run test --prefix calc && npm run test --prefix ai && node build view && npm run check:sdlc && npm run test:server && eslint src profiles lib tests scripts fixtures --ext js",
+    "test:server": "node scripts/build-worker.js && node --test \"tests/**/*.test.js\" \"fixtures/**/*.test.js\"",
     "postinstall": "subpkg install"
   },
   "subPackages": [
