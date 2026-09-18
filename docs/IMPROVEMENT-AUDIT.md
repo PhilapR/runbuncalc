@@ -178,7 +178,7 @@ names, not implemented ones.
 
 | Proposal | Mechanism | Measure |
 |---|---|---|
-| KO respects turn order — MEASURED, net-neutral, stays off (bf07dfd, receipts be2f113) | yield the KO to a healthy resisting switch when Speed says they move first, their plain hit kills, and our move has no priority | koorder1 / koorder1-pp vs battery4 / battery4-pp, seed-paired: 20 vs 21 and 22 vs 21 discordant seeds, p = 1.0. Helps where the failure was measured (Jose 6→12/20 real PP, 6-0 on discordant seeds), costs as much elsewhere (winnable Roxanne 8→3, 1-6): the bank-bodies entry-hit trade again. Open: what separates Jose from Roxanne in the rows |
+| KO respects turn order — MEASURED, net-neutral, stays off (bf07dfd, receipts be2f113) | yield the KO to a healthy resisting switch when Speed says they move first, their plain hit kills, and our move has no priority | koorder1 / koorder1-pp vs battery4 / battery4-pp, seed-paired: 20 vs 21 and 22 vs 21 discordant seeds, p = 1.0. Helps where the failure was measured (Jose 6→12/20 real PP, 6-0 on discordant seeds), costs as much elsewhere (winnable Roxanne 8→3, 1-6): the bank-bodies entry-hit trade again. Tapes answered it (8023610): at the first yield in each of the 43 flipped seeds, a healthy holder (≥50% HP) gained 8 and lost 1; a chipped one gained 14 and lost 20 — Vespiquen at 100% into a 290% Rock Slide is worth saving, Octillery at 30% into a 46% Knock Off the AI often does not even choose is not. In-sample: `koorder2` (holder ≥50%) needs its own arm, ideally on held-out fights |
 | Entry-survival gate on resist switch — folded into the KO arm as resist + ≥50% HP; the view prices no bench damage, so nothing finer is honest | the lost-race switch must survive the priced entry hit | measured with koorder1 |
 | Phaze the setup | price Whirlwind/Roar class; press on rising-threat signature | Jose ×20, then full battery `--phaze` |
 | Fight keys | compile LEADER-KEYS traps and answer pairings; reserve named answers for named targets | 3 leaders ×30 `--fight-keys` |
@@ -198,7 +198,7 @@ names, not implemented ones.
 
 | Proposal | Mechanism | Measure |
 |---|---|---|
-| Per-seed rows in receipts — LANDED except loss tapes (0a2913a) | seed, result, deaths w/ killer, foe remainder; loss tapes still open | `requireWholeReceipt` cross-checks rows against totals; each check failed once in `tests/battery_receipts.test.js` |
+| Per-seed rows in receipts — LANDED (0a2913a); tapes LANDED as replay (8023610) | seed, result, deaths w/ killer, foe remainder; tapes are regenerated from the receipt's argv by `scripts/battery-tape.js`, never stored, and refused unless the replay reproduces the row | `requireWholeReceipt` cross-checks rows against totals; each check failed once in `tests/battery_receipts.test.js` |
 | Treatment-fired counters — LANDED (0a2913a) | sum the policy memory counters per scenario; refuse (exit 1) on a passed gating flag whose counter stayed 0 | five gating flags audited; modifier flags excluded because their counters move without them |
 | Stuck autopsy | detect the repeating action cycle in the tape tail; flat-vs-drifting foe HP names the stall kind | fires on stuck seeds only |
 | Seed-paired A/B + McNemar | run both arms on common seeds; report discordant pairs, not pooled rates | `scripts/battery-pair.js`, joined receipt |
