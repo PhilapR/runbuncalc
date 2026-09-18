@@ -1,5 +1,5 @@
 {
-	"comment": "Heart Scale dose-response: k advisor-greedy IV purchases against the wall, then 30 seeds. Validates the scale-allocation math of 2026-08-29.",
+	"comment": "Heart Scale dose-response: k advisor-greedy IV purchases against the wall, then 30 seeds. Validates the scale-allocation math of 2026-08-29. Run with --repick-party=0: the party is part of the treatment here, and since 2026-09-18 the battery re-picks the six by default, which would replace it.",
 	"generator": "scripts/scale-dose.js",
 	"measured": [
 		{

@@ -1,5 +1,5 @@
 {
-	"comment": "New-strategy probes: intimidate cycling, the giant-killer Endeavor line, and the developed-choice ceiling. From scripts/strategy-probes.js.",
+	"comment": "New-strategy probes: intimidate cycling, the giant-killer Endeavor line, and the developed-choice ceiling. From scripts/strategy-probes.js. Run with --repick-party=0: the party is part of the treatment here, and since 2026-09-18 the battery re-picks the six by default, which would replace it.",
 	"generator": "scripts/strategy-probes.js",
 	"measured": [
 		{
@@ -32,55 +32,55 @@
 	"scenarios": [
 		{
 			"name": "Leader Brawly · intimidate-cycle",
-			"report": "ui-playthrough-out/strat-intimidate.json",
+			"report": "fixtures/banked-runs/strat-intimidate.run.json",
 			"trainer": "Leader Brawly",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Brawly · giant-killer",
-			"report": "ui-playthrough-out/strat-giantkiller-brawly.json",
+			"report": "fixtures/banked-runs/strat-giantkiller-brawly.run.json",
 			"trainer": "Leader Brawly",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Roxanne · giant-killer",
-			"report": "ui-playthrough-out/strat-giantkiller-roxanne.json",
+			"report": "fixtures/banked-runs/strat-giantkiller-roxanne.run.json",
 			"trainer": "Leader Roxanne",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Wattson · giant-killer",
-			"report": "ui-playthrough-out/strat-giantkiller-wattson.json",
+			"report": "fixtures/banked-runs/strat-giantkiller-wattson.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Brawly · developed-choice",
-			"report": "ui-playthrough-out/strat-developed-brawly.json",
+			"report": "fixtures/banked-runs/strat-developed-brawly.run.json",
 			"trainer": "Leader Brawly",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Roxanne · developed-choice",
-			"report": "ui-playthrough-out/strat-developed-roxanne.json",
+			"report": "fixtures/banked-runs/strat-developed-roxanne.run.json",
 			"trainer": "Leader Roxanne",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Wattson · developed-choice",
-			"report": "ui-playthrough-out/strat-developed-wattson.json",
+			"report": "fixtures/banked-runs/strat-developed-wattson.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Wattson · stone-box",
-			"report": "ui-playthrough-out/strat-stones-wattson.json",
+			"report": "fixtures/banked-runs/strat-stones-wattson.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Wattson · stone-box-developed",
-			"report": "ui-playthrough-out/strat-stones-dev-wattson.json",
+			"report": "fixtures/banked-runs/strat-stones-dev-wattson.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		}

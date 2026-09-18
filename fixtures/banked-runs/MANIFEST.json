@@ -345,6 +345,246 @@
 			"sha256": "c612e5ecc4e13b29581ce3e31be715eefcef11dd8bdefbdc6199a80056fcc77f"
 		},
 		{
+			"file": "choice-brawly-max.run.json",
+			"source": "ui-playthrough-out/choice-brawly-max.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "b57fde90f7229ed78d91690c24dcf15034821fb6214eec9aa235893a8d3fd404"
+		},
+		{
+			"file": "choice-brawly.run.json",
+			"source": "ui-playthrough-out/choice-brawly.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "8e933b2f56662440e5887f19c911caa7cd709f14ef3cbbf619de30bdfc7d34d7"
+		},
+		{
+			"file": "choice-roxanne-max.run.json",
+			"source": "ui-playthrough-out/choice-roxanne-max.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "e23add772a7f4293aca3f519b5afe5d67bbb29a2a1bd0dcc420ceb01c082f00c"
+		},
+		{
+			"file": "choice-roxanne.run.json",
+			"source": "ui-playthrough-out/choice-roxanne.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "c72d0ee267b299bcf6938ce0a9e44d2ceb69b6a7c6fcf5545f179061337ef197"
+		},
+		{
+			"file": "choice-wattson-max.run.json",
+			"source": "ui-playthrough-out/choice-wattson-max.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "d7bc4f9a4b7316bdb4c88d6d49ad0caa41197e343b97be8e50c1a942fde04362"
+		},
+		{
+			"file": "choice-wattson.run.json",
+			"source": "ui-playthrough-out/choice-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "d5d7d5a6503b61f4d5f372c7822c79b33618e9bbc7975e7ce601eddea1b17978"
+		},
+		{
+			"file": "counterfactual-brawly-baseline.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-baseline.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "5895d33f3c207348d3bb49247dcf28c32538ce0079d86021b3e74a47482a5165"
+		},
+		{
+			"file": "counterfactual-brawly-key-box-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-key-box-max-ivs.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "df51c7a75fde25148da6a337c601413749c3d92246e9a07ded08fcd1d3a9189f"
+		},
+		{
+			"file": "counterfactual-brawly-key-box.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-key-box.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "0af7feedd28cfa9a0e7ae59a6247aee405fd0d8058dd1a3c1f949b5e427f3964"
+		},
+		{
+			"file": "counterfactual-brawly-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-max-ivs.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "3405e4cf6f0485e47d57dc650f35d717f233183ca3defcb679563e545fb704e0"
+		},
+		{
+			"file": "counterfactual-brawly-screens.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-screens.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "94b6406f40aba6e99ff4646919ba8dfcc00b33bb5e947e6a592794ce05b43a53"
+		},
+		{
+			"file": "counterfactual-brawly-slow.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-slow.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "f5cd512bc9701354db234a037940a32973328af35246a3accd4ffdb6e7b451a0"
+		},
+		{
+			"file": "counterfactual-brawly-starter-3iv.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-starter-3iv.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "eddfc22c17ef9319cb5fef2e3bd2f53940a9b7fa66ef84271f7e249b6318b709"
+		},
+		{
+			"file": "counterfactual-brawly-the-lot.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-the-lot.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ac301a989e0deffc87e102a3c51128b226fb30706db640ba864bb0f3ce400c3a"
+		},
+		{
+			"file": "counterfactual-roxanne-baseline.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-baseline.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ec105b6ca6cf6f243082c148421e4ae481488e85eb6c3aaee1197edb2e88e559"
+		},
+		{
+			"file": "counterfactual-roxanne-key-box-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-key-box-max-ivs.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "2257131ec7ce90a27961f916fa08f975e646de08acc072e382c58488e18d0c1e"
+		},
+		{
+			"file": "counterfactual-roxanne-key-box.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-key-box.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "f37524c4b178ed3ac70d5286c1ff64f8620627a2946e9c7d9962dbbc974938d1"
+		},
+		{
+			"file": "counterfactual-roxanne-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-max-ivs.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "f7ddcd047b8289b9da4c08d8e7a62afe6e81a9c465383fc4e39cd8cc5580ec62"
+		},
+		{
+			"file": "counterfactual-roxanne-screens.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-screens.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ed0891bfdba93d13606fe8822be274ba07ecf0b52d444ae3f6c7378b625edcb3"
+		},
+		{
+			"file": "counterfactual-roxanne-slow.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-slow.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "da7e99dbcfcd50218a1f8fd2d7e3950883144274f6fd2787bdb151812861366c"
+		},
+		{
+			"file": "counterfactual-roxanne-starter-3iv.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-starter-3iv.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "8093fa415c4160280444154182a8b3eec028b3245649a54f19d9bf845a1e7090"
+		},
+		{
+			"file": "counterfactual-roxanne-the-lot.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-the-lot.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "9a757e222013fafcadcd14653f6ead7f1f72bc8e86303da8cd693028f5d902d3"
+		},
+		{
+			"file": "counterfactual-wattson-baseline.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-baseline.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "1c39c8b54a735a0b06e457cf5c5c218ae74a35b43214a2e561e656f1e7ce41b0"
+		},
+		{
+			"file": "counterfactual-wattson-key-box-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-key-box-max-ivs.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "c7eb928d687c91243ec5b488f93304c2c171efbe0f55156e4a9cc0259b820949"
+		},
+		{
+			"file": "counterfactual-wattson-key-box.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-key-box.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "7dd2c1250028b815f646f6a107d08de503f6e533e83a35559ed91c028ab57c95"
+		},
+		{
+			"file": "counterfactual-wattson-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-max-ivs.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "fbbc9c4302cf966682aa6481c7017f7d6cbd0a64bbd7b08376bb8b88271b9e69"
+		},
+		{
+			"file": "counterfactual-wattson-screens.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-screens.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "b78f0b6b66eaa7311d7226a28efa057a8880a6ddce82fee1be400ac7eea8c766"
+		},
+		{
+			"file": "counterfactual-wattson-slow.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-slow.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "e1e270f648e210e015ab8d0bd3f5c78b785cd04abc2bcf59e734fe9e6852de71"
+		},
+		{
+			"file": "counterfactual-wattson-starter-3iv.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-starter-3iv.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "e32fe41a25f3f4fc2a9a6b56797d4b552571537e9e433719d1d12d0b03f46092"
+		},
+		{
+			"file": "counterfactual-wattson-the-lot.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-the-lot.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "4e426fc65a3af075d0aea68a2de43bb8d1d940289b9ec56f065430c19a114d58"
+		},
+		{
 			"file": "fin-3.run.json",
 			"source": "ui-playthrough-out/report-fin-3.json",
 			"position": 134,
@@ -543,6 +783,78 @@
 			"orderScale": "route103-wally-2026-08-28",
 			"box": 18,
 			"sha256": "bb7aa35cd15f5122a21d72d41e10ebb6b1ff16a0b45d566c7ff490cdd7e7b050"
+		},
+		{
+			"file": "strat-developed-brawly.run.json",
+			"source": "ui-playthrough-out/strat-developed-brawly.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "75f50a509c7ce113e7851d0eab7e99868ca76bc53776746fb5bcc04de08fabf7"
+		},
+		{
+			"file": "strat-developed-roxanne.run.json",
+			"source": "ui-playthrough-out/strat-developed-roxanne.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "4014336cf5d4c037659410b314e15597461aeae991adf4d0b46b176064239a8c"
+		},
+		{
+			"file": "strat-developed-wattson.run.json",
+			"source": "ui-playthrough-out/strat-developed-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "92a82f49ee499649c323ef975f2b5db0f57229021fa17238fe494d2299957478"
+		},
+		{
+			"file": "strat-giantkiller-brawly.run.json",
+			"source": "ui-playthrough-out/strat-giantkiller-brawly.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "ed0745e6d0bb686602493341c5fa5f06286f482f727d927a65161a20eab36281"
+		},
+		{
+			"file": "strat-giantkiller-roxanne.run.json",
+			"source": "ui-playthrough-out/strat-giantkiller-roxanne.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "34fad54796cea82b185e31138f9d0a28134d95af66c8197959b778c3e175b22b"
+		},
+		{
+			"file": "strat-giantkiller-wattson.run.json",
+			"source": "ui-playthrough-out/strat-giantkiller-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "9924330228969067e923727490f5aa4de7cac3bd20efb2d2f38c6bdee5e2d78a"
+		},
+		{
+			"file": "strat-intimidate.run.json",
+			"source": "ui-playthrough-out/strat-intimidate.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "241791792b18e582cea69b46ce6c9c12d0ee59bc6b241481d078beba0881056b"
+		},
+		{
+			"file": "strat-stones-dev-wattson.run.json",
+			"source": "ui-playthrough-out/strat-stones-dev-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "30d93069180f24c9b72b3092e65c22ab96300a3582b9f8b74fffac428c5230e0"
+		},
+		{
+			"file": "strat-stones-wattson.run.json",
+			"source": "ui-playthrough-out/strat-stones-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "4b3901f66701a6c7a42805547a1675560c6d99695d7142500f5138946043ff27"
 		},
 		{
 			"file": "sv-14.run.json",
