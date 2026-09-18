@@ -562,3 +562,27 @@ test('the receipt records the pick that played, so the tape tool replays it', ()
 	assert.equal(withArgv(['--repick-party=0'], battery.effectivePick), '0',
 		'the banked six plays, so nothing was picked by play; recording 6 would make the tape refuse it');
 });
+
+test('a --set-exposure receipt says the ranker priced it, and replays through the tape tool', () => {
+	const argv = ['--report=fixtures/banked-runs/lead1-A-9.run.json', '--trainer=Trainer Chelle Daycare',
+		'--seeds=1', '--pick-by-play=0', '--set-exposure=0.5'];
+	const out = withArgv(argv, () => battery.runScenario(policy, {name: 'Chelle', trainer: 'Trainer Chelle Daycare',
+		seeds: 1, report: 'fixtures/banked-runs/lead1-A-9.run.json'}));
+	assert.equal(out.repick.exposureWeight, 0.5, 'the receipt records the weight the ranker reported');
+	assert.equal(out.counters.exposurePriced, 1, 'the gated counter fires, so the flag reached the ranker');
+	const plain = withArgv(['--pick-by-play=0'], () => battery.prepareDocument(
+		battery.requireScale(battery.loadDocument('fixtures/banked-runs/lead1-A-9.run.json')), 'Trainer Chelle Daycare'));
+	assert.notDeepEqual(out.repick.to, plain.repick.to, 'at Chelle the priced ranker fields a different six');
+	assert.equal(plain.repick.exposureWeight, undefined, 'off: the receipt is what it was');
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exposure-'));
+	const file = path.join(dir, 'exposure-test.json');
+	fs.writeFileSync(file, JSON.stringify({label: 'exposure-test', manifest: null, argv,
+		provenance: {revision: null}, results: [out],
+		effective: {'switch-priced': '1', 'repick-party': '1', 'pick-by-play': '0'}}));
+	const replayed = tapeRun(file, 'Chelle', 1);
+	assert.equal(replayed.status, 0, replayed.stderr);
+	assert.equal(replayed.out.row.result, out.rows[0].result);
+	assert.throws(() => withArgv(['--set-exposure=-1'], () => battery.prepareDocument(
+		battery.requireScale(battery.loadDocument('fixtures/banked-runs/lead1-A-9.run.json')),
+		'Trainer Chelle Daycare')), /at least 0/);
+});

@@ -160,6 +160,7 @@ const GATED_COUNTERS = {
 	'stall-clock': {counter: 'clockHeld', on: value => value === 'net'},
 	'repick-party': {counter: 'repicked', on: value => value === '1'},
 	'pick-by-play': {counter: 'pickedByPlay', on: value => Number(value) > 1},
+	'set-exposure': {counter: 'exposurePriced', on: value => Number(value) > 0},
 	'switch-priced': {counter: 'switchRepriced', on: value => value === '1'},
 };
 
@@ -434,7 +435,16 @@ function prepareDocument(doc, trainer, policy) {
 		}
 		return {doc, repick: null};
 	}
-	const parties = run.rankParties(doc, trainer, {}).parties || [];
+	// --set-exposure prices a shared weakness in the ranker's set score
+	// (rankParties' exposureWeight); 0 is the ranker as it stands.
+	const exposureWeight = Number(flag('set-exposure', '0'));
+	if (!(exposureWeight >= 0)) {
+		throw new Error('--set-exposure is a weight at least 0, not ' + JSON.stringify(flag('set-exposure')));
+	}
+	const ranked = run.rankParties(doc, trainer, exposureWeight ? {exposureWeight} : {});
+	const parties = ranked.parties || [];
+	const priced = exposureWeight && ranked.setScore && ranked.setScore.exposureWeight === exposureWeight ?
+		{exposureWeight} : {};
 	if (!parties.length) return {doc, repick: {changed: false, why: 'the ranker offered no party'}};
 	let chosen = parties[0];
 	let byPlay = null;
@@ -447,7 +457,7 @@ function prepareDocument(doc, trainer, policy) {
 	const changed = JSON.stringify(ids) !== JSON.stringify(doc.party);
 	return {doc: changed ? run.apply(doc, {kind: 'party', ids}) : doc,
 		repick: Object.assign({changed, from: (doc.party || []).slice(), to: ids},
-			byPlay ? {byPlay} : {})};
+			byPlay ? {byPlay} : {}, priced)};
 }
 
 /**
@@ -501,6 +511,8 @@ function runScenario(policy, scenario) {
 		out.repick = prepared.repick;
 		out.counters.repicked = prepared.repick.changed ? 1 : 0;
 		if (prepared.repick.byPlay) out.counters.pickedByPlay = prepared.repick.byPlay.chosen > 1 ? 1 : 0;
+		// The ranker says it priced the term, so the flag reached it.
+		if (prepared.repick.exposureWeight) out.counters.exposurePriced = 1;
 	}
 	return out;
 }
@@ -529,7 +541,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'shard'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'shard'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at

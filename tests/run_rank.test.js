@@ -6,8 +6,8 @@
  *
  * That it ranks the box the player will field at the cap, not today's; that
  * its enumeration is bounded by the box and not a clock; that the cheap cut
- * keeps the best six; that it plays genuinely different sixes; and what its
- * shortlist costs. Split from run.test.js because these five tests carry
+ * keeps the best six; that it plays genuinely different sixes; what its
+ * shortlist costs; and that its optional exposure term is the count it says. Split from run.test.js because these five tests carry
  * most of that file's time; the document properties are still there.
  */
 
@@ -243,4 +243,52 @@ test('the ranker charges for its shortlist, not for the box', () => {
 		'C(30,6) exhaustively: the enumeration is bounded by the box, not by a clock');
 	assert.equal(ranked.shortlist.cutting, false,
 		'and a box of 30 is still under the cut threshold, so this is the whole box');
+});
+
+test('the exposure term charges each member an enemy one-shots from the slower side, and nothing when off', () => {
+	// On a real banked box, not a constructed one: the count is recomputed
+	// here from the board's own cells, independently of the ranker's table.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'lead1-A-9.run.json'), 'utf8'));
+	// Chelle's Daycare: the held-out fight where play most overruled the
+	// ranker (2 -> 17 of 20), and its sixes differ in exposure.
+	const trainer = 'Trainer Chelle Daycare';
+	// Cut to eight members so all 28 sixes appear in both rankings: on the
+	// full box the term reorders the top forty with none left in common.
+	const keepIds = new Set(doc.box.filter(member => member.status !== 'dead').slice(0, 8)
+		.map(member => member.id));
+	doc.box = doc.box.filter(member => keepIds.has(member.id));
+	doc.party = doc.party.filter(id => keepIds.has(id));
+	const plain = run.rankParties(doc, trainer, {rollouts: 0, top: 40});
+	const zero = run.rankParties(doc, trainer, {rollouts: 0, top: 40, exposureWeight: 0});
+	assert.deepEqual(zero.parties, plain.parties, 'weight 0 is the ranker as it stood');
+	assert.deepEqual(plain.setScore, {exposureWeight: 0});
+
+	const weight = 0.5;
+	const priced = run.rankParties(doc, trainer, {rollouts: 0, top: 40, exposureWeight: weight});
+	assert.deepEqual(priced.setScore, {exposureWeight: weight});
+	const matrix = run.boxMatrix(doc, trainer);
+	const exposureOf = id => {
+		const m = matrix.box.findIndex(member => member.id === id);
+		return matrix.grid.filter(column => column.versus[m].them.guaranteedKO &&
+			column.versus[m].speed !== 'faster').length;
+	};
+	const keyOf = party => party.members.map(member => member.id).sort().join(',');
+	const before = new Map(plain.parties.map(party => [keyOf(party), party.score]));
+	let compared = 0;
+	let charged = 0;
+	for (const party of priced.parties) {
+		if (!before.has(keyOf(party))) continue;
+		const exposure = party.members.reduce((sum, member) => sum + exposureOf(member.id), 0);
+		assert.ok(Math.abs(party.score - (before.get(keyOf(party)) - weight * exposure)) < 0.0015,
+			keyOf(party) + ': ' + party.score + ' is not ' + before.get(keyOf(party)) + ' - ' + weight + ' x ' + exposure);
+		compared++;
+		if (exposure) charged++;
+	}
+	assert.equal(compared, 28, 'every six of eight appears in both rankings: ' + compared);
+	assert.ok(charged > 0, 'and some of them carry exposure, or the term is untested');
+	assert.notDeepEqual(priced.parties.map(keyOf), plain.parties.map(keyOf), 'the term moves the ranking here');
+	assert.throws(() => run.rankParties(doc, trainer, {rollouts: 0, exposureWeight: -1}), /at least 0/);
 });
