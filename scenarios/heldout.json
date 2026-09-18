@@ -43,6 +43,20 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "koorder2 with --pp-model=1 vs heldout1-pp: 9 gained, 6 lost, p = 0.61; fails the declared bar, the flag stays off"
+		},
+		{
+			"label": "heldout1-sn",
+			"measured_in": "536a96a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--stall-clock=net vs heldout1; pooled with heldout2-sn for the verdict"
+		},
+		{
+			"label": "heldout1-sn-pp",
+			"measured_in": "536a96a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--stall-clock=net --pp-model=1 vs heldout1-pp; pooled with heldout2-sn-pp"
 		}
 	],
 	"scenarios": [

@@ -183,7 +183,7 @@ names, not implemented ones.
 | Phaze the setup | price Whirlwind/Roar class; press on rising-threat signature | Jose ×20, then full battery `--phaze` |
 | Fight keys | compile LEADER-KEYS traps and answer pairings; reserve named answers for named targets | 3 leaders ×30 `--fight-keys` |
 | Re-pick the six | run party selection against the named trainer before the fight (its own arm, never mixed) | 3 leaders ×30 `--repick-party` |
-| Net-progress stall clock | stable foe key; heals count against; noise lows don't reset | `--stall-clock=net`, Daisy + regression rows |
+| Net-progress stall clock — MEASURED, no effect, stays off (f524e5a, receipts 536a96a) | stable foe key; heals count against; noise lows (< 5 points below the last reset) don't reset | on both held-out sets under real PP the clock held 633 resets and moved 2 of 1740 outcomes (0 gained, 2 lost, p = 0.5). The diagnosis was right and no longer matters: with real PP no receipt has a stuck seed, because running out of PP ends a stall before either clock acts |
 | Siege commitment | on declared stall: pick replacement by damage, commit it, stop the bounce | `--siege`, Daisy + Miguel |
 | Ceiling-ranked stall moves | in stall state rank by max×acc — variance is the only lever against a heal loop | `--stall-ceiling`, Daisy ×40 |
 | Concede the closed fight | bench exhausted + no progress ⇒ fast honest loss, not a 400-turn guard | `--stall-concede`, wins must not move |

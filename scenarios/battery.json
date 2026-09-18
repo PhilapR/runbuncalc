@@ -96,6 +96,20 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "koorder2 with --pp-model=1 vs battery5-pp: 10 gained, 1 lost, p = 0.012; in-sample, the fights the gate was fit on"
+		},
+		{
+			"label": "stallnet1",
+			"measured_in": "536a96a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--stall-clock=net vs battery5 (re-run at f524e5a, identical play): 2 gained, 1 lost; Daisy stuck 4 -> 3"
+		},
+		{
+			"label": "stallnet1-pp",
+			"measured_in": "536a96a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--stall-clock=net --pp-model=1 vs battery5-pp: 0 gained, 0 lost; clock held 101 times, no outcome moved"
 		}
 	],
 	"scenarios": [
