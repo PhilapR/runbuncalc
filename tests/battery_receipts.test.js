@@ -598,3 +598,40 @@ test('the receipt records the set-score weight it ranked with', () => {
 	assert.deepEqual(Object.keys(withArgv([], battery.effectiveDefaults)).sort(),
 		['pick-by-play', 'pick-seeds', 'repick-party', 'set-exposure', 'switch-priced']);
 });
+
+test('a mon an Eject Button forces out loses the move it queued', () => {
+	// Leader Brawly, leaders.json, box brkeys3b-A-7, seed 2 (2026-09-18): our
+	// faster Leaf Tornado hits a sleeping Lopunny holding Eject Button,
+	// Combusken comes in, and the driver still handed the benched Lopunny its
+	// queued move, which the engine refused. The same fight, played now.
+	const driverModule = require('../lib/battle-driver.js');
+	const argv = ['--repick-party=1', '--pp-model=1', '--pick-by-play=0', '--set-exposure=0'];
+	const key = require.resolve('../scripts/ui-playthrough.js');
+	const report = 'fixtures/banked-runs/brkeys3b-A-7.run.json';
+	let played;
+	const turn6 = [];
+	withArgv(argv, () => {
+		delete require.cache[key];
+		const armed = require('../scripts/ui-playthrough.js');
+		const act = driverModule.act;
+		driverModule.act = (battle, action) => {
+			const reply = act(battle, action);
+			if (battle.state.turn === 6) turn6.push(...(reply.events || []).map(event => event.text));
+			return reply;
+		};
+		try {
+			driverModule.setPPModel(true);
+			const doc = battery.prepareDocument(battery.requireScale(battery.loadDocument(report)),
+				'Leader Brawly').doc;
+			played = battery.playScenario(armed, doc, 'Leader Brawly', 2);
+		} finally {
+			driverModule.act = act;
+			driverModule.setPPModel(false);
+			delete require.cache[key];
+		}
+	});
+	assert.ok(turn6.some(text => /The foe sent out Combusken/.test(text)),
+		'the Eject Button fires on turn 6: ' + turn6.join(' | '));
+	assert.ok(!turn6.some(text => /Lopunny used/.test(text)), 'and Lopunny does not act from the bench');
+	assert.equal(played.engineRefusals, 0, 'no refusal anywhere in the fight: ' + turn6.join(' | '));
+});
