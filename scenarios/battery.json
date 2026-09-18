@@ -124,6 +124,20 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--repick-party=1 --pp-model=1 vs battery5-pp: 48 gained, 42 lost, p = 0.60; the leader walls barely move"
+		},
+		{
+			"label": "switchpriced1",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 vs battery5: 44 gained, 14 lost, p = 0.0001, no veto"
+		},
+		{
+			"label": "switchpriced1-pp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --pp-model=1 vs battery5-pp: 46 gained, 11 lost, p < 0.0001, no veto; leaders unmoved"
 		}
 	],
 	"scenarios": [

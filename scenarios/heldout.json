@@ -71,6 +71,34 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--repick-party=1 --pp-model=1 vs heldout1-pp; pooled with heldout2-rp-pp"
+		},
+		{
+			"label": "heldout1-sp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 vs heldout1; pooled with heldout2-sp"
+		},
+		{
+			"label": "heldout1-sp-pp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --pp-model=1 vs heldout1-pp; pooled with heldout2-sp-pp"
+		},
+		{
+			"label": "heldout1-sprp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --repick-party=1; vs heldout1-rp and vs heldout1"
+		},
+		{
+			"label": "heldout1-sprp-pp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --repick-party=1 --pp-model=1 vs heldout1-rp-pp: 35 gained, 14 lost, p = 0.004"
 		}
 	],
 	"scenarios": [

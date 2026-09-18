@@ -71,6 +71,27 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--repick-party=1 --pp-model=1 vs heldout2-pp; pooled held-out real PP 339 gained, 183 lost, net +156, p < 0.0001; ten scenarios net -5 or worse (Lass Haley -16), so the declared veto fires"
+		},
+		{
+			"label": "heldout2-sp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 vs heldout2; primary (77 unread fights) fuel-free 237 gained, 143 lost"
+		},
+		{
+			"label": "heldout2-sp-pp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --pp-model=1 vs heldout2-pp; primary real PP 227 gained, 143 lost, net +84, p < 0.0001; seven scenarios net -5 or worse, so the declared veto fires"
+		},
+		{
+			"label": "heldout2-sprp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --repick-party=1; all held-out fuel-free vs control 391 gained, 158 lost"
 		}
 	],
 	"scenarios": [
