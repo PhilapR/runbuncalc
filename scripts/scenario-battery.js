@@ -69,7 +69,8 @@ function freshMemory() {
 	return {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0,
 		disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
 		slowed: new Set(), healed: 0, banked: 0,
-		stallTried: new Set(), progress: null, endeavored: 0};
+		stallTried: new Set(), progress: null, endeavored: 0,
+		koYielded: new Set()};
 }
 
 /**
@@ -98,6 +99,7 @@ function countersOf(memory) {
 		statused: (memory.statusedFoes || new Set()).size,
 		switchedFor: (memory.switchedFor || new Set()).size,
 		stallTried: (memory.stallTried || new Set()).size,
+		koYielded: (memory.koYielded || new Set()).size,
 		slowed: slowed.filter(key => !atk(key)).length,
 		attackDrops: slowed.filter(atk).length,
 	};
@@ -151,6 +153,7 @@ const GATED_COUNTERS = {
 	'endeavor-line': {counter: 'endeavored', on: value => value !== '0'},
 	'attack-drop': {counter: 'attackDrops', on: value => value !== '0'},
 	'sac': {counter: 'sacked', on: value => Number(value) > 0},
+	'ko-respects-order': {counter: 'koYielded', on: value => value !== '0'},
 };
 
 /**

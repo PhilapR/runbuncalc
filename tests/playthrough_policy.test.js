@@ -882,3 +882,53 @@ test('a hurt body cuts a healthy foe down with Endeavor', () => {
 	const chipped = policy.decide(Object.assign({}, view, {foeHp: 30}), memory(), []);
 	assert.notEqual(chipped.pick.move, 'Endeavor');
 });
+
+test('a KO that lands after their hit yields to a resisting switch, only when armed', () => {
+	// The audit's order-blind KO: the early return pressed any KO with no look
+	// at who moves first. Armed, it yields — but only in the exact position
+	// the rule is for, and every neighbour of that position must still KO.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0, banked: 0});
+	const base = {
+		prompt: 'What will Timburr do?',
+		foe: 'Lopunny L27',
+		usHp: 40,
+		risk: 'lethal',
+		// Their plain hit (47%) kills us at 40%, and Speed says they move first.
+		threat: 'Their hardest hit: Mach Punch 47% — 69% on a crit · a crit KOs you ' +
+			'· you need 1 turn to KO, they need 1 — YOU LOSE THIS RACE · they act first',
+		moves: [{move: 'Rock Slide', damage: '110%+ · KOs on any roll', title: '110–130%'}],
+		// Ralts is Psychic/Fairy: Fighting lands at a quarter.
+		switches: [{id: 'r1', label: 'Ralts 100%'}],
+	};
+
+	const plain = policy.decide(base, memory(), []);
+	assert.equal(plain.kind, 'move', 'off by default: the KO is pressed as before');
+
+	const armed = loadWith(['--ko-respects-order=1']);
+	const yielded = armed.decide(base, memory(), []);
+	assert.equal(yielded.kind, 'switch', 'armed: dead before the KO lands, so the body leaves');
+	assert.equal(yielded.pick.id, 'r1');
+	assert.match(yielded.why, /lands after their hit/);
+
+	const ko = (overrides, why) => assert.equal(
+		armed.decide(Object.assign({}, base, overrides), memory(), []).kind, 'move', why);
+	ko({threat: base.threat.replace(' · they act first', '')},
+		'we move first: the KO lands, press it');
+	ko({usHp: 60}, 'only a crit kills us: the race line counts it, this rule must not');
+	ko({moves: [{move: 'Mach Punch', damage: '110%+ · KOs on any roll', title: '110–130%'}]},
+		'a priority KO jumps the order the Speed line describes');
+	ko({switches: [{id: 'z1', label: 'Zigzagoon 100%'}]},
+		'nothing resists the entry hit: switching only moves the death');
+	ko({switches: [{id: 'r1', label: 'Ralts 40%'}]},
+		'a resist that is already hurt is not a refuge');
+	ko({threat: base.threat + ' · Pursuit KOs anything that switches out'},
+		'a killing Pursuit closes the door');
+
+	// Once per opposing Pokemon: the body that comes in can face the same clock.
+	const shared = memory();
+	assert.equal(armed.decide(base, shared, []).kind, 'switch');
+	assert.equal(armed.decide(base, shared, []).kind, 'move',
+		'a second yield to the same foe is a switch loop, not a line');
+});

@@ -236,6 +236,19 @@ const PURSUIT_GUARD = flag('pursuit-guard', '1') !== '0';
 // anyway. Preservation has to happen in place (heals) or not at all. `1`
 // re-arms the rule for experiments.
 const BANK_BODIES = flag('bank-bodies', '0') !== '0';
+// A KO we never get to press. The early return below fires on any move that
+// reads as a KO, with no look at the clock: at Brawly, Timburr pressed a KO
+// into a faster Lopunny whose normal hit landed first; at Bug Catcher Jose two
+// bodies in a row stayed in while the threat line read "you need 1, they need
+// 1 — YOU LOSE THIS RACE · they act first" (docs/IMPROVEMENT-AUDIT.md, two
+// lenses, measured). Armed, the KO yields to a switch when they move first
+// and their NORMAL hit kills (not the crit the race line counts), our move
+// has no priority to jump the order, and a healthy resisting body is waiting
+// to take the entry hit. OFF by default: bank-bodies is the same shape and
+// was falsified twice, because a body that dies brings its replacement in
+// free and a switched one does not. This is the arm that asks whether
+// holding a KO changes that trade.
+const KO_RESPECTS_ORDER = flag('ko-respects-order', '0') !== '0';
 // A forced replacement sends the body that WINS the race, not the healthiest
 // one: the engine now prices every candidate's attrition race, and a loser's
 // extra health is spent losing. `0` restores armed/resist/health order, as
@@ -2279,6 +2292,29 @@ function sacSwitch(view, roster) {
 	return options[0];
 }
 
+/**
+ * Whether this KO lands after we are already dead.
+ *
+ * "they act first" is the engine's Speed comparison and nothing else, so our
+ * own priority has to be read here: a Mach Punch KO jumps the order the line
+ * describes. And the race line counts THEIR CEILING, crit included, so "they
+ * need 1" alone only says a crit would kill; the hardest hit's plain
+ * percentage against our HP is what says the normal hit does.
+ */
+function koOutrun(view, move) {
+	const threat = view.threat || '';
+	if (!/ they act first/.test(threat)) return false;
+	const named = /Their hardest hit: (.+?) (\d+)%/.exec(threat);
+	if (!named || Number(named[2]) < view.usHp) return false;
+	let priority = 0;
+	try {
+		priority = ai.getMoveMetadata(move.move, 8).priority || 0;
+	} catch (error) {
+		priority = 0;
+	}
+	return priority <= 0;
+}
+
 function decide(view, memory, roster) {
 	if (/Choose the next Pokemon/.test(view.prompt)) {
 		const replacement = healthiestSwitch(view, roster);
@@ -2302,6 +2338,20 @@ function decide(view, memory, roster) {
 	}
 	const move = bestMove(view);
 	if (move && (move.floorKO || move.guaranteedKO)) {
+		// Once per opposing Pokemon, like every other voluntary switch here:
+		// the body that comes in may face the same clock, and two bodies
+		// yielding to each other is a switch loop, not a line.
+		memory.koYielded = memory.koYielded || new Set();
+		if (KO_RESPECTS_ORDER && !memory.koYielded.has(view.foe) && koOutrun(view, move) &&
+			!(PURSUIT_GUARD && /Pursuit KOs anything that switches out/.test(view.threat || ''))) {
+			const refuge = healthiestSwitch(view, roster);
+			if (refuge && refuge.taking < 1 && refuge.hp >= 50) {
+				memory.koYielded.add(view.foe);
+				return {kind: 'switch', pick: refuge,
+					why: 'the KO lands after their hit does — ' + refuge.species +
+						' resists it'};
+			}
+		}
 		return {kind: 'move', pick: move, why: 'it KOs'};
 	}
 	// The line rather than the turn. A screen halves every hit of its kind for
@@ -2726,7 +2776,8 @@ async function openFight(page) {
 async function playFight(page, plan, roster) {
 	const memory = {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0, disarmed: 0,
 		sacked: 0, screens: new Set(), boosts: 0, slowed: new Set(), healed: 0,
-		banked: 0, stallTried: new Set(), progress: null, endeavored: 0};
+		banked: 0, stallTried: new Set(), progress: null, endeavored: 0,
+		koYielded: new Set()};
 	const turns = [];
 	let lastFoe = '';
 	for (let turn = 0; turn < 300; turn++) {
