@@ -32,6 +32,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const driver = require('../lib/battle-driver.js');
+const run = require('../lib/run.js');
 const viewOf = require('../lib/battle-view.js').viewOf;
 
 function flag(name, fallback) {
@@ -156,6 +157,7 @@ const GATED_COUNTERS = {
 	'sac': {counter: 'sacked', on: value => Number(value) > 0},
 	'ko-respects-order': {counter: 'koYielded', on: value => value !== '0'},
 	'stall-clock': {counter: 'clockHeld', on: value => value === 'net'},
+	'repick-party': {counter: 'repicked', on: value => value === '1'},
 };
 
 /**
@@ -319,8 +321,39 @@ function loadDocument(file) {
 	return doc;
 }
 
+/**
+ * The document a scenario plays, after the pre-fight choice a live run makes.
+ *
+ * The battery played `doc.party` verbatim: whatever six the banked run last
+ * set, against a trainer it may never have been picked for. A live run
+ * presses Rank before every fight and fields the top six, lead first — the
+ * audit's "re-pick the six", and the one pre-fight decision the battery
+ * skipped. `--repick-party=1` makes that choice here, through run.apply, so
+ * the run's own party rules refuse an illegal pick. The live driver can
+ * then move the lead to the plan's forecast (--lead=forecast); that second
+ * step is not reproduced, so this arm measures the ranker's six and the
+ * ranker's lead. The flag is read when called, not at load, so the tape
+ * tool re-picks under a receipt's own argv.
+ */
+function prepareDocument(doc, trainer) {
+	const mode = flag('repick-party', '0');
+	if (mode !== '0' && mode !== '1') {
+		throw new Error('--repick-party must be 0 or 1, not ' + JSON.stringify(mode));
+	}
+	if (mode === '0') return {doc, repick: null};
+	const top = (run.rankParties(doc, trainer, {}).parties || [])[0];
+	if (!top) return {doc, repick: {changed: false, why: 'the ranker offered no party'}};
+	const ids = [top.lead].concat(top.members.map(member => member.id)
+		.filter(id => id !== top.lead));
+	const changed = JSON.stringify(ids) !== JSON.stringify(doc.party);
+	return {doc: changed ? run.apply(doc, {kind: 'party', ids}) : doc,
+		repick: {changed, from: (doc.party || []).slice(), to: ids}};
+}
+
 function runScenario(policy, scenario) {
-	const doc = requireScale(loadDocument(scenario.report));
+	const prepared = prepareDocument(requireScale(loadDocument(scenario.report)),
+		scenario.trainer);
+	const doc = prepared.doc;
 	const seeds = scenario.seeds || 20;
 	const out = {name: scenario.name, trainer: scenario.trainer,
 		report: path.basename(scenario.report), position: doc.position,
@@ -344,6 +377,12 @@ function runScenario(policy, scenario) {
 		out.rows.push({seed, result: played.result, turns: played.turns,
 			deaths: played.deaths, killers: played.killers || [],
 			foe: played.foe || null, counters: played.counters || {}});
+	}
+	// Written only when the arm is on, so a control receipt is byte-identical
+	// to one from before the flag existed.
+	if (prepared.repick) {
+		out.repick = prepared.repick;
+		out.counters.repicked = prepared.repick.changed ? 1 : 0;
 	}
 	return out;
 }
@@ -371,7 +410,8 @@ function refuseUnread(policy, own) {
 	process.exit(1);
 }
 
-const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds'];
+const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
+	'repick-party'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -440,5 +480,6 @@ if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
+	prepareDocument,
 	OWN_FLAGS,
 	GATED_COUNTERS};

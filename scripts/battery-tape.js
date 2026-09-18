@@ -55,7 +55,9 @@ function replay(receiptPath, scenarioName, seed) {
 	const policy = require('./ui-playthrough.js');
 	driver.setPPModel(argOf(receipt.argv, 'pp-model') === '1');
 
-	const doc = battery.requireScale(battery.loadDocument(scenario.report));
+	// The same pre-fight choice the batch made, under the batch's argv.
+	const doc = battery.prepareDocument(
+		battery.requireScale(battery.loadDocument(scenario.report)), scenario.trainer).doc;
 	const tape = [];
 	const played = battery.playScenario(policy, doc, scenario.trainer, seed, tape);
 	const want = rowOf(recorded, seed);

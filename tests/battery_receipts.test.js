@@ -301,3 +301,55 @@ test('a tape replays a receipt\'s seed and proves it is the fight the receipt me
 	assert.notEqual(refused.status, 0, 'a tape of different code must not print');
 	assert.match(refused.stderr, /does not reproduce the receipt's row/);
 });
+
+/** Call fn with argv in place: the battery reads its flags when asked. */
+function withArgv(extra, fn) {
+	const saved = process.argv;
+	process.argv = ['node', 'battery'].concat(extra);
+	try {
+		return fn();
+	} finally {
+		process.argv = saved;
+	}
+}
+
+test('--repick-party fields the ranker\'s six, lead first, and nothing when off', () => {
+	const run = require('../lib/run.js');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures',
+		'banked-runs', 'brbank1-A-1.run.json'), 'utf8'));
+
+	const off = withArgv([], () => battery.prepareDocument(doc, 'Leader Brawly'));
+	assert.equal(off.doc, doc, 'off: the banked party plays verbatim, as it always has');
+	assert.equal(off.repick, null);
+
+	const on = withArgv(['--repick-party=1'], () => battery.prepareDocument(doc, 'Leader Brawly'));
+	const top = run.rankParties(doc, 'Leader Brawly', {}).parties[0];
+	assert.equal(on.doc.party[0], top.lead, 'the ranker\'s lead leads');
+	assert.deepEqual([...on.doc.party].sort(), top.members.map(member => member.id).sort(),
+		'and the six are the ranker\'s six');
+	assert.equal(on.repick.changed, true, 'at Brawly the ranker disagrees with the banked six');
+	assert.deepEqual(on.repick.from, doc.party);
+	assert.deepEqual(doc.party, on.repick.from, 'the banked document is not mutated');
+
+	assert.throws(() => withArgv(['--repick-party=yes'],
+		() => battery.prepareDocument(doc, 'Leader Brawly')), /must be 0 or 1/);
+});
+
+test('a re-picked receipt replays through the tape tool', () => {
+	// The tape tool must make the same pre-fight choice the batch made, or
+	// every re-picked seed is refused as "the code moved".
+	const policyArgv = ['--report=fixtures/banked-runs/brbank1-A-1.run.json',
+		'--trainer=Leader Brawly', '--seeds=1', '--repick-party=1'];
+	const out = withArgv(policyArgv, () => battery.runScenario(policy, {
+		name: 'Leader Brawly', trainer: 'Leader Brawly', seeds: 1,
+		report: 'fixtures/banked-runs/brbank1-A-1.run.json'}));
+	assert.equal(out.repick.changed, true);
+	assert.equal(out.counters.repicked, 1, 'the arm fired, and the gated counter says so');
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'repick-'));
+	const file = path.join(dir, 'repick-test.json');
+	fs.writeFileSync(file, JSON.stringify({label: 'repick-test', manifest: null,
+		argv: policyArgv, provenance: {revision: null}, results: [out]}));
+	const replayed = tapeRun(file, 'Leader Brawly', 1);
+	assert.equal(replayed.status, 0, replayed.stderr);
+	assert.equal(replayed.out.row.result, out.rows[0].result);
+});
