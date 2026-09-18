@@ -417,6 +417,18 @@ function effectivePick() {
 	return flag('repick-party', '1') === '0' ? '0' : flag('pick-by-play', PICK_BY_PLAY);
 }
 
+/**
+ * The adopted defaults this batch ran under, as the tape tool must replay
+ * them. With the banked six nothing was ranked, so neither the pick nor the
+ * set score applied.
+ */
+function effectiveDefaults() {
+	const banked = flag('repick-party', '1') === '0';
+	return {'switch-priced': flag('switch-priced', '1'), 'repick-party': flag('repick-party', '1'),
+		'pick-by-play': effectivePick(), 'pick-seeds': flag('pick-seeds', PICK_SEEDS),
+		'set-exposure': banked ? '0' : flag('set-exposure', String(run.EXPOSURE_WEIGHT))};
+}
+
 function prepareDocument(doc, trainer, policy) {
 	const mode = flag('repick-party', '1');
 	if (mode !== '0' && mode !== '1') {
@@ -436,12 +448,13 @@ function prepareDocument(doc, trainer, policy) {
 		return {doc, repick: null};
 	}
 	// --set-exposure prices a shared weakness in the ranker's set score
-	// (rankParties' exposureWeight); 0 is the ranker as it stands.
-	const exposureWeight = Number(flag('set-exposure', '0'));
+	// (rankParties' exposureWeight). The default is the ranker's own, and the
+	// weight is always passed, so --set-exposure=0 cannot fall through to it.
+	const exposureWeight = Number(flag('set-exposure', String(run.EXPOSURE_WEIGHT)));
 	if (!(exposureWeight >= 0)) {
 		throw new Error('--set-exposure is a weight at least 0, not ' + JSON.stringify(flag('set-exposure')));
 	}
-	const ranked = run.rankParties(doc, trainer, exposureWeight ? {exposureWeight} : {});
+	const ranked = run.rankParties(doc, trainer, {exposureWeight});
 	const parties = ranked.parties || [];
 	const priced = exposureWeight && ranked.setScore && ranked.setScore.exposureWeight === exposureWeight ?
 		{exposureWeight} : {};
@@ -582,9 +595,7 @@ function main() {
 		// (both of these flipped on 2026-09-18); a receipt that names only
 		// its argv cannot be replayed once they do. battery-tape.js reads this
 		// and treats a receipt without it as pre-adoption.
-		effective: {'switch-priced': flag('switch-priced', '1'),
-			'repick-party': flag('repick-party', '1'),
-			'pick-by-play': effectivePick(), 'pick-seeds': flag('pick-seeds', PICK_SEEDS)},
+		effective: effectiveDefaults(),
 		shard: flag('shard', '') || null});
 	const outPath = path.join('ui-playthrough-out', label + '-battery.json');
 	fs.writeFileSync(outPath, JSON.stringify(receipt, null, '\t'));
@@ -626,6 +637,6 @@ if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
-	prepareDocument, engineRefusalReport, shardOf, chooseByTally, effectivePick, SELECTION_SEED_BASE,
+	prepareDocument, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, SELECTION_SEED_BASE,
 	OWN_FLAGS,
 	GATED_COUNTERS};

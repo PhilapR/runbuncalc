@@ -720,7 +720,9 @@ test('a voluntary switch is priced by default, and the price includes the entry 
 	const path = require('node:path');
 	let doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
 		'brkeys1-B-1.run.json'), 'utf8'));
-	const top = run.rankParties(doc, 'Lass Haley', {}).parties[0];
+	// The six the Rhyhorn line was found in. The exposure-priced ranker
+	// (2026-09-18) no longer fields Rhyhorn here; the price is still tested on it.
+	const top = run.rankParties(doc, 'Lass Haley', {exposureWeight: 0}).parties[0];
 	doc = run.apply(doc, {kind: 'party', ids: [top.lead].concat(
 		top.members.map(member => member.id).filter(id => id !== top.lead))});
 	const state = driver.start(doc, 'Lass Haley', 2).battle.state;

@@ -368,7 +368,8 @@ test('a priced-switch receipt replays through the tape tool, pricing and all', (
 	// argv, or every priced seed is refused as "the code moved".
 	const driverModule = require('../lib/battle-driver.js');
 	const argv = ['--report=fixtures/banked-runs/brkeys1-B-1.run.json',
-		'--trainer=Lass Haley', '--seeds=1', '--repick-party=1', '--switch-priced=1', '--pick-by-play=0'];
+		'--trainer=Lass Haley', '--seeds=1', '--repick-party=1', '--switch-priced=1', '--pick-by-play=0',
+		'--set-exposure=0'];
 	const key = require.resolve('../scripts/ui-playthrough.js');
 	let out;
 	withArgv(argv, () => {
@@ -446,7 +447,8 @@ test('a charged move released after its target switched out hits the replacement
 	// move") and turned into a lost turn. The same fight, played now.
 	const driverModule = require('../lib/battle-driver.js');
 	// The fight as the re-pick arm measured it: the ranker's first six.
-	const argv = ['--switch-priced=0', '--repick-party=1', '--pp-model=1', '--pick-by-play=0'];
+	const argv = ['--switch-priced=0', '--repick-party=1', '--pp-model=1', '--pick-by-play=0',
+		'--set-exposure=0'];
 	const key = require.resolve('../scripts/ui-playthrough.js');
 	const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'scenarios', 'heldout.json'),
 		'utf8')).scenarios.find(entry => entry.name === 'Triathlete Jacob @73');
@@ -535,7 +537,8 @@ test('a pick-by-play receipt records its tallies and replays through the tape to
 	const file = path.join(dir, 'pbp-test.json');
 	fs.writeFileSync(file, JSON.stringify({label: 'pbp-test', manifest: null, argv,
 		provenance: {revision: null}, results: [out],
-		effective: {'switch-priced': '1', 'repick-party': '1', 'pick-by-play': '3', 'pick-seeds': '1'}}));
+		effective: {'switch-priced': '1', 'repick-party': '1', 'pick-by-play': '3', 'pick-seeds': '1',
+			'set-exposure': '0.5'}}));
 	const replayed = tapeRun(file, 'Leader Roxanne', 1);
 	assert.equal(replayed.status, 0, replayed.stderr);
 	assert.equal(replayed.out.row.result, out.rows[0].result);
@@ -570,7 +573,7 @@ test('a --set-exposure receipt says the ranker priced it, and replays through th
 		seeds: 1, report: 'fixtures/banked-runs/lead1-A-9.run.json'}));
 	assert.equal(out.repick.exposureWeight, 0.5, 'the receipt records the weight the ranker reported');
 	assert.equal(out.counters.exposurePriced, 1, 'the gated counter fires, so the flag reached the ranker');
-	const plain = withArgv(['--pick-by-play=0'], () => battery.prepareDocument(
+	const plain = withArgv(['--pick-by-play=0', '--set-exposure=0'], () => battery.prepareDocument(
 		battery.requireScale(battery.loadDocument('fixtures/banked-runs/lead1-A-9.run.json')), 'Trainer Chelle Daycare'));
 	assert.notDeepEqual(out.repick.to, plain.repick.to, 'at Chelle the priced ranker fields a different six');
 	assert.equal(plain.repick.exposureWeight, undefined, 'off: the receipt is what it was');
@@ -585,4 +588,13 @@ test('a --set-exposure receipt says the ranker priced it, and replays through th
 	assert.throws(() => withArgv(['--set-exposure=-1'], () => battery.prepareDocument(
 		battery.requireScale(battery.loadDocument('fixtures/banked-runs/lead1-A-9.run.json')),
 		'Trainer Chelle Daycare')), /at least 0/);
+});
+
+test('the receipt records the set-score weight it ranked with', () => {
+	assert.equal(withArgv([], battery.effectiveDefaults)['set-exposure'], '0.5', 'adopted 2026-09-18');
+	assert.equal(withArgv(['--set-exposure=0'], battery.effectiveDefaults)['set-exposure'], '0');
+	assert.equal(withArgv(['--repick-party=0'], battery.effectiveDefaults)['set-exposure'], '0',
+		'the banked six was never ranked');
+	assert.deepEqual(Object.keys(withArgv([], battery.effectiveDefaults)).sort(),
+		['pick-by-play', 'pick-seeds', 'repick-party', 'set-exposure', 'switch-priced']);
 });

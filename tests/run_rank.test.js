@@ -261,13 +261,15 @@ test('the exposure term charges each member an enemy one-shots from the slower s
 		.map(member => member.id));
 	doc.box = doc.box.filter(member => keepIds.has(member.id));
 	doc.party = doc.party.filter(id => keepIds.has(id));
-	const plain = run.rankParties(doc, trainer, {rollouts: 0, top: 40});
-	const zero = run.rankParties(doc, trainer, {rollouts: 0, top: 40, exposureWeight: 0});
-	assert.deepEqual(zero.parties, plain.parties, 'weight 0 is the ranker as it stood');
-	assert.deepEqual(plain.setScore, {exposureWeight: 0});
+	const plain = run.rankParties(doc, trainer, {rollouts: 0, top: 40, exposureWeight: 0});
+	assert.deepEqual(plain.setScore, {exposureWeight: 0}, 'weight 0 is the ranker as it stood');
+	const byDefault = run.rankParties(doc, trainer, {rollouts: 0, top: 40});
+	assert.deepEqual(byDefault.setScore, {exposureWeight: run.EXPOSURE_WEIGHT});
+	assert.equal(run.EXPOSURE_WEIGHT, 0.5, 'adopted 2026-09-18');
 
 	const weight = 0.5;
 	const priced = run.rankParties(doc, trainer, {rollouts: 0, top: 40, exposureWeight: weight});
+	assert.deepEqual(priced.parties, byDefault.parties, 'the default is that weight');
 	assert.deepEqual(priced.setScore, {exposureWeight: weight});
 	const matrix = run.boxMatrix(doc, trainer);
 	const exposureOf = id => {

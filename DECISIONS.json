@@ -328,6 +328,19 @@
 				"scripts/battery-tape.js",
 				"tests/battery_receipts.test.js"
 			]
+		},
+		{
+			"id": "the-set-score-prices-shared-weakness",
+			"date": "2026-09-18",
+			"ruling": "rankParties charges a six EXPOSURE_WEIGHT (0.5) per member an enemy one-shots from the slower side, summed over enemies, in the live ranker and the battery alike. exposureWeight: 0 and --set-exposure=0 restore the ranker as it stood. Receipts record the weight; battery-tape.js replays a receipt without the record at 0.",
+			"why": "The set score sums each enemy's best answer, so it cannot see a six whose members share a weakness; among the ranker's top six sixes it tracked play at r = 0.006. The term gained +80 seeds on heldout1+2 (in-sample by fight, p = 1.3e-8, receipts 4e41406) and +54 on heldout3's 80 unseen boxes (p = 2.5e-4), and +40 on top of pick-by-play (p = 0.002, receipts ef4718e). It costs nothing at Rank time. Battle Girl Luna loses 38 to it on the ranker's first six; that is open.",
+			"enforcedBy": [
+				"lib/run.js",
+				"scripts/scenario-battery.js",
+				"scripts/battery-tape.js",
+				"tests/run_rank.test.js",
+				"tests/battery_receipts.test.js"
+			]
 		}
 	],
 	"open": [
