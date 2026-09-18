@@ -138,6 +138,20 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--switch-priced=1 --pp-model=1 vs battery5-pp: 46 gained, 11 lost, p < 0.0001, no veto; leaders unmoved"
+		},
+		{
+			"label": "battery9",
+			"measured_in": "a9ad493",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted baseline (priced switch + re-pick by default), fuel-free: 138/300 against battery5 121"
+		},
+		{
+			"label": "battery9-pp",
+			"measured_in": "a9ad493",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted baseline, real PP: 150/300 against battery5-pp 130; the control for arms from here"
 		}
 	],
 	"scenarios": [

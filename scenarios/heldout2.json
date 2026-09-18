@@ -92,6 +92,13 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--switch-priced=1 --repick-party=1; all held-out fuel-free vs control 391 gained, 158 lost"
+		},
+		{
+			"label": "heldout2f-pp",
+			"measured_in": "a9ad493",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted baseline, real PP: 1141/1480 against heldout2-pp 956; the control for arms from here"
 		}
 	],
 	"scenarios": [
