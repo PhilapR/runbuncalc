@@ -18,7 +18,7 @@ import {hasInstructEffect} from './instruct-legality';
 import {hasPureItemTransferEffect, PURE_ITEM_TRANSFER_MOVE_IDS} from './item-legality';
 import {hasSelfStageEffect} from './setup-legality';
 import {PURE_STATUS_EFFECTS, PURE_STATUS_MOVE_IDS} from './status-legality';
-import {canApplyMajorStatus, canApplyVolatile, getEffectiveTypes, isGhostTrapImmune, isGrounded} from './eligibility';
+import {canApplyMajorStatus, canApplyVolatile, getEffectiveTypes, isGhostTrapImmune, isGrounded, isPowderImmune} from './eligibility';
 import {
   hasMixedTargetStageEffect,
   hasTargetStageBoostEffect,
@@ -706,6 +706,7 @@ export function enumerateMoveActions(state: BattleState, sideId: SideId = 'ai'):
           'healpulse', 'pollenpuff', 'lifedew', 'junglehealing', 'aromatherapy', 'healbell'].includes(id) &&
           !hasTargetMoveEffect(state, actor, id, targetIds)) continue;
         if (id === 'dreameater' && !targetIds.some(targetId => getPokemon(state, targetId)?.status === 'slp')) continue;
+        if (targetIds.length && targetIds.every(targetId => isPowderImmune(state, actor.id, targetId, move.name))) continue;
         actorActions.push({
           kind: 'move',
           actorId: actor.id,

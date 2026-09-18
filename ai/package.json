@@ -19,6 +19,7 @@
     "test-echoed-voice": "npm run compile && node dist/test/echoed-voice.test.js",
     "test-fury-cutter": "npm run compile && node dist/test/fury-cutter.test.js",
     "test-typeless-moves": "npm run compile && node dist/test/typeless-moves.test.js",
+    "test-powder-immunity": "npm run compile && node dist/test/powder-immunity.test.js",
     "test-relic-song": "npm run compile && node dist/test/relic-song.test.js",
     "test-fling-effects": "npm run compile && node dist/test/fling-effects.test.js",
     "test-rage-fist-last-respects": "npm run compile && node dist/test/rage-fist-last-respects.test.js",

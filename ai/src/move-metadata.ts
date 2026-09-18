@@ -116,6 +116,8 @@ export interface MoveMetadata {
   dance?: boolean;
   /** Canonical move-data flag used by Magic Bounce and Magic Coat. */
   reflectable?: boolean;
+  /** Canonical move-data flag: Grass types, Overcoat and Safety Goggles are immune from Generation VI. */
+  powder?: boolean;
   source: MoveMetadataSource;
 }
 
@@ -418,6 +420,7 @@ function buildMoveMetadata(name: string, generation: GenerationNum): MoveMetadat
     wind: !!move.flags?.wind,
     dance: !!move.flags?.dance,
     reflectable: !!move.flags?.reflectable,
+    powder: !!move.flags?.powder,
     source: customBasePower !== undefined || customMaxPP !== undefined || customAccuracy !== undefined ||
       customType !== undefined || CUSTOM_SECONDARY_CHANCE[id] !== undefined
       ? 'run-and-bun'

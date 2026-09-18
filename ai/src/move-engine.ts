@@ -10,6 +10,7 @@ import {
   getEffectiveTypes,
   ignoresTargetAbility,
   isGrounded,
+  isPowderImmune,
   isPriorityBlocked,
 } from './eligibility';
 import {
@@ -1088,6 +1089,9 @@ function targetMoveFailure(
   const targets = targetIds
     .map(targetId => getPokemon(state, targetId))
     .filter((target): target is PokemonState => !!target && target.hp.current > 0);
+  if (targets.length && targets.every(target => isPowderImmune(state, actor.id, target.id, id))) {
+    return 'The powder move had no effect because every target was immune to powder moves';
+  }
   if (id === 'teatime' && (state.generation !== 8 || !targets.some(target => isBerry(target.item)))) {
     return 'Teatime failed because no active target held a Berry';
   }
@@ -2404,6 +2408,7 @@ function isDamageImmuneTarget(
   const chargeMove = target?.volatile?.charge?.moveName;
   if (chargeMove && SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(chargeMove)) &&
     !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(action.moveName))) return true;
+  if (isPowderImmune(state, action.actorId, targetId, action.moveName)) return true;
   if (!facts || facts.moveCategory === 'Status') return false;
   if (action.targetIds.length === 1) return facts.isImmune === true;
   const targetDamage = facts.damageByTarget?.[targetId];

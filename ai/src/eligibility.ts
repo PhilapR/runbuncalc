@@ -2,6 +2,7 @@ import * as Calc from '@smogon/calc';
 import {getCalculatorAbility, getEffectiveAbility, isAbilityActive, isAbilityAvailable} from './abilities';
 import {getPokemon, isSunWeather, isWeatherSuppressed, sideForPokemon} from './actions';
 import {isItemEffectActive} from './items';
+import {getMoveMetadata} from './move-metadata';
 import {BattleState, MoveCategory, PokemonState, RUN_AND_BUN_EVS, StatusName, VolatileStatusName} from './model';
 import {getEffectiveSpecies} from './stat-transforms';
 
@@ -222,6 +223,21 @@ export function ignoresTargetAbility(
   return sideForPokemon(state, actorId) !== sideForPokemon(state, targetId) &&
     (hasAbility(state, actorId, 'moldbreaker', 'teravolt', 'turboblaze') ||
       (moveCategory === 'Status' && hasAbility(state, actorId, 'myceliummight')));
+}
+
+/**
+ * Return whether a powder move (Spore, Stun Spore, Cotton Spore, ...) has no
+ * effect on this target. From Generation VI, Grass types, Overcoat (unless
+ * the user's ability ignores it) and an active Safety Goggles are immune. The
+ * user is never immune to its own powder move (Rage Powder targets itself).
+ */
+export function isPowderImmune(state: BattleState, actorId: string, targetId: string, moveName: string): boolean {
+  if (state.generation < 6 || actorId === targetId || !getMoveMetadata(moveName, state.generation).powder) return false;
+  const target = getPokemon(state, targetId);
+  if (!target) return false;
+  return hasType(state, targetId, 'Grass') ||
+    (hasAbility(state, targetId, 'overcoat') && !ignoresTargetAbility(state, actorId, targetId, 'Status')) ||
+    (isItemEffectActive(state, target) && id(target.item) === 'safetygoggles');
 }
 
 /** Return whether a holder blocks opposing additional/secondary move effects. */

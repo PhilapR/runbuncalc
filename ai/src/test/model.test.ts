@@ -722,8 +722,8 @@ assert.equal(deriveSwitchEntryResolution({...pastelVeilEntry, generation: 7 as c
 const flowerVeilState = doublesState();
 flowerVeilState.sides.player.party[0].species = 'Bulbasaur';
 flowerVeilState.sides.player.party[1].ability = 'Flower Veil';
-flowerVeilState.sides.ai.party[0].moves = [{name: 'Spore'}];
-assert.equal(deriveMoveResolution(flowerVeilState, move(flowerVeilState, 'Spore'), {hit: true})
+flowerVeilState.sides.ai.party[0].moves = [{name: 'Hypnosis'}];
+assert.equal(deriveMoveResolution(flowerVeilState, move(flowerVeilState, 'Hypnosis'), {hit: true})
   .statusByPokemon, undefined);
 flowerVeilState.sides.ai.party[0].moves = [{name: 'Growl'}];
 assert.equal(deriveMoveResolution(flowerVeilState, move(flowerVeilState, 'Growl'), {hit: true})
@@ -732,17 +732,17 @@ const flowerVeilFainted = {...flowerVeilState, sides: {...flowerVeilState.sides,
   player: {...flowerVeilState.sides.player, party: flowerVeilState.sides.player.party.map(pokemon =>
     pokemon.id === 'player-2' ? {...pokemon, hp: {...pokemon.hp, current: 0}} : pokemon)},
 }};
-flowerVeilFainted.sides.ai.party[0].moves = [{name: 'Spore'}];
-assert.equal(deriveMoveResolution(flowerVeilFainted, move(flowerVeilFainted, 'Spore'), {hit: true})
+flowerVeilFainted.sides.ai.party[0].moves = [{name: 'Hypnosis'}];
+assert.equal(deriveMoveResolution(flowerVeilFainted, move(flowerVeilFainted, 'Hypnosis'), {hit: true})
   .statusByPokemon?.['player-1'], 'slp');
 const flowerVeilGen5 = {...flowerVeilState, generation: 5 as const};
-assert.equal(deriveMoveResolution(flowerVeilGen5, move(flowerVeilGen5, 'Spore'), {hit: true})
+assert.equal(deriveMoveResolution(flowerVeilGen5, move(flowerVeilGen5, 'Hypnosis'), {hit: true})
   .statusByPokemon?.['player-1'], 'slp');
 const flowerVeilSuppressed = {...flowerVeilState, sides: {...flowerVeilState.sides,
   player: {...flowerVeilState.sides.player, party: flowerVeilState.sides.player.party.map(pokemon =>
     pokemon.id === 'player-2' ? {...pokemon, abilitySuppressed: true} : pokemon)},
 }};
-assert.equal(deriveMoveResolution(flowerVeilSuppressed, move(flowerVeilSuppressed, 'Spore'), {hit: true})
+assert.equal(deriveMoveResolution(flowerVeilSuppressed, move(flowerVeilSuppressed, 'Hypnosis'), {hit: true})
   .statusByPokemon?.['player-1'], 'slp');
 const flowerVeilEntry = doublesState();
 flowerVeilEntry.sides.player.party[0].species = 'Bulbasaur';

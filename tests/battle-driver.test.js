@@ -803,3 +803,40 @@ test('a move that loses its effect mid-turn is used, not refused', () => {
 	const seated = reply.battle.state.sides.player.party.find(mon => mon.species === 'Donphan');
 	assert.notEqual(seated.status, 'par', 'and a Ground type is not paralysed by it');
 });
+
+test('a powder move that meets a Grass type mid-turn applies nothing', () => {
+	// School Kid Karen on the banked brheal1-B-2 run, seed 1: Tangela picks
+	// Stun Spore at Vespiquen, we switch Deerling in, and the Stun Spore
+	// lands on a Grass type. From Generation VI powder moves have no effect
+	// on Grass, Overcoat or Safety Goggles; the engine had no such rule and
+	// paralysed it, and offered powder moves into Grass targets besides.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const ai = require('../ai');
+	const base = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brheal1-B-2.run.json'), 'utf8'));
+	const lead = base.box.find(mon => mon.species === 'Vespiquen');
+	const grass = base.box.find(mon => mon.species === 'Deerling');
+	assert.ok(lead && grass, 'the fixture carries Vespiquen and Deerling');
+	const doc = run.apply(base, {kind: 'party', ids: [lead.id, grass.id].concat(
+		base.party.filter(id => id !== lead.id && id !== grass.id)).slice(0, 6)});
+
+	const opened = driver.start(doc, 'School Kid Karen', 1);
+	const tangela = opened.battle.state.sides.ai.party.find(mon => mon.species === 'Tangela');
+	assert.equal(opened.battle.state.sides.ai.activeIds[0], tangela.id, 'Tangela leads');
+	assert.ok(tangela.moves.some(move => move.name === 'Stun Spore'), 'and carries Stun Spore');
+
+	const deerling = opened.actions.find(entry => entry.kind === 'switch' && entry.species === 'Deerling');
+	const reply = driver.act(opened.battle, {kind: 'switch', replacementId: deerling.action.replacementId});
+	const texts = reply.events.map(event => event.text);
+	assert.ok(texts.some(text => /^Foe Tangela.*Stun Spore/.test(text)),
+		'Tangela uses Stun Spore into the switch: ' + texts.join(' | '));
+	assert.ok(!reply.events.some(event => event.engineRefusal), 'no engine refusal: ' + texts.join(' | '));
+	const seated = reply.battle.state.sides.player.party.find(mon => mon.species === 'Deerling');
+	assert.equal(seated.status, undefined, 'a Grass type is not paralysed by Stun Spore');
+
+	// And with Deerling in, the foe is no longer offered the powder move.
+	const offered = ai.enumerateMoveActions(reply.battle.state, 'ai').map(action => action.moveName);
+	assert.ok(offered.length && !offered.includes('Stun Spore'),
+		'Stun Spore is not offered into a Grass type: ' + offered.join(', '));
+});
