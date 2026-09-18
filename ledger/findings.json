@@ -1867,6 +1867,21 @@
 			"verdict": "confirmed",
 			"status": "open",
 			"evidence": "The only refusal left after the three fixes: Breeder Isaac br-4 seed 12 under the old-control arm (heldout2-a2, heldout2-a2-pp at 7dc244e, receipts 6a7ea8b): Lopunny U-turns, Froslass's Ice Beam/Hex is refused. 1 seed in 3,480. Fixing it means pausing the turn for the replacement choice before the slower action resolves, a turn-flow change in the driver."
+		},
+		{
+			"id": "forced-out-mon-still-acts",
+			"source": "session/refusal-counter",
+			"raised_on": "2026-09-18",
+			"severity": "low",
+			"area": "driver",
+			"file": "lib/battle-driver.js",
+			"line": 111,
+			"claim": "The trainer turn loop skipped a queued action only when its actor had fainted; a mon forced off the field mid-turn (Eject Button, Red Card, Roar, Dragon Tail) still got its queued move, which the engine refused ('Move action is not legal in this battle state'). In the game it loses the action.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"evidence": "Leader Brawly, leaders.json box brkeys3b-A-7, seed 2, refused in all three leader arms at 3ac2086: our faster Leaf Tornado hits a sleeping Lopunny holding Eject Button, Combusken comes in, Lopunny's move is refused. Fix: onField skips an actor no longer active. Seed 2 now plays with no refusal and Lopunny does not act.",
+			"fixed_in": "425301b",
+			"falsified": 1
 		}
 	]
 }
