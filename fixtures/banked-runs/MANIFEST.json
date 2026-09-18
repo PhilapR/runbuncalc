@@ -57,6 +57,14 @@
 			"sha256": "5b272ea233a9af70650b97ac71b86f207189111b49cbfffd376a12ab19f6d04d"
 		},
 		{
+			"file": "br-19.run.json",
+			"source": "ui-playthrough-out/report-br-19.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "79a967ceddf9d7e0685aedcf00fae8ae11451083519716034e533c96cf30ca19"
+		},
+		{
 			"file": "br-20.run.json",
 			"source": "ui-playthrough-out/report-br-20.json",
 			"position": 156,
@@ -777,6 +785,14 @@
 			"sha256": "598253e6b9d2bb026cd7928f1629dd036ea3753ee130a37e006a5375634fb6bc"
 		},
 		{
+			"file": "reteach-B-5.run.json",
+			"source": "ui-playthrough-out/report-reteach-B-5.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "7c3dc2ce71e5e892aaee910a2c18a12510dcedc1b32d352989d1a7d9239e0efa"
+		},
+		{
 			"file": "reteach-B-8.run.json",
 			"source": "ui-playthrough-out/report-reteach-B-8.json",
 			"position": 138,
@@ -967,6 +983,14 @@
 			"orderScale": "route103-wally-2026-08-28",
 			"box": 21,
 			"sha256": "3a4a5005261f239d63c389051927d4f34eebddc7ee9046af4d37a65f6bb3dc67"
+		},
+		{
+			"file": "sv-8.run.json",
+			"source": "ui-playthrough-out/report-sv-8.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "b5bb6448317ceec437e4ef40b8b169c7c76253cea8d5c4b058e8e868ee38b541"
 		},
 		{
 			"file": "tmsource-B-1.run.json",

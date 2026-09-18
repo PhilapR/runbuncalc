@@ -64,6 +64,27 @@ before it. A mon most of the pool outspeeds is the revenge window.
   discipline: chip Bisharp twice without Intimidate, hit Lunatone with
   neutral damage only, never Ice/Rock into Carracosta's Rindo plan.
 - Opening: Carracosta is slower than 91% of the pool.
+- Measured 2026-09-18 on the fixed engine (Burn Up, mid-turn no-effect
+  moves and charged-move retargeting fixed; the figures above predate
+  those fixes). Adopted policy (ranker's six, priced switch), real PP:
+  - Across the 60 archive boxes that reach her, **15.5% of fights won**
+    (93 of 600, 10 seeds each). The Centiskorch "30/30" boxes were the
+    Burn Up defect (ledger burn-up-user-is-unhittable), not a line.
+  - **The line that works is one 4x answer per member**, and the box
+    that has it wins **29/30** (fixture reteach-B-5): Monferno Brick
+    Break takes Bisharp (30/30), **Gurdurr Ice Punch takes Zygarde-10%
+    (30/30)** and Low Kick takes Aurorus (28/30), Grass moves take
+    Carracosta, Seadra's Surf takes Lunatone and Solrock. Gurdurr with an
+    Ice move is the linchpin: Zygarde and Aurorus are her killers.
+  - Carrying the TYPE is not enough: 57 of 60 sixes had an Ice move. The
+    carrier has to land it and survive to — which the ranker cannot see.
+  - **The ranker misprices her**: its answer strength vs Zygarde
+    correlates 0.03 with wins, its own pWin 0.13, and it forecast 17% for
+    the 29/30 box. In fixture br-19 its first six wins 0/30 and its own
+    seventh (Qwilfish for Deerling) wins 20/30 on fresh seeds (p <
+    0.0001). Ten seeds misled once (sv-8: 3 vs 7 at 10 seeds, 20 vs 16 on
+    30 fresh), so a six chosen by play needs more seeds and disjoint
+    seeds to be believed.
 
 ### Wattson (order 229, cap 35) — the immunity lattice
 - Kit traps: two Volt Absorbs (Lanturn, Zeraora), two Levitates
