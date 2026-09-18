@@ -1824,6 +1824,49 @@
 			"evidence": "Found while tracing why Centiskorch 'soloed' Roxanne 30/30 (rank5-A-3, fin-1): every Roxanne turn after Burn Up read 'flinched at the engine: Damage must be a finite non-negative number'. Replaying the Burn-Up-exposed scenarios of the adopted baselines (battery9-pp, heldout2f-pp): 113 of 320 seeds hit the refusal, all 113 wins (Karen x2 38, Daisy 20, George 20, Mike 16, Jose 12, Lydia 6, Lass Haley 1). Post-fix, Centiskorch is ['Bug'] after Burn Up and Arcanine hits it next turn on flannery-3. The driver fallback that converts an engine refusal into a lost turn is the reason this read as wins rather than errors; making refusals visible in receipts is the follow-up.",
 			"fixed_in": "5e15d0b",
 			"falsified": 1
+		},
+		{
+			"id": "mid-turn-no-effect-move-refused",
+			"source": "session/refusal-counter",
+			"raised_on": "2026-09-18",
+			"severity": "high",
+			"area": "engine",
+			"file": "ai/src/transition.ts",
+			"line": 892,
+			"claim": "recordMoveAction's legality gate was enumerateMoveActions, which drops moves that would have no effect. A move chosen at the start of a turn that lost its effect before resolving (target fell asleep, an immune body switched in) was refused as illegal instead of being used and failing, and the driver turned each refusal into a lost turn with no PP spent.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"evidence": "Found by the engine-refusal counter (7a93869): 131 of 136 refused seeds in the re-measure (ade42d9), e.g. Youngster Ben (Porygon's Thunder Wave into a switched-in Donphan, 70 seeds), Breeder Lydia br-18 (our Thunder Wave after Gothitelle's Rest), Battle Girl Luna (our Stun Spore). Fix: isSelectableMoveAction keeps actor-level rules and drops only effect filters. Re-run at 7dc244e: those refusals are gone (6a7ea8b).",
+			"fixed_in": "933023c",
+			"falsified": 1
+		},
+		{
+			"id": "charged-move-hits-benched-target",
+			"source": "session/refusal-counter",
+			"raised_on": "2026-09-18",
+			"severity": "medium",
+			"area": "engine",
+			"file": "ai/src/move-engine.ts",
+			"line": 2783,
+			"claim": "A charged move's release reused the stored target ids verbatim in enumeration and resolution; when the target had switched out, damage was computed for the benched body while the action named the replacement, and the transition refused it ('Damage references a non-target of the move').",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"evidence": "Triathlete Jacob, 10 refused seeds in the re-measure: Sawsbuck's Bounce went up at Walrein, we switched to Empoleon. Fix: chargeTargets maps a departed target to its side's current occupant. Jacob seed 3 now has the Bounce land on Empoleon with no refusal.",
+			"fixed_in": "7dc244e",
+			"falsified": 1
+		},
+		{
+			"id": "pivot-leaves-foe-move-without-target",
+			"source": "session/refusal-counter",
+			"raised_on": "2026-09-18",
+			"severity": "low",
+			"area": "driver",
+			"file": "lib/battle-driver.js",
+			"line": 950,
+			"claim": "When our faster pivot (U-turn) switches the user out mid-turn, the driver defers our replacement to after the turn, so the slower foe move has no legal target and is refused; in the game the replacement comes in at once and takes the hit.",
+			"verdict": "confirmed",
+			"status": "open",
+			"evidence": "The only refusal left after the three fixes: Breeder Isaac br-4 seed 12 under the old-control arm (heldout2-a2, heldout2-a2-pp at 7dc244e, receipts 6a7ea8b): Lopunny U-turns, Froslass's Ice Beam/Hex is refused. 1 seed in 3,480. Fixing it means pausing the turn for the replacement choice before the slower action resolves, a turn-flow change in the driver."
 		}
 	]
 }

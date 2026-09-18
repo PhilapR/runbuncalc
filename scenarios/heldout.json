@@ -155,6 +155,62 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "both, the adopted defaults on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout1-a2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout1-a2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the engine with the three refusal fixes (7dc244e), real PP"
+		},
+		{
+			"label": "heldout1-b2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout1-b2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the engine with the three refusal fixes (7dc244e), real PP"
+		},
+		{
+			"label": "heldout1-c2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout1-c2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the engine with the three refusal fixes (7dc244e), real PP"
+		},
+		{
+			"label": "heldout1-d2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout1-d2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the engine with the three refusal fixes (7dc244e), real PP"
 		}
 	],
 	"scenarios": [

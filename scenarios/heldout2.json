@@ -155,6 +155,62 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "both, the adopted defaults on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal; supersedes heldout2f-pp as the adopted baseline, which carried Burn Up refusals"
+		},
+		{
+			"label": "heldout2-a2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the engine with the three refusal fixes (7dc244e), fuel-free; one engine refusal (Breeder Isaac br-4 seed 12, U-turn pending replacement), excluded as one pair"
+		},
+		{
+			"label": "heldout2-a2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the engine with the three refusal fixes (7dc244e), real PP; one engine refusal (Breeder Isaac br-4 seed 12, U-turn pending replacement), excluded as one pair"
+		},
+		{
+			"label": "heldout2-b2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout2-b2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the engine with the three refusal fixes (7dc244e), real PP"
+		},
+		{
+			"label": "heldout2-c2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout2-c2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the engine with the three refusal fixes (7dc244e), real PP"
+		},
+		{
+			"label": "heldout2-d2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout2-d2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the engine with the three refusal fixes (7dc244e), real PP; the adopted baseline from here, superseding heldout2-d-pp"
 		}
 	],
 	"scenarios": [
