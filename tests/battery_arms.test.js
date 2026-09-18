@@ -36,6 +36,7 @@ test('an arm spec names a label, a manifest and flags, each flag its own argumen
 	refuse(['--arm=only-a-label'], /LABEL:MANIFEST:FLAGS/);
 	refuse(['--arm=x:battery:', '--arm=x:heldout:'], /share the label x/);
 	refuse(['--arm=a b:battery:'], /not a receipt name/);
+	refuse(['--arm=heldout1-A:heldout:'], /not a receipt name/);
 	refuse(['--arm=g:heldout2:--ko-respects-order=1 --pp-model=1'], /glued/);
 	refuse(['--arm=h:battery:pp-model=1'], /one --name=value/);
 	refuse(['--arm=l:battery:--label=other'], /set by the runner/);

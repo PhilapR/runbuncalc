@@ -99,6 +99,62 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--switch-priced=1 --repick-party=1 --pp-model=1 vs heldout1-rp-pp: 35 gained, 14 lost, p = 0.004"
+		},
+		{
+			"label": "heldout1-a",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout1-a-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout1-b",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout1-b-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout1-c",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout1-c-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout1-d",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout1-d-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
 		}
 	],
 	"scenarios": [

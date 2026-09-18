@@ -66,8 +66,11 @@ function parseArms(argv) {
 	if (!arms.length) throw new Error('no arms: pass --arm=LABEL:MANIFEST:FLAGS or --arms=FILE');
 	const seen = new Set();
 	for (const arm of arms) {
-		if (!/^[A-Za-z0-9._-]+$/.test(arm.label || '')) {
-			throw new Error('arm label ' + JSON.stringify(arm.label) + ' is not a receipt name');
+		// The manifest stamp convention: a receipt labelled otherwise can be
+		// run and committed but never stamped (heldout1-A had to be renamed).
+		if (!/^[a-z0-9][a-z0-9-]*$/.test(arm.label || '')) {
+			throw new Error('arm label ' + JSON.stringify(arm.label) + ' is not a receipt name ' +
+				'(lowercase letters, digits and dashes)');
 		}
 		if (seen.has(arm.label)) throw new Error('two arms share the label ' + arm.label);
 		seen.add(arm.label);

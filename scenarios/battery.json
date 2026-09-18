@@ -144,14 +144,14 @@
 			"measured_in": "a9ad493",
 			"date": "2026-09-18",
 			"verdict": "recorded",
-			"note": "the adopted baseline (priced switch + re-pick by default), fuel-free: 138/300 against battery5 121"
+			"note": "the adopted baseline (priced switch + re-pick by default), fuel-free: 138/300 against battery5 121. Carries Burn Up refusals (Jose 12, Daisy 20 wins, real PP): not a clean baseline; see ledger burn-up-user-is-unhittable"
 		},
 		{
 			"label": "battery9-pp",
 			"measured_in": "a9ad493",
 			"date": "2026-09-18",
 			"verdict": "recorded",
-			"note": "the adopted baseline, real PP: 150/300 against battery5-pp 130; the control for arms from here"
+			"note": "the adopted baseline, real PP: 150/300 against battery5-pp 130; the control for arms from here. Carries Burn Up refusals (Jose 12, Daisy 20 wins, real PP): not a clean baseline; see ledger burn-up-user-is-unhittable"
 		}
 	],
 	"scenarios": [

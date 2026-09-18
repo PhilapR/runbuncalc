@@ -98,7 +98,63 @@
 			"measured_in": "a9ad493",
 			"date": "2026-09-18",
 			"verdict": "recorded",
-			"note": "the adopted baseline, real PP: 1141/1480 against heldout2-pp 956; the control for arms from here"
+			"note": "the adopted baseline, real PP: 1141/1480 against heldout2-pp 956; the control for arms from here. Carries Burn Up refusals (113 poisoned wins across the adopted baselines): superseded by heldout2-d-pp"
+		},
+		{
+			"label": "heldout2-a",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-a-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-b",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-b-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-c",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-c-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-d",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-d-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal; supersedes heldout2f-pp as the adopted baseline, which carried Burn Up refusals"
 		}
 	],
 	"scenarios": [
