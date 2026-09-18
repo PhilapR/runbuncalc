@@ -1,0 +1,37 @@
+{
+	"comment": "Speed probe at Wattson: do Speed IVs the advisor cannot price win fights? The advisor scores KOs and max damage only, so it never buys Speed; Speed 31 flips turn order for Ampharos (Magnezone, Eelektross, Mega Ampharos) and Manectric (Rotom-Fan). Pairs: control23/plus23 (the 5 unspent scales), control23/swap23 and control15/swap15 (same budget, Speed replacing the advisor's last two buys). Run with --repick-party=0: the party is part of the treatment here, and since 2026-09-18 the battery re-picks the six by default, which would replace it.",
+	"generator": "scripts/speed-probe.js",
+	"measured": [],
+	"scenarios": [
+		{
+			"name": "Leader Wattson · control23",
+			"report": "fixtures/banked-runs/dose-wattson-28.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 60
+		},
+		{
+			"name": "Leader Wattson · plus23",
+			"report": "fixtures/banked-runs/speed-plus23.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 60
+		},
+		{
+			"name": "Leader Wattson · swap23",
+			"report": "fixtures/banked-runs/speed-swap23.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 60
+		},
+		{
+			"name": "Leader Wattson · control15",
+			"report": "fixtures/banked-runs/dose-wattson-15.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 60
+		},
+		{
+			"name": "Leader Wattson · swap15",
+			"report": "fixtures/banked-runs/speed-swap15.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 60
+		}
+	]
+}

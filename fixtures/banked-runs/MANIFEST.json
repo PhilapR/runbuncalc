@@ -841,6 +841,30 @@
 			"sha256": "939d9785ba5973cff525ff78308b630397db0cb51091ee25b1d384753c4ed7a4"
 		},
 		{
+			"file": "speed-plus23.run.json",
+			"source": "ui-playthrough-out/speed-plus23.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "e424bb45c5614f0f067102397659a52fbbc9134ea5aa0e58d901347e39f76f83"
+		},
+		{
+			"file": "speed-swap15.run.json",
+			"source": "ui-playthrough-out/speed-swap15.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "b282d7b9c0fd87d4fd450f8e2dfe1d32d8a4fd05b391d48636b8fcee8fa6919f"
+		},
+		{
+			"file": "speed-swap23.run.json",
+			"source": "ui-playthrough-out/speed-swap23.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "7d39acad5e1a9a4d11aac7a402f099570ed9a57c9c875bb0645238797126b5fe"
+		},
+		{
 			"file": "starteriv1-M-1.run.json",
 			"source": "ui-playthrough-out/report-starteriv1-M-1.json",
 			"position": 114,
