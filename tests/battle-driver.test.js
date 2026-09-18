@@ -710,7 +710,7 @@ test('the PP model is a switch: off leaves fuel infinite, on fills and spends it
 	}
 });
 
-test('a voluntary switch is priced only when asked, and the price includes the entry hit', () => {
+test('a voluntary switch is priced by default, and the price includes the entry hit', () => {
 	// The composed pipeline, from the tape that found the bug (776bfdd): the
 	// ranker's six against Lass Haley, seed 2. The policy's lost-race switch
 	// sent Rhyhorn in because Rock resists Air Slash — the hit on the threat
@@ -726,7 +726,7 @@ test('a voluntary switch is priced only when asked, and the price includes the e
 	const state = driver.start(doc, 'Lass Haley', 2).battle.state;
 	const voluntary = () => driver.legalActions(state).filter(entry => entry.kind === 'switch');
 
-	assert.equal(driver.switchPricing(), false, 'pricing is off unless an arm asks for it');
+	assert.equal(driver.switchPricing(), true, 'pricing is on unless an arm turns it off (adopted 2026-09-18)');
 	try {
 		driver.setSwitchPricing(false);
 		assert.ok(voluntary().every(entry => entry.race === undefined),
@@ -748,7 +748,7 @@ test('a voluntary switch is priced only when asked, and the price includes the e
 			assert.equal(entry.race.turnsToKill, free.turnsToKill, entry.species);
 		}
 	} finally {
-		driver.setSwitchPricing(false);
+		driver.setSwitchPricing(true);
 	}
-	assert.equal(driver.switchPricing(), false, 'the switch is left off for every later test');
+	assert.equal(driver.switchPricing(), true, 'the default is restored for every later test');
 });

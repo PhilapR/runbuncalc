@@ -294,6 +294,29 @@
 				"lib/run.js",
 				"tests/run.test.js"
 			]
+		},
+		{
+			"id": "a-voluntary-switch-is-priced",
+			"date": "2026-09-18",
+			"ruling": "A voluntary switch is priced the way a forced replacement is: the candidate is seated and charged the hit it concedes on the way in, and the panel shows that race on every switch button. The automated policy's lost-race switch goes only to a body that wins that race; with no winner it stays and attacks. --switch-priced=0 (and driver.setSwitchPricing(false)) restore the old type-multiplier switch for arms that measure against it.",
+			"why": "The old switch judged 'resists' by the move on the threat line, the foe's hardest hit against the body in play, and sent Rhyhorn into Surf on all twenty Lass Haley seeds. Priced, it gains 227 seeds and loses 143 on 77 held-out fights (real PP, p < 0.0001, receipts 540165b). Adopted by the operator knowing seven of those fights lose 5+ seeds each: overall win rate was ruled the measure, over the per-fight veto.",
+			"enforcedBy": [
+				"lib/battle-driver.js",
+				"tests/battle-driver.test.js",
+				"scripts/ui-playthrough.js",
+				"tests/playthrough_policy.test.js"
+			]
+		},
+		{
+			"id": "the-battery-re-picks-like-a-live-run",
+			"date": "2026-09-18",
+			"ruling": "A battery scenario fields the ranker's six against its own trainer, lead first, as a live run does when it presses Rank before a fight. --repick-party=0 plays the banked party verbatim. Receipts record the defaults they ran under, and battery-tape.js replays a receipt without that record under the pre-adoption defaults.",
+			"why": "The battery played whatever six the banked run last set, against a trainer it may never have been picked for, so it measured a pre-fight choice no live run makes. Re-picking gains 339 seeds and loses 183 on the held-out fights (real PP, receipts e6722f6), and with the priced switch 391 against 158 (fuel-free, receipts 540165b). Adopted together with a-voluntary-switch-is-priced, the same trade on the per-fight veto.",
+			"enforcedBy": [
+				"scripts/scenario-battery.js",
+				"scripts/battery-tape.js",
+				"tests/battery_receipts.test.js"
+			]
 		}
 	],
 	"open": [

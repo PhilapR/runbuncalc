@@ -313,16 +313,18 @@ function withArgv(extra, fn) {
 	}
 }
 
-test('--repick-party fields the ranker\'s six, lead first, and nothing when off', () => {
+test('--repick-party fields the ranker\'s six, lead first, by default; =0 plays the banked six', () => {
 	const run = require('../lib/run.js');
 	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures',
 		'banked-runs', 'brbank1-A-1.run.json'), 'utf8'));
 
-	const off = withArgv([], () => battery.prepareDocument(doc, 'Leader Brawly'));
+	const off = withArgv(['--repick-party=0'], () => battery.prepareDocument(doc, 'Leader Brawly'));
 	assert.equal(off.doc, doc, 'off: the banked party plays verbatim, as it always has');
 	assert.equal(off.repick, null);
 
 	const on = withArgv(['--repick-party=1'], () => battery.prepareDocument(doc, 'Leader Brawly'));
+	const byDefault = withArgv([], () => battery.prepareDocument(doc, 'Leader Brawly'));
+	assert.deepEqual(byDefault.repick, on.repick, 'adopted 2026-09-18: the battery re-picks unless told not to');
 	const top = run.rankParties(doc, 'Leader Brawly', {}).parties[0];
 	assert.equal(on.doc.party[0], top.lead, 'the ranker\'s lead leads');
 	assert.deepEqual([...on.doc.party].sort(), top.members.map(member => member.id).sort(),
@@ -348,7 +350,8 @@ test('a re-picked receipt replays through the tape tool', () => {
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'repick-'));
 	const file = path.join(dir, 'repick-test.json');
 	fs.writeFileSync(file, JSON.stringify({label: 'repick-test', manifest: null,
-		argv: policyArgv, provenance: {revision: null}, results: [out]}));
+		argv: policyArgv, provenance: {revision: null}, results: [out],
+		effective: {'switch-priced': '1', 'repick-party': '1'}}));
 	const replayed = tapeRun(file, 'Leader Brawly', 1);
 	assert.equal(replayed.status, 0, replayed.stderr);
 	assert.equal(replayed.out.row.result, out.rows[0].result);
@@ -370,7 +373,7 @@ test('a priced-switch receipt replays through the tape tool, pricing and all', (
 			out = battery.runScenario(priced, {name: 'Lass Haley', trainer: 'Lass Haley', seeds: 1,
 				report: 'fixtures/banked-runs/brkeys1-B-1.run.json'});
 		} finally {
-			driverModule.setSwitchPricing(false);
+			driverModule.setSwitchPricing(true);
 			delete require.cache[key];
 		}
 	});

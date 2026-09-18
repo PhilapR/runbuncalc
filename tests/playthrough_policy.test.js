@@ -687,11 +687,13 @@ test('a switch is refused when Pursuit would kill the body on the way out', () =
 		threat: 'Hitmontop L20 — Their hardest hit: Brick Break 45% — 67% on a crit ' +
 			'· a crit KOs you · you need 3 turns to KO, they need 2 — YOU LOSE THIS RACE',
 		moves: [{move: 'Tackle', damage: '12%+', title: '12–15%'}],
-		switches: [{id: 'x1', label: 'Haunter 100%'}],
+		// Priced as a win: the switch the policy wants, so what stops it below
+		// is the Pursuit guard and nothing else.
+		switches: [{id: 'x1', label: 'Haunter 100%', race: 'win'}],
 	};
 
-	// Without the warning the old rule stands: the race is lost, Haunter is
-	// immune to the hit, the switch is right.
+	// Without the warning the switch stands: the race is lost, Haunter is
+	// immune to the hit and wins its own race, the switch is right.
 	const open = policy.decide(base, memory(), []);
 	assert.equal(open.kind, 'switch',
 		'a resist switch off a lost race is still the play when nothing punishes it');
@@ -1018,16 +1020,16 @@ test('a priced switch goes only to a body that wins its race after the entry hit
 	const rhyhornLoses = {id: 'r1', label: 'Rhyhorn 100%', race: 'lose'};
 	const lombreWins = {id: 'l1', label: 'Lombre 100%', race: 'win'};
 
-	// Off: the type rule, exactly as before — Rhyhorn resists Air Slash.
-	const off = policy.decide(view([rhyhornLoses]), memory(), []);
+	// Off (the pre-adoption rule, kept for arms): Rhyhorn resists Air Slash.
+	const off = loadWith(['--switch-priced=0']).decide(view([rhyhornLoses]), memory(), []);
 	assert.equal(off.kind, 'switch');
 	assert.equal(off.pick.id, 'r1');
 
 	const priced = loadWith(['--switch-priced=1']);
-	assert.throws(() => priced.decide(view([rhyhornLoses]), memory(), []),
-		/needs driver.setSwitchPricing/, 'an unpriced driver must not run as the control');
-
 	try {
+		driverModule.setSwitchPricing(false);
+		assert.throws(() => priced.decide(view([rhyhornLoses]), memory(), []),
+			/needs driver.setSwitchPricing/, 'an unpriced driver must not run as the control');
 		driverModule.setSwitchPricing(true);
 		const stay = memory();
 		const refused = priced.decide(view([rhyhornLoses]), stay, []);
@@ -1044,7 +1046,11 @@ test('a priced switch goes only to a body that wins its race after the entry hit
 		priced.decide(view([{id: 'r1', label: 'Rhyhorn 100%', race: 'win'}]), agree, []);
 		assert.equal(agree.switchRepriced || 0, 0, 'when both rules send the same body, nothing is counted');
 	} finally {
-		driverModule.setSwitchPricing(false);
+		driverModule.setSwitchPricing(true);
 	}
+	// And it is the default now: the plain policy prices.
+	const byDefault = memory();
+	assert.equal(policy.decide(view([rhyhornLoses]), byDefault, []).kind, 'move',
+		'adopted 2026-09-18: the default policy refuses the losing resist');
 	assert.throws(() => loadWith(['--switch-priced=yes']), /must be 0 or 1/);
 });

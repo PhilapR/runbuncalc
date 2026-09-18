@@ -20,6 +20,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+/** Defaults as they stood before 2026-09-18, for receipts written then. */
+const PRE_ADOPTION = {'switch-priced': '0', 'repick-party': '0'};
+
 function ownFlag(name) {
 	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
 	return hit === undefined ? null : hit.slice(name.length + 3);
@@ -49,12 +52,22 @@ function replay(receiptPath, scenarioName, seed) {
 	// The policy reads its flags from argv when it loads, so the receipt's
 	// argv has to be in place first — this process's own flags are not the
 	// batch's. The PP model is the battery's switch, not the policy's.
-	process.argv = [process.argv[0], 'scenario-battery.js'].concat(receipt.argv);
+	// Flags whose defaults changed after receipts were written. A receipt
+	// records what it ran under in `effective`; one without that record
+	// predates the change and ran with the old default, so that value is
+	// passed explicitly — the current default would replay a different fight.
+	const argv = receipt.argv.slice();
+	for (const name of Object.keys(PRE_ADOPTION)) {
+		if (argOf(argv, name) !== null) continue;
+		const effective = (receipt.effective || {})[name];
+		argv.push('--' + name + '=' + (effective !== undefined ? effective : PRE_ADOPTION[name]));
+	}
+	process.argv = [process.argv[0], 'scenario-battery.js'].concat(argv);
 	const battery = require('./scenario-battery.js');
 	const driver = require('../lib/battle-driver.js');
 	const policy = require('./ui-playthrough.js');
-	driver.setPPModel(argOf(receipt.argv, 'pp-model') === '1');
-	driver.setSwitchPricing(argOf(receipt.argv, 'switch-priced') === '1');
+	driver.setPPModel(argOf(argv, 'pp-model') === '1');
+	driver.setSwitchPricing(argOf(argv, 'switch-priced') === '1');
 
 	// The same pre-fight choice the batch made, under the batch's argv.
 	const doc = battery.prepareDocument(

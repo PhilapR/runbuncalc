@@ -313,7 +313,7 @@ const STALL_NET_MARGIN = 5;
 // Armed, the switch goes only to a body whose own race, seated and charged
 // the entry hit (driver.setSwitchPricing), is a win — and every voluntary
 // switch ranks by that price, as forced replacements already do.
-const SWITCH_PRICED = flag('switch-priced', '0');
+const SWITCH_PRICED = flag('switch-priced', '1');
 if (SWITCH_PRICED !== '0' && SWITCH_PRICED !== '1') {
 	throw new Error('--switch-priced must be 0 or 1, not ' + JSON.stringify(SWITCH_PRICED));
 }

@@ -338,7 +338,7 @@ function loadDocument(file) {
  * tool re-picks under a receipt's own argv.
  */
 function prepareDocument(doc, trainer) {
-	const mode = flag('repick-party', '0');
+	const mode = flag('repick-party', '1');
 	if (mode !== '0' && mode !== '1') {
 		throw new Error('--repick-party must be 0 or 1, not ' + JSON.stringify(mode));
 	}
@@ -425,7 +425,7 @@ function main() {
 	// mistaken for one that ran with real PP.
 	driver.setPPModel(flag('pp-model', '0') === '1');
 	// The policy reads --switch-priced; the price itself lives in the driver.
-	driver.setSwitchPricing(flag('switch-priced', '0') === '1');
+	driver.setSwitchPricing(flag('switch-priced', '1') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = manifest ?
@@ -449,7 +449,13 @@ function main() {
 			(row.stuck ? '  STUCK=' + row.stuck : ''));
 	}
 	const receipt = requireWholeReceipt({label, manifest: manifest || null,
-		argv: process.argv.slice(2), provenance: provenance(), results});
+		argv: process.argv.slice(2), provenance: provenance(), results,
+		// What the batch ran under, whether or not argv said it. Defaults move
+		// (both of these flipped on 2026-09-18); a receipt that names only
+		// its argv cannot be replayed once they do. battery-tape.js reads this
+		// and treats a receipt without it as pre-adoption.
+		effective: {'switch-priced': flag('switch-priced', '1'),
+			'repick-party': flag('repick-party', '1')}});
 	const outPath = path.join('ui-playthrough-out', label + '-battery.json');
 	fs.writeFileSync(outPath, JSON.stringify(receipt, null, '\t'));
 	// The receipt is the same document in a TRACKED home. ui-playthrough-out
