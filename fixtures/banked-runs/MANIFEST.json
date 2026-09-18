@@ -585,6 +585,70 @@
 			"sha256": "4e426fc65a3af075d0aea68a2de43bb8d1d940289b9ec56f065430c19a114d58"
 		},
 		{
+			"file": "dose-roxanne-15.run.json",
+			"source": "ui-playthrough-out/dose-roxanne-15.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "a98b583b6deea55c48814709e4c7fae0a8ba3c6e777bf1fd77bc6cdde1cced3c"
+		},
+		{
+			"file": "dose-roxanne-28.run.json",
+			"source": "ui-playthrough-out/dose-roxanne-28.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "70cd61f408f005836f85a183d164eee6f0c230a3989ab1d7e19e53f8a723b466"
+		},
+		{
+			"file": "dose-roxanne-3.run.json",
+			"source": "ui-playthrough-out/dose-roxanne-3.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "be133f2d81108570c1056e7397e2c633372d552e7167ad1d7fcfbe26f84dbf36"
+		},
+		{
+			"file": "dose-roxanne-9.run.json",
+			"source": "ui-playthrough-out/dose-roxanne-9.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ce69c3cfa4586dd35d665fae46299456ec4f0119c1918e2121b6c9d74b4719cf"
+		},
+		{
+			"file": "dose-wattson-15.run.json",
+			"source": "ui-playthrough-out/dose-wattson-15.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "a66d8d6094c1b620ea2b6b07055e39169f5d82da26fbbd0241bc6cc01bd8cf32"
+		},
+		{
+			"file": "dose-wattson-28.run.json",
+			"source": "ui-playthrough-out/dose-wattson-28.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "c6a11ca30ba416e037ddbd6f5dec579dc58a51927f45b659d70387221d6deee1"
+		},
+		{
+			"file": "dose-wattson-3.run.json",
+			"source": "ui-playthrough-out/dose-wattson-3.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "64bf25001ce529dea5a97507ce614ae742012c67498877875a6227451082b2b4"
+		},
+		{
+			"file": "dose-wattson-9.run.json",
+			"source": "ui-playthrough-out/dose-wattson-9.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "3c6f376199474cbd32345adf59462ac1215331afbd56005883feceb0ef6fe2a2"
+		},
+		{
 			"file": "fin-3.run.json",
 			"source": "ui-playthrough-out/report-fin-3.json",
 			"position": 134,

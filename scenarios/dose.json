@@ -1,5 +1,5 @@
 {
-	"comment": "Heart Scale dose-response: k advisor-greedy IV purchases against the wall, then 30 seeds. Validates the scale-allocation math of 2026-08-29. Run with --repick-party=0: the party is part of the treatment here, and since 2026-09-18 the battery re-picks the six by default, which would replace it.",
+	"comment": "Heart Scale dose-response: k advisor-greedy IV purchases against the wall, graded by the battery. The eight dose documents were REGENERATED on 2026-09-18 at 715d0f5 by scripts/scale-dose.js from the banked counterfactual baselines: the originals dose1 measured were never in the 2026-09-14 archive, so dose1's tallies describe documents that no longer exist and cannot be reproduced from these. Today's advisor saturates at the same points (Wattson 23, Roxanne 15). 'Leader Roxanne · 15 scales' appears twice: the 28 dose saturates at 15 and differs from the 15 dose only in scales left in the bag, so the two fight the same battle. Run with --repick-party=0: the party is part of the treatment here, and since 2026-09-18 the battery re-picks the six by default, which would replace it.",
 	"generator": "scripts/scale-dose.js",
 	"measured": [
 		{
@@ -12,49 +12,49 @@
 	"scenarios": [
 		{
 			"name": "Leader Wattson · 3 scales",
-			"report": "ui-playthrough-out/dose-wattson-3.json",
+			"report": "fixtures/banked-runs/dose-wattson-3.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Wattson · 9 scales",
-			"report": "ui-playthrough-out/dose-wattson-9.json",
+			"report": "fixtures/banked-runs/dose-wattson-9.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Wattson · 15 scales",
-			"report": "ui-playthrough-out/dose-wattson-15.json",
+			"report": "fixtures/banked-runs/dose-wattson-15.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Wattson · 23 scales",
-			"report": "ui-playthrough-out/dose-wattson-28.json",
+			"report": "fixtures/banked-runs/dose-wattson-28.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Roxanne · 3 scales",
-			"report": "ui-playthrough-out/dose-roxanne-3.json",
+			"report": "fixtures/banked-runs/dose-roxanne-3.run.json",
 			"trainer": "Leader Roxanne",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Roxanne · 9 scales",
-			"report": "ui-playthrough-out/dose-roxanne-9.json",
+			"report": "fixtures/banked-runs/dose-roxanne-9.run.json",
 			"trainer": "Leader Roxanne",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Roxanne · 15 scales",
-			"report": "ui-playthrough-out/dose-roxanne-15.json",
+			"report": "fixtures/banked-runs/dose-roxanne-15.run.json",
 			"trainer": "Leader Roxanne",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Roxanne · 15 scales",
-			"report": "ui-playthrough-out/dose-roxanne-28.json",
+			"report": "fixtures/banked-runs/dose-roxanne-28.run.json",
 			"trainer": "Leader Roxanne",
 			"seeds": 30
 		}
