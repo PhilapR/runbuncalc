@@ -4,7 +4,7 @@
 /**
  * Play a run through the real UI, the way a player plays it.
  *
- * `tests/browser_run.test.js` proves single properties of the panel with a
+ * `tests/browser_run*.test.js` prove single properties of the panel with a
  * fight or two. This drives the whole loop instead — level, catch, party,
  * plan, fight, repeat — because the failures that matter most are the ones
  * that only appear on the twentieth fight: a route that never becomes
