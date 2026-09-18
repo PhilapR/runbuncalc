@@ -474,3 +474,77 @@ test('a charged move released after its target switched out hits the replacement
 	assert.ok(turn6.some(text => /Foe Sawsbuck used Bounce\. \(\d+% to Empoleon\)/.test(text)),
 		'and the Bounce lands on Empoleon: ' + turn6.join(' | '));
 });
+
+test('pick-by-play chooses among the ranker\'s sixes on selection seeds the grade never uses', () => {
+	// br-19 at Roxanne: the ranker's first six wins 0/30 and its own seventh
+	// 20/30 (LEADER-KEYS 2026-09-18). A six chosen by play must be chosen on
+	// seeds the evaluation never plays, or it grades the seeds that picked it.
+	const driverModule = require('../lib/battle-driver.js');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'br-19.run.json'), 'utf8'));
+	const start = driverModule.start;
+	const seeds = [];
+	driverModule.start = (d, trainer, seed) => { seeds.push(seed); return start(d, trainer, seed); };
+	let picked;
+	try {
+		picked = withArgv(['--pick-by-play=7', '--pick-seeds=2'],
+			() => battery.prepareDocument(doc, 'Leader Roxanne', policy));
+	} finally {
+		driverModule.start = start;
+	}
+	const byPlay = picked.repick.byPlay;
+	assert.equal(byPlay.k, 7);
+	assert.equal(byPlay.wins.length, 7, 'every candidate gets a tally');
+	assert.equal(seeds.length, 14, 'seven sixes, two selection seeds each');
+	assert.ok(seeds.every(seed => seed > battery.SELECTION_SEED_BASE),
+		'selection never plays an evaluation seed: ' + seeds.join(','));
+	const best = Math.max(...byPlay.wins);
+	assert.ok(best > Math.min(...byPlay.wins), 'the tallies must differ, or the choice is not tested: ' +
+		byPlay.wins.join(','));
+	assert.ok(byPlay.chosen > 1, 'at br-19 play overrules the ranker\'s first six');
+	assert.equal(byPlay.wins[byPlay.chosen - 1], best, 'the most selection wins is fielded');
+	assert.equal(byPlay.wins.indexOf(best) + 1, byPlay.chosen, 'and a tie keeps the ranker\'s order');
+
+	const run = require('../lib/run.js');
+	const ranked = run.rankParties(doc, 'Leader Roxanne', {}).parties[byPlay.chosen - 1];
+	assert.equal(picked.doc.party[0], ranked.lead, 'the fielded six is that candidate, lead first');
+
+	const off = withArgv([], () => battery.prepareDocument(doc, 'Leader Roxanne', policy));
+	assert.equal(off.repick.byPlay, undefined, 'off by default: the ranker\'s first six, as adopted');
+	assert.throws(() => withArgv(['--pick-by-play=3', '--repick-party=0'],
+		() => battery.prepareDocument(doc, 'Leader Roxanne', policy)), /needs --repick-party=1/);
+	assert.throws(() => withArgv(['--pick-by-play=3'],
+		() => battery.prepareDocument(doc, 'Leader Roxanne')), /needs the policy/);
+});
+
+test('a pick-by-play receipt records its tallies and replays through the tape tool', () => {
+	const argv = ['--report=fixtures/banked-runs/br-19.run.json', '--trainer=Leader Roxanne',
+		'--seeds=1', '--pick-by-play=3', '--pick-seeds=1'];
+	const out = withArgv(argv, () => battery.runScenario(policy, {name: 'Leader Roxanne',
+		trainer: 'Leader Roxanne', seeds: 1, report: 'fixtures/banked-runs/br-19.run.json'}));
+	assert.ok(out.repick.byPlay, 'the receipt says how the six was chosen');
+	assert.equal(out.counters.pickedByPlay, out.repick.byPlay.chosen > 1 ? 1 : 0);
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pbp-'));
+	const file = path.join(dir, 'pbp-test.json');
+	fs.writeFileSync(file, JSON.stringify({label: 'pbp-test', manifest: null, argv,
+		provenance: {revision: null}, results: [out],
+		effective: {'switch-priced': '1', 'repick-party': '1', 'pick-by-play': '3', 'pick-seeds': '1'}}));
+	const replayed = tapeRun(file, 'Leader Roxanne', 1);
+	assert.equal(replayed.status, 0, replayed.stderr);
+	assert.equal(replayed.out.row.result, out.rows[0].result);
+});
+
+test('shards split a manifest into disjoint slices that cover it', () => {
+	const scenarios = Array.from({length: 11}, (x, i) => ({name: 's' + i}));
+	const shards = [0, 1, 2].map(i => battery.shardOf(scenarios, i + '/3').map(s => s.name));
+	assert.deepEqual(shards.flat().sort(), scenarios.map(s => s.name).sort(), 'together they are the manifest');
+	assert.equal(new Set(shards.flat()).size, 11, 'and no scenario is in two');
+	assert.deepEqual(battery.shardOf(scenarios, ''), scenarios, 'no shard is the whole manifest');
+	assert.throws(() => battery.shardOf(scenarios, '3/3'), /i\/n with 0 <= i < n/);
+});
+
+test('a tie in selection wins keeps the ranker\'s order', () => {
+	assert.equal(battery.chooseByTally([0, 0, 0]), 1, 'no wins anywhere: the ranker\'s first six');
+	assert.equal(battery.chooseByTally([1, 3, 3, 2]), 2, 'the earlier of two equal tallies');
+	assert.equal(battery.chooseByTally([2, 0, 5]), 3);
+});

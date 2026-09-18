@@ -159,6 +159,7 @@ const GATED_COUNTERS = {
 	'ko-respects-order': {counter: 'koYielded', on: value => value !== '0'},
 	'stall-clock': {counter: 'clockHeld', on: value => value === 'net'},
 	'repick-party': {counter: 'repicked', on: value => value === '1'},
+	'pick-by-play': {counter: 'pickedByPlay', on: value => Number(value) > 1},
 	'switch-priced': {counter: 'switchRepriced', on: value => value === '1'},
 };
 
@@ -355,24 +356,98 @@ function loadDocument(file) {
  * ranker's lead. The flag is read when called, not at load, so the tape
  * tool re-picks under a receipt's own argv.
  */
-function prepareDocument(doc, trainer) {
+/**
+ * Selection seeds for --pick-by-play: disjoint from every evaluation seed.
+ *
+ * A six picked by its wins on seeds 1-20 and then graded on seeds 1-20 is
+ * graded on the seeds that picked it, and flatters itself. Manifests grade
+ * on 1..seeds (at most a few dozen); selection starts far above them.
+ */
+const SELECTION_SEED_BASE = 100000;
+
+/** The six the ranker's top party names, lead first. */
+function sixOf(party) {
+	return [party.lead].concat(party.members.map(member => member.id).filter(id => id !== party.lead));
+}
+
+/**
+ * Choose among the ranker's top K sixes by playing them.
+ *
+ * The ranker scores a six by an assignment-following playout that is not
+ * the policy that fights, and at Roxanne it shows: its pWin tracks wins at
+ * r = 0.13, and in br-19 its first six wins 0/30 where its own seventh wins
+ * 20/30 (LEADER-KEYS, 2026-09-18). So each candidate plays S selection
+ * seeds with the real policy and the most wins goes; a tie keeps the
+ * ranker's order. Every candidate's tally is returned for the receipt.
+ */
+function pickByPlay(policy, doc, trainer, parties, seeds) {
+	const tallies = parties.map(party => {
+		const candidate = run.apply(doc, {kind: 'party', ids: sixOf(party)});
+		let wins = 0;
+		for (let offset = 1; offset <= seeds; offset++) {
+			if (playScenario(policy, candidate, trainer, SELECTION_SEED_BASE + offset).result === 'win') wins++;
+		}
+		return wins;
+	});
+	return {chosen: chooseByTally(tallies), wins: tallies};
+}
+
+/** The 1-based rank with the most wins; a tie goes to the ranker's earlier six. */
+function chooseByTally(wins) {
+	let best = 0;
+	for (let index = 1; index < wins.length; index++) if (wins[index] > wins[best]) best = index;
+	return best + 1;
+}
+
+function prepareDocument(doc, trainer, policy) {
 	const mode = flag('repick-party', '1');
 	if (mode !== '0' && mode !== '1') {
 		throw new Error('--repick-party must be 0 or 1, not ' + JSON.stringify(mode));
 	}
-	if (mode === '0') return {doc, repick: null};
-	const top = (run.rankParties(doc, trainer, {}).parties || [])[0];
-	if (!top) return {doc, repick: {changed: false, why: 'the ranker offered no party'}};
-	const ids = [top.lead].concat(top.members.map(member => member.id)
-		.filter(id => id !== top.lead));
+	const k = Number(flag('pick-by-play', '0'));
+	const seeds = Number(flag('pick-seeds', '6'));
+	if (!Number.isInteger(k) || k < 0 || !Number.isInteger(seeds) || seeds < 1) {
+		throw new Error('--pick-by-play must be a whole number of sixes and --pick-seeds at least 1');
+	}
+	if (mode === '0') {
+		if (k > 1) throw new Error('--pick-by-play chooses among re-picked sixes; it needs --repick-party=1');
+		return {doc, repick: null};
+	}
+	const parties = run.rankParties(doc, trainer, {}).parties || [];
+	if (!parties.length) return {doc, repick: {changed: false, why: 'the ranker offered no party'}};
+	let chosen = parties[0];
+	let byPlay = null;
+	if (k > 1) {
+		if (!policy) throw new Error('--pick-by-play needs the policy that will fight');
+		byPlay = Object.assign({k, seeds}, pickByPlay(policy, doc, trainer, parties.slice(0, k), seeds));
+		chosen = parties[byPlay.chosen - 1];
+	}
+	const ids = sixOf(chosen);
 	const changed = JSON.stringify(ids) !== JSON.stringify(doc.party);
 	return {doc: changed ? run.apply(doc, {kind: 'party', ids}) : doc,
-		repick: {changed, from: (doc.party || []).slice(), to: ids}};
+		repick: Object.assign({changed, from: (doc.party || []).slice(), to: ids},
+			byPlay ? {byPlay} : {})};
+}
+
+/**
+ * The scenarios this process plays: all of them, or shard i of n.
+ *
+ * One batch of a big manifest ran in one process for as long as its
+ * slowest scenario chain; split by index, n processes run it side by side
+ * through battery-arms and the receipts are joined when scored.
+ */
+function shardOf(scenarios, spec) {
+	if (!spec) return scenarios;
+	const hit = /^(\d+)\/(\d+)$/.exec(spec);
+	if (!hit || Number(hit[1]) >= Number(hit[2]) || Number(hit[2]) < 1) {
+		throw new Error('--shard is i/n with 0 <= i < n, not ' + JSON.stringify(spec));
+	}
+	return scenarios.filter((scenario, index) => index % Number(hit[2]) === Number(hit[1]));
 }
 
 function runScenario(policy, scenario) {
 	const prepared = prepareDocument(requireScale(loadDocument(scenario.report)),
-		scenario.trainer);
+		scenario.trainer, policy);
 	const doc = prepared.doc;
 	const seeds = scenario.seeds || 20;
 	const out = {name: scenario.name, trainer: scenario.trainer,
@@ -404,6 +479,7 @@ function runScenario(policy, scenario) {
 	if (prepared.repick) {
 		out.repick = prepared.repick;
 		out.counters.repicked = prepared.repick.changed ? 1 : 0;
+		if (prepared.repick.byPlay) out.counters.pickedByPlay = prepared.repick.byPlay.chosen > 1 ? 1 : 0;
 	}
 	return out;
 }
@@ -432,7 +508,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'shard'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -447,10 +523,10 @@ function main() {
 	driver.setSwitchPricing(flag('switch-priced', '1') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
-	const scenarios = manifest ?
+	const scenarios = shardOf(manifest ?
 		JSON.parse(fs.readFileSync(manifest, 'utf8')).scenarios :
 		[{name: flag('trainer', ''), report: flag('report', ''),
-			trainer: flag('trainer', ''), seeds: Number(flag('seeds', '20'))}];
+			trainer: flag('trainer', ''), seeds: Number(flag('seeds', '20'))}], flag('shard', ''));
 	if (!scenarios.length || !scenarios[0].report) {
 		console.error('need --manifest=FILE or --report=FILE --trainer=NAME');
 		process.exit(1);
@@ -474,7 +550,9 @@ function main() {
 		// its argv cannot be replayed once they do. battery-tape.js reads this
 		// and treats a receipt without it as pre-adoption.
 		effective: {'switch-priced': flag('switch-priced', '1'),
-			'repick-party': flag('repick-party', '1')}});
+			'repick-party': flag('repick-party', '1'),
+			'pick-by-play': flag('pick-by-play', '0'), 'pick-seeds': flag('pick-seeds', '6')},
+		shard: flag('shard', '') || null});
 	const outPath = path.join('ui-playthrough-out', label + '-battery.json');
 	fs.writeFileSync(outPath, JSON.stringify(receipt, null, '\t'));
 	// The receipt is the same document in a TRACKED home. ui-playthrough-out
@@ -515,6 +593,6 @@ if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
-	prepareDocument, engineRefusalReport,
+	prepareDocument, engineRefusalReport, shardOf, chooseByTally, SELECTION_SEED_BASE,
 	OWN_FLAGS,
 	GATED_COUNTERS};

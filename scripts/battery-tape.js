@@ -71,7 +71,7 @@ function replay(receiptPath, scenarioName, seed) {
 
 	// The same pre-fight choice the batch made, under the batch's argv.
 	const doc = battery.prepareDocument(
-		battery.requireScale(battery.loadDocument(scenario.report)), scenario.trainer).doc;
+		battery.requireScale(battery.loadDocument(scenario.report)), scenario.trainer, policy).doc;
 	const tape = [];
 	const played = battery.playScenario(policy, doc, scenario.trainer, seed, tape);
 	const want = rowOf(recorded, seed);
