@@ -1,6 +1,6 @@
 import * as Calc from '@smogon/calc';
 import {getCalculatorAbility, getEffectiveAbility, getGenerationAbility, isAbilityActive, isAbilityAvailable} from './abilities';
-import {canEscapeTrappingEffect, getPokemon, isDisguiseActive, isGhostType, isRainWeather, isStrongWeather, isSunWeather, isSwitchBlockedByAbility, isWeatherSuppressed, sideForPokemon} from './actions';
+import {canEscapeTrappingEffect, chargeTargets, getPokemon, isDisguiseActive, isGhostType, isRainWeather, isStrongWeather, isSunWeather, isSwitchBlockedByAbility, isWeatherSuppressed, sideForPokemon} from './actions';
 import {calculateActionFacts} from './calc-adapter';
 import {getEffectiveMoveAccuracy, isMicleBerryReady} from './accuracy';
 import {
@@ -2780,7 +2780,7 @@ export function deriveMoveResolution(
     };
   }
   const chargeState = actor.volatile?.charge;
-  if (chargeState?.targetIds) action = {...action, targetIds: [...chargeState.targetIds]};
+  if (chargeState?.targetIds) action = {...action, targetIds: chargeTargets(state, chargeState.targetIds)};
   const moveState = actor.moves.find(move => move.name === action.moveName);
   const moveMetadata = moveState
     ? getEffectiveMoveMetadata(moveState, state.generation)

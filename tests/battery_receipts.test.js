@@ -434,3 +434,43 @@ test('an engine refusal is counted per seed and refuses the tally', () => {
 	assert.deepEqual(report, [{name: 'poisoned', seeds: [2, 5], refusals: 4}],
 		'only fights with refusals are named, with their seeds');
 });
+
+test('a charged move released after its target switched out hits the replacement', () => {
+	// Triathlete Jacob, held-out, seed 3, under the re-pick arm with real PP:
+	// Sawsbuck's Bounce went up at Walrein, we switched to Empoleon on turn 6,
+	// and the release was refused ("Damage references a non-target of the
+	// move") and turned into a lost turn. The same fight, played now.
+	const driverModule = require('../lib/battle-driver.js');
+	const argv = ['--switch-priced=0', '--repick-party=1', '--pp-model=1'];
+	const key = require.resolve('../scripts/ui-playthrough.js');
+	const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'scenarios', 'heldout.json'),
+		'utf8')).scenarios.find(entry => entry.name === 'Triathlete Jacob @73');
+	let played;
+	const turn6 = [];
+	withArgv(argv, () => {
+		delete require.cache[key];
+		const armed = require('../scripts/ui-playthrough.js');
+		const act = driverModule.act;
+		driverModule.act = (battle, action) => {
+			const reply = act(battle, action);
+			if (battle.state.turn === 6) turn6.push(...(reply.events || []).map(event => event.text));
+			return reply;
+		};
+		try {
+			driverModule.setPPModel(true);
+			driverModule.setSwitchPricing(false);
+			const doc = battery.prepareDocument(battery.requireScale(battery.loadDocument(scenario.report)),
+				scenario.trainer).doc;
+			played = battery.playScenario(armed, doc, scenario.trainer, 3);
+		} finally {
+			driverModule.act = act;
+			driverModule.setPPModel(false);
+			driverModule.setSwitchPricing(true);
+			delete require.cache[key];
+		}
+	});
+	assert.equal(played.engineRefusals, 0, 'no refusal anywhere in the fight: ' + turn6.join(' | '));
+	assert.ok(turn6.some(text => /Empoleon was sent out/.test(text)), 'the switch happens: ' + turn6.join(' | '));
+	assert.ok(turn6.some(text => /Foe Sawsbuck used Bounce\. \(\d+% to Empoleon\)/.test(text)),
+		'and the Bounce lands on Empoleon: ' + turn6.join(' | '));
+});

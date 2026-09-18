@@ -632,6 +632,31 @@ function canUseMove(state: BattleState, actor: PokemonState, move: PokemonState[
   return true;
 }
 
+/**
+ * Where a charged move lands when it is released.
+ *
+ * The charge remembers who was in when it began (Bounce, Fly, Dig, Solar
+ * Beam...). If that Pokemon has since left the field, the move lands on
+ * whoever now holds that side's position — the game's rule — instead of on
+ * a benched body. The stored ids were used verbatim: Sawsbuck's Bounce went
+ * up at Walrein, we switched to Empoleon, and the release computed damage
+ * for Walrein while the driver had aimed the action at Empoleon, so the
+ * engine refused it ("Damage references a non-target of the move") and the
+ * driver made the refusal a lost turn.
+ */
+export function chargeTargets(state: BattleState, targetIds: string[]): string[] {
+  const chosen: string[] = [];
+  for (const id of targetIds) {
+    if (!getPokemon(state, id)) continue;
+    const side = state.sides[sideForPokemon(state, id)];
+    const replacement = side.activeIds.includes(id)
+      ? id
+      : side.activeIds.find(active => !chosen.includes(active) && (getPokemon(state, active)?.hp.current ?? 0) > 0);
+    if (replacement && !chosen.includes(replacement)) chosen.push(replacement);
+  }
+  return chosen;
+}
+
 export function enumerateMoveActions(state: BattleState, sideId: SideId = 'ai'): MoveAction[] {
   const actions: MoveAction[] = [];
 
@@ -656,7 +681,7 @@ export function enumerateMoveActions(state: BattleState, sideId: SideId = 'ai'):
           kind: 'move',
           actorId: actor.id,
           moveName: chargedMove.name,
-          targetIds: [...(actor.volatile.charge.targetIds || [])],
+          targetIds: chargeTargets(state, actor.volatile.charge.targetIds || []),
         });
       }
       actions.push(...actorActions);
