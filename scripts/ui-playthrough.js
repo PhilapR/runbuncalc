@@ -305,6 +305,18 @@ if (STALL_CLOCK !== 'floor' && STALL_CLOCK !== 'net') {
 	throw new Error('--stall-clock must be floor or net, not ' + JSON.stringify(STALL_CLOCK));
 }
 const STALL_NET_MARGIN = 5;
+// Price the voluntary switch. The lost-race switch took any body that
+// "resists", judged by the move on the threat line — the foe's hardest hit
+// against the body IN PLAY. At Lass Haley that sent Rhyhorn in against Air
+// Slash on all twenty seeds and Surf killed it; the same entry death holds
+// 72 of 96 lost seeds across 8 of 10 vetoed re-pick scenarios (776bfdd).
+// Armed, the switch goes only to a body whose own race, seated and charged
+// the entry hit (driver.setSwitchPricing), is a win — and every voluntary
+// switch ranks by that price, as forced replacements already do.
+const SWITCH_PRICED = flag('switch-priced', '0');
+if (SWITCH_PRICED !== '0' && SWITCH_PRICED !== '1') {
+	throw new Error('--switch-priced must be 0 or 1, not ' + JSON.stringify(SWITCH_PRICED));
+}
 // The giant-killer line. Endeavor's floor prices at ~zero, so bestMove can
 // never surface the one move whose value explodes when we are hurt — zero
 // presses in the first strategy probe. Fire it when we are low, they are
@@ -2264,6 +2276,14 @@ function canAttack(roster, id) {
 }
 
 function healthiestSwitch(view, roster) {
+	const options = rankedSwitches(view, roster);
+	// The switch is the same kind of judgement on a margin as the move,
+	// and "who do we send in" is often where a lost fight was decided.
+	return options ? explore(options, 'switch') : null;
+}
+
+/** healthiestSwitch's ordering, without the exploration draw. */
+function rankedSwitches(view, roster) {
 	const incoming = incomingType(view);
 	const options = view.switches.map(entry => {
 		const hit = /(\d+)%$/.exec(entry.label);
@@ -2294,9 +2314,7 @@ function healthiestSwitch(view, roster) {
 	options.sort((a, b) => raceRank(a) - raceRank(b) ||
 		(b.armed ? 1 : 0) - (a.armed ? 1 : 0) ||
 		a.taking - b.taking || b.hp - a.hp);
-	// The switch is the same kind of judgement on a margin as the move,
-	// and "who do we send in" is often where a lost fight was decided.
-	return explore(options, 'switch');
+	return options;
 }
 
 /**
@@ -2589,7 +2607,24 @@ function decide(view, memory, roster) {
 		// one every time the threat line said the race was lost — switching
 		// from a healthy Prinplup into a Bunnelby that died in two turns.
 		// Swapping one losing matchup for another is worse than attacking.
-		const answer = replacement && replacement.taking < 1 ? replacement : null;
+		let answer = replacement && replacement.taking < 1 ? replacement : null;
+		if (SWITCH_PRICED === '1') {
+			// Refuse to run as the control: a priced arm on an unpriced driver
+			// would read every race as null and never switch, silently.
+			if (!require('../lib/battle-driver.js').switchPricing()) {
+				throw new Error('--switch-priced=1 needs driver.setSwitchPricing(true)');
+			}
+			answer = replacement && replacement.race === 'win' ? replacement : null;
+			// What the type rule would have sent, for the counter: the same
+			// ranking with the prices taken off, first pick, no draw.
+			const unpriced = rankedSwitches(Object.assign({}, view, {
+				switches: view.switches.map(entry => Object.assign({}, entry, {race: null})),
+			}), roster);
+			const typed = unpriced && unpriced[0].taking < 1 ? unpriced[0].id : null;
+			if (typed !== (answer ? answer.id : null)) {
+				memory.switchRepriced = (memory.switchRepriced || 0) + 1;
+			}
+		}
 		// The sacrifice exists to bring THE ANSWER in free, so it is only
 		// worth paying when there is an answer to bring in. The first version
 		// ran it as a fallback after the resist check had already failed —

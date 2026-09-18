@@ -353,3 +353,36 @@ test('a re-picked receipt replays through the tape tool', () => {
 	assert.equal(replayed.status, 0, replayed.stderr);
 	assert.equal(replayed.out.row.result, out.rows[0].result);
 });
+
+test('a priced-switch receipt replays through the tape tool, pricing and all', () => {
+	// The tape tool must switch the driver's pricing on from the receipt's
+	// argv, or every priced seed is refused as "the code moved".
+	const driverModule = require('../lib/battle-driver.js');
+	const argv = ['--report=fixtures/banked-runs/brkeys1-B-1.run.json',
+		'--trainer=Lass Haley', '--seeds=1', '--repick-party=1', '--switch-priced=1'];
+	const key = require.resolve('../scripts/ui-playthrough.js');
+	let out;
+	withArgv(argv, () => {
+		delete require.cache[key];
+		const priced = require('../scripts/ui-playthrough.js');
+		try {
+			driverModule.setSwitchPricing(true);
+			out = battery.runScenario(priced, {name: 'Lass Haley', trainer: 'Lass Haley', seeds: 1,
+				report: 'fixtures/banked-runs/brkeys1-B-1.run.json'});
+		} finally {
+			driverModule.setSwitchPricing(false);
+			delete require.cache[key];
+		}
+	});
+	assert.ok(out.counters.switchRepriced > 0,
+		'the Lass Haley line reaches the switch the price exists to refuse');
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'priced-'));
+	const file = path.join(dir, 'priced-test.json');
+	fs.writeFileSync(file, JSON.stringify({label: 'priced-test', manifest: null, argv,
+		provenance: {revision: null}, results: [out]}));
+	const replayed = tapeRun(file, 'Lass Haley', 1);
+	assert.equal(replayed.status, 0, replayed.stderr);
+	assert.equal(replayed.out.row.result, out.rows[0].result);
+	assert.ok(replayed.out.tape.every(step => !/this one resists/.test(step.why) ||
+		!/^switch to Rhyhorn/.test(step.chose)), 'Rhyhorn is never the resist switch here');
+});

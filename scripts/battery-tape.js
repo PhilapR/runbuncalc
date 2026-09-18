@@ -54,6 +54,7 @@ function replay(receiptPath, scenarioName, seed) {
 	const driver = require('../lib/battle-driver.js');
 	const policy = require('./ui-playthrough.js');
 	driver.setPPModel(argOf(receipt.argv, 'pp-model') === '1');
+	driver.setSwitchPricing(argOf(receipt.argv, 'switch-priced') === '1');
 
 	// The same pre-fight choice the batch made, under the batch's argv.
 	const doc = battery.prepareDocument(

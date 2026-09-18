@@ -997,3 +997,54 @@ test('the net stall clock ignores a status landing and a noise low, and counts a
 	assert.throws(() => loadWith(['--stall-clock=nett']), /must be floor or net/,
 		'a mistyped clock must not run the control under the treatment\'s label');
 });
+
+test('a priced switch goes only to a body that wins its race after the entry hit', () => {
+	// The Lass Haley line (776bfdd): the race is lost, the threat line names
+	// Air Slash, and the type rule sends Rhyhorn because Rock resists Flying.
+	// The priced rule asks what the foe does to Rhyhorn seated — Surf — and
+	// the driver prices that as a loss.
+	const driverModule = require('../lib/battle-driver.js');
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0, banked: 0, stallTried: new Set(), progress: null});
+	const view = switches => ({
+		prompt: 'What will Exeggcute do?', foe: 'Lumineon L22', foeHp: 100, usHp: 46,
+		risk: 'lethal',
+		threat: 'Their hardest hit: Air Slash 54% — 81% on a crit · a crit KOs you' +
+			' · you need 2 turns to KO, they need 1 — YOU LOSE THIS RACE · they act first',
+		moves: [{move: 'Psybeam', damage: '30%+', title: '30–36%'}],
+		switches,
+	});
+	const rhyhornLoses = {id: 'r1', label: 'Rhyhorn 100%', race: 'lose'};
+	const lombreWins = {id: 'l1', label: 'Lombre 100%', race: 'win'};
+
+	// Off: the type rule, exactly as before — Rhyhorn resists Air Slash.
+	const off = policy.decide(view([rhyhornLoses]), memory(), []);
+	assert.equal(off.kind, 'switch');
+	assert.equal(off.pick.id, 'r1');
+
+	const priced = loadWith(['--switch-priced=1']);
+	assert.throws(() => priced.decide(view([rhyhornLoses]), memory(), []),
+		/needs driver.setSwitchPricing/, 'an unpriced driver must not run as the control');
+
+	try {
+		driverModule.setSwitchPricing(true);
+		const stay = memory();
+		const refused = priced.decide(view([rhyhornLoses]), stay, []);
+		assert.equal(refused.kind, 'move', 'a resist that loses after the entry hit is not a refuge');
+		assert.equal(stay.switchRepriced, 1, 'and the counter records that the price changed the call');
+
+		const both = memory();
+		const taken = priced.decide(view([rhyhornLoses, lombreWins]), both, []);
+		assert.equal(taken.kind, 'switch');
+		assert.equal(taken.pick.id, 'l1', 'the body that wins its race goes, resist or not');
+		assert.equal(both.switchRepriced, 1);
+
+		const agree = memory();
+		priced.decide(view([{id: 'r1', label: 'Rhyhorn 100%', race: 'win'}]), agree, []);
+		assert.equal(agree.switchRepriced || 0, 0, 'when both rules send the same body, nothing is counted');
+	} finally {
+		driverModule.setSwitchPricing(false);
+	}
+	assert.throws(() => loadWith(['--switch-priced=yes']), /must be 0 or 1/);
+});

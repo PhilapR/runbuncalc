@@ -102,6 +102,7 @@ function countersOf(memory) {
 		stallTried: (memory.stallTried || new Set()).size,
 		koYielded: (memory.koYielded || new Set()).size,
 		clockHeld: memory.clockHeld || 0,
+		switchRepriced: memory.switchRepriced || 0,
 		slowed: slowed.filter(key => !atk(key)).length,
 		attackDrops: slowed.filter(atk).length,
 	};
@@ -158,6 +159,7 @@ const GATED_COUNTERS = {
 	'ko-respects-order': {counter: 'koYielded', on: value => value !== '0'},
 	'stall-clock': {counter: 'clockHeld', on: value => value === 'net'},
 	'repick-party': {counter: 'repicked', on: value => value === '1'},
+	'switch-priced': {counter: 'switchRepriced', on: value => value === '1'},
 };
 
 /**
@@ -422,6 +424,8 @@ function main() {
 	// receipt's argv records it, so an arm that ran fuel-free can never be
 	// mistaken for one that ran with real PP.
 	driver.setPPModel(flag('pp-model', '0') === '1');
+	// The policy reads --switch-priced; the price itself lives in the driver.
+	driver.setSwitchPricing(flag('switch-priced', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = manifest ?
