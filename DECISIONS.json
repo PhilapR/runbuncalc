@@ -99,7 +99,8 @@
 			"why": "Operator ruling on how Run & Bun actually serves egg moves.",
 			"enforcedBy": [
 				"lib/run.js",
-				"tests/run.test.js"
+				"tests/run.test.js",
+				"tests/run_advise.test.js"
 			]
 		},
 		{
@@ -110,6 +111,7 @@
 			"enforcedBy": [
 				"lib/run.js",
 				"tests/run.test.js",
+				"tests/run_advise.test.js",
 				"tests/server.smoke.test.js"
 			]
 		},
@@ -121,7 +123,7 @@
 			"enforcedBy": [
 				"lib/planner.js",
 				"tests/planner.test.js",
-				"tests/run.test.js",
+				"tests/run_advise.test.js",
 				"ai/src/move-metadata.ts"
 			]
 		},
@@ -197,7 +199,8 @@
 			"why": "The evolve command took a Ludicolo no Water Stone ever paid for, and the advisor graded level-21 Treeckos as Treeckos — which called Brawly unwinnable (0/30 rollouts) when the same box evolved won 27/30.",
 			"enforcedBy": [
 				"lib/run.js",
-				"tests/run.test.js"
+				"tests/run.test.js",
+				"tests/run_advise.test.js"
 			]
 		},
 		{
