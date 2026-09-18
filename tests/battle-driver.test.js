@@ -783,3 +783,23 @@ test('a Burn Up user is hit next turn: Fire is burned off, the fight is not', ()
 	assert.ok(texts.some(text => /^Foe \S+ used /.test(text)), 'the foe acts: ' + texts.join(' | '));
 	assert.ok(self().hp.current < hp, 'and its hit lands on the Burn Up user');
 });
+
+test('a move that loses its effect mid-turn is used, not refused', () => {
+	// Youngster Ben on the banked sv-20 run, seed 1: we switch Drednaw out for
+	// Donphan, and Porygon's Thunder Wave, chosen against Drednaw, meets a
+	// Ground type. The engine refused it as illegal and the driver turned
+	// that into a lost turn; the game uses it and it does nothing.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'sv-20.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Youngster Ben', 1);
+	const donphan = opened.actions.find(entry => entry.kind === 'switch' && entry.species === 'Donphan');
+	assert.ok(donphan, 'Donphan is on the bench to switch to');
+	const reply = driver.act(opened.battle, {kind: 'switch', replacementId: donphan.action.replacementId});
+	const texts = reply.events.map(event => event.text);
+	assert.ok(!reply.events.some(event => event.engineRefusal), 'no engine refusal: ' + texts.join(' | '));
+	assert.ok(texts.some(text => /^Foe Porygon/.test(text)), 'Porygon acts: ' + texts.join(' | '));
+	const seated = reply.battle.state.sides.player.party.find(mon => mon.species === 'Donphan');
+	assert.notEqual(seated.status, 'par', 'and a Ground type is not paralysed by it');
+});

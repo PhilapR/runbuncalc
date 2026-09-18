@@ -1,4 +1,4 @@
-import {actionKey, canEscapeTrappingEffect, enumerateMoveActions, getPokemon, isChoiceItem, isSwitchBlockedByAbility, sideForPokemon} from './actions';
+import {actionKey, canEscapeTrappingEffect, enumerateMoveActions, getPokemon, isChoiceItem, isSelectableMoveAction, isSwitchBlockedByAbility, sideForPokemon} from './actions';
 import {getEffectiveAbility, isAbilityActive, isAbilityAvailable} from './abilities';
 import {applyEndTurnResolution, deriveEndTurnResolution, EndTurnOptions} from './end-turn';
 import {deriveSwitchEntryResolution, SwitchEntryOptions} from './entry-hazards';
@@ -883,8 +883,11 @@ export function recordMoveAction(state: BattleState, action: MoveAction): Battle
   const actor = getPokemon(state, action.actorId);
   const move = actor?.moves.find(candidate => candidate.name === action.moveName);
   const isStruggle = moveId(action.moveName) === 'struggle';
+  // Offered at resolution, or at least selectable: a move that lost its
+  // effect mid-turn is used and fails, it is not an illegal action.
   const isEnumerated = enumerateMoveActions(state, sideId)
-    .some(candidate => actionKey(candidate) === actionKey(action));
+    .some(candidate => actionKey(candidate) === actionKey(action)) ||
+    isSelectableMoveAction(state, sideId, action);
 
   if (!actor || !side.activeIds.includes(actor.id) || actor.hp.current <= 0 ||
     (!isStruggle && !move) || (!isStruggle && !actor.volatile?.recharge && (move!.disabled || move!.pp === 0)) ||

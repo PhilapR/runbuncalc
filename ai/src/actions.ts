@@ -703,6 +703,32 @@ export function enumerateMoveActions(state: BattleState, sideId: SideId = 'ai'):
   return actions;
 }
 
+/**
+ * Whether the actor may SELECT this move, whatever it would then do.
+ *
+ * enumerateMoveActions answers a different question — which moves are worth
+ * offering — and folds "would have no effect" into its list: Thunder Wave
+ * into a body already asleep, a status move into an immune target. That is a
+ * fine menu, but recordMoveAction used it as the legality gate, and an action
+ * chosen at the start of the turn loses its effect when the faster action
+ * changes the board first (Gothitelle Rests before our Thunder Wave; we
+ * switch Drednaw out and Porygon's Thunder Wave meets Donphan). The game uses
+ * the move and it fails, PP spent. The engine refused it, and the driver made
+ * the refusal a lost turn (164 of them in the re-measure, 2026-09-18).
+ *
+ * This keeps every ACTOR-level rule — active, alive, the move known, not
+ * disabled, PP left, canUseMove (Taunt, Encore, choice lock, Imprison, ...),
+ * a target the move can reach — and drops only the effect filters.
+ */
+export function isSelectableMoveAction(state: BattleState, sideId: SideId, action: MoveAction): boolean {
+  const actor = activePokemon(state, sideId).find(pokemon => pokemon.id === action.actorId);
+  if (!actor || actor.hp.current <= 0 || actor.volatile?.recharge || actor.volatile?.charge) return false;
+  const move = actor.moves.find(candidate => candidate.name === action.moveName);
+  if (!move || move.disabled || move.pp === 0 || !canUseMove(state, actor, move)) return false;
+  const wanted = action.targetIds.join(',');
+  return targetsForMove(state, sideId, actor, move).some(targetIds => targetIds.join(',') === wanted);
+}
+
 export function enumerateSwitchActions(state: BattleState, sideId: SideId = 'ai'): SwitchAction[] {
   if (state.mode !== 'Singles' && state.mode !== 'Doubles') return [];
 
