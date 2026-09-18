@@ -40,6 +40,34 @@
 			"date": "2026-08-30",
 			"verdict": "recorded",
 			"note": "PP-model A/B treatment (--pp-model=1); Daisy 18/20 stuck 0, Jose 6/20, leaders unmoved — fuel resolves stalls, not walls"
+		},
+		{
+			"label": "battery4",
+			"measured_in": "be2f113",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "first batch on the curated 18-scenario battery and the first with per-seed rows; plain policy, fuel-free; clean worktree at bf07dfd"
+		},
+		{
+			"label": "battery4-pp",
+			"measured_in": "be2f113",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "battery4 with --pp-model=1; the real-PP control for koorder1-pp"
+		},
+		{
+			"label": "koorder1",
+			"measured_in": "be2f113",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 vs battery4, seed-paired: 20 seeds gained, 21 lost, McNemar p = 1.0; Jose +5, Vivian +3, the winnable Roxanne -5"
+		},
+		{
+			"label": "koorder1-pp",
+			"measured_in": "be2f113",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 --pp-model=1 vs battery4-pp: 22 gained, 21 lost, p = 1.0; Jose 6->12/20, the winnable Roxanne 8->3. Net-neutral: the flag stays off"
 		}
 	],
 	"scenarios": [
