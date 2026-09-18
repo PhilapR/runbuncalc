@@ -1,7 +1,50 @@
 {
 	"comment": "Second held-out set, for retesting the KO-yield arms with power. Selected 2026-09-18 from the sweep2 archive sweep (control policy only, next 8 singles per report, 5 seeds), before any treatment ran on these fights, by a rule declared from counts alone: won 1-4 of 5; excluding the eight trainers whose flipped seeds were read to design --ko-yield-min-hp (Wattson, Jose, Edward, Miguel, Daisy, Lyle, Roxanne, Vivian) and every trainer in scenarios/heldout.json; excluding every (trainer, report) pair already in battery.json or heldout.json; one fight per (trainer, report); at most 10 fights per trainer, first by report name. The first rule (trainers absent from the battery) left 22 fights, too few for ~100 discordant seeds. Names carry trainerIndexOf fight numbers and the source report.",
 	"generator": null,
-	"measured": [],
+	"measured": [
+		{
+			"label": "heldout2",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "plain policy, first batch on heldout2; 952/1480"
+		},
+		{
+			"label": "heldout2-pp",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "heldout2 with --pp-model=1; 956/1480"
+		},
+		{
+			"label": "heldout2-ko1",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 vs heldout2: 66 gained, 140 lost, p < 0.0001; harmful out of sample"
+		},
+		{
+			"label": "heldout2-ko1-pp",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 --pp-model=1 vs heldout2-pp: 65 gained, 145 lost, p < 0.0001"
+		},
+		{
+			"label": "heldout2-ko2",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 --ko-yield-min-hp=50 vs heldout2: 24 gained, 37 lost, p = 0.12"
+		},
+		{
+			"label": "heldout2-ko2-pp",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "koorder2 with --pp-model=1 vs heldout2-pp: 21 gained, 40 lost, p = 0.02; -17 of the -19 at School Kid Karen, roughly neutral elsewhere; fails the declared bar"
+		}
+	],
 	"scenarios": [
 		{
 			"name": "Trainer Rival Cycling Road Sceptile @75 [acc-11]",
