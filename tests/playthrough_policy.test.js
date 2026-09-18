@@ -944,3 +944,56 @@ test('a KO that lands after their hit yields to a resisting switch, only when ar
 	assert.equal(armed.decide(base, shared, []).kind, 'move',
 		'a second yield to the same foe is a switch loop, not a line');
 });
+
+test('the net stall clock ignores a status landing and a noise low, and counts a real fall', () => {
+	// The floor clock restarts whenever the foe's rendered name changes (a
+	// status appends " · brn") and on any new low, however small. The net
+	// clock keys on species and level and resets only on a fall of at least
+	// five points below where it last reset.
+	const memory = () => ({switchedFor: new Set(), statusedFoes: new Set(),
+		cleared: 0, disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
+		slowed: new Set(), healed: 0, banked: 0, stallTried: new Set(), progress: null});
+	// A fight we are winning slowly: nothing else on the bar fires.
+	const view = (foe, foeHp) => ({
+		prompt: 'What will Centiskorch do?', foe, foeHp, usHp: 90, risk: 'safe',
+		threat: 'Their hardest hit: Moonblast 20% — 30% on a crit' +
+			' · you need 3 turns to KO, they need 5 — you win it',
+		moves: [{move: 'Flamethrower', damage: '12%+', title: '12–15%'}],
+		switches: [{id: 's1', label: 'Aggron 100%'}],
+	});
+	// Florges holds at 60 through a burn landing and a heal-and-rechip that
+	// dips one point below its old low: no progress, by any honest reading.
+	const script = [view('Florges L79', 60), view('Florges L79 · brn', 60),
+		view('Florges L79 · brn', 80), view('Florges L79 · brn', 59)]
+		.concat(Array.from({length: 8}, () => view('Florges L79 · brn', 59)));
+
+	const floorClock = policy;
+	const netClock = loadWith(['--stall-clock=net']);
+	const play = (driver, mem) => script.map(step => driver.decide(step, mem, []));
+
+	const floorMem = memory();
+	const floorRun = play(floorClock, floorMem);
+	assert.ok(floorRun.every(choice => choice.kind === 'move'),
+		'the floor clock restarted twice and never reached ten');
+
+	const netMem = memory();
+	const netRun = play(netClock, netMem);
+	// Ten turns after the clock started, the stall-break fires — and clears
+	// the clock, so the turn after it is an ordinary one again.
+	assert.equal(netRun[10].kind, 'switch', 'the net clock reached ten and broke the stall');
+	assert.match(netRun[10].why, /no progress in 10 turns/);
+	assert.equal(netRun.filter(choice => choice.kind === 'switch').length, 1);
+	assert.equal(netMem.clockHeld, 2,
+		'held exactly twice: once for the burn in the name, once for the noise low');
+
+	// A real fall resets the net clock too: sixty to fifty is progress.
+	const fallMem = memory();
+	netClock.decide(view('Florges L79', 60), fallMem, []);
+	netClock.decide(view('Florges L79', 60), fallMem, []);
+	netClock.decide(view('Florges L79', 50), fallMem, []);
+	assert.equal(fallMem.progress.since, 0, 'ten points is a real fall');
+	assert.equal(fallMem.clockHeld || 0, 0);
+
+	assert.throws(() => loadWith(['--stall-clock=nett']), /must be floor or net/,
+		'a mistyped clock must not run the control under the treatment\'s label');
+});

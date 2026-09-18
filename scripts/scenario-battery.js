@@ -100,6 +100,7 @@ function countersOf(memory) {
 		switchedFor: (memory.switchedFor || new Set()).size,
 		stallTried: (memory.stallTried || new Set()).size,
 		koYielded: (memory.koYielded || new Set()).size,
+		clockHeld: memory.clockHeld || 0,
 		slowed: slowed.filter(key => !atk(key)).length,
 		attackDrops: slowed.filter(atk).length,
 	};
@@ -154,6 +155,7 @@ const GATED_COUNTERS = {
 	'attack-drop': {counter: 'attackDrops', on: value => value !== '0'},
 	'sac': {counter: 'sacked', on: value => Number(value) > 0},
 	'ko-respects-order': {counter: 'koYielded', on: value => value !== '0'},
+	'stall-clock': {counter: 'clockHeld', on: value => value === 'net'},
 };
 
 /**

@@ -290,6 +290,21 @@ const RACE_SENDS = flag('race-sends', '1') !== '0';
 // without a new low on the foe's HP is a dead line. `0` grinds forever, as
 // the control arm.
 const STALL_BREAK = flag('stall-break', '1') !== '0';
+// Which clock the stall-break reads. 'floor' is the original: any new low
+// resets it, and so does the foe's rendered name changing — nameOf appends
+// ` · brn`, ` · confused` — so a status landing restarts the count. battery1's
+// Daisy trace reached 303 turns without an escalation that stuck, and the
+// audit named both resets. 'net' keys the foe by species and level only and
+// resets only on a real fall: at least STALL_NET_MARGIN points below where
+// the clock last reset, so a heal is progress lost and a one-point dip after
+// it is not progress made. Under real PP the battery and both held-out sets
+// have no stuck seeds at all, so this is measured for what it changes in
+// ordinary fights, not for the stall it was named after.
+const STALL_CLOCK = flag('stall-clock', 'floor');
+if (STALL_CLOCK !== 'floor' && STALL_CLOCK !== 'net') {
+	throw new Error('--stall-clock must be floor or net, not ' + JSON.stringify(STALL_CLOCK));
+}
+const STALL_NET_MARGIN = 5;
 // The giant-killer line. Endeavor's floor prices at ~zero, so bestMove can
 // never surface the one move whose value explodes when we are hurt — zero
 // presses in the first strategy probe. Fire it when we are low, they are
@@ -2355,7 +2370,27 @@ function decide(view, memory, roster) {
 	// HP seen, and how many turns since it last fell. Every rule below is a
 	// judgement about THIS turn; this is the only one that can notice thirty
 	// identical turns going nowhere.
-	if (STALL_BREAK) {
+	if (STALL_BREAK && STALL_CLOCK === 'net') {
+		const key = String(view.foe).split(' · ')[0];
+		const clock = memory.progress;
+		if (!clock || clock.foe !== key) {
+			memory.progress = {foe: key, shown: view.foe, floor: view.foeHp,
+				anchor: view.foeHp, since: 0};
+		} else {
+			// What the floor clock would have done here, so the counter says
+			// exactly how often this treatment changed the count.
+			const floorWouldReset = clock.shown !== view.foe || view.foeHp < clock.floor;
+			clock.shown = view.foe;
+			if (view.foeHp < clock.floor) clock.floor = view.foeHp;
+			if (view.foeHp <= clock.anchor - STALL_NET_MARGIN) {
+				clock.anchor = view.foeHp;
+				clock.since = 0;
+			} else {
+				if (floorWouldReset) memory.clockHeld = (memory.clockHeld || 0) + 1;
+				clock.since += 1;
+			}
+		}
+	} else if (STALL_BREAK) {
 		if (!memory.progress || memory.progress.foe !== view.foe) {
 			memory.progress = {foe: view.foe, floor: view.foeHp, since: 0};
 		} else if (view.foeHp < memory.progress.floor) {
