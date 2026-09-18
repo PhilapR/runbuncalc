@@ -21,6 +21,7 @@ const skip = browserRun.skip;
 const open = browserRun.open;
 const openAllSections = browserRun.openAllSections;
 const savedRun = browserRun.savedRun;
+const battleReady = browserRun.battleReady;
 const driveVisibleBattleToReceipt = browserRun.driveVisibleBattleToReceipt;
 const selectManualMap = browserRun.selectManualMap;
 
@@ -339,17 +340,9 @@ test('a rolled encounter can be fought: the ball is on the buttons, the ending s
 	// Throw balls until the fight settles — a capped starter shrugs off a
 	// route-one wild, so this ends in a catch or (rarely) a kill, never a loss.
 	for (let turn = 0; turn < 30; turn++) {
-		const done = await page.evaluate(() =>
-			/Gotcha|spent, nothing kept/.test(
-				document.querySelector('#runbun-run-status').textContent));
-		if (done) break;
-		const ball = await page.$('.runbun-run-battle-ball');
-		if (!ball) {
-			await page.waitForTimeout(250);
-			continue;
-		}
-		await ball.click();
-		await page.waitForTimeout(150);
+		const ball = '.runbun-run-battle-ball:not([disabled])';
+		if (await battleReady(page, /Gotcha|spent, nothing kept/, ball) === 'done') break;
+		await page.click(ball);
 	}
 	try {
 		await page.waitForFunction(

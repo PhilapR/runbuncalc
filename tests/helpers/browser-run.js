@@ -121,19 +121,44 @@ async function durableHead(page) {
 	return page.evaluate(() => window.RunBunAttemptStore.getDefault().loadActive());
 }
 
+/**
+ * Wait until the fight wants input, or has settled. Returns 'act' or 'done'.
+ *
+ * This replaced flat 150/250ms sleeps between turns, which paced a 40-turn
+ * fight at a guess and still could not say whether the turn had landed. The
+ * panel says so itself: battleAct sets aria-busy on #runbun-run-battle and
+ * disables every move and switch in the same click handler, and
+ * setBattleBusy(false) clears both when the reply lands, in the task that
+ * repaints the bar. So "not busy, and a button is enabled" is the exact
+ * moment a player could press the next one, and nothing earlier is.
+ *
+ * `selector` is what counts as input — enabled moves and switches, or only
+ * balls for the throwing loop — and `done` is the status text that means the
+ * fight is over. A fight that is neither ready nor settled inside the bound
+ * fails with the status line in the message, not an anonymous timeout.
+ */
+async function battleReady(page, done, selector) {
+	try {
+		const handle = await page.waitForFunction(args => {
+			const text = document.querySelector('#runbun-run-status').textContent;
+			if (new RegExp(args.done).test(text)) return 'done';
+			if (document.querySelector('#runbun-run-battle').hasAttribute('aria-busy')) return false;
+			return document.querySelector(args.selector) ? 'act' : false;
+		}, {done: done.source, selector}, {timeout: 15000});
+		return handle.jsonValue();
+	} catch (error) {
+		const status = await page.textContent('#runbun-run-status').catch(() => '(unreadable)');
+		throw new Error('the fight neither asked for input nor settled; status: ' +
+			JSON.stringify(status) + ' — ' + error.message);
+	}
+}
+
 async function driveVisibleBattleToReceipt(page, maxTurns) {
+	const selector = '#runbun-run-battle-moves .runbun-run-battle-move:not([disabled]), ' +
+		'#runbun-run-battle-switches .runbun-run-battle-switch:not([disabled])';
 	for (let turn = 0; turn < (maxTurns || 40); turn++) {
-		const done = await page.evaluate(() =>
-			/recorded|Wiped/.test(document.querySelector('#runbun-run-status').textContent));
-		if (done) break;
-		const button = await page.$('#runbun-run-battle-moves .runbun-run-battle-move') ||
-			await page.$('#runbun-run-battle-switches .runbun-run-battle-switch');
-		if (!button) {
-			await page.waitForTimeout(250);
-			continue;
-		}
-		await button.click();
-		await page.waitForTimeout(150);
+		if (await battleReady(page, /recorded|Wiped/, selector) === 'done') break;
+		await page.click(selector);
 	}
 	await page.waitForFunction(
 		() => /recorded/.test(document.querySelector('#runbun-run-status').textContent),
@@ -155,4 +180,4 @@ async function selectManualMap(page, map) {
 }
 
 module.exports = {skip, harness, useBrowser, open, openAllSections, sentWithin,
-	savedRun, durableHead, driveVisibleBattleToReceipt, selectManualMap};
+	savedRun, durableHead, battleReady, driveVisibleBattleToReceipt, selectManualMap};
