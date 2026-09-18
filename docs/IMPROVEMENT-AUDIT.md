@@ -224,7 +224,7 @@ costume, caught before shipping.
 
 | Proposal | Mechanism | Measure |
 |---|---|---|
-| Shard browser_run.test.js | 3-4 files, shared helpers; Node parallelizes files | `test:server` ~110s → ~35-45s; total 567 unchanged; each shard failed once |
+| Shard browser_run.test.js — LANDED (f1278da), with run.test.js split behind it (d564cd6) | 4 browser shards + tests/helpers/browser-run.js; the ranker and advisor gates out of run.test.js, which the browser split exposed as the next long pole | measured: `test:server` 117.3s → 51.1s → 40.1s (39.3s on a second reading); 597 tests before and after; each new file failed once |
 | Event-driven battle waits | replace flat 150/250ms sleeps with waits on the status text the loop already reads | time the file alone pre/post |
 | Lint by directory | retire both enumerations; exclusions into `.eslintignore`; drop `--cache` from the gate | in flight (defect 2's session) |
 | A named fast lane | `test:quick` for touched files, documented as not the gate | additive; the pre-commit claim still requires `npm test` |
