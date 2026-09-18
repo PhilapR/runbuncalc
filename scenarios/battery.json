@@ -110,6 +110,20 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--stall-clock=net --pp-model=1 vs battery5-pp: 0 gained, 0 lost; clock held 101 times, no outcome moved"
+		},
+		{
+			"label": "repick1",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 vs battery5: 45 gained, 42 lost; Miguel net -12, winnable Roxanne 8 -> 2; Brawly 0 -> 2, Wattson 1 -> 2"
+		},
+		{
+			"label": "repick1-pp",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 --pp-model=1 vs battery5-pp: 48 gained, 42 lost, p = 0.60; the leader walls barely move"
 		}
 	],
 	"scenarios": [

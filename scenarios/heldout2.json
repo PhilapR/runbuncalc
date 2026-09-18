@@ -57,6 +57,20 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--stall-clock=net --pp-model=1 vs heldout2-pp; pooled held-out real PP 0 gained, 2 lost, p = 0.5, clock held 633 times; fails the declared bar"
+		},
+		{
+			"label": "heldout2-rp",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 vs heldout2; pooled held-out free PP 345 gained, 181 lost, p < 0.0001"
+		},
+		{
+			"label": "heldout2-rp-pp",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 --pp-model=1 vs heldout2-pp; pooled held-out real PP 339 gained, 183 lost, net +156, p < 0.0001; ten scenarios net -5 or worse (Lass Haley -16), so the declared veto fires"
 		}
 	],
 	"scenarios": [

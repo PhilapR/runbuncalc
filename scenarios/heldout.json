@@ -57,6 +57,20 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--stall-clock=net --pp-model=1 vs heldout1-pp; pooled with heldout2-sn-pp"
+		},
+		{
+			"label": "heldout1-rp",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 vs heldout1; pooled with heldout2-rp for the verdict"
+		},
+		{
+			"label": "heldout1-rp-pp",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 --pp-model=1 vs heldout1-pp; pooled with heldout2-rp-pp"
 		}
 	],
 	"scenarios": [
