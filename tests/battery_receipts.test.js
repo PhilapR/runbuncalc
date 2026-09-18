@@ -174,7 +174,7 @@ test('every battery scenario reads a document the repository tracks', () => {
 	// The battery and the held-out set are the instruments; the older
 	// experiment manifests still read the ignored archive and are not held
 	// to this until they are banked.
-	const untracked = ['battery.json', 'heldout.json'].flatMap(file => JSON.parse(
+	const untracked = ['battery.json', 'heldout.json', 'heldout2.json'].flatMap(file => JSON.parse(
 		fs.readFileSync(path.join(root, 'scenarios', file), 'utf8')).scenarios
 		.filter(scenario => !tracked.has(scenario.report))
 		.map(scenario => file + ': ' + scenario.name + ' -> ' + scenario.report));
