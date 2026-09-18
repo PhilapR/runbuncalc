@@ -68,6 +68,34 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--ko-respects-order=1 --pp-model=1 vs battery4-pp: 22 gained, 21 lost, p = 1.0; Jose 6->12/20, the winnable Roxanne 8->3. Net-neutral: the flag stays off"
+		},
+		{
+			"label": "battery5",
+			"measured_in": "7b9c267",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "plain policy at 2b413f9; reproduces battery4 exactly, so the control did not move"
+		},
+		{
+			"label": "battery5-pp",
+			"measured_in": "7b9c267",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "battery5 with --pp-model=1; reproduces battery4-pp exactly"
+		},
+		{
+			"label": "koorder2",
+			"measured_in": "7b9c267",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 --ko-yield-min-hp=50 vs battery5: 9 gained, 5 lost, p = 0.42; Daisy loses 4"
+		},
+		{
+			"label": "koorder2-pp",
+			"measured_in": "7b9c267",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "koorder2 with --pp-model=1 vs battery5-pp: 10 gained, 1 lost, p = 0.012; in-sample, the fights the gate was fit on"
 		}
 	],
 	"scenarios": [
