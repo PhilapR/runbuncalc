@@ -211,6 +211,62 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "both, the adopted defaults on the engine with the three refusal fixes (7dc244e), real PP; the adopted baseline from here, superseding heldout2-d-pp"
+		},
+		{
+			"label": "pbp-ho2-s0",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, fuel-free, shard 0/4"
+		},
+		{
+			"label": "pbp-ho2-s0-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 0/4"
+		},
+		{
+			"label": "pbp-ho2-s1",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, fuel-free, shard 1/4"
+		},
+		{
+			"label": "pbp-ho2-s1-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 1/4"
+		},
+		{
+			"label": "pbp-ho2-s2",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, fuel-free, shard 2/4"
+		},
+		{
+			"label": "pbp-ho2-s2-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 2/4"
+		},
+		{
+			"label": "pbp-ho2-s3",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, fuel-free, shard 3/4"
+		},
+		{
+			"label": "pbp-ho2-s3-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 3/4"
 		}
 	],
 	"scenarios": [

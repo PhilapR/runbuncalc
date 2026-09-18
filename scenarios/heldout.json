@@ -211,6 +211,27 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "both, the adopted defaults on the engine with the three refusal fixes (7dc244e), real PP"
+		},
+		{
+			"label": "pbp-ho1",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 sixes x 6 selection seeds on the adopted defaults at 1449ccc, fuel-free"
+		},
+		{
+			"label": "pbp-ho1-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 sixes x 6 selection seeds on the adopted defaults at 1449ccc, real PP"
+		},
+		{
+			"label": "pbp-ctl-ho1-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control spot-check at 1449ccc: plays seed for seed what heldout1-d2-pp played"
 		}
 	],
 	"scenarios": [
