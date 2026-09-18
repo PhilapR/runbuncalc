@@ -185,6 +185,21 @@ function unfiredTreatments(argv, results) {
 }
 
 /**
+ * The fights in a batch where the engine refused a transition.
+ *
+ * A refusal is not a result: the driver turns it into a lost turn so a live
+ * fight survives it, which is exactly how a Burn Up user went unhittable and
+ * 113 wins in the adopted baselines were counted as real. A batch with any is
+ * still written, as evidence of the defect, but it is not a measurement.
+ */
+function engineRefusalReport(results) {
+	return results.map(row => ({name: row.name,
+		seeds: (row.rows || []).filter(entry => entry.engineRefusals > 0).map(entry => entry.seed),
+		refusals: (row.rows || []).reduce((sum, entry) => sum + (entry.engineRefusals || 0), 0)}))
+		.filter(entry => entry.refusals > 0);
+}
+
+/**
  * A receipt that cannot be diagnosed is not written.
  *
  * The totals are a summary OF the rows, so they can be checked against them
@@ -242,10 +257,12 @@ function playScenario(policy, doc, trainer, seed, tape) {
 	let reply = driver.start(doc, trainer, seed);
 	let battle = reply.battle;
 	const memory = freshMemory();
+	// Transitions the engine refused: each is a lost turn the driver made up.
+	let engineRefusals = 0;
 	let guard = 0;
 	while (guard++ < 400) {
 		if (reply.result) {
-			return {result: reply.result, turns: battle.state.turn,
+			return {result: reply.result, turns: battle.state.turn, engineRefusals,
 				deaths: (reply.deaths || []).length,
 				// The driver already knows who killed what and with which
 				// move, on every death it reports: our `species` fell to the
@@ -270,6 +287,7 @@ function playScenario(policy, doc, trainer, seed, tape) {
 			{kind: 'move', move: choice.pick.move} :
 			{kind: 'switch', replacementId: choice.pick.id};
 		reply = driver.act(battle, action);
+		engineRefusals += (reply.events || []).filter(event => event.engineRefusal).length;
 		if (tape) {
 			tape.push({turn: battle.state.turn, phase, us: view.us, usHp: view.usHp,
 				foe: view.foe, foeHp: view.foeHp, threat: view.threat || '',
@@ -280,7 +298,7 @@ function playScenario(policy, doc, trainer, seed, tape) {
 		}
 		battle = reply.battle;
 	}
-	return {result: 'stuck', turns: 400, deaths: null, killers: [],
+	return {result: 'stuck', turns: 400, deaths: null, killers: [], engineRefusals,
 		foe: foeRemainderOf(battle), counters: countersOf(memory)};
 }
 
@@ -378,7 +396,8 @@ function runScenario(policy, scenario) {
 		// wins/losses pair.
 		out.rows.push({seed, result: played.result, turns: played.turns,
 			deaths: played.deaths, killers: played.killers || [],
-			foe: played.foe || null, counters: played.counters || {}});
+			foe: played.foe || null, counters: played.counters || {},
+			engineRefusals: played.engineRefusals || 0});
 	}
 	// Written only when the arm is on, so a control receipt is byte-identical
 	// to one from before the flag existed.
@@ -474,6 +493,12 @@ function main() {
 	// later proves that is what it was. What must not happen is the batch
 	// reporting success to a script that chains the next arm behind it, so
 	// the exit code carries the refusal even though the file landed.
+	const refused = engineRefusalReport(results);
+	for (const entry of refused) {
+		console.error('REFUSING the tally: the engine refused ' + entry.refusals + ' transition(s) in ' +
+			entry.name + ' (seeds ' + entry.seeds.join(', ') + ') — those turns were made up, not played');
+	}
+	if (refused.length) process.exitCode = 1;
 	const unfired = unfiredTreatments(process.argv.slice(2), results);
 	if (unfired.length) {
 		for (const entry of unfired) {
@@ -490,6 +515,6 @@ if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
-	prepareDocument,
+	prepareDocument, engineRefusalReport,
 	OWN_FLAGS,
 	GATED_COUNTERS};

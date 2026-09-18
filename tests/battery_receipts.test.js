@@ -391,3 +391,46 @@ test('a priced-switch receipt replays through the tape tool, pricing and all', (
 	assert.ok(replayed.out.tape.every(step => !/this one resists/.test(step.why) ||
 		!/^switch to Rhyhorn/.test(step.chose)), 'Rhyhorn is never the resist switch here');
 });
+
+test('an engine refusal is counted per seed and refuses the tally', () => {
+	// The driver turns a transition the engine refused into a lost turn so a
+	// live fight survives it. That is how a Burn Up user went unhittable and
+	// 113 adopted-baseline wins were counted as real (ledger
+	// burn-up-user-is-unhittable). The refusal is data now, and the battery
+	// counts it.
+	const driverModule = require('../lib/battle-driver.js');
+	const event = driverModule.refusalEvent('Bisharp', new Error('Damage must be a finite non-negative number'));
+	assert.equal(event.engineRefusal, true, 'a refusal is tagged, not just worded');
+	assert.match(event.text, /^Bisharp flinched at the engine: Damage must be/);
+
+	// A real fight, with one refusal injected into the second reply.
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'flannery-3.run.json'), 'utf8'));
+	const act = driverModule.act;
+	let calls = 0;
+	driverModule.act = (battle, action) => {
+		const reply = act(battle, action);
+		calls += 1;
+		return calls === 2 ? Object.assign({}, reply, {events: (reply.events || []).concat(
+			driverModule.refusalEvent('Mimikyu', new Error('injected')))}) : reply;
+	};
+	let played;
+	try {
+		played = battery.playScenario(policy, doc, 'Pokéfan Miguel', 3);
+	} finally {
+		driverModule.act = act;
+	}
+	assert.ok(calls >= 2, 'the fight lasted long enough to carry the injection');
+	assert.equal(played.engineRefusals, 1, 'exactly the one refusal, counted');
+	assert.equal(battery.playScenario(policy, doc, 'Pokéfan Miguel', 3).engineRefusals, 0,
+		'and none in the same fight played honestly');
+
+	const report = battery.engineRefusalReport([
+		{name: 'clean', rows: [{seed: 1, engineRefusals: 0}]},
+		{name: 'poisoned', rows: [{seed: 1, engineRefusals: 0}, {seed: 2, engineRefusals: 3},
+			{seed: 5, engineRefusals: 1}]},
+		{name: 'pre-counter receipt', rows: [{seed: 1}]},
+	]);
+	assert.deepEqual(report, [{name: 'poisoned', seeds: [2, 5], refusals: 4}],
+		'only fights with refusals are named, with their seeds');
+});
