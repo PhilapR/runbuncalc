@@ -78,7 +78,7 @@ test('a played fight reports the seed, not just the tally', () => {
 
 test('every seed gets a row, and the rows carry the totals', () => {
 	const scenario = scenarioFor(2);
-	const out = battery.runScenario(policy, scenario);
+	const out = withArgv(['--pick-by-play=0'], () => battery.runScenario(policy, scenario));
 
 	assert.equal(out.rows.length, 2, 'one row per seed');
 	assert.deepEqual(out.rows.map(row => row.seed), [1, 2]);
@@ -324,9 +324,13 @@ test('--repick-party fields the ranker\'s six, lead first, by default; =0 plays 
 	assert.equal(off.doc, doc, 'off: the banked party plays verbatim, as it always has');
 	assert.equal(off.repick, null);
 
-	const on = withArgv(['--repick-party=1'], () => battery.prepareDocument(doc, 'Leader Brawly'));
-	const byDefault = withArgv([], () => battery.prepareDocument(doc, 'Leader Brawly'));
-	assert.deepEqual(byDefault.repick, on.repick, 'adopted 2026-09-18: the battery re-picks unless told not to');
+	const on = withArgv(['--repick-party=1', '--pick-by-play=0'],
+		() => battery.prepareDocument(doc, 'Leader Brawly'));
+	const byDefault = withArgv([], () => battery.prepareDocument(doc, 'Leader Brawly', policy));
+	assert.equal(byDefault.repick.byPlay.k, 6, 'adopted 2026-09-18: the battery re-picks unless told not to, ' +
+		'and picks among the ranker\'s first six sixes by play');
+	assert.equal(byDefault.repick.byPlay.seeds, 6);
+	assert.deepEqual(byDefault.repick.from, on.repick.from);
 	const top = run.rankParties(doc, 'Leader Brawly', {}).parties[0];
 	assert.equal(on.doc.party[0], top.lead, 'the ranker\'s lead leads');
 	assert.deepEqual([...on.doc.party].sort(), top.members.map(member => member.id).sort(),
@@ -343,7 +347,7 @@ test('a re-picked receipt replays through the tape tool', () => {
 	// The tape tool must make the same pre-fight choice the batch made, or
 	// every re-picked seed is refused as "the code moved".
 	const policyArgv = ['--report=fixtures/banked-runs/brbank1-A-1.run.json',
-		'--trainer=Leader Brawly', '--seeds=1', '--repick-party=1'];
+		'--trainer=Leader Brawly', '--seeds=1', '--repick-party=1', '--pick-by-play=0'];
 	const out = withArgv(policyArgv, () => battery.runScenario(policy, {
 		name: 'Leader Brawly', trainer: 'Leader Brawly', seeds: 1,
 		report: 'fixtures/banked-runs/brbank1-A-1.run.json'}));
@@ -353,7 +357,7 @@ test('a re-picked receipt replays through the tape tool', () => {
 	const file = path.join(dir, 'repick-test.json');
 	fs.writeFileSync(file, JSON.stringify({label: 'repick-test', manifest: null,
 		argv: policyArgv, provenance: {revision: null}, results: [out],
-		effective: {'switch-priced': '1', 'repick-party': '1'}}));
+		effective: {'switch-priced': '1', 'repick-party': '1', 'pick-by-play': '0'}}));
 	const replayed = tapeRun(file, 'Leader Brawly', 1);
 	assert.equal(replayed.status, 0, replayed.stderr);
 	assert.equal(replayed.out.row.result, out.rows[0].result);
@@ -364,7 +368,7 @@ test('a priced-switch receipt replays through the tape tool, pricing and all', (
 	// argv, or every priced seed is refused as "the code moved".
 	const driverModule = require('../lib/battle-driver.js');
 	const argv = ['--report=fixtures/banked-runs/brkeys1-B-1.run.json',
-		'--trainer=Lass Haley', '--seeds=1', '--repick-party=1', '--switch-priced=1'];
+		'--trainer=Lass Haley', '--seeds=1', '--repick-party=1', '--switch-priced=1', '--pick-by-play=0'];
 	const key = require.resolve('../scripts/ui-playthrough.js');
 	let out;
 	withArgv(argv, () => {
@@ -441,7 +445,8 @@ test('a charged move released after its target switched out hits the replacement
 	// and the release was refused ("Damage references a non-target of the
 	// move") and turned into a lost turn. The same fight, played now.
 	const driverModule = require('../lib/battle-driver.js');
-	const argv = ['--switch-priced=0', '--repick-party=1', '--pp-model=1'];
+	// The fight as the re-pick arm measured it: the ranker's first six.
+	const argv = ['--switch-priced=0', '--repick-party=1', '--pp-model=1', '--pick-by-play=0'];
 	const key = require.resolve('../scripts/ui-playthrough.js');
 	const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'scenarios', 'heldout.json'),
 		'utf8')).scenarios.find(entry => entry.name === 'Triathlete Jacob @73');
@@ -509,8 +514,10 @@ test('pick-by-play chooses among the ranker\'s sixes on selection seeds the grad
 	const ranked = run.rankParties(doc, 'Leader Roxanne', {}).parties[byPlay.chosen - 1];
 	assert.equal(picked.doc.party[0], ranked.lead, 'the fielded six is that candidate, lead first');
 
-	const off = withArgv([], () => battery.prepareDocument(doc, 'Leader Roxanne', policy));
-	assert.equal(off.repick.byPlay, undefined, 'off by default: the ranker\'s first six, as adopted');
+	const off = withArgv(['--pick-by-play=0'], () => battery.prepareDocument(doc, 'Leader Roxanne', policy));
+	assert.equal(off.repick.byPlay, undefined, '=0: the ranker\'s first six, as before 2026-09-18');
+	assert.equal(withArgv(['--repick-party=0'], () => battery.prepareDocument(doc, 'Leader Roxanne')).repick, null,
+		'the banked six under the default is not a contradiction; only an explicit pick is');
 	assert.throws(() => withArgv(['--pick-by-play=3', '--repick-party=0'],
 		() => battery.prepareDocument(doc, 'Leader Roxanne', policy)), /needs --repick-party=1/);
 	assert.throws(() => withArgv(['--pick-by-play=3'],
@@ -547,4 +554,11 @@ test('a tie in selection wins keeps the ranker\'s order', () => {
 	assert.equal(battery.chooseByTally([0, 0, 0]), 1, 'no wins anywhere: the ranker\'s first six');
 	assert.equal(battery.chooseByTally([1, 3, 3, 2]), 2, 'the earlier of two equal tallies');
 	assert.equal(battery.chooseByTally([2, 0, 5]), 3);
+});
+
+test('the receipt records the pick that played, so the tape tool replays it', () => {
+	assert.equal(withArgv([], battery.effectivePick), '6', 'adopted 2026-09-18: six sixes by play');
+	assert.equal(withArgv(['--pick-by-play=0'], battery.effectivePick), '0');
+	assert.equal(withArgv(['--repick-party=0'], battery.effectivePick), '0',
+		'the banked six plays, so nothing was picked by play; recording 6 would make the tape refuse it');
 });

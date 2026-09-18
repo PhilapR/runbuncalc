@@ -399,18 +399,39 @@ function chooseByTally(wins) {
 	return best + 1;
 }
 
+/**
+ * Adopted 2026-09-18 by operator ruling (DECISIONS: the-battery-picks-the-six-by-play):
+ * the ranker's first six sixes, six selection seeds each.
+ */
+const PICK_BY_PLAY = '6';
+const PICK_SEEDS = '6';
+
+function explicitPick() {
+	const hit = process.argv.find(arg => arg.startsWith('--pick-by-play='));
+	return hit ? Number(hit.slice('--pick-by-play='.length)) : 0;
+}
+
+/** What the receipt records: no six was picked by play when the banked six plays. */
+function effectivePick() {
+	return flag('repick-party', '1') === '0' ? '0' : flag('pick-by-play', PICK_BY_PLAY);
+}
+
 function prepareDocument(doc, trainer, policy) {
 	const mode = flag('repick-party', '1');
 	if (mode !== '0' && mode !== '1') {
 		throw new Error('--repick-party must be 0 or 1, not ' + JSON.stringify(mode));
 	}
-	const k = Number(flag('pick-by-play', '0'));
-	const seeds = Number(flag('pick-seeds', '6'));
+	const k = Number(flag('pick-by-play', PICK_BY_PLAY));
+	const seeds = Number(flag('pick-seeds', PICK_SEEDS));
 	if (!Number.isInteger(k) || k < 0 || !Number.isInteger(seeds) || seeds < 1) {
 		throw new Error('--pick-by-play must be a whole number of sixes and --pick-seeds at least 1');
 	}
 	if (mode === '0') {
-		if (k > 1) throw new Error('--pick-by-play chooses among re-picked sixes; it needs --repick-party=1');
+		// The default picks by play; only an explicit request with the
+		// banked six is a contradiction.
+		if (explicitPick() > 1) {
+			throw new Error('--pick-by-play chooses among re-picked sixes; it needs --repick-party=1');
+		}
 		return {doc, repick: null};
 	}
 	const parties = run.rankParties(doc, trainer, {}).parties || [];
@@ -551,7 +572,7 @@ function main() {
 		// and treats a receipt without it as pre-adoption.
 		effective: {'switch-priced': flag('switch-priced', '1'),
 			'repick-party': flag('repick-party', '1'),
-			'pick-by-play': flag('pick-by-play', '0'), 'pick-seeds': flag('pick-seeds', '6')},
+			'pick-by-play': effectivePick(), 'pick-seeds': flag('pick-seeds', PICK_SEEDS)},
 		shard: flag('shard', '') || null});
 	const outPath = path.join('ui-playthrough-out', label + '-battery.json');
 	fs.writeFileSync(outPath, JSON.stringify(receipt, null, '\t'));
@@ -593,6 +614,6 @@ if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
-	prepareDocument, engineRefusalReport, shardOf, chooseByTally, SELECTION_SEED_BASE,
+	prepareDocument, engineRefusalReport, shardOf, chooseByTally, effectivePick, SELECTION_SEED_BASE,
 	OWN_FLAGS,
 	GATED_COUNTERS};

@@ -317,6 +317,17 @@
 				"scripts/battery-tape.js",
 				"tests/battery_receipts.test.js"
 			]
+		},
+		{
+			"id": "the-battery-picks-the-six-by-play",
+			"date": "2026-09-18",
+			"ruling": "A re-picking battery scenario fields, of the ranker's first six sixes, the one that wins most of six selection fights played by the real policy on seeds 100001-100006, disjoint from every evaluation seed; a tie keeps the ranker's order. --pick-by-play=0 fields the ranker's first six. The receipt records every tally; battery-tape.js replays a receipt without the record as --pick-by-play=0. The live run still fields the ranker's first six.",
+			"why": "The ranker scores a six with an assignment-following playout that is not the policy that fights: at Roxanne its pWin tracks wins at r = 0.13. On the 87 held-out fights with real PP, picking by play won 1430 of 1740 seeds against the adopted defaults' 1356 (+102 -28, p = 4.4e-11, receipts 2111544), +29 without the largest trainer, and no fight worse than -2. It costs 36 selection fights per scenario, about twice the battery's time.",
+			"enforcedBy": [
+				"scripts/scenario-battery.js",
+				"scripts/battery-tape.js",
+				"tests/battery_receipts.test.js"
+			]
 		}
 	],
 	"open": [
