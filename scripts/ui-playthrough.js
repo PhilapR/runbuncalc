@@ -270,6 +270,14 @@ const BANK_BODIES = flag('bank-bodies', '0') !== '0';
 // free and a switched one does not. This is the arm that asks whether
 // holding a KO changes that trade.
 const KO_RESPECTS_ORDER = flag('ko-respects-order', '0') !== '0';
+// Only yield a body worth saving. koorder1's tapes split its 43 flipped seeds
+// by the holder's HP at the first yield: at 50% or more it gained 8 and lost
+// 1 (Vespiquen at 100% into a 290% Rock Slide), below it gained 14 and lost
+// 20 (Octillery at 30% into a 46% Knock Off the AI often did not choose).
+// A chipped body that dies brings the next one in free — bank-bodies'
+// lesson again. 0 keeps koorder1's rule, so its receipts still replay; the
+// split was found in-sample, so koorder2 is measured on held-out fights.
+const KO_YIELD_MIN_HP = Number(flag('ko-yield-min-hp', '0'));
 // A forced replacement sends the body that WINS the race, not the healthiest
 // one: the engine now prices every candidate's attrition race, and a loser's
 // extra health is spent losing. `0` restores armed/resist/health order, as
@@ -2363,7 +2371,8 @@ function decide(view, memory, roster) {
 		// the body that comes in may face the same clock, and two bodies
 		// yielding to each other is a switch loop, not a line.
 		memory.koYielded = memory.koYielded || new Set();
-		if (KO_RESPECTS_ORDER && !memory.koYielded.has(view.foe) && koOutrun(view, move) &&
+		if (KO_RESPECTS_ORDER && !memory.koYielded.has(view.foe) &&
+			view.usHp >= KO_YIELD_MIN_HP && koOutrun(view, move) &&
 			!(PURSUIT_GUARD && /Pursuit KOs anything that switches out/.test(view.threat || ''))) {
 			const refuge = healthiestSwitch(view, roster);
 			if (refuge && refuge.taking < 1 && refuge.hp >= 50) {

@@ -1,0 +1,85 @@
+{
+	"comment": "Held-out fights for testing a policy change the battery was used to design. Selected 2026-09-18 by a fixed rule, before any treatment ran on them: from the sweep1 archive sweep (control policy only, 5 seeds), fights won 1-4 of 5, singles only, against trainers that appear nowhere in scenarios/battery.json, first fight per trainer by report name. Five of them (James, Luna, Dylan, Maria, Bianca) were also measured by the control during battery curation; no treatment and no tape analysis has touched any of them. Names carry fight numbers from run.trainerIndexOf on each fight's own document.",
+	"generator": null,
+	"measured": [],
+	"scenarios": [
+		{
+			"name": "Bug Maniac James @29",
+			"report": "fixtures/banked-runs/brkeys1-A-2.run.json",
+			"trainer": "Bug Maniac James",
+			"seeds": 20
+		},
+		{
+			"name": "Youngster Joey @34",
+			"report": "fixtures/banked-runs/brkeys3b-B-3.run.json",
+			"trainer": "Youngster Joey",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Janice @35",
+			"report": "fixtures/banked-runs/brkeys3b-B-3.run.json",
+			"trainer": "Lass Janice",
+			"seeds": 20
+		},
+		{
+			"name": "Lady Sarah @39",
+			"report": "fixtures/banked-runs/skipwall4-A-7.run.json",
+			"trainer": "Lady Sarah",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49",
+			"report": "fixtures/banked-runs/br-5.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51",
+			"report": "fixtures/banked-runs/br-10.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52",
+			"report": "fixtures/banked-runs/br-20.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53",
+			"report": "fixtures/banked-runs/br-10.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58",
+			"report": "fixtures/banked-runs/brbank1-A-2.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Fisherman Dale @60",
+			"report": "fixtures/banked-runs/acc-17.run.json",
+			"trainer": "Fisherman Dale",
+			"seeds": 20
+		},
+		{
+			"name": "Youngster Ben @65",
+			"report": "fixtures/banked-runs/sv-20.run.json",
+			"trainer": "Youngster Ben",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Jacob @73",
+			"report": "fixtures/banked-runs/sac-A-6.run.json",
+			"trainer": "Triathlete Jacob",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Rival Cycling Road Swampert @75",
+			"report": "fixtures/banked-runs/sac-A-4.run.json",
+			"trainer": "Trainer Rival Cycling Road Swampert",
+			"seeds": 20
+		}
+	]
+}

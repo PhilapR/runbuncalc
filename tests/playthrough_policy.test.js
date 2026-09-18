@@ -926,6 +926,18 @@ test('a KO that lands after their hit yields to a resisting switch, only when ar
 	ko({threat: base.threat + ' · Pursuit KOs anything that switches out'},
 		'a killing Pursuit closes the door');
 
+	// koorder2: only a body worth saving yields. The same doomed KO at 40% is
+	// pressed; at full health against a hit that kills from full, it yields.
+	const gated = loadWith(['--ko-respects-order=1', '--ko-yield-min-hp=50']);
+	assert.equal(gated.decide(base, memory(), []).kind, 'move',
+		'a chipped holder presses its KO: if it dies, the next body comes in free');
+	const healthy = Object.assign({}, base, {usHp: 100,
+		threat: base.threat.replace('Mach Punch 47%', 'Mach Punch 290%')});
+	assert.equal(gated.decide(healthy, memory(), []).kind, 'switch',
+		'a healthy holder the plain hit still kills is worth the entry hit');
+	assert.equal(armed.decide(base, memory(), []).kind, 'switch',
+		'and the default gate is 0, which is koorder1 exactly');
+
 	// Once per opposing Pokemon: the body that comes in can face the same clock.
 	const shared = memory();
 	assert.equal(armed.decide(base, shared, []).kind, 'switch');

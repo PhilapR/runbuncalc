@@ -9,12 +9,44 @@
 			"sha256": "42df07c99fb3804afa096e1bfad6a6d219a114517ba2cf553295d5581db41920"
 		},
 		{
+			"file": "acc-17.run.json",
+			"source": "ui-playthrough-out/report-acc-17.json",
+			"position": 190,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "49bf2a901fff80f8e55720dbc039810a2de7d15dc3e2e4706c25bd5f1082a593"
+		},
+		{
 			"file": "br-1.run.json",
 			"source": "ui-playthrough-out/report-br-1.json",
 			"position": 138,
 			"orderScale": "route103-wally-2026-08-28",
 			"box": 16,
 			"sha256": "ec105b6ca6cf6f243082c148421e4ae481488e85eb6c3aaee1197edb2e88e559"
+		},
+		{
+			"file": "br-10.run.json",
+			"source": "ui-playthrough-out/report-br-10.json",
+			"position": 161,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "64c05d1d9710d44c927676f9f34aaa97d13456b5f3790d24f1b2bbed2ab7cba6"
+		},
+		{
+			"file": "br-20.run.json",
+			"source": "ui-playthrough-out/report-br-20.json",
+			"position": 156,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "917aaec478d4eff485867887f0e1e283fa0556eadda8585fe3535b30bf1111ac"
+		},
+		{
+			"file": "br-5.run.json",
+			"source": "ui-playthrough-out/report-br-5.json",
+			"position": 148,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "7e202994298b77f185b113c34b50a86cffe5b43a7f9c75ff9b9d982e94afde2c"
 		},
 		{
 			"file": "br-6.run.json",
@@ -33,6 +65,14 @@
 			"sha256": "5895d33f3c207348d3bb49247dcf28c32538ce0079d86021b3e74a47482a5165"
 		},
 		{
+			"file": "brbank1-A-2.run.json",
+			"source": "ui-playthrough-out/report-brbank1-A-2.json",
+			"position": 180,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "8374bbb2cfd9c017a9260f7d07938a8d6f0a6d75cde9551fbb86c509bceefbc9"
+		},
+		{
 			"file": "brheal1-B-2.run.json",
 			"source": "ui-playthrough-out/report-brheal1-B-2.json",
 			"position": 112,
@@ -49,12 +89,28 @@
 			"sha256": "b14cbfff933d1653855540e9ffbf6c9428ce58597af0ceeb0d59851dda81eb15"
 		},
 		{
+			"file": "brkeys1-A-2.run.json",
+			"source": "ui-playthrough-out/report-brkeys1-A-2.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "e0de5372ca4e1c4468c5852b4cbd55a75956c2f8b783dfaaa886e1395e7994bd"
+		},
+		{
 			"file": "brkeys2-A-1.run.json",
 			"source": "ui-playthrough-out/report-brkeys2-A-1.json",
 			"position": 76,
 			"orderScale": "route103-wally-2026-08-28",
 			"box": 16,
 			"sha256": "93fd043b2bc6585ed268896cd4a1dfa07877512c4dd263af0575476e6691eaa6"
+		},
+		{
+			"file": "brkeys3b-B-3.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-B-3.json",
+			"position": 102,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "3a6140d1d655f2113de755afab0c7dfeaf7c08199e426ce1f2c5293218a82861"
 		},
 		{
 			"file": "flannery-3.run.json",
@@ -103,6 +159,30 @@
 			"orderScale": "route103-wally-2026-08-28",
 			"box": 25,
 			"sha256": "1c39c8b54a735a0b06e457cf5c5c218ae74a35b43214a2e561e656f1e7ce41b0"
+		},
+		{
+			"file": "sac-A-4.run.json",
+			"source": "ui-playthrough-out/report-sac-A-4.json",
+			"position": 255,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "44e2cce8bed3ecad3fbf33f22dd0ea804cd1d39bbc47026bbd01b94a2a59d299"
+		},
+		{
+			"file": "sac-A-6.run.json",
+			"source": "ui-playthrough-out/report-sac-A-6.json",
+			"position": 248,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "a80f4890989ba7e864364b9435d1b6bdb0e4bdbb61741d5989a3f168686b2e87"
+		},
+		{
+			"file": "skipwall4-A-7.run.json",
+			"source": "ui-playthrough-out/report-skipwall4-A-7.json",
+			"position": 118,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "939d9785ba5973cff525ff78308b630397db0cb51091ee25b1d384753c4ed7a4"
 		},
 		{
 			"file": "sv-20.run.json",

@@ -169,13 +169,15 @@ test('every battery scenario reads a document the repository tracks', () => {
 	// offload, a fresh clone and CI; a path under an ignored directory
 	// survives none of them.
 	const root = path.join(__dirname, '..');
-	const manifest = JSON.parse(fs.readFileSync(
-		path.join(root, 'scenarios', 'battery.json'), 'utf8'));
 	const tracked = new Set(require('node:child_process').execFileSync('git', ['ls-files', 'fixtures/banked-runs'],
 		{cwd: root, encoding: 'utf8'}).split('\n').filter(Boolean));
-	const untracked = manifest.scenarios
+	// The battery and the held-out set are the instruments; the older
+	// experiment manifests still read the ignored archive and are not held
+	// to this until they are banked.
+	const untracked = ['battery.json', 'heldout.json'].flatMap(file => JSON.parse(
+		fs.readFileSync(path.join(root, 'scenarios', file), 'utf8')).scenarios
 		.filter(scenario => !tracked.has(scenario.report))
-		.map(scenario => scenario.name + ' -> ' + scenario.report);
+		.map(scenario => file + ': ' + scenario.name + ' -> ' + scenario.report));
 	assert.deepEqual(untracked, [],
 		'these scenarios read files git does not track, so the next offload breaks them');
 });
