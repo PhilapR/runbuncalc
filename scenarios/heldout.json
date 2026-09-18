@@ -232,6 +232,20 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "control spot-check at 1449ccc: plays seed for seed what heldout1-d2-pp played"
+		},
+		{
+			"label": "expo-ctl-ho1-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP"
+		},
+		{
+			"label": "expo-x05-ho1-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP"
 		}
 	],
 	"scenarios": [

@@ -267,6 +267,62 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 3/4"
+		},
+		{
+			"label": "expo-ctl-ho2-s0-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP, shard 0/4"
+		},
+		{
+			"label": "expo-x05-ho2-s0-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP, shard 0/4"
+		},
+		{
+			"label": "expo-ctl-ho2-s1-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP, shard 1/4"
+		},
+		{
+			"label": "expo-x05-ho2-s1-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP, shard 1/4"
+		},
+		{
+			"label": "expo-ctl-ho2-s2-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP, shard 2/4"
+		},
+		{
+			"label": "expo-x05-ho2-s2-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP, shard 2/4"
+		},
+		{
+			"label": "expo-ctl-ho2-s3-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP, shard 3/4"
+		},
+		{
+			"label": "expo-x05-ho2-s3-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP, shard 3/4"
 		}
 	],
 	"scenarios": [
