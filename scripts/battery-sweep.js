@@ -36,6 +36,7 @@ function flag(name, fallback) {
 
 function main() {
 	const policy = require('./ui-playthrough.js');
+	battery.refuseUnread(policy, ['dir', 'ahead', 'seeds', 'label']);
 	const dir = flag('dir', 'ui-playthrough-out');
 	const ahead = Number(flag('ahead', '3'));
 	const seeds = Number(flag('seeds', '5'));

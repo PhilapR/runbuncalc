@@ -84,6 +84,27 @@ function flag(name, fallback) {
 	return hit === undefined ? fallback : hit.slice(name.length + 3);
 }
 
+/**
+ * Arguments that swallowed the flag after them.
+ *
+ * koorder1-pp was launched from a shell that did not split a variable, so
+ * `--ko-respects-order=1 --pp-model=1` arrived as ONE argument. `flag` read
+ * the first flag's value as "1 --pp-model=1" — truthy, so the treatment ran —
+ * and nothing ever asked for --pp-model, whose name never reached argv on its
+ * own. The arm ran fuel-free under a real-PP label and matched koorder1 to
+ * the seed. The unread-flag audit cannot see this: the swallowing flag's
+ * name IS known. A value may hold a space (`--trainer=Leader Wattson`); what
+ * no value holds is whitespace followed by another flag.
+ */
+function gluedFlags(argv) {
+	return argv.slice(2).filter(arg => /^--[^=\s]+=.*\s--[a-z]/.test(arg));
+}
+const GLUED = gluedFlags(process.argv);
+if (GLUED.length) {
+	throw new Error('refusing: ' + GLUED.map(arg => JSON.stringify(arg)).join(', ') +
+		' carries a second flag inside its value — pass each flag as its own argument');
+}
+
 /** A git value, or null outside a checkout. Never throws: provenance must
  * not be able to fail a run. */
 function gitOutput(args) {
@@ -3270,6 +3291,7 @@ module.exports = {
 	capOf: capOf,
 	ivNote: ivNote,
 	unreadFlags: unreadFlags,
+	gluedFlags: gluedFlags,
 	rankMoves: rankMoves,
 	moveValue: moveValue,
 	basePowerOf: basePowerOf,

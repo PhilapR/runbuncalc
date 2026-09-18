@@ -332,10 +332,36 @@ function runScenario(policy, scenario) {
 	return out;
 }
 
+/**
+ * Flags on argv that neither this script nor the policy reads.
+ *
+ * The browser driver has refused these since --legacy-rank was passed to a
+ * whole A/B arm without existing; the battery never asked. So a typo'd
+ * treatment — `--ko-respect-order=1` — ran the control under the
+ * treatment's label, and only the five gating flags had a counter that
+ * could notice afterwards. Checked before a single fight, so a refused
+ * batch costs nothing and writes no receipt. The policy's flags are all
+ * read at load, which is why its answer is complete by the time we ask.
+ */
+function unreadBy(policy, own) {
+	return policy.unreadFlags().filter(name => !own.includes(name));
+}
+
+function refuseUnread(policy, own) {
+	const unread = unreadBy(policy, own);
+	if (!unread.length) return;
+	console.error('REFUSING: nothing reads ' + unread.map(name => '--' + name).join(', ') +
+		' — a typo here runs the control under the treatment\'s label');
+	process.exit(1);
+}
+
+const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds'];
+
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
 	// require time, and the gate loads this module with its own argv.
 	const policy = require('./ui-playthrough.js');
+	refuseUnread(policy, OWN_FLAGS);
 	// A model flag, not a policy flag: it changes what the fight IS. The
 	// receipt's argv records it, so an arm that ran fuel-free can never be
 	// mistaken for one that ran with real PP.
@@ -397,5 +423,6 @@ function main() {
 if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
-	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt,
+	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
+	OWN_FLAGS,
 	GATED_COUNTERS};

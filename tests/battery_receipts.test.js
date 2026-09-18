@@ -195,3 +195,64 @@ test('a scenario plays from a report or from its banked run document, nothing el
 	assert.throws(() => battery.loadDocument(neither), /neither a report nor a run document/,
 		'a receipt handed in by mistake is refused, not played as an empty box');
 });
+
+test('a flag that swallowed the next one is refused on sight', () => {
+	// The exact argv koorder1-pp was first launched with: one argument, two
+	// flags. It ran fuel-free under a real-PP label.
+	const argv = ['node', 'battery', '--label=koorder1-pp', '--ko-respects-order=1 --pp-model=1'];
+	assert.deepEqual(policy.gluedFlags(argv), ['--ko-respects-order=1 --pp-model=1']);
+	// A value may hold a space; only a second flag inside it is the fault.
+	assert.deepEqual(policy.gluedFlags(['node', 'battery', '--trainer=Leader Wattson',
+		'--pp-model=1', '--ko-respects-order=1']), []);
+});
+
+/** Run the battery for real, one seed, and report what it did. */
+function batteryRun(extra, label) {
+	const root = path.join(__dirname, '..');
+	const receipt = path.join(root, 'scenarios', 'receipts', label + '.json');
+	const scratch = path.join(root, 'ui-playthrough-out', label + '-battery.json');
+	fs.mkdirSync(path.dirname(scratch), {recursive: true});
+	const result = require('node:child_process').spawnSync(process.execPath,
+		[path.join(root, 'scripts', 'scenario-battery.js'),
+			'--report=fixtures/banked-runs/flannery-3.run.json',
+			'--trainer=Pokéfan Miguel', '--seeds=1', '--label=' + label].concat(extra),
+		{cwd: root, encoding: 'utf8'});
+	const wrote = fs.existsSync(receipt);
+	fs.rmSync(receipt, {force: true});
+	fs.rmSync(scratch, {force: true});
+	return {status: result.status, stderr: result.stderr, wrote};
+}
+
+test('the battery refuses what it would silently misread, before playing a fight', () => {
+	const glued = batteryRun(['--ko-respects-order=1 --pp-model=1'], 'guard-glued');
+	assert.notEqual(glued.status, 0, 'a glued pair must not run');
+	assert.match(glued.stderr, /second flag inside its value/);
+	assert.equal(glued.wrote, false, 'and must leave no receipt behind');
+
+	const typo = batteryRun(['--ko-respect-order=1'], 'guard-typo');
+	assert.equal(typo.status, 1, 'a flag nothing reads must not run as the control');
+	assert.match(typo.stderr, /nothing reads --ko-respect-order/);
+	assert.equal(typo.wrote, false);
+});
+
+test('the unread-flag guard is not a wall: real flags, one per argument, pass it', () => {
+	// Checked in-process rather than by running a batch: a real batch writes a
+	// receipt into scenarios/receipts, and the provenance gate lists that
+	// directory from a parallel process — a file that comes and goes between
+	// its readdir and its read is a flake this test would own.
+	const key = require.resolve('../scripts/ui-playthrough.js');
+	const saved = process.argv;
+	delete require.cache[key];
+	let unread;
+	try {
+		process.argv = ['node', 'battery', '--label=x', '--pp-model=1', '--race-sends=1',
+			'--ko-respect-order=1'];
+		// Asked while this argv stands: the audit reads argv when called.
+		unread = battery.unreadBy(require('../scripts/ui-playthrough.js'), battery.OWN_FLAGS);
+	} finally {
+		process.argv = saved;
+		delete require.cache[key];
+	}
+	assert.deepEqual(unread, ['ko-respect-order'],
+		'the battery\'s own flags and the policy\'s pass; only the typo is left');
+});
