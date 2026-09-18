@@ -1,5 +1,5 @@
 {
-	"label": "heldout2-C-pp",
+	"label": "heldout2-c-pp",
 	"manifest": "scenarios/heldout2.json",
 	"argv": [
 		"--label=heldout2-C-pp",

@@ -1,16 +1,17 @@
 {
-	"label": "heldout1-C",
+	"label": "heldout1-c-pp",
 	"manifest": "scenarios/heldout.json",
 	"argv": [
-		"--label=heldout1-C",
+		"--label=heldout1-C-pp",
 		"--manifest=scenarios/heldout.json",
 		"--switch-priced=0",
-		"--repick-party=1"
+		"--repick-party=1",
+		"--pp-model=1"
 	],
 	"provenance": {
 		"revision": "7a93869d710e6f6871b47865e4b6a7ff6d4ae4f2",
 		"dirty": false,
-		"date": "2026-09-18T19:34:06.656Z"
+		"date": "2026-09-18T19:34:09.563Z"
 	},
 	"results": [
 		{
@@ -22,8 +23,8 @@
 			"wins": 20,
 			"losses": 0,
 			"stuck": 0,
-			"deaths": 15,
-			"turns": 242,
+			"deaths": 16,
+			"turns": 225,
 			"counters": {
 				"cleared": 2,
 				"disarmed": 0,
@@ -34,7 +35,7 @@
 				"endeavored": 0,
 				"screens": 0,
 				"statused": 0,
-				"switchedFor": 39,
+				"switchedFor": 38,
 				"stallTried": 0,
 				"koYielded": 0,
 				"clockHeld": 0,
@@ -115,7 +116,7 @@
 				{
 					"seed": 3,
 					"result": "win",
-					"turns": 18,
+					"turns": 15,
 					"deaths": 2,
 					"killers": [
 						{
@@ -157,13 +158,18 @@
 				{
 					"seed": 4,
 					"result": "win",
-					"turns": 16,
-					"deaths": 1,
+					"turns": 15,
+					"deaths": 2,
 					"killers": [
 						{
 							"species": "Pidgeotto",
 							"by": "Breaking Swipe",
 							"of": "Vibrava"
+						},
+						{
+							"species": "Sizzlipede",
+							"by": "Shadow Sneak",
+							"of": "Shedinja"
 						}
 					],
 					"foe": {
@@ -181,7 +187,7 @@
 						"endeavored": 0,
 						"screens": 0,
 						"statused": 0,
-						"switchedFor": 2,
+						"switchedFor": 1,
 						"stallTried": 0,
 						"koYielded": 0,
 						"clockHeld": 0,
@@ -236,9 +242,14 @@
 				{
 					"seed": 6,
 					"result": "win",
-					"turns": 21,
-					"deaths": 2,
+					"turns": 17,
+					"deaths": 3,
 					"killers": [
+						{
+							"species": "Monferno",
+							"by": "Draining Kiss",
+							"of": "Ribombee"
+						},
 						{
 							"species": "Pidgeotto",
 							"by": "Breaking Swipe",
@@ -445,7 +456,7 @@
 				{
 					"seed": 12,
 					"result": "win",
-					"turns": 17,
+					"turns": 15,
 					"deaths": 1,
 					"killers": [
 						{
@@ -482,18 +493,13 @@
 				{
 					"seed": 13,
 					"result": "win",
-					"turns": 23,
-					"deaths": 2,
+					"turns": 16,
+					"deaths": 1,
 					"killers": [
 						{
 							"species": "Pidgeotto",
 							"by": "Breaking Swipe",
 							"of": "Vibrava"
-						},
-						{
-							"species": "Sizzlipede",
-							"by": "Shadow Sneak",
-							"of": "Shedinja"
 						}
 					],
 					"foe": {
@@ -4541,11 +4547,11 @@
 			"report": "br-10.run.json",
 			"position": 161,
 			"seeds": 20,
-			"wins": 11,
-			"losses": 9,
+			"wins": 10,
+			"losses": 10,
 			"stuck": 0,
-			"deaths": 91,
-			"turns": 497,
+			"deaths": 92,
+			"turns": 491,
 			"counters": {
 				"cleared": 0,
 				"disarmed": 0,
@@ -4556,7 +4562,7 @@
 				"endeavored": 0,
 				"screens": 0,
 				"statused": 42,
-				"switchedFor": 48,
+				"switchedFor": 46,
 				"stallTried": 0,
 				"koYielded": 0,
 				"clockHeld": 0,
@@ -4937,9 +4943,9 @@
 				},
 				{
 					"seed": 8,
-					"result": "win",
-					"turns": 41,
-					"deaths": 5,
+					"result": "loss",
+					"turns": 35,
+					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
@@ -4948,8 +4954,13 @@
 						},
 						{
 							"species": "Grotle",
-							"by": "Knock Off",
+							"by": "Low Kick",
 							"of": "Tsareena"
+						},
+						{
+							"species": "Lopunny",
+							"by": "Revenge",
+							"of": "Grapploct"
 						},
 						{
 							"species": "Corvisquire",
@@ -4968,9 +4979,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 5,
-						"hpPct": 0
+						"hpPct": 9.9
 					},
 					"counters": {
 						"cleared": 0,
@@ -4982,7 +4993,7 @@
 						"endeavored": 0,
 						"screens": 0,
 						"statused": 1,
-						"switchedFor": 4,
+						"switchedFor": 2,
 						"stallTried": 0,
 						"koYielded": 0,
 						"clockHeld": 0,
@@ -5124,7 +5135,7 @@
 						},
 						{
 							"species": "Corvisquire",
-							"by": "Trop Kick",
+							"by": "Knock Off",
 							"of": "Tsareena"
 						},
 						{

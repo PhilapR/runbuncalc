@@ -1,17 +1,16 @@
 {
-	"label": "heldout2-A-pp",
+	"label": "heldout2-a",
 	"manifest": "scenarios/heldout2.json",
 	"argv": [
-		"--label=heldout2-A-pp",
+		"--label=heldout2-A",
 		"--manifest=scenarios/heldout2.json",
 		"--switch-priced=0",
-		"--repick-party=0",
-		"--pp-model=1"
+		"--repick-party=0"
 	],
 	"provenance": {
 		"revision": "7a93869d710e6f6871b47865e4b6a7ff6d4ae4f2",
 		"dirty": false,
-		"date": "2026-09-18T19:37:47.669Z"
+		"date": "2026-09-18T19:36:40.346Z"
 	},
 	"results": [
 		{
@@ -3204,11 +3203,11 @@
 			"wins": 17,
 			"losses": 3,
 			"stuck": 0,
-			"deaths": 69,
-			"turns": 335,
+			"deaths": 70,
+			"turns": 336,
 			"counters": {
 				"cleared": 0,
-				"disarmed": 1,
+				"disarmed": 0,
 				"sacked": 0,
 				"boosts": 0,
 				"healed": 10,
@@ -3540,8 +3539,8 @@
 				{
 					"seed": 7,
 					"result": "win",
-					"turns": 33,
-					"deaths": 4,
+					"turns": 34,
+					"deaths": 5,
 					"killers": [
 						{
 							"species": "Gurdurr",
@@ -3562,6 +3561,11 @@
 							"species": "Eldegoss",
 							"by": "Night Shade",
 							"of": "Sableye"
+						},
+						{
+							"species": "Diggersby",
+							"by": null,
+							"of": null
 						}
 					],
 					"foe": {
@@ -3571,7 +3575,7 @@
 					},
 					"counters": {
 						"cleared": 0,
-						"disarmed": 1,
+						"disarmed": 0,
 						"sacked": 0,
 						"boosts": 0,
 						"healed": 2,
@@ -4218,10 +4222,10 @@
 			"report": "br-18.run.json",
 			"position": 138,
 			"seeds": 20,
-			"wins": 19,
-			"losses": 1,
+			"wins": 18,
+			"losses": 2,
 			"stuck": 0,
-			"deaths": 42,
+			"deaths": 41,
 			"turns": 306,
 			"counters": {
 				"cleared": 0,
@@ -4400,9 +4404,9 @@
 				},
 				{
 					"seed": 5,
-					"result": "win",
-					"turns": 27,
-					"deaths": 5,
+					"result": "loss",
+					"turns": 28,
+					"deaths": 6,
 					"killers": [
 						{
 							"species": "Seadra",
@@ -4428,12 +4432,17 @@
 							"species": "Palpitoad",
 							"by": "Night Shade",
 							"of": "Sableye"
+						},
+						{
+							"species": "Bayleef",
+							"by": null,
+							"of": null
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 4,
-						"hpPct": 0
+						"hpPct": 7.5
 					},
 					"counters": {
 						"cleared": 0,
@@ -4458,20 +4467,9 @@
 				{
 					"seed": 6,
 					"result": "win",
-					"turns": 14,
-					"deaths": 2,
-					"killers": [
-						{
-							"species": "Seadra",
-							"by": "Sky Uppercut",
-							"of": "Hitmonchan"
-						},
-						{
-							"species": "Palpitoad",
-							"by": "Night Shade",
-							"of": "Sableye"
-						}
-					],
+					"turns": 13,
+					"deaths": 0,
+					"killers": [],
 					"foe": {
 						"alive": 0,
 						"of": 4,
@@ -11258,14 +11256,14 @@
 			"wins": 10,
 			"losses": 10,
 			"stuck": 0,
-			"deaths": 89,
-			"turns": 358,
+			"deaths": 88,
+			"turns": 365,
 			"counters": {
 				"cleared": 0,
 				"disarmed": 0,
 				"sacked": 0,
 				"boosts": 0,
-				"healed": 2,
+				"healed": 4,
 				"banked": 0,
 				"endeavored": 0,
 				"screens": 0,
@@ -11722,25 +11720,45 @@
 				},
 				{
 					"seed": 9,
-					"result": "win",
-					"turns": 22,
-					"deaths": 2,
+					"result": "loss",
+					"turns": 21,
+					"deaths": 6,
 					"killers": [
 						{
 							"species": "Octillery",
-							"by": "Sky Uppercut",
-							"of": "Hitmonchan"
+							"by": "Psychic",
+							"of": "Gothitelle"
+						},
+						{
+							"species": "Seadra",
+							"by": "Psychic",
+							"of": "Gothitelle"
+						},
+						{
+							"species": "Prinplup",
+							"by": "Psychic",
+							"of": "Gothitelle"
+						},
+						{
+							"species": "Tirtouga",
+							"by": "Psychic",
+							"of": "Gothitelle"
 						},
 						{
 							"species": "Carnivine",
-							"by": "Night Shade",
-							"of": "Sableye"
+							"by": "Psychic",
+							"of": "Gothitelle"
+						},
+						{
+							"species": "Eelektrik",
+							"by": "Psychic",
+							"of": "Gothitelle"
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 4,
 						"of": 4,
-						"hpPct": 0
+						"hpPct": 84.3
 					},
 					"counters": {
 						"cleared": 0,
@@ -11752,7 +11770,7 @@
 						"endeavored": 0,
 						"screens": 0,
 						"statused": 0,
-						"switchedFor": 1,
+						"switchedFor": 0,
 						"stallTried": 0,
 						"koYielded": 0,
 						"clockHeld": 0,
@@ -11826,8 +11844,102 @@
 				},
 				{
 					"seed": 11,
+					"result": "win",
+					"turns": 23,
+					"deaths": 3,
+					"killers": [
+						{
+							"species": "Octillery",
+							"by": "Sky Uppercut",
+							"of": "Hitmonchan"
+						},
+						{
+							"species": "Prinplup",
+							"by": "Foul Play",
+							"of": "Sableye"
+						},
+						{
+							"species": "Carnivine",
+							"by": "Drain Punch",
+							"of": "Toxtricity"
+						}
+					],
+					"foe": {
+						"alive": 0,
+						"of": 4,
+						"hpPct": 0
+					},
+					"counters": {
+						"cleared": 0,
+						"disarmed": 0,
+						"sacked": 0,
+						"boosts": 0,
+						"healed": 1,
+						"banked": 0,
+						"endeavored": 0,
+						"screens": 0,
+						"statused": 0,
+						"switchedFor": 1,
+						"stallTried": 0,
+						"koYielded": 0,
+						"clockHeld": 0,
+						"switchRepriced": 0,
+						"slowed": 0,
+						"attackDrops": 0
+					},
+					"engineRefusals": 0
+				},
+				{
+					"seed": 12,
+					"result": "win",
+					"turns": 20,
+					"deaths": 3,
+					"killers": [
+						{
+							"species": "Octillery",
+							"by": "Sky Uppercut",
+							"of": "Hitmonchan"
+						},
+						{
+							"species": "Prinplup",
+							"by": "Night Shade",
+							"of": "Sableye"
+						},
+						{
+							"species": "Carnivine",
+							"by": "Drain Punch",
+							"of": "Toxtricity"
+						}
+					],
+					"foe": {
+						"alive": 0,
+						"of": 4,
+						"hpPct": 0
+					},
+					"counters": {
+						"cleared": 0,
+						"disarmed": 0,
+						"sacked": 0,
+						"boosts": 0,
+						"healed": 1,
+						"banked": 0,
+						"endeavored": 0,
+						"screens": 0,
+						"statused": 0,
+						"switchedFor": 1,
+						"stallTried": 0,
+						"koYielded": 0,
+						"clockHeld": 0,
+						"switchRepriced": 0,
+						"slowed": 0,
+						"attackDrops": 0
+					},
+					"engineRefusals": 0
+				},
+				{
+					"seed": 13,
 					"result": "loss",
-					"turns": 24,
+					"turns": 19,
 					"deaths": 6,
 					"killers": [
 						{
@@ -11864,7 +11976,7 @@
 					"foe": {
 						"alive": 4,
 						"of": 4,
-						"hpPct": 88.5
+						"hpPct": 87.5
 					},
 					"counters": {
 						"cleared": 0,
@@ -11877,115 +11989,6 @@
 						"screens": 0,
 						"statused": 0,
 						"switchedFor": 0,
-						"stallTried": 0,
-						"koYielded": 0,
-						"clockHeld": 0,
-						"switchRepriced": 0,
-						"slowed": 0,
-						"attackDrops": 0
-					},
-					"engineRefusals": 0
-				},
-				{
-					"seed": 12,
-					"result": "win",
-					"turns": 22,
-					"deaths": 4,
-					"killers": [
-						{
-							"species": "Octillery",
-							"by": "Psychic",
-							"of": "Gothitelle"
-						},
-						{
-							"species": "Prinplup",
-							"by": "Foul Play",
-							"of": "Sableye"
-						},
-						{
-							"species": "Carnivine",
-							"by": "Payback",
-							"of": "Toxtricity"
-						},
-						{
-							"species": "Eelektrik",
-							"by": "Drain Punch",
-							"of": "Toxtricity"
-						}
-					],
-					"foe": {
-						"alive": 0,
-						"of": 4,
-						"hpPct": 0
-					},
-					"counters": {
-						"cleared": 0,
-						"disarmed": 0,
-						"sacked": 0,
-						"boosts": 0,
-						"healed": 1,
-						"banked": 0,
-						"endeavored": 0,
-						"screens": 0,
-						"statused": 0,
-						"switchedFor": 1,
-						"stallTried": 0,
-						"koYielded": 0,
-						"clockHeld": 0,
-						"switchRepriced": 0,
-						"slowed": 0,
-						"attackDrops": 0
-					},
-					"engineRefusals": 0
-				},
-				{
-					"seed": 13,
-					"result": "win",
-					"turns": 31,
-					"deaths": 5,
-					"killers": [
-						{
-							"species": "Octillery",
-							"by": "Ice Punch",
-							"of": "Hitmonchan"
-						},
-						{
-							"species": "Prinplup",
-							"by": "Shock Wave",
-							"of": "Toxtricity"
-						},
-						{
-							"species": "Tirtouga",
-							"by": "Shock Wave",
-							"of": "Toxtricity"
-						},
-						{
-							"species": "Carnivine",
-							"by": "Drain Punch",
-							"of": "Toxtricity"
-						},
-						{
-							"species": "Eelektrik",
-							"by": "Foul Play",
-							"of": "Sableye"
-						}
-					],
-					"foe": {
-						"alive": 0,
-						"of": 4,
-						"hpPct": 0
-					},
-					"counters": {
-						"cleared": 0,
-						"disarmed": 0,
-						"sacked": 0,
-						"boosts": 0,
-						"healed": 0,
-						"banked": 0,
-						"endeavored": 0,
-						"screens": 0,
-						"statused": 0,
-						"switchedFor": 1,
 						"stallTried": 0,
 						"koYielded": 0,
 						"clockHeld": 0,
@@ -12139,7 +12142,7 @@
 				{
 					"seed": 17,
 					"result": "loss",
-					"turns": 20,
+					"turns": 34,
 					"deaths": 6,
 					"killers": [
 						{
@@ -12176,7 +12179,7 @@
 					"foe": {
 						"alive": 4,
 						"of": 4,
-						"hpPct": 92.8
+						"hpPct": 89.8
 					},
 					"counters": {
 						"cleared": 0,
@@ -12200,57 +12203,47 @@
 				},
 				{
 					"seed": 18,
-					"result": "loss",
-					"turns": 18,
-					"deaths": 6,
+					"result": "win",
+					"turns": 27,
+					"deaths": 4,
 					"killers": [
 						{
-							"species": "Octillery",
-							"by": "Draining Kiss",
-							"of": "Gothitelle"
-						},
-						{
 							"species": "Seadra",
-							"by": "Psychic",
-							"of": "Gothitelle"
+							"by": "Shock Wave",
+							"of": "Toxtricity"
 						},
 						{
 							"species": "Prinplup",
-							"by": "Psychic",
-							"of": "Gothitelle"
-						},
-						{
-							"species": "Tirtouga",
-							"by": "Psychic",
-							"of": "Gothitelle"
+							"by": "Night Shade",
+							"of": "Sableye"
 						},
 						{
 							"species": "Carnivine",
-							"by": "Psychic",
-							"of": "Gothitelle"
+							"by": "Payback",
+							"of": "Toxtricity"
 						},
 						{
 							"species": "Eelektrik",
-							"by": "Psychic",
-							"of": "Gothitelle"
+							"by": "Payback",
+							"of": "Toxtricity"
 						}
 					],
 					"foe": {
-						"alive": 4,
+						"alive": 0,
 						"of": 4,
-						"hpPct": 96.1
+						"hpPct": 0
 					},
 					"counters": {
 						"cleared": 0,
 						"disarmed": 0,
 						"sacked": 0,
 						"boosts": 0,
-						"healed": 0,
+						"healed": 1,
 						"banked": 0,
 						"endeavored": 0,
 						"screens": 0,
 						"statused": 0,
-						"switchedFor": 0,
+						"switchedFor": 1,
 						"stallTried": 0,
 						"koYielded": 0,
 						"clockHeld": 0,
@@ -30506,7 +30499,7 @@
 						},
 						{
 							"species": "Luxio",
-							"by": "Sludge Bomb",
+							"by": "Ancient Power",
 							"of": "Tangela"
 						}
 					],
@@ -34812,11 +34805,11 @@
 			"report": "brkeys3b-A-3.run.json",
 			"position": 102,
 			"seeds": 20,
-			"wins": 18,
-			"losses": 2,
+			"wins": 7,
+			"losses": 13,
 			"stuck": 0,
-			"deaths": 103,
-			"turns": 240,
+			"deaths": 105,
+			"turns": 241,
 			"counters": {
 				"cleared": 0,
 				"disarmed": 0,
@@ -34838,14 +34831,14 @@
 			"rows": [
 				{
 					"seed": 1,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Head Smash",
-							"of": "Drednaw"
+							"by": "Dragon Rage",
+							"of": "Gyarados"
 						},
 						{
 							"species": "Cufant",
@@ -34874,9 +34867,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 18.7
 					},
 					"counters": {
 						"cleared": 0,
@@ -34957,14 +34950,14 @@
 				},
 				{
 					"seed": 3,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Head Smash",
-							"of": "Drednaw"
+							"by": "Dragon Rage",
+							"of": "Gyarados"
 						},
 						{
 							"species": "Cufant",
@@ -34993,9 +34986,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 18
 					},
 					"counters": {
 						"cleared": 0,
@@ -35180,14 +35173,14 @@
 				},
 				{
 					"seed": 7,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Head Smash",
-							"of": "Drednaw"
+							"by": "Dragon Rage",
+							"of": "Gyarados"
 						},
 						{
 							"species": "Cufant",
@@ -35216,9 +35209,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 17.3
 					},
 					"counters": {
 						"cleared": 0,
@@ -35243,7 +35236,7 @@
 				{
 					"seed": 8,
 					"result": "win",
-					"turns": 12,
+					"turns": 13,
 					"deaths": 3,
 					"killers": [
 						{
@@ -35289,14 +35282,14 @@
 				},
 				{
 					"seed": 9,
-					"result": "win",
+					"result": "loss",
 					"turns": 13,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Head Smash",
-							"of": "Drednaw"
+							"by": "Dragon Rage",
+							"of": "Gyarados"
 						},
 						{
 							"species": "Cufant",
@@ -35325,9 +35318,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 17.3
 					},
 					"counters": {
 						"cleared": 0,
@@ -35351,14 +35344,14 @@
 				},
 				{
 					"seed": 10,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Head Smash",
-							"of": "Drednaw"
+							"by": "Dragon Rage",
+							"of": "Gyarados"
 						},
 						{
 							"species": "Cufant",
@@ -35387,9 +35380,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 18.7
 					},
 					"counters": {
 						"cleared": 0,
@@ -35413,13 +35406,13 @@
 				},
 				{
 					"seed": 11,
-					"result": "win",
+					"result": "loss",
 					"turns": 13,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Struggle",
+							"by": "Dragon Rage",
 							"of": "Gyarados"
 						},
 						{
@@ -35449,9 +35442,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 11.3
 					},
 					"counters": {
 						"cleared": 0,
@@ -35527,14 +35520,14 @@
 				},
 				{
 					"seed": 13,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Head Smash",
-							"of": "Drednaw"
+							"by": "Dragon Rage",
+							"of": "Gyarados"
 						},
 						{
 							"species": "Cufant",
@@ -35563,9 +35556,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 18
 					},
 					"counters": {
 						"cleared": 0,
@@ -35693,75 +35686,13 @@
 				},
 				{
 					"seed": 16,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Head Smash",
-							"of": "Drednaw"
-						},
-						{
-							"species": "Cufant",
 							"by": "Dragon Rage",
-							"of": "Gyarados"
-						},
-						{
-							"species": "Vespiquen",
-							"by": "Dragon Rage",
-							"of": "Gyarados"
-						},
-						{
-							"species": "Carnivine",
-							"by": "Dragon Rage",
-							"of": "Gyarados"
-						},
-						{
-							"species": "Growlithe",
-							"by": "Dragon Rage",
-							"of": "Gyarados"
-						},
-						{
-							"species": "Deerling",
-							"by": "Dragon Rage",
-							"of": "Gyarados"
-						}
-					],
-					"foe": {
-						"alive": 0,
-						"of": 2,
-						"hpPct": 0
-					},
-					"counters": {
-						"cleared": 0,
-						"disarmed": 0,
-						"sacked": 0,
-						"boosts": 0,
-						"healed": 0,
-						"banked": 0,
-						"endeavored": 0,
-						"screens": 0,
-						"statused": 0,
-						"switchedFor": 1,
-						"stallTried": 0,
-						"koYielded": 0,
-						"clockHeld": 0,
-						"switchRepriced": 0,
-						"slowed": 0,
-						"attackDrops": 0
-					},
-					"engineRefusals": 0
-				},
-				{
-					"seed": 17,
-					"result": "loss",
-					"turns": 13,
-					"deaths": 6,
-					"killers": [
-						{
-							"species": "Drednaw",
-							"by": "Struggle",
 							"of": "Gyarados"
 						},
 						{
@@ -35793,7 +35724,69 @@
 					"foe": {
 						"alive": 1,
 						"of": 2,
-						"hpPct": 1.3
+						"hpPct": 17.3
+					},
+					"counters": {
+						"cleared": 0,
+						"disarmed": 0,
+						"sacked": 0,
+						"boosts": 0,
+						"healed": 0,
+						"banked": 0,
+						"endeavored": 0,
+						"screens": 0,
+						"statused": 0,
+						"switchedFor": 1,
+						"stallTried": 0,
+						"koYielded": 0,
+						"clockHeld": 0,
+						"switchRepriced": 0,
+						"slowed": 0,
+						"attackDrops": 0
+					},
+					"engineRefusals": 0
+				},
+				{
+					"seed": 17,
+					"result": "loss",
+					"turns": 13,
+					"deaths": 6,
+					"killers": [
+						{
+							"species": "Drednaw",
+							"by": "Dragon Rage",
+							"of": "Gyarados"
+						},
+						{
+							"species": "Cufant",
+							"by": "Dragon Rage",
+							"of": "Gyarados"
+						},
+						{
+							"species": "Vespiquen",
+							"by": "Dragon Rage",
+							"of": "Gyarados"
+						},
+						{
+							"species": "Carnivine",
+							"by": "Dragon Rage",
+							"of": "Gyarados"
+						},
+						{
+							"species": "Growlithe",
+							"by": "Dragon Rage",
+							"of": "Gyarados"
+						},
+						{
+							"species": "Deerling",
+							"by": "Dragon Rage",
+							"of": "Gyarados"
+						}
+					],
+					"foe": {
+						"alive": 1,
+						"of": 2,
+						"hpPct": 14.7
 					},
 					"counters": {
 						"cleared": 0,
@@ -35817,10 +35810,15 @@
 				},
 				{
 					"seed": 18,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
-					"deaths": 5,
+					"deaths": 6,
 					"killers": [
+						{
+							"species": "Drednaw",
+							"by": "Dragon Rage",
+							"of": "Gyarados"
+						},
 						{
 							"species": "Cufant",
 							"by": "Dragon Rage",
@@ -35848,9 +35846,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 12
 					},
 					"counters": {
 						"cleared": 0,
@@ -35874,10 +35872,15 @@
 				},
 				{
 					"seed": 19,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
-					"deaths": 5,
+					"deaths": 6,
 					"killers": [
+						{
+							"species": "Drednaw",
+							"by": "Dragon Rage",
+							"of": "Gyarados"
+						},
 						{
 							"species": "Cufant",
 							"by": "Dragon Rage",
@@ -35905,9 +35908,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 5.3
 					},
 					"counters": {
 						"cleared": 0,
@@ -35931,14 +35934,14 @@
 				},
 				{
 					"seed": 20,
-					"result": "win",
+					"result": "loss",
 					"turns": 12,
 					"deaths": 6,
 					"killers": [
 						{
 							"species": "Drednaw",
-							"by": "Head Smash",
-							"of": "Drednaw"
+							"by": "Dragon Rage",
+							"of": "Gyarados"
 						},
 						{
 							"species": "Cufant",
@@ -35967,9 +35970,9 @@
 						}
 					],
 					"foe": {
-						"alive": 0,
+						"alive": 1,
 						"of": 2,
-						"hpPct": 0
+						"hpPct": 16.7
 					},
 					"counters": {
 						"cleared": 0,
