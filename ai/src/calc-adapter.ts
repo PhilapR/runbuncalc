@@ -157,7 +157,14 @@ function buildCalcPokemon(
     overrides: effectiveTypes || speciesOverrides
       ? {
         ...(speciesOverrides || {}),
-        ...(effectiveTypes ? {types: effectiveTypes as unknown as Calc.Pokemon['types']} : {}),
+        // Typeless is a real state (Burn Up on a pure Fire user, Roost on a
+        // pure Flying one), and the calculator spells it '???', neutral to
+        // every type. An empty list reached its mechanics as types[0] ===
+        // undefined and the damage came back null, which the transition
+        // refuses — so a typeless body could not be hit at all.
+        ...(effectiveTypes
+          ? {types: (effectiveTypes.length ? effectiveTypes : ['???']) as unknown as Calc.Pokemon['types']}
+          : {}),
       }
       : undefined,
   });

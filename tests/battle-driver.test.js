@@ -752,3 +752,34 @@ test('a voluntary switch is priced by default, and the price includes the entry 
 	}
 	assert.equal(driver.switchPricing(), true, 'the default is restored for every later test');
 });
+
+test('a Burn Up user is hit next turn: Fire is burned off, the fight is not', () => {
+	// The composed pipeline that hid the defect: a real banked run, the real
+	// driver, a real trainer. Burn Up made Fire/Bug Centiskorch typeless,
+	// damage into a typeless body came back null, the transition refused every
+	// foe move, and the driver turned each refusal into a lost turn — "flinched
+	// at the engine" — so the foe never acted again. 113 wins in the adopted
+	// baselines were that (2026-09-18); this scenario (Cool Trainer George on
+	// flannery-3) was 20 of them.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	let doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'flannery-3.run.json'), 'utf8'));
+	const centiskorch = doc.box.find(mon => mon.species === 'Centiskorch');
+	assert.ok(centiskorch.moves.includes('Burn Up'), 'the fixture carries the move under test');
+	doc = run.apply(doc, {kind: 'party',
+		ids: [centiskorch.id].concat(doc.party.filter(id => id !== centiskorch.id)).slice(0, 6)});
+
+	let reply = driver.start(doc, 'Cool Trainer George', 1);
+	reply = driver.act(reply.battle, {kind: 'move', move: 'Burn Up'});
+	const self = () => reply.battle.state.sides.player.party.find(mon => mon.species === 'Centiskorch');
+	assert.deepEqual(self().typeOverride, ['Bug'], 'Fire/Bug loses Fire and keeps Bug');
+
+	const hp = self().hp.current;
+	reply = driver.act(reply.battle, {kind: 'move', move: 'Lunge'});
+	const texts = reply.events.map(event => event.text);
+	assert.ok(!texts.some(text => /flinched at the engine/.test(text)),
+		'no engine refusal: ' + texts.join(' | '));
+	assert.ok(texts.some(text => /^Foe \S+ used /.test(text)), 'the foe acts: ' + texts.join(' | '));
+	assert.ok(self().hp.current < hp, 'and its hit lands on the Burn Up user');
+});

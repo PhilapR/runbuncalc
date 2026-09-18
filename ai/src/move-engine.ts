@@ -5921,8 +5921,18 @@ export function deriveMoveResolution(
   const selfStatChanges = SELF_STAT_CHANGES[id];
   if (selfStatChanges) addBoosts(resolution, state, effectActorId, selfStatChanges, effectActorId);
   if ((id === 'burnup' && state.generation >= 7) || (id === 'doubleshock' && state.generation >= 9)) {
-    setTypeOverride(resolution, effectActorId, []);
-    resolution.trace!.notes!.push(`${action.moveName} made ${effectActorId} typeless until switching`);
+    // The move burns off ITS type, not every type: a Fire/Bug Centiskorch is
+    // Bug after Burn Up, and only a pure Fire user is left typeless. Setting
+    // [] unconditionally made every dual-type user typeless, and damage into
+    // a typeless body came back null, so each foe move threw and the driver
+    // took the foe's turn away: Centiskorch soloed Roxanne 30/30 without
+    // being hit (113 poisoned wins in the adopted baselines, 2026-09-18).
+    const lost = id === 'burnup' ? 'fire' : 'electric';
+    const kept = getEffectiveTypes(state, effectActorId).filter(type => moveId(type) !== lost);
+    setTypeOverride(resolution, effectActorId, kept);
+    resolution.trace!.notes!.push(kept.length
+      ? `${action.moveName} removed ${effectActorId}'s ${lost === 'fire' ? 'Fire' : 'Electric'} type until switching`
+      : `${action.moveName} made ${effectActorId} typeless until switching`);
   }
   if (id === 'relicsong' && state.generation >= 5) {
     const effectiveSpecies = moveId(getEffectiveSpecies(effectActor));
