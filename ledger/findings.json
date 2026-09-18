@@ -1809,6 +1809,21 @@
 			"evidence": "Pokéfan Miguel @78 (report-flannery-3, fight #287): 0/6 wins pre-fix, 6 deaths/fight, Mimikyu ending every fight at 100% HP with disguiseBroken never set. Post-fix probe: 14/20, disguiseBroken=true in all 20 seeds, Mimikyu taken to 0 HP in every win; the 6 losses are attrition after the break (3 end with Mimikyu untouched because the box was already spent), not the guard. Fix: DamageFacts.zeroedByGuard ('disguise'|'iceface') set by the adapter guards, isImmune excludes guarded zeros, the resolution Disguise/Ice Face blocks accept the marker as the landed hit; the Disguise guard also gained the ignoresTargetAbility check Ice Face already had (Mold Breaker forecasts were wrongly zeroed too). Composed gate: ai/src/test/disguise-pipeline.test.ts, failed on the missing break before the fix. VOID: every prior measurement in which a Mimikyu or Eiscue holder fought is void as evidence — the fight ended with the holder untouched, and the planner grid's KO booleans (lib/planner.js, guaranteedKO/possibleKO carried into cells) embedded the same guarded zeros, so grid-derived rankings against those holders are void with it. The Miguel scenario is the measured instance; any battery or A/B whose corridor crossed another holder needs the same asterisk.",
 			"fixed_in": "99ad9ce",
 			"falsified": 1
+		},
+		{
+			"id": "burn-up-user-is-unhittable",
+			"source": "session/roxanne-box-composition",
+			"raised_on": "2026-09-18",
+			"severity": "high",
+			"area": "engine",
+			"file": "ai/src/move-engine.ts",
+			"line": 5923,
+			"claim": "Burn Up set the user's type override to [] unconditionally, so a dual-type user (Fire/Bug Centiskorch) went typeless instead of losing only Fire. The calc adapter then handed the calculator types [], its mechanics read types[0] as undefined and damage into the typeless body came back null; applyDamageAction refused every such hit and lib/battle-driver.js turned each refusal into a lost turn ('flinched at the engine'). The Burn Up user was unhittable until it switched. The engine fixture typeless-moves.test.ts pinned the defect by asserting Fire/Flying Charizard becomes [].",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"evidence": "Found while tracing why Centiskorch 'soloed' Roxanne 30/30 (rank5-A-3, fin-1): every Roxanne turn after Burn Up read 'flinched at the engine: Damage must be a finite non-negative number'. Replaying the Burn-Up-exposed scenarios of the adopted baselines (battery9-pp, heldout2f-pp): 113 of 320 seeds hit the refusal, all 113 wins (Karen x2 38, Daisy 20, George 20, Mike 16, Jose 12, Lydia 6, Lass Haley 1). Post-fix, Centiskorch is ['Bug'] after Burn Up and Arcanine hits it next turn on flannery-3. The driver fallback that converts an engine refusal into a lost turn is the reason this read as wins rather than errors; making refusals visible in receipts is the follow-up.",
+			"fixed_in": "5e15d0b",
+			"falsified": 1
 		}
 	]
 }
