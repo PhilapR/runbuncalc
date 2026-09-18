@@ -709,3 +709,46 @@ test('the PP model is a switch: off leaves fuel infinite, on fills and spends it
 		driver.setPPModel(false);
 	}
 });
+
+test('a voluntary switch is priced only when asked, and the price includes the entry hit', () => {
+	// The composed pipeline, from the tape that found the bug (776bfdd): the
+	// ranker's six against Lass Haley, seed 2. The policy's lost-race switch
+	// sent Rhyhorn in because Rock resists Air Slash — the hit on the threat
+	// line — and Lumineon's Surf killed it on all twenty seeds. Priced by
+	// seating it, Rhyhorn loses before it acts.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	let doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys1-B-1.run.json'), 'utf8'));
+	const top = run.rankParties(doc, 'Lass Haley', {}).parties[0];
+	doc = run.apply(doc, {kind: 'party', ids: [top.lead].concat(
+		top.members.map(member => member.id).filter(id => id !== top.lead))});
+	const state = driver.start(doc, 'Lass Haley', 2).battle.state;
+	const voluntary = () => driver.legalActions(state).filter(entry => entry.kind === 'switch');
+
+	assert.equal(driver.switchPricing(), false, 'pricing is off unless an arm asks for it');
+	try {
+		driver.setSwitchPricing(false);
+		assert.ok(voluntary().every(entry => entry.race === undefined),
+			'off: voluntary switches carry no race, so the control policy reads what it always read');
+
+		driver.setSwitchPricing(true);
+		const priced = voluntary();
+		assert.ok(priced.length && priced.every(entry => entry.race && entry.race.outcome),
+			'on: every voluntary candidate carries a race');
+		const rhyhorn = priced.find(entry => entry.species === 'Rhyhorn');
+		assert.equal(rhyhorn.race.outcome, 'lose', 'Surf into Rhyhorn is the price the type check never saw');
+		assert.equal(rhyhorn.race.turnsToDie, 0, 'the entry hit alone kills it');
+
+		// The entry hit is one of their turns: the voluntary race is exactly the
+		// free-entry bench race with one fewer turn to live.
+		for (const entry of priced) {
+			const free = driver.benchRace(state, entry.action.replacementId);
+			assert.equal(entry.race.turnsToDie, free.turnsToDie - 1, entry.species);
+			assert.equal(entry.race.turnsToKill, free.turnsToKill, entry.species);
+		}
+	} finally {
+		driver.setSwitchPricing(false);
+	}
+	assert.equal(driver.switchPricing(), false, 'the switch is left off for every later test');
+});
