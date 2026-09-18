@@ -198,8 +198,8 @@ names, not implemented ones.
 
 | Proposal | Mechanism | Measure |
 |---|---|---|
-| Per-seed rows in receipts | seed, result, deaths w/ killer, foe remainder, loss tapes | receipt gains `rows`; gate `rows.length === seeds`, failed once |
-| Treatment-fired counters | sum the policy memory counters per scenario; warn on a passed flag whose counter stayed 0 | the ab.js refusal, mirrored |
+| Per-seed rows in receipts — LANDED except loss tapes (0a2913a) | seed, result, deaths w/ killer, foe remainder; loss tapes still open | `requireWholeReceipt` cross-checks rows against totals; each check failed once in `tests/battery_receipts.test.js` |
+| Treatment-fired counters — LANDED (0a2913a) | sum the policy memory counters per scenario; refuse (exit 1) on a passed gating flag whose counter stayed 0 | five gating flags audited; modifier flags excluded because their counters move without them |
 | Stuck autopsy | detect the repeating action cycle in the tape tail; flat-vs-drifting foe HP names the stall kind | fires on stuck seeds only |
 | Seed-paired A/B + McNemar | run both arms on common seeds; report discordant pairs, not pooled rates | `scripts/battery-pair.js`, joined receipt |
 | Blunder bisection | replay a lost seed, substitute one action at step k, resume the real policy; find the earliest flip | `scripts/blunder-bisect.js` over battery loss rows |
