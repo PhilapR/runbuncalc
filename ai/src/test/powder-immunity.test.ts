@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {calculateActionFacts} from '../calc-adapter';
 import {enumerateMoveActions, getPokemon} from '../actions';
 import {deriveMoveResolution} from '../move-engine';
 import {BattleState, MoveAction, PokemonState} from '../model';
@@ -7,8 +8,8 @@ import {applyAction} from '../transition';
 // From Generation VI, powder moves (Spore, Stun Spore, Sleep Powder, Poison
 // Powder, Cotton Spore, Magic Powder, Rage Powder, Powder) have no effect on
 // Grass types, on Overcoat, or on a holder of Safety Goggles. The engine had
-// only Rage Powder's redirection rule, so Tsareena was poisoned by Poison
-// Powder (heldout1-c-pp, "Battle Girl Luna @51", seed 15).
+// only Rage Powder's redirection rule, so it offered Stun Spore into Tsareena
+// (heldout1-c-pp, "Battle Girl Luna @51", seed 15) and would have applied it.
 
 type Mon = Partial<PokemonState> & {species: string};
 
@@ -128,4 +129,28 @@ const user = (moveName: string, extra: Partial<Mon> = {}): Mon =>
     'Generation V Spore puts a Grass type to sleep');
 }
 
-console.log('powder immunity: Grass, Overcoat and Safety Goggles block powder moves from Generation VI');
+// Effect Spore is powder too: the same three immunities protect the
+// ATTACKER that makes contact. This is the receipt's actual poisoning —
+// Tsareena's Knock Off into Effect Spore Parasect. A roll of 0 is a
+// certain poison, so the control shows the cases below have teeth.
+function contactInto(attacker: Mon, generation = 8) {
+  const fixture = state({moves: [{name: 'Tackle'}], ...attacker},
+    [{species: 'Parasect', ability: 'Effect Spore', hp: {current: 300, max: 300}}], generation);
+  const action: MoveAction = {kind: 'move', actorId: 'ai-1', moveName: 'Tackle', targetIds: ['player-1']};
+  const resolution = deriveMoveResolution(fixture, action,
+    {facts: calculateActionFacts(fixture, action), hit: true, random: () => 0});
+  return getPokemon(applyAction(fixture, action, resolution), 'ai-1')?.status;
+}
+assert.equal(contactInto({species: 'Machamp', ability: 'Guts'}), 'psn', 'Effect Spore poisons a non-immune attacker');
+assert.equal(contactInto({species: 'Tsareena', ability: 'Queenly Majesty'}), undefined,
+  'Effect Spore does not affect a Grass attacker');
+assert.equal(contactInto({species: 'Forretress', ability: 'Overcoat'}), undefined,
+  'Effect Spore does not affect an Overcoat attacker');
+assert.equal(contactInto({species: 'Machamp', ability: 'Guts', item: 'Safety Goggles'}), undefined,
+  'Effect Spore does not affect a Safety Goggles attacker');
+assert.equal(contactInto({species: 'Lopunny', ability: 'Klutz', item: 'Safety Goggles'}), 'psn',
+  'Klutz suppresses the goggles');
+assert.equal(contactInto({species: 'Sceptile', ability: 'Overgrow'}, 5), 'psn',
+  'Generation V Effect Spore affects a Grass attacker');
+
+console.log('powder immunity: Grass, Overcoat and Safety Goggles block powder moves and Effect Spore from Generation VI');

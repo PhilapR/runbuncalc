@@ -840,3 +840,27 @@ test('a powder move that meets a Grass type mid-turn applies nothing', () => {
 	assert.ok(offered.length && !offered.includes('Stun Spore'),
 		'Stun Spore is not offered into a Grass type: ' + offered.join(', '));
 });
+
+test('Effect Spore does not status a Grass attacker that makes contact', () => {
+	// Cool Trainer George on the banked flannery-3 run, seed 3: Rillaboom
+	// U-turns into our Effect Spore Amoonguss. Effect Spore is powder, so a
+	// Grass attacker is immune from Generation VI; the engine rolled it
+	// anyway, and on seed 3 poisoned Rillaboom (Tsareena's Knock Off into
+	// Parasect on heldout1-c-pp, Battle Girl Luna seed 15, was the same bug).
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const base = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'flannery-3.run.json'), 'utf8'));
+	const amoonguss = base.box.find(mon => mon.species === 'Amoonguss');
+	assert.equal(amoonguss.ability, 'Effect Spore', 'the fixture carries the ability under test');
+	const doc = run.apply(base, {kind: 'party',
+		ids: [amoonguss.id].concat(base.party.filter(id => id !== amoonguss.id)).slice(0, 6)});
+
+	const opened = driver.start(doc, 'Cool Trainer George', 3);
+	const reply = driver.act(opened.battle, {kind: 'move', move: 'Foul Play'});
+	const texts = reply.events.map(event => event.text);
+	assert.ok(texts.some(text => /^Foe Rillaboom used U-turn/.test(text)),
+		'Rillaboom makes contact: ' + texts.join(' | '));
+	const rillaboom = reply.battle.state.sides.ai.party.find(mon => mon.species === 'Rillaboom');
+	assert.equal(rillaboom.status, undefined, 'a Grass attacker is not statused by Effect Spore');
+});

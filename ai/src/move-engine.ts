@@ -11,6 +11,7 @@ import {
   ignoresTargetAbility,
   isGrounded,
   isPowderImmune,
+  isPowderProof,
   isPriorityBlocked,
 } from './eligibility';
 import {
@@ -4737,7 +4738,10 @@ export function deriveMoveResolution(
           break;
         }
       }
-      if (!targetAbilityIgnored && hasAbility(state, target, 'effectspore') && contactAttempts > 0) {
+      // Effect Spore is powder: a Grass, Overcoat or Safety Goggles attacker is
+      // immune from Generation VI, checked before any roll is taken.
+      if (!targetAbilityIgnored && hasAbility(state, target, 'effectspore') && contactAttempts > 0 &&
+        !isPowderProof(state, actor.id)) {
         for (let attempt = 0; attempt < contactAttempts; attempt += 1) {
           const effectSporeRoll = sampleActionRoll(random, 'Effect Spore contact chance');
           // Gen 8 split: 9% psn / 10% par / 11% slp (the 10/10/10 was the

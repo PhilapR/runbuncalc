@@ -226,18 +226,27 @@ export function ignoresTargetAbility(
 }
 
 /**
+ * Return whether this Pokemon is immune to powder: from Generation VI, Grass
+ * types, Overcoat and an active Safety Goggles. Powder moves and Effect Spore
+ * both check it. Pass ignoreAbility when an attacker's Mold Breaker ignores
+ * the holder's Overcoat.
+ */
+export function isPowderProof(state: BattleState, pokemonId: string, ignoreAbility = false): boolean {
+  const pokemon = getPokemon(state, pokemonId);
+  if (state.generation < 6 || !pokemon) return false;
+  return hasType(state, pokemonId, 'Grass') ||
+    (!ignoreAbility && hasAbility(state, pokemonId, 'overcoat')) ||
+    (isItemEffectActive(state, pokemon) && id(pokemon.item) === 'safetygoggles');
+}
+
+/**
  * Return whether a powder move (Spore, Stun Spore, Cotton Spore, ...) has no
- * effect on this target. From Generation VI, Grass types, Overcoat (unless
- * the user's ability ignores it) and an active Safety Goggles are immune. The
- * user is never immune to its own powder move (Rage Powder targets itself).
+ * effect on this target. The user is never immune to its own powder move
+ * (Rage Powder targets itself).
  */
 export function isPowderImmune(state: BattleState, actorId: string, targetId: string, moveName: string): boolean {
-  if (state.generation < 6 || actorId === targetId || !getMoveMetadata(moveName, state.generation).powder) return false;
-  const target = getPokemon(state, targetId);
-  if (!target) return false;
-  return hasType(state, targetId, 'Grass') ||
-    (hasAbility(state, targetId, 'overcoat') && !ignoresTargetAbility(state, actorId, targetId, 'Status')) ||
-    (isItemEffectActive(state, target) && id(target.item) === 'safetygoggles');
+  if (actorId === targetId || !getMoveMetadata(moveName, state.generation).powder) return false;
+  return isPowderProof(state, targetId, ignoresTargetAbility(state, actorId, targetId, 'Status'));
 }
 
 /** Return whether a holder blocks opposing additional/secondary move effects. */
