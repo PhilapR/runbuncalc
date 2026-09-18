@@ -224,8 +224,14 @@ function requireWholeReceipt(receipt) {
  *
  * The guard is generous because a stall is a finding, not a crash: a policy
  * that cannot end a fight reports 'stuck' and the scenario counts it.
+ *
+ * `tape`, when given, is an array the fight writes itself into, one entry a
+ * decision: what stood on both sides, what the threat line said, what the
+ * policy chose and why, and what the engine said happened. It is never
+ * stored in a receipt — the fight is deterministic per seed, so
+ * scripts/battery-tape.js replays any receipt's seed on demand instead.
  */
-function playScenario(policy, doc, trainer, seed) {
+function playScenario(policy, doc, trainer, seed, tape) {
 	const roster = (doc.box || []).map(mon => ({id: mon.id, moves: mon.moves}));
 	let reply = driver.start(doc, trainer, seed);
 	let battle = reply.battle;
@@ -258,6 +264,14 @@ function playScenario(policy, doc, trainer, seed) {
 			{kind: 'move', move: choice.pick.move} :
 			{kind: 'switch', replacementId: choice.pick.id};
 		reply = driver.act(battle, action);
+		if (tape) {
+			tape.push({turn: battle.state.turn, phase, us: view.us, usHp: view.usHp,
+				foe: view.foe, foeHp: view.foeHp, threat: view.threat || '',
+				chose: choice.kind === 'move' ? choice.pick.move :
+					'switch to ' + (choice.pick.species || choice.pick.label || choice.pick.id),
+				why: choice.why || '(fallback: first legal action)',
+				events: (reply.events || []).map(event => event.text).filter(Boolean)});
+		}
 		battle = reply.battle;
 	}
 	return {result: 'stuck', turns: 400, deaths: null, killers: [],

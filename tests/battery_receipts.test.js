@@ -256,3 +256,46 @@ test('the unread-flag guard is not a wall: real flags, one per argument, pass it
 	assert.deepEqual(unread, ['ko-respect-order'],
 		'the battery\'s own flags and the policy\'s pass; only the typo is left');
 });
+
+/** Run the tape tool as a player would, since it swaps argv before loading. */
+function tapeRun(receipt, scenario, seed) {
+	const root = path.join(__dirname, '..');
+	const result = require('node:child_process').spawnSync(process.execPath,
+		[path.join(root, 'scripts', 'battery-tape.js'), '--receipt=' + receipt,
+			'--scenario=' + scenario, '--seed=' + seed, '--json'],
+		{cwd: root, encoding: 'utf8'});
+	return {status: result.status, stderr: result.stderr,
+		out: result.status === 0 ? JSON.parse(result.stdout) : null};
+}
+
+test('a tape replays a receipt\'s seed and proves it is the fight the receipt measured', () => {
+	// Tapes are regenerated, never stored, so the only thing that makes one
+	// evidence is that it reproduces the row the batch wrote down.
+	const receipt = 'scenarios/receipts/koorder1-pp.json';
+	const jose = 'Bug Catcher Jose @37';
+	const recorded = JSON.parse(fs.readFileSync(path.join(__dirname, '..', receipt), 'utf8'))
+		.results.find(row => row.name === jose).rows.find(row => row.seed === 4);
+	const run = tapeRun(receipt, jose, 4);
+	assert.equal(run.status, 0, run.stderr);
+	assert.equal(run.out.row.result, recorded.result);
+	assert.equal(run.out.row.turns, recorded.turns);
+	assert.ok(run.out.tape.length > 0, 'the fight has turns');
+	assert.ok(run.out.tape.every(step => step.chose && step.why),
+		'every decision says what it chose and why');
+	// koorder1-pp ran with the treatment on, and seed 4 is one it gained: the
+	// yield has to be on the tape, or the tape is not the treatment's fight.
+	assert.ok(run.out.tape.some(step => /lands after their hit/.test(step.why)),
+		'the treatment\'s own decision is on the tape');
+
+	// A row the replay cannot reproduce means the code moved: refuse.
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tape-'));
+	const doctored = JSON.parse(fs.readFileSync(path.join(__dirname, '..', receipt), 'utf8'));
+	const row = doctored.results.find(entry => entry.name === jose).rows
+		.find(entry => entry.seed === 4);
+	row.turns += 1;
+	const file = path.join(dir, 'koorder1-pp.json');
+	fs.writeFileSync(file, JSON.stringify(doctored));
+	const refused = tapeRun(file, jose, 4);
+	assert.notEqual(refused.status, 0, 'a tape of different code must not print');
+	assert.match(refused.stderr, /does not reproduce the receipt's row/);
+});
