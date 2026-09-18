@@ -1,6 +1,62 @@
 {
 	"runs": [
 		{
+			"file": "acc-11.run.json",
+			"source": "ui-playthrough-out/report-acc-11.json",
+			"position": 235,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "42df07c99fb3804afa096e1bfad6a6d219a114517ba2cf553295d5581db41920"
+		},
+		{
+			"file": "br-1.run.json",
+			"source": "ui-playthrough-out/report-br-1.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ec105b6ca6cf6f243082c148421e4ae481488e85eb6c3aaee1197edb2e88e559"
+		},
+		{
+			"file": "br-6.run.json",
+			"source": "ui-playthrough-out/report-br-6.json",
+			"position": 142,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "92b77e99e6cb7ccba60480482eec13acf1942f34be4109aa8a7d217801262dcd"
+		},
+		{
+			"file": "brbank1-A-1.run.json",
+			"source": "ui-playthrough-out/report-brbank1-A-1.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "5895d33f3c207348d3bb49247dcf28c32538ce0079d86021b3e74a47482a5165"
+		},
+		{
+			"file": "brheal1-B-2.run.json",
+			"source": "ui-playthrough-out/report-brheal1-B-2.json",
+			"position": 112,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "ac87ab4c25986e03c4b70ade3bf038540c9d40948a06119e35d9280bb54e9c5a"
+		},
+		{
+			"file": "brheal1-B-6.run.json",
+			"source": "ui-playthrough-out/report-brheal1-B-6.json",
+			"position": 114,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "b14cbfff933d1653855540e9ffbf6c9428ce58597af0ceeb0d59851dda81eb15"
+		},
+		{
+			"file": "brkeys2-A-1.run.json",
+			"source": "ui-playthrough-out/report-brkeys2-A-1.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "93fd043b2bc6585ed268896cd4a1dfa07877512c4dd263af0575476e6691eaa6"
+		},
+		{
 			"file": "flannery-3.run.json",
 			"source": "ui-playthrough-out/report-flannery-3.json",
 			"position": 287,
@@ -9,12 +65,52 @@
 			"sha256": "3ac829f37d6e90aaaeadb7927b8111b7a725a64346a5effd35442ea65d6ca66a"
 		},
 		{
+			"file": "forecast-today-M-6.run.json",
+			"source": "ui-playthrough-out/report-forecast-today-M-6.json",
+			"position": 173,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "dca845de1cf44eb9518e41475369a457341a7b70e4a31c80c0619f77c15cbcaf"
+		},
+		{
+			"file": "nab-15.run.json",
+			"source": "ui-playthrough-out/report-nab-15.json",
+			"position": 180,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "8097afb0aab0e5e81d882f4cb6e0885104164dbce4c5a39d8d3cd7b6bbf63f85"
+		},
+		{
+			"file": "pf-2.run.json",
+			"source": "ui-playthrough-out/report-pf-2.json",
+			"position": 202,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "fcdc73debd51a35e05e502a00e3f5514d856f9f241015ce1aea2469a17db5490"
+		},
+		{
+			"file": "reteach-B-8.run.json",
+			"source": "ui-playthrough-out/report-reteach-B-8.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "af9d0536c82a70c9d189bc8c0ce2e2bfa93c9cb5117bd8bcbe75107353b39ed1"
+		},
+		{
 			"file": "sac-A-11.run.json",
 			"source": "ui-playthrough-out/report-sac-A-11.json",
 			"position": 215,
 			"orderScale": "route103-wally-2026-08-28",
 			"box": 25,
 			"sha256": "1c39c8b54a735a0b06e457cf5c5c218ae74a35b43214a2e561e656f1e7ce41b0"
+		},
+		{
+			"file": "sv-20.run.json",
+			"source": "ui-playthrough-out/report-sv-20.json",
+			"position": 211,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "da933c9f258eee43a38e584a261d4ca29eba3f379f6aac7febb854b1e50617d2"
 		}
 	]
 }

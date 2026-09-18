@@ -1,0 +1,9045 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "54a75bb4-316e-4a02-a422-991509bbdd48",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-25T21:09:54.605Z",
+	"updatedAt": "2026-08-25T21:09:54.605Z",
+	"position": 202,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Sceptile"
+	},
+	"nextId": 26,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Monferno",
+			"nickname": null,
+			"level": 35,
+			"nature": "Bashful",
+			"ability": "Blaze",
+			"item": "Oran Berry",
+			"moves": [
+				"Blaze Kick",
+				"Fire Blast",
+				"Will-O-Wisp",
+				"Flamethrower"
+			],
+			"ivs": {
+				"hp": 13,
+				"atk": 31,
+				"def": 1,
+				"spa": 30,
+				"spd": 28,
+				"spe": 24
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Pyroar",
+			"nickname": null,
+			"level": 35,
+			"nature": "Relaxed",
+			"ability": "Unnerve",
+			"item": "Twisted Spoon",
+			"moves": [
+				"Hyper Beam",
+				"Will-O-Wisp",
+				"Flamethrower",
+				"Fire Blast"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 7,
+				"def": 20,
+				"spa": 4,
+				"spd": 22,
+				"spe": 2
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Staraptor",
+			"nickname": null,
+			"level": 35,
+			"nature": "Hasty",
+			"ability": "Intimidate",
+			"item": "Miracle Seed",
+			"moves": [
+				"Take Down",
+				"Hurricane",
+				"Fly",
+				"Aerial Ace"
+			],
+			"ivs": {
+				"hp": 6,
+				"atk": 23,
+				"def": 1,
+				"spa": 13,
+				"spd": 1,
+				"spe": 8
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Nuzleaf",
+			"nickname": null,
+			"level": 35,
+			"nature": "Hasty",
+			"ability": "Chlorophyll",
+			"item": null,
+			"moves": [
+				"Dark Pulse",
+				"Nature Power",
+				"Solar Beam",
+				"Feint Attack"
+			],
+			"ivs": {
+				"hp": 11,
+				"atk": 30,
+				"def": 0,
+				"spa": 20,
+				"spd": 18,
+				"spe": 6
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Lumineon",
+			"nickname": null,
+			"level": 35,
+			"nature": "Rash",
+			"ability": "Swift Swim",
+			"item": "Silk Scarf",
+			"moves": [
+				"Air Cutter",
+				"Blizzard",
+				"Waterfall",
+				"Hydro Pump"
+			],
+			"ivs": {
+				"hp": 26,
+				"atk": 16,
+				"def": 19,
+				"spa": 31,
+				"spd": 2,
+				"spe": 11
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Rapidash",
+			"nickname": null,
+			"level": 35,
+			"nature": "Gentle",
+			"ability": "Flame Body",
+			"item": "Shell Bell",
+			"moves": [
+				"Blaze Kick",
+				"Megahorn",
+				"Fire Blast",
+				"Flamethrower"
+			],
+			"ivs": {
+				"hp": 4,
+				"atk": 29,
+				"def": 14,
+				"spa": 11,
+				"spd": 8,
+				"spe": 29
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Ledian",
+			"nickname": null,
+			"level": 35,
+			"nature": "Impish",
+			"ability": "Rattled",
+			"item": null,
+			"moves": [
+				"Tailwind",
+				"Thunder Punch",
+				"Swift",
+				"Light Screen"
+			],
+			"ivs": {
+				"hp": 25,
+				"atk": 15,
+				"def": 8,
+				"spa": 10,
+				"spd": 20,
+				"spe": 19
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Gastrodon",
+			"nickname": null,
+			"level": 35,
+			"nature": "Adamant",
+			"ability": "Sticky Hold",
+			"item": "Poison Barb",
+			"moves": [
+				"Earthquake",
+				"Ancient Power",
+				"Surf",
+				"Hydro Pump"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 29,
+				"def": 2,
+				"spa": 30,
+				"spd": 8,
+				"spe": 13
+			},
+			"status": "party",
+			"origin": {
+				"at": 11,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Donphan",
+			"nickname": null,
+			"level": 35,
+			"nature": "Bashful",
+			"ability": "Sturdy",
+			"item": "Soft Sand",
+			"moves": [
+				"Earthquake",
+				"Knock Off",
+				"Fire Fang",
+				"Thunder Fang"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 14,
+				"def": 5,
+				"spa": 13,
+				"spd": 24,
+				"spe": 12
+			},
+			"status": "party",
+			"origin": {
+				"at": 16,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Carnivine",
+			"nickname": null,
+			"level": 35,
+			"nature": "Gentle",
+			"ability": "Levitate",
+			"item": null,
+			"moves": [
+				"Leaf Blade",
+				"Magical Leaf",
+				"Sludge Bomb",
+				"Leaf Tornado"
+			],
+			"ivs": {
+				"hp": 22,
+				"atk": 20,
+				"def": 5,
+				"spa": 29,
+				"spd": 6,
+				"spe": 3
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 19,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Drednaw",
+			"nickname": null,
+			"level": 35,
+			"nature": "Naughty",
+			"ability": "Strong Jaw",
+			"item": "Metal Coat",
+			"moves": [
+				"Razor Shell",
+				"Head Smash",
+				"Blizzard",
+				"Ice Fang"
+			],
+			"ivs": {
+				"hp": 17,
+				"atk": 19,
+				"def": 13,
+				"spa": 10,
+				"spd": 17,
+				"spe": 22
+			},
+			"status": "party",
+			"origin": {
+				"at": 22,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Hariyama",
+			"nickname": null,
+			"level": 35,
+			"nature": "Careful",
+			"ability": "Thick Fat",
+			"item": null,
+			"moves": [
+				"Knock Off",
+				"Payback",
+				"Smelling Salts",
+				"Arm Thrust"
+			],
+			"ivs": {
+				"hp": 18,
+				"atk": 31,
+				"def": 6,
+				"spa": 5,
+				"spd": 28,
+				"spe": 27
+			},
+			"status": "party",
+			"origin": {
+				"at": 29,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Seadra",
+			"nickname": null,
+			"level": 35,
+			"nature": "Modest",
+			"ability": "Poison Point",
+			"item": null,
+			"moves": [
+				"Octazooka",
+				"Bubble Beam",
+				"Hydro Pump",
+				"Surf"
+			],
+			"ivs": {
+				"hp": 24,
+				"atk": 1,
+				"def": 8,
+				"spa": 11,
+				"spd": 2,
+				"spe": 0
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 37,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Clawitzer",
+			"nickname": null,
+			"level": 35,
+			"nature": "Gentle",
+			"ability": "Mega Launcher",
+			"item": null,
+			"moves": [
+				"Blizzard",
+				"Aurora Beam",
+				"Hydro Pump",
+				"Vise Grip"
+			],
+			"ivs": {
+				"hp": 2,
+				"atk": 3,
+				"def": 28,
+				"spa": 24,
+				"spd": 1,
+				"spe": 12
+			},
+			"status": "party",
+			"origin": {
+				"at": 42,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Luxray",
+			"nickname": null,
+			"level": 35,
+			"nature": "Lax",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Wild Charge",
+				"Thunderbolt",
+				"Thunder",
+				"Crunch"
+			],
+			"ivs": {
+				"hp": 14,
+				"atk": 22,
+				"def": 9,
+				"spa": 13,
+				"spd": 5,
+				"spe": 12
+			},
+			"status": "party",
+			"origin": {
+				"at": 48,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Octillery",
+			"nickname": null,
+			"level": 35,
+			"nature": "Impish",
+			"ability": "Suction Cups",
+			"item": null,
+			"moves": [
+				"Wring Out",
+				"Psychic",
+				"Psybeam",
+				"Aurora Beam"
+			],
+			"ivs": {
+				"hp": 7,
+				"atk": 29,
+				"def": 24,
+				"spa": 16,
+				"spd": 10,
+				"spe": 9
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 48,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-17",
+			"species": "Hattrem",
+			"nickname": null,
+			"level": 35,
+			"nature": "Calm",
+			"ability": "Synchronize",
+			"item": null,
+			"moves": [
+				"Psyshock",
+				"Psychic",
+				"Psybeam",
+				"Play Rough"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 20,
+				"def": 25,
+				"spa": 8,
+				"spd": 12,
+				"spe": 27
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_ROUTE116",
+				"mapName": "Route116"
+			}
+		},
+		{
+			"id": "mon-18",
+			"species": "Rockruff",
+			"nickname": null,
+			"level": 35,
+			"nature": "Modest",
+			"ability": "Keen Eye",
+			"item": null,
+			"moves": [
+				"Rock Slide",
+				"Sand Attack",
+				"Rock Throw",
+				"Bite"
+			],
+			"ivs": {
+				"hp": 30,
+				"atk": 22,
+				"def": 23,
+				"spa": 30,
+				"spd": 6,
+				"spe": 11
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_RUSTBORO_CITY",
+				"mapName": "Rustboro City"
+			}
+		},
+		{
+			"id": "mon-19",
+			"species": "Vibrava",
+			"nickname": null,
+			"level": 35,
+			"nature": "Hardy",
+			"ability": "Levitate",
+			"item": null,
+			"moves": [
+				"Dragon Breath",
+				"Bug Bite",
+				"Mud-Slap",
+				"Dig"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 21,
+				"def": 12,
+				"spa": 27,
+				"spd": 6,
+				"spe": 16
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 145,
+				"method": "walk",
+				"map": "MAP_RUSTURF_TUNNEL",
+				"mapName": "Rusturf Tunnel"
+			}
+		},
+		{
+			"id": "mon-20",
+			"species": "Pikachu",
+			"nickname": null,
+			"level": 35,
+			"nature": "Sassy",
+			"ability": "Static",
+			"item": null,
+			"moves": [
+				"Wild Charge",
+				"Quick Attack",
+				"Electro Ball",
+				"Thunder Wave"
+			],
+			"ivs": {
+				"hp": 30,
+				"atk": 31,
+				"def": 7,
+				"spa": 3,
+				"spd": 0,
+				"spe": 4
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 162,
+				"method": "walk",
+				"map": "MAP_ROUTE117",
+				"mapName": "Route117"
+			}
+		},
+		{
+			"id": "mon-21",
+			"species": "Petilil",
+			"nickname": null,
+			"level": 35,
+			"nature": "Brave",
+			"ability": "Chlorophyll",
+			"item": null,
+			"moves": [
+				"Energy Ball",
+				"Mega Drain",
+				"Synthesis",
+				"Magical Leaf"
+			],
+			"ivs": {
+				"hp": 6,
+				"atk": 17,
+				"def": 20,
+				"spa": 20,
+				"spd": 16,
+				"spe": 10
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 167,
+				"method": "walk",
+				"map": "MAP_VERDANTURF_TOWN",
+				"mapName": "Verdanturf Town"
+			}
+		},
+		{
+			"id": "mon-22",
+			"species": "Onix",
+			"nickname": null,
+			"level": 35,
+			"nature": "Hasty",
+			"ability": "Rock Head",
+			"item": null,
+			"moves": [
+				"Rock Slide",
+				"Sand Tomb",
+				"Iron Tail",
+				"Dig"
+			],
+			"ivs": {
+				"hp": 14,
+				"atk": 7,
+				"def": 6,
+				"spa": 19,
+				"spd": 17,
+				"spe": 29
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 192,
+				"method": "walk",
+				"map": "MAP_ROUTE111",
+				"mapName": "Route111"
+			}
+		},
+		{
+			"id": "mon-23",
+			"species": "Altaria",
+			"nickname": null,
+			"level": 35,
+			"nature": "Impish",
+			"ability": "Natural Cure",
+			"item": null,
+			"moves": [
+				"Dual Wingbeat",
+				"Aerial Ace",
+				"Natural Gift",
+				"Mirror Move"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 21,
+				"def": 14,
+				"spa": 9,
+				"spd": 15,
+				"spe": 23
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 192,
+				"method": "walk",
+				"map": "MAP_ROUTE118",
+				"mapName": "Route118"
+			}
+		},
+		{
+			"id": "mon-24",
+			"species": "Excadrill",
+			"nickname": null,
+			"level": 35,
+			"nature": "Hasty",
+			"ability": "Sand Rush",
+			"item": null,
+			"moves": [
+				"Rock Slide",
+				"Mud-Slap",
+				"Metal Claw",
+				"Dig"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 6,
+				"def": 8,
+				"spa": 25,
+				"spd": 15,
+				"spe": 30
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 192,
+				"method": "walk",
+				"map": "MAP_MIRAGE_TOWER_1F",
+				"mapName": "Mirage Tower 1f"
+			}
+		},
+		{
+			"id": "mon-25",
+			"species": "Camerupt",
+			"nickname": null,
+			"level": 35,
+			"nature": "Modest",
+			"ability": "Magma Armor",
+			"item": null,
+			"moves": [
+				"Earthquake",
+				"Stomp",
+				"Ancient Power",
+				"Earth Power"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 27,
+				"def": 3,
+				"spa": 14,
+				"spd": 31,
+				"spe": 17
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 192,
+				"method": "walk",
+				"map": "MAP_ALTERING_CAVE",
+				"mapName": "Altering Cave"
+			}
+		}
+	],
+	"party": [
+		"mon-11",
+		"mon-15",
+		"mon-9",
+		"mon-8",
+		"mon-12",
+		"mon-14"
+	],
+	"bag": {
+		"Potion": 1,
+		"Super Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chimchar",
+				"level": 5,
+				"ivs": {
+					"hp": 13,
+					"atk": 31,
+					"def": 1,
+					"spa": 30,
+					"spd": 28,
+					"spe": 24
+				},
+				"nature": "Bashful",
+				"ability": "Blaze"
+			},
+			"summary": "caught Chimchar at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Litleo",
+				"level": 3,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 15,
+					"atk": 7,
+					"def": 20,
+					"spa": 4,
+					"spd": 22,
+					"spe": 2
+				},
+				"nature": "Relaxed",
+				"ability": "Unnerve"
+			},
+			"summary": "caught Litleo at level 3 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Starly",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 6,
+					"atk": 23,
+					"def": 1,
+					"spa": 13,
+					"spd": 1,
+					"spe": 8
+				},
+				"nature": "Hasty",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Starly at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Seedot",
+				"level": 3,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 11,
+					"atk": 30,
+					"def": 0,
+					"spa": 20,
+					"spd": 18,
+					"spe": 6
+				},
+				"nature": "Hasty",
+				"ability": "Chlorophyll"
+			},
+			"summary": "caught Seedot at level 3 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Finneon",
+				"level": 3,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 26,
+					"atk": 16,
+					"def": 19,
+					"spa": 31,
+					"spd": 2,
+					"spe": 11
+				},
+				"nature": "Rash",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Finneon at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Ponyta",
+				"level": 2,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 4,
+					"atk": 29,
+					"def": 14,
+					"spa": 11,
+					"spd": 8,
+					"spe": 29
+				},
+				"nature": "Gentle",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Ponyta at level 2 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Chimchar grew from L5 to L12 and learned Mach Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Litleo grew from L3 to L12 and learned Ember, Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Starly grew from L5 to L12 and learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Seedot grew from L3 to L12 and learned Nature Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L3 to L12 and learned Water Gun, Gust",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L2 to L12 and learned Tail Whip, Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Litleo, Starly, Seedot, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Litleo takes the lead — with Ponyta, Chimchar, Finneon, Starly, Seedot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Will-O-Wisp",
+				"replace": "Leer"
+			},
+			"summary": "Litleo forgot Leer, learned Will-O-Wisp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Blast",
+				"replace": "Growl"
+			},
+			"summary": "Ponyta forgot Growl, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Fire Blast",
+				"replace": "Leer"
+			},
+			"summary": "Chimchar forgot Leer, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hydro Pump"
+			},
+			"summary": "Finneon learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Hurricane",
+				"replace": "Growl"
+			},
+			"summary": "Starly forgot Growl, learned Hurricane",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Solar Beam"
+			},
+			"summary": "Seedot learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Chimchar is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Youngster Calvin",
+				"move": "Headbutt"
+			},
+			"summary": "Litleo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-2",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Chimchar, Finneon, Litleo, Starly, Seedot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-3",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Ponyta, Chimchar, Starly, Litleo, Seedot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6",
+					"mon-2",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Finneon, Ponyta, Litleo, Starly, Seedot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-1",
+					"mon-3",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Finneon, Chimchar, Starly, Litleo, Seedot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Triathlete Mikey",
+				"move": "Rock Smash"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Ledyba",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 25,
+					"atk": 15,
+					"def": 8,
+					"spa": 10,
+					"spd": 20,
+					"spe": 19
+				},
+				"nature": "Impish",
+				"ability": "Rattled"
+			},
+			"summary": "caught Ledyba at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shellos",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 21,
+					"atk": 29,
+					"def": 2,
+					"spa": 30,
+					"spd": 8,
+					"spe": 13
+				},
+				"nature": "Adamant",
+				"ability": "Sticky Hold"
+			},
+			"summary": "caught Shellos at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ledyba grew from L5 to L12 and learned Swift, Light Screen; its moves are full, so Reflect, Safeguard must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Reflect",
+				"replace": "Tackle"
+			},
+			"summary": "Ledyba forgot Tackle, learned Reflect",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Safeguard",
+				"replace": "Reflect"
+			},
+			"summary": "Ledyba forgot Reflect, learned Safeguard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L5 to L12 and learned Water Pulse, Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-1",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Finneon, Chimchar, Starly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-8",
+					"mon-3",
+					"mon-6",
+					"mon-7",
+					"mon-1"
+				]
+			},
+			"summary": "Finneon takes the lead — with Shellos, Starly, Ponyta, Ledyba, Chimchar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Earth Power",
+				"replace": "Mud Sport"
+			},
+			"summary": "Shellos forgot Mud Sport, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Thunder Punch",
+				"replace": "Safeguard"
+			},
+			"summary": "Ledyba forgot Safeguard, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-3",
+				"item": "Miracle Seed"
+			},
+			"summary": "Starly is holding Miracle Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Finneon takes the lead — with Starly, Ponyta, Chimchar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Litleo, Starly, Seedot, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Litleo, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-8",
+					"mon-2",
+					"mon-7"
+				]
+			},
+			"summary": "Finneon takes the lead — with Ponyta, Chimchar, Shellos, Litleo, Ledyba",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Lady Cindy",
+				"move": "Swift"
+			},
+			"summary": "Ponyta fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Lady Cindy",
+				"move": "Stomp"
+			},
+			"summary": "Chimchar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Phanpy",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 19,
+					"atk": 14,
+					"def": 5,
+					"spa": 13,
+					"spd": 24,
+					"spe": 12
+				},
+				"nature": "Bashful",
+				"ability": "Cute Charm"
+			},
+			"summary": "caught Phanpy at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L8 to L12; its moves are full, so Ice Shard must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Ice Shard",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Phanpy forgot Odor Sleuth, learned Ice Shard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Ponyta, Chimchar, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Litleo, Starly, Seedot, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Litleo, Starly, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-2",
+					"mon-7",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Ponyta, Litleo, Ledyba, Starly, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Aqua Jet"
+			},
+			"summary": "Chimchar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Confusion"
+			},
+			"summary": "Litleo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "Ledyba fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Bite"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Carnivine",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 22,
+					"atk": 20,
+					"def": 5,
+					"spa": 29,
+					"spd": 6,
+					"spe": 3
+				},
+				"nature": "Gentle",
+				"ability": "Levitate"
+			},
+			"summary": "caught Carnivine at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Chimchar grew from L12 to L17; its moves are full, so Flame Wheel must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Flame Wheel",
+				"replace": "Scratch"
+			},
+			"summary": "Chimchar forgot Scratch, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Chimchar evolved into Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Litleo grew from L12 to L17; its moves are full, so Noble Roar, Incinerate must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Noble Roar",
+				"replace": "Tackle"
+			},
+			"summary": "Litleo forgot Tackle, learned Noble Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Incinerate",
+				"replace": "Noble Roar"
+			},
+			"summary": "Litleo forgot Noble Roar, learned Incinerate",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Starly grew from L12 to L17; its moves are full, so Endeavor must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Endeavor",
+				"replace": "Tackle"
+			},
+			"summary": "Starly forgot Tackle, learned Endeavor",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Starly evolved into Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L12 to L17; its moves are full, so Water Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Water Pulse",
+				"replace": "Pound"
+			},
+			"summary": "Finneon forgot Pound, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L12 to L17; its moves are full, so Flame Wheel, Fire Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Fire Blast"
+			},
+			"summary": "Ponyta forgot Fire Blast, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Spin",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ledyba grew from L12 to L17; its moves are full, so Silver Wind must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Silver Wind",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Ledyba forgot Thunder Punch, learned Silver Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Seedot grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-4"
+			},
+			"summary": "Seedot evolved into Nuzleaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L12 to L17; its moves are full, so Hidden Power must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Hidden Power",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Shellos forgot Mud-Slap, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L12 to L17; its moves are full, so Bulldoze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Ice Shard"
+			},
+			"summary": "Phanpy forgot Ice Shard, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L14 to L17; its moves are full, so Sweet Scent must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Sweet Scent",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Carnivine forgot Razor Leaf, learned Sweet Scent",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-2",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta, Litleo, Staravia, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-3",
+					"mon-8",
+					"mon-1",
+					"mon-7",
+					"mon-5"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Staravia, Shellos, Monferno, Ledyba, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Low Sweep",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Monferno forgot Flame Wheel, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Carnivine forgot Sweet Scent, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Magical Leaf",
+				"replace": "Bind"
+			},
+			"summary": "Carnivine forgot Bind, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Facade",
+				"replace": "Endeavor"
+			},
+			"summary": "Staravia forgot Endeavor, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Blizzard",
+				"replace": "Water Pulse"
+			},
+			"summary": "Shellos forgot Water Pulse, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Thunder Punch",
+				"replace": "Ember"
+			},
+			"summary": "Monferno forgot Ember, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Thunder Punch",
+				"replace": "Supersonic"
+			},
+			"summary": "Ledyba forgot Supersonic, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Blizzard",
+				"replace": "Water Gun"
+			},
+			"summary": "Finneon forgot Water Gun, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Fisherman Elliot",
+				"move": "Peck"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chewtle",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 17,
+					"atk": 19,
+					"def": 13,
+					"spa": 10,
+					"spd": 17,
+					"spe": 22
+				},
+				"nature": "Naughty",
+				"ability": "Strong Jaw"
+			},
+			"summary": "caught Chewtle at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L8 to L17 and learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Staravia takes the lead — with Monferno, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-10",
+					"mon-8",
+					"mon-9",
+					"mon-11"
+				]
+			},
+			"summary": "Finneon takes the lead — with Monferno, Carnivine, Shellos, Phanpy, Chewtle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Water Pulse",
+				"replace": "Hidden Power"
+			},
+			"summary": "Shellos forgot Hidden Power, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earthquake",
+				"replace": "Growl"
+			},
+			"summary": "Phanpy forgot Growl, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Tackle"
+			},
+			"summary": "Chewtle forgot Tackle, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Silk Scarf"
+			},
+			"summary": "Finneon is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Ruin Maniac Georgie",
+				"move": "Headbutt"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Finneon takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-11",
+					"mon-1",
+					"mon-5",
+					"mon-10",
+					"mon-8"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Chewtle, Monferno, Finneon, Carnivine, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Tuber Chandler",
+				"move": "Incinerate"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Makuhita",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 18,
+					"atk": 31,
+					"def": 6,
+					"spa": 5,
+					"spd": 28,
+					"spe": 27
+				},
+				"nature": "Careful",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Makuhita at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Makuhita grew from L8 to L17; its moves are full, so Fake Out, Force Palm, Whirlwind must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Fake Out",
+				"replace": "Tackle"
+			},
+			"summary": "Makuhita forgot Tackle, learned Fake Out",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Force Palm",
+				"replace": "Fake Out"
+			},
+			"summary": "Makuhita forgot Fake Out, learned Force Palm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Whirlwind",
+				"replace": "Force Palm"
+			},
+			"summary": "Makuhita forgot Force Palm, learned Whirlwind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-9",
+					"mon-11",
+					"mon-8",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Monferno, Phanpy, Chewtle, Shellos, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-9",
+				"item": "Soft Sand"
+			},
+			"summary": "Phanpy is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Voice",
+				"replace": "Ember"
+			},
+			"summary": "Litleo forgot Ember, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Monferno, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-1",
+					"mon-8",
+					"mon-5",
+					"mon-7",
+					"mon-11"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Monferno, Shellos, Finneon, Ledyba, Chewtle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Sailor Edmond",
+				"move": "Sonic Boom"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-2",
+					"mon-6",
+					"mon-5",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Litleo, Ponyta, Finneon, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Fire Spin"
+			},
+			"summary": "Ponyta forgot Fire Spin, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Blast",
+				"replace": "Tail Whip"
+			},
+			"summary": "Ponyta forgot Tail Whip, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 24,
+					"atk": 1,
+					"def": 8,
+					"spa": 11,
+					"spd": 2,
+					"spe": 0
+				},
+				"nature": "Modest",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L8 to L17 and learned Leer, Twister; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-2",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Litleo, Ponyta, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-2",
+					"mon-6",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Monferno, Litleo, Ponyta, Carnivine, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Tuber Ricky",
+				"move": "Double Kick"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Clauncher",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 2,
+					"atk": 3,
+					"def": 28,
+					"spa": 24,
+					"spd": 1,
+					"spe": 12
+				},
+				"nature": "Gentle",
+				"ability": "Mega Launcher"
+			},
+			"summary": "caught Clauncher at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Clauncher grew from L10 to L17; its moves are full, so Bubble Beam, Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bubble Beam",
+				"replace": "Splash"
+			},
+			"summary": "Clauncher forgot Splash, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Aurora Beam",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Clauncher forgot Bubble Beam, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Ponyta, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-6",
+					"mon-10",
+					"mon-8",
+					"mon-2"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Monferno, Ponyta, Carnivine, Shellos, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Tuber Hailey",
+				"move": "Venoshock"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-6",
+					"mon-2",
+					"mon-10",
+					"mon-8"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Monferno, Ponyta, Litleo, Carnivine, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Sludge Bomb"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shinx",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 14,
+					"atk": 22,
+					"def": 9,
+					"spa": 13,
+					"spd": 5,
+					"spe": 12
+				},
+				"nature": "Lax",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Shinx at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Remoraid",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 7,
+					"atk": 29,
+					"def": 24,
+					"spa": 16,
+					"spd": 10,
+					"spe": 9
+				},
+				"nature": "Impish",
+				"ability": "Hustle"
+			},
+			"summary": "caught Remoraid at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Shinx grew from L12 to L17; its moves are full, so Nuzzle, Bite must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Nuzzle",
+				"replace": "Tackle"
+			},
+			"summary": "Shinx forgot Tackle, learned Nuzzle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Bite",
+				"replace": "Nuzzle"
+			},
+			"summary": "Shinx forgot Nuzzle, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Shinx evolved into Luxio",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L10 to L17 and learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Finneon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-10",
+					"mon-8",
+					"mon-5",
+					"mon-11",
+					"mon-9"
+				]
+			},
+			"summary": "Luxio takes the lead — with Carnivine, Shellos, Finneon, Chewtle, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Nuzzle",
+				"replace": "Leer"
+			},
+			"summary": "Luxio forgot Leer, learned Nuzzle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-8",
+				"item": "Poison Barb"
+			},
+			"summary": "Shellos is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Finneon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Finneon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-10",
+					"mon-15",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Monferno, Carnivine, Luxio, Litleo, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Team Aqua Grunt Museum #2",
+				"move": "Water Pulse"
+			},
+			"summary": "Litleo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L17 to L21; its moves are full, so Fire Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Fire Spin",
+				"replace": "Low Sweep"
+			},
+			"summary": "Monferno forgot Low Sweep, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Litleo grew from L17 to L21; its moves are full, so Echoed Voice must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Echoed Voice",
+				"replace": "Incinerate"
+			},
+			"summary": "Litleo forgot Incinerate, learned Echoed Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L17 to L21; its moves are full, so Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Bounce",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L17 to L21; its moves are full, so Charm must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Charm",
+				"replace": "Bulldoze"
+			},
+			"summary": "Phanpy forgot Bulldoze, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Luxio grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Nuzleaf grew from L17 to L21 and learned Feint Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Finneon evolved into Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ledyba grew from L17 to L21; its moves are full, so Aerial Ace must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Aerial Ace",
+				"replace": "Silver Wind"
+			},
+			"summary": "Ledyba forgot Silver Wind, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Ledyba evolved into Ledian",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L17 to L21; its moves are full, so Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Headbutt",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Chewtle forgot Hydro Pump, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Makuhita grew from L17 to L21; its moves are full, so Payback must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Payback",
+				"replace": "Whirlwind"
+			},
+			"summary": "Makuhita forgot Whirlwind, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L17 to L21; its moves are full, so Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Clear Smog",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Horsea forgot Bubble Beam, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Clauncher grew from L17 to L21; its moves are full, so Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bounce",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Clauncher forgot Aurora Beam, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L17 to L21; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Water Gun"
+			},
+			"summary": "Remoraid forgot Water Gun, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-9",
+					"mon-10",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Monferno, Phanpy, Carnivine, Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Will-O-Wisp",
+				"replace": "Fire Spin"
+			},
+			"summary": "Monferno forgot Fire Spin, learned Will-O-Wisp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Play Rough",
+				"replace": "Charm"
+			},
+			"summary": "Phanpy forgot Charm, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Sludge Bomb",
+				"replace": "Bite"
+			},
+			"summary": "Carnivine forgot Bite, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Quick Attack"
+			},
+			"summary": "Staravia forgot Quick Attack, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Play Rough",
+				"replace": "Ember"
+			},
+			"summary": "Ponyta forgot Ember, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Monferno, Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-6",
+					"mon-3",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Monferno, Ponyta, Staravia, Litleo, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Air Cutter",
+				"replace": "Water Pulse"
+			},
+			"summary": "Lumineon forgot Water Pulse, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Incinerate",
+				"replace": "Echoed Voice"
+			},
+			"summary": "Litleo forgot Echoed Voice, learned Incinerate",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Fire Blast",
+				"replace": "Headbutt"
+			},
+			"summary": "Litleo forgot Headbutt, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Sailor Brenden",
+				"move": "Pin Missile"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-6",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Monferno, Ponyta, Staravia, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-9",
+					"mon-6",
+					"mon-15",
+					"mon-10"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon, Phanpy, Ponyta, Luxio, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Bounce"
+			},
+			"summary": "Ponyta forgot Bounce, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Covet",
+				"replace": "Bite"
+			},
+			"summary": "Luxio forgot Bite, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Bite",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Carnivine forgot Magical Leaf, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder",
+				"replace": "Baby-Doll Eyes"
+			},
+			"summary": "Luxio forgot Baby-Doll Eyes, learned Thunder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-9",
+					"mon-1",
+					"mon-10",
+					"mon-13",
+					"mon-15"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Phanpy, Monferno, Carnivine, Seadra, Luxio",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Smokescreen"
+			},
+			"summary": "Seadra forgot Smokescreen, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Hydro Pump",
+				"replace": "Leer"
+			},
+			"summary": "Seadra forgot Leer, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-1",
+					"mon-6",
+					"mon-10",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Seadra takes the lead — with Monferno, Ponyta, Carnivine, Lumineon, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Low Sweep",
+				"replace": "Will-O-Wisp"
+			},
+			"summary": "Monferno forgot Will-O-Wisp, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Black Belt Takao",
+				"move": "Drain Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta, Lumineon, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-13",
+					"mon-9",
+					"mon-10",
+					"mon-1",
+					"mon-8"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Seadra, Phanpy, Carnivine, Monferno, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Hydro Pump",
+				"replace": "Mud Shot"
+			},
+			"summary": "Shellos forgot Mud Shot, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Battle Girl Jocelyn",
+				"move": "Flame Charge"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-9",
+					"mon-5",
+					"mon-10",
+					"mon-1"
+				]
+			},
+			"summary": "Seadra takes the lead — with Luxio, Phanpy, Lumineon, Carnivine, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Luxio fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Brawly"
+			},
+			"summary": "beat Leader Brawly (now at 77)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Lumineon grew from L21 to L25; its moves are full, so Bounce, Whirlpool must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bounce",
+				"replace": "Air Cutter"
+			},
+			"summary": "Lumineon forgot Air Cutter, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Whirlpool",
+				"replace": "Bounce"
+			},
+			"summary": "Lumineon forgot Bounce, learned Whirlpool",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L21 to L25; its moves are full, so Slam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Slam",
+				"replace": "Play Rough"
+			},
+			"summary": "Phanpy forgot Play Rough, learned Slam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-9"
+			},
+			"summary": "Phanpy evolved into Donphan",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L21 to L25; its moves are full, so Acid Spray must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Acid Spray",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Carnivine forgot Razor Leaf, learned Acid Spray",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L21 to L25; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Clear Smog"
+			},
+			"summary": "Seadra forgot Clear Smog, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Luxio grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Litleo grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L21 to L25; its moves are full, so Whirlwind must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Whirlwind",
+				"replace": "Facade"
+			},
+			"summary": "Staravia forgot Facade, learned Whirlwind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Nuzleaf grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ledian grew from L21 to L25; its moves are full, so Comet Punch must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Comet Punch",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Ledian forgot Aerial Ace, learned Comet Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L21 to L25; its moves are full, so Mud Bomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Bomb",
+				"replace": "Water Pulse"
+			},
+			"summary": "Shellos forgot Water Pulse, learned Mud Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L21 to L25; its moves are full, so Razor Shell must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Headbutt"
+			},
+			"summary": "Chewtle forgot Headbutt, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-11"
+			},
+			"summary": "Chewtle evolved into Drednaw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Makuhita grew from L21 to L25; its moves are full, so Vital Throw, Smelling Salts must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Vital Throw",
+				"replace": "Payback"
+			},
+			"summary": "Makuhita forgot Payback, learned Vital Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Smelling Salts",
+				"replace": "Vital Throw"
+			},
+			"summary": "Makuhita forgot Vital Throw, learned Smelling Salts",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-12"
+			},
+			"summary": "Makuhita evolved into Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Clauncher grew from L21 to L25; its moves are full, so Water Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Water Pulse",
+				"replace": "Bounce"
+			},
+			"summary": "Clauncher forgot Bounce, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L21 to L25; its moves are full, so Focus Energy must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Focus Energy",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Remoraid forgot Bubble Beam, learned Focus Energy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-16"
+			},
+			"summary": "Remoraid evolved into Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-9",
+					"mon-6",
+					"mon-1",
+					"mon-11",
+					"mon-5"
+				]
+			},
+			"summary": "Litleo takes the lead — with Donphan, Ponyta, Monferno, Drednaw, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Head Smash",
+				"replace": "Water Pulse"
+			},
+			"summary": "Drednaw forgot Water Pulse, learned Head Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Fire Fang",
+				"replace": "Slam"
+			},
+			"summary": "Donphan forgot Slam, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Flamethrower",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Litleo forgot Hyper Voice, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Tomb",
+				"replace": "Sand Attack"
+			},
+			"summary": "Donphan forgot Sand Attack, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flamethrower",
+				"replace": "Stomp"
+			},
+			"summary": "Ponyta forgot Stomp, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Flamethrower",
+				"replace": "Mach Punch"
+			},
+			"summary": "Monferno forgot Mach Punch, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Rock Tomb",
+				"replace": "Bite"
+			},
+			"summary": "Drednaw forgot Bite, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Surf",
+				"replace": "Whirlpool"
+			},
+			"summary": "Lumineon forgot Whirlpool, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Bug Catcher Lyle",
+				"move": "Dual Wingbeat"
+			},
+			"summary": "Litleo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Lyle"
+			},
+			"summary": "beat Bug Catcher Lyle (now at 83)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Litleo takes the lead — with Ponyta, Monferno, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-1",
+					"mon-2",
+					"mon-6",
+					"mon-3",
+					"mon-9"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Monferno, Litleo, Ponyta, Staravia, Donphan",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Dual Wingbeat",
+				"replace": "Whirlwind"
+			},
+			"summary": "Staravia forgot Whirlwind, learned Dual Wingbeat",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Ice Shard",
+				"replace": "Earthquake"
+			},
+			"summary": "Donphan forgot Earthquake, learned Ice Shard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Maniac James"
+			},
+			"summary": "beat Bug Maniac James (now at 86)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Ponyta, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-13",
+					"mon-5",
+					"mon-1",
+					"mon-12",
+					"mon-2"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Seadra, Lumineon, Monferno, Hariyama, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Surf",
+				"replace": "Twister"
+			},
+			"summary": "Seadra forgot Twister, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Rich Boy Winston",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Winston"
+			},
+			"summary": "beat Rich Boy Winston (now at 90)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Monferno, Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-15",
+					"mon-16",
+					"mon-5",
+					"mon-10",
+					"mon-8"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Luxio, Octillery, Lumineon, Carnivine, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Rock Blast",
+				"replace": "Focus Energy"
+			},
+			"summary": "Octillery forgot Focus Energy, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunderbolt",
+				"replace": "Covet"
+			},
+			"summary": "Luxio forgot Covet, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Psychic",
+				"replace": "Lock-On"
+			},
+			"summary": "Octillery forgot Lock-On, learned Psychic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Magical Leaf",
+				"replace": "Acid Spray"
+			},
+			"summary": "Carnivine forgot Acid Spray, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Rock Tomb",
+				"replace": "Blizzard"
+			},
+			"summary": "Shellos forgot Blizzard, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Ivan"
+			},
+			"summary": "beat Fisherman Ivan (now at 92)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Litleo takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-10",
+					"mon-9",
+					"mon-6",
+					"mon-2",
+					"mon-12"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Carnivine, Donphan, Ponyta, Litleo, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Ice Shard"
+			},
+			"summary": "Donphan forgot Ice Shard, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Payback",
+				"replace": "Focus Energy"
+			},
+			"summary": "Hariyama forgot Focus Energy, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Twins Gina And Mia",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Twins Gina And Mia"
+			},
+			"summary": "beat Twins Gina And Mia (now at 95)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Litleo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-1",
+					"mon-5",
+					"mon-9",
+					"mon-13",
+					"mon-8"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Monferno, Lumineon, Donphan, Seadra, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Thunder Fang",
+				"replace": "Rock Throw"
+			},
+			"summary": "Donphan forgot Rock Throw, learned Thunder Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Lass Haley",
+				"move": "Steel Wing"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Lass Haley",
+				"move": "Dual Wingbeat"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Haley"
+			},
+			"summary": "beat Lass Haley (now at 99)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-1",
+					"mon-5",
+					"mon-9",
+					"mon-13",
+					"mon-12"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Monferno, Lumineon, Donphan, Seadra, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-11",
+					"mon-1",
+					"mon-5",
+					"mon-13",
+					"mon-12"
+				]
+			},
+			"summary": "Donphan takes the lead — with Drednaw, Monferno, Lumineon, Seadra, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Joey"
+			},
+			"summary": "beat Youngster Joey (now at 103)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Hatenna",
+				"level": 14,
+				"map": "Route116",
+				"method": "walk",
+				"ivs": {
+					"hp": 19,
+					"atk": 20,
+					"def": 25,
+					"spa": 8,
+					"spd": 12,
+					"spe": 27
+				},
+				"nature": "Calm",
+				"ability": "Synchronize"
+			},
+			"summary": "caught Hatenna at level 14 on Route116",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Rockruff",
+				"level": 14,
+				"map": "Rustboro City",
+				"method": "walk",
+				"ivs": {
+					"hp": 30,
+					"atk": 22,
+					"def": 23,
+					"spa": 30,
+					"spd": 6,
+					"spe": 11
+				},
+				"nature": "Modest",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Rockruff at level 14 on Rustboro City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Super Potion"
+			},
+			"summary": "bag: Super Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Twisted Spoon"
+			},
+			"summary": "bag: Twisted Spoon x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Hatenna grew from L14 to L25; its moves are full, so Aromatherapy, Psybeam, Psyshock must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Aromatherapy",
+				"replace": "Confusion"
+			},
+			"summary": "Hatenna forgot Confusion, learned Aromatherapy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psybeam",
+				"replace": "Aromatherapy"
+			},
+			"summary": "Hatenna forgot Aromatherapy, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psyshock",
+				"replace": "Psybeam"
+			},
+			"summary": "Hatenna forgot Psybeam, learned Psyshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-17"
+			},
+			"summary": "Hatenna evolved into Hattrem",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Rockruff grew from L14 to L25; its moves are full, so Roar, Attract, Rock Tomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Roar",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Rockruff forgot Odor Sleuth, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Attract",
+				"replace": "Roar"
+			},
+			"summary": "Rockruff forgot Roar, learned Attract",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Rock Tomb",
+				"replace": "Attract"
+			},
+			"summary": "Rockruff forgot Attract, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Litleo takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-2",
+					"mon-5",
+					"mon-9",
+					"mon-10",
+					"mon-16"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Litleo, Lumineon, Donphan, Carnivine, Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Headbutt",
+				"replace": "Incinerate"
+			},
+			"summary": "Litleo forgot Incinerate, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-2",
+				"item": "Twisted Spoon"
+			},
+			"summary": "Litleo is holding Twisted Spoon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Lass Janice",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Janice"
+			},
+			"summary": "beat Lass Janice (now at 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Litleo takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-9",
+					"mon-15",
+					"mon-12",
+					"mon-1",
+					"mon-17"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Donphan, Luxio, Hariyama, Monferno, Hattrem",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psychic",
+				"replace": "Play Nice"
+			},
+			"summary": "Hattrem forgot Play Nice, learned Psychic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Rich Boy Dawson",
+				"move": "Dragon Rage"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Dawson"
+			},
+			"summary": "beat Rich Boy Dawson (now at 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-10",
+					"mon-12",
+					"mon-5",
+					"mon-9",
+					"mon-16"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Carnivine, Hariyama, Lumineon, Donphan, Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Carnivine forgot Magical Leaf, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Grass Knot"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Air Cutter"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Water Pledge"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Jerry & Johnson"
+			},
+			"summary": "beat School Kid Jerry & Johnson (now at 111)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-1",
+					"mon-2",
+					"mon-6",
+					"mon-9",
+					"mon-5"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Monferno, Litleo, Ponyta, Donphan, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Bug Catcher Jose",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Bug Catcher Jose",
+				"move": "Air Slash"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Bug Catcher Jose",
+				"move": "Air Slash"
+			},
+			"summary": "Litleo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Jose"
+			},
+			"summary": "beat Bug Catcher Jose (now at 115)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Ponyta, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-9",
+					"mon-6",
+					"mon-1",
+					"mon-11",
+					"mon-5"
+				]
+			},
+			"summary": "Litleo takes the lead — with Donphan, Ponyta, Monferno, Drednaw, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Sarah"
+			},
+			"summary": "beat Lady Sarah (now at 118)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Litleo takes the lead — with Ponyta, Monferno, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-1",
+					"mon-9",
+					"mon-17",
+					"mon-12",
+					"mon-15"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Monferno, Donphan, Hattrem, Hariyama, Luxio",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Bite",
+				"replace": "Nuzzle"
+			},
+			"summary": "Luxio forgot Nuzzle, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "School Kid Karen",
+				"move": "Discharge"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "School Kid Karen",
+				"move": "Drill Peck"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Karen"
+			},
+			"summary": "beat School Kid Karen (now at 120)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-13",
+					"mon-5",
+					"mon-11",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Donphan, Seadra, Lumineon, Drednaw, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-10",
+					"mon-9",
+					"mon-5",
+					"mon-11",
+					"mon-12"
+				]
+			},
+			"summary": "Seadra takes the lead — with Carnivine, Donphan, Lumineon, Drednaw, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Hiker Clark",
+				"move": "Iron Head"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Clark"
+			},
+			"summary": "beat Hiker Clark (now at 123)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-13",
+					"mon-5",
+					"mon-9",
+					"mon-16",
+					"mon-12"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Seadra, Lumineon, Donphan, Octillery, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Ice Shard",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Donphan forgot Rock Tomb, learned Ice Shard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-11",
+					"mon-13",
+					"mon-5",
+					"mon-16",
+					"mon-12"
+				]
+			},
+			"summary": "Donphan takes the lead — with Drednaw, Seadra, Lumineon, Octillery, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Hiker Devan",
+				"move": "Sky Uppercut"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Hiker Devan",
+				"move": "Crunch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Devan"
+			},
+			"summary": "beat Hiker Devan (now at 125)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-13",
+					"mon-5",
+					"mon-9",
+					"mon-8",
+					"mon-14"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Seadra, Lumineon, Donphan, Shellos, Clauncher",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Water Sport"
+			},
+			"summary": "Clauncher forgot Water Sport, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-11",
+					"mon-5",
+					"mon-9",
+					"mon-8",
+					"mon-14"
+				]
+			},
+			"summary": "Seadra takes the lead — with Drednaw, Lumineon, Donphan, Shellos, Clauncher",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Josh"
+			},
+			"summary": "beat Youngster Josh (now at 128)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-11",
+					"mon-1",
+					"mon-5",
+					"mon-12",
+					"mon-13"
+				]
+			},
+			"summary": "Donphan takes the lead — with Drednaw, Monferno, Lumineon, Hariyama, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-9",
+					"mon-1",
+					"mon-5",
+					"mon-12",
+					"mon-13"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Donphan, Monferno, Lumineon, Hariyama, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Youngster Tommy",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Tommy"
+			},
+			"summary": "beat Youngster Tommy (now at 131)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-9",
+					"mon-5",
+					"mon-10",
+					"mon-11",
+					"mon-12"
+				]
+			},
+			"summary": "Seadra takes the lead — with Donphan, Lumineon, Carnivine, Drednaw, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-13",
+					"mon-9",
+					"mon-10",
+					"mon-11",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Seadra, Donphan, Carnivine, Drednaw, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Marc"
+			},
+			"summary": "beat Hiker Marc (now at 135)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-13",
+					"mon-1",
+					"mon-5",
+					"mon-12",
+					"mon-9"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Seadra, Monferno, Lumineon, Hariyama, Donphan",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-11",
+					"mon-13",
+					"mon-5",
+					"mon-12",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Drednaw, Seadra, Lumineon, Hariyama, Donphan",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Brick Break"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Body Slam"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Roxanne",
+				"move": "Stored Power"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Roxanne",
+				"move": "Icy Wind"
+			},
+			"summary": "Donphan fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Roxanne"
+			},
+			"summary": "beat Leader Roxanne (now at 139)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L25 to L32; its moves are full, so Feint, Torment must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Feint",
+				"replace": "Low Sweep"
+			},
+			"summary": "Monferno forgot Low Sweep, learned Feint",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Torment",
+				"replace": "Feint"
+			},
+			"summary": "Monferno forgot Feint, learned Torment",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Lumineon grew from L25 to L32",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Donphan grew from L25 to L32; its moves are full, so Rapid Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rapid Spin",
+				"replace": "Fire Fang"
+			},
+			"summary": "Donphan forgot Fire Fang, learned Rapid Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Drednaw grew from L25 to L32; its moves are full, so Rock Slide must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Rock Slide",
+				"replace": "Razor Shell"
+			},
+			"summary": "Drednaw forgot Razor Shell, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Hariyama grew from L25 to L32; its moves are full, so Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Seismic Toss",
+				"replace": "Smelling Salts"
+			},
+			"summary": "Hariyama forgot Smelling Salts, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L25 to L32; its moves are full, so Octazooka must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Octazooka",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Seadra forgot Aurora Beam, learned Octazooka",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Litleo grew from L25 to L32; its moves are full, so Flame Burst, Crunch must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Flame Burst",
+				"replace": "Headbutt"
+			},
+			"summary": "Litleo forgot Headbutt, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Crunch",
+				"replace": "Flame Burst"
+			},
+			"summary": "Litleo forgot Flame Burst, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L25 to L32",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Nuzleaf grew from L25 to L32; its moves are full, so Leaf Blade, Swagger must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leaf Blade",
+				"replace": "Bide"
+			},
+			"summary": "Nuzleaf forgot Bide, learned Leaf Blade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Swagger",
+				"replace": "Leaf Blade"
+			},
+			"summary": "Nuzleaf forgot Leaf Blade, learned Swagger",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L25 to L32; its moves are full, so Double Kick, Morning Sun must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Double Kick",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Morning Sun",
+				"replace": "Double Kick"
+			},
+			"summary": "Ponyta forgot Double Kick, learned Morning Sun",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-6"
+			},
+			"summary": "Ponyta evolved into Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ledian grew from L25 to L32; its moves are full, so Defog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Defog",
+				"replace": "Comet Punch"
+			},
+			"summary": "Ledian forgot Comet Punch, learned Defog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L25 to L32; its moves are full, so Whirlpool, Ancient Power must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Whirlpool",
+				"replace": "Mud Bomb"
+			},
+			"summary": "Shellos forgot Mud Bomb, learned Whirlpool",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Ancient Power",
+				"replace": "Whirlpool"
+			},
+			"summary": "Shellos forgot Whirlpool, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-8"
+			},
+			"summary": "Shellos evolved into Gastrodon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L25 to L32; its moves are full, so Crunch, Leaf Blade must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Crunch",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Carnivine forgot Razor Leaf, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Leaf Blade",
+				"replace": "Crunch"
+			},
+			"summary": "Carnivine forgot Crunch, learned Leaf Blade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Clauncher grew from L25 to L32; its moves are full, so Entrainment must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Entrainment",
+				"replace": "Water Pulse"
+			},
+			"summary": "Clauncher forgot Water Pulse, learned Entrainment",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-14"
+			},
+			"summary": "Clauncher evolved into Clawitzer",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Luxio grew from L25 to L32; its moves are full, so Charm, Wild Charge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Charm",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Luxio forgot Thunderbolt, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Wild Charge",
+				"replace": "Charm"
+			},
+			"summary": "Luxio forgot Charm, learned Wild Charge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Luxio evolved into Luxray",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Octillery grew from L25 to L32; its moves are full, so Bind must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bind",
+				"replace": "Rock Blast"
+			},
+			"summary": "Octillery forgot Rock Blast, learned Bind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Hattrem grew from L25 to L32",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Rockruff grew from L25 to L32; its moves are full, so Snarl, Stomping Tantrum must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Snarl",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Rockruff forgot Rock Tomb, learned Snarl",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Stomping Tantrum",
+				"replace": "Snarl"
+			},
+			"summary": "Rockruff forgot Snarl, learned Stomping Tantrum",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-11",
+					"mon-14",
+					"mon-9",
+					"mon-5",
+					"mon-10"
+				]
+			},
+			"summary": "Gastrodon takes the lead — with Drednaw, Clawitzer, Donphan, Lumineon, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Rock Slide"
+			},
+			"summary": "Drednaw forgot Rock Slide, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Earthquake",
+				"replace": "Ancient Power"
+			},
+			"summary": "Gastrodon forgot Ancient Power, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Drednaw forgot Rock Tomb, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Focus Blast",
+				"replace": "Entrainment"
+			},
+			"summary": "Clawitzer forgot Entrainment, learned Focus Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Scary Face",
+				"replace": "Rapid Spin"
+			},
+			"summary": "Donphan forgot Rapid Spin, learned Scary Face",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Waterfall",
+				"replace": "Gust"
+			},
+			"summary": "Lumineon forgot Gust, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Magical Leaf",
+				"replace": "Bite"
+			},
+			"summary": "Carnivine forgot Bite, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-8",
+					"mon-11",
+					"mon-9",
+					"mon-5",
+					"mon-10"
+				]
+			},
+			"summary": "Clawitzer takes the lead — with Gastrodon, Drednaw, Donphan, Lumineon, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Hiker Mike",
+				"move": "Play Rough"
+			},
+			"summary": "Clawitzer fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Mike"
+			},
+			"summary": "beat Hiker Mike (now at 145)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Trapinch",
+				"level": 16,
+				"map": "Rusturf Tunnel",
+				"method": "walk",
+				"ivs": {
+					"hp": 15,
+					"atk": 21,
+					"def": 12,
+					"spa": 27,
+					"spd": 6,
+					"spe": 16
+				},
+				"nature": "Hardy",
+				"ability": "Arena Trap"
+			},
+			"summary": "caught Trapinch at level 16 on Rusturf Tunnel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-19",
+				"to": "cap"
+			},
+			"summary": "Trapinch grew from L16 to L32; its moves are full, so Sand Tomb, Rock Slide, Bulldoze, Crunch must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Sand Tomb",
+				"replace": "Bite"
+			},
+			"summary": "Trapinch forgot Bite, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Rock Slide",
+				"replace": "Sand Tomb"
+			},
+			"summary": "Trapinch forgot Sand Tomb, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Bulldoze",
+				"replace": "Rock Slide"
+			},
+			"summary": "Trapinch forgot Rock Slide, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Crunch",
+				"replace": "Bulldoze"
+			},
+			"summary": "Trapinch forgot Bulldoze, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-19"
+			},
+			"summary": "Trapinch evolved into Vibrava",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-9",
+					"mon-14",
+					"mon-15",
+					"mon-11",
+					"mon-17"
+				]
+			},
+			"summary": "Gastrodon takes the lead — with Donphan, Clawitzer, Luxray, Drednaw, Hattrem",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Dazzling Gleam",
+				"replace": "Life Dew"
+			},
+			"summary": "Hattrem forgot Life Dew, learned Dazzling Gleam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Jaw Lock",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Drednaw forgot Hydro Pump, learned Jaw Lock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Play Rough",
+				"replace": "Bite"
+			},
+			"summary": "Luxray forgot Bite, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Play Rough",
+				"replace": "Disarming Voice"
+			},
+			"summary": "Hattrem forgot Disarming Voice, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Breeder Lydia"
+			},
+			"summary": "Donphan fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-17",
+				"to": "Breeder Lydia",
+				"move": "Shock Wave"
+			},
+			"summary": "Hattrem fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Breeder Lydia"
+			},
+			"summary": "beat Breeder Lydia (now at 149)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Rapidash takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-11",
+					"mon-9",
+					"mon-14",
+					"mon-15",
+					"mon-6"
+				]
+			},
+			"summary": "Gastrodon takes the lead — with Drednaw, Donphan, Clawitzer, Luxray, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Blaze Kick",
+				"replace": "Morning Sun"
+			},
+			"summary": "Rapidash forgot Morning Sun, learned Blaze Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Breeder Corgi",
+				"move": "Play Rough"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Breeder Corgi"
+			},
+			"summary": "beat Breeder Corgi (now at 153)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Rapidash takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-9",
+					"mon-8",
+					"mon-14",
+					"mon-15",
+					"mon-12"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Donphan, Gastrodon, Clawitzer, Luxray, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Fire Fang",
+				"replace": "Scary Face"
+			},
+			"summary": "Donphan forgot Scary Face, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Smelling Salts",
+				"replace": "Sand Attack"
+			},
+			"summary": "Hariyama forgot Sand Attack, learned Smelling Salts",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Earthquake",
+				"replace": "Seismic Toss"
+			},
+			"summary": "Hariyama forgot Seismic Toss, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Psychic Brandi & Aisha",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Psychic Brandi & Aisha"
+			},
+			"summary": "beat Psychic Brandi & Aisha (now at 158)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-1",
+					"mon-15",
+					"mon-9",
+					"mon-12",
+					"mon-14"
+				]
+			},
+			"summary": "Gastrodon takes the lead — with Monferno, Luxray, Donphan, Hariyama, Clawitzer",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Low Sweep",
+				"replace": "Torment"
+			},
+			"summary": "Monferno forgot Torment, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Aurora Beam",
+				"replace": "Aqua Jet"
+			},
+			"summary": "Clawitzer forgot Aqua Jet, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Will-O-Wisp",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Monferno forgot Thunder Punch, learned Will-O-Wisp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Battle Girl Luna",
+				"move": "Liquidation"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Battle Girl Luna",
+				"move": "Earthquake"
+			},
+			"summary": "Luxray fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Luna"
+			},
+			"summary": "beat Battle Girl Luna (now at 162)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Pikachu",
+				"level": 20,
+				"map": "Route117",
+				"method": "walk",
+				"ivs": {
+					"hp": 30,
+					"atk": 31,
+					"def": 7,
+					"spa": 3,
+					"spd": 0,
+					"spe": 4
+				},
+				"nature": "Sassy",
+				"ability": "Static"
+			},
+			"summary": "caught Pikachu at level 20 on Route117",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Shell Bell"
+			},
+			"summary": "bag: Shell Bell x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-20",
+				"to": "cap"
+			},
+			"summary": "Pikachu grew from L20 to L32; its moves are full, so Slam, Fake Out, Discharge, Nuzzle must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-20",
+				"move": "Slam",
+				"replace": "Play Nice"
+			},
+			"summary": "Pikachu forgot Play Nice, learned Slam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-20",
+				"move": "Fake Out",
+				"replace": "Slam"
+			},
+			"summary": "Pikachu forgot Slam, learned Fake Out",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-20",
+				"move": "Discharge",
+				"replace": "Fake Out"
+			},
+			"summary": "Pikachu forgot Fake Out, learned Discharge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-20",
+				"move": "Nuzzle",
+				"replace": "Discharge"
+			},
+			"summary": "Pikachu forgot Discharge, learned Nuzzle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-15",
+					"mon-14",
+					"mon-9",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Luxray, Clawitzer, Donphan, Rapidash, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Megahorn",
+				"replace": "Flamethrower"
+			},
+			"summary": "Rapidash forgot Flamethrower, learned Megahorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-6",
+				"item": "Shell Bell"
+			},
+			"summary": "Rapidash is holding Shell Bell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Triathlete Dylan",
+				"move": "Giga Drain"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Triathlete Dylan",
+				"move": "Drill Run"
+			},
+			"summary": "Rapidash fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Dylan"
+			},
+			"summary": "beat Triathlete Dylan (now at 167)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Petilil",
+				"level": 20,
+				"map": "Verdanturf Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 6,
+					"atk": 17,
+					"def": 20,
+					"spa": 20,
+					"spd": 16,
+					"spe": 10
+				},
+				"nature": "Brave",
+				"ability": "Chlorophyll"
+			},
+			"summary": "caught Petilil at level 20 on Verdanturf Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-21",
+				"to": "cap"
+			},
+			"summary": "Petilil grew from L20 to L32; its moves are full, so Seed Bomb, Giga Drain, Aromatherapy, Helping Hand, Leaf Blade, Energy Ball must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-21",
+				"move": "Seed Bomb",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Petilil forgot Razor Leaf, learned Seed Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-21",
+				"move": "Giga Drain",
+				"replace": "Seed Bomb"
+			},
+			"summary": "Petilil forgot Seed Bomb, learned Giga Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-21",
+				"move": "Aromatherapy",
+				"replace": "Giga Drain"
+			},
+			"summary": "Petilil forgot Giga Drain, learned Aromatherapy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-21",
+				"move": "Helping Hand",
+				"replace": "Aromatherapy"
+			},
+			"summary": "Petilil forgot Aromatherapy, learned Helping Hand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-21",
+				"move": "Leaf Blade",
+				"replace": "Helping Hand"
+			},
+			"summary": "Petilil forgot Helping Hand, learned Leaf Blade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-21",
+				"move": "Energy Ball",
+				"replace": "Leaf Blade"
+			},
+			"summary": "Petilil forgot Leaf Blade, learned Energy Ball",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Rapidash takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-14",
+					"mon-15",
+					"mon-8",
+					"mon-5",
+					"mon-9"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Clawitzer, Luxray, Gastrodon, Lumineon, Donphan",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Triathlete Maria",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Maria"
+			},
+			"summary": "beat Triathlete Maria (now at 170)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Rapidash takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-8",
+					"mon-12",
+					"mon-14",
+					"mon-6",
+					"mon-9"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Gastrodon, Hariyama, Clawitzer, Rapidash, Donphan",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Breeder Isaac",
+				"move": "Earth Power"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Breeder Isaac",
+				"move": "Gear Grind"
+			},
+			"summary": "Gastrodon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Breeder Isaac",
+				"move": "Hex"
+			},
+			"summary": "Clawitzer fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Breeder Isaac",
+				"move": "Ice Beam"
+			},
+			"summary": "Rapidash fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Breeder Isaac",
+				"move": "Ice Beam"
+			},
+			"summary": "Donphan fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Breeder Isaac"
+			},
+			"summary": "beat Breeder Isaac (now at 173)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Rapidash takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-8",
+					"mon-14",
+					"mon-10",
+					"mon-12",
+					"mon-9"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Gastrodon, Clawitzer, Carnivine, Hariyama, Donphan",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Throw",
+				"replace": "Fire Fang"
+			},
+			"summary": "Donphan forgot Fire Fang, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-11",
+					"mon-8",
+					"mon-14",
+					"mon-12",
+					"mon-9"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Drednaw, Gastrodon, Clawitzer, Hariyama, Donphan",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Sr. And Jr. Anna And Meg",
+				"move": "Ice Beam"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sr. And Jr. Anna And Meg"
+			},
+			"summary": "beat Sr. And Jr. Anna And Meg (now at 177)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Litleo, Staravia, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-14",
+					"mon-15",
+					"mon-8",
+					"mon-9",
+					"mon-5"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Clawitzer, Luxray, Gastrodon, Donphan, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Air Cutter",
+				"replace": "Surf"
+			},
+			"summary": "Lumineon forgot Surf, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Trainer Chelle Daycare",
+				"move": "Drill Run"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Trainer Chelle Daycare",
+				"move": "Air Cutter"
+			},
+			"summary": "Clawitzer fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Trainer Chelle Daycare",
+				"move": "Attack Order"
+			},
+			"summary": "Luxray fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Trainer Chelle Daycare",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Gastrodon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Trainer Chelle Daycare"
+			},
+			"summary": "beat Trainer Chelle Daycare (now at 181)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Lumineon grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Gastrodon grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Donphan grew from L32 to L35; its moves are full, so Knock Off must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Knock Off",
+				"replace": "Rock Throw"
+			},
+			"summary": "Donphan forgot Rock Throw, learned Knock Off",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Drednaw grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Clawitzer grew from L32 to L35; its moves are full, so Heal Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Heal Pulse",
+				"replace": "Focus Blast"
+			},
+			"summary": "Clawitzer forgot Focus Blast, learned Heal Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Luxray grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L32 to L35; its moves are full, so Blaze Kick must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Blaze Kick",
+				"replace": "Low Sweep"
+			},
+			"summary": "Monferno forgot Low Sweep, learned Blaze Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Litleo grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Litleo evolved into Pyroar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L32 to L35; its moves are full, so Take Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Take Down",
+				"replace": "Dual Wingbeat"
+			},
+			"summary": "Staravia forgot Dual Wingbeat, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Staravia evolved into Staraptor",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Nuzleaf grew from L32 to L35; its moves are full, so Dark Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Dark Pulse",
+				"replace": "Swagger"
+			},
+			"summary": "Nuzleaf forgot Swagger, learned Dark Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Rapidash grew from L32 to L35; its moves are full, so Fire Lash, High Horsepower must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Lash",
+				"replace": "Blaze Kick"
+			},
+			"summary": "Rapidash forgot Blaze Kick, learned Fire Lash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "High Horsepower",
+				"replace": "Fire Lash"
+			},
+			"summary": "Rapidash forgot Fire Lash, learned High Horsepower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ledian grew from L32 to L35; its moves are full, so Tailwind must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Tailwind",
+				"replace": "Defog"
+			},
+			"summary": "Ledian forgot Defog, learned Tailwind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Hariyama grew from L32 to L35; its moves are full, so Knock Off must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Knock Off",
+				"replace": "Earthquake"
+			},
+			"summary": "Hariyama forgot Earthquake, learned Knock Off",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Octillery grew from L32 to L35; its moves are full, so Wring Out must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Wring Out",
+				"replace": "Bind"
+			},
+			"summary": "Octillery forgot Bind, learned Wring Out",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Hattrem grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Rockruff grew from L32 to L35; its moves are full, so Rock Slide must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Rock Slide",
+				"replace": "Stomping Tantrum"
+			},
+			"summary": "Rockruff forgot Stomping Tantrum, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-19",
+				"to": "cap"
+			},
+			"summary": "Vibrava grew from L32 to L35; its moves are full, so Dragon Breath must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Dragon Breath",
+				"replace": "Crunch"
+			},
+			"summary": "Vibrava forgot Crunch, learned Dragon Breath",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-20",
+				"to": "cap"
+			},
+			"summary": "Pikachu grew from L32 to L35; its moves are full, so Wild Charge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-20",
+				"move": "Wild Charge",
+				"replace": "Nuzzle"
+			},
+			"summary": "Pikachu forgot Nuzzle, learned Wild Charge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-21",
+				"to": "cap"
+			},
+			"summary": "Petilil grew from L32 to L35",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pyroar, Staraptor, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Pyroar takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-2",
+					"mon-15",
+					"mon-9",
+					"mon-17",
+					"mon-14"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Pyroar, Luxray, Donphan, Hattrem, Clawitzer",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Beam",
+				"replace": "Crunch"
+			},
+			"summary": "Pyroar forgot Crunch, learned Hyper Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Fire Fang",
+				"replace": "Ice Shard"
+			},
+			"summary": "Donphan forgot Ice Shard, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Spark"
+			},
+			"summary": "Luxray forgot Spark, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Blizzard",
+				"replace": "Jaw Lock"
+			},
+			"summary": "Drednaw forgot Jaw Lock, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Flame Burst",
+				"replace": "Hyper Beam"
+			},
+			"summary": "Pyroar forgot Hyper Beam, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunderbolt",
+				"replace": "Play Rough"
+			},
+			"summary": "Luxray forgot Play Rough, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earthquake",
+				"replace": "Knock Off"
+			},
+			"summary": "Donphan forgot Knock Off, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psybeam",
+				"replace": "Dazzling Gleam"
+			},
+			"summary": "Hattrem forgot Dazzling Gleam, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Blizzard",
+				"replace": "Heal Pulse"
+			},
+			"summary": "Clawitzer forgot Heal Pulse, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Camper Tyron & Celina",
+				"move": "Stomping Tantrum"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Tyron & Celina",
+				"move": "Gunk Shot"
+			},
+			"summary": "Pyroar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Camper Tyron & Celina",
+				"move": "Gunk Shot"
+			},
+			"summary": "Luxray fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Tyron & Celina",
+				"move": "Gunk Shot"
+			},
+			"summary": "Donphan fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-17",
+				"to": "Camper Tyron & Celina",
+				"move": "Gunk Shot"
+			},
+			"summary": "Hattrem fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Camper Tyron & Celina",
+				"move": "Gunk Shot"
+			},
+			"summary": "Clawitzer fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Pyroar takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pyroar, Staraptor, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Pyroar takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-2",
+					"mon-9",
+					"mon-15",
+					"mon-14",
+					"mon-17"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Pyroar, Donphan, Luxray, Clawitzer, Hattrem",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Beam",
+				"replace": "Flame Burst"
+			},
+			"summary": "Pyroar forgot Flame Burst, learned Hyper Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Camper Tyron & Celina",
+				"move": "Sucker Punch"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Tyron & Celina"
+			},
+			"summary": "beat Camper Tyron & Celina (now at 187)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Pyroar takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pyroar, Staraptor, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Pyroar takes the lead — with Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-2",
+					"mon-9",
+					"mon-15",
+					"mon-6",
+					"mon-14"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Pyroar, Donphan, Luxray, Rapidash, Clawitzer",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Throw",
+				"replace": "Bulldoze"
+			},
+			"summary": "Donphan forgot Bulldoze, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Blaze Kick",
+				"replace": "High Horsepower"
+			},
+			"summary": "Rapidash forgot High Horsepower, learned Blaze Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flamethrower",
+				"replace": "Play Rough"
+			},
+			"summary": "Rapidash forgot Play Rough, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Picnicker Bianca",
+				"move": "Rock Slide"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Picnicker Bianca",
+				"move": "Double-Edge"
+			},
+			"summary": "Pyroar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Picnicker Bianca"
+			},
+			"summary": "beat Picnicker Bianca (now at 192)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Onix",
+				"level": 32,
+				"map": "Route111",
+				"method": "walk",
+				"ivs": {
+					"hp": 14,
+					"atk": 7,
+					"def": 6,
+					"spa": 19,
+					"spd": 17,
+					"spe": 29
+				},
+				"nature": "Hasty",
+				"ability": "Rock Head"
+			},
+			"summary": "caught Onix at level 32 on Route111",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Swablu",
+				"level": 24,
+				"map": "Route118",
+				"method": "walk",
+				"ivs": {
+					"hp": 19,
+					"atk": 21,
+					"def": 14,
+					"spa": 9,
+					"spd": 15,
+					"spe": 23
+				},
+				"nature": "Impish",
+				"ability": "Natural Cure"
+			},
+			"summary": "caught Swablu at level 24 on Route118",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Drilbur",
+				"level": 23,
+				"map": "Mirage Tower 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 31,
+					"atk": 6,
+					"def": 8,
+					"spa": 25,
+					"spd": 15,
+					"spe": 30
+				},
+				"nature": "Hasty",
+				"ability": "Sand Rush"
+			},
+			"summary": "caught Drilbur at level 23 on Mirage Tower 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Numel",
+				"level": 26,
+				"map": "Altering Cave",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 27,
+					"def": 3,
+					"spa": 14,
+					"spd": 31,
+					"spe": 17
+				},
+				"nature": "Modest",
+				"ability": "Oblivious"
+			},
+			"summary": "caught Numel at level 26 on Altering Cave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Metal Coat"
+			},
+			"summary": "bag: Metal Coat x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-22",
+				"to": "cap"
+			},
+			"summary": "Onix grew from L32 to L35; its moves are full, so Rock Slide must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-22",
+				"move": "Rock Slide",
+				"replace": "Smack Down"
+			},
+			"summary": "Onix forgot Smack Down, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-23",
+				"to": "cap"
+			},
+			"summary": "Swablu grew from L24 to L35; its moves are full, so Heal Bell, Dual Wingbeat must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-23",
+				"move": "Heal Bell",
+				"replace": "Sing"
+			},
+			"summary": "Swablu forgot Sing, learned Heal Bell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-23",
+				"move": "Dual Wingbeat",
+				"replace": "Heal Bell"
+			},
+			"summary": "Swablu forgot Heal Bell, learned Dual Wingbeat",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-23"
+			},
+			"summary": "Swablu evolved into Altaria",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-24",
+				"to": "cap"
+			},
+			"summary": "Drilbur grew from L23 to L35; its moves are full, so Stomping Tantrum, Slash, Rock Slide must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-24",
+				"move": "Stomping Tantrum",
+				"replace": "Rapid Spin"
+			},
+			"summary": "Drilbur forgot Rapid Spin, learned Stomping Tantrum",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-24",
+				"move": "Slash",
+				"replace": "Stomping Tantrum"
+			},
+			"summary": "Drilbur forgot Stomping Tantrum, learned Slash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-24",
+				"move": "Rock Slide",
+				"replace": "Slash"
+			},
+			"summary": "Drilbur forgot Slash, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-24"
+			},
+			"summary": "Drilbur evolved into Excadrill",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-25",
+				"to": "cap"
+			},
+			"summary": "Numel grew from L26 to L35; its moves are full, so Lava Plume, Yawn must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-25",
+				"move": "Lava Plume",
+				"replace": "Flame Burst"
+			},
+			"summary": "Numel forgot Flame Burst, learned Lava Plume",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-25",
+				"move": "Yawn",
+				"replace": "Lava Plume"
+			},
+			"summary": "Numel forgot Lava Plume, learned Yawn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-25"
+			},
+			"summary": "Numel evolved into Camerupt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Pyroar takes the lead — with Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pyroar, Staraptor, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Pyroar takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-9",
+					"mon-14",
+					"mon-25",
+					"mon-2",
+					"mon-8"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Donphan, Clawitzer, Camerupt, Pyroar, Gastrodon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Knock Off",
+				"replace": "Rock Throw"
+			},
+			"summary": "Donphan forgot Rock Throw, learned Knock Off",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-25",
+				"move": "Earthquake",
+				"replace": "Yawn"
+			},
+			"summary": "Camerupt forgot Yawn, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Surf",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Gastrodon forgot Rock Tomb, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-11",
+				"item": "Metal Coat"
+			},
+			"summary": "Drednaw is holding Metal Coat",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Kindler Hayden",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Kindler Hayden"
+			},
+			"summary": "beat Kindler Hayden (now at 195)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Pyroar takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pyroar, Staraptor, Nuzleaf, Lumineon, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-15",
+					"mon-9",
+					"mon-8",
+					"mon-12",
+					"mon-14"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Luxray, Donphan, Gastrodon, Hariyama, Clawitzer",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Ancient Power",
+				"replace": "Earth Power"
+			},
+			"summary": "Gastrodon forgot Earth Power, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Fisherman Dale",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Fisherman Dale",
+				"move": "Wild Charge"
+			},
+			"summary": "Luxray fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Fisherman Dale",
+				"move": "Double-Edge"
+			},
+			"summary": "Clawitzer fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Dale"
+			},
+			"summary": "beat Fisherman Dale (now at 199)",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

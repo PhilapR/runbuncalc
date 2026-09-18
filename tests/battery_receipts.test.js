@@ -160,3 +160,38 @@ test('the two treatments keyed into one set are counted apart', () => {
 	assert.equal(counters.attackDrops, 2, 'two attack drops');
 	assert.equal(counters.progress, undefined, 'the stall clock is not a tally');
 });
+
+test('every battery scenario reads a document the repository tracks', () => {
+	// The battery read its reports out of gitignored ui-playthrough-out/, and
+	// on 2026-09-14 that directory was offloaded to Drive: every scenario
+	// ENOENT'd, and the only instrument that measures the policy could not
+	// run on the machine it was built on. A tracked run document survives an
+	// offload, a fresh clone and CI; a path under an ignored directory
+	// survives none of them.
+	const root = path.join(__dirname, '..');
+	const manifest = JSON.parse(fs.readFileSync(
+		path.join(root, 'scenarios', 'battery.json'), 'utf8'));
+	const tracked = new Set(require('node:child_process').execFileSync('git', ['ls-files', 'fixtures/banked-runs'],
+		{cwd: root, encoding: 'utf8'}).split('\n').filter(Boolean));
+	const untracked = manifest.scenarios
+		.filter(scenario => !tracked.has(scenario.report))
+		.map(scenario => scenario.name + ' -> ' + scenario.report);
+	assert.deepEqual(untracked, [],
+		'these scenarios read files git does not track, so the next offload breaks them');
+});
+
+test('a scenario plays from a report or from its banked run document, nothing else', () => {
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'battery-doc-'));
+	const doc = bankedRun();
+	const bare = path.join(dir, 'x.run.json');
+	const wrapped = path.join(dir, 'report-x.json');
+	const neither = path.join(dir, 'other.json');
+	fs.writeFileSync(bare, JSON.stringify(doc));
+	fs.writeFileSync(wrapped, JSON.stringify({run: doc, argv: []}));
+	fs.writeFileSync(neither, JSON.stringify({label: 'battery3', results: []}));
+
+	assert.deepEqual(battery.loadDocument(bare), doc, 'the banked shelf reads as-is');
+	assert.deepEqual(battery.loadDocument(wrapped), doc, 'a report still reads through .run');
+	assert.throws(() => battery.loadDocument(neither), /neither a report nor a run document/,
+		'a receipt handed in by mistake is refused, not played as an empty box');
+});

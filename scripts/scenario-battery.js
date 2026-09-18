@@ -280,9 +280,28 @@ function requireScale(doc) {
 	return doc;
 }
 
+/**
+ * The run document a scenario plays from.
+ *
+ * A scenario may name a whole report or a banked run document — the report's
+ * `run`, shelved alone in fixtures/banked-runs/ by extract-run-fixture.js.
+ * The battery read reports out of gitignored ui-playthrough-out/ until the
+ * 2026-09-14 offload emptied it and no scenario could run; the tracked shelf
+ * is the same document byte for byte, a fifth of the size, and it survives
+ * the next offload. Anything that is neither is refused by name rather than
+ * played as an empty box.
+ */
+function loadDocument(file) {
+	const loaded = JSON.parse(fs.readFileSync(file, 'utf8'));
+	const doc = loaded.run || loaded;
+	if (!Array.isArray(doc.box) || !doc.profileId) {
+		throw new Error(file + ' is neither a report nor a run document');
+	}
+	return doc;
+}
+
 function runScenario(policy, scenario) {
-	const report = JSON.parse(fs.readFileSync(scenario.report, 'utf8'));
-	const doc = requireScale(report.run);
+	const doc = requireScale(loadDocument(scenario.report));
 	const seeds = scenario.seeds || 20;
 	const out = {name: scenario.name, trainer: scenario.trainer,
 		report: path.basename(scenario.report), position: doc.position,
@@ -374,6 +393,6 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playScenario, runScenario, freshMemory, requireScale,
+module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt,
 	GATED_COUNTERS};

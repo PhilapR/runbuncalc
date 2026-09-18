@@ -45,81 +45,117 @@
 	"scenarios": [
 		{
 			"name": "Leader Brawly @26",
-			"report": "ui-playthrough-out/report-brbank1-A-1.json",
+			"report": "fixtures/banked-runs/brbank1-A-1.run.json",
 			"trainer": "Leader Brawly",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Roxanne @45",
-			"report": "ui-playthrough-out/report-br-1.json",
+			"report": "fixtures/banked-runs/br-1.run.json",
 			"trainer": "Leader Roxanne",
 			"seeds": 30
 		},
 		{
 			"name": "Leader Wattson @65",
-			"report": "ui-playthrough-out/report-sac-A-11.json",
+			"report": "fixtures/banked-runs/sac-A-11.run.json",
 			"trainer": "Leader Wattson",
 			"seeds": 30
 		},
 		{
 			"name": "Bug Catcher Jose @37",
-			"report": "ui-playthrough-out/report-brheal1-B-2.json",
+			"report": "fixtures/banked-runs/brheal1-B-2.run.json",
 			"trainer": "Bug Catcher Jose",
 			"seeds": 20
 		},
 		{
 			"name": "Hiker Mike @46",
-			"report": "ui-playthrough-out/report-br-6.json",
+			"report": "fixtures/banked-runs/br-6.run.json",
 			"trainer": "Hiker Mike",
-			"seeds": 20
+			"seeds": 5
 		},
 		{
 			"name": "Breeder Lydia @47",
-			"report": "ui-playthrough-out/report-br-6.json",
+			"report": "fixtures/banked-runs/br-6.run.json",
 			"trainer": "Breeder Lydia",
-			"seeds": 20
+			"seeds": 5
 		},
 		{
 			"name": "Breeder Isaac @53",
-			"report": "ui-playthrough-out/report-forecast-today-M-6.json",
+			"report": "fixtures/banked-runs/forecast-today-M-6.run.json",
 			"trainer": "Breeder Isaac",
-			"seeds": 20
+			"seeds": 5
 		},
 		{
 			"name": "Psychic Edward @60",
-			"report": "ui-playthrough-out/report-pf-2.json",
+			"report": "fixtures/banked-runs/pf-2.run.json",
 			"trainer": "Psychic Edward",
 			"seeds": 20
 		},
 		{
 			"name": "Guitarist Kirk @61",
-			"report": "ui-playthrough-out/report-pf-2.json",
+			"report": "fixtures/banked-runs/pf-2.run.json",
 			"trainer": "Guitarist Kirk",
-			"seeds": 20
+			"seeds": 5
 		},
 		{
 			"name": "Triathlete Abigail @67",
-			"report": "ui-playthrough-out/report-acc-11.json",
+			"report": "fixtures/banked-runs/acc-11.run.json",
 			"trainer": "Triathlete Abigail",
-			"seeds": 20
+			"seeds": 5
 		},
 		{
 			"name": "Triathlete Anthony @68",
-			"report": "ui-playthrough-out/report-acc-11.json",
+			"report": "fixtures/banked-runs/acc-11.run.json",
 			"trainer": "Triathlete Anthony",
-			"seeds": 20
+			"seeds": 5
 		},
 		{
 			"name": "Pokéfan Miguel @78",
-			"report": "ui-playthrough-out/report-flannery-3.json",
+			"report": "fixtures/banked-runs/flannery-3.run.json",
 			"trainer": "Pokéfan Miguel",
 			"seeds": 20
 		},
 		{
 			"name": "Aroma Lady Daisy @79",
-			"report": "ui-playthrough-out/report-flannery-3.json",
+			"report": "fixtures/banked-runs/flannery-3.run.json",
 			"trainer": "Aroma Lady Daisy",
 			"seeds": 20
+		},
+		{
+			"name": "Bug Catcher Lyle @28",
+			"report": "fixtures/banked-runs/brkeys2-A-1.run.json",
+			"trainer": "Bug Catcher Lyle",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40",
+			"report": "fixtures/banked-runs/brheal1-B-6.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Roxanne @46 (reteach-B-8 box)",
+			"report": "fixtures/banked-runs/reteach-B-8.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56",
+			"report": "fixtures/banked-runs/nab-15.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Vivian @64",
+			"report": "fixtures/banked-runs/sv-20.run.json",
+			"trainer": "Battle Girl Vivian",
+			"seeds": 20
 		}
+	],
+	"curation": [
+		"2026-09-17: re-curated from an archive sweep (scripts/battery-sweep.js, 153 reports x next 3 singles x 5 seeds, then a 20-seed confirmation of the shortlist). Six fights the policy wins on every seed (Mike, Lydia, Isaac, Kirk, Abigail, Anthony) drop to 5 seeds each: they cannot show an improvement, only a regression, and five seeds is a canary for that, not a measurement. Isaac's canary baseline is 4/5, not 5/5: his one loss in twenty is seed 4, so 4/5 is the expected reading. Five fights confirmed between 8/20 and 11/20 take the freed seeds: Lyle, Karen, a winnable Roxanne, Chelle, Vivian.",
+		"The leaders keep 30 seeds at the floor on purpose: they are what the policy work targets. No box in the archive puts Brawly above 1/5.",
+		"Scenario names are join keys across receipts, so the original thirteen keep the fight numbers they were curated with; the map has since shifted them by one or two (Brawly is fight 27 today, Miguel 80, Daisy 81). The five added names use today's numbers from run.trainerIndexOf.",
+		"Every report path now names a tracked run document in fixtures/banked-runs/, so the battery runs on any checkout; the reports it came from were offloaded to Drive on 2026-09-14 and restored for this sweep."
 	]
 }

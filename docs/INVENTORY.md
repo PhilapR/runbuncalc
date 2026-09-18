@@ -132,7 +132,7 @@ the reader's warning to verify before trusting.
 - `docs/EVALUATION.md` — 1222266 2026-08-19
 - `docs/FORK_MAP.md` — 98b4a50 2026-08-18
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
-- `docs/IMPROVEMENT-AUDIT.md` — d46f0b8 2026-09-17
+- `docs/IMPROVEMENT-AUDIT.md` — e4799ce 2026-09-17
 - `docs/LEADER-KEYS.md` — d6905fc 2026-08-28
 - `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
