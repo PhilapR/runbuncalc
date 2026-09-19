@@ -396,7 +396,12 @@ function playRun(policy, starter, seed, treatment, options) {
 				continue;
 			} catch (error) { break; }
 		}
-		const played = battery.playScenario(policy, doc, next.trainer, ++fightSeed);
+		// A fight lost twice is played by search from then on (--search-after,
+		// default off): decide() has shown it cannot, and search costs about a
+		// minute a fight, so it is spent only where it is needed.
+		const searchAfter = Number(flag('search-after', '0'));
+		const searching = searchAfter > 0 && attempts >= searchAfter ? {search: Number(flag('search-rollouts', '4'))} : undefined;
+		const played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, undefined, searching);
 		tally.fights += 1;
 		tally.engineRefusals += played.engineRefusals || 0;
 		const t = tally.trainers[next.trainer] =

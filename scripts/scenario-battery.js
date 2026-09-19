@@ -256,15 +256,19 @@ function requireWholeReceipt(receipt) {
  * stored in a receipt — the fight is deterministic per seed, so
  * scripts/battery-tape.js replays any receipt's seed on demand instead.
  */
-function playScenario(policy, doc, trainer, seed, tape) {
+function playScenario(policy, doc, trainer, seed, tape, options) {
 	// A double battle is played by the driver's two-slot loop, both sides on
 	// the engine's trainer AI: decide() reads a one-active view. The row says
 	// which policy fought (policy: 'engine-ai-doubles').
 	// --search=K plays the fight by search (driver.playSearch, K rollouts an
 	// action) instead of decide(); --search-bosses=1 limits it to bosses.
-	const searchRollouts = Number(flag('search', '0'));
+	// options.search, from a caller that decides per fight (the headless run
+	// searches a fight it has already lost twice), overrides the flag.
+	const searchRollouts = options && options.search !== undefined ? Number(options.search) :
+		Number(flag('search', '0'));
 	const fightInfo = require('../lib/planner').getFight(trainer, doc.profileId);
 	if (searchRollouts > 0 && !fightInfo.isDouble && (flag('search-bosses', '0') !== '1' ||
+		(options && options.search !== undefined) ||
 		/Leader|Elite|Champion|Rival|Admin|Wally|Maxie|Archie|Chelle/i.test(trainer))) {
 		const searched = driver.playSearch(doc, trainer, seed, {rollouts: searchRollouts});
 		return Object.assign({foe: null, counters: {}, refused: [], policy: 'search-' + searchRollouts}, searched);

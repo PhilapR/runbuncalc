@@ -57,3 +57,11 @@ test('search finishes a foe at 1 HP with an attack, not a switch or a status mov
 	const picked = actions.find(entry => entry.kind === 'move' && entry.move === chosen.move);
 	assert.ok(picked.damage && picked.damage.max > 0, chosen.move + ' does damage');
 });
+
+test('a caller can ask for search on one fight, whatever the flags say', () => {
+	const played = battery.playScenario(require('../scripts/ui-playthrough.js'), box(), 'Bug Catcher Lyle', 3,
+		undefined, {search: 1});
+	assert.equal(played.policy, 'search-1');
+	const plain = battery.playScenario(require('../scripts/ui-playthrough.js'), box(), 'Bug Catcher Lyle', 3);
+	assert.equal(plain.policy, undefined);
+});
