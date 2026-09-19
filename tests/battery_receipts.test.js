@@ -676,3 +676,34 @@ test('a --swap-catch receipt says the swap happened, and replays through the tap
 	assert.equal(replayed.status, 0, replayed.stderr);
 	assert.equal(replayed.out.row.result, out.rows[0].result);
 });
+
+test('--swap-teach teaches the swapped catch the advisor\'s rows for this fight, and puts the party back', () => {
+	const report = 'fixtures/banked-runs/brkeys2-B-1.run.json';
+	const doc = battery.loadDocument(report);
+	const argv = ['--pick-by-play=0', '--repick-party=0', '--swap-catch=MAP_ROUTE104:Combee', '--swap-teach=1'];
+	const taught = withArgv(argv, () => battery.prepareDocument(doc, 'Leader Brawly'));
+	assert.deepEqual(taught.swapped.taught, ['U-turn over Destiny Bond'],
+		'the one dated row the advisor offers Vespiquen at Brawly');
+	const mon = taught.doc.box.find(entry => entry.id === taught.swapped.id);
+	assert.ok(mon.moves.includes('U-turn') && !mon.moves.includes('Destiny Bond'), mon.moves.join('/'));
+	assert.deepEqual(taught.doc.party, doc.party, 'the advisor borrowed the party; the fight gets it back');
+	const bare = withArgv(argv.slice(0, 3), () => battery.prepareDocument(doc, 'Leader Brawly'));
+	assert.equal(bare.swapped.taught, undefined, 'off: nothing taught, nothing recorded');
+	assert.throws(() => withArgv(['--swap-teach=1'], () => battery.prepareDocument(doc, 'Leader Brawly')),
+		/needs --swap-catch/);
+	assert.throws(() => withArgv(['--swap-teach=yes'], () => battery.prepareDocument(doc, 'Leader Brawly')),
+		/must be 0 or 1/);
+});
+
+test('--swap-teach teaches only the swapped catch, however the advisor ranks the others', () => {
+	// acc-12 at Wattson: the advisor's first teach row is for another member
+	// (mon-6, High Horsepower); the swap must not take it.
+	const doc = battery.loadDocument('fixtures/banked-runs/acc-12.run.json');
+	const argv = ['--pick-by-play=0', '--repick-party=0', '--swap-catch=MAP_ROUTE101:Buneary', '--swap-teach=1'];
+	const out = withArgv(argv, () => battery.prepareDocument(doc, 'Leader Wattson'));
+	assert.ok(out.swapped.taught.length > 0, 'the catch learns something here');
+	for (const mon of out.doc.box) {
+		if (mon.id === out.swapped.id) continue;
+		assert.deepEqual(mon.moves, doc.box.find(entry => entry.id === mon.id).moves, mon.species + ' is untouched');
+	}
+});

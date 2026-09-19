@@ -162,6 +162,7 @@ const GATED_COUNTERS = {
 	'pick-by-play': {counter: 'pickedByPlay', on: value => Number(value) > 1},
 	'set-exposure': {counter: 'exposurePriced', on: value => Number(value) > 0},
 	'swap-catch': {counter: 'catchSwapped', on: value => value !== ''},
+	'swap-teach': {counter: 'swapTaught', on: value => value === '1'},
 	'switch-priced': {counter: 'switchRepriced', on: value => value === '1'},
 };
 
@@ -467,9 +468,47 @@ function swapCatch(doc, spec) {
 	return {doc: next, swapped: {map, caught: species, fielded, replaced: old.species, id: old.id}};
 }
 
+/**
+ * --swap-teach=1: the swapped-in catch learns what the upgrade advisor would
+ * teach it for this fight, best row first, until no row for it gains a KO or
+ * damage. Only the advisor's rows, so only moves dated as obtainable before
+ * the fight (or relearned for a Heart Scale the bag holds): at Brawly that is
+ * filler for Route 104's answers, because Aerial Ace, Sludge Bomb and Dual
+ * Wingbeat are undated (2026-09-18). The advisor reads the party, so the
+ * catch stands in it while advising and the party is put back after.
+ */
+function teachSwapped(doc, trainer, id) {
+	const party = doc.party.slice();
+	let current = Object.assign({}, doc, {party: [id].concat(party.filter(member => member !== id)).slice(0, 6)});
+	const taught = [];
+	const refused = new Set();
+	for (let round = 0; round < 8; round++) {
+		const row = run.adviseUpgrades(current, trainer).upgrades.find(entry => entry.kind === 'teach' &&
+			entry.id === id && !refused.has(entry.detail) &&
+			(entry.delta.koGained - entry.delta.koConceded > 0 || entry.delta.damage > 0));
+		if (!row) break;
+		refused.add(row.detail);
+		const pair = /^(.+?)(?: over (.+?))?(?: \(|$)/.exec(row.detail);
+		try {
+			current = run.apply(current, {kind: 'teach', id, move: pair[1].trim(),
+				replace: pair[2] ? pair[2].trim() : undefined});
+			taught.push(row.detail);
+		} catch (error) { /* a refused row stays refused and the loop moves on */ }
+	}
+	return {doc: Object.assign({}, current, {party}), taught};
+}
+
 function prepareDocument(doc, trainer, policy) {
 	const swapSpec = flag('swap-catch', '');
+	const teach = flag('swap-teach', '0');
+	if (teach !== '0' && teach !== '1') throw new Error('--swap-teach must be 0 or 1');
+	if (teach === '1' && !swapSpec) throw new Error('--swap-teach teaches the swapped catch; it needs --swap-catch');
 	const swap = swapSpec ? swapCatch(doc, swapSpec) : null;
+	if (swap && teach === '1') {
+		const developed = teachSwapped(swap.doc, trainer, swap.swapped.id);
+		swap.doc = developed.doc;
+		swap.swapped.taught = developed.taught;
+	}
 	if (swap) doc = swap.doc;
 	const prepared = prepareSix(doc, trainer, policy);
 	if (swap) prepared.swapped = swap.swapped;
@@ -577,6 +616,7 @@ function runScenario(policy, scenario) {
 	if (prepared.swapped) {
 		out.swapped = prepared.swapped;
 		out.counters.catchSwapped = 1;
+		if (prepared.swapped.taught) out.counters.swapTaught = prepared.swapped.taught.length ? 1 : 0;
 	}
 	return out;
 }
@@ -605,7 +645,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'shard'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'shard'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
