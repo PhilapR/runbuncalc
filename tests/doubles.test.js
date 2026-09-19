@@ -97,3 +97,16 @@ test('a move locked out before it acts: Encore substitutes, Taunt makes a status
 	assert.match(events[events.length - 1].text, /can't use/);
 	assert.equal(driver.lockedOut(state, action, events), action, 'nothing locked, nothing changed');
 });
+
+test('a double is taped action by action, and the optional hands play it through', () => {
+	const box = doc();
+	const played = driver.playDoubles(box, DOUBLES[2], 2);
+	const used = played.events.filter(event => / used /.test(event.text));
+	assert.ok(used.length >= played.actions, 'every applied action is on the tape');
+	assert.ok(used.every(event => typeof event.turn === 'number'));
+	const greedy = driver.playDoubles(box, DOUBLES[2], 2, {ourPolicy: 'greedy'});
+	assert.ok(['win', 'loss'].includes(greedy.result));
+	const searched = driver.playDoubles(box, DOUBLES[0], 1, {search: 1});
+	assert.ok(['win', 'loss'].includes(searched.result));
+	assert.equal(searched.engineRefusals, 0);
+});
