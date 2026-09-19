@@ -32,6 +32,7 @@
 const fs = require('node:fs');
 const run = require('../lib/run.js');
 const battery = require('./scenario-battery.js');
+const driver = require('../lib/battle-driver.js');
 
 function flag(name, fallback) {
 	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
@@ -489,6 +490,11 @@ function nextFight(doc, waiting) {
 }
 
 function playRun(policy, starter, seed, treatment, options) {
+	// A run is judged against the game, so moves spend PP (--pp-model=0 plays
+	// on infinite fuel, as every run before 2026-09-19 did). Infinite PP let
+	// a Moody Smeargle stall Protect and Dark Void for 300 turns at Young
+	// Couple Dez And Luke; with PP it runs dry and the fight ends.
+	driver.setPPModel(flag('pp-model', '1') === '1');
 	const random = dice(seed);
 	let doc = startRun(starter, random);
 

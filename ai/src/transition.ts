@@ -890,7 +890,10 @@ export function recordMoveAction(state: BattleState, action: MoveAction): Battle
     isSelectableMoveAction(state, sideId, action);
 
   if (!actor || !side.activeIds.includes(actor.id) || actor.hp.current <= 0 ||
-    (!isStruggle && !move) || (!isStruggle && !actor.volatile?.recharge && (move!.disabled || move!.pp === 0)) ||
+    // A charge release (Bounce's second turn) spends no PP, so the charge
+    // turn may have spent the last: Magikarp's Bounce was refused in the air.
+    (!isStruggle && !move) || (!isStruggle && !actor.volatile?.recharge &&
+      (move!.disabled || (move!.pp === 0 && !actor.volatile?.charge))) ||
     !isEnumerated) {
     throw new Error('Move action is not legal in this battle state');
   }
