@@ -84,3 +84,10 @@ test('levelling evolves as the game does, not only when the advisor asks', () =>
 	assert.ok(tally.evolves > 0);
 	assert.ok(!levelled.box.some(mon => mon.species === 'Turtwig'), 'Turtwig is a Grotle by the cap');
 });
+
+test('a headless run plays the project\'s rules: one per route, the dupes clause by line, caps', () => {
+	const doc = headless.startRun({species: 'Turtwig', rival: 'Blaziken'}, headless.dice(1000));
+	assert.deepEqual([doc.rules.onePerRoute, doc.rules.permadeath, doc.rules.dupesClause, doc.rules.levelCap],
+		[true, false, 'line', 'next-milestone-ace']);
+	assert.deepEqual(doc.party, [doc.box[0].id], 'the starter is caught and fielded');
+});

@@ -302,15 +302,25 @@ function bestParty(doc) {
 	}
 }
 
-function playRun(policy, starter, seed, treatment, options) {
-	const random = dice(seed);
+/** A fresh run under the project's rules, the starter caught and fielded. */
+function startRun(starter, random) {
+	// The project's own rules: 153 of the 155 banked runs play one encounter
+	// per route, the dupes clause by line, level caps, no permadeath. The
+	// harness had the dupes clause off, spending encounters on lines the box
+	// already held.
 	let doc = run.createRun({name: 'headless', now: 't0',
 		levelCap: 'next-milestone-ace', permadeath: false, onePerRoute: true,
-		rival: starter.rival});
+		dupesClause: 'line', rival: starter.rival});
 	const identity = run.rollIdentity(starter.species, random, {perfectIvs: 3});
 	doc = run.apply(doc, Object.assign(
 		{kind: 'catch', species: starter.species, level: 5}, identity));
 	doc = run.apply(doc, {kind: 'party', ids: [doc.box[0].id]});
+	return doc;
+}
+
+function playRun(policy, starter, seed, treatment, options) {
+	const random = dice(seed);
+	let doc = startRun(starter, random);
 
 	const tally = {catches: 0, keyRolls: 0, scaleSpends: 0, pickups: 0,
 		stoneBuys: 0, evolves: 0, gives: 0,
@@ -481,4 +491,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, dice, armFlags, followAdvice, levelToCap};
+module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap};
