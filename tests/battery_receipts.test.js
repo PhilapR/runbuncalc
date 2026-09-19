@@ -707,3 +707,36 @@ test('--swap-teach teaches only the swapped catch, however the advisor ranks the
 		assert.deepEqual(mon.moves, doc.box.find(entry => entry.id === mon.id).moves, mon.species + ' is untouched');
 	}
 });
+
+test('the catch planner plays every open species on selection seeds and keeps the box\'s catch without evidence', () => {
+	const planner = require('../scripts/catch-planner.js');
+	const doc = battery.requireScale(battery.loadDocument('fixtures/banked-runs/brkeys3-A-5.run.json'));
+	const seeds = [];
+	const play = battery.playScenario;
+	battery.playScenario = (policyIn, docIn, trainer, seed) => { seeds.push(seed); return play(policyIn, docIn, trainer, seed); };
+	let plan;
+	try {
+		plan = withArgv(['--pick-by-play=0'], () => planner.planRoute(policy, doc, 'Leader Brawly', 'MAP_ROUTE104', 1));
+	} finally {
+		battery.playScenario = play;
+	}
+	assert.deepEqual(plan.methods.map(method => method.method).sort(), ['fish', 'walk'], 'surf is gated before Brawly');
+	assert.equal(Object.keys(plan.played).length, 16, 'every species the open methods offer is played');
+	assert.equal(seeds.length, 17, 'each once, and the box as caught once');
+	assert.ok(seeds.every(seed => seed > battery.SELECTION_SEED_BASE), 'never on a seed the battery grades');
+	for (const method of plan.methods) {
+		const total = method.species.reduce((sum, entry) => sum + entry.chance, 0);
+		assert.ok(Math.abs(total - 1) < 1e-9, method.method + ' odds are renormalised within the method');
+	}
+	const top = Math.max(...Object.values(plan.played));
+	assert.equal(plan.best === null, top <= plan.baseline, 'a catch is named only when it beats the box\'s own');
+});
+
+test('the planner names a catch only when it beats the box\'s own', () => {
+	const namedCatch = require('../scripts/catch-planner.js').namedCatch;
+	assert.equal(namedCatch({Paras: 0, Combee: 0}, 0), null, 'all tied at the baseline: keep the catch');
+	assert.equal(namedCatch({Paras: 1, Combee: 1}, 1), null);
+	assert.equal(namedCatch({Paras: 1, Combee: 2}, 1), 'Combee');
+	assert.equal(namedCatch({Yanma: 2, Combee: 2}, 0), 'Combee', 'a tie between better catches is alphabetical');
+	assert.equal(namedCatch({}, 0), null);
+});
