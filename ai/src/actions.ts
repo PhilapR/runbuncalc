@@ -536,7 +536,25 @@ function targetsForMove(
   }
 }
 
-function canUseMove(state: BattleState, actor: PokemonState, move: PokemonState['moves'][number]): boolean {
+/**
+ * Moves the game lets a player choose whatever the actor's HP or stockpile,
+ * which then fail when used — the move engine carries the failure for each
+ * (Belly Drum below half HP, Rest at full HP, Substitute with one up, ...).
+ * They are still filtered out when actions are OFFERED, so no one picks a
+ * move that must fail; a move chosen before the turn changed the actor
+ * (Munchlax queued Belly Drum and a faster hit took it under half) is used
+ * and fails, not refused.
+ */
+const USED_AND_FAILS = new Set([
+  'stockpile', 'swallow', 'spitup', 'rest', 'bellydrum', 'clangoroussoul', 'filletaway', 'substitute',
+]);
+
+function canUseMove(
+  state: BattleState,
+  actor: PokemonState,
+  move: PokemonState['moves'][number],
+  midTurn = false,
+): boolean {
   const moveMetadata = getMoveMetadata(move.name, state.generation);
   const id = moveId(move.name);
   if (actor.volatile?.commanding) return false;
@@ -595,15 +613,16 @@ function canUseMove(state: BattleState, actor: PokemonState, move: PokemonState[
   if (id === 'belch' && (state.generation < 6 || !isBerry(actor.lastConsumedItem))) return false;
   if (['sleeptalk', 'snore'].includes(id) && !canUseSleepOnlyMove(actor)) return false;
   const stockpileCount = actor.volatile?.stockpile?.stacks || 0;
-  if (id === 'stockpile' && stockpileCount >= 3) return false;
-  if ((id === 'swallow' || id === 'spitup') && stockpileCount === 0) return false;
-  if (id === 'swallow' && actor.hp.current >= actor.hp.max) return false;
-  if (id === 'rest' && actor.hp.current >= actor.hp.max) return false;
-  if (id === 'bellydrum' && actor.hp.current <= Math.floor(actor.hp.max / 2)) return false;
-  if (id === 'clangoroussoul' && state.generation >= 8 && actor.hp.current <= Math.floor(actor.hp.max / 3)) return false;
-  if (id === 'filletaway' && state.generation >= 9 && actor.hp.current <= Math.floor(actor.hp.max / 2)) return false;
-  if (id === 'substitute' && (actor.substituteHp || 0) > 0) return false;
-  if (id === 'substitute' && actor.hp.current <= Math.floor(actor.hp.max / 4)) return false;
+  const failsWhenUsed = midTurn && USED_AND_FAILS.has(id);
+  if (!failsWhenUsed && id === 'stockpile' && stockpileCount >= 3) return false;
+  if (!failsWhenUsed && (id === 'swallow' || id === 'spitup') && stockpileCount === 0) return false;
+  if (!failsWhenUsed && id === 'swallow' && actor.hp.current >= actor.hp.max) return false;
+  if (!failsWhenUsed && id === 'rest' && actor.hp.current >= actor.hp.max) return false;
+  if (!failsWhenUsed && id === 'bellydrum' && actor.hp.current <= Math.floor(actor.hp.max / 2)) return false;
+  if (!failsWhenUsed && id === 'clangoroussoul' && state.generation >= 8 && actor.hp.current <= Math.floor(actor.hp.max / 3)) return false;
+  if (!failsWhenUsed && id === 'filletaway' && state.generation >= 9 && actor.hp.current <= Math.floor(actor.hp.max / 2)) return false;
+  if (!failsWhenUsed && id === 'substitute' && (actor.substituteHp || 0) > 0) return false;
+  if (!failsWhenUsed && id === 'substitute' && actor.hp.current <= Math.floor(actor.hp.max / 4)) return false;
   if (id === 'noretreat' && actor.volatile?.trapped) return false;
   if (id === 'lastresort' && (actor.moves.length <= 1 || actor.moves.some(candidate =>
     moveId(candidate.name) !== 'lastresort' && (candidate.timesUsed || 0) < 1))) return false;
@@ -750,7 +769,7 @@ export function isSelectableMoveAction(state: BattleState, sideId: SideId, actio
   const actor = activePokemon(state, sideId).find(pokemon => pokemon.id === action.actorId);
   if (!actor || actor.hp.current <= 0 || actor.volatile?.recharge || actor.volatile?.charge) return false;
   const move = actor.moves.find(candidate => candidate.name === action.moveName);
-  if (!move || move.disabled || move.pp === 0 || !canUseMove(state, actor, move)) return false;
+  if (!move || move.disabled || move.pp === 0 || !canUseMove(state, actor, move, true)) return false;
   const wanted = action.targetIds.join(',');
   return targetsForMove(state, sideId, actor, move).some(targetIds => targetIds.join(',') === wanted);
 }

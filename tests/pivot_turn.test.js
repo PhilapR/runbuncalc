@@ -39,3 +39,26 @@ test('a pivot pauses the turn: the replacement takes the slower move, nothing is
 	assert.ok(fought.includes('Lady Cindy'), 'the run reaches the fight that met it: ' + fought.join(', '));
 	assert.deepEqual(refused, []);
 });
+
+test('a move the turn made fail is used and fails, not refused', () => {
+	// Headless seed 2199322 (Turtwig), Ruin Maniac Georgie: Munchlax queued
+	// Belly Drum, a faster hit took it under half HP, and the engine refused
+	// the move instead of letting it fail — canUseMove filtered it as if it
+	// were illegal. It is offered only above half HP, and used at any.
+	const play = battery.playScenario;
+	const refused = [];
+	const fought = [];
+	battery.playScenario = function playAndWatch(policyIn, doc, trainer) {
+		const played = play.apply(this, arguments);
+		fought.push(trainer);
+		for (const entry of played.refused || []) refused.push(trainer + ': ' + entry.text);
+		return played;
+	};
+	try {
+		headless.playRun(policy, {species: 'Turtwig', rival: 'Blaziken'}, 2199322, headless.armFlags(''));
+	} finally {
+		battery.playScenario = play;
+	}
+	assert.ok(fought.includes('Ruin Maniac Georgie'), fought.join(', '));
+	assert.deepEqual(refused, []);
+});
