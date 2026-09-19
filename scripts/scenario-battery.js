@@ -161,6 +161,7 @@ const GATED_COUNTERS = {
 	'repick-party': {counter: 'repicked', on: value => value === '1'},
 	'pick-by-play': {counter: 'pickedByPlay', on: value => Number(value) > 1},
 	'set-exposure': {counter: 'exposurePriced', on: value => Number(value) > 0},
+	'swap-catch': {counter: 'catchSwapped', on: value => value !== ''},
 	'switch-priced': {counter: 'switchRepriced', on: value => value === '1'},
 };
 
@@ -429,7 +430,53 @@ function effectiveDefaults() {
 		'set-exposure': banked ? '0' : flag('set-exposure', String(run.EXPOSURE_WEIGHT))};
 }
 
+/**
+ * --swap-catch=MAP:Species: the box as if MAP's encounter had been Species.
+ *
+ * A counterfactual that keeps the one-encounter-per-route rule: the mon
+ * this run caught on MAP is replaced, not joined, and keeps its id, level,
+ * nature, IVs, item and place in the party; the species takes its first
+ * ability and its last four level-up moves at that level, evolved as far as
+ * the level takes it (dossier.evolveTo). No TM is taught, so it is a floor.
+ * A species MAP's table does not offer is refused, and so is a box with no
+ * living catch from MAP. Built to ask whether an early catch plan moves the
+ * gym walls (Brawly's named answers are all catchable by Route 104).
+ */
+function swapCatch(doc, spec) {
+	const hit = /^(MAP_[A-Z0-9_]+):([^:]+)$/.exec(spec);
+	if (!hit) throw new Error('--swap-catch is MAP_NAME:Species, not ' + JSON.stringify(spec));
+	const map = hit[1];
+	const species = hit[2];
+	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
+	const table = oracle.encountersOn(map);
+	if (!table || !(table.mons || []).some(entry => entry.species === species)) {
+		throw new Error('--swap-catch: ' + map + ' does not offer ' + species);
+	}
+	const index = doc.box.findIndex(mon => mon.status !== 'dead' && mon.origin && mon.origin.map === map);
+	if (index === -1) throw new Error('--swap-catch: this box has no living catch from ' + map);
+	const dossier = require('../lib/dossier');
+	const calc = require('../calc');
+	const old = doc.box[index];
+	const fielded = dossier.evolveTo(species, old.level);
+	const found = calc.Generations.get(8).species.get(calc.toID(fielded));
+	if (!found) throw new Error('--swap-catch: no species data for ' + fielded);
+	const next = structuredClone(doc);
+	next.box[index] = Object.assign({}, old, {species: fielded, nickname: null,
+		ability: Object.values(found.abilities)[0], moves: dossier.lastFourMoves(fielded, old.level),
+		origin: Object.assign({}, old.origin, {counterfactual: {caught: species, replaced: old.species}})});
+	return {doc: next, swapped: {map, caught: species, fielded, replaced: old.species, id: old.id}};
+}
+
 function prepareDocument(doc, trainer, policy) {
+	const swapSpec = flag('swap-catch', '');
+	const swap = swapSpec ? swapCatch(doc, swapSpec) : null;
+	if (swap) doc = swap.doc;
+	const prepared = prepareSix(doc, trainer, policy);
+	if (swap) prepared.swapped = swap.swapped;
+	return prepared;
+}
+
+function prepareSix(doc, trainer, policy) {
 	const mode = flag('repick-party', '1');
 	if (mode !== '0' && mode !== '1') {
 		throw new Error('--repick-party must be 0 or 1, not ' + JSON.stringify(mode));
@@ -527,6 +574,10 @@ function runScenario(policy, scenario) {
 		// The ranker says it priced the term, so the flag reached it.
 		if (prepared.repick.exposureWeight) out.counters.exposurePriced = 1;
 	}
+	if (prepared.swapped) {
+		out.swapped = prepared.swapped;
+		out.counters.catchSwapped = 1;
+	}
 	return out;
 }
 
@@ -554,7 +605,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'shard'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'shard'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -637,6 +688,6 @@ if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
-	prepareDocument, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, SELECTION_SEED_BASE,
+	prepareDocument, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
 	OWN_FLAGS,
 	GATED_COUNTERS};

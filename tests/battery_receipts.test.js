@@ -635,3 +635,44 @@ test('a mon an Eject Button forces out loses the move it queued', () => {
 	assert.ok(!turn6.some(text => /Lopunny used/.test(text)), 'and Lopunny does not act from the bench');
 	assert.equal(played.engineRefusals, 0, 'no refusal anywhere in the fight: ' + turn6.join(' | '));
 });
+
+test('--swap-catch replaces a route\'s catch with another from its table, and nothing else', () => {
+	const doc = battery.loadDocument('fixtures/banked-runs/brkeys3-A-3.run.json');
+	const before = doc.box.find(mon => mon.origin && mon.origin.map === 'MAP_ROUTE104');
+	const out = battery.swapCatch(doc, 'MAP_ROUTE104:Combee');
+	assert.deepEqual(out.swapped, {map: 'MAP_ROUTE104', caught: 'Combee', fielded: 'Vespiquen',
+		replaced: before.species, id: before.id}, 'caught as Combee, evolved by the level it stands at');
+	const after = out.doc.box.find(mon => mon.id === before.id);
+	for (const field of ['level', 'nature', 'ivs', 'item', 'status']) {
+		assert.deepEqual(after[field], before[field], field + ' is the encounter\'s, not the species\'');
+	}
+	assert.deepEqual(after.moves, require('../lib/dossier').lastFourMoves('Vespiquen', before.level));
+	assert.equal(out.doc.box.length, doc.box.length, 'one encounter per route: replaced, not joined');
+	assert.deepEqual(out.doc.box.filter(mon => mon.id !== before.id), doc.box.filter(mon => mon.id !== before.id),
+		'every other member is untouched');
+	assert.equal(doc.box.find(mon => mon.id === before.id).species, before.species, 'the banked document is not mutated');
+	assert.throws(() => battery.swapCatch(doc, 'MAP_ROUTE104:Gligar'), /does not offer Gligar/);
+	assert.throws(() => battery.swapCatch(doc, 'MAP_ROUTE120:Gligar'), /no living catch from MAP_ROUTE120/);
+	assert.throws(() => battery.swapCatch(doc, 'Route104:Combee'), /MAP_NAME:Species/);
+});
+
+test('a --swap-catch receipt says the swap happened, and replays through the tape tool', () => {
+	const argv = ['--report=fixtures/banked-runs/brkeys3-A-3.run.json', '--trainer=Leader Brawly',
+		'--seeds=1', '--pick-by-play=0', '--swap-catch=MAP_ROUTE104:Salandit'];
+	const out = withArgv(argv, () => battery.runScenario(policy, {name: 'Brawly', trainer: 'Leader Brawly',
+		seeds: 1, report: 'fixtures/banked-runs/brkeys3-A-3.run.json'}));
+	assert.equal(out.swapped.fielded, 'Salandit');
+	assert.equal(out.counters.catchSwapped, 1, 'the gated counter fires');
+	const prepared = withArgv(argv, () => battery.prepareDocument(
+		battery.loadDocument('fixtures/banked-runs/brkeys3-A-3.run.json'), 'Leader Brawly'));
+	assert.equal(prepared.doc.box.find(mon => mon.id === out.swapped.id).species, 'Salandit',
+		'the fight plays the swapped box, not only a receipt that says so');
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'swap-'));
+	const file = path.join(dir, 'swap-test.json');
+	fs.writeFileSync(file, JSON.stringify({label: 'swap-test', manifest: null, argv,
+		provenance: {revision: null}, results: [out],
+		effective: withArgv(argv, battery.effectiveDefaults)}));
+	const replayed = tapeRun(file, 'Brawly', 1);
+	assert.equal(replayed.status, 0, replayed.stderr);
+	assert.equal(replayed.out.row.result, out.rows[0].result);
+});
