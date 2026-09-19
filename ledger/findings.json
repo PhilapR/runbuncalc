@@ -1865,8 +1865,10 @@
 			"line": 950,
 			"claim": "When our faster pivot (U-turn) switches the user out mid-turn, the driver defers our replacement to after the turn, so the slower foe move has no legal target and is refused; in the game the replacement comes in at once and takes the hit.",
 			"verdict": "confirmed",
-			"status": "open",
-			"evidence": "The only refusal left after the three fixes: Breeder Isaac br-4 seed 12 under the old-control arm (heldout2-a2, heldout2-a2-pp at 7dc244e, receipts 6a7ea8b): Lopunny U-turns, Froslass's Ice Beam/Hex is refused. 1 seed in 3,480. Fixing it means pausing the turn for the replacement choice before the slower action resolves, a turn-flow change in the driver."
+			"status": "fixed",
+			"evidence": "The only refusal left after the three fixes: Breeder Isaac br-4 seed 12 under the old-control arm (heldout2-a2, heldout2-a2-pp at 7dc244e, receipts 6a7ea8b): Lopunny U-turns, Froslass's Ice Beam/Hex is refused. 1 seed in 3,480. Fixing it means pausing the turn for the replacement choice before the slower action resolves, a turn-flow change in the driver. Fixed 2026-09-19: the turn pauses at a player pivot and resumes after the replacement (runQueue/resume); headless seed 104740 at Lady Cindy (Beedrill U-turn, Minccino Thunder Wave) now plays through, pinned by tests/pivot_turn.test.js, which fails with the pause removed.",
+			"fixed_in": "6205127",
+			"falsified": 1
 		},
 		{
 			"id": "forced-out-mon-still-acts",
