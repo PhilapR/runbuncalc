@@ -139,15 +139,15 @@ test('the refusals the doubles audit found are played through', () => {
 	// no aim at the user itself; a body Whirlwind dragged out, or Emergency
 	// Exit took, still used the move it had queued.
 	const cases = [
-		['br-9.run.json', 'Twins Amy And Liv', 'Life Dew'],
-		['br-14.run.json', 'Old Couple John And Jay', 'Synthesis'],
-		['choice-roxanne-max.run.json', 'Psychic Blake & Samantha', 'Trick Room'],
-		['brheal1-B-2.run.json', 'Cool Trainer Julie & Dianne', 'Leech Life'],
+		{file: 'br-9.run.json', trainer: 'Twins Amy And Liv', move: 'Life Dew'},
+		{file: 'br-14.run.json', trainer: 'Old Couple John And Jay', move: 'Synthesis'},
+		{file: 'choice-roxanne-max.run.json', trainer: 'Psychic Blake & Samantha', move: 'Trick Room'},
+		{file: 'brheal1-B-2.run.json', trainer: 'Cool Trainer Julie & Dianne', move: 'Leech Life'},
 	];
-	for (const [file, trainer, move] of cases) {
-		const box = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', file));
-		const played = driver.playDoubles(box, trainer, 1);
-		assert.equal(played.engineRefusals, 0, trainer + ' (' + move + '): ' + played.events
+	for (const entry of cases) {
+		const box = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', entry.file));
+		const played = driver.playDoubles(box, entry.trainer, 1);
+		assert.equal(played.engineRefusals, 0, entry.trainer + ' (' + entry.move + '): ' + played.events
 			.filter(event => event.engineRefusal).map(event => event.text).join(' | '));
 	}
 });

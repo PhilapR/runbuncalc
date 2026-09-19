@@ -495,6 +495,8 @@ function playRun(policy, starter, seed, treatment, options) {
 	// a Moody Smeargle stall Protect and Dark Void for 300 turns at Young
 	// Couple Dez And Luke; with PP it runs dry and the fight ends.
 	driver.setPPModel(flag('pp-model', '1') === '1');
+	driver.setHidingForecast(flag('hiding-forecast', '0') === '1');
+	driver.setRealSpeed(flag('real-speed', '0') === '1');
 	const random = dice(seed);
 	let doc = startRun(starter, random);
 

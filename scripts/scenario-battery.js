@@ -164,6 +164,8 @@ const GATED_COUNTERS = {
 	'swap-catch': {counter: 'catchSwapped', on: value => value !== ''},
 	'swap-teach': {counter: 'swapTaught', on: value => value === '1'},
 	'switch-priced': {counter: 'switchRepriced', on: value => value === '1'},
+	'hiding-forecast': {counter: 'hidingRepriced', on: value => value === '1'},
+	'real-speed': {counter: 'speedRead', on: value => value === '1'},
 };
 
 /**
@@ -284,6 +286,10 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 	let reply = driver.start(doc, trainer, seed);
 	let battle = reply.battle;
 	const memory = freshMemory();
+	const hidingAt = driver.hidingForecasts();
+	const speedAt = driver.realSpeedReads();
+	const counters = () => Object.assign(countersOf(memory), {hidingRepriced: driver.hidingForecasts() - hidingAt,
+		speedRead: driver.realSpeedReads() - speedAt});
 	// Transitions the engine refused: each is a lost turn the driver made up.
 	let engineRefusals = 0;
 	// What was refused, not only how often: a refusal is a defect to fix.
@@ -303,7 +309,7 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 					of: death.of || null,
 				})),
 				foe: foeRemainderOf(battle),
-				counters: countersOf(memory)};
+				counters: counters()};
 		}
 		// start() carries no phase; a forced replacement offers only switches.
 		const phase = reply.phase ||
@@ -333,7 +339,7 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 		battle = reply.battle;
 	}
 	return {result: 'stuck', turns: 400, deaths: null, killers: [], engineRefusals,
-		foe: foeRemainderOf(battle), counters: countersOf(memory)};
+		foe: foeRemainderOf(battle), counters: counters()};
 }
 
 /**
@@ -695,7 +701,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -708,6 +714,9 @@ function main() {
 	driver.setPPModel(flag('pp-model', '0') === '1');
 	// The policy reads --switch-priced; the price itself lives in the driver.
 	driver.setSwitchPricing(flag('switch-priced', '1') === '1');
+	// Where the foe will be when our move lands (Fly, Bounce, Dig, Dive).
+	driver.setHidingForecast(flag('hiding-forecast', '0') === '1');
+	driver.setRealSpeed(flag('real-speed', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?

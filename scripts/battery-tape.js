@@ -68,6 +68,8 @@ function replay(receiptPath, scenarioName, seed) {
 	const policy = require('./ui-playthrough.js');
 	driver.setPPModel(argOf(argv, 'pp-model') === '1');
 	driver.setSwitchPricing(argOf(argv, 'switch-priced') === '1');
+	driver.setHidingForecast(argOf(argv, 'hiding-forecast') === '1');
+	driver.setRealSpeed(argOf(argv, 'real-speed') === '1');
 
 	// The same pre-fight choice the batch made, under the batch's argv.
 	const doc = battery.prepareDocument(

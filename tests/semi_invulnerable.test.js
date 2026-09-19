@@ -49,3 +49,51 @@ test('each hidden state is reached by its own moves, some for double', () => {
 	assert.equal(damageInto('Surf', 'Dive'), surf * 2, 'Surf into the water is doubled');
 	assert.equal(damageInto('Surf', 'Phantom Force'), 0);
 });
+
+test('a hiding foe that moves first is priced where it will be, behind a switch', () => {
+	// Magikarp (Speed 27) outruns Pidgey (21) and Bounces: Tackle lands on
+	// nothing this turn, Gust lands for double. Off, the list prices the
+	// ground as it stands.
+	const driver = require('../lib/battle-driver.js');
+	const lead = {species: 'Pidgey', level: 12, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Gust', 'Tackle'], ivs: IVS};
+	const state = planner.buildFightState({trainer: 'Fisherman Darian', playerParty: [lead],
+		profileId: 'run-and-bun'}).state;
+	const priced = () => {
+		const out = {};
+		for (const entry of driver.legalActions(state)) if (entry.kind === 'move') out[entry.move] = entry.damage.max;
+		return out;
+	};
+	const ground = priced();
+	try {
+		driver.setHidingForecast(true);
+		const air = priced();
+		assert.equal(air.Tackle, 0, 'Tackle into the air');
+		assert.ok(air.Gust >= ground.Gust * 2 - 1, 'Gust into the air: ' + air.Gust + ' vs ' + ground.Gust);
+	} finally {
+		driver.setHidingForecast(false);
+	}
+	assert.ok(ground.Tackle > 0);
+});
+
+test('races read the engine Speed behind a switch; off, they read the old zero', () => {
+	// Off, every Speed read 0 and no body was ever "faster". A Level 30
+	// Starly outruns Bug Catcher Rick's lead by any count.
+	const driver = require('../lib/battle-driver.js');
+	const lead = {species: 'Pidgey', level: 12, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Gust', 'Tackle'], ivs: IVS};
+	const bench = {species: 'Starly', level: 30, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Wing Attack', 'Growl'], ivs: IVS};
+	const state = planner.buildFightState({trainer: 'Bug Catcher Rick', playerParty: [lead, bench],
+		profileId: 'run-and-bun'}).state;
+	const starly = state.sides.player.party.find(mon => mon.species === 'Starly').id;
+	assert.equal(driver.benchRace(state, starly).faster, false, 'the old zero');
+	try {
+		driver.setRealSpeed(true);
+		const before = driver.realSpeedReads();
+		assert.equal(driver.benchRace(state, starly).faster, true, 'faster on the engine Speed');
+		assert.ok(driver.realSpeedReads() > before, 'the switch served the read');
+	} finally {
+		driver.setRealSpeed(false);
+	}
+});
