@@ -97,3 +97,25 @@ test('races read the engine Speed behind a switch; off, they read the old zero',
 		driver.setRealSpeed(false);
 	}
 });
+
+test('a charge move is a threat priced by its release, behind a switch', () => {
+	// The engine resolves Bounce's first turn as a Status move, and the race
+	// read those facts: Darian's Magikarp had no ceiling, so the threat line
+	// saw nothing and no race could be run against it.
+	const driver = require('../lib/battle-driver.js');
+	const lead = {species: 'Pidgey', level: 12, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Gust', 'Tackle'], ivs: IVS};
+	const state = planner.buildFightState({trainer: 'Fisherman Darian', playerParty: [lead],
+		profileId: 'run-and-bun'}).state;
+	assert.equal(driver.incomingThreat(state).move, null, 'off: no threat at all');
+	try {
+		driver.setChargeThreat(true);
+		const before = driver.chargeThreats();
+		const threat = driver.incomingThreat(state);
+		assert.equal(threat.move, 'Bounce');
+		assert.ok(threat.max > 0 && threat.race, 'a hit and a race: ' + JSON.stringify(threat));
+		assert.ok(driver.chargeThreats() > before, 'the switch served the price');
+	} finally {
+		driver.setChargeThreat(false);
+	}
+});

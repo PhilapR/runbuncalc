@@ -166,6 +166,7 @@ const GATED_COUNTERS = {
 	'switch-priced': {counter: 'switchRepriced', on: value => value === '1'},
 	'hiding-forecast': {counter: 'hidingRepriced', on: value => value === '1'},
 	'real-speed': {counter: 'speedRead', on: value => value === '1'},
+	'charge-threat': {counter: 'chargePriced', on: value => value === '1'},
 };
 
 /**
@@ -288,8 +289,9 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 	const memory = freshMemory();
 	const hidingAt = driver.hidingForecasts();
 	const speedAt = driver.realSpeedReads();
+	const chargeAt = driver.chargeThreats();
 	const counters = () => Object.assign(countersOf(memory), {hidingRepriced: driver.hidingForecasts() - hidingAt,
-		speedRead: driver.realSpeedReads() - speedAt});
+		speedRead: driver.realSpeedReads() - speedAt, chargePriced: driver.chargeThreats() - chargeAt});
 	// Transitions the engine refused: each is a lost turn the driver made up.
 	let engineRefusals = 0;
 	// What was refused, not only how often: a refusal is a defect to fix.
@@ -701,7 +703,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -717,6 +719,7 @@ function main() {
 	// Where the foe will be when our move lands (Fly, Bounce, Dig, Dive).
 	driver.setHidingForecast(flag('hiding-forecast', '0') === '1');
 	driver.setRealSpeed(flag('real-speed', '0') === '1');
+	driver.setChargeThreat(flag('charge-threat', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?
