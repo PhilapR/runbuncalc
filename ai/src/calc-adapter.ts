@@ -8,8 +8,9 @@ import {
   getEffectiveMoveMetadata,
   getMoveMetadata,
   isMoveAvailable,
-  SEMI_INVULNERABLE_BYPASS_MOVES,
   SEMI_INVULNERABLE_CHARGE_MOVES,
+  doublesIntoSemiInvulnerable,
+  reachesSemiInvulnerable,
 } from './move-metadata';
 import {getEffectiveCalculatorItem, isItemEffectActive} from './items';
 import {getEffectiveTypes, getEffectiveTypesForPokemon, ignoresTargetAbility, isGrounded} from './eligibility';
@@ -733,10 +734,16 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
   // Sturdy caps a crit at HP-1 exactly as it caps a normal hit, Disguise
   // eats a crit whole. Extracted so the crit pass cannot drift from it.
   const applyDamageGuards = (input: DamageFacts): DamageFacts => {
-    const semiInvulnerable = defenderState.volatile?.charge?.moveName &&
-      SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(defenderState.volatile.charge.moveName)) &&
-      !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(context.move.name));
+    const hiddenBy = defenderState.volatile?.charge?.moveName &&
+      SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(defenderState.volatile.charge.moveName))
+      ? moveId(defenderState.volatile.charge.moveName) : '';
+    const semiInvulnerable = !!hiddenBy && !reachesSemiInvulnerable(hiddenBy, moveId(context.move.name));
     let guarded = semiInvulnerable ? makeDamageFacts([0], defenderState.hp.current) : input;
+    // Gust and Twister into the air, Earthquake and Magnitude underground,
+    // Surf and Whirlpool into the water: double.
+    if (hiddenBy && doublesIntoSemiInvulnerable(hiddenBy, moveId(context.move.name)) && guarded.max > 0) {
+      guarded = mapDamageFacts(guarded, roll => roll * 2);
+    }
     if (!semiInvulnerable && context.move.category !== 'Status' && !context.baseFacts.isMultiHit &&
       isDisguiseActive(context.state, defenderState) && input.max > 0 &&
       !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category)) {

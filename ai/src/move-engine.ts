@@ -32,8 +32,8 @@ import {
   RECHARGE_MOVE_MIN_GENERATION,
   PARTIAL_TRAPPING_MOVES,
   PROTECTION_MOVE_MIN_GENERATION,
-  SEMI_INVULNERABLE_BYPASS_MOVES,
   SEMI_INVULNERABLE_CHARGE_MOVES,
+  reachesSemiInvulnerable,
   UPROAR_MOVE_MIN_GENERATION,
 } from './move-metadata';
 import {getActionOrderFacts, getEffectivePokemonSpeed} from './order';
@@ -2408,7 +2408,7 @@ function isDamageImmuneTarget(
   const target = getPokemon(state, targetId);
   const chargeMove = target?.volatile?.charge?.moveName;
   if (chargeMove && SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(chargeMove)) &&
-    !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(action.moveName))) return true;
+    !reachesSemiInvulnerable(moveId(chargeMove), moveId(action.moveName))) return true;
   if (isPowderImmune(state, action.actorId, targetId, action.moveName)) return true;
   if (!facts || facts.moveCategory === 'Status') return false;
   if (action.targetIds.length === 1) return facts.isImmune === true;

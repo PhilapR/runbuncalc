@@ -50,10 +50,31 @@ export const SEMI_INVULNERABLE_CHARGE_MOVES = new Set([
   'fly', 'dig', 'dive', 'bounce', 'phantomforce', 'shadowforce',
 ]);
 
-/** Canonical moves that can strike a semi-invulnerable charge target. */
-export const SEMI_INVULNERABLE_BYPASS_MOVES = new Set([
-  'gust', 'twister', 'thunder', 'hurricane', 'smackdown', 'skyuppercut', 'thousandarrows',
-]);
+/**
+ * The moves that reach each semi-invulnerable state, and those of them that
+ * hit it for double. One list served every state: Gust struck a Pokemon
+ * underground, and Earthquake missed one there.
+ */
+const AIRBORNE_REACH = {
+  hits: ['gust', 'twister', 'thunder', 'hurricane', 'smackdown', 'skyuppercut', 'thousandarrows'],
+  doubles: ['gust', 'twister'],
+};
+const SEMI_INVULNERABLE_REACH: Record<string, {hits: string[]; doubles: string[]}> = {
+  fly: AIRBORNE_REACH,
+  bounce: AIRBORNE_REACH,
+  dig: {hits: ['earthquake', 'magnitude', 'fissure'], doubles: ['earthquake', 'magnitude']},
+  dive: {hits: ['surf', 'whirlpool'], doubles: ['surf', 'whirlpool']},
+};
+
+/** Whether a move (canonical id) strikes a target hidden by this charge move. */
+export function reachesSemiInvulnerable(chargeMoveId: string, moveIdValue: string): boolean {
+  return !!SEMI_INVULNERABLE_REACH[chargeMoveId]?.hits.includes(moveIdValue);
+}
+
+/** Whether a move (canonical id) strikes a target hidden by this charge move for double. */
+export function doublesIntoSemiInvulnerable(chargeMoveId: string, moveIdValue: string): boolean {
+  return !!SEMI_INVULNERABLE_REACH[chargeMoveId]?.doubles.includes(moveIdValue);
+}
 
 /** Uproar is a Generation III+ multi-turn sound move. */
 export const UPROAR_MOVE_MIN_GENERATION: Record<string, GenerationNum> = {
