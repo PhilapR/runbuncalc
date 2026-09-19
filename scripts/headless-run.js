@@ -117,6 +117,42 @@ function sweepCatches(doc, caughtFrom, random, treatment, tally) {
 }
 
 /**
+ * The Game Corner's badge prizes, claimed as a player claims them: each
+ * badge opens a tier (sources.json, the R&B author's workbook), and the
+ * prize is RANDOM among its options — rolled here on the run's own dice,
+ * skipping a line the dupes clause forbids. The harness took only wild
+ * encounters, so no headless run ever held a Beldum, a Dratini, a Gible or
+ * the Rain Badge's mythical, the late game's heaviest bodies. Gifts,
+ * trades, fossils and roamers stay out: their places or dates are not
+ * recorded, and guessing them would invent data.
+ */
+function claimPrizes(doc, random, tally) {
+	const tiers = require('../profiles/run-and-bun/oracle/sources.json').gameCorner.tiers;
+	const profile = require('../profiles').getProfile(doc.profileId);
+	const rules = run.encounterRules(doc);
+	const claimed = new Set((doc.log || []).filter(entry => entry.command.kind === 'catch' &&
+		entry.command.prize).map(entry => entry.command.prize));
+	for (const tier of tiers) {
+		if (tier.opensAt === null || doc.position < tier.opensAt || claimed.has(tier.badge)) continue;
+		const lines = new Set(doc.box.map(mon => run.dupeKey(rules.dupes, profile, mon.species)));
+		// With the clause off every key is null; only a real key can match.
+		const options = tier.options.filter(species => {
+			const key = run.dupeKey(rules.dupes, profile, species);
+			return key === null || !lines.has(key);
+		});
+		if (!options.length) continue;
+		const species = options[Math.floor(random() * options.length)];
+		const cap = run.levelCap(doc).cap || 50;
+		try {
+			doc = run.apply(doc, Object.assign({kind: 'catch', species, level: cap, prize: tier.badge},
+				run.rollIdentity(species, random)));
+			tally.prizes = (tally.prizes || 0) + 1;
+		} catch (error) { /* refused: the run keeps what it had */ }
+	}
+	return doc;
+}
+
+/**
  * Collect every open field item the overworld has handed out — the Heart
  * Scales included, which is what lets the key-scales treatment exist at
  * all. `collected` is the run's own memory, so a sweep never double-takes.
@@ -374,6 +410,7 @@ function playRun(policy, starter, seed, treatment, options) {
 
 	while (tally.fights < FIGHT_BUDGET) {
 		doc = sweepCatches(doc, caughtFrom, random, treatment, tally);
+		doc = claimPrizes(doc, random, tally);
 		doc = sweepItems(doc, tally);
 		const shape = doc.box.length + '|' + JSON.stringify(doc.bag) + '|' + doc.position;
 		if (shape !== lastShape) {
@@ -456,7 +493,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
-		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, levelUps: tally.levelUps || 0, repicks: tally.repicks || 0,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, levelUps: tally.levelUps || 0, repicks: tally.repicks || 0, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
@@ -545,4 +582,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap, thresholdPrep};
+module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes};

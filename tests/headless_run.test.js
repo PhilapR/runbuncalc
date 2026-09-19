@@ -111,3 +111,22 @@ test('the harness teaches the priority answer a threshold fight demands', () => 
 	assert.ok(run.preFightOpportunities(taught).thresholdPrep.covered, 'and the demand is met');
 	assert.equal(headless.thresholdPrep(taught, tally), taught, 'a met demand teaches nothing more');
 });
+
+test('the harness claims each Game Corner prize its badges have opened, once', () => {
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-shelly-523658.run.json'), 'utf8'));
+	const tiers = require('../profiles/run-and-bun/oracle/sources.json').gameCorner.tiers;
+	const open = tiers.filter(tier => tier.opensAt !== null && tier.opensAt <= doc.position);
+	const tally = {};
+	const claimed = headless.claimPrizes(doc, headless.dice(5), tally);
+	assert.equal(tally.prizes, open.length, 'one prize per badge earned by #' + doc.position);
+	const prizes = claimed.log.filter(entry => entry.command.kind === 'catch' && entry.command.prize);
+	assert.deepEqual(prizes.map(entry => entry.command.prize), open.map(tier => tier.badge));
+	for (const entry of prizes) {
+		const tier = tiers.find(row => row.badge === entry.command.prize);
+		assert.ok(tier.options.includes(entry.command.species), entry.command.species + ' is a ' + tier.badge + ' prize');
+	}
+	assert.equal(headless.claimPrizes(claimed, headless.dice(6), {}).box.length, claimed.box.length, 'never twice');
+	const fresh = headless.startRun({species: 'Turtwig', rival: 'Blaziken'}, headless.dice(1));
+	assert.equal(headless.claimPrizes(fresh, headless.dice(2), {}).box.length, fresh.box.length, 'no badge, no prize');
+});
