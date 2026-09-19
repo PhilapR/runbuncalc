@@ -59,3 +59,41 @@ test('the battery plays a double through the two-slot loop and says which policy
 		return [direct.result, direct.turns];
 	})());
 });
+
+test('the doubles that were refused are played through', () => {
+	// Each once produced a refusal: a spread move whose foe fell, a status
+	// move whose targets an effect filtered out, a Dancer ally copying a
+	// dance, White Herb restoring an ally, and an Encore that landed before
+	// the encored Pokemon acted.
+	const cases = [
+		['sv-14', 'Old Couple John And Jay', 1], ['sv-14', 'Hiker Eric & Autumn', 1],
+		['sv-14', 'Young Couple Dez And Luke', 2], ['sv-14', 'Camper Flint & Edwardo', 1],
+		['sv-14', 'Lass Andrea & Connie', 2], ['sv-14', 'Twins Miu And Yuki', 1],
+		['acc-11', 'Magma Grunt Mt Chimney #2 & Grunt One', 1],
+	];
+	for (const entry of cases) {
+		const box = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', entry[0] + '.run.json'));
+		const played = driver.playDoubles(box, entry[1], entry[2]);
+		assert.equal(played.engineRefusals, 0, entry.join(' ') + ': ' + played.events.filter(event => event.engineRefusal)
+			.map(event => event.text + ' ' + JSON.stringify(event.action)).join(' | '));
+	}
+});
+
+test('a move locked out before it acts: Encore substitutes, Taunt makes a status move fail', () => {
+	const box = doc();
+	const fight = planner.getFight(DOUBLES[0], box.profileId);
+	const state = planner.buildFightState({trainer: fight.trainer, profileId: box.profileId,
+		playerParty: run.partySpecs(box, {atOrder: fight.order}), doubles: true}).state;
+	const actor = state.sides.player.party[0];
+	const moves = actor.moves.map(move => move.name);
+	const action = {kind: 'move', actorId: actor.id, moveName: moves[0], targetIds: [state.sides.ai.activeIds[0]]};
+	const events = [];
+	const encored = structuredClone(state);
+	encored.sides.player.party[0].volatile = {encore: {moveName: moves[1], turns: 3}};
+	assert.equal(driver.lockedOut(encored, action, events).moveName, moves[1], 'the encored move is used instead');
+	const disabled = structuredClone(state);
+	disabled.sides.player.party[0].volatile = {disable: {moveName: moves[0], turns: 3}};
+	assert.equal(driver.lockedOut(disabled, action, events), null, 'a disabled move fails');
+	assert.match(events[events.length - 1].text, /can't use/);
+	assert.equal(driver.lockedOut(state, action, events), action, 'nothing locked, nothing changed');
+});

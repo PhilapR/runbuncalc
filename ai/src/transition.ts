@@ -1354,9 +1354,12 @@ export function resolveMoveAction(
   validatePokemonMap(state, action, resolution.statOverridesByPokemon, 'Stat override');
   validatePokemonMap(state, action, resolution.movesByPokemon, 'Move set');
   validatePokemonMap(state, action, resolution.copyMoveByPokemon, 'Copied move');
-  validatePokemonMap(state, action, resolution.calledMoveModifiersByPokemon, 'Called move modifiers');
-  validatePokemonMap(state, action, resolution.calledMoveTargetIdsByPokemon, 'Called move targets');
-  validatePokemonMap(state, action, resolution.calledMoveExternalByPokemon, 'Called move external');
+  validatePokemonMap(state, action, resolution.calledMoveModifiersByPokemon, 'Called move modifiers', true);
+  // A Dancer ally copies the dance: its called move (targets, external
+  // marker, modifiers) is keyed by an active responder, not by the actor or
+  // a target of the move.
+  validatePokemonMap(state, action, resolution.calledMoveTargetIdsByPokemon, 'Called move targets', true);
+  validatePokemonMap(state, action, resolution.calledMoveExternalByPokemon, 'Called move external', true);
   validatePokemonMap(state, action, resolution.forcedSwitchByPokemon, 'Forced switch');
   validatePokemonMap(state, action, resolution.batonPassByPokemon, 'Baton Pass switch');
   validatePokemonMap(state, action, resolution.substitutePassByPokemon, 'Substitute switch');
@@ -1369,7 +1372,9 @@ export function resolveMoveAction(
   validatePokemonMap(state, action, resolution.toxicCounterByPokemon, 'Toxic counter');
   validatePokemonMap(state, action, resolution.boostsByPokemon, 'Boost', true);
   validatePokemonMap(state, action, resolution.resetBoostsByPokemon, 'Boost reset');
-  validatePokemonMap(state, action, resolution.setBoostsByPokemon, 'Boost set');
+  // White Herb restores any active holder's lowered stages after an action,
+  // ally or foe, target or not — the same responders 'Boost' admits.
+  validatePokemonMap(state, action, resolution.setBoostsByPokemon, 'Boost set', true);
   for (const [id, swap] of Object.entries(resolution.allySwitchByPokemon || {})) {
     if (typeof swap !== 'boolean') throw new Error(`Ally Switch state for ${id} must be boolean`);
     if (!swap) continue;
