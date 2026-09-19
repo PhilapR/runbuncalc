@@ -1,0 +1,8 @@
+{
+	"mcpServers": {
+		"runbun-engine": {
+			"command": "node",
+			"args": ["scripts/engine-mcp.js"]
+		}
+	}
+}
