@@ -70,3 +70,17 @@ test('the harness hands out the held items the advisor names', () => {
 	assert.ok(tally.gives > 0, 'a give row became a give');
 	assert.ok(prepared.box.some(mon => mon.item), 'and a Pokemon holds it');
 });
+
+test('levelling evolves as the game does, not only when the advisor asks', () => {
+	const stalled = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-stall-1000.run.json'), 'utf8'));
+	const tally = {scaleSpends: 0};
+	const levelled = headless.levelToCap(stalled, tally);
+	const dossier = require('../lib/dossier');
+	for (const mon of levelled.box.filter(entry => entry.status !== 'dead')) {
+		assert.equal(dossier.evolveMon(mon, mon.level), mon.species,
+			mon.species + ' at ' + mon.level + ' should already have evolved');
+	}
+	assert.ok(tally.evolves > 0);
+	assert.ok(!levelled.box.some(mon => mon.species === 'Turtwig'), 'Turtwig is a Grotle by the cap');
+});

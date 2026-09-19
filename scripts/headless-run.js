@@ -166,6 +166,38 @@ function levelToCap(doc, tally) {
 			tally.levelUps = (tally.levelUps || 0) + 1;
 		} catch (error) { /* a refused level-up changes nothing */ }
 	}
+	return evolveByLevel(doc, tally);
+}
+
+/**
+ * Level evolutions happen, as the game makes them happen on the level-up —
+ * not only when the upgrade advisor prices one as a gain. The harness used
+ * to wait for an evolve row, so boxes fought Brawly with a level-21 Tyrogue
+ * and a Kakuna. A stat-conditioned branch goes the way this Pokemon's stats
+ * send it (dossier.evolveMon); an unconditioned choice (Wurmple) takes the
+ * first path the data lists. Chains run on (Weedle, Kakuna, Beedrill).
+ */
+function evolveByLevel(doc, tally) {
+	const dossier = require('../lib/dossier');
+	const evolutions = require('../profiles/run-and-bun/oracle/evolutions.json');
+	for (const mon of doc.box) {
+		if (mon.status === 'dead') continue;
+		for (let hops = 0; hops < 3; hops++) {
+			const current = doc.box.find(entry => entry.id === mon.id);
+			const into = dossier.evolveMon(current, current.level);
+			if (into === current.species) break;
+			const step = (evolutions[current.species] || []).find(path => path.method === 'level' &&
+				path.level <= current.level && dossier.meetsRequirement(path, current.species, current.level,
+				current.ivs, current.nature));
+			if (!step) break;
+			try {
+				doc = run.apply(doc, {kind: 'evolve', id: mon.id, into: step.into});
+				tally.evolves = (tally.evolves || 0) + 1;
+			} catch (error) {
+				break;
+			}
+		}
+	}
 	return doc;
 }
 
