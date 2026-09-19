@@ -65,3 +65,15 @@ test('a caller can ask for search on one fight, whatever the flags say', () => {
 	const plain = battery.playScenario(require('../scripts/ui-playthrough.js'), box(), 'Bug Catcher Lyle', 3);
 	assert.equal(plain.policy, undefined);
 });
+
+test('a lean action list drops only the voluntary switches\' pricing', () => {
+	const opened = driver.start(box(), 'Leader Brawly', 1);
+	const full = driver.legalActions(opened.battle.state);
+	const lean = driver.legalActions(opened.battle.state, {lean: true});
+	assert.deepEqual(lean.map(entry => entry.kind + (entry.move || entry.action.replacementId)),
+		full.map(entry => entry.kind + (entry.move || entry.action.replacementId)), 'the same actions');
+	assert.ok(full.some(entry => entry.kind === 'switch' && entry.race), 'the full list prices switches');
+	assert.ok(lean.every(entry => entry.kind !== 'switch' || !entry.race), 'the lean list does not');
+	assert.deepEqual(lean.filter(entry => entry.kind === 'move').map(entry => entry.damage),
+		full.filter(entry => entry.kind === 'move').map(entry => entry.damage), 'move damage is untouched');
+});
