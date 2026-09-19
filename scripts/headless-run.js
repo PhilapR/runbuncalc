@@ -115,7 +115,23 @@ function sweepCatches(doc, caughtFrom, random, treatment, tally) {
 		try {
 			doc = catchRolled(doc, route.name, random);
 			tally.catches += 1;
-		} catch (error) { /* a refused roll spends nothing */ }
+		} catch (error) {
+			// A multi-floor AREA has no table of its own ("no map named
+			// Granite Cave"), and the refusal was swallowed: no headless run
+			// ever caught in Granite Cave, Mirage Tower, Victory Road or
+			// Meteor Falls — Norman's Steel answers and the late game's
+			// Metagross, Tyranitar and dragons. The one encounter is rolled
+			// on one of the area's floors instead, picked on the run's dice.
+			const floors = (route.maps || []).slice();
+			while (floors.length) {
+				const floor = floors.splice(Math.floor(random() * floors.length), 1)[0];
+				try {
+					doc = catchRolled(doc, floor, random);
+					tally.catches += 1;
+					break;
+				} catch (floorError) { /* this floor refuses; try another */ }
+			}
+		}
 	}
 	return doc;
 }

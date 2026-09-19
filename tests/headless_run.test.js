@@ -174,3 +174,19 @@ test('the policy never presses Focus Punch into an attack, and breaks a sash wit
 	assert.equal(policy.bestMove(Object.assign({}, sashed, {foeHp: 60})).move, 'Ice Beam', 'a broken sash is no reason');
 	assert.equal(policy.bestMove(Object.assign({}, sashed, {foeItem: null, foeAbility: 'Sturdy'})).move, 'Bullet Seed');
 });
+
+test('a multi-floor area is caught on one of its floors, not skipped', () => {
+	// The Norman stall box (seed 1000 + 13 in sweep 3's numbering) held no
+	// Granite Cave catch: the area has no table of its own and the roll's
+	// refusal was swallowed.
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	const withoutCave = structuredClone(doc);
+	withoutCave.box = withoutCave.box.filter(mon => !/GRANITE_CAVE/.test((mon.origin || {}).map || ''));
+	withoutCave.log = withoutCave.log.filter(entry => !(entry.command.kind === 'catch' &&
+		/GRANITE_CAVE/.test(entry.command.map || '')));
+	const tally = {catches: 0, keyRolls: 0};
+	const swept = headless.sweepCatches(withoutCave, new Set(), headless.dice(4), headless.armFlags(''), tally);
+	const cave = swept.box.filter(mon => /GRANITE_CAVE/.test((mon.origin || {}).map || ''));
+	assert.equal(cave.length, 1, 'one Granite Cave encounter: ' + cave.map(mon => mon.species).join(','));
+});
