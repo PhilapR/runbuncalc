@@ -210,3 +210,21 @@ test('a roll never turns up a species the hack removed', () => {
 		assert.notEqual(oracle.availabilityOfSpecies(rolled.species).status, 'unreachable', rolled.species);
 	}
 });
+
+test('an owed fight whose retries are spent waits for the next cap, and the road goes on', () => {
+	// Sweep 10: a skipped double sorts first again once passed, a second skip
+	// of it is refused, and three of the five deepest runs stopped there.
+	const run = require('../lib/run.js');
+	const battery = require('../scripts/scenario-battery.js');
+	let doc = battery.loadDocument(require('node:path').join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json'));
+	const owed = run.upcoming(doc, 1000).find(fight => fight.isDouble);
+	doc = run.apply(doc, {kind: 'skip', trainer: owed.trainer});
+	while (doc.position < owed.order) doc = run.apply(doc, {kind: 'beat', trainer: run.upcoming(doc, 1)[0].trainer});
+	assert.equal(run.upcoming(doc, 1)[0].trainer, owed.trainer, 'the debt sorts first once passed');
+	const cap = run.levelCap(doc).cap;
+	assert.equal(headless.nextFight(doc, new Map()).trainer, owed.trainer);
+	const forward = headless.nextFight(doc, new Map([[owed.order, cap]]));
+	assert.ok(forward.order > doc.position && forward.trainer !== owed.trainer, 'the road goes on: ' + forward.trainer);
+	assert.equal(headless.nextFight(doc, new Map([[owed.order, cap - 1]])).trainer, owed.trainer,
+		'a higher cap brings the debt back');
+});

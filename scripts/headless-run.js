@@ -481,6 +481,13 @@ function startRun(starter, random) {
 	return doc;
 }
 
+/** The fight to play: the road's first, less an owed fight still waiting
+ * at the cap it was put off under. */
+function nextFight(doc, waiting) {
+	const capNow = run.levelCap(doc).cap;
+	return run.upcoming(doc, 1000).find(fight => waiting.get(fight.order) !== capNow) || null;
+}
+
 function playRun(policy, starter, seed, treatment, options) {
 	const random = dice(seed);
 	let doc = startRun(starter, random);
@@ -490,6 +497,12 @@ function playRun(policy, starter, seed, treatment, options) {
 		trainers: {}, fights: 0, skipped: [], engineRefusals: 0};
 	const started = Date.now();
 	const caughtFrom = new Set();
+	// An owed fight (a skipped double, Gavi) whose retries are spent waits
+	// for the level cap to rise, as a player comes back to it with a stronger
+	// box; the road goes on meanwhile. It stopped runs instead: the debt sorts
+	// first once passed, and a second skip of it is refused (sweep 10: three
+	// of the five deepest runs ended "already being skipped").
+	const waiting = new Map();
 	let attempts = 0;
 	let fightSeed = seed;
 	// Advice and party ranking are board-rebuild expensive; the browser
@@ -511,9 +524,15 @@ function playRun(policy, starter, seed, treatment, options) {
 			doc = thresholdPrep(doc, tally);
 			doc = bestParty(doc);
 		}
-		const ahead = run.upcoming(doc, 1);
+		const ahead = run.upcoming(doc, 1000);
 		if (!ahead.length) break;
-		const next = ahead[0];
+		const capNow = run.levelCap(doc).cap;
+		const next = nextFight(doc, waiting);
+		if (!next) {
+			tally.stopped = 'owed fights wait on a higher cap that never comes: ' +
+				ahead.map(fight => fight.trainer).join(', ');
+			break;
+		}
 		// Doubles are played (driver.playDoubles, both sides on the engine's
 		// trainer AI) unless --skip-doubles=1 asks for the old behaviour.
 		if (next.isDouble && SKIP_DOUBLES) {
@@ -563,11 +582,16 @@ function playRun(policy, starter, seed, treatment, options) {
 		// not the dice.
 		if (attempts % 3 === 0) caughtFrom.clear();
 		const cap = BOSS.test(next.trainer) ? BOSS_RETRIES : RETRIES;
-		if (attempts >= cap) {
+		if (attempts >= cap && (doc.skipped || []).includes(next.order)) {
+			waiting.set(next.order, capNow);
+			tally.skipped.push({trainer: next.trainer, why: 'owed, waits for the next cap'});
+			attempts = 0;
+		} else if (attempts >= cap) {
 			try {
 				doc = run.apply(doc, {kind: 'skip', trainer: next.trainer,
 					for: 'a box that can afford them'});
 				tally.skipped.push({trainer: next.trainer, why: 'retries spent'});
+				waiting.set(next.order, capNow);
 				attempts = 0;
 			} catch (error) {
 				tally.stopped = next.trainer + ': ' + error.message;
@@ -673,4 +697,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
+module.exports = {playRun, startRun, nextFight, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
