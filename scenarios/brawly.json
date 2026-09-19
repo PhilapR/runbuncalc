@@ -57,6 +57,104 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--swap-catch=MAP_ROUTE104:Yanma at b3af778, adopted defaults, real PP, shard 1/2"
+		},
+		{
+			"label": "r104b-blipbug-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:blipbug at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-buizel-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:buizel at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-clauncher-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:clauncher at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-ctl-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-ekans-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:ekans at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-horsea-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:horsea at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-krabby-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:krabby at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-ledyba-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:ledyba at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-paras-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:paras at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-remoraid-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:remoraid at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-scatterbug-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:scatterbug at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-sizzlipede-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:sizzlipede at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-venipede-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:venipede at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-weedle-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:weedle at e1c4ec5, adopted defaults, real PP"
 		}
 	],
 	"scenarios": [
