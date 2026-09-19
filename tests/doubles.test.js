@@ -122,3 +122,13 @@ test('a double battle is ranked by the grid, and the battery can re-pick for one
 	const prepared = battery.prepareDocument(box, DOUBLES[0], require('../scripts/ui-playthrough.js'));
 	assert.ok(prepared.doc.party.length >= 2, 'the battery re-picks a six for a double');
 });
+
+test('a move for the ally alone, whose ally fell earlier in the turn, is used and fails', () => {
+	// Surf took Sawk, then Poliwrath's queued Coaching had no ally to coach:
+	// the engine refused it, the one refusal family left in sweep 10.
+	const box = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json'));
+	const played = driver.playDoubles(box, 'Cool Trainer Jennifer & Callie', 1);
+	assert.equal(played.engineRefusals, 0, played.events.filter(event => event.engineRefusal)
+		.map(event => event.text).join(' | '));
+	assert.ok(played.events.some(event => event.turn === 6 && /^Poliwrath used Coaching/.test(event.text)));
+});

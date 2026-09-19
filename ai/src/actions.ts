@@ -771,6 +771,12 @@ export function isSelectableMoveAction(state: BattleState, sideId: SideId, actio
   const move = actor.moves.find(candidate => candidate.name === action.moveName);
   if (!move || move.disabled || move.pp === 0 || !canUseMove(state, actor, move, true)) return false;
   const wanted = action.targetIds.join(',');
+  // A move for the ally alone (Coaching, Helping Hand) whose ally fell
+  // earlier in the turn is used at no one and fails. Poliwrath's Coaching
+  // after Surf took Sawk was refused (Cool Trainer Jennifer & Callie).
+  const target = targetForMove(state, move);
+  if ((target === 'adjacentAlly' || target === 'allies') && !wanted &&
+    !activePokemon(state, sideId).some(pokemon => pokemon.id !== actor.id)) return true;
   return targetsForMove(state, sideId, actor, move).some(targetIds => targetIds.join(',') === wanted);
 }
 
