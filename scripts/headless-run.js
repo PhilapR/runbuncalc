@@ -353,7 +353,8 @@ function playRun(policy, starter, seed, treatment, options) {
 		t.attempts += 1;
 		if (options && options.log) {
 			options.log(tally.fights + ' #' + (run.trainerIndexOf(doc, next.order) || '?') + ' ' + next.trainer +
-				' ' + played.result + (played.policy ? ' (' + played.policy + ')' : ''));
+				' ' + played.result + (played.policy ? ' (' + played.policy + ')' : '') +
+				(played.engineRefusals ? ' REFUSALS ' + played.engineRefusals : ''));
 		}
 		if (played.result === 'win') {
 			t.wins += 1;
