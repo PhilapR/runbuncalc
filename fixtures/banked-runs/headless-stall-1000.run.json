@@ -1,0 +1,1231 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"orderScale": "route103-wally-2026-08-28",
+	"name": "headless",
+	"createdAt": "t0",
+	"updatedAt": "t0",
+	"position": 59,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "off",
+		"shinyClause": false,
+		"rival": "Blaziken"
+	},
+	"nextId": 14,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Turtwig",
+			"nickname": null,
+			"level": 5,
+			"nature": "Lax",
+			"ability": "Overgrow",
+			"item": null,
+			"moves": [
+				"Bite",
+				"Growl",
+				"Absorb"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 1,
+				"def": 11,
+				"spa": 19,
+				"spd": 31,
+				"spe": 31
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Pidgey",
+			"nickname": null,
+			"level": 5,
+			"nature": "Modest",
+			"ability": "Keen Eye",
+			"item": null,
+			"moves": [
+				"Gust",
+				"Sand Attack"
+			],
+			"ivs": {
+				"hp": 18,
+				"atk": 29,
+				"def": 22,
+				"spa": 20,
+				"spd": 2,
+				"spe": 6
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Ponyta",
+			"nickname": null,
+			"level": 2,
+			"nature": "Adamant",
+			"ability": "Flame Body",
+			"item": null,
+			"moves": [
+				"Growl",
+				"Stomp"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 17,
+				"def": 17,
+				"spa": 22,
+				"spd": 31,
+				"spe": 27
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Zigzagoon-Galar",
+			"nickname": null,
+			"level": 2,
+			"nature": "Modest",
+			"ability": "Gluttony",
+			"item": null,
+			"moves": [
+				"Tackle",
+				"Sand Attack"
+			],
+			"ivs": {
+				"hp": 28,
+				"atk": 13,
+				"def": 31,
+				"spa": 4,
+				"spd": 8,
+				"spe": 13
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Bounsweet",
+			"nickname": null,
+			"level": 3,
+			"nature": "Hasty",
+			"ability": "Sweet Veil",
+			"item": null,
+			"moves": [
+				"Splash"
+			],
+			"ivs": {
+				"hp": 29,
+				"atk": 12,
+				"def": 27,
+				"spa": 21,
+				"spd": 27,
+				"spe": 19
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Surskit",
+			"nickname": null,
+			"level": 3,
+			"nature": "Gentle",
+			"ability": "Swift Swim",
+			"item": null,
+			"moves": [
+				"Bubble"
+			],
+			"ivs": {
+				"hp": 4,
+				"atk": 9,
+				"def": 4,
+				"spa": 26,
+				"spd": 31,
+				"spe": 28
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Yanma",
+			"nickname": null,
+			"level": 5,
+			"nature": "Gentle",
+			"ability": "Compound Eyes",
+			"item": null,
+			"moves": [
+				"Bug Bite",
+				"Tackle",
+				"Foresight",
+				"Quick Attack"
+			],
+			"ivs": {
+				"hp": 27,
+				"atk": 25,
+				"def": 6,
+				"spa": 25,
+				"spd": 16,
+				"spe": 24
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 14,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Shellos",
+			"nickname": null,
+			"level": 5,
+			"nature": "Hasty",
+			"ability": "Sticky Hold",
+			"item": null,
+			"moves": [
+				"Mud-Slap",
+				"Mud Sport"
+			],
+			"ivs": {
+				"hp": 3,
+				"atk": 13,
+				"def": 22,
+				"spa": 22,
+				"spd": 25,
+				"spe": 27
+			},
+			"status": "party",
+			"origin": {
+				"at": 14,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Gossifleur",
+			"nickname": null,
+			"level": 14,
+			"nature": "Adamant",
+			"ability": "Cotton Down",
+			"item": null,
+			"moves": [
+				"Sing",
+				"Rapid Spin",
+				"Sweet Scent",
+				"Magical Leaf"
+			],
+			"ivs": {
+				"hp": 20,
+				"atk": 8,
+				"def": 20,
+				"spa": 1,
+				"spd": 22,
+				"spe": 28
+			},
+			"status": "party",
+			"origin": {
+				"at": 22,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Spheal",
+			"nickname": null,
+			"level": 8,
+			"nature": "Lonely",
+			"ability": "Thick Fat",
+			"item": null,
+			"moves": [
+				"Growl",
+				"Water Gun",
+				"Powder Snow",
+				"Rollout"
+			],
+			"ivs": {
+				"hp": 23,
+				"atk": 30,
+				"def": 15,
+				"spa": 11,
+				"spd": 29,
+				"spe": 2
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 25,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Timburr",
+			"nickname": null,
+			"level": 8,
+			"nature": "Lax",
+			"ability": "Guts",
+			"item": null,
+			"moves": [
+				"Pound",
+				"Leer",
+				"Focus Energy",
+				"Bide"
+			],
+			"ivs": {
+				"hp": 27,
+				"atk": 20,
+				"def": 19,
+				"spa": 31,
+				"spd": 2,
+				"spe": 17
+			},
+			"status": "party",
+			"origin": {
+				"at": 32,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Horsea",
+			"nickname": null,
+			"level": 8,
+			"nature": "Naughty",
+			"ability": "Swift Swim",
+			"item": null,
+			"moves": [
+				"Bubble",
+				"Smokescreen"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 0,
+				"def": 18,
+				"spa": 4,
+				"spd": 0,
+				"spe": 1
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 40,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Krabby",
+			"nickname": null,
+			"level": 10,
+			"nature": "Bashful",
+			"ability": "Sheer Force",
+			"item": null,
+			"moves": [
+				"Metal Claw",
+				"Vise Grip",
+				"Leer",
+				"Aqua Jet"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 12,
+				"def": 29,
+				"spa": 15,
+				"spd": 3,
+				"spe": 19
+			},
+			"status": "party",
+			"origin": {
+				"at": 45,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		}
+	],
+	"party": [
+		"mon-1",
+		"mon-3",
+		"mon-8",
+		"mon-9",
+		"mon-11",
+		"mon-13"
+	],
+	"bag": {
+		"Potion": 1,
+		"Oran Berry": 1,
+		"Miracle Seed": 1,
+		"Silk Scarf": 1,
+		"Soft Sand": 2,
+		"Heart Scale": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Turtwig",
+				"level": 5,
+				"ivs": {
+					"hp": 31,
+					"atk": 1,
+					"def": 11,
+					"spa": 19,
+					"spd": 31,
+					"spe": 31
+				},
+				"nature": "Lax",
+				"ability": "Overgrow"
+			},
+			"summary": "caught Turtwig at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Turtwig takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Route102",
+				"species": "Pidgey",
+				"level": 5,
+				"ivs": {
+					"hp": 18,
+					"atk": 29,
+					"def": 22,
+					"spa": 20,
+					"spd": 2,
+					"spe": 6
+				},
+				"nature": "Modest",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Pidgey at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Oldale Town",
+				"species": "Ponyta",
+				"level": 2,
+				"ivs": {
+					"hp": 31,
+					"atk": 17,
+					"def": 17,
+					"spa": 22,
+					"spd": 31,
+					"spe": 27
+				},
+				"nature": "Adamant",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Ponyta at level 2 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Route101",
+				"species": "Zigzagoon-Galar",
+				"level": 2,
+				"ivs": {
+					"hp": 28,
+					"atk": 13,
+					"def": 25,
+					"spa": 4,
+					"spd": 8,
+					"spe": 13
+				},
+				"nature": "Modest",
+				"ability": "Gluttony"
+			},
+			"summary": "caught Zigzagoon-Galar at level 2 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Route103",
+				"species": "Bounsweet",
+				"level": 3,
+				"ivs": {
+					"hp": 29,
+					"atk": 12,
+					"def": 27,
+					"spa": 21,
+					"spd": 27,
+					"spe": 19
+				},
+				"nature": "Hasty",
+				"ability": "Sweet Veil"
+			},
+			"summary": "caught Bounsweet at level 3 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Littleroot Town",
+				"species": "Surskit",
+				"level": 3,
+				"ivs": {
+					"hp": 4,
+					"atk": 9,
+					"def": 4,
+					"spa": 26,
+					"spd": 31,
+					"spe": 28
+				},
+				"nature": "Gentle",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Surskit at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion",
+				"where": "Route 101"
+			},
+			"summary": "bag: Potion x1 (Route 101)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry",
+				"where": "Route 102"
+			},
+			"summary": "bag: Oran Berry x1 (Route 102)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Surskit takes the lead — with Turtwig, Pidgey, Ponyta, Zigzagoon-Galar, Bounsweet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Trainer Rival Route 103 Blaziken"
+			},
+			"summary": "beat Trainer Rival Route 103 Blaziken (now at 1)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Turtwig, Pidgey, Zigzagoon-Galar, Bounsweet, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Turtwig, Pidgey, Zigzagoon-Galar, Bounsweet, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Turtwig, Pidgey, Zigzagoon-Galar, Bounsweet, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Surskit takes the lead — with Turtwig, Pidgey, Ponyta, Zigzagoon-Galar, Bounsweet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 12)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Pidgey, Ponyta, Zigzagoon-Galar, Bounsweet, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Route104",
+				"species": "Yanma",
+				"level": 5,
+				"ivs": {
+					"hp": 27,
+					"atk": 25,
+					"def": 6,
+					"spa": 25,
+					"spd": 16,
+					"spe": 24
+				},
+				"nature": "Gentle",
+				"ability": "Compound Eyes"
+			},
+			"summary": "caught Yanma at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Petalburg City",
+				"species": "Shellos",
+				"level": 5,
+				"ivs": {
+					"hp": 3,
+					"atk": 13,
+					"def": 22,
+					"spa": 22,
+					"spd": 25,
+					"spe": 27
+				},
+				"nature": "Hasty",
+				"ability": "Sticky Hold"
+			},
+			"summary": "caught Shellos at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed",
+				"where": "Route 104"
+			},
+			"summary": "bag: Miracle Seed x1 (Route 104)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Pidgey, Ponyta, Zigzagoon-Galar, Bounsweet, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 17)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-6",
+					"mon-8"
+				]
+			},
+			"summary": "Yanma takes the lead — with Turtwig, Pidgey, Bounsweet, Surskit, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-5",
+					"mon-8"
+				]
+			},
+			"summary": "Yanma takes the lead — with Turtwig, Pidgey, Ponyta, Bounsweet, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Petalburg Woods",
+				"species": "Gossifleur",
+				"level": 14,
+				"ivs": {
+					"hp": 20,
+					"atk": 8,
+					"def": 20,
+					"spa": 1,
+					"spd": 22,
+					"spe": 28
+				},
+				"nature": "Adamant",
+				"ability": "Cotton Down"
+			},
+			"summary": "caught Gossifleur at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-7"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Pidgey, Ponyta, Zigzagoon-Galar, Bounsweet, Yanma",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Route106",
+				"species": "Spheal",
+				"level": 8,
+				"ivs": {
+					"hp": 23,
+					"atk": 30,
+					"def": 15,
+					"spa": 11,
+					"spd": 29,
+					"spe": 2
+				},
+				"nature": "Lonely",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Spheal at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf",
+				"where": "Route 106"
+			},
+			"summary": "bag: Silk Scarf x1 (Route 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Heart Scale",
+				"where": "Route 106"
+			},
+			"summary": "bag: Heart Scale x1 (Route 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-8",
+					"mon-9"
+				]
+			},
+			"summary": "Surskit takes the lead — with Turtwig, Pidgey, Ponyta, Shellos, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 28)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6",
+					"mon-8"
+				]
+			},
+			"summary": "Yanma takes the lead — with Turtwig, Ponyta, Bounsweet, Surskit, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Dewford Town",
+				"species": "Timburr",
+				"level": 8,
+				"ivs": {
+					"hp": 27,
+					"atk": 20,
+					"def": 19,
+					"spa": 31,
+					"spd": 2,
+					"spe": 17
+				},
+				"nature": "Lax",
+				"ability": "Guts"
+			},
+			"summary": "caught Timburr at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Shellos takes the lead — with Turtwig, Pidgey, Ponyta, Zigzagoon-Galar, Bounsweet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 35)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-5",
+					"mon-7"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Turtwig, Pidgey, Zigzagoon-Galar, Bounsweet, Yanma",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-6",
+					"mon-7"
+				]
+			},
+			"summary": "Pidgey takes the lead — with Turtwig, Ponyta, Zigzagoon-Galar, Surskit, Yanma",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 40)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Route107",
+				"species": "Horsea",
+				"level": 8,
+				"ivs": {
+					"hp": 15,
+					"atk": 0,
+					"def": 18,
+					"spa": 4,
+					"spd": 0,
+					"spe": 1
+				},
+				"nature": "Naughty",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "heartScale",
+				"id": "mon-4",
+				"stat": "def"
+			},
+			"summary": "Zigzagoon-Galar Defense IV 25 → 31 (Heart Scale spent, 0 left)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Shellos takes the lead — with Turtwig, Pidgey, Ponyta, Bounsweet, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"map": "Route109",
+				"species": "Krabby",
+				"level": 10,
+				"ivs": {
+					"hp": 15,
+					"atk": 12,
+					"def": 29,
+					"spa": 15,
+					"spd": 3,
+					"spe": 19
+				},
+				"nature": "Bashful",
+				"ability": "Sheer Force"
+			},
+			"summary": "caught Krabby at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand",
+				"where": "Route 109"
+			},
+			"summary": "bag: Soft Sand x1 (Route 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Heart Scale",
+				"where": "Route 109"
+			},
+			"summary": "bag: Heart Scale x1 (Route 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand",
+				"where": "Route 109, given by an NPC by the beach."
+			},
+			"summary": "bag: Soft Sand x2 (Route 109, given by an NPC by the beach.)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6",
+					"mon-8"
+				]
+			},
+			"summary": "Pidgey takes the lead — with Turtwig, Ponyta, Bounsweet, Surskit, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-8",
+					"mon-9",
+					"mon-11",
+					"mon-13"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Ponyta, Shellos, Gossifleur, Timburr, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "skip",
+				"trainer": "Camper Gavi",
+				"for": "a box that can afford them"
+			},
+			"summary": "skipping Camper Gavi (#51) — waiting for a box that can afford them",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Shellos takes the lead — with Turtwig, Pidgey, Ponyta, Zigzagoon-Galar, Bounsweet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-8",
+					"mon-9",
+					"mon-11",
+					"mon-13"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Ponyta, Shellos, Gossifleur, Timburr, Krabby",
+			"at": null
+		}
+	],
+	"skipped": [
+		51
+	]
+}

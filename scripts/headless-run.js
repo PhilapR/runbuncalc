@@ -143,6 +143,32 @@ function sweepItems(doc, tally) {
 	return doc;
 }
 
+/**
+ * Every living Pokemon to the level cap, as a player grinds before a fight.
+ * Levels up to the cap are free (levelUp charges Rare Candy only above it),
+ * and levelling fills free move slots. The harness never did this: stored
+ * levels stayed at catch levels (a Turtwig at 5 fighting Gavi at 17 by
+ * projection), so every advice row that needed the real level — a level-up
+ * move, a level evolution — was refused by the command it became.
+ */
+function levelToCap(doc, tally) {
+	let cap;
+	try {
+		cap = run.levelCap(doc).cap;
+	} catch (error) {
+		return doc;
+	}
+	if (cap === null) return doc;
+	for (const mon of doc.box) {
+		if (mon.status === 'dead' || mon.level >= cap) continue;
+		try {
+			doc = run.apply(doc, {kind: 'levelUp', id: mon.id, to: 'cap'});
+			tally.levelUps = (tally.levelUps || 0) + 1;
+		} catch (error) { /* a refused level-up changes nothing */ }
+	}
+	return doc;
+}
+
 /** Teach and (treatment) scale-spend from the same advice the panel shows. */
 function followAdvice(doc, treatment, tally) {
 	// The marts first: a stone the bag holds is an evolve row the advisor
@@ -156,43 +182,56 @@ function followAdvice(doc, treatment, tally) {
 			}
 		} catch (error) { /* a refused buy is a skipped buy */ }
 	}
-	for (let round = 0; round < 5; round++) {
+	// Advice rows are applied best first; one the run refuses is remembered
+	// and passed over, never allowed to end the sweep. The harness used to
+	// parse a teach row as "learn X" — a format the advisor never wrote (its
+	// rows read "Razor Leaf over Growl") — so no headless run ever taught a
+	// move, and the first unparseable row abandoned the rest of the advice.
+	const refused = new Set();
+	for (let round = 0; round < 16; round++) {
 		let advice;
 		try {
 			advice = run.adviseUpgrades(doc);
 		} catch (error) {
 			return doc;
 		}
-		const row = advice.upgrades.find(entry =>
+		const row = advice.upgrades.find(entry => !refused.has(entry.kind + '|' + entry.id + '|' + entry.detail) && (
 			entry.kind === 'teach' ||
 			(entry.kind === 'heartScale' && treatment.keyScales) ||
 			(entry.kind === 'evolve' && treatment.keyEvolve) ||
-			(entry.kind === 'give' && entry.item));
+			(entry.kind === 'give' && entry.item)));
 		if (!row) return doc;
+		refused.add(row.kind + '|' + row.id + '|' + row.detail);
 		try {
-			if (row.kind === 'teach') {
-				const move = /learn (.+?)(?:\s+\(|$)/.exec(row.detail);
-				if (!move) return doc;
-				doc = run.apply(doc, {kind: 'teach', id: row.id, move: move[1].trim()});
-			} else if (row.kind === 'evolve') {
-				doc = run.apply(doc, {kind: 'evolve', id: row.id});
-				tally.evolves = (tally.evolves || 0) + 1;
-			} else if (row.kind === 'give') {
-				doc = run.apply(doc, {kind: 'give', id: row.id, item: row.item});
-				tally.gives = (tally.gives || 0) + 1;
-			} else {
-				const stat = /^(HP|Attack|Defense|Sp\. Atk|Sp\. Def|Speed) IV/.exec(row.detail);
-				if (!stat) return doc;
-				const statKeys = {HP: 'hp', Attack: 'atk', Defense: 'def',
-					'Sp. Atk': 'spa', 'Sp. Def': 'spd', Speed: 'spe'};
-				doc = run.apply(doc, {kind: 'heartScale', id: row.id, stat: statKeys[stat[1]]});
-				tally.scaleSpends += 1;
-			}
-		} catch (error) {
-			return doc;
-		}
+			doc = applyAdvice(doc, row, tally);
+		} catch (error) { /* refused: remembered, and the sweep moves on */ }
 	}
 	return doc;
+}
+
+/** One advice row as the run command the panel would post. */
+function applyAdvice(doc, row, tally) {
+	if (row.kind === 'teach') {
+		const pair = /^(.+?)(?: over (.+?))?(?: \(|$)/.exec(row.detail || '');
+		if (!pair) throw new Error('teach row not understood: ' + row.detail);
+		const next = run.apply(doc, Object.assign({kind: 'teach', id: row.id, move: pair[1].trim()},
+			pair[2] ? {replace: pair[2].trim()} : {}));
+		tally.teaches = (tally.teaches || 0) + 1;
+		return next;
+	}
+	if (row.kind === 'evolve') {
+		tally.evolves = (tally.evolves || 0) + 1;
+		return run.apply(doc, {kind: 'evolve', id: row.id});
+	}
+	if (row.kind === 'give') {
+		tally.gives = (tally.gives || 0) + 1;
+		return run.apply(doc, {kind: 'give', id: row.id, item: row.item});
+	}
+	const stat = /^(HP|Attack|Defense|Sp\. Atk|Sp\. Def|Speed) IV/.exec(row.detail);
+	if (!stat) throw new Error('scale row not understood: ' + row.detail);
+	const statKeys = {HP: 'hp', Attack: 'atk', Defense: 'def', 'Sp. Atk': 'spa', 'Sp. Def': 'spd', Speed: 'spe'};
+	tally.scaleSpends += 1;
+	return run.apply(doc, {kind: 'heartScale', id: row.id, stat: statKeys[stat[1]]});
 }
 
 function bestParty(doc) {
@@ -222,7 +261,7 @@ function bestParty(doc) {
 	}
 }
 
-function playRun(policy, starter, seed, treatment) {
+function playRun(policy, starter, seed, treatment, options) {
 	const random = dice(seed);
 	let doc = run.createRun({name: 'headless', now: 't0',
 		levelCap: 'next-milestone-ace', permadeath: false, onePerRoute: true,
@@ -251,6 +290,7 @@ function playRun(policy, starter, seed, treatment) {
 		const shape = doc.box.length + '|' + JSON.stringify(doc.bag) + '|' + doc.position;
 		if (shape !== lastShape) {
 			lastShape = shape;
+			doc = levelToCap(doc, tally);
 			doc = followAdvice(doc, treatment, tally);
 			doc = bestParty(doc);
 		}
@@ -292,6 +332,7 @@ function playRun(policy, starter, seed, treatment) {
 				tally.skipped.push({trainer: next.trainer, why: 'retries spent'});
 				attempts = 0;
 			} catch (error) {
+				tally.stopped = next.trainer + ': ' + error.message;
 				break;
 			}
 		}
@@ -305,12 +346,15 @@ function playRun(policy, starter, seed, treatment) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
-		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, levelUps: tally.levelUps || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
-		skipped: tally.skipped, engineRefusals: tally.engineRefusals,
+		skipped: tally.skipped, engineRefusals: tally.engineRefusals, stopped: tally.stopped || null,
 		seconds: Math.round((Date.now() - started) / 1000),
+		// The document where the run ended, when asked for: a stall is a
+		// battery scenario waiting to be written.
+		...(options && options.keepDoc ? {doc} : {}),
 		stalls: Object.keys(tally.trainers).filter(name => tally.trainers[name].attempts > 1)
 			.map(name => ({trainer: name, attempts: tally.trainers[name].attempts,
 				wins: tally.trainers[name].wins})),
@@ -391,4 +435,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, dice, armFlags};
+module.exports = {playRun, dice, armFlags, followAdvice, levelToCap};
