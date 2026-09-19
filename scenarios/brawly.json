@@ -1,0 +1,121 @@
+{
+	"comment": "The 19 leaders.json boxes whose next leader is Brawly, at 20 seeds: the set for measuring early-catch counterfactuals (--swap-catch) against the first gym wall. Every box caught a non-answer on Route 104, and Brawly's named answers Salandit, Combee (Vespiquen) and Yanma are all in that table.",
+	"generator": null,
+	"measured": [],
+	"scenarios": [
+		{
+			"name": "Leader Brawly [brbank1-A-1]",
+			"report": "fixtures/banked-runs/brbank1-A-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys1-A-2]",
+			"report": "fixtures/banked-runs/brkeys1-A-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys1-B-1]",
+			"report": "fixtures/banked-runs/brkeys1-B-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys2-A-1]",
+			"report": "fixtures/banked-runs/brkeys2-A-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys2-A-2]",
+			"report": "fixtures/banked-runs/brkeys2-A-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys2-B-1]",
+			"report": "fixtures/banked-runs/brkeys2-B-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-3]",
+			"report": "fixtures/banked-runs/brkeys3-A-3.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-4]",
+			"report": "fixtures/banked-runs/brkeys3-A-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-5]",
+			"report": "fixtures/banked-runs/brkeys3-A-5.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-6]",
+			"report": "fixtures/banked-runs/brkeys3-A-6.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-8]",
+			"report": "fixtures/banked-runs/brkeys3-A-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-2]",
+			"report": "fixtures/banked-runs/brkeys3-B-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-4]",
+			"report": "fixtures/banked-runs/brkeys3-B-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-8]",
+			"report": "fixtures/banked-runs/brkeys3-B-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-4]",
+			"report": "fixtures/banked-runs/brkeys3b-A-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-6]",
+			"report": "fixtures/banked-runs/brkeys3b-A-6.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-7]",
+			"report": "fixtures/banked-runs/brkeys3b-A-7.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-8]",
+			"report": "fixtures/banked-runs/brkeys3b-A-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-B-5]",
+			"report": "fixtures/banked-runs/brkeys3b-B-5.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		}
+	]
+}
