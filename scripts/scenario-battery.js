@@ -271,7 +271,7 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 		(options && options.search !== undefined) ||
 		/Leader|Elite|Champion|Rival|Admin|Wally|Maxie|Archie|Chelle/i.test(trainer))) {
 		const searched = driver.playSearch(doc, trainer, seed, {rollouts: searchRollouts});
-		return Object.assign({foe: null, counters: {}, refused: [], policy: 'search-' + searchRollouts}, searched);
+		return Object.assign({counters: {}, refused: [], policy: 'search-' + searchRollouts}, searched);
 	}
 	if (require('../lib/planner').getFight(trainer, doc.profileId).isDouble) {
 		const doubles = driver.playDoubles(doc, trainer, seed);

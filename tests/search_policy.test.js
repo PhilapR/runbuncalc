@@ -28,6 +28,8 @@ test('a searched fight ends, refuses nothing, and is the same fight on the same 
 	assert.ok(['win', 'loss'].includes(a.result), a.result);
 	assert.equal(a.engineRefusals, 0);
 	assert.deepEqual([a.result, a.turns, a.deaths], [b.result, b.turns, b.deaths]);
+	assert.equal(a.foe.of, require('../lib/planner').getFight(trainer, doc.profileId).party.length);
+	assert.equal(a.foe.alive === 0, a.result === 'win', 'a win leaves no foe standing: ' + JSON.stringify(a.foe));
 });
 
 test('the battery plays a fight by search when asked, and says so', () => {
