@@ -443,11 +443,19 @@ function effectiveDefaults() {
  * living catch from MAP. Built to ask whether an early catch plan moves the
  * gym walls (Brawly's named answers are all catchable by Route 104).
  */
+function reachableByLevel(species, form, level) {
+	const evolutions = require('../profiles/run-and-bun/oracle/evolutions.json');
+	if (species === form) return true;
+	return (evolutions[species] || []).some(path => path.method === 'level' && path.level <= level &&
+		reachableByLevel(path.into, form, level));
+}
+
 function swapCatch(doc, spec) {
-	const hit = /^(MAP_[A-Z0-9_]+):([^:]+)$/.exec(spec);
-	if (!hit) throw new Error('--swap-catch is MAP_NAME:Species, not ' + JSON.stringify(spec));
+	const hit = /^(MAP_[A-Z0-9_]+):([^:>]+)(?:>([^:>]+))?$/.exec(spec);
+	if (!hit) throw new Error('--swap-catch is MAP_NAME:Species or MAP_NAME:Species>Form, not ' + JSON.stringify(spec));
 	const map = hit[1];
 	const species = hit[2];
+	const form = hit[3] || null;
 	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
 	const table = oracle.encountersOn(map);
 	if (!table || !(table.mons || []).some(entry => entry.species === species)) {
@@ -458,7 +466,13 @@ function swapCatch(doc, spec) {
 	const dossier = require('../lib/dossier');
 	const calc = require('../calc');
 	const old = doc.box[index];
-	const fielded = dossier.evolveTo(species, old.level);
+	// A branching line (Tyrogue: Hitmonchan, Hitmonlee or Hitmontop by its
+	// stats) has no condition in the evolution data, and evolveTo takes the
+	// first path; >Form names the branch, and must be one the level reaches.
+	const fielded = form === null ? dossier.evolveTo(species, old.level) : form;
+	if (form !== null && !reachableByLevel(species, form, old.level)) {
+		throw new Error('--swap-catch: ' + species + ' does not become ' + form + ' by level ' + old.level);
+	}
 	const found = calc.Generations.get(8).species.get(calc.toID(fielded));
 	if (!found) throw new Error('--swap-catch: no species data for ' + fielded);
 	const next = structuredClone(doc);

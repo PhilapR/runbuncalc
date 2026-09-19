@@ -740,3 +740,18 @@ test('the planner names a catch only when it beats the box\'s own', () => {
 	assert.equal(namedCatch({Yanma: 2, Combee: 2}, 0), 'Combee', 'a tie between better catches is alphabetical');
 	assert.equal(namedCatch({}, 0), null);
 });
+
+test('--swap-catch names a branch the evolution data cannot choose, and refuses one the level never reaches', () => {
+	// Tyrogue branches by its stats at 20; the data has three unconditioned
+	// level-20 paths and evolveTo takes the first.
+	const doc = battery.loadDocument('fixtures/banked-runs/brkeys3-A-5.run.json');
+	assert.equal(battery.swapCatch(doc, 'MAP_DEWFORD_TOWN:Tyrogue').swapped.fielded, 'Hitmonchan');
+	for (const form of ['Hitmonchan', 'Hitmonlee', 'Hitmontop']) {
+		const out = battery.swapCatch(doc, 'MAP_DEWFORD_TOWN:Tyrogue>' + form);
+		assert.equal(out.swapped.fielded, form);
+		assert.deepEqual(out.doc.box.find(mon => mon.id === out.swapped.id).moves,
+			require('../lib/dossier').lastFourMoves(form, 21));
+	}
+	assert.throws(() => battery.swapCatch(doc, 'MAP_DEWFORD_TOWN:Tyrogue>Machamp'), /does not become Machamp/);
+	assert.throws(() => battery.swapCatch(doc, 'MAP_DEWFORD_TOWN:Timburr>Conkeldurr'), /does not become Conkeldurr by level 21/);
+});
