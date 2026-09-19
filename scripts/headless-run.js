@@ -50,8 +50,11 @@ const STARTERS = [
 	{species: 'Chimchar', rival: 'Swampert'},
 	{species: 'Piplup', rival: 'Sceptile'},
 ];
-const RETRIES = 12;
-const BOSS_RETRIES = 20;
+// Attempts at one fight before a delayable fight is skipped or the run
+// stops. Retrying is allowed on this rung (no permadeath); the cost is
+// counted in fights, the efficiency measure.
+const RETRIES = Number(flag('retries', '12'));
+const BOSS_RETRIES = Number(flag('boss-retries', '20'));
 const FIGHT_BUDGET = Number(flag('budget', '110'));
 const SKIP_DOUBLES = flag('skip-doubles', '0') === '1';
 const BOSS = /Leader|Elite|Champion|Rival|Admin|Chelle|Wally|Soupercell/i;
