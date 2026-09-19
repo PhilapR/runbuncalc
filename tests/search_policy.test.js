@@ -79,3 +79,21 @@ test('a lean action list drops only the voluntary switches\' pricing', () => {
 	assert.deepEqual(lean.filter(entry => entry.kind === 'move').map(entry => entry.damage),
 		full.filter(entry => entry.kind === 'move').map(entry => entry.damage), 'move damage is untouched');
 });
+
+test('pick-by-play selects on decide() even when the fight itself is searched', () => {
+	const saved = process.argv;
+	const search = driver.playSearch;
+	process.argv = ['node', 'battery', '--search=8', '--pick-by-play=2', '--pick-seeds=1'];
+	let starts = 0;
+	const start = driver.start;
+	try {
+		driver.playSearch = () => { throw new Error('selection searched a fight'); };
+		driver.start = function counted() { starts++; return start.apply(this, arguments); };
+		battery.prepareDocument(box(), 'Bug Catcher Lyle', require('../scripts/ui-playthrough.js'));
+	} finally {
+		driver.playSearch = search;
+		driver.start = start;
+		process.argv = saved;
+	}
+	assert.ok(starts >= 2, 'the candidates were played on decide(): ' + starts);
+});

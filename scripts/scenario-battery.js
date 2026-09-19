@@ -418,7 +418,10 @@ function pickByPlay(policy, doc, trainer, parties, seeds) {
 		const candidate = run.apply(doc, {kind: 'party', ids: sixOf(party)});
 		let wins = 0;
 		for (let offset = 1; offset <= seeds; offset++) {
-			if (playScenario(policy, candidate, trainer, SELECTION_SEED_BASE + offset).result === 'win') wins++;
+			// Selection plays on decide(), never search: 36 searched fights
+			// would cost half an hour to choose a six.
+			if (playScenario(policy, candidate, trainer, SELECTION_SEED_BASE + offset, undefined,
+				{search: 0}).result === 'win') wins++;
 		}
 		return wins;
 	});

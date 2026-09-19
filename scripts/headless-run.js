@@ -396,6 +396,17 @@ function playRun(policy, starter, seed, treatment, options) {
 				continue;
 			} catch (error) { break; }
 		}
+		// A fight lost --repick-after times (default off) has its six chosen
+		// by play (the battery's pick-by-play on decide(), ~10 s), and again
+		// every six losses after: the ranker's first six may be the one six in
+		// the box that cannot win it.
+		const repickAfter = Number(flag('repick-after', '0'));
+		if (repickAfter > 0 && attempts >= repickAfter && (attempts - repickAfter) % 6 === 0 && !next.isDouble) {
+			try {
+				doc = battery.prepareDocument(doc, next.trainer, policy).doc;
+				tally.repicks = (tally.repicks || 0) + 1;
+			} catch (error) { /* keep the six it has */ }
+		}
 		// A fight lost twice is played by search from then on (--search-after,
 		// default off): decide() has shown it cannot, and search costs about a
 		// minute a fight, so it is spent only where it is needed.
@@ -445,7 +456,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
-		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, levelUps: tally.levelUps || 0,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, levelUps: tally.levelUps || 0, repicks: tally.repicks || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
