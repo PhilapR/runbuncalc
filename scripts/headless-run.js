@@ -489,6 +489,21 @@ function nextFight(doc, waiting) {
 	return run.upcoming(doc, 1000).find(fight => waiting.get(fight.order) !== capNow) || null;
 }
 
+/**
+ * What a result was produced by: the revision, whether the tree was clean,
+ * and every --flag on argv. A run that cannot say which code played it
+ * cannot be reviewed, replayed, or repaired (scripts/audit-run.js).
+ */
+function provenance() {
+	const git = args => {
+		const out = require('node:child_process').spawnSync('git', args, {cwd: process.cwd(), encoding: 'utf8'});
+		return out.status === 0 ? out.stdout.trim() : null;
+	};
+	const status = git(['status', '--porcelain', '--untracked-files=no']);
+	return {revision: git(['rev-parse', 'HEAD']), dirty: status === null ? null : status.length > 0,
+		flags: process.argv.filter(arg => arg.startsWith('--')), date: new Date().toISOString()};
+}
+
 function playRun(policy, starter, seed, treatment, options) {
 	// A run is judged against the game, so moves spend PP (--pp-model=0 plays
 	// on infinite fuel, as every run before 2026-09-19 did). Infinite PP let
@@ -503,7 +518,11 @@ function playRun(policy, starter, seed, treatment, options) {
 
 	const tally = {catches: 0, keyRolls: 0, scaleSpends: 0, pickups: 0,
 		stoneBuys: 0, evolves: 0, gives: 0,
-		trainers: {}, fights: 0, skipped: [], engineRefusals: 0};
+		trainers: {}, fights: 0, skipped: [], engineRefusals: 0,
+		// Every attempt, in order: enough to find a fight and replay it on its
+		// seed (battery.playScenario on the document at that position).
+		ledger: []};
+	const made = provenance();
 	const started = Date.now();
 	const caughtFrom = new Set();
 	// An owed fight (a skipped double, Gavi) whose retries are spent waits
@@ -571,6 +590,9 @@ function playRun(policy, starter, seed, treatment, options) {
 		const played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, undefined, searching);
 		tally.fights += 1;
 		tally.engineRefusals += played.engineRefusals || 0;
+		tally.ledger.push({n: tally.fights, order: next.order, trainer: next.trainer, seed: fightSeed,
+			position: doc.position, result: played.result, policy: played.policy || (searching ? 'search' : 'decide'),
+			refusals: played.engineRefusals || 0, turns: played.turns, deaths: played.deaths});
 		const t = tally.trainers[next.trainer] =
 			tally.trainers[next.trainer] || {attempts: 0, wins: 0};
 		t.attempts += 1;
@@ -610,7 +632,7 @@ function playRun(policy, starter, seed, treatment, options) {
 	}
 	const gavi = tally.trainers['Camper Gavi'] || {attempts: 0, wins: 0};
 	const brawly = tally.trainers['Leader Brawly'] || {attempts: 0, wins: 0};
-	return {
+	const row = {
 		starter: starter.species, seed,
 		position: doc.position,
 		fight: doc.position > 0 ? (run.trainerIndexOf(doc, doc.position) || 0) : 0,
@@ -622,6 +644,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
 		skipped: tally.skipped, engineRefusals: tally.engineRefusals, stopped: tally.stopped || null,
+		provenance: made, ledger: tally.ledger,
 		seconds: Math.round((Date.now() - started) / 1000),
 		// The document where the run ended, when asked for: a stall is a
 		// battery scenario waiting to be written.
@@ -630,6 +653,11 @@ function playRun(policy, starter, seed, treatment, options) {
 			.map(name => ({trainer: name, attempts: tally.trainers[name].attempts,
 				wins: tally.trainers[name].wins})),
 	};
+	// Every result that keeps its document arrives audited: the rules replayed,
+	// one catch per area, removed species, the cap, and how each win was
+	// bought (scripts/audit-run.js). A run beats the game only if this says so.
+	if (options && options.keepDoc) row.audit = require('./audit-run.js').auditRun(row);
+	return row;
 }
 
 function summarise(rows) {
@@ -706,4 +734,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
+module.exports = {playRun, startRun, nextFight, provenance, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
