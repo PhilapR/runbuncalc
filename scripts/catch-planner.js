@@ -51,7 +51,7 @@ function planRoute(policy, doc, trainer, map, seeds) {
 	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
 	const table = oracle.encountersOn(map);
 	if (!table) throw new Error('no encounter table for ' + map);
-	const open = method => !oracle.methodOpensAt || (oracle.methodOpensAt(method) || 0) <= (doc.position || 0) + 1;
+	const open = method => !oracle.methodOpensAt || (oracle.methodOpensAt(method, map) || 0) <= (doc.position || 0) + 1;
 	const byMethod = {};
 	for (const entry of table.mons) {
 		if (!open(entry.method)) continue;
@@ -138,7 +138,7 @@ function planFromValues(doc, values, options) {
 		if (!opts.fresh && rules.onePerRoute && doc.box.some(mon => mon.origin && mon.origin.map === map)) continue;
 		const methods = {};
 		for (const entry of table.mons) {
-			const gate = oracle.methodOpensAt ? oracle.methodOpensAt(entry.method) : 0;
+			const gate = oracle.methodOpensAt ? oracle.methodOpensAt(entry.method, map) : 0;
 			if (gate !== null && gate > order) continue;
 			if (lines.has(run.dupeKey(rules.dupes, profile, entry.species))) continue;
 			methods[entry.method] = methods[entry.method] || {};

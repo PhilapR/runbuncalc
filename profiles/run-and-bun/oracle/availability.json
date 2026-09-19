@@ -1144,7 +1144,12 @@
 			"name": "Route118",
 			"opensAt": 195,
 			"method": "anchor",
-			"rabMinOrder": 58
+			"rabMinOrder": 58,
+			"methodOpens": {
+				"walk": 618
+			},
+			"provenance": "corrected",
+			"correction": "Philip, from play: part of Route 118 opens later. The official Item Locations sheet splits it into 'the beach connected to Mauville' (the move-tutor Black Belt, a hidden item) and 'the beach connected to Route 119'; the Trainer Battles doc lists its trainers after Leader Flannery (Swimmer Rose & Deandre, 618). The route opens at 195 for the Mauville beach, and its Level 20 fishing with it; its Level 50 grass waits for 618 (cap 65). At 195 (cap 35) a run caught Level 50 Beedrill and Araquanid and fielded them 15 levels over the cap against Wally and Wattson (sweep 10, found by scripts/audit-run.js)."
 		},
 		{
 			"map": "MAP_MIRAGE_TOWER_3F",
@@ -1196,7 +1201,12 @@
 			"name": "Route115",
 			"opensAt": 486,
 			"method": "anchor",
-			"rabMinOrder": 134
+			"rabMinOrder": 134,
+			"methodOpens": {
+				"walk": 1537
+			},
+			"provenance": "corrected",
+			"correction": "Route 115's grass is Level 90 in the official encounter sheet; the Trainer Battles doc lists Route 115 twice, the second section after Leader Juan and Victory Road Vito (first: Triathlete Kyra, 1537, cap 99). The route itself opens at 486 (its early trainers) and its fishing (Level 14) and surfing (Level 50, after Surf) are that section's; only the grass waits for 1537."
 		},
 		{
 			"map": "MAP_ROUTE112",
@@ -1649,7 +1659,12 @@
 			"name": "Route130",
 			"opensAt": 1288,
 			"method": "anchor",
-			"rabMinOrder": 352
+			"rabMinOrder": 352,
+			"methodOpens": {
+				"walk": 1625
+			},
+			"provenance": "corrected",
+			"correction": "Route 130's grass (Mirage Island) is Level 100 in the official encounter sheet, above every cap the road reaches (99); it is post-game for this run, so the grass waits for the Champion (1625). Its water (Level 80) stays at 1288."
 		},
 		{
 			"map": "MAP_PACIFIDLOG_TOWN",

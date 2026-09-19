@@ -119,7 +119,7 @@ const COMMANDS = {
 			(when.provenance ? ' (' + when.provenance + ')' : '') : 'undated'}`);
 		const gates = {};
 		for (const mon of table.mons || []) {
-			const at = oracle.methodOpensAt(mon.method);
+			const at = oracle.methodOpensAt(mon.method, map.name);
 			const label = at ? `needs ${mon.method} (fight ${at})` : 'available now';
 			if (!gates[label]) gates[label] = [];
 			gates[label].push(mon);

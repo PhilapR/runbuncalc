@@ -629,9 +629,14 @@ function availabilityOf(name) {
  * their HMs. Reaching a route is not the same as being able to fish its
  * water dry — both gates have to hold before a slot is a real prospect.
  */
-function methodOpensAt(method) {
+function methodOpensAt(method, mapName) {
 	const gates = load('availability').methods || {};
-	return gates[method] !== undefined ? gates[method] : null;
+	const global = gates[method] !== undefined ? gates[method] : null;
+	// A route whose later section carries one method's table (Route 115's
+	// Level 90 grass sits past Leader Juan) gates that method on its own.
+	const own = mapName ? ((availabilityOf(mapName) || {}).methodOpens || {})[method] : undefined;
+	if (own === undefined) return global;
+	return global === null ? own : Math.max(global, own);
 }
 
 /**
