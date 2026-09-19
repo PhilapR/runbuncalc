@@ -62,3 +62,25 @@ test('a move the turn made fail is used and fails, not refused', () => {
 	assert.ok(fought.includes('Ruin Maniac Georgie'), fought.join(', '));
 	assert.deepEqual(refused, []);
 });
+
+test('a Baton Pass brings its replacement in, on either side', () => {
+	// Battle Girl Vivian's Prankster Volbeat passed and stayed listed active,
+	// because the driver read only pendingForcedSwitchIds; our Double-Edge at
+	// it was refused.
+	const driver = require('../lib/battle-driver.js');
+	const doc = battery.loadDocument(require('node:path').join(__dirname, '..', 'fixtures', 'banked-runs',
+		'sv-14.run.json'));
+	const state = driver.start(doc, 'Leader Wattson', 1).battle.state;
+	const foe = state.sides.ai.activeIds[0];
+	// The engine checks the passer knows the move, so the foe is taught it.
+	const passed = Object.assign(structuredClone(state), {pendingBatonPassIds: [foe]});
+	const passer = passed.sides.ai.party.find(mon => mon.id === foe);
+	passer.moves[passer.moves.length - 1] = Object.assign({}, passer.moves[0], {name: 'Baton Pass'});
+	const settled = driver.settleAiSide(passed, []);
+	assert.notEqual(settled.sides.ai.activeIds[0], foe, 'the foe\'s replacement came in');
+	assert.ok(!(settled.pendingBatonPassIds || []).includes(foe));
+	const ours = state.sides.player.activeIds[0];
+	assert.equal(driver.phaseOf(Object.assign({}, state, {pendingBatonPassIds: [ours]})), 'replace',
+		'our pass asks us for the replacement');
+	assert.equal(driver.phaseOf(state), 'choose');
+});
