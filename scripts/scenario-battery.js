@@ -257,6 +257,15 @@ function requireWholeReceipt(receipt) {
  * scripts/battery-tape.js replays any receipt's seed on demand instead.
  */
 function playScenario(policy, doc, trainer, seed, tape) {
+	// A double battle is played by the driver's two-slot loop, both sides on
+	// the engine's trainer AI: decide() reads a one-active view. The row says
+	// which policy fought (policy: 'engine-ai-doubles').
+	if (require('../lib/planner').getFight(trainer, doc.profileId).isDouble) {
+		const doubles = driver.playDoubles(doc, trainer, seed);
+		return {result: doubles.result, turns: doubles.turns, engineRefusals: doubles.engineRefusals,
+			deaths: doubles.deaths, killers: doubles.killers, foe: null, counters: {},
+			policy: 'engine-ai-doubles'};
+	}
 	const roster = (doc.box || []).map(mon => ({id: mon.id, moves: mon.moves}));
 	let reply = driver.start(doc, trainer, seed);
 	let battle = reply.battle;

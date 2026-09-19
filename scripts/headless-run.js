@@ -53,6 +53,7 @@ const STARTERS = [
 const RETRIES = 12;
 const BOSS_RETRIES = 20;
 const FIGHT_BUDGET = Number(flag('budget', '110'));
+const SKIP_DOUBLES = flag('skip-doubles', '0') === '1';
 const BOSS = /Leader|Elite|Champion|Rival|Admin|Chelle|Wally|Soupercell/i;
 
 function armFlags(spec) {
@@ -233,7 +234,8 @@ function playRun(policy, starter, seed, treatment) {
 
 	const tally = {catches: 0, keyRolls: 0, scaleSpends: 0, pickups: 0,
 		stoneBuys: 0, evolves: 0, gives: 0,
-		trainers: {}, fights: 0};
+		trainers: {}, fights: 0, skipped: [], engineRefusals: 0};
+	const started = Date.now();
 	const caughtFrom = new Set();
 	let attempts = 0;
 	let fightSeed = seed;
@@ -255,15 +257,19 @@ function playRun(policy, starter, seed, treatment) {
 		const ahead = run.upcoming(doc, 1);
 		if (!ahead.length) break;
 		const next = ahead[0];
-		if (next.isDouble) {
+		// Doubles are played (driver.playDoubles, both sides on the engine's
+		// trainer AI) unless --skip-doubles=1 asks for the old behaviour.
+		if (next.isDouble && SKIP_DOUBLES) {
 			try {
 				doc = run.apply(doc, {kind: 'skip', trainer: next.trainer,
 					for: 'doubles play is not modeled'});
+				tally.skipped.push({trainer: next.trainer, why: 'double'});
 				continue;
 			} catch (error) { break; }
 		}
 		const played = battery.playScenario(policy, doc, next.trainer, ++fightSeed);
 		tally.fights += 1;
+		tally.engineRefusals += played.engineRefusals || 0;
 		const t = tally.trainers[next.trainer] =
 			tally.trainers[next.trainer] || {attempts: 0, wins: 0};
 		t.attempts += 1;
@@ -283,6 +289,7 @@ function playRun(policy, starter, seed, treatment) {
 			try {
 				doc = run.apply(doc, {kind: 'skip', trainer: next.trainer,
 					for: 'a box that can afford them'});
+				tally.skipped.push({trainer: next.trainer, why: 'retries spent'});
 				attempts = 0;
 			} catch (error) {
 				break;
@@ -299,6 +306,14 @@ function playRun(policy, starter, seed, treatment) {
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
 		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives,
+		// What "beat the game" is judged on: the road finished, nothing skipped,
+		// no win bought by an engine refusal.
+		finished: run.upcoming(doc, 1).length === 0,
+		skipped: tally.skipped, engineRefusals: tally.engineRefusals,
+		seconds: Math.round((Date.now() - started) / 1000),
+		stalls: Object.keys(tally.trainers).filter(name => tally.trainers[name].attempts > 1)
+			.map(name => ({trainer: name, attempts: tally.trainers[name].attempts,
+				wins: tally.trainers[name].wins})),
 	};
 }
 
