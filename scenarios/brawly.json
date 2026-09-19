@@ -155,6 +155,111 @@
 			"date": "2026-09-18",
 			"verdict": "recorded",
 			"note": "--swap-catch=MAP_ROUTE104:weedle at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "early-ctl-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-dewford-chan-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_DEWFORD_TOWN:Tyrogue>Hitmonchan at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-dewford-lee-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_DEWFORD_TOWN:Tyrogue>Hitmonlee at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-dewford-top-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_DEWFORD_TOWN:Tyrogue>Hitmontop at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-granite-phanpy-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_GRANITE_CAVE_1F:Phanpy at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-oldale-fletchling-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_OLDALE_TOWN:Fletchling at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-petalburg-tympole-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_PETALBURG_CITY:Tympole at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r101-lillipup-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE101:Lillipup at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r101-pidgey-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE101:Pidgey at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r101-poochyena-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE101:Poochyena at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r101-starly-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE101:Starly at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r107-horsea-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE107:Horsea at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r110-shinx-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE110:Shinx at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-slateport-qwilfish-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_SLATEPORT_CITY:Qwilfish at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-woods-gossifleur-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_PETALBURG_WOODS:Gossifleur at 9d0f602, adopted defaults, real PP"
 		}
 	],
 	"scenarios": [
