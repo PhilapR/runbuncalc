@@ -132,3 +132,36 @@ test('a move for the ally alone, whose ally fell earlier in the turn, is used an
 		.map(event => event.text).join(' | '));
 	assert.ok(played.events.some(event => event.turn === 6 && /^Poliwrath used Coaching/.test(event.text)));
 });
+
+test('the refusals the doubles audit found are played through', () => {
+	// Every double against every fourth banked box (2,480 fights, 2026-09-19):
+	// 19 raised a refusal. Life Dew whose ally fell and Encore's Synthesis had
+	// no aim at the user itself; a body Whirlwind dragged out, or Emergency
+	// Exit took, still used the move it had queued.
+	const cases = [
+		['br-9.run.json', 'Twins Amy And Liv', 'Life Dew'],
+		['br-14.run.json', 'Old Couple John And Jay', 'Synthesis'],
+		['choice-roxanne-max.run.json', 'Psychic Blake & Samantha', 'Trick Room'],
+		['brheal1-B-2.run.json', 'Cool Trainer Julie & Dianne', 'Leech Life'],
+	];
+	for (const [file, trainer, move] of cases) {
+		const box = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', file));
+		const played = driver.playDoubles(box, trainer, 1);
+		assert.equal(played.engineRefusals, 0, trainer + ' (' + move + '): ' + played.events
+			.filter(event => event.engineRefusal).map(event => event.text).join(' | '));
+	}
+});
+
+test('a stall on infinite fuel ends once moves spend PP', () => {
+	// Moody Smeargle's Protect, Substitute and Dark Void held Seadra and
+	// Lumineon for 300 turns at Young Couple Dez And Luke: legal in this fork
+	// (Moody still raises evasion), and over once the PP runs out.
+	const box = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', 'rank5-A-1.run.json'));
+	try {
+		driver.setPPModel(true);
+		const played = driver.playDoubles(box, 'Young Couple Dez And Luke', 1);
+		assert.ok(['win', 'loss'].includes(played.result), 'ended ' + played.result + ' at turn ' + played.turns);
+	} finally {
+		driver.setPPModel(false);
+	}
+});
