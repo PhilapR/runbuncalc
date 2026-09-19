@@ -1,7 +1,64 @@
 {
 	"comment": "The 19 leaders.json boxes whose next leader is Brawly, at 20 seeds: the set for measuring early-catch counterfactuals (--swap-catch) against the first gym wall. Every box caught a non-answer on Route 104, and Brawly's named answers Salandit, Combee (Vespiquen) and Yanma are all in that table.",
 	"generator": null,
-	"measured": [],
+	"measured": [
+		{
+			"label": "r104-ctl-s0-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control, the box as caught at b3af778, adopted defaults, real PP, shard 0/2"
+		},
+		{
+			"label": "r104-ctl-s1-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control, the box as caught at b3af778, adopted defaults, real PP, shard 1/2"
+		},
+		{
+			"label": "r104-salandit-s0-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Salandit at b3af778, adopted defaults, real PP, shard 0/2"
+		},
+		{
+			"label": "r104-salandit-s1-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Salandit at b3af778, adopted defaults, real PP, shard 1/2"
+		},
+		{
+			"label": "r104-combee-s0-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Combee (fielded as Vespiquen) at b3af778, adopted defaults, real PP, shard 0/2"
+		},
+		{
+			"label": "r104-combee-s1-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Combee (fielded as Vespiquen) at b3af778, adopted defaults, real PP, shard 1/2"
+		},
+		{
+			"label": "r104-yanma-s0-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Yanma at b3af778, adopted defaults, real PP, shard 0/2"
+		},
+		{
+			"label": "r104-yanma-s1-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Yanma at b3af778, adopted defaults, real PP, shard 1/2"
+		}
+	],
 	"scenarios": [
 		{
 			"name": "Leader Brawly [brbank1-A-1]",
