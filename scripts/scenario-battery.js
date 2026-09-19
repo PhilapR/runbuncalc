@@ -260,6 +260,15 @@ function playScenario(policy, doc, trainer, seed, tape) {
 	// A double battle is played by the driver's two-slot loop, both sides on
 	// the engine's trainer AI: decide() reads a one-active view. The row says
 	// which policy fought (policy: 'engine-ai-doubles').
+	// --search=K plays the fight by search (driver.playSearch, K rollouts an
+	// action) instead of decide(); --search-bosses=1 limits it to bosses.
+	const searchRollouts = Number(flag('search', '0'));
+	const fightInfo = require('../lib/planner').getFight(trainer, doc.profileId);
+	if (searchRollouts > 0 && !fightInfo.isDouble && (flag('search-bosses', '0') !== '1' ||
+		/Leader|Elite|Champion|Rival|Admin|Wally|Maxie|Archie|Chelle/i.test(trainer))) {
+		const searched = driver.playSearch(doc, trainer, seed, {rollouts: searchRollouts});
+		return Object.assign({foe: null, counters: {}, refused: [], policy: 'search-' + searchRollouts}, searched);
+	}
 	if (require('../lib/planner').getFight(trainer, doc.profileId).isDouble) {
 		const doubles = driver.playDoubles(doc, trainer, seed);
 		return {result: doubles.result, turns: doubles.turns, engineRefusals: doubles.engineRefusals,
@@ -679,7 +688,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'shard'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
