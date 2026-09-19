@@ -467,7 +467,8 @@ function effectivePick() {
  */
 function effectiveDefaults() {
 	const banked = flag('repick-party', '1') === '0';
-	return {'switch-priced': flag('switch-priced', '1'), 'repick-party': flag('repick-party', '1'),
+	return {'switch-priced': flag('switch-priced', '1'), 'real-speed': flag('real-speed', '1'),
+		'repick-party': flag('repick-party', '1'),
 		'pick-by-play': effectivePick(), 'pick-seeds': flag('pick-seeds', PICK_SEEDS),
 		'set-exposure': banked ? '0' : flag('set-exposure', String(run.EXPOSURE_WEIGHT))};
 }
@@ -718,7 +719,7 @@ function main() {
 	driver.setSwitchPricing(flag('switch-priced', '1') === '1');
 	// Where the foe will be when our move lands (Fly, Bounce, Dig, Dive).
 	driver.setHidingForecast(flag('hiding-forecast', '0') === '1');
-	driver.setRealSpeed(flag('real-speed', '0') === '1');
+	driver.setRealSpeed(flag('real-speed', '1') === '1');
 	driver.setChargeThreat(flag('charge-threat', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');

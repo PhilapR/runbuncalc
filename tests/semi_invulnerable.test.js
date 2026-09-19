@@ -76,7 +76,7 @@ test('a hiding foe that moves first is priced where it will be, behind a switch'
 	assert.ok(ground.Tackle > 0);
 });
 
-test('races read the engine Speed behind a switch; off, they read the old zero', () => {
+test('races read the engine Speed; switched off, they read the old zero', () => {
 	// Off, every Speed read 0 and no body was ever "faster". A Level 30
 	// Starly outruns Bug Catcher Rick's lead by any count.
 	const driver = require('../lib/battle-driver.js');
@@ -87,14 +87,14 @@ test('races read the engine Speed behind a switch; off, they read the old zero',
 	const state = planner.buildFightState({trainer: 'Bug Catcher Rick', playerParty: [lead, bench],
 		profileId: 'run-and-bun'}).state;
 	const starly = state.sides.player.party.find(mon => mon.species === 'Starly').id;
-	assert.equal(driver.benchRace(state, starly).faster, false, 'the old zero');
+	const before = driver.realSpeedReads();
+	assert.equal(driver.benchRace(state, starly).faster, true, 'faster on the engine Speed, by default');
+	assert.ok(driver.realSpeedReads() > before, 'the switch served the read');
 	try {
-		driver.setRealSpeed(true);
-		const before = driver.realSpeedReads();
-		assert.equal(driver.benchRace(state, starly).faster, true, 'faster on the engine Speed');
-		assert.ok(driver.realSpeedReads() > before, 'the switch served the read');
-	} finally {
 		driver.setRealSpeed(false);
+		assert.equal(driver.benchRace(state, starly).faster, false, 'the old zero');
+	} finally {
+		driver.setRealSpeed(true);
 	}
 });
 

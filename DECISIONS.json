@@ -341,6 +341,18 @@
 				"tests/run_rank.test.js",
 				"tests/battery_receipts.test.js"
 			]
+		},
+		{
+			"id": "races-read-the-engine-speed",
+			"date": "2026-09-19",
+			"ruling": "The race, the threat line and the switch prices read each Pokemon's effective Speed from the engine (ai.getEffectivePokemonSpeed). --real-speed=0 (driver.setRealSpeed(false)) restores the old constant zero for arms that measure against it; battery-tape.js replays a receipt without the record at 0.",
+			"why": "speedOf called ai.buildStats, which the engine never exported, so from 3b9f53e (2026-08-21) every Speed read 0: no body was ever faster, every tied race read lost, and the threat line said \"they act first\" on every turn. Bar declared before the run (not worse on heldout2 + heldout3, real PP, no fight net -5): 154 fights, wins 2686 -> 2718, +92 -60, net +32, p = 0.012, no fight net -5. Adopted on the declared bar as an engine-deficiency fix inside the operator's standing request, not by a separate operator ruling; the operator may overrule.",
+			"enforcedBy": [
+				"lib/battle-driver.js",
+				"tests/semi_invulnerable.test.js",
+				"scripts/scenario-battery.js",
+				"scripts/headless-run.js"
+			]
 		}
 	],
 	"open": [
