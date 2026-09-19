@@ -60,3 +60,13 @@ test('the harness applies the advisor\'s teach rows as the advisor writes them',
 	assert.ok(taught.box.some(mon => mon.moves.includes(move)) ||
 		taught.log.some(entry => entry.command.kind === 'teach'), 'the moves changed in the document');
 });
+
+test('the harness hands out the held items the advisor names', () => {
+	const stalled = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-stall-1000.run.json'), 'utf8'));
+	assert.ok(stalled.box.every(mon => !mon.item), 'the stalled run held nothing');
+	const tally = {scaleSpends: 0};
+	const prepared = headless.followAdvice(headless.levelToCap(stalled, tally), headless.armFlags(''), tally);
+	assert.ok(tally.gives > 0, 'a give row became a give');
+	assert.ok(prepared.box.some(mon => mon.item), 'and a Pokemon holds it');
+});

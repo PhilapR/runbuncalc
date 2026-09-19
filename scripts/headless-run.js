@@ -199,7 +199,7 @@ function followAdvice(doc, treatment, tally) {
 			entry.kind === 'teach' ||
 			(entry.kind === 'heartScale' && treatment.keyScales) ||
 			(entry.kind === 'evolve' && treatment.keyEvolve) ||
-			(entry.kind === 'give' && entry.item)));
+			entry.kind === 'give'));
 		if (!row) return doc;
 		refused.add(row.kind + '|' + row.id + '|' + row.detail);
 		try {
@@ -224,8 +224,14 @@ function applyAdvice(doc, row, tally) {
 		return run.apply(doc, {kind: 'evolve', id: row.id});
 	}
 	if (row.kind === 'give') {
+		// The published row names the item only in its detail ("Miracle Seed",
+		// "Soft Sand over Oran Berry"); the harness required an `item` field
+		// the row never carries, so no headless run ever held an item.
+		const item = row.item || (/^(.+?)(?: over .+)?$/.exec(row.detail || '') || [])[1];
+		if (!item) throw new Error('give row not understood: ' + row.detail);
+		const next = run.apply(doc, {kind: 'give', id: row.id, item: item.trim()});
 		tally.gives = (tally.gives || 0) + 1;
-		return run.apply(doc, {kind: 'give', id: row.id, item: row.item});
+		return next;
 	}
 	const stat = /^(HP|Attack|Defense|Sp\. Atk|Sp\. Def|Speed) IV/.exec(row.detail);
 	if (!stat) throw new Error('scale row not understood: ' + row.detail);
@@ -313,6 +319,10 @@ function playRun(policy, starter, seed, treatment, options) {
 		const t = tally.trainers[next.trainer] =
 			tally.trainers[next.trainer] || {attempts: 0, wins: 0};
 		t.attempts += 1;
+		if (options && options.log) {
+			options.log(tally.fights + ' #' + (run.trainerIndexOf(doc, next.order) || '?') + ' ' + next.trainer +
+				' ' + played.result + (played.policy ? ' (' + played.policy + ')' : ''));
+		}
 		if (played.result === 'win') {
 			t.wins += 1;
 			attempts = 0;
