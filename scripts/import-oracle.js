@@ -385,6 +385,23 @@ const EVO_METHODS = {
 	EVO_LEVEL_NATURE_LOW_KEY: 'level-nature-low-key',
 };
 
+/**
+ * What a method demands of the Pokemon itself, beyond its level or item.
+ * The method map above folds these into plain 'level' and 'item', and the
+ * import used to drop the difference: Tyrogue's three level-20 branches came
+ * out unconditioned, and every consumer took the first (Hitmonchan) whatever
+ * the Tyrogue's stats. Recorded as `requires` so a consumer can tell.
+ */
+const EVO_REQUIRES = {
+	EVO_LEVEL_ATK_GT_DEF: 'atk>def',
+	EVO_LEVEL_ATK_EQ_DEF: 'atk=def',
+	EVO_LEVEL_ATK_LT_DEF: 'atk<def',
+	EVO_LEVEL_FEMALE: 'female',
+	EVO_LEVEL_MALE: 'male',
+	EVO_ITEM_FEMALE: 'female',
+	EVO_ITEM_MALE: 'male',
+};
+
 /** Methods whose numeric parameter is a level the player must reach. */
 const LEVEL_METHODS = new Set(['level', 'level-night', 'level-day', 'level-dusk', 'level-rain',
 	'level-dark-in-party', 'level-nature-amped', 'level-nature-low-key']);
@@ -419,6 +436,7 @@ function importEvolutions(decomp, problems) {
 				continue;
 			}
 			const step = {into, method};
+			if (EVO_REQUIRES[evo[1]]) step.requires = EVO_REQUIRES[evo[1]];
 			if (LEVEL_METHODS.has(method)) step.level = Number(evo[2]);
 			else if (/^ITEM_/.test(evo[2])) step.item = resolveItem(evo[2]);
 			else if (/^MOVE_/.test(evo[2])) step.move = resolveMove(evo[2]);

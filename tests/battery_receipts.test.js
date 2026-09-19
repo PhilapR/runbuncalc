@@ -742,10 +742,11 @@ test('the planner names a catch only when it beats the box\'s own', () => {
 });
 
 test('--swap-catch names a branch the evolution data cannot choose, and refuses one the level never reaches', () => {
-	// Tyrogue branches by its stats at 20; the data has three unconditioned
-	// level-20 paths and evolveTo takes the first.
+	// Tyrogue branches by its stats at 20; >Form fields a chosen branch for a
+	// counterfactual, whatever the encounter's own roll would have made.
 	const doc = battery.loadDocument('fixtures/banked-runs/brkeys3-A-5.run.json');
-	assert.equal(battery.swapCatch(doc, 'MAP_DEWFORD_TOWN:Tyrogue').swapped.fielded, 'Hitmonchan');
+	assert.equal(battery.swapCatch(doc, 'MAP_DEWFORD_TOWN:Tyrogue').swapped.fielded, 'Hitmontop',
+		'with no >Form, the encounter\'s own stats choose (tests/evolution_branches.test.js)');
 	for (const form of ['Hitmonchan', 'Hitmonlee', 'Hitmontop']) {
 		const out = battery.swapCatch(doc, 'MAP_DEWFORD_TOWN:Tyrogue>' + form);
 		assert.equal(out.swapped.fielded, form);

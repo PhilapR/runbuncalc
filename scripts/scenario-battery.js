@@ -469,7 +469,10 @@ function swapCatch(doc, spec) {
 	// A branching line (Tyrogue: Hitmonchan, Hitmonlee or Hitmontop by its
 	// stats) has no condition in the evolution data, and evolveTo takes the
 	// first path; >Form names the branch, and must be one the level reaches.
-	const fielded = form === null ? dossier.evolveTo(species, old.level) : form;
+	// With no >Form, the encounter's own IVs and nature choose the branch,
+	// as they would have in the game.
+	const fielded = form === null ?
+		dossier.evolveMon({species, ivs: old.ivs, nature: old.nature}, old.level) : form;
 	if (form !== null && !reachableByLevel(species, form, old.level)) {
 		throw new Error('--swap-catch: ' + species + ' does not become ' + form + ' by level ' + old.level);
 	}
