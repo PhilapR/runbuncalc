@@ -20,9 +20,12 @@
  *
  *   node scripts/catch-planner.js --report=fixtures/banked-runs/br-4.run.json \
  *     --trainer="Leader Brawly" --map=MAP_ROUTE104 [--seeds=6] [--pp-model=1] [--json]
+ *   node scripts/catch-planner.js --values=scenarios/catch-values/leader-brawly.json \
+ *     --report=fixtures/banked-runs/br-4.run.json [--fresh] [--json]
  */
 
 const battery = require('./scenario-battery.js');
+const run = require('../lib/run.js');
 
 function own(name, fallback) {
 	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
@@ -86,7 +89,98 @@ function namedCatch(played, baseline) {
 	return top !== undefined && played[top] > baseline ? top : null;
 }
 
+/**
+ * Planner v2: the whole early road priced from a gym's measured catch values
+ * (scripts/build-catch-values.js), not replayed per box.
+ *
+ * Per box, six selection fights at an 8% base rate were mostly zeros, and
+ * the per-box planner lost to "always Combee" (69 against 75 of 380). The
+ * values pool nineteen boxes and twenty seeds per catch, so each route's
+ * methods are priced by expected gain: the chance of each species on the
+ * method — renormalised without the run's own lines when the dupes clause
+ * is on, as rollEncounter rolls — times its measured gain. A line that
+ * branches by its own stats (Tyrogue) is worth its forms' gains weighted by
+ * dossier.branchOdds. A species the key never measured is worth 0 and named
+ * as such. Routes are priced independently: two catches that answer the same
+ * threat are not discounted against each other.
+ */
+function planFromValues(doc, values, options) {
+	const opts = options || {};
+	const profile = require('../profiles').getProfile(doc.profileId);
+	const oracle = profile.oracle;
+	const planner = require('../lib/planner');
+	const dossier = require('../lib/dossier');
+	const order = planner.getFight(values.trainer, doc.profileId).order;
+	const rules = run.encounterRules(doc);
+	const lines = new Set(opts.fresh ? [] : doc.box.map(mon => run.dupeKey(rules.dupes, profile, mon.species)));
+	const valueOf = species => {
+		const measured = values.values;
+		const odds = dossier.branchOdds(species, 20);
+		const forms = Object.keys(odds);
+		if (forms.length > 1) {
+			const known = forms.every(form => Object.values(measured).some(map => map[species + '>' + form]));
+			if (!known) return {gain: 0, measured: false};
+			let gain = 0;
+			for (const form of forms) {
+				const hit = Object.values(measured).map(map => map[species + '>' + form]).find(Boolean);
+				gain += odds[form] * hit.gain;
+			}
+			return {gain, measured: true, branches: odds};
+		}
+		return null;
+	};
+	const routes = [];
+	const maps = [...new Set(Object.keys(values.values).concat(Object.keys(values.screened || {})))];
+	for (const map of maps) {
+		const table = oracle.encountersOn(map);
+		const dated = oracle.availabilityOf ? oracle.availabilityOf(map) : null;
+		if (!table || (dated && dated.opensAt !== null && dated.opensAt > order)) continue;
+		if (!opts.fresh && rules.onePerRoute && doc.box.some(mon => mon.origin && mon.origin.map === map)) continue;
+		const methods = {};
+		for (const entry of table.mons) {
+			const gate = oracle.methodOpensAt ? oracle.methodOpensAt(entry.method) : 0;
+			if (gate !== null && gate > order) continue;
+			if (lines.has(run.dupeKey(rules.dupes, profile, entry.species))) continue;
+			methods[entry.method] = methods[entry.method] || {};
+			methods[entry.method][entry.species] = (methods[entry.method][entry.species] || 0) + entry.chance;
+		}
+		const priced = Object.keys(methods).map(method => {
+			const total = Object.values(methods[method]).reduce((sum, chance) => sum + chance, 0);
+			const species = Object.keys(methods[method]).map(name => {
+				const branched = valueOf(name);
+				const measured = (values.values[map] || {})[name];
+				const worth = branched || (measured ? {gain: measured.gain, measured: true} : {gain: 0, measured: false});
+				return Object.assign({species: name, chance: methods[method][name] / total}, worth);
+			}).sort((a, b) => b.gain - a.gain || a.species.localeCompare(b.species));
+			const expected = species.reduce((sum, entry) => sum + entry.chance * entry.gain, 0);
+			return {method, expectedGain: expected, target: species[0].gain > 0 ? species[0].species : null, species};
+		}).sort((a, b) => b.expectedGain - a.expectedGain);
+		if (priced.length) routes.push({map, best: priced[0], methods: priced});
+	}
+	routes.sort((a, b) => b.best.expectedGain - a.best.expectedGain || a.map.localeCompare(b.map));
+	return {trainer: values.trainer, order, seeds: values.seeds, routes};
+}
+
 function main() {
+	if (own('values')) {
+		const values = JSON.parse(require('node:fs').readFileSync(own('values'), 'utf8'));
+		const doc = battery.loadDocument(own('report'));
+		const plan = planFromValues(doc, values, {fresh: process.argv.includes('--fresh')});
+		if (process.argv.includes('--json')) {
+			process.stdout.write(JSON.stringify(plan) + '\n');
+			return;
+		}
+		console.log(`Early catches for ${plan.trainer}, priced in wins per 100 fights:`);
+		for (const route of plan.routes) {
+			const best = route.best;
+			console.log(`  ${route.map}: ${best.method} (+${(best.expectedGain * 100).toFixed(1)})` +
+				(best.target ? ` — hope for ${best.target}` : ' — nothing here moves the fight') + '; ' +
+				best.species.filter(entry => entry.gain > 0).map(entry =>
+					`${entry.species} ${Math.round(entry.chance * 100)}% +${(entry.gain * 100).toFixed(1)}`).join(', '));
+		}
+		return;
+	}
+
 	// Candidates are fielded as the ranker's first six: pick-by-play inside
 	// the planner would play 36 more fights per candidate. The grade (the
 	// battery) still picks by play, so this is an approximation, stated.
@@ -113,4 +207,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {planRoute, namedCatch};
+module.exports = {planRoute, namedCatch, planFromValues};
