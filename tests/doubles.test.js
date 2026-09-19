@@ -110,3 +110,15 @@ test('a double is taped action by action, and the optional hands play it through
 	assert.ok(['win', 'loss'].includes(searched.result));
 	assert.equal(searched.engineRefusals, 0);
 });
+
+test('a double battle is ranked by the grid, and the battery can re-pick for one', () => {
+	// The ranker adjudicated its top sixes with singles rollouts, which
+	// refuse a double: ranking one threw, the battery crashed on a double
+	// scenario, and the headless run fell back to a level sort unannounced.
+	const box = doc();
+	const ranked = run.rankParties(box, DOUBLES[0]);
+	assert.ok(ranked.parties.length > 0);
+	assert.ok(ranked.parties.every(party => !party.adjudication), 'no singles adjudication of a double');
+	const prepared = battery.prepareDocument(box, DOUBLES[0], require('../scripts/ui-playthrough.js'));
+	assert.ok(prepared.doc.party.length >= 2, 'the battery re-picks a six for a double');
+});
