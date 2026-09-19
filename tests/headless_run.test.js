@@ -190,3 +190,23 @@ test('a multi-floor area is caught on one of its floors, not skipped', () => {
 	const cave = swept.box.filter(mon => /GRANITE_CAVE/.test((mon.origin || {}).map || ''));
 	assert.equal(cave.length, 1, 'one Granite Cave encounter: ' + cave.map(mon => mon.species).join(','));
 });
+
+test('a roll never turns up a species the hack removed', () => {
+	// The author's Unavailable Pokemon sheet lists Sunkern, Wooper, Quagsire,
+	// Goldeen, Shuckle, Smeargle and Pineco; the tables that still carry them
+	// are content the tracker never lists.
+	const run = require('../lib/run.js');
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	let doc = run.createRun({name: 'gate', now: 't0', levelCap: 'next-milestone-ace', permadeath: false,
+		onePerRoute: true, dupesClause: 'line', rival: 'Blaziken'});
+	doc = Object.assign({}, doc, {position: 1620});
+	assert.throws(() => run.rollEncounter(doc, {map: 'Safari Zone Southeast', random: Math.random}),
+		/a species this hack removed/);
+	const random = headless.dice(1234);
+	for (let k = 0; k < 60; k++) random();
+	for (let k = 0; k < 40; k++) {
+		const rolled = run.rollEncounter(doc, {map: 'Altering Cave', random});
+		assert.notEqual(oracle.availabilityOfSpecies(rolled.species).status, 'unavailable', rolled.species);
+		assert.notEqual(oracle.availabilityOfSpecies(rolled.species).status, 'unreachable', rolled.species);
+	}
+});
