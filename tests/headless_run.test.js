@@ -130,3 +130,12 @@ test('the harness claims each Game Corner prize its badges have opened, once', (
 	const fresh = headless.startRun({species: 'Turtwig', rival: 'Blaziken'}, headless.dice(1));
 	assert.equal(headless.claimPrizes(fresh, headless.dice(2), {}).box.length, fresh.box.length, 'no badge, no prize');
 });
+
+test('the harness keeps catching past 24: a PC has no cap', () => {
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-shelly-523658.run.json'), 'utf8'));
+	assert.ok(doc.box.length >= 24, 'the stalled box is at the old cap: ' + doc.box.length);
+	const tally = {catches: 0, keyRolls: 0};
+	const swept = headless.sweepCatches(doc, new Set(), headless.dice(3), headless.armFlags(''), tally);
+	assert.ok(swept.box.length > doc.box.length, 'open routes are still caught on: ' + swept.box.length);
+});

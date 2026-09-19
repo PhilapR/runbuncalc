@@ -105,8 +105,12 @@ function sweepCatches(doc, caughtFrom, random, treatment, tally) {
 			}
 		} catch (error) { /* no advice, no reordering */ }
 	}
+	// No box cap: a player's PC holds everything. The harness stopped at 24,
+	// which a run reaches by mid-game (the Shelly box, at #697), so it never
+	// caught on one late route — Victory Road's Metagross and Tyranitar,
+	// Meteor Falls' Dragonite, Salamence, Hydreigon — and met the Elite Four
+	// with a mid-game box.
 	for (const route of routes) {
-		if (doc.box.length >= 24) break;
 		caughtFrom.add(route.name);
 		try {
 			doc = catchRolled(doc, route.name, random);
@@ -582,4 +586,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes};
+module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches};
