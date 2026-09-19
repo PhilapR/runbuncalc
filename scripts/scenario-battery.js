@@ -704,7 +704,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -721,6 +721,7 @@ function main() {
 	driver.setHidingForecast(flag('hiding-forecast', '0') === '1');
 	driver.setRealSpeed(flag('real-speed', '1') === '1');
 	driver.setChargeThreat(flag('charge-threat', '0') === '1');
+	driver.setDoublesJoint(flag('doubles-joint', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?

@@ -165,3 +165,28 @@ test('a stall on infinite fuel ends once moves spend PP', () => {
 		driver.setPPModel(false);
 	}
 });
+
+test('a joint search values the two actives as one choice, behind a switch', () => {
+	// searchDoubles scores each active alone while its partner plays the
+	// engine's hand, so no PAIR of moves is ever valued (Fake Out into a
+	// set-up, Wide Guard over a spread). Trainer Rival Bridge — a double, six
+	// at Level 65-66 led by a Speed Boost Mega Blaziken — was 0 of 120
+	// attempts in a full run.
+	const box = doc();
+	const jointly = driver.playDoubles(box, DOUBLES[1], 1, {search: 2, joint: true});
+	assert.ok(['win', 'loss'].includes(jointly.result));
+	assert.equal(jointly.engineRefusals, 0, jointly.events.filter(event => event.engineRefusal)
+		.map(event => event.text).join(' | '));
+	const apart = driver.playDoubles(box, DOUBLES[1], 1, {search: 2});
+	const tape = played => played.events.filter(event => / used /.test(event.text)).map(event => event.text).join('|');
+	assert.notEqual(tape(jointly), tape(apart), 'the two searches play the fight differently');
+	// The switch, not only the option: the driver's default is the per-actor
+	// search until the battery says otherwise.
+	assert.equal(driver.doublesJoint(), false);
+	try {
+		driver.setDoublesJoint(true);
+		assert.equal(tape(driver.playDoubles(box, DOUBLES[1], 1, {search: 2})), tape(jointly), 'the switch picks the joint search');
+	} finally {
+		driver.setDoublesJoint(false);
+	}
+});

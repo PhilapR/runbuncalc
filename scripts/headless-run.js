@@ -513,6 +513,7 @@ function playRun(policy, starter, seed, treatment, options) {
 	driver.setHidingForecast(flag('hiding-forecast', '0') === '1');
 	driver.setRealSpeed(flag('real-speed', '1') === '1');
 	driver.setChargeThreat(flag('charge-threat', '0') === '1');
+	driver.setDoublesJoint(flag('doubles-joint', '0') === '1');
 	const random = dice(seed);
 	let doc = startRun(starter, random);
 
