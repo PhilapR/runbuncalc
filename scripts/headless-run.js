@@ -244,6 +244,76 @@ function evolveByLevel(doc, tally) {
 	return doc;
 }
 
+/**
+ * The level-up moves a player keeps up with. A levelled Pokemon with a full
+ * moveset leaves its new moves pending — only the player knows what to
+ * forget — and the browser driver answers every prompt. The harness never
+ * did, so a Cufant caught at 8 became a level-42 Copperajah knowing Tackle,
+ * Growl, Rock Throw and Rock Smash. A level-up move of the current species
+ * at or below its level (free to relearn) is learned when it is a clear
+ * upgrade: stronger than a known attack of its own type, a real attack over
+ * weak filler, or a strong STAB move over weak off-type coverage. Status moves, multi-hit moves, speed control and a type's
+ * only attack are never the ones forgotten: raw power misreads all three (Triple Axel
+ * reads as one 20-power hit; Fake Out is not better than it).
+ */
+function relearn(doc, policy, tally) {
+	const ai = require('../ai');
+	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
+	const meta = name => {
+		try {
+			return ai.getMoveMetadata(name, 8);
+		} catch (error) {
+			return null;
+		}
+	};
+	const power = name => {
+		const found = meta(name);
+		if (!found || found.category === 'Status') return 0;
+		return (found.basePower || 0) * (found.accuracy === true ? 1 : Math.min(1, (found.accuracy || 100) / 100));
+	};
+	const multiHit = name => {
+		const found = meta(name);
+		return !!found && (found.multihit !== undefined || /^(Triple|Double|Dual|Bullet Seed|Rock Blast|Icicle Spear|Pin Missile|Arm Thrust|Fury|Bone Rush|Tail Slap|Water Shuriken|Scale Shot)/.test(name));
+	};
+	const typeOf = name => (meta(name) || {}).type || null;
+	for (const mon of doc.box) {
+		if (mon.status === 'dead') continue;
+		const offered = (oracle.levelUpMoves(mon.species) || [])
+			.filter(pair => pair[0] <= mon.level).map(pair => pair[1])
+			.filter((move, index, list) => list.indexOf(move) === index).reverse();
+		for (const move of offered) {
+			const current = doc.box.find(entry => entry.id === mon.id);
+			if (current.moves.includes(move) || power(move) <= 0 || multiHit(move)) continue;
+			let replace = null;
+			if (current.moves.length >= 4) {
+				// Speed control is worth more than its number (the policy presses
+				// it), so it is never the one forgotten either.
+				const attacks = current.moves.filter(known => power(known) > 0 && !multiHit(known) &&
+					!(policy.isSlowControl && policy.isSlowControl(known)));
+				const sameType = attacks.filter(known => typeOf(known) === typeOf(move) && power(known) < power(move))
+					.sort((x, y) => power(x) - power(y));
+				const alone = known => current.moves.filter(other => power(other) > 0 && typeOf(other) === typeOf(known)).length === 1;
+				const filler = attacks.filter(known => power(known) <= 40 && power(move) >= 45 && !alone(known))
+					.sort((x, y) => power(x) - power(y));
+				// A strong move of its own type (STAB) is worth more than weak
+				// off-type coverage: Copperajah's Iron Head over Rock Smash.
+				const calc = require('../calc');
+				const found = calc.Generations.get(8).species.get(calc.toID(current.species));
+				const stab = found && found.types.includes(typeOf(move)) && power(move) >= 60;
+				const offType = stab ? attacks.filter(known => !found.types.includes(typeOf(known)) &&
+					power(known) < power(move) * 2 / 3).sort((x, y) => power(x) - power(y)) : [];
+				replace = sameType[0] || filler[0] || offType[0] || null;
+				if (!replace) continue;
+			}
+			try {
+				doc = run.apply(doc, Object.assign({kind: 'teach', id: mon.id, move}, replace ? {replace} : {}));
+				tally.relearned = (tally.relearned || 0) + 1;
+			} catch (error) { /* not learnable here; the next move is tried */ }
+		}
+	}
+	return doc;
+}
+
 /** Teach and (treatment) scale-spend from the same advice the panel shows. */
 function followAdvice(doc, treatment, tally) {
 	// The marts first: a stone the bag holds is an evolve row the advisor
@@ -420,6 +490,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		if (shape !== lastShape) {
 			lastShape = shape;
 			doc = levelToCap(doc, tally);
+			doc = relearn(doc, policy, tally);
 			doc = followAdvice(doc, treatment, tally);
 			doc = thresholdPrep(doc, tally);
 			doc = bestParty(doc);
@@ -497,7 +568,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
-		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, levelUps: tally.levelUps || 0, repicks: tally.repicks || 0, prizes: tally.prizes || 0,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
@@ -586,4 +657,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches};
+module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};

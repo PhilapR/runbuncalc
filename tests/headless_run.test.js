@@ -139,3 +139,38 @@ test('the harness keeps catching past 24: a PC has no cap', () => {
 	const swept = headless.sweepCatches(doc, new Set(), headless.dice(3), headless.armFlags(''), tally);
 	assert.ok(swept.box.length > doc.box.length, 'open routes are still caught on: ' + swept.box.length);
 });
+
+test('the harness relearns clear level-up upgrades and keeps what raw power misreads', () => {
+	// The Norman stall box with one Cufant from Granite Cave B1F, levelled to
+	// 42 as a Copperajah still knowing Tackle, Growl, Rock Throw, Rock Smash.
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	const policy = require('../scripts/ui-playthrough.js');
+	const tally = {};
+	const after = headless.relearn(doc, policy, tally);
+	const copperajah = after.box.find(mon => mon.species === 'Copperajah');
+	assert.ok(copperajah.moves.includes('Iron Head'), 'a STAB upgrade: ' + copperajah.moves.join('/'));
+	assert.ok(tally.relearned > 0);
+	for (const mon of doc.box) {
+		const now = after.box.find(entry => entry.id === mon.id);
+		for (const move of mon.moves) {
+			if (policy.isSlowControl(move)) assert.ok(now.moves.includes(move), mon.species + ' keeps ' + move);
+		}
+	}
+});
+
+test('the policy never presses Focus Punch into an attack, and breaks a sash with a multi-hit move', () => {
+	const policy = require('../scripts/ui-playthrough.js');
+	const move = (name, low, high) => ({move: name, ball: null, label: name, title: name,
+		damage: low + '%+ up to ' + high + '%'});
+	const attacked = {threat: 'Their hardest hit: Tri Attack 89%', foeHp: 13, foeItem: null, foeAbility: null,
+		moves: [move('Focus Punch', 87, 104), move('Flare Blitz', 40, 48)]};
+	assert.equal(policy.bestMove(attacked).move, 'Flare Blitz', 'Focus Punch moves last and is hit first');
+	assert.equal(policy.bestMove(Object.assign({}, attacked, {threat: ''})).move, 'Focus Punch',
+		'against a foe with no attack it lands');
+	const sashed = {threat: 'Their hardest hit: Earthquake 90%', foeHp: 100, foeItem: 'Focus Sash', foeAbility: null,
+		moves: [move('Ice Beam', 80, 95), move('Bullet Seed', 20, 60)]};
+	assert.equal(policy.bestMove(sashed).move, 'Bullet Seed', 'the sash breaks to a multi-hit move');
+	assert.equal(policy.bestMove(Object.assign({}, sashed, {foeHp: 60})).move, 'Ice Beam', 'a broken sash is no reason');
+	assert.equal(policy.bestMove(Object.assign({}, sashed, {foeItem: null, foeAbility: 'Sturdy'})).move, 'Bullet Seed');
+});

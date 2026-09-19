@@ -1900,9 +1900,29 @@ function scoreMove(entry) {
  * answer — nothing on this bar hurts anything — and the caller switches.
  */
 function bestMove(view) {
-	const scored = view.moves.filter(entry => !entry.ball).map(scoreMove)
+	let scored = view.moves.filter(entry => !entry.ball).map(scoreMove)
 		.filter(entry => entry.damaging && entry.max > 0);
+	// Focus Punch moves last and fails if the user is hit first, so it is
+	// only an attack against a foe with no attack of its own. Taped at
+	// Leader Norman: a paralysed Infernape kept pressing it into Tri Attack
+	// with Porygon2 at 13%, where Flare Blitz finished it.
+	if (/^Their hardest hit/.test(view.threat || '')) {
+		const landing = scored.filter(entry => entry.move !== 'Focus Punch');
+		if (landing.length) scored = landing;
+	}
 	if (!scored.length) return null;
+	// A full-HP foe behind a Focus Sash or Sturdy survives any single hit at
+	// 1 HP; a multi-hit move's later hits finish it. Taped at Norman:
+	// Octillery's Ice Beam left a sashed Diggersby at 18%, where Bullet Seed
+	// breaks the sash. The damage the bar prints for a multi-hit move reads
+	// as one hit, so the rank would never choose it on its own.
+	if (view.foeHp === 100 && (view.foeItem === 'Focus Sash' || view.foeAbility === 'Sturdy')) {
+		const multi = scored.filter(entry => MULTI_HIT_MOVES.has(entry.move));
+		if (multi.length) {
+			rankMoves(multi);
+			return multi[0];
+		}
+	}
 	rankMoves(scored);
 	return explore(scored, 'move');
 }
@@ -3358,6 +3378,7 @@ async function main() {
  * this is the program rather than an import.
  */
 module.exports = {
+	bestMove: bestMove,
 	isToolTeach: isToolTeach,
 	parsePinBox: parsePinBox,
 	pickReplace: pickReplace,
