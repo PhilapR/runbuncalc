@@ -263,6 +263,7 @@ function playScenario(policy, doc, trainer, seed, tape) {
 	if (require('../lib/planner').getFight(trainer, doc.profileId).isDouble) {
 		const doubles = driver.playDoubles(doc, trainer, seed);
 		return {result: doubles.result, turns: doubles.turns, engineRefusals: doubles.engineRefusals,
+			refused: doubles.events.filter(event => event.engineRefusal).map(event => ({turn: event.turn, text: event.text})),
 			deaths: doubles.deaths, killers: doubles.killers, foe: null, counters: {},
 			policy: 'engine-ai-doubles'};
 	}
@@ -272,10 +273,12 @@ function playScenario(policy, doc, trainer, seed, tape) {
 	const memory = freshMemory();
 	// Transitions the engine refused: each is a lost turn the driver made up.
 	let engineRefusals = 0;
+	// What was refused, not only how often: a refusal is a defect to fix.
+	const refused = [];
 	let guard = 0;
 	while (guard++ < 400) {
 		if (reply.result) {
-			return {result: reply.result, turns: battle.state.turn, engineRefusals,
+			return {result: reply.result, turns: battle.state.turn, engineRefusals, refused,
 				deaths: (reply.deaths || []).length,
 				// The driver already knows who killed what and with which
 				// move, on every death it reports: our `species` fell to the
@@ -300,7 +303,12 @@ function playScenario(policy, doc, trainer, seed, tape) {
 			{kind: 'move', move: choice.pick.move} :
 			{kind: 'switch', replacementId: choice.pick.id};
 		reply = driver.act(battle, action);
-		engineRefusals += (reply.events || []).filter(event => event.engineRefusal).length;
+		const refusalsNow = (reply.events || []).filter(event => event.engineRefusal);
+		engineRefusals += refusalsNow.length;
+		for (const event of refusalsNow) {
+			refused.push({turn: battle.state.turn, text: event.text, action: event.action || null,
+				actives: event.actives || null});
+		}
 		if (tape) {
 			tape.push({turn: battle.state.turn, phase, us: view.us, usHp: view.usHp,
 				foe: view.foe, foeHp: view.foeHp, threat: view.threat || '',
