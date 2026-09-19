@@ -244,6 +244,43 @@ function followAdvice(doc, treatment, tally) {
 	return doc;
 }
 
+/**
+ * The threshold demand, acted on as the browser driver acts on it: when the
+ * next fight holds a sash or pinch-berry Reversal/Flail/Endeavor set and the
+ * party has no priority attack, teach the one preFightOpportunities names,
+ * over the weakest attack. The harness never did — Aqua Admin Shelly's
+ * sashed Mienshao Reversed a priority-less party 80 times out of 80.
+ */
+function thresholdPrep(doc, tally) {
+	let prep;
+	try {
+		prep = run.preFightOpportunities(doc).thresholdPrep;
+	} catch (error) {
+		return doc;
+	}
+	if (!prep || !prep.threats.length || prep.covered) return doc;
+	const ai = require('../ai');
+	const power = name => {
+		try {
+			return ai.getMoveMetadata(name, 8).basePower || 0;
+		} catch (error) {
+			return 0;
+		}
+	};
+	for (const row of prep.teachable) {
+		const mon = doc.box.find(entry => entry.id === row.id);
+		if (!mon) continue;
+		const weakest = mon.moves.length >= 4 ? mon.moves.slice().sort((a, b) => power(a) - power(b))[0] : null;
+		try {
+			const next = run.apply(doc, Object.assign({kind: 'teach', id: row.id, move: row.move},
+				weakest ? {replace: weakest} : {}));
+			tally.thresholdTeaches = (tally.thresholdTeaches || 0) + 1;
+			return next;
+		} catch (error) { /* this one cannot; try the next body */ }
+	}
+	return doc;
+}
+
 /** One advice row as the run command the panel would post. */
 function applyAdvice(doc, row, tally) {
 	if (row.kind === 'teach') {
@@ -343,6 +380,7 @@ function playRun(policy, starter, seed, treatment, options) {
 			lastShape = shape;
 			doc = levelToCap(doc, tally);
 			doc = followAdvice(doc, treatment, tally);
+			doc = thresholdPrep(doc, tally);
 			doc = bestParty(doc);
 		}
 		const ahead = run.upcoming(doc, 1);
@@ -491,4 +529,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap};
+module.exports = {playRun, startRun, dice, armFlags, followAdvice, levelToCap, thresholdPrep};

@@ -84,3 +84,21 @@ test('a Baton Pass brings its replacement in, on either side', () => {
 		'our pass asks us for the replacement');
 	assert.equal(driver.phaseOf(state), 'choose');
 });
+
+test('a priority move that finishes the foe wins the race, whatever the speeds', () => {
+	// Aqua Admin Shelly's sashed Mienshao sat at 1% and outsped the bench;
+	// the race read Speed only, so the Quick Attack body was never sent.
+	const driver = require('../lib/battle-driver.js');
+	const doc = battery.loadDocument(require('node:path').join(__dirname, '..', 'fixtures', 'banked-runs',
+		'sv-14.run.json'));
+	const state = structuredClone(driver.start(doc, 'Leader Wattson', 1).battle.state);
+	const foe = state.sides.ai.party.find(mon => mon.id === state.sides.ai.activeIds[0]);
+	foe.hp.current = 1;
+	const bench = state.sides.player.party.find(mon => !state.sides.player.activeIds.includes(mon.id));
+	const plain = driver.benchRace(state, bench.id);
+	assert.ok(!plain || !plain.priority, 'no priority move, no priority win');
+	bench.moves[bench.moves.length - 1] = Object.assign({}, bench.moves[0], {name: 'Quick Attack'});
+	const quick = driver.benchRace(state, bench.id);
+	assert.equal(quick.outcome, 'win');
+	assert.equal(quick.priority, true);
+});

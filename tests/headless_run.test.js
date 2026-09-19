@@ -91,3 +91,23 @@ test('a headless run plays the project\'s rules: one per route, the dupes clause
 		[true, false, 'line', 'next-milestone-ace']);
 	assert.deepEqual(doc.party, [doc.box[0].id], 'the starter is caught and fielded');
 });
+
+test('the harness teaches the priority answer a threshold fight demands', () => {
+	// Sweep-3 run 5 (seed 523658) as it stalled at Aqua Admin Shelly: her
+	// Mienshao holds a Focus Sash with Reversal and the party had no
+	// priority attack; the library names Manectric's Quick Attack.
+	const run = require('../lib/run.js');
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-shelly-523658.run.json'), 'utf8'));
+	const prep = run.preFightOpportunities(doc).thresholdPrep;
+	assert.deepEqual(prep.threats.map(threat => threat.species + ' ' + threat.move + ' ' + threat.holds),
+		['Mienshao Reversal Focus Sash']);
+	assert.equal(prep.covered, false);
+	const tally = {scaleSpends: 0};
+	const taught = headless.thresholdPrep(doc, tally);
+	assert.equal(tally.thresholdTeaches, 1);
+	const row = prep.teachable[0];
+	assert.ok(taught.box.find(mon => mon.id === row.id).moves.includes(row.move), row.species + ' learned ' + row.move);
+	assert.ok(run.preFightOpportunities(taught).thresholdPrep.covered, 'and the demand is met');
+	assert.equal(headless.thresholdPrep(taught, tally), taught, 'a met demand teaches nothing more');
+});
