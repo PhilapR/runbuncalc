@@ -146,6 +146,24 @@ Where independent lenses met, the signal is strongest.
   eight sixes picked by play (every candidate scored 0 in selection, because
   selection plays the weak hand). A six built by hand for the fight (speed,
   Fake Out, bulk) won 1 of 8 with the joint search. **measured**.
+- **Norman is a SPEED wall, and the box's "answers" are damage** (2026-09-20).
+  His Mega Pidgeot (130) and Cinccino (125) outspeed a whole box of 28 — our
+  fastest is 106 — and only 4 of 28 beat his median; Porygon2's Eviolite is
+  2HKO'd by 5 of 28. Graded over 30 seeds (wins are ~1-2%, so win/loss alone
+  cannot resolve an arm), every arm strips **3.6 of his 6 and loses all six**:
+  the ranker's six, the same six with Icy Wind and Tailwind taught, and a six
+  led by the body that one-shots four of his team on floor damage — which
+  loses because it never moves first. 2.43 foes left, unchanged, in all three.
+  **measured**.
+- **Spending the bag's evolution items was measured and REJECTED**
+  (2026-09-20). 65 bodies across 23 banked runs could evolve on the spot with
+  an item already in the bag, three a run, while the run lost 60 attempts at
+  a wall. Applying every one of them and re-ranking, at the exact fight each
+  run died on, 12 seeds each: **identical** play at every Norman and Archie
+  state (the evolved bodies do not enter the ranker's six), and **worse** at
+  Wattson — 4 wins to 2, foes left 1.00 to 1.75, replicated on three runs.
+  Evolution is not an upgrade for a given matchup. The code is reverted; a
+  targeted version would evolve for the NEXT wall, not on sight. **measured**.
 - **Engineering the bridge six was tried three ways and none of them
   measured better** (2026-09-19). On sweep 13 run6's own state, with the
   joint search and the doubles prep in every arm: the ranker's top twelve
