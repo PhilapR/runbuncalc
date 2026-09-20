@@ -438,6 +438,15 @@ function build() {
 	for (const row of workbook.berries) add(row.name, 'berry', row.place, row.yield || null);
 	for (const row of workbook.evolutionItems) add(row.name, 'evolution', row.place, null);
 	for (const row of workbook.megaStones) add(row.name, 'mega-stone', row.place, null);
+	// A TM is a ONE-TIME item in this fork, and ten of them are sold at the
+	// Lilycove Department Store, which is the only way to teach a move twice.
+	// The sheet was never transcribed, so no run ever held a TM and every
+	// teach of a TM move was free: 62 of them in one banked run, Icy Wind ten
+	// times from a TM the run never owned.
+	for (const row of workbook.tms) add(row.name, 'tm', row.place, null);
+	// A move TUTOR is a service, not an item: it stays in the workbook and is
+	// read through oracle.moveTutors(), so the ledger's own invariant — every
+	// dated row is collectable somewhere — keeps its meaning.
 
 	entries.sort((a, b) =>
 		(a.opensAt === null ? 1 : 0) - (b.opensAt === null ? 1 : 0) ||

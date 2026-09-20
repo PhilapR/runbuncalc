@@ -9,7 +9,9 @@
 		"heldItems": 68,
 		"berries": 53,
 		"evolutionItems": 23,
-		"megaStones": 47
+		"megaStones": 47,
+		"tms": 59,
+		"tutors": 20
 	},
 	"heartScales": [
 		{
@@ -1014,6 +1016,326 @@
 		{
 			"name": "Tyranitarite",
 			"place": "Unavailable."
+		}
+	],
+	"tms": [
+		{
+			"name": "TM01 Struggle Bug",
+			"place": "Route 120."
+		},
+		{
+			"name": "TM02 X-Scissor",
+			"place": "Route 112."
+		},
+		{
+			"name": "TM03 Dark Pulse",
+			"place": "Mt. Pyre."
+		},
+		{
+			"name": "TM04 Feint Attack",
+			"place": "Route 104, given by an NPC near Floral Shop. Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM05 Flatter",
+			"place": "Pacifidlog Town, given by an NPC inside one of the houses."
+		},
+		{
+			"name": "TM06 Breaking Swipe",
+			"place": "Shoal Cave, ice room."
+		},
+		{
+			"name": "TM07 Dragon Tail",
+			"place": "Route 114, given by the NPC with a Poochyena."
+		},
+		{
+			"name": "TM08 Electroweb",
+			"place": "Route 117. Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM09 Shock Wave",
+			"place": "Given by Leader Wattson after you defeat him. Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM10 Thunderbolt",
+			"place": "Given by Leader Wattson after you fix the generator at New Mauville."
+		},
+		{
+			"name": "TM11 Draining Kiss",
+			"place": "Abandoned Ship."
+		},
+		{
+			"name": "TM12 Misty Explosion",
+			"place": "Abandoned Ship (requires Dive)."
+		},
+		{
+			"name": "TM13 Play Rough",
+			"place": "Magma Hideout."
+		},
+		{
+			"name": "TM14 Aura Sphere",
+			"place": "Route 120."
+		},
+		{
+			"name": "TM15 Body Press",
+			"place": "Route 115 by the Meteor Falls entrance (requires Surf and Waterfall)."
+		},
+		{
+			"name": "TM16 Seismic Toss",
+			"place": "Given by Leader Brawly after you defeat him. Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM17 Flamethrower",
+			"place": "Given by Leader Flannery after you defeat her."
+		},
+		{
+			"name": "TM18 Will-O-Wisp",
+			"place": "Mt. Pyre."
+		},
+		{
+			"name": "TM19 Aerial Ace",
+			"place": "Route 111. Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM20 Defog",
+			"place": "Given by Steven at Granite Cave."
+		},
+		{
+			"name": "TM21 Dual Wingbeat",
+			"place": "Given by an NPC past the desert at Route 111 (requires Mach Bike)."
+		},
+		{
+			"name": "TM22 Roost",
+			"place": "Given by Leader Winona after you defeat her."
+		},
+		{
+			"name": "TM23 Tailwind",
+			"place": "Mt. Pyre."
+		},
+		{
+			"name": "TM24 Curse",
+			"place": "Route 121."
+		},
+		{
+			"name": "TM25 Night Shade",
+			"place": "Route 110 (requires a Bike). Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM26 Shadow Ball",
+			"place": "Mt. Pyre."
+		},
+		{
+			"name": "TM27 Magical Leaf",
+			"place": "Petalburg Woods (requires Cut). Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM28 Solar Blade",
+			"place": "Fiery Path."
+		},
+		{
+			"name": "TM29 Solar Beam",
+			"place": "Fiery Path."
+		},
+		{
+			"name": "TM30 Earth Power",
+			"place": "Given by an NPC at Fossil Maniac's house."
+		},
+		{
+			"name": "TM31 Earthquake",
+			"place": "Victory Road."
+		},
+		{
+			"name": "TM32 Ice Beam",
+			"place": "Given by Leader Juan after you defeat him."
+		},
+		{
+			"name": "TM33 Icy Wind",
+			"place": "Granite Cave (requires Mach Bike). Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM34 Explosion",
+			"place": "Magma Hideout."
+		},
+		{
+			"name": "TM35 Facade",
+			"place": "Given by Leader Norman after you defeat him."
+		},
+		{
+			"name": "TM36 Hyper Voice",
+			"place": "Route 103 (requires a Bike)."
+		},
+		{
+			"name": "TM37 Swagger",
+			"place": "Given by Grunt NPC inside Slateport Museum."
+		},
+		{
+			"name": "TM38 Me First",
+			"place": "Aqua Hideout."
+		},
+		{
+			"name": "TM39 Weather Ball",
+			"place": "Route 119 (requires Surf)."
+		},
+		{
+			"name": "TM40 Sludge Bomb",
+			"place": "Given by an NPC inside Dewford Town Hall."
+		},
+		{
+			"name": "TM41 Heal Pulse",
+			"place": "Shoal Cave."
+		},
+		{
+			"name": "TM42 Psychic",
+			"place": "Given by Leaders Tate & Liza after you defeat them."
+		},
+		{
+			"name": "TM43 Psychic Fangs",
+			"place": "Route 124 (requires Dive)."
+		},
+		{
+			"name": "TM44 Skill Swap",
+			"place": "Abandoned Ship (requires Dive)."
+		},
+		{
+			"name": "TM45 Rock Blast",
+			"place": "Granite Cave."
+		},
+		{
+			"name": "TM46 Rock Tomb",
+			"place": "Given by an NPC in Rusturf Tunnel. Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM47 Flash Cannon",
+			"place": "Trade with NPC in Fallarbor Town for a Meteorite."
+		},
+		{
+			"name": "TM48 Heavy Slam",
+			"place": "Petalburg City (requires Surf)."
+		},
+		{
+			"name": "TM49 Smart Strike",
+			"place": "Mauville City. Sold at Lilycove Department Store."
+		},
+		{
+			"name": "TM50 Life Dew",
+			"place": "Route 118 (requires Surf)."
+		},
+		{
+			"name": "Item",
+			"place": "Location"
+		},
+		{
+			"name": "HM01 Cut",
+			"place": "Given by an NPC in Rustboro City."
+		},
+		{
+			"name": "HM02 Fly",
+			"place": "Given by Rival Brendan/May after you defeat them at Route 119."
+		},
+		{
+			"name": "HM03 Surf",
+			"place": "Given at Seashore House by Mr. Sea after defeating all trainers inside."
+		},
+		{
+			"name": "HM04 Strength",
+			"place": "Given by Wally's father after defeating Leader Norman."
+		},
+		{
+			"name": "HM05 Flash",
+			"place": "Given by an NPC in Granite Cave."
+		},
+		{
+			"name": "HM06 Rock Smash",
+			"place": "Given by Leader Roxanne after you defeat her."
+		},
+		{
+			"name": "HM07 Waterfall",
+			"place": "Given by Wallace at Sootopolis."
+		},
+		{
+			"name": "HM08 Dive",
+			"place": "Given by Steven after the events at the Mossdeep Space Center."
+		}
+	],
+	"tutors": [
+		{
+			"move": "Hidden Power",
+			"place": "Slateport City, NPC in the open market."
+		},
+		{
+			"move": "Secret Power",
+			"place": "Slateport City, NPC in the open market."
+		},
+		{
+			"move": "Bug Bite",
+			"place": "Petalburg Woods, by the south-east exit."
+		},
+		{
+			"move": "Poison Jab",
+			"place": "Route 118, Black Belt NPC on the beach, access by the Mauville side."
+		},
+		{
+			"move": "Brick Break",
+			"place": "Route 118, Black Belt NPC on the beach, access by the Mauville side."
+		},
+		{
+			"move": "Fire Punch",
+			"place": "Route 118, Black Belt NPC on the beach, access by the Mauville side."
+		},
+		{
+			"move": "Ice Punch",
+			"place": "Route 118, Black Belt NPC on the beach, access by the Mauville side."
+		},
+		{
+			"move": "Thunder Punch",
+			"place": "Route 118, Black Belt NPC on the beach, access by the Mauville side."
+		},
+		{
+			"move": "Shadow Punch",
+			"place": "Route 118, Black Belt NPC on the beach, access by the Mauville side."
+		},
+		{
+			"move": "Embargo",
+			"place": "Route 112, NPC inside the Old Lady's Rest Stop."
+		},
+		{
+			"move": "Blizzard",
+			"place": "Weather Institute, NPC near the entrance after driving Team Aqua away."
+		},
+		{
+			"move": "Hydro Pump",
+			"place": "Weather Institute, NPC near the entrance after driving Team Aqua away."
+		},
+		{
+			"move": "Fire Blast",
+			"place": "Weather Institute, NPC near the entrance after driving Team Aqua away."
+		},
+		{
+			"move": "Thunder",
+			"place": "Weather Institute, NPC near the entrance after driving Team Aqua away."
+		},
+		{
+			"move": "Hurricane",
+			"place": "Fortree City, NPC in front of the Pokémon Center."
+		},
+		{
+			"move": "Natural Gift",
+			"place": "Route 120, NPC in the far south-west area of the route."
+		},
+		{
+			"move": "Fake Tears",
+			"place": "Mt. Pyre, first floor, NPC in the north-east corner."
+		},
+		{
+			"move": "Frost Breath",
+			"place": "Shoal Cave, NPC in the ice room."
+		},
+		{
+			"move": "Avalanche",
+			"place": "Shoal Cave, NPC in the ice room."
+		},
+		{
+			"move": "Psycho Shift",
+			"place": "Sootopolis City, NPC by the garden on the south-west corner."
 		}
 	]
 }

@@ -3,9 +3,9 @@
 	"source": "pokemon-mono engines/rab/backend/DOCS/Item Locations.xlsx, via item-workbook.json",
 	"provenance": "transcribed + derived",
 	"method": "opensAt is a RUN-MAP order (cumulative enemy Pokemon, 0-1620), not an engine row index (0-434). It is the first trainer at the place the prose names, translated through trainer-orders.json. Late-biased: a place the engine splits (Route 104 South and North) takes the LATEST of its sections, because offering an item the run cannot fetch is the failure this ledger prevents. An optional fight group does not date a place that has its own fights, and a building behind a door is not a section of the route outside it. A stated gate — an HM named in the prose, or a badge count — is a floor over all of that. A place with no trainer is null and withheld.",
-	"counted": 235,
-	"dated": 192,
-	"undated": 43,
+	"counted": 294,
+	"dated": 236,
+	"undated": 58,
 	"entries": [
 		{
 			"name": "Oran Berry",
@@ -56,6 +56,22 @@
 			"dating": "the fight that guards it"
 		},
 		{
+			"name": "TM37 Swagger",
+			"kind": "tm",
+			"location": "Given by Grunt NPC inside Slateport Museum.",
+			"detail": null,
+			"opensAt": 56,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM16 Seismic Toss",
+			"kind": "tm",
+			"location": "Given by Leader Brawly after you defeat him. Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 80,
+			"dating": "the fight that guards it"
+		},
+		{
 			"name": "Cheri Berry",
 			"kind": "berry",
 			"location": "Berry Trees at Routes 104 and 114.",
@@ -88,6 +104,14 @@
 			"dating": "the first of the places it names"
 		},
 		{
+			"name": "TM04 Feint Attack",
+			"kind": "tm",
+			"location": "Route 104, given by an NPC near Floral Shop. Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 93,
+			"dating": "the first of the places it names"
+		},
+		{
 			"name": "Miracle Seed",
 			"kind": "held",
 			"location": "Petalburg Woods, given by an NPC past the Cut tree.",
@@ -104,11 +128,27 @@
 			"dating": "gated by Cut, which opens at 106"
 		},
 		{
+			"name": "TM27 Magical Leaf",
+			"kind": "tm",
+			"location": "Petalburg Woods (requires Cut). Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 106,
+			"dating": "gated by Cut, which opens at 106"
+		},
+		{
 			"name": "Rare Candy",
 			"kind": "rare-candy",
 			"location": "Route 116",
 			"detail": "Behind Rich Boy Dawson. Possible to permanently miss.",
 			"opensAt": 112,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "HM06 Rock Smash",
+			"kind": "tm",
+			"location": "Given by Leader Roxanne after you defeat her.",
+			"detail": null,
+			"opensAt": 142,
 			"dating": "the fight that guards it"
 		},
 		{
@@ -128,12 +168,28 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM46 Rock Tomb",
+			"kind": "tm",
+			"location": "Given by an NPC in Rusturf Tunnel. Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 148,
+			"dating": "the first of the places it names"
+		},
+		{
 			"name": "Wise Glasses",
 			"kind": "held",
 			"location": "Route 116, in the separate area only accesible through Rusturf Tunnel (hidden).",
 			"detail": null,
 			"opensAt": 148,
 			"dating": "gated by the path through Rusturf Tunnel, which opens at 148"
+		},
+		{
+			"name": "TM08 Electroweb",
+			"kind": "tm",
+			"location": "Route 117. Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 161,
+			"dating": "the first of the places it names"
 		},
 		{
 			"name": "Fire Stone",
@@ -200,6 +256,14 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM49 Smart Strike",
+			"kind": "tm",
+			"location": "Mauville City. Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 209,
+			"dating": "the first of the places it names"
+		},
+		{
 			"name": "Water Stone",
 			"kind": "evolution",
 			"location": "Sold at Mauville City Pokémon Mart.",
@@ -264,6 +328,22 @@
 			"dating": "only its 3 badges gate is known"
 		},
 		{
+			"name": "TM09 Shock Wave",
+			"kind": "tm",
+			"location": "Given by Leader Wattson after you defeat him. Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "TM10 Thunderbolt",
+			"kind": "tm",
+			"location": "Given by Leader Wattson after you fix the generator at New Mauville.",
+			"detail": null,
+			"opensAt": 229,
+			"dating": "the fight that guards it"
+		},
+		{
 			"name": "Upgrade",
 			"kind": "evolution",
 			"location": "Sold at Petalburg City (requires 3 badges) and Fortree City Pokémon Marts.",
@@ -296,6 +376,14 @@
 			"dating": "the first of the places it names"
 		},
 		{
+			"name": "TM25 Night Shade",
+			"kind": "tm",
+			"location": "Route 110 (requires a Bike). Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 235,
+			"dating": "the first of the places it names"
+		},
+		{
 			"name": "Lansat Berry",
 			"kind": "berry",
 			"location": "Berry Trees at Route 103.",
@@ -310,6 +398,30 @@
 			"detail": "30 to 90.",
 			"opensAt": 287,
 			"dating": "the first of the places it names"
+		},
+		{
+			"name": "TM36 Hyper Voice",
+			"kind": "tm",
+			"location": "Route 103 (requires a Bike).",
+			"detail": null,
+			"opensAt": 287,
+			"dating": "the place it names"
+		},
+		{
+			"name": "HM04 Strength",
+			"kind": "tm",
+			"location": "Given by Wally's father after defeating Leader Norman.",
+			"detail": null,
+			"opensAt": 342,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "TM35 Facade",
+			"kind": "tm",
+			"location": "Given by Leader Norman after you defeat him.",
+			"detail": null,
+			"opensAt": 342,
+			"dating": "the fight that guards it"
 		},
 		{
 			"name": "Lum Berry",
@@ -339,6 +451,22 @@
 			"name": "Sharp Beak",
 			"kind": "held",
 			"location": "Route 111, past the desert (requires Mach Bike).",
+			"detail": null,
+			"opensAt": 392,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM19 Aerial Ace",
+			"kind": "tm",
+			"location": "Route 111. Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 392,
+			"dating": "the first of the places it names"
+		},
+		{
+			"name": "TM21 Dual Wingbeat",
+			"kind": "tm",
+			"location": "Given by an NPC past the desert at Route 111 (requires Mach Bike).",
 			"detail": null,
 			"opensAt": 392,
 			"dating": "the place it names"
@@ -416,9 +544,25 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM47 Flash Cannon",
+			"kind": "tm",
+			"location": "Trade with NPC in Fallarbor Town for a Meteorite.",
+			"detail": null,
+			"opensAt": 439,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Ground Gem",
 			"kind": "held",
 			"location": "Route 114, at the rock straight south after dropping down the ledge (hidden).",
+			"detail": null,
+			"opensAt": 445,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM07 Dragon Tail",
+			"kind": "tm",
+			"location": "Route 114, given by the NPC with a Poochyena.",
 			"detail": null,
 			"opensAt": 445,
 			"dating": "the place it names"
@@ -480,6 +624,14 @@
 			"dating": "the first of the places it names"
 		},
 		{
+			"name": "TM02 X-Scissor",
+			"kind": "tm",
+			"location": "Route 112.",
+			"detail": null,
+			"opensAt": 505,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Dragon Fang",
 			"kind": "held",
 			"location": "Jagged Pass, dropping down by eastern side.",
@@ -494,6 +646,14 @@
 			"detail": null,
 			"opensAt": 582,
 			"dating": "its mart's town, dated by Leader Flannery [Boss]"
+		},
+		{
+			"name": "HM03 Surf",
+			"kind": "tm",
+			"location": "Given at Seashore House by Mr. Sea after defeating all trainers inside.",
+			"detail": null,
+			"opensAt": 582,
+			"dating": "the place it names"
 		},
 		{
 			"name": "Honey",
@@ -532,6 +692,14 @@
 			"kind": "rare-candy",
 			"location": "Petalburg City",
 			"detail": "Surf accross the southern pond, right side (hidden, requires Surf).",
+			"opensAt": 594,
+			"dating": "only its Surf gate is known"
+		},
+		{
+			"name": "TM48 Heavy Slam",
+			"kind": "tm",
+			"location": "Petalburg City (requires Surf).",
+			"detail": null,
 			"opensAt": 594,
 			"dating": "only its Surf gate is known"
 		},
@@ -584,6 +752,14 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM11 Draining Kiss",
+			"kind": "tm",
+			"location": "Abandoned Ship.",
+			"detail": null,
+			"opensAt": 612,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Twisted Spoon",
 			"kind": "held",
 			"location": "Abandoned Ship.",
@@ -606,6 +782,14 @@
 			"detail": "Rock at the south-west corner of the beach connected to Route 119 (hidden).",
 			"opensAt": 618,
 			"dating": "the first of the places it names"
+		},
+		{
+			"name": "TM50 Life Dew",
+			"kind": "tm",
+			"location": "Route 118 (requires Surf).",
+			"detail": null,
+			"opensAt": 618,
+			"dating": "the place it names"
 		},
 		{
 			"name": "Misty Seed",
@@ -696,6 +880,14 @@
 			"dating": "the first of the places it names"
 		},
 		{
+			"name": "HM02 Fly",
+			"kind": "tm",
+			"location": "Given by Rival Brendan/May after you defeat them at Route 119.",
+			"detail": null,
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Iapapa Berry",
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
@@ -736,6 +928,14 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM39 Weather Ball",
+			"kind": "tm",
+			"location": "Route 119 (requires Surf).",
+			"detail": null,
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Wiki Berry",
 			"kind": "berry",
 			"location": "Berry Tree at Route 119.",
@@ -766,6 +966,14 @@
 			"detail": null,
 			"opensAt": 763,
 			"dating": "its mart's town, dated by Leader Winona"
+		},
+		{
+			"name": "TM22 Roost",
+			"kind": "tm",
+			"location": "Given by Leader Winona after you defeat her.",
+			"detail": null,
+			"opensAt": 763,
+			"dating": "the fight that guards it"
 		},
 		{
 			"name": "Altarianite",
@@ -872,6 +1080,22 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM01 Struggle Bug",
+			"kind": "tm",
+			"location": "Route 120.",
+			"detail": null,
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM14 Aura Sphere",
+			"kind": "tm",
+			"location": "Route 120.",
+			"detail": null,
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Watmel Berry",
 			"kind": "berry",
 			"location": "Berry Tree at Route 120.",
@@ -908,6 +1132,14 @@
 			"kind": "berry",
 			"location": "Berry Tree at Route 121.",
 			"detail": "2 to 4.",
+			"opensAt": 809,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM24 Curse",
+			"kind": "tm",
+			"location": "Route 121.",
+			"detail": null,
 			"opensAt": 809,
 			"dating": "the place it names"
 		},
@@ -952,6 +1184,14 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM33 Icy Wind",
+			"kind": "tm",
+			"location": "Granite Cave (requires Mach Bike). Sold at Lilycove Department Store.",
+			"detail": null,
+			"opensAt": 848,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Ghost Gem",
 			"kind": "held",
 			"location": "Mt. Pyre, fourth floor, accessible by dropping down the holes.",
@@ -984,6 +1224,38 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM03 Dark Pulse",
+			"kind": "tm",
+			"location": "Mt. Pyre.",
+			"detail": null,
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM18 Will-O-Wisp",
+			"kind": "tm",
+			"location": "Mt. Pyre.",
+			"detail": null,
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM23 Tailwind",
+			"kind": "tm",
+			"location": "Mt. Pyre.",
+			"detail": null,
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM26 Shadow Ball",
+			"kind": "tm",
+			"location": "Mt. Pyre.",
+			"detail": null,
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Cameruptite",
 			"kind": "mega-stone",
 			"location": "Magma Hideout.",
@@ -994,6 +1266,22 @@
 		{
 			"name": "Houndoominite",
 			"kind": "mega-stone",
+			"location": "Magma Hideout.",
+			"detail": null,
+			"opensAt": 941,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM13 Play Rough",
+			"kind": "tm",
+			"location": "Magma Hideout.",
+			"detail": null,
+			"opensAt": 941,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM34 Explosion",
+			"kind": "tm",
 			"location": "Magma Hideout.",
 			"detail": null,
 			"opensAt": 941,
@@ -1016,6 +1304,14 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM38 Me First",
+			"kind": "tm",
+			"location": "Aqua Hideout.",
+			"detail": null,
+			"opensAt": 1020,
+			"dating": "the place it names"
+		},
+		{
 			"name": "Manectite",
 			"kind": "mega-stone",
 			"location": "Route 125, guarded by Bird Keeper Presley & Expert Auron.",
@@ -1024,9 +1320,25 @@
 			"dating": "the fight that guards it"
 		},
 		{
+			"name": "HM08 Dive",
+			"kind": "tm",
+			"location": "Given by Steven after the events at the Mossdeep Space Center.",
+			"detail": null,
+			"opensAt": 1174,
+			"dating": "the fight that guards it"
+		},
+		{
 			"name": "Steelixite",
 			"kind": "mega-stone",
 			"location": "Given by Steven after the events at the Mossdeep Space Center.",
+			"detail": null,
+			"opensAt": 1174,
+			"dating": "the fight that guards it"
+		},
+		{
+			"name": "TM20 Defog",
+			"kind": "tm",
+			"location": "Given by Steven at Granite Cave.",
 			"detail": null,
 			"opensAt": 1174,
 			"dating": "the fight that guards it"
@@ -1110,6 +1422,38 @@
 			"detail": null,
 			"opensAt": 1183,
 			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"name": "TM12 Misty Explosion",
+			"kind": "tm",
+			"location": "Abandoned Ship (requires Dive).",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
+		},
+		{
+			"name": "TM15 Body Press",
+			"kind": "tm",
+			"location": "Route 115 by the Meteor Falls entrance (requires Surf and Waterfall).",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"name": "TM43 Psychic Fangs",
+			"kind": "tm",
+			"location": "Route 124 (requires Dive).",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
+		},
+		{
+			"name": "TM44 Skill Swap",
+			"kind": "tm",
+			"location": "Abandoned Ship (requires Dive).",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
 		},
 		{
 			"name": "Water Gem",
@@ -1266,6 +1610,14 @@
 		{
 			"name": "Heavy Duty Boots",
 			"kind": "held",
+			"location": "Victory Road.",
+			"detail": null,
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"name": "TM31 Earthquake",
+			"kind": "tm",
 			"location": "Victory Road.",
 			"detail": null,
 			"opensAt": 1375,
@@ -1672,9 +2024,41 @@
 			"dating": "no trainer or known place in the text"
 		},
 		{
+			"name": "HM01 Cut",
+			"kind": "tm",
+			"location": "Given by an NPC in Rustboro City.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "HM05 Flash",
+			"kind": "tm",
+			"location": "Given by an NPC in Granite Cave.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "HM07 Waterfall",
+			"kind": "tm",
+			"location": "Given by Wallace at Sootopolis.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
 			"name": "Ice Gem",
 			"kind": "held",
 			"location": "Shoal Cave.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "Item",
+			"kind": "tm",
+			"location": "Location",
 			"detail": null,
 			"opensAt": null,
 			"dating": "no trainer or known place in the text"
@@ -1859,6 +2243,94 @@
 			"name": "Silk Scarf",
 			"kind": "held",
 			"location": "Dewford Town, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM05 Flatter",
+			"kind": "tm",
+			"location": "Pacifidlog Town, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM06 Breaking Swipe",
+			"kind": "tm",
+			"location": "Shoal Cave, ice room.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM17 Flamethrower",
+			"kind": "tm",
+			"location": "Given by Leader Flannery after you defeat her.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM28 Solar Blade",
+			"kind": "tm",
+			"location": "Fiery Path.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM29 Solar Beam",
+			"kind": "tm",
+			"location": "Fiery Path.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM30 Earth Power",
+			"kind": "tm",
+			"location": "Given by an NPC at Fossil Maniac's house.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM32 Ice Beam",
+			"kind": "tm",
+			"location": "Given by Leader Juan after you defeat him.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM40 Sludge Bomb",
+			"kind": "tm",
+			"location": "Given by an NPC inside Dewford Town Hall.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM41 Heal Pulse",
+			"kind": "tm",
+			"location": "Shoal Cave.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM42 Psychic",
+			"kind": "tm",
+			"location": "Given by Leaders Tate & Liza after you defeat them.",
+			"detail": null,
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"name": "TM45 Rock Blast",
+			"kind": "tm",
+			"location": "Granite Cave.",
 			"detail": null,
 			"opensAt": null,
 			"dating": "no trainer or known place in the text"

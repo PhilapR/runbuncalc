@@ -29,6 +29,27 @@ const path = require('node:path');
 const run = require('../lib/run.js');
 const getProfile = require('../profiles').getProfile;
 const PRIZE_TIERS = require('../profiles/run-and-bun/oracle/sources.json').gameCorner.tiers;
+const ITEM_ROWS = require('../profiles/run-and-bun/oracle/item-locations.json').entries;
+
+/**
+ * The move each TM teaches, and whether a mart sells it again.
+ *
+ * A TM is a ONE-TIME item in Run & Bun — the author's FAQ and the release
+ * thread both say so — except the ten sold at the Lilycove Department Store.
+ * The harness has always taught a TM move for free, so a run could teach Icy
+ * Wind ten times from a TM it never owned.
+ */
+function tmIndex() {
+	const moves = new Map();
+	for (const row of ITEM_ROWS) {
+		if (row.kind !== 'tm') continue;
+		const move = String(row.name).replace(/^(?:TM|HM)\d+\s+/, '');
+		// An HM is reusable wherever it is used; only a TM is one-time.
+		moves.set(move, {repeatable: /^HM/.test(row.name) || /Sold at /.test(row.location || ''),
+			tm: row.name, opensAt: row.opensAt});
+	}
+	return moves;
+}
 
 // A fight retried this often was won by the dice as much as by the play.
 const EFFORT_WARN = 20;
@@ -174,6 +195,36 @@ function auditRun(row) {
 			(heavy.length ? '; ' + heavy.length + ' fight(s) took ' + EFFORT_WARN + '+: ' +
 				heavy.slice(0, 5).map(pair => pair[0] + ' ' + pair[1]).join(', ') : ''));
 	}
+	// Teaches the run could not pay for: a TM is one-time unless a mart sells
+	// it again, and the harness charges nothing for either.
+	const tms = tmIndex();
+	const taughtTm = {};
+	const tooEarly = [];
+	let where = 0;
+	for (const entry of doc.log) {
+		const command = entry.command || {};
+		if (command.kind === 'beat' || command.kind === 'skip') where = replayPosition(doc, command, where);
+		if (command.kind !== 'teach') continue;
+		const known = tms.get(command.move);
+		if (!known) continue;
+		// A TM the run has not reached yet is one it cannot hold, whatever the
+		// one-time question: br-21 taught Earthquake from TM31, which lies in
+		// Victory Road, while it was still fighting in the Brawly era.
+		if (known.opensAt !== null && known.opensAt !== undefined && known.opensAt > where) {
+			tooEarly.push(command.move + ' (' + known.tm + ' opens at ' + known.opensAt + ')');
+		}
+		if (known.repeatable) continue;
+		taughtTm[command.move] = (taughtTm[command.move] || 0) + 1;
+	}
+	const overspent = Object.keys(taughtTm).filter(move => taughtTm[move] > 1)
+		.map(move => move + ' x' + taughtTm[move] + ' (' + tms.get(move).tm + ')');
+	const unique = [...new Set(tooEarly)];
+	check('TMs', overspent.length || unique.length ? 'WARN' : 'PASS',
+		[unique.length ? unique.length + ' taught before the TM is reachable: ' + unique.slice(0, 3).join(', ') : '',
+			overspent.length ? 'one-time TMs spent twice: ' + overspent.slice(0, 4).join(', ') : '']
+			.filter(Boolean).join(' | ') || 'every TM move was one the run could hold, once',
+		'NEEDS A RULING: a TM is one-time in this fork (ten are re-sold at Lilycove) and the run charges nothing for one');
+
 	// A repaired stat stage is a defect the clamp hid to keep the run alive.
 	const repairs = row.boostRepairs || 0;
 	check('stat stages', repairs ? 'WARN' : 'PASS',
@@ -191,6 +242,13 @@ function auditRun(row) {
 		'replay the saved document against the fight and seed named here');
 
 	return verdict(row, checks);
+}
+
+/** Where the run stands after a fight command, in run-map orders. */
+function replayPosition(doc, command, previous) {
+	const road = run.upcoming(Object.assign({}, doc, {position: 0, skipped: [], log: []}), 1000);
+	const fight = road.find(entry => entry.trainer === command.trainer);
+	return fight && fight.order > previous ? fight.order : previous;
 }
 
 function verdict(row, checks) {

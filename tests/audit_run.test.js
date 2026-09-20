@@ -160,3 +160,28 @@ test('the ledger says what fell and to what, not only how many', () => {
 	}
 	assert.ok(row.ledger.some(entry => entry.foeOf > 0), 'and what was left of the trainer');
 });
+
+test('a TM the run cannot hold is reported', () => {
+	// A TM is one-time in this fork (the author's FAQ and the release thread)
+	// except the ten re-sold at Lilycove, and HMs are reusable. The harness
+	// charges nothing for any of them, so banked runs taught Earthquake from
+	// a TM that lies in Victory Road while still fighting in the Brawly era,
+	// and one taught Rock Blast 42 times from a TM it never owned.
+	const items = require('../profiles/run-and-bun/oracle/item-locations.json').entries;
+	const moveOf = row => String(row.name).replace(/^(?:TM|HM)\d+\s+/, '');
+	const late = items.find(row => row.kind === 'tm' && row.opensAt > 1000 && !/^HM/.test(row.name));
+	assert.ok(late, 'the ledger dates TMs, and some lie late');
+	const detailOf = moves => {
+		const row = cleanRow();
+		const mon = row.doc.box[0];
+		for (const move of moves) row.doc.log.push({at: 't', command: {kind: 'teach', id: mon.id, move, replace: mon.moves[0]}});
+		return auditRun(row).checks.find(entry => entry.name === 'TMs');
+	};
+	const base = detailOf([]);
+	const flagged = detailOf([moveOf(late)]);
+	assert.equal(flagged.status, 'WARN');
+	// The detail names only the first few, so the count is what the gate reads.
+	const countOf = detail => Number((/^(\d+) taught before/.exec(detail) || [])[1] || 0);
+	assert.equal(countOf(flagged.detail), countOf(base.detail) + 1,
+		'the unreachable TM is counted: ' + flagged.detail);
+});

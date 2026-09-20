@@ -664,6 +664,14 @@ function itemsObtainableBy(order) {
 }
 
 /** The whole field-item ledger, location and all — the guided view's source. */
+/**
+ * The moves a tutor teaches, and where the tutor stands — a service, not an
+ * item, so it is read here rather than carried in the item ledger.
+ */
+function moveTutors() {
+	return (load('item-workbook').tutors || []).map(row => ({move: row.move, where: row.place}));
+}
+
 function fieldItems() {
 	if (!cache.fieldItems) {
 		// The 28 curated availability rows, PLUS the item ledger's dated
@@ -683,7 +691,7 @@ function fieldItems() {
 		const taken = new Set(curated.map(row =>
 			row.name + '|' + String(row.location || '').slice(0, 12)));
 		const fromLedger = ledger
-			.filter(row => ['heart-scale', 'rare-candy', 'held', 'berry', 'evolution', 'mega-stone'].includes(row.kind) &&
+			.filter(row => ['heart-scale', 'rare-candy', 'held', 'berry', 'evolution', 'mega-stone', 'tm'].includes(row.kind) &&
 				row.opensAt !== null && row.opensAt !== undefined &&
 				!/^Sold at /.test(row.location || '') &&
 				!taken.has(row.name + '|' + String(row.location || '').slice(0, 12)))
@@ -850,7 +858,7 @@ module.exports = {
 	moveAvailability, moveItems,
 	currencySources,
 	fightFieldOf, itemsObtainableBy, fieldItems, shopItems,
-	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
+	evolutionsOf, preEvolutionOf, lineageOf, familyOf, moveTutors,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp, catchRateOf,
 	coverage, LIMITS,

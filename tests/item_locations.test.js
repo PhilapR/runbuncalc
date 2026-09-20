@@ -203,8 +203,16 @@ test('a qualified place is not the place it is named after', () => {
 	// ledger's own rule — a place with no trainer is withheld — applies, and
 	// dating these four at Mauville offered them 206 orders early.
 	const items = ledger.entries.filter(entry => /New Mauville/i.test(entry.location));
-	assert.equal(items.length, 4, 'the workbook puts four items in New Mauville');
+	// Five since the TM sheet was transcribed.
+	assert.equal(items.length, 5, 'the workbook puts five items in New Mauville');
 	for (const entry of items) {
+		// A named guard outranks the place: TM10 is what Leader Wattson hands
+		// over for fixing the generator, so it is dated by the fight, not by
+		// New Mauville. Everything the text leaves to the place stays undated.
+		if (entry.dating === 'the fight that guards it') {
+			assert.ok(entry.opensAt > 0, entry.name + ' is dated by the fight that guards it');
+			continue;
+		}
 		assert.equal(entry.opensAt, null,
 			entry.name + ' is in New Mauville, which has no fight to date it');
 	}
