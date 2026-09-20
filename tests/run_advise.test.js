@@ -156,17 +156,24 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	assert.ok(paid.upgrades[0].delta.damage > paid.upgrades[1].delta.damage * 2,
 		'it still leads, and by a wide margin — on damage it can actually promise');
 
-	// The teach command charges the same price: refused broke, paid funded,
-	// and a move with any free route (Play Rough is also a TM) stays free.
+	// The teach command charges the same price: refused broke, paid funded.
+	// Nothing is free by merely HAVING another route any more — a TM route
+	// costs that TM, which is a one-time item in this fork.
 	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Bullet Seed'}),
-		/Bullet Seed is an egg move for Seedot — the relearner charges one Heart Scale/);
+		/Seedot must REMEMBER Bullet Seed — an egg move or one from a previous learnset, and the nurse charges one Heart Scale/);
 	const taught = run.apply(funded, {kind: 'teach', id: 'mon-1', move: 'Bullet Seed'});
 	assert.ok(taught.log[taught.log.length - 1].summary.includes('for one Heart Scale'));
 	assert.equal(taught.bag['Heart Scale'], undefined, 'the scale is spent');
 	let pooch = run.apply(fresh({permadeath: true}),
 		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	// Play Rough is a previous-learnset move for this Poochyena, so the nurse
+	// charges for it; with a scale it is remembered, and the scale is gone.
+	assert.throws(() => run.apply(pooch, {kind: 'teach', id: 'mon-1', move: 'Play Rough'}),
+		/must REMEMBER Play Rough/);
+	pooch = run.apply(pooch, {kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'});
 	pooch = run.apply(pooch, {kind: 'teach', id: 'mon-1', move: 'Play Rough'});
-	assert.ok(!pooch.log[pooch.log.length - 1].summary.includes('Heart Scale'));
+	assert.ok(pooch.log[pooch.log.length - 1].summary.includes('for one Heart Scale'));
+	assert.equal(pooch.bag['Heart Scale'], undefined, 'the scale is spent');
 
 	// And never an HM the story has not handed over: Lotad's Surf gates at
 	// order 594, so an advisor at order 3 may not offer it. TMs carry no dates

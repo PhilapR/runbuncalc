@@ -360,14 +360,27 @@ function relearn(doc, policy, tally, forgotten) {
 	const typeOf = name => (meta(name) || {}).type || null;
 	for (const mon of doc.box) {
 		if (mon.status === 'dead') continue;
+		// The level-up's own prompt is free and stands only until the next
+		// one; remembering anything else costs a Heart Scale at the nurse, and
+		// the whole game holds thirty. So the prompt is taken first, and the
+		// rest only while a scale is spare (operator, 2026-09-20).
+		const prompted = new Set(mon.prompted || []);
 		const offered = (oracle.levelUpMoves(mon.species) || [])
 			.filter(pair => pair[0] <= mon.level).map(pair => pair[1])
-			.filter((move, index, list) => list.indexOf(move) === index).reverse();
+			.filter((move, index, list) => list.indexOf(move) === index).reverse()
+			.sort((a, b) => (prompted.has(b) ? 1 : 0) - (prompted.has(a) ? 1 : 0));
 		for (const move of offered) {
 			const current = doc.box.find(entry => entry.id === mon.id);
 			if (current.moves.includes(move) || power(move) <= 0 || multiHit(move)) continue;
 			const gaveUp = forgotten && forgotten.get(mon.id);
 			if (gaveUp && gaveUp.has(move)) continue;
+			// A remembered move costs a Heart Scale and the game holds thirty, so
+			// only a body that FIGHTS is worth one; the level-up's own prompt is
+			// free for anyone.
+			if (!prompted.has(move)) {
+				if (!(doc.bag['Heart Scale'] > 0)) continue;
+				if (!(doc.party || []).includes(mon.id)) continue;
+			}
 			let replace = null;
 			if (current.moves.length >= 4) {
 				// Speed control is worth more than its number (the policy presses

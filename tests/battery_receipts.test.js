@@ -689,14 +689,18 @@ test('a --swap-catch receipt says the swap happened, and replays through the tap
 test('--swap-teach teaches the swapped catch the advisor\'s rows for this fight, and puts the party back', () => {
 	const report = 'fixtures/banked-runs/brkeys2-B-1.run.json';
 	const doc = battery.loadDocument(report);
+	// U-turn is a level-1 move for Vespiquen, and an evolved body must REMEMBER
+	// its level-1 moves at the nurse, which charges a Heart Scale.
+	const funded = require('../lib/run.js').apply(battery.loadDocument(report),
+		{kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'});
 	const argv = ['--pick-by-play=0', '--repick-party=0', '--swap-catch=MAP_ROUTE104:Combee', '--swap-teach=1'];
-	const taught = withArgv(argv, () => battery.prepareDocument(doc, 'Leader Brawly'));
+	const taught = withArgv(argv, () => battery.prepareDocument(funded, 'Leader Brawly'));
 	assert.deepEqual(taught.swapped.taught, ['U-turn over Destiny Bond'],
 		'the one dated row the advisor offers Vespiquen at Brawly');
 	const mon = taught.doc.box.find(entry => entry.id === taught.swapped.id);
 	assert.ok(mon.moves.includes('U-turn') && !mon.moves.includes('Destiny Bond'), mon.moves.join('/'));
 	assert.deepEqual(taught.doc.party, doc.party, 'the advisor borrowed the party; the fight gets it back');
-	const bare = withArgv(argv.slice(0, 3), () => battery.prepareDocument(doc, 'Leader Brawly'));
+	const bare = withArgv(argv.slice(0, 3), () => battery.prepareDocument(funded, 'Leader Brawly'));
 	assert.equal(bare.swapped.taught, undefined, 'off: nothing taught, nothing recorded');
 	assert.throws(() => withArgv(['--swap-teach=1'], () => battery.prepareDocument(doc, 'Leader Brawly')),
 		/needs --swap-catch/);
@@ -708,12 +712,17 @@ test('--swap-teach teaches only the swapped catch, however the advisor ranks the
 	// acc-12 at Wattson: the advisor's first teach row is for another member
 	// (mon-6, High Horsepower); the swap must not take it.
 	const doc = battery.loadDocument('fixtures/banked-runs/acc-12.run.json');
+	// What the advisor offers a fresh catch is usually a remembered move, and
+	// the nurse charges a Heart Scale for one.
+	let funded = doc;
+	for (let n = 0; n < 3; n++) funded = require('../lib/run.js').apply(funded,
+		{kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'});
 	const argv = ['--pick-by-play=0', '--repick-party=0', '--swap-catch=MAP_ROUTE101:Buneary', '--swap-teach=1'];
-	const out = withArgv(argv, () => battery.prepareDocument(doc, 'Leader Wattson'));
+	const out = withArgv(argv, () => battery.prepareDocument(funded, 'Leader Wattson'));
 	assert.ok(out.swapped.taught.length > 0, 'the catch learns something here');
 	for (const mon of out.doc.box) {
 		if (mon.id === out.swapped.id) continue;
-		assert.deepEqual(mon.moves, doc.box.find(entry => entry.id === mon.id).moves, mon.species + ' is untouched');
+		assert.deepEqual(mon.moves, funded.box.find(entry => entry.id === mon.id).moves, mon.species + ' is untouched');
 	}
 });
 

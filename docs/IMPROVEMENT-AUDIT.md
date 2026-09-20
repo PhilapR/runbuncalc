@@ -218,6 +218,17 @@ Where independent lenses met, the signal is strongest.
 
 ## The backlog
 
+- **Apply status before a fight, and forget a move — both free at the nurse**
+  (2026-09-20, operator read the menu in game). Neither is modelled. Applying
+  a status is a real lever twice over: a body that already carries one cannot
+  be given a worse one, so a pre-burned body cannot be put to sleep by
+  Hypnosis or Dark Void; and poison or burn can bring a body to a chosen HP
+  before the fight starts. Both walls the road ends at are of that shape —
+  Norman's King's Rock Cinccino and Archie's sleep leads. Forgetting matters
+  for dropping an HM move, or arming Last Resort. Ruling:
+  forget-and-apply-status-are-free.
+
+
 Ranked within each lens by the proposing reader; the cross-lens top ten
 was ranked by impact × confidence at synthesis. Every row names its
 measurement so it can graduate or die honestly. Flags are proposed

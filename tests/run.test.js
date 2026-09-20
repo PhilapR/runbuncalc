@@ -333,8 +333,10 @@ test('a named replace is honored below four moves too', () => {
 	assert.ok(!state.box[0].moves.includes('Water Gun'), 'the replaced move must be gone');
 	assert.ok(state.box[0].moves.includes('Hydro Pump'));
 	assert.match(state.log[state.log.length - 1].summary, /forgot Water Gun/);
-	// And a replace naming a move it does not know is still refused.
-	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Play Rough', replace: 'Tackle'}),
+	// And a replace naming a move it does not know is still refused — with the
+	// nurse's Heart Scale in the bag, so the refusal is about the replace.
+	const funded = run.apply(state, {kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'});
+	assert.throws(() => run.apply(funded, {kind: 'teach', id: 'mon-1', move: 'Play Rough', replace: 'Tackle'}),
 		/does not know Tackle/);
 });
 
@@ -2047,7 +2049,7 @@ test('an egg move is relearner-only: charged a Heart Scale, refused without one'
 	doc = run.apply(doc, {kind: 'catch', species: 'Treecko', level: 12});
 	assert.throws(() => run.apply(doc,
 		{kind: 'teach', id: 'mon-1', move: 'Leaf Storm', replace: 'Leer'}),
-	/teach: Leaf Storm is an egg move for Treecko — the relearner charges one Heart Scale/);
+	/Treecko must REMEMBER Leaf Storm — an egg move or one from a previous learnset, and the nurse charges one Heart Scale/);
 	doc = run.apply(doc, {kind: 'acquire', item: 'Heart Scale'});
 	doc = run.apply(doc, {kind: 'teach', id: 'mon-1', move: 'Leaf Storm', replace: 'Leer'});
 	assert.match(doc.log[doc.log.length - 1].summary, /for one Heart Scale/);

@@ -18,9 +18,9 @@ const policy = () => require('../scripts/ui-playthrough.js');
 
 const DOC = path.join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json');
 
-// A TM is a one-time item in this fork, and the banked documents were
-// recorded before the run charged for one: the gate grants each TM the log
-// spends, so "a clean run" still means a run the rules accept.
+// The banked documents were recorded before the run charged for a TM or for
+// the nurse's "Remember a move": the gate grants each TM the log spends and a
+// Heart Scale per teach, so "a clean run" still means a run the rules accept.
 function withTms(doc) {
 	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
 	const bought = [];
@@ -28,6 +28,7 @@ function withTms(doc) {
 		if ((entry.command || {}).kind !== 'teach') continue;
 		const tm = oracle.tmFor(entry.command.move);
 		if (tm) bought.push({at: 't0', command: {kind: 'acquire', item: tm.name, where: tm.name + ', granted for the gate'}});
+		bought.push({at: 't0', command: {kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'}});
 	}
 	return Object.assign({}, doc, {log: bought.concat(doc.log)});
 }

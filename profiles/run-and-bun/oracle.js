@@ -691,7 +691,16 @@ function tmFor(move) {
  * item, so it is read here rather than carried in the item ledger.
  */
 function moveTutors() {
-	return (load('item-workbook').tutors || []).map(row => ({move: row.move, where: row.place}));
+	if (!cache.tutors) {
+		cache.tutors = (load('item-workbook').tutors || []).map(row => ({move: row.move, where: row.place}));
+	}
+	return cache.tutors;
+}
+
+/** Whether a tutor teaches this move — a Set, because learnable asks per move. */
+function tutorTeaches(move) {
+	if (!cache.tutorMoves) cache.tutorMoves = new Set(moveTutors().map(row => row.move));
+	return cache.tutorMoves.has(move);
 }
 
 function fieldItems() {
@@ -880,7 +889,7 @@ module.exports = {
 	moveAvailability, moveItems,
 	currencySources,
 	fightFieldOf, itemsObtainableBy, fieldItems, shopItems,
-	evolutionsOf, preEvolutionOf, lineageOf, familyOf, moveTutors, tmFor,
+	evolutionsOf, preEvolutionOf, lineageOf, familyOf, moveTutors, tutorTeaches, tmFor,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp, catchRateOf,
 	coverage, LIMITS,

@@ -103,8 +103,12 @@ test('the harness teaches the priority answer a threshold fight demands', () => 
 	assert.deepEqual(prep.threats.map(threat => threat.species + ' ' + threat.move + ' ' + threat.holds),
 		['Mienshao Reversal Focus Sash']);
 	assert.equal(prep.covered, false);
+	// The named answer may be a remembered move, and the nurse charges a Heart
+	// Scale for one, so the gate funds it.
+	let funded = doc;
+	for (let n = 0; n < 3; n++) funded = run.apply(funded, {kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'});
 	const tally = {scaleSpends: 0};
-	const taught = headless.thresholdPrep(doc, tally);
+	const taught = headless.thresholdPrep(funded, tally);
 	assert.equal(tally.thresholdTeaches, 1);
 	const row = prep.teachable[0];
 	assert.ok(taught.box.find(mon => mon.id === row.id).moves.includes(row.move), row.species + ' learned ' + row.move);
@@ -141,13 +145,23 @@ test('the harness keeps catching past 24: a PC has no cap', () => {
 });
 
 test('the harness relearns clear level-up upgrades and keeps what raw power misreads', () => {
+	// Remembering a move costs a Heart Scale at the nurse (the level-up's own
+	// prompt is free and stands only until the next one), so the gate funds it.
 	// The Norman stall box with one Cufant from Granite Cave B1F, levelled to
 	// 42 as a Copperajah still knowing Tackle, Growl, Rock Throw, Rock Smash.
 	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
 		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
 	const policy = require('../scripts/ui-playthrough.js');
+	// The nurse charges a Heart Scale to remember a move, and the harness
+	// spends one only on a body that fights — so the gate fields the Cufant
+	// and funds the nurse.
+	const runtime = require('../lib/run.js');
+	const cufant = doc.box.find(mon => mon.species === 'Copperajah');
+	let funded = runtime.apply(doc, {kind: 'party',
+		ids: [cufant.id].concat((doc.party || []).filter(id => id !== cufant.id)).slice(0, 6)});
+	for (let n = 0; n < 6; n++) funded = runtime.apply(funded, {kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'});
 	const tally = {};
-	const after = headless.relearn(doc, policy, tally);
+	const after = headless.relearn(funded, policy, tally);
 	const copperajah = after.box.find(mon => mon.species === 'Copperajah');
 	assert.ok(copperajah.moves.includes('Iron Head'), 'a STAB upgrade: ' + copperajah.moves.join('/'));
 	assert.ok(tally.relearned > 0);

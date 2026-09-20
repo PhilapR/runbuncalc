@@ -386,6 +386,28 @@
 			"enforcedBy": [
 				"scripts/audit-run.js"
 			]
+		},
+		{
+			"id": "remembering-a-move-costs-a-scale",
+			"date": "2026-09-20",
+			"ruling": "The second nurse's menu is the model: REMEMBER A MOVE — an egg move or one from a previous learnset — costs one Heart Scale; MAXIMIZE IVs costs one; CHANGE NATURE costs three; FORGET A MOVE, CHANGE NICKNAME and APPLY STATUS are free. Only the level-up's own prompt is free for a move, and it stands until that body's next level-up (run.apply records it as mon.prompted). The harness spends a scale only on a body that fights.",
+			"why": "Operator, reading the menu in game (2026-09-20). Before this the harness relearned any passed level-up move for nothing — about 276 free relearns a run, against a game that holds thirty Heart Scales in total — so every banked run's moveset was richer than the game allows. The level-up prompt keeps a run from being starved unfairly: a move the level-up offers while the moveset is full may still be taken over something, free, right then.",
+			"enforcedBy": [
+				"lib/run.js",
+				"scripts/headless-run.js",
+				"tests/run.test.js",
+				"tests/run_advise.test.js",
+				"tests/headless_run.test.js"
+			]
+		},
+		{
+			"id": "forget-and-apply-status-are-free",
+			"date": "2026-09-20",
+			"ruling": "FORGET A MOVE and APPLY STATUS are free at the nurse and are NOT yet modelled. Forgetting matters for dropping an HM move or arming Last Resort; applying status before a fight matters twice — a body that already carries a status cannot be given a worse one (sleep, burn), and poison or burn can be used to pre-damage a body to a chosen HP.",
+			"why": "Operator, reading the menu in game (2026-09-20). Recorded now so the capability is not forgotten: it is a real strategic lever this run has never used, and both walls the road ends at (Norman's Cinccino flinches, Archie's Dark Void and Hypnosis leads) are exactly the kind of fight a pre-applied status answers.",
+			"enforcedBy": [
+				"docs/IMPROVEMENT-AUDIT.md"
+			]
 		}
 	],
 	"open": [

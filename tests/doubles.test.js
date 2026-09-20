@@ -215,7 +215,11 @@ test('a double is prepared with the tools a double is fought with', () => {
 	// 13's deepest run, with a party that had no Fake Out, Wide Guard, Icy
 	// Wind or Tailwind — all of which its own box could learn.
 	const headless = require('../scripts/headless-run.js');
-	const before = doc();
+	// Wide Guard and friends are egg or previous-learnset moves for some
+	// bodies, and the nurse charges a Heart Scale to remember one.
+	let before = doc();
+	for (let n = 0; n < 4; n++) before = require('../lib/run.js').apply(before,
+		{kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'});
 	const tally = {};
 	const after = headless.doublesPrep(before, tally);
 	assert.equal(tally.doublesTaught, 2, 'at most two bodies change, and here both could');
