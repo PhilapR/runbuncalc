@@ -459,6 +459,39 @@ function doublesPrep(doc, tally) {
 	return doc;
 }
 
+/**
+ * Spend Heart Scales on the party's worst IVs.
+ *
+ * One scale maxes one IV and three change a nature — the author's FAQ says so,
+ * and the scales cannot be farmed. Runs spent every scale they found on
+ * egg-move teaches instead (3 of 3 in the run traced) and maxed no IV at all,
+ * though 26 scales are reachable by Archie at Seafloor Cavern, where the road
+ * ends. Spending them there took his team from 5.42 survivors of six to 4.67.
+ * Off unless --scale-ivs=1.
+ */
+function spendScales(doc, tally) {
+	const SCALE = 'Heart Scale';
+	let spent = 0;
+	while ((doc.bag[SCALE] || 0) > 0) {
+		let worst = null;
+		for (const id of doc.party || []) {
+			const mon = doc.box.find(entry => entry.id === id);
+			if (!mon || !mon.ivs) continue;
+			for (const stat of ['hp', 'atk', 'def', 'spa', 'spd', 'spe']) {
+				if (mon.ivs[stat] >= 31) continue;
+				if (!worst || mon.ivs[stat] < worst.iv) worst = {id: mon.id, stat, iv: mon.ivs[stat]};
+			}
+		}
+		if (!worst) break;
+		try {
+			doc = run.apply(doc, {kind: 'heartScale', id: worst.id, stat: worst.stat});
+			spent += 1;
+		} catch (error) { break; }
+	}
+	if (tally && spent) tally.scaleSpends = (tally.scaleSpends || 0) + spent;
+	return doc;
+}
+
 /** Teach and (treatment) scale-spend from the same advice the panel shows. */
 function followAdvice(doc, treatment, tally, forgotten) {
 	// The marts first: a stone the bag holds is an evolve row the advisor
@@ -695,6 +728,7 @@ function playRun(policy, starter, seed, treatment, options) {
 			doc = levelToCap(doc, tally);
 			doc = relearn(doc, policy, tally, forgotten);
 			doc = followAdvice(doc, treatment, tally, forgotten);
+			if (flag('scale-ivs', '0') === '1') doc = spendScales(doc, tally);
 			doc = thresholdPrep(doc, tally);
 			doc = bestParty(doc);
 		}
@@ -903,4 +937,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};

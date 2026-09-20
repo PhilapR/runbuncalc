@@ -207,6 +207,14 @@ function auditRun(row) {
 		if (command.kind !== 'teach') continue;
 		const known = tms.get(command.move);
 		if (!known) continue;
+		// A move with a TM is not always FROM the TM: Rock Tomb is a level-up
+		// move for Aron at 13 and a TM for everyone else. Only a teach the
+		// rules would charge for counts here, which is what run.apply asks.
+		const mon = doc.box.find(entry => entry.id === command.id);
+		const verdict = mon ? oracle.canLearn(mon.species, command.move) : null;
+		const chargeable = verdict && verdict.legal && verdict.sources.every(source =>
+			source.source === 'teachable' || (source.level !== undefined && source.level > (mon.level || 0)));
+		if (!chargeable) continue;
 		// A TM the run has not reached yet is one it cannot hold, whatever the
 		// one-time question: br-21 taught Earthquake from TM31, which lies in
 		// Victory Road, while it was still fighting in the Brawly era.

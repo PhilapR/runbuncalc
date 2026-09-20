@@ -183,19 +183,69 @@ test('a TM the run cannot hold is reported', () => {
 	// and one taught Rock Blast 42 times from a TM it never owned.
 	const items = require('../profiles/run-and-bun/oracle/item-locations.json').entries;
 	const moveOf = row => String(row.name).replace(/^(?:TM|HM)\d+\s+/, '');
-	const late = items.find(row => row.kind === 'tm' && row.opensAt > 1000 && !/^HM/.test(row.name));
-	assert.ok(late, 'the ledger dates TMs, and some lie late');
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	// A late TM and a body that can only get that move from it: a move the
+	// body also learns by level-up at or below its level is not a teach the
+	// rules charge for, so it is not this check's business.
+	const box = cleanRow().doc.box;
+	let pick = null;
+	for (const row of items) {
+		if (row.kind !== 'tm' || !(row.opensAt > 1000) || /^HM/.test(row.name)) continue;
+		const move = String(row.name).replace(/^TM\d+\s+/, '');
+		for (const mon of box) {
+			const verdict = oracle.canLearn(mon.species, move);
+			if (!verdict.legal) continue;
+			const chargeable = verdict.sources.every(source =>
+				source.source === 'teachable' || (source.level !== undefined && source.level > mon.level));
+			if (chargeable) { pick = {tm: row, move, mon}; break; }
+		}
+		if (pick) break;
+	}
+	assert.ok(pick, 'some body needs a late TM for a move it cannot otherwise have');
+	const late = pick.tm;
 	const detailOf = moves => {
 		const row = cleanRow();
-		const mon = row.doc.box[0];
-		for (const move of moves) row.doc.log.push({at: 't', command: {kind: 'teach', id: mon.id, move, replace: mon.moves[0]}});
+		for (const move of moves) {
+			row.doc.log.push({at: 't', command: {kind: 'teach', id: pick.mon.id, move, replace: pick.mon.moves[0]}});
+		}
 		return auditRun(row).checks.find(entry => entry.name === 'TMs');
 	};
 	const base = detailOf([]);
-	const flagged = detailOf([moveOf(late)]);
+	const flagged = detailOf([pick.move]);
 	assert.equal(flagged.status, 'WARN');
 	// The detail names only the first few, so the count is what the gate reads.
 	const countOf = detail => Number((/^(\d+) taught before/.exec(detail) || [])[1] || 0);
 	assert.equal(countOf(flagged.detail), countOf(base.detail) + 1,
 		'the unreachable TM is counted: ' + flagged.detail);
+});
+
+test('Heart Scales are spent on the party\'s worst IVs', () => {
+	// One scale maxes one IV (the author's FAQ), and they cannot be farmed.
+	// Runs spent every scale they found on egg-move teaches and maxed no IV
+	// at all, though 26 are reachable by Archie at Seafloor Cavern.
+	const headless = require('../scripts/headless-run.js');
+	const run = require('../lib/run.js');
+	const battery = require('../scripts/scenario-battery.js');
+	let doc = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json'));
+	for (let n = 0; n < 4; n++) doc = run.apply(doc, {kind: 'acquire', item: 'Heart Scale', where: 'granted'});
+	const before = doc.party.map(id => doc.box.find(mon => mon.id === id))
+		.reduce((sum, mon) => sum + Object.values(mon.ivs).filter(iv => iv >= 31).length, 0);
+	const tally = {};
+	const after = headless.spendScales(doc, tally);
+	assert.equal(tally.scaleSpends, 4, 'every scale in the bag is spent');
+	assert.equal(after.bag['Heart Scale'] || 0, 0);
+	const maxed = after.party.map(id => after.box.find(mon => mon.id === id))
+		.reduce((sum, mon) => sum + Object.values(mon.ivs).filter(iv => iv >= 31).length, 0);
+	assert.equal(maxed, before + 4, 'four more stats are maxed');
+	// And it spends on the WORST four, not the first four it meets.
+	const stats = [];
+	for (const id of doc.party) {
+		const mon = doc.box.find(entry => entry.id === id);
+		for (const stat of Object.keys(mon.ivs)) if (mon.ivs[stat] < 31) stats.push({id, stat, iv: mon.ivs[stat]});
+	}
+	stats.sort((x, y) => x.iv - y.iv);
+	for (const pick of stats.slice(0, 4)) {
+		assert.equal(after.box.find(mon => mon.id === pick.id).ivs[pick.stat], 31,
+			'the worst IVs are the ones maxed: ' + pick.stat + ' at ' + pick.iv + ' was left behind');
+	}
 });
