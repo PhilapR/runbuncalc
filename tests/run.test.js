@@ -345,16 +345,20 @@ test('a move must be one the species can actually hold', () => {
 	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Dragon Dance'}),
 		/Azumarill cannot learn Dragon Dance/);
 
-	// Four moves is four moves; a fifth needs one named to replace.
+	// Four moves is four moves; a fifth needs one named to replace — and a TM
+	// move needs its TM, which is a one-time item in this fork.
 	const full = run.applyAll(state, [
+		{kind: 'acquire', item: 'TM13 Play Rough', where: 'Route 104'},
 		{kind: 'teach', id: 'mon-1', move: 'Play Rough', replace: state.box[0].moves[0]},
 	]);
 	assert.ok(full.box[0].moves.includes('Play Rough'));
 	assert.equal(full.box[0].moves.length, state.box[0].moves.length);
 	assert.throws(() => run.apply(full, {kind: 'teach', id: 'mon-1', move: 'Play Rough'}),
 		/already knows Play Rough/);
+	// The HM is in the bag, so the refusal is about the replace, not the item.
+	const withHm = run.apply(full, {kind: 'acquire', item: 'HM07 Waterfall', where: 'Route 119'});
 	assert.throws(
-		() => run.apply(full, {kind: 'teach', id: 'mon-1', move: 'Waterfall', replace: 'Fly'}),
+		() => run.apply(withHm, {kind: 'teach', id: 'mon-1', move: 'Waterfall', replace: 'Fly'}),
 		/does not know Fly/
 	);
 });
@@ -365,16 +369,33 @@ test('a level-up move is not available before its level', () => {
 	const state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
 	const later = run.learnable(state, 'mon-1').later;
 	assert.ok(later.length > 0, 'a level 3 Poochyena should have moves still ahead of it');
-	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: later[0].move}),
+	// A move it only learns later, and which no TM can hand over: a TM move
+	// is refused for the missing TM first, which is a different sentence.
+	const oracle = require('../profiles').getProfile(state.profileId || 'run-and-bun').oracle;
+	const byLevel = later.find(row => !oracle.tmFor(row.move));
+	assert.ok(byLevel, 'some move ahead of it comes only by level-up: ' + later.map(r => r.move).join(', '));
+	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: byLevel.move}),
 		/learns .* at level \d+; it is 3/);
 	// And what it CAN learn now is offered separately, so a UI need not guess —
 	// egg-only entries carry their relearner price as `scale`, so the free
 	// teach is the one to exercise here.
 	const now = run.learnable(state, 'mon-1').now;
 	assert.ok(now.length > 0);
-	const free = now.find(entry => !entry.scale);
-	assert.ok(free, 'a free teach exists alongside the priced egg moves');
+	// Free means free of BOTH prices now: a Heart Scale for an egg move, and
+	// the TM itself for a TM move, which is a one-time item in this fork.
+	const free = now.find(entry => !entry.scale && !oracle.tmFor(entry.move));
+	assert.ok(free, 'a free teach exists alongside the priced ones');
 	assert.ok(run.apply(state, {kind: 'teach', id: 'mon-1', move: free.move}));
+	const byTm = now.find(entry => !entry.scale && oracle.tmFor(entry.move));
+	if (byTm) {
+		const tm = oracle.tmFor(byTm.move);
+		assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: byTm.move}),
+			error => error.message.includes('comes from ' + tm.name),
+			'a TM move is refused while the bag has no TM');
+		const armed = run.apply(state, {kind: 'acquire', item: tm.name, where: 'Route 104'});
+		assert.ok(run.apply(armed, {kind: 'teach', id: 'mon-1', move: byTm.move}),
+			'and taught once the TM is in the bag');
+	}
 });
 
 test('the level caps are the game\'s own ladder, all twenty-three rows', () => {
@@ -2582,4 +2603,29 @@ test('the ledger\'s held items and berries are field pickups too', () => {
 	const r109 = run.fieldItems(state, 'Route109');
 	assert.ok(r109.some(item => item.kind === 'held'),
 		'Route 109 shows its ledger held item');
+});
+
+test('a TM is a one-time item, and the surfaces say which TM a move costs', () => {
+	// The author's FAQ and the release thread: a TM is one-time in this fork,
+	// except the ten re-sold at the Lilycove Department Store; an HM is
+	// reusable. The sheet was never transcribed, so the run charged nothing
+	// and taught Rock Blast 42 times from a TM it never owned.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	const rows = run.learnable(state, 'mon-1').now.filter(entry => entry.tm);
+	assert.ok(rows.length > 0, 'the surface names the TM a move costs');
+	assert.ok(rows.every(entry => entry.owned === false), 'and says the bag holds none of them');
+	const row = rows[0];
+	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: row.move}),
+		error => error.message.includes('comes from ' + row.tm));
+	const armed = run.apply(state, {kind: 'acquire', item: row.tm, where: 'a mart'});
+	assert.equal(run.learnable(armed, 'mon-1').now.find(entry => entry.move === row.move).owned, true);
+	const taught = run.apply(armed, {kind: 'teach', id: 'mon-1', move: row.move});
+	const spent = !oracle.tmFor(row.move).repeatable;
+	assert.equal((taught.bag[row.tm] || 0), spent ? 0 : 1,
+		spent ? 'a one-time TM is spent' : 'a re-sold TM or an HM is not');
+	// An HM is reusable wherever it is used.
+	const hm = Object.keys(oracle.tmFor('Surf') ? {Surf: 1} : {});
+	if (hm.length) assert.equal(oracle.tmFor('Surf').repeatable, true, 'HM03 Surf is reusable');
+	assert.equal(oracle.tmFor('Seismic Toss').repeatable, true, 'the Lilycove TMs are re-sold');
 });

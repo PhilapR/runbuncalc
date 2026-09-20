@@ -665,6 +665,28 @@ function itemsObtainableBy(order) {
 
 /** The whole field-item ledger, location and all — the guided view's source. */
 /**
+ * The TM that teaches a move, or null: {name, repeatable, opensAt}.
+ *
+ * A TM is a ONE-TIME item in this fork (the author's FAQ and the release
+ * thread) except the ten re-sold at the Lilycove Department Store; an HM is
+ * reusable wherever it is used. The sheet was never transcribed, so the run
+ * charged nothing for a TM move and taught one ten times over.
+ */
+function tmFor(move) {
+	if (!cache.tmByMove) {
+		cache.tmByMove = new Map();
+		for (const row of load('item-locations').entries || []) {
+			if (row.kind !== 'tm') continue;
+			const taught = String(row.name).replace(/^(?:TM|HM)\d+\s+/, '');
+			cache.tmByMove.set(taught, {name: row.name,
+				repeatable: /^HM/.test(row.name) || /Sold at /.test(row.location || ''),
+				opensAt: row.opensAt === undefined ? null : row.opensAt});
+		}
+	}
+	return cache.tmByMove.get(move) || null;
+}
+
+/**
  * The moves a tutor teaches, and where the tutor stands — a service, not an
  * item, so it is read here rather than carried in the item ledger.
  */
@@ -858,7 +880,7 @@ module.exports = {
 	moveAvailability, moveItems,
 	currencySources,
 	fightFieldOf, itemsObtainableBy, fieldItems, shopItems,
-	evolutionsOf, preEvolutionOf, lineageOf, familyOf, moveTutors,
+	evolutionsOf, preEvolutionOf, lineageOf, familyOf, moveTutors, tmFor,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp, catchRateOf,
 	coverage, LIMITS,

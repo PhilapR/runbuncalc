@@ -18,8 +18,22 @@ const policy = () => require('../scripts/ui-playthrough.js');
 
 const DOC = path.join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json');
 
+// A TM is a one-time item in this fork, and the banked documents were
+// recorded before the run charged for one: the gate grants each TM the log
+// spends, so "a clean run" still means a run the rules accept.
+function withTms(doc) {
+	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
+	const bought = [];
+	for (const entry of doc.log) {
+		if ((entry.command || {}).kind !== 'teach') continue;
+		const tm = oracle.tmFor(entry.command.move);
+		if (tm) bought.push({at: 't0', command: {kind: 'acquire', item: tm.name, where: tm.name + ', granted for the gate'}});
+	}
+	return Object.assign({}, doc, {log: bought.concat(doc.log)});
+}
+
 function cleanRow() {
-	return {doc: JSON.parse(fs.readFileSync(DOC, 'utf8')),
+	return {doc: withTms(JSON.parse(fs.readFileSync(DOC, 'utf8'))),
 		ledger: [{n: 1, trainer: 'Youngster Calvin', seed: 2, result: 'win', refusals: 0}],
 		provenance: {revision: '0123456789abcdef', dirty: false, flags: ['--pp-model=1']}};
 }

@@ -60,8 +60,10 @@ test('fieldItems needs its map, and gates on `open`', () => {
 
 test('teach replaces with `replace`, and the refusal does not name the real cause', () => {
 	const state = fresh();
-	// The documented shape works.
-	assert.doesNotThrow(() => run.apply(state.doc,
+	// The documented shape works — with the TM in the bag, since a TM is a
+	// one-time item in this fork and a teach spends it.
+	const armed = run.apply(state.doc, {kind: 'acquire', item: 'TM32 Ice Beam', where: 'Route 104'});
+	assert.doesNotThrow(() => run.apply(armed,
 		{kind: 'teach', id: state.id, move: 'Ice Beam', replace: 'Pluck'}));
 	// Every wrong key name fails with the SAME message, which is why that
 	// message must not be read as evidence about the value.
@@ -69,7 +71,7 @@ test('teach replaces with `replace`, and the refusal does not name the real caus
 		try {
 			const command = {kind: 'teach', id: state.id, move: 'Ice Beam'};
 			command[key] = 'Pluck';
-			run.apply(state.doc, command);
+			run.apply(armed, command);
 			return null;
 		} catch (error) { return error.message; }
 	};

@@ -365,6 +365,18 @@
 				"scripts/headless-run.js",
 				"tests/doubles.test.js"
 			]
+		},
+		{
+			"id": "a-tm-is-a-one-time-item",
+			"date": "2026-09-20",
+			"ruling": "A TM is a ONE-TIME item: a move whose only free route is the teachable pool requires that TM in the bag and spends it, unless the TM is an HM (reusable) or one of the ten the Lilycove Department Store re-sells. A move a tutor teaches stays free, because a tutor is a service. The learnable surfaces name the TM a move costs and whether the bag holds one, so no surface offers what the run cannot pay for.",
+			"why": "Operator ruling, 2026-09-20 ('we need a TM case for the available TM'), against the author's own sources: the Run & Bun FAQ (gbacodes.com/pokemon-run-bun-faq) and the release thread say TMs are a limited resource, mostly one-time, with a few re-sold at the Lilycove Department Store, and that Heart Scales cannot be farmed (one maxes an IV, three change a nature). The 'TMHMs and Move Tutors' sheet had never been transcribed, so the ledger held no TM, every teach of a TM move was free, and runs taught Rock Blast 42 times from a TM they never owned and Earthquake from a TM lying in Victory Road while fighting in the Brawly era. Every banked run predates this and is invalid under it: the audit's replay refuses those teaches by name.",
+			"enforcedBy": [
+				"lib/run.js",
+				"profiles/run-and-bun/oracle.js",
+				"tests/run.test.js",
+				"scripts/audit-run.js"
+			]
 		}
 	],
 	"open": [
