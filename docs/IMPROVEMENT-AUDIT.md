@@ -146,6 +146,16 @@ Where independent lenses met, the signal is strongest.
   eight sixes picked by play (every candidate scored 0 in selection, because
   selection plays the weak hand). A six built by hand for the fight (speed,
   Fake Out, bulk) won 1 of 8 with the joint search. **measured**.
+- **Engineering the bridge six was tried three ways and none of them
+  measured better** (2026-09-19). On sweep 13 run6's own state, with the
+  joint search and the doubles prep in every arm: the ranker's top twelve
+  sixes went 0 of 33; a six built by hand from the fight's shape (Fake Out,
+  a fast Water, Tailwind, a bulky Ground) went 1 of 24; a selector scoring
+  every body by that shape — outspeeds the lead, holds or can learn a tool,
+  carries a spread move, survives the hardest hit — went 0 of 24. The fight
+  is about 0-4% for any six this box can field, and 60 retries clear a 4%
+  fight nine times in ten. The lever is the BOX that arrives at the fight,
+  not the six chosen from it. **measured**.
 - **A doubles depth term in the ranker was measured and REJECTED**
   (2026-09-19). Scoring an enemy column by the average of the six's best TWO
   answers, and charging half a point for a column only one body answers, on
