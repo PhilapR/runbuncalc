@@ -581,6 +581,9 @@ function playRun(policy, starter, seed, treatment, options) {
 		// seed (battery.playScenario on the document at that position).
 		ledger: []};
 	const made = provenance();
+	// Stat stages the calculator could not have indexed, repaired on the way
+	// in: the clamp keeps the run alive, the count keeps the defect findable.
+	const repairsAt = require('../ai').boostRepairs();
 	const started = Date.now();
 	const caughtFrom = new Set();
 	// An owed fight (a skipped double, Gavi) whose retries are spent waits
@@ -720,6 +723,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		skipped: tally.skipped, engineRefusals: tally.engineRefusals, stopped: tally.stopped || null,
 		provenance: made, ledger: tally.ledger,
 		crashes: tally.crashes || 0, crashed: tally.crashed || [],
+		boostRepairs: require('../ai').boostRepairs() - repairsAt,
 		seconds: Math.round((Date.now() - started) / 1000),
 		// The document where the run ended, when asked for: a stall is a
 		// battery scenario waiting to be written.

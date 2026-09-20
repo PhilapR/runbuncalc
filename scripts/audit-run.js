@@ -174,6 +174,13 @@ function auditRun(row) {
 			(heavy.length ? '; ' + heavy.length + ' fight(s) took ' + EFFORT_WARN + '+: ' +
 				heavy.slice(0, 5).map(pair => pair[0] + ' ' + pair[1]).join(', ') : ''));
 	}
+	// A repaired stat stage is a defect the clamp hid to keep the run alive.
+	const repairs = row.boostRepairs || 0;
+	check('stat stages', repairs ? 'WARN' : 'PASS',
+		repairs ? repairs + ' stage(s) past +/-6 or not a number, clamped on the way into the calculator' :
+			'every stage the calculator saw was one it could index',
+		'find what writes the stage: unclamped, this crashes the run (sweep 14, fight #271)');
+
 	// An engine crash is a defect with a name: the fight, the seed, and the
 	// document that met it (playRun writes them out when a run keeps going).
 	const crashes = row.crashes || 0;

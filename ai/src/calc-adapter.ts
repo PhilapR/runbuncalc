@@ -36,6 +36,14 @@ function findSide(state: BattleState, pokemonId: string): SideId {
   throw new Error(`Unknown PokÃ©mon id: ${pokemonId}`);
 }
 
+/**
+ * Stat stages the calculator could not have indexed, repaired on the way in.
+ * The clamp keeps a run alive, and the count keeps the defect findable: a
+ * repair means something upstream wrote a stage past +/-6 or a non-number.
+ */
+let boostStageRepairs = 0;
+export function boostRepairs(): number { return boostStageRepairs; }
+
 function toCalcBoosts(boosts: PokemonState['boosts']) {
   if (!boosts) return undefined;
   // Every stage, defaulted and clamped: a state that boosted only Speed
@@ -43,7 +51,12 @@ function toCalcBoosts(boosts: PokemonState['boosts']) {
   // its stage table by `6 + stage`, and `6 + undefined` is NaN — which
   // killed the deepest run in sweep 14 at fight #271, after 410 fights.
   // confusionBoostedStat above learned this once already, one level up.
-  const stage = (value: number | undefined) => Math.max(-6, Math.min(6, value ?? 0));
+  const stage = (value: number | undefined) => {
+    const raw = Number(value ?? 0);
+    const clamped = Number.isFinite(raw) ? Math.max(-6, Math.min(6, raw)) : 0;
+    if (clamped !== raw) boostStageRepairs += 1;
+    return clamped;
+  };
   return {
     atk: stage(boosts.atk),
     def: stage(boosts.def),

@@ -119,3 +119,32 @@ test('a charge move is a threat priced by its release, behind a switch', () => {
 		driver.setChargeThreat(false);
 	}
 });
+
+test('a stat stage the calculator cannot index is repaired, and counted', () => {
+	// Sweep 14's deepest run beat 410 fights and died at #271 here: the
+	// calculator indexes its stage table by 6 + stage, so a stage past +/-6
+	// (or NaN) reads off the end and takes the whole run with it.
+	const state = planner.buildFightState({trainer: 'Leader Tate',
+		playerParty: [{species: 'Reuniclus', level: 85, nature: 'Hardy', ability: 'Magic Guard', item: null,
+			moves: ['Psychic'], ivs: IVS}], profileId: 'run-and-bun'}).state;
+	const us = state.sides.player.activeIds[0];
+	const foe = state.sides.ai.activeIds[0];
+	const withBoosts = boosts => Object.assign({}, state, {sides: Object.assign({}, state.sides, {
+		player: Object.assign({}, state.sides.player, {party: state.sides.player.party
+			.map(mon => mon.id === us ? Object.assign({}, mon, {boosts}) : mon)}),
+	})});
+	const damageWith = boosts => {
+		const facts = ai.calculateActionFacts(withBoosts(boosts), {kind: 'move', actorId: us,
+			moveName: 'Psychic', targetIds: [foe]});
+		return facts.damage.max;
+	};
+	const legal = damageWith({spa: 6});
+	const before = ai.boostRepairs();
+	assert.equal(damageWith({spa: 8}), legal, 'a stage past +6 is played as +6');
+	assert.ok(damageWith({spa: -9}) > 0, 'a stage past -6 is played as -6');
+	assert.ok(damageWith({spa: NaN}) > 0, 'a stage that is not a number is played as 0');
+	assert.equal(ai.boostRepairs() - before, 3, 'each repair is counted, so the source stays findable');
+	const clean = ai.boostRepairs();
+	damageWith({spa: 2});
+	assert.equal(ai.boostRepairs(), clean, 'a legal stage is not a repair');
+});
