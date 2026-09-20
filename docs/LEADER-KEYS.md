@@ -195,6 +195,33 @@ it scores a six by the best single answer per enemy, which rates bulk over
 speed and prices no tool. A doubles selector would have to build its pool
 from that shape.
 
+## Archie at Seafloor Cavern, the wall the road now ends at (2026-09-20)
+
+With the doubles fixed, sweep 16's deepest run reached fight #294 of 358
+with 290+ wins, no skips, no engine refusals and every rule check clean, and
+stopped at Aqua Leader Archie in Seafloor Cavern: **0 wins of 60 attempts**.
+
+It is a rain team, and the fight is decided before any six is chosen:
+
+- Drizzle Kyogre (Level 90, Custap Berry) with Origin Pulse, Thunder that
+  cannot miss in rain, and Ice Beam;
+- Mega Swampert and Overqwil, both Swift Swim, so both act twice in the rain;
+- Contrary Serperior (Leaf Storm raises its own attack), Weakness Policy
+  Aegislash, Zapdos with Thunder and Roost.
+
+Measured on that run's own box of 59, at cap 89: **3 bodies survive Kyogre's
+best hit** (Ludicolo, which resists Water, at 79%; Sneasler and Muk-Alola at
+99-100%), and the hardest hit anyone lands on it is 72% from a Torterra that
+Ice Beam removes at 273%. The run fielded none of the three survivors, and a
+six built survivor-first went 0 of 12 with search, leaving three to five of
+Archie's six standing.
+
+The box held no weather move, no Water Absorb and no Storm Drain body, and
+nothing in it could learn one. So the answer is not a six and not a hand: it
+is a box that arrives at cap 89 with a rain answer in it, which is a
+PREPARATION problem — which routes are spent, on which method, and what is
+held for later.
+
 ## What this feeds next
 
 The answers are exactly the shape `adviseCatches` wants: when the next
