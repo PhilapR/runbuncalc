@@ -62,3 +62,40 @@ test('each invalid result is caught by the check that names it', () => {
 	// A box edited outside the log.
 	tampered(row => { row.doc.box[0].level += 1; }, 'replay');
 });
+
+test('an engine crash is a lost fight, not a lost run, and the audit names it', () => {
+	// Sweep 14's deepest run died at fight #271 after beating 410 of them
+	// (a stat stage the calculator could not index), and its document went
+	// with it, so the state could not be replayed.
+	const headless = require('../scripts/headless-run.js');
+	const battery = require('../scripts/scenario-battery.js');
+	const policy = require('../scripts/ui-playthrough.js');
+	const real = battery.playScenario;
+	const crashes = [];
+	let calls = 0;
+	battery.playScenario = function crashOnceThenPlay() {
+		calls += 1;
+		if (calls === 3) throw new Error('Cannot read properties of undefined (reading \'0\')');
+		return real.apply(this, arguments);
+	};
+	let row;
+	try {
+		process.argv.push('--budget=6');
+		row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 41, headless.armFlags(''),
+			{keepDoc: true, onCrash: (crash, doc) => crashes.push([crash, doc])});
+	} finally {
+		battery.playScenario = real;
+		process.argv = process.argv.filter(arg => arg !== '--budget=6');
+	}
+	assert.equal(row.crashes, 1, 'the crash is counted');
+	assert.equal(row.crashed.length, 1);
+	assert.match(row.crashed[0].message, /Cannot read properties/);
+	assert.ok(row.crashed[0].trainer && row.crashed[0].seed, 'the fight and its seed are named');
+	assert.equal(crashes.length, 1, 'the document that met it is handed out');
+	assert.ok(crashes[0][1].log.length > 0, 'and it is a real document');
+	assert.ok(row.fights > 3, 'the run kept going: ' + row.fights);
+	const audited = auditRun(row);
+	const crashCheck = audited.checks.find(entry => entry.name === 'engine crashes');
+	assert.equal(crashCheck.status, 'WARN');
+	assert.match(crashCheck.detail, /Cannot read properties/);
+});

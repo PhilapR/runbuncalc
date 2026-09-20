@@ -38,12 +38,18 @@ function findSide(state: BattleState, pokemonId: string): SideId {
 
 function toCalcBoosts(boosts: PokemonState['boosts']) {
   if (!boosts) return undefined;
+  // Every stage, defaulted and clamped: a state that boosted only Speed
+  // leaves the rest undefined, the calculator's own getModifiedStat indexes
+  // its stage table by `6 + stage`, and `6 + undefined` is NaN — which
+  // killed the deepest run in sweep 14 at fight #271, after 410 fights.
+  // confusionBoostedStat above learned this once already, one level up.
+  const stage = (value: number | undefined) => Math.max(-6, Math.min(6, value ?? 0));
   return {
-    atk: boosts.atk,
-    def: boosts.def,
-    spa: boosts.spa,
-    spd: boosts.spd,
-    spe: boosts.spe,
+    atk: stage(boosts.atk),
+    def: stage(boosts.def),
+    spa: stage(boosts.spa),
+    spd: stage(boosts.spd),
+    spe: stage(boosts.spe),
   };
 }
 

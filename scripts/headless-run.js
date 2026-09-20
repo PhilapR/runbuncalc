@@ -646,7 +646,22 @@ function playRun(policy, starter, seed, treatment, options) {
 		const searchAfter = Number(flag('search-after', '0'));
 		const searching = searchAfter > 0 && attempts >= searchAfter ? {search: Number(flag('search-rollouts', '4'))} : undefined;
 		if (next.isDouble && flag('doubles-prep', '1') === '1') doc = doublesPrep(doc, tally);
-		const played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, undefined, searching);
+		// An engine crash is a lost fight, not a lost run. Sweep 14's deepest
+		// run died at fight #271 after beating 410 of them, and its document
+		// went with it: the state that crashed could not be replayed, so the
+		// defect could not be found. The run now retries the fight and keeps
+		// going, and the crash is written out with the document that met it.
+		let played;
+		try {
+			played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, undefined, searching);
+		} catch (error) {
+			tally.crashes = (tally.crashes || 0) + 1;
+			const crash = {trainer: next.trainer, order: next.order, seed: fightSeed,
+				message: String(error && error.message).slice(0, 300), stack: String(error && error.stack).slice(0, 2000)};
+			tally.crashed = (tally.crashed || []).concat([crash]);
+			if (options && options.onCrash) options.onCrash(crash, doc);
+			played = {result: 'loss', turns: 0, deaths: 0, engineRefusals: 0, policy: 'crashed'};
+		}
 		tally.fights += 1;
 		tally.engineRefusals += played.engineRefusals || 0;
 		tally.ledger.push({n: tally.fights, order: next.order, trainer: next.trainer, seed: fightSeed,
@@ -704,6 +719,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		finished: run.upcoming(doc, 1).length === 0,
 		skipped: tally.skipped, engineRefusals: tally.engineRefusals, stopped: tally.stopped || null,
 		provenance: made, ledger: tally.ledger,
+		crashes: tally.crashes || 0, crashed: tally.crashed || [],
 		seconds: Math.round((Date.now() - started) / 1000),
 		// The document where the run ended, when asked for: a stall is a
 		// battery scenario waiting to be written.

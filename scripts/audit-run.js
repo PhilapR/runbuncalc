@@ -174,6 +174,15 @@ function auditRun(row) {
 			(heavy.length ? '; ' + heavy.length + ' fight(s) took ' + EFFORT_WARN + '+: ' +
 				heavy.slice(0, 5).map(pair => pair[0] + ' ' + pair[1]).join(', ') : ''));
 	}
+	// An engine crash is a defect with a name: the fight, the seed, and the
+	// document that met it (playRun writes them out when a run keeps going).
+	const crashes = row.crashes || 0;
+	check('engine crashes', crashes ? 'WARN' : 'PASS',
+		crashes ? crashes + ': ' + (row.crashed || []).slice(0, 2)
+			.map(entry => entry.trainer + ' (seed ' + entry.seed + ') ' + entry.message.slice(0, 80)).join(' | ') :
+			'none',
+		'replay the saved document against the fight and seed named here');
+
 	return verdict(row, checks);
 }
 
