@@ -324,8 +324,21 @@ function whereToFind(species) {
 }
 
 /** What a species evolves into, and on what terms. Empty array if it does not. */
+/**
+ * Item names the decomp spells differently from the game's own item list,
+ * bridged on the way OUT so evolutions.json stays a verbatim transcription
+ * (the same contract build-item-locations.js keeps with NAME_FIXES).
+ *
+ * The decomp constant is ITEM_UP_GRADE; the fork's Item Locations sheet and
+ * its evolution doc both say "Upgrade", and that is what a mart sells and a
+ * bag holds. Unbridged, Porygon could never become Porygon2 — and Porygon2
+ * is what Leader Norman walls a run with.
+ */
+const ITEM_NAMES = {'Up-Grade': 'Upgrade'};
+
 function evolutionsOf(species) {
-	return load('evolutions')[species] || [];
+	return (load('evolutions')[species] || []).map(step => step.item && ITEM_NAMES[step.item] ?
+		Object.assign({}, step, {item: ITEM_NAMES[step.item]}) : step);
 }
 
 let preEvolutionIndex = null;

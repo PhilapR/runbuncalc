@@ -4,8 +4,8 @@
 	"provenance": "transcribed + derived",
 	"method": "opensAt is a RUN-MAP order (cumulative enemy Pokemon, 0-1620), not an engine row index (0-434). It is the first trainer at the place the prose names, translated through trainer-orders.json. Late-biased: a place the engine splits (Route 104 South and North) takes the LATEST of its sections, because offering an item the run cannot fetch is the failure this ledger prevents. An optional fight group does not date a place that has its own fights, and a building behind a door is not a section of the route outside it. A stated gate — an HM named in the prose, or a badge count — is a floor over all of that. A place with no trainer is null and withheld.",
 	"counted": 235,
-	"dated": 186,
-	"undated": 49,
+	"dated": 192,
+	"undated": 43,
 	"entries": [
 		{
 			"name": "Oran Berry",
@@ -488,6 +488,30 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "Charcoal",
+			"kind": "held",
+			"location": "Lavaridge Town, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": 582,
+			"dating": "its mart's town, dated by Leader Flannery [Boss]"
+		},
+		{
+			"name": "Honey",
+			"kind": "evolution",
+			"location": "Sold at Lavaridge Town Pokémon Mart.",
+			"detail": null,
+			"opensAt": 582,
+			"dating": "its mart's town, dated by Leader Flannery [Boss]"
+		},
+		{
+			"name": "Rare Candy",
+			"kind": "rare-candy",
+			"location": "Lavaridge Town",
+			"detail": "South-west corner inside the hot spring (hidden).",
+			"opensAt": 582,
+			"dating": "its mart's town, dated by Leader Flannery [Boss]"
+		},
+		{
 			"name": "Heart Scale",
 			"kind": "heart-scale",
 			"location": "Petalburg City",
@@ -718,6 +742,30 @@
 			"detail": "1 to 18.",
 			"opensAt": 707,
 			"dating": "the place it names"
+		},
+		{
+			"name": "Dubious Disc",
+			"kind": "evolution",
+			"location": "Sold at Fortree City Pokémon Mart.",
+			"detail": null,
+			"opensAt": 763,
+			"dating": "its mart's town, dated by Leader Winona"
+		},
+		{
+			"name": "Prism Scale",
+			"kind": "evolution",
+			"location": "Sold at Fortree City Pokémon Mart.",
+			"detail": null,
+			"opensAt": 763,
+			"dating": "its mart's town, dated by Leader Winona"
+		},
+		{
+			"name": "Room Service",
+			"kind": "held",
+			"location": "Fortree City, given by an NPC after meeting his Wingull in Mossdeep City.",
+			"detail": null,
+			"opensAt": 763,
+			"dating": "its mart's town, dated by Leader Winona"
 		},
 		{
 			"name": "Altarianite",
@@ -1536,14 +1584,6 @@
 			"dating": "unavailable in this game"
 		},
 		{
-			"name": "Charcoal",
-			"kind": "held",
-			"location": "Lavaridge Town, given by an NPC inside one of the houses.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
 			"name": "Charizardite Y",
 			"kind": "mega-stone",
 			"location": "Unavailable.",
@@ -1582,14 +1622,6 @@
 			"detail": null,
 			"opensAt": null,
 			"dating": "unavailable in this game"
-		},
-		{
-			"name": "Dubious Disc",
-			"kind": "evolution",
-			"location": "Sold at Fortree City Pokémon Mart.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
 		},
 		{
 			"name": "Electric Gem",
@@ -1635,14 +1667,6 @@
 			"name": "Garchompite",
 			"kind": "mega-stone",
 			"location": "Safari Zone, north area.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Honey",
-			"kind": "evolution",
-			"location": "Sold at Lavaridge Town Pokémon Mart.",
 			"detail": null,
 			"opensAt": null,
 			"dating": "no trainer or known place in the text"
@@ -1784,14 +1808,6 @@
 			"dating": "no trainer or known place in the text"
 		},
 		{
-			"name": "Prism Scale",
-			"kind": "evolution",
-			"location": "Sold at Fortree City Pokémon Mart.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
 			"name": "Protective Pads",
 			"kind": "held",
 			"location": "Verdanturf Town, given by an NPC at the Battle Tent.",
@@ -1802,24 +1818,8 @@
 		{
 			"name": "Rare Candy",
 			"kind": "rare-candy",
-			"location": "Lavaridge Town",
-			"detail": "South-west corner inside the hot spring (hidden).",
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Rare Candy",
-			"kind": "rare-candy",
 			"location": "Shoal Cave",
 			"detail": "Only accesible during high tide.",
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Room Service",
-			"kind": "held",
-			"location": "Fortree City, given by an NPC after meeting his Wingull in Mossdeep City.",
-			"detail": null,
 			"opensAt": null,
 			"dating": "no trainer or known place in the text"
 		},

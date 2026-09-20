@@ -132,8 +132,13 @@ test('an entry wrapped in #if blocks does not swallow the entry after it', () =>
 	// closes with a lone `}`, so a parser that looks for a closing `}}` runs past
 	// it into Porygon's entry. The two ends of that failure are pinned together:
 	// Porygon keeps its own evolution, and Eevee does not borrow it.
+	// The item is ITEM_UP_GRADE in the decomp and "Upgrade" in the game's own
+	// item list; the oracle bridges the two on the way out (ITEM_NAMES), and
+	// evolutions.json keeps the transcription.
 	assert.deepEqual(oracle.evolutionsOf('Porygon'),
-		[{into: 'Porygon2', method: 'item', item: 'Up-Grade'}]);
+		[{into: 'Porygon2', method: 'item', item: 'Upgrade'}]);
+	assert.equal(require('../profiles/run-and-bun/oracle/evolutions.json').Porygon[0].item, 'Up-Grade',
+		'the file stays a verbatim transcription of the decomp');
 
 	const eevee = oracle.evolutionsOf('Eevee');
 	assert.deepEqual(eevee.map(e => e.into), [

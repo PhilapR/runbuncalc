@@ -115,6 +115,22 @@ const NAME_FIXES = {
 	Cameruptitte: 'Cameruptite',
 };
 
+/**
+ * Towns whose MART the sheet names, dated by that town's gym fight.
+ *
+ * The place index is built from where trainers stand, and no trainer stands
+ * in a town, so "Sold at Fortree City Pokemon Mart." named a place the
+ * builder could not date and fell through to null — and shopItems() drops an
+ * undated row. Three evolution items the game sells could therefore never be
+ * bought, and Porygon-Z, Milotic and Ursaluna could never be made. Late-biased
+ * like every other date here: the gym is the latest thing the town gates.
+ */
+const MART_TOWNS = {
+	'Fortree City': 'Leader Winona',
+	// Flannery's row carries the doc's '[Boss]' label, as the index keeps it.
+	'Lavaridge Town': 'Leader Flannery [Boss]',
+};
+
 /** The engine's own trainer rows, from the vendored runtime rather than a
  * scratch dump, so a rebuild is reproducible. */
 function engineTrainers() {
@@ -371,6 +387,15 @@ function dateFor(index, prose) {
 	// Nothing named the place, but a stated requirement is still a real lower
 	// bound and is better evidence than nothing.
 	if (floor !== null) return {opensAt: floor, dating: 'only its ' + gatedBy + ' gate is known'};
+	// A mart the sheet names by its town, which holds no trainer to index.
+	for (const town of Object.keys(MART_TOWNS)) {
+		if (!new RegExp('\\b' + town + '\\b', 'i').test(text)) continue;
+		const gym = index.trainers.get ? index.trainers.get(MART_TOWNS[town].toLowerCase()) :
+			(index.trainers.find(entry => entry[0] === MART_TOWNS[town].toLowerCase()) || [])[1];
+		if (!gym || !gym.length) continue;
+		const order = gym.reduce((best, stood) => (stood.order > best.order ? stood : best)).order;
+		return {opensAt: order, dating: 'its mart\'s town, dated by ' + MART_TOWNS[town]};
+	}
 	return {opensAt: null, dating: 'no trainer or known place in the text'};
 }
 
@@ -446,7 +471,7 @@ if (require.main === module) {
 	console.log(`${out.dated} dated of ${out.counted} -> ${path.relative(ROOT, OUT)}`);
 }
 
-module.exports = {build: build, ANCHORS: ANCHORS, NAME_FIXES: NAME_FIXES, badgeOrders: badgeOrders,
+module.exports = {build: build, ANCHORS: ANCHORS, NAME_FIXES: NAME_FIXES, MART_TOWNS: MART_TOWNS, badgeOrders: badgeOrders,
 	normalisePlace: normalisePlace, qualifierOf: qualifierOf,
 	dateFor: dateFor, placeOrders: placeOrders, trainerOrders: trainerOrders,
 	engineTrainers: engineTrainers, scaleBridge: scaleBridge, OUT: OUT};

@@ -66,3 +66,26 @@ test('Route 118 grass waits for Flannery, and Route 115 grass for Juan', () => {
 	assert.equal(oracle.methodOpensAt('fish', 'Route115'), 0, 'its water is the early section\'s');
 	assert.equal(oracle.methodOpensAt('walk'), 0, 'the global gate is unchanged');
 });
+
+test('an evolution item the game sells can be bought and used', () => {
+	// The bag held "Upgrade" while the evolution asked for "Up-Grade", so
+	// Porygon could never become Porygon2 — Norman's own wall is a Porygon2.
+	// shopItems() also drops a row with no date, and three items the official
+	// sheet names a mart for had none: Porygon-Z, Milotic and Ursaluna were
+	// unreachable for that reason alone.
+	const items = require('../profiles/run-and-bun/oracle/item-locations.json');
+	const shop = new Set(oracle.shopItems().map(row => row.name));
+	for (const name of ['Upgrade', 'Dubious Disc', 'Prism Scale', 'Honey']) {
+		assert.ok(shop.has(name), name + ' is sold in a mart the sheet names, so it must be buyable');
+		assert.ok(items.entries.some(row => row.name === name && /Sold at /.test(row.location || '')),
+			name + ' keeps the sheet\'s own words');
+	}
+	// The item an evolution asks for is the item a mart sells, spelled the
+	// same: the lines these three make are otherwise unreachable.
+	for (const line of [['Porygon', 'Porygon2'], ['Feebas', 'Milotic'], ['Ursaring', 'Ursaluna'], ['Porygon2', 'Porygon-Z']]) {
+		const step = (oracle.evolutionsOf(line[0]) || []).find(entry => entry.into === line[1]);
+		assert.ok(step && step.item, line[0] + ' evolves by an item');
+		assert.ok(shop.has(step.item),
+			line[0] + ' -> ' + line[1] + ' needs ' + JSON.stringify(step.item) + ', which no mart sells under that name');
+	}
+});
