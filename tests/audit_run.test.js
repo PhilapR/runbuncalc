@@ -110,3 +110,21 @@ test('a double gets a boss\'s attempts, not a dozen', () => {
 	assert.equal(headless.retryCap('Psychic Hannah & Sylvia', true), 20, 'a double is given the boss budget');
 	assert.equal(headless.retryCap('Trainer Rival Bridge Blaziken', true), 20);
 });
+
+test('a route is rolled on the method that can answer a fight ahead', () => {
+	// A run walks by default, so an answer that lives in the water is one it
+	// cannot have: sweep 16's deepest run met Archie's rain team with no
+	// Water Absorb body among 59 caught, and lost 60 attempts.
+	const headless = require('../scripts/headless-run.js');
+	const battery = require('../scripts/scenario-battery.js');
+	const doc = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', 'sv-14.run.json'));
+	const wanted = headless.answersAhead(doc, 60);
+	assert.ok(wanted.size > 10, 'the dossiers name answers for the road ahead: ' + wanted.size);
+	// Nothing wanted, no preference: the roll keeps its own dice.
+	assert.equal(headless.methodFor(doc, 'Route119', new Set()), undefined);
+	// A species only the water holds pulls the roll into the water.
+	const fished = headless.methodFor(doc, 'Route119', new Set(['Feebas', 'Frillish', 'Milotic']));
+	assert.equal(fished, 'fish', 'Route 119 answers by rod');
+	const walked = headless.methodFor(doc, 'Route119', new Set(['Zangoose', 'Seviper', 'Linoone']));
+	assert.notEqual(walked, 'fish', 'a grass answer keeps the roll on land: ' + walked);
+});

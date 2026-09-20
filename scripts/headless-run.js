@@ -84,8 +84,52 @@ function armFlags(spec) {
 	};
 }
 
-function catchRolled(doc, map, random) {
-	const rolled = run.rollEncounter(doc, {map, random});
+/**
+ * The species the road ahead is won with: every named answer the fight
+ * dossiers give for the next fights, and the lines that reach them.
+ */
+function answersAhead(doc, howMany) {
+	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
+	const wanted = new Set();
+	if (!oracle.fightDossierOf) return wanted;
+	for (const fight of run.upcoming(doc, howMany || 40)) {
+		let dossier = null;
+		try { dossier = oracle.fightDossierOf(fight.trainer); } catch (error) { continue; }
+		if (!dossier) continue;
+		for (const species of dossier.keyBox || []) wanted.add(species);
+		for (const mon of dossier.mons || []) for (const species of mon.topAnswers || []) wanted.add(species);
+	}
+	return wanted;
+}
+
+/**
+ * Which method to roll on a route whose tables differ: the one that can
+ * produce an answer to a fight ahead. A run walks by default and never
+ * fishes or surfs for a named body, so an answer that lives in the water is
+ * one a run cannot have — Archie's rain team at Seafloor Cavern stopped
+ * sweep 16's deepest run 0 of 60, with no Water Absorb body in 59 caught.
+ * Off unless --catch-method=1.
+ */
+function methodFor(doc, map, wanted) {
+	if (!wanted.size) return undefined;
+	let table;
+	try { table = run.encountersOn(doc, map); } catch (error) { return undefined; }
+	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
+	const weight = {};
+	for (const mon of (table && table.mons) || []) {
+		if (mon.methodGated !== undefined || mon.dupe) continue;
+		const line = (oracle.lineageOf && oracle.lineageOf(mon.species)) || [mon.species];
+		const answers = line.some(species => wanted.has(species)) || wanted.has(mon.species);
+		if (!answers) continue;
+		weight[mon.method] = (weight[mon.method] || 0) + (mon.odds !== undefined ? mon.odds : mon.chance || 1);
+	}
+	const best = Object.keys(weight).sort((a, b) => weight[b] - weight[a])[0];
+	return best;
+}
+
+function catchRolled(doc, map, random, wanted) {
+	const method = wanted ? methodFor(doc, map, wanted) : undefined;
+	const rolled = run.rollEncounter(doc, Object.assign({map, random}, method ? {method} : {}));
 	return run.apply(doc, {kind: 'catch', map, species: rolled.species,
 		level: rolled.level, ivs: rolled.ivs, nature: rolled.nature,
 		ability: rolled.ability});
@@ -97,6 +141,7 @@ function catchRolled(doc, map, random) {
  * — adviseCatches' keyAnswer areas for the split boss.
  */
 function sweepCatches(doc, caughtFrom, random, treatment, tally) {
+	const wanted = flag('catch-method', '0') === '1' ? answersAhead(doc, 60) : null;
 	let routes;
 	try {
 		routes = run.unusedRoutes(doc, {allProspects: true}).routes
@@ -125,7 +170,7 @@ function sweepCatches(doc, caughtFrom, random, treatment, tally) {
 	for (const route of routes) {
 		caughtFrom.add(route.name);
 		try {
-			doc = catchRolled(doc, route.name, random);
+			doc = catchRolled(doc, route.name, random, wanted);
 			tally.catches += 1;
 		} catch (error) {
 			// A multi-floor AREA has no table of its own ("no map named
@@ -824,4 +869,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
