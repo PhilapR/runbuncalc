@@ -329,7 +329,16 @@ function evolveByLevel(doc, tally) {
  * only attack are never the ones forgotten: raw power misreads all three (Triple Axel
  * reads as one 20-power hit; Fake Out is not better than it).
  */
-function relearn(doc, policy, tally) {
+/**
+ * A body never relearns what it gave up.
+ *
+ * The rule offers every level-up move at or below the body's level and drops
+ * its weakest attack for one, so the two swap places for ever: banked runs
+ * spent 33-66% of their teaches re-teaching a move that body had already had,
+ * one of them 970 times of 1,474 (Poison Jab over Drill Run, Drill Run over
+ * Poison Jab, all game). `forgotten` is the memory that stops it.
+ */
+function relearn(doc, policy, tally, forgotten) {
 	const ai = require('../ai');
 	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
 	const meta = name => {
@@ -357,6 +366,8 @@ function relearn(doc, policy, tally) {
 		for (const move of offered) {
 			const current = doc.box.find(entry => entry.id === mon.id);
 			if (current.moves.includes(move) || power(move) <= 0 || multiHit(move)) continue;
+			const gaveUp = forgotten && forgotten.get(mon.id);
+			if (gaveUp && gaveUp.has(move)) continue;
 			let replace = null;
 			if (current.moves.length >= 4) {
 				// Speed control is worth more than its number (the policy presses
@@ -380,6 +391,10 @@ function relearn(doc, policy, tally) {
 			}
 			try {
 				doc = run.apply(doc, Object.assign({kind: 'teach', id: mon.id, move}, replace ? {replace} : {}));
+				if (forgotten && replace) {
+					if (!forgotten.has(mon.id)) forgotten.set(mon.id, new Set());
+					forgotten.get(mon.id).add(replace);
+				}
 				tally.relearned = (tally.relearned || 0) + 1;
 			} catch (error) { /* not learnable here; the next move is tried */ }
 		}
@@ -445,7 +460,7 @@ function doublesPrep(doc, tally) {
 }
 
 /** Teach and (treatment) scale-spend from the same advice the panel shows. */
-function followAdvice(doc, treatment, tally) {
+function followAdvice(doc, treatment, tally, forgotten) {
 	// The marts first: a stone the bag holds is an evolve row the advisor
 	// can price. One buy per row, receipts in the log.
 	if (treatment.keyEvolve) {
@@ -478,7 +493,7 @@ function followAdvice(doc, treatment, tally) {
 		if (!row) return doc;
 		refused.add(row.kind + '|' + row.id + '|' + row.detail);
 		try {
-			doc = applyAdvice(doc, row, tally);
+			doc = applyAdvice(doc, row, tally, forgotten);
 		} catch (error) { /* refused: remembered, and the sweep moves on */ }
 	}
 	return doc;
@@ -522,12 +537,23 @@ function thresholdPrep(doc, tally) {
 }
 
 /** One advice row as the run command the panel would post. */
-function applyAdvice(doc, row, tally) {
+function applyAdvice(doc, row, tally, forgotten) {
 	if (row.kind === 'teach') {
 		const pair = /^(.+?)(?: over (.+?))?(?: \(|$)/.exec(row.detail || '');
 		if (!pair) throw new Error('teach row not understood: ' + row.detail);
-		const next = run.apply(doc, Object.assign({kind: 'teach', id: row.id, move: pair[1].trim()},
-			pair[2] ? {replace: pair[2].trim()} : {}));
+		const move = pair[1].trim();
+		const replace = pair[2] ? pair[2].trim() : null;
+		// The advisor and the relearn rule were fighting each other all game:
+		// Icy Wind over Air Cutter, then Air Cutter over Icy Wind, for ever.
+		// One memory, consulted by both.
+		const gaveUp = forgotten && forgotten.get(row.id);
+		if (gaveUp && gaveUp.has(move)) throw new Error('teach: ' + move + ' is a move this body gave up');
+		const next = run.apply(doc, Object.assign({kind: 'teach', id: row.id, move},
+			replace ? {replace} : {}));
+		if (forgotten && replace) {
+			if (!forgotten.has(row.id)) forgotten.set(row.id, new Set());
+			forgotten.get(row.id).add(replace);
+		}
 		tally.teaches = (tally.teaches || 0) + 1;
 		return next;
 	}
@@ -648,6 +674,9 @@ function playRun(policy, starter, seed, treatment, options) {
 	// first once passed, and a second skip of it is refused (sweep 10: three
 	// of the five deepest runs ended "already being skipped").
 	const waiting = new Map();
+	// What each body has given up, so the relearn rule cannot swap two moves
+	// back and forth for the whole run.
+	const forgotten = new Map();
 	let attempts = 0;
 	let fightSeed = seed;
 	// Advice and party ranking are board-rebuild expensive; the browser
@@ -664,8 +693,8 @@ function playRun(policy, starter, seed, treatment, options) {
 		if (shape !== lastShape) {
 			lastShape = shape;
 			doc = levelToCap(doc, tally);
-			doc = relearn(doc, policy, tally);
-			doc = followAdvice(doc, treatment, tally);
+			doc = relearn(doc, policy, tally, forgotten);
+			doc = followAdvice(doc, treatment, tally, forgotten);
 			doc = thresholdPrep(doc, tally);
 			doc = bestParty(doc);
 		}

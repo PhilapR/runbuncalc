@@ -228,3 +228,25 @@ test('an owed fight whose retries are spent waits for the next cap, and the road
 	assert.equal(headless.nextFight(doc, new Map([[owed.order, cap - 1]])).trainer, owed.trainer,
 		'a higher cap brings the debt back');
 });
+
+test('a body never relearns what it gave up', () => {
+	// The advisor and the relearn rule were fighting each other all game: Icy
+	// Wind over Air Cutter, then Air Cutter over Icy Wind, for ever. Banked
+	// runs spent 33-66% of their teaches re-teaching a move that body had
+	// already had, one of them 970 times of 1,474. The defect only appears in
+	// a RUN, where the two passes meet and the box changes between them.
+	const policy = require('../scripts/ui-playthrough.js');
+	process.argv.push('--budget=40');
+	let row;
+	try {
+		row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 104770,
+			headless.armFlags('--key-catches=1 --key-scales=1 --key-evolve=1'), {keepDoc: true});
+	} finally {
+		process.argv = process.argv.filter(arg => arg !== '--budget=40');
+	}
+	const taught = row.doc.log.filter(entry => entry.command.kind === 'teach')
+		.map(entry => entry.command.id + '|' + entry.command.move);
+	assert.ok(taught.length > 10, 'the run teaches: ' + taught.length);
+	const repeats = taught.filter((key, index) => taught.indexOf(key) !== index);
+	assert.deepEqual(repeats, [], 'no body is taught a move it already had: ' + repeats.slice(0, 4).join(', '));
+});
