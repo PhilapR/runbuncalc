@@ -168,6 +168,33 @@ before it. A mon most of the pool outspeeds is the revenge window.
   Barraskewda; Bewear/Hariyama break Curse-Rest Hisuian Goodra;
   Abomasnow/Ferrothorn take Manaphy.
 
+## The bridge rival, measured rather than derived (2026-09-19)
+
+Trainer Rival Bridge is a DOUBLE — six at Level 65-66 led by a Speed Boost
+Mega Blaziken — and the official documentation names no answer for a single
+one of them. It is the road's blocker: a run that cannot win it owes it for
+ever, and sweep 13's deepest run went 0 of 120 attempts there on the engine's
+own hand. On that run's own box the ranker's top twelve sixes went 0 of 33
+with the joint search and the doubles prep, and a six built by hand for the
+fight won 1 of 24 (about 4%, which 60 retries clear about nine times in ten).
+
+The one win, turn by turn, is the shape of the answer:
+
+1. **Survive the first turn.** Fake Out blunts one of the two attackers
+   (Hariyama's, over Focus Punch, taught before the fight).
+2. **Mega Blaziken hurts itself.** It opens Brave Bird, and the recoil puts
+   it in range — nothing in the box outspeeds it, and nothing survives
+   Close Combat.
+3. **A fast Water finishes it on turn 2** (Barraskewda's Liquidation).
+4. **Tailwind** (Ribombee) carries the middle, and a bulky Ground grinds the
+   tail out (Seismitoad's Earthquake, through Blastoise's Protect).
+
+So the named answers here are a SHAPE, not a species list: a Fake Out body, a
+fast Water, a Tailwind setter, a bulky Ground. The ranker cannot reach it —
+it scores a six by the best single answer per enemy, which rates bulk over
+speed and prices no tool. A doubles selector would have to build its pool
+from that shape.
+
 ## What this feeds next
 
 The answers are exactly the shape `adviseCatches` wants: when the next
