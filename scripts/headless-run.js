@@ -725,7 +725,12 @@ function playRun(policy, starter, seed, treatment, options) {
 		tally.engineRefusals += played.engineRefusals || 0;
 		tally.ledger.push({n: tally.fights, order: next.order, trainer: next.trainer, seed: fightSeed,
 			position: doc.position, result: played.result, policy: played.policy || (searching ? 'search' : 'decide'),
-			refusals: played.engineRefusals || 0, turns: played.turns, deaths: played.deaths});
+			refusals: played.engineRefusals || 0, turns: played.turns, deaths: played.deaths,
+			// What fell and to what: the driver knows the body, the move and
+			// the enemy that used it, and the row kept only the count — so no
+			// run could say which types die, or what kills them.
+			killers: (played.killers || []).map(death => ({species: death.species, by: death.by, of: death.of})),
+			foeLeft: played.foe ? played.foe.alive : null, foeOf: played.foe ? played.foe.of : null});
 		const t = tally.trainers[next.trainer] =
 			tally.trainers[next.trainer] || {attempts: 0, wins: 0};
 		t.attempts += 1;

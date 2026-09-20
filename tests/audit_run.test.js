@@ -14,6 +14,8 @@ const test = require('node:test');
 
 const auditRun = require('../scripts/audit-run.js').auditRun;
 
+const policy = () => require('../scripts/ui-playthrough.js');
+
 const DOC = path.join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json');
 
 function cleanRow() {
@@ -132,4 +134,29 @@ test('a route is rolled on the method that can answer a fight ahead', () => {
 	// And the odds decide, not the slot count: one wanted body in the water
 	// outweighs a dozen unwanted ones in the grass.
 	assert.equal(headless.methodFor(doc, 'Route119', new Set(['Feebas'])), 'fish');
+});
+
+test('the ledger says what fell and to what, not only how many', () => {
+	// The driver reports every death with the body, the move and the enemy
+	// that used it; the row kept the count alone, so no run could say which
+	// types die or what kills them.
+	const headless = require('../scripts/headless-run.js');
+	process.argv.push('--budget=10');
+	let row;
+	try {
+		row = headless.playRun(policy(), {species: 'Chimchar', rival: 'Blaziken'}, 41, headless.armFlags(''), {keepDoc: true});
+	} finally {
+		process.argv = process.argv.filter(arg => arg !== '--budget=10');
+	}
+	assert.ok(row.ledger.length > 0);
+	for (const entry of row.ledger) {
+		assert.ok(Array.isArray(entry.killers), 'every fight carries a killers list');
+		assert.equal(entry.killers.length, entry.deaths || 0, 'one killer row per death: ' + entry.trainer);
+		for (const death of entry.killers) assert.ok(death.species, 'the body that fell is named');
+	}
+	const withDeaths = row.ledger.filter(entry => (entry.deaths || 0) > 0);
+	if (withDeaths.length) {
+		assert.ok(withDeaths[0].killers[0].by, 'the move that killed it is named');
+	}
+	assert.ok(row.ledger.some(entry => entry.foeOf > 0), 'and what was left of the trainer');
 });
