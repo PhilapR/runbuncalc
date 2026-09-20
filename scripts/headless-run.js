@@ -570,7 +570,7 @@ function playRun(policy, starter, seed, treatment, options) {
 	driver.setHidingForecast(flag('hiding-forecast', '0') === '1');
 	driver.setRealSpeed(flag('real-speed', '1') === '1');
 	driver.setChargeThreat(flag('charge-threat', '0') === '1');
-	driver.setDoublesJoint(flag('doubles-joint', '0') === '1');
+	driver.setDoublesJoint(flag('doubles-joint', '1') === '1');
 	const random = dice(seed);
 	let doc = startRun(starter, random);
 
@@ -645,7 +645,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		// minute a fight, so it is spent only where it is needed.
 		const searchAfter = Number(flag('search-after', '0'));
 		const searching = searchAfter > 0 && attempts >= searchAfter ? {search: Number(flag('search-rollouts', '4'))} : undefined;
-		if (next.isDouble && flag('doubles-prep', '0') === '1') doc = doublesPrep(doc, tally);
+		if (next.isDouble && flag('doubles-prep', '1') === '1') doc = doublesPrep(doc, tally);
 		const played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, undefined, searching);
 		tally.fights += 1;
 		tally.engineRefusals += played.engineRefusals || 0;

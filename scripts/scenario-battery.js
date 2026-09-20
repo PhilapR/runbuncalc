@@ -260,9 +260,10 @@ function requireWholeReceipt(receipt) {
  * scripts/battery-tape.js replays any receipt's seed on demand instead.
  */
 function playScenario(policy, doc, trainer, seed, tape, options) {
-	// A double battle is played by the driver's two-slot loop, both sides on
-	// the engine's trainer AI: decide() reads a one-active view. The row says
-	// which policy fought (policy: 'engine-ai-doubles').
+	// A double battle is played by the driver's two-slot loop: decide() reads
+	// a one-active view. Our side is searched jointly by default
+	// (--doubles-search=0 restores the engine's own hand), and the row says
+	// which policy fought (policy: 'joint-4', 'search-4', 'engine-ai-doubles').
 	// --search=K plays the fight by search (driver.playSearch, K rollouts an
 	// action) instead of decide(); --search-bosses=1 limits it to bosses.
 	// options.search, from a caller that decides per fight (the headless run
@@ -277,11 +278,17 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 		return Object.assign({counters: {}, refused: [], policy: 'search-' + searchRollouts}, searched);
 	}
 	if (require('../lib/planner').getFight(trainer, doc.profileId).isDouble) {
-		const doubles = driver.playDoubles(doc, trainer, seed);
+		// A double is searched by default, and jointly: measured on 67 real
+		// run states x 6 seeds (402 paired fights), the joint search with the
+		// doubles prep won 363 against the engine hand's 326 (net +37,
+		// p < 0.0001, no state net -3). It costs about 20 seconds a fight.
+		const doublesSearch = Number(flag('doubles-search', '4'));
+		const doubles = driver.playDoubles(doc, trainer, seed,
+			doublesSearch > 0 ? {search: doublesSearch, joint: driver.doublesJoint()} : undefined);
 		return {result: doubles.result, turns: doubles.turns, engineRefusals: doubles.engineRefusals,
 			refused: doubles.events.filter(event => event.engineRefusal).map(event => ({turn: event.turn, text: event.text})),
 			deaths: doubles.deaths, killers: doubles.killers, foe: null, counters: {},
-			policy: 'engine-ai-doubles'};
+			policy: doublesSearch > 0 ? (driver.doublesJoint() ? 'joint-' : 'search-') + doublesSearch : 'engine-ai-doubles'};
 	}
 	const roster = (doc.box || []).map(mon => ({id: mon.id, moves: mon.moves}));
 	let reply = driver.start(doc, trainer, seed);
@@ -704,7 +711,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -721,7 +728,7 @@ function main() {
 	driver.setHidingForecast(flag('hiding-forecast', '0') === '1');
 	driver.setRealSpeed(flag('real-speed', '1') === '1');
 	driver.setChargeThreat(flag('charge-threat', '0') === '1');
-	driver.setDoublesJoint(flag('doubles-joint', '0') === '1');
+	driver.setDoublesJoint(flag('doubles-joint', '1') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?

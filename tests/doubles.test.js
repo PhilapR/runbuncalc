@@ -51,11 +51,15 @@ test('a double is the same fight on the same seed, and a single is refused', () 
 });
 
 test('the battery plays a double through the two-slot loop and says which policy fought', () => {
+	// The default searches our two actives jointly: the measured hand (67 real
+	// run states x 6 seeds, net +37, p < 0.0001), which the battery has to
+	// actually pass to the driver — playDoubles took no options at all, so
+	// every arm before this ran on the engine's own hand.
 	const box = doc();
 	const played = battery.playScenario(require('../scripts/ui-playthrough.js'), box, DOUBLES[0], 3);
-	assert.equal(played.policy, 'engine-ai-doubles');
+	assert.equal(played.policy, 'joint-4');
 	assert.deepEqual([played.result, played.turns], (() => {
-		const direct = driver.playDoubles(box, DOUBLES[0], 3);
+		const direct = driver.playDoubles(box, DOUBLES[0], 3, {search: 4, joint: true});
 		return [direct.result, direct.turns];
 	})());
 });
@@ -177,17 +181,19 @@ test('a joint search values the two actives as one choice, behind a switch', () 
 	assert.ok(['win', 'loss'].includes(jointly.result));
 	assert.equal(jointly.engineRefusals, 0, jointly.events.filter(event => event.engineRefusal)
 		.map(event => event.text).join(' | '));
-	const apart = driver.playDoubles(box, DOUBLES[1], 1, {search: 2});
+	// joint: false explicitly — the driver's default is the joint search now.
+	const apart = driver.playDoubles(box, DOUBLES[1], 1, {search: 2, joint: false});
 	const tape = played => played.events.filter(event => / used /.test(event.text)).map(event => event.text).join('|');
 	assert.notEqual(tape(jointly), tape(apart), 'the two searches play the fight differently');
-	// The switch, not only the option: the driver's default is the per-actor
-	// search until the battery says otherwise.
-	assert.equal(driver.doublesJoint(), false);
+	// The switch, not only the option: the joint search is the default since
+	// the doubles arms were measured (a-double-is-searched-jointly).
+	assert.equal(driver.doublesJoint(), true);
+	assert.equal(tape(driver.playDoubles(box, DOUBLES[1], 1, {search: 2})), tape(jointly), 'the default is the joint search');
 	try {
-		driver.setDoublesJoint(true);
-		assert.equal(tape(driver.playDoubles(box, DOUBLES[1], 1, {search: 2})), tape(jointly), 'the switch picks the joint search');
-	} finally {
 		driver.setDoublesJoint(false);
+		assert.equal(tape(driver.playDoubles(box, DOUBLES[1], 1, {search: 2})), tape(apart), 'switched off, the per-actor search');
+	} finally {
+		driver.setDoublesJoint(true);
 	}
 });
 

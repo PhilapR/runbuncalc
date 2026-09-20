@@ -353,6 +353,18 @@
 				"scripts/scenario-battery.js",
 				"scripts/headless-run.js"
 			]
+		},
+		{
+			"id": "a-double-is-searched-jointly",
+			"date": "2026-09-19",
+			"ruling": "A double is played with our two actives searched as ONE choice (driver.setDoublesJoint, --doubles-joint=1), four rollouts a pair (--doubles-search=4), and the party is taught its doubles tools before the fight (--doubles-prep=1: Fake Out, Wide Guard, Icy Wind, Protect, Helping Hand, Tailwind, at most two bodies, never over a priority move). --doubles-search=0 restores the engine's own hand.",
+			"why": "Doubles are the road's blocker: Trainer Rival Bridge (a double) went 0 of 120 attempts in sweep 13's deepest run, and that run's doubles were 24 of 198. Measured on 67 states taken from real runs at the doubles they fought, 6 seeds each (402 paired fights), real PP: the joint search with the prep won 363 against the engine hand's 326 (net +37, p < 0.0001, no state net -3), the joint search alone +20 (p = 0.027, one state -3), and the prep alone -1 (p = 1.0) — the tools only pay with a hand that uses them. It costs about 20 seconds a fight against 0.16. Rows: scenarios/measurements/doubles-arms.json (scratch runners, not a battery batch). Adopted on the declared bar inside the operator's standing request; the operator may overrule.",
+			"enforcedBy": [
+				"lib/battle-driver.js",
+				"scripts/scenario-battery.js",
+				"scripts/headless-run.js",
+				"tests/doubles.test.js"
+			]
 		}
 	],
 	"open": [
