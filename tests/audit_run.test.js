@@ -99,3 +99,14 @@ test('an engine crash is a lost fight, not a lost run, and the audit names it', 
 	assert.equal(crashCheck.status, 'WARN');
 	assert.match(crashCheck.detail, /Cannot read properties/);
 });
+
+test('a double gets a boss\'s attempts, not a dozen', () => {
+	// Sweep 15's deepest run reached fight #290 of 358 and walked past four
+	// doubles owing the debt: they are not bosses by name, so they got twelve
+	// attempts each. The bridge rival fell on the ninth of sixty.
+	const headless = require('../scripts/headless-run.js');
+	assert.equal(headless.retryCap('Leader Norman', false), 20, 'a boss keeps its budget');
+	assert.equal(headless.retryCap('Psychic Hannah & Sylvia', false), 12, 'an ordinary fight keeps its dozen');
+	assert.equal(headless.retryCap('Psychic Hannah & Sylvia', true), 20, 'a double is given the boss budget');
+	assert.equal(headless.retryCap('Trainer Rival Bridge Blaziken', true), 20);
+});

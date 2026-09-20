@@ -59,6 +59,17 @@ const BOSS_RETRIES = Number(flag('boss-retries', '20'));
 const FIGHT_BUDGET = Number(flag('budget', '110'));
 const SKIP_DOUBLES = flag('skip-doubles', '0') === '1';
 const BOSS = /Leader|Elite|Champion|Rival|Admin|Chelle|Wally|Soupercell/i;
+// A double is not a boss by name and was getting a dozen attempts, so a run
+// walked past four of them owing the debt (sweep 15's deepest run, which
+// reached fight #290 of 358). They are the road's hardest class: the bridge
+// rival fell on the ninth attempt of sixty.
+const DOUBLE_RETRIES = Number(flag('double-retries', String(BOSS_RETRIES)));
+
+/** The attempts a fight gets before the run walks past it. */
+function retryCap(trainer, isDouble) {
+	if (BOSS.test(trainer)) return BOSS_RETRIES;
+	return isDouble ? DOUBLE_RETRIES : RETRIES;
+}
 
 function armFlags(spec) {
 	const flags = {};
@@ -689,7 +700,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		// the routes for more Pokemon — the box is what loses these fights,
 		// not the dice.
 		if (attempts % 3 === 0) caughtFrom.clear();
-		const cap = BOSS.test(next.trainer) ? BOSS_RETRIES : RETRIES;
+		const cap = retryCap(next.trainer, next.isDouble);
 		if (attempts >= cap && (doc.skipped || []).includes(next.order)) {
 			waiting.set(next.order, capNow);
 			tally.skipped.push({trainer: next.trainer, why: 'owed, waits for the next cap'});
@@ -813,4 +824,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
