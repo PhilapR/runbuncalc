@@ -250,3 +250,25 @@ test('Heart Scales are spent on the party\'s worst IVs', () => {
 			'the worst IVs are the ones maxed: ' + pick.stat + ' at ' + pick.iv + ' was left behind');
 	}
 });
+
+test('the profiler reports where a run spends its time', () => {
+	// Every guess about what to make faster costs hours to test twice, so the
+	// instrument is committed and its numbers live in docs/PERFORMANCE.md.
+	const profiler = require('../scripts/profile-run.js');
+	assert.equal(typeof profiler.profileRun, 'function');
+	assert.equal(typeof profiler.profileFight, 'function');
+	assert.equal(typeof profiler.summariseProfile, 'function');
+	// The timer wraps in place and counts both calls and milliseconds.
+	const into = {};
+	const target = {work: n => n * 2};
+	profiler.instrument(target, ['work', 'missing'], into);
+	assert.equal(target.work(21), 42, 'the wrapped function still answers');
+	target.work(1);
+	assert.equal(into.work.calls, 2);
+	assert.ok(into.work.ms >= 0);
+	assert.equal(into.missing, undefined, 'a name the target does not have is skipped');
+	// And the doc quotes the instrument, so the two cannot drift silently.
+	const doc = fs.readFileSync(path.join(__dirname, '..', 'docs', 'PERFORMANCE.md'), 'utf8');
+	assert.match(doc, /node scripts\/profile-run\.js --budget=30/);
+	assert.match(doc, /search-8/);
+});
