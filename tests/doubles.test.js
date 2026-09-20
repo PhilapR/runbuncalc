@@ -11,6 +11,12 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const test = require('node:test');
 
+// The joint search is the default for a double (a-double-is-searched-jointly)
+// and costs about 20 seconds a fight: this file plays dozens, and the suite is
+// the dev loop. The cheap hand is pinned here, and the one test that checks
+// the default asks for it by name.
+process.argv.push('--doubles-search=0');
+
 const driver = require('../lib/battle-driver.js');
 const planner = require('../lib/planner');
 const run = require('../lib/run');
@@ -56,7 +62,14 @@ test('the battery plays a double through the two-slot loop and says which policy
 	// actually pass to the driver — playDoubles took no options at all, so
 	// every arm before this ran on the engine's own hand.
 	const box = doc();
-	const played = battery.playScenario(require('../scripts/ui-playthrough.js'), box, DOUBLES[0], 3);
+	const argv = process.argv;
+	process.argv = argv.filter(arg => arg !== '--doubles-search=0');
+	let played;
+	try {
+		played = battery.playScenario(require('../scripts/ui-playthrough.js'), box, DOUBLES[0], 3);
+	} finally {
+		process.argv = argv;
+	}
 	assert.equal(played.policy, 'joint-4');
 	assert.deepEqual([played.result, played.turns], (() => {
 		const direct = driver.playDoubles(box, DOUBLES[0], 3, {search: 4, joint: true});
