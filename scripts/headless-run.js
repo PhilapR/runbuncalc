@@ -331,6 +331,63 @@ function relearn(doc, policy, tally) {
 	return doc;
 }
 
+/**
+ * The moves a double is fought with, in the order a player reaches for them:
+ * the lead pressure, the guard, the speed control, the support. The advisor
+ * ranks moves for a single battle, so a run reached Trainer Rival Bridge (a
+ * double) with none of these and went 0 of 120 attempts, while its own box
+ * could learn Fake Out, Wide Guard, Icy Wind and Tailwind.
+ */
+const DOUBLES_TOOLS = ['Fake Out', 'Wide Guard', 'Icy Wind', 'Protect', 'Helping Hand', 'Tailwind'];
+
+/**
+ * Teach the party its doubles tools before a double, at most TOOLS_PER_FIGHT
+ * bodies changed, each giving up its weakest attack. Off unless
+ * --doubles-prep=1; the run document charges the teach as always (a TM it
+ * does not own, an egg move without a Heart Scale, are refused).
+ */
+function doublesPrep(doc, tally) {
+	const TOOLS_PER_FIGHT = 2;
+	const ai = require('../ai');
+	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
+	const meta = name => {
+		try { return ai.getMoveMetadata(name, 8); } catch (error) { return null; }
+	};
+	const power = name => {
+		const found = meta(name);
+		return !found || found.category === 'Status' ? 0 : (found.basePower || 0);
+	};
+	let taught = 0;
+	// One of each tool is a team's worth: two Tailwinds are one Tailwind and a
+	// lost attack.
+	const already = new Set((doc.party || []).flatMap(id =>
+		((doc.box.find(entry => entry.id === id) || {}).moves || []).filter(move => DOUBLES_TOOLS.includes(move))));
+	for (const id of doc.party || []) {
+		if (taught >= TOOLS_PER_FIGHT) break;
+		const mon = doc.box.find(entry => entry.id === id);
+		if (!mon || (mon.moves || []).some(move => DOUBLES_TOOLS.includes(move))) continue;
+		const wanted = DOUBLES_TOOLS.find(move => {
+			if (already.has(move)) return false;
+			const verdict = oracle.canLearn(mon.species, move);
+			return verdict && verdict.legal;
+		});
+		if (!wanted) continue;
+		// The weakest attack goes, and never a priority move: Quick Attack is
+		// worth more in a double than its 40 power says.
+		const attacks = (mon.moves || []).filter(move => power(move) > 0 && !((meta(move) || {}).priority > 0))
+			.sort((a, b) => power(a) - power(b));
+		const replace = mon.moves.length >= 4 ? attacks[0] : null;
+		if (mon.moves.length >= 4 && !replace) continue;
+		try {
+			doc = run.apply(doc, Object.assign({kind: 'teach', id: mon.id, move: wanted}, replace ? {replace} : {}));
+			already.add(wanted);
+			taught += 1;
+			if (tally) tally.doublesTaught = (tally.doublesTaught || 0) + 1;
+		} catch (error) { /* the run refuses what it cannot afford */ }
+	}
+	return doc;
+}
+
 /** Teach and (treatment) scale-spend from the same advice the panel shows. */
 function followAdvice(doc, treatment, tally) {
 	// The marts first: a stone the bag holds is an evolve row the advisor
@@ -588,6 +645,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		// minute a fight, so it is spent only where it is needed.
 		const searchAfter = Number(flag('search-after', '0'));
 		const searching = searchAfter > 0 && attempts >= searchAfter ? {search: Number(flag('search-rollouts', '4'))} : undefined;
+		if (next.isDouble && flag('doubles-prep', '0') === '1') doc = doublesPrep(doc, tally);
 		const played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, undefined, searching);
 		tally.fights += 1;
 		tally.engineRefusals += played.engineRefusals || 0;
@@ -640,7 +698,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
-		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, prizes: tally.prizes || 0,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
@@ -735,4 +793,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};

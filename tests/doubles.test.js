@@ -190,3 +190,29 @@ test('a joint search values the two actives as one choice, behind a switch', () 
 		driver.setDoublesJoint(false);
 	}
 });
+
+test('a double is prepared with the tools a double is fought with', () => {
+	// Trainer Rival Bridge (a double) took 120 attempts and no wins in sweep
+	// 13's deepest run, with a party that had no Fake Out, Wide Guard, Icy
+	// Wind or Tailwind — all of which its own box could learn.
+	const headless = require('../scripts/headless-run.js');
+	const before = doc();
+	const tally = {};
+	const after = headless.doublesPrep(before, tally);
+	assert.equal(tally.doublesTaught, 2, 'at most two bodies change, and here both could');
+	const TOOLS = ['Fake Out', 'Wide Guard', 'Icy Wind', 'Protect', 'Helping Hand', 'Tailwind'];
+	const toolsOf = document => document.party.map(id => (document.box.find(mon => mon.id === id) || {}).moves || [])
+		.flat().filter(move => TOOLS.includes(move));
+	assert.equal(toolsOf(before).length, 0, 'the banked six carries none');
+	const taught = toolsOf(after);
+	assert.equal(taught.length, 2);
+	assert.equal(new Set(taught).size, 2, 'one of each: two Tailwinds are one Tailwind and a lost attack');
+	// A priority move is never the one given up.
+	for (const id of after.party) {
+		const was = before.box.find(mon => mon.id === id);
+		const now = after.box.find(mon => mon.id === id);
+		const lost = (was.moves || []).filter(move => !(now.moves || []).includes(move));
+		assert.deepEqual(lost.filter(move => move === 'Quick Attack' || move === 'Aqua Jet'), [],
+			now.species + ' gave up priority: ' + lost.join(','));
+	}
+});
