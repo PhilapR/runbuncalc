@@ -132,6 +132,34 @@ Where independent lenses met, the signal is strongest.
 
 ## Structural findings outside the fights
 
+- **Doubles are the road's blocker, and the ranker has no doubles model.**
+  A double is fought two bodies at a time and both act every turn; the
+  ranker scores a six by the best single answer per enemy column, skips
+  adjudication for a double, and values none of what a double is won with
+  (spread damage, speed control, Fake Out, Protect, a partner). Trainer
+  Rival Bridge (a double, six at Level 65-66 led by a Speed Boost Mega
+  Blaziken) went **0 of 120 attempts** in sweep 13's deepest run, which is
+  why that run owes it and can never finish the road; doubles overall were
+  24 of 198 in that run against a far higher singles rate. On that run's own
+  state every combination measured 0 of 8-16 — the ranker's six with the
+  engine hand, with the joint search, with the doubles prep, and its top
+  eight sixes picked by play (every candidate scored 0 in selection, because
+  selection plays the weak hand). A six built by hand for the fight (speed,
+  Fake Out, bulk) won 1 of 8 with the joint search. **measured**.
+- **A doubles depth term in the ranker was measured and REJECTED**
+  (2026-09-19). Scoring an enemy column by the average of the six's best TWO
+  answers, and charging half a point for a column only one body answers, on
+  67 real doubles states x 8 seeds, engine hand both sides: wins 447 -> 428,
+  net **-19** (p = 0.064), seven states net -3 or worse (School Kid Jerry &
+  Johnson -17 across three runs). Averaging dilutes a real star. The code is
+  reverted; a doubles model has to price what doubles are won with, not
+  restate the singles board. **measured**.
+- **Teaching a party its doubles tools is worth nothing by itself.**
+  --doubles-prep (Fake Out, Wide Guard, Icy Wind, Protect, Helping Hand,
+  Tailwind, at most two bodies) on 536 paired fights with the engine hand:
+  net **-1** (p = 1.0). The tools only pay with a hand that uses them.
+  **measured**.
+
 - **boxMatrix is paid three times.** `boxMatrix` (`lib/run.js:1397`) is
   called again by `rankParties` (:3756) and `fightPlaybook` (:4079),
   and each call builds a fresh `specs` array, so the identity-keyed
