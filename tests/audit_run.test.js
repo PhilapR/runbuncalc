@@ -125,6 +125,11 @@ test('a route is rolled on the method that can answer a fight ahead', () => {
 	// A species only the water holds pulls the roll into the water.
 	const fished = headless.methodFor(doc, 'Route119', new Set(['Feebas', 'Frillish', 'Milotic']));
 	assert.equal(fished, 'fish', 'Route 119 answers by rod');
-	const walked = headless.methodFor(doc, 'Route119', new Set(['Zangoose', 'Seviper', 'Linoone']));
-	assert.notEqual(walked, 'fish', 'a grass answer keeps the roll on land: ' + walked);
+	// A grass answer keeps the roll on land — Route 119's own grass, or the
+	// assertion passes on a method the route does not even offer.
+	const walked = headless.methodFor(doc, 'Route119', new Set(['Seismitoad', 'Gastrodon', 'Heracross']));
+	assert.equal(walked, 'walk', 'a grass answer keeps the roll on land');
+	// And the odds decide, not the slot count: one wanted body in the water
+	// outweighs a dozen unwanted ones in the grass.
+	assert.equal(headless.methodFor(doc, 'Route119', new Set(['Feebas'])), 'fish');
 });
