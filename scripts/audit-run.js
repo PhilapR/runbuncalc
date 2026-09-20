@@ -22,6 +22,12 @@
  * Found by hand before this existed (2026-09-19): removed species in the
  * wild tables, wins bought by a refused Coaching, a skipped double that
  * stopped the run, and Speed read as 0 in every race.
+ *
+ * What this audit CANNOT see, by ruling rather than by omission
+ * (money-and-balls-are-not-modelled): a mart purchase costs nothing and a
+ * catch consumes no ball, because money is not a restriction in this game.
+ * A PASS here is a claim about the rules the document keeps, not about what
+ * the run could afford.
  */
 
 const fs = require('node:fs');

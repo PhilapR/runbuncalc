@@ -377,6 +377,15 @@
 				"tests/run.test.js",
 				"scripts/audit-run.js"
 			]
+		},
+		{
+			"id": "money-and-balls-are-not-modelled",
+			"date": "2026-09-20",
+			"ruling": "Money and Poke Balls are deliberately NOT modelled: a mart purchase costs nothing in the run document and a catch consumes no ball. The audit therefore cannot see either, and must not claim to — a run's validity says nothing about what it could afford.",
+			"why": "Operator ruling, 2026-09-20: money is generally not a restriction in this game. Sized before ruling, across 27 banked runs: 15.4 mart purchases and 32.4 catches a run, all free. The item ledger carries locations, not prices, so modelling either would need price data from the ROM rather than the documentation. Revisit only if a run's depth turns out to hinge on buying more than the game would allow.",
+			"enforcedBy": [
+				"scripts/audit-run.js"
+			]
 		}
 	],
 	"open": [
