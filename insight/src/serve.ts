@@ -58,7 +58,7 @@ export const readLive = (file: string): Effect.Effect<LiveState, never> =>
 
 const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Live Run</title><style>${STYLE}
-main{display:block;height:auto;max-width:980px;margin:0 auto;padding:12px 16px}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
+main{display:block;height:auto;max-width:980px;margin:0 auto;padding:12px 16px}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}</style></head><body>
 <header><h1 id="title">Live run</h1><p id="sub">waiting for a fight…</p></header>
 <main><div class="runs filters" id="runs"></div><div class="speed" id="six"></div><div id="turns"></div></main>
@@ -96,7 +96,9 @@ async function tick() {
   for (let i = seen + 1; i < s.turns.length; i++) box.prepend(card(s.turns[i]));
   seen = s.turns.length - 1;
 }
-runs(); setInterval(runs, 5000); setInterval(() => tick().catch(() => {}), 1000);
+// A server that is down is a state to show, not an error to throw every second.
+const quiet = fn => () => fn().then(() => { document.body.classList.remove('lost'); }, () => { document.body.classList.add('lost'); document.getElementById('sub').textContent = 'the watcher is not answering — is it still running?'; });
+quiet(runs)(); setInterval(quiet(runs), 5000); setInterval(quiet(tick), 1000);
 </script></body></html>`;
 
 const flag = (argv: ReadonlyArray<string>, name: string): string | undefined => {
