@@ -113,3 +113,64 @@ export function walls(run: RunRecord): ReadonlyArray<WallSummary> {
 	}
 	return out.sort((a, b) => a.order - b.order);
 }
+
+export interface Strategy {
+	readonly wallsFought: number;
+	readonly wallsWon: number;
+	readonly attempts: number;
+	/** Mean of our bodies lost in a WINNING attempt: what a win costs. */
+	readonly bodiesLostPerWin: number | null;
+	readonly cleanWins: number;
+	/** Per kind of turn: mean per winning attempt against mean per losing attempt, over every logged wall. */
+	readonly control: ReadonlyArray<{readonly tag: Tag; readonly perWin: number; readonly perLoss: number}>;
+	/** Crits for minus crits against, per winning attempt and per losing attempt: how much of winning is dice. */
+	readonly critEdge: {readonly wins: number; readonly losses: number};
+	/** The share of searched turns where the search played something other than the biggest forecast. */
+	readonly overrodeShare: {readonly wins: number; readonly losses: number};
+	readonly leads: ReadonlyArray<{readonly lead: string; readonly wins: number; readonly attempts: number}>;
+}
+
+const mean = (values: ReadonlyArray<number>): number =>
+	values.length === 0 ? 0 : Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2));
+
+/**
+ * What a run's wins are made of, against what its losses are made of.
+ *
+ * One wall's win beside its own losses is an anecdote — Brawly was once won on
+ * five crits. Pooled over every logged wall it becomes a reading of which
+ * kinds of control the wins had and the losses lacked, what a win costs in
+ * bodies, and how much of it was dice. Only attempts that kept a log count.
+ */
+export function strategyOf(run: RunRecord): Strategy {
+	const all = walls(run).filter(wall => wall.attempts > 1 || wall.logged > 0);
+	const logged = all.flatMap(wall => wall.summaries.filter(entry => entry.hasLog));
+	const wins = logged.filter(entry => entry.result === 'win');
+	const losses = logged.filter(entry => entry.result !== 'win');
+	const tags = new Set<string>();
+	for (const entry of logged) for (const tag of Object.keys(entry.tagCounts)) tags.add(tag);
+	const count = (entry: AttemptSummary, tag: string): number => entry.tagCounts[tag] ?? 0;
+	const searched = (entry: AttemptSummary): number => Math.max(1, (entry.turns ?? 0));
+	const leads = new Map<string, {wins: number; attempts: number}>();
+	for (const entry of logged) {
+		if (entry.lead === null) continue;
+		const row = leads.get(entry.lead) ?? {wins: 0, attempts: 0};
+		row.attempts += 1;
+		if (entry.result === 'win') row.wins += 1;
+		leads.set(entry.lead, row);
+	}
+	return {
+		wallsFought: all.length,
+		wallsWon: all.filter(wall => wall.wonOn !== null).length,
+		attempts: all.reduce((sum, wall) => sum + wall.attempts, 0),
+		bodiesLostPerWin: wins.length === 0 ? null : mean(wins.map(entry => entry.bodiesLost)),
+		cleanWins: wins.filter(entry => entry.bodiesLost === 0).length,
+		control: [...tags].map(tag => ({tag: tag as Tag, perWin: mean(wins.map(entry => count(entry, tag))),
+			perLoss: mean(losses.map(entry => count(entry, tag)))}))
+			.sort((a, b) => (b.perWin - b.perLoss) - (a.perWin - a.perLoss)),
+		critEdge: {wins: mean(wins.map(entry => count(entry, 'crit-ours') - count(entry, 'crit-theirs'))),
+			losses: mean(losses.map(entry => count(entry, 'crit-ours') - count(entry, 'crit-theirs')))},
+		overrodeShare: {wins: mean(wins.map(entry => count(entry, 'search-overrode') / searched(entry))),
+			losses: mean(losses.map(entry => count(entry, 'search-overrode') / searched(entry)))},
+		leads: [...leads.entries()].map(([lead, row]) => ({lead, ...row})).sort((a, b) => b.attempts - a.attempts).slice(0, 8),
+	};
+}

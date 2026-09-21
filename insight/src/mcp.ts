@@ -15,7 +15,7 @@
 import {Effect, JSONSchema, ParseResult, Schema} from 'effect';
 import * as path from 'node:path';
 import * as readline from 'node:readline';
-import {walls} from './analyse.js';
+import {strategyOf, walls} from './analyse.js';
 import {loadRunWithFights} from './cli.js';
 import {tagsOf} from './tags.js';
 
@@ -61,6 +61,9 @@ const loaded = (report: string) => loadRunWithFights(report).pipe(Effect.mapErro
 	error._tag === 'NotJson' ? report + ' is not JSON' : 'cannot read ' + report));
 
 export const TOOLS: ReadonlyArray<AnyTool> = [
+	tool({name: 'run_strategy', input: Schema.Struct({report: Report}),
+		description: 'What a run\'s WINS are made of against its losses, pooled over every logged wall: per kind of turn (speed-control, pivot, sack, set-up, status, …) the mean per winning attempt against the mean per losing attempt; what a win costs in bodies and how many were clean; the crit edge in wins and in losses (how much of winning is dice); and which leads win. Use this for "which strategies are beating the game".',
+		run: args => loaded(args.report).pipe(Effect.map(strategyOf))}),
 	tool({name: 'list_walls', input: ListWalls,
 		description: 'The fights of a run that took more than one attempt: how many attempts, which one won (or none), how many kept a turn-by-turn log. Start here.',
 		run: args => loaded(args.report).pipe(Effect.map(run => walls(run)

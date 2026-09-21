@@ -69,7 +69,7 @@ test('the agent face shows the signature it enforces', async () => {
 	const {handle} = await import('../src/mcp.js');
 	const listed = await Effect.runPromise(handle({id: 1, method: 'tools/list'})) as
 		{result: {tools: Array<{name: string; inputSchema: {required?: string[]; properties: Record<string, unknown>}}>}};
-	assert.deepEqual(listed.result.tools.map(entry => entry.name), ['list_walls', 'compare_attempts', 'get_attempt', 'get_turns']);
+	assert.deepEqual(listed.result.tools.map(entry => entry.name), ['run_strategy', 'list_walls', 'compare_attempts', 'get_attempt', 'get_turns']);
 	const turns = listed.result.tools.find(entry => entry.name === 'get_turns');
 	assert.deepEqual(turns?.inputSchema.required, ['report', 'n'], 'the schema an agent is shown names what is required');
 
@@ -113,4 +113,22 @@ test('a run\'s streamed fights are put back on its attempts, torn sidecar or not
 	// No sidecar at all is a run played inline, not an error.
 	await fs.rm(sidecarOf(report));
 	assert.equal((await Effect.runPromise(loadRunWithFights(report))).ledger.length, 2);
+});
+
+test('a run is read for what its wins had that its losses lacked', async () => {
+	const {strategyOf} = await import('../src/analyse.js');
+	const fall = turn({chose: 'switch to Luxray', why: 'forced replacement'});
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 90, fights: 4, ledger: [
+		{n: 1, order: 80, trainer: 'Leader Brawly', seed: 5, result: 'loss', deaths: 6, log: [turn({chose: 'Superpower'}), fall]},
+		{n: 2, order: 80, trainer: 'Leader Brawly', seed: 6, result: 'win', deaths: 5, log: [turn({chose: 'Tailwind'}), turn({chose: 'Tailwind'})]},
+		{n: 3, order: 142, trainer: 'Leader Roxanne', seed: 7, result: 'loss', deaths: 6, log: [turn({chose: 'Superpower'})]},
+		{n: 4, order: 142, trainer: 'Leader Roxanne', seed: 8, result: 'win', deaths: 0, log: [turn({chose: 'Swords Dance'})]},
+	]}));
+	const read = strategyOf(run);
+	assert.deepEqual([read.wallsFought, read.wallsWon, read.attempts], [2, 2, 4]);
+	assert.equal(read.bodiesLostPerWin, 2.5, 'what a win costs');
+	assert.equal(read.cleanWins, 1);
+	assert.deepEqual(read.control.find(entry => entry.tag === 'speed-control'), {tag: 'speed-control', perWin: 1, perLoss: 0});
+	assert.deepEqual(read.control.find(entry => entry.tag === 'set-up'), {tag: 'set-up', perWin: 0.5, perLoss: 0});
+	assert.deepEqual(read.leads[0], {lead: 'Bewear', wins: 2, attempts: 4});
 });

@@ -8,12 +8,13 @@
  * offer, and what did the search think of it".
  */
 import type {RunRecord} from './schema.js';
-import {walls, type WallSummary} from './analyse.js';
+import {strategyOf, walls, type Strategy, type WallSummary} from './analyse.js';
 import {tagsOf} from './tags.js';
 
 interface PageData {
 	readonly title: string;
 	readonly walls: ReadonlyArray<WallSummary>;
+	readonly strategy: Strategy;
 	readonly fights: Readonly<Record<string, unknown>>;
 }
 
@@ -36,7 +37,7 @@ export function pageData(run: RunRecord, title: string): PageData {
 			turns: attempt.log.map(turn => ({...turn, tags: tagsOf(turn)})),
 		};
 	}
-	return {title, walls: walls(run), fights};
+	return {title, walls: walls(run), strategy: strategyOf(run), fights};
 }
 
 const STYLE = `
@@ -90,7 +91,19 @@ function drawAttempts() {
 }
 function drawFight() {
   const box = document.getElementById('fight'); box.replaceChildren();
-  if (!attempt) { box.appendChild(el('h2', {text: 'Pick an attempt'})); return; }
+  if (!attempt) {
+    const s = DATA.strategy;
+    box.appendChild(el('h2', {text: 'What this run\'s wins are made of'}));
+    box.appendChild(el('p', {class: 'sub', text: s.wallsWon + ' of ' + s.wallsFought + ' contested fights won in ' + s.attempts + ' attempts. A win costs ' + (s.bodiesLostPerWin === null ? '—' : s.bodiesLostPerWin) + ' of our six on average; ' + s.cleanWins + ' were clean. Crit edge: ' + s.critEdge.wins + ' a win, ' + s.critEdge.losses + ' a loss. Only logged attempts count.'}));
+    const t = el('table'); t.appendChild(el('tr', {}, ['kind of turn','per winning attempt','per losing attempt'].map(h => el('th', {text: h}))));
+    for (const c of s.control.filter(c => HOT.has(c.tag))) t.appendChild(el('tr', {}, [c.tag, String(c.perWin), String(c.perLoss)].map(v => el('td', {text: v}))));
+    box.appendChild(t);
+    const l = el('table'); l.appendChild(el('tr', {}, ['lead','won','attempts'].map(h => el('th', {text: h}))));
+    for (const x of s.leads) l.appendChild(el('tr', {}, [x.lead, String(x.wins), String(x.attempts)].map(v => el('td', {text: v}))));
+    box.appendChild(el('h2', {text: 'Leads'})); box.appendChild(l);
+    box.appendChild(el('p', {class: 'sub', text: 'Pick a fight, then an attempt, to read it turn by turn.'}));
+    return;
+  }
   const f = DATA.fights[String(attempt.n)];
   box.appendChild(el('h2', {text: 'Attempt ' + (wall.summaries.indexOf(attempt) + 1) + ' — seed ' + attempt.seed + ' — ' + attempt.order.join(' → ')}));
   if (!f) { box.appendChild(el('p', {class: 'sub', text: 'This attempt was played before fight logs were kept. Replay it with scripts/how-it-won.js.'})); return; }

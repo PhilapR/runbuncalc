@@ -72,7 +72,7 @@ function summarise(out, seeds) {
 		const hard = Object.entries(walls).filter(entry => entry[1].tries >= 5)
 			.map(entry => entry[0].replace(/^(Leader|Trainer) /, '') + ' ' + (entry[1].won ? '1/' : '0/') + entry[1].tries);
 		lines.push(`${seed}: position ${row.position}, ${row.fights} fights, ${Math.round(row.seconds / 60)} min, ` +
-			`${row.finished ? 'FINISHED' : 'stopped: ' + String(row.stopped || '').split(':')[0]} — ${verdict}` +
+			`${row.finished ? 'FINISHED' : 'stopped: ' + (String(row.stopped || '').split(':')[0] || 'budget spent')} — ${verdict}` +
 			(hard.length ? '\n    ' + hard.join(', ') : ''));
 	}
 	return lines;
