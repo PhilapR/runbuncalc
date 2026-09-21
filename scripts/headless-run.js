@@ -87,6 +87,9 @@ const KNOB_FLAGS = {
 	searchRollouts: ['search-rollouts', '4', Number],
 	doublesPrep: ['doubles-prep', '1', value => value === '1'],
 	catchMethod: ['catch-method', '0', value => value === '1'],
+	// Quick decide() fights played before a boss's first attempt, RECORDED and
+	// not acted on: see probeWall.
+	probe: ['probe', '12', Number],
 };
 
 function knobsFrom(read) {
@@ -901,6 +904,36 @@ function provenance() {
 		flags: process.argv.filter(arg => arg.startsWith('--')), date: new Date().toISOString()};
 }
 
+/**
+ * A cheap read of a wall before the run pays for it.
+ *
+ * Across 259 ledgers a boss either fell within about 25 attempts or never
+ * fell in 60, and a wall that never falls costs about 45 minutes of search to
+ * find that out. Where it was looked at (Brawly, Norman) the doomed box had
+ * no one-on-one answer to most of the six and outsped almost nothing — which
+ * a dozen hand-played fights show in a few seconds. This plays them on seeds
+ * the run never uses and RECORDS the result on the first attempt's ledger
+ * row. Nothing acts on it yet: whether it predicts a doomed wall is a claim
+ * to be measured on the next baseline, not assumed. Singles only.
+ */
+const PROBE_SEED_BASE = 900000;
+function probeWall(policy, doc, next) {
+	if (!knobs.probe || next.isDouble || !BOSS.test(next.trainer)) return null;
+	let wins = 0;
+	let left = 0;
+	for (let offset = 1; offset <= knobs.probe; offset++) {
+		let played;
+		try {
+			played = battery.playScenario(policy, doc, next.trainer, PROBE_SEED_BASE + offset);
+		} catch (error) {
+			return null;
+		}
+		if (played.result === 'win') wins += 1;
+		left += (played.foe && played.foe.alive) || 0;
+	}
+	return {wins, of: knobs.probe, foeLeft: Number((left / knobs.probe).toFixed(2))};
+}
+
 function playRun(policy, starter, seed, treatment, options) {
 	// An arm's knobs hold for its run and no longer: two arms in one process
 	// must not inherit each other's budget.
@@ -1020,6 +1053,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		const searchAfter = knobs.searchAfter;
 		const searching = searchAfter > 0 && attempts >= searchAfter ? {search: knobs.searchRollouts} : undefined;
 		if (next.isDouble && knobs.doublesPrep) doc = doublesPrep(doc, tally);
+		const probed = attempts === 0 ? probeWall(policy, doc, next) : null;
 		// An engine crash is a lost fight, not a lost run. Sweep 14's deepest
 		// run died at fight #271 after beating 410 of them, and its document
 		// went with it: the state that crashed could not be replayed, so the
@@ -1044,6 +1078,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		tally.ledger.push({n: tally.fights, order: next.order, trainer: next.trainer, seed: fightSeed,
 			position: doc.position, result: played.result, policy: played.policy || (searching ? 'search' : 'decide'),
 			refusals: played.engineRefusals || 0, turns: played.turns, deaths: played.deaths,
+			...(probed ? {probe: probed} : {}),
 			// What fell and to what: the driver knows the body, the move and
 			// the enemy that used it, and the row kept only the count — so no
 			// run could say which types die, or what kills them.

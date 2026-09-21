@@ -413,3 +413,23 @@ test('a run carries on from a saved document instead of replaying the road to it
 	assert.ok(row.doc.log.length >= saved.log.length, 'the saved log is kept, so the whole run stays auditable');
 	assert.equal(saved.position, 337, 'and the saved document is not mutated');
 });
+
+test('a boss is probed before its first attempt, and the probe changes nothing', () => {
+	// Recorded, not acted on: whether a dozen quick fights predict a wall
+	// that sixty searched attempts cannot move is a claim for the next
+	// baseline to measure. So the probe must leave the run exactly as it was.
+	const policy = require('../scripts/ui-playthrough.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	const play = spec => headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 7,
+		headless.armFlags(spec), {resume: saved});
+	const probed = play('--budget=2 --retries=1 --boss-retries=2 --probe=4');
+	assert.deepEqual(Object.keys(probed.ledger[0].probe).sort(), ['foeLeft', 'of', 'wins']);
+	assert.equal(probed.ledger[0].probe.of, 4);
+	assert.equal(probed.ledger[1].probe, undefined, 'only the first attempt at a wall is probed');
+
+	const plain = play('--budget=2 --retries=1 --boss-retries=2 --probe=0');
+	assert.equal(plain.ledger[0].probe, undefined);
+	const playOf = row => row.ledger.map(fight => [fight.trainer, fight.seed, fight.result, fight.turns, fight.foeLeft]);
+	assert.deepEqual(playOf(probed), playOf(plain), 'the probe spends none of the run\'s dice');
+});
