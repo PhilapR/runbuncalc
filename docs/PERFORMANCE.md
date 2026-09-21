@@ -299,3 +299,31 @@ Delcatty, Ludicolo and Masquerain at level 99.
   be in the bag after Lilycove opened, though money is not modelled and the
   store sells it. Corrected (an HM is never sold and must still be held),
   gated both ways, and the run then replays whole.
+
+## Declared, not yet run: do `--hand-by-probe` and `--plan-after` earn their default? (2026-09-21)
+
+Each switch has ONE stuck run of evidence, and that run is the one it was
+found on (731001 at Brawly; 842113 at Norman). That is in-sample. The bar
+below is written before any held-out data exists.
+
+**Held-out walls.** When clear1 (six seeds, pinned 1c82d50, switches absent)
+ends, every run that stopped at a wall leaves its document there. Those walls
+— excluding Brawly on 731001 and Norman on 842113 — are the test set, plus any
+boss a finished run needed 10 or more attempts for, replayed from the run's
+checkpointed document at that position where one exists.
+
+**Arms, per wall, from the same document, through the slot pool, pinned:**
+control (`search-after=2, repick-after=3`), `+hand-by-probe`, `+plan-after=5`,
+both. Forty attempts each, as a run has. One run per arm per wall; the dice
+are the run's own.
+
+**Bar.** Adopt a switch if, over the held-out walls, it clears at least one
+wall the control does not and loses none the control clears; and the median
+attempts-to-clear over walls both clear is not worse by more than 5. Reject
+if it loses a wall the control clears. Anything else: stays off, stays
+available. Wall-clock per wall is reported, not judged — a plan costs about
+two minutes and a wall costs an hour.
+
+**Known limit.** Expect 3–6 held-out walls, so this can reject but can only
+weakly adopt; a second batch of seeds with both arms from the start is what
+would settle it, at roughly 6 seeds x 2 arms x 3–7 hours of a slot each.

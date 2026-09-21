@@ -130,6 +130,7 @@ question moves up into rulings; it is never silently deleted.
 - **reorderable-fights** (2026-08-12): Which required fights are reorderable like Camper Gavi (pass now, beat later)? The doc records rosters, not overworld movement. Gavi is operator-confirmed; Battle Girl Luna (#162) and Picnicker Bianca (#192) are structurally identical in the data and wait on the same confirmation. _Settled by: operator ruling._
 - **tm-tutor-dates** (2026-08-12): When does each TM and tutor become available? The official docs folder (Locations sheet, Trainer Battles, Mechanic Changes, Move Changes, Learnsets) contains no TM/tutor location data at all, so `teach` keeps taking teachables at face value — which is why a playbook with TM assumptions reads ~2x the natural-moves floor (Brawly 50% vs 25%). A community Item Locations doc exists outside the folder; importing it would date the teachables. _Settled by: operator ruling._
 - **rustboro-table-drift** (2026-08-12): The author's Pokémon Locations sheet (2023) lists Bonsly and Lillipup at Rustboro City; the current decomp import has Herdier and Stantler instead (Lillipup's evolution among them). Decomp is source-of-truth and newer, so ours stands — but a v1.0x changelog line confirming the Rustboro table change would close this, and nuzlocke.app's transcription (bonsly/lillipup/steenee) matches the OLD sheet, dating their data too. _Settled by: operator ruling._
+- **undated-tutors-stay-usable** (2026-09-21): A move tutor now teaches only once the road has reached it (lib/run.js teach, run.learnable; Brick Break is Route 118, order 623, and was teachable at Norman, 337). That covers the DATED tutors. Eleven tutor rows have no datable place (Avalanche, Dive, Fly, Frost Breath, Hurricane, Psycho Shift, Surf, ...) and stay usable at any position, as before. Should an undated tutor be refused until dated, or stay open? _Settled by: operator ruling._
 
 ## Hand-written docs, dated
 Last-touched stamps from git, refreshed whenever the inventory is
@@ -151,7 +152,7 @@ the reader's warning to verify before trusting.
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
 - `docs/HOW-WE-WIN.md` — 4ecbdc3 2026-09-21
 - `docs/IMPROVEMENT-AUDIT.md` — 6034c5c 2026-09-20
-- `docs/LEADER-KEYS.md` — f396f00 2026-09-20
+- `docs/LEADER-KEYS.md` — 3cb7b57 2026-09-21
 - `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
 - `docs/PERFORMANCE.md` — a30d3e7 2026-09-21
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
