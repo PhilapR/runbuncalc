@@ -216,3 +216,22 @@ cost about twenty minutes a wall. Below 40 the trade is real — a cap of 25
 gives up 2.2% of wins PER WALL, which over a dozen walls compounds to about a
 quarter of a run's chance of finishing — so 25 is for fast diagnostic runs,
 not for a run meant to clear the game.
+
+### The same six seeds at 85a86f2 (Sitrus trade-up, pre-fight fill, retries capped at 40)
+
+| Seed | 6a059c6 reached | 85a86f2 reached | Norman before → after |
+|---|---|---|---|
+| 104770 | past Norman | past Norman | 1/18 → 1/23 |
+| 209499 | past Norman | past Norman | 1/22 → 1/13 |
+| 314228 | past Norman | past Norman | 1/8 → 1/20 |
+| 418957 | **Norman, 0/60** | **past Norman** | 0/60 → 1/3 |
+| 523686 | Brawly, 0/60 | Brawly, 0/40 | — |
+| 628415 | Wattson, 0/60 | **Roxanne, 0/40** | — |
+
+**4 of 6 past Norman against 3 of 6; 817 fights → 746; 461 machine-minutes →
+361 (−22%).** All audits valid, no member of any six empty-handed, Sitrus held
+in every run that reached the trees. One seed gained a wall and one lost one,
+so the pass count is inside the noise of six runs and is NOT claimed as an
+improvement; the time is, because the cap alone removes twenty attempts from
+every wall that never falls. Seed 104770 took Roxanne on attempt 31 — inside
+the cap of 40, outside a cap of 25, which is the trade the table above prices.
