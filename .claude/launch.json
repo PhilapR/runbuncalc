@@ -32,7 +32,7 @@
 			"runtimeExecutable": "node",
 			"runtimeArgs": [
 				"insight/dist/src/serve.js",
-				"--dir=ui-playthrough-out/runs/live1",
+				"--dir=ui-playthrough-out/runs/clear1",
 				"--port=4173"
 			],
 			"port": 4173
