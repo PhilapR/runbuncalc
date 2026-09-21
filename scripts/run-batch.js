@@ -85,7 +85,10 @@ function main() {
 	const todo = plan(process.argv);
 	fs.mkdirSync(todo.out, {recursive: true});
 	const short = childProcess.spawnSync('git', ['rev-parse', '--short', todo.rev], {cwd: ROOT, encoding: 'utf8'}).stdout.trim();
-	const tree = path.join(ROOT, 'ui-playthrough-out', '.worktrees', 'run-' + short + '-' + todo.label);
+	// One tree per BATCH, not per label: three batches once shared a label (one
+	// seed each, launched together), the first to finish removed the tree, and
+	// the other two died at the end of an hour's play with no record written.
+	const tree = path.join(ROOT, 'ui-playthrough-out', '.worktrees', 'run-' + short + '-' + todo.label + '-' + process.pid);
 	arms.makeWorktree(tree, todo.rev);
 	// A runner from before carry-on ignores the flag and starts the run AGAIN,
 	// over its checkpoint and its fights (it happened, on the first try).
@@ -107,8 +110,10 @@ function main() {
 			live += 1;
 			// Through the machine's slot pool (scripts/submit.js, from THIS tree: the
 			// pinned one may predate it), so two batches cannot both fill the cores.
+			// What a run says as it dies is the only account of why: kept beside its log.
+			const errors = fs.openSync(path.join(todo.out, 'run-' + seed + '.stderr'), 'a');
 			const child = childProcess.spawn('nice', ['-n', '10', process.execPath, path.join(__dirname, 'submit.js'),
-				'--label=' + todo.label + '/run-' + seed, '--', process.execPath].concat(args), {cwd: tree, stdio: 'ignore'});
+				'--label=' + todo.label + '/run-' + seed, '--', process.execPath].concat(args), {cwd: tree, stdio: ['ignore', 'ignore', errors]});
 			child.on('exit', code => {
 				live -= 1;
 				process.stdout.write(`seed ${seed} exited ${code}\n`);
