@@ -643,9 +643,69 @@ function doublesPrep(doc, tally) {
  * ends. Spending them there took his team from 5.42 survivors of six to 4.67.
  * Off unless --scale-ivs=1.
  */
+/** Which stat each nature raises and lowers; a neutral nature is absent. */
+const NATURE_EFFECT = {
+	Lonely: ['atk', 'def'], Brave: ['atk', 'spe'], Adamant: ['atk', 'spa'], Naughty: ['atk', 'spd'],
+	Bold: ['def', 'atk'], Relaxed: ['def', 'spe'], Impish: ['def', 'spa'], Lax: ['def', 'spd'],
+	Timid: ['spe', 'atk'], Hasty: ['spe', 'def'], Jolly: ['spe', 'spa'], Naive: ['spe', 'spd'],
+	Modest: ['spa', 'atk'], Mild: ['spa', 'def'], Quiet: ['spa', 'spe'], Rash: ['spa', 'spd'],
+	Calm: ['spd', 'atk'], Gentle: ['spd', 'def'], Sassy: ['spd', 'spe'], Careful: ['spd', 'spa'],
+};
+
+/**
+ * What a Heart Scale is worth on this body, in stat points it will USE.
+ *
+ * The nurse sells two things: one stat's IV to 31 for one scale, and a nature
+ * for three (lib/run.js heartScale). The spender knew only the first and
+ * bought the WORST iv in the six, so it could not tell a Sp. Atk IV on a
+ * physical attacker from a Speed IV, and had never changed a nature — a Rash
+ * Kingdra with a Sp. Def IV of 6 took 77% from a Tri Attack at Norman.
+ *
+ * A purchase is priced as the stat points it adds, weighted by whether the
+ * body uses the stat: its attacking stat and Speed count in full, HP and the
+ * two defences at half, an attacking stat no move uses at nothing. A nature
+ * is priced against the nature it replaces, so undoing a harmful one counts
+ * twice. Points per scale decide; the reserve stays in the bag. This is a
+ * sizing rule, not a measured policy: nothing here has been shown to move a
+ * wall, and the ceiling test at Norman says the whole lever is small.
+ */
+function scaleOptions(mon) {
+	const calc = require('../calc');
+	const ai = require('../ai');
+	const found = calc.Generations.get(8).species.get(calc.toID(mon.species));
+	if (!found || !mon.ivs) return [];
+	const base = found.baseStats;
+	const kinds = new Set((mon.moves || []).map(move => (ai.getMoveMetadata(move, 8) || {}).category));
+	const weight = {hp: 0.5, def: 0.5, spd: 0.5, spe: 1,
+		atk: kinds.has('Physical') ? 1 : 0, spa: kinds.has('Special') ? 1 : 0};
+	const raw = (stat, iv) => stat === 'hp' ?
+		Math.floor((2 * base.hp + iv) * mon.level / 100) + mon.level + 10 :
+		Math.floor((2 * base[stat] + iv) * mon.level / 100) + 5;
+	const effect = NATURE_EFFECT[mon.nature] || [null, null];
+	const natured = (stat, points, pair) => stat === pair[0] ? points * 1.1 : stat === pair[1] ? points * 0.9 : points;
+	const options = [];
+	for (const stat of Object.keys(weight)) {
+		const iv = mon.ivs[stat];
+		if (typeof iv !== 'number' || iv >= 31 || !weight[stat]) continue;
+		const gain = natured(stat, raw(stat, 31), effect) - natured(stat, raw(stat, iv), effect);
+		options.push({kind: 'iv', stat, cost: 1, points: gain * weight[stat]});
+	}
+	for (const nature of Object.keys(NATURE_EFFECT)) {
+		const pair = NATURE_EFFECT[nature];
+		// Only a nature that lowers a stat the body does not use is a candidate.
+		if (nature === mon.nature || weight[pair[1]] !== 0) continue;
+		let gain = 0;
+		for (const stat of ['atk', 'def', 'spa', 'spd', 'spe']) {
+			const points = raw(stat, typeof mon.ivs[stat] === 'number' ? mon.ivs[stat] : 31);
+			gain += (natured(stat, points, pair) - natured(stat, points, effect)) * weight[stat];
+		}
+		if (gain > 0) options.push({kind: 'nature', nature, cost: 3, points: gain});
+	}
+	return options.sort((a, b) => b.points / b.cost - a.points / a.cost);
+}
+
 function spendScales(doc, tally) {
 	const SCALE = 'Heart Scale';
-	const ai = require('../ai');
 	let spent = 0;
 	// A reserve stays in the bag. Remembering a move costs a scale at the
 	// nurse, and the threshold prep's answer to a Focus Sash + Reversal lead is
@@ -653,26 +713,25 @@ function spendScales(doc, tally) {
 	// Aqua Admin Shelly with Accelerock, Sucker Punch and Quick Attack all one
 	// scale away and none in the bag — every scale had gone to IVs — and her
 	// Mienshao took exactly one body in each of twenty fights.
-	while ((doc.bag[SCALE] || 0) > knobs.scaleReserve) {
-		let worst = null;
+	for (let guard = 0; guard < 60; guard++) {
+		const free = (doc.bag[SCALE] || 0) - knobs.scaleReserve;
+		if (free <= 0) break;
+		let best = null;
 		for (const id of doc.party || []) {
 			const mon = doc.box.find(entry => entry.id === id);
-			if (!mon || !mon.ivs) continue;
-			// An attacking stat nothing in the moveset uses is not worth a
-			// scale: the spender took the WORST iv, which on a physical
-			// attacker is as often Sp. Atk as anything.
-			const kinds = new Set((mon.moves || []).map(move => (ai.getMoveMetadata(move, 8) || {}).category));
-			for (const stat of ['hp', 'atk', 'def', 'spa', 'spd', 'spe']) {
-				if (stat === 'atk' && !kinds.has('Physical')) continue;
-				if (stat === 'spa' && !kinds.has('Special')) continue;
-				if (mon.ivs[stat] >= 31) continue;
-				if (!worst || mon.ivs[stat] < worst.iv) worst = {id: mon.id, stat, iv: mon.ivs[stat]};
+			if (!mon) continue;
+			const option = scaleOptions(mon).find(entry => entry.cost <= free);
+			if (option && (!best || option.points / option.cost > best.option.points / best.option.cost)) {
+				best = {id: mon.id, option};
 			}
 		}
-		if (!worst) break;
+		if (!best) break;
 		try {
-			doc = run.apply(doc, {kind: 'heartScale', id: worst.id, stat: worst.stat});
-			spent += 1;
+			doc = run.apply(doc, best.option.kind === 'nature' ?
+				{kind: 'heartScale', id: best.id, nature: best.option.nature} :
+				{kind: 'heartScale', id: best.id, stat: best.option.stat});
+			spent += best.option.cost;
+			if (best.option.kind === 'nature' && tally) tally.natureChanges = (tally.natureChanges || 0) + 1;
 		} catch (error) { break; }
 	}
 	if (tally && spent) tally.scaleSpends = (tally.scaleSpends || 0) + spent;
@@ -1257,4 +1316,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, relearn, evolveByItem};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, relearn, evolveByItem, scaleOptions};

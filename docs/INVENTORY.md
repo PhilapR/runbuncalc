@@ -149,7 +149,7 @@ the reader's warning to verify before trusting.
 - `docs/IMPROVEMENT-AUDIT.md` — 6034c5c 2026-09-20
 - `docs/LEADER-KEYS.md` — f396f00 2026-09-20
 - `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
-- `docs/PERFORMANCE.md` — 2c14ed2 2026-09-21
+- `docs/PERFORMANCE.md` — b0e89b1 2026-09-21
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
 - `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18

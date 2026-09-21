@@ -2659,3 +2659,27 @@ test('the Game Corner pays out once a run, from a tier whose gym is beaten', () 
 		prize: 'Knuckle Badge'}), /pays out once a run, and this run took Tauros from the Stone Badge tier/,
 	'and the second pull is refused, naming the first');
 });
+
+test('the nurse changes a nature for three Heart Scales', () => {
+	// Ruled from the operator's screenshot of the nurse's menu (maximize IVs
+	// one scale, change nature three) and never modelled: the run could max an
+	// IV and nothing else, so no run had ever changed a nature.
+	let state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+		nature: 'Modest'});
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', nature: 'Jolly'}),
+		/costs 3 Heart Scales — need 3, the bag has 0/);
+	state = run.apply(state, {kind: 'acquire', item: 'Heart Scale', count: 4});
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', nature: 'Spicy'}), /is not a nature/);
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', nature: 'Modest'}),
+		/already Modest; three Heart Scales would buy nothing/);
+
+	const changed = run.apply(state, {kind: 'heartScale', id: 'mon-1', nature: 'Jolly'});
+	assert.equal(changed.box[0].nature, 'Jolly');
+	assert.equal(changed.bag['Heart Scale'], 1, 'three spent, one left');
+	assert.throws(() => run.apply(changed, {kind: 'heartScale', id: 'mon-1', nature: 'Adamant'}),
+		/need 3, the bag has 1/, 'and a second change is three more');
+	// The IV service is untouched: still one scale, one stat.
+	const iv = run.apply(changed, {kind: 'heartScale', id: 'mon-1', stat: 'spe'});
+	assert.equal(iv.box[0].ivs.spe, 31);
+	assert.ok(!iv.bag['Heart Scale']);
+});

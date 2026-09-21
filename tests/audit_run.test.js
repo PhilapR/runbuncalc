@@ -223,34 +223,29 @@ test('a TM the run cannot hold is reported', () => {
 		'the unreachable TM is counted: ' + flagged.detail);
 });
 
-test('Heart Scales are spent on the party\'s worst IVs', () => {
-	// One scale maxes one IV (the author's FAQ), and they cannot be farmed.
-	// Runs spent every scale they found on egg-move teaches and maxed no IV
-	// at all, though 26 are reachable by Archie at Seafloor Cavern.
+test('Heart Scales are spent, all but the reserve, on what the body uses', () => {
+	// Runs once spent every scale on egg-move teaches and maxed no IV at all,
+	// though 26 are reachable by Archie. This gate then asserted "the WORST
+	// four IVs are the ones maxed", which is the rule that bought Sp. Atk on
+	// physical attackers and drained the bag before a priority move had to be
+	// remembered. What it holds now: the scales ARE spent, a reserve stays,
+	// and every scale bought something the body uses.
 	const headless = require('../scripts/headless-run.js');
 	const run = require('../lib/run.js');
 	const battery = require('../scripts/scenario-battery.js');
+	const ai = require('../ai');
 	let doc = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json'));
-	for (let n = 0; n < 4; n++) doc = run.apply(doc, {kind: 'acquire', item: 'Heart Scale', where: 'granted'});
-	const before = doc.party.map(id => doc.box.find(mon => mon.id === id))
-		.reduce((sum, mon) => sum + Object.values(mon.ivs).filter(iv => iv >= 31).length, 0);
+	for (let n = 0; n < 6; n++) doc = run.apply(doc, {kind: 'acquire', item: 'Heart Scale', where: 'granted'});
 	const tally = {};
 	const after = headless.spendScales(doc, tally);
-	assert.equal(tally.scaleSpends, 4, 'every scale in the bag is spent');
-	assert.equal(after.bag['Heart Scale'] || 0, 0);
-	const maxed = after.party.map(id => after.box.find(mon => mon.id === id))
-		.reduce((sum, mon) => sum + Object.values(mon.ivs).filter(iv => iv >= 31).length, 0);
-	assert.equal(maxed, before + 4, 'four more stats are maxed');
-	// And it spends on the WORST four, not the first four it meets.
-	const stats = [];
+	assert.equal(after.bag['Heart Scale'], 2, 'the reserve stays in the bag');
+	assert.equal(tally.scaleSpends, 4, 'and the rest is spent');
 	for (const id of doc.party) {
-		const mon = doc.box.find(entry => entry.id === id);
-		for (const stat of Object.keys(mon.ivs)) if (mon.ivs[stat] < 31) stats.push({id, stat, iv: mon.ivs[stat]});
-	}
-	stats.sort((x, y) => x.iv - y.iv);
-	for (const pick of stats.slice(0, 4)) {
-		assert.equal(after.box.find(mon => mon.id === pick.id).ivs[pick.stat], 31,
-			'the worst IVs are the ones maxed: ' + pick.stat + ' at ' + pick.iv + ' was left behind');
+		const was = doc.box.find(mon => mon.id === id);
+		const now = after.box.find(mon => mon.id === id);
+		const kinds = new Set(now.moves.map(move => (ai.getMoveMetadata(move, 8) || {}).category));
+		if (!kinds.has('Special')) assert.equal(now.ivs.spa, was.ivs.spa, now.species + ': no special move, no Sp. Atk bought');
+		if (!kinds.has('Physical')) assert.equal(now.ivs.atk, was.ivs.atk, now.species + ': no physical move, no Attack bought');
 	}
 });
 

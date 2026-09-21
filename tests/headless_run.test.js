@@ -474,3 +474,49 @@ test('the IV spender leaves a reserve, and never buys a stat the body does not u
 		if (!kinds.has('Physical')) assert.equal(now.ivs.atk, was.ivs.atk, now.species + ' has no physical move: Attack is not bought');
 	}
 });
+
+test('a Heart Scale goes where the body will use it: an IV or a nature, by points a scale', () => {
+	// The nurse sells one IV for one scale and a nature for three. The spender
+	// knew only the first, bought the WORST iv in the six, and had never
+	// changed a nature — a Rash Kingdra with a Sp. Def IV of 6 took 77% from
+	// a Tri Attack at Norman.
+	const physical = {species: 'Staraptor', level: 42, nature: 'Modest',
+		moves: ['Close Combat', 'Brave Bird', 'Quick Attack', 'U-turn'],
+		ivs: {hp: 31, atk: 31, def: 31, spa: 0, spd: 31, spe: 31}};
+	const options = headless.scaleOptions(physical);
+	assert.ok(!options.some(entry => entry.kind === 'iv' && entry.stat === 'spa'),
+		'a Sp. Atk IV is worth nothing to a body with no special move');
+	const top = options[0];
+	assert.equal(top.kind, 'nature', 'a Modest physical attacker is fixed by its nature first');
+	assert.ok(['Adamant', 'Jolly'].includes(top.nature), top.nature);
+	assert.ok(options.every(entry => entry.kind !== 'nature' ||
+		['Adamant', 'Jolly', 'Impish', 'Careful'].includes(entry.nature)),
+	'only natures that lower the stat it does not use are offered');
+
+	// The same body with the right nature and one bad Speed IV: the IV wins.
+	const tuned = Object.assign({}, physical, {nature: 'Adamant',
+		ivs: Object.assign({}, physical.ivs, {spe: 2})});
+	assert.deepEqual([headless.scaleOptions(tuned)[0].kind, headless.scaleOptions(tuned)[0].stat], ['iv', 'spe']);
+
+	// A nature is three scales, so with one free scale it cannot be bought.
+	const runtime = require('../lib/run.js');
+	let doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	// Make a nature the BEST buy in the six, so only its price can stop it:
+	// the lead is a physical attacker made Modest, with nothing else to fix.
+	const lead = doc.party[0];
+	doc = Object.assign({}, doc, {box: doc.box.map(mon => !doc.party.includes(mon.id) ? mon :
+		Object.assign({}, mon, {ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31},
+			nature: mon.id === lead ? 'Modest' : 'Hardy',
+			moves: mon.id === lead ? ['Close Combat', 'Brave Bird', 'Quick Attack', 'U-turn'] : mon.moves}))});
+	assert.equal(headless.scaleOptions(doc.box.find(mon => mon.id === lead))[0].kind, 'nature');
+	doc = runtime.apply(doc, {kind: 'acquire', item: 'Heart Scale', count: 3});
+	const tally = {};
+	const spent = headless.spendScales(doc, tally);
+	assert.equal(tally.natureChanges || 0, 0, 'one free scale never buys a third of a nature');
+	assert.ok(spent.bag['Heart Scale'] >= 2, 'and the reserve stands: ' + spent.bag['Heart Scale']);
+
+	const rich = headless.spendScales(runtime.apply(doc, {kind: 'acquire', item: 'Heart Scale', count: 2}), {});
+	assert.notEqual(rich.box.find(mon => mon.id === lead).nature, 'Modest', 'with three free, the nature is fixed');
+	assert.equal(rich.bag['Heart Scale'], 2);
+});
