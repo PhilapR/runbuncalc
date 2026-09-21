@@ -436,3 +436,41 @@ test('a boss is probed before its first attempt, and the probe changes nothing',
 	const playOf = row => row.ledger.map(fight => [fight.trainer, fight.seed, fight.result, fight.turns, fight.foeLeft]);
 	assert.deepEqual(playOf(probed), playOf(plain), 'the probe spends none of the run\'s dice');
 });
+
+test('the IV spender leaves a reserve, and never buys a stat the body does not use', () => {
+	// Seed 104770 reached Aqua Admin Shelly with Accelerock, Sucker Punch and
+	// Quick Attack each one Heart Scale away and none in the bag: every scale
+	// had gone to IVs, and her Focus Sash + Reversal Mienshao took exactly one
+	// body in each of twenty fights.
+	const runtime = require('../lib/run.js');
+	let doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	doc = runtime.apply(doc, {kind: 'acquire', item: 'Heart Scale', count: 7});
+	// Make the trap explicit: a body with no special move holds the WORST iv
+	// in the six, and it is Sp. Atk. The old spender bought exactly that.
+	const meta = require('../ai');
+	const physical = doc.party.map(id => doc.box.find(mon => mon.id === id)).find(mon =>
+		!mon.moves.some(move => (meta.getMoveMetadata(move, 8) || {}).category === 'Special'));
+	assert.ok(physical, 'the fixture fields a body with no special move');
+	doc = Object.assign({}, doc, {box: doc.box.map(mon => {
+		if (!doc.party.includes(mon.id)) return mon;
+		const ivs = Object.assign({}, mon.ivs);
+		for (const stat of Object.keys(ivs)) if (ivs[stat] < 1) ivs[stat] = 1;
+		if (mon.id === physical.id) ivs.spa = 0;
+		return Object.assign({}, mon, {ivs});
+	})});
+	const before = doc.bag['Heart Scale'];
+	const tally = {};
+	const spent = headless.spendScales(doc, tally);
+	assert.equal(spent.bag['Heart Scale'], 2, 'two stay in the bag for a move that has to be remembered');
+	assert.equal(tally.scaleSpends, before - 2);
+
+	const ai = require('../ai');
+	for (const id of spent.party) {
+		const now = spent.box.find(mon => mon.id === id);
+		const was = doc.box.find(mon => mon.id === id);
+		const kinds = new Set(now.moves.map(move => (ai.getMoveMetadata(move, 8) || {}).category));
+		if (!kinds.has('Special')) assert.equal(now.ivs.spa, was.ivs.spa, now.species + ' has no special move: Sp. Atk is not bought');
+		if (!kinds.has('Physical')) assert.equal(now.ivs.atk, was.ivs.atk, now.species + ' has no physical move: Attack is not bought');
+	}
+});

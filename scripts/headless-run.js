@@ -90,6 +90,8 @@ const KNOB_FLAGS = {
 	// Quick decide() fights played before a boss's first attempt, RECORDED and
 	// not acted on: see probeWall.
 	probe: ['probe', '12', Number],
+	// Heart Scales the IV spender must leave in the bag: see spendScales.
+	scaleReserve: ['scale-reserve', '2', Number],
 };
 
 function knobsFrom(read) {
@@ -643,13 +645,26 @@ function doublesPrep(doc, tally) {
  */
 function spendScales(doc, tally) {
 	const SCALE = 'Heart Scale';
+	const ai = require('../ai');
 	let spent = 0;
-	while ((doc.bag[SCALE] || 0) > 0) {
+	// A reserve stays in the bag. Remembering a move costs a scale at the
+	// nurse, and the threshold prep's answer to a Focus Sash + Reversal lead is
+	// a priority move the body usually has to REMEMBER. Seed 104770 reached
+	// Aqua Admin Shelly with Accelerock, Sucker Punch and Quick Attack all one
+	// scale away and none in the bag — every scale had gone to IVs — and her
+	// Mienshao took exactly one body in each of twenty fights.
+	while ((doc.bag[SCALE] || 0) > knobs.scaleReserve) {
 		let worst = null;
 		for (const id of doc.party || []) {
 			const mon = doc.box.find(entry => entry.id === id);
 			if (!mon || !mon.ivs) continue;
+			// An attacking stat nothing in the moveset uses is not worth a
+			// scale: the spender took the WORST iv, which on a physical
+			// attacker is as often Sp. Atk as anything.
+			const kinds = new Set((mon.moves || []).map(move => (ai.getMoveMetadata(move, 8) || {}).category));
 			for (const stat of ['hp', 'atk', 'def', 'spa', 'spd', 'spe']) {
+				if (stat === 'atk' && !kinds.has('Physical')) continue;
+				if (stat === 'spa' && !kinds.has('Special')) continue;
 				if (mon.ivs[stat] >= 31) continue;
 				if (!worst || mon.ivs[stat] < worst.iv) worst = {id: mon.id, stat, iv: mon.ivs[stat]};
 			}
