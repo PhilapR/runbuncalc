@@ -753,6 +753,20 @@ function tutorTeaches(move) {
 	return cache.tutorMoves.has(move);
 }
 
+/**
+ * When the tutor for this move can first be reached: an order, null when the
+ * place is known but not datable, undefined when no tutor teaches it. A tutor
+ * is free, but it is SOMEWHERE — Brick Break's stands on Route 118, which
+ * opens at 623, and the run taught it at Norman (337) because a service was
+ * never asked where it was.
+ */
+function tutorOpensAt(move) {
+	const rows = moveItems().filter(row => row.kind === 'tutor' && row.move === move);
+	if (!rows.length) return undefined;
+	const dated = rows.map(row => row.opensAt).filter(at => typeof at === 'number');
+	return dated.length ? Math.min.apply(null, dated) : null;
+}
+
 function fieldItems() {
 	if (!cache.fieldItems) {
 		// The 28 curated availability rows, PLUS the item ledger's dated
@@ -939,7 +953,7 @@ module.exports = {
 	moveAvailability, moveItems,
 	currencySources,
 	fightFieldOf, itemsObtainableBy, fieldItems, shopItems,
-	evolutionsOf, preEvolutionOf, lineageOf, familyOf, moveTutors, tutorTeaches, tmFor,
+	evolutionsOf, preEvolutionOf, lineageOf, familyOf, moveTutors, tutorTeaches, tutorOpensAt, tmFor,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp, catchRateOf,
 	coverage, LIMITS,

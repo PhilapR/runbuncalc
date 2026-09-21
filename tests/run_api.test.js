@@ -85,8 +85,12 @@ test('teaching is gated on legality, not on owning a TM', () => {
 	assert.throws(() => run.apply(state.doc,
 		{kind: 'teach', id: state.id, move: 'Roar of Time', replace: 'Pluck'}),
 	/cannot learn/, 'an illegal move is refused by legality');
-	// A legal move is accepted with an empty bag, which is the surprising half.
-	assert.doesNotThrow(() => run.apply(state.doc,
+	// A legal move is accepted with an empty bag, which is the surprising half
+	// — once its tutor can be reached: Blizzard's stands in the Weather
+	// Institute, order 729, and before that the teach is refused for WHERE.
+	assert.throws(() => run.apply(state.doc,
+		{kind: 'teach', id: state.id, move: 'Blizzard', replace: 'Pluck'}), /tutor for Blizzard is not reached until order 729/);
+	assert.doesNotThrow(() => run.apply(Object.assign({}, state.doc, {position: 729}),
 		{kind: 'teach', id: state.id, move: 'Blizzard', replace: 'Pluck'}));
 });
 

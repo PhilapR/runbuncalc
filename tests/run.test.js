@@ -329,6 +329,9 @@ test('a named replace is honored below four moves too', () => {
 		{kind: 'catch', species: 'Skrelp', map: 'Route103', level: 2, method: 'fish'},
 	]);
 	assert.ok(state.box[0].moves.includes('Water Gun'));
+	// Hydro Pump is the Weather Institute tutor's, reached at order 729: the
+	// replace is what is under test here, so the road is put past it.
+	state = Object.assign({}, state, {position: 729});
 	state = run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Hydro Pump', replace: 'Water Gun'});
 	assert.ok(!state.box[0].moves.includes('Water Gun'), 'the replaced move must be gone');
 	assert.ok(state.box[0].moves.includes('Hydro Pump'));
@@ -374,20 +377,27 @@ test('a level-up move is not available before its level', () => {
 	// A move it only learns later, and which no TM can hand over: a TM move
 	// is refused for the missing TM first, which is a different sentence.
 	const oracle = require('../profiles').getProfile(state.profileId || 'run-and-bun').oracle;
-	const byLevel = later.find(row => !oracle.tmFor(row.move));
+	const byLevel = later.find(row => !oracle.tmFor(row.move) && row.tutorOpensAt === undefined);
 	assert.ok(byLevel, 'some move ahead of it comes only by level-up: ' + later.map(r => r.move).join(', '));
 	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: byLevel.move}),
 		/learns .* at level \d+; it is 3/);
 	// And what it CAN learn now is offered separately, so a UI need not guess —
 	// egg-only entries carry their relearner price as `scale`, so the free
 	// teach is the one to exercise here.
-	const now = run.learnable(state, 'mon-1').now;
+	// At the start of the road nothing is free: every move a level 3 Poochyena
+	// could be handed comes from a tutor the run has not reached, and those
+	// now read as LATER, with the order they open at.
+	assert.ok(later.some(row => row.tutorOpensAt > 0), 'an unreached tutor\'s move waits, and says until when');
+	assert.ok(!run.learnable(state, 'mon-1').now.some(row => !row.scale && !oracle.tmFor(row.move)),
+		'and none of them is offered now');
+	const reached = Object.assign({}, state, {position: 729});
+	const now = run.learnable(reached, 'mon-1').now;
 	assert.ok(now.length > 0);
 	// Free means free of BOTH prices now: a Heart Scale for an egg move, and
 	// the TM itself for a TM move, which is a one-time item in this fork.
 	const free = now.find(entry => !entry.scale && !oracle.tmFor(entry.move));
 	assert.ok(free, 'a free teach exists alongside the priced ones');
-	assert.ok(run.apply(state, {kind: 'teach', id: 'mon-1', move: free.move}));
+	assert.ok(run.apply(reached, {kind: 'teach', id: 'mon-1', move: free.move}));
 	const byTm = now.find(entry => !entry.scale && oracle.tmFor(entry.move));
 	if (byTm) {
 		const tm = oracle.tmFor(byTm.move);
@@ -2752,4 +2762,25 @@ test('a TM the store re-sells is one copy before Lilycove, and on the shelf afte
 	const surfer = run.apply(Object.assign({}, fresh(), {position: 900}),
 		{kind: 'catch', species: 'Marill', level: 30, ivs: PERFECT_IVS});
 	assert.throws(() => run.apply(surfer, {kind: 'teach', id: 'mon-1', move: 'Surf', replace: surfer.box[0].moves[0]}), /HM03 Surf, and the bag has none/);
+});
+
+test('a move tutor teaches only once the road has reached it', () => {
+	// Brick Break's tutor stands on Route 118, which opens at order 623. The
+	// teach rule called a tutor "a free service" and never asked where it was,
+	// so a hand experiment taught it at Norman (337) and measured an illegal
+	// moveset as a lever. The harness's own advisor dates moves and never
+	// leaned on this; the rule itself did not hold.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	assert.equal(oracle.tutorOpensAt('Brick Break'), 623);
+	assert.equal(oracle.tutorOpensAt('Thunderbolt'), undefined, 'a TM move has no tutor');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	const learner = saved.box.find(mon => mon.status !== 'dead' && oracle.canLearn(mon.species, 'Brick Break') &&
+		!mon.moves.includes('Brick Break') && !oracle.levelUpMoves(mon.species).some(row => row[1] === 'Brick Break'));
+	assert.ok(learner, 'the fixture holds a body whose only way to Brick Break is the tutor');
+	assert.ok(saved.position + 1 < 623);
+	const command = {kind: 'teach', id: learner.id, move: 'Brick Break', replace: learner.moves.length >= 4 ? learner.moves[0] : undefined};
+	assert.throws(() => run.apply(saved, command), /tutor for Brick Break is not reached until order 623/);
+	const later = Object.assign({}, saved, {position: 623});
+	assert.doesNotThrow(() => run.apply(later, command), 'and once Route 118 is open, it is free');
 });

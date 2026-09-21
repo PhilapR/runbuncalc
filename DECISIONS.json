@@ -535,6 +535,11 @@
 			"question": "The author's Pokémon Locations sheet (2023) lists Bonsly and Lillipup at Rustboro City; the current decomp import has Herdier and Stantler instead (Lillipup's evolution among them). Decomp is source-of-truth and newer, so ours stands — but a v1.0x changelog line confirming the Rustboro table change would close this, and nuzlocke.app's transcription (bonsly/lillipup/steenee) matches the OLD sheet, dating their data too.",
 			"raised": "2026-08-12",
 			"settledBy": "operator ruling"
+		},
+		{
+			"id": "undated-tutors-stay-usable",
+			"question": "A move tutor now teaches only once the road has reached it (lib/run.js teach, run.learnable; Brick Break is Route 118, order 623, and was teachable at Norman, 337). That covers the DATED tutors. Eleven tutor rows have no datable place (Avalanche, Dive, Fly, Frost Breath, Hurricane, Psycho Shift, Surf, ...) and stay usable at any position, as before. Should an undated tutor be refused until dated, or stay open?",
+			"raised": "2026-09-21"
 		}
 	]
 }

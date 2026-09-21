@@ -1060,7 +1060,8 @@ test('learnable splits what a Pokemon can learn now from what is still ahead', a
 	assert.ok(learn.body.now.length > 0);
 	assert.ok(learn.body.later.length > 0, 'a level 3 Lillipup has moves still ahead of it');
 	for (const entry of learn.body.later) {
-		assert.ok(entry.level > 3, 'a "later" move must actually be later');
+		// Later by level, or later because its tutor has not been reached yet.
+		assert.ok(entry.level > 3 || entry.tutorOpensAt > 0, 'a "later" move must actually be later');
 	}
 });
 
