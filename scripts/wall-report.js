@@ -6,6 +6,7 @@
  * A trouble fight, broken down the same way every time.
  *
  *   node scripts/wall-report.js --report=RUN.json --trainer="Leader Norman" [--seeds=20] [--json=OUT]
+ *   node scripts/wall-report.js --report=RUN.json --at="Leader Winona"   # as the run walked up to her
  *
  * Every wall so far was understood by a throwaway script, and each one asked
  * the same five questions in a different order. They are the questions a
@@ -168,6 +169,27 @@ function considerationsOf(doc, fight, board) {
 	return notes;
 }
 
+/**
+ * The document as it stood when the run walked up to `trainer`: the saved log
+ * replayed through a fresh run, under the run's own rules, stopping just
+ * before that fight was beaten. A saved run ends where it stopped, but the
+ * fight worth reading is usually one it got PAST on the twentieth attempt —
+ * and the box that finally won it is the box to learn from.
+ */
+function docAt(doc, trainer) {
+	const rules = doc.rules || {};
+	let replay = run.createRun({name: doc.name || 'replay', now: 't0', levelCap: rules.levelCap,
+		permadeath: rules.permadeath, onePerRoute: rules.onePerRoute, dupesClause: rules.dupesClause,
+		rival: rules.rival});
+	for (const entry of doc.log || []) {
+		if (entry.command.kind === 'beat' && entry.command.trainer === trainer) return replay;
+		try {
+			replay = run.apply(replay, entry.command, {now: entry.at});
+		} catch (error) { /* a command the rules now refuse is skipped, as the audit reports it */ }
+	}
+	throw new Error('this run never beat ' + trainer + '; leave --at off to read where it stopped');
+}
+
 function report(doc, trainer, seeds) {
 	const policy = require('./ui-playthrough.js');
 	const battery = require('./scenario-battery.js');
@@ -221,6 +243,11 @@ function main() {
 	}
 	const loaded = JSON.parse(fs.readFileSync(file, 'utf8'));
 	const doc = loaded.doc || loaded;
+	const at = own('at', '');
+	if (at) {
+		process.stdout.write(render(report(docAt(doc, at), at, Number(own('seeds', '20')))));
+		return;
+	}
 	const name = trainer || (run.upcoming(doc, 1)[0] || {}).trainer;
 	const out = report(doc, name, Number(own('seeds', '20')));
 	if (own('json', '')) fs.writeFileSync(own('json', ''), JSON.stringify(out, null, 1) + '\n');
@@ -229,4 +256,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {report, render, boardOf, unusedOf, considerationsOf};
+module.exports = {report, render, docAt, boardOf, unusedOf, considerationsOf};

@@ -50,3 +50,15 @@ test('the report counts what each of theirs costs, and says what is left on the 
 	assert.match(text, /Our bodies lost per facing/);
 	assert.doesNotMatch(text, /undefined|NaN/, 'nothing unformatted reaches the page');
 });
+
+test('a saved run opens at a fight it got past, as it walked up to it', () => {
+	// A saved run ends where it stopped, but the fight worth reading is often
+	// one it beat on the twentieth attempt, and the box that won is the lesson.
+	const saved = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'headless-norman-cufant.run.json'), 'utf8'));
+	const at = wall.docAt(saved, 'Leader Wattson');
+	assert.ok(at.position < 229, 'before Wattson (order 229) is beaten: ' + at.position);
+	assert.ok(at.box.length > 0 && at.box.length <= saved.box.length);
+	assert.equal(require('../lib/run.js').levelCap(at).cap, 35, 'and under the cap she was fought at');
+	assert.throws(() => wall.docAt(saved, 'Champion Wallace'), /never beat Champion Wallace/);
+});
