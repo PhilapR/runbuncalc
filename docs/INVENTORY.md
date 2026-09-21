@@ -117,6 +117,7 @@ ruling, never by quiet drift.
 - **over-cap-is-legal-when-candied** (2026-09-21): A party member over the level cap is LEGAL when Rare Candies paid for the levels above the cap. A body CAUGHT over the cap (Route 118's level-50 grass, reached at cap 35) has paid for nothing and may not fight until the cap reaches its level. scripts/audit-run.js FAILS a fight that fields such a body and PASSES candied levels; lib/run.js already debits one Rare Candy per level over the cap and refuses without it.
 - **one-scale-one-stat-and-the-harbor-swap** (2026-09-21): Two operator confirmations from play. (1) MAXIMIZE IVs at the nurse sets ONE stat to 31 for one Heart Scale, not all six; lib/run.js heartScale already models it that way. (2) The Slateport Harbor trade is RE-SWAPPABLE: the Scanner buys one of Assault Vest, Leftovers, Choice Band, Choice Scarf or Choice Specs, and that item can be traded back for another of the five at the Harbor, any number of times. It is one flexible slot, not five items.
 - **the-player-megas** (2026-09-21): The player holds the Mega Ring from beating Leader Flannery (the fifth gym) and may field ONE Mega Evolution a fight. It is modelled the way the enemy's are: the evolved form, holding its stone, from the start of the fight. The stone TAKES THE HELD-ITEM SLOT. A stone held before the ring is just an item; a second stone-holder in the six stays in its base form. The party ranker rates a body whose stone is in the bag as the Mega it would become (holding the stone, not its current item), and the harness hands the first such member of the picked six its stone before the fight. Stones are acquired as the item ledger dates them (47 rows, 28 dated, the first at order 594). --mega=0 plays without.
+- **a-win-is-valued-by-what-it-kept** (2026-09-21): In the singles rollout search a WON playout is worth 0.5 plus half the share of our party still standing, not a flat 1. A loss is unchanged (0.3 x the share of their HP removed), so any win still outranks any loss and a cheaper win outranks a dearer one. On by default in the headless harness and the battery; --search-keep=0 restores the flat objective; battery-tape replays a receipt without the record at 0. The doubles search has its own value and is unchanged.
 
 ## Open questions (from DECISIONS.json)
 Ruled on by nobody yet — each names what would settle it. An answered
@@ -152,7 +153,7 @@ the reader's warning to verify before trusting.
 - `docs/IMPROVEMENT-AUDIT.md` — 6034c5c 2026-09-20
 - `docs/LEADER-KEYS.md` — f396f00 2026-09-20
 - `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
-- `docs/PERFORMANCE.md` — b0e89b1 2026-09-21
+- `docs/PERFORMANCE.md` — a30d3e7 2026-09-21
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
 - `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18

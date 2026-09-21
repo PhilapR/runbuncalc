@@ -21,7 +21,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 /** Defaults as they stood before 2026-09-18, for receipts written then. */
-const PRE_ADOPTION = {'switch-priced': '0', 'real-speed': '0', 'repick-party': '0', 'pick-by-play': '0', 'set-exposure': '0', 'loser-work': '0'};
+const PRE_ADOPTION = {'switch-priced': '0', 'real-speed': '0', 'repick-party': '0', 'pick-by-play': '0', 'set-exposure': '0', 'loser-work': '0', 'search-keep': '0'};
 
 function ownFlag(name) {
 	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));

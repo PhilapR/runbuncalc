@@ -98,7 +98,7 @@ const KNOB_FLAGS = {
 	// The player's one Mega a fight, from Flannery on: see giveMegaStone.
 	mega: ['mega', '1', value => value === '1'],
 	// A won rollout valued by the bodies it kept (driver.setSearchKeep).
-	searchKeep: ['search-keep', '0', value => value === '1'],
+	searchKeep: ['search-keep', '1', value => value === '1'],
 };
 
 function knobsFrom(read) {

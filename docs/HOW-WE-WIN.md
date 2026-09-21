@@ -78,3 +78,28 @@ forgotten.
    rate; a line that wins five-for-six is not a nuzlocke line.
 4. Keep the lines. A winning line found on attempt twenty is evidence about
    the fight, and the next run starts from nothing.
+
+## How a move's value is decided — and what changed (2026-09-21)
+
+For each option on the screen the search plays it, then finishes the fight
+with OUR side on autopilot (`greedyChoice`: the biggest damage number, never a
+voluntary switch) against the foe's real AI, eight times. A playout was worth
+**1 if won, else 0.3 × the share of their HP removed**, and the mean is the
+value on the card. Four things follow, and the first is now fixed:
+
+1. **It never looked at our side.** A win with one body left scored the same
+   as a sweep, so nothing had ever preferred a cheaper win — which is why
+   eleven replayed boss wins each gave up four to six bodies. **Now a won
+   playout is worth 0.5 plus half the share of ours still standing** (ruling
+   a-win-is-valued-by-what-it-kept). Held-out, 20 paired fights: wins 17 → 18,
+   and over the 16 both arms won, **bodies lost 4.56 → 2.00** — fewer in 15.
+2. At a wall nearly every playout loses, so the value is mostly "damage dealt
+   while losing". On the Shelly win first read as a found line, turn one's
+   "lead pivot to eat Fake Out" beat Thrash 0.205 to 0.204 with no option
+   winning any of its eight playouts. That was noise, not a line.
+3. It finds one-step ideas only: after the first move the autopilot never
+   pivots and never uses Tailwind or status.
+4. All of their HP counts alike, and position counts for nothing.
+
+Each value now carries its parts — playouts won, their HP removed, ours left
+standing — in the fight log, on the page, and live.

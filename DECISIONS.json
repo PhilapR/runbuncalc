@@ -471,6 +471,20 @@
 				"tests/run.test.js",
 				"tests/headless_run.test.js"
 			]
+		},
+		{
+			"id": "a-win-is-valued-by-what-it-kept",
+			"date": "2026-09-21",
+			"ruling": "In the singles rollout search a WON playout is worth 0.5 plus half the share of our party still standing, not a flat 1. A loss is unchanged (0.3 x the share of their HP removed), so any win still outranks any loss and a cheaper win outranks a dearer one. On by default in the headless harness and the battery; --search-keep=0 restores the flat objective; battery-tape replays a receipt without the record at 0. The doubles search has its own value and is unchanged.",
+			"why": "Operator, watching the live page: 'it does make me think about how value is decided', then 'start with valuing what we keep'. A win had been worth 1 whether six stood at the end or one, so nothing had ever preferred a cheaper win: eleven replayed boss wins each gave up four to six bodies. Bar declared before the run (wins not worse; at least 0.3 fewer bodies lost over fights both arms win). Held-out, four trainers never tuned on, 5 seeds each, search-8, real PP, paired: wins 17 -> 18 of 20 (discordant 1 vs 2, no trainer worse); over the 16 fights both won, our bodies lost 4.56 -> 2.00, fewer in 15 and more in 1 (sign test p ~ 0.0005). Rows: docs/measurements/search-keep-heldout-2026-09-21.jsonl. It is the precondition for a nuzlocke mode, where a body lost is lost for good.",
+			"enforcedBy": [
+				"lib/battle-driver.js",
+				"scripts/headless-run.js",
+				"scripts/scenario-battery.js",
+				"scripts/battery-tape.js",
+				"tests/battle-driver.test.js",
+				"docs/measurements/search-keep-heldout-2026-09-21.jsonl"
+			]
 		}
 	],
 	"open": [

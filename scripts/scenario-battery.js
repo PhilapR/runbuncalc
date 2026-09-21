@@ -486,6 +486,7 @@ function effectiveDefaults() {
 	const banked = flag('repick-party', '1') === '0';
 	return {'switch-priced': flag('switch-priced', '1'), 'real-speed': flag('real-speed', '1'),
 		'repick-party': flag('repick-party', '1'), 'loser-work': flag('loser-work', '1'),
+		'search-keep': flag('search-keep', '1'),
 		'pick-by-play': effectivePick(), 'pick-seeds': flag('pick-seeds', PICK_SEEDS),
 		'set-exposure': banked ? '0' : flag('set-exposure', String(run.EXPOSURE_WEIGHT))};
 }
@@ -742,7 +743,7 @@ function main() {
 	// One scouting rollout each, then the full budget for the top N.
 	driver.setSearchWiden(Number(flag('search-widen', '0')));
 	// A won rollout valued by what it kept, not a flat 1.
-	driver.setSearchKeep(flag('search-keep', '0') === '1');
+	driver.setSearchKeep(flag('search-keep', '1') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?
