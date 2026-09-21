@@ -74,6 +74,7 @@ const KNOB_FLAGS = {
 	prizeAt: ['prize-at', 'stuck', String],
 	prizeStuck: ['prize-stuck', '6', Number],
 	evolveItems: ['evolve-items', '1', value => value === '1'],
+	fillSlots: ['fill-slots', '1', value => value === '1'],
 };
 
 function knobsFrom(read) {
@@ -329,9 +330,40 @@ function sweepItems(doc, tally) {
 			if (!row.open || row.collected) continue;
 			try {
 				doc = run.apply(doc, {kind: 'acquire', item: row.name, where: row.location});
-				tally.pickups += 1;
+				tally.pickups = (tally.pickups || 0) + 1;
 			} catch (error) { /* a refused acquire takes nothing */ }
 		}
+	}
+	return pickBerries(doc, tally);
+}
+
+/**
+ * Berry trees, which the pass above can never match.
+ *
+ * It finds items by ONE route's name, and a tree row reads "Berry Trees at
+ * Routes 110, 111, 112, 115, 117, 118 and 121" — so no headless run has ever
+ * held a Sitrus Berry, against gyms where all six of theirs hold an item. A
+ * row is taken once its date has passed (the ledger dates it at the first
+ * place it names) and only once: a party's worth, six, though the sheet says
+ * 12 to 36 and the trees regrow. Undated rows are left alone.
+ */
+const BERRY_TAKE = 6;
+function pickBerries(doc, tally) {
+	const profile = require('../profiles').getProfile(doc.profileId);
+	if (!profile.oracle.fieldItems) return doc;
+	const taken = new Set((doc.log || []).filter(entry => entry.command && entry.command.kind === 'acquire' &&
+		entry.command.where).map(entry => entry.command.item + '|' + entry.command.where));
+	for (const row of profile.oracle.fieldItems()) {
+		if (row.kind !== 'berry' || !Number.isInteger(row.opensAt) || row.opensAt > doc.position) continue;
+		if (!/^Berry Trees? at /i.test(row.location || '')) continue;
+		const where = String(row.location).slice(0, 120);
+		if (taken.has(row.name + '|' + where)) continue;
+		try {
+			doc = run.apply(doc, {kind: 'acquire', item: row.name, where, count: BERRY_TAKE});
+			tally.pickups = (tally.pickups || 0) + 1;
+			tally.berries = (tally.berries || 0) + 1;
+			taken.add(row.name + '|' + where);
+		} catch (error) { /* a refused acquire takes nothing */ }
 	}
 	return doc;
 }
@@ -654,6 +686,50 @@ function followAdvice(doc, treatment, tally, forgotten) {
 		try {
 			doc = applyAdvice(doc, row, tally, forgotten);
 		} catch (error) { /* refused: remembered, and the sweep moves on */ }
+	}
+	return fillEmptySlots(doc, tally);
+}
+
+/**
+ * An empty held slot is waste, and the advisor cannot see it.
+ *
+ * adviseUpgrades prices a Give row by what it does to the damage board, so a
+ * Sitrus Berry — worth a quarter of a body's health — never earns a row and
+ * the slot stays empty. Every one of Norman's six holds an item; the legal
+ * boxes that met him fielded two to six bodies holding nothing. After the
+ * advice is spent, each member of the six still holding nothing takes the
+ * best berry the bag has: Sitrus, then a cure for a status the next fight's
+ * moves inflict, then Oran. --fill-slots=0 restores the empty slots.
+ */
+const CURES = {par: 'Cheri Berry', slp: 'Chesto Berry', psn: 'Pecha Berry', tox: 'Pecha Berry',
+	brn: 'Rawst Berry', frz: 'Aspear Berry'};
+
+function fillEmptySlots(doc, tally) {
+	if (!knobs.fillSlots) return doc;
+	const inflicted = new Set();
+	try {
+		const next = run.upcoming(doc, 1)[0];
+		const fight = next ? require('../lib/planner').getFight(next.trainer, doc.profileId) : null;
+		const ai = require('../ai');
+		for (const foe of (fight && (fight.party || fight.mons)) || []) {
+			for (const move of foe.moves || []) {
+				const meta = ai.getMoveMetadata(move, 8) || {};
+				const status = meta.status || (meta.secondary && meta.secondary.status) || null;
+				if (status && CURES[status]) inflicted.add(CURES[status]);
+			}
+		}
+	} catch (error) { /* an unreadable fight names no cure; Sitrus still goes on */ }
+	const wanted = ['Sitrus Berry'].concat([...inflicted], ['Lum Berry', 'Oran Berry']);
+	for (const id of doc.party) {
+		const mon = doc.box.find(entry => entry.id === id);
+		if (!mon || mon.item || mon.status === 'dead') continue;
+		const item = wanted.find(name => (doc.bag[name] || 0) > 0);
+		if (!item) break;
+		try {
+			doc = run.apply(doc, {kind: 'give', id, item});
+			tally.gives = (tally.gives || 0) + 1;
+			tally.slotsFilled = (tally.slotsFilled || 0) + 1;
+		} catch (error) { /* refused: the slot stays empty */ }
 	}
 	return doc;
 }
@@ -1095,4 +1171,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, relearn, evolveByItem};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, relearn, evolveByItem};

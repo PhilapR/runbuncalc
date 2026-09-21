@@ -317,3 +317,29 @@ test('a stone the bag holds is used, on a body outside the six too', () => {
 	assert.ok(!evolved.bag['Thunder Stone'], 'and the stone is spent');
 	assert.equal(headless.evolveByItem(evolved, {}).box.length, evolved.box.length, 'once');
 });
+
+test('a run picks the berry trees, and nobody in the six holds nothing', () => {
+	// The collector matched an item by ONE route's name, and a tree row reads
+	// "Berry Trees at Routes 110, 111, 112, …" — so no headless run had ever
+	// held a Sitrus Berry. And the advisor prices a Give row by damage, so a
+	// berry never earned one: the legal boxes that met Norman, whose six all
+	// hold items, fielded two to six bodies holding nothing.
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	assert.ok(!doc.bag['Sitrus Berry'], 'the banked run never picked one');
+	const tally = {};
+	const picked = headless.pickBerries(doc, tally);
+	assert.equal(picked.bag['Sitrus Berry'], 6, 'a party\'s worth, from trees dated 235');
+	assert.ok(tally.berries >= 3);
+	assert.equal(headless.pickBerries(picked, {}).bag['Sitrus Berry'], 6, 'and only once');
+	assert.ok(!picked.bag['Lum Berry'], 'a tree dated after this position (392) is left alone');
+
+	const bare = Object.assign({}, picked, {box: picked.box.map(mon =>
+		picked.party.includes(mon.id) ? Object.assign({}, mon, {item: null}) : mon)});
+	const fills = {};
+	const filled = headless.fillEmptySlots(bare, fills);
+	const held = filled.party.map(id => filled.box.find(mon => mon.id === id).item);
+	assert.ok(held.every(Boolean), 'every member of the six holds something: ' + held.join(', '));
+	assert.ok(held.includes('Sitrus Berry'));
+	assert.equal(fills.slotsFilled, filled.party.length);
+});
