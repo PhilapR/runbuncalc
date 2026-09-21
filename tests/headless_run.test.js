@@ -656,10 +656,18 @@ test('a wall lost often enough is planned by play, and the plan holds until the 
 	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
 		'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json'), 'utf8'));
 	const holds = [];
+	const sixes = [];
 	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 731001,
-		headless.armFlags('--stop-at=77 --budget=3 --boss-retries=40 --probe=0 --repick-after=0 ' +
+		headless.armFlags('--stop-at=77 --budget=5 --boss-retries=40 --probe=0 --repick-after=0 ' +
 			'--plan-after=1 --plan-seeds=3 --fight-logs=none'), {resume: saved,
-			checkpoint: snapshot => { const now = snapshot(); holds[now.state.tally.fights] = now.state.planHolds; }});
+			checkpoint: snapshot => {
+				const now = snapshot();
+				holds[now.state.tally.fights] = now.state.planHolds;
+				sixes[now.state.tally.fights] = now.doc.party.map(id => now.doc.box.find(mon => mon.id === id).species).join(' > ');
+				// Something changes between attempts (a catch, an item picked up): that is
+				// what re-runs the run's preparation, ranker included. Here, a Potion.
+				if (now.state.planHolds) now.doc.bag.Potion = (now.doc.bag.Potion || 0) + 1;
+			}});
 	assert.equal(row.ledger[0].trainer, 'Leader Brawly');
 	assert.equal(row.ledger[0].result, 'loss', 'the fixture loses its first attempt, so there is a wall to plan');
 	assert.equal(row.plans.length, 1, 'planned once, when the first loss came');
@@ -668,6 +676,11 @@ test('a wall lost often enough is planned by play, and the plan holds until the 
 	assert.ok(plan.of >= 2 && plan.took.split(' > ').length === 6, 'plans were tried, and a six came back: ' + JSON.stringify(plan));
 	assert.ok(plan.wins > plan.stood.wins || (plan.wins === plan.stood.wins && plan.left <= plan.stood.left),
 		'a plan is only ever taken when play says it is no worse: ' + JSON.stringify(plan));
+	// The six that fights next IS the plan, and stays it while the wall stands:
+	// a catch between attempts used to re-run the ranker and put its six back.
+	for (let fight = 2; fight < sixes.length && holds[fight]; fight++) {
+		assert.equal(sixes[fight], plan.took, 'attempt ' + (fight + 1) + ' fights with the plan');
+	}
 	assert.equal(holds[1], false, 'nothing holds before the plan');
 	assert.equal(holds[2], true, 'and once taken it holds — the ranker and the re-pick would only undo it — and is carried in a checkpoint');
 });

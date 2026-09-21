@@ -1328,7 +1328,10 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			doc = followAdvice(doc, treatment, tally, forgotten);
 			if (knobs.scaleIvs) doc = spendScales(doc, tally);
 			doc = thresholdPrep(doc, tally);
-			doc = bestParty(doc);
+			// A plan holds until its wall falls: a catch made between attempts re-ran
+			// the ranker here and put its six back (842113's first Norman plan was
+			// undone this way, and the second started again from nothing).
+			if (!planHolds) doc = bestParty(doc);
 		}
 		const ahead = run.upcoming(doc, 1000);
 		if (!ahead.length) break;
