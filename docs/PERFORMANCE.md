@@ -421,3 +421,30 @@ and so does the counter-example: 842113 went 0 of 40 at Matt with the planner
 on. The third wall also shows the control itself moved: it clears in 7 a
 grunt that stopped clear1 for 24, which is today's dated items and the
 keep-valued search, not either switch.
+
+## Declared before the run: does `--ko-respects-order` deserve a second hearing? (2026-09-21)
+
+The hole: decide() clicks a move because "it KOs" before it asks whether the
+body lives to click it. In 15,603 logged decisions, 1,639 KO clicks; 409 of
+them (25%) fainted before moving, every one with the threat line already
+saying "they act first" and a plain hit at or over our HP. 179 were bodies
+under 35% (a last gasp; the foe fell within three turns in 118), 111 were
+bodies at 70%+ thrown to Kartana, Volcarona, Meloetta, Dracovish — and in
+105 of those 111 no switch on the bench survived the entry hit either.
+
+The guard for it exists (KO_RESPECTS_ORDER: yield the KO to a resisting
+refuge when outsped and the hit kills) and was rejected: heldout2, 66 gained
+140 lost, p < 0.0001. **That measurement is void.** It was taken on
+2026-09-18; real Speed reads landed 2026-09-19 (30dd0eb), and before them
+every Speed read 0, `race.faster` was always false, and "they act first"
+stood on every turn — so the guard yielded on every KO click where the hit
+could kill, including the ones where we moved first and would have won.
+It was measured as "always yield", never as "yield when outsped".
+
+**Bar.** heldout1 + heldout2 (154 + 74 fights), control and
+`--ko-respects-order=1`, both PP models, pinned, seed-paired. Real PP is the
+verdict: net discordant seeds > 0 with McNemar p < 0.05, no scenario net −5,
+and the sign holds with the largest-contributing trainer removed. Infinite
+PP must not be net negative. Anything else: stays off. Reported beside it,
+not judged: the 111 healthy deaths are mostly a box problem (no refuge
+survives), so the ceiling here is the 179 + 104 where a refuge sometimes did.
