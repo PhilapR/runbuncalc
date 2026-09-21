@@ -2631,3 +2631,31 @@ test('a TM is a one-time item, and the surfaces say which TM a move costs', () =
 	if (hm.length) assert.equal(oracle.tmFor('Surf').repeatable, true, 'HM03 Surf is reusable');
 	assert.equal(oracle.tmFor('Seismic Toss').repeatable, true, 'the Lilycove TMs are re-sold');
 });
+
+test('the Game Corner pays out once a run, from a tier whose gym is beaten', () => {
+	// Operator ruling 2026-09-20, from play: ONE prize a run, the player
+	// picks the tier from any gym already beaten, the species is random in
+	// it. The harness had claimed one per badge — up to eight extra bodies
+	// and a mythical — so the rule lives in the document, where no caller
+	// can forget it.
+	const before = fresh();
+	assert.throws(() => run.apply(before, {kind: 'catch', species: 'Elekid', level: 20,
+		prize: 'Knuckle Badge'}), /opens when Leader Brawly is beaten/,
+	'a tier is closed until its leader falls');
+
+	const past = run.apply(run.apply(before, {kind: 'beat', trainer: 'Leader Brawly'}),
+		{kind: 'beat', trainer: 'Leader Roxanne'});
+	assert.throws(() => run.apply(past, {kind: 'catch', species: 'Tauros', level: 25,
+		prize: 'Knuckle Badge'}), /pays Smoochum, Elekid, Magby, not Tauros/,
+	'a prize comes from its own tier');
+	assert.throws(() => run.apply(past, {kind: 'catch', species: 'Pinsir', level: 25,
+		prize: 'Balance Badge'}), /opens when Leader Norman is beaten/);
+
+	// Either open tier may be chosen — the older one is still on offer.
+	const older = run.apply(past, {kind: 'catch', species: 'Elekid', level: 25, prize: 'Knuckle Badge'});
+	assert.equal(older.box[older.box.length - 1].species, 'Elekid');
+	const newer = run.apply(past, {kind: 'catch', species: 'Tauros', level: 25, prize: 'Stone Badge'});
+	assert.throws(() => run.apply(newer, {kind: 'catch', species: 'Elekid', level: 25,
+		prize: 'Knuckle Badge'}), /pays out once a run, and this run took Tauros from the Stone Badge tier/,
+	'and the second pull is refused, naming the first');
+});

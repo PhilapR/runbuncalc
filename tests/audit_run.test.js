@@ -272,3 +272,18 @@ test('the profiler reports where a run spends its time', () => {
 	assert.match(doc, /node scripts\/profile-run\.js --budget=30/);
 	assert.match(doc, /search-8/);
 });
+
+test('a run that took two Game Corner prizes fails the audit', () => {
+	// The harness claimed one prize per badge until the 2026-09-20 ruling.
+	// The document now refuses a second, so a REPLAY can never show one; the
+	// check reads the raw log, because the runs it must catch predate the rule.
+	const row = cleanRow();
+	const prize = (species, badge) => ({at: 't0',
+		command: {kind: 'catch', species, level: 20, prize: badge}});
+	row.doc = Object.assign({}, row.doc, {log: row.doc.log.concat([
+		prize('Elekid', 'Knuckle Badge'), prize('Tauros', 'Stone Badge')])});
+	const result = auditRun(row);
+	const check = result.checks.find(entry => entry.name === 'prizes');
+	assert.equal(check.status, 'FAIL');
+	assert.match(check.detail, /2 prizes taken, one is allowed: Elekid \(Knuckle Badge\), Tauros \(Stone Badge\)/);
+});

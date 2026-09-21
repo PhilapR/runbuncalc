@@ -42,11 +42,22 @@ But the obvious rule — "hold the water routes" — does not survive the data:
   (Houndoom — a Fire type, into a rain team). `answersAhead`, `methodFor`
   and `--key-catches` are all blind at exactly the fight that stops the
   deepest runs. A planner cannot plan for a wall nobody has described.
-- **A third of early catches do nothing** (n = 1 run, seed 104770, told by
-  `scripts/chronicle.js`): of 16 bodies caught by Brawly, 5 took zero
-  knockouts on the line that stuck. If that holds across seeds, the marginal
-  early body is cheap and a hold is nearly free — but it is one run, and it
-  is the first number the instrument below must replace.
+- **Nearly a third of BOXED bodies take no knockout** — a weak reading, kept
+  with its faults. 5 runs (seeds 104770, 209499, 314228, 418957, 523686),
+  told on the line that stuck by `scripts/chronicle.js`: 26 of 91 bodies took
+  no knockout (29%), 43 of 91 at most one (47%), and a run's top three took
+  44–71% of its knockouts. What is wrong with it:
+  - The runs did NOT run as configured. `--budget` and `--boss-retries` were
+    passed through `armFlags()`, which parses three treatment flags and drops
+    the rest; the harness reads those two from `process.argv` at load. Every
+    run played the defaults (budget 110, 20 boss retries) with an empty
+    provenance flag list. **Any arm passed through `playRun` this way
+    silently measures the default** — that is step 0 below.
+  - Seed 418957 ran before the one-prize rule and holds two prizes.
+  - It counts BOXED bodies, not fielded ones, and a body with no knockout
+    can still be a pivot or a sacrifice. And these are `rehearsal` runs,
+    where a body cannot die, so it says nothing of a spare life's worth.
+  It is NOT the hold rule's cost term. It is a reason to build one.
 
 So the lever is real, the naive rule is wrong, and the knowledge it needs is
 missing at the wall that matters most. That orders the work.
@@ -165,6 +176,12 @@ economy above has a price. It also makes the chronicle true rather than
 decorative.
 
 ## Order of work, each with its bar declared before the run
+
+0. **Make the harness measurable.** `playRun` must carry `budget`,
+   `boss-retries`, `prize-at` and `prize-stuck` per run rather than as
+   module constants read once from argv, and its provenance must record
+   them. Until then no arm run in-process measures what it says. *Bar: a
+   gate in which two arms in one process diverge on `boss-retries`.*
 
 1. **Instrument first — the marginal body.** From ledgers (which now carry
    knockouts by individual): per wall, the share of fielded bodies with zero

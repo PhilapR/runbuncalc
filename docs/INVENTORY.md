@@ -112,6 +112,7 @@ ruling, never by quiet drift.
 - **money-and-balls-are-not-modelled** (2026-09-20): Money and Poke Balls are deliberately NOT modelled: a mart purchase costs nothing in the run document and a catch consumes no ball. The audit therefore cannot see either, and must not claim to — a run's validity says nothing about what it could afford.
 - **remembering-a-move-costs-a-scale** (2026-09-20): The second nurse's menu is the model: REMEMBER A MOVE — an egg move or one from a previous learnset — costs one Heart Scale; MAXIMIZE IVs costs one; CHANGE NATURE costs three; FORGET A MOVE, CHANGE NICKNAME and APPLY STATUS are free. Only the level-up's own prompt is free for a move, and it stands until that body's next level-up (run.apply records it as mon.prompted). The harness spends a scale only on a body that fights.
 - **forget-and-apply-status-are-free** (2026-09-20): FORGET A MOVE and APPLY STATUS are free at the nurse and are NOT yet modelled. Forgetting matters for dropping an HM move or arming Last Resort; applying status before a fight matters twice — a body that already carries a status cannot be given a worse one (sleep, burn), and poison or burn can be used to pre-damage a body to a chosen HP.
+- **the-game-corner-pays-once** (2026-09-20): The Game Corner pays out ONE Pokemon a run. The player chooses the tier, from any tier whose gym is beaten; the prize is random within that tier. It is therefore an option with an exercise date: taken after Brawly it is a Smoochum, Elekid or Magby, and held to the Rain Badge it is Mew, Celebi, Jirachi or Victini. lib/run.js refuses a second prize, a species outside its tier, and a tier whose leader is not beaten.
 
 ## Open questions (from DECISIONS.json)
 Ruled on by nobody yet — each names what would settle it. An answered
@@ -138,6 +139,7 @@ the reader's warning to verify before trusting.
 - `docs/DATA-ACCESS.md` — c272bcd 2026-08-25
 - `docs/DEPLOY.md` — 98b4a50 2026-08-18
 - `docs/ECOSYSTEM_BRIDGE.md` — 5a255c0 2026-08-25
+- `docs/ENCOUNTER-ARCHITECTURE.md` — 2402f51 2026-09-20
 - `docs/ENGINE-CONTRACTS.md` — c4daad8 2026-08-29
 - `docs/EVALUATION.md` — 1222266 2026-08-19
 - `docs/FORK_MAP.md` — 98b4a50 2026-08-18
@@ -145,7 +147,7 @@ the reader's warning to verify before trusting.
 - `docs/IMPROVEMENT-AUDIT.md` — 6034c5c 2026-09-20
 - `docs/LEADER-KEYS.md` — 0bac688 2026-09-20
 - `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
-- `docs/PERFORMANCE.md` — 14f8654 2026-09-20
+- `docs/PERFORMANCE.md` — 2023e22 2026-09-20
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
 - `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18

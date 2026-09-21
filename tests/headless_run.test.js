@@ -116,23 +116,37 @@ test('the harness teaches the priority answer a threshold fight demands', () => 
 	assert.equal(headless.thresholdPrep(taught, tally), taught, 'a met demand teaches nothing more');
 });
 
-test('the harness claims each Game Corner prize its badges have opened, once', () => {
+test('the harness holds its one Game Corner prize until a wall needs it', () => {
+	// Ruling the-game-corner-pays-once (operator, from play, 2026-09-20): ONE
+	// prize a run, from any tier whose gym is beaten. This gate used to
+	// assert one prize PER BADGE, which is how every sweep past Roxanne came
+	// to hold up to eight bodies a real run cannot.
 	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
 		'fixtures', 'banked-runs', 'headless-shelly-523658.run.json'), 'utf8'));
 	const tiers = require('../profiles/run-and-bun/oracle/sources.json').gameCorner.tiers;
 	const open = tiers.filter(tier => tier.opensAt !== null && tier.opensAt <= doc.position);
+	assert.ok(open.length >= 2 && open.length < tiers.length, 'several tiers open, not the last: ' + open.length);
+
+	// Not stuck: the option is held, because a better tier may yet open.
+	const held = headless.claimPrizes(doc, headless.dice(5), {}, 0);
+	assert.equal(held.box.length, doc.box.length, 'a run that is not stuck keeps its pull');
+
+	// Stuck at a wall: the pull is spent, on the HIGHEST tier open.
 	const tally = {};
-	const claimed = headless.claimPrizes(doc, headless.dice(5), tally);
-	assert.equal(tally.prizes, open.length, 'one prize per badge earned by #' + doc.position);
+	const claimed = headless.claimPrizes(doc, headless.dice(5), tally, 6);
+	assert.equal(tally.prizes, 1, 'one prize, however many badges');
 	const prizes = claimed.log.filter(entry => entry.command.kind === 'catch' && entry.command.prize);
-	assert.deepEqual(prizes.map(entry => entry.command.prize), open.map(tier => tier.badge));
-	for (const entry of prizes) {
-		const tier = tiers.find(row => row.badge === entry.command.prize);
-		assert.ok(tier.options.includes(entry.command.species), entry.command.species + ' is a ' + tier.badge + ' prize');
-	}
-	assert.equal(headless.claimPrizes(claimed, headless.dice(6), {}).box.length, claimed.box.length, 'never twice');
+	assert.equal(prizes.length, 1);
+	const top = open[open.length - 1];
+	assert.equal(prizes[0].command.prize, top.badge, 'the highest tier whose gym is beaten');
+	assert.ok(top.options.includes(prizes[0].command.species));
+	assert.match(tally.prize.why, /a wall was lost 6 times/, 'and the record says why it was spent');
+
+	assert.equal(headless.claimPrizes(claimed, headless.dice(6), {}, 60).box.length, claimed.box.length,
+		'never twice, however stuck');
 	const fresh = headless.startRun({species: 'Turtwig', rival: 'Blaziken'}, headless.dice(1));
-	assert.equal(headless.claimPrizes(fresh, headless.dice(2), {}).box.length, fresh.box.length, 'no badge, no prize');
+	assert.equal(headless.claimPrizes(fresh, headless.dice(2), {}, 60).box.length, fresh.box.length,
+		'no badge, no prize');
 });
 
 test('the harness keeps catching past 24: a PC has no cap', () => {

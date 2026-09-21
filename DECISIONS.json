@@ -408,6 +408,20 @@
 			"enforcedBy": [
 				"docs/IMPROVEMENT-AUDIT.md"
 			]
+		},
+		{
+			"id": "the-game-corner-pays-once",
+			"date": "2026-09-20",
+			"ruling": "The Game Corner pays out ONE Pokemon a run. The player chooses the tier, from any tier whose gym is beaten; the prize is random within that tier. It is therefore an option with an exercise date: taken after Brawly it is a Smoochum, Elekid or Magby, and held to the Rain Badge it is Mew, Celebi, Jirachi or Victini. lib/run.js refuses a second prize, a species outside its tier, and a tier whose leader is not beaten.",
+			"why": "Operator, who has played it (2026-09-20). The author's workbook says only that each badge 'unlocks a new set' and that the prize is random within it; one player record (x.com/moxittv/status/1771610582745047503) delays the pull all game for the Rain Badge set, which agrees. CONSEQUENCE: scripts/headless-run.js claimed one prize PER BADGE from its introduction until this ruling. Every sweep run that passed Leader Roxanne held prize bodies a real run cannot, and scripts/audit-run.js now FAILS such a run. Depth tallies past Roxanne from before this date are over-supplied and are not comparable with runs after it.",
+			"enforcedBy": [
+				"lib/run.js",
+				"scripts/headless-run.js",
+				"scripts/audit-run.js",
+				"tests/run.test.js",
+				"tests/audit_run.test.js",
+				"profiles/run-and-bun/oracle/sources.json"
+			]
 		}
 	],
 	"open": [

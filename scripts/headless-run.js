@@ -206,39 +206,66 @@ function sweepCatches(doc, caughtFrom, random, treatment, tally) {
 }
 
 /**
- * The Game Corner's badge prizes, claimed as a player claims them: each
- * badge opens a tier (sources.json, the R&B author's workbook), and the
- * prize is RANDOM among its options — rolled here on the run's own dice,
- * skipping a line the dupes clause forbids. The harness took only wild
- * encounters, so no headless run ever held a Beldum, a Dratini, a Gible or
- * the Rain Badge's mythical, the late game's heaviest bodies. Gifts,
- * trades, fossils and roamers stay out: their places or dates are not
- * recorded, and guessing them would invent data.
+ * The Game Corner's ONE prize, and when to take it.
+ *
+ * Ruling 2026-09-20 (the-game-corner-pays-once): one Pokemon a run, from any
+ * tier whose gym is beaten, random within the tier. Until then this claimed
+ * one per badge — up to eight extra bodies and a mythical — so every sweep
+ * past Roxanne was over-supplied.
+ *
+ * One pull makes it an option with an exercise date: after Brawly it is a
+ * Smoochum, held to the Rain Badge it is a Jirachi, and a run that dies at
+ * Norman holding it has wasted it. --prize-at says when:
+ *
+ *   stuck (default)  hold it, and pull the highest open tier the first time
+ *                    a wall has been lost PRIZE_STUCK times — the option is
+ *                    exercised when the run needs a body, not before. It is
+ *                    also pulled the moment the last tier opens, since
+ *                    nothing better is coming.
+ *   N (1-8)          pull as soon as tier N is open.
+ *   asap             tier 1, the moment Brawly falls.
+ *   never            a control: the run plays without it.
+ *
+ * "Highest open tier" assumes the tiers ascend in worth, which their species
+ * suggest and nothing here has measured. The dupes clause re-rolls within
+ * the tier, as a player re-rolls a dupe.
  */
-function claimPrizes(doc, random, tally) {
-	const tiers = require('../profiles/run-and-bun/oracle/sources.json').gameCorner.tiers;
+const PRIZE_AT = flag('prize-at', 'stuck');
+const PRIZE_STUCK = Number(flag('prize-stuck', '6'));
+
+function claimPrizes(doc, random, tally, attempts) {
 	const profile = require('../profiles').getProfile(doc.profileId);
+	if (PRIZE_AT === 'never' || !profile.oracle.prizeTiers) return doc;
+	if ((doc.log || []).some(entry => entry.command.kind === 'catch' && entry.command.prize)) return doc;
+	const tiers = profile.oracle.prizeTiers();
+	const open = tiers.filter(tier => tier.opensAt !== null && doc.position >= tier.opensAt);
+	if (!open.length) return doc;
+	const top = open[open.length - 1];
+	let tier = null;
+	if (PRIZE_AT === 'asap') tier = open[0];
+	else if (/^[1-8]$/.test(PRIZE_AT)) tier = open.length >= Number(PRIZE_AT) ? tiers[Number(PRIZE_AT) - 1] : null;
+	else if (open.length === tiers.length || (attempts || 0) >= PRIZE_STUCK) tier = top;
+	if (!tier) return doc;
+
 	const rules = run.encounterRules(doc);
-	const claimed = new Set((doc.log || []).filter(entry => entry.command.kind === 'catch' &&
-		entry.command.prize).map(entry => entry.command.prize));
-	for (const tier of tiers) {
-		if (tier.opensAt === null || doc.position < tier.opensAt || claimed.has(tier.badge)) continue;
-		const lines = new Set(doc.box.map(mon => run.dupeKey(rules.dupes, profile, mon.species)));
-		// With the clause off every key is null; only a real key can match.
-		const options = tier.options.filter(species => {
-			const key = run.dupeKey(rules.dupes, profile, species);
-			return key === null || !lines.has(key);
-		});
-		if (!options.length) continue;
-		const species = options[Math.floor(random() * options.length)];
-		const cap = run.levelCap(doc).cap || 50;
-		try {
-			doc = run.apply(doc, Object.assign({kind: 'catch', species, level: cap, prize: tier.badge,
-				nickname: nameFor(doc, species)},
-			run.rollIdentity(species, random)));
-			tally.prizes = (tally.prizes || 0) + 1;
-		} catch (error) { /* refused: the run keeps what it had */ }
-	}
+	const lines = new Set(doc.box.map(mon => run.dupeKey(rules.dupes, profile, mon.species)));
+	// With the clause off every key is null; only a real key can match.
+	const options = tier.options.filter(species => {
+		const key = run.dupeKey(rules.dupes, profile, species);
+		return key === null || !lines.has(key);
+	});
+	if (!options.length) return doc;
+	const species = options[Math.floor(random() * options.length)];
+	const cap = run.levelCap(doc).cap || 50;
+	try {
+		doc = run.apply(doc, Object.assign({kind: 'catch', species, level: cap, prize: tier.badge,
+			nickname: nameFor(doc, species)},
+		run.rollIdentity(species, random)));
+		tally.prizes = (tally.prizes || 0) + 1;
+		tally.prize = {species, tier: tier.badge, at: doc.position,
+			why: PRIZE_AT === 'stuck' ? (open.length === tiers.length ? 'the last tier opened' :
+				'a wall was lost ' + attempts + ' times') : '--prize-at=' + PRIZE_AT};
+	} catch (error) { /* refused: the run keeps what it had */ }
 	return doc;
 }
 
@@ -749,7 +776,7 @@ function playRun(policy, starter, seed, treatment, options) {
 
 	while (tally.fights < FIGHT_BUDGET) {
 		doc = sweepCatches(doc, caughtFrom, random, treatment, tally);
-		doc = claimPrizes(doc, random, tally);
+		doc = claimPrizes(doc, random, tally, attempts);
 		doc = sweepItems(doc, tally);
 		const shape = doc.box.length + '|' + JSON.stringify(doc.bag) + '|' + doc.position;
 		if (shape !== lastShape) {

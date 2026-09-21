@@ -146,8 +146,19 @@ function auditRun(row) {
 	check('removed species', removed.length ? 'FAIL' : 'PASS',
 		removed.length ? removed.join(', ') : 'none caught',
 		'the encounter roll must filter unavailable.json (lib/run.js rollEncounter)');
+	// The Game Corner pays out once a run (ruling the-game-corner-pays-once,
+	// 2026-09-20). Counted from the raw log, not the replay: the document now
+	// refuses a second prize, so a replay could never show one — and the runs
+	// this must catch are the ones written before the rule existed.
+	const prizeCatches = (doc.log || []).filter(entry => entry.command.kind === 'catch' &&
+		entry.command.prize).map(entry => entry.command.species + ' (' + entry.command.prize + ')');
+	if (prizeCatches.length > 1) {
+		prizes.push(prizeCatches.length + ' prizes taken, one is allowed: ' + prizeCatches.join(', '));
+	}
 	check('prizes', prizes.length ? 'FAIL' : 'PASS',
-		prizes.length ? prizes.join(', ') : 'none before their badge');
+		prizes.length ? prizes.join(', ') :
+			(prizeCatches.length ? 'one, after its badge: ' + prizeCatches[0] : 'none taken'),
+		'one Game Corner prize a run, from a tier whose gym is beaten');
 	check('level-ups', overCapLevel.length ? 'FAIL' : 'PASS',
 		overCapLevel.slice(0, 4).join(' | ') || 'none past the cap', 'a level past the cap costs a Rare Candy');
 	// Route 118's grass is Level 50 in the official tables and opens at cap

@@ -145,6 +145,16 @@ for (const species of sourcesData.roaming.species) {
 		after: sourcesData.roaming.after});
 }
 
+/**
+ * The Game Corner's prize tiers, `[{badge, leader, opensAt, options}]`.
+ * Ruling 2026-09-20 (the-game-corner-pays-once): ONE prize a run, from any
+ * tier whose gym is beaten, random within the tier.
+ */
+function prizeTiers() {
+	return sourcesData.gameCorner.tiers.map(tier => Object.assign({}, tier,
+		{options: tier.options.slice()}));
+}
+
 /** Non-wild sources for a species, or an empty list. */
 function nonWildSources(species) {
 	return (NON_WILD.get(species) || []).slice();
@@ -884,7 +894,7 @@ function fightDossierOf(trainer) {
 
 module.exports = {
 	fightDossierOf,
-	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, prizeTiers, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
 	unavailableNamesWithoutGrowthKey,
 	moveAvailability, moveItems,
 	currencySources,
