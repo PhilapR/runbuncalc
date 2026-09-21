@@ -57,6 +57,11 @@ test('a real run is stopped from outside, carried on, and ends as the uninterrup
 	assert.deepEqual(carried.knobs, straight.knobs, 'and it kept its knobs without being told them again');
 	const fightLog = require('../lib/fight-log.js');
 
+	// The fight being watched says where on the road it is, as a player counts it.
+	const header = JSON.parse(fs.readFileSync(path.join(dir, 'whole', 'run-11.live.ndjson'), 'utf8').split('\n')[0]);
+	assert.ok(Number.isInteger(header.road) && header.road > 0 && header.road <= 14, 'the Nth trainer: ' + header.road);
+	assert.equal(header.roadOf, 358, 'of the whole road');
+
 	// KILLED, not stopped: the checkpoint is then older than the fight log,
 	// which holds attempts the carried-on run is about to play again.
 	const shot = start(path.join(dir, 'shot'), ['--spec=' + SPEC]);

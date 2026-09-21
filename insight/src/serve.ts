@@ -30,6 +30,7 @@ import {STYLE} from './viewer.js';
 const Header = Schema.Struct({kind: Schema.Literal('attempt'), at: Schema.Number, n: Schema.Number,
 	trainer: Schema.String, order: Schema.Number, attempt: Schema.Number, position: Schema.Number,
 	hand: Schema.String, runSeed: Schema.optional(Schema.Number),
+	road: Schema.optional(Schema.NullOr(Schema.Number)), roadOf: Schema.optional(Schema.NullOr(Schema.Number)),
 	six: Schema.Array(Schema.Struct({name: Schema.String, species: Schema.String, level: Schema.Number,
 		item: Schema.NullOr(Schema.String)}))});
 const TurnLine = Schema.extend(Schema.Struct({kind: Schema.Literal('turn')}), Turn);
@@ -98,14 +99,14 @@ export const readLive = (file: string): Effect.Effect<LiveState, never> =>
 
 const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Live Run</title><style>${STYLE}
-main{display:block;height:auto;max-width:980px;margin:0 auto;padding:12px 16px}#overview{width:100%;margin:0 0 10px}#overview tr{cursor:pointer}#overview tr[aria-current=true] td{font-weight:600}#overview td,#overview th{padding:3px 10px 3px 0}.compact .events,.compact .turn table{display:none}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
+main{display:block;height:auto;max-width:980px;margin:0 auto;padding:12px 16px}#overview{width:100%;margin:0 0 10px}#overview tr{cursor:pointer}#overview tr[aria-current=true] td{font-weight:600}#overview td,#overview th{padding:3px 10px 3px 0;text-align:left;white-space:nowrap}#overview th{font-weight:400;color:var(--mute);font-size:12px}#overview tr.over td{color:var(--mute)}#overview tr.fold td{color:var(--mute);font-size:12px;padding-top:8px}#overview .warn{color:var(--warn,#b7791f)}#overview .acts button{font:inherit;font-size:12px;padding:1px 8px;margin-right:4px;border:1px solid var(--line,#8884);border-radius:4px;background:transparent;color:inherit;cursor:pointer}#overview .acts button:hover{background:var(--line,#8882)}#machine{margin:0 0 8px}.compact .events,.compact .turn table{display:none}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}</style></head><body>
 <header><h1 id="title">Live run</h1><p id="sub">waiting for a fight…</p></header>
 <main><p class="sub" id="machine"></p><table id="overview"></table><div class="filters" id="controls"></div><div class="filters" id="tagbar"></div><div class="speed" id="six"></div><div id="turns"></div></main>
 <script>
 const HOT = new Set(['speed-control','status','set-up','sack','pivot','search-overrode','screen','hazard','disrupt','priority','sacrifice-forced','sacrifice-chosen']);
 const WARN = new Set(['they-move-first','coin-flip','we-fall','foe-set-up','foe-recovered','crit-theirs','sacrifice-unforced']);
-let current = null, seen = -1, attempt = null;
+let current = null, seen = -1, attempt = null, said = false;
 const el = (tag, attrs, kids) => { const n = document.createElement(tag); for (const k in (attrs||{})) { if (k === 'text') n.textContent = attrs[k]; else if (k === 'on') for (const e in attrs.on) n.addEventListener(e, attrs.on[e]); else n.setAttribute(k, attrs[k]); } for (const kid of (kids||[])) n.appendChild(kid); return n; };
 const bar = (pct, foe) => el('span', {class: 'bar' + (foe ? ' foe' : '')}, [el('i', {style: 'width:' + Math.max(0, Math.min(100, pct)) + '%'})]);
 function card(t) {
@@ -134,17 +135,37 @@ function tagbar(tags) {
 let shown = [];
 function redraw() { const box = document.getElementById('turns'); box.replaceChildren(); for (const t of shown) if (!tagFilter || t.tags.includes(tagFilter)) box.prepend(card(t)); tagbar([...new Set(shown.flatMap(t => t.tags))].sort()); }
 function flush() { shown = shown.concat(held); held = []; redraw(); }
+let lastOverview = '';
 async function runs() {
-  const rows = await (await fetch('/overview')).json(); const table = document.getElementById('overview'); table.replaceChildren();
-  table.appendChild(el('tr', {}, ['run', 'fight', 'facing', 'attempt', 'played by', 'turn', '', 'state', 'pace', 'mem', ''].map(h => el('th', {text: h}))));
-  const m = await (await fetch('/machine')).json();
-  document.getElementById('machine').textContent = m.held.length + ' of ' + m.slots + ' slots held · load ' + m.load + ' on ' + m.cores + ' cores' + (m.load > m.cores ? ' — over-subscribed' : '');
-  const say = async (run, action) => { const r = await (await fetch('/control?run=' + encodeURIComponent(run) + '&action=' + action, {method: 'POST', headers: {'x-insight': '1'}})).json(); document.getElementById('machine').textContent = r.said; setTimeout(runs, 1500); };
+  let rows, m;
+  try { rows = await (await fetch('/overview')).json(); m = await (await fetch('/machine')).json(); }
+  catch (e) { document.getElementById('machine').textContent = 'the watch server is not answering'; lastOverview = ''; return; }
+  // Drawn again only when something changed: a table rebuilt every second cannot be hovered, read or clicked.
+  const now = JSON.stringify([rows.map(r => [r.run, r.trainer, r.attempt, r.hand, r.ended, r.state, r.fight, r.pace, r.rssMb, Math.floor((r.age || 0) / 60)]), m.held.length, current, !!prefs.ended]);
+  if (!said) document.getElementById('machine').textContent = m.held.length + ' of ' + m.slots + ' slots held · load ' + m.load + ' on ' + m.cores + ' cores' + (m.load > m.cores ? ' — over-subscribed' : '');
+  if (now === lastOverview) return; lastOverview = now;
+  const table = document.getElementById('overview'); table.replaceChildren();
+  // A run from before run control has no status file: its fight file's age is all that says whether it still plays.
+  for (const r of rows) { r.live = r.state ? /^(running|paused|stopping)$/.test(r.state) : r.age !== null && r.age < 600; r.shown = r.state || (r.live ? 'running' : 'ended'); r.handled = !!r.state; }
+  const live = rows.filter(r => r.live), over = rows.filter(r => !r.live);
+  const say = async (run, action) => { const r = await (await fetch('/control?run=' + encodeURIComponent(run) + '&action=' + action, {method: 'POST', headers: {'x-insight': '1'}})).json(); said = true; document.getElementById('machine').textContent = r.said; lastOverview = ''; setTimeout(() => { said = false; runs(); }, 2500); };
   const button = (label, run, action) => el('button', {text: label, on: {click: e => { e.stopPropagation(); say(run, action); }}});
-  for (const r of rows) table.appendChild(el('tr', {'aria-current': String(r.run === current), on: {click: () => { current = r.run; seen = -1; attempt = null; shown = []; held = []; redraw(); runs(); }}},
-    [r.run, r.fight === null ? '—' : '#' + r.fight + ' @' + r.position, r.trainer || 'not started', r.attempt === null ? '' : String(r.attempt), r.hand || '', String(r.turn), r.ended ? r.ended : 'playing', r.state || '—', r.pace === null ? '' : r.pace + ' s/fight', r.rssMb === null ? '' : r.rssMb + ' MB'].map((v, i) => el('td', {class: i === 6 ? (r.ended === 'win' ? 'win' : r.ended ? 'loss' : 'sub') : i === 7 && (v === 'dead' || v === 'paused') ? 'loss' : '', title: i === 7 && r.spec ? r.spec : '', text: v}))
-    .concat([el('td', {}, r.state === 'running' ? [button('pause', r.run, 'pause'), button('stop', r.run, 'stop')] : r.state === 'paused' ? [button('continue', r.run, 'cont')] : [])])));
-  if (!current && rows.length) { current = rows[0].run; runs(); }
+  const ago = s => s === null ? '' : s < 90 ? s + ' s' : s < 5400 ? Math.round(s / 60) + ' min' : Math.round(s / 3600) + ' h';
+  table.appendChild(el('tr', {}, ['run', 'state', 'road', 'facing', 'attempt', 'played by', 'last fight', 'pace', 'memory', ''].map(h => el('th', {text: h}))));
+  const line = r => table.appendChild(el('tr', {class: r.live ? '' : 'over', 'aria-current': String(r.run === current), on: {click: () => { current = r.run; seen = -1; attempt = null; shown = []; held = []; lastOverview = ''; redraw(); runs(); }}}, [
+    el('td', {text: r.run}),
+    el('td', {class: r.shown === 'dead' ? 'loss' : r.shown === 'paused' || r.shown === 'stopping' ? 'warn' : r.live ? 'win' : 'sub', text: r.shown + (r.handled ? '' : ' ·'), title: r.handled ? (r.spec || '') : 'started before run control: no status file, so it cannot be paused or stopped from here'}),
+    el('td', {text: r.road ? r.road + ' of ' + r.roadOf : r.fight === null ? '—' : 'position ' + r.position, title: r.fight === null ? '' : 'fight ' + r.fight + ' of this run · position ' + r.position}),
+    el('td', {text: r.trainer || 'not started'}),
+    el('td', {class: r.attempt >= 10 ? 'warn' : '', text: r.attempt === null ? '' : String(r.attempt), title: r.attempt >= 10 ? 'a wall: ' + r.attempt + ' attempts' : ''}),
+    el('td', {text: r.hand || ''}),
+    el('td', {class: 'sub', text: r.ended ? r.ended + (r.live ? '' : ' · ' + ago(r.age) + ' ago') : 'turn ' + r.turn}),
+    el('td', {text: r.pace === null ? '' : r.pace + ' s/fight'}), el('td', {text: r.rssMb === null || !r.live ? '' : r.rssMb + ' MB'}),
+    el('td', {class: 'acts'}, r.state === 'running' ? [button('pause', r.run, 'pause'), button('stop', r.run, 'stop')] : r.state === 'paused' ? [button('continue', r.run, 'cont')] : [])]));
+  live.forEach(line);
+  if (over.length) table.appendChild(el('tr', {class: 'fold', on: {click: () => { prefs.ended = !prefs.ended; keep(); lastOverview = ''; runs(); }}}, [el('td', {colspan: '10', text: (prefs.ended ? '▾ ' : '▸ ') + over.length + ' run' + (over.length === 1 ? '' : 's') + ' no longer playing'})]));
+  if (prefs.ended) over.forEach(line);
+  if (!current && rows.length) { current = (live[0] || rows[0]).run; lastOverview = ''; runs(); }
 }
 async function tick() {
   if (!current) return;
@@ -190,6 +211,21 @@ export const listRuns = async (dir: string): Promise<ReadonlyArray<string>> => {
 	return found.sort((a, b) => b.at - a.at).map(entry => entry.name);
 };
 
+/** One run at a glance: the fight it is in, its own status, and how long since it last wrote a turn. */
+export const overviewRow = async (dir: string, name: string) => {
+	const live = await Effect.runPromise(readLive(path.join(dir, name + '.live.ndjson')));
+	const status = await Effect.runPromise(readStatus(path.join(dir, name + '.status.json')));
+	// The fight file's age is all that says whether a run from before run
+	// control (no status file) is still playing.
+	const age = await fs.stat(path.join(dir, name + '.live.ndjson')).then(stat => Math.round((Date.now() - stat.mtimeMs) / 1000), () => null);
+	const header = live.header;
+	return {run: name, trainer: header?.trainer ?? null, fight: header?.n ?? null, attempt: header?.attempt ?? null,
+		position: header?.position ?? null, hand: header?.hand ?? null, road: header?.road ?? null, roadOf: header?.roadOf ?? null,
+		turn: live.turns.length ? live.turns[live.turns.length - 1]?.turn ?? 0 : 0, ended: live.ended,
+		state: status?.state ?? null, fights: status?.fights ?? null, pace: status?.secondsPerFight ?? null,
+		rssMb: status?.rssMb ?? null, spec: status?.spec ?? null, age};
+};
+
 const RUN_NAME = /^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/;
 
 /** Stop, pause or continue one run — by its own status file's pid, as scripts/runs.js does. */
@@ -220,14 +256,7 @@ export const serve = (dir: string, port: number): http.Server => {
 		}
 		if (url.pathname === '/overview') {
 			// Every run's current fight in one answer, so six runs can be read at a glance.
-			void listRuns(dir).then(names => Promise.all(names.map(name =>
-				Effect.runPromise(readLive(path.join(dir, name + '.live.ndjson'))).then(state => ({run: name,
-					trainer: state.header?.trainer ?? null, fight: state.header?.n ?? null, attempt: state.header?.attempt ?? null,
-					position: state.header?.position ?? null, hand: state.header?.hand ?? null,
-					turn: state.turns.length ? state.turns[state.turns.length - 1]?.turn ?? 0 : 0, ended: state.ended}))
-					.then(row => Effect.runPromise(readStatus(path.join(dir, name + '.status.json'))).then(status => ({...row,
-						state: status?.state ?? null, fights: status?.fights ?? null, pace: status?.secondsPerFight ?? null,
-						rssMb: status?.rssMb ?? null, spec: status?.spec ?? null}))))))
+			void listRuns(dir).then(names => Promise.all(names.map(name => overviewRow(dir, name))))
 				.then(rows => send(res, 'application/json', JSON.stringify(rows)), () => send(res, 'application/json', '[]'));
 			return;
 		}

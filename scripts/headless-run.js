@@ -1279,6 +1279,8 @@ function playRunWith(policy, starter, seed, treatment, options) {
 				const six = doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean);
 				const watched = require('../lib/fight-log.js').liveTape(options.live, {n: tally.fights + 1,
 					trainer: next.trainer, order: next.order, attempt: attempts + 1, position: doc.position,
+					// Where on the road this is, as a player counts it: the Nth trainer of how many.
+					road: run.trainerIndexOf(doc, next.order), roadOf: run.trainerIndexOf(doc, ahead[ahead.length - 1].order),
 					hand: searching ? 'search-' + searching.search : 'decide', runSeed: seed,
 					six: six.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level, item: mon.item || null}))});
 				liveEnd = watched.end;
