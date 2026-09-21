@@ -353,3 +353,21 @@ test('a run told where to stop, stops there', () => {
 	assert.match(String(row.stopped), /reached --stop-at=5/);
 	assert.ok(row.position >= 5 && row.position < 20, 'it stopped just past order 5: ' + row.position);
 });
+
+test('an arm that asks for search gets it', () => {
+	// Six baseline runs played all sixty of their Brawly attempts with
+	// decide(): --search-after lived only on argv, which an in-process arm
+	// never sets, and nothing in the row said so.
+	const policy = require('../scripts/ui-playthrough.js');
+	// Turtwig, seed 4 loses its ninth fight, which is what makes the retry visible.
+	const row = headless.playRun(policy, {species: 'Turtwig', rival: 'Blaziken'}, 4,
+		headless.armFlags('--budget=14 --retries=6 --search-after=1 --search-rollouts=1'));
+	assert.equal(row.knobs.searchAfter, 1);
+	assert.equal(row.knobs.searchRollouts, 1);
+	const lostAt = row.ledger.findIndex(fight => fight.result === 'loss');
+	assert.ok(lostAt >= 0, 'the fixture seed loses a fight');
+	assert.equal(row.ledger[lostAt].policy, 'decide', 'the first attempt is played by hand');
+	const hands = [row.ledger[lostAt + 1].policy];
+	assert.equal(hands[0], 'search-1',
+		'a fight retried after a loss is searched: ' + [...hands].join(', '));
+});

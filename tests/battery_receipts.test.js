@@ -357,7 +357,7 @@ test('a re-picked receipt replays through the tape tool', () => {
 	const file = path.join(dir, 'repick-test.json');
 	fs.writeFileSync(file, JSON.stringify({label: 'repick-test', manifest: null,
 		argv: policyArgv, provenance: {revision: null}, results: [out],
-		effective: {'switch-priced': '1', 'real-speed': '1', 'repick-party': '1', 'pick-by-play': '0'}}));
+		effective: {'switch-priced': '1', 'real-speed': '1', 'repick-party': '1', 'pick-by-play': '0', 'loser-work': '1'}}));
 	const replayed = tapeRun(file, 'Leader Brawly', 1);
 	assert.equal(replayed.status, 0, replayed.stderr);
 	assert.equal(replayed.out.row.result, out.rows[0].result);
@@ -388,8 +388,12 @@ test('a priced-switch receipt replays through the tape tool, pricing and all', (
 		'the Lass Haley line reaches the switch the price exists to refuse');
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'priced-'));
 	const file = path.join(dir, 'priced-test.json');
+	// A receipt written today records the defaults it ran under, as the
+	// battery writes them; without the record the tape replays under the
+	// PRE-adoption defaults, which is right for an old receipt and wrong here.
 	fs.writeFileSync(file, JSON.stringify({label: 'priced-test', manifest: null, argv,
-		provenance: {revision: null}, results: [out]}));
+		provenance: {revision: null}, results: [out],
+		effective: withArgv(argv, battery.effectiveDefaults)}));
 	const replayed = tapeRun(file, 'Lass Haley', 1);
 	assert.equal(replayed.status, 0, replayed.stderr);
 	assert.equal(replayed.out.row.result, out.rows[0].result);
@@ -542,7 +546,7 @@ test('a pick-by-play receipt records its tallies and replays through the tape to
 	const file = path.join(dir, 'pbp-test.json');
 	fs.writeFileSync(file, JSON.stringify({label: 'pbp-test', manifest: null, argv,
 		provenance: {revision: null}, results: [out],
-		effective: {'switch-priced': '1', 'real-speed': '1', 'repick-party': '1', 'pick-by-play': '3', 'pick-seeds': '1',
+		effective: {'switch-priced': '1', 'real-speed': '1', 'repick-party': '1', 'pick-by-play': '3', 'pick-seeds': '1', 'loser-work': '1',
 			'set-exposure': '0.5'}}));
 	const replayed = tapeRun(file, 'Leader Roxanne', 1);
 	assert.equal(replayed.status, 0, replayed.stderr);
@@ -586,7 +590,7 @@ test('a --set-exposure receipt says the ranker priced it, and replays through th
 	const file = path.join(dir, 'exposure-test.json');
 	fs.writeFileSync(file, JSON.stringify({label: 'exposure-test', manifest: null, argv,
 		provenance: {revision: null}, results: [out],
-		effective: {'switch-priced': '1', 'real-speed': '1', 'repick-party': '1', 'pick-by-play': '0'}}));
+		effective: {'switch-priced': '1', 'real-speed': '1', 'repick-party': '1', 'pick-by-play': '0', 'loser-work': '1'}}));
 	const replayed = tapeRun(file, 'Chelle', 1);
 	assert.equal(replayed.status, 0, replayed.stderr);
 	assert.equal(replayed.out.row.result, out.rows[0].result);
@@ -601,7 +605,7 @@ test('the receipt records the set-score weight it ranked with', () => {
 	assert.equal(withArgv(['--repick-party=0'], battery.effectiveDefaults)['set-exposure'], '0',
 		'the banked six was never ranked');
 	assert.deepEqual(Object.keys(withArgv([], battery.effectiveDefaults)).sort(),
-		['pick-by-play', 'pick-seeds', 'real-speed', 'repick-party', 'set-exposure', 'switch-priced']);
+		['loser-work', 'pick-by-play', 'pick-seeds', 'real-speed', 'repick-party', 'set-exposure', 'switch-priced']);
 });
 
 test('a mon an Eject Button forces out loses the move it queued', () => {

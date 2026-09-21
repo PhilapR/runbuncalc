@@ -78,6 +78,15 @@ const KNOB_FLAGS = {
 	// A run that only needs to answer "does it pass this wall" stops once the
 	// road is past that order, instead of playing on for hours.
 	stopAt: ['stop-at', null, Number],
+	// What a sweep passes on argv, and what an in-process baseline therefore
+	// silently lacked: six runs on 2026-09-21 played all sixty of their Brawly
+	// attempts with decide(), because --search-after lived only on argv.
+	scaleIvs: ['scale-ivs', '0', value => value === '1'],
+	repickAfter: ['repick-after', '0', Number],
+	searchAfter: ['search-after', '0', Number],
+	searchRollouts: ['search-rollouts', '4', Number],
+	doublesPrep: ['doubles-prep', '1', value => value === '1'],
+	catchMethod: ['catch-method', '0', value => value === '1'],
 };
 
 function knobsFrom(read) {
@@ -196,7 +205,7 @@ function catchRolled(doc, map, random, wanted) {
  * — adviseCatches' keyAnswer areas for the split boss.
  */
 function sweepCatches(doc, caughtFrom, random, treatment, tally) {
-	const wanted = flag('catch-method', '0') === '1' ? answersAhead(doc, 60) : null;
+	const wanted = knobs.catchMethod ? answersAhead(doc, 60) : null;
 	let routes;
 	try {
 		routes = run.unusedRoutes(doc, {allProspects: true}).routes
@@ -956,7 +965,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			doc = levelToCap(doc, tally);
 			doc = relearn(doc, policy, tally, forgotten);
 			doc = followAdvice(doc, treatment, tally, forgotten);
-			if (flag('scale-ivs', '0') === '1') doc = spendScales(doc, tally);
+			if (knobs.scaleIvs) doc = spendScales(doc, tally);
 			doc = thresholdPrep(doc, tally);
 			doc = bestParty(doc);
 		}
@@ -983,7 +992,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// by play (the battery's pick-by-play on decide(), ~10 s), and again
 		// every six losses after: the ranker's first six may be the one six in
 		// the box that cannot win it.
-		const repickAfter = Number(flag('repick-after', '0'));
+		const repickAfter = knobs.repickAfter;
 		if (repickAfter > 0 && attempts >= repickAfter && (attempts - repickAfter) % 6 === 0 && !next.isDouble) {
 			try {
 				doc = battery.prepareDocument(doc, next.trainer, policy).doc;
@@ -993,9 +1002,9 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// A fight lost twice is played by search from then on (--search-after,
 		// default off): decide() has shown it cannot, and search costs about a
 		// minute a fight, so it is spent only where it is needed.
-		const searchAfter = Number(flag('search-after', '0'));
-		const searching = searchAfter > 0 && attempts >= searchAfter ? {search: Number(flag('search-rollouts', '4'))} : undefined;
-		if (next.isDouble && flag('doubles-prep', '1') === '1') doc = doublesPrep(doc, tally);
+		const searchAfter = knobs.searchAfter;
+		const searching = searchAfter > 0 && attempts >= searchAfter ? {search: knobs.searchRollouts} : undefined;
+		if (next.isDouble && knobs.doublesPrep) doc = doublesPrep(doc, tally);
 		// An engine crash is a lost fight, not a lost run. Sweep 14's deepest
 		// run died at fight #271 after beating 410 of them, and its document
 		// went with it: the state that crashed could not be replayed, so the

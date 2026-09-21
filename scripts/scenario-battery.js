@@ -482,7 +482,7 @@ function effectivePick() {
 function effectiveDefaults() {
 	const banked = flag('repick-party', '1') === '0';
 	return {'switch-priced': flag('switch-priced', '1'), 'real-speed': flag('real-speed', '1'),
-		'repick-party': flag('repick-party', '1'),
+		'repick-party': flag('repick-party', '1'), 'loser-work': flag('loser-work', '1'),
 		'pick-by-play': effectivePick(), 'pick-seeds': flag('pick-seeds', PICK_SEEDS),
 		'set-exposure': banked ? '0' : flag('set-exposure', String(run.EXPOSURE_WEIGHT))};
 }

@@ -422,6 +422,21 @@
 				"tests/audit_run.test.js",
 				"profiles/run-and-bun/oracle/sources.json"
 			]
+		},
+		{
+			"id": "losers-are-ranked-by-work",
+			"date": "2026-09-21",
+			"ruling": "When every forced replacement loses its race, the automated hand sends the one that removes the most of the foe before it falls (acts before death over turns to kill, from the priced race the panel already prints on each switch button). A replacement that wins is never displaced and winners keep their order. --loser-work=0 restores armed, resistance, health.",
+			"why": "Found at Norman with the knockout record: with three losers benched the hand sent Ampharos (three turns to kill, one to die, slower) into Huge Power Diggersby, where it fell to one Earthquake having done nothing. Bar declared before the run. heldout2, 74 fights x 20 seeds, real PP, paired at revision 16fb345: 23 seeds lost, 51 gained, net +28 of 1480, McNemar exact two-sided p = 0.0015; worst scenario -2 against a veto of -5; positive at seven of the eight trainers that moved; without the largest contributor (Breeder Isaac, +12) still 18 vs 34, p = 0.037. The treatment fired 2241 times. First policy arm of four to pass held-out in this stretch.",
+			"enforcedBy": [
+				"scripts/ui-playthrough.js",
+				"lib/battle-view.js",
+				"scripts/battery-tape.js",
+				"scripts/scenario-battery.js",
+				"tests/playthrough_policy.test.js",
+				"scenarios/receipts/lw-c.json",
+				"scenarios/receipts/lw-t.json"
+			]
 		}
 	],
 	"open": [

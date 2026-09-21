@@ -284,14 +284,18 @@ const KO_YIELD_MIN_HP = Number(flag('ko-yield-min-hp', '0'));
 // the control arm.
 const RACE_SENDS = flag('race-sends', '1') !== '0';
 // Among replacements that all LOSE their race, send the one that does the
-// most before it falls. Off until the battery measures it.
+// most before it falls. ADOPTED 2026-09-21 (ruling losers-are-ranked-by-work):
+// heldout2, 74 fights x 20 seeds, real PP, bar declared first — 23 seeds lost,
+// 51 gained, net +28 of 1480, McNemar p = 0.0015; worst scenario -2 against a
+// veto of -5; without its largest contributor (Breeder Isaac) still +16,
+// p = 0.037. --loser-work=0 restores the old order.
 //
 // Found at Norman, 2026-09-20 (sac-A-4, seed 1): with three losers left the
 // hand sent Ampharos into Huge Power Diggersby — three turns to kill, one to
 // die, slower — and it fell to one Earthquake having done nothing, while
 // Crustle (two and two) stood on the bench. The order below the race word
 // was armed, resistance, health, and a fresh useless body is still fresh.
-const LOSER_WORK = flag('loser-work', '0') === '1';
+const LOSER_WORK = flag('loser-work', '1') === '1';
 let loserReranks = 0;
 
 /** The share of the foe a body removes before it falls, by the priced race. */
