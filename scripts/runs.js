@@ -44,6 +44,8 @@ function list(dir) {
 		let names = [];
 		try { names = fs.readdirSync(folder, {withFileTypes: true}); } catch (error) { return; }
 		for (const entry of names) {
+			// A dot-directory is put away (runs/.archive, .worktrees): the watch page skips them too.
+			if (entry.name.startsWith('.')) continue;
 			if (entry.isDirectory() && depth < 3) walk(path.join(folder, entry.name), depth + 1);
 			else if (entry.name.endsWith('.status.json')) {
 				const status = readJson(path.join(folder, entry.name));
@@ -108,7 +110,7 @@ function table(rows) {
 		lines.push([row.run.padEnd(28), String(row.state).padEnd(9), ('pos ' + row.position).padEnd(9),
 			(row.fights + ' fights').padEnd(12), (row.secondsPerFight === null ? '' : row.secondsPerFight + ' s/fight').padEnd(14),
 			(row.rssMb + ' MB').padEnd(8), Math.round((Date.now() - row.updatedAt) / 1000) + ' s ago',
-			row.spec ? ' [' + row.spec + ']' : ''].join(' '));
+			row.spec ? ' [' + (row.spec.length > 48 ? row.spec.slice(0, 45) + '...' : row.spec) + ']' : ''].join(' '));
 	}
 	return lines;
 }
