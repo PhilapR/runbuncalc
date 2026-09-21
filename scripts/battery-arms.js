@@ -191,4 +191,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {parseArms, runArms};
+module.exports = {parseArms, runArms, makeWorktree};
