@@ -539,7 +539,8 @@
 		{
 			"id": "undated-tutors-stay-usable",
 			"question": "A move tutor now teaches only once the road has reached it (lib/run.js teach, run.learnable; Brick Break is Route 118, order 623, and was teachable at Norman, 337). That covers the DATED tutors. Eleven tutor rows have no datable place (Avalanche, Dive, Fly, Frost Breath, Hurricane, Psycho Shift, Surf, ...) and stay usable at any position, as before. Should an undated tutor be refused until dated, or stay open?",
-			"raised": "2026-09-21"
+			"raised": "2026-09-21",
+			"settledBy": "operator ruling"
 		}
 	]
 }

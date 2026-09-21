@@ -645,3 +645,29 @@ test('a run stopped and carried on from its checkpoint plays what the uninterrup
 	assert.equal(stopped.fights, 5);
 	assert.deepEqual(stopped.ledger.map(line), whole.ledger.slice(0, 5).map(line));
 });
+
+test('a wall lost often enough is planned by play, and the plan holds until the wall falls', () => {
+	// Seed 842113 lost Norman 40 times with a six the ranker liked, holding in
+	// its box a plan that wins a third of the time. --plan-after looks for one:
+	// leads, closers and who makes room, proposed by the board and chosen by
+	// play. Here on the Brawly box, small, to gate the wiring rather than the
+	// strength (which is measured, not asserted: docs/LEADER-KEYS.md).
+	const policy = require('../scripts/ui-playthrough.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json'), 'utf8'));
+	const holds = [];
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 731001,
+		headless.armFlags('--stop-at=77 --budget=3 --boss-retries=40 --probe=0 --repick-after=0 ' +
+			'--plan-after=1 --plan-seeds=3 --fight-logs=none'), {resume: saved,
+			checkpoint: snapshot => { const now = snapshot(); holds[now.state.tally.fights] = now.state.planHolds; }});
+	assert.equal(row.ledger[0].trainer, 'Leader Brawly');
+	assert.equal(row.ledger[0].result, 'loss', 'the fixture loses its first attempt, so there is a wall to plan');
+	assert.equal(row.plans.length, 1, 'planned once, when the first loss came');
+	const plan = row.plans[0];
+	assert.equal(plan.trainer, 'Leader Brawly');
+	assert.ok(plan.of >= 2 && plan.took.split(' > ').length === 6, 'plans were tried, and a six came back: ' + JSON.stringify(plan));
+	assert.ok(plan.wins > plan.stood.wins || (plan.wins === plan.stood.wins && plan.left <= plan.stood.left),
+		'a plan is only ever taken when play says it is no worse: ' + JSON.stringify(plan));
+	assert.equal(holds[1], false, 'nothing holds before the plan');
+	assert.equal(holds[2], true, 'and once taken it holds — the ranker and the re-pick would only undo it — and is carried in a checkpoint');
+});

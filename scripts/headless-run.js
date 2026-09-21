@@ -88,6 +88,9 @@ const KNOB_FLAGS = {
 	// attempts with decide(), because --search-after lived only on argv.
 	scaleIvs: ['scale-ivs', '0', value => value === '1'],
 	repickAfter: ['repick-after', '0', Number],
+	// A wall lost this many times is PLANNED by play: who leads, who is held back, who comes in from the box.
+	planAfter: ['plan-after', '0', Number],
+	planSeeds: ['plan-seeds', '12', Number],
 	searchAfter: ['search-after', '0', Number],
 	searchRollouts: ['search-rollouts', '4', Number],
 	doublesPrep: ['doubles-prep', '1', value => value === '1'],
@@ -1068,6 +1071,127 @@ function keptFight(keptLog, played, doc, sink, header) {
  * to be measured on the next baseline, not assumed. Singles only.
  */
 const PROBE_SEED_BASE = 900000;
+/** Offsets from the fight seeds and the probe's: a plan is chosen on seeds no attempt is played on. */
+const PLAN_SEED_BASE = 700000;
+
+/**
+ * A wall, PLANNED by play: who leads, who is held for the end, and who comes
+ * in from the box to do it.
+ *
+ * The re-pick (--repick-after) chooses among the ranker's own sixes in the
+ * ranker's own order, by wins alone — so at a wall, where every one of them
+ * wins none, it is blind, and it never asks the questions a player asks.
+ * Seed 842113 lost Norman 40 times, and 0 of 170 in every replay, with a six
+ * that led its Mega Pidgeot answer into his first Pokemon. From the SAME box,
+ * Infernape > Victreebel > Krookodile > Kingdra > Throh > Eelektross wins 13
+ * of 40 on fresh seeds: a lead that breaks his first, a Storm Throw held for
+ * Meloetta and Cinccino, the Electric type held for the Mega. Seed 731001
+ * found that shape by luck of a re-pick and won; nothing looked for it.
+ *
+ * The board cannot find it alone. Its winner rule is our MINIMUM roll against
+ * their MAXIMUM, so Throh into Cinccino (93-112% a hit, taking 42-52%) reads
+ * as no answer; and each part measured nothing by itself (Infernape in: 0 of
+ * 30; the closers held back: 0 of 30). So the board only PROPOSES, generously
+ * — mean rolls, the three best into their first, the two best into each of
+ * their last two — and play decides, greedily: every single change to the
+ * plan in hand (a new lead; a closer put last or second to last; whoever is
+ * weakest making room, the newcomer taught what the advisor would teach it)
+ * plays `planSeeds` fights on decide(), the best one that beats the plan in
+ * hand is taken, and that repeats up to three times. Most wins, then fewest
+ * of theirs left standing — at a wall usually the only signal there is. The
+ * six the run has is where it starts, so a plan is only ever taken when play
+ * says it is better.
+ */
+function planByPlay(policy, doc, next, tally) {
+	let board;
+	try {
+		board = run.boxMatrix(doc, next.trainer);
+	} catch (error) {
+		return doc;
+	}
+	const foes = board.grid.length;
+	if (!foes) return doc;
+	const alive = doc.box.filter(mon => mon.status !== 'dead');
+	const idOf = species => (alive.find(mon => mon.species === species) || {}).id;
+	// How a body fares into each of theirs on MEAN rolls: turns it lives minus turns it needs.
+	const margin = new Map();
+	board.grid.forEach((column, index) => {
+		for (const cell of column.versus) {
+			const id = idOf(cell.species);
+			if (!id) continue;
+			const kill = Math.ceil(1 / Math.max((cell.us.min + cell.us.max) / 2, 0.0001));
+			const die = Math.ceil(1 / Math.max((cell.them.min + cell.them.max) / 2, 0.0001));
+			const row = margin.get(id) || [];
+			row[index] = die - kill + (cell.speed === 'faster' ? 0.5 : 0);
+			margin.set(id, row);
+		}
+	});
+	const into = (id, index) => ((margin.get(id) || [])[index] === undefined ? -9 : margin.get(id)[index]);
+	const worth = id => (margin.get(id) || []).reduce((sum, value) => sum + Math.max(0, value), 0);
+	const bestInto = (index, count) => [...margin.keys()].sort((a, b) => into(b, index) - into(a, index)).slice(0, count);
+	const changes = [];
+	for (const id of bestInto(0, 3)) changes.push({id, slot: 0});
+	for (const id of bestInto(foes - 1, 2)) changes.push({id, slot: 5});
+	if (foes > 1) for (const id of bestInto(foes - 2, 2)) changes.push({id, slot: 4});
+	const score = planned => {
+		let wins = 0;
+		let left = 0;
+		for (let offset = 1; offset <= knobs.planSeeds; offset++) {
+			let played;
+			try {
+				played = battery.playScenario(policy, planned, next.trainer, PLAN_SEED_BASE + offset, undefined, {search: 0});
+			} catch (error) { played = {result: 'loss', foe: {alive: foes}}; }
+			if (played.result === 'win') wins += 1;
+			left += (played.foe && played.foe.alive) || 0;
+		}
+		return {wins, left: left / knobs.planSeeds};
+	};
+	const better = (a, b) => a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9);
+	/** The plan in hand with one body put at one slot; someone makes room if it comes from the box. */
+	const changed = (planned, change) => {
+		let ids = planned.party.slice();
+		let out = planned;
+		if (ids.indexOf(change.id) === change.slot) return null;
+		if (!ids.includes(change.id)) {
+			// The weakest on the board makes room — but never the body holding the slot being filled around.
+			const weakest = ids.filter((id, at) => at !== 0 && at < 4).sort((x, y) => worth(x) - worth(y))[0];
+			if (!weakest) return null;
+			ids = ids.filter(id => id !== weakest);
+			try {
+				out = battery.teachSwapped(Object.assign({}, planned, {party: [change.id].concat(ids)}), next.trainer, change.id).doc;
+			} catch (error) { return null; }
+		} else {
+			ids = ids.filter(id => id !== change.id);
+		}
+		ids.splice(Math.min(change.slot, ids.length), 0, change.id);
+		try {
+			return run.apply(out, {kind: 'party', ids});
+		} catch (error) { return null; }
+	};
+	const name = planned => planned.party.map(id => run.findMon(planned, id).species).join(' > ');
+	let hand = {doc, score: score(doc)};
+	const stood = hand.score;
+	const seen = new Set([JSON.stringify(doc.party)]);
+	let tried = 1;
+	for (let round = 0; round < 3; round++) {
+		let best = null;
+		for (const change of changes) {
+			const planned = changed(hand.doc, change);
+			if (!planned || seen.has(JSON.stringify(planned.party))) continue;
+			seen.add(JSON.stringify(planned.party));
+			tried += 1;
+			const result = score(planned);
+			if (better(result, hand.score) && (!best || better(result, best.score))) best = {doc: planned, score: result};
+		}
+		if (!best) break;
+		hand = best;
+	}
+	tally.plans = (tally.plans || []).concat([{trainer: next.trainer, of: tried, took: name(hand.doc),
+		wins: hand.score.wins, left: Number(hand.score.left.toFixed(2)),
+		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2))}}]);
+	return hand.doc;
+}
+
 function probeWall(policy, doc, next) {
 	if (!knobs.probe || next.isDouble || !BOSS.test(next.trainer)) return null;
 	let wins = 0;
@@ -1169,11 +1293,13 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	let lastShape = kept ? kept.lastShape : '';
 	// The six the probe last judged, and what decide() won with it (--hand-by-probe).
 	let handProbe = kept ? kept.handProbe : {six: null, wins: 0};
+	// A plan, once taken, holds until the wall falls: the ranker and the re-pick would only undo it.
+	let planHolds = kept ? !!kept.planHolds : false;
 	if (kept) tally.restoredAt = (tally.restoredAt || []).concat([doc.position]);
 	// Everything above, as data: what options.checkpoint is handed at the top
 	// of every turn of the loop, the one place where none of it is half-done.
 	const snapshot = () => ({version: 1, seed, starter, position: doc.position, doc,
-		state: {dice: random.at(), fightSeed, attempts, lastShape, handProbe,
+		state: {dice: random.at(), fightSeed, attempts, lastShape, handProbe, planHolds,
 			caughtFrom: [...caughtFrom], waiting: [...waiting],
 			forgotten: [...forgotten].map(entry => [entry[0], [...entry[1]]]),
 			tally, elapsedMs: Date.now() - started}});
@@ -1228,11 +1354,18 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// every six losses after: the ranker's first six may be the one six in
 		// the box that cannot win it.
 		const repickAfter = knobs.repickAfter;
-		if (repickAfter > 0 && attempts >= repickAfter && (attempts - repickAfter) % 6 === 0 && !next.isDouble) {
+		if (repickAfter > 0 && attempts >= repickAfter && (attempts - repickAfter) % 6 === 0 && !next.isDouble && !planHolds) {
 			try {
 				doc = battery.prepareDocument(doc, next.trainer, policy).doc;
 				tally.repicks = (tally.repicks || 0) + 1;
 			} catch (error) { /* keep the six it has */ }
+		}
+		// A wall is PLANNED by play (--plan-after, default off): once, when it has
+		// been lost that many times, and again every ten losses after.
+		if (knobs.planAfter > 0 && attempts >= knobs.planAfter && (attempts - knobs.planAfter) % 10 === 0 && !next.isDouble) {
+			doc = planByPlay(policy, doc, next, tally);
+			planHolds = true;
+			lastShape = doc.box.length + '|' + JSON.stringify(doc.bag) + '|' + doc.position;
 		}
 		// A fight lost twice is played by search from then on (--search-after,
 		// default off): decide() has shown it cannot, and search costs about a
@@ -1338,6 +1471,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			t.wins += 1;
 			attempts = 0;
 			handProbe = {six: null, wins: 0};
+			planHolds = false;
 			doc = run.apply(doc, {kind: 'beat', trainer: next.trainer});
 			continue;
 		}
@@ -1373,7 +1507,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
-		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, prizes: tally.prizes || 0,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, plans: tally.plans || [], prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
@@ -1472,4 +1606,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {planByPlay, playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};

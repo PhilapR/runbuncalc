@@ -272,3 +272,46 @@ only 3–4 of his six in any box, so holding the covered ones back feeds the
 rest to the foes nobody answers. Removed, not flagged off. The stacked legal
 levers (stones, items, berries in empty slots, --loser-work) reach Meloetta
 45 times and Cinccino 15 in 100 fights, and Mega Pidgeot still never falls.
+
+## Norman, the lever (2026-09-21): a PLAN, not a part
+
+Seed 842113 (clear1, pinned 1c82d50) lost Norman 40 times; its box replayed
+0 of 170 across every control. Four sibling seeds beat him in 2–6 attempts.
+Read side by side, the wins share a shape and the loss lacks it:
+
+- **his first falls to the lead, cleanly.** The losing six led Gigalith — the
+  board's one Mega Pidgeot answer — and spent it (Self-Destruct, 44 times in
+  40 attempts) on Porygon2. It met Meloetta already 3.3 bodies down; the
+  winners met her 1–2 down.
+- **a Fighting hit is held for Meloetta and Cinccino.** Staraptor's Close
+  Combat, Conkeldurr's Brick Break, Throh's Storm Throw (always a crit).
+- **the Electric or Ice type is held for the Mega**, and arrives fresh.
+
+From 842113's OWN box, `Infernape > Victreebel > Krookodile > Kingdra > Throh
+> Eelektross` wins **13 of 40 on fresh seeds** under plain decide(), with the
+moves the run had. Every part alone measured nothing, which is why the
+one-lever-at-a-time table above found nothing:
+
+| Infernape in | closers held back | decide(), 30 fights |
+|---|---|---|
+| – | – | 0 |
+| – | ✓ | 0 |
+| ✓ | – | 0 |
+| ✓ (+ Throh) | ✓ | 13 of 40 |
+
+Why nothing found it: the ranker's winner rule is our minimum roll against
+their maximum, so Throh into Cinccino (93–112% a hit, taking 42–52%) is "no
+answer"; the re-pick chooses among the ranker's sixes in the ranker's order,
+by wins alone, and at a wall they all win none. `--plan-after`
+(scripts/headless-run.js planByPlay) has the board propose generously and
+play decide: on this box it took 135 s and went **0 of 40 → 3 of 40** on
+fresh seeds by itself (bar declared first: ≥ 2 with the control at 0). It
+found the closers and not the lead; the hand plan's 13 is the headroom.
+
+**Void, and why:** arms that taught Infernape Brick Break (decide 5–6 of 30;
+search 1 of 10) — its tutor stands on Route 118, order 623, and the teach rule
+never asked where a tutor was. Fixed (da27918); no real run had leaned on it.
+**Refuted:** taking Self-Destruct off Gigalith (foes left 2.20 → 3.17 — the
+explosion does real work); four Fighting types in the ranker's order (0 of
+20); a hypothetical Staraptor under decide() (Cinccino falls 14 of 30, no
+wins, and decide() never clicks Tailwind).

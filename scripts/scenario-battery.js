@@ -818,6 +818,6 @@ if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
-	prepareDocument, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
+	prepareDocument, teachSwapped, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
 	OWN_FLAGS,
 	GATED_COUNTERS};
