@@ -97,13 +97,18 @@ test('an engine crash is a lost fight, not a lost run, and the audit names it', 
 	};
 	let row;
 	try {
-		process.argv.push('--budget=6');
-		row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 41, headless.armFlags(''),
+		// The budget is a per-run knob (16ca259). This test used to push
+		// --budget=6 onto argv, which the harness no longer reads after load —
+		// so it silently played the default 110 fights and took eleven minutes
+		// instead of two. --probe=0 because the third engine call would
+		// otherwise be a probe fight, not the fight this test crashes.
+		row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 41,
+			headless.armFlags('--budget=6 --probe=0'),
 			{keepDoc: true, onCrash: (crash, doc) => crashes.push([crash, doc])});
 	} finally {
 		battery.playScenario = real;
-		process.argv = process.argv.filter(arg => arg !== '--budget=6');
 	}
+	assert.equal(row.knobs.budget, 6, 'the run played the budget it was given');
 	assert.equal(row.crashes, 1, 'the crash is counted');
 	assert.equal(row.crashed.length, 1);
 	assert.match(row.crashed[0].message, /Cannot read properties/);
@@ -156,13 +161,11 @@ test('the ledger says what fell and to what, not only how many', () => {
 	// that used it; the row kept the count alone, so no run could say which
 	// types die or what kills them.
 	const headless = require('../scripts/headless-run.js');
-	process.argv.push('--budget=10');
-	let row;
-	try {
-		row = headless.playRun(policy(), {species: 'Chimchar', rival: 'Blaziken'}, 41, headless.armFlags(''), {keepDoc: true});
-	} finally {
-		process.argv = process.argv.filter(arg => arg !== '--budget=10');
-	}
+	// A per-run knob since 16ca259; pushed onto argv it was silently ignored
+	// and this gate played the default 110 fights.
+	const row = headless.playRun(policy(), {species: 'Chimchar', rival: 'Blaziken'}, 41,
+		headless.armFlags('--budget=10'), {keepDoc: true});
+	assert.equal(row.knobs.budget, 10);
 	assert.ok(row.ledger.length > 0);
 	for (const entry of row.ledger) {
 		assert.ok(Array.isArray(entry.killers), 'every fight carries a killers list');
@@ -286,4 +289,35 @@ test('a run that took two Game Corner prizes fails the audit', () => {
 	const check = result.checks.find(entry => entry.name === 'prizes');
 	assert.equal(check.status, 'FAIL');
 	assert.match(check.detail, /2 prizes taken, one is allowed: Elekid \(Knuckle Badge\), Tauros \(Stone Badge\)/);
+});
+
+test('over the cap is legal by candy, and only by candy', () => {
+	// Operator ruling 2026-09-21: "an over cap party legal if rare candies got
+	// us there". A body CAUGHT over the cap has paid for nothing — Route 118's
+	// level-50 grass at cap 35 put a Kangaskhan at the head of four banked
+	// boxes, and they were the only battery wins at Norman.
+	const runtime = require('../lib/run.js');
+	const row = cleanRow();
+	const next = runtime.upcoming(row.doc, 1)[0].trainer;
+	const cap = runtime.levelCap(row.doc).cap;
+	const lead = row.doc.party[0];
+	const at = command => ({at: 't0', command});
+
+	const candied = Object.assign({}, row, {doc: Object.assign({}, row.doc, {log: row.doc.log.concat([
+		at({kind: 'acquire', item: 'Rare Candy', count: 2}),
+		at({kind: 'levelUp', id: lead, to: cap}),
+		at({kind: 'levelUp', id: lead, to: cap + 2}),
+		at({kind: 'beat', trainer: next})])})});
+	const paid = auditRun(candied);
+	assert.equal(statusOf(paid, 'over-cap party'), 'PASS', JSON.stringify(paid.checks.find(c => c.name === 'over-cap party')));
+	assert.equal(statusOf(paid, 'level-ups'), 'PASS');
+	assert.match(paid.checks.find(c => c.name === 'level-ups').detail, /past the cap, each paid with a Rare Candy/);
+
+	const caught = Object.assign({}, row, {doc: Object.assign({}, row.doc, {log: row.doc.log.concat([
+		at({kind: 'catch', species: 'Absol', level: cap + 12}),
+		at({kind: 'party', ids: ['mon-' + row.doc.nextId].concat(row.doc.party.slice(0, 5))}),
+		at({kind: 'beat', trainer: next})])})});
+	const unpaid = auditRun(caught);
+	assert.equal(statusOf(unpaid, 'over-cap party'), 'FAIL');
+	assert.match(unpaid.checks.find(c => c.name === 'over-cap party').detail, /Absol L\d+ over cap/);
 });

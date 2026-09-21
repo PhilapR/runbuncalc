@@ -437,6 +437,17 @@
 				"scenarios/receipts/lw-c.json",
 				"scenarios/receipts/lw-t.json"
 			]
+		},
+		{
+			"id": "over-cap-is-legal-when-candied",
+			"date": "2026-09-21",
+			"ruling": "A party member over the level cap is LEGAL when Rare Candies paid for the levels above the cap. A body CAUGHT over the cap (Route 118's level-50 grass, reached at cap 35) has paid for nothing and may not fight until the cap reaches its level. scripts/audit-run.js FAILS a fight that fields such a body and PASSES candied levels; lib/run.js already debits one Rare Candy per level over the cap and refuses without it.",
+			"why": "Operator, 2026-09-21: 'an over cap party legal if rare candies got us there'. This closes the audit's standing WARN. It also unblocks the backlog's 'over-cap candy at stat walls': the game holds 14 Rare Candies, and spending them on the six before a stat wall (Norman's back three outspeed every body in every legal box) is now a legal lever, never yet exercised.",
+			"enforcedBy": [
+				"scripts/audit-run.js",
+				"lib/run.js",
+				"tests/audit_run.test.js"
+			]
 		}
 	],
 	"open": [

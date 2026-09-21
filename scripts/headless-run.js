@@ -926,7 +926,9 @@ function probeWall(policy, doc, next) {
 		try {
 			played = battery.playScenario(policy, doc, next.trainer, PROBE_SEED_BASE + offset);
 		} catch (error) {
-			return null;
+			// A probe that crashes has found an engine defect, and must say so:
+			// swallowing it hid an injected crash from the suite's own gate.
+			return {crashed: String(error && error.message).slice(0, 200), of: knobs.probe};
 		}
 		if (played.result === 'win') wins += 1;
 		left += (played.foe && played.foe.alive) || 0;

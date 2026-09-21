@@ -264,14 +264,11 @@ test('a body never relearns what it gave up', () => {
 	// already had, one of them 970 times of 1,474. The defect only appears in
 	// a RUN, where the two passes meet and the box changes between them.
 	const policy = require('../scripts/ui-playthrough.js');
-	process.argv.push('--budget=40');
-	let row;
-	try {
-		row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 104770,
-			headless.armFlags('--key-catches=1 --key-scales=1 --key-evolve=1'), {keepDoc: true});
-	} finally {
-		process.argv = process.argv.filter(arg => arg !== '--budget=40');
-	}
+	// A per-run knob since 16ca259; pushed onto argv it was silently ignored
+	// and this gate played the default 110 fights instead of the 40 it needs.
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 104770,
+		headless.armFlags('--budget=40 --key-catches=1 --key-scales=1 --key-evolve=1'), {keepDoc: true});
+	assert.equal(row.knobs.budget, 40);
 	const taught = row.doc.log.filter(entry => entry.command.kind === 'teach')
 		.map(entry => entry.command.id + '|' + entry.command.move);
 	assert.ok(taught.length > 10, 'the run teaches: ' + taught.length);

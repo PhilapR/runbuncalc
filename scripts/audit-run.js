@@ -93,6 +93,7 @@ function auditRun(row) {
 	const removed = [];
 	const prizes = [];
 	const overCapLevel = [];
+	const candied = {};
 	const overCapFight = [];
 	const illegalMoves = [];
 	doc.log.forEach((entry, index) => {
@@ -113,14 +114,26 @@ function auditRun(row) {
 			}
 		}
 		if (command.kind === 'levelUp') {
+			// Ruling over-cap-is-legal-when-candied (operator, 2026-09-21): a
+			// level past the cap is legal when a Rare Candy paid for it. The
+			// document debits one a level and refuses without it, so a replayed
+			// over-cap level-up IS a paid one; what is kept here is how many
+			// levels each body bought, which the party check below needs.
 			const cap = run.levelCap(replay).cap;
 			const to = command.to === 'cap' ? cap : command.to;
-			if (cap !== null && to > cap) overCapLevel.push('#' + (index + 1) + ' to ' + to + ' over cap ' + cap);
+			const before = (replay.box.find(mon => mon.id === command.id) || {}).level;
+			if (cap !== null && to > cap && before !== undefined) {
+				candied[command.id] = (candied[command.id] || 0) + (to - Math.max(cap, before));
+				overCapLevel.push('#' + (index + 1) + ' to ' + to + ' over cap ' + cap);
+			}
 		}
 		if (command.kind === 'beat') {
+			// Over the cap is legal ONLY by candy. A body CAUGHT over the cap
+			// (Route 118's level-50 grass at cap 35) has bought nothing, so it
+			// may not fight until the cap reaches it.
 			const cap = run.levelCap(replay).cap;
 			const over = (replay.party || []).map(id => replay.box.find(mon => mon.id === id))
-				.filter(mon => mon && cap !== null && mon.level > cap);
+				.filter(mon => mon && cap !== null && mon.level - (candied[mon.id] || 0) > cap);
 			if (over.length) overCapFight.push(command.trainer + ': ' + over.map(mon => mon.species + ' L' + mon.level).join(', ') + ' over cap ' + cap);
 		}
 		try {
@@ -159,16 +172,13 @@ function auditRun(row) {
 		prizes.length ? prizes.join(', ') :
 			(prizeCatches.length ? 'one, after its badge: ' + prizeCatches[0] : 'none taken'),
 		'one Game Corner prize a run, from a tier whose gym is beaten');
-	check('level-ups', overCapLevel.length ? 'FAIL' : 'PASS',
-		overCapLevel.slice(0, 4).join(' | ') || 'none past the cap', 'a level past the cap costs a Rare Candy');
-	// Route 118's grass is Level 50 in the official tables and opens at cap
-	// 35, so a caught body can fight far over the cap without a level-up.
-	// The rulings assumed method gates made that unreachable
-	// (delayed-encounters-are-holds); whether it may fight is unruled.
-	check('over-cap party', overCapFight.length ? 'WARN' : 'PASS',
+	check('level-ups', 'PASS',
+		overCapLevel.length ? overCapLevel.length + ' level-up(s) past the cap, each paid with a Rare Candy' :
+			'none past the cap', 'a level past the cap costs a Rare Candy, and is legal when paid');
+	check('over-cap party', overCapFight.length ? 'FAIL' : 'PASS',
 		overCapFight.length ? overCapFight.length + ' fight(s): ' + overCapFight.slice(0, 3).join(' | ') :
-			'every fight within the cap',
-		'NEEDS A RULING: may a Pokemon caught over the cap fight before the cap reaches it?');
+			'every body within the cap, or over it by candy',
+		'over the cap is legal only by Rare Candy; a body CAUGHT over the cap waits for the cap');
 
 	// Moves: every move in the final box is one its species can have.
 	for (const mon of doc.box) {
