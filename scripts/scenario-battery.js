@@ -167,6 +167,7 @@ const GATED_COUNTERS = {
 	'hiding-forecast': {counter: 'hidingRepriced', on: value => value === '1'},
 	'real-speed': {counter: 'speedRead', on: value => value === '1'},
 	'charge-threat': {counter: 'chargePriced', on: value => value === '1'},
+	'loser-work': {counter: 'loserReranked', on: value => value === '1'},
 };
 
 /**
@@ -298,8 +299,10 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 	const hidingAt = driver.hidingForecasts();
 	const speedAt = driver.realSpeedReads();
 	const chargeAt = driver.chargeThreats();
+	const rerankAt = policy.loserReranks ? policy.loserReranks() : 0;
 	const counters = () => Object.assign(countersOf(memory), {hidingRepriced: driver.hidingForecasts() - hidingAt,
-		speedRead: driver.realSpeedReads() - speedAt, chargePriced: driver.chargeThreats() - chargeAt});
+		speedRead: driver.realSpeedReads() - speedAt, chargePriced: driver.chargeThreats() - chargeAt,
+		loserReranked: (policy.loserReranks ? policy.loserReranks() : 0) - rerankAt});
 	// Transitions the engine refused: each is a lost turn the driver made up.
 	let engineRefusals = 0;
 	// What was refused, not only how often: a refusal is a defect to fix.

@@ -283,6 +283,23 @@ const KO_YIELD_MIN_HP = Number(flag('ko-yield-min-hp', '0'));
 // extra health is spent losing. `0` restores armed/resist/health order, as
 // the control arm.
 const RACE_SENDS = flag('race-sends', '1') !== '0';
+// Among replacements that all LOSE their race, send the one that does the
+// most before it falls. Off until the battery measures it.
+//
+// Found at Norman, 2026-09-20 (sac-A-4, seed 1): with three losers left the
+// hand sent Ampharos into Huge Power Diggersby — three turns to kill, one to
+// die, slower — and it fell to one Earthquake having done nothing, while
+// Crustle (two and two) stood on the bench. The order below the race word
+// was armed, resistance, health, and a fresh useless body is still fresh.
+const LOSER_WORK = flag('loser-work', '0') === '1';
+let loserReranks = 0;
+
+/** The share of the foe a body removes before it falls, by the priced race. */
+function workBeforeDeath(detail) {
+	if (!detail || !detail.turnsToKill) return 0;
+	const acts = Math.max(0, detail.turnsToDie - (detail.faster ? 0 : 1));
+	return Math.min(1, acts / detail.turnsToKill);
+}
 // Break a line that stopped landing. battery1's Aroma Lady Daisy scenario:
 // Centiskorch pressed Fire Blast 342 times into a Florges that healed every
 // chip back — the policy re-derived the same best move from the same view
@@ -2314,6 +2331,7 @@ function rankedSwitches(view, roster) {
 			hp: hit ? Number(hit[1]) : 0,
 			taking: taking,
 			race: entry.race || null,
+			work: workBeforeDeath(entry.raceDetail),
 			// Sending in a Pokemon that cannot damage anything is how Abra
 			// arrived in front of a Clobbopus and pressed Kinesis until it
 			// died. Its own moves are on its summary screen, so this is not
@@ -2331,9 +2349,17 @@ function rankedSwitches(view, roster) {
 	// either way — so what matters is what that free turn buys.
 	const raceRank = entry => RACE_SENDS && entry.race ?
 		{win: 0, lose: 2, 'cannot-win': 3}[entry.race] ?? 1 : 1;
-	options.sort((a, b) => raceRank(a) - raceRank(b) ||
-		(b.armed ? 1 : 0) - (a.armed ? 1 : 0) ||
-		a.taking - b.taking || b.hp - a.hp);
+	const below = (a, b) => (b.armed ? 1 : 0) - (a.armed ? 1 : 0) ||
+		a.taking - b.taking || b.hp - a.hp;
+	if (LOSER_WORK) {
+		const plain = options.slice().sort((a, b) => raceRank(a) - raceRank(b) || below(a, b))[0];
+		// Only among bodies that do NOT win: a winner's order is left alone.
+		options.sort((a, b) => raceRank(a) - raceRank(b) ||
+			(raceRank(a) >= 2 ? b.work - a.work : 0) || below(a, b));
+		if (options[0].id !== plain.id) loserReranks += 1;
+		return options;
+	}
+	options.sort((a, b) => raceRank(a) - raceRank(b) || below(a, b));
 	return options;
 }
 
@@ -3378,6 +3404,8 @@ async function main() {
  * this is the program rather than an import.
  */
 module.exports = {
+	loserReranks: () => loserReranks,
+	rankedSwitches: rankedSwitches,
 	bestMove: bestMove,
 	isToolTeach: isToolTeach,
 	parsePinBox: parsePinBox,

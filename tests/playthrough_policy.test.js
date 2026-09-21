@@ -1054,3 +1054,36 @@ test('a priced switch goes only to a body that wins its race after the entry hit
 		'adopted 2026-09-18: the default policy refuses the losing resist');
 	assert.throws(() => loadWith(['--switch-priced=yes']), /must be 0 or 1/);
 });
+
+test('among replacements that all lose, the one that does something goes first', () => {
+	// Norman, sac-A-4, seed 1: three losers on the bench and the hand sent
+	// Ampharos into Huge Power Diggersby — three turns to kill, one to die,
+	// slower — which fell to one Earthquake having done nothing, while
+	// Crustle (two turns and two) waited. Below the race WORD the order was
+	// armed, resistance, health, and the view never carried the numbers.
+	const roster = ['amp', 'cru', 'cla'].map(id => ({id, moves: ['Tackle']}));
+	// A forced replacement has no body in play, so the threat line names no
+	// hit and resistance cannot separate the bench — as in the real fight.
+	const view = {threat: '', switches: [
+		{id: 'amp', label: 'Ampharos 100%', race: 'lose',
+			raceDetail: {turnsToKill: 3, turnsToDie: 1, faster: false}},
+		{id: 'cru', label: 'Crustle 100%', race: 'lose',
+			raceDetail: {turnsToKill: 2, turnsToDie: 2, faster: false}},
+		{id: 'cla', label: 'Claydol 100%', race: 'lose',
+			raceDetail: {turnsToKill: 1, turnsToDie: 1, faster: false}},
+	]};
+	const off = loadWith(['--loser-work=0']);
+	assert.equal(off.rankedSwitches(view, roster)[0].id, 'amp', 'the control is the order that lost the body');
+	assert.equal(off.loserReranks(), 0);
+
+	const on = loadWith(['--loser-work=1']);
+	const ranked = on.rankedSwitches(view, roster);
+	assert.equal(ranked[0].id, 'cru', 'the body that lands a hit before it falls goes first');
+	assert.equal(on.loserReranks(), 1, 'and the treatment counts that it changed the send');
+
+	// A winner is never displaced, and winners keep their own order.
+	const withWinner = {threat: view.threat, switches: view.switches.concat([
+		{id: 'win', label: 'Stoutland 40%', race: 'win',
+			raceDetail: {turnsToKill: 1, turnsToDie: 1, faster: true}}])};
+	assert.equal(on.rankedSwitches(withWinner, roster.concat([{id: 'win', moves: ['Tackle']}]))[0].id, 'win');
+});
