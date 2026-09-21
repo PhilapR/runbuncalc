@@ -448,6 +448,16 @@
 				"lib/run.js",
 				"tests/audit_run.test.js"
 			]
+		},
+		{
+			"id": "one-scale-one-stat-and-the-harbor-swap",
+			"date": "2026-09-21",
+			"ruling": "Two operator confirmations from play. (1) MAXIMIZE IVs at the nurse sets ONE stat to 31 for one Heart Scale, not all six; lib/run.js heartScale already models it that way. (2) The Slateport Harbor trade is RE-SWAPPABLE: the Scanner buys one of Assault Vest, Leftovers, Choice Band, Choice Scarf or Choice Specs, and that item can be traded back for another of the five at the Harbor, any number of times. It is one flexible slot, not five items.",
+			"why": "Operator, 2026-09-21. The nurse's menu text reads 'Maximize IVs' in the plural, which would have made a perfect six cost 6 scales instead of 36; asked rather than assumed. The Harbor trade is NOT YET MODELLED: the workbook names the five items and the swap but not where the Scanner is (vanilla puts it in the Abandoned Ship's Dive-only rooms; Dive dates at 1183), so the slot is undated. The run already picks up a Choice Band, Specs and Scarf in the field (Routes 118, 119, 120).",
+			"enforcedBy": [
+				"lib/run.js",
+				"profiles/run-and-bun/oracle/item-locations.json"
+			]
 		}
 	],
 	"open": [
