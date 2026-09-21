@@ -17,6 +17,7 @@ import * as path from 'node:path';
 import * as readline from 'node:readline';
 import {strategyOf, walls} from './analyse.js';
 import {loadRunWithFights} from './cli.js';
+import {control, listRuns, readLive, readMachine, readStatus} from './serve.js';
 import {tagsOf} from './tags.js';
 
 const Report = Schema.String.annotations({description: 'Path to a headless run record (JSON) written by scripts/headless-run.js.'});
@@ -101,6 +102,26 @@ export const TOOLS: ReadonlyArray<AnyTool> = [
 				.map(turn => args.detail === true ? turn : {turn: turn.turn, us: turn.us, usHp: turn.usHp, foe: turn.foe,
 					foeHp: turn.foeHp, chose: turn.chose, why: turn.why, tags: turn.tags, events: turn.events}));
 		}))}),
+	tool({name: 'list_live_runs', input: Schema.Struct({dir: Schema.String}),
+		description: 'Every run under a runs directory (ui-playthrough-out/runs), most recently written first: its state (running, paused, stopping, stopped, ended, finished, or dead — running over a process that is gone), position, fights played, seconds per fight, memory, its knobs, and the fight it is in. Also the machine: slots held of how many, and the load.',
+		run: args => Effect.tryPromise({try: async () => {
+			const dir = path.resolve(args.dir);
+			const runs = await Promise.all((await listRuns(dir)).map(async name => {
+				const status = await Effect.runPromise(readStatus(path.join(dir, name + '.status.json')));
+				const live = await Effect.runPromise(readLive(path.join(dir, name + '.live.ndjson')));
+				return {run: name, state: status?.state ?? 'unknown (no status file: started before run control)',
+					position: status?.position ?? live.header?.position ?? null, fights: status?.fights ?? null,
+					secondsPerFight: status?.secondsPerFight ?? null, rssMb: status?.rssMb ?? null, spec: status?.spec ?? null,
+					facing: live.header?.trainer ?? null, attempt: live.header?.attempt ?? null, hand: live.header?.hand ?? null};
+			}));
+			return {machine: await readMachine(), runs};
+		}, catch: cause => 'cannot read ' + args.dir + ': ' + String(cause)})}),
+	tool({name: 'control_run', input: Schema.Struct({dir: Schema.String, run: Schema.String,
+		action: Schema.Literal('stop', 'pause', 'cont')}),
+		description: 'Stop, pause or continue ONE run, named as list_live_runs names it. stop asks: the run checkpoints and exits after the fight it is in, and can be carried on later (node scripts/runs.js carry-on RUN [--spec=...]). pause and cont signal its process at once. Goes by the pid in the run\'s own status file; never starts a process.',
+		run: args => /^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/.test(args.run) && !args.run.includes('..') ?
+			Effect.tryPromise({try: () => control(path.resolve(args.dir), args.run, args.action), catch: cause => String(cause)}) :
+			Effect.fail('a run is named LABEL/run-SEED')}),
 ];
 
 /** Run a tool by name and shape an MCP result; a failure is a result too, never a throw. */

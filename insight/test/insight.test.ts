@@ -69,7 +69,8 @@ test('the agent face shows the signature it enforces', async () => {
 	const {handle} = await import('../src/mcp.js');
 	const listed = await Effect.runPromise(handle({id: 1, method: 'tools/list'})) as
 		{result: {tools: Array<{name: string; inputSchema: {required?: string[]; properties: Record<string, unknown>}}>}};
-	assert.deepEqual(listed.result.tools.map(entry => entry.name), ['run_strategy', 'list_walls', 'compare_attempts', 'get_attempt', 'get_turns']);
+	assert.deepEqual(listed.result.tools.map(entry => entry.name), ['run_strategy', 'list_walls', 'compare_attempts', 'get_attempt', 'get_turns',
+		'list_live_runs', 'control_run']);
 	const turns = listed.result.tools.find(entry => entry.name === 'get_turns');
 	assert.deepEqual(turns?.inputSchema.required, ['report', 'n'], 'the schema an agent is shown names what is required');
 

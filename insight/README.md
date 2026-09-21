@@ -39,7 +39,7 @@ duckdb -c "COPY (SELECT runSeed, n, trainer, result, t.*
 | `src/tags.ts` | A turn read for the CONTROL it took: speed control, status, set-up, screens, hazards, disruption, pivots, sacks, priority, recovery, crits by side, and turns where the search played something other than the biggest forecast. Regexes over move names and event text — a vocabulary to extend, not ground truth. |
 | `src/analyse.ts` | `walls` (a fight's win beside its losses) and `strategyOf` (the same, pooled over a run). Pure. |
 | `src/viewer.ts` | One self-contained page. No framework, no server. Deliberately small. |
-| `src/mcp.ts` | `run_strategy`, `list_walls`, `compare_attempts`, `get_attempt`, `get_turns`. Each tool's arguments are ONE Schema: published as its input schema and used to decode the call. |
+| `src/mcp.ts` | `run_strategy`, `list_walls`, `compare_attempts`, `get_attempt`, `get_turns`, and for runs in flight `list_live_runs` (state, pace, memory, the slot pool) and `control_run` (stop, pause, continue — by the run's own status file, see `docs/RUN-CONTROL.md`). Each tool's arguments are ONE Schema: published as its input schema and used to decode the call. |
 | `src/cli.ts` | Loading, with every failure in the type. |
 | `src/serve.ts` | A small local server and one page that polls `run-SEED.live.ndjson` — the CURRENT attempt, a line a turn the moment it is decided — and shows the fight growing, with what the search weighed for every option. Reads files; cannot steer a run. |
 
