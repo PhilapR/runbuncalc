@@ -109,6 +109,9 @@ export const Attempt = Schema.Struct({
 	foeOf: Schema.optional(Schema.NullOr(Schema.Number)),
 	probe: Schema.optional(Probe),
 	log: Schema.optional(Schema.Array(Turn)),
+	/** A double has no one-active view to log turn by turn; its events are its record. */
+	events: Schema.optional(Schema.Array(Schema.Struct({
+		turn: Schema.optional(Schema.NullOr(Schema.Number)), text: Schema.String}))),
 	six: Schema.optional(Schema.Array(Member)),
 });
 export type Attempt = typeof Attempt.Type;

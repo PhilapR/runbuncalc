@@ -22,6 +22,11 @@ const escapeForScript = (json: string): string => json.replace(/</g, '\\u003c');
 export function pageData(run: RunRecord, title: string): PageData {
 	const fights: Record<string, unknown> = {};
 	for (const attempt of run.ledger) {
+		if ((attempt.log === undefined || attempt.log.length === 0) && attempt.events !== undefined) {
+			fights[String(attempt.n)] = {six: attempt.six ?? [], killers: attempt.killers ?? [], kos: attempt.kos ?? [],
+				probe: null, turns: [], events: attempt.events};
+			continue;
+		}
 		if (attempt.log === undefined || attempt.log.length === 0) continue;
 		fights[String(attempt.n)] = {
 			six: attempt.six ?? [],
@@ -80,7 +85,7 @@ function drawAttempts() {
   for (const s of wall.summaries) {
     box.appendChild(el('button', {class: 'row', 'aria-current': String(attempt === s), on: {click: () => { attempt = s; filter = null; draw(); }}}, [
       el('div', {}, [el('span', {class: s.result === 'win' ? 'win' : 'loss', text: '#' + (wall.summaries.indexOf(s) + 1) + ' ' + s.result}), el('span', {class: 'sub', text: '  ' + s.policy + (s.turns ? ' · ' + s.turns + ' turns' : '')})]),
-      el('div', {class: 'sub', text: (s.foeLeft === null ? '' : s.foeLeft + ' of theirs left · ') + s.bodiesLost + ' of ours lost' + (s.lead ? ' · led ' + s.lead : '') + (s.hasLog ? '' : ' · no log')})]));
+      el('div', {class: 'sub', text: (s.foeLeft === null ? '' : s.foeLeft + ' of theirs left · ') + s.bodiesLost + ' of ours lost' + (s.lead ? ' · led ' + s.lead : '') + (s.hasLog || (DATA.fights[String(s.n)] && DATA.fights[String(s.n)].events) ? '' : ' · no log')})]));
   }
 }
 function drawFight() {
@@ -95,6 +100,12 @@ function drawFight() {
   const t2 = el('table'); t2.appendChild(el('tr', {}, ['their Pokémon','turns','ours lost to it','fell?'].map(h => el('th', {text: h}))));
   for (const c of attempt.foeCosts) t2.appendChild(el('tr', {}, [c.foe, c.turns, c.bodiesLost, c.fell ? 'yes' : 'no'].map(v => el('td', {text: String(v)}))));
   six.appendChild(t1); six.appendChild(t2); box.appendChild(six);
+  if (f.events && f.events.length) {
+    box.appendChild(el('p', {class: 'sub', text: 'A double battle: two actives a side, so there is no single matchup to show a turn against. Its events, in order:'}));
+    let last = null; let card = null;
+    for (const e of f.events) { if (e.turn !== last || !card) { card = el('div', {class: 'turn'}); card.appendChild(el('div', {class: 'head'}, [el('b', {text: e.turn == null ? '—' : 'T' + e.turn})])); card.appendChild(el('ul', {class: 'events'})); box.appendChild(card); last = e.turn; } card.lastChild.appendChild(el('li', {text: e.text})); }
+    return;
+  }
   const present = [...new Set(f.turns.flatMap(t => t.tags))];
   const filters = el('div', {class: 'filters'});
   for (const tag of present) filters.appendChild(el('button', {'aria-pressed': String(filter === tag), text: tag, on: {click: () => { filter = filter === tag ? null : tag; drawFight(); }}}));
