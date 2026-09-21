@@ -153,7 +153,7 @@ the reader's warning to verify before trusting.
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
 - `docs/HOW-WE-WIN.md` — 4ecbdc3 2026-09-21
 - `docs/IMPROVEMENT-AUDIT.md` — 6034c5c 2026-09-20
-- `docs/LEADER-KEYS.md` — 3cb7b57 2026-09-21
+- `docs/LEADER-KEYS.md` — 510c0be 2026-09-21
 - `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
 - `docs/PERFORMANCE.md` — 2732800 2026-09-21
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17

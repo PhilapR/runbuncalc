@@ -66,6 +66,91 @@ function provenance() {
 	};
 }
 
+/**
+ * THE PLAYED SWITCH PRICE (--switch-played, off until measured).
+ *
+ * A voluntary switch is priced by a formula — their crit ceiling every turn
+ * against our floor — and the formula is the wrong instrument for it. At Aqua
+ * Admin Matt, Scarf Dracovish is locked into Fishious Rend; Kingdra takes 30%
+ * of it, then 14%, and kills it, and came in THIRD, after Throh stayed in to
+ * die and Turtonator came in to die without acting: Dracovish cost 1.9 bodies
+ * a facing over 80 attempts, on two boxes. Pricing both outcomes fairly does
+ * not rescue it (race.odds still reads a loss), because no formula sees that
+ * Rend halves once Icy Wind makes Kingdra move first. The engine does.
+ *
+ * So when the hand is about to ATTACK into a race it is losing, the choice is
+ * played instead: staying, and each body on the bench coming in, each on
+ * PLAYED_DICE sets of dice, the foe on its own AI (which chose the same move
+ * 40 of 40 times at 162 sampled positions) and our side continuing on
+ * decide() itself — until this foe falls, two more of ours do, the fight ends
+ * or PLAYED_TURNS pass. A line is worth what it did to this foe minus what it
+ * cost us, in bodies. A switch is taken only when it beats staying by
+ * PLAYED_MARGIN, so dice alone never move the hand. One look a foe a fight.
+ */
+let switchPlayedOn = false;
+function setSwitchPlayed(on) { switchPlayedOn = !!on; }
+function switchPlayed() { return switchPlayedOn; }
+const PLAYED_DICE = 3;
+const PLAYED_TURNS = 10;
+const PLAYED_MARGIN = 0.4;
+
+function playedLine(policy, battle, first, memory, roster, dice) {
+	const state = battle.state;
+	const foeId = state.sides.ai.activeIds[0];
+	const standing = party => party.filter(mon => mon.hp.current > 0).length;
+	const oursBefore = standing(state.sides.player.party);
+	const foeBefore = (state.sides.ai.party.find(mon => mon.id === foeId) || {hp: {current: 1}}).hp.current;
+	let sim = Object.assign({}, battle, {seed: ((battle.seed || 1) * 7919 ^ (dice + 1) * 104729) | 0, step: 0});
+	const mind = structuredClone(memory);
+	// No nested look: the continuation is the plain hand.
+	mind.playedFor = new Set(['*']);
+	let reply;
+	try {
+		reply = driver.act(sim, first);
+	} catch (error) { return null; }
+	for (let turn = 0; turn < PLAYED_TURNS && !reply.result; turn++) {
+		sim = reply.battle;
+		const foe = sim.state.sides.ai.party.find(mon => mon.id === foeId);
+		if (!foe || foe.hp.current <= 0) break;
+		if (oursBefore - standing(sim.state.sides.player.party) >= 2) break;
+		if (!reply.actions || !reply.actions.length) break;
+		const phase = reply.phase || (reply.actions.some(entry => entry.kind === 'move') ? 'choose' : 'replace');
+		const choice = policy.decide(viewOf(Object.assign({}, reply, {phase})), mind, roster);
+		const action = !choice ? (reply.actions[0].kind === 'move' ? {kind: 'move', move: reply.actions[0].move} :
+			{kind: 'switch', replacementId: reply.actions[0].action.replacementId}) :
+			choice.kind === 'move' ? {kind: 'move', move: choice.pick.move} : {kind: 'switch', replacementId: choice.pick.id};
+		try {
+			reply = driver.act(sim, action);
+		} catch (error) { break; }
+	}
+	const end = reply.battle.state;
+	if (reply.result) return reply.result === 'win' ? 3 : -3;
+	const foe = end.sides.ai.party.find(mon => mon.id === foeId);
+	const did = !foe || foe.hp.current <= 0 ? 1 : 0.5 * (1 - foe.hp.current / Math.max(1, foeBefore));
+	return did - (oursBefore - standing(end.sides.player.party));
+}
+
+/** decide() said attack into a lost race: play that, and every switch, and say which is best by a margin. */
+function playedSwitch(policy, reply, battle, view, choice, memory, roster) {
+	const stay = {kind: 'move', move: choice.pick.move};
+	const lines = [{action: stay, label: 'stay'}].concat((reply.actions || []).filter(entry => entry.kind === 'switch')
+		.map(entry => ({action: {kind: 'switch', replacementId: entry.action.replacementId}, label: entry.species, entry})));
+	for (const line of lines) {
+		let total = 0;
+		let runs = 0;
+		for (let dice = 0; dice < PLAYED_DICE; dice++) {
+			const worth = playedLine(policy, battle, line.action, memory, roster, dice);
+			if (worth === null) continue;
+			total += worth;
+			runs += 1;
+		}
+		line.worth = runs ? total / runs : -9;
+	}
+	const best = lines.slice(1).reduce((top, line) => (!top || line.worth > top.worth ? line : top), null);
+	return best && best.worth >= lines[0].worth + PLAYED_MARGIN ?
+		{id: best.action.replacementId, species: best.label, worth: best.worth, stay: lines[0].worth} : null;
+}
+
 function freshMemory() {
 	return {switchedFor: new Set(), statusedFoes: new Set(), cleared: 0,
 		disarmed: 0, sacked: 0, screens: new Set(), boosts: 0,
@@ -96,6 +181,9 @@ function countersOf(memory) {
 		healed: memory.healed || 0,
 		banked: memory.banked || 0,
 		endeavored: memory.endeavored || 0,
+		// --switch-played: how often a lost-race attack was played out, and how often the switch won it.
+		switchPlayedLooks: memory.switchPlayedLooks || 0,
+		switchPlayed: memory.switchPlayed || 0,
 		screens: (memory.screens || new Set()).size,
 		statused: (memory.statusedFoes || new Set()).size,
 		switchedFor: (memory.switchedFor || new Set()).size,
@@ -164,6 +252,7 @@ const GATED_COUNTERS = {
 	'swap-catch': {counter: 'catchSwapped', on: value => value !== ''},
 	'swap-teach': {counter: 'swapTaught', on: value => value === '1'},
 	'switch-priced': {counter: 'switchRepriced', on: value => value === '1'},
+	'switch-played': {counter: 'switchPlayedLooks', on: value => value === '1'},
 	'hiding-forecast': {counter: 'hidingRepriced', on: value => value === '1'},
 	'real-speed': {counter: 'speedRead', on: value => value === '1'},
 	'charge-threat': {counter: 'chargePriced', on: value => value === '1'},
@@ -334,9 +423,26 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 		const phase = reply.phase ||
 			(reply.actions.some(entry => entry.kind === 'move') ? 'choose' : 'replace');
 		const view = viewOf(Object.assign({}, reply, {phase}));
-		const choice = policy.decide(view, memory, roster) ||
+		let choice = policy.decide(view, memory, roster) ||
 			{kind: reply.actions[0].kind, pick: reply.actions[0].kind === 'move' ?
 				{move: reply.actions[0].move} : {id: reply.actions[0].action.replacementId}};
+		// About to attack into a race the threat line says is lost, with a bench
+		// to turn to: play it out instead of trusting the formula (once a foe).
+		if (switchPlayedOn && phase === 'choose' && choice.kind === 'move' && view.switches.length &&
+			/YOU LOSE THIS RACE/.test(view.threat || '')) {
+			memory.playedFor = memory.playedFor || new Set();
+			if (!memory.playedFor.has(view.foe)) {
+				memory.playedFor.add(view.foe);
+				const better = playedSwitch(policy, reply, battle, view, choice, memory, roster);
+				memory.switchPlayedLooks = (memory.switchPlayedLooks || 0) + 1;
+				if (better) {
+					memory.switchPlayed = (memory.switchPlayed || 0) + 1;
+					choice = {kind: 'switch', pick: {id: better.id, species: better.species},
+						why: 'played out: ' + better.species + ' in is worth ' + better.worth.toFixed(2) +
+							' bodies against ' + better.stay.toFixed(2) + ' for staying'};
+				}
+			}
+		}
 		const action = choice.kind === 'move' ?
 			{kind: 'move', move: choice.pick.move} :
 			{kind: 'switch', replacementId: choice.pick.id};
@@ -751,6 +857,8 @@ function main() {
 	driver.setSearchPath(flag('search-path', '0') === '1');
 	// How deep the search looks EXACTLY instead of playing fights out. Off (0) until measured.
 	driver.setSearchLookahead(Number(flag('search-lookahead', '0')));
+	// A lost-race attack is PLAYED against every switch before it is made. Off until measured.
+	setSwitchPlayed(flag('switch-played', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?
@@ -821,6 +929,6 @@ if (require.main === module) main();
 
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
-	prepareDocument, teachSwapped, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
+	prepareDocument, teachSwapped, setSwitchPlayed, switchPlayed, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
 	OWN_FLAGS,
 	GATED_COUNTERS};

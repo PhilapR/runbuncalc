@@ -361,3 +361,41 @@ holding a body for the foe it answers, which is what wins these fights
 of that; this does not. Not tuned further against one box. What would make it
 worth another look: a leaf that values matchups still to come (who of ours
 beats who of theirs that is still standing), not HP.
+
+## The played switch price (`--switch-played`): built, and REJECTED on its declared bar — off (2026-09-21)
+
+What it is: when decide() is about to attack into a race the threat line
+says is lost, the choice is played instead of priced — staying, and each
+bench body coming in, three sets of dice each, the foe on its own AI and our
+side continuing on decide(), until this foe falls, two more of ours do, or
+ten turns pass; a line is worth what it did to this foe minus the bodies it
+cost, and a switch is taken only if it beats staying by 0.4. Built because
+the priced switch (pessimal, and no better priced fairly or as odds) sent
+Kingdra in third against a Choice-locked Dracovish it walls (LEADER-KEYS,
+Aqua Admin Matt).
+
+Bar, declared before the run: five boxes it was not found on, 30 fresh seeds
+each (7101–7130), on against off; a candidate only at net +5 wins with no box
+losing 3.
+
+| box | off | on | foes left, off → on |
+|---|---|---|---|
+| Matt, 209499 | 0 / 30 | 0 / 30 | 3.10 → 3.03 |
+| Matt, 731001 | 0 / 30 | 0 / 30 | 3.50 → 3.30 |
+| Shelly, 104770 | 0 / 30 | 0 / 30 | 2.87 → 3.40 |
+| Norman, 842113 | 0 / 30 | 0 / 30 | 2.23 → 2.23 |
+| Brawly, 731001 | 14 / 30 | **7 / 30** | 1.10 → 1.47 |
+
+Net −7, and the one box decide() can win is the one it halves. (On the box
+it was found on it read 0 → 1 of 10: noise.) It looks ~4 times a fight and
+switches ~1.3 times, at 3–7 s a fight. Why it hurts, as far as the numbers
+say: a line is judged by THIS duel only, on three dice, so it buys a better
+exchange now with a body the rest of the fight needed — the same myopia that
+sank the material lookahead. Not tuned against these boxes.
+
+A count taken while looking for bugs in the tapes (15,603 logged decisions):
+decide() chose a move because "it KOs" 1,632 times, and 388 of those times
+(24%) our body fainted before it moved. The guard for that
+(KO_RESPECTS_ORDER, yield to a resisting switch) was measured before: it won
+in-sample and lost on held-out. The hole is real and its obvious patch is
+already known not to be the answer.
