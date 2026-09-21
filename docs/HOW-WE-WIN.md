@@ -60,9 +60,20 @@ forgotten.
    Icy Wind, Bulldoze, Electroweb) in the six for a wall whose back line
    outspeeds the box, the way thresholdPrep already prepares a priority move
    for a Focus Sash + Reversal lead. Measurable on the legal Norman boxes.
-2. Set-up: not one turn in eleven wins, against walls that open with a passive
-   body (Norman's Porygon2). Either the six never holds a set-up move or the
-   rollouts never value one; the first is checkable in a minute.
+2. ~~Set-up: not one turn in eleven wins.~~ **Checked 2026-09-21, and it is
+   the hack's design, not ours.** The author's learnset document names Dragon
+   Dance, Swords Dance, Calm Mind, Quiver Dance, Nasty Plot, Bulk Up, Shell
+   Smash and Stealth Rock ZERO times — Gyarados has no Dragon Dance, Scizor no
+   Swords Dance, Volcarona no Quiver Dance — and there is no TM or tutor for
+   any of them. The ENEMY keeps them (Matt's Gyarados, Winona's Volcarona).
+   What the player is left with is what the wins already show: speed control
+   (Thunder Wave in 40 learnsets, Tailwind in 24), screens (Reflect and Light
+   Screen in 19 each), status, priority and pivoting. A survey of 17 saved
+   boxes found speed control known by the six in every winning fight and
+   another 22 speed-control and 9 priority moves sitting on benched bodies —
+   and every Heart Scale spent, so the 25 speed and 33 priority moves one
+   scale away could not be remembered. Rock Tomb (TM46) and Icy Wind (TM33)
+   were teachable 35 times and owned never.
 3. Judge a win by what it cost. "Bodies given up" belongs beside every win
    rate; a line that wins five-for-six is not a nuzlocke line.
 4. Keep the lines. A winning line found on attempt twenty is evidence about
