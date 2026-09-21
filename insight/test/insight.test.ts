@@ -224,3 +224,19 @@ test('a run is handled by the pid its own status file names, and a killed one re
 		child.kill('SIGKILL');
 	}
 });
+
+test('the road strip is read off the run\'s own log: how far, and which fights cost attempts', async () => {
+	const {readRoad} = await import('../src/serve.js');
+	const fs = await import('node:fs/promises');
+	const os = await import('node:os');
+	const path = await import('node:path');
+	const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'insight-road-'));
+	await fs.writeFile(path.join(dir, 'run-1.log'), ['1 #1 Trainer Rival Route 103 Blaziken win', '2 #27 Leader Brawly loss',
+		'3 #27 Leader Brawly loss (search-8)', '4 #27 Leader Brawly win', '5 #32 Twins Gina And Mia loss (joint-4)',
+		'6 #32 Twins Gina And Mia loss (joint-4)', 'CARRIED ON from position 80, fight 6', '7 #28 Bug Catcher Lyle win',
+		'DONE position 80 fights 7 finished false stopped '].join('\n'));
+	assert.deepEqual(await readRoad(path.join(dir, 'run-1.log')), {road: 32, walls: [
+		{road: 27, trainer: 'Leader Brawly', attempts: 3, won: true},
+		{road: 32, trainer: 'Twins Gina And Mia', attempts: 2, won: false}]});
+	assert.deepEqual(await readRoad(path.join(dir, 'none.log')), {road: null, walls: []}, 'a run with no log has no road yet');
+});

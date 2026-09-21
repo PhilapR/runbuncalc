@@ -99,7 +99,11 @@ export const readLive = (file: string): Effect.Effect<LiveState, never> =>
 
 const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Live Run</title><style>${STYLE}
-main{display:block;height:auto;max-width:980px;margin:0 auto;padding:12px 16px}#overview{width:100%;margin:0 0 10px}#overview tr{cursor:pointer}#overview tr[aria-current=true] td{font-weight:600}#overview td,#overview th{padding:3px 10px 3px 0;text-align:left;white-space:nowrap}#overview th{font-weight:400;color:var(--mute);font-size:12px}#overview tr.over td{color:var(--mute)}#overview tr.fold td{color:var(--mute);font-size:12px;padding-top:8px}#overview .warn{color:var(--warn,#b7791f)}#overview .acts button{font:inherit;font-size:12px;padding:1px 8px;margin-right:4px;border:1px solid var(--line,#8884);border-radius:4px;background:transparent;color:inherit;cursor:pointer}#overview .acts button:hover{background:var(--line,#8882)}#machine{margin:0 0 8px}.compact .events,.compact .turn table{display:none}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
+main{display:block;height:auto;max-width:1180px;margin:0 auto;padding:12px 16px}#overview{width:100%;margin:0 0 10px}#overview tr{cursor:pointer}#overview tr[aria-current=true] td{font-weight:600}#overview{display:block;overflow-x:auto}#overview td,#overview th{padding:3px 12px 3px 0;text-align:left;white-space:nowrap}#overview th{font-weight:400;color:var(--mute);font-size:12px}#overview tr.over td{color:var(--mute)}#overview tr.fold td{color:var(--mute);font-size:12px;padding-top:8px}#overview .warn{color:var(--warn,#b7791f)}#overview .acts button{font:inherit;font-size:12px;padding:1px 8px;margin-right:4px;border:1px solid var(--line,#8884);border-radius:4px;background:transparent;color:inherit;cursor:pointer}#overview .acts button:hover{background:var(--line,#8882)}#machine{margin:0 0 8px}
+body{font-variant-numeric:tabular-nums}.num{text-align:right!important;font-variant-numeric:tabular-nums}
+.road .ahead{stroke:var(--line);stroke-width:1}.road .behind{stroke:var(--mute);stroke-width:1}.road .wall{stroke:var(--fg);stroke-width:1.6}.road .wall.lost{stroke:var(--loss);stroke-width:2}.road .here{fill:var(--mute)}.road .here.live{fill:var(--win)}
+.turn{background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:8px 0;margin:0}.tag{background:none;padding:0;margin:2px 10px 0 0;color:var(--mute)}.tag.hot{color:var(--hot)}.tag.warn{color:var(--loss)}
+.weighed{margin:6px 0 0}.weighed .opt{display:flex;gap:10px;align-items:center;color:var(--mute);font-size:12px}.weighed .opt.chosen{color:var(--fg)}.weighed .name{flex:0 0 190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.weighed .num{flex:0 0 44px}.weighed .axis{stroke:var(--line)}.weighed .other{fill:var(--line)}.weighed .dot{fill:none;stroke:var(--mute);stroke-width:1.2}.weighed .dot.chosen{fill:var(--fg);stroke:var(--fg)}.compact .events,.compact .turn table{display:none}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}</style></head><body>
 <header><h1 id="title">Live run</h1><p id="sub">waiting for a fight…</p></header>
 <main><p class="sub" id="machine"></p><table id="overview"></table><div class="filters" id="controls"></div><div class="filters" id="tagbar"></div><div class="speed" id="six"></div><div id="turns"></div></main>
@@ -109,13 +113,29 @@ const WARN = new Set(['they-move-first','coin-flip','we-fall','foe-set-up','foe-
 let current = null, seen = -1, attempt = null, said = false;
 const el = (tag, attrs, kids) => { const n = document.createElement(tag); for (const k in (attrs||{})) { if (k === 'text') n.textContent = attrs[k]; else if (k === 'on') for (const e in attrs.on) n.addEventListener(e, attrs.on[e]); else n.setAttribute(k, attrs[k]); } for (const kid of (kids||[])) n.appendChild(kid); return n; };
 const bar = (pct, foe) => el('span', {class: 'bar' + (foe ? ' foe' : '')}, [el('i', {style: 'width:' + Math.max(0, Math.min(100, pct)) + '%'})]);
+// What the search weighed, on ONE axis from 0 to 1: a dot an option, the chosen one filled. Two dots that touch
+// are a coin flip and look like one — which two numbers in a table (0.204, 0.205) never did. The numbers stay,
+// beside the option, for whoever wants them.
+function weighed(scores, chose) {
+  const W = 220, x = v => 4 + Math.max(0, Math.min(1, v)) * (W - 8), box = el('div', {class: 'weighed'});
+  for (const s of scores) {
+    const g = svg('svg', {width: W, height: 12, viewBox: '0 0 ' + W + ' 12', role: 'img', 'aria-label': s.choice + ' valued ' + s.value});
+    g.appendChild(svg('line', {x1: 4, x2: W - 4, y1: 6, y2: 6, class: 'axis'}));
+    for (const o of scores) if (o !== s) g.appendChild(svg('circle', {cx: x(o.value), cy: 6, r: 2, class: 'other'}));
+    g.appendChild(svg('circle', {cx: x(s.value), cy: 6, r: 3.2, class: s.choice === chose ? 'dot chosen' : 'dot'}));
+    box.appendChild(el('div', {class: 'opt' + (s.choice === chose ? ' chosen' : '')}, [el('span', {class: 'name', text: s.choice}), g,
+      el('span', {class: 'num', text: s.value.toFixed(3)}),
+      el('span', {class: 'sub', text: (s.wins === undefined ? s.runs + ' playouts' : s.wins + '/' + s.runs + ' won') + (s.removed === undefined ? '' : ' · ' + Math.round(s.removed * 100) + '% of theirs removed') + (s.oursAlive === undefined ? '' : ' · ' + s.oursAlive + ' of ours standing') + (s.lead === undefined ? '' : ' · lead ' + (s.lead > 0 ? '+' : '') + s.lead)})]));
+  }
+  return box;
+}
 function card(t) {
   const c = el('div', {class: 'turn'});
   c.appendChild(el('div', {class: 'head'}, [el('b', {text: 'T' + t.turn}), el('span', {}, [document.createTextNode(t.us + ' '), bar(t.usHp), document.createTextNode(' ' + t.usHp + '%')]), el('span', {class: 'sub', text: 'vs'}), el('span', {}, [document.createTextNode(t.foe + ' '), bar(t.foeHp, true), document.createTextNode(' ' + t.foeHp + '%')]), el('span', {class: 'chosen', text: '→ ' + t.chose}), el('span', {class: 'sub', text: t.why || ''})]));
   const tags = el('div'); for (const tag of t.tags) tags.appendChild(el('span', {class: 'tag' + (HOT.has(tag) ? ' hot' : WARN.has(tag) ? ' warn' : ''), text: tag})); c.appendChild(tags);
   const ev = el('ul', {class: 'events'}); for (const e of t.events) ev.appendChild(el('li', {text: e})); c.appendChild(ev);
   const scores = (t.scores || []).slice().sort((a, b) => b.value - a.value);
-  if (scores.length) { const tbl = el('table'); tbl.appendChild(el('tr', {}, ['the search weighed', 'value', 'playouts won', 'their HP removed', 'ours left standing', 'material lead'].map(h => el('th', {text: h})))); for (const s of scores) tbl.appendChild(el('tr', {class: s.choice === t.chose ? 'chosen' : ''}, [s.choice, String(s.value), s.wins === undefined ? String(s.runs) + ' run' : s.wins + ' of ' + s.runs, s.removed === undefined ? '' : Math.round(s.removed * 100) + '%', s.oursAlive === undefined ? '' : String(s.oursAlive), s.lead === undefined ? '' : (s.lead > 0 ? '+' : '') + s.lead].map(v => el('td', {text: v})))); c.appendChild(tbl); }
+  if (scores.length) c.appendChild(weighed(scores, t.chose));
   return c;
 }
 const prefs = (() => { try { return JSON.parse(localStorage.getItem('live-prefs') || '{}'); } catch (e) { return {}; } })();
@@ -136,12 +156,27 @@ let shown = [];
 function redraw() { const box = document.getElementById('turns'); box.replaceChildren(); for (const t of shown) if (!tagFilter || t.tags.includes(tagFilter)) box.prepend(card(t)); tagbar([...new Set(shown.flatMap(t => t.tags))].sort()); }
 function flush() { shown = shown.concat(held); held = []; redraw(); }
 let lastOverview = '';
+const SVG = 'http://www.w3.org/2000/svg';
+const svg = (tag, attrs, kids) => { const n = document.createElementNS(SVG, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); for (const kid of (kids || [])) n.appendChild(kid); return n; };
+const tip = text => { const t = document.createElementNS(SVG, 'title'); t.textContent = text; return t; };
+// The road, word-sized and on ONE scale for every run, so the rows compare: how far each has come, and where it
+// bled attempts. A bar is a fight that took more than one try; its height is how many (log scale); red is one that
+// never fell. Everything else about the run is a number beside it.
+function roadStrip(r) {
+  const W = 220, H = 18, of = r.roadOf || 358, x = n => 1 + (n / of) * (W - 2);
+  const g = svg('svg', {width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, class: 'road', role: 'img', 'aria-label': 'trainer ' + (r.road || 0) + ' of ' + of + ', ' + r.walls.length + ' fights took more than one attempt'});
+  g.appendChild(svg('line', {x1: 1, x2: W - 1, y1: H - 1.5, y2: H - 1.5, class: 'ahead'}));
+  if (r.road) g.appendChild(svg('line', {x1: 1, x2: x(r.road), y1: H - 1.5, y2: H - 1.5, class: 'behind'}));
+  for (const w of r.walls) { const h = Math.min(H - 3, 2 + 2.6 * Math.log2(w.attempts)); g.appendChild(svg('line', {x1: x(w.road), x2: x(w.road), y1: H - 2, y2: H - 2 - h, class: w.won ? 'wall' : 'wall lost'}, [tip('#' + w.road + ' ' + w.trainer + ': ' + w.attempts + ' attempts, ' + (w.won ? 'won' : 'never won'))])); }
+  if (r.road) g.appendChild(svg('circle', {cx: x(r.road), cy: H - 1.5, r: 2.2, class: r.live ? 'here live' : 'here'}));
+  return g;
+}
 async function runs() {
   let rows, m;
   try { rows = await (await fetch('/overview')).json(); m = await (await fetch('/machine')).json(); }
   catch (e) { document.getElementById('machine').textContent = 'the watch server is not answering'; lastOverview = ''; return; }
   // Drawn again only when something changed: a table rebuilt every second cannot be hovered, read or clicked.
-  const now = JSON.stringify([rows.map(r => [r.run, r.trainer, r.attempt, r.hand, r.ended, r.state, r.fight, r.pace, r.rssMb, Math.floor((r.age || 0) / 60)]), m.held.length, current, !!prefs.ended]);
+  const now = JSON.stringify([rows.map(r => [r.run, r.trainer, r.attempt, r.hand, r.ended, r.state, r.fight, r.pace, r.rssMb, r.road, r.walls.length, r.walls.reduce((n, w) => n + w.attempts, 0), Math.floor((r.age || 0) / 60)]), m.held.length, current, !!prefs.ended]);
   if (!said) document.getElementById('machine').textContent = m.held.length + ' of ' + m.slots + ' slots held · load ' + m.load + ' on ' + m.cores + ' cores' + (m.load > m.cores ? ' — over-subscribed' : '');
   if (now === lastOverview) return; lastOverview = now;
   const table = document.getElementById('overview'); table.replaceChildren();
@@ -151,19 +186,20 @@ async function runs() {
   const say = async (run, action) => { const r = await (await fetch('/control?run=' + encodeURIComponent(run) + '&action=' + action, {method: 'POST', headers: {'x-insight': '1'}})).json(); said = true; document.getElementById('machine').textContent = r.said; lastOverview = ''; setTimeout(() => { said = false; runs(); }, 2500); };
   const button = (label, run, action) => el('button', {text: label, on: {click: e => { e.stopPropagation(); say(run, action); }}});
   const ago = s => s === null ? '' : s < 90 ? s + ' s' : s < 5400 ? Math.round(s / 60) + ' min' : Math.round(s / 3600) + ' h';
-  table.appendChild(el('tr', {}, ['run', 'state', 'road', 'facing', 'attempt', 'played by', 'last fight', 'pace', 'memory', ''].map(h => el('th', {text: h}))));
+  table.appendChild(el('tr', {}, ['run', 'state', 'the road, and where it cost attempts', '', 'facing', 'attempt', 'played by', 'last fight', 'pace', 'memory', ''].map(h => el('th', {text: h}))));
   const line = r => table.appendChild(el('tr', {class: r.live ? '' : 'over', 'aria-current': String(r.run === current), on: {click: () => { current = r.run; seen = -1; attempt = null; shown = []; held = []; lastOverview = ''; redraw(); runs(); }}}, [
     el('td', {text: r.run}),
     el('td', {class: r.shown === 'dead' ? 'loss' : r.shown === 'paused' || r.shown === 'stopping' ? 'warn' : r.live ? 'win' : 'sub', text: r.shown + (r.handled ? '' : ' ·'), title: r.handled ? (r.spec || '') : 'started before run control: no status file, so it cannot be paused or stopped from here'}),
-    el('td', {text: r.road ? r.road + ' of ' + r.roadOf : r.fight === null ? '—' : 'position ' + r.position, title: r.fight === null ? '' : 'fight ' + r.fight + ' of this run · position ' + r.position}),
+    el('td', {}, [roadStrip(r)]),
+    el('td', {class: 'num', text: r.road ? r.road + ' / ' + r.roadOf : '—', title: r.fight === null ? '' : 'fight ' + r.fight + ' of this run · position ' + r.position}),
     el('td', {text: r.trainer || 'not started'}),
-    el('td', {class: r.attempt >= 10 ? 'warn' : '', text: r.attempt === null ? '' : String(r.attempt), title: r.attempt >= 10 ? 'a wall: ' + r.attempt + ' attempts' : ''}),
+    el('td', {class: 'num' + (r.attempt >= 10 ? ' warn' : ''), text: r.attempt === null ? '' : String(r.attempt), title: r.attempt >= 10 ? 'a wall: ' + r.attempt + ' attempts' : ''}),
     el('td', {text: r.hand || ''}),
     el('td', {class: 'sub', text: r.ended ? r.ended + (r.live ? '' : ' · ' + ago(r.age) + ' ago') : 'turn ' + r.turn}),
-    el('td', {text: r.pace === null ? '' : r.pace + ' s/fight'}), el('td', {text: r.rssMb === null || !r.live ? '' : r.rssMb + ' MB'}),
+    el('td', {class: 'num', text: r.pace === null ? '' : r.pace + ' s/fight'}), el('td', {class: 'num', text: r.rssMb === null || !r.live ? '' : r.rssMb + ' MB'}),
     el('td', {class: 'acts'}, r.state === 'running' ? [button('pause', r.run, 'pause'), button('stop', r.run, 'stop')] : r.state === 'paused' ? [button('continue', r.run, 'cont')] : [])]));
   live.forEach(line);
-  if (over.length) table.appendChild(el('tr', {class: 'fold', on: {click: () => { prefs.ended = !prefs.ended; keep(); lastOverview = ''; runs(); }}}, [el('td', {colspan: '10', text: (prefs.ended ? '▾ ' : '▸ ') + over.length + ' run' + (over.length === 1 ? '' : 's') + ' no longer playing'})]));
+  if (over.length) table.appendChild(el('tr', {class: 'fold', on: {click: () => { prefs.ended = !prefs.ended; keep(); lastOverview = ''; runs(); }}}, [el('td', {colspan: '11', text: (prefs.ended ? '▾ ' : '▸ ') + over.length + ' run' + (over.length === 1 ? '' : 's') + ' no longer playing'})]));
   if (prefs.ended) over.forEach(line);
   if (!current && rows.length) { current = (live[0] || rows[0]).run; lastOverview = ''; runs(); }
 }
@@ -211,6 +247,37 @@ export const listRuns = async (dir: string): Promise<ReadonlyArray<string>> => {
 	return found.sort((a, b) => b.at - a.at).map(entry => entry.name);
 };
 
+export interface Road {
+	/** The furthest trainer reached, as the Nth on the road. */
+	readonly road: number | null;
+	/** Every fight that took more than one attempt: where, how many, and whether it fell. */
+	readonly walls: ReadonlyArray<{readonly road: number; readonly trainer: string; readonly attempts: number; readonly won: boolean}>;
+}
+
+/**
+ * Where a run has been, off its plain log (`12 #32 Twins Gina And Mia loss
+ * (joint-4)`: attempt number, the trainer's place on the road, name, result).
+ * The log is written by every run there has ever been, live or ended, so the
+ * road strip needs nothing new from the harness.
+ */
+export const readRoad = (file: string): Promise<Road> =>
+	fs.readFile(file, 'utf8').then(text => {
+		const fights = new Map<number, {trainer: string; attempts: number; won: boolean}>();
+		let road: number | null = null;
+		for (const line of text.split('\n')) {
+			const hit = /^\d+ #(\d+) (.+?) (win|loss)\b/.exec(line);
+			if (hit === null) continue;
+			const at = Number(hit[1]);
+			const row = fights.get(at) ?? {trainer: hit[2] ?? '', attempts: 0, won: false};
+			row.attempts += 1;
+			if (hit[3] === 'win') row.won = true;
+			fights.set(at, row);
+			road = Math.max(road ?? 0, at);
+		}
+		return {road, walls: [...fights.entries()].filter(entry => entry[1].attempts > 1)
+			.map(entry => ({road: entry[0], ...entry[1]}))};
+	}, () => ({road: null, walls: []}));
+
 /** One run at a glance: the fight it is in, its own status, and how long since it last wrote a turn. */
 export const overviewRow = async (dir: string, name: string) => {
 	const live = await Effect.runPromise(readLive(path.join(dir, name + '.live.ndjson')));
@@ -219,13 +286,17 @@ export const overviewRow = async (dir: string, name: string) => {
 	// control (no status file) is still playing.
 	const age = await fs.stat(path.join(dir, name + '.live.ndjson')).then(stat => Math.round((Date.now() - stat.mtimeMs) / 1000), () => null);
 	const header = live.header;
+	const been = await readRoad(path.join(dir, name + '.log'));
 	return {run: name, trainer: header?.trainer ?? null, fight: header?.n ?? null, attempt: header?.attempt ?? null,
-		position: header?.position ?? null, hand: header?.hand ?? null, road: header?.road ?? null, roadOf: header?.roadOf ?? null,
+		position: header?.position ?? null, hand: header?.hand ?? null, road: header?.road ?? been.road, roadOf: header?.roadOf ?? ROAD_LENGTH,
+		walls: been.walls,
 		turn: live.turns.length ? live.turns[live.turns.length - 1]?.turn ?? 0 : 0, ended: live.ended,
 		state: status?.state ?? null, fights: status?.fights ?? null, pace: status?.secondsPerFight ?? null,
 		rssMb: status?.rssMb ?? null, spec: status?.spec ?? null, age};
 };
 
+/** The road's length when a run is too old to say (its live header predates `roadOf`). */
+const ROAD_LENGTH = 358;
 const RUN_NAME = /^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/;
 
 /** Stop, pause or continue one run — by its own status file's pid, as scripts/runs.js does. */
