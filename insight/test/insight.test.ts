@@ -64,3 +64,23 @@ test('a wall sets its win beside its losses', async () => {
 	assert.doesNotMatch(page, /a <title>/, 'text from a record never reaches the page as markup');
 	assert.ok(!page.includes('</script><script>alert'), 'and embedded JSON cannot close its own script tag');
 });
+
+test('the agent face shows the signature it enforces', async () => {
+	const {handle} = await import('../src/mcp.js');
+	const listed = await Effect.runPromise(handle({id: 1, method: 'tools/list'})) as
+		{result: {tools: Array<{name: string; inputSchema: {required?: string[]; properties: Record<string, unknown>}}>}};
+	assert.deepEqual(listed.result.tools.map(entry => entry.name), ['list_walls', 'compare_attempts', 'get_attempt', 'get_turns']);
+	const turns = listed.result.tools.find(entry => entry.name === 'get_turns');
+	assert.deepEqual(turns?.inputSchema.required, ['report', 'n'], 'the schema an agent is shown names what is required');
+
+	const call = async (name: string, args: unknown): Promise<{isError?: boolean; content: Array<{text: string}>}> =>
+		(await Effect.runPromise(handle({id: 2, method: 'tools/call', params: {name, arguments: args}})) as
+			{result: {isError?: boolean; content: Array<{text: string}>}}).result;
+	const bad = await call('get_turns', {report: 'x.json', n: 'seven'});
+	assert.equal(bad.isError, true);
+	assert.match(bad.content[0]?.text ?? '', /\["n"\][\s\S]*Expected number, actual "seven"/, 'and the same schema refuses, naming the field');
+	const missing = await call('list_walls', {report: '/nonexistent/run.json'});
+	assert.equal(missing.isError, true, 'a missing file is an answer, not a crash');
+	assert.match(missing.content[0]?.text ?? '', /cannot read/);
+	assert.equal((await call('no_such_tool', {})).isError, true);
+});

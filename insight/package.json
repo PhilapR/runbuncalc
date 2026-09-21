@@ -8,7 +8,8 @@
     "lint": "tsc --noEmit -p .",
     "build": "tsc -p .",
     "test": "npm run build && node --test dist/test/insight.test.js",
-    "viewer": "npm run build && node dist/src/cli.js"
+    "viewer": "npm run build && node dist/src/cli.js",
+    "mcp": "npm run build && node dist/src/mcp.js"
   },
   "dependencies": {
     "effect": "^3.22.2"
