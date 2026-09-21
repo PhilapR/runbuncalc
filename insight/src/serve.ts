@@ -104,7 +104,10 @@ main{display:block;height:auto;max-width:1180px;margin:0 auto;padding:12px 16px}
 .facts{margin:6px 0 12px;line-height:1.7}.facts b{font-weight:600}.facts span{color:var(--mute);margin-right:14px}
 table.dense{border-collapse:collapse;margin:0 0 18px;width:auto;max-width:100%}table.dense td{white-space:nowrap}table.dense th{font-weight:400;color:var(--mute);font-size:12px;text-align:left;padding:2px 12px 4px 0;white-space:nowrap}table.dense td{padding:3px 12px 3px 0;vertical-align:baseline;border-top:1px solid var(--line)}table.dense td.wrap{white-space:normal;color:var(--mute);font-size:12px}table.dense tr.out td{color:var(--mute)}table.dense tr.six td:first-child{font-weight:600}
 h2.part{font-size:12px;font-weight:400;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 4px}
-.pair .ko{fill:var(--fg)}.pair .fall{fill:var(--loss)}.pair .axis{stroke:var(--line)}.pair .wall{fill:var(--hot)}.bars .bar1{fill:var(--mute)}.bars .bar1.lost{fill:var(--loss)}
+.pair .ko{fill:var(--fg)}.pair .fall{fill:var(--loss)}.pair .axis{stroke:var(--line)}.pair .wall{fill:var(--hot)}.bars .bar1{fill:var(--mute)}.bars .bar1.lost{fill:var(--loss)}.bars .tick{stroke:var(--line);stroke-width:1}
+#views{position:sticky;top:0;z-index:2;background:var(--bg);padding:6px 0;margin:0 0 6px;border-bottom:1px solid var(--line)}
+table.dense thead th{position:sticky;top:34px;background:var(--bg);cursor:pointer;user-select:none}table.dense th[aria-sort=ascending]::after{content:' ▲'}table.dense th[aria-sort=descending]::after{content:' ▼'}table.dense th:focus-visible,table.dense tr.go:focus-visible{outline:2px solid var(--hot);outline-offset:-2px}table.dense tr.go{cursor:pointer}table.dense tr.go:hover td{background:var(--tag)}
+.jump{margin:0 0 4px;font-size:12px}.jump a{color:var(--mute);margin-right:14px}h2.part{scroll-margin-top:44px}
 body{font-variant-numeric:tabular-nums}.num{text-align:right!important;font-variant-numeric:tabular-nums}
 .road .ahead{stroke:var(--line);stroke-width:1}.road .behind{stroke:var(--mute);stroke-width:1}.road .wall{stroke:var(--fg);stroke-width:1.6}.road .wall.lost{stroke:var(--loss);stroke-width:2}.road .here{fill:var(--mute)}.road .here.live{fill:var(--win)}
 .turn{background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:8px 0;margin:0}.tag{background:none;padding:0;margin:2px 10px 0 0;color:var(--mute)}.tag.hot{color:var(--hot)}.tag.warn{color:var(--loss)}
@@ -134,22 +137,43 @@ function weighed(scores, chose) {
   }
   return box;
 }
-// Two quantities on ONE scale shared by every row, so the rows compare: knockouts to the right of the
-// axis, falls to the left, and inside the knockouts the part scored in a fight that cleared a wall.
-function pair(kos, falls, wallKos, scale) {
-  const W = 160, mid = 60, unit = Math.min((W - mid - 2) / Math.max(1, scale.kos), (mid - 2) / Math.max(1, scale.falls));
-  const g = svg('svg', {width: W, height: 10, viewBox: '0 0 ' + W + ' 10', class: 'pair', role: 'img', 'aria-label': kos + ' knockouts, ' + falls + ' falls'});
+// ONE RULE FOR EVERY BAR ON THE PAGE, so nothing has to be re-read from view to view:
+//   attempts  — always 0 to ATTEMPT_CAP (the retries a wall gets), linear, a tick every ten: the road strip, a run's
+//               walls and the walls across runs all use it, so a bar is the same length wherever it appears;
+//   a count   — knockouts right of a centred axis, falls left, ONE unit for both sides (a knockout and a fall are
+//               the same length), full width = the largest count in that table, which the table's heading states.
+const ATTEMPT_CAP = 40, BAR_W = 120, PAIR_W = 200;
+function pair(kos, falls, wallKos, full) {
+  const mid = PAIR_W / 2, unit = (mid - 2) / Math.max(1, full);
+  const g = svg('svg', {width: PAIR_W, height: 10, viewBox: '0 0 ' + PAIR_W + ' 10', class: 'pair', role: 'img', 'aria-label': kos + ' knockouts, ' + falls + ' falls'});
   g.appendChild(svg('rect', {x: mid, y: 2, width: Math.max(0, kos * unit), height: 6, class: 'ko'}));
   if (wallKos) g.appendChild(svg('rect', {x: mid, y: 2, width: wallKos * unit, height: 6, class: 'wall'}, [tip(wallKos + ' of them in a fight that cleared a wall')]));
   g.appendChild(svg('rect', {x: mid - falls * unit, y: 2, width: Math.max(0, falls * unit), height: 6, class: 'fall'}));
   g.appendChild(svg('line', {x1: mid, x2: mid, y1: 0, y2: 10, class: 'axis'}));
   return g;
 }
-const attemptsBar = (n, cleared, most) => { const W = 120, g = svg('svg', {width: W, height: 8, viewBox: '0 0 ' + W + ' 8', class: 'bars', role: 'img', 'aria-label': n + ' attempts'}); g.appendChild(svg('rect', {x: 0, y: 1, width: Math.max(2, W * Math.log2(1 + n) / Math.log2(1 + most)), height: 6, class: 'bar1' + (cleared ? '' : ' lost')})); return g; };
+const fullOf = rows => { const most = Math.max(1, ...rows.map(m => Math.max(m.knockouts, m.falls))); const step = Math.pow(10, Math.floor(Math.log10(most))); return Math.ceil(most / step) * step; };
+function attemptsBar(n, cleared) {
+  const g = svg('svg', {width: BAR_W, height: 10, viewBox: '0 0 ' + BAR_W + ' 10', class: 'bars', role: 'img', 'aria-label': n + ' attempts of ' + ATTEMPT_CAP});
+  for (let t = 0; t <= ATTEMPT_CAP; t += 10) g.appendChild(svg('line', {x1: t / ATTEMPT_CAP * (BAR_W - 1) + 0.5, x2: t / ATTEMPT_CAP * (BAR_W - 1) + 0.5, y1: 0, y2: 10, class: 'tick'}));
+  g.appendChild(svg('rect', {x: 0, y: 2, width: Math.max(1.5, Math.min(1, n / ATTEMPT_CAP) * (BAR_W - 1)), height: 6, class: 'bar1' + (cleared ? '' : ' lost')}));
+  return g;
+}
 const list = pairs => pairs.map(p => p[0] + (p[1] > 1 ? ' ×' + p[1] : '')).join(', ');
-const dense = (heads, rows) => { const t = el('table', {class: 'dense'}); t.appendChild(el('tr', {}, heads.map(h => el('th', {text: h})))); rows.forEach(r => t.appendChild(r)); return t; };
-const cell = (v, cls) => (v instanceof Node ? el('td', {class: cls || ''}, [v]) : el('td', {class: cls || '', text: v === null || v === undefined ? '' : String(v)}));
-const part = text => el('h2', {class: 'part', text});
+// Every table sorts by any column: click its heading (again to reverse). What was chosen is remembered per table.
+function dense(heads, rows, id) {
+  const t = el('table', {class: 'dense'}), body = document.createElement('tbody'), head = el('tr', {});
+  const order = (col, dir) => { const num = rows.every(r => r.children[col] && r.children[col].getAttribute('data-v') !== '' && !isNaN(Number(r.children[col].getAttribute('data-v'))));
+    rows.slice().sort((a, b) => { const x = a.children[col].getAttribute('data-v'), y = b.children[col].getAttribute('data-v'); return dir * (num ? Number(x) - Number(y) : String(x).localeCompare(String(y))); }).forEach(r => body.appendChild(r));
+    [...head.children].forEach((th, i) => th.setAttribute('aria-sort', i === col ? (dir > 0 ? 'ascending' : 'descending') : 'none')); };
+  heads.forEach((h, col) => head.appendChild(el('th', {text: h, tabindex: h ? '0' : '-1', on: {click: () => { if (!h) return; const was = (prefs.sort || {})[id]; const dir = was && was[0] === col ? -was[1] : (col === 0 ? 1 : -1); prefs.sort = Object.assign({}, prefs.sort, {[id]: [col, dir]}); keep(); order(col, dir); }, keydown: e => { if (e.key === 'Enter') e.target.click(); }}})));
+  const thead = document.createElement('thead'); thead.appendChild(head); t.appendChild(thead); rows.forEach(r => body.appendChild(r)); t.appendChild(body);
+  const kept = id && (prefs.sort || {})[id]; if (kept) order(kept[0], kept[1]);
+  return t;
+}
+const cell = (v, cls, by) => { const key = by !== undefined ? by : (typeof v === 'number' ? v : v instanceof Node ? '' : String(v === null || v === undefined ? '' : v)); return v instanceof Node ? el('td', {class: cls || '', 'data-v': key}, [v]) : el('td', {class: cls || '', 'data-v': key, text: v === null || v === undefined ? '' : String(v)}); };
+const part = (text, id) => el('h2', {class: 'part', id: id || '', text});
+const jump = links => el('p', {class: 'jump'}, links.map(l => el('a', {href: '#' + l[0], text: l[1], on: {click: e => { e.preventDefault(); const n = document.getElementById(l[0]); if (n) n.scrollIntoView({block: 'start'}); }}})));
 function factsOf(s) {
   const f = el('p', {class: 'facts'}); const add = (k, v) => { f.appendChild(el('b', {text: v + ' '})); f.appendChild(el('span', {text: k})); };
   add('position', s.position); add('trainers beaten', s.trainersBeaten); add('attempts', s.attempts);
@@ -162,41 +186,57 @@ function factsOf(s) {
   if (s.auditOk !== null) add('', s.auditOk ? 'audit valid' : 'audit FAILS');
   return f;
 }
+// Two redraws can be asked for at once (a key and the half-minute refresh): only the latest one draws.
+let drawing = 0;
 async function drawRun() {
   const box = document.getElementById('runView'); if (!current) return;
-  const s = await (await fetch('/summary?run=' + encodeURIComponent(current))).json(); box.replaceChildren();
+  const mine = ++drawing; const s = await (await fetch('/summary?run=' + encodeURIComponent(current))).json(); if (mine !== drawing) return; box.replaceChildren();
   if (!s) { box.appendChild(el('p', {class: 'sub', text: 'This run has neither a record nor a checkpoint to read: it was started before run control and is still playing. Its fights are on the fight tab.'})); return; }
   box.appendChild(factsOf(s));
-  box.appendChild(part('played by'));
-  box.appendChild(dense(['hand', 'attempts', 'won', ''], s.byHand.map(h => el('tr', {}, [cell(h.hand), cell(h.attempts, 'num'), cell(h.wins, 'num'), cell(Math.round(100 * h.wins / Math.max(1, h.attempts)) + '%', 'num')]))));
-  const most = Math.max(1, ...s.walls.map(w => w.attempts));
-  box.appendChild(part('walls — fights that took ' + 5 + ' attempts or more'));
-  box.appendChild(s.walls.length ? dense(['trainer', 'attempts', '', '', 'won by', 'bodies lost in the win'], s.walls.map(w => el('tr', {class: w.cleared ? '' : 'out'}, [cell(w.trainer), cell(w.attempts, 'num'), cell(attemptsBar(w.attempts, w.cleared, most)), cell(w.cleared ? 'cleared' : 'NOT cleared', w.cleared ? '' : 'loss'), cell(w.wonBy), cell(w.bodiesLostInWin, 'num')]))) : el('p', {class: 'sub', text: 'none yet'}));
-  const scale = {kos: Math.max(1, ...s.roster.map(m => m.knockouts)), falls: Math.max(1, ...s.roster.map(m => m.falls))};
-  box.appendChild(part('the box — falls ◀ ▶ knockouts, one scale; amber is knockouts in a fight that cleared a wall'));
-  box.appendChild(dense(['', '', 'falls', '', 'KOs', 'with', 'knocked out', 'fell to', 'holds · nature · ability', 'moves', 'caught'], s.roster.map(m => el('tr', {class: (m.inParty ? 'six' : '') + (m.alive ? '' : ' out')}, [
-    cell(m.name + (m.name === m.species ? '' : ' the ' + m.species)), cell('L' + m.level, 'num'), cell(m.falls, 'num'), cell(pair(m.knockouts, m.falls, m.wallKnockouts, scale)), cell(m.knockouts, 'num'),
-    cell(list(m.bestMoves), 'wrap'), cell(list(m.victims), 'wrap'), cell(list(m.fellTo), 'wrap'), cell([m.item, m.nature, m.ability].filter(Boolean).join(' · ') + (m.ivTotal === null ? '' : ' · IVs ' + m.ivTotal), 'wrap'), cell(m.moves.join(' / '), 'wrap'), cell(m.caught, 'wrap')]))));
+  box.appendChild(jump([['run-hands', 'played by'], ['run-walls', 'walls (' + s.walls.length + ')'], ['run-box', 'the box (' + s.roster.length + ')']]));
+  box.appendChild(part('played by', 'run-hands'));
+  box.appendChild(dense(['hand', 'attempts', 'won', 'rate'], s.byHand.map(h => el('tr', {}, [cell(h.hand), cell(h.attempts, 'num'), cell(h.wins, 'num'), cell(Math.round(100 * h.wins / Math.max(1, h.attempts)) + '%', 'num', h.wins / Math.max(1, h.attempts))])), 'hands'));
+  box.appendChild(part('walls — fights that took 5 attempts or more · bar: 0 to ' + ATTEMPT_CAP + ' attempts, a tick every ten', 'run-walls'));
+  box.appendChild(s.walls.length ? dense(['trainer', 'attempts', '0 — ' + ATTEMPT_CAP, 'outcome', 'won by', 'bodies lost in the win'], s.walls.map(w => el('tr', {class: w.cleared ? '' : 'out'}, [cell(w.trainer, '', w.order), cell(w.attempts, 'num'), cell(attemptsBar(w.attempts, w.cleared), '', w.attempts), cell(w.cleared ? 'cleared' : 'NOT cleared', w.cleared ? '' : 'loss'), cell(w.wonBy), cell(w.bodiesLostInWin, 'num')])), 'walls') : el('p', {class: 'sub', text: 'none yet'}));
+  const full = fullOf(s.roster), six = s.roster.filter(m => m.inParty).length;
+  box.appendChild(part('the box — falls ◀ | ▶ knockouts, one unit for both · full half-width = ' + full + ' · amber: knockouts in a fight that cleared a wall', 'run-box'));
+  const only = el('button', {'aria-pressed': String(!!prefs.sixOnly), text: 'the six only (' + six + ')', on: {click: () => { prefs.sixOnly = !prefs.sixOnly; keep(); drawRun(); }}});
+  box.appendChild(el('div', {class: 'filters'}, [only]));
+  box.appendChild(dense(['', 'level', 'falls', 'falls | KOs', 'KOs', 'in wall clears', 'kills with', 'knocked out', 'fell to', 'holds · nature · ability', 'moves', 'caught'], s.roster.filter(m => !prefs.sixOnly || m.inParty).map(m => el('tr', {class: (m.inParty ? 'six' : '') + (m.alive ? '' : ' out')}, [
+    cell(m.name + (m.name === m.species ? '' : ' the ' + m.species)), cell('L' + m.level, 'num', m.level), cell(m.falls, 'num'), cell(pair(m.knockouts, m.falls, m.wallKnockouts, full), '', m.knockouts - m.falls), cell(m.knockouts, 'num'), cell(m.wallKnockouts || '', 'num', m.wallKnockouts),
+    cell(list(m.bestMoves), 'wrap'), cell(list(m.victims), 'wrap'), cell(list(m.fellTo), 'wrap'), cell([m.item, m.nature, m.ability].filter(Boolean).join(' · ') + (m.ivTotal === null ? '' : ' · IVs ' + m.ivTotal), 'wrap'), cell(m.moves.join(' / '), 'wrap'), cell(m.caught, 'wrap')])), 'box'));
 }
 async function drawFleet() {
-  const box = document.getElementById('fleetView'); const f = await (await fetch('/fleet')).json(); box.replaceChildren();
+  const box = document.getElementById('fleetView'); const mine = ++drawing; const f = await (await fetch('/fleet')).json(); if (mine !== drawing) return; box.replaceChildren();
   if (!f) { box.appendChild(el('p', {class: 'sub', text: 'no run here has a record or a checkpoint yet'})); return; }
-  box.appendChild(part('runs'));
-  box.appendChild(dense(['run', '', 'position', 'trainers', 'attempts', 'a trainer', 'first try', 'walls not cleared', 'min'], f.runs.map(r => el('tr', {class: r.summary.state === 'playing' ? '' : 'out', on: {click: () => { current = r.run; view = 'run'; lastOverview = ''; views(); runs(); }}}, [cell(r.run), cell(r.summary.state === 'playing' ? 'playing' : r.summary.state === 'finished' ? 'FINISHED' : 'ended'), cell(r.summary.position, 'num'), cell(r.summary.trainersBeaten, 'num'), cell(r.summary.attempts, 'num'), cell(r.summary.attemptsPerTrainer, 'num'), cell(r.summary.trainersBeaten ? Math.round(100 * r.summary.firstTry / r.summary.trainersBeaten) + '%' : '', 'num'), cell(r.summary.walls.filter(w => !w.cleared).map(w => w.trainer.replace(/^(Leader|Trainer) /, '')).join(', '), 'wrap'), cell(r.summary.minutes, 'num')]))));
-  const most = Math.max(1, ...f.walls.map(w => w.medianAttempts));
-  box.appendChild(part('walls across runs — where runs bleed, and where they stop'));
-  box.appendChild(dense(['trainer', 'runs that hit it', 'cleared', 'median attempts', '', 'attempts in all'], f.walls.map(w => el('tr', {}, [cell(w.trainer), cell(w.runsMet, 'num'), cell(w.runsCleared + ' of ' + w.runsMet, w.runsCleared < w.runsMet ? 'loss' : ''), cell(w.medianAttempts, 'num'), cell(attemptsBar(w.medianAttempts, w.runsCleared === w.runsMet, most)), cell(w.attempts, 'num')]))));
-  const scale = {kos: Math.max(1, ...f.species.map(m => m.knockouts)), falls: Math.max(1, ...f.species.map(m => m.falls))};
-  box.appendChild(part('species across runs — sorted by knockouts in fights that cleared a wall'));
-  box.appendChild(dense(['species', 'runs', 'falls', '', 'KOs', 'in wall clears', 'KOs a fall'], f.species.map(m => el('tr', {}, [cell(m.species), cell(m.runs, 'num'), cell(m.falls, 'num'), cell(pair(m.knockouts, m.falls, m.wallKnockouts, scale)), cell(m.knockouts, 'num'), cell(m.wallKnockouts, 'num'), cell(m.falls ? (m.knockouts / m.falls).toFixed(1) : '—', 'num')]))));
+  box.appendChild(jump([['fleet-runs', 'runs (' + f.runs.length + ')'], ['fleet-walls', 'walls (' + f.walls.length + ')'], ['fleet-species', 'species (' + f.species.length + ')']]));
+  box.appendChild(part('runs — click one to open it', 'fleet-runs'));
+  box.appendChild(dense(['run', 'state', 'position', 'trainers', 'attempts', 'a trainer', 'first try', 'walls not cleared', 'min'], f.runs.map(r => el('tr', {class: 'go' + (r.summary.state === 'playing' ? '' : ' out'), tabindex: '0', on: {click: () => open(r.run, 'run'), keydown: e => { if (e.key === 'Enter') open(r.run, 'run'); }}}, [cell(r.run), cell(r.summary.state === 'playing' ? 'playing' : r.summary.state === 'finished' ? 'FINISHED' : 'ended'), cell(r.summary.position, 'num'), cell(r.summary.trainersBeaten, 'num'), cell(r.summary.attempts, 'num'), cell(r.summary.attemptsPerTrainer, 'num'), cell(r.summary.trainersBeaten ? Math.round(100 * r.summary.firstTry / r.summary.trainersBeaten) + '%' : '', 'num', r.summary.trainersBeaten ? r.summary.firstTry / r.summary.trainersBeaten : -1), cell(r.summary.walls.filter(w => !w.cleared).map(w => w.trainer.replace(/^(Leader|Trainer) /, '')).join(', '), 'wrap'), cell(r.summary.minutes, 'num')])), 'runs'));
+  box.appendChild(part('walls across runs — bar: median attempts, 0 to ' + ATTEMPT_CAP + ', the same scale as the walls of one run', 'fleet-walls'));
+  box.appendChild(dense(['trainer', 'runs that hit it', 'cleared', 'median attempts', '0 — ' + ATTEMPT_CAP, 'attempts in all'], f.walls.map(w => el('tr', {}, [cell(w.trainer, '', w.order), cell(w.runsMet, 'num'), cell(w.runsCleared + ' of ' + w.runsMet, w.runsCleared < w.runsMet ? 'loss' : '', w.runsCleared / Math.max(1, w.runsMet)), cell(w.medianAttempts, 'num'), cell(attemptsBar(w.medianAttempts, w.runsCleared === w.runsMet), '', w.medianAttempts), cell(w.attempts, 'num')])), 'fwalls'));
+  const full = fullOf(f.species);
+  box.appendChild(part('species across runs — falls ◀ | ▶ knockouts, one unit for both · full half-width = ' + full, 'fleet-species'));
+  box.appendChild(dense(['species', 'runs', 'falls', 'falls | KOs', 'KOs', 'in wall clears', 'KOs a fall'], f.species.map(m => el('tr', {}, [cell(m.species), cell(m.runs, 'num'), cell(m.falls, 'num'), cell(pair(m.knockouts, m.falls, m.wallKnockouts, full), '', m.knockouts - m.falls), cell(m.knockouts, 'num'), cell(m.wallKnockouts, 'num'), cell(m.falls ? (m.knockouts / m.falls).toFixed(1) : '—', 'num', m.falls ? m.knockouts / m.falls : 999)])), 'species'));
 }
 let view = 'fight';
+// The page's state is its address: #run=LABEL/run-SEED&view=run. A view can be linked, reloaded and gone Back to.
+function address() { const want = '#' + (current ? 'run=' + encodeURIComponent(current) + '&' : '') + 'view=' + view; if (location.hash !== want) history.pushState(null, '', want); }
+function fromAddress() { const q = new URLSearchParams(location.hash.slice(1)); const v = q.get('view'); if (v === 'fight' || v === 'run' || v === 'fleet') view = v; const r = q.get('run'); if (r && r !== current) { current = r; seen = -1; attempt = null; shown = []; held = []; lastOverview = ''; redraw(); } }
+function open(run, to) { if (run && run !== current) { current = run; seen = -1; attempt = null; shown = []; held = []; redraw(); } if (to) view = to; lastOverview = ''; address(); views(); runs(); }
 function views() {
   const box = document.getElementById('views'); box.replaceChildren();
-  for (const [key, label] of [['fight', 'the fight'], ['run', 'this run'], ['fleet', 'all runs']]) box.appendChild(el('button', {'aria-pressed': String(view === key), text: label, on: {click: () => { view = key; prefs.view = key; keep(); views(); }}}));
+  [['fight', 'the fight', '1'], ['run', 'this run', '2'], ['fleet', 'all runs', '3']].forEach(v => box.appendChild(el('button', {'aria-pressed': String(view === v[0]), title: 'key ' + v[2], text: v[1], on: {click: () => { prefs.view = v[0]; keep(); open(null, v[0]); }}})));
+  box.appendChild(el('span', {class: 'sub', text: current ? '  ' + current : ''}));
   document.getElementById('fightView').hidden = view !== 'fight'; document.getElementById('runView').hidden = view !== 'run'; document.getElementById('fleetView').hidden = view !== 'fleet';
   if (view === 'run') drawRun().catch(() => {}); if (view === 'fleet') drawFleet().catch(() => {});
 }
+// 1 2 3 change the view; [ and ] step through the runs in the table above.
+document.addEventListener('keydown', e => {
+  if (e.target instanceof HTMLInputElement || e.metaKey || e.ctrlKey || e.altKey) return;
+  const to = {'1': 'fight', '2': 'run', '3': 'fleet'}[e.key]; if (to) { open(null, to); return; }
+  if (e.key === '[' || e.key === ']') { const names = [...document.querySelectorAll('#overview tr[data-run]')].map(r => r.getAttribute('data-run')); if (!names.length) return; const at = names.indexOf(current); open(names[(at + (e.key === ']' ? 1 : names.length - 1) + names.length) % names.length], null); }
+});
+window.addEventListener('popstate', () => { fromAddress(); views(); runs(); });
 function card(t) {
   const c = el('div', {class: 'turn'});
   c.appendChild(el('div', {class: 'head'}, [el('b', {text: 'T' + t.turn}), el('span', {}, [document.createTextNode(t.us + ' '), bar(t.usHp), document.createTextNode(' ' + t.usHp + '%')]), el('span', {class: 'sub', text: 'vs'}), el('span', {}, [document.createTextNode(t.foe + ' '), bar(t.foeHp, true), document.createTextNode(' ' + t.foeHp + '%')]), el('span', {class: 'chosen', text: '→ ' + t.chose}), el('span', {class: 'sub', text: t.why || ''})]));
@@ -235,7 +275,7 @@ function roadStrip(r) {
   const g = svg('svg', {width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, class: 'road', role: 'img', 'aria-label': 'trainer ' + (r.road || 0) + ' of ' + of + ', ' + r.walls.length + ' fights took more than one attempt'});
   g.appendChild(svg('line', {x1: 1, x2: W - 1, y1: H - 1.5, y2: H - 1.5, class: 'ahead'}));
   if (r.road) g.appendChild(svg('line', {x1: 1, x2: x(r.road), y1: H - 1.5, y2: H - 1.5, class: 'behind'}));
-  for (const w of r.walls) { const h = Math.min(H - 3, 2 + 2.6 * Math.log2(w.attempts)); g.appendChild(svg('line', {x1: x(w.road), x2: x(w.road), y1: H - 2, y2: H - 2 - h, class: w.won ? 'wall' : 'wall lost'}, [tip('#' + w.road + ' ' + w.trainer + ': ' + w.attempts + ' attempts, ' + (w.won ? 'won' : 'never won'))])); }
+  for (const w of r.walls) { const h = Math.max(2, Math.min(1, w.attempts / ATTEMPT_CAP) * (H - 3)); g.appendChild(svg('line', {x1: x(w.road), x2: x(w.road), y1: H - 2, y2: H - 2 - h, class: w.won ? 'wall' : 'wall lost'}, [tip('#' + w.road + ' ' + w.trainer + ': ' + w.attempts + ' attempts, ' + (w.won ? 'won' : 'never won'))])); }
   if (r.road) g.appendChild(svg('circle', {cx: x(r.road), cy: H - 1.5, r: 2.2, class: r.live ? 'here live' : 'here'}));
   return g;
 }
@@ -255,7 +295,7 @@ async function runs() {
   const button = (label, run, action) => el('button', {text: label, on: {click: e => { e.stopPropagation(); say(run, action); }}});
   const ago = s => s === null ? '' : s < 90 ? s + ' s' : s < 5400 ? Math.round(s / 60) + ' min' : Math.round(s / 3600) + ' h';
   table.appendChild(el('tr', {}, ['run', 'state', 'the road, and where it cost attempts', '', 'facing', 'attempt', 'played by', 'last fight', 'pace', 'memory', ''].map(h => el('th', {text: h}))));
-  const line = r => table.appendChild(el('tr', {class: r.live ? '' : 'over', 'aria-current': String(r.run === current), on: {click: () => { current = r.run; seen = -1; attempt = null; shown = []; held = []; lastOverview = ''; redraw(); runs(); if (view === 'run') drawRun().catch(() => {}); }}}, [
+  const line = r => table.appendChild(el('tr', {class: r.live ? '' : 'over', 'data-run': r.run, 'aria-current': String(r.run === current), on: {click: () => open(r.run, null)}}, [
     el('td', {text: r.run}),
     el('td', {class: r.shown === 'dead' ? 'loss' : r.shown === 'paused' || r.shown === 'stopping' ? 'warn' : r.live ? 'win' : 'sub', text: r.shown + (r.handled ? '' : ' ·'), title: r.handled ? (r.spec || '') : 'started before run control: no status file, so it cannot be paused or stopped from here'}),
     el('td', {}, [roadStrip(r)]),
@@ -287,7 +327,7 @@ async function tick() {
 }
 // A server that is down is a state to show, not an error to throw every second.
 const quiet = fn => () => fn().then(() => { document.body.classList.remove('lost'); }, () => { document.body.classList.add('lost'); document.getElementById('sub').textContent = 'the watcher is not answering — is it still running?'; });
-view = prefs.view || 'fight'; controls(); views(); quiet(runs)(); setInterval(quiet(runs), 3000); setInterval(quiet(tick), 1000);
+view = prefs.view || 'fight'; fromAddress(); controls(); views(); quiet(runs)(); setInterval(quiet(runs), 3000); setInterval(quiet(tick), 1000);
 setInterval(() => { if (view === 'run') drawRun().catch(() => {}); if (view === 'fleet') drawFleet().catch(() => {}); }, 30000);
 </script></body></html>`;
 

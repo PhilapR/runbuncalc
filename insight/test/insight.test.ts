@@ -281,3 +281,23 @@ test('a run is read for its aggregates and a profile of every body, and runs rol
 	assert.deepEqual(fleet.species[0], {species: 'Corvisquire', runs: 2, knockouts: 4, falls: 0, wallKnockouts: 4});
 	assert.ok(!('roster' in (fleet.runs[0]?.summary ?? {})), 'the fleet carries each run\'s aggregates, not forty rosters');
 });
+
+test('the page the watcher serves is a script that parses', async () => {
+	// The page is one template literal; a stray apostrophe in a heading once
+	// broke the whole script and every view with it, and nothing but a browser
+	// would have said so.
+	const {serve} = await import('../src/serve.js');
+	const os = await import('node:os');
+	const server = serve(os.tmpdir(), 0);
+	try {
+		await new Promise(resolve => server.once('listening', resolve));
+		const address = server.address();
+		const port = typeof address === 'object' && address !== null ? address.port : 0;
+		const html = await (await fetch('http://127.0.0.1:' + port + '/')).text();
+		const script = /<script>([\s\S]*?)<\/script>/.exec(html)?.[1] ?? '';
+		assert.ok(script.length > 1000, 'the page carries its script');
+		assert.doesNotThrow(() => new Function(script), 'and the script parses');
+	} finally {
+		server.close();
+	}
+});
