@@ -99,6 +99,8 @@ const KNOB_FLAGS = {
 	mega: ['mega', '1', value => value === '1'],
 	// A won rollout valued by the bodies it kept (driver.setSearchKeep).
 	searchKeep: ['search-keep', '1', value => value === '1'],
+	// The same playouts spent by sequential halving (driver.setSearchHalving).
+	searchHalving: ['search-halving', '0', value => value === '1'],
 };
 
 function knobsFrom(read) {
@@ -1106,6 +1108,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// How wide the boss search stays after its first look.
 	driver.setSearchWiden(Number(flag('search-widen', '0')));
 	driver.setSearchKeep(knobs.searchKeep);
+	driver.setSearchHalving(knobs.searchHalving);
 	const random = dice(seed);
 	// options.resume carries a run on from a saved document, so a run that
 	// passed a wall an hour in does not replay that hour to find the next one.

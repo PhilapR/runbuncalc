@@ -81,6 +81,7 @@ function replay(receiptPath, scenarioName, seed) {
 	driver.setDoublesJoint(argOf(argv, 'doubles-joint') === '1');
 	driver.setSearchWiden(Number(argOf(argv, 'search-widen') || 0));
 	driver.setSearchKeep(argOf(argv, 'search-keep') === '1');
+	driver.setSearchHalving(argOf(argv, 'search-halving') === '1');
 
 	// The same pre-fight choice the batch made, under the batch's argv.
 	const doc = battery.prepareDocument(

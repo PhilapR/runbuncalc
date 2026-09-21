@@ -936,3 +936,35 @@ test('a won rollout can be valued by what it kept, and a win still beats any los
 	driver.setSearchKeep(false);
 	assert.deepEqual(scoresOf(), flat, 'off is the flat objective exactly');
 });
+
+test('sequential halving spends the same playouts, and spends them on the contenders', () => {
+	// With nine options at eight rollouts the flat search chose "switch to
+	// Grotle" because ONE playout in eight won. Halving keeps the budget and
+	// moves it: every option a short look, the weaker half dropped, the last
+	// two decided on many times the flat eight.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys3b-A-7.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Leader Brawly', 1);
+	const rollouts = 8;
+
+	driver.setSearchHalving(false);
+	const flat = driver.searchChoice(opened.battle, opened.actions, 1, rollouts, 0);
+	const options = flat.scores.length;
+	assert.ok(options > 4, 'Brawly opens with a real branching factor: ' + options);
+	assert.ok(flat.scores.every(entry => entry.runs === rollouts), 'flat: everybody gets the same');
+
+	driver.setSearchHalving(true);
+	const halved = driver.searchChoice(opened.battle, opened.actions, 1, rollouts, 0);
+	driver.setSearchHalving(false);
+	const runs = halved.scores.map(entry => entry.runs).sort((a, b) => b - a);
+	assert.ok(halved.dice <= options * rollouts, 'never more than the flat budget: ' + halved.dice + ' <= ' + options * rollouts);
+	assert.ok(halved.dice >= options * rollouts - options, 'and all but a rounding of it is spent: ' + halved.dice);
+	assert.ok(Math.min(...runs) >= 2, 'nobody is dropped on a single playout');
+	assert.ok(runs[0] >= 2 * rollouts, 'the finalists are measured at least twice what flat would give them: ' + runs.join(','));
+	assert.equal(runs[0], runs[1], 'and the last two get the same look');
+	const chosen = halved.chosen.kind === 'move' ? halved.chosen.move : 'switch:' + halved.chosen.replacementId;
+	const finalists = halved.scores.filter(entry => entry.runs === runs[0]).map(entry => entry.choice);
+	assert.ok(finalists.includes(chosen), 'the choice is a finalist, never an option dropped early on a lucky mean');
+});
