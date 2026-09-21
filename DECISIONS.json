@@ -458,6 +458,19 @@
 				"lib/run.js",
 				"profiles/run-and-bun/oracle/item-locations.json"
 			]
+		},
+		{
+			"id": "the-player-megas",
+			"date": "2026-09-21",
+			"ruling": "The player holds the Mega Ring from beating Leader Flannery (the fifth gym) and may field ONE Mega Evolution a fight. It is modelled the way the enemy's are: the evolved form, holding its stone, from the start of the fight. The stone TAKES THE HELD-ITEM SLOT. A stone held before the ring is just an item; a second stone-holder in the six stays in its base form. The party ranker rates a body whose stone is in the bag as the Mega it would become (holding the stone, not its current item), and the harness hands the first such member of the picked six its stone before the fight. Stones are acquired as the item ledger dates them (47 rows, 28 dated, the first at order 594). --mega=0 plays without.",
+			"why": "Operator, 2026-09-21: 'yes mega ring after flannery, one mega per fight, model it', and 'we also need to map acquiring the mega stone (and the fact that those take up the item spot)'. Neither engine performs a Mega Evolution, so until now the player had none: a run reached the Elite Four with about twenty stones loose in the bag, thirteen of them for bodies in its box, its six holding Pixie Plates and resist berries, against bosses that have fielded a Mega since the third gym. KNOWN LIMITS: the ranker may rate two bodies of one six as Megas where only one can be (the harness then evolves the first); the enemy's turn-one CHOICE is made against the evolved form (the same approximation tests/mega_forms.test.js records for their side); the nineteen undated stones are never collected.",
+			"enforcedBy": [
+				"lib/run.js",
+				"scripts/headless-run.js",
+				"profiles/run-and-bun/oracle.js",
+				"tests/run.test.js",
+				"tests/headless_run.test.js"
+			]
 		}
 	],
 	"open": [

@@ -697,6 +697,19 @@ function itemsObtainableBy(order) {
  * reusable wherever it is used. The sheet was never transcribed, so the run
  * charged nothing for a TM move and taught one ten times over.
  */
+/**
+ * The order of the fight that hands the player the Mega Ring: Leader Flannery,
+ * the fifth gym (operator ruling the-player-megas, 2026-09-21; the first Mega
+ * Stones in the item ledger are dated 594, just past her at 576).
+ */
+function megaRingOpensAt() {
+	try {
+		return require('../../lib/planner').getFight('Leader Flannery', 'run-and-bun').order;
+	} catch (error) {
+		return null;
+	}
+}
+
 /** The order at which the Lilycove Department Store can be shopped at. */
 function lilycoveOpens() {
 	const city = availabilityOf('Lilycove City');
@@ -921,7 +934,7 @@ function fightDossierOf(trainer) {
 
 module.exports = {
 	fightDossierOf,
-	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, prizeTiers, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, prizeTiers, megaRingOpensAt, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
 	unavailableNamesWithoutGrowthKey,
 	moveAvailability, moveItems,
 	currencySources,

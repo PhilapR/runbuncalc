@@ -2683,3 +2683,47 @@ test('the nurse changes a nature for three Heart Scales', () => {
 	assert.equal(iv.box[0].ivs.spe, 31);
 	assert.ok(!iv.bag['Heart Scale']);
 });
+
+test('the player has one Mega a fight, from Flannery on, and the stone takes the item slot', () => {
+	// Operator ruling the-player-megas (2026-09-21). Neither engine performs a
+	// Mega Evolution, so the enemy's are stored evolved and ours are modelled
+	// the same way — which the run had never done: a box reached the Elite Four
+	// with about twenty stones in the bag against bosses fielding a Mega since
+	// the third gym.
+	assert.deepEqual(run.megaFormOf('Gyarados', 'Gyaradosite'), {species: 'Gyarados-Mega', ability: 'Mold Breaker'});
+	assert.equal(run.megaFormOf('Charizard', 'Charizardite X').species, 'Charizard-Mega-X');
+	assert.equal(run.megaFormOf('Gyarados', 'Aggronite'), null, 'somebody else\'s stone does nothing');
+	assert.equal(run.megaFormOf('Gyarados', 'Leftovers'), null);
+
+	let state = fresh();
+	state = run.apply(state, {kind: 'catch', species: 'Aron', map: 'GraniteCave1f', level: 8, ivs: PERFECT_IVS});
+	state = run.apply(state, {kind: 'catch', species: 'Lopunny', level: 20, ivs: PERFECT_IVS});
+	state.box[0].species = 'Aggron';
+	state.box[0].level = 50;
+	state.box[1].level = 50;
+	state = Object.assign({}, state, {party: state.box.map(mon => mon.id),
+		bag: Object.assign({}, state.bag, {Aggronite: 1, Lopunnite: 1})});
+	const holding = Object.assign({}, state, {box: state.box.map((mon, i) =>
+		Object.assign({}, mon, {item: i === 0 ? 'Aggronite' : 'Lopunnite'}))});
+
+	assert.equal(run.megaRingHeld(holding), false, 'no ring before Flannery');
+	assert.deepEqual(run.partySpecs(holding, {}).map(spec => spec.species), ['Aggron', 'Lopunny'],
+		'and a stone held without the ring is just an item');
+
+	const ringed = Object.assign({}, holding, {position: 600});
+	assert.equal(run.megaRingHeld(ringed), true);
+	const specs = run.partySpecs(ringed, {});
+	assert.deepEqual(specs.map(spec => spec.species), ['Aggron-Mega', 'Lopunny'], 'ONE Mega: the first in party order');
+	assert.equal(specs[0].item, 'Aggronite', 'the stone is what it holds — the item slot is spent');
+	assert.equal(specs[0].megaOf, 'Aggron');
+	assert.equal(run.partySpecs(holding, {atOrder: 700})[0].species, 'Aggron-Mega',
+		'a fight past Flannery is planned with the ring, even from before her');
+
+	// The box matrix rates a body ALONE, as the Mega its bagged stone would
+	// make it — holding the stone, not the item it has now.
+	const benched = Object.assign({}, ringed, {box: ringed.box.map(mon => Object.assign({}, mon, {item: 'Oran Berry'}))});
+	const rated = run.partySpecs(benched, {megas: 'each'});
+	assert.deepEqual(rated.map(spec => [spec.species, spec.item]), [['Aggron-Mega', 'Aggronite'], ['Lopunny-Mega', 'Lopunnite']]);
+	assert.deepEqual(run.partySpecs(benched, {}).map(spec => spec.species), ['Aggron', 'Lopunny'],
+		'but in a fight nobody is a Mega until the stone is in its hands');
+});

@@ -548,3 +548,32 @@ test('what a leader or an NPC hands over is taken, and a re-sold TM is one copy 
 		replace: learner.moves.length >= 4 ? learner.moves[0] : undefined});
 	assert.ok(!taught.bag['TM46 Rock Tomb'], 'before Lilycove the teach SPENDS the one copy');
 });
+
+test('once the six is picked, its one Mega is handed its stone — over whatever it held', () => {
+	// The ranker rates a body whose stone is in the bag as the Mega it would
+	// become; this is the other half. A run reached the Elite Four with
+	// thirteen such bodies in its box and every stone still in the bag.
+	const runtime = require('../lib/run.js');
+	const stones = require('../calc').MEGA_STONES;
+	const base = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	const pairs = Object.keys(stones).map(stone => [stone, base.box.find(mon => mon.species === stones[stone])])
+		.filter(pair => pair[1]).slice(0, 2);
+	assert.equal(pairs.length, 2, 'the fixture box holds two Mega-capable bodies');
+	const ids = pairs.map(pair => pair[1].id);
+	let doc = Object.assign({}, base, {party: ids.concat(base.party.filter(id => !ids.includes(id))).slice(0, 6)});
+	for (const pair of pairs) doc = runtime.apply(doc, {kind: 'acquire', item: pair[0]});
+
+	assert.equal(headless.giveMegaStone(doc, {}).box.find(mon => mon.id === ids[0]).item, pairs[0][1].item,
+		'before Flannery there is no ring, and nothing is handed over');
+
+	const ringed = Object.assign({}, doc, {position: 600});
+	const tally = {};
+	const given = headless.giveMegaStone(ringed, tally);
+	assert.equal(given.box.find(mon => mon.id === ids[0]).item, pairs[0][0], 'the first of the six whose stone is in the bag');
+	assert.notEqual(given.box.find(mon => mon.id === ids[1]).item, pairs[1][0], 'and nobody is given a second');
+	assert.equal(tally.megaStones, 1);
+	assert.ok(!given.bag[pairs[0][0]], 'the stone left the bag');
+	assert.equal(runtime.partySpecs(given, {})[0].species, pairs[0][1].species + '-Mega');
+	assert.equal(headless.giveMegaStone(given, {}).bag[pairs[1][0]], 1, 'a six that has its Mega is left alone');
+});

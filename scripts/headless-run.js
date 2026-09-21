@@ -95,6 +95,8 @@ const KNOB_FLAGS = {
 	// Which fights keep their turn-by-turn log on the ledger row: 'bosses'
 	// (bosses and doubles — the walls), 'all', or 'none'. See docs/HOW-WE-WIN.md.
 	fightLogs: ['fight-logs', 'bosses', String],
+	// The player's one Mega a fight, from Flannery on: see giveMegaStone.
+	mega: ['mega', '1', value => value === '1'],
 };
 
 function knobsFrom(read) {
@@ -805,6 +807,37 @@ function followAdvice(doc, treatment, tally, forgotten) {
 const CURES = {par: 'Cheri Berry', slp: 'Chesto Berry', psn: 'Pecha Berry', tox: 'Pecha Berry',
 	brn: 'Rawst Berry', frz: 'Aspear Berry'};
 
+/**
+ * The run's one Mega, handed its stone.
+ *
+ * Ruling the-player-megas (operator, 2026-09-21): the Mega Ring comes with
+ * beating Flannery, a fight holds ONE Mega, and the stone TAKES THE ITEM SLOT.
+ * The harness had never used one — a run reached the Elite Four with about
+ * twenty stones loose in the bag, thirteen of them for bodies in its box,
+ * against bosses that have fielded a Mega since the third gym. The ranker now
+ * rates a body whose stone is in the bag as the Mega it would become (holding
+ * the stone, not its old item); this is the other half: once the six is
+ * picked, the first member whose stone the bag holds is given it, over
+ * whatever it held. Nobody is given a second. --mega=0 plays without.
+ */
+function giveMegaStone(doc, tally) {
+	if (!knobs.mega || !run.megaRingHeld(doc)) return doc;
+	const six = doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean);
+	if (six.some(mon => run.megaFormOf(mon.species, mon.item))) return doc;
+	for (const mon of six) {
+		if (mon.status === 'dead') continue;
+		const stone = run.stoneInBag(doc, mon.species);
+		if (!stone) continue;
+		try {
+			const next = run.apply(doc, {kind: 'give', id: mon.id, item: stone});
+			tally.gives = (tally.gives || 0) + 1;
+			tally.megaStones = (tally.megaStones || 0) + 1;
+			return next;
+		} catch (error) { /* refused: try the next body */ }
+	}
+	return doc;
+}
+
 function fillEmptySlots(doc, tally) {
 	if (!knobs.fillSlots) return doc;
 	const inflicted = new Set();
@@ -1171,6 +1204,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		try {
 			// The six may have been re-picked since the advice ran, and a body
 			// that joined it afterwards arrives holding nothing.
+			doc = giveMegaStone(doc, tally);
 			doc = fillEmptySlots(doc, tally);
 			keptLog = knobs.fightLogs === 'all' || (knobs.fightLogs === 'bosses' &&
 				(next.isDouble || BOSS.test(next.trainer))) ? [] : undefined;
@@ -1355,4 +1389,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, relearn, evolveByItem, scaleOptions};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
