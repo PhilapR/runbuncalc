@@ -74,7 +74,7 @@ function card(t) {
   const tags = el('div'); for (const tag of t.tags) tags.appendChild(el('span', {class: 'tag' + (HOT.has(tag) ? ' hot' : WARN.has(tag) ? ' warn' : ''), text: tag})); c.appendChild(tags);
   const ev = el('ul', {class: 'events'}); for (const e of t.events) ev.appendChild(el('li', {text: e})); c.appendChild(ev);
   const scores = (t.scores || []).slice().sort((a, b) => b.value - a.value);
-  if (scores.length) { const tbl = el('table'); tbl.appendChild(el('tr', {}, ['the search weighed', 'value', 'rollouts'].map(h => el('th', {text: h})))); for (const s of scores) tbl.appendChild(el('tr', {class: s.choice === t.chose ? 'chosen' : ''}, [s.choice, String(s.value), String(s.runs)].map(v => el('td', {text: v})))); c.appendChild(tbl); }
+  if (scores.length) { const tbl = el('table'); tbl.appendChild(el('tr', {}, ['the search weighed', 'value', 'playouts won', 'their HP removed', 'ours left standing'].map(h => el('th', {text: h})))); for (const s of scores) tbl.appendChild(el('tr', {class: s.choice === t.chose ? 'chosen' : ''}, [s.choice, String(s.value), s.wins === undefined ? String(s.runs) + ' run' : s.wins + ' of ' + s.runs, s.removed === undefined ? '' : Math.round(s.removed * 100) + '%', s.oursAlive === undefined ? '' : String(s.oursAlive)].map(v => el('td', {text: v})))); c.appendChild(tbl); }
   return c;
 }
 async function runs() {

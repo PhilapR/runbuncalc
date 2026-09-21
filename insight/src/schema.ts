@@ -39,8 +39,13 @@ export const TurnOptions = Schema.Struct({
 /** What the rollout search thought of one candidate on one turn. */
 export const SearchScore = Schema.Struct({
 	choice: Schema.String,
+	/** Mean over `runs` playouts of: 1 for a win, else 0.3 x the share of their HP removed. */
 	value: Schema.Number,
 	runs: Schema.Number,
+	/** What the value is made of. Absent on logs written before 2026-09-21. */
+	wins: Schema.optional(Schema.Number),
+	removed: Schema.optional(Schema.Number),
+	oursAlive: Schema.optional(Schema.Number),
 });
 
 /** One decision and what followed it. */
