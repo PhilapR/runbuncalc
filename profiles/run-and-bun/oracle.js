@@ -764,7 +764,13 @@ function tutorOpensAt(move) {
 	const rows = moveItems().filter(row => row.kind === 'tutor' && row.move === move);
 	if (!rows.length) return undefined;
 	const dated = rows.map(row => row.opensAt).filter(at => typeof at === 'number');
-	return dated.length ? Math.min.apply(null, dated) : null;
+	if (dated.length) return Math.min.apply(null, dated);
+	// Surf, Fly and Dive are handed over by a person (Mr. Sea, the rival, Steven),
+	// so the sheet lists them as tutors with no datable place — but they are the
+	// HM story spine, which IS dated (hmMoves). Without this, Surf could be
+	// taught at the start of the road.
+	const gate = (load('availability').hmMoves || {})[move];
+	return typeof gate === 'number' ? gate : null;
 }
 
 function fieldItems() {
