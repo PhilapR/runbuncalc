@@ -235,3 +235,25 @@ so the pass count is inside the noise of six runs and is NOT claimed as an
 improvement; the time is, because the cap alone removes twenty attempts from
 every wall that never falls. Seed 104770 took Roxanne on attempt 31 — inside
 the cap of 40, outside a cap of 25, which is the trade the table above prices.
+
+### Carried on from Norman (2026-09-21): all four reach past Winona
+
+The four runs that passed Norman were resumed from their saved documents
+(`options.resume`, dd0883f) with `--stop-at=770`. **All four beat Flannery and
+Winona — six badges — in 63 to 77 more minutes each**, about 2h15 from a fresh
+start. Every rules check passes (replay, one catch an area, one prize, moves,
+TMs, no refusal-bought wins, no over-cap body, no crashes).
+
+| Seed | Fights past Norman | Hardest fights (wins/attempts) |
+|---|---|---|
+| 104770 | 165 | Shelly (Weather Inst.) 1/20, Bird Keeper double 1/11, bridge rival 1/10, Winona 1/10 |
+| 209499 | 151 | bridge rival 1/22, Shelly 1/10, Winona 1/5 |
+| 314228 | 139 | Bird Keeper double 1/9, bridge rival 1/8, Shelly 1/5 |
+| 418957 | 134 | Winona 1/14, Bird Keeper double 1/7, Shelly 1/4 |
+
+**The audit FAILS their provenance, correctly:** they were launched from the
+live checkout while it was being edited, so the stamp reads "dirty tree at
+dd0883f". The play is what the code at launch did, but a result that cannot
+name its revision is a lead, not a claim. The final leg (Winona onward, no
+stop) runs from a pinned clean worktree at 4d8988e, as every sweep did and as
+these baselines should have.
