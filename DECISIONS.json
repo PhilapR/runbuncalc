@@ -485,6 +485,17 @@
 				"tests/battle-driver.test.js",
 				"docs/measurements/search-keep-heldout-2026-09-21.jsonl"
 			]
+		},
+		{
+			"id": "a-wall-is-planned-by-play",
+			"date": "2026-09-21",
+			"ruling": "A fight the headless run has lost five times is PLANNED by play (scripts/headless-run.js planByPlay), and again every ten losses after: the board proposes generously (mean rolls; three leads into their first, two closers into each of their last two, whoever is weakest making room, the newcomer taught what the advisor would teach it) and play decides, greedily, most wins then fewest of theirs left standing, on seeds no attempt is played on. The six the run has is one of the plans, so a plan is only taken when play says it is better; once taken it holds until the wall falls (neither the ranker nor the re-pick undoes it). On by default at 5; --plan-after=0 restores the run without it. --hand-by-probe stays OFF: it matched the control on all three walls.",
+			"why": "Bar declared before the data existed (docs/PERFORMANCE.md, 2026-09-21): adopt a switch if over held-out walls it clears at least one the control does not and loses none, with attempts not worse by more than 5 where both clear. Three walls clear1 stopped at, four arms each from the same document, 40 attempts, pinned d5fd588/47a4adb: Aqua Admin Matt (209499) control 0 of 40, plan cleared in 6; Aqua Admin Shelly (104770) control 0 of 40, plan cleared in 7; Seafloor grunt #5 (314228) both cleared in 7. Found on Norman (842113: 0 of 40, then won on attempt 19). Stated with the bar and still true: three walls can reject but only weakly adopt. It does not always work — 842113 went 0 of 40 at Matt with it on, where 14 plans won no planning fight.",
+			"enforcedBy": [
+				"scripts/headless-run.js",
+				"tests/headless_run.test.js",
+				"docs/PERFORMANCE.md"
+			]
 		}
 	],
 	"open": [

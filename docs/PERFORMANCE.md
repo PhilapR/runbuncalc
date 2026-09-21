@@ -399,3 +399,25 @@ decide() chose a move because "it KOs" 1,632 times, and 388 of those times
 (KO_RESPECTS_ORDER, yield to a resisting switch) was measured before: it won
 in-sample and lost on held-out. The hole is real and its obvious patch is
 already known not to be the answer.
+
+## Verdict on the declared bar (2026-09-21): `--plan-after` adopted at 5, `--hand-by-probe` stays off
+
+Three held-out walls, four arms each from the same clear1 document, 40
+attempts, through the slot pool, pinned. (Five arms died at the end of their
+play when a shared worktree was removed under them — 47a4adb; their plain
+logs are complete and are what is counted. Three arms were re-run.)
+
+| wall (seed) | control | hand-by-probe | plan-after | both |
+|---|---|---|---|---|
+| Aqua Admin Matt (209499) | 0 of 40 | 0 of 40 | cleared in 6 | cleared in 17 |
+| Aqua Admin Shelly (104770) | 0 of 40 | 0 of 40 | cleared in 7 | cleared in 7 |
+| Seafloor grunt #5 (314228) | cleared in 7 | cleared in 7 | cleared in 7 | cleared in 7 |
+
+plan-after clears two walls the control does not, loses none, and ties on
+the third: adopted, on by default at 5 (DECISIONS a-wall-is-planned-by-play).
+hand-by-probe is indistinguishable from the control on every wall: off,
+available. The limit stated with the bar stands — three walls adopt weakly —
+and so does the counter-example: 842113 went 0 of 40 at Matt with the planner
+on. The third wall also shows the control itself moved: it clears in 7 a
+grunt that stopped clear1 for 24, which is today's dated items and the
+keep-valued search, not either switch.

@@ -89,7 +89,11 @@ const KNOB_FLAGS = {
 	scaleIvs: ['scale-ivs', '0', value => value === '1'],
 	repickAfter: ['repick-after', '0', Number],
 	// A wall lost this many times is PLANNED by play: who leads, who is held back, who comes in from the box.
-	planAfter: ['plan-after', '0', Number],
+	// ON at 5 since 2026-09-21, on the bar declared before the data (docs/PERFORMANCE.md): three held-out walls
+	// from clear1, four arms each from the same document. It cleared Aqua Admin Matt in 6 attempts and Aqua
+	// Admin Shelly in 7 where the control went 0 for 40 on both, lost none, and took the same 7 on the wall
+	// every arm cleared. --plan-after=0 restores the run without it.
+	planAfter: ['plan-after', '5', Number],
 	planSeeds: ['plan-seeds', '12', Number],
 	searchAfter: ['search-after', '0', Number],
 	searchRollouts: ['search-rollouts', '4', Number],
