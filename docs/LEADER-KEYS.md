@@ -315,3 +315,44 @@ never asked where a tutor was. Fixed (da27918); no real run had leaned on it.
 explosion does real work); four Fighting types in the ranker's order (0 of
 20); a hypothetical Staraptor under decide() (Cinccino falls 14 of 30, no
 wins, and decide() never clicks Tailwind).
+
+## Aqua Admin Matt (order 1061, cap 81) — read 2026-09-21, no lever yet
+
+Three runs have stopped here at 0 of 40 (209499, 731001, and 842113 with both
+new switches on). One box was cleared by `--plan-after` (209499: Kommo-o in
+for Infernape, the box's only answer to Dracovish, Raikou AND Mega Gyarados,
+which the ranker's six had no answer to at all: 0 of 12 to 4 of 12 on the
+planning seeds, won the first planned attempt). 842113's planner tried 14
+plans and none won a planning fight; six hand-built sixes that cover every
+foe the board says the box can answer went 0 of 10 each.
+
+**Where it is lost** (80 losing attempts, two boxes): Mamoswine falls every
+time and sets Stealth Rock on turn one; **Scarf Dracovish costs 1.9 of our
+bodies a facing; Dragapult 2.3–2.6.** Four of six gone before Kartana.
+
+**What the tape shows is policy, not box.** Dracovish is Choice-locked into
+Fishious Rend and the AI never switches, so its move is known every turn.
+Kingdra takes 30% of it, then 14% (Rend halves once Icy Wind makes Kingdra
+move first), and kills it — and was the THIRD body in, after Throh stayed in
+to die and Turtonator came in to die without acting. Stealth Rock then turns
+survivals into deaths: Roserade and Muk-Alola each enter at 88% and Dragon
+Darts does 88%.
+
+**Why the switch was refused:** it is priced (`a-voluntary-switch-is-priced`)
+and the price is pessimal — their crit ceiling every turn, our floor. Kingdra
+read "dies the turn after it comes in". A fair single number is no better: it
+reads a lost tie. Races now carry both outcomes and the odds between them
+(`race.odds`: noCrit, allCrit, win) — and even those say Kingdra loses with no
+crit at all, because the formula cannot see what the engine knows: that Rend's
+power depends on who moves first, and Icy Wind changes that. **The formula is
+the wrong instrument for this switch; the engine is the right one.**
+
+Not the lever: a Water-immune wall (none of the three boxes holds Water
+Absorb, Storm Drain or Dry Skin); covering sixes; the short lookahead as built
+(material-greedy; PERFORMANCE.md).
+
+Next, and unbuilt: price a switch by PLAYING it — stay, or each bench body in,
+played forward on the engine with decide() continuing, until this foe falls
+or two of ours do — and compare bodies lost. The foe's reply is known (the AI
+chose the same move 40 of 40 times at 162 positions), so this is cheap and
+nearly exact where the race formula is neither.

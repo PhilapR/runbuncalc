@@ -1002,3 +1002,23 @@ test('a lost playout can be valued by its path, not only its end', () => {
 	}
 	assert.deepEqual(scoresOf(), flat, 'off is the old value exactly');
 });
+
+test('a race is priced both ways: with no crit, with every crit, and the odds between', () => {
+	// Operator, 2026-09-21: "we have to price both crit and non-crit outcomes."
+	// The verdict stays pessimal (their crit ceiling every turn); beside it the
+	// race now says what that pessimism is worth in probability.
+	const driver = require('../lib/battle-driver.js');
+	const us = {hp: {current: 100, max: 100}};
+	const them = {hp: {current: 100, max: 100}};
+	// We need two hits of 50; they hit for 30, 45 on a crit; we are slower.
+	const forced = driver.raceOdds(us, them, {mean: 50}, {mean: 30, crit: 45}, false, 0);
+	assert.deepEqual(forced, {turns: 2, hits: 2, noCrit: 'win', allCrit: 'win', win: 1}, 'a free entry survives two hits even if both crit');
+	// The same body coming in by CHOICE owes one hit more: three hits, and one crit among them is 105.
+	const chosen = driver.raceOdds(us, them, {mean: 50}, {mean: 30, crit: 45}, false, 1);
+	assert.equal(chosen.noCrit, 'win');
+	assert.equal(chosen.allCrit, 'lose');
+	assert.equal(chosen.win, Number(Math.pow(23 / 24, 3).toFixed(3)), 'it wins unless one of three hits crits: 88%');
+	// Moving first saves a hit of theirs.
+	assert.equal(driver.raceOdds(us, them, {mean: 50}, {mean: 30, crit: 45}, true, 1).win, 1);
+	assert.equal(driver.raceOdds(us, them, {mean: 0}, {mean: 30, crit: 45}, true, 0), null, 'no damage of ours is no race');
+});
