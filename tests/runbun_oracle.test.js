@@ -333,3 +333,23 @@ test('a removed species answers "unavailable", whatever the list spells it', () 
 		'the only name left unjoined is the one that needs a ruling: the growth ' +
 		'table carries Aegislash-Shield and Aegislash-Blade, and picking is not spelling');
 });
+
+test('every gift has the place the workbook gives it, and a date', () => {
+	// The workbook's Gifts table is Location | Pokemon, and the first
+	// transcription kept only the second column — so Kubfu, Castform and the
+	// starter egg sat in the oracle as "named with no location", undated, and
+	// no run could ever plan for or take them.
+	const sources = require('../profiles/run-and-bun/oracle/sources.json');
+	const places = {Castform: /Weather Institute/, Kubfu: /Mossdeep/};
+	assert.equal(sources.gifts.length, 3);
+	for (const gift of sources.gifts) {
+		assert.ok(gift.where, (gift.species || gift.what) + ' has a place');
+		assert.ok(Number.isInteger(gift.opensAt), (gift.species || gift.what) + ' is dated');
+		assert.ok(gift.dated, 'and a derived date says how it was derived');
+		if (places[gift.species]) assert.match(gift.where, places[gift.species]);
+	}
+	const egg = sources.gifts.find(gift => !gift.species);
+	assert.match(egg.where, /Lavaridge/);
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	assert.equal(oracle.nonWildSources('Kubfu')[0].opensAt, 1125, 'and the oracle serves it');
+});
