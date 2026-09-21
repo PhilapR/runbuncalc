@@ -55,21 +55,57 @@ const STARTERS = [
 // Attempts at one fight before a delayable fight is skipped or the run
 // stops. Retrying is allowed on this rung (no permadeath); the cost is
 // counted in fights, the efficiency measure.
-const RETRIES = Number(flag('retries', '12'));
-const BOSS_RETRIES = Number(flag('boss-retries', '20'));
-const FIGHT_BUDGET = Number(flag('budget', '110'));
-const SKIP_DOUBLES = flag('skip-doubles', '0') === '1';
+/**
+ * The run's knobs: read from argv once, and OVERRIDABLE PER RUN.
+ *
+ * These were module constants, so an arm played in-process through
+ * playRun(…, armFlags('--budget=45 --boss-retries=6')) silently played the
+ * defaults: armFlags parsed three treatment flags and dropped the rest, and
+ * the row's provenance listed no flags at all. Five "marginal body" runs were
+ * measured that way on 2026-09-20 before a review caught it. A knob named in
+ * an arm's spec now reaches the run, and the row records what it played.
+ */
+const KNOB_FLAGS = {
+	retries: ['retries', '12', Number],
+	bossRetries: ['boss-retries', '20', Number],
+	budget: ['budget', '110', Number],
+	skipDoubles: ['skip-doubles', '0', value => value === '1'],
+	doubleRetries: ['double-retries', null, Number],
+	prizeAt: ['prize-at', 'stuck', String],
+	prizeStuck: ['prize-stuck', '6', Number],
+};
+
+function knobsFrom(read) {
+	const out = {};
+	for (const name of Object.keys(KNOB_FLAGS)) {
+		const spec = KNOB_FLAGS[name];
+		const raw = read(spec[0]);
+		if (raw !== undefined && raw !== null) out[name] = spec[2](raw);
+	}
+	return out;
+}
+
+function withDefaults(given) {
+	const out = Object.assign(knobsFrom(name => KNOB_FLAGS[Object.keys(KNOB_FLAGS)
+		.find(key => KNOB_FLAGS[key][0] === name)][1]), given);
+	// A double gets the boss budget unless it is given its own.
+	if (out.doubleRetries === undefined || Number.isNaN(out.doubleRetries)) out.doubleRetries = out.bossRetries;
+	return out;
+}
+
+let knobs = withDefaults(knobsFrom(name => {
+	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
+	return hit ? hit.slice(name.length + 3) : undefined;
+}));
 const BOSS = /Leader|Elite|Champion|Rival|Admin|Chelle|Wally|Soupercell/i;
 // A double is not a boss by name and was getting a dozen attempts, so a run
 // walked past four of them owing the debt (sweep 15's deepest run, which
 // reached fight #290 of 358). They are the road's hardest class: the bridge
 // rival fell on the ninth attempt of sixty.
-const DOUBLE_RETRIES = Number(flag('double-retries', String(BOSS_RETRIES)));
-
 /** The attempts a fight gets before the run walks past it. */
 function retryCap(trainer, isDouble) {
-	if (BOSS.test(trainer)) return BOSS_RETRIES;
-	return isDouble ? DOUBLE_RETRIES : RETRIES;
+	if (BOSS.test(trainer)) return knobs.bossRetries;
+	return isDouble ? knobs.doubleRetries : knobs.retries;
 }
 
 function armFlags(spec) {
@@ -82,6 +118,8 @@ function armFlags(spec) {
 		keyCatches: flags['key-catches'] !== '0',
 		keyScales: flags['key-scales'] !== '0',
 		keyEvolve: flags['key-evolve'] !== '0',
+		// The run knobs this arm names; playRun applies them for its run only.
+		knobs: knobsFrom(name => flags[name]),
 	};
 }
 
@@ -218,7 +256,7 @@ function sweepCatches(doc, caughtFrom, random, treatment, tally) {
  * Norman holding it has wasted it. --prize-at says when:
  *
  *   stuck (default)  hold it, and pull the highest open tier the first time
- *                    a wall has been lost PRIZE_STUCK times — the option is
+ *                    a wall has been lost --prize-stuck times — the option is
  *                    exercised when the run needs a body, not before. It is
  *                    also pulled the moment the last tier opens, since
  *                    nothing better is coming.
@@ -230,21 +268,19 @@ function sweepCatches(doc, caughtFrom, random, treatment, tally) {
  * suggest and nothing here has measured. The dupes clause re-rolls within
  * the tier, as a player re-rolls a dupe.
  */
-const PRIZE_AT = flag('prize-at', 'stuck');
-const PRIZE_STUCK = Number(flag('prize-stuck', '6'));
 
 function claimPrizes(doc, random, tally, attempts) {
 	const profile = require('../profiles').getProfile(doc.profileId);
-	if (PRIZE_AT === 'never' || !profile.oracle.prizeTiers) return doc;
+	if (knobs.prizeAt === 'never' || !profile.oracle.prizeTiers) return doc;
 	if ((doc.log || []).some(entry => entry.command.kind === 'catch' && entry.command.prize)) return doc;
 	const tiers = profile.oracle.prizeTiers();
 	const open = tiers.filter(tier => tier.opensAt !== null && doc.position >= tier.opensAt);
 	if (!open.length) return doc;
 	const top = open[open.length - 1];
 	let tier = null;
-	if (PRIZE_AT === 'asap') tier = open[0];
-	else if (/^[1-8]$/.test(PRIZE_AT)) tier = open.length >= Number(PRIZE_AT) ? tiers[Number(PRIZE_AT) - 1] : null;
-	else if (open.length === tiers.length || (attempts || 0) >= PRIZE_STUCK) tier = top;
+	if (knobs.prizeAt === 'asap') tier = open[0];
+	else if (/^[1-8]$/.test(knobs.prizeAt)) tier = open.length >= Number(knobs.prizeAt) ? tiers[Number(knobs.prizeAt) - 1] : null;
+	else if (open.length === tiers.length || (attempts || 0) >= knobs.prizeStuck) tier = top;
 	if (!tier) return doc;
 
 	const rules = run.encounterRules(doc);
@@ -263,8 +299,8 @@ function claimPrizes(doc, random, tally, attempts) {
 		run.rollIdentity(species, random)));
 		tally.prizes = (tally.prizes || 0) + 1;
 		tally.prize = {species, tier: tier.badge, at: doc.position,
-			why: PRIZE_AT === 'stuck' ? (open.length === tiers.length ? 'the last tier opened' :
-				'a wall was lost ' + attempts + ' times') : '--prize-at=' + PRIZE_AT};
+			why: knobs.prizeAt === 'stuck' ? (open.length === tiers.length ? 'the last tier opened' :
+				'a wall was lost ' + attempts + ' times') : '--prize-at=' + knobs.prizeAt};
 	} catch (error) { /* refused: the run keeps what it had */ }
 	return doc;
 }
@@ -731,6 +767,22 @@ function provenance() {
 }
 
 function playRun(policy, starter, seed, treatment, options) {
+	// An arm's knobs hold for its run and no longer: two arms in one process
+	// must not inherit each other's budget.
+	const before = knobs;
+	knobs = withDefaults(Object.assign({}, before, (treatment && treatment.knobs) || {}));
+	if (treatment && treatment.knobs && treatment.knobs.bossRetries !== undefined &&
+		treatment.knobs.doubleRetries === undefined) knobs.doubleRetries = knobs.bossRetries;
+	try {
+		const row = playRunWith(policy, starter, seed, treatment, options);
+		row.knobs = Object.assign({}, knobs);
+		return row;
+	} finally {
+		knobs = before;
+	}
+}
+
+function playRunWith(policy, starter, seed, treatment, options) {
 	// A run is judged against the game, so moves spend PP (--pp-model=0 plays
 	// on infinite fuel, as every run before 2026-09-19 did). Infinite PP let
 	// a Moody Smeargle stall Protect and Dark Void for 300 turns at Young
@@ -774,7 +826,7 @@ function playRun(policy, starter, seed, treatment, options) {
 	// every cycle and a single run stretched toward twenty minutes.
 	let lastShape = '';
 
-	while (tally.fights < FIGHT_BUDGET) {
+	while (tally.fights < knobs.budget) {
 		doc = sweepCatches(doc, caughtFrom, random, treatment, tally);
 		doc = claimPrizes(doc, random, tally, attempts);
 		doc = sweepItems(doc, tally);
@@ -799,7 +851,7 @@ function playRun(policy, starter, seed, treatment, options) {
 		}
 		// Doubles are played (driver.playDoubles, both sides on the engine's
 		// trainer AI) unless --skip-doubles=1 asks for the old behaviour.
-		if (next.isDouble && SKIP_DOUBLES) {
+		if (next.isDouble && knobs.skipDoubles) {
 			try {
 				doc = run.apply(doc, {kind: 'skip', trainer: next.trainer,
 					for: 'doubles play is not modeled'});

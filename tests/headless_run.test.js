@@ -278,3 +278,23 @@ test('a body never relearns what it gave up', () => {
 	const repeats = taught.filter((key, index) => taught.indexOf(key) !== index);
 	assert.deepEqual(repeats, [], 'no body is taught a move it already had: ' + repeats.slice(0, 4).join(', '));
 });
+
+test('an arm\'s knobs reach its run, and leave with it', () => {
+	// playRun(…, armFlags('--budget=45 --boss-retries=6')) used to play the
+	// defaults: armFlags dropped every flag but three, the harness read its
+	// knobs from argv once, and the row's provenance listed no flags. Five
+	// runs were measured that way before a review caught it.
+	const policy = require('../scripts/ui-playthrough.js');
+	const starter = {species: 'Chimchar', rival: 'Blaziken'};
+	const short = headless.playRun(policy, starter, 104770, headless.armFlags('--budget=3 --boss-retries=2'));
+	assert.equal(short.knobs.budget, 3, 'the row records the budget it played');
+	assert.equal(short.knobs.bossRetries, 2);
+	assert.equal(short.knobs.doubleRetries, 2, 'a double follows the boss budget it was given');
+	assert.ok(short.fights <= 3, 'and the run obeyed it: ' + short.fights + ' fights');
+
+	const longer = headless.playRun(policy, starter, 104770, headless.armFlags('--budget=6'));
+	assert.equal(longer.knobs.budget, 6);
+	assert.equal(longer.knobs.bossRetries, 20, 'the first arm\'s retries did not leak into the second');
+	assert.ok(longer.fights > short.fights, 'two arms in one process diverge: ' +
+		short.fights + ' then ' + longer.fights);
+});
