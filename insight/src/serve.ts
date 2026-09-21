@@ -10,11 +10,18 @@
  * chosen, every option that was on the screen, and what the rollout search
  * thought of each — which is the search being watched, not reported on.
  *
- * It reads files and serves them. It cannot start, stop or steer a run.
+ * Beside the fight it shows each run's own status file (pid, pace, memory:
+ * scripts/run-one.js) and the machine's slot pool (lib/slots.js). It has three
+ * verbs and no more, the ones scripts/runs.js has: STOP writes the run's
+ * control file, which the run reads between fights, checkpoints and exits;
+ * PAUSE and CONTINUE signal the pid the status file names. It never starts a
+ * process and never finds one by pattern. It listens on 127.0.0.1 only, and a
+ * control request must carry a header no cross-site form can send.
  */
 import {Effect, Schema} from 'effect';
 import * as fs from 'node:fs/promises';
 import * as http from 'node:http';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import {Turn} from './schema.js';
 import {tagsOf} from './tags.js';
@@ -29,6 +36,39 @@ const TurnLine = Schema.extend(Schema.Struct({kind: Schema.Literal('turn')}), Tu
 const End = Schema.Struct({kind: Schema.Literal('end'), at: Schema.Number, result: Schema.String});
 const Line = Schema.Union(Header, TurnLine, End);
 const decodeLine = Schema.decodeUnknown(Line);
+
+const Status = Schema.Struct({pid: Schema.Number, seed: Schema.Number, state: Schema.String,
+	position: Schema.NullOr(Schema.Number), fights: Schema.Number, attempts: Schema.optional(Schema.Number),
+	startedAt: Schema.Number, updatedAt: Schema.Number, spec: Schema.optional(Schema.String),
+	secondsPerFight: Schema.NullOr(Schema.Number), rssMb: Schema.Number});
+export type Status = typeof Status.Type;
+const decodeStatus = Schema.decodeUnknown(Status);
+
+const alive = (pid: number): boolean => {
+	try { process.kill(pid, 0); return true; } catch (error) { return (error as NodeJS.ErrnoException).code === 'EPERM'; }
+};
+
+/** A run's status, with what its process is doing NOW: running over a dead pid is a run that was killed. */
+export const readStatus = (file: string): Effect.Effect<Status | null, never> =>
+	Effect.tryPromise(() => fs.readFile(file, 'utf8')).pipe(
+		Effect.flatMap(text => Effect.try(() => JSON.parse(text) as unknown)),
+		Effect.flatMap(decodeStatus),
+		Effect.map(status => /^(running|stopping|paused)$/.test(status.state) && !alive(status.pid) ? {...status, state: 'dead'} : status),
+		Effect.orElseSucceed(() => null));
+
+/** The machine's slot pool, read as lib/slots.js writes it. */
+export const readMachine = async (): Promise<{slots: number; held: ReadonlyArray<{slot: number; pid: number; label: string}>; load: number; cores: number}> => {
+	const dir = process.env['RUNBUN_SLOTS_DIR'] ?? path.join(os.homedir(), '.cache', 'runbuncalc', 'slots');
+	const slots = Math.max(1, Number(process.env['RUNBUN_SLOTS']) || os.cpus().length - 2);
+	const held: Array<{slot: number; pid: number; label: string}> = [];
+	for (let slot = 0; slot < slots; slot++) {
+		try {
+			const lock = JSON.parse(await fs.readFile(path.join(dir, slot + '.lock'), 'utf8')) as {pid?: unknown; label?: unknown};
+			if (typeof lock.pid === 'number' && alive(lock.pid)) held.push({slot, pid: lock.pid, label: String(lock.label ?? '')});
+		} catch { /* free */ }
+	}
+	return {slots, held, load: Number((os.loadavg()[0] ?? 0).toFixed(1)), cores: os.cpus().length};
+};
 
 export interface LiveState {
 	readonly header: typeof Header.Type | null;
@@ -61,7 +101,7 @@ const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta n
 main{display:block;height:auto;max-width:980px;margin:0 auto;padding:12px 16px}#overview{width:100%;margin:0 0 10px}#overview tr{cursor:pointer}#overview tr[aria-current=true] td{font-weight:600}#overview td,#overview th{padding:3px 10px 3px 0}.compact .events,.compact .turn table{display:none}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}</style></head><body>
 <header><h1 id="title">Live run</h1><p id="sub">waiting for a fight…</p></header>
-<main><table id="overview"></table><div class="filters" id="controls"></div><div class="filters" id="tagbar"></div><div class="speed" id="six"></div><div id="turns"></div></main>
+<main><p class="sub" id="machine"></p><table id="overview"></table><div class="filters" id="controls"></div><div class="filters" id="tagbar"></div><div class="speed" id="six"></div><div id="turns"></div></main>
 <script>
 const HOT = new Set(['speed-control','status','set-up','sack','pivot','search-overrode','screen','hazard','disrupt','priority','sacrifice-forced','sacrifice-chosen']);
 const WARN = new Set(['they-move-first','coin-flip','we-fall','foe-set-up','foe-recovered','crit-theirs','sacrifice-unforced']);
@@ -96,9 +136,14 @@ function redraw() { const box = document.getElementById('turns'); box.replaceChi
 function flush() { shown = shown.concat(held); held = []; redraw(); }
 async function runs() {
   const rows = await (await fetch('/overview')).json(); const table = document.getElementById('overview'); table.replaceChildren();
-  table.appendChild(el('tr', {}, ['run', 'fight', 'facing', 'attempt', 'played by', 'turn', ''].map(h => el('th', {text: h}))));
+  table.appendChild(el('tr', {}, ['run', 'fight', 'facing', 'attempt', 'played by', 'turn', '', 'state', 'pace', 'mem', ''].map(h => el('th', {text: h}))));
+  const m = await (await fetch('/machine')).json();
+  document.getElementById('machine').textContent = m.held.length + ' of ' + m.slots + ' slots held · load ' + m.load + ' on ' + m.cores + ' cores' + (m.load > m.cores ? ' — over-subscribed' : '');
+  const say = async (run, action) => { const r = await (await fetch('/control?run=' + encodeURIComponent(run) + '&action=' + action, {method: 'POST', headers: {'x-insight': '1'}})).json(); document.getElementById('machine').textContent = r.said; setTimeout(runs, 1500); };
+  const button = (label, run, action) => el('button', {text: label, on: {click: e => { e.stopPropagation(); say(run, action); }}});
   for (const r of rows) table.appendChild(el('tr', {'aria-current': String(r.run === current), on: {click: () => { current = r.run; seen = -1; attempt = null; shown = []; held = []; redraw(); runs(); }}},
-    [r.run, r.fight === null ? '—' : '#' + r.fight + ' @' + r.position, r.trainer || 'not started', r.attempt === null ? '' : String(r.attempt), r.hand || '', String(r.turn), r.ended ? r.ended : 'playing'].map((v, i) => el('td', {class: i === 6 ? (r.ended === 'win' ? 'win' : r.ended ? 'loss' : 'sub') : '', text: v}))));
+    [r.run, r.fight === null ? '—' : '#' + r.fight + ' @' + r.position, r.trainer || 'not started', r.attempt === null ? '' : String(r.attempt), r.hand || '', String(r.turn), r.ended ? r.ended : 'playing', r.state || '—', r.pace === null ? '' : r.pace + ' s/fight', r.rssMb === null ? '' : r.rssMb + ' MB'].map((v, i) => el('td', {class: i === 6 ? (r.ended === 'win' ? 'win' : r.ended ? 'loss' : 'sub') : i === 7 && (v === 'dead' || v === 'paused') ? 'loss' : '', title: i === 7 && r.spec ? r.spec : '', text: v}))
+    .concat([el('td', {}, r.state === 'running' ? [button('pause', r.run, 'pause'), button('stop', r.run, 'stop')] : r.state === 'paused' ? [button('continue', r.run, 'cont')] : [])])));
   if (!current && rows.length) { current = rows[0].run; runs(); }
 }
 async function tick() {
@@ -145,6 +190,22 @@ export const listRuns = async (dir: string): Promise<ReadonlyArray<string>> => {
 	return found.sort((a, b) => b.at - a.at).map(entry => entry.name);
 };
 
+const RUN_NAME = /^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/;
+
+/** Stop, pause or continue one run — by its own status file's pid, as scripts/runs.js does. */
+export const control = async (dir: string, run: string, action: 'stop' | 'pause' | 'cont'): Promise<{ok: boolean; said: string}> => {
+	const base = path.join(dir, run);
+	const status = await Effect.runPromise(readStatus(base + '.status.json'));
+	if (status === null || !alive(status.pid) || status.state === 'dead') return {ok: false, said: run + ' is not running'};
+	if (action === 'stop') {
+		await fs.writeFile(base + '.control.json', JSON.stringify({action: 'stop', at: Date.now()}));
+		return {ok: true, said: run + ' will checkpoint and stop after the fight it is in'};
+	}
+	process.kill(status.pid, action === 'pause' ? 'SIGSTOP' : 'SIGCONT');
+	await fs.writeFile(base + '.status.json', JSON.stringify({...status, state: action === 'pause' ? 'paused' : 'running', updatedAt: Date.now()}));
+	return {ok: true, said: run + (action === 'pause' ? ' paused' : ' continued')};
+};
+
 export const serve = (dir: string, port: number): http.Server => {
 	const send = (res: http.ServerResponse, type: string, body: string): void => {
 		res.writeHead(200, {'content-type': type, 'cache-control': 'no-store'});
@@ -163,15 +224,30 @@ export const serve = (dir: string, port: number): http.Server => {
 				Effect.runPromise(readLive(path.join(dir, name + '.live.ndjson'))).then(state => ({run: name,
 					trainer: state.header?.trainer ?? null, fight: state.header?.n ?? null, attempt: state.header?.attempt ?? null,
 					position: state.header?.position ?? null, hand: state.header?.hand ?? null,
-					turn: state.turns.length ? state.turns[state.turns.length - 1]?.turn ?? 0 : 0, ended: state.ended})))))
+					turn: state.turns.length ? state.turns[state.turns.length - 1]?.turn ?? 0 : 0, ended: state.ended}))
+					.then(row => Effect.runPromise(readStatus(path.join(dir, name + '.status.json'))).then(status => ({...row,
+						state: status?.state ?? null, fights: status?.fights ?? null, pace: status?.secondsPerFight ?? null,
+						rssMb: status?.rssMb ?? null, spec: status?.spec ?? null}))))))
 				.then(rows => send(res, 'application/json', JSON.stringify(rows)), () => send(res, 'application/json', '[]'));
+			return;
+		}
+		if (url.pathname === '/machine') {
+			void readMachine().then(machine => send(res, 'application/json', JSON.stringify(machine)));
+			return;
+		}
+		if (url.pathname === '/control') {
+			const run = url.searchParams.get('run') ?? '';
+			const action = url.searchParams.get('action') ?? '';
+			if (req.method !== 'POST' || req.headers['x-insight'] !== '1' || !RUN_NAME.test(run) || run.includes('..') ||
+				!/^(stop|pause|cont)$/.test(action)) { res.writeHead(400); res.end('refused'); return; }
+			void control(dir, run, action as 'stop' | 'pause' | 'cont').then(said => send(res, 'application/json', JSON.stringify(said)));
 			return;
 		}
 		if (url.pathname === '/state') {
 			// A run is named LABEL/run-SEED (or run-SEED); anything else is refused,
 			// so the name can never walk out of the directory being watched.
 			const run = url.searchParams.get('run') ?? '';
-			if (!/^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
 			void Effect.runPromise(readLive(path.join(dir, run + '.live.ndjson')))
 				.then(state => send(res, 'application/json', JSON.stringify(state)));
 			return;

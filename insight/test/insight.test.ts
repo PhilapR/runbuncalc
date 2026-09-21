@@ -189,3 +189,37 @@ test('a body given up is read as forced, chosen or unforced — never simply as 
 	assert.ok(unforced.includes('sacrifice-unforced'), unforced.join(','));
 	assert.ok(!tagsOf(turn({chose: 'Sand Tomb'})).some(tag => tag.startsWith('sacrifice')), 'a turn that gives nothing up carries none of them');
 });
+
+test('a run is handled by the pid its own status file names, and a killed one reads as dead', async () => {
+	const {control, readStatus} = await import('../src/serve.js');
+	const {spawn, spawnSync} = await import('node:child_process');
+	const fs = await import('node:fs/promises');
+	const os = await import('node:os');
+	const path = await import('node:path');
+	const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'insight-control-'));
+	const status = (pid: number, state: string): string => JSON.stringify({pid, seed: 7, state, position: 12, fights: 30,
+		startedAt: 1, updatedAt: 2, secondsPerFight: 3.5, rssMb: 400, spec: 'budget=40'});
+
+	// A pid that has certainly gone.
+	const gone = Number(spawnSync(process.execPath, ['-e', 'process.stdout.write(String(process.pid))'], {encoding: 'utf8'}).stdout);
+	await fs.writeFile(path.join(dir, 'run-1.status.json'), status(gone, 'running'));
+	assert.equal((await Effect.runPromise(readStatus(path.join(dir, 'run-1.status.json'))))?.state, 'dead');
+	assert.deepEqual(await control(dir, 'run-1', 'stop'), {ok: false, said: 'run-1 is not running'});
+	assert.equal(await Effect.runPromise(readStatus(path.join(dir, 'nothing.status.json'))), null);
+
+	// A living one: stop only ASKS (the run reads the file between fights); pause and continue signal it.
+	const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], {stdio: 'ignore'});
+	try {
+		await fs.writeFile(path.join(dir, 'run-2.status.json'), status(child.pid ?? -1, 'running'));
+		assert.equal((await control(dir, 'run-2', 'pause')).ok, true);
+		assert.equal((await Effect.runPromise(readStatus(path.join(dir, 'run-2.status.json'))))?.state, 'paused');
+		assert.match(spawnSync('ps', ['-o', 'state=', '-p', String(child.pid)], {encoding: 'utf8'}).stdout, /T/, 'the process is really stopped');
+		assert.equal((await control(dir, 'run-2', 'cont')).ok, true);
+		assert.doesNotMatch(spawnSync('ps', ['-o', 'state=', '-p', String(child.pid)], {encoding: 'utf8'}).stdout, /T/);
+		assert.equal((await control(dir, 'run-2', 'stop')).ok, true);
+		assert.equal((JSON.parse(await fs.readFile(path.join(dir, 'run-2.control.json'), 'utf8')) as {action: string}).action, 'stop');
+		assert.equal(child.exitCode, null, 'a stop is a request: the run ends itself, checkpointed');
+	} finally {
+		child.kill('SIGKILL');
+	}
+});

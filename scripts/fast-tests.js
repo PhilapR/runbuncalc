@@ -34,6 +34,7 @@ const SLOW = {
 	'battery_receipts.test.js': 'repick 97s, arms 88s',
 	'search_policy.test.js': 'playbook rollouts: 87s',
 	'pivot_turn.test.js': 'full runs: 86s',
+	'run_control.test.js': 'plays real runs in child processes',
 };
 
 function fastFiles(root) {

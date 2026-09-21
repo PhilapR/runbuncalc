@@ -46,6 +46,9 @@ function plan(argv) {
 		starter: own('starter', 'Chimchar', argv), rival: own('rival', 'Blaziken', argv),
 		parallel: Math.max(1, Number(own('parallel', String(Math.max(1, os.cpus().length - 2)), argv))),
 		keep: own('keep-worktree', '0', argv) === '1',
+		// Take each seed up again from its checkpoint in the label's directory
+		// (scripts/run-one.js); a --spec given with it replaces the run's knobs.
+		carryOn: own('carry-on', '0', argv) === '1',
 		out: path.join(ROOT, 'ui-playthrough-out', 'runs', label),
 		resume: seed => resumeFrom ? path.join(path.resolve(resumeFrom), 'run-' + seed + '.json') : ''};
 }
@@ -84,6 +87,12 @@ function main() {
 	const short = childProcess.spawnSync('git', ['rev-parse', '--short', todo.rev], {cwd: ROOT, encoding: 'utf8'}).stdout.trim();
 	const tree = path.join(ROOT, 'ui-playthrough-out', '.worktrees', 'run-' + short + '-' + todo.label);
 	arms.makeWorktree(tree, todo.rev);
+	// A runner from before carry-on ignores the flag and starts the run AGAIN,
+	// over its checkpoint and its fights (it happened, on the first try).
+	if (todo.carryOn && !fs.readFileSync(path.join(tree, 'scripts', 'run-one.js'), 'utf8').includes('--carry-on')) {
+		if (!todo.keep) childProcess.spawnSync('git', ['worktree', 'remove', '--force', tree], {cwd: ROOT});
+		throw new Error('revision ' + short + ' predates --carry-on: its runner would start the run again, over the checkpoint');
+	}
 	process.stdout.write(`${todo.seeds.length} run(s) at ${short}, ${todo.parallel} at a time, into ${path.relative(ROOT, todo.out)}\n`);
 	const queue = todo.seeds.slice();
 	let live = 0;
@@ -91,7 +100,9 @@ function main() {
 		while (live < todo.parallel && queue.length) {
 			const seed = queue.shift();
 			const args = [path.join(tree, 'scripts', 'run-one.js'), '--seed=' + seed, '--out=' + todo.out,
-				'--starter=' + todo.starter, '--rival=' + todo.rival, '--spec=' + todo.spec]
+				'--starter=' + todo.starter, '--rival=' + todo.rival]
+				.concat(todo.carryOn && !todo.spec ? [] : ['--spec=' + todo.spec])
+				.concat(todo.carryOn ? ['--carry-on=1'] : [])
 				.concat(todo.resume(seed) ? ['--resume=' + todo.resume(seed)] : []);
 			live += 1;
 			// Through the machine's slot pool (scripts/submit.js, from THIS tree: the

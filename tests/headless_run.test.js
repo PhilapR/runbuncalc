@@ -602,3 +602,46 @@ test('a six decide() can win with is played by decide(), not handed to search fo
 	const off = play(0).ledger.filter(row => row.trainer === 'Leader Brawly');
 	assert.ok(off.slice(1).every(row => /^search/.test(row.policy)), 'off, the old behaviour holds');
 });
+
+test('a run stopped and carried on from its checkpoint plays what the uninterrupted run plays', () => {
+	// A resume from a DOCUMENT restarts the dice, the fight seed, the attempts
+	// at the wall and what was caught where. A checkpoint carries them, so
+	// stopping a run costs nothing and changes nothing.
+	const policy = require('../scripts/ui-playthrough.js');
+	const flags = () => headless.armFlags('--budget=33 --retries=3 --boss-retries=3 --probe=0 --fight-logs=none');
+	const starter = {species: 'Chimchar', rival: 'Swampert'};
+	const line = row => [row.n, row.trainer, row.seed, row.position, row.result, row.turns, row.deaths].join(' ');
+	// Seed 11 rolls its last catches after fight 16, and loses fights 28, 29
+	// and 30 to one wall. One checkpoint is taken BEFORE those rolls, so the
+	// dice's position is part of what it must carry; one INSIDE the streak, so
+	// the attempts already spent are. Each was found the hard way: at fight 29
+	// dropping the dice went unnoticed, at fight 19 dropping the attempts did.
+	const taken = {};
+	const whole = headless.playRun(policy, starter, 11, flags(), {keepDoc: true,
+		checkpoint: snapshot => {
+			const now = snapshot();
+			// Through JSON, as a file would carry it.
+			for (const at of [16, 29]) if (!taken[at] && now.state.tally.fights === at) taken[at] = JSON.parse(JSON.stringify(now));
+		}});
+	assert.ok(taken[16] && taken[29], 'the run reached both checkpoints');
+	assert.equal(taken[16].state.attempts, 0);
+	assert.ok(taken[29].state.attempts > 1, 'the second is mid-wall, with attempts already spent');
+	assert.notEqual(taken[16].state.dice, taken[29].state.dice, 'and the dice are rolled between them');
+
+	for (const at of [16, 29]) {
+		const carried = headless.playRun(policy, starter, 11, flags(), {keepDoc: true, restore: taken[at]});
+		assert.deepEqual(carried.ledger.map(line), whole.ledger.map(line), at + ': the same fights, seeds and results, from the first to the last');
+		assert.deepEqual(carried.doc.log.map(entry => entry.command), whole.doc.log.map(entry => entry.command),
+			at + ': and the same commands — every catch, teach and level-up');
+		assert.deepEqual(carried.restoredAt, [taken[at].position], 'the row says it was carried on, and from where');
+	}
+
+	// Asked to stop, it stops at once, checkpointed, and says so.
+	let last = null;
+	const stopped = headless.playRun(policy, starter, 11, flags(), {
+		control: () => (last && last.state.tally.fights >= 5 ? 'stop' : null),
+		checkpoint: snapshot => { last = snapshot(); }});
+	assert.equal(stopped.stopped, 'stopped by request');
+	assert.equal(stopped.fights, 5);
+	assert.deepEqual(stopped.ledger.map(line), whole.ledger.slice(0, 5).map(line));
+});

@@ -41,10 +41,15 @@ function flag(name, fallback) {
 }
 
 /** Deterministic dice: one stream per run, seeded, no Math.random anywhere. */
-function dice(seed) {
+function dice(seed, at) {
 	let state = seed % 2147483647;
 	if (state <= 0) state += 2147483646;
-	return () => (state = (state * 48271) % 2147483647) / 2147483647;
+	// A checkpoint carries the stream's position, so a run that is stopped and
+	// carried on rolls what it would have rolled.
+	if (Number.isInteger(at)) state = at;
+	const roll = () => (state = (state * 48271) % 2147483647) / 2147483647;
+	roll.at = () => state;
+	return roll;
 }
 
 const STARTERS = [
@@ -1118,14 +1123,23 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	driver.setSearchKeep(knobs.searchKeep);
 	driver.setSearchHalving(knobs.searchHalving);
 	driver.setSearchPath(knobs.searchPath);
-	const random = dice(seed);
+	// options.restore is a CHECKPOINT (options.checkpoint wrote it): the
+	// document and everything else the run holds — the dice's position, the
+	// fight seed, the attempts at the wall in front of it, what was caught
+	// where, the ledger so far. options.resume is only a document, and starts
+	// all of that again: seed 731001 resumed at Brawly came back with the
+	// ranker's six, not the one the run had re-picked. A restored run plays
+	// what the uninterrupted one would have.
+	const kept = options && options.restore ? options.restore.state : null;
+	const random = dice(seed, kept ? kept.dice : undefined);
 	// options.resume carries a run on from a saved document, so a run that
 	// passed a wall an hour in does not replay that hour to find the next one.
 	// The document's own log is what the audit replays, so a resumed run is
 	// as auditable as a whole one; the row says where it picked up.
-	let doc = options && options.resume ? structuredClone(options.resume) : startRun(starter, random);
+	let doc = kept ? structuredClone(options.restore.doc) :
+		options && options.resume ? structuredClone(options.resume) : startRun(starter, random);
 
-	const tally = {catches: 0, keyRolls: 0, scaleSpends: 0, pickups: 0,
+	const tally = kept ? structuredClone(kept.tally) : {catches: 0, keyRolls: 0, scaleSpends: 0, pickups: 0,
 		stoneBuys: 0, evolves: 0, gives: 0,
 		trainers: {}, fights: 0, skipped: [], engineRefusals: 0,
 		// Every attempt, in order: enough to find a fight and replay it on its
@@ -1135,28 +1149,44 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// Stat stages the calculator could not have indexed, repaired on the way
 	// in: the clamp keeps the run alive, the count keeps the defect findable.
 	const repairsAt = require('../ai').boostRepairs();
-	const started = Date.now();
-	const caughtFrom = new Set();
+	const started = Date.now() - (kept ? kept.elapsedMs || 0 : 0);
+	const caughtFrom = new Set(kept ? kept.caughtFrom : []);
 	// An owed fight (a skipped double, Gavi) whose retries are spent waits
 	// for the level cap to rise, as a player comes back to it with a stronger
 	// box; the road goes on meanwhile. It stopped runs instead: the debt sorts
 	// first once passed, and a second skip of it is refused (sweep 10: three
 	// of the five deepest runs ended "already being skipped").
-	const waiting = new Map();
+	const waiting = new Map(kept ? kept.waiting : []);
 	// What each body has given up, so the relearn rule cannot swap two moves
 	// back and forth for the whole run.
-	const forgotten = new Map();
-	let attempts = 0;
-	let fightSeed = seed;
+	const forgotten = new Map(kept ? kept.forgotten.map(entry => [entry[0], new Set(entry[1])]) : []);
+	let attempts = kept ? kept.attempts : 0;
+	let fightSeed = kept ? kept.fightSeed : seed;
 	// Advice and party ranking are board-rebuild expensive; the browser
 	// driver pays them occasionally, not per turn of the loop. They re-run
 	// only when the box or bag actually changed — the first cut ran them
 	// every cycle and a single run stretched toward twenty minutes.
-	let lastShape = '';
+	let lastShape = kept ? kept.lastShape : '';
 	// The six the probe last judged, and what decide() won with it (--hand-by-probe).
-	let handProbe = {six: null, wins: 0};
+	let handProbe = kept ? kept.handProbe : {six: null, wins: 0};
+	if (kept) tally.restoredAt = (tally.restoredAt || []).concat([doc.position]);
+	// Everything above, as data: what options.checkpoint is handed at the top
+	// of every turn of the loop, the one place where none of it is half-done.
+	const snapshot = () => ({version: 1, seed, starter, position: doc.position, doc,
+		state: {dice: random.at(), fightSeed, attempts, lastShape, handProbe,
+			caughtFrom: [...caughtFrom], waiting: [...waiting],
+			forgotten: [...forgotten].map(entry => [entry[0], [...entry[1]]]),
+			tally, elapsedMs: Date.now() - started}});
 
 	while (tally.fights < knobs.budget) {
+		// A run can be asked to stop (options.control) and is then left exactly
+		// here, checkpointed, to be carried on later — with other knobs if wanted.
+		const asked = options && options.control ? options.control() : null;
+		if (options && options.checkpoint) options.checkpoint(snapshot, asked === 'stop');
+		if (asked === 'stop') {
+			tally.stopped = 'stopped by request';
+			break;
+		}
 		if (Number.isFinite(knobs.stopAt) && doc.position >= knobs.stopAt) {
 			tally.stopped = 'reached --stop-at=' + knobs.stopAt;
 			break;
@@ -1346,6 +1376,8 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
 		skipped: tally.skipped, engineRefusals: tally.engineRefusals, stopped: tally.stopped || null,
+		// Where a stopped run was carried on from its checkpoint, if it ever was.
+		...(tally.restoredAt ? {restoredAt: tally.restoredAt} : {}),
 		provenance: made, ledger: tally.ledger,
 		crashes: tally.crashes || 0, crashed: tally.crashed || [],
 		boostRepairs: require('../ai').boostRepairs() - repairsAt,
