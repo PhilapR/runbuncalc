@@ -732,11 +732,21 @@ function fillEmptySlots(doc, tally) {
 		}
 	} catch (error) { /* an unreadable fight names no cure; Sitrus still goes on */ }
 	const wanted = ['Sitrus Berry'].concat([...inflicted], ['Lum Berry', 'Oran Berry']);
+	// A filler berry is a placeholder, not a choice: the first baseline under
+	// this rule reached Norman with six Sitrus Berries in the bag and nobody
+	// holding one, because every slot had been filled with a Chesto or a
+	// Pecha before the Sitrus trees opened at 235, and a filled slot was
+	// never looked at again. A body holding a berry from this list trades up
+	// when a better one is in the bag; anything else it holds is left alone.
+	const fillers = new Set(Object.values(CURES).concat(['Oran Berry', 'Lum Berry', 'Sitrus Berry']));
 	for (const id of doc.party) {
 		const mon = doc.box.find(entry => entry.id === id);
-		if (!mon || mon.item || mon.status === 'dead') continue;
-		const item = wanted.find(name => (doc.bag[name] || 0) > 0);
-		if (!item) break;
+		if (!mon || mon.status === 'dead') continue;
+		if (mon.item && !fillers.has(mon.item)) continue;
+		const held = mon.item ? wanted.indexOf(mon.item) : wanted.length;
+		const item = wanted.find((name, index) => (doc.bag[name] || 0) > 0 &&
+			index < (held === -1 ? wanted.length : held));
+		if (!item) continue;
 		try {
 			doc = run.apply(doc, {kind: 'give', id, item});
 			tally.gives = (tally.gives || 0) + 1;
@@ -1012,6 +1022,9 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// going, and the crash is written out with the document that met it.
 		let played;
 		try {
+			// The six may have been re-picked since the advice ran, and a body
+			// that joined it afterwards arrives holding nothing.
+			doc = fillEmptySlots(doc, tally);
 			played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, undefined, searching);
 		} catch (error) {
 			tally.crashes = (tally.crashes || 0) + 1;

@@ -371,3 +371,29 @@ test('an arm that asks for search gets it', () => {
 	assert.equal(hands[0], 'search-1',
 		'a fight retried after a loss is searched: ' + [...hands].join(', '));
 });
+
+test('a filler berry trades up when a better one reaches the bag', () => {
+	// The first baseline under the fill rule met Norman with six Sitrus
+	// Berries in the bag and nobody holding one: every slot had been filled
+	// with a Chesto or a Pecha before the Sitrus trees opened, and a filled
+	// slot was never looked at again. (Oran stands in for the filler here.)
+	const runtime = require('../lib/run.js');
+	const base = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	let doc = Object.assign({}, base, {box: base.box.map(mon =>
+		base.party.includes(mon.id) ? Object.assign({}, mon, {item: null}) : mon)});
+	doc = runtime.apply(doc, {kind: 'acquire', item: 'Oran Berry', count: 6});
+	const early = headless.fillEmptySlots(doc, {});
+	const first = early.party.map(id => early.box.find(mon => mon.id === id).item);
+	assert.ok(first.every(item => item === 'Oran Berry'), 'before the trees open, the filler: ' + first.join(', '));
+
+	const later = headless.fillEmptySlots(headless.pickBerries(early, {}), {});
+	const held = later.party.map(id => later.box.find(mon => mon.id === id).item);
+	assert.ok(held.every(item => item === 'Sitrus Berry'), 'once Sitrus is in the bag everyone trades up: ' + held.join(', '));
+
+	// A real item is a choice and is never taken away for a berry.
+	const armed = Object.assign({}, later, {box: later.box.map(mon =>
+		mon.id === later.party[0] ? Object.assign({}, mon, {item: 'Muscle Band'}) : mon)});
+	const kept = headless.fillEmptySlots(armed, {});
+	assert.equal(kept.box.find(mon => mon.id === kept.party[0]).item, 'Muscle Band');
+});

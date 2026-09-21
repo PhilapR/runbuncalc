@@ -155,3 +155,37 @@ or it takes the cores the suite needs and the browser gates start timing out.
   revision, never cleaned, reached 2.2GB and Playwright failed with ENOSPC
   mid-suite. `git worktree remove` the old ones after a sweep; the failure
   reads as a test defect, not a housekeeping one.
+
+## The depth baseline under valid rules (2026-09-21, revision 6a059c6)
+
+Every sweep depth tally from before 29ffa9f is over-supplied (one Game Corner
+prize per BADGE), so this is the number to beat. Six runs, Chimchar, the
+sweeps' real flag set as per-run knobs (`--boss-retries=60 --retries=24
+--double-retries=60 --scale-ivs=1 --search-after=2 --search-rollouts=8
+--repick-after=3`), `--stop-at=343` so a run ends the moment it is past
+Norman. All six audits valid; each took one prize or none.
+
+| Seed | Reached | Fights | Wall time | Brawly | Roxanne | Wattson | Norman |
+|---|---|---|---|---|---|---|---|
+| 104770 | past Norman | 123 | 53 min | 1/3 | 1/1 | 1/6 | 1/18 |
+| 314228 | past Norman | 121 | 57 min | 1/14 | 1/4 | 1/5 | 1/8 |
+| 209499 | past Norman | 171 | 92 min | 1/24 | 1/6 | 1/21 | 1/22 |
+| 418957 | Norman | 172 | 104 min | 1/4 | 1/4 | 1/5 | 0/60 |
+| 628415 | Wattson | 143 | 90 min | 1/6 | 1/8 | 0/60 | — |
+| 523686 | Brawly | 87 | 64 min | 0/60 | — | — | — |
+
+**3 of 6 pass Norman.** Where a wall falls it falls in 1–24 attempts (a per-
+attempt rate of roughly 4–12% under search-8); where it does not, sixty
+attempts do not move it — the box is wrong, and retries cannot fix a box.
+That is the efficiency problem in one table: a run that will pass pays about
+twenty fights for it, and a run that will not pays sixty and an hour to learn
+nothing.
+
+A first attempt at this baseline (six runs at 16fb345) is VOID: it was
+launched in-process and `--search-after` lived only on argv, so all sixty of
+its Brawly attempts were played by decide(). Fixed in 6a059c6.
+
+It also showed the slot-filling rule's flaw: every run reached Norman with
+five or six Sitrus Berries in the bag and nobody holding one, because slots
+filled with a Chesto or Pecha before the trees opened (235) were never looked
+at again, and bodies re-picked into the six after the advice ran held nothing.
