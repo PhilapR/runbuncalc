@@ -520,3 +520,31 @@ test('a Heart Scale goes where the body will use it: an IV or a nature, by point
 	assert.notEqual(rich.box.find(mon => mon.id === lead).nature, 'Modest', 'with three free, the nature is fixed');
 	assert.equal(rich.bag['Heart Scale'], 2);
 });
+
+test('what a leader or an NPC hands over is taken, and a re-sold TM is one copy until Lilycove', () => {
+	// The collector matched an item by a route's name at the HEAD of its place,
+	// so 23 dated rows reading "Given by …" were never taken: every gym
+	// leader's TM, HM06 Rock Smash, and TM46 Rock Tomb — speed control dated at
+	// order 148, teachable 35 times across saved boxes and owned never.
+	const runtime = require('../lib/run.js');
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	assert.ok(!doc.bag['TM46 Rock Tomb'] && !doc.bag['TM10 Thunderbolt'], 'the banked run holds neither');
+	const tally = {};
+	const picked = headless.pickBerries(doc, tally);
+	assert.equal(picked.bag['TM46 Rock Tomb'], 1, 'one copy, handed over in Rusturf Tunnel at 148');
+	assert.equal(picked.bag['TM10 Thunderbolt'], 1, 'Wattson\'s, at 229');
+	assert.ok(!picked.bag['TM35 Facade'], 'Norman\'s is dated 342 and this run is at ' + doc.position);
+	assert.ok(tally.handedOver >= 3);
+	assert.equal(headless.pickBerries(picked, {}).bag['TM46 Rock Tomb'], 1, 'and only once');
+
+	// Rock Tomb is re-sold at Lilycove (order 871). Before that the copy in
+	// the bag is the only one: it was being taught without limit from 148.
+	const tm = require('../profiles').getProfile(doc.profileId).oracle.tmFor('Rock Tomb');
+	assert.deepEqual([tm.repeatable, tm.unlimitedFrom], [true, 871]);
+	const learner = picked.box.find(mon => runtime.learnable(picked, mon.id).now.some(entry => entry.move === 'Rock Tomb'));
+	assert.ok(learner, 'somebody in the box can learn it');
+	const taught = runtime.apply(picked, {kind: 'teach', id: learner.id, move: 'Rock Tomb',
+		replace: learner.moves.length >= 4 ? learner.moves[0] : undefined});
+	assert.ok(!taught.bag['TM46 Rock Tomb'], 'before Lilycove the teach SPENDS the one copy');
+});

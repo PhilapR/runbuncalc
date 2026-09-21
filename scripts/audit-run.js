@@ -51,7 +51,10 @@ function tmIndex() {
 		if (row.kind !== 'tm') continue;
 		const move = String(row.name).replace(/^(?:TM|HM)\d+\s+/, '');
 		// An HM is reusable wherever it is used; only a TM is one-time.
+		const oracle = getProfile('run-and-bun').oracle;
+		const found = oracle.tmFor ? oracle.tmFor(move) : null;
 		moves.set(move, {repeatable: /^HM/.test(row.name) || /Sold at /.test(row.location || ''),
+			unlimitedFrom: found ? found.unlimitedFrom : null,
 			tm: row.name, opensAt: row.opensAt});
 	}
 	return moves;
@@ -248,7 +251,9 @@ function auditRun(row) {
 		if (known.opensAt !== null && known.opensAt !== undefined && known.opensAt > where) {
 			tooEarly.push(command.move + ' (' + known.tm + ' opens at ' + known.opensAt + ')');
 		}
-		if (known.repeatable) continue;
+		// Unlimited only once the store that re-sells it is open.
+		if (known.repeatable && (known.unlimitedFrom === undefined ||
+			(known.unlimitedFrom !== null && where >= known.unlimitedFrom))) continue;
 		taughtTm[command.move] = (taughtTm[command.move] || 0) + 1;
 	}
 	const overspent = Object.keys(taughtTm).filter(move => taughtTm[move] > 1)

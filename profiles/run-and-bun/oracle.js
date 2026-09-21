@@ -689,13 +689,20 @@ function itemsObtainableBy(order) {
 
 /** The whole field-item ledger, location and all — the guided view's source. */
 /**
- * The TM that teaches a move, or null: {name, repeatable, opensAt}.
+ * The TM that teaches a move, or null: {name, repeatable, unlimitedFrom, opensAt}.
+ * `repeatable` says a TM is re-sold SOMEWHERE; `unlimitedFrom` says from when.
  *
  * A TM is a ONE-TIME item in this fork (the author's FAQ and the release
  * thread) except the ten re-sold at the Lilycove Department Store; an HM is
  * reusable wherever it is used. The sheet was never transcribed, so the run
  * charged nothing for a TM move and taught one ten times over.
  */
+/** The order at which the Lilycove Department Store can be shopped at. */
+function lilycoveOpens() {
+	const city = availabilityOf('Lilycove City');
+	return city && Number.isInteger(city.opensAt) ? city.opensAt : null;
+}
+
 function tmFor(move) {
 	if (!cache.tmByMove) {
 		cache.tmByMove = new Map();
@@ -704,6 +711,12 @@ function tmFor(move) {
 			const taught = String(row.name).replace(/^(?:TM|HM)\d+\s+/, '');
 			cache.tmByMove.set(taught, {name: row.name,
 				repeatable: /^HM/.test(row.name) || /Sold at /.test(row.location || ''),
+				// "Sold at Lilycove Department Store" makes a TM unlimited ONCE
+				// LILYCOVE IS OPEN, not from the day its first copy is handed
+				// over: Rock Tomb is given in Rusturf Tunnel at order 148 and
+				// was being taught without limit from there, 723 orders early.
+				unlimitedFrom: /^HM/.test(row.name) ? 0 :
+					/Sold at Lilycove/.test(row.location || '') ? lilycoveOpens() : null,
 				opensAt: row.opensAt === undefined ? null : row.opensAt});
 		}
 	}

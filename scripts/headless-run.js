@@ -358,30 +358,39 @@ function sweepItems(doc, tally) {
 }
 
 /**
- * Berry trees, which the pass above can never match.
+ * What the pass above can never match: rows with no route at their head.
  *
- * It finds items by ONE route's name, and a tree row reads "Berry Trees at
- * Routes 110, 111, 112, 115, 117, 118 and 121" — so no headless run has ever
- * held a Sitrus Berry, against gyms where all six of theirs hold an item. A
- * row is taken once its date has passed (the ledger dates it at the first
- * place it names) and only once: a party's worth, six, though the sheet says
- * 12 to 36 and the trees regrow. Undated rows are left alone.
+ * It finds an item by ONE route's name at the start of its place. Two kinds of
+ * row have none. A tree row reads "Berry Trees at Routes 110, 111, 112, …" —
+ * so no headless run had ever held a Sitrus Berry. And a HANDED-OVER row reads
+ * "Given by Leader Wattson after you defeat him" or "Given by an NPC in
+ * Rusturf Tunnel" — 23 dated rows, among them every gym leader's TM
+ * (Seismic Toss, Shock Wave, Thunderbolt, Facade), HM06 Rock Smash, and TM46
+ * Rock Tomb, a speed-control move dated at order 148 that a survey of saved
+ * boxes found teachable 35 times and owned never.
+ *
+ * A row is taken once its date has passed, and once: a party's worth (six) of
+ * a tree's berries, though the sheet says 12 to 36 and they regrow; one of
+ * anything handed over. Undated rows are left alone.
  */
 const BERRY_TAKE = 6;
+const NO_ROUTE_AT_ITS_HEAD = /^(Berry Trees? at |Given by )/i;
 function pickBerries(doc, tally) {
 	const profile = require('../profiles').getProfile(doc.profileId);
 	if (!profile.oracle.fieldItems) return doc;
 	const taken = new Set((doc.log || []).filter(entry => entry.command && entry.command.kind === 'acquire' &&
 		entry.command.where).map(entry => entry.command.item + '|' + entry.command.where));
 	for (const row of profile.oracle.fieldItems()) {
-		if (row.kind !== 'berry' || !Number.isInteger(row.opensAt) || row.opensAt > doc.position) continue;
-		if (!/^Berry Trees? at /i.test(row.location || '')) continue;
+		if (!Number.isInteger(row.opensAt) || row.opensAt > doc.position) continue;
+		if (!NO_ROUTE_AT_ITS_HEAD.test(row.location || '')) continue;
+		const tree = row.kind === 'berry';
 		const where = String(row.location).slice(0, 120);
 		if (taken.has(row.name + '|' + where)) continue;
 		try {
-			doc = run.apply(doc, {kind: 'acquire', item: row.name, where, count: BERRY_TAKE});
+			doc = run.apply(doc, Object.assign({kind: 'acquire', item: row.name, where}, tree ? {count: BERRY_TAKE} : {}));
 			tally.pickups = (tally.pickups || 0) + 1;
-			tally.berries = (tally.berries || 0) + 1;
+			if (tree) tally.berries = (tally.berries || 0) + 1;
+			else tally.handedOver = (tally.handedOver || 0) + 1;
 			taken.add(row.name + '|' + where);
 		} catch (error) { /* a refused acquire takes nothing */ }
 	}
