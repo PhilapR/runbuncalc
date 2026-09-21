@@ -88,6 +88,7 @@ const planner = require('../lib/planner');
 const ROOT = path.join(__dirname, '..');
 const ORACLE = path.join(ROOT, 'profiles', 'run-and-bun', 'oracle');
 const OUT = path.join(ORACLE, 'item-locations.json');
+const MOVES_OUT = path.join(ORACLE, 'move-dates.json');
 const WORKBOOK = path.join(ORACLE, 'item-workbook.json');
 
 const PROFILE = 'run-and-bun';
@@ -368,7 +369,11 @@ function dateFor(index, prose) {
 	places.sort((a, b) => a.at - b.at);
 
 	// 2. A named guard, which is direct evidence and outranks the place.
-	const lower = text.toLowerCase().replace(/\bcooltrainer\b/g, 'cool trainer');
+	// "Given by Leaders Tate & Liza" names one: the index knows "leader tate",
+	// and the plural hid Psychic's date from the TM ledger for as long as it
+	// has existed.
+	const lower = text.toLowerCase().replace(/\bcooltrainer\b/g, 'cool trainer')
+		.replace(/\bleaders\s+(\w+)\s*(?:&|and)\s*\w+/g, 'leader $1');
 	for (const entry of index.trainers) {
 		const name = entry[0];
 		if (name.length < 6) continue;
@@ -396,12 +401,33 @@ function dateFor(index, prose) {
 		const order = gym.reduce((best, stood) => (stood.order > best.order ? stood : best)).order;
 		return {opensAt: order, dating: 'its mart\'s town, dated by ' + MART_TOWNS[town]};
 	}
+	// 5. A place where NO trainer stands — a town hall, a cave of items, a city
+	// with one NPC — dated by the map table, which places such maps from the
+	// R&B tracker's route order (availability.json, provenance 'derived') or a
+	// correction from play. The prose leads with the place, so its leading
+	// phrase is what is matched; and late-bias inside a place holds here too:
+	// "Shoal Cave" is five rooms, and the latest of them is the only date that
+	// cannot promise the ice room at the entrance.
+	const head = text.split(/[,.(]/)[0].trim().toLowerCase();
+	let latest = null;
+	let where = null;
+	for (const map of index.mapPlaces || []) {
+		const name = map.name.toLowerCase();
+		const named = new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(text.toLowerCase());
+		const room = head.length >= 6 && name.startsWith(head + ' ');
+		if (!named && !room) continue;
+		if (latest === null || map.opensAt > latest) {
+			latest = map.opensAt;
+			where = map.name;
+		}
+	}
+	if (latest !== null) {
+		return withFloor({opensAt: latest, dating: 'no trainer stands there: the map table\'s date for ' + where});
+	}
 	return {opensAt: null, dating: 'no trainer or known place in the text'};
 }
 
-function build() {
-	const workbook = JSON.parse(fs.readFileSync(WORKBOOK, 'utf8'));
-	const availability = JSON.parse(fs.readFileSync(path.join(ORACLE, 'availability.json'), 'utf8'));
+function indexOf(availability) {
 	const trainers = engineTrainers();
 	const toRunMap = scaleBridge();
 	const index = {
@@ -418,7 +444,18 @@ function build() {
 				name: String(entry.name).replace(/([A-Za-z])(\d)/g, '$1 $2').trim(),
 				opensAt: entry.opensAt,
 			})),
+		// Every dated map, for the places no trainer stands at (signal 5).
+		mapPlaces: (availability.entries || [])
+			.filter(entry => typeof entry.opensAt === 'number')
+			.map(entry => ({name: String(entry.name).replace(/([A-Za-z])(\d)/g, '$1 $2').trim(), opensAt: entry.opensAt})),
 	};
+	return index;
+}
+
+function build() {
+	const workbook = JSON.parse(fs.readFileSync(WORKBOOK, 'utf8'));
+	const availability = JSON.parse(fs.readFileSync(path.join(ORACLE, 'availability.json'), 'utf8'));
+	const index = indexOf(availability);
 
 	const entries = [];
 	const add = (name, kind, place, detail) => {
@@ -474,13 +511,62 @@ function build() {
 	};
 }
 
+/**
+ * WHEN A MOVE CAN BE TAUGHT, for the rows the TM ledger cannot date.
+ *
+ * availability.json's moveItems is dated by an older parser that reads only
+ * the leading place name, and it left 19 of 78 rows undated for reasons that
+ * were never about knowledge: a full stop kept on "Route 111.", "inside" not
+ * matching "in", "Leaders" not matching "Leader", a trailing "(requires Mach
+ * Bike)". This builder reads the same prose with every signal above, from
+ * Run & Bun's own sources only — the author's words, where his trainers
+ * stand, the tracker's route order, the HM spine. Vanilla Emerald is not a
+ * source: it put Sludge Bomb behind Norman's badge (the author writes a
+ * badge gate when there is one, and wrote none) and Route 111's TMs behind
+ * Flannery (his own Route 111 trainers stand at 190, 358 and 392).
+ *
+ * It FILLS; it does not overrule. A row the TM ledger dates keeps its date:
+ * the two disagree on 19 of those, and this builder is not the better of the
+ * two on all of them (it dates Defog, "given by Steven at Granite Cave", by
+ * Steven's Space Center fight). The gate pins those disagreements so that a
+ * new one is seen. Tutors are dated here and not in the item ledger, whose
+ * invariant is that every dated row can be collected.
+ */
+function moveDates() {
+	const workbook = JSON.parse(fs.readFileSync(WORKBOOK, 'utf8'));
+	const availability = JSON.parse(fs.readFileSync(path.join(ORACLE, 'availability.json'), 'utf8'));
+	const index = indexOf(availability);
+	const entries = [];
+	for (const row of workbook.tms) {
+		const dated = dateFor(index, row.place);
+		entries.push({move: row.name.replace(/^[TH]M\d+\s+/, ''), name: row.name.split(' ')[0], kind: 'tm',
+			location: row.place, opensAt: dated.opensAt, dating: dated.dating});
+	}
+	for (const row of workbook.tutors) {
+		const dated = dateFor(index, row.place);
+		entries.push({move: row.move, name: null, kind: 'tutor',
+			location: row.place, opensAt: dated.opensAt, dating: dated.dating});
+	}
+	entries.sort((a, b) => a.move.localeCompare(b.move) || a.kind.localeCompare(b.kind));
+	return {
+		schemaVersion: 'runbun.move.dates/1.0.0',
+		source: 'item-workbook.json (tms, tutors), dated by scripts/build-item-locations.js',
+		method: 'RUN-MAP order. Read by oracle.moveItems() ONLY for a row availability.json leaves ' +
+			'undated; a row dated there, by transcription or by a correction from play, stands.',
+		entries: entries,
+	};
+}
+
 if (require.main === module) {
 	const out = build();
 	fs.writeFileSync(OUT, JSON.stringify(out, null, '\t') + '\n');
 	console.log(`${out.dated} dated of ${out.counted} -> ${path.relative(ROOT, OUT)}`);
+	const moves = moveDates();
+	fs.writeFileSync(MOVES_OUT, JSON.stringify(moves, null, '\t') + '\n');
+	console.log(`${moves.entries.filter(entry => entry.opensAt !== null).length} dated of ${moves.entries.length} -> ${path.relative(ROOT, MOVES_OUT)}`);
 }
 
-module.exports = {build: build, ANCHORS: ANCHORS, NAME_FIXES: NAME_FIXES, MART_TOWNS: MART_TOWNS, badgeOrders: badgeOrders,
+module.exports = {moveDates: moveDates, build: build, ANCHORS: ANCHORS, NAME_FIXES: NAME_FIXES, MART_TOWNS: MART_TOWNS, badgeOrders: badgeOrders,
 	normalisePlace: normalisePlace, qualifierOf: qualifierOf,
 	dateFor: dateFor, placeOrders: placeOrders, trainerOrders: trainerOrders,
 	engineTrainers: engineTrainers, scaleBridge: scaleBridge, OUT: OUT};

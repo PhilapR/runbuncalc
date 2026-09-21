@@ -421,8 +421,8 @@ test('a boss is probed before its first attempt, and the probe changes nothing',
 	// baseline to measure. So the probe must leave the run exactly as it was.
 	const policy = require('../scripts/ui-playthrough.js');
 	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
-		'fixtures', 'banked-runs', 'brbank1-A-1.run.json'), 'utf8'));
-	const play = spec => headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 7,
+		'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json'), 'utf8'));
+	const play = spec => headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 731001,
 		headless.armFlags(spec), {resume: saved});
 	const probed = play('--budget=2 --retries=1 --boss-retries=2 --probe=4');
 	assert.deepEqual(Object.keys(probed.ledger[0].probe).sort(), ['foeLeft', 'of', 'wins']);
@@ -430,7 +430,9 @@ test('a boss is probed before its first attempt, and the probe changes nothing',
 	// This box loses its first attempt at Brawly, so the second row is a
 	// RETRY of the same boss — the only row that can show the probe repeating.
 	// (The first fixture tried here won on attempt one, its second row was a
-	// trainer nobody probes, and the assertion passed with the rule broken.)
+	// trainer nobody probes, and the assertion passed with the rule broken. The
+	// second lost twice until the TM ledger was dated, 2026-09-21, and then won
+	// first time with Dewford's Sludge Bomb. The assertion below is what tells.)
 	assert.equal(probed.ledger[0].result, 'loss');
 	assert.equal(probed.ledger[1].trainer, 'Leader Brawly');
 	assert.equal(probed.ledger[1].probe, undefined, 'only the first attempt at a wall is probed');
@@ -611,24 +613,29 @@ test('a run stopped and carried on from its checkpoint plays what the uninterrup
 	const flags = () => headless.armFlags('--budget=33 --retries=3 --boss-retries=3 --probe=0 --fight-logs=none');
 	const starter = {species: 'Chimchar', rival: 'Swampert'};
 	const line = row => [row.n, row.trainer, row.seed, row.position, row.result, row.turns, row.deaths].join(' ');
-	// Seed 11 rolls its last catches after fight 16, and loses fights 28, 29
-	// and 30 to one wall. One checkpoint is taken BEFORE those rolls, so the
-	// dice's position is part of what it must carry; one INSIDE the streak, so
-	// the attempts already spent are. Each was found the hard way: at fight 29
-	// dropping the dice went unnoticed, at fight 19 dropping the attempts did.
+	// Seed 11 loses fights 18, 19 and 20 to one wall and is still rolling catches
+	// at fight 39. One checkpoint is taken BEFORE the streak, with dice still to
+	// roll, so the dice's position is part of what it must carry; one INSIDE
+	// it, so the attempts already spent are. Each was found the hard way: a
+	// checkpoint the dice had stopped moving after let their position be
+	// dropped unnoticed, and one whose wall fell next try did the same for the
+	// attempts. (The fights moved when the TM ledger was dated, 2026-09-21:
+	// runs pick up more and lose elsewhere. The assertions below say so.)
 	const taken = {};
+	let lastDice = null;
 	const whole = headless.playRun(policy, starter, 11, flags(), {keepDoc: true,
 		checkpoint: snapshot => {
 			const now = snapshot();
+			lastDice = now.state.dice;
 			// Through JSON, as a file would carry it.
-			for (const at of [16, 29]) if (!taken[at] && now.state.tally.fights === at) taken[at] = JSON.parse(JSON.stringify(now));
+			for (const at of [16, 19]) if (!taken[at] && now.state.tally.fights === at) taken[at] = JSON.parse(JSON.stringify(now));
 		}});
-	assert.ok(taken[16] && taken[29], 'the run reached both checkpoints');
+	assert.ok(taken[16] && taken[19], 'the run reached both checkpoints');
 	assert.equal(taken[16].state.attempts, 0);
-	assert.ok(taken[29].state.attempts > 1, 'the second is mid-wall, with attempts already spent');
-	assert.notEqual(taken[16].state.dice, taken[29].state.dice, 'and the dice are rolled between them');
+	assert.ok(taken[19].state.attempts > 1, 'the second is mid-wall, with attempts already spent');
+	assert.notEqual(taken[16].state.dice, lastDice, 'and the dice are still rolled after the first');
 
-	for (const at of [16, 29]) {
+	for (const at of [16, 19]) {
 		const carried = headless.playRun(policy, starter, 11, flags(), {keepDoc: true, restore: taken[at]});
 		assert.deepEqual(carried.ledger.map(line), whole.ledger.map(line), at + ': the same fights, seeds and results, from the first to the last');
 		assert.deepEqual(carried.doc.log.map(entry => entry.command), whole.doc.log.map(entry => entry.command),

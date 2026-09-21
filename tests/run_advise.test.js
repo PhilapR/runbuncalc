@@ -133,8 +133,18 @@ test('the advisor never teaches suicide: self-KO moves price as trades', () => {
 	const advice = run.adviseUpgrades(state, 'Youngster Calvin');
 	assert.equal(advice.upgrades.length, 0,
 		'a bare Seedot has no confirmed, currently obtainable improvement here');
-	assert.ok(advice.availability.undatedMovesExcluded > 0,
-		'legal but undated TM/tutor ideas are withheld instead of sold as current prep');
+	// Every move a Seedot can be taught is dated now, so nothing of ITS is
+	// withheld for want of a date — the withholding itself is gated below, on
+	// the one move that is still undated.
+	assert.equal(advice.availability.undatedMovesExcluded, 0);
+	let tympole = run.apply(fresh({permadeath: true}),
+		owned({kind: 'catch', species: 'Tympole', map: 'Littleroot Town', level: 2, method: 'fish'}));
+	tympole = run.apply(tympole, {kind: 'party', ids: ['mon-1']});
+	tympole = run.apply(tympole, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
+	const withheld = run.adviseUpgrades(tympole, 'Youngster Calvin');
+	assert.ok(withheld.availability.undatedMovesExcluded > 0,
+		'a legal but undated TM idea (Earth Power) is withheld instead of sold as current prep');
+	assert.ok(withheld.upgrades.every(u => !/Earth Power/.test(u.detail)));
 	assert.ok(advice.upgrades.every(u => !/Explosion|Self-Destruct|Final Gambit/.test(u.detail)),
 		'no self-KO move may be sold as an upgrade');
 

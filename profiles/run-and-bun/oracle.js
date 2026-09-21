@@ -851,7 +851,7 @@ function moveObtainableAt(move) {
 	// The EARLIEST dated row wins: a move sold in a late department store and
 	// also lying on an early route is available from the route.
 	let soonest = null;
-	for (const row of data.moveItems || []) {
+	for (const row of moveItems()) {
 		if (row.move !== move || typeof row.opensAt !== 'number') continue;
 		if (soonest === null || row.opensAt < soonest) soonest = row.opensAt;
 	}
@@ -895,7 +895,25 @@ function currencySources(name) {
 }
 
 function moveItems() {
-	return load('availability').moveItems || [];
+	if (!cache.moveItemsDated) {
+		// The TM ledger's own dates stand — transcribed, or corrected from play.
+		// A row it leaves undated takes the date scripts/build-item-locations.js
+		// reads from the same prose with every hack-only signal it has
+		// (move-dates.json): 19 rows were undated for want of a parser, not of
+		// knowledge, and an undated tutor teaches at any point on the road.
+		const byMove = new Map();
+		for (const entry of load('move-dates').entries) byMove.set(entry.kind + '|' + entry.move, entry);
+		cache.moveItemsDated = (load('availability').moveItems || []).map(row => {
+			if (row.opensAt !== null) return row;
+			// Surf, Fly and Dive are handed over by a person, so no place dates them; the HM story spine does.
+			const spine = (load('availability').hmMoves || {})[row.move];
+			if (typeof spine === 'number') return Object.assign({}, row, {opensAt: spine, dating: 'the HM story spine', provenance: 'derived'});
+			const built = byMove.get(row.kind + '|' + row.move);
+			if (!built || built.opensAt === null) return row;
+			return Object.assign({}, row, {opensAt: built.opensAt, dating: 'item-builder: ' + built.dating, provenance: 'derived'});
+		});
+	}
+	return cache.moveItemsDated;
 }
 
 /**

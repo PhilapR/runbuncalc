@@ -41,7 +41,10 @@ test('with a sidecar the ledger keeps a pointer, not the fight', () => {
 	const policy = require('../scripts/ui-playthrough.js');
 	const saved = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
 		'brbank1-A-1.run.json'), 'utf8'));
-	const spec = headless.armFlags('--budget=2 --retries=1 --boss-retries=2 --probe=0');
+	// Every fight logged, so the test does not hang on how the fights go: this
+	// fixture lost Brawly twice until the TM ledger was dated (2026-09-21), and
+	// now beats him first time with the Sludge Bomb it picks up in Dewford.
+	const spec = headless.armFlags('--budget=2 --retries=1 --boss-retries=2 --probe=0 --fight-logs=all');
 	const inline = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 7, spec, {resume: saved});
 	assert.ok(inline.ledger[0].log.length > 0, 'without a sidecar the fight rides on the row');
 

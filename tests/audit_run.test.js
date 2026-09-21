@@ -16,25 +16,15 @@ const auditRun = require('../scripts/audit-run.js').auditRun;
 
 const policy = () => require('../scripts/ui-playthrough.js');
 
-const DOC = path.join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json');
+const DOC = path.join(__dirname, '..', 'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json');
 
-// The banked documents were recorded before the run charged for a TM or for
-// the nurse's "Remember a move": the gate grants each TM the log spends and a
-// Heart Scale per teach, so "a clean run" still means a run the rules accept.
-function withTms(doc) {
-	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
-	const bought = [];
-	for (const entry of doc.log) {
-		if ((entry.command || {}).kind !== 'teach') continue;
-		const tm = oracle.tmFor(entry.command.move);
-		if (tm) bought.push({at: 't0', command: {kind: 'acquire', item: tm.name, where: tm.name + ', granted for the gate'}});
-		bought.push({at: 't0', command: {kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'}});
-	}
-	return Object.assign({}, doc, {log: bought.concat(doc.log)});
-}
-
+// A document written by today's harness under today's rules (clear1, seed
+// 731001, at Brawly). The gate used an older banked run and patched it —
+// granting each TM its log spent and a Heart Scale per teach — until the
+// tutor rule (2026-09-21) found teaches in it no patch could make legal:
+// Thunder and Hydro Pump at order 76, from a tutor reached at 729.
 function cleanRow() {
-	return {doc: withTms(JSON.parse(fs.readFileSync(DOC, 'utf8'))),
+	return {doc: JSON.parse(fs.readFileSync(DOC, 'utf8')),
 		ledger: [{n: 1, trainer: 'Youngster Calvin', seed: 2, result: 'win', refusals: 0}],
 		provenance: {revision: '0123456789abcdef', dirty: false, flags: ['--pp-model=1']}};
 }
@@ -234,7 +224,7 @@ test('Heart Scales are spent, all but the reserve, on what the body uses', () =>
 	const run = require('../lib/run.js');
 	const battery = require('../scripts/scenario-battery.js');
 	const ai = require('../ai');
-	let doc = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', 'br-21.run.json'));
+	let doc = battery.loadDocument(path.join(__dirname, '..', 'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json'));
 	for (let n = 0; n < 6; n++) doc = run.apply(doc, {kind: 'acquire', item: 'Heart Scale', where: 'granted'});
 	const tally = {};
 	const after = headless.spendScales(doc, tally);
@@ -323,20 +313,41 @@ test('a refused command is this run\'s own, inherited, or a cascade — and only
 	// refusals were 23 inherited and 4 cascading from them — none its own.
 	const row = cleanRow();
 	const at = command => ({at: 't0', command});
-	const mon = row.doc.party[0];
-	// Sealeo can learn Earthquake, but holds no TM for it: refused, as an old log's teach is.
-	const inheritedBad = at({kind: 'teach', id: mon, move: 'Earthquake', replace: 'Brine'});
+	const oracle = require('../profiles').getProfile(row.doc.profileId).oracle;
+	// A body and two TM moves it can learn and does not know: one TM the run
+	// never gets (its teach is refused, as an old log's is), one it is handed.
+	// Chosen by asking the rules, so the gate cannot drift with the learnsets:
+	// the first is refused for its missing TM and nothing else; the second,
+	// with its TM in hand, is refused only for replacing the first.
+	const run = require('../lib/run.js');
+	const why = (doc, command) => { try { run.apply(doc, command); return ''; } catch (error) { return error.message; } };
+	let mon = null;
+	let moves = [];
+	for (const id of row.doc.party) {
+		const body = row.doc.box.find(entry => entry.id === id);
+		const tms = (oracle.teachableMoves(body.species) || []).filter(move => oracle.tmFor(move) && !body.moves.includes(move));
+		const first = tms.find(move => /comes from TM/.test(why(row.doc, {kind: 'teach', id, move, replace: body.moves[0]})));
+		const second = first && tms.find(move => move !== first && /does not know/.test(why(
+			Object.assign({}, row.doc, {bag: Object.assign({}, row.doc.bag, {[oracle.tmFor(move).name]: 1})}),
+			{kind: 'teach', id, move, replace: first})));
+		if (first && second) { mon = body; moves = [first, second]; break; }
+	}
+	assert.ok(mon, 'the fixture holds a body with two TM moves still to learn');
+	const inheritedBad = at({kind: 'teach', id: mon.id, move: moves[0], replace: mon.moves[0]});
 	const handed = row.doc.log.concat([inheritedBad]);
+	// The TM handed over is never spent (its teach cascades), so the document holds it still.
+	const bag = Object.assign({}, row.doc.bag, {[oracle.tmFor(moves[1]).name]: 1});
 	const resumed = Object.assign({}, row, {resumedLog: handed.length,
-		doc: Object.assign({}, row.doc, {log: handed.concat([
+		doc: Object.assign({}, row.doc, {bag, log: handed.concat([
+			at({kind: 'acquire', item: oracle.tmFor(moves[1]).name, where: 'granted for the gate'}),
 			// fails only because the teach above was refused: a cascade
-			at({kind: 'teach', id: mon, move: 'Rollout', replace: 'Earthquake'})])})});
+			at({kind: 'teach', id: mon.id, move: moves[1], replace: moves[0]})])})});
 	const inherited = auditRun(resumed).checks.find(entry => entry.name === 'replay');
 	assert.equal(inherited.status, 'WARN', inherited.detail);
 	assert.match(inherited.detail, /1 refused command\(s\) inherited .*, 1 cascading from them, none of this run's own/);
 
 	const own = Object.assign({}, resumed, {doc: Object.assign({}, resumed.doc, {log: resumed.doc.log.concat([
-		at({kind: 'heartScale', id: mon, stat: 'luck'})])})});
+		at({kind: 'heartScale', id: mon.id, stat: 'luck'})])})});
 	const failed = auditRun(own).checks.find(entry => entry.name === 'replay');
 	assert.equal(failed.status, 'FAIL', 'a command the run wrote itself still fails it');
 	assert.match(failed.detail, /1 command\(s\) of this run's own the rules refuse/);

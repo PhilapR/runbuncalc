@@ -43,12 +43,13 @@ const estimate = require('../scripts/estimate-availability.js');
 function overlap() {
 	const pairs = [];
 	for (const item of availability.items) {
-		const place = new RegExp('\\b' + item.location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+		// "New Mauville" is not Mauville: the same qualifiers the builder refuses.
+		const place = new RegExp('(?<!\\b(?:New|Old|Near|Outside|Under)\\s)\\b' + item.location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
 		const hit = ledger.entries.find(entry => entry.name === item.name &&
 			place.test(entry.location + ' ' + (entry.detail || '')));
-		// A null is a withheld date, not a disagreement about the scale. The one
-		// that occurs is Magnet: the workbook puts it in New Mauville, which
-		// holds no trainer, where availability read it as Mauville.
+		// A null is a withheld date, not a disagreement about the scale. Magnet
+		// is not a pair at all: the workbook puts it in New Mauville, where
+		// availability read it as Mauville — two places, so nothing to compare.
 		if (hit && hit.opensAt !== null) pairs.push({item: item, entry: hit});
 	}
 	return pairs;
@@ -199,9 +200,11 @@ test('the first place the prose names is the one that dates the item', () => {
 });
 
 test('a qualified place is not the place it is named after', () => {
-	// New Mauville is not Mauville. It holds no trainer of its own, so the
-	// ledger's own rule — a place with no trainer is withheld — applies, and
-	// dating these four at Mauville offered them 206 orders early.
+	// New Mauville is not Mauville: dating these four at Mauville offered them
+	// 206 orders early. It holds no trainer of its own, so it was withheld —
+	// until the builder learned to date a trainer-less place from the map
+	// table (2026-09-21), where the R&B tracker's route order puts New
+	// Mauville at 623. Later than Mauville, which is the point.
 	const items = ledger.entries.filter(entry => /New Mauville/i.test(entry.location));
 	// Five since the TM sheet was transcribed.
 	assert.equal(items.length, 5, 'the workbook puts five items in New Mauville');
@@ -213,8 +216,8 @@ test('a qualified place is not the place it is named after', () => {
 			assert.ok(entry.opensAt > 0, entry.name + ' is dated by the fight that guards it');
 			continue;
 		}
-		assert.equal(entry.opensAt, null,
-			entry.name + ' is in New Mauville, which has no fight to date it');
+		assert.equal(entry.opensAt, 623, entry.name + ' is dated by the map table\'s New Mauville, not by Mauville');
+		assert.match(entry.dating, /no trainer stands there: the map table's date for New Mauville/);
 	}
 });
 
@@ -311,4 +314,48 @@ test('the advisor prices from the same item ledger the run collects from', () =>
 	for (const item of collectable) assert.ok(served.has(item.name), item.name + ' is collectable, so priceable');
 	assert.equal(served.size, oracle.itemsObtainableBy(337).length, 'one row a name');
 	assert.ok(!served.has('Life Orb'), 'and nothing dated after the fight (Life Orb is 683)');
+});
+
+test('every TM and tutor is dated from Run & Bun\'s own sources, and the two ledgers\' disagreements are known', () => {
+	const builder = require('../scripts/build-item-locations.js');
+	const written = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'profiles', 'run-and-bun', 'oracle', 'move-dates.json'), 'utf8'));
+	assert.deepEqual(builder.moveDates(), written, 'move-dates.json has drifted from its builder: node scripts/build-item-locations.js');
+
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const rows = oracle.moveItems();
+	// One row waits on the operator: no hack source says where the Fossil Maniac's house is.
+	assert.deepEqual(rows.filter(row => row.opensAt === null).map(row => row.move), ['Earth Power']);
+	const at = move => rows.find(row => row.move === move).opensAt;
+	// The author writes a gate when there is one. Vanilla Emerald put these two
+	// wrong: Sludge Bomb behind Norman's badge (342), Route 111's TMs behind
+	// Flannery's Go-Goggles (576) — his own Route 111 trainers stand at 190-392.
+	assert.equal(at('Sludge Bomb'), 32, 'Dewford Town Hall, no gate written');
+	assert.equal(at('Aerial Ace'), 392);
+	assert.equal(at('Dual Wingbeat'), 392);
+	assert.equal(at('Psychic'), 1131, 'Leaders Tate & Liza: the plural hid it');
+	assert.deepEqual(['Avalanche', 'Frost Breath', 'Breaking Swipe', 'Heal Pulse'].map(at), [1183, 1183, 1183, 1183],
+		'Shoal Cave is five rooms, and the latest dates them all');
+	assert.deepEqual(['Surf', 'Fly', 'Dive'].map(at), [594, 729, 1183], 'the HM story spine');
+	// A row the TM ledger dates itself STANDS — transcribed, or corrected from play.
+	const own = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'profiles', 'run-and-bun', 'oracle', 'availability.json'), 'utf8')).moveItems;
+	for (const row of own.filter(entry => entry.opensAt !== null)) assert.equal(at(row.move), row.opensAt, row.move + ' keeps its own date');
+
+	// Where BOTH date a row they disagree on these, and the builder is not the
+	// better of the two on all of them (Defog: "given by Steven at Granite
+	// Cave", dated by Steven's Space Center fight). Pinned, so a new one is seen.
+	const built = new Map(written.entries.map(entry => [entry.move, entry.opensAt]));
+	const differ = own.filter(row => row.opensAt !== null && typeof built.get(row.move) === 'number' && built.get(row.move) !== row.opensAt)
+		.map(row => row.move).sort();
+	// 31 of them. 25 are the builder running a few orders TIGHTER through its
+	// denser anchors (Mt. Pyre 866 v 871), which is the safe direction for the
+	// ledger that stands. Two are the builder's own misreads (Defog, above; Icy
+	// Wind dated by "sold at Lilycove"). Two are corrections from play. And
+	// three are the ones worth an operator's look, because there the ledger
+	// that STANDS is the earlier: Feint Attack 14 v 93 (the Floral Shop is in
+	// Route 104's north half), Hyper Voice 211 v 287 and Night Shade 211 v 235
+	// (both "requires a Bike").
+	assert.deepEqual(differ, ['Blizzard', 'Brick Break', 'Curse', 'Dark Pulse', 'Defog', 'Draining Kiss', 'Earthquake', 'Explosion',
+		'Fake Tears', 'Feint Attack', 'Fire Blast', 'Fire Punch', 'Hydro Pump', 'Hyper Voice', 'Ice Punch', 'Icy Wind', 'Life Dew',
+		'Me First', 'Night Shade', 'Play Rough', 'Poison Jab', 'Rock Blast', 'Shadow Ball', 'Shadow Punch', 'Smart Strike', 'Swagger',
+		'Tailwind', 'Thunder', 'Thunder Punch', 'Weather Ball', 'Will-O-Wisp']);
 });

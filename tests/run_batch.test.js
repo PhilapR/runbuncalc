@@ -42,7 +42,7 @@ test('one run writes its record, its fights and its log, and the knobs it was gi
 	const out = fs.mkdtempSync(path.join(os.tmpdir(), 'runone-'));
 	const saved = path.join(__dirname, '..', 'fixtures', 'banked-runs', 'brbank1-A-1.run.json');
 	const done = childProcess.spawnSync(process.execPath, [path.join(__dirname, '..', 'scripts', 'run-one.js'),
-		'--seed=7', '--out=' + out, '--resume=' + saved, '--spec=budget=2,retries=1,boss-retries=2,probe=0'],
+		'--seed=7', '--out=' + out, '--resume=' + saved, '--spec=budget=2,retries=1,boss-retries=2,probe=0,fight-logs=all'],
 	{encoding: 'utf8'});
 	assert.equal(done.status, 0, done.stderr);
 	const row = JSON.parse(fs.readFileSync(path.join(out, 'run-7.json'), 'utf8'));
@@ -50,7 +50,7 @@ test('one run writes its record, its fights and its log, and the knobs it was gi
 	assert.equal(row.resumedAt, 76);
 	assert.ok(row.doc && row.doc.log.length, 'the document is kept, so the run can be carried on and audited');
 	const fights = fightLog.readFightLog(path.join(out, 'run-7.fights.ndjson.gz'));
-	assert.deepEqual(fights.map(line => line.n), row.ledger.map(fight => fight.n), 'every boss attempt is in the sidecar');
+	assert.deepEqual(fights.map(line => line.n), row.ledger.map(fight => fight.n), 'every attempt is in the sidecar (fight-logs=all: the fixture once lost Brawly twice, and now wins)');
 	assert.ok(row.ledger.every(fight => fight.log === undefined), 'and none of it is inline');
 	assert.match(fs.readFileSync(path.join(out, 'run-7.log'), 'utf8'), /DONE position \d+ fights 2/);
 

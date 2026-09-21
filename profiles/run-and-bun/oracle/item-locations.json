@@ -4,8 +4,8 @@
 	"provenance": "transcribed + derived",
 	"method": "opensAt is a RUN-MAP order (cumulative enemy Pokemon, 0-1620), not an engine row index (0-434). It is the first trainer at the place the prose names, translated through trainer-orders.json. Late-biased: a place the engine splits (Route 104 South and North) takes the LATEST of its sections, because offering an item the run cannot fetch is the failure this ledger prevents. An optional fight group does not date a place that has its own fights, and a building behind a door is not a section of the route outside it. A stated gate — an HM named in the prose, or a badge count — is a floor over all of that. A place with no trainer is null and withheld.",
 	"counted": 294,
-	"dated": 236,
-	"undated": 58,
+	"dated": 267,
+	"undated": 27,
 	"entries": [
 		{
 			"name": "Oran Berry",
@@ -32,6 +32,46 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "Everstone",
+			"kind": "evolution",
+			"location": "Granite Cave, ice floor, at the 'L' shaped rock formation before the stairs (hidden).",
+			"detail": null,
+			"opensAt": 28,
+			"dating": "no trainer stands there: the map table's date for Granite Cave Stevens Room"
+		},
+		{
+			"name": "Nevermelt Ice",
+			"kind": "held",
+			"location": "Granite Cave.",
+			"detail": null,
+			"opensAt": 28,
+			"dating": "no trainer stands there: the map table's date for Granite Cave Stevens Room"
+		},
+		{
+			"name": "TM45 Rock Blast",
+			"kind": "tm",
+			"location": "Granite Cave.",
+			"detail": null,
+			"opensAt": 28,
+			"dating": "no trainer stands there: the map table's date for Granite Cave Stevens Room"
+		},
+		{
+			"name": "Silk Scarf",
+			"kind": "held",
+			"location": "Dewford Town, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": 32,
+			"dating": "no trainer stands there: the map table's date for Dewford Town"
+		},
+		{
+			"name": "TM40 Sludge Bomb",
+			"kind": "tm",
+			"location": "Given by an NPC inside Dewford Town Hall.",
+			"detail": null,
+			"opensAt": 32,
+			"dating": "no trainer stands there: the map table's date for Dewford Town"
+		},
+		{
 			"name": "Heart Scale",
 			"kind": "heart-scale",
 			"location": "Route 109",
@@ -46,6 +86,14 @@
 			"detail": null,
 			"opensAt": 45,
 			"dating": "gated by a correction from play at Route 109, which opens at 45"
+		},
+		{
+			"name": "Black Glasses",
+			"kind": "held",
+			"location": "Slateport City, given by an NPC inside the Battle Tent.",
+			"detail": null,
+			"opensAt": 51,
+			"dating": "no trainer stands there: the map table's date for Slateport City"
 		},
 		{
 			"name": "Rare Candy",
@@ -112,6 +160,14 @@
 			"dating": "the first of the places it names"
 		},
 		{
+			"name": "HM01 Cut",
+			"kind": "tm",
+			"location": "Given by an NPC in Rustboro City.",
+			"detail": null,
+			"opensAt": 106,
+			"dating": "no trainer stands there: the map table's date for Rustboro City"
+		},
+		{
 			"name": "Miracle Seed",
 			"kind": "held",
 			"location": "Petalburg Woods, given by an NPC past the Cut tree.",
@@ -134,6 +190,14 @@
 			"detail": null,
 			"opensAt": 106,
 			"dating": "gated by Cut, which opens at 106"
+		},
+		{
+			"name": "Wide Lens",
+			"kind": "held",
+			"location": "Rustboro City, given by an NPC at the Pokémon Trainer's School.",
+			"detail": null,
+			"opensAt": 106,
+			"dating": "no trainer stands there: the map table's date for Rustboro City"
 		},
 		{
 			"name": "Rare Candy",
@@ -190,6 +254,14 @@
 			"detail": null,
 			"opensAt": 161,
 			"dating": "the first of the places it names"
+		},
+		{
+			"name": "Protective Pads",
+			"kind": "held",
+			"location": "Verdanturf Town, given by an NPC at the Battle Tent.",
+			"detail": null,
+			"opensAt": 170,
+			"dating": "no trainer stands there: the map table's date for Verdanturf Town"
 		},
 		{
 			"name": "Fire Stone",
@@ -640,6 +712,22 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "TM28 Solar Blade",
+			"kind": "tm",
+			"location": "Fiery Path.",
+			"detail": null,
+			"opensAt": 535,
+			"dating": "no trainer stands there: the map table's date for Fiery Path"
+		},
+		{
+			"name": "TM29 Solar Beam",
+			"kind": "tm",
+			"location": "Fiery Path.",
+			"detail": null,
+			"opensAt": 535,
+			"dating": "no trainer stands there: the map table's date for Fiery Path"
+		},
+		{
 			"name": "Charcoal",
 			"kind": "held",
 			"location": "Lavaridge Town, given by an NPC inside one of the houses.",
@@ -790,6 +878,46 @@
 			"detail": null,
 			"opensAt": 618,
 			"dating": "the place it names"
+		},
+		{
+			"name": "Ampharosite",
+			"kind": "mega-stone",
+			"location": "New Mauville.",
+			"detail": null,
+			"opensAt": 623,
+			"dating": "no trainer stands there: the map table's date for New Mauville Entrance"
+		},
+		{
+			"name": "Electric Gem",
+			"kind": "held",
+			"location": "New Mauville.",
+			"detail": null,
+			"opensAt": 623,
+			"dating": "no trainer stands there: the map table's date for New Mauville Entrance"
+		},
+		{
+			"name": "Magnet",
+			"kind": "held",
+			"location": "New Mauville.",
+			"detail": null,
+			"opensAt": 623,
+			"dating": "no trainer stands there: the map table's date for New Mauville Entrance"
+		},
+		{
+			"name": "Zoom Lens",
+			"kind": "held",
+			"location": "New Mauville.",
+			"detail": null,
+			"opensAt": 623,
+			"dating": "no trainer stands there: the map table's date for New Mauville Entrance"
+		},
+		{
+			"name": "Fire Gem",
+			"kind": "held",
+			"location": "Scorched Slab.",
+			"detail": null,
+			"opensAt": 640,
+			"dating": "no trainer stands there: the map table's date for Scorched Slab"
 		},
 		{
 			"name": "Misty Seed",
@@ -1256,6 +1384,46 @@
 			"dating": "the place it names"
 		},
 		{
+			"name": "Garchompite",
+			"kind": "mega-stone",
+			"location": "Safari Zone, north area.",
+			"detail": null,
+			"opensAt": 871,
+			"dating": "no trainer stands there: the map table's date for Safari Zone North"
+		},
+		{
+			"name": "Mental Herb",
+			"kind": "held",
+			"location": "Safari Zone, south-west area.",
+			"detail": null,
+			"opensAt": 871,
+			"dating": "no trainer stands there: the map table's date for Safari Zone North"
+		},
+		{
+			"name": "Metronome",
+			"kind": "held",
+			"location": "Safari Zone, south-east area.",
+			"detail": null,
+			"opensAt": 871,
+			"dating": "no trainer stands there: the map table's date for Safari Zone North"
+		},
+		{
+			"name": "Normal Gem",
+			"kind": "held",
+			"location": "Safari Zone, north-west zone.",
+			"detail": null,
+			"opensAt": 871,
+			"dating": "no trainer stands there: the map table's date for Safari Zone North"
+		},
+		{
+			"name": "Power Herb",
+			"kind": "held",
+			"location": "Safari Zone, north-east area.",
+			"detail": null,
+			"opensAt": 871,
+			"dating": "no trainer stands there: the map table's date for Safari Zone North"
+		},
+		{
 			"name": "Cameruptite",
 			"kind": "mega-stone",
 			"location": "Magma Hideout.",
@@ -1320,6 +1488,14 @@
 			"dating": "the fight that guards it"
 		},
 		{
+			"name": "TM42 Psychic",
+			"kind": "tm",
+			"location": "Given by Leaders Tate & Liza after you defeat them.",
+			"detail": null,
+			"opensAt": 1131,
+			"dating": "the fight that guards it"
+		},
+		{
 			"name": "HM08 Dive",
 			"kind": "tm",
 			"location": "Given by Steven after the events at the Mossdeep Space Center.",
@@ -1358,6 +1534,14 @@
 			"detail": "Underwater (hidden).",
 			"opensAt": 1177,
 			"dating": "the place it names"
+		},
+		{
+			"name": "Fighting Gem",
+			"kind": "held",
+			"location": "Shoal Cave, given by an NPC.",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
 		},
 		{
 			"name": "Heart Scale",
@@ -1416,12 +1600,44 @@
 			"dating": "gated by Waterfall, which opens at 1183"
 		},
 		{
+			"name": "Ice Gem",
+			"kind": "held",
+			"location": "Shoal Cave.",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
+		},
+		{
+			"name": "Medichamite",
+			"kind": "mega-stone",
+			"location": "Mossdeep City.",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Mossdeep City"
+		},
+		{
+			"name": "Shell Bell",
+			"kind": "held",
+			"location": "Shoal Cave, ice room.",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
+		},
+		{
 			"name": "Swampertite",
 			"kind": "mega-stone",
 			"location": "Route 119 (requires Waterfall and the Acro Bike).",
 			"detail": null,
 			"opensAt": 1183,
 			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"name": "TM06 Breaking Swipe",
+			"kind": "tm",
+			"location": "Shoal Cave, ice room.",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
 		},
 		{
 			"name": "TM12 Misty Explosion",
@@ -1438,6 +1654,14 @@
 			"detail": null,
 			"opensAt": 1183,
 			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"name": "TM41 Heal Pulse",
+			"kind": "tm",
+			"location": "Shoal Cave.",
+			"detail": null,
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
 		},
 		{
 			"name": "TM43 Psychic Fangs",
@@ -1534,6 +1758,30 @@
 			"detail": "One tile to the east of CoolTrainer Ruben (hidden).",
 			"opensAt": 1219,
 			"dating": "the fight that guards it"
+		},
+		{
+			"name": "Expert Belt",
+			"kind": "held",
+			"location": "Sootopolis City, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": 1258,
+			"dating": "no trainer stands there: the map table's date for Sootopolis City"
+		},
+		{
+			"name": "Mawilite",
+			"kind": "mega-stone",
+			"location": "Cave of Origin.",
+			"detail": null,
+			"opensAt": 1258,
+			"dating": "no trainer stands there: the map table's date for Cave Of Origin 1f"
+		},
+		{
+			"name": "TM05 Flatter",
+			"kind": "tm",
+			"location": "Pacifidlog Town, given by an NPC inside one of the houses.",
+			"detail": null,
+			"opensAt": 1312,
+			"dating": "no trainer stands there: the map table's date for Pacifidlog Town"
 		},
 		{
 			"name": "Gyaradosite",
@@ -1904,25 +2152,9 @@
 			"dating": "unavailable in this game"
 		},
 		{
-			"name": "Ampharosite",
-			"kind": "mega-stone",
-			"location": "New Mauville.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
 			"name": "Assault Vest",
 			"kind": "held",
 			"location": "Slateport Harbor, swap a Scanner, Leftovers, Choice Band, Scarf or Specs for it.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Black Glasses",
-			"kind": "held",
-			"location": "Slateport City, given by an NPC inside the Battle Tent.",
 			"detail": null,
 			"opensAt": null,
 			"dating": "no trainer or known place in the text"
@@ -1976,62 +2208,6 @@
 			"dating": "unavailable in this game"
 		},
 		{
-			"name": "Electric Gem",
-			"kind": "held",
-			"location": "New Mauville.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Everstone",
-			"kind": "evolution",
-			"location": "Granite Cave, ice floor, at the 'L' shaped rock formation before the stairs (hidden).",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Expert Belt",
-			"kind": "held",
-			"location": "Sootopolis City, given by an NPC inside one of the houses.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Fighting Gem",
-			"kind": "held",
-			"location": "Shoal Cave, given by an NPC.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Fire Gem",
-			"kind": "held",
-			"location": "Scorched Slab.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Garchompite",
-			"kind": "mega-stone",
-			"location": "Safari Zone, north area.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "HM01 Cut",
-			"kind": "tm",
-			"location": "Given by an NPC in Rustboro City.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
 			"name": "HM05 Flash",
 			"kind": "tm",
 			"location": "Given by an NPC in Granite Cave.",
@@ -2043,14 +2219,6 @@
 			"name": "HM07 Waterfall",
 			"kind": "tm",
 			"location": "Given by Wallace at Sootopolis.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Ice Gem",
-			"kind": "held",
-			"location": "Shoal Cave.",
 			"detail": null,
 			"opensAt": null,
 			"dating": "no trainer or known place in the text"
@@ -2104,52 +2272,12 @@
 			"dating": "unavailable in this game"
 		},
 		{
-			"name": "Magnet",
-			"kind": "held",
-			"location": "New Mauville.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Mawilite",
-			"kind": "mega-stone",
-			"location": "Cave of Origin.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Medichamite",
-			"kind": "mega-stone",
-			"location": "Mossdeep City.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Mental Herb",
-			"kind": "held",
-			"location": "Safari Zone, south-west area.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
 			"name": "Metagrossite",
 			"kind": "mega-stone",
 			"location": "Unavailable.",
 			"detail": null,
 			"opensAt": null,
 			"dating": "unavailable in this game"
-		},
-		{
-			"name": "Metronome",
-			"kind": "held",
-			"location": "Safari Zone, south-east area.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
 		},
 		{
 			"name": "Mewtwonite X",
@@ -2166,38 +2294,6 @@
 			"detail": null,
 			"opensAt": null,
 			"dating": "unavailable in this game"
-		},
-		{
-			"name": "Nevermelt Ice",
-			"kind": "held",
-			"location": "Granite Cave.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Normal Gem",
-			"kind": "held",
-			"location": "Safari Zone, north-west zone.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Power Herb",
-			"kind": "held",
-			"location": "Safari Zone, north-east area.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Protective Pads",
-			"kind": "held",
-			"location": "Verdanturf Town, given by an NPC at the Battle Tent.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
 		},
 		{
 			"name": "Rare Candy",
@@ -2232,57 +2328,9 @@
 			"dating": "unavailable in this game"
 		},
 		{
-			"name": "Shell Bell",
-			"kind": "held",
-			"location": "Shoal Cave, ice room.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Silk Scarf",
-			"kind": "held",
-			"location": "Dewford Town, given by an NPC inside one of the houses.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "TM05 Flatter",
-			"kind": "tm",
-			"location": "Pacifidlog Town, given by an NPC inside one of the houses.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "TM06 Breaking Swipe",
-			"kind": "tm",
-			"location": "Shoal Cave, ice room.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
 			"name": "TM17 Flamethrower",
 			"kind": "tm",
 			"location": "Given by Leader Flannery after you defeat her.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "TM28 Solar Blade",
-			"kind": "tm",
-			"location": "Fiery Path.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "TM29 Solar Beam",
-			"kind": "tm",
-			"location": "Fiery Path.",
 			"detail": null,
 			"opensAt": null,
 			"dating": "no trainer or known place in the text"
@@ -2304,60 +2352,12 @@
 			"dating": "no trainer or known place in the text"
 		},
 		{
-			"name": "TM40 Sludge Bomb",
-			"kind": "tm",
-			"location": "Given by an NPC inside Dewford Town Hall.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "TM41 Heal Pulse",
-			"kind": "tm",
-			"location": "Shoal Cave.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "TM42 Psychic",
-			"kind": "tm",
-			"location": "Given by Leaders Tate & Liza after you defeat them.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "TM45 Rock Blast",
-			"kind": "tm",
-			"location": "Granite Cave.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
 			"name": "Tyranitarite",
 			"kind": "mega-stone",
 			"location": "Unavailable.",
 			"detail": null,
 			"opensAt": null,
 			"dating": "unavailable in this game"
-		},
-		{
-			"name": "Wide Lens",
-			"kind": "held",
-			"location": "Rustboro City, given by an NPC at the Pokémon Trainer's School.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
-		},
-		{
-			"name": "Zoom Lens",
-			"kind": "held",
-			"location": "New Mauville.",
-			"detail": null,
-			"opensAt": null,
-			"dating": "no trainer or known place in the text"
 		}
 	]
 }

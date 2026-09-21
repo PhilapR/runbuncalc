@@ -61,7 +61,11 @@ test('a dated TM reports the order it becomes obtainable, not null', () => {
 	assert.equal(at('Seismic Toss'), 80);
 	// A row with a known place and no proven unlock still answers null, which
 	// must read as "timing unproven" and never as "available now".
-	assert.equal(at('Aerial Ace'), null);
+	// Earth Power is the one such row left ("Fossil Maniac's house", which no
+	// Run & Bun source places). Aerial Ace was the example here until the TM
+	// ledger took the item builder's dates for rows it could not parse.
+	assert.equal(at('Earth Power'), null);
+	assert.equal(at('Aerial Ace'), 392);
 	assert.equal(at('Not A Real Move'), null);
 });
 
@@ -107,12 +111,15 @@ test('a ruled move follows its anchor map, and an unruled one still answers null
 	assert.deepEqual(Object.keys(adopt.MOVE_DATE_RULINGS).sort(),
 		['Rock Tomb', 'Smart Strike', 'Swagger']);
 
-	// And the rest of the undated set is untouched: 19 rows still answer null,
-	// which is the silence the filter exists to keep.
-	const undated = profile.oracle.moveItems()
-		.filter(row => typeof row.opensAt !== 'number');
-	assert.ok(undated.length > 10,
-		'the undated remainder is counted, not quietly emptied');
+	// The ledger ITSELF is untouched: 19 rows are still undated in the file,
+	// and a ruling is still the only way to date one there. What reads it now
+	// fills those from scripts/build-item-locations.js (move-dates.json), so
+	// one row answers null — and it is named, so it cannot empty quietly.
+	const inFile = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'profiles', 'run-and-bun', 'oracle',
+		'availability.json'), 'utf8')).moveItems.filter(row => typeof row.opensAt !== 'number');
+	assert.equal(inFile.length, 19, 'the file keeps its own silence');
+	assert.deepEqual(profile.oracle.moveItems().filter(row => typeof row.opensAt !== 'number').map(row => row.move),
+		['Earth Power'], 'the undated remainder is named, not quietly emptied');
 });
 
 test('the ruling refuses rather than guesses when its anchor moves', () => {

@@ -537,8 +537,8 @@
 			"settledBy": "operator ruling"
 		},
 		{
-			"id": "undated-tutors-stay-usable",
-			"question": "A move tutor now teaches only once the road has reached it (lib/run.js teach, run.learnable; Brick Break is Route 118, order 623, and was teachable at Norman, 337). That covers the DATED tutors. Eleven tutor rows have no datable place (Avalanche, Dive, Fly, Frost Breath, Hurricane, Psycho Shift, Surf, ...) and stay usable at any position, as before. Should an undated tutor be refused until dated, or stay open?",
+			"id": "earth-power-has-no-place",
+			"question": "Every TM and tutor is now dated from Run & Bun's own sources (scripts/build-item-locations.js moveDates, read by oracle.moveItems for rows availability.json leaves undated) except ONE: TM30 Earth Power, \"Given by an NPC at Fossil Maniac's house\". No hack source places that house, so it stays undated and teachable at any order once the TM is held. Where is it? Two more for a look, where the TM ledger that stands is EARLIER than the builder: Feint Attack 14 v 93 (the Floral Shop is in Route 104's north half), Hyper Voice 211 v 287 and Night Shade 211 v 235 (both \"requires a Bike\").",
 			"raised": "2026-09-21",
 			"settledBy": "operator ruling"
 		}

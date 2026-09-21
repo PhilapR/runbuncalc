@@ -2776,7 +2776,7 @@ test('a move tutor teaches only once the road has reached it', () => {
 	// The HM spine is handed over by people, so the sheet cannot place it — the
 	// story gates can: Surf at the Seashore House, Fly on Route 119, Dive from Steven.
 	assert.deepEqual(['Surf', 'Fly', 'Dive'].map(move => oracle.tutorOpensAt(move)), [594, 729, 1183]);
-	assert.equal(oracle.tutorOpensAt('Hurricane'), null, 'a tutor whose place is known and not dated stays null, and usable');
+	assert.equal(oracle.tutorOpensAt('Hurricane'), 763, 'Fortree City holds no trainer: dated by its gym, through the item builder');
 	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
 		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
 	const learner = saved.box.find(mon => mon.status !== 'dead' && oracle.canLearn(mon.species, 'Brick Break') &&
