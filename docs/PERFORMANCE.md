@@ -189,3 +189,30 @@ It also showed the slot-filling rule's flaw: every run reached Norman with
 five or six Sitrus Berries in the bag and nobody holding one, because slots
 filled with a Chesto or Pecha before the trees opened (235) were never looked
 at again, and bodies re-picked into the six after the advice ran held nothing.
+
+## What a boss retry is worth (259 run ledgers, 2026-09-21)
+
+Read from every sweep and baseline ledger on disk (the over-supplied sweeps
+included: a prize changes whether a wall falls, not the shape of when). 412
+boss fights were eventually won, 46 walls never fell.
+
+| Attempt on which a won boss fell | |
+|---|---|
+| median | 1 |
+| p75 / p90 | 4 / 9 |
+| p95 / p99 | 21 / 33 |
+| **latest ever** | **42** |
+
+| `--boss-retries` | Wins kept | Attempts saved on walls that never fell |
+|---|---|---|
+| 20 | 94.9% | 1900 |
+| 25 | 97.8% | 1670 |
+| **40** | **99.5%** | **980** (~21 hours of search-8) |
+| 60 | 100% | 60 |
+
+**Sweeps should run `--boss-retries=40`, not 60.** No boss has ever fallen
+after attempt 42; the last twenty attempts of sixty bought 2 wins in 412 and
+cost about twenty minutes a wall. Below 40 the trade is real — a cap of 25
+gives up 2.2% of wins PER WALL, which over a dozen walls compounds to about a
+quarter of a run's chance of finishing — so 25 is for fast diagnostic runs,
+not for a run meant to clear the game.
