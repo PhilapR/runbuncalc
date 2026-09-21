@@ -132,3 +132,18 @@ test('a run is read for what its wins had that its losses lacked', async () => {
 	assert.deepEqual(read.control.find(entry => entry.tag === 'set-up'), {tag: 'set-up', perWin: 0.5, perLoss: 0});
 	assert.deepEqual(read.leads[0], {lead: 'Bewear', wins: 2, attempts: 4});
 });
+
+test('a turn says who moved first, and whether the search was guessing', () => {
+	const they = tagsOf(turn({events: ['Foe Mienshao used Close Combat. (85% to Bewear)', 'Bewear used Superpower. (59% to Mienshao)']}));
+	assert.ok(they.includes('they-move-first') && !they.includes('we-move-first'));
+	const we = tagsOf(turn({events: ['Bewear used Superpower. (59% to Mienshao)', 'Foe Mienshao used Close Combat. (85% to Bewear)']}));
+	assert.ok(we.includes('we-move-first'));
+	assert.ok(!tagsOf(turn({events: ['Bewear used Superpower. (100% to Mienshao)', 'Mienshao fainted!']})).includes('we-move-first'),
+		'one action is not an order');
+	// Brawly's winning attempt, turn one: Stun Spore 0.283 over Air Cutter 0.281.
+	const guess = tagsOf(turn({chose: 'Stun Spore', why: 'search-4', scores: [
+		{choice: 'Air Cutter', value: 0.281, runs: 4}, {choice: 'Stun Spore', value: 0.283, runs: 4}]}));
+	assert.ok(guess.includes('coin-flip') && !guess.includes('clear-choice'));
+	const sure = tagsOf(turn({why: 'search-8', scores: [{choice: 'Superpower', value: 0.71, runs: 8}, {choice: 'Thrash', value: 0.4, runs: 8}]}));
+	assert.ok(sure.includes('clear-choice') && !sure.includes('coin-flip'));
+});

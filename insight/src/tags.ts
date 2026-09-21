@@ -13,7 +13,8 @@ export type Tag =
 	| 'speed-control' | 'status' | 'set-up' | 'screen' | 'hazard' | 'protect' | 'disrupt'
 	| 'pivot' | 'pivot-move' | 'sack' | 'forced' | 'priority' | 'recovery'
 	| 'we-ko' | 'we-fall' | 'crit-ours' | 'crit-theirs' | 'miss-ours' | 'miss-theirs'
-	| 'search-overrode' | 'lost-race' | 'foe-set-up' | 'foe-recovered';
+	| 'search-overrode' | 'lost-race' | 'foe-set-up' | 'foe-recovered'
+	| 'we-move-first' | 'they-move-first' | 'coin-flip' | 'clear-choice';
 
 const moves = (list: string): RegExp => new RegExp('^(' + list + ')$');
 
@@ -27,6 +28,10 @@ const DISRUPT = moves('Fake Out|Taunt|Encore|Disable|Knock Off|Roar|Whirlwind|Dr
 const PIVOT_MOVE = moves('U-turn|Volt Switch|Flip Turn|Baton Pass|Parting Shot|Teleport');
 const PRIORITY = moves('Quick Attack|Mach Punch|Bullet Punch|Ice Shard|Aqua Jet|Sucker Punch|Shadow Sneak|Extreme Speed|Vacuum Wave|Accelerock|Water Shuriken|First Impression|Fake Out|Feint');
 const RECOVERY = moves('Recover|Roost|Soft-Boiled|Slack Off|Synthesis|Moonlight|Morning Sun|Milk Drink|Shore Up|Rest|Wish|Heal Order|Strength Sap|Life Dew|Drain Punch|Giga Drain|Leech Life|Draining Kiss|Horn Leech');
+
+/** Search values closer than this are one decision's noise; further apart than CLEAR, a real preference. */
+export const COIN_FLIP = 0.02;
+export const CLEAR = 0.1;
 
 /** The species part of a view name such as "Luxray L65 · par". */
 export const speciesOf = (shown: string): string => shown.replace(/\s+L\d+.*$/, '').trim();
@@ -86,6 +91,26 @@ export function tagsOf(turn: Turn): ReadonlyArray<Tag> {
 	if (!forced && offered.length > 1 && (turn.why ?? '').startsWith('search')) {
 		const best = [...offered].sort((a, b) => floorOf(b.damage) - floorOf(a.damage))[0];
 		if (best !== undefined && floorOf(best.damage) > 0 && best.move !== chose) tags.add('search-overrode');
+	}
+	// Who acted first, read off the order things happened in. Speed is what we
+	// keep losing on, and this is where it shows: a turn where they move first
+	// is a turn our hit may never land.
+	const acted = turn.events.map(text => /^(Foe )?(.+?) used /.exec(text)).filter(hit => hit !== null);
+	const first = acted[0];
+	if (!forced && !switching && first !== undefined && acted.length > 1) {
+		tags.add(first[1] === undefined ? 'we-move-first' : 'they-move-first');
+	}
+	// How sure the search was. Its values are means of a handful of rollouts;
+	// when the best two are within COIN_FLIP of each other the "choice" is
+	// noise, and when the best is far clear it is a real preference. On
+	// Brawly's winning attempt turn one chose Stun Spore over Air Cutter at
+	// 0.283 against 0.281.
+	const scores = [...(turn.scores ?? [])].sort((a, b) => b.value - a.value);
+	const top = scores[0];
+	const second = scores[1];
+	if (top !== undefined && second !== undefined) {
+		if (top.value - second.value < COIN_FLIP) tags.add('coin-flip');
+		else if (top.value - second.value >= CLEAR) tags.add('clear-choice');
 	}
 	void mine;
 	return [...tags];

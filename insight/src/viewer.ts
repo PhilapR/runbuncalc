@@ -56,7 +56,7 @@ button.row:hover{background:var(--tag)}button.row[aria-current=true]{background:
 .bar{display:inline-block;height:6px;border-radius:3px;background:var(--line);width:70px;vertical-align:middle;overflow:hidden}.bar i{display:block;height:100%;background:var(--win)}.bar.foe i{background:var(--loss)}
 .turn{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 0 8px}
 .turn .head{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}.turn b{font-weight:600}
-.tag{display:inline-block;background:var(--tag);border-radius:10px;padding:0 7px;font-size:11px;margin:2px 3px 0 0}.tag.hot{color:var(--hot)}
+.tag{display:inline-block;background:var(--tag);border-radius:10px;padding:0 7px;font-size:11px;margin:2px 3px 0 0}.tag.hot{color:var(--hot)}.tag.warn{color:var(--loss)}.strip{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}.seg{flex:1 1 120px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px}.seg b{display:block;font-size:13px}.seg.fell b{color:var(--win)}.seg.stood b{color:var(--loss)}.speed{font-size:12px;margin:0 0 10px;color:var(--mute)}
 .events{margin:6px 0 0;padding-left:16px;color:var(--mute)}details{margin-top:6px}summary{cursor:pointer;color:var(--mute);font-size:12px}
 table{border-collapse:collapse;font-size:12px;margin-top:4px}td,th{padding:2px 8px 2px 0;text-align:left}th{color:var(--mute);font-weight:500}
 .chosen{font-weight:600}.lift{font-size:12px;margin:4px 8px 10px}.lift span{margin-right:10px;white-space:nowrap}
@@ -66,6 +66,7 @@ table{border-collapse:collapse;font-size:12px;margin-top:4px}td,th{padding:2px 8
 const SCRIPT = `
 const DATA = JSON.parse(document.getElementById('data').textContent);
 const HOT = new Set(['speed-control','status','set-up','sack','pivot','search-overrode','screen','hazard','disrupt','priority']);
+const WARN = new Set(['they-move-first','coin-flip','we-fall','foe-set-up','foe-recovered','crit-theirs']);
 let wall = null, attempt = null, filter = null;
 const el = (tag, attrs, kids) => { const n = document.createElement(tag); for (const k in (attrs||{})) { if (k === 'text') n.textContent = attrs[k]; else if (k === 'on') for (const e in attrs.on) n.addEventListener(e, attrs.on[e]); else n.setAttribute(k, attrs[k]); } for (const kid of (kids||[])) n.appendChild(kid); return n; };
 const bar = (pct, foe) => el('span', {class: 'bar' + (foe ? ' foe' : '')}, [el('i', {style: 'width:' + Math.max(0, Math.min(100, pct)) + '%'})]);
@@ -119,6 +120,16 @@ function drawFight() {
     for (const e of f.events) { if (e.turn !== last || !card) { card = el('div', {class: 'turn'}); card.appendChild(el('div', {class: 'head'}, [el('b', {text: e.turn == null ? '—' : 'T' + e.turn})])); card.appendChild(el('ul', {class: 'events'})); box.appendChild(card); last = e.turn; } card.lastChild.appendChild(el('li', {text: e.text})); }
     return;
   }
+  // Their six across the top: what each cost us, who we threw at it, whether it fell.
+  const strip = el('div', {class: 'strip'});
+  for (const c of attempt.foeCosts) {
+    const used = [...new Set(f.turns.filter(t => t.foe.replace(/\s+L\d+.*$/, '') === c.foe).map(t => t.us.replace(/\s+L\d+.*$/, '')))];
+    strip.appendChild(el('div', {class: 'seg ' + (c.fell ? 'fell' : 'stood')}, [el('b', {text: c.foe + (c.fell ? ' ✓' : ' ✗')}),
+      el('span', {text: c.turns + ' turns · ' + c.bodiesLost + ' of ours lost'}), el('div', {class: 'sub', text: used.join(' → ')})]));
+  }
+  box.appendChild(strip);
+  const count = tag => f.turns.filter(t => t.tags.includes(tag)).length;
+  box.appendChild(el('div', {class: 'speed', text: 'We moved first on ' + count('we-move-first') + ' turns, they did on ' + count('they-move-first') + '. The search was guessing (top two options within 0.02) on ' + count('coin-flip') + ' of ' + f.turns.filter(t => t.scores && t.scores.length > 1).length + ' searched turns, and clear on ' + count('clear-choice') + '.'}));
   const present = [...new Set(f.turns.flatMap(t => t.tags))];
   const filters = el('div', {class: 'filters'});
   for (const tag of present) filters.appendChild(el('button', {'aria-pressed': String(filter === tag), text: tag, on: {click: () => { filter = filter === tag ? null : tag; drawFight(); }}}));
@@ -126,7 +137,7 @@ function drawFight() {
   for (const t of f.turns.filter(t => !filter || t.tags.includes(filter))) {
     const card = el('div', {class: 'turn'});
     card.appendChild(el('div', {class: 'head'}, [el('b', {text: 'T' + t.turn}), el('span', {}, [document.createTextNode(t.us + ' '), bar(t.usHp), document.createTextNode(' ' + t.usHp + '%')]), el('span', {class: 'sub', text: 'vs'}), el('span', {}, [document.createTextNode(t.foe + ' '), bar(t.foeHp, true), document.createTextNode(' ' + t.foeHp + '%')]), el('span', {class: 'chosen', text: '→ ' + t.chose}), el('span', {class: 'sub', text: t.why || ''})]));
-    const tags = el('div'); for (const tag of t.tags) tags.appendChild(el('span', {class: 'tag' + (HOT.has(tag) ? ' hot' : ''), text: tag})); card.appendChild(tags);
+    const tags = el('div'); for (const tag of t.tags) tags.appendChild(el('span', {class: 'tag' + (HOT.has(tag) ? ' hot' : WARN.has(tag) ? ' warn' : ''), text: tag})); card.appendChild(tags);
     const ev = el('ul', {class: 'events'}); for (const e of t.events) ev.appendChild(el('li', {text: e})); card.appendChild(ev);
     const more = el('details', {}, [el('summary', {text: 'what was on offer' + (t.scores && t.scores.length ? ', and what the search thought' : '')})]);
     if (t.threat) more.appendChild(el('div', {class: 'sub', text: t.threat}));
