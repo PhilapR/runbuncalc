@@ -23,6 +23,7 @@ import * as fs from 'node:fs/promises';
 import * as http from 'node:http';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import {decodeEnded, decodePlaying, fleetOf, fromEnded, fromPlaying, summariseRun, type RunSummary} from './profile.js';
 import {Turn} from './schema.js';
 import {tagsOf} from './tags.js';
 import {STYLE} from './viewer.js';
@@ -100,13 +101,17 @@ export const readLive = (file: string): Effect.Effect<LiveState, never> =>
 const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Live Run</title><style>${STYLE}
 main{display:block;height:auto;max-width:1180px;margin:0 auto;padding:12px 16px}#overview{width:100%;margin:0 0 10px}#overview tr{cursor:pointer}#overview tr[aria-current=true] td{font-weight:600}#overview{display:block;overflow-x:auto}#overview td,#overview th{padding:3px 12px 3px 0;text-align:left;white-space:nowrap}#overview th{font-weight:400;color:var(--mute);font-size:12px}#overview tr.over td{color:var(--mute)}#overview tr.fold td{color:var(--mute);font-size:12px;padding-top:8px}#overview .warn{color:var(--warn,#b7791f)}#overview .acts button{font:inherit;font-size:12px;padding:1px 8px;margin-right:4px;border:1px solid var(--line,#8884);border-radius:4px;background:transparent;color:inherit;cursor:pointer}#overview .acts button:hover{background:var(--line,#8882)}#machine{margin:0 0 8px}
+.facts{margin:6px 0 12px;line-height:1.7}.facts b{font-weight:600}.facts span{color:var(--mute);margin-right:14px}
+table.dense{border-collapse:collapse;margin:0 0 18px;width:auto;max-width:100%}table.dense td{white-space:nowrap}table.dense th{font-weight:400;color:var(--mute);font-size:12px;text-align:left;padding:2px 12px 4px 0;white-space:nowrap}table.dense td{padding:3px 12px 3px 0;vertical-align:baseline;border-top:1px solid var(--line)}table.dense td.wrap{white-space:normal;color:var(--mute);font-size:12px}table.dense tr.out td{color:var(--mute)}table.dense tr.six td:first-child{font-weight:600}
+h2.part{font-size:12px;font-weight:400;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 4px}
+.pair .ko{fill:var(--fg)}.pair .fall{fill:var(--loss)}.pair .axis{stroke:var(--line)}.pair .wall{fill:var(--hot)}.bars .bar1{fill:var(--mute)}.bars .bar1.lost{fill:var(--loss)}
 body{font-variant-numeric:tabular-nums}.num{text-align:right!important;font-variant-numeric:tabular-nums}
 .road .ahead{stroke:var(--line);stroke-width:1}.road .behind{stroke:var(--mute);stroke-width:1}.road .wall{stroke:var(--fg);stroke-width:1.6}.road .wall.lost{stroke:var(--loss);stroke-width:2}.road .here{fill:var(--mute)}.road .here.live{fill:var(--win)}
 .turn{background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:8px 0;margin:0}.tag{background:none;padding:0;margin:2px 10px 0 0;color:var(--mute)}.tag.hot{color:var(--hot)}.tag.warn{color:var(--loss)}
 .weighed{margin:6px 0 0}.weighed .opt{display:flex;gap:10px;align-items:center;color:var(--mute);font-size:12px}.weighed .opt.chosen{color:var(--fg)}.weighed .name{flex:0 0 190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.weighed .num{flex:0 0 44px}.weighed .axis{stroke:var(--line)}.weighed .other{fill:var(--line)}.weighed .dot{fill:none;stroke:var(--mute);stroke-width:1.2}.weighed .dot.chosen{fill:var(--fg);stroke:var(--fg)}.compact .events,.compact .turn table{display:none}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}</style></head><body>
 <header><h1 id="title">Live run</h1><p id="sub">waiting for a fight…</p></header>
-<main><p class="sub" id="machine"></p><table id="overview"></table><div class="filters" id="controls"></div><div class="filters" id="tagbar"></div><div class="speed" id="six"></div><div id="turns"></div></main>
+<main><p class="sub" id="machine"></p><table id="overview"></table><div class="filters" id="views"></div><div id="fightView"><div class="filters" id="controls"></div><div class="filters" id="tagbar"></div><div class="speed" id="six"></div><div id="turns"></div></div><div id="runView" hidden></div><div id="fleetView" hidden></div></main>
 <script>
 const HOT = new Set(['speed-control','status','set-up','sack','pivot','search-overrode','screen','hazard','disrupt','priority','sacrifice-forced','sacrifice-chosen']);
 const WARN = new Set(['they-move-first','coin-flip','we-fall','foe-set-up','foe-recovered','crit-theirs','sacrifice-unforced']);
@@ -128,6 +133,69 @@ function weighed(scores, chose) {
       el('span', {class: 'sub', text: (s.wins === undefined ? s.runs + ' playouts' : s.wins + '/' + s.runs + ' won') + (s.removed === undefined ? '' : ' · ' + Math.round(s.removed * 100) + '% of theirs removed') + (s.oursAlive === undefined ? '' : ' · ' + s.oursAlive + ' of ours standing') + (s.lead === undefined ? '' : ' · lead ' + (s.lead > 0 ? '+' : '') + s.lead)})]));
   }
   return box;
+}
+// Two quantities on ONE scale shared by every row, so the rows compare: knockouts to the right of the
+// axis, falls to the left, and inside the knockouts the part scored in a fight that cleared a wall.
+function pair(kos, falls, wallKos, scale) {
+  const W = 160, mid = 60, unit = Math.min((W - mid - 2) / Math.max(1, scale.kos), (mid - 2) / Math.max(1, scale.falls));
+  const g = svg('svg', {width: W, height: 10, viewBox: '0 0 ' + W + ' 10', class: 'pair', role: 'img', 'aria-label': kos + ' knockouts, ' + falls + ' falls'});
+  g.appendChild(svg('rect', {x: mid, y: 2, width: Math.max(0, kos * unit), height: 6, class: 'ko'}));
+  if (wallKos) g.appendChild(svg('rect', {x: mid, y: 2, width: wallKos * unit, height: 6, class: 'wall'}, [tip(wallKos + ' of them in a fight that cleared a wall')]));
+  g.appendChild(svg('rect', {x: mid - falls * unit, y: 2, width: Math.max(0, falls * unit), height: 6, class: 'fall'}));
+  g.appendChild(svg('line', {x1: mid, x2: mid, y1: 0, y2: 10, class: 'axis'}));
+  return g;
+}
+const attemptsBar = (n, cleared, most) => { const W = 120, g = svg('svg', {width: W, height: 8, viewBox: '0 0 ' + W + ' 8', class: 'bars', role: 'img', 'aria-label': n + ' attempts'}); g.appendChild(svg('rect', {x: 0, y: 1, width: Math.max(2, W * Math.log2(1 + n) / Math.log2(1 + most)), height: 6, class: 'bar1' + (cleared ? '' : ' lost')})); return g; };
+const list = pairs => pairs.map(p => p[0] + (p[1] > 1 ? ' ×' + p[1] : '')).join(', ');
+const dense = (heads, rows) => { const t = el('table', {class: 'dense'}); t.appendChild(el('tr', {}, heads.map(h => el('th', {text: h})))); rows.forEach(r => t.appendChild(r)); return t; };
+const cell = (v, cls) => (v instanceof Node ? el('td', {class: cls || ''}, [v]) : el('td', {class: cls || '', text: v === null || v === undefined ? '' : String(v)}));
+const part = text => el('h2', {class: 'part', text});
+function factsOf(s) {
+  const f = el('p', {class: 'facts'}); const add = (k, v) => { f.appendChild(el('b', {text: v + ' '})); f.appendChild(el('span', {text: k})); };
+  add('position', s.position); add('trainers beaten', s.trainersBeaten); add('attempts', s.attempts);
+  if (s.attemptsPerTrainer !== null) add('attempts a trainer', s.attemptsPerTrainer);
+  add('beaten first try', s.trainersBeaten ? Math.round(100 * s.firstTry / s.trainersBeaten) + '%' : '—');
+  if (s.bodiesLostPerWallWin !== null) add('bodies lost per wall cleared', s.bodiesLostPerWallWin);
+  if (s.minutes !== null) add('minutes', s.minutes);
+  add('plans', s.plans); add('in the box', s.boxSize);
+  add('', s.state === 'playing' ? 'still playing' : s.state === 'finished' ? 'FINISHED' : 'ended: ' + String(s.stopped || '').split(':')[0]);
+  if (s.auditOk !== null) add('', s.auditOk ? 'audit valid' : 'audit FAILS');
+  return f;
+}
+async function drawRun() {
+  const box = document.getElementById('runView'); if (!current) return;
+  const s = await (await fetch('/summary?run=' + encodeURIComponent(current))).json(); box.replaceChildren();
+  if (!s) { box.appendChild(el('p', {class: 'sub', text: 'This run has neither a record nor a checkpoint to read: it was started before run control and is still playing. Its fights are on the fight tab.'})); return; }
+  box.appendChild(factsOf(s));
+  box.appendChild(part('played by'));
+  box.appendChild(dense(['hand', 'attempts', 'won', ''], s.byHand.map(h => el('tr', {}, [cell(h.hand), cell(h.attempts, 'num'), cell(h.wins, 'num'), cell(Math.round(100 * h.wins / Math.max(1, h.attempts)) + '%', 'num')]))));
+  const most = Math.max(1, ...s.walls.map(w => w.attempts));
+  box.appendChild(part('walls — fights that took ' + 5 + ' attempts or more'));
+  box.appendChild(s.walls.length ? dense(['trainer', 'attempts', '', '', 'won by', 'bodies lost in the win'], s.walls.map(w => el('tr', {class: w.cleared ? '' : 'out'}, [cell(w.trainer), cell(w.attempts, 'num'), cell(attemptsBar(w.attempts, w.cleared, most)), cell(w.cleared ? 'cleared' : 'NOT cleared', w.cleared ? '' : 'loss'), cell(w.wonBy), cell(w.bodiesLostInWin, 'num')]))) : el('p', {class: 'sub', text: 'none yet'}));
+  const scale = {kos: Math.max(1, ...s.roster.map(m => m.knockouts)), falls: Math.max(1, ...s.roster.map(m => m.falls))};
+  box.appendChild(part('the box — falls ◀ ▶ knockouts, one scale; amber is knockouts in a fight that cleared a wall'));
+  box.appendChild(dense(['', '', 'falls', '', 'KOs', 'with', 'knocked out', 'fell to', 'holds · nature · ability', 'moves', 'caught'], s.roster.map(m => el('tr', {class: (m.inParty ? 'six' : '') + (m.alive ? '' : ' out')}, [
+    cell(m.name + (m.name === m.species ? '' : ' the ' + m.species)), cell('L' + m.level, 'num'), cell(m.falls, 'num'), cell(pair(m.knockouts, m.falls, m.wallKnockouts, scale)), cell(m.knockouts, 'num'),
+    cell(list(m.bestMoves), 'wrap'), cell(list(m.victims), 'wrap'), cell(list(m.fellTo), 'wrap'), cell([m.item, m.nature, m.ability].filter(Boolean).join(' · ') + (m.ivTotal === null ? '' : ' · IVs ' + m.ivTotal), 'wrap'), cell(m.moves.join(' / '), 'wrap'), cell(m.caught, 'wrap')]))));
+}
+async function drawFleet() {
+  const box = document.getElementById('fleetView'); const f = await (await fetch('/fleet')).json(); box.replaceChildren();
+  if (!f) { box.appendChild(el('p', {class: 'sub', text: 'no run here has a record or a checkpoint yet'})); return; }
+  box.appendChild(part('runs'));
+  box.appendChild(dense(['run', '', 'position', 'trainers', 'attempts', 'a trainer', 'first try', 'walls not cleared', 'min'], f.runs.map(r => el('tr', {class: r.summary.state === 'playing' ? '' : 'out', on: {click: () => { current = r.run; view = 'run'; lastOverview = ''; views(); runs(); }}}, [cell(r.run), cell(r.summary.state === 'playing' ? 'playing' : r.summary.state === 'finished' ? 'FINISHED' : 'ended'), cell(r.summary.position, 'num'), cell(r.summary.trainersBeaten, 'num'), cell(r.summary.attempts, 'num'), cell(r.summary.attemptsPerTrainer, 'num'), cell(r.summary.trainersBeaten ? Math.round(100 * r.summary.firstTry / r.summary.trainersBeaten) + '%' : '', 'num'), cell(r.summary.walls.filter(w => !w.cleared).map(w => w.trainer.replace(/^(Leader|Trainer) /, '')).join(', '), 'wrap'), cell(r.summary.minutes, 'num')]))));
+  const most = Math.max(1, ...f.walls.map(w => w.medianAttempts));
+  box.appendChild(part('walls across runs — where runs bleed, and where they stop'));
+  box.appendChild(dense(['trainer', 'runs that hit it', 'cleared', 'median attempts', '', 'attempts in all'], f.walls.map(w => el('tr', {}, [cell(w.trainer), cell(w.runsMet, 'num'), cell(w.runsCleared + ' of ' + w.runsMet, w.runsCleared < w.runsMet ? 'loss' : ''), cell(w.medianAttempts, 'num'), cell(attemptsBar(w.medianAttempts, w.runsCleared === w.runsMet, most)), cell(w.attempts, 'num')]))));
+  const scale = {kos: Math.max(1, ...f.species.map(m => m.knockouts)), falls: Math.max(1, ...f.species.map(m => m.falls))};
+  box.appendChild(part('species across runs — sorted by knockouts in fights that cleared a wall'));
+  box.appendChild(dense(['species', 'runs', 'falls', '', 'KOs', 'in wall clears', 'KOs a fall'], f.species.map(m => el('tr', {}, [cell(m.species), cell(m.runs, 'num'), cell(m.falls, 'num'), cell(pair(m.knockouts, m.falls, m.wallKnockouts, scale)), cell(m.knockouts, 'num'), cell(m.wallKnockouts, 'num'), cell(m.falls ? (m.knockouts / m.falls).toFixed(1) : '—', 'num')]))));
+}
+let view = 'fight';
+function views() {
+  const box = document.getElementById('views'); box.replaceChildren();
+  for (const [key, label] of [['fight', 'the fight'], ['run', 'this run'], ['fleet', 'all runs']]) box.appendChild(el('button', {'aria-pressed': String(view === key), text: label, on: {click: () => { view = key; prefs.view = key; keep(); views(); }}}));
+  document.getElementById('fightView').hidden = view !== 'fight'; document.getElementById('runView').hidden = view !== 'run'; document.getElementById('fleetView').hidden = view !== 'fleet';
+  if (view === 'run') drawRun().catch(() => {}); if (view === 'fleet') drawFleet().catch(() => {});
 }
 function card(t) {
   const c = el('div', {class: 'turn'});
@@ -187,7 +255,7 @@ async function runs() {
   const button = (label, run, action) => el('button', {text: label, on: {click: e => { e.stopPropagation(); say(run, action); }}});
   const ago = s => s === null ? '' : s < 90 ? s + ' s' : s < 5400 ? Math.round(s / 60) + ' min' : Math.round(s / 3600) + ' h';
   table.appendChild(el('tr', {}, ['run', 'state', 'the road, and where it cost attempts', '', 'facing', 'attempt', 'played by', 'last fight', 'pace', 'memory', ''].map(h => el('th', {text: h}))));
-  const line = r => table.appendChild(el('tr', {class: r.live ? '' : 'over', 'aria-current': String(r.run === current), on: {click: () => { current = r.run; seen = -1; attempt = null; shown = []; held = []; lastOverview = ''; redraw(); runs(); }}}, [
+  const line = r => table.appendChild(el('tr', {class: r.live ? '' : 'over', 'aria-current': String(r.run === current), on: {click: () => { current = r.run; seen = -1; attempt = null; shown = []; held = []; lastOverview = ''; redraw(); runs(); if (view === 'run') drawRun().catch(() => {}); }}}, [
     el('td', {text: r.run}),
     el('td', {class: r.shown === 'dead' ? 'loss' : r.shown === 'paused' || r.shown === 'stopping' ? 'warn' : r.live ? 'win' : 'sub', text: r.shown + (r.handled ? '' : ' ·'), title: r.handled ? (r.spec || '') : 'started before run control: no status file, so it cannot be paused or stopped from here'}),
     el('td', {}, [roadStrip(r)]),
@@ -219,7 +287,8 @@ async function tick() {
 }
 // A server that is down is a state to show, not an error to throw every second.
 const quiet = fn => () => fn().then(() => { document.body.classList.remove('lost'); }, () => { document.body.classList.add('lost'); document.getElementById('sub').textContent = 'the watcher is not answering — is it still running?'; });
-controls(); quiet(runs)(); setInterval(quiet(runs), 3000); setInterval(quiet(tick), 1000);
+view = prefs.view || 'fight'; controls(); views(); quiet(runs)(); setInterval(quiet(runs), 3000); setInterval(quiet(tick), 1000);
+setInterval(() => { if (view === 'run') drawRun().catch(() => {}); if (view === 'fleet') drawFleet().catch(() => {}); }, 30000);
 </script></body></html>`;
 
 const flag = (argv: ReadonlyArray<string>, name: string): string | undefined => {
@@ -297,6 +366,48 @@ export const overviewRow = async (dir: string, name: string) => {
 
 /** The road's length when a run is too old to say (its live header predates `roadOf`). */
 const ROAD_LENGTH = 358;
+/**
+ * A run's aggregates and profiles: from its record when it has ended, from its
+ * checkpoint while it plays. A record is megabytes and a page polls, so the
+ * answer is kept until the file it came from changes.
+ */
+const summaries = new Map<string, {at: number; summary: RunSummary}>();
+export const loadSummary = async (dir: string, run: string): Promise<RunSummary | null> => {
+	for (const [suffix, kind] of [['.json', 'ended'], ['.checkpoint.json', 'playing']] as const) {
+		const file = path.join(dir, run + suffix);
+		const stat = await fs.stat(file).catch(() => null);
+		if (stat === null) continue;
+		const kept = summaries.get(file);
+		if (kept !== undefined && kept.at === stat.mtimeMs) return kept.summary;
+		const json: unknown = await fs.readFile(file, 'utf8').then(text => JSON.parse(text) as unknown).catch(() => null);
+		if (json === null) continue;
+		const source = kind === 'ended' ?
+			await Effect.runPromise(decodeEnded(json).pipe(Effect.map(fromEnded), Effect.orElseSucceed(() => null))) :
+			await Effect.runPromise(decodePlaying(json).pipe(Effect.map(fromPlaying), Effect.orElseSucceed(() => null)));
+		if (source === null) continue;
+		// A run carried on has BOTH: the record of its last leg's end and a newer checkpoint. The newer file wins.
+		if (kind === 'ended') {
+			const newer = await fs.stat(path.join(dir, run + '.checkpoint.json')).catch(() => null);
+			if (newer !== null && newer.mtimeMs > stat.mtimeMs + 60000) continue;
+		}
+		let summary = summariseRun(source);
+		// A checkpoint says "playing" for ever. The run's own status file, and
+		// whether its process is there, say whether that is still true: five
+		// measurement arms died with a checkpoint each and read as playing.
+		if (kind === 'playing') {
+			const status = await Effect.runPromise(readStatus(path.join(dir, run + '.status.json')));
+			if (status === null || !/^(running|paused|stopping)$/.test(status.state)) {
+				summary = {...summary, state: 'ended', stopped: status === null ? 'no status file' : status.state === 'dead' ?
+					'its process died: no record was written, this is its last checkpoint' : status.state};
+			}
+			return summary;
+		}
+		summaries.set(file, {at: stat.mtimeMs, summary});
+		return summary;
+	}
+	return null;
+};
+
 const RUN_NAME = /^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/;
 
 /** Stop, pause or continue one run — by its own status file's pid, as scripts/runs.js does. */
@@ -329,6 +440,18 @@ export const serve = (dir: string, port: number): http.Server => {
 			// Every run's current fight in one answer, so six runs can be read at a glance.
 			void listRuns(dir).then(names => Promise.all(names.map(name => overviewRow(dir, name))))
 				.then(rows => send(res, 'application/json', JSON.stringify(rows)), () => send(res, 'application/json', '[]'));
+			return;
+		}
+		if (url.pathname === '/summary') {
+			const run = url.searchParams.get('run') ?? '';
+			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			void loadSummary(dir, run).then(summary => send(res, 'application/json', JSON.stringify(summary)));
+			return;
+		}
+		if (url.pathname === '/fleet') {
+			void listRuns(dir).then(names => Promise.all(names.map(name => loadSummary(dir, name).then(summary => ({run: name, summary})))))
+				.then(all => send(res, 'application/json', JSON.stringify(fleetOf(all.filter((entry): entry is {run: string; summary: RunSummary} => entry.summary !== null)))),
+					() => send(res, 'application/json', 'null'));
 			return;
 		}
 		if (url.pathname === '/machine') {

@@ -240,3 +240,44 @@ test('the road strip is read off the run\'s own log: how far, and which fights c
 		{road: 32, trainer: 'Twins Gina And Mia', attempts: 2, won: false}]});
 	assert.deepEqual(await readRoad(path.join(dir, 'none.log')), {road: null, walls: []}, 'a run with no log has no road yet');
 });
+
+test('a run is read for its aggregates and a profile of every body, and runs roll up together', async () => {
+	const {summariseRun, fleetOf} = await import('../src/profile.js');
+	const row = (n: number, trainer: string, order: number, result: string, extra: object = {}) =>
+		({n, order, trainer, result, policy: 'decide', ...extra});
+	const ledger = [
+		row(1, 'Youngster Calvin', 2, 'win', {kos: [{foe: 'Poochyena', by: 'Ember', monId: 'mon-1'}]}),
+		// A wall: five attempts, cleared on the fifth by search, two bodies lost in the win.
+		...[2, 3, 4, 5].map(n => row(n, 'Leader Brawly', 80, 'loss', {policy: n > 3 ? 'search-8' : 'decide',
+			killers: [{monId: 'mon-1', species: 'Monferno', by: 'Drain Punch', of: 'Hariyama'}]})),
+		row(6, 'Leader Brawly', 80, 'win', {policy: 'search-8', deaths: 2,
+			kos: [{foe: 'Hariyama', by: 'Pluck', monId: 'mon-2'}, {foe: 'Medicham', by: 'Pluck', monId: 'mon-2'}]}),
+		// And one that was never cleared.
+		...[7, 8, 9, 10, 11].map(n => row(n, 'Leader Norman', 342, 'loss')),
+	];
+	const box = [{id: 'mon-1', species: 'Monferno', nickname: 'Tuck', level: 21, moves: ['Ember'], ivs: {hp: 10, atk: 20}, status: 'party'},
+		{id: 'mon-2', species: 'Corvisquire', nickname: 'Moss', level: 21, moves: ['Pluck'], status: 'party', origin: {mapName: 'Route102'}},
+		{id: 'mon-3', species: 'Wurmple', level: 5, status: 'dead'}];
+	const summary = summariseRun({seed: 7, starter: 'Chimchar', position: 80, seconds: 600, state: 'ended', stopped: 'Leader Norman: skip',
+		auditOk: true, plans: 1, reprobes: 0, ledger, doc: {position: 80, party: ['mon-1', 'mon-2'], box}});
+	assert.equal(summary.attempts, 11);
+	assert.equal(summary.trainersBeaten, 2);
+	assert.equal(summary.firstTry, 1, 'Calvin fell first try, Brawly did not');
+	assert.deepEqual(summary.byHand, [{hand: 'decide', attempts: 8, wins: 1}, {hand: 'search', attempts: 3, wins: 1}], 'search-8 and search-4 are one hand');
+	assert.deepEqual(summary.walls.map(wall => [wall.trainer, wall.attempts, wall.cleared, wall.wonBy]),
+		[['Leader Brawly', 5, true, 'search'], ['Leader Norman', 5, false, null]]);
+	assert.equal(summary.bodiesLostPerWallWin, 2);
+	const moss = summary.roster[0];
+	assert.deepEqual([moss?.name, moss?.knockouts, moss?.wallKnockouts, moss?.falls, moss?.caught], ['Moss', 2, 2, 0, 'Route102'],
+		'the body that cleared the wall leads the box, and its knockouts there are counted apart');
+	const tuck = summary.roster[1];
+	assert.deepEqual([tuck?.knockouts, tuck?.wallKnockouts, tuck?.falls, tuck?.ivTotal], [1, 0, 4, 30]);
+	assert.deepEqual(tuck?.fellTo, [['Hariyama · Drain Punch', 4]]);
+	assert.equal(summary.roster[2]?.alive, false);
+
+	const fleet = fleetOf([{run: 'a/run-7', summary}, {run: 'b/run-8', summary}]);
+	assert.deepEqual(fleet.walls.map(wall => [wall.trainer, wall.runsMet, wall.runsCleared, wall.medianAttempts]),
+		[['Leader Brawly', 2, 2, 5], ['Leader Norman', 2, 0, 5]], 'a wall is counted once per run that met it');
+	assert.deepEqual(fleet.species[0], {species: 'Corvisquire', runs: 2, knockouts: 4, falls: 0, wallKnockouts: 4});
+	assert.ok(!('roster' in (fleet.runs[0]?.summary ?? {})), 'the fleet carries each run\'s aggregates, not forty rosters');
+});
