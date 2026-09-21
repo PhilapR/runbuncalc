@@ -397,3 +397,19 @@ test('a filler berry trades up when a better one reaches the bag', () => {
 	const kept = headless.fillEmptySlots(armed, {});
 	assert.equal(kept.box.find(mon => mon.id === kept.party[0]).item, 'Muscle Band');
 });
+
+test('a run carries on from a saved document instead of replaying the road to it', () => {
+	// A run that passes Norman has spent an hour getting there. Finding the
+	// NEXT wall should not cost that hour again.
+	const policy = require('../scripts/ui-playthrough.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 7,
+		headless.armFlags('--budget=2 --retries=1 --boss-retries=1'), {resume: saved, keepDoc: true});
+	assert.equal(row.resumedAt, saved.position, 'the row says where it picked up');
+	assert.ok(row.position >= saved.position, 'and it never goes back: ' + row.position);
+	assert.ok(row.fights <= 2);
+	assert.equal(row.ledger[0].trainer, 'Leader Norman', 'the first fight is the one the document was facing');
+	assert.ok(row.doc.log.length >= saved.log.length, 'the saved log is kept, so the whole run stays auditable');
+	assert.equal(saved.position, 337, 'and the saved document is not mutated');
+});

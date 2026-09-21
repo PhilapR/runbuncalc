@@ -911,6 +911,7 @@ function playRun(policy, starter, seed, treatment, options) {
 	try {
 		const row = playRunWith(policy, starter, seed, treatment, options);
 		row.knobs = Object.assign({}, knobs);
+		if (options && options.resume) row.resumedAt = options.resume.position;
 		return row;
 	} finally {
 		knobs = before;
@@ -930,7 +931,11 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// How wide the boss search stays after its first look.
 	driver.setSearchWiden(Number(flag('search-widen', '0')));
 	const random = dice(seed);
-	let doc = startRun(starter, random);
+	// options.resume carries a run on from a saved document, so a run that
+	// passed a wall an hour in does not replay that hour to find the next one.
+	// The document's own log is what the audit replays, so a resumed run is
+	// as auditable as a whole one; the row says where it picked up.
+	let doc = options && options.resume ? structuredClone(options.resume) : startRun(starter, random);
 
 	const tally = {catches: 0, keyRolls: 0, scaleSpends: 0, pickups: 0,
 		stoneBuys: 0, evolves: 0, gives: 0,
