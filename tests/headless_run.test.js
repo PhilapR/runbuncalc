@@ -343,3 +343,13 @@ test('a run picks the berry trees, and nobody in the six holds nothing', () => {
 	assert.ok(held.includes('Sitrus Berry'));
 	assert.equal(fills.slotsFilled, filled.party.length);
 });
+
+test('a run told where to stop, stops there', () => {
+	// A baseline that asks "does a run pass this wall" should not play on for
+	// hours past it: sweep-16 runs took one to four hours each.
+	const policy = require('../scripts/ui-playthrough.js');
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 104770,
+		headless.armFlags('--budget=40 --stop-at=5'));
+	assert.match(String(row.stopped), /reached --stop-at=5/);
+	assert.ok(row.position >= 5 && row.position < 20, 'it stopped just past order 5: ' + row.position);
+});

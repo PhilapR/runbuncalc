@@ -75,6 +75,9 @@ const KNOB_FLAGS = {
 	prizeStuck: ['prize-stuck', '6', Number],
 	evolveItems: ['evolve-items', '1', value => value === '1'],
 	fillSlots: ['fill-slots', '1', value => value === '1'],
+	// A run that only needs to answer "does it pass this wall" stops once the
+	// road is past that order, instead of playing on for hours.
+	stopAt: ['stop-at', null, Number],
 };
 
 function knobsFrom(read) {
@@ -940,6 +943,10 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	let lastShape = '';
 
 	while (tally.fights < knobs.budget) {
+		if (Number.isFinite(knobs.stopAt) && doc.position >= knobs.stopAt) {
+			tally.stopped = 'reached --stop-at=' + knobs.stopAt;
+			break;
+		}
 		doc = sweepCatches(doc, caughtFrom, random, treatment, tally);
 		doc = claimPrizes(doc, random, tally, attempts);
 		doc = sweepItems(doc, tally);
