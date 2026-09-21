@@ -260,3 +260,15 @@ type-boost filler), speed control and priority (Mach Punch is super
 effective on five of his six; sac-A-6's Breloom and Conkeldurr are its only
 1v2 winners over Cinccino), and setting up on Porygon2, which is passive
 (Tri Attack 38%) while our lead spent eight turns Super Fanging into Recover.
+
+**Rejected at Norman, 2026-09-20 — reserving an answer for its matchup.** A
+fight reached Mega Pidgeot holding the one body that one-shots it (Drednaw,
+Head Smash) at 14% health, spent earlier on Porygon2. An arm assigned each of
+the six to the foe the matchup board says it beats (best cover of 720
+orderings), sent that body at a forced replacement and held reserved bodies
+back. With every legal lever stacked, five boxes × 20 seeds: foes left 2.40
+without it, **2.71 with it**, Diggersby knockouts 94 → 75. The board covers
+only 3–4 of his six in any box, so holding the covered ones back feeds the
+rest to the foes nobody answers. Removed, not flagged off. The stacked legal
+levers (stones, items, berries in empty slots, --loser-work) reach Meloetta
+45 times and Cinccino 15 in 100 fights, and Mega Pidgeot still never falls.
