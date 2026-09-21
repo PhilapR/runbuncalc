@@ -147,3 +147,26 @@ test('a turn says who moved first, and whether the search was guessing', () => {
 	const sure = tagsOf(turn({why: 'search-8', scores: [{choice: 'Superpower', value: 0.71, runs: 8}, {choice: 'Thrash', value: 0.4, runs: 8}]}));
 	assert.ok(sure.includes('clear-choice') && !sure.includes('coin-flip'));
 });
+
+test('a fight can be watched: the live file is read whole, torn line or not', async () => {
+	const fs = await import('node:fs/promises');
+	const os = await import('node:os');
+	const pathOf = await import('node:path');
+	const {readLive} = await import('../src/serve.js');
+	const file = pathOf.join(await fs.mkdtemp(pathOf.join(os.tmpdir(), 'live-')), 'run-1.live.ndjson');
+	assert.deepEqual(await Effect.runPromise(readLive(file)), {header: null, turns: [], ended: null}, 'no file yet is a run that has not started');
+
+	const header = {kind: 'attempt', at: 1, n: 12, trainer: 'Leader Brawly', order: 80, attempt: 3, position: 76,
+		hand: 'search-8', six: [{name: 'Tuck', species: 'Monferno', level: 21, item: 'Oran Berry'}]};
+	const line = (value: unknown): string => JSON.stringify(value) + '\n';
+	await fs.writeFile(file, line(header) + line({kind: 'turn', ...turn({chose: 'Tailwind', why: 'search-8'})}) +
+		'{"kind":"turn","turn":2,"us":"Bew');
+	const mid = await Effect.runPromise(readLive(file));
+	assert.equal(mid.header?.trainer, 'Leader Brawly');
+	assert.equal(mid.turns.length, 1, 'the line being written right now is skipped, not fatal');
+	assert.ok(mid.turns[0]?.tags.includes('speed-control'), 'and a watched turn is tagged like a kept one');
+	assert.equal(mid.ended, null);
+
+	await fs.appendFile(file, '\n' + line({kind: 'end', at: 2, result: 'win'}));
+	assert.equal((await Effect.runPromise(readLive(file))).ended, 'win');
+});

@@ -9,7 +9,8 @@
     "build": "tsc -p .",
     "test": "npm run build && node --test dist/test/insight.test.js",
     "viewer": "npm run build && node dist/src/cli.js",
-    "mcp": "npm run build && node dist/src/mcp.js"
+    "mcp": "npm run build && node dist/src/mcp.js",
+    "watch": "npm run build && node dist/src/serve.js"
   },
   "dependencies": {
     "effect": "^3.22.2"

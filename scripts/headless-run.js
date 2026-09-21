@@ -1201,6 +1201,8 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// going, and the crash is written out with the document that met it.
 		let played;
 		let keptLog;
+		let unkeptLive = null;
+		let liveEnd = null;
 		try {
 			// The six may have been re-picked since the advice ran, and a body
 			// that joined it afterwards arrives holding nothing.
@@ -1208,7 +1210,20 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			doc = fillEmptySlots(doc, tally);
 			keptLog = knobs.fightLogs === 'all' || (knobs.fightLogs === 'bosses' &&
 				(next.isDouble || BOSS.test(next.trainer))) ? [] : undefined;
-			played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, keptLog, searching);
+			// A watched run reports EVERY fight as it happens, kept or not: the
+			// tape is the hook both hands already push each turn onto.
+			if (options && options.live) {
+				const six = doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean);
+				const watched = require('../lib/fight-log.js').liveTape(options.live, {n: tally.fights + 1,
+					trainer: next.trainer, order: next.order, attempt: attempts + 1, position: doc.position,
+					hand: searching ? 'search-' + searching.search : 'decide', runSeed: seed,
+					six: six.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level, item: mon.item || null}))});
+				liveEnd = watched.end;
+				if (keptLog) { keptLog = watched; } else { unkeptLive = watched; }
+			}
+			played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, keptLog || unkeptLive, searching);
+			if (liveEnd) liveEnd(played.result);
+			if (unkeptLive) keptLog = undefined;
 		} catch (error) {
 			tally.crashes = (tally.crashes || 0) + 1;
 			const crash = {trainer: next.trainer, order: next.order, seed: fightSeed,

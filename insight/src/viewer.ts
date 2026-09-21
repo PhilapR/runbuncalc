@@ -40,7 +40,7 @@ export function pageData(run: RunRecord, title: string): PageData {
 	return {title, walls: walls(run), strategy: strategyOf(run), fights};
 }
 
-const STYLE = `
+export const STYLE = `
 :root{--bg:#fbfaf7;--fg:#1d1c1a;--mute:#6f6b63;--line:#e2ded5;--card:#fff;--win:#1f7a4d;--loss:#a3342b;--tag:#ece7dc;--hot:#b4690e}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#161513;--fg:#ece8df;--mute:#9a958a;--line:#2e2c28;--card:#1e1d1a;--win:#5fc48f;--loss:#e5766c;--tag:#2a2824;--hot:#e0a04a}}
 :root[data-theme=dark]{--bg:#161513;--fg:#ece8df;--mute:#9a958a;--line:#2e2c28;--card:#1e1d1a;--win:#5fc48f;--loss:#e5766c;--tag:#2a2824;--hot:#e0a04a}

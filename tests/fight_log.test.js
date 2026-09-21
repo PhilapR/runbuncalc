@@ -58,3 +58,22 @@ test('with a sidecar the ledger keeps a pointer, not the fight', () => {
 	assert.ok(JSON.stringify(streamed.ledger).length * 5 < JSON.stringify(inline.ledger).length,
 		'and the record a run holds in memory is a fraction of the size');
 });
+
+test('a fight can be watched as it is played: the tape writes each turn the moment it is decided', () => {
+	// The sidecar is for afterwards. Both hands already report a turn by
+	// pushing it onto a tape, so the tape is the hook and neither changes.
+	const file = scratch('run.live.ndjson');
+	const tape = fightLog.liveTape(file, {n: 3, trainer: 'Leader Brawly', attempt: 2, hand: 'search-8'});
+	const read = () => fs.readFileSync(file, 'utf8').trim().split('\n').map(JSON.parse);
+	assert.deepEqual(read().map(row => row.kind), ['attempt'], 'the header is there before the first turn');
+	tape.push({turn: 1, chose: 'Tailwind'});
+	assert.deepEqual(read().map(row => row.kind), ['attempt', 'turn'], 'a turn is on disk before the next is decided');
+	tape.push({turn: 2, chose: 'Brave Bird'});
+	tape.end('win');
+	assert.deepEqual(read().map(row => row.kind), ['attempt', 'turn', 'turn', 'end']);
+	assert.equal(tape.length, 2, 'and it is still the array the ledger keeps');
+
+	// The next attempt replaces the file: it never holds more than one fight.
+	fightLog.liveTape(file, {n: 4, trainer: 'Leader Brawly', attempt: 3, hand: 'search-8'});
+	assert.deepEqual(read().map(row => [row.kind, row.attempt]), [['attempt', 3]]);
+});

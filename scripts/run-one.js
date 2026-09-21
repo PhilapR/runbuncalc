@@ -58,6 +58,7 @@ function main() {
 	const row = headless.playRun(policy, {species: own('starter', 'Chimchar'), rival: own('rival', 'Blaziken')},
 		seed, headless.armFlags(specOf(own('spec', ''))), {
 			keepDoc: true, log: say, fightLog: fightLog.openFightLog(base + '.fights.ndjson.gz'),
+			live: base + '.live.ndjson',
 			...(from ? {resume: from.doc || from} : {}),
 			onCrash: (crash, doc) => {
 				try { fs.writeFileSync(base + '.crash-' + crash.order + '.json', JSON.stringify({crash, doc})); } catch (error) { /* a crash dump that cannot be written must not end the run */ }
