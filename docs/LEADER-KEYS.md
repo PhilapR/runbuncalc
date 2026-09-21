@@ -229,3 +229,34 @@ milestone is a leader, the named species this document derives should
 outrank generic catch advice. That extension — dossiers for all 366
 fights, precomputed offline so runtime pays a dictionary lookup — is
 designed in the fight-dossier oracle work.
+
+## Norman, measured on LEGAL boxes (2026-09-20)
+
+The banked "Norman" boxes were not Norman boxes: seven of eight sit at cap
+35–38 against his level 40–42 six, and four lead a level-50 Route 118 catch
+from a table that opens at 618. Rebuilt legally — illegal catch stripped,
+`beat` forward to 337, levelled to cap 42, relearn + advice — five boxes give:
+
+| Lever tried | Result at Norman |
+|---|---|
+| decide(), as the run arrives | 0 / 100 |
+| search-8 | 0 / 20 |
+| every species catchable before him, swapped in (645 candidates × 6 seeds) | 4 / 3870; no species wins twice |
+| every stone in the bag used (2–8 unevolved bodies a box) | 0 / 100 |
+| the CEILING of Heart Scales: every body 31 IVs | 5 / 100 |
+| — and a +Speed nature on every body | 1 / 100 (foes left 2.97 → 2.10) |
+
+What the knockout record says: Porygon2 falls ~20 of 20, Azumarill ~18,
+Diggersby 5–19, Meloetta rarely, Cinccino almost never, **Mega Pidgeot never,
+in 120 fights**. From the box matrix, **0 of 24 bodies outspeed Meloetta,
+Cinccino or Mega Pidgeot in any box**, and no box holds a one-on-one winner
+for all six (acc-11 has none for Pidgeot; sac-A-6 none for Diggersby or
+Meloetta; speed-plus23 none for Meloetta).
+
+So at Norman the catch, the stone, the level, the IV, the nature and the
+search have each been measured and none is the lever. Untested, and what is
+left: held items (every one of his six holds one; our sixes hold nothing or
+type-boost filler), speed control and priority (Mach Punch is super
+effective on five of his six; sac-A-6's Breloom and Conkeldurr are its only
+1v2 winners over Cinccino), and setting up on Porygon2, which is passive
+(Tri Attack 38%) while our lead spent eight turns Super Fanging into Recover.

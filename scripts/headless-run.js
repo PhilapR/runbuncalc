@@ -73,6 +73,7 @@ const KNOB_FLAGS = {
 	doubleRetries: ['double-retries', null, Number],
 	prizeAt: ['prize-at', 'stuck', String],
 	prizeStuck: ['prize-stuck', '6', Number],
+	evolveItems: ['evolve-items', '1', value => value === '1'],
 };
 
 function knobsFrom(read) {
@@ -394,6 +395,41 @@ function evolveByLevel(doc, tally) {
 }
 
 /**
+ * A stone the bag holds is used, on the whole box and not only the six.
+ *
+ * The harness buys one of every evolution stone (followAdvice) precisely so
+ * the evolution can happen — and then left it to adviseUpgrades, which prices
+ * rows for the PARTY AT THAT MOMENT, best sixteen first. The six is re-picked
+ * later and a re-pick does not re-run the advice, so a body that joined the
+ * six afterwards never met its stone: every legal Norman box (2026-09-20)
+ * fielded a level-42 Eelektrik with a Thunder Stone in the bag. Worse, the
+ * ranker was choosing among the unevolved bodies.
+ *
+ * Party first, then box order, because a stone is bought once and two bodies
+ * can want it. A body holding an Eviolite keeps its form. --evolve-items=0
+ * restores the advice-only behaviour for arms that measure against it.
+ */
+function evolveByItem(doc, tally) {
+	if (!knobs.evolveItems) return doc;
+	const dossier = require('../lib/dossier');
+	const evolutions = require('../profiles/run-and-bun/oracle/evolutions.json');
+	const order = doc.party.concat(doc.box.map(mon => mon.id).filter(id => !doc.party.includes(id)));
+	for (const id of order) {
+		const mon = doc.box.find(entry => entry.id === id);
+		if (!mon || mon.status === 'dead' || mon.item === 'Eviolite') continue;
+		const step = (evolutions[mon.species] || []).find(path => path.method === 'item' &&
+			doc.bag[path.item] && dossier.meetsRequirement(path, mon.species, mon.level, mon.ivs, mon.nature));
+		if (!step) continue;
+		try {
+			doc = run.apply(doc, {kind: 'evolve', id: mon.id, into: step.into});
+			tally.evolves = (tally.evolves || 0) + 1;
+			tally.itemEvolves = (tally.itemEvolves || 0) + 1;
+		} catch (error) { /* refused: the body keeps its form */ }
+	}
+	return doc;
+}
+
+/**
  * The level-up moves a player keeps up with. A levelled Pokemon with a full
  * moveset leaves its new moves pending — only the player knows what to
  * forget — and the browser driver answers every prompt. The harness never
@@ -593,6 +629,7 @@ function followAdvice(doc, treatment, tally, forgotten) {
 				tally.stoneBuys = (tally.stoneBuys || 0) + 1;
 			}
 		} catch (error) { /* a refused buy is a skipped buy */ }
+		doc = evolveByItem(doc, tally);
 	}
 	// Advice rows are applied best first; one the run refuses is remembered
 	// and passed over, never allowed to end the sweep. The harness used to
@@ -1058,4 +1095,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn, evolveByItem};

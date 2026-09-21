@@ -298,3 +298,22 @@ test('an arm\'s knobs reach its run, and leave with it', () => {
 	assert.ok(longer.fights > short.fights, 'two arms in one process diverge: ' +
 		short.fights + ' then ' + longer.fights);
 });
+
+test('a stone the bag holds is used, on a body outside the six too', () => {
+	// Every legal Norman box fielded a level-42 Eelektrik with a Thunder Stone
+	// in the bag: the advisor prices evolve rows for the party of the moment,
+	// the six is re-picked later, and a re-pick does not re-run the advice.
+	const runtime = require('../lib/run.js');
+	let doc = headless.startRun({species: 'Chimchar', rival: 'Blaziken'}, headless.dice(1));
+	doc = runtime.apply(doc, {kind: 'catch', species: 'Eelektrik', level: 20, map: 'Route110', method: 'fish'});
+	doc = runtime.apply(doc, {kind: 'acquire', item: 'Thunder Stone', where: 'a mart, for the gate'});
+	const eel = doc.box.find(mon => mon.species === 'Eelektrik');
+	assert.ok(!doc.party.includes(eel.id), 'the Eelektrik is boxed, not in the six');
+
+	const tally = {};
+	const evolved = headless.evolveByItem(doc, tally);
+	assert.equal(evolved.box.find(mon => mon.id === eel.id).species, 'Eelektross');
+	assert.equal(tally.itemEvolves, 1);
+	assert.ok(!evolved.bag['Thunder Stone'], 'and the stone is spent');
+	assert.equal(headless.evolveByItem(evolved, {}).box.length, evolved.box.length, 'once');
+});
