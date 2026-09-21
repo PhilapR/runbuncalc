@@ -722,7 +722,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search', 'search-widen', 'search-keep', 'search-halving'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search', 'search-widen', 'search-keep', 'search-halving', 'search-path'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -746,6 +746,8 @@ function main() {
 	driver.setSearchKeep(flag('search-keep', '1') === '1');
 	// The same playouts, spent by sequential halving instead of evenly.
 	driver.setSearchHalving(flag('search-halving', '0') === '1');
+	// A lost playout valued by its path (the average material lead) as well as its end.
+	driver.setSearchPath(flag('search-path', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?

@@ -14,7 +14,8 @@ export type Tag =
 	| 'pivot' | 'pivot-move' | 'sack' | 'forced' | 'priority' | 'recovery'
 	| 'we-ko' | 'we-fall' | 'crit-ours' | 'crit-theirs' | 'miss-ours' | 'miss-theirs'
 	| 'search-overrode' | 'lost-race' | 'foe-set-up' | 'foe-recovered'
-	| 'we-move-first' | 'they-move-first' | 'coin-flip' | 'clear-choice';
+	| 'we-move-first' | 'they-move-first' | 'coin-flip' | 'clear-choice'
+	| 'self-ko' | 'sacrifice-forced' | 'sacrifice-chosen' | 'sacrifice-unforced';
 
 const moves = (list: string): RegExp => new RegExp('^(' + list + ')$');
 
@@ -27,6 +28,7 @@ const PROTECT = moves('Protect|Detect|Substitute|King\'s Shield|Spiky Shield|Ban
 const DISRUPT = moves('Fake Out|Taunt|Encore|Disable|Knock Off|Roar|Whirlwind|Dragon Tail|Circle Throw|Haze|Clear Smog|Trick|Switcheroo|Parting Shot|Charm|Growl|Baby-Doll Eyes|Play Nice|Feather Dance|Memento');
 const PIVOT_MOVE = moves('U-turn|Volt Switch|Flip Turn|Baton Pass|Parting Shot|Teleport');
 const PRIORITY = moves('Quick Attack|Mach Punch|Bullet Punch|Ice Shard|Aqua Jet|Sucker Punch|Shadow Sneak|Extreme Speed|Vacuum Wave|Accelerock|Water Shuriken|First Impression|Fake Out|Feint');
+const SELF_KO = moves('Self-Destruct|Explosion|Misty Explosion|Memento|Final Gambit|Healing Wish|Lunar Dance');
 const RECOVERY = moves('Recover|Roost|Soft-Boiled|Slack Off|Synthesis|Moonlight|Morning Sun|Milk Drink|Shore Up|Rest|Wish|Heal Order|Strength Sap|Life Dew|Drain Punch|Giga Drain|Leech Life|Draining Kiss|Horn Leech');
 
 /** Search values closer than this are one decision's noise; further apart than CLEAR, a real preference. */
@@ -111,6 +113,27 @@ export function tagsOf(turn: Turn): ReadonlyArray<Tag> {
 	if (top !== undefined && second !== undefined) {
 		if (top.value - second.value < COIN_FLIP) tags.add('coin-flip');
 		else if (top.value - second.value >= CLEAR) tags.add('clear-choice');
+	}
+	// Was giving up a body FORCED? A sacrifice is not a mistake — sometimes it
+	// is the only line — so the question a turn must answer is whether there
+	// was another. Three readings, from what was on the screen:
+	//   forced    the body was dead this turn anyway (they need one turn), so
+	//             it bought something with a life already lost;
+	//   chosen    it was not doomed, and the search clearly preferred giving
+	//             it up over every option that kept it;
+	//   unforced  an option that kept the body scored within noise — nothing
+	//             on the screen says this body had to go.
+	if (SELF_KO.test(chose)) tags.add('self-ko');
+	if (tags.has('self-ko') || tags.has('sack')) {
+		const doomed = /they need 1\b/.test(turn.threat ?? '');
+		const givesUp = (choice: string): boolean => SELF_KO.test(choice) ||
+			(tags.has('sack') && choice === chose);
+		const mineScore = (turn.scores ?? []).find(entry => entry.choice === chose);
+		const keeping = (turn.scores ?? []).filter(entry => !givesUp(entry.choice) && !entry.choice.startsWith('switch'));
+		const bestKeeping = keeping.reduce((top, entry) => Math.max(top, entry.value), -Infinity);
+		if (doomed) tags.add('sacrifice-forced');
+		else if (mineScore !== undefined && keeping.length > 0 && mineScore.value - bestKeeping >= CLEAR) tags.add('sacrifice-chosen');
+		else tags.add('sacrifice-unforced');
 	}
 	void mine;
 	return [...tags];

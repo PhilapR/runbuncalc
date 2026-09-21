@@ -968,3 +968,37 @@ test('sequential halving spends the same playouts, and spends them on the conten
 	const finalists = halved.scores.filter(entry => entry.runs === runs[0]).map(entry => entry.choice);
 	assert.ok(finalists.includes(chosen), 'the choice is a finalist, never an option dropped early on a lucky mean');
 });
+
+test('a lost playout can be valued by its path, not only its end', () => {
+	// At the end of a loss we have lost everyone by definition, so the end
+	// state says nothing about our side and the keep term never applies where
+	// nearly every playout loses. The PATH does: the average material lead —
+	// their HP share removed minus ours, step by step.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys3b-A-7.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Leader Brawly', 2);
+	const scoresOf = () => driver.searchChoice(opened.battle, opened.actions, 2, 3, 0).scores;
+
+	driver.setSearchPath(false);
+	const flat = scoresOf();
+	assert.ok(flat.every(entry => typeof entry.lead === 'number' && entry.lead >= -1 && entry.lead <= 1),
+		'every score carries its average material lead, on or off');
+	const lost = flat.filter(entry => entry.wins === 0);
+	assert.ok(lost.length > 0, 'Brawly beats some options every time');
+	for (const entry of lost) {
+		assert.ok(Math.abs(entry.value - 0.3 * entry.removed) < 0.002, 'off: a loss is 0.3 x their HP removed, as before');
+	}
+
+	driver.setSearchPath(true);
+	const pathed = scoresOf();
+	driver.setSearchPath(false);
+	for (const entry of pathed.filter(row => row.wins === 0)) {
+		const expected = 0.3 * (0.5 * entry.removed + 0.5 * (entry.lead + 1) / 2);
+		assert.ok(Math.abs(entry.value - expected) < 0.003,
+			entry.choice + ': half the end, half the path — ' + entry.value + ' vs ' + expected.toFixed(3));
+		assert.ok(entry.value <= 0.3, 'a loss never outranks a win');
+	}
+	assert.deepEqual(scoresOf(), flat, 'off is the old value exactly');
+});

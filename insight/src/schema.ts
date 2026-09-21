@@ -46,6 +46,8 @@ export const SearchScore = Schema.Struct({
 	wins: Schema.optional(Schema.Number),
 	removed: Schema.optional(Schema.Number),
 	oursAlive: Schema.optional(Schema.Number),
+	/** The average material lead over the playouts (their HP share removed minus ours), in [-1, 1]. */
+	lead: Schema.optional(Schema.Number),
 });
 
 /** One decision and what followed it. */

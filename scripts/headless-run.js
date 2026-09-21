@@ -101,6 +101,8 @@ const KNOB_FLAGS = {
 	searchKeep: ['search-keep', '1', value => value === '1'],
 	// The same playouts spent by sequential halving (driver.setSearchHalving).
 	searchHalving: ['search-halving', '0', value => value === '1'],
+	// A lost playout valued by its path too (driver.setSearchPath).
+	searchPath: ['search-path', '0', value => value === '1'],
 };
 
 function knobsFrom(read) {
@@ -1109,6 +1111,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	driver.setSearchWiden(Number(flag('search-widen', '0')));
 	driver.setSearchKeep(knobs.searchKeep);
 	driver.setSearchHalving(knobs.searchHalving);
+	driver.setSearchPath(knobs.searchPath);
 	const random = dice(seed);
 	// options.resume carries a run on from a saved document, so a run that
 	// passed a wall an hour in does not replay that hour to find the next one.

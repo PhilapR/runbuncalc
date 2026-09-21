@@ -170,3 +170,22 @@ test('a fight can be watched: the live file is read whole, torn line or not', as
 	await fs.appendFile(file, '\n' + line({kind: 'end', at: 2, result: 'win'}));
 	assert.equal((await Effect.runPromise(readLive(file))).ended, 'win');
 });
+
+test('a body given up is read as forced, chosen or unforced — never simply as a mistake', () => {
+	// Operator: "sometimes we might need to use a sacrifice or a Self-Destruct —
+	// we just need a way to understand if we are forced to sacrifice."
+	const boom = (threat: string, scores: Array<{choice: string; value: number; runs: number}>) =>
+		tagsOf(turn({us: 'Gigalith L42', foe: 'Porygon2 L41', chose: 'Self-Destruct', why: 'search-8', threat, scores}));
+	const doomed = boom('Their hardest hit: Ice Beam 120% · you need 1 turn to KO, they need 1 — YOU LOSE THIS RACE · they act first',
+		[{choice: 'Self-Destruct', value: 0.21, runs: 8}, {choice: 'Sand Tomb', value: 0.2, runs: 8}]);
+	assert.ok(doomed.includes('self-ko') && doomed.includes('sacrifice-forced'), doomed.join(','));
+
+	const safe = 'Their hardest hit: Tri Attack 38% · you need 1 turn to KO, they need 3 — you win it';
+	const chosen = boom(safe, [{choice: 'Self-Destruct', value: 0.62, runs: 8}, {choice: 'Sand Tomb', value: 0.3, runs: 8}]);
+	assert.ok(chosen.includes('sacrifice-chosen') && !chosen.includes('sacrifice-forced'), chosen.join(','));
+
+	// Norman, turn one: 0.206 over Sand Tomb's 0.204 with three turns to live.
+	const unforced = boom(safe, [{choice: 'Self-Destruct', value: 0.206, runs: 8}, {choice: 'Sand Tomb', value: 0.204, runs: 8}]);
+	assert.ok(unforced.includes('sacrifice-unforced'), unforced.join(','));
+	assert.ok(!tagsOf(turn({chose: 'Sand Tomb'})).some(tag => tag.startsWith('sacrifice')), 'a turn that gives nothing up carries none of them');
+});

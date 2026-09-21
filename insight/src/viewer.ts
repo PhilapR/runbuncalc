@@ -65,8 +65,8 @@ table{border-collapse:collapse;font-size:12px;margin-top:4px}td,th{padding:2px 8
 
 const SCRIPT = `
 const DATA = JSON.parse(document.getElementById('data').textContent);
-const HOT = new Set(['speed-control','status','set-up','sack','pivot','search-overrode','screen','hazard','disrupt','priority']);
-const WARN = new Set(['they-move-first','coin-flip','we-fall','foe-set-up','foe-recovered','crit-theirs']);
+const HOT = new Set(['speed-control','status','set-up','sack','pivot','search-overrode','screen','hazard','disrupt','priority','sacrifice-forced','sacrifice-chosen']);
+const WARN = new Set(['they-move-first','coin-flip','we-fall','foe-set-up','foe-recovered','crit-theirs','sacrifice-unforced']);
 let wall = null, attempt = null, filter = null;
 const el = (tag, attrs, kids) => { const n = document.createElement(tag); for (const k in (attrs||{})) { if (k === 'text') n.textContent = attrs[k]; else if (k === 'on') for (const e in attrs.on) n.addEventListener(e, attrs.on[e]); else n.setAttribute(k, attrs[k]); } for (const kid of (kids||[])) n.appendChild(kid); return n; };
 const bar = (pct, foe) => el('span', {class: 'bar' + (foe ? ' foe' : '')}, [el('i', {style: 'width:' + Math.max(0, Math.min(100, pct)) + '%'})]);
@@ -141,8 +141,8 @@ function drawFight() {
     const ev = el('ul', {class: 'events'}); for (const e of t.events) ev.appendChild(el('li', {text: e})); card.appendChild(ev);
     const more = el('details', {}, [el('summary', {text: 'what was on offer' + (t.scores && t.scores.length ? ', and what the search thought' : '')})]);
     if (t.threat) more.appendChild(el('div', {class: 'sub', text: t.threat}));
-    const tbl = el('table'); tbl.appendChild(el('tr', {}, ['option','forecast / race','search value','playouts won','their HP removed','ours left standing'].map(h => el('th', {text: h}))));
-    const parts = s => s ? [String(s.value), s.wins === undefined ? '' : s.wins + ' of ' + s.runs, s.removed === undefined ? '' : Math.round(s.removed * 100) + '%', s.oursAlive === undefined ? '' : String(s.oursAlive)] : ['', '', '', ''];
+    const tbl = el('table'); tbl.appendChild(el('tr', {}, ['option','forecast / race','search value','playouts won','their HP removed','ours left standing','material lead'].map(h => el('th', {text: h}))));
+    const parts = s => s ? [String(s.value), s.wins === undefined ? '' : s.wins + ' of ' + s.runs, s.removed === undefined ? '' : Math.round(s.removed * 100) + '%', s.oursAlive === undefined ? '' : String(s.oursAlive), s.lead === undefined ? '' : (s.lead > 0 ? '+' : '') + s.lead] : ['', '', '', '', ''];
     const score = name => (t.scores || []).find(s => s.choice === name);
     for (const m of (t.options ? t.options.moves : [])) { const s = score(m.move); tbl.appendChild(el('tr', {class: m.move === t.chose ? 'chosen' : ''}, [m.move, m.damage || 'no damage'].concat(parts(s)).map(v => el('td', {text: v})))); }
     for (const w of (t.options ? t.options.switches : [])) { const name = 'switch to ' + w.label.replace(/\\s+\\d+%$/, ''); const s = score(name); const d = w.raceDetail; tbl.appendChild(el('tr', {class: name === t.chose ? 'chosen' : ''}, [name + ' (' + w.label.replace(/^.*\\s/, '') + ')', (w.race || '—') + (d ? ' — need ' + d.turnsToKill + ', they need ' + d.turnsToDie : '')].concat(parts(s)).map(v => el('td', {text: v})))); }
