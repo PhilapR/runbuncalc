@@ -275,11 +275,25 @@ test('a run is read for its aggregates and a profile of every body, and runs rol
 	assert.deepEqual(tuck?.fellTo, [['Hariyama · Drain Punch', 4]]);
 	assert.equal(summary.roster[2]?.alive, false);
 
-	const fleet = fleetOf([{run: 'a/run-7', summary}, {run: 'b/run-8', summary}]);
+	// One seed is one journey, however many directories it was played in. Seed 7
+	// here is the run above, a measurement ARM restarted from the same place
+	// that got less far, and a leg carried on from Norman that cleared him.
+	const arm = {...summary, position: 60, attempts: 4};
+	const onward = {...summary, startedAt: 337, position: 400, attempts: 9, roster: [],
+		walls: [{trainer: 'Leader Norman', order: 342, attempts: 9, cleared: true, wonBy: 'decide', bodiesLostInWin: 3}]};
+	const other = {...summary, seed: 8};
+	const fleet = fleetOf([{run: 'a/run-7', summary}, {run: 'arm/run-7', summary: arm}, {run: 'on/run-7', summary: onward}, {run: 'b/run-8', summary: other}]);
+	assert.deepEqual(fleet.seeds.map(entry => [entry.seed, entry.position, entry.legs.length]), [[7, 400, 3], [8, 80, 1]]);
+	const seven = fleet.seeds[0];
+	assert.deepEqual(seven?.legs.map(leg => [leg.run, leg.counted]), [['a/run-7', true], ['arm/run-7', false], ['on/run-7', true]],
+		'of the legs that began at one place only the one that got furthest is counted');
+	assert.deepEqual(seven?.stoppedAt, [], 'the leg carried on cleared Norman, so this seed is stopped nowhere');
+	assert.deepEqual(fleet.seeds[1]?.stoppedAt, ['Leader Norman']);
 	assert.deepEqual(fleet.walls.map(wall => [wall.trainer, wall.runsMet, wall.runsCleared, wall.medianAttempts]),
-		[['Leader Brawly', 2, 2, 5], ['Leader Norman', 2, 0, 5]], 'a wall is counted once per run that met it');
-	assert.deepEqual(fleet.species[0], {species: 'Corvisquire', runs: 2, knockouts: 4, falls: 0, wallKnockouts: 4});
-	assert.ok(!('roster' in (fleet.runs[0]?.summary ?? {})), 'the fleet carries each run\'s aggregates, not forty rosters');
+		[['Leader Brawly', 2, 2, 5], ['Leader Norman', 2, 1, 5]], 'a wall is counted once per SEED: cleared if any leg cleared it, at the most any one leg spent');
+	assert.deepEqual(fleet.species[0], {species: 'Corvisquire', runs: 2, knockouts: 4, falls: 0, wallKnockouts: 4},
+		'and the arm\'s copy of the same fights is not tallied again');
+	assert.ok(!('roster' in (seven?.legs[0]?.summary ?? {})), 'the fleet carries each leg\'s aggregates, not forty rosters');
 });
 
 test('the page the watcher serves is a script that parses', async () => {

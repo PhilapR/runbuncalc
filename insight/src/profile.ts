@@ -31,6 +31,7 @@ const Row = Schema.Struct({
 	n: Schema.Number,
 	order: Schema.Number,
 	trainer: Schema.String,
+	position: Schema.optional(Schema.Number),
 	result: Schema.String,
 	policy: Schema.optional(Schema.String),
 	turns: Schema.optional(Schema.NullOr(Schema.Number)),
@@ -125,6 +126,8 @@ export interface RunSummary {
 	readonly stopped: string | null;
 	readonly auditOk: boolean | null;
 	readonly position: number;
+	/** Where this leg began: a run carried on, resumed or measured from a wall begins where that one stood. */
+	readonly startedAt: number;
 	readonly minutes: number | null;
 	readonly attempts: number;
 	readonly trainersBeaten: number;
@@ -219,7 +222,7 @@ export function summariseRun(run: RunSource): RunSummary {
 	const beaten = fights.filter(rows => rows.some(row => row.result === 'win'));
 	const wallWins = walls.filter(wall => wall.cleared && wall.bodiesLostInWin !== null);
 	return {seed: run.seed, starter: run.starter, state: run.state, stopped: run.stopped, auditOk: run.auditOk,
-		position: run.position, minutes: run.seconds === null ? null : Math.round(run.seconds / 60),
+		position: run.position, startedAt: run.ledger[0]?.position ?? run.position, minutes: run.seconds === null ? null : Math.round(run.seconds / 60),
 		attempts: run.ledger.length, trainersBeaten: beaten.length,
 		firstTry: beaten.filter(rows => rows[0]?.result === 'win').length,
 		attemptsPerTrainer: beaten.length === 0 ? null : Number((run.ledger.length / beaten.length).toFixed(2)),
@@ -246,51 +249,105 @@ export interface FleetSpecies {
 	readonly wallKnockouts: number;
 }
 
+export interface FleetLeg {
+	readonly run: string;
+	readonly summary: Omit<RunSummary, 'roster'>;
+	/** False for a leg that began where another of this seed began and got less far: a measurement arm, a retry. */
+	readonly counted: boolean;
+}
+
+export interface FleetSeed {
+	readonly seed: number;
+	readonly starter: string | null;
+	readonly position: number;
+	readonly playing: boolean;
+	readonly finished: boolean;
+	readonly attempts: number;
+	readonly stoppedAt: ReadonlyArray<string>;
+	readonly legs: ReadonlyArray<FleetLeg>;
+}
+
 export interface Fleet {
-	readonly runs: ReadonlyArray<{readonly run: string; readonly summary: Omit<RunSummary, 'roster'>}>;
+	readonly seeds: ReadonlyArray<FleetSeed>;
 	readonly walls: ReadonlyArray<FleetWall>;
 	readonly species: ReadonlyArray<FleetSpecies>;
 }
 
 /**
- * Every run together: which walls stop runs (and how many they stop), and
- * which species carry them. A wall is counted once per run that met it; a
- * species once per run that owned it, under the name it ended the run with.
+ * Every run together, BY SEED. One seed is one journey, however many
+ * directories it was played in: a run that stopped at Brawly, the leg that
+ * carried it on to Matt, and four measurement arms restarted from one wall are
+ * all seed 731001. Counted run by run, that one box at Matt was "eight runs".
+ *
+ * So: legs are grouped by seed. Of the legs that began at the SAME position —
+ * arms of a measurement, a retry — only the one that got furthest is counted,
+ * so a body's knockouts are not tallied four times over. A wall is counted
+ * once per seed that met it: cleared if any leg cleared it, at the most
+ * attempts any one leg spent there.
  */
 export function fleetOf(named: ReadonlyArray<{readonly run: string; readonly summary: RunSummary}>): Fleet {
+	const bySeed = new Map<number, Array<{run: string; summary: RunSummary}>>();
+	for (const entry of named) bySeed.set(entry.summary.seed, [...(bySeed.get(entry.summary.seed) ?? []), entry]);
+
 	const walls = new Map<string, {trainer: string; order: number; attempts: number[]; cleared: number}>();
-	const species = new Map<string, {runs: number; kos: number; falls: number; wallKos: number}>();
-	for (const {summary} of named) {
-		for (const wall of summary.walls) {
+	const species = new Map<string, {seeds: Set<number>; kos: number; falls: number; wallKos: number}>();
+	const seeds: FleetSeed[] = [];
+	for (const [seed, legs] of bySeed) {
+		const further = (a: RunSummary, b: RunSummary): number => b.position - a.position || b.attempts - a.attempts;
+		const counted = new Set<string>();
+		const byStart = new Map<number, Array<{run: string; summary: RunSummary}>>();
+		for (const leg of legs) byStart.set(leg.summary.startedAt, [...(byStart.get(leg.summary.startedAt) ?? []), leg]);
+		for (const same of byStart.values()) {
+			const best = same.slice().sort((a, b) => further(a.summary, b.summary))[0];
+			if (best !== undefined) counted.add(best.run);
+		}
+		// A wall, once for this seed: any leg may have met it, counted or not — an arm that cleared it cleared it.
+		const mine = new Map<string, {trainer: string; order: number; attempts: number; cleared: boolean}>();
+		for (const leg of legs) {
+			for (const wall of leg.summary.walls) {
+				const entry = mine.get(wall.trainer) ?? {trainer: wall.trainer, order: wall.order, attempts: 0, cleared: false};
+				entry.attempts = Math.max(entry.attempts, wall.attempts);
+				entry.cleared = entry.cleared || wall.cleared;
+				mine.set(wall.trainer, entry);
+			}
+		}
+		for (const wall of mine.values()) {
 			const entry = walls.get(wall.trainer) ?? {trainer: wall.trainer, order: wall.order, attempts: [], cleared: 0};
 			entry.attempts.push(wall.attempts);
 			if (wall.cleared) entry.cleared += 1;
 			walls.set(wall.trainer, entry);
 		}
-		const seen = new Set<string>();
-		for (const mon of summary.roster) {
-			const entry = species.get(mon.species) ?? {runs: 0, kos: 0, falls: 0, wallKos: 0};
-			if (!seen.has(mon.species)) entry.runs += 1;
-			seen.add(mon.species);
-			entry.kos += mon.knockouts;
-			entry.falls += mon.falls;
-			entry.wallKos += mon.wallKnockouts;
-			species.set(mon.species, entry);
+		for (const leg of legs.filter(entry => counted.has(entry.run))) {
+			for (const mon of leg.summary.roster) {
+				const entry = species.get(mon.species) ?? {seeds: new Set<number>(), kos: 0, falls: 0, wallKos: 0};
+				entry.seeds.add(seed);
+				entry.kos += mon.knockouts;
+				entry.falls += mon.falls;
+				entry.wallKos += mon.wallKnockouts;
+				species.set(mon.species, entry);
+			}
 		}
+		const ordered = legs.slice().sort((a, b) => a.summary.startedAt - b.summary.startedAt || further(a.summary, b.summary));
+		const furthest = legs.slice().sort((a, b) => further(a.summary, b.summary))[0];
+		seeds.push({seed, starter: furthest?.summary.starter ?? null, position: furthest?.summary.position ?? 0,
+			playing: legs.some(leg => leg.summary.state === 'playing'), finished: legs.some(leg => leg.summary.state === 'finished'),
+			attempts: legs.filter(leg => counted.has(leg.run)).reduce((sum, leg) => sum + leg.summary.attempts, 0),
+			stoppedAt: [...mine.values()].filter(wall => !wall.cleared).sort((a, b) => a.order - b.order).map(wall => wall.trainer),
+			legs: ordered.map(({run, summary}) => {
+				const {roster: _roster, ...rest} = summary;
+				return {run, summary: rest, counted: counted.has(run)};
+			})});
 	}
 	const median = (values: number[]): number => {
 		const sorted = values.slice().sort((a, b) => a - b);
 		return sorted[Math.floor((sorted.length - 1) / 2)] ?? 0;
 	};
 	return {
-		runs: named.map(({run, summary}) => {
-			const {roster: _roster, ...rest} = summary;
-			return {run, summary: rest};
-		}),
+		seeds: seeds.sort((a, b) => b.position - a.position),
 		walls: [...walls.values()].map(entry => ({trainer: entry.trainer, order: entry.order, runsMet: entry.attempts.length,
 			runsCleared: entry.cleared, attempts: entry.attempts.reduce((sum, value) => sum + value, 0),
 			medianAttempts: median(entry.attempts)})).sort((a, b) => a.order - b.order),
-		species: [...species.entries()].map(([name, entry]) => ({species: name, runs: entry.runs, knockouts: entry.kos,
+		species: [...species.entries()].map(([name, entry]) => ({species: name, runs: entry.seeds.size, knockouts: entry.kos,
 			falls: entry.falls, wallKnockouts: entry.wallKos}))
 			.filter(entry => entry.knockouts + entry.falls > 0)
 			.sort((a, b) => b.wallKnockouts - a.wallKnockouts || b.knockouts - a.knockouts).slice(0, 40),
