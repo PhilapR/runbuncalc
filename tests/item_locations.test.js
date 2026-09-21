@@ -295,3 +295,20 @@ test('every mega stone resolves against the calc item table', () => {
 	assert.deepEqual(missing, [], 'these mega stones cannot be looked up by name');
 	assert.equal(builder.NAME_FIXES.Cameruptitte, 'Cameruptite');
 });
+
+test('the advisor prices from the same item ledger the run collects from', () => {
+	// itemsObtainableBy read 28 curated rows while fieldItems served those
+	// plus the dated ledger, so a run collected a Sitrus Berry the advisor
+	// could not name: by Norman (order 337) 28 of 32 holdable pickups were
+	// invisible to every Give and pickup row.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const served = new Set(oracle.itemsObtainableBy(337).map(item => item.name));
+	for (const name of ['Sitrus Berry', 'Muscle Band', 'Wise Glasses', 'Cheri Berry', 'Chesto Berry']) {
+		assert.ok(served.has(name), name + ' is dated before Norman and the advisor can name it');
+	}
+	const collectable = oracle.fieldItems().filter(item => item.kind !== 'tm' &&
+		Number.isInteger(item.opensAt) && item.opensAt <= 337);
+	for (const item of collectable) assert.ok(served.has(item.name), item.name + ' is collectable, so priceable');
+	assert.equal(served.size, oracle.itemsObtainableBy(337).length, 'one row a name');
+	assert.ok(!served.has('Life Orb'), 'and nothing dated after the fight (Life Orb is 683)');
+});

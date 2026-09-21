@@ -669,8 +669,22 @@ function methodOpensAt(method, mapName) {
  * not hold yet — with where to go get it.
  */
 function itemsObtainableBy(order) {
-	const all = load('availability').items || [];
-	return all.filter(item => item.opensAt !== null && item.opensAt <= order);
+	// The SAME ledger the collect surface serves. This read only the 28
+	// curated availability rows while fieldItems() served those plus the
+	// dated item ledger, so a run collected a Sitrus Berry the advisor could
+	// not name and never priced Muscle Band, Wise Glasses, or the Cheri and
+	// Chesto Berries that answer Norman's Thunder Wave and Relic Song: by
+	// order 337, 28 of 32 holdable pickups were invisible to every advice row.
+	// One row per item NAME, its earliest dated place: the two ledgers both
+	// list an Oran Berry, and an advice row is a name, not a place.
+	const first = new Map();
+	for (const item of fieldItems()) {
+		if (item.kind === 'tm' || item.opensAt === null || item.opensAt === undefined ||
+			item.opensAt > order) continue;
+		const seen = first.get(item.name);
+		if (!seen || item.opensAt < seen.opensAt) first.set(item.name, item);
+	}
+	return [...first.values()];
 }
 
 /** The whole field-item ledger, location and all — the guided view's source. */

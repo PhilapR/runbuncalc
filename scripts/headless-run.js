@@ -1095,4 +1095,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, relearn, evolveByItem};
+module.exports = {playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, relearn, evolveByItem};

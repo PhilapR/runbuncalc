@@ -330,8 +330,10 @@ test('the advisor prices single changes by what they do to the board', () => {
 			return level || datedTeach || egg;
 		}).length;
 	// ...plus every holdable field pickup the overworld has handed out by
-	// order 0 that the run has not collected (the advisor's fourth kind).
-	const pickups = oracle.itemsObtainableBy(0)
+	// THIS FIGHT's order that the run has not collected (the advisor's fourth
+	// kind). This read "by order 0", which agreed only while the advisor saw
+	// the 28 curated rows: the dated ledger puts a Pecha Berry at order 3.
+	const pickups = oracle.itemsObtainableBy(advice.order)
 		.filter(p => require('../lib/planner').holdableItem(p.name)).length;
 	assert.equal(advice.considered, teachable + 1 + 1 + pickups);
 
