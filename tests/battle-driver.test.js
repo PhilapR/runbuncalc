@@ -905,3 +905,34 @@ test('a widened search spends the budget unevenly and removes no option', () => 
 	assert.deepEqual(wide.chosen, flat.chosen);
 	driver.setSearchWiden(0);
 });
+
+test('a won rollout can be valued by what it kept, and a win still beats any loss', () => {
+	// A win was worth 1 whether six stood at the end or one, so the search had
+	// never preferred a cheaper win: eleven replayed boss wins each gave up
+	// four to six bodies.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys3b-A-7.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Youngster Calvin', 1);
+	const scoresOf = () => driver.searchChoice(opened.battle, opened.actions, 1, 4, 0).scores;
+
+	driver.setSearchKeep(false);
+	const flat = scoresOf();
+	const won = flat.filter(entry => entry.wins === entry.runs);
+	assert.ok(won.length > 0, 'an easy fight has options that win every playout');
+	for (const entry of won) assert.equal(entry.value, 1, 'flat: a win is 1 whatever it cost');
+
+	driver.setSearchKeep(true);
+	const kept = scoresOf();
+	for (const entry of kept.filter(row => row.wins === row.runs)) {
+		const party = doc.party.length;
+		assert.equal(entry.value, Number((0.5 + 0.5 * entry.oursAlive / party).toFixed(3)),
+			'keeping: half for the win, half for the share of ours still standing');
+		assert.ok(entry.value > 0.5 && entry.value <= 1);
+	}
+	assert.ok(Math.min(...kept.filter(row => row.wins === row.runs).map(row => row.value)) > 0.3,
+		'and the dearest win still outranks the best loss, which tops out at 0.3');
+	driver.setSearchKeep(false);
+	assert.deepEqual(scoresOf(), flat, 'off is the flat objective exactly');
+});

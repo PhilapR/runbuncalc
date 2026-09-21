@@ -80,6 +80,7 @@ function replay(receiptPath, scenarioName, seed) {
 	driver.setChargeThreat(argOf(argv, 'charge-threat') === '1');
 	driver.setDoublesJoint(argOf(argv, 'doubles-joint') === '1');
 	driver.setSearchWiden(Number(argOf(argv, 'search-widen') || 0));
+	driver.setSearchKeep(argOf(argv, 'search-keep') === '1');
 
 	// The same pre-fight choice the batch made, under the batch's argv.
 	const doc = battery.prepareDocument(

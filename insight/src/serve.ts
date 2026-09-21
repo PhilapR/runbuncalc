@@ -106,6 +106,26 @@ const flag = (argv: ReadonlyArray<string>, name: string): string | undefined => 
 	return hit === undefined ? undefined : hit.slice(name.length + 3);
 };
 
+/**
+ * Every run being written under `dir`: its own, and one level down, so the
+ * watcher can be pointed at `ui-playthrough-out/runs` and follow every batch.
+ * Most recently written first — the fight worth watching is the live one.
+ */
+export const listRuns = async (dir: string): Promise<ReadonlyArray<string>> => {
+	const found: Array<{name: string; at: number}> = [];
+	const scan = async (folder: string, prefix: string, deeper: boolean): Promise<void> => {
+		for (const entry of await fs.readdir(folder, {withFileTypes: true})) {
+			if (entry.isDirectory() && deeper && !entry.name.startsWith('.')) await scan(path.join(folder, entry.name), entry.name + '/', false);
+			else if (entry.isFile() && entry.name.endsWith('.live.ndjson')) {
+				const stat = await fs.stat(path.join(folder, entry.name));
+				found.push({name: prefix + entry.name.replace(/\.live\.ndjson$/, ''), at: stat.mtimeMs});
+			}
+		}
+	};
+	await scan(dir, '', true);
+	return found.sort((a, b) => b.at - a.at).map(entry => entry.name);
+};
+
 export const serve = (dir: string, port: number): http.Server => {
 	const send = (res: http.ServerResponse, type: string, body: string): void => {
 		res.writeHead(200, {'content-type': type, 'cache-control': 'no-store'});
@@ -114,15 +134,15 @@ export const serve = (dir: string, port: number): http.Server => {
 	return http.createServer((req, res) => {
 		const url = new URL(req.url ?? '/', 'http://localhost');
 		if (url.pathname === '/runs') {
-			void fs.readdir(dir).then(names => send(res, 'application/json', JSON.stringify(
-				names.filter(name => name.endsWith('.live.ndjson')).map(name => name.replace(/\.live\.ndjson$/, '')).sort())),
-			() => send(res, 'application/json', '[]'));
+			void listRuns(dir).then(names => send(res, 'application/json', JSON.stringify(names)),
+				() => send(res, 'application/json', '[]'));
 			return;
 		}
 		if (url.pathname === '/state') {
-			// A run is named by the file it writes; anything that is not a bare name is refused.
+			// A run is named LABEL/run-SEED (or run-SEED); anything else is refused,
+			// so the name can never walk out of the directory being watched.
 			const run = url.searchParams.get('run') ?? '';
-			if (!/^[A-Za-z0-9_.-]+$/.test(run)) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!/^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
 			void Effect.runPromise(readLive(path.join(dir, run + '.live.ndjson')))
 				.then(state => send(res, 'application/json', JSON.stringify(state)));
 			return;
