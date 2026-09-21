@@ -33,6 +33,7 @@ const fs = require('node:fs');
 const run = require('../lib/run.js');
 const battery = require('./scenario-battery.js');
 const driver = require('../lib/battle-driver.js');
+const nicknames = require('../lib/nicknames.js');
 
 function flag(name, fallback) {
 	const hit = process.argv.find(arg => arg.startsWith('--' + name + '='));
@@ -127,10 +128,21 @@ function methodFor(doc, map, wanted) {
 	return best;
 }
 
+/**
+ * The nickname this catch gets: stable for the run (the catch order is the
+ * key), never repeated. A run's losses are its story, and a story needs a
+ * name rather than the species the sweep has buried a dozen times.
+ */
+function nameFor(doc, species) {
+	return nicknames.nicknameFor(species, doc.box.length,
+		new Set(doc.box.map(mon => mon.nickname).filter(Boolean)));
+}
+
 function catchRolled(doc, map, random, wanted) {
 	const method = wanted ? methodFor(doc, map, wanted) : undefined;
 	const rolled = run.rollEncounter(doc, Object.assign({map, random}, method ? {method} : {}));
 	return run.apply(doc, {kind: 'catch', map, species: rolled.species,
+		nickname: nameFor(doc, rolled.species),
 		level: rolled.level, ivs: rolled.ivs, nature: rolled.nature,
 		ability: rolled.ability});
 }
@@ -221,8 +233,9 @@ function claimPrizes(doc, random, tally) {
 		const species = options[Math.floor(random() * options.length)];
 		const cap = run.levelCap(doc).cap || 50;
 		try {
-			doc = run.apply(doc, Object.assign({kind: 'catch', species, level: cap, prize: tier.badge},
-				run.rollIdentity(species, random)));
+			doc = run.apply(doc, Object.assign({kind: 'catch', species, level: cap, prize: tier.badge,
+				nickname: nameFor(doc, species)},
+			run.rollIdentity(species, random)));
 			tally.prizes = (tally.prizes || 0) + 1;
 		} catch (error) { /* refused: the run keeps what it had */ }
 	}
@@ -662,7 +675,8 @@ function startRun(starter, random) {
 		dupesClause: 'line', rival: starter.rival});
 	const identity = run.rollIdentity(starter.species, random, {perfectIvs: 3});
 	doc = run.apply(doc, Object.assign(
-		{kind: 'catch', species: starter.species, level: 5}, identity));
+		{kind: 'catch', species: starter.species, level: 5,
+			nickname: nicknames.nicknameFor(starter.species, 0, [])}, identity));
 	doc = run.apply(doc, {kind: 'party', ids: [doc.box[0].id]});
 	return doc;
 }
@@ -807,7 +821,20 @@ function playRun(policy, starter, seed, treatment, options) {
 			// What fell and to what: the driver knows the body, the move and
 			// the enemy that used it, and the row kept only the count — so no
 			// run could say which types die, or what kills them.
-			killers: (played.killers || []).map(death => ({species: death.species, by: death.by, of: death.of})),
+			killers: (played.killers || []).map(death => {
+				const mon = death.monId ? doc.box.find(member => member.id === death.monId) : null;
+				return {monId: death.monId || null,
+					name: death.name || (mon ? (mon.nickname || mon.species) : null),
+					species: death.species, by: death.by, of: death.of};
+			}),
+			// Who took what down. A body that only appears in the record on the
+			// day it dies has no story; this is the rest of it.
+			kos: (played.knockouts || []).map(kill => {
+				const mine = kill.byMonId ? doc.box.find(member => member.id === kill.byMonId) : null;
+				return {foe: kill.species, by: kill.by || null,
+					monId: kill.byMonId || null,
+					name: mine ? (mine.nickname || mine.species) : null};
+			}),
 			foeLeft: played.foe ? played.foe.alive : null, foeOf: played.foe ? played.foe.of : null});
 		const t = tally.trainers[next.trainer] =
 			tally.trainers[next.trainer] || {attempts: 0, wins: 0};

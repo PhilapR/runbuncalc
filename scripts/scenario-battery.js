@@ -287,7 +287,8 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 			doublesSearch > 0 ? {search: doublesSearch, joint: driver.doublesJoint()} : undefined);
 		return {result: doubles.result, turns: doubles.turns, engineRefusals: doubles.engineRefusals,
 			refused: doubles.events.filter(event => event.engineRefusal).map(event => ({turn: event.turn, text: event.text})),
-			deaths: doubles.deaths, killers: doubles.killers, foe: null, counters: {},
+			deaths: doubles.deaths, killers: doubles.killers,
+			knockouts: doubles.knockouts || [], foe: null, counters: {},
 			policy: doublesSearch > 0 ? (driver.doublesJoint() ? 'joint-' : 'search-') + doublesSearch : 'engine-ai-doubles'};
 	}
 	const roster = (doc.box || []).map(mon => ({id: mon.id, moves: mon.moves}));
@@ -313,10 +314,13 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 				// move `by`, used by their `of`. The battery threw all of it
 				// away and kept the count.
 				killers: (reply.deaths || []).map(death => ({
+					monId: death.monId || null,
 					species: death.species || null,
 					by: death.by || null,
 					of: death.of || null,
 				})),
+				// And the other half: which of ours took each enemy down.
+				knockouts: (reply.knockouts || []).slice(),
 				foe: foeRemainderOf(battle),
 				counters: counters()};
 		}

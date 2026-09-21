@@ -99,7 +99,31 @@ cost drop 68%  (3.1x faster)
 The flat control reproduced the pruning arm's win set exactly, in a separate
 process, which is how the refactor was shown to leave the flat path alone.
 Two wins to one is not significant; the bar asked only that wins not get
-worse. It stays off until a held-out battery arm confirms it.
+worse.
+
+**And then held-out refused it.** Four trainers the width was never tuned on
+(Rival Sceptile/acc-11, Lass Haley/brkeys1-B-1, Cool Trainer George/
+flannery-3, Psychic Jaclyn/pf-2), 5 seeds each, same search and PP model.
+Bar declared before the run: adopt if net discordant is at least −1 and cost
+drops 40%.
+
+```
+flat   wins 17/20  mean 116s a fight
+widen3 wins 14/20  mean 50s a fight
+discordant: flat-only 4  widen-only 1
+net -3  | cost drop 57%  (2.3x)
+  3 -> 1 of 5   Trainer Rival Cycling Road Sceptile
+  4 -> 5 of 5   Lass Haley
+  5 -> 3 of 5   Cool Trainer George
+  5 -> 5 of 5   Psychic Jaclyn
+```
+
+Net −3 against a bar of −1: **not adopted as a default**, and this is the
+third time an arm has won in-sample and lost held-out. The scouting rollout
+is too thin a read — one playout shortlists, and against Sceptile and George
+it shortlists wrong. `--search-widen=N` stays available and off, for work
+where wall time matters and win rate does not (crash hunting, shape checks).
+A wider scout (2–3 rollouts) is the obvious next arm and is NOT claimed here.
 
 ## Known slow gates
 

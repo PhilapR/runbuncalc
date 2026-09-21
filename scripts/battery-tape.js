@@ -30,8 +30,15 @@ function ownFlag(name) {
 
 /** The fields a row and a replay must agree on before the tape is trusted. */
 function rowOf(played, seed) {
+	// The PLAY fields of a death, and only those. A row's record has grown
+	// since the old receipts were written (a death now carries the box id of
+	// the body that fell, for the chronicle); the fight it describes has not.
+	// Comparing the whole object refused every committed receipt over a key
+	// that says who, not what happened.
 	return {seed, result: played.result, turns: played.turns, deaths: played.deaths,
-		killers: played.killers || [], foe: played.foe || null};
+		killers: (played.killers || []).map(death => ({
+			species: death.species, by: death.by, of: death.of})),
+		foe: played.foe || null};
 }
 
 function replay(receiptPath, scenarioName, seed) {
