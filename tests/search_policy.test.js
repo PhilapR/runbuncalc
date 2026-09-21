@@ -97,3 +97,21 @@ test('pick-by-play selects on decide() even when the fight itself is searched', 
 	}
 	assert.ok(starts >= 2, 'the candidates were played on decide(): ' + starts);
 });
+
+test('the lookahead is off unless asked for, repeats itself exactly, and says how deep it looked', () => {
+	const driver = require('../lib/battle-driver.js');
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json'), 'utf8'));
+	assert.equal(driver.searchLookahead(), 0, 'off by default: measured WORSE than decide() on its first box (docs/PERFORMANCE.md)');
+	assert.throws(() => driver.setSearchLookahead(9), /depth from 0 to 4/);
+	const opened = driver.start(doc, 'Leader Brawly', 7001);
+	const once = driver.lookaheadChoice(opened.battle, opened.actions, 7001, 2, 0);
+	const again = driver.lookaheadChoice(opened.battle, opened.actions, 7001, 2, 0);
+	assert.deepEqual(again, once, 'the same position and dice give the same answer: siblings share their dice, nothing is drawn from a clock');
+	assert.ok(once.scores.length > 1 && once.scores.every(row => row.depth >= 1 && row.runs > 0 && typeof row.lead === 'number'));
+	assert.ok(once.scores.some(row => (row.choice === (once.chosen.move || 'switch:' + once.chosen.replacementId))));
+	const best = Math.max(...once.scores.map(row => row.value));
+	assert.equal(once.scores.find(row => row.value === best).choice, once.chosen.move || 'switch:' + once.chosen.replacementId,
+		'the option it values most is the one it plays');
+	assert.ok(once.acts < 200, 'every option one turn deep and only the contenders deeper: ' + once.acts + ' simulated turns, not 780');
+});

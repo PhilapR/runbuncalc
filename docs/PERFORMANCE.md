@@ -327,3 +327,37 @@ two minutes and a wall costs an hour.
 **Known limit.** Expect 3–6 held-out walls, so this can reject but can only
 weakly adopt; a second batch of seeds with both arms from the start is what
 would settle it, at roughly 6 seeds x 2 arms x 3–7 hours of a slot each.
+
+## The lookahead (`--search-lookahead=D`): built, fast, and so far WORSE — off (2026-09-21)
+
+Why it was built: over 7,603 searched turns the playout search's best option
+beat its second by a median of 0.010 (under 0.02 on two turns in three), each
+value the mean of 8 playouts; in 63% of turns no option won a playout, so a
+value is 0.3 x their HP removed after a sixty-turn fight our side plays by
+greedyChoice. And the foe is predictable: asked forty times with different
+dice at 162 positions across three late walls, the trainer AI chose the same
+move every time, at every position.
+
+What it is: every option one turn deep against their real reply, only the
+contenders (within 0.05) a turn deeper, siblings on shared dice; leaf = the
+material lead. One decision: 0.2 s against 8-12 s for search-8, and the top
+option leads by 0.057 where playouts showed 0.010.
+
+What it does, Brawly box (fixtures/banked-runs/clear1-731001-brawly), fresh
+seeds 7001-7020, one loaded machine:
+
+| hand | wins | a fight |
+|---|---|---|
+| decide() (seeds 9001-9030, measured earlier) | 12 of 30 | ~2 s |
+| search-8 (replayed earlier) | 0 of 16 | ~146 s |
+| lookahead-1 | 1 of 20 | 7 s |
+| lookahead-2 | 0 of 20 | 27 s |
+| lookahead-3 | stopped after 3 losses | 182 s |
+
+Sharper values did not make better play. A material lead one or two turns out
+is a greedy objective: it takes the biggest trade now and has no notion of
+holding a body for the foe it answers, which is what wins these fights
+(LEADER-KEYS, "a plan, not a part"). decide()'s hand-built rules encode some
+of that; this does not. Not tuned further against one box. What would make it
+worth another look: a leaf that values matchups still to come (who of ours
+beats who of theirs that is still standing), not HP.

@@ -111,6 +111,8 @@ const KNOB_FLAGS = {
 	searchHalving: ['search-halving', '0', value => value === '1'],
 	// A lost playout valued by its path too (driver.setSearchPath).
 	searchPath: ['search-path', '0', value => value === '1'],
+	// How many of our own decisions deep the search looks exactly, the foe on its own AI, instead of playing fights out.
+	searchLookahead: ['search-lookahead', '0', Number],
 	// The probe picks the hand: a six decide() wins with is played by decide(), not handed to search for good.
 	handByProbe: ['hand-by-probe', '0', Number],
 };
@@ -1247,6 +1249,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	driver.setSearchKeep(knobs.searchKeep);
 	driver.setSearchHalving(knobs.searchHalving);
 	driver.setSearchPath(knobs.searchPath);
+	driver.setSearchLookahead(knobs.searchLookahead);
 	// options.restore is a CHECKPOINT (options.checkpoint wrote it): the
 	// document and everything else the run holds — the dice's position, the
 	// fight seed, the attempts at the wall in front of it, what was caught
@@ -1417,7 +1420,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 					trainer: next.trainer, order: next.order, attempt: attempts + 1, position: doc.position,
 					// Where on the road this is, as a player counts it: the Nth trainer of how many.
 					road: run.trainerIndexOf(doc, next.order), roadOf: run.trainerIndexOf(doc, ahead[ahead.length - 1].order),
-					hand: searching ? 'search-' + searching.search : 'decide', runSeed: seed,
+					hand: !searching ? 'decide' : knobs.searchLookahead > 0 ? 'lookahead-' + knobs.searchLookahead : 'search-' + searching.search, runSeed: seed,
 					six: six.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level, item: mon.item || null}))});
 				liveEnd = watched.end;
 				if (keptLog) { keptLog = watched; } else { unkeptLive = watched; }

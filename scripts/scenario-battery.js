@@ -276,7 +276,8 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 		(options && options.search !== undefined) ||
 		/Leader|Elite|Champion|Rival|Admin|Wally|Maxie|Archie|Chelle/i.test(trainer))) {
 		const searched = driver.playSearch(doc, trainer, seed, {rollouts: searchRollouts, tape});
-		return Object.assign({counters: {}, refused: [], policy: 'search-' + searchRollouts}, searched);
+		return Object.assign({counters: {}, refused: [],
+			policy: driver.searchLookahead() > 0 ? 'lookahead-' + driver.searchLookahead() : 'search-' + searchRollouts}, searched);
 	}
 	if (require('../lib/planner').getFight(trainer, doc.profileId).isDouble) {
 		// A double is searched by default, and jointly: measured on 67 real
@@ -748,6 +749,8 @@ function main() {
 	driver.setSearchHalving(flag('search-halving', '0') === '1');
 	// A lost playout valued by its path (the average material lead) as well as its end.
 	driver.setSearchPath(flag('search-path', '0') === '1');
+	// How deep the search looks EXACTLY instead of playing fights out. Off (0) until measured.
+	driver.setSearchLookahead(Number(flag('search-lookahead', '0')));
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?
