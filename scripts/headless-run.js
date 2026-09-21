@@ -1194,14 +1194,30 @@ function planByPlay(policy, doc, next, tally) {
 		if (!best) break;
 		hand = best;
 	}
+	scouted(tally, 'plan', tried * knobs.planSeeds);
 	tally.plans = (tally.plans || []).concat([{trainer: next.trainer, of: tried, took: name(hand.doc),
 		wins: hand.score.wins, left: Number(hand.score.left.toFixed(2)),
 		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2))}}]);
 	return hand.doc;
 }
 
-function probeWall(policy, doc, next) {
+/**
+ * AN ATTEMPT is a fight played for keeps: on the run's own dice, one ledger
+ * row, counted in `fights` and against the retry cap. SCOUTING is a fight
+ * played in the run's head — a probe, a re-pick, a plan — on dice the real
+ * attempt will never get (PROBE_SEED_BASE, SELECTION_SEED_BASE,
+ * PLAN_SEED_BASE), so it is thinking, not peeking. But it is not free, and
+ * "cleared Matt in 6 attempts" was standing on some 230 of them that no
+ * record showed. They are counted here, by kind, and carried on the row.
+ */
+function scouted(tally, kind, fights) {
+	tally.scouted = tally.scouted || {probe: 0, repick: 0, plan: 0};
+	tally.scouted[kind] = (tally.scouted[kind] || 0) + fights;
+}
+
+function probeWall(policy, doc, next, tally) {
 	if (!knobs.probe || next.isDouble || !BOSS.test(next.trainer)) return null;
+	if (tally) scouted(tally, 'probe', knobs.probe);
 	let wins = 0;
 	let left = 0;
 	for (let offset = 1; offset <= knobs.probe; offset++) {
@@ -1369,8 +1385,11 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		const repickAfter = knobs.repickAfter;
 		if (repickAfter > 0 && attempts >= repickAfter && (attempts - repickAfter) % 6 === 0 && !next.isDouble && !planHolds) {
 			try {
-				doc = battery.prepareDocument(doc, next.trainer, policy).doc;
+				const picked = battery.prepareDocument(doc, next.trainer, policy);
+				doc = picked.doc;
 				tally.repicks = (tally.repicks || 0) + 1;
+				const byPlay = (picked.repick || {}).byPlay;
+				if (byPlay) scouted(tally, 'repick', byPlay.k * byPlay.seeds);
 			} catch (error) { /* keep the six it has */ }
 		}
 		// A wall is PLANNED by play (--plan-after, default off): once, when it has
@@ -1395,14 +1414,14 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		if (knobs.handByProbe && searching && !next.isDouble && knobs.probe) {
 			const six = doc.party.join(',');
 			if (handProbe.six !== six) {
-				reprobed = probeWall(policy, doc, next);
+				reprobed = probeWall(policy, doc, next, tally);
 				handProbe = {six, wins: reprobed && reprobed.wins ? reprobed.wins : 0};
 				if (reprobed) tally.reprobes = (tally.reprobes || 0) + 1;
 			}
 			if (handProbe.wins > 0) searching = undefined;
 		}
 		if (next.isDouble && knobs.doublesPrep) doc = doublesPrep(doc, tally);
-		const probed = attempts === 0 ? probeWall(policy, doc, next) : reprobed;
+		const probed = attempts === 0 ? probeWall(policy, doc, next, tally) : reprobed;
 		// An engine crash is a lost fight, not a lost run. Sweep 14's deepest
 		// run died at fight #271 after beating 410 of them, and its document
 		// went with it: the state that crashed could not be replayed, so the
@@ -1520,7 +1539,9 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
-		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, plans: tally.plans || [], prizes: tally.prizes || 0,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, plans: tally.plans || [],
+		// Fights played in the run's head, by kind: never attempts, never free.
+		scouted: tally.scouted || {probe: 0, repick: 0, plan: 0}, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,

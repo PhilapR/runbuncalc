@@ -259,8 +259,9 @@ test('a run is read for its aggregates and a profile of every body, and runs rol
 		{id: 'mon-2', species: 'Corvisquire', nickname: 'Moss', level: 21, moves: ['Pluck'], status: 'party', origin: {mapName: 'Route102'}},
 		{id: 'mon-3', species: 'Wurmple', level: 5, status: 'dead'}];
 	const summary = summariseRun({seed: 7, starter: 'Chimchar', position: 80, seconds: 600, state: 'ended', stopped: 'Leader Norman: skip',
-		auditOk: true, plans: 1, reprobes: 0, ledger, doc: {position: 80, party: ['mon-1', 'mon-2'], box}});
+		auditOk: true, plans: 1, reprobes: 0, scouted: {probe: 12, repick: 36, plan: 168}, ledger, doc: {position: 80, party: ['mon-1', 'mon-2'], box}});
 	assert.equal(summary.attempts, 11);
+	assert.equal(summary.scoutedFights, 216, 'and beside the attempts, the fights played in the run\'s head: never attempts, never free');
 	assert.equal(summary.trainersBeaten, 2);
 	assert.equal(summary.firstTry, 1, 'Calvin fell first try, Brawly did not');
 	assert.deepEqual(summary.byHand, [{hand: 'decide', attempts: 8, wins: 1}, {hand: 'search', attempts: 3, wins: 1}], 'search-8 and search-4 are one hand');

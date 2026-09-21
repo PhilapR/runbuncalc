@@ -181,6 +181,7 @@ function factsOf(s) {
   add('beaten first try', s.trainersBeaten ? Math.round(100 * s.firstTry / s.trainersBeaten) + '%' : '—');
   if (s.bodiesLostPerWallWin !== null) add('bodies lost per wall cleared', s.bodiesLostPerWallWin);
   if (s.minutes !== null) add('minutes', s.minutes);
+  if (s.scoutedFights !== null) { f.appendChild(el('b', {text: s.scoutedFights + ' '})); f.appendChild(el('span', {title: 'An attempt is a fight played for keeps: the run\u2019s own dice, one ledger row, counted against the retry cap. These were played in the run\u2019s head, on other dice, to choose a six or a plan: ' + Object.entries(s.scouted).map(e => e[1] + ' ' + e[0]).join(', '), text: 'scouting fights (not attempts)'})); }
   add('plans', s.plans); add('in the box', s.boxSize);
   add('', s.state === 'playing' ? 'still playing' : s.state === 'finished' ? 'FINISHED' : 'ended: ' + String(s.stopped || '').split(':')[0]);
   if (s.auditOk !== null) add('', s.auditOk ? 'audit valid' : 'audit FAILS');

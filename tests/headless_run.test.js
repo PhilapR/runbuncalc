@@ -688,6 +688,10 @@ test('a wall lost often enough is planned by play, and the plan holds until the 
 	for (let fight = 2; fight < sixes.length && holds[fight]; fight++) {
 		assert.equal(sixes[fight], plan.took, 'attempt ' + (fight + 1) + ' fights with the plan');
 	}
+	// The plan's fights are SCOUTING, not attempts: played in the run's head on
+	// dice no attempt gets, counted apart, and never in `fights`.
+	assert.equal(row.scouted.plan, plan.of * 3, 'every plan tried, on each of its three seeds');
+	assert.equal(row.fights, row.ledger.length, 'and an attempt is a ledger row, nothing else');
 	assert.equal(holds[1], false, 'nothing holds before the plan');
 	assert.equal(holds[2], true, 'and once taken it holds — the ranker and the re-pick would only undo it — and is carried in a checkpoint');
 });

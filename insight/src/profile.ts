@@ -51,13 +51,15 @@ const Ended = Schema.Struct({seed: Schema.Number, starter: Schema.optional(Schem
 	fights: Schema.Number, seconds: Schema.optional(Schema.Number), finished: Schema.optional(Schema.Boolean),
 	stopped: Schema.optional(Schema.NullOr(Schema.String)), ledger: Schema.Array(Row), doc: Schema.optional(Doc),
 	plans: Schema.optional(Schema.Array(Schema.Unknown)), reprobes: Schema.optional(Schema.Number),
+	scouted: Schema.optional(Schema.Record({key: Schema.String, value: Schema.Number})),
 	audit: Schema.optional(Schema.Struct({ok: Schema.Boolean}))});
 
 /** A run still playing, as its checkpoint holds it. */
 const Playing = Schema.Struct({seed: Schema.Number, position: Schema.Number, doc: Doc,
 	starter: Schema.optional(Schema.Struct({species: Schema.String})),
 	state: Schema.Struct({tally: Schema.Struct({fights: Schema.Number, ledger: Schema.Array(Row),
-		plans: Schema.optional(Schema.Array(Schema.Unknown)), reprobes: Schema.optional(Schema.Number)}),
+		plans: Schema.optional(Schema.Array(Schema.Unknown)), reprobes: Schema.optional(Schema.Number),
+		scouted: Schema.optional(Schema.Record({key: Schema.String, value: Schema.Number}))}),
 	elapsedMs: Schema.optional(Schema.Number)})});
 
 export const decodeEnded = Schema.decodeUnknown(Ended);
@@ -74,6 +76,8 @@ export interface RunSource {
 	readonly auditOk: boolean | null;
 	readonly plans: number;
 	readonly reprobes: number;
+	/** Fights played in the run's head, by kind (probe, repick, plan). Null on a run from before they were counted. */
+	readonly scouted: Readonly<Record<string, number>> | null;
 	readonly ledger: ReadonlyArray<typeof Row.Type>;
 	readonly doc: typeof Doc.Type | null;
 }
@@ -81,12 +85,12 @@ export interface RunSource {
 export const fromEnded = (run: typeof Ended.Type): RunSource => ({seed: run.seed, starter: run.starter ?? null,
 	position: run.position, seconds: run.seconds ?? null, state: run.finished === true ? 'finished' : 'ended',
 	stopped: run.stopped ?? null, auditOk: run.audit?.ok ?? null, plans: (run.plans ?? []).length,
-	reprobes: run.reprobes ?? 0, ledger: run.ledger, doc: run.doc ?? null});
+	reprobes: run.reprobes ?? 0, scouted: run.scouted ?? null, ledger: run.ledger, doc: run.doc ?? null});
 
 export const fromPlaying = (run: typeof Playing.Type): RunSource => ({seed: run.seed, starter: run.starter?.species ?? null,
 	position: run.position, seconds: run.state.elapsedMs === undefined ? null : Math.round(run.state.elapsedMs / 1000),
 	state: 'playing', stopped: null, auditOk: null, plans: (run.state.tally.plans ?? []).length,
-	reprobes: run.state.tally.reprobes ?? 0, ledger: run.state.tally.ledger, doc: run.doc});
+	reprobes: run.state.tally.reprobes ?? 0, scouted: run.state.tally.scouted ?? null, ledger: run.state.tally.ledger, doc: run.doc});
 
 export interface Wall {
 	readonly trainer: string;
@@ -138,6 +142,9 @@ export interface RunSummary {
 	readonly bodiesLostPerWallWin: number | null;
 	readonly plans: number;
 	readonly reprobes: number;
+	/** An ATTEMPT is played for keeps; these were played in the run's head, on other dice. Null: not counted then. */
+	readonly scouted: Readonly<Record<string, number>> | null;
+	readonly scoutedFights: number | null;
 	readonly boxSize: number;
 	readonly roster: ReadonlyArray<Profile>;
 }
@@ -227,7 +234,8 @@ export function summariseRun(run: RunSource): RunSummary {
 		firstTry: beaten.filter(rows => rows[0]?.result === 'win').length,
 		attemptsPerTrainer: beaten.length === 0 ? null : Number((run.ledger.length / beaten.length).toFixed(2)),
 		byHand: [...hands.entries()].map(([hand, entry]) => ({hand, ...entry})).sort((a, b) => b.attempts - a.attempts),
-		walls, plans: run.plans, reprobes: run.reprobes, boxSize: run.doc?.box.length ?? 0, roster,
+		walls, plans: run.plans, reprobes: run.reprobes, scouted: run.scouted,
+		scoutedFights: run.scouted === null ? null : Object.values(run.scouted).reduce((sum, value) => sum + value, 0), boxSize: run.doc?.box.length ?? 0, roster,
 		bodiesLostPerWallWin: wallWins.length === 0 ? null :
 			Number((wallWins.reduce((sum, wall) => sum + (wall.bodiesLostInWin ?? 0), 0) / wallWins.length).toFixed(2))};
 }
