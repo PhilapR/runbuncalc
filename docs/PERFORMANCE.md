@@ -54,6 +54,53 @@ candidate worth measuring first — and it must be measured on a REAL state,
 because two earlier optimisation proposals died on real playthrough states
 after passing on a constructed box.
 
+## Making the search cheaper: one rejection, one pass
+
+Both arms below are 12 paired seeds at Leader Brawly on
+`fixtures/banked-runs/brkeys3b-A-7.run.json`, search-8, real PP, control and
+treatment run back to back in the same process. The bar was declared before
+either ran: **adopt if wins are no worse and the per-fight cost drops at
+least 40%**.
+
+**Rejected — pruning the candidate list** (`prunedChoices`, 2026-09-20). Kept
+the best damaging move of each type and, when anything damaged, only the
+switches that WIN their race. At Brawly it cut nine candidates to three:
+
+```
+seeds 11
+full   wins 8  mean 280s a fight
+pruned wins 2  mean 122s a fight
+discordant: full-only 7  pruned-only 1
+speed-up 2.30x, cost drop 56%
+```
+
+It bought the speed by deleting the switches the board had priced as losing
+— and those are the pivots that win boss fights: a body that loses its race
+is often exactly the body worth sending, to eat a hit or force the foe off a
+set-up. No a-priori rule prices that; only a rollout does. Same-type damage
+dominance is unsound for the same reason (it ignores accuracy and secondary
+effects). Reverted, and the reasoning is kept in `setSearchWiden`'s comment
+so it is not retried.
+
+**Passed — widening** (`--search-widen=N`, `driver.setSearchWiden(N)`, OFF by
+default). Nothing is removed. Every candidate gets one scouting rollout, the
+top N then get the full remaining budget, and the winner is chosen only among
+those N — otherwise one lucky single rollout outranks a candidate measured
+eight times. Nine candidates at eight rollouts is 30 playouts instead of 72:
+
+```
+Leader Brawly, search-8, real PP, 12 paired seeds
+flat   wins 8/12  seeds [1,3,4,6,8,9,11,12]  mean 312s a fight
+widen3 wins 9/12  seeds [1,3,4,7,8,9,10,11,12]  mean 100s a fight
+discordant: flat-only [6]  widen-only [7,10]
+cost drop 68%  (3.1x faster)
+```
+
+The flat control reproduced the pruning arm's win set exactly, in a separate
+process, which is how the refactor was shown to leave the flat path alone.
+Two wins to one is not significant; the bar asked only that wins not get
+worse. It stays off until a held-out battery arm confirms it.
+
 ## Known slow gates
 
 The three slowest tests are full-RUN tests, and they are slow for a reason:

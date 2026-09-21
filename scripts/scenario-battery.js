@@ -711,7 +711,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search', 'search-widen'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -729,6 +729,8 @@ function main() {
 	driver.setRealSpeed(flag('real-speed', '1') === '1');
 	driver.setChargeThreat(flag('charge-threat', '0') === '1');
 	driver.setDoublesJoint(flag('doubles-joint', '1') === '1');
+	// One scouting rollout each, then the full budget for the top N.
+	driver.setSearchWiden(Number(flag('search-widen', '0')));
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
 	const scenarios = shardOf(manifest ?

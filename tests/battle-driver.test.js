@@ -866,3 +866,42 @@ test('Effect Spore does not status a Grass attacker that makes contact', () => {
 	const rillaboom = reply.battle.state.sides.ai.party.find(mon => mon.species === 'Rillaboom');
 	assert.equal(rillaboom.status, undefined, 'a Grass attacker is not statused by Effect Spore');
 });
+
+test('a widened search spends the budget unevenly and removes no option', () => {
+	// The rollout search is the harness: a searched fight is 77s against
+	// decide()'s 0.3, and a boss retried sixty times is an hour on one fight
+	// (docs/PERFORMANCE.md). The first attempt at cheapening it DROPPED
+	// candidates — best damaging move per type, and only switches that win
+	// their race — and at Brawly on 11 paired seeds that went from 8 wins to
+	// 2 while running 2.3x faster. The switches it deleted are the pivots
+	// that win boss fights. So nothing is removed; the budget is spent
+	// unevenly instead, and this pins the arithmetic of that.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys3b-A-7.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Leader Brawly', 1);
+	const actions = opened.actions;
+	const candidates = new Set(actions.map(entry => entry.kind === 'move' ?
+		'move:' + entry.move : 'switch:' + entry.action.replacementId)).size;
+	assert.ok(candidates > 4, 'Brawly opens with a real branching factor: ' + candidates);
+
+	const rollouts = 3;
+	driver.setSearchWiden(0);
+	const flat = driver.searchChoice(opened.battle, actions, 1, rollouts, 0);
+	assert.equal(flat.dice, candidates * rollouts, 'flat rolls every candidate every time');
+
+	driver.setSearchWiden(2);
+	const widened = driver.searchChoice(opened.battle, actions, 1, rollouts, 0);
+	// One scouting rollout each, then the remaining budget for the top two.
+	assert.equal(widened.dice, candidates + 2 * (rollouts - 1));
+	assert.ok(widened.dice < flat.dice, 'widening is cheaper: ' + widened.dice + ' < ' + flat.dice);
+
+	// A width at or above the branching factor is the flat search exactly —
+	// same dice, same choice — so the switch can never quietly halve a run.
+	driver.setSearchWiden(candidates);
+	const wide = driver.searchChoice(opened.battle, actions, 1, rollouts, 0);
+	assert.equal(wide.dice, flat.dice);
+	assert.deepEqual(wide.chosen, flat.chosen);
+	driver.setSearchWiden(0);
+});

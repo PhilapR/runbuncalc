@@ -699,6 +699,8 @@ function playRun(policy, starter, seed, treatment, options) {
 	driver.setRealSpeed(flag('real-speed', '1') === '1');
 	driver.setChargeThreat(flag('charge-threat', '0') === '1');
 	driver.setDoublesJoint(flag('doubles-joint', '1') === '1');
+	// How wide the boss search stays after its first look.
+	driver.setSearchWiden(Number(flag('search-widen', '0')));
 	const random = dice(seed);
 	let doc = startRun(starter, random);
 
