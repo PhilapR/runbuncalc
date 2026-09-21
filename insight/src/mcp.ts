@@ -16,7 +16,7 @@ import {Effect, JSONSchema, ParseResult, Schema} from 'effect';
 import * as path from 'node:path';
 import * as readline from 'node:readline';
 import {walls} from './analyse.js';
-import {loadRun} from './cli.js';
+import {loadRunWithFights} from './cli.js';
 import {tagsOf} from './tags.js';
 
 const Report = Schema.String.annotations({description: 'Path to a headless run record (JSON) written by scripts/headless-run.js.'});
@@ -56,7 +56,7 @@ const tool = <A, I>(definition: {readonly name: string; readonly description: st
 });
 
 /** A failure to load a record, as the sentence an agent should read. */
-const loaded = (report: string) => loadRun(report).pipe(Effect.mapError(error =>
+const loaded = (report: string) => loadRunWithFights(report).pipe(Effect.mapError(error =>
 	error._tag === 'NotARun' ? report + ' is not a run record:\n' + error.issue :
 	error._tag === 'NotJson' ? report + ' is not JSON' : 'cannot read ' + report));
 

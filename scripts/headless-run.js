@@ -982,6 +982,25 @@ function provenance() {
 }
 
 /**
+ * Where an attempt's fight goes. With a sidecar (options.fightLog, from
+ * lib/fight-log.js) the fight is written to disk the moment it ends and the
+ * ledger row keeps only the line it landed on: constant memory, and a killed
+ * run keeps every fight it finished. Without one — a test, a short probe —
+ * the fight rides inline on the row as before.
+ */
+function keptFight(keptLog, played, doc, sink, header) {
+	if (!keptLog) return {};
+	const six = doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean)
+		.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level,
+			item: mon.item || null, ability: mon.ability || null, nature: mon.nature || null,
+			moves: mon.moves.slice()}));
+	const fight = Object.assign({}, keptLog.length ? {log: keptLog} : {},
+		played.events ? {events: played.events} : {}, {six});
+	if (!sink) return fight;
+	return {logLine: sink.append(Object.assign({}, header, fight))};
+}
+
+/**
  * A cheap read of a wall before the run pays for it.
  *
  * Across 259 ledgers a boss either fell within about 25 attempts or never
@@ -1163,13 +1182,9 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			...(probed ? {probe: probed} : {}),
 			// The fight itself, not only its row: every turn, what was offered,
 			// what the search thought of each option, and what happened.
-			...(keptLog && keptLog.length ? {log: keptLog} : {}),
-			...(keptLog && played.events ? {events: played.events} : {}),
-			// The six that fought it, so a log can be read without replaying the run.
-			...(keptLog ? {six: doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean)
-				.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level,
-					item: mon.item || null, ability: mon.ability || null, nature: mon.nature || null,
-					moves: mon.moves.slice()}))} : {}),
+			...keptFight(keptLog, played, doc, options && options.fightLog, {n: tally.fights, order: next.order,
+				trainer: next.trainer, seed: fightSeed, result: played.result,
+				policy: played.policy || (searching ? 'search' : 'decide'), runSeed: seed}),
 			// What fell and to what: the driver knows the body, the move and
 			// the enemy that used it, and the row kept only the count — so no
 			// run could say which types die, or what kills them.

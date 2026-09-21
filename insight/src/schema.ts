@@ -108,6 +108,8 @@ export const Attempt = Schema.Struct({
 	foeLeft: Schema.optional(Schema.NullOr(Schema.Number)),
 	foeOf: Schema.optional(Schema.NullOr(Schema.Number)),
 	probe: Schema.optional(Probe),
+	/** The line of the sidecar that holds this attempt's fight, when it was streamed there. */
+	logLine: Schema.optional(Schema.Number),
 	log: Schema.optional(Schema.Array(Turn)),
 	/** A double has no one-active view to log turn by turn; its events are its record. */
 	events: Schema.optional(Schema.Array(Schema.Struct({
@@ -128,4 +130,20 @@ export const RunRecord = Schema.Struct({
 });
 export type RunRecord = typeof RunRecord.Type;
 
+/**
+ * One line of a run's `.fights.ndjson.gz` sidecar (lib/fight-log.js): the
+ * attempt's fight, keyed by the ledger number it belongs to. The ledger row
+ * keeps only `logLine`; this is where the turns live.
+ */
+export const FightLine = Schema.Struct({
+	n: Schema.Number,
+	trainer: Schema.String,
+	log: Schema.optional(Schema.Array(Turn)),
+	events: Schema.optional(Schema.Array(Schema.Struct({
+		turn: Schema.optional(Schema.NullOr(Schema.Number)), text: Schema.String}))),
+	six: Schema.optional(Schema.Array(Member)),
+});
+export type FightLine = typeof FightLine.Type;
+
 export const decodeRun = Schema.decodeUnknown(RunRecord);
+export const decodeFightLine = Schema.decodeUnknown(FightLine);

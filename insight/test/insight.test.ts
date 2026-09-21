@@ -84,3 +84,33 @@ test('the agent face shows the signature it enforces', async () => {
 	assert.match(missing.content[0]?.text ?? '', /cannot read/);
 	assert.equal((await call('no_such_tool', {})).isError, true);
 });
+
+test('a run\'s streamed fights are put back on its attempts, torn sidecar or not', async () => {
+	const fs = await import('node:fs/promises');
+	const os = await import('node:os');
+	const pathOf = await import('node:path');
+	const zlib = await import('node:zlib');
+	const {loadRunWithFights, sidecarOf} = await import('../src/cli.js');
+	const dir = await fs.mkdtemp(pathOf.join(os.tmpdir(), 'insight-'));
+	const report = pathOf.join(dir, 'run.json');
+	await fs.writeFile(report, JSON.stringify({seed: 1, position: 90, fights: 2, ledger: [
+		{n: 1, order: 80, trainer: 'Leader Brawly', seed: 5, result: 'loss', logLine: 0},
+		{n: 2, order: 80, trainer: 'Leader Brawly', seed: 6, result: 'win', logLine: 1}]}));
+	const member = (value: unknown): Buffer => zlib.gzipSync(JSON.stringify(value) + '\n');
+	const first = member({n: 1, trainer: 'Leader Brawly', log: [turn({chose: 'Superpower'})]});
+	const second = member({n: 2, trainer: 'Leader Brawly', log: [turn({chose: 'Tailwind'})]});
+	assert.equal(sidecarOf(report), pathOf.join(dir, 'run.fights.ndjson.gz'));
+
+	await fs.writeFile(sidecarOf(report), Buffer.concat([first, second]));
+	const whole = await Effect.runPromise(loadRunWithFights(report));
+	assert.deepEqual(whole.ledger.map(attempt => attempt.log?.[0]?.chose), ['Superpower', 'Tailwind']);
+
+	// Killed while the second attempt was being written: the first survives.
+	await fs.writeFile(sidecarOf(report), Buffer.concat([first, second.subarray(0, 12)]));
+	const torn = await Effect.runPromise(loadRunWithFights(report));
+	assert.deepEqual(torn.ledger.map(attempt => attempt.log?.[0]?.chose), ['Superpower', undefined]);
+
+	// No sidecar at all is a run played inline, not an error.
+	await fs.rm(sidecarOf(report));
+	assert.equal((await Effect.runPromise(loadRunWithFights(report))).ledger.length, 2);
+});
