@@ -59,10 +59,11 @@
     "import-oracle": "node scripts/import-oracle.js",
     "inventory": "node scripts/inventory.js",
     "build": "npm run build --prefix calc && npm run build --prefix ai && node build view && node scripts/build-pokemon-provider.js",
-    "test": "npm run test --prefix calc && npm run test --prefix ai && node build view && npm run check:sdlc && npm run test:server && eslint src profiles lib tests scripts fixtures --ext js",
+    "test": "npm run test --prefix calc && npm run test --prefix ai && npm run test --prefix insight && node build view && npm run check:sdlc && npm run test:server && eslint src profiles lib tests scripts fixtures --ext js",
     "test:server": "node scripts/build-worker.js && node --test \"tests/**/*.test.js\" \"fixtures/**/*.test.js\"",
     "postinstall": "subpkg install",
-    "test:fast": "node scripts/build-worker.js && node --test $(node scripts/fast-tests.js)"
+    "test:fast": "node scripts/build-worker.js && node --test $(node scripts/fast-tests.js)",
+    "fight-log": "npm run --prefix insight viewer --"
   },
   "subPackages": [
     "calc",

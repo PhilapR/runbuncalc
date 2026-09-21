@@ -32,3 +32,4 @@ experiments/mlruns/
 # batch ends; ignored so a crashed batch cannot dirty the tree and make the
 # NEXT batch refuse to start.
 .ab-worktree/
+insight/dist

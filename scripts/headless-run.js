@@ -92,6 +92,9 @@ const KNOB_FLAGS = {
 	probe: ['probe', '12', Number],
 	// Heart Scales the IV spender must leave in the bag: see spendScales.
 	scaleReserve: ['scale-reserve', '2', Number],
+	// Which fights keep their turn-by-turn log on the ledger row: 'bosses'
+	// (bosses and doubles — the walls), 'all', or 'none'. See docs/HOW-WE-WIN.md.
+	fightLogs: ['fight-logs', 'bosses', String],
 };
 
 function knobsFrom(read) {
@@ -1136,11 +1139,14 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// defect could not be found. The run now retries the fight and keeps
 		// going, and the crash is written out with the document that met it.
 		let played;
+		let keptLog;
 		try {
 			// The six may have been re-picked since the advice ran, and a body
 			// that joined it afterwards arrives holding nothing.
 			doc = fillEmptySlots(doc, tally);
-			played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, undefined, searching);
+			keptLog = knobs.fightLogs === 'all' || (knobs.fightLogs === 'bosses' &&
+				(next.isDouble || BOSS.test(next.trainer))) ? [] : undefined;
+			played = battery.playScenario(policy, doc, next.trainer, ++fightSeed, keptLog, searching);
 		} catch (error) {
 			tally.crashes = (tally.crashes || 0) + 1;
 			const crash = {trainer: next.trainer, order: next.order, seed: fightSeed,
@@ -1155,6 +1161,15 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			position: doc.position, result: played.result, policy: played.policy || (searching ? 'search' : 'decide'),
 			refusals: played.engineRefusals || 0, turns: played.turns, deaths: played.deaths,
 			...(probed ? {probe: probed} : {}),
+			// The fight itself, not only its row: every turn, what was offered,
+			// what the search thought of each option, and what happened.
+			...(keptLog && keptLog.length ? {log: keptLog} : {}),
+			...(keptLog && played.events ? {events: played.events} : {}),
+			// The six that fought it, so a log can be read without replaying the run.
+			...(keptLog ? {six: doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean)
+				.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level,
+					item: mon.item || null, ability: mon.ability || null, nature: mon.nature || null,
+					moves: mon.moves.slice()}))} : {}),
 			// What fell and to what: the driver knows the body, the move and
 			// the enemy that used it, and the row kept only the count — so no
 			// run could say which types die, or what kills them.

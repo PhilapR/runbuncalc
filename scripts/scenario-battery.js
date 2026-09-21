@@ -275,7 +275,7 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 	if (searchRollouts > 0 && !fightInfo.isDouble && (flag('search-bosses', '0') !== '1' ||
 		(options && options.search !== undefined) ||
 		/Leader|Elite|Champion|Rival|Admin|Wally|Maxie|Archie|Chelle/i.test(trainer))) {
-		const searched = driver.playSearch(doc, trainer, seed, {rollouts: searchRollouts});
+		const searched = driver.playSearch(doc, trainer, seed, {rollouts: searchRollouts, tape});
 		return Object.assign({counters: {}, refused: [], policy: 'search-' + searchRollouts}, searched);
 	}
 	if (require('../lib/planner').getFight(trainer, doc.profileId).isDouble) {
@@ -290,6 +290,8 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 			refused: doubles.events.filter(event => event.engineRefusal).map(event => ({turn: event.turn, text: event.text})),
 			deaths: doubles.deaths, killers: doubles.killers,
 			knockouts: doubles.knockouts || [], foe: null, counters: {},
+			// A double has no one-active view to tape; its events are the log.
+			events: tape ? doubles.events.map(event => ({turn: event.turn, text: event.text})).filter(event => event.text) : undefined,
 			policy: doublesSearch > 0 ? (driver.doublesJoint() ? 'joint-' : 'search-') + doublesSearch : 'engine-ai-doubles'};
 	}
 	const roster = (doc.box || []).map(mon => ({id: mon.id, moves: mon.moves}));
@@ -350,6 +352,7 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 				chose: choice.kind === 'move' ? choice.pick.move :
 					'switch to ' + (choice.pick.species || choice.pick.label || choice.pick.id),
 				why: choice.why || '(fallback: first legal action)',
+				options: driver.optionsOf(view),
 				events: (reply.events || []).map(event => event.text).filter(Boolean)});
 		}
 		battle = reply.battle;
