@@ -420,12 +420,18 @@ test('a boss is probed before its first attempt, and the probe changes nothing',
 	// baseline to measure. So the probe must leave the run exactly as it was.
 	const policy = require('../scripts/ui-playthrough.js');
 	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
-		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+		'fixtures', 'banked-runs', 'brbank1-A-1.run.json'), 'utf8'));
 	const play = spec => headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 7,
 		headless.armFlags(spec), {resume: saved});
 	const probed = play('--budget=2 --retries=1 --boss-retries=2 --probe=4');
 	assert.deepEqual(Object.keys(probed.ledger[0].probe).sort(), ['foeLeft', 'of', 'wins']);
 	assert.equal(probed.ledger[0].probe.of, 4);
+	// This box loses its first attempt at Brawly, so the second row is a
+	// RETRY of the same boss — the only row that can show the probe repeating.
+	// (The first fixture tried here won on attempt one, its second row was a
+	// trainer nobody probes, and the assertion passed with the rule broken.)
+	assert.equal(probed.ledger[0].result, 'loss');
+	assert.equal(probed.ledger[1].trainer, 'Leader Brawly');
 	assert.equal(probed.ledger[1].probe, undefined, 'only the first attempt at a wall is probed');
 
 	const plain = play('--budget=2 --retries=1 --boss-retries=2 --probe=0');
