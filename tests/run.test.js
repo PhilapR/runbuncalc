@@ -2727,3 +2727,29 @@ test('the player has one Mega a fight, from Flannery on, and the stone takes the
 	assert.deepEqual(run.partySpecs(benched, {}).map(spec => spec.species), ['Aggron', 'Lopunny'],
 		'but in a fight nobody is a Mega until the stone is in its hands');
 });
+
+test('a TM the store re-sells is one copy before Lilycove, and on the shelf after it', () => {
+	// The author's sheet: ten TMs are "Sold at Lilycove Department Store". Money
+	// is not modelled, so once the store is open such a TM is simply available.
+	// The first cut of the rule still demanded a copy in the bag, and refused
+	// ten teaches of Icy Wind in the first run to finish the game.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const tm = oracle.tmFor('Rock Tomb');
+	assert.deepEqual([tm.name, tm.unlimitedFrom], ['TM46 Rock Tomb', 871]);
+	let state = run.apply(fresh(), {kind: 'catch', species: 'Aron', map: 'GraniteCave1f', level: 8, ivs: PERFECT_IVS});
+	assert.ok(run.learnable(state, 'mon-1').now.some(entry => entry.move === 'Rock Tomb'), 'Aron can be taught it');
+	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Rock Tomb', replace: 'Growl'}),
+		/comes from TM46 Rock Tomb, and the bag has none/, 'before Lilycove it must be held');
+	const owned = run.apply(state, {kind: 'acquire', item: 'TM46 Rock Tomb'});
+	assert.ok(!run.apply(owned, {kind: 'teach', id: 'mon-1', move: 'Rock Tomb', replace: 'Growl'}).bag['TM46 Rock Tomb'],
+		'and teaching it spends the one copy');
+
+	state = Object.assign({}, state, {position: 900});
+	const taught = run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Rock Tomb', replace: 'Growl'});
+	assert.ok(taught.box[0].moves.includes('Rock Tomb'), 'past Lilycove it is on the shelf: no copy needed');
+
+	// An HM is never sold; it must be in the bag wherever the run is.
+	const surfer = run.apply(Object.assign({}, fresh(), {position: 900}),
+		{kind: 'catch', species: 'Marill', level: 30, ivs: PERFECT_IVS});
+	assert.throws(() => run.apply(surfer, {kind: 'teach', id: 'mon-1', move: 'Surf', replace: surfer.box[0].moves[0]}), /HM03 Surf, and the bag has none/);
+});

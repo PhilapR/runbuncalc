@@ -257,3 +257,45 @@ dd0883f". The play is what the code at launch did, but a result that cannot
 name its revision is a lead, not a claim. The final leg (Winona onward, no
 stop) runs from a pinned clean worktree at 4d8988e, as every sweep did and as
 these baselines should have.
+
+## The first run to finish the game (2026-09-21, seed 209499)
+
+Chimchar, played in three legs and preserved in
+`ui-playthrough-out/runs/first-clear/`. **All 358 required fights beaten, no
+skips, no engine-refusal-bought wins, no crashes, one Game Corner prize
+(Tauros), one catch an area across 68 areas.** Under today's audit: 13 PASS,
+0 FAIL, 1 WARN (effort: Aqua Leader Archie at Seafloor Cavern took 37
+attempts — the wall that stopped the previous record at #294, 0 of 60).
+
+| Leg | Road | Fights played | Wall time | Revision |
+|---|---|---|---|---|
+| 1 | start → past Norman | 172 | 94 min | 85a86f2, clean |
+| 2 | → past Winona | 151 | 75 min | dd0883f, **DIRTY** |
+| 3 | → Champion Wallace | 303 | 277 min | 4d8988e, clean |
+| | **358 fights** | **626 attempts** | **7 h 26 min** | |
+
+The starter carried it: Tuck the Infernape, 40 knockouts on the final leg
+alone. The six that beat Wallace were Infernape, Staraptor, Rapidash,
+Delcatty, Ludicolo and Masquerain at level 99.
+
+**What this is, and is not.**
+
+- It IS the standing goal's first half: a headless run beat the game.
+- It is NOT one pinned run. Leg 2 was launched from the live checkout while it
+  was being edited and its provenance is dirty; the play is what the code at
+  launch did, but it cannot name its revision. A clean claim needs one run
+  start to finish through `scripts/run-batch.js`.
+- It was played in REHEARSAL: `permadeath: false`, up to 40 retries a wall.
+  626 attempts for 358 fights, and the wins replayed from this family of runs
+  each gave up four to six bodies. It is not a nuzlocke clear.
+- It is NOT yet "efficiently": seven and a half hours, 142 of its attempts
+  spent losing to walls before the line that stuck.
+- It played WITHOUT several things since added, all of which only help the
+  player: no Mega Evolution (the-player-megas), none of the 23 handed-over
+  items including every gym leader's TM, Heart Scales spent with no reserve
+  and never on a nature, and losing replacements ranked the old way for leg 1.
+- Its first audit FAILED replay: ten teaches of Icy Wind refused. The fault
+  was in a rule written that morning — a TM re-sold at Lilycove still had to
+  be in the bag after Lilycove opened, though money is not modelled and the
+  store sells it. Corrected (an HM is never sold and must still be held),
+  gated both ways, and the run then replays whole.
