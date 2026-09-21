@@ -103,6 +103,8 @@ const KNOB_FLAGS = {
 	searchHalving: ['search-halving', '0', value => value === '1'],
 	// A lost playout valued by its path too (driver.setSearchPath).
 	searchPath: ['search-path', '0', value => value === '1'],
+	// The probe picks the hand: a six decide() wins with is played by decide(), not handed to search for good.
+	handByProbe: ['hand-by-probe', '0', Number],
 };
 
 function knobsFrom(read) {
@@ -1151,6 +1153,8 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// only when the box or bag actually changed — the first cut ran them
 	// every cycle and a single run stretched toward twenty minutes.
 	let lastShape = '';
+	// The six the probe last judged, and what decide() won with it (--hand-by-probe).
+	let handProbe = {six: null, wins: 0};
 
 	while (tally.fights < knobs.budget) {
 		if (Number.isFinite(knobs.stopAt) && doc.position >= knobs.stopAt) {
@@ -1204,9 +1208,25 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// default off): decide() has shown it cannot, and search costs about a
 		// minute a fight, so it is spent only where it is needed.
 		const searchAfter = knobs.searchAfter;
-		const searching = searchAfter > 0 && attempts >= searchAfter ? {search: knobs.searchRollouts} : undefined;
+		let searching = searchAfter > 0 && attempts >= searchAfter ? {search: knobs.searchRollouts} : undefined;
+		// Search is not the stronger hand on every box. Seed 731001 (clear1,
+		// 2026-09-21) re-picked its six on Brawly's third attempt, and with it
+		// decide() wins 12 of 30 — but the run had already gone over to search,
+		// which lost 38 of 38 (and 0 of 16 replayed). So whenever the six
+		// changes under a fight being searched, the probe is asked again, and a
+		// six decide() can win with is played by decide().
+		let reprobed = null;
+		if (knobs.handByProbe && searching && !next.isDouble && knobs.probe) {
+			const six = doc.party.join(',');
+			if (handProbe.six !== six) {
+				reprobed = probeWall(policy, doc, next);
+				handProbe = {six, wins: reprobed && reprobed.wins ? reprobed.wins : 0};
+				if (reprobed) tally.reprobes = (tally.reprobes || 0) + 1;
+			}
+			if (handProbe.wins > 0) searching = undefined;
+		}
 		if (next.isDouble && knobs.doublesPrep) doc = doublesPrep(doc, tally);
-		const probed = attempts === 0 ? probeWall(policy, doc, next) : null;
+		const probed = attempts === 0 ? probeWall(policy, doc, next) : reprobed;
 		// An engine crash is a lost fight, not a lost run. Sweep 14's deepest
 		// run died at fight #271 after beating 410 of them, and its document
 		// went with it: the state that crashed could not be replayed, so the
@@ -1285,6 +1305,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		if (played.result === 'win') {
 			t.wins += 1;
 			attempts = 0;
+			handProbe = {six: null, wins: 0};
 			doc = run.apply(doc, {kind: 'beat', trainer: next.trainer});
 			continue;
 		}
@@ -1320,7 +1341,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		gavi, brawly,
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
-		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, prizes: tally.prizes || 0,
+		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
