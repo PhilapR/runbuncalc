@@ -1090,7 +1090,11 @@ function playRun(policy, starter, seed, treatment, options) {
 	try {
 		const row = playRunWith(policy, starter, seed, treatment, options);
 		row.knobs = Object.assign({}, knobs);
-		if (options && options.resume) row.resumedAt = options.resume.position;
+		if (options && options.resume) {
+			row.resumedAt = options.resume.position;
+			// Where the inherited log ends, so an audit can tell this run's own commands from the ones it was handed.
+			row.resumedLog = (options.resume.log || []).length;
+		}
 		return row;
 	} finally {
 		knobs = before;

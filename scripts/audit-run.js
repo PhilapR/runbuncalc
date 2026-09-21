@@ -91,6 +91,11 @@ function auditRun(row) {
 	let replay = run.createRun({name: 'audit', now: 't0', levelCap: rules.levelCap, permadeath: rules.permadeath,
 		onePerRoute: rules.onePerRoute, dupesClause: rules.dupesClause, rival: rules.rival});
 	const refusedCommands = [];
+	const ownRefusals = [];
+	const refusedTeaches = new Set();
+	const refusedKinds = {inherited: 0, cascade: 0, own: 0};
+	// Where the log this run resumed from ends, when it resumed from one.
+	const resumedLog = Number.isInteger(row.resumedLog) ? row.resumedLog : null;
 	const areas = {};
 	const twice = [];
 	const removed = [];
@@ -142,13 +147,30 @@ function auditRun(row) {
 		try {
 			replay = run.apply(replay, command, {now: entry.at});
 		} catch (error) {
+			// Three kinds, and only one is this run's own doing. INHERITED: the
+			// command is in the part of the log the run RESUMED from — an old
+			// banked document written under older rules. CASCADE: it replaces a
+			// move whose own teach was refused earlier, so it fails only because
+			// that one did. OWN: neither — the harness wrote a command the rules
+			// refuse, which is the defect this check exists to find.
+			const inherited = resumedLog !== null && index < resumedLog;
+			const missing = /does not know (.+)$/.exec(error.message);
+			const cascade = !!missing && refusedTeaches.has(command.id + '|' + missing[1].trim());
+			if (command.kind === 'teach') refusedTeaches.add(command.id + '|' + command.move);
+			refusedKinds[inherited ? 'inherited' : cascade ? 'cascade' : 'own'] += 1;
+			if (!inherited && !cascade) ownRefusals.push('#' + (index + 1) + ' ' + command.kind + ': ' + error.message.slice(0, 100));
 			refusedCommands.push('#' + (index + 1) + ' ' + command.kind + ': ' + error.message.slice(0, 100));
 		}
 	});
 	const shape = box => JSON.stringify((box || []).map(mon => [mon.id, mon.species, mon.level, mon.moves]));
-	if (refusedCommands.length) {
-		check('replay', 'FAIL', refusedCommands.length + ' command(s) the rules refuse: ' + refusedCommands.slice(0, 3).join(' | '),
-			'find the code path that wrote them past run.apply');
+	if (ownRefusals.length) {
+		check('replay', 'FAIL', ownRefusals.length + ' command(s) of this run\'s own the rules refuse: ' + ownRefusals.slice(0, 3).join(' | ') +
+			(refusedKinds.inherited ? ' (plus ' + refusedKinds.inherited + ' inherited, ' + refusedKinds.cascade + ' cascading)' : ''),
+		'find the code path that wrote them past run.apply');
+	} else if (refusedCommands.length) {
+		check('replay', 'WARN', refusedKinds.inherited + ' refused command(s) inherited from the document this run resumed from, ' +
+			refusedKinds.cascade + ' cascading from them, none of this run\'s own',
+		'the run resumed from a document written under older rules; resume from one written under today\'s for a clean replay');
 	} else if (shape(replay.box) !== shape(doc.box)) {
 		check('replay', 'FAIL', 'the log replays, but not to the box the document holds',
 			'the box was edited outside the log');

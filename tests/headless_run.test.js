@@ -401,9 +401,13 @@ test('a run carries on from a saved document instead of replaying the road to it
 	const policy = require('../scripts/ui-playthrough.js');
 	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
 		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	const handed = saved.log.length;
 	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 7,
 		headless.armFlags('--budget=2 --retries=1 --boss-retries=1'), {resume: saved, keepDoc: true});
 	assert.equal(row.resumedAt, saved.position, 'the row says where it picked up');
+	// ...and where the log it was HANDED ends, read before the run wrote a line:
+	// the audit excuses refusals before that mark and no others.
+	assert.equal(row.resumedLog, handed, 'the mark is the saved log\'s length, not the finished one\'s');
 	assert.ok(row.position >= saved.position, 'and it never goes back: ' + row.position);
 	assert.ok(row.fights <= 2);
 	assert.equal(row.ledger[0].trainer, 'Leader Norman', 'the first fight is the one the document was facing');

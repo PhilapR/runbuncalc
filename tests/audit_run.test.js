@@ -316,3 +316,33 @@ test('over the cap is legal by candy, and only by candy', () => {
 	assert.equal(statusOf(unpaid, 'over-cap party'), 'FAIL');
 	assert.match(unpaid.checks.find(c => c.name === 'over-cap party').detail, /Absol L\d+ over cap/);
 });
+
+test('a refused command is this run\'s own, inherited, or a cascade — and only its own fails it', () => {
+	// A run resumed from an old banked document inherits a log written under
+	// older rules. The runner printed a bare AUDIT FAILS for one whose 27
+	// refusals were 23 inherited and 4 cascading from them — none its own.
+	const row = cleanRow();
+	const at = command => ({at: 't0', command});
+	const mon = row.doc.party[0];
+	// Sealeo can learn Earthquake, but holds no TM for it: refused, as an old log's teach is.
+	const inheritedBad = at({kind: 'teach', id: mon, move: 'Earthquake', replace: 'Brine'});
+	const handed = row.doc.log.concat([inheritedBad]);
+	const resumed = Object.assign({}, row, {resumedLog: handed.length,
+		doc: Object.assign({}, row.doc, {log: handed.concat([
+			// fails only because the teach above was refused: a cascade
+			at({kind: 'teach', id: mon, move: 'Rollout', replace: 'Earthquake'})])})});
+	const inherited = auditRun(resumed).checks.find(entry => entry.name === 'replay');
+	assert.equal(inherited.status, 'WARN', inherited.detail);
+	assert.match(inherited.detail, /1 refused command\(s\) inherited .*, 1 cascading from them, none of this run's own/);
+
+	const own = Object.assign({}, resumed, {doc: Object.assign({}, resumed.doc, {log: resumed.doc.log.concat([
+		at({kind: 'heartScale', id: mon, stat: 'luck'})])})});
+	const failed = auditRun(own).checks.find(entry => entry.name === 'replay');
+	assert.equal(failed.status, 'FAIL', 'a command the run wrote itself still fails it');
+	assert.match(failed.detail, /1 command\(s\) of this run's own the rules refuse/);
+
+	const unmarked = Object.assign({}, resumed);
+	delete unmarked.resumedLog;
+	assert.equal(auditRun(unmarked).checks.find(entry => entry.name === 'replay').status, 'FAIL',
+		'and without the marker nothing is excused');
+});
