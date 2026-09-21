@@ -7,6 +7,7 @@ and never imports the CommonJS harness, so it needs nothing migrated.
 ```
 npm run fight-log -- --report=ui-playthrough-out/runs/LABEL/run-SEED.json   # one HTML page
 npm run mcp --prefix insight                                                # the same, for an agent
+npm run watch --prefix insight -- --dir=ui-playthrough-out/runs/LABEL       # WATCH a run while it plays (or preview `watch-runs`)
 npm test --prefix insight
 ```
 
@@ -40,6 +41,7 @@ duckdb -c "COPY (SELECT runSeed, n, trainer, result, t.*
 | `src/viewer.ts` | One self-contained page. No framework, no server. Deliberately small. |
 | `src/mcp.ts` | `run_strategy`, `list_walls`, `compare_attempts`, `get_attempt`, `get_turns`. Each tool's arguments are ONE Schema: published as its input schema and used to decode the call. |
 | `src/cli.ts` | Loading, with every failure in the type. |
+| `src/serve.ts` | A small local server and one page that polls `run-SEED.live.ndjson` — the CURRENT attempt, a line a turn the moment it is decided — and shows the fight growing, with what the search weighed for every option. Reads files; cannot steer a run. |
 
 ## What it does not do
 
