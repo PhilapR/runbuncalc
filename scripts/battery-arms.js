@@ -135,7 +135,9 @@ function runArms(options) {
 				const args = [path.join('scripts', 'scenario-battery.js'),
 					'--label=' + arm.label].concat(
 					arm.manifest ? ['--manifest=scenarios/' + arm.manifest + '.json'] : [], arm.flags);
-				const child = childProcess.spawn(process.execPath, args, {cwd: dir});
+				// Through the machine's slot pool, from this tree: the arm's may predate it.
+				const child = childProcess.spawn(process.execPath, [path.join(__dirname, 'submit.js'),
+					'--label=arm/' + arm.label, '--', process.execPath].concat(args), {cwd: dir});
 				let text = '';
 				child.stdout.on('data', chunk => { text += chunk; });
 				child.stderr.on('data', chunk => { text += chunk; });

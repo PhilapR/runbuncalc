@@ -94,7 +94,10 @@ function main() {
 				'--starter=' + todo.starter, '--rival=' + todo.rival, '--spec=' + todo.spec]
 				.concat(todo.resume(seed) ? ['--resume=' + todo.resume(seed)] : []);
 			live += 1;
-			const child = childProcess.spawn('nice', ['-n', '10', process.execPath].concat(args), {cwd: tree, stdio: 'ignore'});
+			// Through the machine's slot pool (scripts/submit.js, from THIS tree: the
+			// pinned one may predate it), so two batches cannot both fill the cores.
+			const child = childProcess.spawn('nice', ['-n', '10', process.execPath, path.join(__dirname, 'submit.js'),
+				'--label=' + todo.label + '/run-' + seed, '--', process.execPath].concat(args), {cwd: tree, stdio: 'ignore'});
 			child.on('exit', code => {
 				live -= 1;
 				process.stdout.write(`seed ${seed} exited ${code}\n`);
