@@ -419,7 +419,7 @@ test('a matrix without a team is refused rather than guessed at', () => {
 	);
 });
 
-test('a lead\'s entry ability fires as the battle opens, and a strong weather ends with its holder', () => {
+test('a lead\'s entry ability fires as the battle opens, and a strong weather is permanent', () => {
 	// No lead's entry ability ever fired: a state is built with its leads
 	// standing, and entry effects ran only on a switch. Champion Wallace's
 	// Primal Kyogre fought in a dry sky, so did every Drizzle lead, and no
@@ -434,12 +434,13 @@ test('a lead\'s entry ability fires as the battle opens, and a strong weather en
 	assert.equal(wallace.field.weather, 'Heavy Rain', 'Primordial Sea');
 	assert.equal(built('Aqua Leader Archie Seafloor Cavern').field.weather, 'Rain', 'Drizzle');
 
-	// The rain stands while Kyogre does, and ends the moment it falls.
+	// The rain stands while Kyogre does, and after it falls: ability weather is
+	// permanent in Run & Bun, strong weather included.
 	assert.equal(ai.settleStrongWeather(wallace).field.weather, 'Heavy Rain');
 	const kyogre = wallace.sides.ai.activeIds[0];
 	const fallen = {...wallace, sides: {...wallace.sides, ai: {...wallace.sides.ai,
 		party: wallace.sides.ai.party.map(mon => mon.id === kyogre ? {...mon, hp: {...mon.hp, current: 0}} : mon)}}};
-	assert.equal(ai.settleStrongWeather(fallen).field.weather, undefined);
+	assert.equal(ai.settleStrongWeather(fallen).field.weather, 'Heavy Rain', 'permanent: it outlives Kyogre');
 
 	// Our Intimidate lead cuts the foe's Attack before the first move.
 	const staraptor = saved.box.find(mon => mon.species === 'Staraptor');

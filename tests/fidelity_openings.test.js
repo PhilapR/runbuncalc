@@ -281,7 +281,8 @@ test('their Intimidate meets our blockers as Gen 8 does', () => {
 	const bodies = {Metagross: 'clearbody', Crawdaunt: 'hypercutter', Weavile: 'innerfocus', Mamoswine: 'oblivious'};
 	const checked = {};
 	const wrong = [];
-	for (const [species, ability] of Object.entries(bodies)) {
+	for (const species of Object.keys(bodies)) {
+		const ability = bodies[species];
 		const specs = ledBy(species);
 		assert.equal(id(specs[0].ability), ability, species + ' carries ' + ability);
 		checked[ability] = 0;
@@ -295,7 +296,8 @@ test('their Intimidate meets our blockers as Gen 8 does', () => {
 	}
 	if (process.env.SHOW_COUNTS) console.log(JSON.stringify(checked));
 	assert.deepEqual(wrong, [], wrong.length + ' of our blockers were Intimidated');
-	for (const [ability, count] of Object.entries(checked)) {
+	for (const ability of Object.keys(checked)) {
+		const count = checked[ability];
 		assert.ok(count >= 15, ability + ' openings under Intimidate checked: ' + count);
 	}
 });
@@ -344,7 +346,7 @@ test('every foe that can enter mid-fight enters as the game has it: weather, ter
 	// Each fight opened, then each of the foe's bench bodies switched in for
 	// its first lead through the engine's own switch — the composed path a
 	// replacement takes in play, not a hand-built entry.
-	const checked = {entries: 0, weather: 0, blockedByStrong: 0, strongEnded: 0, terrain: 0, intimidate: 0,
+	const checked = {entries: 0, weather: 0, blockedByStrong: 0, strongKept: 0, terrain: 0, intimidate: 0,
 		download: 0, trace: 0, seed: 0, imposter: 0, balloon: 0};
 	const wrong = [];
 	const specs = runtime.partySpecs(SAVED, {});
@@ -361,14 +363,13 @@ test('every foe that can enter mid-fight enters as the game has it: weather, ter
 			const entered = next.sides.ai.party.find(entry => entry.id === mon.id);
 			const ability = id(mon.ability);
 			const before = state.field.weather;
-			// Does anyone left standing still hold the strong weather?
-			const standing = next.sides.ai.activeIds.concat(next.sides.player.activeIds).map(pid =>
-				next.sides.ai.party.concat(next.sides.player.party).find(entry => entry.id === pid));
-			const strongHeld = STRONG.has(before) &&
-				standing.some(entry => id(entry.ability) === STRONG_HOLDER[before]);
-			if (STRONG.has(before) && id(outMon.ability) === STRONG_HOLDER[before] && !strongHeld) {
-				checked.strongEnded += 1;
-				if (next.field.weather === before) wrong.push(tag + ': ' + before + ' outlived its holder switching out');
+			// A strong weather is permanent in Run & Bun ("Weather abilities: Will
+			// set Weather permanently."): it stands whoever stands, and still
+			// blocks an ordinary setter.
+			const strongHeld = STRONG.has(before);
+			if (STRONG.has(before) && id(outMon.ability) === STRONG_HOLDER[before]) {
+				checked.strongKept += 1;
+				if (next.field.weather !== before) wrong.push(tag + ': ' + before + ' ended as its holder switched out');
 			}
 			if (WEATHER[ability]) {
 				const blocked = strongHeld && !STRONG.has(WEATHER[ability]);
@@ -442,13 +443,14 @@ test('every foe that can enter mid-fight enters as the game has it: weather, ter
 	assert.ok(checked.imposter >= 2, 'entry Imposter checked: ' + checked.imposter);
 	assert.ok(checked.seed >= 8, 'terrain seeds checked: ' + checked.seed);
 	assert.ok(checked.balloon >= 5, 'Air Balloon entries checked: ' + checked.balloon);
-	assert.ok(checked.strongEnded >= 1, 'strong weather holders switched out: ' + checked.strongEnded);
+	assert.ok(checked.strongKept >= 1, 'strong weather holders switched out: ' + checked.strongKept);
 });
 
-test('in a played fight, Primal Kyogre\'s heavy rain stands while it does and ends when it falls', () => {
+test('in a played fight, Primal Kyogre\'s heavy rain stands while it does, and after it falls', () => {
 	// The composed pipeline: the battle driver opens Champion Wallace and plays
-	// real turns, so the rain is set by the opening and ended by a faint that
-	// the engine resolved — no hand-built state. Our six are Electric and Grass
+	// real turns, so the rain is set by the opening and outlives a faint the
+	// engine resolved — no hand-built state. Run & Bun makes ability weather
+	// permanent, strong weather included (Mechanic Changes.txt). Our six are Electric and Grass
 	// bodies from the banked box; the policy is plain (first super-effective-
 	// looking move), and seeds are fixed so the fight replays.
 	const driver = require('../lib/battle-driver');
@@ -478,8 +480,8 @@ test('in a played fight, Primal Kyogre\'s heavy rain stands while it does and en
 				if (battle.state.field.weather !== 'Heavy Rain') wrong.push('seed ' + seed + ' turn ' + turn + ': ' + battle.state.field.weather + ' with Kyogre standing');
 			} else {
 				counted.falls += 1;
-				// Wallace's bench has no weather setter, and the fight declares none.
-				if (battle.state.field.weather !== undefined) wrong.push('seed ' + seed + ': ' + battle.state.field.weather + ' after Kyogre fell');
+				// Permanent: Wallace's Swift Swim bench fights in the heavy rain.
+				if (battle.state.field.weather !== 'Heavy Rain') wrong.push('seed ' + seed + ': ' + battle.state.field.weather + ' after Kyogre fell');
 				break;
 			}
 			if (reply.result) break;
@@ -492,13 +494,13 @@ test('in a played fight, Primal Kyogre\'s heavy rain stands while it does and en
 	assert.ok(counted.rainTurns >= 20, 'turns played under Kyogre\'s rain: ' + counted.rainTurns);
 });
 
-test('a strong weather whose holder leaves or falls blocks nothing: Primal Kyogre out, Drizzle Pelipper in is rain', () => {
-	// Gen 8: Primordial Sea's rain ends the moment its holder leaves the field
-	// (Showdown clears it on the holder's End event, before the replacement
-	// enters), so the replacement's Drizzle meets a clear sky and sets rain.
-	// Two defects composed here: the entry judged the setter against the
-	// pre-switch weather and blocked it, and a holder that fainted to a
-	// residual left its heavy rain standing into the next turn.
+test('a strong weather outlives its holder and still blocks an ordinary setter: Primal Kyogre out, Drizzle Pelipper in', () => {
+	// Run & Bun: "Weather abilities: Will set Weather permanently." (Mechanic
+	// Changes.txt; the operator, 2026-09-22). Primordial Sea is a weather
+	// ability, so its heavy rain stays when Kyogre leaves or falls, and
+	// Pelipper's Drizzle, an ordinary setter, cannot replace it. The mainline
+	// rule (the rain ends with its holder) was implemented here first and was
+	// wrong for this game.
 	const party = [
 		{species: 'Kyogre-Primal', item: 'Blue Orb', ability: 'Primordial Sea', level: 70, moves: ['Surf'],
 			hpRatio: 0.05, status: 'psn'},
@@ -511,12 +513,12 @@ test('a strong weather whose holder leaves or falls blocks nothing: Primal Kyogr
 
 	// Switched out for Pelipper on one action.
 	const switched = ai.applyAction(opened, {kind: 'switch', actorId: 'player-1', replacementId: 'player-2'});
-	assert.equal(switched.field.weather, 'Rain', 'Drizzle sets rain as Kyogre leaves');
+	assert.equal(switched.field.weather, 'Heavy Rain', 'the heavy rain stays as Kyogre leaves, and blocks Drizzle');
 
 	// Fainted to poison at the end of the turn, then replaced.
 	const residual = ai.advanceTurn(opened, {random: () => 0.5});
 	assert.equal(residual.sides.player.party[0].hp.current, 0, 'poison felled Kyogre');
-	assert.equal(residual.field.weather, undefined, 'the heavy rain fell with its holder');
+	assert.equal(residual.field.weather, 'Heavy Rain', 'the heavy rain outlives its holder');
 	const replaced = ai.applyAction(residual, {kind: 'switch', actorId: 'player-1', replacementId: 'player-2', forced: true});
-	assert.equal(replaced.field.weather, 'Rain', 'Drizzle sets rain behind the fallen Kyogre');
+	assert.equal(replaced.field.weather, 'Heavy Rain', 'Drizzle cannot replace it behind the fallen Kyogre');
 });
