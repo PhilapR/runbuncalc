@@ -46,6 +46,20 @@ items, before the fight starts.
 
 ## 1. Finish the game (the goal itself)
 
+### 1.0 What 2026-09-22 found at Sidney
+- **The Four are 2 singles + 2 doubles, free choice.** The run fought Sidney's
+  single 80 times over two legs and stopped on "a required fight" with his
+  double never tried. `ac10aec`: at the cap a walled format hands the run the
+  member's other one. Verified on the real path: attempt 41 is SidneyDouble.
+- **On that box the double is no easier.** Battery default policy: single
+  0/20, double 1/80. The run's own hand (search, plan-after) is stronger;
+  the carry-on is the measurement.
+- **The Kubfu gift never learned Urshifu's moves** (`fabc32d`): levelled to 99
+  in one step as Kubfu, it knew Leer and Focus Energy. Fixed for every run from
+  here; this leg's Urshifu cannot be repaired (no Heart Scale, prompt gone).
+- The doubles battery never reported the foe's remainder (`ac10aec`), so
+  planByPlay's fewest-foes-left tie-break read 0 in every double.
+
 ### 1.1 Resume 418957 at Sidney with every fix in place — RUNNING
 Three Mega fixes landed after that run was pinned, and they change its Sidney
 six: it fielded Mega Houndoom, and the set score wants Mega Lopunny (the six's
