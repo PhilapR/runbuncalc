@@ -594,6 +594,7 @@ function effectiveDefaults() {
 	return {'switch-priced': flag('switch-priced', '1'), 'real-speed': flag('real-speed', '1'),
 		'repick-party': flag('repick-party', '1'), 'loser-work': flag('loser-work', '1'),
 		'search-keep': flag('search-keep', '1'),
+		'enemy-switch-scoring': flag('enemy-switch-scoring', '1'),
 		'pick-by-play': effectivePick(), 'pick-seeds': flag('pick-seeds', PICK_SEEDS),
 		'set-exposure': banked ? '0' : flag('set-exposure', String(run.EXPOSURE_WEIGHT))};
 }
@@ -863,7 +864,7 @@ function main() {
 	// How deep the search looks EXACTLY instead of playing fights out. Off (0) until measured.
 	driver.setSearchLookahead(Number(flag('search-lookahead', '0')));
 	// Who the enemy sends out after a KO: the documented rule, or the enumeration order. Off until measured.
-	driver.setEnemySwitchScoring(flag('enemy-switch-scoring', '0') === '1');
+	driver.setEnemySwitchScoring(flag('enemy-switch-scoring', '1') === '1');
 	// A lost-race attack is PLAYED against every switch before it is made. Off until measured.
 	setSwitchPlayed(flag('switch-played', '0') === '1');
 	const label = flag('label', 'battery');

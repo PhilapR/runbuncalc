@@ -1023,47 +1023,6 @@ test('a race is priced both ways: with no crit, with every crit, and the odds be
 	assert.equal(driver.raceOdds(us, them, {mean: 0}, {mean: 30, crit: 45}, true, 0), null, 'no damage of ours is no race');
 });
 
-test('who the foe sends out after a knockout is enumeration order, not a policy — pinned, not endorsed', () => {
-	// Raised by Codex, 2026-09-22; ledger finding
-	// enemy-post-ko-replacement-is-enumeration-order. settleAiSide applies
-	// actions[0] of ai.enumerateForcedSwitchActions, whose own docstring says
-	// "Post-KO replacement preference is intentionally left to the battle/
-	// policy layer". A policy layer exists and is never called.
-	//
-	// This test does NOT assert the right rule, because the right rule is not
-	// known: it cannot be established from inside this repository, and the
-	// handoff was explicit that mismatches are routed, not guessed. It pins
-	// what we do, so that establishing the rule is a deliberate, visible
-	// change rather than a silent one — and so the fix has somewhere to land.
-	const driver = require('../lib/battle-driver.js');
-	const ai = require('../ai');
-	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
-		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
-	const opened = driver.start(doc, 'Elite Four Sidney', 11);
-	const state = (opened.battle || opened).state;
-	const party = state.sides.ai.party;
-	assert.ok(party.length >= 3, 'the foe has a bench to choose from');
-
-	// Faint the active, then ask both: what the enumeration offers first, and
-	// what the engine's own scoring would pick.
-	const downed = structuredClone(state);
-	const activeId = downed.sides.ai.activeIds[0];
-	const active = downed.sides.ai.party.find(mon => mon.id === activeId);
-	active.hp.current = 0;
-	const offered = ai.enumerateForcedSwitchActions(downed, 'ai');
-	assert.ok(offered.length > 1, 'more than one legal replacement: a real choice exists');
-
-	const settled = driver.settleAiSide(downed, []);
-	const cameIn = settled.sides.ai.activeIds[0];
-	assert.equal(cameIn, offered[0].replacementId,
-		'today the first enumerated replacement is the one that comes in');
-
-	// And the policy layer that could decide instead is reachable and does score them.
-	const scored = ai.evaluateActions(downed, ai.calculateActionFacts, 'ai', {});
-	assert.ok(scored.length > 0 && scored.every(entry => entry.action.kind === 'switch'),
-		'with a forced switch pending the engine scores replacements, and nothing consults it');
-});
-
 test('the enemy\'s post-KO replacement, by the documented rule: highest score, ties to party order', () => {
 	// The rule is the Run & Bun documentation's switch-in table, ported
 	// doc-literal and NOT ROM-verified (ledger:
@@ -1071,7 +1030,10 @@ test('the enemy\'s post-KO replacement, by the documented rule: highest score, t
 	// every policy lever measured here was measured against enumeration order.
 	const driver = require('../lib/battle-driver.js');
 	const ai = require('../ai');
-	assert.equal(driver.enemySwitchScoring(), false, 'off until it is measured on its own bar');
+	// ADOPTED 2026-09-22 on its declared fidelity bar: the run still plays
+	// (zero refusals, zero stuck, 3,480 fights), so it is the baseline
+	// whatever it costs us — and it costs 3.4 points of win rate on heldout2.
+	assert.equal(driver.enemySwitchScoring(), true, 'the documented rule is the baseline');
 
 	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
 		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
@@ -1103,13 +1065,14 @@ test('the enemy\'s post-KO replacement, by the documented rule: highest score, t
 		party.findIndex(mon => mon.species === 'Gyarados-Mega'), 'and Nidoking is the earlier of the two');
 
 	// The switch is real, end to end: the same knockout, settled both ways.
-	const asEnumerated = driver.settleAiSide(structuredClone(downed), []);
-	driver.setEnemySwitchScoring(true);
+	const asRuled = driver.settleAiSide(structuredClone(downed), []);
+	assert.equal(nameOf(asRuled.sides.ai.activeIds[0]), 'Nidoking');
+	driver.setEnemySwitchScoring(false);
 	try {
-		const asRuled = driver.settleAiSide(structuredClone(downed), []);
-		assert.equal(nameOf(asEnumerated.sides.ai.activeIds[0]), 'Necrozma');
-		assert.equal(nameOf(asRuled.sides.ai.activeIds[0]), 'Nidoking');
+		const asEnumerated = driver.settleAiSide(structuredClone(downed), []);
+		assert.equal(nameOf(asEnumerated.sides.ai.activeIds[0]), 'Necrozma',
+			'--enemy-switch-scoring=0 restores the enumeration order every earlier measurement was taken against');
 	} finally {
-		driver.setEnemySwitchScoring(false);
+		driver.setEnemySwitchScoring(true);
 	}
 });

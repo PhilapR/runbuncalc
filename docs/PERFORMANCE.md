@@ -502,3 +502,34 @@ change, not a policy change, so it is NOT adopted on winning:
 - if it flips more than a third of seeds, every adopted lever
   (`--plan-after`, search-keep, real-speed, the priced switch) is re-opened
   and must be re-measured before the next claim rests on it.
+
+**Verdict (2026-09-22, eight pinned arms, receipts scenarios/receipts/esw-*):**
+
+| set | control wins | with the rule | delta | gained / lost | p |
+|---|---|---|---|---|---|
+| heldout1, infinite PP | 240 / 260 | 245 / 260 | +1.9 pp | 11 / 6 | 0.33 |
+| heldout1, real PP | 240 / 260 | 245 / 260 | +1.9 pp | 11 / 6 | 0.33 |
+| heldout2, infinite PP | 1321 / 1480 | 1271 / 1480 | **−3.4 pp** | 21 / 71 | < 0.001 |
+| heldout2, real PP | 1323 / 1480 | 1273 / 1480 | **−3.4 pp** | 21 / 71 | < 0.001 |
+
+**ADOPTED as the baseline**, on the bar as declared. The run still plays:
+zero engine refusals and zero stuck fights across 3,480 fights, both arms,
+both PP models. heldout1's +1.9 is noise (p = 0.33); heldout2's −3.4 is not,
+and **that is the price of having measured against a weaker foe** — 71 seeds
+we used to win are losses against a foe that sends the right answer in.
+`--enemy-switch-scoring=0` restores the enumeration order for an arm that
+wants to measure against the old world.
+
+**Levers are NOT re-opened.** The trigger was a third of held-out seeds
+flipping; the actual flip fraction is 0.6% of heldout1's 3,080 seeds and
+6.2% of heldout2's 1,480. Two cautions with that: `--plan-after` was adopted
+on wall clears (0 of 40 to cleared), which a 6% shift cannot explain away,
+but **search-keep was adopted on a margin small enough that 6% matters**
+(held-out wins 17 to 18, bodies per win 4.56 to 2.00) and should be
+re-measured under the new baseline before any further claim leans on it.
+
+Still not ROM-verified, and the tie rule is still unprobed: pokemon-mono
+breaks ties by damage percent where the documentation says party order, so
+a tie is where the two disagree. Elite Four Sidney's first knockout against
+the Walrein six is a one-observation probe — Nidoking and Gyarados-Mega both
+score 3, the documentation takes Nidoking.

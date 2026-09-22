@@ -124,7 +124,7 @@ const KNOB_FLAGS = {
 	// A lost-race attack is played out against every switch before it is made (scenario-battery playedSwitch).
 	switchPlayed: ['switch-played', '0', Number],
 	// The enemy's post-KO replacement, by the hack's documented switch-in scoring rather than enumeration order.
-	enemySwitchScoring: ['enemy-switch-scoring', '0', Number],
+	enemySwitchScoring: ['enemy-switch-scoring', '1', Number],
 	// The probe picks the hand: a six decide() wins with is played by decide(), not handed to search for good.
 	handByProbe: ['hand-by-probe', '0', Number],
 };

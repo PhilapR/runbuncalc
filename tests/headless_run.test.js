@@ -584,25 +584,31 @@ test('once the six is picked, its one Mega is handed its stone — over whatever
 	assert.equal(headless.giveMegaStone(given, {}).bag[pairs[1][0]], 1, 'a six that has its Mega is left alone');
 });
 
-test('a six decide() can win with is played by decide(), not handed to search for good', () => {
+test('when the six changes under a searched fight, the probe is asked again', () => {
 	// clear1's seed 731001 lost Brawly 40 times: two by decide(), then 38 by
-	// search — with a six, re-picked on the third attempt, that decide() wins
-	// 12 of 30 with. The probe is asked again when the six changes. (A resume
-	// starts from the ranker's six, which the probe loses with 0 of 12; the
-	// re-pick by play after the first loss is what finds the six that wins.)
+	// search, with a six (re-picked on attempt 3) that decide() then won 12 of
+	// 30 with — and the run never went back. --hand-by-probe re-probes when the
+	// six changes and plays decide() with a six the probe wins with.
+	//
+	// The rescue itself no longer reproduces on this fixture: since the foe's
+	// post-KO replacement became the documented rule (2026-09-22) Brawly is
+	// harder, and the re-picked six now probes 0 of 12 where it probed 6. So
+	// this gates the MECHANISM — a fresh probe when the six changes — and not
+	// that one outcome. The switch is off by default and measured no better
+	// than the control on three held-out walls; it is kept, not relied on.
 	const policy = require('../scripts/ui-playthrough.js');
 	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
 		'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json'), 'utf8'));
 	const play = hand => headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 731001,
-		headless.armFlags('--stop-at=77 --budget=4 --boss-retries=40 --search-after=1 --search-rollouts=1 ' +
-			'--repick-after=1 --probe=12 --hand-by-probe=' + hand), {resume: saved});
-	const on = play(1).ledger.filter(row => row.trainer === 'Leader Brawly');
-	const searched = on.filter(row => /^search/.test(row.policy));
-	assert.ok(on.length > 1, 'the fixture loses its first attempt: ' + on.map(row => row.result));
-	assert.ok(on[1].probe && on[1].probe.wins > 0, 'the six is probed again once search would take over');
-	assert.equal(searched.length, 0, 'and a six the probe wins with stays with decide(): ' + on.map(row => row.policy));
-	const off = play(0).ledger.filter(row => row.trainer === 'Leader Brawly');
-	assert.ok(off.slice(1).every(row => /^search/.test(row.policy)), 'off, the old behaviour holds');
+		headless.armFlags('--stop-at=77 --budget=3 --boss-retries=40 --search-after=1 --search-rollouts=1 ' +
+			'--repick-after=1 --probe=12 --plan-after=0 --hand-by-probe=' + hand), {resume: saved});
+	const brawly = row => row.ledger.filter(entry => entry.trainer === 'Leader Brawly');
+	const on = brawly(play(1));
+	assert.ok(on.length >= 3 && on[0].result === 'loss', 'the fixture loses and retries: ' + on.map(row => row.result));
+	assert.ok(on[0].probe && on[0].probe.of === 12, 'the first attempt at a wall is probed');
+	assert.ok(on[1].probe, 'and the six changed under it, so the probe is asked again');
+	assert.equal(brawly(play(0)).filter((row, at) => at > 0 && row.probe).length, 0,
+		'off, only the first attempt is ever probed');
 });
 
 test('a run stopped and carried on from its checkpoint plays what the uninterrupted run plays', () => {
