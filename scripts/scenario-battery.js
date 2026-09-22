@@ -63,6 +63,9 @@ function provenance() {
 		revision: git(['rev-parse', 'HEAD']),
 		dirty: git(['status', '--porcelain']) !== '',
 		date: new Date().toISOString(),
+		// The bytes that played, not only the commit that names them: ai/dist
+		// is a copied build, and a revision cannot see it (lib/provenance.js).
+		engine: require('../lib/provenance.js').currentStamp(),
 	};
 }
 
@@ -843,6 +846,8 @@ function main() {
 	// require time, and the gate loads this module with its own argv.
 	const policy = require('./ui-playthrough.js');
 	refuseUnread(policy, OWN_FLAGS);
+	// Stamped before the first fight: the receipt names the engine that played it.
+	require('../lib/provenance.js').currentStamp();
 	// A model flag, not a policy flag: it changes what the fight IS. The
 	// receipt's argv records it, so an arm that ran fuel-free can never be
 	// mistaken for one that ran with real PP.
@@ -939,5 +944,5 @@ if (require.main === module) main();
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
 	prepareDocument, teachSwapped, setSwitchPlayed, switchPlayed, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
-	OWN_FLAGS,
+	OWN_FLAGS, provenance,
 	GATED_COUNTERS};
