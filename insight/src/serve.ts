@@ -44,7 +44,9 @@ const decodeLine = Schema.decodeUnknown(Line);
 const Status = Schema.Struct({pid: Schema.Number, seed: Schema.Number, state: Schema.String,
 	position: Schema.NullOr(Schema.Number), fights: Schema.Number, attempts: Schema.optional(Schema.Number),
 	startedAt: Schema.Number, updatedAt: Schema.Number, spec: Schema.optional(Schema.String),
-	secondsPerFight: Schema.NullOr(Schema.Number), rssMb: Schema.Number});
+	secondsPerFight: Schema.NullOr(Schema.Number), rssMb: Schema.Number,
+	// A job (lib/watch.js) plays fights but is not a run: a battery, the A/B arms, a planning request.
+	kind: Schema.optional(Schema.Literal('run', 'job')), what: Schema.optional(Schema.String)});
 export type Status = typeof Status.Type;
 const decodeStatus = Schema.decodeUnknown(Status);
 
@@ -198,7 +200,8 @@ let drawing = 0;
 async function drawRun() {
   const box = document.getElementById('runView'); if (!current) return;
   const mine = ++drawing; const s = await (await fetch('/summary?run=' + encodeURIComponent(current))).json(); if (mine !== drawing) return; box.replaceChildren();
-  if (!s) { box.appendChild(el('p', {class: 'sub', text: 'This run has neither a record nor a checkpoint to read: it was started before run control and is still playing. Its fights are on the fight tab.'})); return; }
+  if (!s && kinds[current] === undefined) { try { const row = (await (await fetch('/overview')).json()).find(r => r.run === current); kinds[current] = row && row.kind === 'job' ? (row.what || 'job') : null; } catch (e) { /* the message below still reads */ } }
+  if (!s) { box.appendChild(el('p', {class: 'sub', text: kinds[current] ? 'This is a job (' + kinds[current] + '), not a run: it keeps no run record and no checkpoint, so there is nothing to aggregate here. Its fights are on the fight tab, and stop and pause work as for a run.' : 'This run has neither a record nor a checkpoint to read: it was started before run control and is still playing. Its fights are on the fight tab.'})); return; }
   box.appendChild(factsOf(s));
   box.appendChild(jump([['run-hands', 'played by'], ['run-walls', 'walls (' + s.walls.length + ')'], ['run-box', 'the box (' + s.roster.length + ')']]));
   box.appendChild(part('played by', 'run-hands'));
@@ -392,6 +395,8 @@ function roadStrip(r) {
   if (r.road) g.appendChild(svg('circle', {cx: x(r.road), cy: H - 1.5, r: 2.2, class: r.live ? 'here live' : 'here'}));
   return g;
 }
+// Which listed names are jobs (lib/watch.js), and what kind: filled from each overview.
+const kinds = {};
 async function runs() {
   let rows, m;
   try { rows = await (await fetch('/overview')).json(); m = await (await fetch('/machine')).json(); }
@@ -402,6 +407,7 @@ async function runs() {
   if (now === lastOverview) return; lastOverview = now;
   const table = document.getElementById('overview'); table.replaceChildren();
   // A run from before run control has no status file: its fight file's age is all that says whether it still plays.
+  for (const r of rows) kinds[r.run] = r.kind === 'job' ? (r.what || 'job') : null;
   for (const r of rows) { r.live = r.state ? /^(running|paused|stopping)$/.test(r.state) : r.age !== null && r.age < 600; r.shown = r.state || (r.live ? 'running' : 'ended'); r.handled = !!r.state; }
   const live = rows.filter(r => r.live), over = rows.filter(r => !r.live);
   const say = async (run, action) => { const r = await (await fetch('/control?run=' + encodeURIComponent(run) + '&action=' + action, {method: 'POST', headers: {'x-insight': '1'}})).json(); said = true; document.getElementById('machine').textContent = r.said; lastOverview = ''; setTimeout(() => { said = false; runs(); }, 2500); };
@@ -514,7 +520,7 @@ export const overviewRow = async (dir: string, name: string) => {
 		walls: been.walls,
 		turn: live.turns.length ? live.turns[live.turns.length - 1]?.turn ?? 0 : 0, ended: live.ended,
 		state: status?.state ?? null, fights: status?.fights ?? null, pace: status?.secondsPerFight ?? null,
-		rssMb: status?.rssMb ?? null, spec: status?.spec ?? null, age};
+		rssMb: status?.rssMb ?? null, spec: status?.spec ?? null, kind: status?.kind ?? 'run', what: status?.what ?? null, age};
 };
 
 /** The road's length when a run is too old to say (its live header predates `roadOf`). */

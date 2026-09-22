@@ -50,7 +50,10 @@ async function main() {
 	const label = todo.label || todo.command.slice(0, 3).join(' ').slice(0, 80);
 	const slot = await slots.acquire({label}, {onWait: rows =>
 		process.stderr.write('submit: all ' + rows.length + ' slots held, waiting for one\n')});
-	const child = childProcess.spawn(todo.command[0], todo.command.slice(1), {stdio: 'inherit'});
+	// The command runs on this slot: tell it, so a watchable job inside it
+	// (lib/watch.js) does not take a second slot for the same work.
+	const child = childProcess.spawn(todo.command[0], todo.command.slice(1), {stdio: 'inherit',
+		env: Object.assign({}, process.env, {RUNBUN_SLOT_HELD: String(slot.slot)})});
 	for (const signal of ['SIGTERM', 'SIGINT']) process.on(signal, () => child.kill(signal));
 	child.on('error', error => {
 		slot.release();

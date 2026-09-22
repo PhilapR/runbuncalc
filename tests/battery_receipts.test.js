@@ -220,7 +220,10 @@ function batteryRun(extra, label) {
 		[path.join(root, 'scripts', 'scenario-battery.js'),
 			'--report=fixtures/banked-runs/flannery-3.run.json',
 			'--trainer=Pokéfan Miguel', '--seeds=1', '--label=' + label].concat(extra),
-		{cwd: root, encoding: 'utf8'});
+		// Its watch files go to a scratch folder, and it takes no slot of the
+		// real pool: a test must not write beside real runs or wait on them.
+		{cwd: root, encoding: 'utf8', env: Object.assign({}, process.env, {RUNBUN_SLOT_HELD: 'test',
+			RUNBUN_RUNS_DIR: fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'battery-watch-'))})});
 	const wrote = fs.existsSync(receipt);
 	fs.rmSync(receipt, {force: true});
 	fs.rmSync(scratch, {force: true});

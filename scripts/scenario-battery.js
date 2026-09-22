@@ -776,7 +776,10 @@ function shardOf(scenarios, spec) {
 	return scenarios.filter((scenario, index) => index % Number(hit[2]) === Number(hit[1]));
 }
 
-function runScenario(policy, scenario) {
+/** Thrown between fights when a watched battery is asked to stop. */
+class StopRequested extends Error {}
+
+function runScenario(policy, scenario, job) {
 	const prepared = prepareDocument(requireScale(loadDocument(scenario.report)),
 		scenario.trainer, policy);
 	const doc = prepared.doc;
@@ -785,8 +788,22 @@ function runScenario(policy, scenario) {
 		report: path.basename(scenario.report), position: doc.position,
 		seeds, wins: 0, losses: 0, stuck: 0, deaths: 0, turns: 0,
 		counters: {}, rows: []};
+	// The live header's fields are the ones a run's tape carries, so the page reads both alike.
+	const fightOrder = job ? require('../lib/planner').getFight(scenario.trainer, doc.profileId).order : null;
 	for (let seed = 1; seed <= seeds; seed++) {
+		// Watched: the fight's header and result go on the job's live tape.
+		// No turns: a tape passed to playScenario changes what a double
+		// records in the receipt, and the receipt must not depend on watching.
+		const watched = job ? job.fight({trainer: scenario.trainer, scenario: scenario.name, seed,
+			position: doc.position, order: fightOrder,
+			six: doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean)
+				.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level, item: mon.item || null}))}) : null;
 		const played = playScenario(policy, doc, scenario.trainer, seed);
+		if (watched) {
+			watched.end(played.result);
+			job.progress({fights: job.played = (job.played || 0) + 1});
+			if (job.stopRequested()) throw new StopRequested('stopped by request after ' + job.played + ' fights');
+		}
 		if (played.result === 'win') out.wins += 1;
 		else if (played.result === 'stuck') out.stuck += 1;
 		else out.losses += 1;
@@ -896,8 +913,22 @@ function main() {
 		process.exit(1);
 	}
 	const results = [];
+	// Watchable (lib/watch.js): on the watch page, in the slot pool, stoppable.
+	// A stopped battery writes NO receipt — a receipt is whole or absent.
+	const job = require('../lib/watch.js').openJob({label: 'battery',
+		name: require('../lib/watch.js').jobName(label + (flag('shard', '') ? '-shard-' + flag('shard', '') : '')),
+		what: 'battery', spec: process.argv.slice(2).join(' ')});
+	process.on('exit', code => job.close({state: code ? 'failed' : undefined}));
 	for (const scenario of scenarios) {
-		const row = runScenario(policy, scenario);
+		let row;
+		try {
+			row = runScenario(policy, scenario, job);
+		} catch (error) {
+			if (!(error instanceof StopRequested)) throw error;
+			job.close({state: 'stopped'});
+			console.error(error.message + ' — no receipt written');
+			process.exit(3);
+		}
 		results.push(row);
 		console.log(
 			row.name.padEnd(34) +
