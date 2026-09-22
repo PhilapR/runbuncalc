@@ -169,6 +169,13 @@ const ashWaterShurikenFacts = calculateActionFacts(ashWaterShuriken, {
   kind: 'move', actorId: 'ai-1', moveName: 'Water Shuriken', targetIds: ['player-1'],
 });
 assert.equal(ashWaterShurikenFacts.damage?.hits, 3);
+// The pinned three is not a range: the engine rolls no count over it. A 0.99
+// draw would have been five hits.
+assert.equal(ashWaterShurikenFacts.multiHitRange, undefined, 'Greninja-Ash Water Shuriken reports no 2-5 range');
+const ashShurikenAction: MoveAction = {kind: 'move', actorId: 'ai-1', moveName: 'Water Shuriken', targetIds: ['player-1']};
+const ashShurikenResolution = deriveMoveResolution(ashWaterShuriken, ashShurikenAction,
+  {facts: ashWaterShurikenFacts, random: () => 0.99});
+assert.equal(ashShurikenResolution.hitDamageByTarget?.['player-1']?.length, 3, 'Greninja-Ash Water Shuriken hits three times');
 
 const stanceShieldState = state();
 stanceShieldState.sides.ai.party[0] = {
