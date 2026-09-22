@@ -120,6 +120,15 @@ module.exports = defineProfile({
 		sleepTurnsResetOnEntry: true,
 		disguiseBreaksWithoutChipDamage: true,
 		confusionBerriesRestoreHalfHpAtQuarter: true,
+		// "Weather abilities: Will set Weather permanently." / "Terrain
+		// abilities: Will set Terrain permanently." — strong weathers
+		// (Primordial Sea, Desolate Land, Delta Stream) included: they are
+		// weather abilities, so they outlive their holder. Declared
+		// 2026-09-22 after the engine ended them with their holder (the
+		// mainline rule) and nothing held it to this line.
+		abilityWeatherIsPermanent: true,
+		// "Moody: Can still raise Accuracy and Evasion." (Gen 8 removed them.)
+		moodyRaisesAccuracyEvasion: true,
 	},
 
 	/**
@@ -205,6 +214,10 @@ module.exports = defineProfile({
 		'mechanics.sleepTurnsResetOnEntry': 'source-of-truth',
 		'mechanics.disguiseBreaksWithoutChipDamage': 'source-of-truth',
 		'mechanics.confusionBerriesRestoreHalfHpAtQuarter': 'source-of-truth',
+		// Ordinary ability weather's permanence is also emulator-observed
+		// (pokemon-mono P0, 2026-09-22); strong weather is not probed yet.
+		'mechanics.abilityWeatherIsPermanent': 'source-of-truth',
+		'mechanics.moodyRaisesAccuracyEvasion': 'source-of-truth',
 		// "Soul Dew: Boosts Latias and Latios SpA/SpD by one stage" — and the
 		// calc fork implements it as literal stages (clamped, clone-safe,
 		// composing with Calm Mind and ignored by crits like any stage).

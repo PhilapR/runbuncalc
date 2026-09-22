@@ -68,6 +68,8 @@ const CHECKED = [
 	'superFangType',
 	'covetType',
 	'paralysisSpeedMultiplier',
+	'abilityWeatherIsPermanent',
+	'moodyRaisesAccuracyEvasion',
 ];
 
 /**
@@ -230,4 +232,41 @@ test('every declared mechanic is either driven here or listed as not driven', ()
 		assert.ok(PENDING[key] && PENDING[key].length > 10,
 			`${key} needs a reason, not an empty excuse`);
 	}
+});
+
+test('ability weather and terrain are permanent, a strong weather outliving its holder', () => {
+	// Declared 2026-09-22, the day the engine was found ending Primordial Sea
+	// with its holder (the mainline rule) because no gate read this line.
+	assert.equal(profile.mechanics.abilityWeatherIsPermanent, true, 'this gate is written for the permanent rule');
+	const planner = require('../lib/planner');
+	const ai = require('../ai');
+	const opened = trainer => planner.buildFightState({trainer, profileId: 'run-and-bun',
+		playerParty: [{species: 'Florges', ability: 'Flower Veil', level: 50, moves: ['Moonblast']}]}).state;
+	// An ordinary setter, a strong one, and a surge: none carries a duration.
+	for (const trainer of ['Aqua Leader Archie Seafloor Cavern', 'Champion Wallace']) {
+		const state = opened(trainer);
+		assert.ok(state.field.weather, trainer + ' opens in weather');
+		assert.ok(!(state.field.durations && state.field.durations.weather), trainer + ': ability weather is not timed');
+	}
+	// The strong weather stands after its holder falls.
+	const wallace = opened('Champion Wallace');
+	const kyogre = wallace.sides.ai.activeIds[0];
+	const fallen = Object.assign({}, wallace, {sides: Object.assign({}, wallace.sides, {ai: Object.assign({}, wallace.sides.ai, {
+		party: wallace.sides.ai.party.map(mon => mon.id === kyogre ? Object.assign({}, mon, {hp: Object.assign({}, mon.hp, {current: 0})}) : mon)})})});
+	assert.equal(ai.settleStrongWeather(fallen).field.weather, 'Heavy Rain', 'mechanics.abilityWeatherIsPermanent');
+});
+
+test('Moody can still raise Accuracy and Evasion', () => {
+	assert.equal(profile.mechanics.moodyRaisesAccuracyEvasion, true);
+	const planner = require('../lib/planner');
+	const ai = require('../ai');
+	const state = planner.buildFightState({trainer: 'Youngster Allen', profileId: 'run-and-bun',
+		playerParty: [{species: 'Octillery', ability: 'Moody', level: 50, moves: ['Water Gun']}]}).state;
+	const raised = new Set();
+	for (let draw = 0; draw < 1; draw += 0.02) {
+		const after = ai.advanceTurn(state, {random: () => draw});
+		const boosts = after.sides.player.party[0].boosts || {};
+		for (const stat of Object.keys(boosts)) if (boosts[stat] > 0) raised.add(stat);
+	}
+	assert.ok(raised.has('acc') && raised.has('eva'), 'mechanics.moodyRaisesAccuracyEvasion: raised ' + [...raised]);
 });
