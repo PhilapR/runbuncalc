@@ -667,6 +667,25 @@ test('a double charges a body to the foe that last DAMAGED it, not the last that
 	assert.deepEqual(charged, [['Nidoking', 1]], 'the miss and the line that dealt nothing do not take the charge');
 });
 
+test('one rule names a run for every route: a label and a run, never a walk out of the directory', async () => {
+	const {guardRun, serve} = await import('../src/serve.js');
+	for (const good of ['run-418957', 'sidney1/run-418957', 'clear1/run-104770.checkpoint']) assert.ok(guardRun(good), good);
+	for (const bad of ['', '..', '../etc', 'a/../b', 'a/b/c', 'sidney1/..', '/etc/passwd', 'run 1']) assert.ok(!guardRun(bad), bad);
+	const os = await import('node:os');
+	const server = serve(os.tmpdir(), 0);
+	try {
+		await new Promise(resolve => server.once('listening', resolve));
+		const address = server.address();
+		const base = 'http://127.0.0.1:' + (typeof address === 'object' && address !== null ? address.port : 0);
+		for (const route of ['/summary?run=..', '/wall?run=..&trainer=x', '/attempt?run=..&n=1', '/state?run=..']) {
+			assert.equal((await fetch(base + route)).status, 400, route);
+		}
+		assert.equal((await fetch(base + '/control?run=..&action=stop', {method: 'POST', headers: {'x-insight': '1'}})).status, 400);
+	} finally {
+		server.close();
+	}
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');

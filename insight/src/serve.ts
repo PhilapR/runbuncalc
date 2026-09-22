@@ -616,6 +616,13 @@ export const loadAttempt = async (dir: string, run: string, n: number) => {
 
 const RUN_NAME = /^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/;
 
+/**
+ * A run is named LABEL/run-SEED (or run-SEED); anything else is refused, so a
+ * name can never walk out of the directory being watched. One rule for every
+ * route that takes a run: it was written out five times.
+ */
+export const guardRun = (run: string): boolean => RUN_NAME.test(run) && !run.includes('..');
+
 /** Stop, pause or continue one run — by its own status file's pid, as scripts/runs.js does. */
 export const control = async (dir: string, run: string, action: 'stop' | 'pause' | 'cont'): Promise<{ok: boolean; said: string}> => {
 	const base = path.join(dir, run);
@@ -653,20 +660,20 @@ export const serve = (dir: string, port: number): http.Server => {
 		}
 		if (url.pathname === '/summary') {
 			const run = url.searchParams.get('run') ?? '';
-			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!guardRun(run)) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadSummary(dir, run).then(summary => send(res, 'application/json', JSON.stringify(summary)));
 			return;
 		}
 		if (url.pathname === '/wall') {
 			const run = url.searchParams.get('run') ?? '';
-			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!guardRun(run)) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadWall(dir, run, url.searchParams.get('trainer') ?? '').then(view => send(res, 'application/json', JSON.stringify(view)),
 				failed(res));
 			return;
 		}
 		if (url.pathname === '/attempt') {
 			const run = url.searchParams.get('run') ?? '';
-			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!guardRun(run)) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadAttempt(dir, run, Number(url.searchParams.get('n'))).then(found => send(res, 'application/json', JSON.stringify(found)),
 				failed(res));
 			return;
@@ -684,16 +691,14 @@ export const serve = (dir: string, port: number): http.Server => {
 		if (url.pathname === '/control') {
 			const run = url.searchParams.get('run') ?? '';
 			const action = url.searchParams.get('action') ?? '';
-			if (req.method !== 'POST' || req.headers['x-insight'] !== '1' || !RUN_NAME.test(run) || run.includes('..') ||
+			if (req.method !== 'POST' || req.headers['x-insight'] !== '1' || !guardRun(run) ||
 				!/^(stop|pause|cont)$/.test(action)) { res.writeHead(400); res.end('refused'); return; }
 			void control(dir, run, action as 'stop' | 'pause' | 'cont').then(said => send(res, 'application/json', JSON.stringify(said)));
 			return;
 		}
 		if (url.pathname === '/state') {
-			// A run is named LABEL/run-SEED (or run-SEED); anything else is refused,
-			// so the name can never walk out of the directory being watched.
 			const run = url.searchParams.get('run') ?? '';
-			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!guardRun(run)) { res.writeHead(400); res.end('bad run name'); return; }
 			void Effect.runPromise(readLive(path.join(dir, run + '.live.ndjson')))
 				.then(state => send(res, 'application/json', JSON.stringify(state)));
 			return;
