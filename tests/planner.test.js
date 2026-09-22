@@ -418,3 +418,33 @@ test('a matrix without a team is refused rather than guessed at', () => {
 		/playerParty is required/
 	);
 });
+
+test('a lead\'s entry ability fires as the battle opens, and a strong weather ends with its holder', () => {
+	// No lead's entry ability ever fired: a state is built with its leads
+	// standing, and entry effects ran only on a switch. Champion Wallace's
+	// Primal Kyogre fought in a dry sky, so did every Drizzle lead, and no
+	// Intimidate lead ever cut an Attack.
+	const runtime = require('../lib/run.js');
+	const ai = require('../ai');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const built = (trainer, doc) => planner.buildFightState({trainer, playerParty: runtime.partySpecs(doc || saved, {}),
+		profileId: saved.profileId}).state;
+	const wallace = built('Champion Wallace');
+	assert.equal(wallace.field.weather, 'Heavy Rain', 'Primordial Sea');
+	assert.equal(built('Aqua Leader Archie Seafloor Cavern').field.weather, 'Rain', 'Drizzle');
+
+	// The rain stands while Kyogre does, and ends the moment it falls.
+	assert.equal(ai.settleStrongWeather(wallace).field.weather, 'Heavy Rain');
+	const kyogre = wallace.sides.ai.activeIds[0];
+	const fallen = {...wallace, sides: {...wallace.sides, ai: {...wallace.sides.ai,
+		party: wallace.sides.ai.party.map(mon => mon.id === kyogre ? {...mon, hp: {...mon.hp, current: 0}} : mon)}}};
+	assert.equal(ai.settleStrongWeather(fallen).field.weather, undefined);
+
+	// Our Intimidate lead cuts the foe's Attack before the first move.
+	const staraptor = saved.box.find(mon => mon.species === 'Staraptor');
+	const led = runtime.apply(saved, {kind: 'party', ids: [staraptor.id].concat(saved.party.filter(id => id !== staraptor.id)).slice(0, 6)});
+	const opened = built('Champion Wallace', led);
+	const foe = opened.sides.ai.party.find(mon => mon.id === opened.sides.ai.activeIds[0]);
+	assert.equal((foe.boosts || {}).atk, -1, 'Intimidate');
+});

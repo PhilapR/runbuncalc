@@ -5,7 +5,7 @@ import {deriveSwitchEntryResolution, SwitchEntryOptions} from './entry-hazards';
 import {getMoveMaxPP, getMoveMetadata} from './move-metadata';
 import {isMimicryActive, mimicryTypeOverride} from './mimicry';
 import {weatherFormSpeciesOverride} from './weather-forms';
-import {getActionOrderFacts} from './order';
+import {getActionOrderFacts, getEffectivePokemonSpeed} from './order';
 import {isItemEffectActive} from './items';
 import {
   Action,
@@ -1887,7 +1887,66 @@ export function applyAction(
   action: Action,
   resolution?: MoveResolution,
 ): BattleState {
-  if (action.kind === 'switch') return applySwitchAction(state, action);
+  if (action.kind === 'switch') return settleStrongWeather(applySwitchAction(state, action));
   if (!resolution) throw new Error('Move resolution is required for move actions');
-  return resolveMoveAction(state, action, resolution);
+  return settleStrongWeather(resolveMoveAction(state, action, resolution));
+}
+
+const STRONG_WEATHER_SOURCE: Readonly<Record<string, string>> = {
+  'Heavy Rain': 'primordialsea',
+  'Harsh Sunshine': 'desolateland',
+  'Strong Winds': 'deltastream',
+};
+
+/**
+ * A strong weather lasts only while a Pokemon with its ability stands on the
+ * field. When Primal Kyogre faints or leaves, the heavy rain ends at once —
+ * which is what Wallace's Swift Swim Barraskewda and Mega Swampert, sent in
+ * behind it, fight without.
+ */
+export function settleStrongWeather(state: BattleState): BattleState {
+  const weather = state.field.weather;
+  const source = weather === undefined ? undefined : STRONG_WEATHER_SOURCE[weather];
+  if (source === undefined) return state;
+  const held = (['ai', 'player'] as const).some(sideId => state.sides[sideId].activeIds.some(pokemonId => {
+    const pokemon = getPokemon(state, pokemonId);
+    return !!pokemon && pokemon.hp.current > 0 && isAbilityActive(pokemon, state) &&
+      (getEffectiveAbility(pokemon) ?? '').toLowerCase().replace(/[^a-z0-9]/g, '') === source;
+  }));
+  if (held) return state;
+  const field = {...state.field};
+  delete field.weather;
+  if (field.durations) {
+    const durations = {...field.durations};
+    delete durations.weather;
+    field.durations = durations;
+  }
+  return {...state, field};
+}
+
+/**
+ * The leads' entry effects, at the start of the battle. A battle state is
+ * built with its leads already standing, and entry effects only ran on a
+ * switch — so no lead's ability ever fired: Drizzle Kyogre and Pelipper
+ * opened in a dry sky, Primal Kyogre too, and no Intimidate lead ever cut an
+ * Attack. The game activates them fastest first, so a slower setter's weather
+ * is the one that stays.
+ */
+export function applyLeadEntries(state: BattleState, options: SwitchEntryOptions = {}): BattleState {
+  const leads = (['player', 'ai'] as const).flatMap(sideId =>
+    state.sides[sideId].activeIds.map(pokemonId => ({sideId, pokemonId})));
+  const speed = (pokemonId: string): number => {
+    try {
+      return getEffectivePokemonSpeed(state, pokemonId);
+    } catch {
+      return 0;
+    }
+  };
+  leads.sort((a, b) => speed(b.pokemonId) - speed(a.pokemonId));
+  let next = state;
+  for (const lead of leads) {
+    const action = {kind: 'switch' as const, actorId: lead.pokemonId, replacementId: lead.pokemonId};
+    next = applySwitchEntryResolution(next, lead.sideId, lead.pokemonId, deriveSwitchEntryResolution(next, action, options));
+  }
+  return next;
 }

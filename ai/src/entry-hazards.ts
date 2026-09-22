@@ -648,6 +648,13 @@ function entryFieldEffects(
   if (!isAbilityAvailable(state.generation, ability)) return {};
   if (ability === 'drought') return {weather: 'Sun'};
   if (ability === 'drizzle') return {weather: 'Rain'};
+  // The strong weathers. Missing until 2026-09-22, so Champion Wallace's
+  // Primal Kyogre fought in a dry sky: Origin Pulse unboosted, Thunder able
+  // to miss, Fire moves landing into it. They end when their holder leaves
+  // (settleStrongWeather in transition.ts).
+  if (state.generation >= 6 && ability === 'primordialsea') return {weather: 'Heavy Rain'};
+  if (state.generation >= 6 && ability === 'desolateland') return {weather: 'Harsh Sunshine'};
+  if (state.generation >= 6 && ability === 'deltastream') return {weather: 'Strong Winds'};
   if (ability === 'sandstream') return {weather: 'Sand'};
   if (ability === 'snowwarning') return {weather: state.generation >= 9 ? 'Snow' : 'Hail'};
   if (state.generation >= 9 && ability === 'orichalcumpulse') return {weather: 'Sun'};
@@ -705,7 +712,9 @@ export function deriveSwitchEntryResolution(
     sides: {...state.sides, [sideId]: entrySide},
   };
   const fieldEffects = entryFieldEffects(entryRosterState, pokemon);
-  if (fieldEffects.weather && isStrongWeather(state.field.weather) && state.field.weather !== fieldEffects.weather) {
+  // Only an ordinary setter is blocked: a strong weather replaces another.
+  if (fieldEffects.weather && !isStrongWeather(fieldEffects.weather) && isStrongWeather(state.field.weather) &&
+    state.field.weather !== fieldEffects.weather) {
     delete fieldEffects.weather;
     resolution.trace!.notes!.push('strong weather blocked the entry weather setter');
   }
