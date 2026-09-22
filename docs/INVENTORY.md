@@ -152,7 +152,7 @@ the reader's warning to verify before trusting.
 - `docs/ECOSYSTEM_BRIDGE.md` — 5a255c0 2026-08-25
 - `docs/ENCOUNTER-ARCHITECTURE.md` — 29ffa9f 2026-09-20
 - `docs/ENGINE-CONTRACTS.md` — c4daad8 2026-08-29
-- `docs/ENGINE-HOMES.md` — untracked
+- `docs/ENGINE-HOMES.md` — e342a33 2026-09-22
 - `docs/EVALUATION.md` — 56f1c21 2026-09-22
 - `docs/FORK_MAP.md` — 202de90 2026-09-22
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
@@ -161,12 +161,12 @@ the reader's warning to verify before trusting.
 - `docs/LEADER-KEYS.md` — 44ad51e 2026-09-21
 - `docs/MODELLING-GAPS.md` — 56f1c21 2026-09-22
 - `docs/PERFORMANCE.md` — f6708e5 2026-09-22
-- `docs/PLAN.md` — 2564b85 2026-09-22
+- `docs/PLAN.md` — e342a33 2026-09-22
 - `docs/RUN-CONTROL.md` — f382846 2026-09-22
 - `docs/RUNBUN_REBUILD_MODEL.md` — 56f1c21 2026-09-22
 - `docs/RUNBUN_UI_DESIGN.md` — 56f1c21 2026-09-22
 - `docs/RUN_API.md` — 6234521 2026-08-28
-- `docs/SDLC.md` — c11db8f 2026-08-16
+- `docs/SDLC.md` — e342a33 2026-09-22
 - `docs/STRATEGY.md` — c272bcd 2026-08-25
 - `docs/VALIDATION.md` — 56f1c21 2026-09-22
 - `docs/WORKFLOW.md` — 1b6ba2a 2026-09-22
@@ -174,7 +174,7 @@ the reader's warning to verify before trusting.
 - `ui-playthrough-out.ARCHIVED.md` — untracked
 
 ## Test files
-`tests/ability_reconciliation.test.js` · `tests/adjudication_cost.test.js` · `tests/ask.test.js` · `tests/attempt_store.test.js` · `tests/audit_run.test.js` · `tests/availability-estimate.test.js` · `tests/battery_arms.test.js` · `tests/battery_receipts.test.js` · `tests/battle-driver.test.js` · `tests/battle_contribution.test.js` · `tests/battle_view.test.js` · `tests/browser_calc_load.test.js` · `tests/browser_entrypoint.test.js` · `tests/browser_planner.test.js` · `tests/browser_run.test.js` · `tests/browser_run_fight.test.js` · `tests/browser_run_panel.test.js` · `tests/browser_run_setup.test.js` · `tests/catch_values.test.js` · `tests/chronicle.test.js` · `tests/doubles.test.js` · `tests/encounter_dating.test.js` · `tests/engine_mcp.test.js` · `tests/evolution_branches.test.js` · `tests/falsify.test.js` · `tests/fast_tier.test.js` · `tests/fidelity_openings.test.js` · `tests/fight_dossiers.test.js` · `tests/fight_fields.test.js` · `tests/fight_log.test.js` · `tests/game-runtime-adapter.test.js` · `tests/headless_run.test.js` · `tests/how_it_won.test.js` · `tests/import_oracle.test.js` · `tests/inventory.test.js` · `tests/item_facts.test.js` · `tests/item_locations.test.js` · `tests/item_planning.test.js` · `tests/learnset_doc.test.js` · `tests/ledger.test.js` · `tests/manifest_provenance.test.js` · `tests/mega_forms.test.js` · `tests/order_scales.test.js` · `tests/pivot_turn.test.js` · `tests/planner.test.js` · `tests/planning_review.test.js` · `tests/play.test.js` · `tests/playthrough_policy.test.js` · `tests/pokemon-bridge.test.js` · `tests/pokemon-provider-client.test.js` · `tests/provenance.test.js` · `tests/provider-data.test.js` · `tests/recheck_findings.test.js` · `tests/rl-dataset.test.js` · `tests/rom-band.test.js` · `tests/run.test.js` · `tests/run_advise.test.js` · `tests/run_api.test.js` · `tests/run_batch.test.js` · `tests/run_control.test.js` · `tests/run_history.test.js` · `tests/run_rank.test.js` · `tests/runbun_mechanics.test.js` · `tests/runbun_oracle.test.js` · `tests/runbun_policy.test.js` · `tests/runbun_sets.test.js` · `tests/runbun_species.test.js` · `tests/scale_consistency.test.js` · `tests/search_policy.test.js` · `tests/semi_invulnerable.test.js` · `tests/server.smoke.test.js` · `tests/sets_to_battle_state.test.js` · `tests/simulate.test.js` · `tests/slots.test.js` · `tests/team.test.js` · `tests/tm_sourcing.test.js` · `tests/tracker_order.test.js` · `tests/trainer_orders.test.js` · `tests/ui_style.test.js` · `tests/wall_report.test.js` · `tests/watch.test.js` · `tests/worker-runtime.test.js` · `tests/worker.test.js`
+`tests/ability_reconciliation.test.js` · `tests/adjudication_cost.test.js` · `tests/ai-probes.test.js` · `tests/ask.test.js` · `tests/attempt_store.test.js` · `tests/audit_run.test.js` · `tests/availability-estimate.test.js` · `tests/battery_arms.test.js` · `tests/battery_receipts.test.js` · `tests/battle-driver.test.js` · `tests/battle_contribution.test.js` · `tests/battle_view.test.js` · `tests/browser_calc_load.test.js` · `tests/browser_entrypoint.test.js` · `tests/browser_planner.test.js` · `tests/browser_run.test.js` · `tests/browser_run_fight.test.js` · `tests/browser_run_panel.test.js` · `tests/browser_run_setup.test.js` · `tests/catch_values.test.js` · `tests/chronicle.test.js` · `tests/doubles.test.js` · `tests/encounter_dating.test.js` · `tests/engine_mcp.test.js` · `tests/evolution_branches.test.js` · `tests/falsify.test.js` · `tests/fast_tier.test.js` · `tests/fidelity_openings.test.js` · `tests/fight_dossiers.test.js` · `tests/fight_fields.test.js` · `tests/fight_log.test.js` · `tests/game-runtime-adapter.test.js` · `tests/headless_run.test.js` · `tests/how_it_won.test.js` · `tests/import_oracle.test.js` · `tests/inventory.test.js` · `tests/item_facts.test.js` · `tests/item_locations.test.js` · `tests/item_planning.test.js` · `tests/learnset_doc.test.js` · `tests/ledger.test.js` · `tests/manifest_provenance.test.js` · `tests/mega_forms.test.js` · `tests/order_scales.test.js` · `tests/pivot_turn.test.js` · `tests/planner.test.js` · `tests/planning_review.test.js` · `tests/play.test.js` · `tests/playthrough_policy.test.js` · `tests/pokemon-bridge.test.js` · `tests/pokemon-provider-client.test.js` · `tests/provenance.test.js` · `tests/provider-data.test.js` · `tests/recheck_findings.test.js` · `tests/rl-dataset.test.js` · `tests/rom-band.test.js` · `tests/run.test.js` · `tests/run_advise.test.js` · `tests/run_api.test.js` · `tests/run_batch.test.js` · `tests/run_control.test.js` · `tests/run_history.test.js` · `tests/run_rank.test.js` · `tests/runbun_mechanics.test.js` · `tests/runbun_oracle.test.js` · `tests/runbun_policy.test.js` · `tests/runbun_sets.test.js` · `tests/runbun_species.test.js` · `tests/scale_consistency.test.js` · `tests/search_policy.test.js` · `tests/semi_invulnerable.test.js` · `tests/server.smoke.test.js` · `tests/sets_to_battle_state.test.js` · `tests/simulate.test.js` · `tests/slots.test.js` · `tests/team.test.js` · `tests/tm_sourcing.test.js` · `tests/tracker_order.test.js` · `tests/trainer_orders.test.js` · `tests/ui_style.test.js` · `tests/wall_report.test.js` · `tests/watch.test.js` · `tests/worker-runtime.test.js` · `tests/worker.test.js`
 
 ## Prior art elsewhere (from ECOSYSTEM.json)
 
