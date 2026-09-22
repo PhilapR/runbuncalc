@@ -1688,6 +1688,20 @@ function probeWall(policy, doc, next, tally) {
 	return {wins, of: knobs.probe, foeLeft: Number((left / knobs.probe).toFixed(2))};
 }
 
+/**
+ * The hand a run plays with: its knobs and treatment, less the ones that only
+ * say how long it plays or what it keeps. A carry-on that only raises the
+ * budget or the stop is the same hand; one with another --spec is not.
+ */
+const NOT_THE_HAND = ['budget', 'stopAt', 'fightLogs'];
+function handOf(treatment) {
+	const played = Object.fromEntries(Object.keys(knobs).filter(name => !NOT_THE_HAND.includes(name)).sort()
+		.map(name => [name, knobs[name] === undefined ? null : knobs[name]]));
+	const given = treatment || {};
+	return JSON.stringify({knobs: played, keyCatches: given.keyCatches !== false, keyScales: given.keyScales !== false,
+		keyEvolve: given.keyEvolve !== false});
+}
+
 /** Run fn under these knobs (armFlags(spec).knobs), and restore the run's own after. */
 function withKnobs(given, fn) {
 	const before = knobs;
@@ -1773,11 +1787,32 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// of the five deepest runs ended "already being skipped").
 	const waiting = new Map(kept ? kept.waiting : []);
 	// Elite Four formats set aside after walling a run: the other format of that member is fought instead.
-	const aside = new Set(kept ? kept.aside || [] : []);
+	// Each is set aside UNDER A HAND (the knobs it walled with). A carry-on
+	// under another hand is the point of carrying on with --spec, and it got
+	// one attempt: the checkpoint held the single aside and the double at its
+	// cap, so both formats read as walled. An entry set aside under another
+	// hand, or under an unrecorded one (a checkpoint from before this), is
+	// dropped, and the wall in front starts its attempts again.
+	const hand = handOf(treatment);
+	const asideUnder = new Map();
+	const aside = new Set();
+	let handChanged = !!(kept && kept.hand !== undefined && kept.hand !== hand);
+	for (const entry of kept ? kept.aside || [] : []) {
+		const order = typeof entry === 'number' ? entry : entry.order;
+		const under = typeof entry === 'number' ? null : entry.hand;
+		if (under === hand) {
+			aside.add(order);
+			asideUnder.set(order, under);
+		} else {
+			handChanged = true;
+			tally.asideDropped = (tally.asideDropped || []).concat([{order, at: doc.position,
+				why: under === null ? 'set aside under an unrecorded hand' : 'set aside under another hand'}]);
+		}
+	}
 	// What each body has given up, so the relearn rule cannot swap two moves
 	// back and forth for the whole run.
 	const forgotten = new Map(kept ? kept.forgotten.map(entry => [entry[0], new Set(entry[1])]) : []);
-	let attempts = kept ? kept.attempts : 0;
+	let attempts = kept && !handChanged ? kept.attempts : 0;
 	let fightSeed = kept ? kept.fightSeed : seed;
 	// Advice and party ranking are board-rebuild expensive; the browser
 	// driver pays them occasionally, not per turn of the loop. They re-run
@@ -1785,17 +1820,17 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// every cycle and a single run stretched toward twenty minutes.
 	let lastShape = kept ? kept.lastShape : '';
 	// The six the probe last judged, and what decide() won with it (--hand-by-probe).
-	let handProbe = kept ? kept.handProbe : {six: null, wins: 0};
+	let handProbe = kept && !handChanged ? kept.handProbe : {six: null, wins: 0};
 	// What the ranker last said this six should field as its Mega: its choice, not a body rated alone.
 	const ranked = {mega: null};
 	// A plan, once taken, holds until the wall falls: the ranker and the re-pick would only undo it.
-	let planHolds = kept ? !!kept.planHolds : false;
+	let planHolds = kept && !handChanged ? !!kept.planHolds : false;
 	if (kept) tally.restoredAt = (tally.restoredAt || []).concat([doc.position]);
 	// Everything above, as data: what options.checkpoint is handed at the top
 	// of every turn of the loop, the one place where none of it is half-done.
 	const snapshot = () => ({version: 1, seed, starter, position: doc.position, doc,
-		state: {dice: random.at(), fightSeed, attempts, lastShape, handProbe, planHolds,
-			caughtFrom: [...caughtFrom], waiting: [...waiting], aside: [...aside],
+		state: {dice: random.at(), fightSeed, attempts, lastShape, handProbe, planHolds, hand,
+			caughtFrom: [...caughtFrom], waiting: [...waiting], aside: [...aside].map(order => ({order, hand: asideUnder.get(order)})),
 			forgotten: [...forgotten].map(entry => [entry[0], [...entry[1]]]),
 			tally, elapsedMs: Date.now() - started}});
 
@@ -1991,6 +2026,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		} else if (attempts >= cap && otherDoor(doc, next, aside)) {
 			const door = otherDoor(doc, next, aside);
 			aside.add(next.order);
+			asideUnder.set(next.order, hand);
 			tally.formatsSwitched = (tally.formatsSwitched || []).concat([{from: next.trainer, to: door.trainer, after: attempts}]);
 			attempts = 0;
 			handProbe = {six: null, wins: 0};

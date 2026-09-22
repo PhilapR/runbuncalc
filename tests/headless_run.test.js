@@ -971,3 +971,51 @@ test('a lead pin that cannot apply is missed, not crashed: the policy leads, and
 	assert.deepEqual(pinned.ledger.map(line), plain.ledger.map(line), 'the policy\'s lead played, as if unpinned');
 	assert.equal(pinned.leadPinMissed[0].trainer, plain.ledger[0].trainer, JSON.stringify(pinned.leadPinMissed));
 });
+
+test('a set-aside Elite Four format survives a checkpoint under the same hand, and is retried under another', () => {
+	// The checkpoint held the single set aside and the double near its cap, so a
+	// carry-on under a NEW --spec got one attempt and stopped: both doors walled.
+	// Every leg here stops at the top of its first turn, so no fight is played
+	// and no preparation runs: it is the checkpoint round trip alone.
+	const policy = require('../scripts/ui-playthrough.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const starter = {species: 'Chimchar', rival: 'Blaziken'};
+	const base = '--boss-retries=1 --probe=0 --plan-after=0 --fight-logs=none --budget=4';
+	const single = run.upcoming(saved, 10).find(fight => fight.trainer === 'Elite Four Sidney');
+	const stopAtOnce = (spec, from) => {
+		let first = null;
+		headless.playRun(policy, starter, 418957, headless.armFlags(spec), Object.assign({
+			control: () => 'stop',
+			checkpoint: snapshot => { if (!first) first = JSON.parse(JSON.stringify(snapshot())); }}, from));
+		return first;
+	};
+	const kept = stopAtOnce(base, {resume: saved});
+	assert.equal(typeof kept.state.hand, 'string', 'a checkpoint records the hand it was played with');
+	// Sidney's single walled under this hand; the double, in front, has spent five attempts.
+	kept.state.aside = [{order: single.order, hand: kept.state.hand}];
+	kept.state.attempts = 5;
+
+	const same = stopAtOnce(base, {restore: kept}).state;
+	assert.deepEqual(same.aside, [{order: single.order, hand: kept.state.hand}], 'the same hand keeps it aside, and writes it back');
+	assert.equal(same.attempts, 5, 'and the attempts it spent');
+	assert.equal(same.tally.asideDropped, undefined);
+	const longer = stopAtOnce(base.replace('--budget=4', '--budget=9'), {restore: kept}).state;
+	assert.deepEqual(longer.aside.map(entry => entry.order), [single.order], 'a longer budget is the same hand');
+	assert.equal(longer.attempts, 5);
+
+	const other = stopAtOnce(base + ' --lead-for=Elite+Four+Sidney:Dhelmise@Focus+Sash', {restore: kept}).state;
+	assert.deepEqual(other.aside, [], 'another hand retries the format');
+	assert.equal(other.attempts, 0, 'and the wall in front starts again');
+	assert.equal(other.tally.asideDropped[0].order, single.order);
+	assert.notEqual(other.hand, kept.state.hand);
+
+	// A checkpoint from before hands were recorded: its aside cannot be trusted to the hand.
+	const legacy = JSON.parse(JSON.stringify(kept));
+	legacy.state.aside = [single.order];
+	delete legacy.state.hand;
+	const old = stopAtOnce(base, {restore: legacy}).state;
+	assert.deepEqual(old.aside, []);
+	assert.equal(old.attempts, 0);
+	assert.match(old.tally.asideDropped[0].why, /unrecorded/);
+});
