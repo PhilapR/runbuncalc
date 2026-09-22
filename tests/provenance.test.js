@@ -66,6 +66,8 @@ test('the engine stamp is a hash of the bytes that play, and names the part that
 	// The real tree's parts are all present: a stamp of "absent" would compare equal to any other absence.
 	const here = provenance.engineStamp(ROOT);
 	for (const name of Object.keys(provenance.PARTS)) assert.notEqual(here.parts[name], 'absent', name);
+	// And the calc the planner loads by package name, which in a pinned worktree is the main checkout's.
+	assert.match(here.parts['calc-linked'], /^[0-9a-f]{12}$/, 'the linked calc is hashed where it resolves');
 	assert.match(here.revision, /^[0-9a-f]{40}$/);
 });
 
