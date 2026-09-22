@@ -634,6 +634,23 @@ test('a scale\'s end prints as a number, not a floating-point artefact', async (
 	assert.deepEqual([0.25, 0.7, 2.67, 0.03, 0].map(nice), [0.3, 0.7, 3, 0.03, 1]);
 });
 
+test('an attempt that lost no body draws an outline to click, not a bar of bodies lost', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1700, fights: 2, ledger: [
+		{n: 1, order: 1625, trainer: 'Champion Wallace', seed: 5, result: 'loss', deaths: 1,
+			killers: [{...fallen('Walrein', 'Origin Pulse', 'Kyogre-Primal'), ofSide: 'theirs'}]},
+		{n: 2, order: 1625, trainer: 'Champion Wallace', seed: 6, result: 'win', deaths: 0, killers: [],
+			kos: [{foe: 'Kyogre-Primal', by: 'Power Whip'}]},
+	]}));
+	const box = await drawnWall(wallView(run, 'Champion Wallace'));
+	const lanes = box.all('rect').filter(rect => rect.attrs.tabindex === '0');
+	assert.equal(lanes.length, 2, 'every attempt keeps a target to click');
+	const [lost, clean] = lanes;
+	assert.ok(!/\bnone\b/.test(lost?.attrs.class ?? ''), 'a body lost is a filled bar');
+	assert.match(clean?.attrs.class ?? '', /\bnone\b/, 'the clean win is an outline');
+	assert.notEqual(clean?.attrs.height, '1.5', 'not a sliver that reads as a loss');
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');
