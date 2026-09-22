@@ -424,3 +424,32 @@ test('in a played fight, Primal Kyogre\'s heavy rain stands while it does and en
 	assert.ok(counted.falls >= 2, 'played Kyogre faints: ' + counted.falls);
 	assert.ok(counted.rainTurns >= 20, 'turns played under Kyogre\'s rain: ' + counted.rainTurns);
 });
+
+test('a strong weather whose holder leaves or falls blocks nothing: Primal Kyogre out, Drizzle Pelipper in is rain', () => {
+	// Gen 8: Primordial Sea's rain ends the moment its holder leaves the field
+	// (Showdown clears it on the holder's End event, before the replacement
+	// enters), so the replacement's Drizzle meets a clear sky and sets rain.
+	// Two defects composed here: the entry judged the setter against the
+	// pre-switch weather and blocked it, and a holder that fainted to a
+	// residual left its heavy rain standing into the next turn.
+	const party = [
+		{species: 'Kyogre-Primal', item: 'Blue Orb', ability: 'Primordial Sea', level: 70, moves: ['Surf'],
+			hpRatio: 0.05, status: 'psn'},
+		{species: 'Pelipper', ability: 'Drizzle', level: 70, moves: ['Surf']},
+	];
+	const opened = planner.buildFightState({trainer: 'Youngster Allen', playerParty: party,
+		profileId: SAVED.profileId}).state;
+	assert.ok(activesOf(opened, 'ai').every(mon => !WEATHER[id(mon.ability)]), 'their lead sets no weather');
+	assert.equal(opened.field.weather, 'Heavy Rain', 'our Primal Kyogre opens the heavy rain');
+
+	// Switched out for Pelipper on one action.
+	const switched = ai.applyAction(opened, {kind: 'switch', actorId: 'player-1', replacementId: 'player-2'});
+	assert.equal(switched.field.weather, 'Rain', 'Drizzle sets rain as Kyogre leaves');
+
+	// Fainted to poison at the end of the turn, then replaced.
+	const residual = ai.advanceTurn(opened, {random: () => 0.5});
+	assert.equal(residual.sides.player.party[0].hp.current, 0, 'poison felled Kyogre');
+	assert.equal(residual.field.weather, undefined, 'the heavy rain fell with its holder');
+	const replaced = ai.applyAction(residual, {kind: 'switch', actorId: 'player-1', replacementId: 'player-2', forced: true});
+	assert.equal(replaced.field.weather, 'Rain', 'Drizzle sets rain behind the fallen Kyogre');
+});
