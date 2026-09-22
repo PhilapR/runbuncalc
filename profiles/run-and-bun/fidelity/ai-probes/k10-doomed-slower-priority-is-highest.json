@@ -1,0 +1,571 @@
+{
+  "probe": "k10-doomed-slower-priority-is-highest",
+  "protocol": "two-turn",
+  "description": "Priority bonus stacking: Linoone (spe 50) doomed by a faster Machamp whose Strength (2x) OHKOs it; its Extreme Speed (priority +2, STAB 80BP) is ALSO its highest-damage move and does not kill.",
+  "hypothesis": "additive doc scoring: Extreme Speed 117/119 (+6/+8 highest damage plus +11 doomed priority); if the bonuses do not stack, 111 or 106/108",
+  "player": {
+    "species": 68,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Strength",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 150,
+      "def": 150,
+      "spa": 30,
+      "spd": 150,
+      "spe": 100
+    },
+    "ability": 50,
+    "types": [
+      1,
+      1
+    ]
+  },
+  "enemy": {
+    "species": 264,
+    "level": 50,
+    "moves": [
+      "Extreme Speed",
+      "Bite",
+      "Splash",
+      "Tackle"
+    ],
+    "stats": {
+      "hp": 70,
+      "atk": 100,
+      "def": 60,
+      "spa": 40,
+      "spd": 80,
+      "spe": 50
+    },
+    "ability": 50,
+    "types": [
+      0,
+      0
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Extreme Speed": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      31,
+      33,
+      34,
+      36
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 31,
+      "damage_to_b": 0,
+      "hp_a_after": 369,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 874,
+      "rng_after": "0xa443c370",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x3e0f097f",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 34,
+      "damage_to_b": 0,
+      "hp_a_after": 366,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x91ab58a4",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0xa866bf2d",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0xd598b6b8",
+      "resolved": true,
+      "ai_scores": [
+        119,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 34,
+      "damage_to_b": 0,
+      "hp_a_after": 366,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0xba166d80",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 33,
+      "damage_to_b": 0,
+      "hp_a_after": 367,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x37076582",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 33,
+      "damage_to_b": 0,
+      "hp_a_after": 367,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x78bc8744",
+      "resolved": true,
+      "ai_scores": [
+        119,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 34,
+      "damage_to_b": 0,
+      "hp_a_after": 366,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x20b4dafd",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x067acbfa",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x7e805b69",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 34,
+      "damage_to_b": 0,
+      "hp_a_after": 366,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0xc506f5dc",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x3ff879f5",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 34,
+      "damage_to_b": 0,
+      "hp_a_after": 366,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x91c3ec9f",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x093dc174",
+      "resolved": true,
+      "ai_scores": [
+        119,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 34,
+      "damage_to_b": 0,
+      "hp_a_after": 366,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x356d50e7",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x0f9add2a",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 31,
+      "damage_to_b": 0,
+      "hp_a_after": 369,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 874,
+      "rng_after": "0x74d0a798",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x2c27cba4",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Extreme Speed",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 33,
+      "damage_to_b": 0,
+      "hp_a_after": 367,
+      "hp_b_after": 70,
+      "sleep_turns_a": 0,
+      "frames": 875,
+      "rng_after": "0x2d04fe6d",
+      "resolved": true,
+      "ai_scores": [
+        117,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Extreme Speed": [
+      117,
+      119
+    ],
+    "Bite": [
+      100
+    ],
+    "Splash": [
+      81
+    ],
+    "Tackle": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

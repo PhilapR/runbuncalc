@@ -1,0 +1,577 @@
+{
+  "probe": "s10-toxic-neutral",
+  "protocol": "two-turn",
+  "description": "Poison: Muk's Toxic vs a poisonable Normal player; no Hex/Venoshock so the +2 branch cannot apply.",
+  "hypothesis": "AI_DOCS poisoning: Toxic 106 flat; Sludge Bomb 106/108",
+  "player": {
+    "species": 143,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      0,
+      0
+    ]
+  },
+  "enemy": {
+    "species": 89,
+    "level": 50,
+    "moves": [
+      "Toxic",
+      "Sludge Bomb",
+      "Splash",
+      "Tackle"
+    ],
+    "stats": {
+      "hp": 220,
+      "atk": 60,
+      "def": 90,
+      "spa": 70,
+      "spd": 90,
+      "spe": 50
+    },
+    "ability": 50,
+    "types": [
+      3,
+      3
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Toxic": 8,
+    "Sludge Bomb": 12
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      25,
+      45,
+      46,
+      48,
+      49,
+      51,
+      72,
+      96,
+      101
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Toxic",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 25,
+      "damage_to_b": 0,
+      "hp_a_after": 375,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1204,
+      "rng_after": "0x5c25c80d",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 101,
+      "damage_to_b": 0,
+      "hp_a_after": 299,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1211,
+      "rng_after": "0x2261390d",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0x88826f10",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Toxic",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 25,
+      "damage_to_b": 0,
+      "hp_a_after": 375,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1204,
+      "rng_after": "0x6a387d44",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Toxic",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 25,
+      "damage_to_b": 0,
+      "hp_a_after": 375,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1204,
+      "rng_after": "0x7f91bbd3",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Toxic",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 25,
+      "damage_to_b": 0,
+      "hp_a_after": 375,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1205,
+      "rng_after": "0xd30f328f",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Toxic",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 25,
+      "damage_to_b": 0,
+      "hp_a_after": 375,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1205,
+      "rng_after": "0x02230d49",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 48,
+      "damage_to_b": 0,
+      "hp_a_after": 352,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0xed017bb0",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Toxic",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 25,
+      "damage_to_b": 0,
+      "hp_a_after": 375,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1204,
+      "rng_after": "0x076dded4",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Toxic",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 25,
+      "damage_to_b": 0,
+      "hp_a_after": 375,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1205,
+      "rng_after": "0xd17329d5",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 72,
+      "damage_to_b": 0,
+      "hp_a_after": 328,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 832,
+      "rng_after": "0x3a3494c5",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 49,
+      "damage_to_b": 0,
+      "hp_a_after": 351,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 706,
+      "rng_after": "0x5c5ea12c",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 48,
+      "damage_to_b": 0,
+      "hp_a_after": 352,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0x4df2350f",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 101,
+      "damage_to_b": 0,
+      "hp_a_after": 299,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1210,
+      "rng_after": "0xb36fff2d",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 48,
+      "damage_to_b": 0,
+      "hp_a_after": 352,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0x34d82d06",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0x6575630f",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 51,
+      "damage_to_b": 0,
+      "hp_a_after": 349,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 706,
+      "rng_after": "0x342f536c",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Toxic",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 25,
+      "damage_to_b": 0,
+      "hp_a_after": 375,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1204,
+      "rng_after": "0x1835dd55",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 96,
+      "damage_to_b": 0,
+      "hp_a_after": 304,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 1210,
+      "rng_after": "0x1241346a",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Sludge Bomb",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 45,
+      "damage_to_b": 0,
+      "hp_a_after": 355,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0x53c3f789",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Toxic": [
+      106
+    ],
+    "Sludge Bomb": [
+      106,
+      108
+    ],
+    "Splash": [
+      81
+    ],
+    "Tackle": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

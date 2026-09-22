@@ -1,0 +1,572 @@
+{
+  "probe": "i5-all-immune-splash-wins",
+  "protocol": "two-turn",
+  "description": "Every attack is immune: Marowak's Earthquake, Bone Club and Drill Run all hit Steel/Flying Skarmory for 0. Splash (81) is then the highest score the AI holds.",
+  "hypothesis": "all three attacks 80, Splash 81 => Splash 20/20",
+  "player": {
+    "species": 227,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      8,
+      2
+    ]
+  },
+  "enemy": {
+    "species": 105,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Earthquake",
+      "Bone Club",
+      "Drill Run"
+    ],
+    "stats": {
+      "hp": 200,
+      "atk": 110,
+      "def": 110,
+      "spa": 50,
+      "spd": 90,
+      "spe": 50
+    },
+    "ability": 50,
+    "types": [
+      4,
+      4
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 0,
+  "n_seeds": 20,
+  "distribution": {
+    "Drill Run": 6,
+    "Bone Club": 9,
+    "Earthquake": 5
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      0
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Drill Run",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0xdeb3879d",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        88,
+        88
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0x9db35ae0",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0xdb5eda09",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        88,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0xfd0daae6",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Earthquake",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0x8373862d",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        88,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Drill Run",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0xef92a50b",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0xf7452eff",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        88,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Earthquake",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0xa08a1129",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        88,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0x8b72f4f6",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Earthquake",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0x7e4791d7",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        88,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Drill Run",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0xaa2857a0",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        88
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0xf3ad72a1",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Drill Run",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0xe19a61bc",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        88
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0xc7263080",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        88,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0x40e89519",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        88,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Earthquake",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0x1fc4a768",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Earthquake",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0x9a6218c7",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Drill Run",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0xf59b86e5",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        88
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Drill Run",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0xba1943df",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        88
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Bone Club",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 710,
+      "rng_after": "0xfd3ee326",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        86,
+        86,
+        86
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Splash": [
+      81
+    ],
+    "Earthquake": [
+      86,
+      88
+    ],
+    "Bone Club": [
+      86,
+      88
+    ],
+    "Drill Run": [
+      86,
+      88
+    ]
+  },
+  "scores_explain_all_choices": true
+}

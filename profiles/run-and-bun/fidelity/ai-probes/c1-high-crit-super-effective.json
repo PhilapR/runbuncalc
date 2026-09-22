@@ -1,0 +1,577 @@
+{
+  "probe": "c1-high-crit-super-effective",
+  "protocol": "two-turn",
+  "description": "High-crit and super effective: Banette's STAB Shadow Claw (2x on Psychic Alakazam) is the highest non-kill damage.",
+  "hypothesis": "AI_DOCS crit clause: Shadow Claw {106,107,108,109} (+1 50%)",
+  "player": {
+    "species": 65,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      14,
+      14
+    ]
+  },
+  "enemy": {
+    "species": 354,
+    "level": 50,
+    "moves": [
+      "Shadow Claw",
+      "Bite",
+      "Splash",
+      "Tackle"
+    ],
+    "stats": {
+      "hp": 200,
+      "atk": 100,
+      "def": 90,
+      "spa": 40,
+      "spd": 90,
+      "spe": 80
+    },
+    "ability": 50,
+    "types": [
+      7,
+      7
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Shadow Claw": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      102,
+      104,
+      108,
+      110,
+      114,
+      116,
+      152,
+      174
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 108,
+      "damage_to_b": 0,
+      "hp_a_after": 292,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 843,
+      "rng_after": "0xbef5bbf0",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 114,
+      "damage_to_b": 0,
+      "hp_a_after": 286,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 844,
+      "rng_after": "0x18384fff",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 108,
+      "damage_to_b": 0,
+      "hp_a_after": 292,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 843,
+      "rng_after": "0x412ed4aa",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 110,
+      "damage_to_b": 0,
+      "hp_a_after": 290,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 843,
+      "rng_after": "0x45cc8dcb",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 102,
+      "damage_to_b": 0,
+      "hp_a_after": 298,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 842,
+      "rng_after": "0xa489b414",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 102,
+      "damage_to_b": 0,
+      "hp_a_after": 298,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 842,
+      "rng_after": "0x677f1e5c",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 114,
+      "damage_to_b": 0,
+      "hp_a_after": 286,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 844,
+      "rng_after": "0x2dde2202",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 108,
+      "damage_to_b": 0,
+      "hp_a_after": 292,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 843,
+      "rng_after": "0x07dfba4a",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 174,
+      "damage_to_b": 0,
+      "hp_a_after": 226,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 975,
+      "rng_after": "0x32634c83",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 114,
+      "damage_to_b": 0,
+      "hp_a_after": 286,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 844,
+      "rng_after": "0x3d57f87a",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 102,
+      "damage_to_b": 0,
+      "hp_a_after": 298,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 842,
+      "rng_after": "0x1460d1b5",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 114,
+      "damage_to_b": 0,
+      "hp_a_after": 286,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 844,
+      "rng_after": "0x0c41865c",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 114,
+      "damage_to_b": 0,
+      "hp_a_after": 286,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 844,
+      "rng_after": "0xaa388c75",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 110,
+      "damage_to_b": 0,
+      "hp_a_after": 290,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 843,
+      "rng_after": "0x8088516d",
+      "resolved": true,
+      "ai_scores": [
+        108,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 104,
+      "damage_to_b": 0,
+      "hp_a_after": 296,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 842,
+      "rng_after": "0xa52d0310",
+      "resolved": true,
+      "ai_scores": [
+        109,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 116,
+      "damage_to_b": 0,
+      "hp_a_after": 284,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 844,
+      "rng_after": "0x7c11e767",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 114,
+      "damage_to_b": 0,
+      "hp_a_after": 286,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 844,
+      "rng_after": "0x08c169aa",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 152,
+      "damage_to_b": 0,
+      "hp_a_after": 248,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 972,
+      "rng_after": "0xee3b5e42",
+      "resolved": true,
+      "ai_scores": [
+        109,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 110,
+      "damage_to_b": 0,
+      "hp_a_after": 290,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 843,
+      "rng_after": "0x4f814faa",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Shadow Claw",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 108,
+      "damage_to_b": 0,
+      "hp_a_after": 292,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 843,
+      "rng_after": "0xf67eeb0b",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        100,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Shadow Claw": [
+      106,
+      107,
+      108,
+      109
+    ],
+    "Bite": [
+      100
+    ],
+    "Splash": [
+      81
+    ],
+    "Tackle": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

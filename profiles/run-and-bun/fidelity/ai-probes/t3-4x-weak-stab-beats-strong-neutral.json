@@ -1,0 +1,572 @@
+{
+  "probe": "t3-4x-weak-stab-beats-strong-neutral",
+  "protocol": "two-turn",
+  "description": "4x effectiveness: Manectric's Thunder Shock (40BP STAB, 4x on Water/Flying Gyarados) vs neutral non-STAB Strength (80BP) and Bite.",
+  "hypothesis": "Thunder Shock 106/108 despite the lowest base power; Strength and Bite 100",
+  "player": {
+    "species": 130,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      11,
+      2
+    ]
+  },
+  "enemy": {
+    "species": 310,
+    "level": 50,
+    "moves": [
+      "Strength",
+      "Thunder Shock",
+      "Splash",
+      "Bite"
+    ],
+    "stats": {
+      "hp": 200,
+      "atk": 110,
+      "def": 90,
+      "spa": 110,
+      "spd": 90,
+      "spe": 60
+    },
+    "ability": 50,
+    "types": [
+      13,
+      13
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Thunder Shock": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      132,
+      136,
+      144,
+      148,
+      204
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 136,
+      "damage_to_b": 0,
+      "hp_a_after": 264,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 1181,
+      "rng_after": "0x4535d563",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 148,
+      "damage_to_b": 0,
+      "hp_a_after": 252,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 881,
+      "rng_after": "0xb037f3d5",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 136,
+      "damage_to_b": 0,
+      "hp_a_after": 264,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 1075,
+      "rng_after": "0xa7721c91",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 132,
+      "damage_to_b": 0,
+      "hp_a_after": 268,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 879,
+      "rng_after": "0xc7894a3f",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 132,
+      "damage_to_b": 0,
+      "hp_a_after": 268,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 1181,
+      "rng_after": "0xfeddcc79",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 204,
+      "damage_to_b": 0,
+      "hp_a_after": 196,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 1012,
+      "rng_after": "0x6f301fcc",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 144,
+      "damage_to_b": 0,
+      "hp_a_after": 256,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 880,
+      "rng_after": "0x01b4c966",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 144,
+      "damage_to_b": 0,
+      "hp_a_after": 256,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 880,
+      "rng_after": "0x2d46f448",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 144,
+      "damage_to_b": 0,
+      "hp_a_after": 256,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 880,
+      "rng_after": "0x9c467611",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 144,
+      "damage_to_b": 0,
+      "hp_a_after": 256,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 880,
+      "rng_after": "0x5e5aa35e",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 136,
+      "damage_to_b": 0,
+      "hp_a_after": 264,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 879,
+      "rng_after": "0x441ae8db",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 136,
+      "damage_to_b": 0,
+      "hp_a_after": 264,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 879,
+      "rng_after": "0x9a17ca86",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 136,
+      "damage_to_b": 0,
+      "hp_a_after": 264,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 879,
+      "rng_after": "0x7ae3b247",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 148,
+      "damage_to_b": 0,
+      "hp_a_after": 252,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 881,
+      "rng_after": "0x490dadf5",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 132,
+      "damage_to_b": 0,
+      "hp_a_after": 268,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 879,
+      "rng_after": "0x58218fde",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 136,
+      "damage_to_b": 0,
+      "hp_a_after": 264,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 879,
+      "rng_after": "0xab1e6e89",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 132,
+      "damage_to_b": 0,
+      "hp_a_after": 268,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 879,
+      "rng_after": "0xdd957684",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 148,
+      "damage_to_b": 0,
+      "hp_a_after": 252,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 881,
+      "rng_after": "0x87c8fb80",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 148,
+      "damage_to_b": 0,
+      "hp_a_after": 252,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 881,
+      "rng_after": "0x615b6e52",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 136,
+      "damage_to_b": 0,
+      "hp_a_after": 264,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 879,
+      "rng_after": "0xb8891b7f",
+      "resolved": true,
+      "ai_scores": [
+        100,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Strength": [
+      100
+    ],
+    "Thunder Shock": [
+      106,
+      108
+    ],
+    "Splash": [
+      81
+    ],
+    "Bite": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

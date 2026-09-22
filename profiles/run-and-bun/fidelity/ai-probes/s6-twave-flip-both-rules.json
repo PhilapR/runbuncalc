@@ -1,0 +1,572 @@
+{
+  "probe": "s6-twave-flip-both-rules",
+  "protocol": "two-turn",
+  "description": "Paralysis flip under either rule: player spe 100, Pikachu spe 60 (25 and 50 both < 60).",
+  "hypothesis": "Thunder Wave 107/108 (+8, -1 50%)",
+  "player": {
+    "species": 143,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 100
+    },
+    "ability": 50,
+    "types": [
+      0,
+      0
+    ]
+  },
+  "enemy": {
+    "species": 25,
+    "level": 50,
+    "moves": [
+      "Thunder Wave",
+      "Thunder Shock",
+      "Splash",
+      "Tackle"
+    ],
+    "stats": {
+      "hp": 180,
+      "atk": 40,
+      "def": 90,
+      "spa": 60,
+      "spd": 90,
+      "spe": 60
+    },
+    "ability": 50,
+    "types": [
+      13,
+      13
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Thunder Shock": 2,
+    "Thunder Wave": 18
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      0,
+      19,
+      21
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 21,
+      "damage_to_b": 0,
+      "hp_a_after": 379,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0x69dc6de0",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0xb4c9e0c2",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x279a1c73",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0xca3a9878",
+      "resolved": true,
+      "ai_scores": [
+        108,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x042a96b7",
+      "resolved": true,
+      "ai_scores": [
+        108,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0xc6117f5f",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x19382c99",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x9cfdf493",
+      "resolved": true,
+      "ai_scores": [
+        108,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x51dbc708",
+      "resolved": true,
+      "ai_scores": [
+        108,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x3564b431",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Thunder Shock",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 19,
+      "damage_to_b": 0,
+      "hp_a_after": 381,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0x0f052ad7",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x6443b7cb",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x848ff520",
+      "resolved": true,
+      "ai_scores": [
+        108,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x34406b62",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0xa5608403",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x0a97bb8a",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0xb2571ea1",
+      "resolved": true,
+      "ai_scores": [
+        108,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0xf48aead9",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x742aa373",
+      "resolved": true,
+      "ai_scores": [
+        108,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Thunder Wave",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 939,
+      "rng_after": "0x3c4fe2b8",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Thunder Wave": [
+      107,
+      108
+    ],
+    "Thunder Shock": [
+      106,
+      108
+    ],
+    "Splash": [
+      81
+    ],
+    "Tackle": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

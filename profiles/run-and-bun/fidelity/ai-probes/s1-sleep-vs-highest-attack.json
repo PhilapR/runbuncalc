@@ -1,0 +1,580 @@
+{
+  "probe": "s1-sleep-vs-highest-attack",
+  "protocol": "two-turn",
+  "description": "Sleep vs best attack on new species: Gengar's Hypnosis vs Shadow Ball (highest, non-kill) and a weak Tackle on a Fighting player that can be slept.",
+  "hypothesis": "AI_DOCS sleep: Hypnosis 106/107 (+7 25%); Shadow Ball 106/108; choice mixes the two",
+  "player": {
+    "species": 68,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      1,
+      1
+    ]
+  },
+  "enemy": {
+    "species": 94,
+    "level": 50,
+    "moves": [
+      "Hypnosis",
+      "Shadow Ball",
+      "Splash",
+      "Tackle"
+    ],
+    "stats": {
+      "hp": 200,
+      "atk": 40,
+      "def": 90,
+      "spa": 110,
+      "spd": 90,
+      "spe": 110
+    },
+    "ability": 50,
+    "types": [
+      7,
+      3
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Shadow Ball": 13,
+    "Hypnosis": 7
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      0,
+      63,
+      64,
+      66,
+      69,
+      70,
+      73,
+      99,
+      100
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0,
+      1,
+      3
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 100,
+      "damage_to_b": 0,
+      "hp_a_after": 300,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 832,
+      "rng_after": "0x7892b86c",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 73,
+      "damage_to_b": 0,
+      "hp_a_after": 327,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 705,
+      "rng_after": "0x4ba7bc0b",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 99,
+      "damage_to_b": 0,
+      "hp_a_after": 301,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 832,
+      "rng_after": "0xb655f6bc",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 70,
+      "damage_to_b": 0,
+      "hp_a_after": 330,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 959,
+      "rng_after": "0x2757c4a5",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 69,
+      "damage_to_b": 0,
+      "hp_a_after": 331,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 704,
+      "rng_after": "0x5a8e0b3a",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 69,
+      "damage_to_b": 0,
+      "hp_a_after": 331,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 959,
+      "rng_after": "0xa756f87e",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Hypnosis",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 3,
+      "frames": 808,
+      "rng_after": "0x68a43561",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 70,
+      "damage_to_b": 0,
+      "hp_a_after": 330,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 704,
+      "rng_after": "0x1668e05c",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Hypnosis",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 3,
+      "frames": 808,
+      "rng_after": "0xff1ce91a",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 66,
+      "damage_to_b": 0,
+      "hp_a_after": 334,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 704,
+      "rng_after": "0x663c2b52",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 64,
+      "damage_to_b": 0,
+      "hp_a_after": 336,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 959,
+      "rng_after": "0xd4368b5f",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 64,
+      "damage_to_b": 0,
+      "hp_a_after": 336,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 703,
+      "rng_after": "0xd68c3afa",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 63,
+      "damage_to_b": 0,
+      "hp_a_after": 337,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 703,
+      "rng_after": "0x0962568b",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 70,
+      "damage_to_b": 0,
+      "hp_a_after": 330,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 704,
+      "rng_after": "0x1e6ce8d7",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Hypnosis",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 3,
+      "frames": 808,
+      "rng_after": "0xa02f9d0b",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Hypnosis",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 1,
+      "frames": 808,
+      "rng_after": "0xf7fc25f2",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Shadow Ball",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 64,
+      "damage_to_b": 0,
+      "hp_a_after": 336,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 959,
+      "rng_after": "0x0b103082",
+      "resolved": true,
+      "ai_scores": [
+        107,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Hypnosis",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 3,
+      "frames": 808,
+      "rng_after": "0x47e69ba1",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Hypnosis",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 1,
+      "frames": 808,
+      "rng_after": "0x1d74327b",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Hypnosis",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 690,
+      "rng_after": "0x509ffd45",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Hypnosis": [
+      106,
+      107
+    ],
+    "Shadow Ball": [
+      106,
+      108
+    ],
+    "Splash": [
+      81
+    ],
+    "Tackle": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}
