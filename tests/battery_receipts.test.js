@@ -451,7 +451,10 @@ test('a charged move released after its target switched out hits the replacement
 	// Triathlete Jacob, held-out, seed 3, under the re-pick arm with real PP:
 	// Sawsbuck's Bounce went up at Walrein, we switched to Empoleon on turn 6,
 	// and the release was refused ("Damage references a non-target of the
-	// move") and turned into a lost turn. The same fight, played now.
+	// move") and turned into a lost turn. The same fight, played now — on
+	// seed 12: after the enemy AI's scoring was ported to the ROM probes
+	// (2026-09-22) seed 3 no longer has Sawsbuck bounce, and the path under
+	// test is the turn, not the seed, so the check finds it on any turn.
 	const driverModule = require('../lib/battle-driver.js');
 	// The fight as the re-pick arm measured it: the ranker's first six.
 	const argv = ['--switch-priced=0', '--repick-party=1', '--pp-model=1', '--pick-by-play=0',
@@ -460,14 +463,14 @@ test('a charged move released after its target switched out hits the replacement
 	const scenario = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'scenarios', 'heldout.json'),
 		'utf8')).scenarios.find(entry => entry.name === 'Triathlete Jacob @73');
 	let played;
-	const turn6 = [];
+	const byTurn = {};
 	withArgv(argv, () => {
 		delete require.cache[key];
 		const armed = require('../scripts/ui-playthrough.js');
 		const act = driverModule.act;
 		driverModule.act = (battle, action) => {
 			const reply = act(battle, action);
-			if (battle.state.turn === 6) turn6.push(...(reply.events || []).map(event => event.text));
+			(byTurn[battle.state.turn] = byTurn[battle.state.turn] || []).push(...(reply.events || []).map(event => event.text));
 			return reply;
 		};
 		try {
@@ -475,7 +478,7 @@ test('a charged move released after its target switched out hits the replacement
 			driverModule.setSwitchPricing(false);
 			const doc = battery.prepareDocument(battery.requireScale(battery.loadDocument(scenario.report)),
 				scenario.trainer).doc;
-			played = battery.playScenario(armed, doc, scenario.trainer, 3);
+			played = battery.playScenario(armed, doc, scenario.trainer, 12);
 		} finally {
 			driverModule.act = act;
 			driverModule.setPPModel(false);
@@ -483,10 +486,14 @@ test('a charged move released after its target switched out hits the replacement
 			delete require.cache[key];
 		}
 	});
-	assert.equal(played.engineRefusals, 0, 'no refusal anywhere in the fight: ' + turn6.join(' | '));
-	assert.ok(turn6.some(text => /Empoleon was sent out/.test(text)), 'the switch happens: ' + turn6.join(' | '));
-	assert.ok(turn6.some(text => /Foe Sawsbuck used Bounce\. \(\d+% to Empoleon\)/.test(text)),
-		'and the Bounce lands on Empoleon: ' + turn6.join(' | '));
+	const all = Object.keys(byTurn).map(turn => 'T' + turn + ': ' + byTurn[turn].join(' | ')).join(' || ');
+	assert.equal(played.engineRefusals, 0, 'no refusal anywhere in the fight: ' + all);
+	// A turn where we switch and the released Bounce lands on the body that came in.
+	const released = Object.keys(byTurn).filter(turn => byTurn[turn].some(text => {
+		const hit = /^Foe Sawsbuck used Bounce\. \(\d+% to (.+)\)$/.exec(text);
+		return hit && byTurn[turn].some(other => other === hit[1] + ' was sent out.');
+	}));
+	assert.ok(released.length > 0, 'the Bounce is released onto the body switched in: ' + all);
 });
 
 test('pick-by-play chooses among the ranker\'s sixes on selection seeds the grade never uses', () => {
