@@ -2328,6 +2328,20 @@
 			"verdict": "confirmed",
 			"status": "open",
 			"evidence": "Fixing the condition alone worsens p0's TVD unless the rate is also changed; left for a probe that separates the two."
+		},
+		{
+			"id": "download-direction-backwards",
+			"source": "rom-probes/2026-09-22",
+			"raised_on": "2026-09-22",
+			"severity": "medium",
+			"area": "engine",
+			"file": "ai/src/entry-hazards.ts",
+			"claim": "Download raised Special Attack when the foe's Defense was lower (and Attack on a tie); the ROM raises Attack when Defense is lower and Special Attack otherwise, ties included.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "5f128f3",
+			"falsified": 1,
+			"evidence": "pokemon-mono P2 receipt 20260922T232543Z-entry-probe: Def 200/SpD 50 -> SpA; Def 50/SpD 200 -> Atk; 100/100 -> SpA. Introduced in e6399d2, pinned by 6e5e22e. Guard: ai/src/test/lead-entries.test.ts, falsified by hand."
 		}
 	]
 }
