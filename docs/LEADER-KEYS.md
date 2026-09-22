@@ -353,6 +353,8 @@ Absorb, Storm Drain or Dry Skin); covering sixes; the short lookahead as built
 
 Next, and unbuilt: price a switch by PLAYING it — stay, or each bench body in,
 played forward on the engine with decide() continuing, until this foe falls
-or two of ours do — and compare bodies lost. The foe's reply is known (the AI
-chose the same move 40 of 40 times at 162 positions), so this is cheap and
-nearly exact where the race formula is neither.
+or two of ours do — and compare bodies lost. The foe's reply is SAMPLED from its own AI, not
+known — the determinism claim once written here is void (PERFORMANCE.md,
+2026-09-21) — but a Choice-locked foe like Dracovish is genuinely locked, which
+is the case this switch turns on. Built and measured 2026-09-21: REJECTED, net
+-7 over five boxes (PERFORMANCE.md).

@@ -713,3 +713,43 @@ test('the planner sees a Mega: a stone holder, or a body whose stone is in the b
 	assert.ok(plan, 'a plan was made: ' + JSON.stringify(row.ledger.map(entry => entry.result)));
 	assert.ok(plan.proposed.some(name => /-Mega$/.test(name)), 'a Mega form is among what the board proposed: ' + plan.proposed.join(', '));
 });
+
+test('the story gifts are claimed when the road reaches them — the egg, Castform, and Kubfu', () => {
+	// A gift is a scripted event, not an encounter roll, so a run that only
+	// rolled wild routes never owned one: across every record on disk, zero
+	// Kubfu, zero Castform, zero starter egg. Kubfu arrives 24 fights before
+	// Leader Tate and evolves into an Urshifu.
+	const runtime = require('../lib/run.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1b-731001-matt.run.json'), 'utf8'));
+	const dice = headless.dice(9);
+	const early = headless.claimGifts(Object.assign(structuredClone(saved), {position: 600}), dice, {});
+	assert.deepEqual(early.box.filter(mon => /Castform|Kubfu/.test(mon.species)), [], 'at 600 only the egg is open');
+	assert.ok(early.box.some(mon => /Treecko|Torchic|Mudkip/.test(mon.species)), 'and the egg is one of the three Hoenn starters');
+
+	const tally = {};
+	const late = headless.claimGifts(Object.assign(structuredClone(saved), {position: 1200}), headless.dice(9), tally);
+	assert.deepEqual(tally.gifted.map(gift => gift.where),
+		['Lavaridge Town', 'Weather Institute (Route 119)', 'Mossdeep City']);
+	const kubfu = late.box.find(mon => mon.species === 'Kubfu');
+	assert.ok(kubfu && kubfu.level === 1, 'it arrives at level 1: levelling to the cap is free, so 1 cannot overstate the gift');
+	assert.equal(late.log[late.log.length - 1].command.gift, 'Mossdeep City@1125', 'the log marks it a gift, so it is taken once');
+	// Claimed twice is claimed once.
+	const again = headless.claimGifts(late, headless.dice(9), {});
+	assert.equal(again.box.filter(mon => mon.species === 'Kubfu').length, 1);
+	// And levelled to the cap it becomes an Urshifu.
+	const grown = runtime.apply(late, {kind: 'levelUp', id: kubfu.id, to: 'cap'});
+	assert.equal(require('../lib/dossier').evolveMon(runtime.findMon(grown, kubfu.id), runtime.levelCap(grown).cap), 'Urshifu');
+
+	// And the switch is real, through the run that reads it: this document
+	// stands at 1055, past the egg (571) and Castform (701).
+	const policy = require('../scripts/ui-playthrough.js');
+	const play = flags => headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 731001,
+		headless.armFlags('--budget=1 --boss-retries=1 --probe=0 --search-after=0 --plan-after=0 --repick-after=0 --fight-logs=none ' + flags),
+		{resume: saved, keepDoc: true});
+	const on = play('');
+	assert.ok(on.gifted.length >= 2 && on.doc.log.some(entry => entry.command.gift), 'by default a run takes them: ' + JSON.stringify(on.gifted));
+	const off = play('--gifts=0');
+	assert.deepEqual(off.gifted, [], '--gifts=0 plays without them');
+	assert.ok(!off.doc.log.some(entry => entry.command.gift));
+});

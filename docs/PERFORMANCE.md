@@ -334,11 +334,22 @@ Why it was built: over 7,603 searched turns the playout search's best option
 beat its second by a median of 0.010 (under 0.02 on two turns in three), each
 value the mean of 8 playouts; in 63% of turns no option won a playout, so a
 value is 0.3 x their HP removed after a sixty-turn fight our side plays by
-greedyChoice. And the foe is predictable: asked forty times with different
-dice at 162 positions across three late walls, the trainer AI chose the same
-move every time, at every position.
+greedyChoice. And the foe was believed predictable: asked forty times with
+different dice at 162 positions across three late walls, the trainer AI chose
+the same move every time, at every position.
 
-What it is: every option one turn deep against their real reply, only the
+**CORRECTED 2026-09-21: that claim is void.** ai.chooseStateAction samples its
+scores with the rng and is not deterministic — asked 40 times with different
+dice it split at 5 of 12 Elite Four Sidney positions and at every early
+position tried. The measuring script read `action.move`, which is undefined
+(the field is `action.moveName`), and fell back to `action.kind` — the string
+'move' for every move — so all 40 samples compared equal by construction.
+Found by the rab-workspace session and confirmed here. A short exact search
+still gets a reply the foe would really consider, which beats greedyChoice,
+but not the certainty claimed. The verdict below is unaffected: it was
+decided by play.
+
+What it is: every option one turn deep against their sampled reply, only the
 contenders (within 0.05) a turn deeper, siblings on shared dice; leaf = the
 material lead. One decision: 0.2 s against 8-12 s for search-8, and the top
 option leads by 0.057 where playouts showed 0.010.
@@ -372,7 +383,9 @@ ten turns pass; a line is worth what it did to this foe minus the bodies it
 cost, and a switch is taken only if it beats staying by 0.4. Built because
 the priced switch (pessimal, and no better priced fairly or as odds) sent
 Kingdra in third against a Choice-locked Dracovish it walls (LEADER-KEYS,
-Aqua Admin Matt).
+Aqua Admin Matt). Its rationale also cited the foe being predictable, which is
+void as above — though a Choice-locked foe really is locked, which is the case
+this switch turned on.
 
 Bar, declared before the run: five boxes it was not found on, 30 fresh seeds
 each (7101–7130), on against off; a candidate only at net +5 wins with no box

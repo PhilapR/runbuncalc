@@ -79,6 +79,8 @@ const KNOB_FLAGS = {
 	prizeAt: ['prize-at', 'stuck', String],
 	prizeStuck: ['prize-stuck', '6', Number],
 	evolveItems: ['evolve-items', '1', value => value === '1'],
+	// The story gifts (the Lavaridge egg, Castform, Kubfu), claimed when the road reaches them.
+	gifts: ['gifts', '1', Number],
 	fillSlots: ['fill-slots', '1', value => value === '1'],
 	// A run that only needs to answer "does it pass this wall" stops once the
 	// road is past that order, instead of playing on for hours.
@@ -316,6 +318,51 @@ function sweepCatches(doc, caughtFrom, random, treatment, tally) {
  * suggest and nothing here has measured. The dupes clause re-rolls within
  * the tier, as a player re-rolls a dupe.
  */
+
+/**
+ * THE STORY GIFTS, claimed when the road reaches them.
+ *
+ * A gift is a scripted event, not an encounter-table roll: the run rolled
+ * wild routes and nothing else, so the egg at Lavaridge (571), Castform at
+ * the Weather Institute (701) and KUBFU at Mossdeep (1125) were never owned
+ * by any run there has ever been — checked across every record on disk:
+ * zero. Kubfu arrives 24 fights before Leader Tate and evolves at level 50
+ * into an Urshifu, and no run has ever held one.
+ *
+ * Claimed once each, at the earliest position the workbook can be dated to,
+ * at LEVEL 1: levelling to the cap is free, so the arrival level only
+ * matters if it is above the cap, and 1 is the one number that cannot
+ * overstate what a run was given. The dupes clause applies as it does to a
+ * catch. A gift does NOT consume its area's wild encounter — it is not an
+ * encounter — which is a ruling Philip has not made; it is raised as an open
+ * question and --gifts=0 plays without them.
+ */
+function claimGifts(doc, random, tally) {
+	const profile = require('../profiles').getProfile(doc.profileId);
+	if (!knobs.gifts || !profile.oracle.gifts) return doc;
+	const taken = new Set((doc.log || []).map(entry => entry.command.gift).filter(Boolean));
+	const rules = run.encounterRules(doc);
+	for (const gift of profile.oracle.gifts()) {
+		if (gift.opensAt === null || doc.position < gift.opensAt) continue;
+		const at = gift.where + '@' + gift.opensAt;
+		if (taken.has(at)) continue;
+		// One of a set (the starter egg) is rolled as the game rolls it.
+		const lines = new Set(doc.box.map(mon => run.dupeKey(rules.dupes, profile, mon.species)));
+		const options = (gift.options || [gift.species]).filter(Boolean).filter(species => {
+			const key = run.dupeKey(rules.dupes, profile, species);
+			return key === null || !lines.has(key);
+		});
+		if (!options.length) continue;
+		const species = options[Math.floor(random() * options.length)];
+		try {
+			doc = run.apply(doc, Object.assign({kind: 'catch', species, level: 1, gift: at,
+				nickname: nameFor(doc, species)}, run.rollIdentity(species, random)));
+			tally.gifts = (tally.gifts || 0) + 1;
+			tally.gifted = (tally.gifted || []).concat([{species, where: gift.where, at: doc.position}]);
+		} catch (error) { /* refused: the run goes on without it */ }
+	}
+	return doc;
+}
 
 function claimPrizes(doc, random, tally, attempts) {
 	const profile = require('../profiles').getProfile(doc.profileId);
@@ -1366,6 +1413,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			break;
 		}
 		doc = sweepCatches(doc, caughtFrom, random, treatment, tally);
+		doc = claimGifts(doc, random, tally);
 		doc = claimPrizes(doc, random, tally, attempts);
 		doc = sweepItems(doc, tally);
 		const shape = doc.box.length + '|' + JSON.stringify(doc.bag) + '|' + doc.position;
@@ -1562,6 +1610,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		catches: tally.catches, keyRolls: tally.keyRolls,
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
 		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, plans: tally.plans || [],
+		gifts: tally.gifts || 0, gifted: tally.gifted || [],
 		// Fights played in the run's head, by kind: never attempts, never free.
 		scouted: tally.scouted || {probe: 0, repick: 0, plan: 0}, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
@@ -1662,4 +1711,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {planByPlay, playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {planByPlay, claimGifts, playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};

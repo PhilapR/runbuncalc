@@ -155,6 +155,16 @@ function prizeTiers() {
 		{options: tier.options.slice()}));
 }
 
+/**
+ * The story GIFTS, `[{species|null, options?, what?, where, opensAt, note}]`.
+ * Scripted events, not encounter-table rolls, so the run claims them by
+ * position rather than by rolling a route.
+ */
+function gifts() {
+	return sourcesData.gifts.map(gift => Object.assign({}, gift,
+		gift.options ? {options: gift.options.slice()} : {}));
+}
+
 /** Non-wild sources for a species, or an empty list. */
 function nonWildSources(species) {
 	return (NON_WILD.get(species) || []).slice();
@@ -977,7 +987,7 @@ module.exports = {
 	moveAvailability, moveItems,
 	currencySources,
 	fightFieldOf, itemsObtainableBy, fieldItems, shopItems,
-	evolutionsOf, preEvolutionOf, lineageOf, familyOf, moveTutors, tutorTeaches, tutorOpensAt, tmFor,
+	evolutionsOf, preEvolutionOf, lineageOf, familyOf, gifts, moveTutors, tutorTeaches, tutorOpensAt, tmFor,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp, catchRateOf,
 	coverage, LIMITS,

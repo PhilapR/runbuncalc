@@ -552,6 +552,12 @@
 			"question": "Every TM and tutor is now dated from Run & Bun's own sources (scripts/build-item-locations.js moveDates, read by oracle.moveItems for rows availability.json leaves undated) except ONE: TM30 Earth Power, \"Given by an NPC at Fossil Maniac's house\". No hack source places that house, so it stays undated and teachable at any order once the TM is held. Where is it? Two more for a look, where the TM ledger that stands is EARLIER than the builder: Feint Attack 14 v 93 (the Floral Shop is in Route 104's north half), Hyper Voice 211 v 287 and Night Shade 211 v 235 (both \"requires a Bike\").",
 			"raised": "2026-09-21",
 			"settledBy": "operator ruling"
+		},
+		{
+			"id": "do-gifts-consume-an-area-encounter",
+			"question": "The story gifts are now claimed by the run (--gifts=1: the Lavaridge egg at 571, Castform at 701, Kubfu at 1125; scripts/headless-run.js claimGifts). A gift is a scripted event, not an encounter-table roll, so the run does NOT count it against its area's wild encounter, and does apply the dupes clause. Is that the rule you play by? The alternative — a gift spends the encounter for Lavaridge, Route 119 and Mossdeep — costs three wild catches and is what some nuzlocke rulesets require. Also unwired and waiting on the same answer: the three trades (they consume a body we own), the fossils, and the seven roaming legendaries (undated, gated on the Sootopolis story event, so late and cheap to leave).",
+			"raised": "2026-09-21",
+			"settledBy": "operator ruling"
 		}
 	]
 }
