@@ -829,7 +829,12 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search', 'search-widen', 'search-keep', 'search-halving', 'search-path'];
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search', 'search-widen', 'search-keep', 'search-halving', 'search-path',
+	// Declared so the unread-flag audit lets an arm pass them: it refused four
+	// treatment arms outright rather than run them as a silent control, which is
+	// what that guard is for. search-lookahead and switch-played were measured
+	// by calling the module directly and so never met it.
+	'search-lookahead', 'switch-played', 'enemy-switch-scoring'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
