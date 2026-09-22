@@ -1899,6 +1899,87 @@
 			"evidence": "Read at lib/battle-driver.js settleAiSide and ai/src/actions.ts enumerateForcedSwitchActions. Measured over every logged fight on disk (1,328 fights with a foe send-out): 1,240 followed the fight data's party order exactly and 88 deviated, all of them singles (e.g. Leader Brawly sent Lopunny where party order gives Hitmontop; Aqua Admin Shelly sent Darmanitan-Galar before Slowbro-Mega). So the send-out is the BATTLE STATE's enumeration order, which is usually but not always the fight data's party order — and in neither case is it a choice. MEASURED on the declared fidelity bar (docs/PERFORMANCE.md, receipts scenarios/receipts/esw-*): heldout1 +1.9pp (11 gained, 6 lost, p=0.33, noise); heldout2 -3.4pp (21 gained, 71 lost, p<0.001). Zero engine refusals and zero stuck fights across 3,480 fights, so the run still plays and it is adopted as the baseline. Flip fraction 0.6% and 6.2%, under the third that would re-open every lever — but search-keep was adopted on a margin small enough that 6% matters and should be re-measured.",
 			"fixed_in": "9eea9c6",
 			"falsified": "tests/battle-driver.test.js: the regression fails under first-entry selection (at Elite Four Sidney enumeration sends Necrozma, score 1; the rule sends Nidoking, score 3) and covers a genuine tie (Nidoking and Gyarados-Mega both 3, party order takes Nidoking). --enemy-switch-scoring=0 restores the old behaviour and is asserted too."
+		},
+		{
+			"id": "gen8-intimidate-blockers-missing",
+			"source": "fidelity/openings-sweep",
+			"raised_on": "2026-09-22",
+			"severity": "medium",
+			"area": "engine",
+			"file": "ai/src/entry-hazards.ts",
+			"claim": "Oblivious, Own Tempo and Scrappy did not block Intimidate; only Inner Focus of the Gen 8 additions was modelled. 17 foe leads, and our Mamoswine in all 22 fights opening with a foe Intimidate, took an Attack drop they are immune to.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "c381374",
+			"falsified": 1,
+			"evidence": "Rule: Mechanic Changes.txt (the hack's official docs) \"For any mechanic that's not described in here, assume Generation 8 mechanics\"; the doc does not describe Intimidate. Guard: tests/fidelity_openings.test.js; blockers reduced to Inner Focus -> 15 foe leads wrong (FALSIFIED, reproduced by the coordinator)."
+		},
+		{
+			"id": "rattled-ignores-intimidate",
+			"source": "fidelity/openings-sweep",
+			"raised_on": "2026-09-22",
+			"severity": "low",
+			"area": "engine",
+			"file": "ai/src/entry-hazards.ts",
+			"claim": "Rattled gained no Speed from Intimidate (a Gen 8 rule). 2 foe leads.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "c381374",
+			"falsified": 1,
+			"evidence": "Rule: Mechanic Changes.txt, Gen 8 default. Guard: tests/fidelity_openings.test.js; Rattled branch disabled -> 2 wrong."
+		},
+		{
+			"id": "white-herb-entry-inverts-drop",
+			"source": "fidelity/openings-sweep",
+			"raised_on": "2026-09-22",
+			"severity": "medium",
+			"area": "engine",
+			"file": "ai/src/entry-hazards.ts",
+			"claim": "applyWhiteHerbEntry wrote the reversed drop as an absolute stage map, which replaces the holder's boosts, so a White Herb holder Intimidated on entry ended at +1 Attack instead of 0. All 5 White Herb foe leads.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "c381374",
+			"falsified": 1,
+			"evidence": "Guard: tests/fidelity_openings.test.js; old formula restored -> 5 wrong."
+		},
+		{
+			"id": "room-service-unmodelled",
+			"source": "fidelity/openings-sweep",
+			"raised_on": "2026-09-22",
+			"severity": "low",
+			"area": "engine",
+			"file": "ai/src",
+			"claim": "Room Service has no implementation in ai/src. 5 foe bench holders (Hiker Brice's Solrock and Lunatone, Garrison & Jani's Gallade and Gardevoir, Glacia's Kyurem-Black) never take the -1 Speed under Trick Room. The case that matters, Trick Room set while the holder stands, is in move resolution.",
+			"verdict": "confirmed",
+			"status": "open"
+		},
+		{
+			"id": "lead-entry-abilities-never-fired",
+			"source": "review/wallace-wall",
+			"raised_on": "2026-09-22",
+			"severity": "critical",
+			"area": "engine",
+			"file": "lib/planner.js",
+			"claim": "A battle state was built with its leads standing and entry effects ran only on a switch, so no lead's entry ability ever fired: no Intimidate, no ability weather, no surge terrain; 74 of 366 fights opened wrong. Primordial Sea, Desolate Land and Delta Stream were never implemented.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "8cc3ece",
+			"falsified": 1,
+			"evidence": "Found reading Wallace tapes: Primal Kyogre's Thunder missed, which rain forbids. Guards: tests/planner.test.js and tests/fidelity_openings.test.js (lead entries removed -> 74 fights wrong)."
+		},
+		{
+			"id": "download-unmodelled",
+			"source": "fidelity/openings-sweep",
+			"raised_on": "2026-09-22",
+			"severity": "medium",
+			"area": "engine",
+			"file": "ai/src/entry-hazards.ts",
+			"claim": "Download was not implemented on entry or at the start; four trainers lead with it.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "e6399d2",
+			"falsified": 1,
+			"evidence": "Guard: tests/fidelity_openings.test.js; Download disabled -> 4 fights wrong."
 		}
 	]
 }
