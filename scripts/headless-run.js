@@ -105,6 +105,10 @@ const KNOB_FLAGS = {
 	// takes Primal Kyogre with Power Whip before Ice Beam can.
 	leadFor: ['lead-for', null, String],
 	planSeeds: ['plan-seeds', '12', Number],
+	// The plan proposes HELD ITEMS as well as bodies and order (docs/PLAN.md 2.1): a Focus Sash,
+	// Choice Scarf or Choice item onto the lead, a gem or a resist berry onto the body the board
+	// reads as one hit short. A policy change, so OFF until it passes the held-out wall bar.
+	planItems: ['plan-items', '0', value => value === '1'],
 	searchAfter: ['search-after', '0', Number],
 	searchRollouts: ['search-rollouts', '4', Number],
 	doublesPrep: ['doubles-prep', '1', value => value === '1'],
@@ -508,6 +512,11 @@ function levelToCap(doc, tally) {
 		// the ranker rightly never fielded it. The game evolves on the level
 		// and learns the rest as the evolved form. The Lavaridge egg's Mudkip
 		// had the same defect twice over (16 and 36).
+		// A body ALREADY at or past its evolution level (a Magikarp caught at
+		// 40) evolves first: the stages below only look above its level, so it
+		// was levelled to the cap as a Magikarp and became a Gyarados knowing
+		// Splash, Tackle and Flail.
+		doc = evolveByLevel(doc, tally, mon.id);
 		for (let stage = 0; stage < 4; stage++) {
 			const current = doc.box.find(entry => entry.id === mon.id);
 			const step = (evolutions[current.species] || []).filter(path => path.method === 'level' &&
@@ -869,8 +878,31 @@ function spendScales(doc, tally) {
 	return doc;
 }
 
-/** Teach and (treatment) scale-spend from the same advice the panel shows. */
-function followAdvice(doc, treatment, tally, forgotten) {
+/**
+ * The bodies whose held item a HELD plan placed (its record's `held`, as
+ * Species@Item), so advice between attempts cannot hand them another:
+ * planHolds kept the plan's six, and followAdvice still ran whenever the box
+ * or bag changed, and its "Colbur Berry over Focus Sash" undid the Focus Sash
+ * lead the planner had just taken by play at Champion Wallace.
+ */
+function plannedHolders(doc, tally) {
+	const plans = (tally && tally.plans) || [];
+	const last = plans[plans.length - 1];
+	const keep = new Set();
+	for (const label of (last && last.held) || []) {
+		const at = label.lastIndexOf('@');
+		const mon = doc.party.map(id => run.findMon(doc, id)).find(entry => entry && !keep.has(entry.id) &&
+			entry.species === label.slice(0, at) && entry.item === label.slice(at + 1));
+		if (mon) keep.add(mon.id);
+	}
+	return keep;
+}
+
+/**
+ * Teach and (treatment) scale-spend from the same advice the panel shows.
+ * `keep` (plannedHolders) names bodies whose item is not the advice's to change.
+ */
+function followAdvice(doc, treatment, tally, forgotten, keep) {
 	// The marts first: a stone the bag holds is an evolve row the advisor
 	// can price. One buy per row, receipts in the log.
 	if (treatment.keyEvolve) {
@@ -900,7 +932,7 @@ function followAdvice(doc, treatment, tally, forgotten) {
 			entry.kind === 'teach' ||
 			(entry.kind === 'heartScale' && treatment.keyScales) ||
 			(entry.kind === 'evolve' && treatment.keyEvolve) ||
-			entry.kind === 'give'));
+			(entry.kind === 'give' && !(keep && keep.has(entry.id)))));
 		if (!row) return doc;
 		refused.add(row.kind + '|' + row.id + '|' + row.detail);
 		try {
@@ -980,28 +1012,55 @@ const MEGA_FILLERS = ['Oran Berry', 'Sitrus Berry', 'Lum Berry', 'Pecha Berry', 
  * the fight so no later step undoes it. The item is taken from whoever holds
  * it; a body not in the six replaces the last member that does not hold a
  * Mega Stone, so the run's one Mega is kept.
+ *
+ * A pin that cannot apply (the body is dead or absent, the item is nowhere
+ * to be had) is MISSED, not thrown: it ran inside the fight's try, so a throw
+ * was recorded as a crashed loss, spent an attempt, and burned every retry
+ * until the run stopped at a "wall" it never fought. The policy's own lead
+ * plays instead, and tally.leadPinMissed says why.
  */
 function pinLead(doc, tally, next) {
 	// A spec is a space-separated flag string, so a space in the value is written '+'.
 	const pin = /^(.+):([^@]+)@(.+)$/.exec(String(knobs.leadFor || '').replace(/\+/g, ' '));
 	if (!pin || pin[1] !== next.trainer) return doc;
-	const species = pin[2];
-	const item = pin[3];
+	try {
+		return applyPin(doc, tally, next.trainer, pin[2], pin[3]);
+	} catch (error) {
+		const reason = String(error && error.message).slice(0, 200);
+		const missed = tally.leadPinMissed = tally.leadPinMissed || [];
+		const same = missed.find(entry => entry.trainer === next.trainer && entry.reason === reason);
+		if (same) same.times += 1;
+		else missed.push({trainer: next.trainer, species: pin[2], item: pin[3], reason, times: 1});
+		return doc;
+	}
+}
+
+function applyPin(doc, tally, trainer, species, item) {
+	const megaIn = at => at.party.map(id => run.findMon(at, id)).find(entry => entry && run.megaFormOf(entry.species, entry.item)) || null;
+	const megaBefore = megaIn(doc);
 	const mon = doc.box.find(entry => entry.status !== 'dead' && entry.species === species);
-	if (!mon) throw new Error('--lead-for: the box has no living ' + species);
+	if (!mon) throw new Error('the box has no living ' + species);
 	if (mon.item !== item) {
 		const holder = doc.box.find(entry => entry.item === item);
+		if (!(doc.bag[item] > 0) && !holder) throw new Error('no ' + item + ' in the bag or on any body');
 		if (holder && !doc.bag[item]) doc = run.apply(doc, {kind: 'take', id: holder.id});
 		doc = run.apply(doc, {kind: 'give', id: mon.id, item});
 	}
 	let ids = doc.party.slice();
 	if (!ids.includes(mon.id)) {
-		const megaStone = id => /ite( [XY])?$/.test((doc.box.find(entry => entry.id === id) || {}).item || '');
+		// A Mega Stone by the dex, not by its spelling: /ite$/ also read an Eviolite as one.
+		const megaStone = id => { const entry = run.findMon(doc, id); return !!(entry && run.megaFormOf(entry.species, entry.item)); };
 		const out = ids.slice().reverse().find(id => !megaStone(id)) || ids[ids.length - 1];
 		ids = ids.map(id => id === out ? mon.id : id);
 	}
 	ids = [mon.id].concat(ids.filter(id => id !== mon.id));
 	if (ids.join() !== doc.party.join()) doc = run.apply(doc, {kind: 'party', ids});
+	// The operator's hand wins over the run's one Mega, but not silently: pinning
+	// the stone's holder to another item puts the stone back in the bag.
+	if (megaBefore && !megaIn(doc)) {
+		tally.leadPinDroppedMega = (tally.leadPinDroppedMega || []).concat([{trainer, species: megaBefore.species,
+			stone: megaBefore.item, pinned: species + '@' + item}]);
+	}
 	tally.leadsPinned = (tally.leadsPinned || 0) + 1;
 	return doc;
 }
@@ -1299,7 +1358,10 @@ function provenance() {
 	};
 	const status = git(['status', '--porcelain', '--untracked-files=no']);
 	return {revision: git(['rev-parse', 'HEAD']), dirty: status === null ? null : status.length > 0,
-		flags: process.argv.filter(arg => arg.startsWith('--')), date: new Date().toISOString()};
+		flags: process.argv.filter(arg => arg.startsWith('--')), date: new Date().toISOString(),
+		// The engine that played it (lib/provenance.js): run-one.js stamps its rows,
+		// and a row made by playRun anywhere else went unstamped.
+		engine: require('../lib/provenance.js').currentStamp()};
 }
 
 /**
@@ -1336,6 +1398,139 @@ function keptFight(keptLog, played, doc, sink, header) {
 const PROBE_SEED_BASE = 900000;
 /** Offsets from the fight seeds and the probe's: a plan is chosen on seeds no attempt is played on. */
 const PLAN_SEED_BASE = 700000;
+
+/**
+ * HELD ITEMS, proposed by the board and chosen by play (--plan-items, off).
+ *
+ * The item is half of what a body is, and the planner varied only the other
+ * half. At Champion Wallace a Focus Sash on the lead Dhelmise let Power Whip
+ * take Primal Kyogre before Ice Beam could, and halved Kyogre's cost — but an
+ * operator pinned it (--lead-for). These are the questions that hand asked,
+ * put as plan candidates: each one is a single `give` on the plan in hand, and
+ * play decides as it does for a body.
+ *
+ * The board only proposes, and few: every proposal costs planSeeds fights.
+ *   - the lead, into their first: a Focus Sash when it kills in two or fewer
+ *     and dies in two or fewer (one hit survived is the race); a Choice Scarf
+ *     when it would win the race if it were faster; a Choice Band or Specs
+ *     when half again the damage wins the race it loses.
+ *   - the best of the six into their first and their last two: a gem of its
+ *     hitting move's type, or the berry that halves their super-effective
+ *     hit, when that one hit wins a race it loses.
+ * An item comes from the bag, or from a body on the bench; `give` swaps and
+ * `take` returns, so nothing is created or lost. A body holding a Mega Stone,
+ * or whose stone is in the bag, is never touched: the run's one Mega stays
+ * where giveMegaStone put it.
+ */
+const ITEM_PROPOSALS = 4;
+const RESIST_BERRIES = {Normal: 'Chilan Berry', Fire: 'Occa Berry', Water: 'Passho Berry', Electric: 'Wacan Berry',
+	Grass: 'Rindo Berry', Ice: 'Yache Berry', Fighting: 'Chople Berry', Poison: 'Kebia Berry', Ground: 'Shuca Berry',
+	Flying: 'Coba Berry', Psychic: 'Payapa Berry', Bug: 'Tanga Berry', Rock: 'Charti Berry', Ghost: 'Kasib Berry',
+	Dragon: 'Haban Berry', Dark: 'Colbur Berry', Steel: 'Babiri Berry', Fairy: 'Roseli Berry'};
+
+/** Hits to take a whole bar at this share a hit. */
+function hitsFor(share) {
+	return Math.ceil(1 / Math.max(share, 0.0001));
+}
+
+/** Who wins a one-on-one: fewer hits needed, or as many and moving first. */
+function winsRace(kill, die, faster) {
+	return kill < die || (kill === die && faster);
+}
+
+/** Where a held item can come from: the bag (under the bag's own spelling), else a body on the bench. */
+function itemSource(doc, item) {
+	const lower = item.toLowerCase();
+	const inBag = Object.keys(doc.bag || {}).find(name => name.toLowerCase() === lower && doc.bag[name] > 0);
+	if (inBag) return {item: inBag};
+	const holder = doc.box.find(mon => !doc.party.includes(mon.id) && mon.item && mon.item.toLowerCase() === lower);
+	return holder ? {item: holder.item, from: holder.id} : null;
+}
+
+/** A body the item planner leaves alone: it holds a Mega Stone, or its stone is in the bag. */
+function megaBound(doc, mon) {
+	const stones = require('../calc').MEGA_STONES || {};
+	return !!(mon.item && stones[mon.item]) || !!(knobs.mega && run.stoneInBag(doc, mon.species));
+}
+
+/**
+ * The item changes worth playing on the plan in hand. `cells` is the board by
+ * body id and foe index; `into` the planner's own margin.
+ */
+function itemProposals(planned, cells, into, foes) {
+	const calc = require('../calc');
+	const gen = calc.Generations.get(8);
+	const out = [];
+	const propose = (id, item, why) => {
+		const mon = run.findMon(planned, id);
+		if (!mon || megaBound(planned, mon)) return;
+		if (mon.item && mon.item.toLowerCase() === item.toLowerCase()) return;
+		if (out.some(entry => entry.id === id && entry.item === item)) return;
+		if (!itemSource(planned, item)) return;
+		out.push({kind: 'item', id, item, why});
+	};
+	const race = cell => ({kill: hitsFor((cell.us.min + cell.us.max) / 2), die: hitsFor((cell.them.min + cell.them.max) / 2),
+		faster: cell.speed === 'faster'});
+	const lead = planned.party[0];
+	const leadCell = (cells.get(lead) || [])[0];
+	if (leadCell) {
+		const raced = race(leadCell);
+		const kill = raced.kill;
+		const die = raced.die;
+		const faster = raced.faster;
+		if (kill <= 2 && die <= 2) propose(lead, 'Focus Sash', 'lead survives one hit');
+		if (!winsRace(kill, die, faster) && winsRace(kill, die, true)) propose(lead, 'Choice Scarf', 'lead wins the race moving first');
+		const move = leadCell.us.move ? gen.moves.get(calc.toID(leadCell.us.move)) : null;
+		if (move && move.category !== 'Status' && !winsRace(kill, die, faster) &&
+			winsRace(hitsFor(1.5 * (leadCell.us.min + leadCell.us.max) / 2), die, faster)) {
+			propose(lead, move.category === 'Special' ? 'Choice Specs' : 'Choice Band', 'lead one hit short');
+		}
+	}
+	const targets = [...new Set([0, foes - 1, foes - 2].filter(index => index >= 0))];
+	for (const index of targets) {
+		const best = planned.party.slice().sort((a, b) => into(b, index) - into(a, index))[0];
+		const cell = best !== undefined ? (cells.get(best) || [])[index] : null;
+		if (!cell) continue;
+		const raced = race(cell);
+		const kill = raced.kill;
+		const die = raced.die;
+		const faster = raced.faster;
+		if (winsRace(kill, die, faster)) continue;
+		const ours = cell.us.move ? gen.moves.get(calc.toID(cell.us.move)) : null;
+		if (ours && ours.category !== 'Status' && ours.type &&
+			winsRace(hitsFor(1.5 * (cell.us.min + cell.us.max) / 2), die, faster)) {
+			propose(best, ours.type + ' Gem', 'one hit short into foe ' + (index + 1));
+		}
+		const theirs = cell.them.move ? gen.moves.get(calc.toID(cell.them.move)) : null;
+		const body = gen.species.get(calc.toID(cell.species));
+		if (theirs && theirs.type && RESIST_BERRIES[theirs.type] && body) {
+			const chart = gen.types.get(calc.toID(theirs.type));
+			const factor = body.types.reduce((product, type) => product * ((chart && chart.effectiveness[type]) ?? 1), 1);
+			const share = (cell.them.min + cell.them.max) / 2;
+			// The berry halves the first hit only.
+			const survived = Math.ceil(Math.max(1 - share / 2, 0) / Math.max(share, 0.0001)) + 1;
+			if (factor > 1 && winsRace(kill, survived, faster)) {
+				propose(best, RESIST_BERRIES[theirs.type], 'survives foe ' + (index + 1) + "'s hit");
+			}
+		}
+	}
+	return out.slice(0, ITEM_PROPOSALS);
+}
+
+/** The plan in hand with one body holding one more item; the item comes from the bag or the bench. */
+function withItem(planned, change) {
+	const mon = run.findMon(planned, change.id);
+	if (!mon || !planned.party.includes(change.id) || megaBound(planned, mon)) return null;
+	const source = itemSource(planned, change.item);
+	if (!source) return null;
+	try {
+		let out = planned;
+		if (source.from) out = run.apply(out, {kind: 'take', id: source.from});
+		return run.apply(out, {kind: 'give', id: change.id, item: source.item});
+	} catch (error) {
+		return null;
+	}
+}
 
 /**
  * A wall, PLANNED by play: who leads, who is held for the end, and who comes
@@ -1391,10 +1586,15 @@ function planByPlay(policy, doc, next, tally) {
 	const idOf = species => byBoardName.get(species);
 	// How a body fares into each of theirs on MEAN rolls: turns it lives minus turns it needs.
 	const margin = new Map();
+	// The cells themselves, for the item proposals (--plan-items).
+	const cells = new Map();
 	board.grid.forEach((column, index) => {
 		for (const cell of column.versus) {
 			const id = idOf(cell.species);
 			if (!id) continue;
+			const cellRow = cells.get(id) || [];
+			cellRow[index] = cell;
+			cells.set(id, cellRow);
 			const kill = Math.ceil(1 / Math.max((cell.us.min + cell.us.max) / 2, 0.0001));
 			const die = Math.ceil(1 / Math.max((cell.them.min + cell.them.max) / 2, 0.0001));
 			const row = margin.get(id) || [];
@@ -1425,6 +1625,7 @@ function planByPlay(policy, doc, next, tally) {
 	const better = (a, b) => a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9);
 	/** The plan in hand with one body put at one slot; someone makes room if it comes from the box. */
 	const changed = (planned, change) => {
+		if (change.kind === 'item') return withItem(planned, change);
 		let ids = planned.party.slice();
 		let out = planned;
 		if (ids.indexOf(change.id) === change.slot) return null;
@@ -1452,16 +1653,26 @@ function planByPlay(policy, doc, next, tally) {
 		} catch (error) { return null; }
 	};
 	const name = planned => planned.party.map(id => run.findMon(planned, id).species).join(' > ');
+	// With items planned, a plan is its six AND what they hold; without, the key is what it always was.
+	const key = planned => JSON.stringify(knobs.planItems ?
+		planned.party.map(id => id + '@' + (run.findMon(planned, id).item || '')) : planned.party);
 	let hand = {doc, score: score(doc)};
 	const stood = hand.score;
-	const seen = new Set([JSON.stringify(doc.party)]);
+	const seen = new Set([key(doc)]);
 	let tried = 1;
+	const itemsProposed = [];
 	for (let round = 0; round < 3; round++) {
 		let best = null;
-		for (const change of changes) {
+		// Item proposals are read off the plan in hand: its lead and its six change between rounds.
+		const items = knobs.planItems ? itemProposals(hand.doc, cells, into, foes) : [];
+		for (const change of items) {
+			const label = run.findMon(hand.doc, change.id).species + '@' + change.item;
+			if (!itemsProposed.includes(label)) itemsProposed.push(label);
+		}
+		for (const change of changes.concat(items)) {
 			const planned = changed(hand.doc, change);
-			if (!planned || seen.has(JSON.stringify(planned.party))) continue;
-			seen.add(JSON.stringify(planned.party));
+			if (!planned || seen.has(key(planned))) continue;
+			seen.add(key(planned));
 			tried += 1;
 			const result = score(planned);
 			if (better(result, hand.score) && (!best || better(result, best.score))) best = {doc: planned, score: result};
@@ -1470,11 +1681,17 @@ function planByPlay(policy, doc, next, tally) {
 		hand = best;
 	}
 	scouted(tally, 'plan', tried * knobs.planSeeds);
-	tally.plans = (tally.plans || []).concat([{trainer: next.trainer, of: tried, took: name(hand.doc),
+	tally.plans = (tally.plans || []).concat([Object.assign({trainer: next.trainer, of: tried, took: name(hand.doc),
 		// Who the board proposed, in the form it would fight in: what the plan chose among.
 		proposed: [...new Set(changes.map(change => { const mon = run.findMon(doc, change.id); const mega = run.megaFormOf(mon.species, mon.item) || (knobs.mega && run.stoneInBag(doc, mon.species) ? run.megaFormOf(mon.species, run.stoneInBag(doc, mon.species)) : null); return mega ? mega.species : mon.species; }))],
 		wins: hand.score.wins, left: Number(hand.score.left.toFixed(2)),
-		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2))}}]);
+		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2))}},
+	// What the item planner proposed, and what the plan taken holds that the six did not.
+	knobs.planItems ? {items: itemsProposed, held: hand.doc.party.map(id => {
+		const now = run.findMon(hand.doc, id).item || null;
+		const before = run.findMon(doc, id).item || null;
+		return now !== before ? run.findMon(hand.doc, id).species + '@' + now : null;
+	}).filter(Boolean)} : {})]);
 	return hand.doc;
 }
 
@@ -1510,6 +1727,20 @@ function probeWall(policy, doc, next, tally) {
 		left += (played.foe && played.foe.alive) || 0;
 	}
 	return {wins, of: knobs.probe, foeLeft: Number((left / knobs.probe).toFixed(2))};
+}
+
+/**
+ * The hand a run plays with: its knobs and treatment, less the ones that only
+ * say how long it plays or what it keeps. A carry-on that only raises the
+ * budget or the stop is the same hand; one with another --spec is not.
+ */
+const NOT_THE_HAND = ['budget', 'stopAt', 'fightLogs'];
+function handOf(treatment) {
+	const played = Object.fromEntries(Object.keys(knobs).filter(name => !NOT_THE_HAND.includes(name)).sort()
+		.map(name => [name, knobs[name] === undefined ? null : knobs[name]]));
+	const given = treatment || {};
+	return JSON.stringify({knobs: played, keyCatches: given.keyCatches !== false, keyScales: given.keyScales !== false,
+		keyEvolve: given.keyEvolve !== false});
 }
 
 /** Run fn under these knobs (armFlags(spec).knobs), and restore the run's own after. */
@@ -1597,11 +1828,32 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// of the five deepest runs ended "already being skipped").
 	const waiting = new Map(kept ? kept.waiting : []);
 	// Elite Four formats set aside after walling a run: the other format of that member is fought instead.
-	const aside = new Set(kept ? kept.aside || [] : []);
+	// Each is set aside UNDER A HAND (the knobs it walled with). A carry-on
+	// under another hand is the point of carrying on with --spec, and it got
+	// one attempt: the checkpoint held the single aside and the double at its
+	// cap, so both formats read as walled. An entry set aside under another
+	// hand, or under an unrecorded one (a checkpoint from before this), is
+	// dropped, and the wall in front starts its attempts again.
+	const hand = handOf(treatment);
+	const asideUnder = new Map();
+	const aside = new Set();
+	let handChanged = !!(kept && kept.hand !== undefined && kept.hand !== hand);
+	for (const entry of kept ? kept.aside || [] : []) {
+		const order = typeof entry === 'number' ? entry : entry.order;
+		const under = typeof entry === 'number' ? null : entry.hand;
+		if (under === hand) {
+			aside.add(order);
+			asideUnder.set(order, under);
+		} else {
+			handChanged = true;
+			tally.asideDropped = (tally.asideDropped || []).concat([{order, at: doc.position,
+				why: under === null ? 'set aside under an unrecorded hand' : 'set aside under another hand'}]);
+		}
+	}
 	// What each body has given up, so the relearn rule cannot swap two moves
 	// back and forth for the whole run.
 	const forgotten = new Map(kept ? kept.forgotten.map(entry => [entry[0], new Set(entry[1])]) : []);
-	let attempts = kept ? kept.attempts : 0;
+	let attempts = kept && !handChanged ? kept.attempts : 0;
 	let fightSeed = kept ? kept.fightSeed : seed;
 	// Advice and party ranking are board-rebuild expensive; the browser
 	// driver pays them occasionally, not per turn of the loop. They re-run
@@ -1609,17 +1861,17 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// every cycle and a single run stretched toward twenty minutes.
 	let lastShape = kept ? kept.lastShape : '';
 	// The six the probe last judged, and what decide() won with it (--hand-by-probe).
-	let handProbe = kept ? kept.handProbe : {six: null, wins: 0};
+	let handProbe = kept && !handChanged ? kept.handProbe : {six: null, wins: 0};
 	// What the ranker last said this six should field as its Mega: its choice, not a body rated alone.
 	const ranked = {mega: null};
 	// A plan, once taken, holds until the wall falls: the ranker and the re-pick would only undo it.
-	let planHolds = kept ? !!kept.planHolds : false;
+	let planHolds = kept && !handChanged ? !!kept.planHolds : false;
 	if (kept) tally.restoredAt = (tally.restoredAt || []).concat([doc.position]);
 	// Everything above, as data: what options.checkpoint is handed at the top
 	// of every turn of the loop, the one place where none of it is half-done.
 	const snapshot = () => ({version: 1, seed, starter, position: doc.position, doc,
-		state: {dice: random.at(), fightSeed, attempts, lastShape, handProbe, planHolds,
-			caughtFrom: [...caughtFrom], waiting: [...waiting], aside: [...aside],
+		state: {dice: random.at(), fightSeed, attempts, lastShape, handProbe, planHolds, hand,
+			caughtFrom: [...caughtFrom], waiting: [...waiting], aside: [...aside].map(order => ({order, hand: asideUnder.get(order)})),
 			forgotten: [...forgotten].map(entry => [entry[0], [...entry[1]]]),
 			tally, elapsedMs: Date.now() - started}});
 
@@ -1645,7 +1897,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			lastShape = shape;
 			doc = levelToCap(doc, tally);
 			doc = relearn(doc, policy, tally, forgotten);
-			doc = followAdvice(doc, treatment, tally, forgotten);
+			doc = followAdvice(doc, treatment, tally, forgotten, planHolds ? plannedHolders(doc, tally) : null);
 			if (knobs.scaleIvs) doc = spendScales(doc, tally);
 			doc = thresholdPrep(doc, tally);
 			// A plan holds until its wall falls: a catch made between attempts re-ran
@@ -1815,6 +2067,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		} else if (attempts >= cap && otherDoor(doc, next, aside)) {
 			const door = otherDoor(doc, next, aside);
 			aside.add(next.order);
+			asideUnder.set(next.order, hand);
 			tally.formatsSwitched = (tally.formatsSwitched || []).concat([{from: next.trainer, to: door.trainer, after: attempts}]);
 			attempts = 0;
 			handProbe = {six: null, wins: 0};
@@ -1846,6 +2099,9 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// Elite Four formats given up on for the member's other format: {from, to, after}.
 		formatsSwitched: tally.formatsSwitched || [],
 		megaPicks: tally.megaPicks || 0, megaMoved: tally.megaMoved || 0,
+		// An operator's --lead-for that could not apply, and why: the policy's lead played instead.
+		...(tally.leadPinMissed ? {leadPinMissed: tally.leadPinMissed} : {}),
+		...(tally.leadPinDroppedMega ? {leadPinDroppedMega: tally.leadPinDroppedMega} : {}),
 		// Fights played in the run's head, by kind: never attempts, never free.
 		scouted: tally.scouted || {probe: 0, repick: 0, plan: 0}, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
@@ -1946,4 +2202,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {pinLead, withKnobs, planByPlay, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {plannedHolders, pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};

@@ -911,3 +911,149 @@ test('an operator\'s lead is applied last: that body leads, holding that item, t
 	assert.deepEqual(other.party, before);
 	void runtime;
 });
+
+test('a body caught at or past its evolution level evolves before it is levelled, and learns as the evolved form', () => {
+	// levelToCap staged only across evolutions ABOVE the body's level, so a
+	// Magikarp caught at 40 was levelled to the cap AS a Magikarp and evolved
+	// after: a Gyarados knowing Splash, Tackle and Flail, offered nothing.
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+	let doc = saved;
+	for (const late of [{species: 'Magikarp', level: 40, ability: 'Swift Swim'}, {species: 'Dratini', level: 50, ability: 'Shed Skin'}]) {
+		doc = run.apply(doc, Object.assign({kind: 'catch', nickname: 'Late' + late.species, ivs, nature: 'Adamant'}, late));
+	}
+	const tally = {};
+	doc = headless.levelToCap(doc, tally);
+	const late = name => doc.box.find(mon => mon.nickname === 'Late' + name);
+	// Magikarp at 40 is past Gyarados (20): evolved first, then levelled as Gyarados.
+	assert.equal(late('Magikarp').species, 'Gyarados');
+	assert.ok((late('Magikarp').prompted || []).concat(late('Magikarp').moves).includes('Waterfall'),
+		'Gyarados\'s own level-up moves are offered: ' + JSON.stringify(late('Magikarp')));
+	// Dratini at 50 is past Dragonair (30) and short of Dragonite (55): evolved, then staged at 55.
+	assert.equal(late('Dratini').species, 'Dragonite');
+	assert.ok((late('Dratini').prompted || []).includes('Extreme Speed'),
+		'Dragonite\'s own level-up moves are offered: ' + JSON.stringify(late('Dratini')));
+});
+
+test('a lead pin that cannot apply is missed, not crashed: the policy leads, and no attempt is burned', () => {
+	// pinLead threw inside the fight's try, whose catch records a crashed loss
+	// and spends an attempt, so a pin on a dead body burned every retry and
+	// stopped the run at a wall it never fought.
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const wallace = {trainer: 'Champion Wallace'};
+	const absent = {};
+	let noBody;
+	assert.doesNotThrow(() => {
+		noBody = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:Mewtwo@Focus+Sash').knobs,
+			() => headless.pinLead(saved, absent, wallace));
+	}, 'a pin on an absent body does not throw');
+	assert.equal(noBody, saved, 'the document is untouched');
+	assert.equal(absent.leadPinMissed.length, 1);
+	assert.match(absent.leadPinMissed[0].reason, /no living Mewtwo/);
+	const noItem = {};
+	let unheld;
+	assert.doesNotThrow(() => {
+		unheld = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:Dhelmise@Kings+Rock').knobs,
+			() => headless.pinLead(saved, noItem, wallace));
+	}, 'a pin on an item nobody has does not throw');
+	assert.equal(unheld, saved);
+	assert.match(noItem.leadPinMissed[0].reason, /no Kings Rock/);
+	assert.equal(noItem.leadsPinned, undefined);
+
+	// In a run: the first fight, pinned to a body the box does not have, plays
+	// exactly as the unpinned run does.
+	const policy = require('../scripts/ui-playthrough.js');
+	const starter = {species: 'Chimchar', rival: 'Blaziken'};
+	const line = row => [row.n, row.trainer, row.seed, row.result, row.policy, row.turns].join(' ');
+	const plain = headless.playRun(policy, starter, 104770, headless.armFlags('--budget=2 --probe=0 --fight-logs=none'));
+	const first = plain.ledger[0].trainer.replace(/ /g, '+');
+	const pinned = headless.playRun(policy, starter, 104770,
+		headless.armFlags('--budget=2 --probe=0 --fight-logs=none --lead-for=' + first + ':Mewtwo@Leftovers'));
+	assert.equal(pinned.crashes, 0, JSON.stringify(pinned.crashed));
+	assert.deepEqual(pinned.ledger.map(line), plain.ledger.map(line), 'the policy\'s lead played, as if unpinned');
+	assert.equal(pinned.leadPinMissed[0].trainer, plain.ledger[0].trainer, JSON.stringify(pinned.leadPinMissed));
+});
+
+test('a set-aside Elite Four format survives a checkpoint under the same hand, and is retried under another', () => {
+	// The checkpoint held the single set aside and the double near its cap, so a
+	// carry-on under a NEW --spec got one attempt and stopped: both doors walled.
+	// Every leg here stops at the top of its first turn, so no fight is played
+	// and no preparation runs: it is the checkpoint round trip alone.
+	const policy = require('../scripts/ui-playthrough.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const starter = {species: 'Chimchar', rival: 'Blaziken'};
+	const base = '--boss-retries=1 --probe=0 --plan-after=0 --fight-logs=none --budget=4';
+	const single = run.upcoming(saved, 10).find(fight => fight.trainer === 'Elite Four Sidney');
+	const stopAtOnce = (spec, from) => {
+		let first = null;
+		headless.playRun(policy, starter, 418957, headless.armFlags(spec), Object.assign({
+			control: () => 'stop',
+			checkpoint: snapshot => { if (!first) first = JSON.parse(JSON.stringify(snapshot())); }}, from));
+		return first;
+	};
+	const kept = stopAtOnce(base, {resume: saved});
+	assert.equal(typeof kept.state.hand, 'string', 'a checkpoint records the hand it was played with');
+	// Sidney's single walled under this hand; the double, in front, has spent five attempts.
+	kept.state.aside = [{order: single.order, hand: kept.state.hand}];
+	kept.state.attempts = 5;
+
+	const same = stopAtOnce(base, {restore: kept}).state;
+	assert.deepEqual(same.aside, [{order: single.order, hand: kept.state.hand}], 'the same hand keeps it aside, and writes it back');
+	assert.equal(same.attempts, 5, 'and the attempts it spent');
+	assert.equal(same.tally.asideDropped, undefined);
+	const longer = stopAtOnce(base.replace('--budget=4', '--budget=9'), {restore: kept}).state;
+	assert.deepEqual(longer.aside.map(entry => entry.order), [single.order], 'a longer budget is the same hand');
+	assert.equal(longer.attempts, 5);
+
+	const other = stopAtOnce(base + ' --lead-for=Elite+Four+Sidney:Dhelmise@Focus+Sash', {restore: kept}).state;
+	assert.deepEqual(other.aside, [], 'another hand retries the format');
+	assert.equal(other.attempts, 0, 'and the wall in front starts again');
+	assert.equal(other.tally.asideDropped[0].order, single.order);
+	assert.notEqual(other.hand, kept.state.hand);
+
+	// A checkpoint from before hands were recorded: its aside cannot be trusted to the hand.
+	const legacy = JSON.parse(JSON.stringify(kept));
+	legacy.state.aside = [single.order];
+	delete legacy.state.hand;
+	const old = stopAtOnce(base, {restore: legacy}).state;
+	assert.deepEqual(old.aside, []);
+	assert.equal(old.attempts, 0);
+	assert.match(old.tally.asideDropped[0].why, /unrecorded/);
+});
+
+test('a row made by playRun outside run-one.js carries the engine stamp', () => {
+	const stamps = require('../lib/provenance.js');
+	const made = headless.provenance();
+	assert.deepEqual(made.engine, stamps.currentStamp());
+	assert.deepEqual(stamps.stampOf({provenance: made}), stamps.currentStamp(), 'where stampOf looks for it');
+});
+
+test('a lead pin knows a Mega Stone by the dex, not by "-ite", and records a Mega it drops', () => {
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const wallace = {trainer: 'Champion Wallace'};
+	const bySpecies = (doc, species) => doc.box.find(mon => mon.species === species && mon.status !== 'dead');
+	// The last of the six holds an Eviolite (set by hand: this run never found one).
+	const doc = structuredClone(saved);
+	const last = run.findMon(doc, doc.party[5]);
+	last.item = 'Eviolite';
+	const benched = doc.box.find(mon => !doc.party.includes(mon.id) && mon.status !== 'dead' && mon.item);
+	const tally = {};
+	const pinned = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:' + benched.species.replace(/ /g, '+') +
+		'@' + benched.item.replace(/ /g, '+')).knobs, () => headless.pinLead(doc, tally, wallace));
+	assert.equal(pinned.party[0], benched.id);
+	assert.ok(!pinned.party.includes(last.id), 'the Eviolite holder made room: it holds no Mega Stone');
+	assert.equal(tally.leadPinDroppedMega, undefined, 'the Mega was kept');
+
+	// Pinning the stone's own holder to another item drops the run's Mega: recorded.
+	const holder = saved.party.map(id => run.findMon(saved, id)).find(mon => run.megaFormOf(mon.species, mon.item));
+	const dropped = {};
+	const swapped = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:' + holder.species + '@Focus+Sash').knobs,
+		() => headless.pinLead(saved, dropped, wallace));
+	assert.equal(bySpecies(swapped, holder.species).item, 'Focus Sash');
+	assert.deepEqual(dropped.leadPinDroppedMega, [{trainer: 'Champion Wallace', species: holder.species, stone: holder.item,
+		pinned: holder.species + '@Focus Sash'}]);
+});
