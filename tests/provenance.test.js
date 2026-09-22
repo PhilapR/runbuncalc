@@ -252,7 +252,13 @@ test('every module a played process loads is in the stamp, or is named as not de
 	const met = [...seen];
 	assert.ok(met.some(file => file.includes('/@pkmn/dex/')), 'the walk reached @pkmn/dex');
 	assert.ok(met.some(file => file.endsWith('/lib/dossier.js')), 'the walk reached a lazy require');
-	assert.ok(met.length > 100, 'the walk reached the engine, not only the entry points');
+	// Named, not counted: a floor on the number of files met was calibrated in a
+	// worktree whose symlinked node_modules doubled the paths, and failed at 99
+	// in the main checkout with nothing missing.
+	for (const part of ['/ai/dist/transition.js', '/ai/dist/entry-hazards.js', '/calc/dist/', '/lib/battle-driver.js',
+		'/lib/planner.js', '/lib/run.js']) {
+		assert.ok(met.some(file => file.includes(part)), 'the walk reached ' + part);
+	}
 	// And every allow-list entry is still met, so the list cannot rot into cover for a new module.
 	assert.deepEqual(Object.keys(NOT_PLAY).filter(key => !stopped.has(key)), []);
 });
