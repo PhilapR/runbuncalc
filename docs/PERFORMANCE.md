@@ -448,3 +448,12 @@ and the sign holds with the largest-contributing trainer removed. Infinite
 PP must not be net negative. Anything else: stays off. Reported beside it,
 not judged: the 111 healthy deaths are mostly a box problem (no refuge
 survives), so the ceiling here is the 179 + 104 where a refuge sometimes did.
+
+**Verdict (2026-09-21, real Speed, pinned, receipts scenarios/receipts/ko2-*):**
+heldout1 net −1 (inf PP) / 0 (real PP), p = 1; heldout2 net **−16** (p = 0.014)
+/ **−15** (p = 0.020), worst scenario Breeder Lydia −6, and the sign holds with
+the best scenario removed (−20 / −19). Rejected again, this time validly: the
+old verdict was measured with Speed reading 0, the new one without, and both
+say the yield loses on heldout2. Off, available. What the tapes said stands —
+of the 409 deaths-before-acting, most are a doomed body's last gasp or a foe
+that outspeeds and one-shots the whole bench, and neither is a click to fix.
