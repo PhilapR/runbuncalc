@@ -553,7 +553,7 @@ test('the wall page says what is charged to a foe and what is not', async () => 
 	const text = (await drawnWall(view)).text;
 	assert.ok(!text.includes('dealt its last hit'), 'the caption no longer claims every body is charged');
 	assert.match(text, /1 body here, and 2 more charged to no foe/);
-	assert.match(text, /1 body fell with no actor recorded/);
+	assert.match(text, /1 body fell with no cause recorded/);
 	assert.match(text, /1 body fell on our own switch/);
 });
 
@@ -733,4 +733,18 @@ test('an agent gets the wall per foe as JSON, and the watch page opens any past 
 		server.close();
 		await fs.rm(dir, {recursive: true});
 	}
+});
+
+test('a body lost at a turn\'s end has its own bucket, apart from the older rows that name no cause', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1, ledger: [
+		{n: 1, order: 1625, trainer: 'Champion Wallace', seed: 5, result: 'loss', killers: [
+			{species: 'Walrein', by: 'end of turn', of: null, ofSide: null},
+			{species: 'Florges', by: null, of: null},
+			{species: 'Eldegoss', by: 'Heavy Slam', of: 'Goodra-Hisui', ofSide: 'theirs'}]}]}));
+	const view = wallView(run, 'Champion Wallace');
+	assert.ok(view !== null);
+	assert.equal(view.endOfTurn, 1, 'the driver records the cause since 2026-09-22');
+	assert.equal(view.unattributed, 1, 'an older row with no cause stays unattributed');
+	assert.deepEqual(view.foes.map(foe => [foe.foe, foe.bodiesLost]), [['Goodra-Hisui', 1]]);
 });

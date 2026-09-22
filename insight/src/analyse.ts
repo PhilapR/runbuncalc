@@ -285,6 +285,8 @@ export interface WallView {
 	 * are charged to no foe; on the sidney1 Sidney wall they were 40 of 240 bodies lost.
 	 */
 	readonly unattributed: number;
+	/** Bodies of ours lost at a turn's end — poison, burn, weather, seeds — recorded since 2026-09-22 (`by: 'end of turn'`). Charged to no foe. */
+	readonly endOfTurn: number;
 	/**
 	 * True when some attempt's ledger has no `ofSide` (written before 2026-09-22):
 	 * our side is then told from theirs by species, which a mirror can fool.
@@ -357,6 +359,7 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 	let selfInflicted = 0;
 	let hazards = 0;
 	let unattributed = 0;
+	let endOfTurn = 0;
 	let approximate = false;
 	for (const [index, attempt] of attempts.entries()) {
 		const summary = wall.summaries[index];
@@ -374,6 +377,7 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 		const ours = new Set([...(attempt.six ?? []).map(member => baseOf(member.species)),
 			...(attempt.killers ?? []).flatMap(fall => fall.species === null ? [] : [baseOf(fall.species)])]);
 		for (const fall of attempt.killers ?? []) {
+			if (fall.by === 'end of turn') { endOfTurn += 1; continue; }
 			if (fall.of === null) { unattributed += 1; continue; }
 			if (fall.ofSide === undefined) approximate = true;
 			// An old ledger: ours if our side holds the species and the tape never saw it on theirs (a mirror).
@@ -422,7 +426,7 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 		b.bodiesPerFacing - a.bodiesPerFacing || a.foe.localeCompare(b.foe));
 	const win = wall.wonOn === null ? undefined : wall.summaries[wall.wonOn - 1];
 	return {trainer: wall.trainer, order: wall.order, attempts: wall.attempts, wonOn: wall.wonOn, winN: win?.n ?? null,
-		logged: wall.logged, foes, selfInflicted, hazards, unattributed, approximate, tagLift: wall.tagLift,
+		logged: wall.logged, foes, selfInflicted, hazards, unattributed, endOfTurn, approximate, tagLift: wall.tagLift,
 		runs: wall.summaries.map((entry, index) => ({n: entry.n, result: entry.result, policy: entry.policy, bodiesLost: entry.bodiesLost,
 			knockouts: attempts[index]?.kos?.length ?? null, foeLeft: entry.foeLeft, turns: entry.turns, hasLog: entry.hasLog}))};
 }

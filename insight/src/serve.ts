@@ -243,7 +243,7 @@ async function drawWall(box, mine) {
   box.appendChild(el('p', {class: 'sub', text: (won ? 'Grey dot: the mean over the losses that met that foe, which “losses met” counts; black dot: the win. ' : 'Every dot is the mean over the losses that met that foe, which “losses met” counts: there is no win to set beside them. ') +
     'One scale down each column — bodies of ours lost a facing 0 to ' + maxB + ', fell 0 to 100% of facings, turns it stayed 0 to ' + maxT + '. ' +
     'A body is charged to the foe that was acting when it fell: ' + bodies(w.foes.reduce((sum, f) => sum + f.bodiesLost, 0)) + ' here' +
-    (w.unattributed + w.hazards + w.selfInflicted ? ', and ' + (w.unattributed + w.hazards + w.selfInflicted) + ' more charged to no foe (below)' : '') + '.'}));
+    (w.unattributed + w.endOfTurn + w.hazards + w.selfInflicted ? ', and ' + (w.unattributed + w.endOfTurn + w.hazards + w.selfInflicted) + ' more charged to no foe (below)' : '') + '.'}));
   const num = v => v === null || v === undefined ? '—' : String(v);
   const pct = v => v === null || v === undefined ? '—' : Math.round(100 * v) + '%';
   const key = v => v === null || v === undefined ? -1 : v;
@@ -256,7 +256,8 @@ async function drawWall(box, mine) {
     cell(dots(maxT, f.losses.turnsPerFacing, f.win && f.win.turns, f.foe + ' stayed ' + num(f.losses.turnsPerFacing) + ' turns a losing facing'), '', key(f.losses.turnsPerFacing)),
     cell(num(f.losses.turnsPerFacing) + (f.win && f.win.turns !== null ? ' · win ' + f.win.turns : ''), 'num', key(f.losses.turnsPerFacing)),
     cell(list(f.killers.slice(0, 3)), 'wrap'), cell(list(f.victims.slice(0, 3)), 'wrap')])), 'wallfoes'));
-  const apart = [w.unattributed ? bodies(w.unattributed) + ' fell with no actor recorded (end-of-turn damage: weather, status, seeds)' : '',
+  const apart = [w.endOfTurn ? bodies(w.endOfTurn) + ' fell at a turn\u2019s end (poison, burn, weather, seeds)' : '',
+    w.unattributed ? bodies(w.unattributed) + ' fell with no cause recorded (older records: most are end-of-turn damage)' : '',
     w.hazards ? bodies(w.hazards) + ' fell on our own switch (hazards on the way in)' : '',
     w.selfInflicted ? bodies(w.selfInflicted) + ' fell on our own move (recoil, Self-Destruct)' : ''].filter(Boolean);
   if (apart.length) box.appendChild(el('p', {class: 'sub', text: 'Charged to no foe: ' + apart.join('; ') + '.'}));
