@@ -64,6 +64,16 @@ function main() {
 	const tree = path.join(ROOT, 'ui-playthrough-out', '.worktrees', 'falsify-' + process.pid);
 	arms.makeWorktree(tree, 'HEAD');
 	try {
+		// A test that is not in the tree at HEAD — written, not yet committed —
+		// runs nothing, passes, and read as HOLLOW (2026-09-22: a lint failure
+		// stopped the commit and two guards were called hollow). It is BROKEN:
+		// the guard was never asked.
+		if (!fs.existsSync(path.join(tree, test))) {
+			process.stdout.write('BROKEN, not falsified: ' + test + ' is not in the tree at HEAD — commit it first; ' +
+				'the guard was never asked.\n');
+			process.exitCode = 2;
+			return;
+		}
 		const target = path.join(tree, file);
 		const before = fs.readFileSync(target, 'utf8');
 		const count = before.split(from).length - 1;
