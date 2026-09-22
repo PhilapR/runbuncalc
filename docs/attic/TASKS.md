@@ -1,5 +1,13 @@
 # Tasks
 
+> **Retired 2026-09-22.** This page held maintenance procedures, not planned
+> work. The four procedures that are still true — trainer set data, the move
+> overlay, the Gen 9 coverage audit, and the validation gate — moved to
+> "Maintenance procedures" in `docs/WORKFLOW.md`. The gate description below
+> is out of date: `npm test` now also runs `insight`, `check:sdlc` and the
+> `view` build, and `test:upstream` lives in `calc/package.json`. Nothing
+> below is current.
+
 Recurring maintenance for the Run & Bun calculator. This is a standalone
 product; procedures inherited from the upstream Smogon calculator do not apply
 unless they are written down here.

@@ -52,8 +52,10 @@ test does not reach.
 2. **Fidelity had no guard.** The opening sweep closes one class. The same
    idea is owed for the turn loop.
 3. **The planner cannot choose items.**
-4. **Document sprawl.** There are 28 docs. `docs/ROADMAP.md` (2026-08-17,
-   phases 1–6) and `docs/TASKS.md` are stale next to `docs/PLAN.md`.
+4. **Document sprawl.** There were 28 docs. `docs/ROADMAP.md` and
+   `docs/TASKS.md` are retired to `docs/attic/` (2026-09-22); each one's
+   header says where every item went. Other old docs still contradict this
+   page; they are listed for review, not yet rewritten.
 
 ## Order of work, cheapest first
 
@@ -62,7 +64,46 @@ test does not reach.
    battery sets.
 3. Plan held items (about a day), measured on the held-out walls.
 4. Wall view (half a day).
-5. Retire `docs/ROADMAP.md` and `docs/TASKS.md`, or fold them into `docs/PLAN.md`.
+5. ~~Retire `docs/ROADMAP.md` and `docs/TASKS.md`~~ — done 2026-09-22, see
+   `docs/attic/README.md`.
 
-Parked: new per-turn policy arms (repeatedly rejected), and the old roadmap's
-reinforcement-learning and emulator phases.
+Parked, each with no bar and so not ready to start:
+
+- New per-turn policy arms (repeatedly rejected).
+- The old roadmap's reinforcement-learning and emulator phases
+  (`docs/attic/ROADMAP.md` phases 5–6): training a policy, NPZ tensors,
+  an mGBA observation bridge, a rebuilt runtime.
+- Hosted run storage (a Durable Object per attempt, R2 archives). The local
+  IndexedDB ledger is the save; the old roadmap made hosting conditional on a
+  need that has not appeared.
+- The private Worker. Its last deployment receipt is revision `ad0e0bc`,
+  2026-08-18 (`contracts/ecosystem/v1/attribution-local-evidence.json`,
+  promoted in `7850276`). The repository records no deployment since, so the
+  live app is about a month behind the engine.
+
+## Maintenance procedures
+
+Carried from the retired `docs/TASKS.md`; checked against the tree on
+2026-09-22.
+
+- **Trainer set data.** `src/js/data/sets/gen8.js` holds the Run & Bun
+  trainer parties, keyed by trainer name, with an `index` ordering each
+  party. It is authored by hand. Never regenerate it from an upstream set
+  source: the removed `import/` generator replaced it with Smogon usage sets.
+  To change it, edit the file, then `npm run build`, then `npm test`
+  (`tests/runbun_sets.test.js` fails if the data stops being trainer-shaped),
+  then open `#runbun-battle` and the Trainer Wheel and confirm the party
+  board renders. The other `sets/gen*.js` files are inherited Smogon sets and
+  are not regenerated.
+- **Move overlay.** Run & Bun move changes (accuracy, power, PP, type) live
+  in `ai/src/move-metadata.ts`, which is authoritative over the inherited
+  calculator data. When they disagree, `ai/src/test/runbun-data.test.ts`
+  fails; fix `calc/src/data/` and record the delta in the Policy B table in
+  `docs/FORK_MAP.md`.
+- **Gen 9 coverage.** Only if a release ports Gen 9 content:
+  `npm run build && node scripts/audit-gen9-coverage.js`, then work the list.
+  `docs/GEN9_AUDIT.md` says why GEN9-02 is parked.
+- **The gate.** `npm test` runs `calc`, `ai`, `insight`, the `view` build,
+  `check:sdlc`, `test:server` and the lint, in that order. Keep it green
+  before a merge. `npm run test:upstream --prefix calc` is a compatibility
+  audit only and fails where the fork diverges on purpose (Policy B).

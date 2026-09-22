@@ -1,5 +1,28 @@
 # Run & Bun Roadmap
 
+> **Retired 2026-09-22.** Written 2026-08-17 for a companion-app goal; the
+> standing goal is now a pinned start-to-finish run, and the ordered work is
+> `docs/PLAN.md`, chosen from the map in `docs/WORKFLOW.md`. Nothing below is
+> current. Where each item went: Phase 1 (deployment) is done — the
+> runtime-safe Worker `ac99e93`, browser sessions `368dc9c`, merged as PR #14
+> (`9f72efd`), and the cross-repository promotion `7850276` with its deployment
+> receipt at `ad0e0bc`; the Worker has not been redeployed on record since,
+> which WORKFLOW now lists as parked. Phase 2 (the core loop) was done before
+> this page was written — the browser recreation `0a6f51f`, the phone layout
+> `8e87ab0`, and the reload, archive and catch-to-fight browser tests in
+> `tests/browser_run*.test.js`. Phase 3 (planning and review) is done in the
+> form it described (`tests/planning_review.test.js`, `tests/run_history.test.js`,
+> no `desc()`/`kochance` in any recommendation) and superseded as a direction
+> by PLAN §2 (the planner) and §5.2 (the wall view). Phase 4 (durable history)
+> is done for the local store (`81ed728`, `ad0e0bc`, the 10k-revision and
+> cross-tab tests); native Parquet was superseded by the gzip fight log that
+> DuckDB converts (`2ebfef9`); hosted storage and NPZ are parked. Phase 5
+> (simulation and RL): the headless simulation became the battery and the run
+> harness (WORKFLOW stages 6–7); replay parity became WORKFLOW stage 3's "the
+> audit replays commands, not battles"; RL training is parked. Phase 6
+> (emulator and rebuild) is parked. The global stop conditions went into
+> PLAN §6.
+
 Run & Bun is a private, playable companion/game: it should provide most of the
 meaningful run experience without requiring navigation through the original
 game. The browser companion is the product surface. The calculator and AI are

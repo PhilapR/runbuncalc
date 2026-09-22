@@ -9,6 +9,8 @@ must clear. An item with no bar is not ready to start.
 
 The whole workflow, stage by stage, with its weak points and backlog, is
 mapped in `docs/WORKFLOW.md`; this page is the ordered work chosen from it.
+These two pages are the only plan. `docs/ROADMAP.md` and `docs/TASKS.md` were
+retired into them on 2026-09-22; `docs/attic/` says where each item went.
 
 ---
 
@@ -229,6 +231,10 @@ rules and replayable, or `audit-run.js` stops meaning anything.**
   own command lines this week and one `pkill` killed the watch server.
 - **Size a measurement before launching it.** Over-subscribing eleven cores
   took a 16-fight check from 4 minutes to 20.
+- **Stop a change that makes a run unreplayable or blurs where a fact came
+  from.** Carried from the retired roadmap's stop conditions: `audit-run.js`
+  means something only while every confirmed number replays from recorded
+  commands and a named source.
 
 ---
 

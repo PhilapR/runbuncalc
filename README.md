@@ -35,8 +35,8 @@ The same surface is served over HTTP (`POST /run/*`, see
 [`INVENTORY.md`](docs/INVENTORY.md) — generated from the code and gated, so it
 cannot drift) and in the browser as the **My Run** panel, which adds the
 matchup board, the split sheet and one-click catches off real tables.
-The product and architecture sequence is tracked in
-[`docs/ROADMAP.md`](docs/ROADMAP.md).
+The ordered work is [`docs/PLAN.md`](docs/PLAN.md), chosen from the stage map
+in [`docs/WORKFLOW.md`](docs/WORKFLOW.md).
 
 ### Play it in the browser (no emulator)
 
@@ -405,7 +405,7 @@ unmodeled simulator events remain external inputs.
 keyed by trainer name, read by the Trainer Wheel. It is edited by hand, never
 generated. The upstream `import/` package that regenerated set data from
 `@smogon/sets` has been removed, because it overwrote those trainer parties with
-Smogon competitive usage sets. [`TASKS.md`][4] covers how to change set data
+Smogon competitive usage sets. [`WORKFLOW.md`][4] (Maintenance procedures) covers how to change set data
 safely; `runbun_sets.test.js` enforces it.
 
 ## Credits
@@ -430,7 +430,7 @@ This package is distributed under the terms of the [MIT License][3].
   [1]: https://github.com/smogon/damage-calc/tree/master/calc
   [2]: https://github.com/smogon/damage-calc/tree/master/src
   [3]: https://github.com/smogon/damage-calc/blob/master/LICENSE
-  [4]: docs/TASKS.md
+  [4]: docs/WORKFLOW.md#maintenance-procedures
   [5]: https://unpkg.com/
   [6]: https://webpack.js.org/
   [7]: https://rollupjs.org/
