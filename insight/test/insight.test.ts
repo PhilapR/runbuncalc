@@ -576,6 +576,13 @@ test('a foe met only in the win has no loss reading, not a loss reading of 0', a
 	assert.ok(row !== undefined);
 	assert.ok(!/\b0%/.test(row.text), 'no "0%" fell for losses that never met it: ' + row.text);
 	assert.equal(row.all('circle').filter(dot => dot.attrs.class === 'loss').length, 0, 'and no grey loss dot at 0');
+	// The grey dot is a mean over the losses that MET the foe: one for Kyogre, none for Milotic — not "the 1 losses".
+	const heads = box.all('th').map(th => th.text);
+	const met = heads.indexOf('losses met');
+	assert.ok(met > 0, 'the table counts the losses each mean is over');
+	assert.deepEqual(box.all('tr').filter(tr => tr.all('td').length > 0).map(tr => [tr.all('td')[0]?.text, tr.all('td')[met]?.text]).sort(),
+		[['Kyogre-Primal', '1'], ['Milotic', '0']]);
+	assert.ok(!/mean of the \d+ losses/.test(box.text), 'the caption no longer counts every loss');
 });
 
 test('a run that does not decode says why on the wall and the attempt, never that it kept nothing', async () => {

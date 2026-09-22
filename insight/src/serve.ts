@@ -236,15 +236,15 @@ async function drawWall(box, mine) {
   const bodies = n => n + ' bod' + (n === 1 ? 'y' : 'ies');
   const maxB = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.bodiesPerFacing || 0, f.win ? f.win.bodiesLost : 0))));
   const maxT = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.turnsPerFacing || 0, f.win && f.win.turns !== null ? f.win.turns : 0))));
-  box.appendChild(el('p', {class: 'sub', text: (won ? 'Grey dot: the mean of the ' + (w.attempts - 1) + ' losses; black dot: the win. ' : 'Every dot is the mean of the losses: there is no win to set beside them. ') +
+  box.appendChild(el('p', {class: 'sub', text: (won ? 'Grey dot: the mean over the losses that met that foe, which “losses met” counts; black dot: the win. ' : 'Every dot is the mean over the losses that met that foe, which “losses met” counts: there is no win to set beside them. ') +
     'One scale down each column — bodies of ours lost a facing 0 to ' + maxB + ', fell 0 to 100% of facings, turns it stayed 0 to ' + maxT + '. ' +
     'A body is charged to the foe that was acting when it fell: ' + bodies(w.foes.reduce((sum, f) => sum + f.bodiesLost, 0)) + ' here' +
     (w.unattributed + w.hazards + w.selfInflicted ? ', and ' + (w.unattributed + w.hazards + w.selfInflicted) + ' more charged to no foe (below)' : '') + '.'}));
   const num = v => v === null || v === undefined ? '—' : String(v);
   const pct = v => v === null || v === undefined ? '—' : Math.round(100 * v) + '%';
   const key = v => v === null || v === undefined ? -1 : v;
-  box.appendChild(dense(['their', 'met', 'bodies a facing', '', 'fell', '', 'turns a facing', '', 'kills with', 'kills'], w.foes.map(f => el('tr', {}, [
-    cell(f.foe), cell(f.facedIn, 'num'),
+  box.appendChild(dense(['their', 'met', 'losses met', 'bodies a facing', '', 'fell', '', 'turns a facing', '', 'kills with', 'kills'], w.foes.map(f => el('tr', {}, [
+    cell(f.foe), cell(f.facedIn, 'num'), cell(f.losses.facedIn, 'num'),
     cell(dots(maxB, f.losses.bodiesPerFacing, f.win && f.win.bodiesLost, f.foe + ': ' + num(f.losses.bodiesPerFacing) + ' bodies a losing facing'), '', key(f.losses.bodiesPerFacing)),
     cell(num(f.losses.bodiesPerFacing) + (f.win ? ' · win ' + f.win.bodiesLost : ''), 'num', key(f.losses.bodiesPerFacing)),
     cell(dots(1, f.losses.fellShare, f.win && (f.win.fell ? 1 : 0), f.foe + ' fell in ' + pct(f.losses.fellShare) + ' of losing facings'), '', key(f.losses.fellShare)),
