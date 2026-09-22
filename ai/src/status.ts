@@ -1203,3 +1203,49 @@ export function scoreStatusAction(
       ],
   };
 }
+
+const PARALYSIS_STATUS_MOVES = new Set(['thunderwave', 'glare', 'stunspore']);
+
+/**
+ * Whether the AI scores this move although it would have no effect, one of
+ * the classes the ROM probes show scored rather than skipped: a do-nothing
+ * move (Hold Hands with no ally, s12), a recovery move at full HP (r1, h7),
+ * and a major-status move into a target that is immune but not already
+ * statused (s2, s3, s7, s11, h1-h3). The caller has already found the move
+ * selectable and dropped by enumerateMoveActions.
+ */
+export function isScoredWithoutEffect(state: BattleState, action: ActionEvaluation['action']): boolean {
+  if (action.kind !== 'move') return false;
+  const id = moveId(action.moveName);
+  if (NO_EFFECT_MOVES.has(id)) return true;
+  const actor = getPokemon(state, action.actorId);
+  if (RECOVERY_MOVES.has(id) && id !== 'rest') return !!actor && actor.hp.current >= actor.hp.max;
+  if (STATUS_BY_MOVE[id] && id !== 'nuzzle') {
+    const target = action.targetIds.length ? getPokemon(state, action.targetIds[0]) : undefined;
+    return !!target && sideForPokemon(state, target.id) !== sideForPokemon(state, action.actorId) &&
+      !target.status;
+  }
+  return false;
+}
+
+/**
+ * The ROM's score for a move isScoredWithoutEffect admits: its normal score
+ * less 20 (SPIKE-GROUND-TRUTH.md phase 5, "Useless moves": default minus 20,
+ * not a fixed 80). A blocked paralysis move keeps only the +6 default and its
+ * 50% -1 roll, since the speed-flip +8 cannot apply (s7 and h1 read 85/86).
+ * A do-nothing move keeps its 81. pokemon-mono rab cddeb25, cea2416, eb074f4.
+ */
+export function scoreWithoutEffect(state: BattleState, evaluation: ActionEvaluation): ActionEvaluation {
+  evaluation = {...evaluation, facts: normalizeGenerationFacts(state, evaluation.facts)};
+  const id = evaluation.action.kind === 'move' ? moveId(evaluation.action.moveName) : '';
+  const base: ActionEvaluation['outcomes'] = NO_EFFECT_MOVES.has(id)
+    ? [{score: NO_EFFECT_SCORE + 20, probability: 1}]
+    : PARALYSIS_STATUS_MOVES.has(id)
+      ? chanceBonus([{score: 6, probability: 1}], -1, 0.5)
+      : statusBaseScore(state, evaluation);
+  return {
+    ...evaluation,
+    outcomes: base.map(outcome => ({...outcome, score: outcome.score - 20})),
+    reasons: ['the move would have no effect: its normal score less 20'],
+  };
+}

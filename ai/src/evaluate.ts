@@ -1,11 +1,11 @@
-import {enumerateForcedSwitchActions, enumerateMoveActions} from './actions';
+import {enumerateForcedSwitchActions, enumerateMoveActions, getPokemon, isSelectableMoveAction} from './actions';
 import {chooseAction} from './decision';
 import {scoreDamagingActions} from './scoring';
-import {scoreStatusAction} from './status';
+import {isScoredWithoutEffect, scoreStatusAction, scoreWithoutEffect} from './status';
 import {evaluateForcedSwitchActions, evaluateSwitchActions} from './switch';
 import {deriveReplacementViability} from './matchup';
 import {normalizeGenerationFacts} from './facts';
-import {ActionFacts, ActionEvaluation, BattleState, Decision, SideId} from './model';
+import {ActionFacts, ActionEvaluation, BattleState, Decision, MoveAction, SideId} from './model';
 
 export type ActionFactProvider = (state: BattleState, action: ActionEvaluation['action']) => ActionFacts;
 
@@ -36,6 +36,38 @@ export function evaluateDamagingActions(
   return scoreDamagingActions(evaluations);
 }
 
+/**
+ * Moves the AI scores although they would have no effect.
+ *
+ * enumerateMoveActions drops a move that would do nothing. The ROM still
+ * scores some of them, at their normal score less 20: Recover at full HP 85
+ * (r1, h7), Thunder Wave into a Ground type 85/86 (s7, h1), Hypnosis into
+ * Insomnia 86 (s2, h2), Toxic into a Steel or Poison type 86 (s11, h3), Sleep
+ * Powder into a Grass type 86/87 (s3); Hold Hands with no ally reads 81 like
+ * Splash (s12). Only those probed classes are added back (isScoredWithoutEffect),
+ * each aimed at the first target set isSelectableMoveAction accepts (a foe, the
+ * user, no one); the battle driver already uses such a move and lets it fail.
+ * An actor left with only Struggle keeps Struggle.
+ */
+function movesScoredWithoutEffect(state: BattleState, sideId: SideId, actions: MoveAction[]): MoveAction[] {
+  const extra: MoveAction[] = [];
+  const opposing: SideId = sideId === 'ai' ? 'player' : 'ai';
+  const foes = state.sides[opposing].activeIds.filter(id => (getPokemon(state, id)?.hp.current || 0) > 0);
+  for (const actorId of state.sides[sideId].activeIds) {
+    const actor = getPokemon(state, actorId);
+    const own = actions.filter(action => action.actorId === actorId);
+    if (!actor || !own.length || own.every(action => action.moveName === 'Struggle')) continue;
+    for (const move of actor.moves) {
+      if (own.some(action => action.moveName === move.name)) continue;
+      const selectable = [...foes.map(id => [id]), [actorId], []]
+        .map(targetIds => ({kind: 'move' as const, actorId, moveName: move.name, targetIds}))
+        .find(action => isSelectableMoveAction(state, sideId, action));
+      if (selectable && isScoredWithoutEffect(state, selectable)) extra.push(selectable);
+    }
+  }
+  return extra;
+}
+
 export function evaluateActions(
   state: BattleState,
   factsFor: ActionFactProvider,
@@ -60,7 +92,14 @@ export function evaluateActions(
       outcomes: [],
       reasons: [],
     }));
-  const moves = [...damaging, ...status];
+  const withoutEffect = movesScoredWithoutEffect(state, sideId, actions)
+    .map(action => scoreWithoutEffect(state, {
+      action,
+      facts: factProvider(state, action),
+      outcomes: [],
+      reasons: [],
+    }));
+  const moves = [...damaging, ...status, ...withoutEffect];
   const derivedReplacementViability = options.includeSwitches &&
     options.deriveReplacementViability !== false
     ? deriveReplacementViability(state, sideId, factProvider)

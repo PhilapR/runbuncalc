@@ -219,4 +219,49 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(got['Bug Buzz'], [106, 108], 'm2 Bug Buzz');
 }
 
+// Moves with no effect are scored, at their normal score less 20: s7 Thunder
+// Wave into a Ground type 85/86, s2 Hypnosis into Insomnia 86, s3 Sleep Powder
+// into a Grass type 86/87, s11 Toxic into a Steel type 86, r1 Recover at full
+// HP 85, s12 Hold Hands with no ally 81.
+{
+  const snorlax = {species: 'Snorlax', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+    stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 40}};
+  const s7 = scores(probe(
+    {species: 'Manectric', moves: ['Thunder Wave', 'Bite', 'Splash', 'Tackle'],
+      stats: {hp: 180, atk: 90, def: 90, spa: 60, spd: 90, spe: 60}},
+    {...snorlax, species: 'Marowak', stats: {...snorlax.stats, spe: 100}},
+  ));
+  assert.deepEqual(s7['Thunder Wave'], [85, 86], 's7 Thunder Wave');
+  const s2 = scores(probe(
+    {species: 'Gengar', moves: ['Hypnosis', 'Shadow Ball', 'Splash', 'Tackle'],
+      stats: {hp: 200, atk: 40, def: 90, spa: 110, spd: 90, spe: 110}},
+    {...snorlax, species: 'Machamp', ability: 'Insomnia'},
+  ));
+  assert.deepEqual(s2['Hypnosis'], [86], 's2 Hypnosis');
+  const s3 = scores(probe(
+    {species: 'Vileplume', moves: ['Splash', 'Sleep Powder', 'Sludge Bomb', 'Mega Drain'],
+      stats: {hp: 200, atk: 40, def: 90, spa: 60, spd: 90, spe: 60}},
+    {...snorlax, species: 'Sceptile'},
+  ));
+  assert.deepEqual(s3['Sleep Powder'], [86, 87], 's3 Sleep Powder');
+  const s11 = scores(probe(
+    {species: 'Muk', moves: ['Splash', 'Toxic', 'Bite', 'Tackle'],
+      stats: {hp: 220, atk: 60, def: 90, spa: 70, spd: 90, spe: 50}},
+    {...snorlax, species: 'Skarmory'},
+  ));
+  assert.deepEqual(s11['Toxic'], [86], 's11 Toxic');
+  const r1 = scores(probe(
+    {species: 'Starmie', moves: ['Recover', 'Surf', 'Splash', 'Tackle'],
+      stats: {hp: 200, atk: 60, def: 90, spa: 80, spd: 90, spe: 110}},
+    snorlax,
+  ));
+  assert.deepEqual(r1['Recover'], [85], 'r1 Recover');
+  const s12 = scores(probe(
+    {species: 'Linoone', moves: ['Celebrate', 'Hold Hands', 'Splash', 'Tackle'],
+      stats: {hp: 180, atk: 60, def: 90, spa: 60, spd: 90, spe: 100}},
+    snorlax,
+  ));
+  assert.deepEqual(s12['Hold Hands'], [81], 's12 Hold Hands');
+}
+
 console.log('ROM probe scoring fixtures passed');
