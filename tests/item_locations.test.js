@@ -367,6 +367,15 @@ test('the author hands out no screen: no TM, HM or tutor teaches Reflect, Light 
 	// item-workbook.json) numbers TM01-TM50 and HM01-HM08 with no gap, and
 	// lists twenty tutors, and none of them is a screen. In Run & Bun a screen
 	// comes from a level-up list or not at all.
+	//
+	// "Or not at all" includes egg moves, and that is checked below, not
+	// assumed. Egg moves ARE reachable here: learnsets.json carries the
+	// decomp's egg_moves.h, and the nurse remembers one for a Heart Scale
+	// (ruling remembering-a-move-costs-a-scale). The hack's own documents say
+	// nothing of breeding — Mechanic Changes.txt names the Day Care only for
+	// experience past the cap. No egg list holds a screen: the five hits a
+	// substring search finds (Gastly, Omanyte, Castform, both Stunfisk) are
+	// Reflect Type, which is not Reflect.
 	const workbook = require('../profiles/run-and-bun/oracle/item-workbook.json');
 	const numbered = prefix => workbook.tms.map(row => row.name.match(new RegExp('^' + prefix + '(\\d\\d) ')))
 		.filter(Boolean).map(match => Number(match[1]));
@@ -382,6 +391,15 @@ test('the author hands out no screen: no TM, HM or tutor teaches Reflect, Light 
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	assert.deepEqual(oracle.moveItems().filter(row => screens.test(row.move)), [],
 		'so the moveItems table has no screen row, and that is the game');
+
+	// Exact names: a pattern would read Reflect Type as Reflect.
+	const learnsets = require('../profiles/run-and-bun/oracle/learnsets.json');
+	const SCREENS = ['Reflect', 'Light Screen', 'Aurora Veil'];
+	const holding = table => Object.keys(table).filter(species =>
+		table[species].some(move => SCREENS.includes(Array.isArray(move) ? move[1] : move)));
+	assert.deepEqual(holding(learnsets.egg), [], 'no egg list teaches a screen');
+	assert.deepEqual(holding(learnsets.teachable), [], 'nor does any teachable list');
+	assert.ok(holding(learnsets.levelUp).length > 0, 'the level-up lists are where the screens are');
 });
 
 test('a cell that names a shop and a gift is two rows, and the gift is on the road', () => {
@@ -408,4 +426,42 @@ test('a cell that names a shop and a gift is two rows, and the gift is on the ro
 	const evolution = ledger.entries.filter(entry => entry.kind === 'evolution');
 	assert.equal(evolution.length, 24);
 	assert.deepEqual(evolution.filter(entry => entry.opensAt === null), []);
+});
+
+test('every item cell that names a second source is split, not only the evolution sheet', () => {
+	// review 2026-09-22: the split ran for Evolution Items alone, and the
+	// Berries sheet has the same shape — "Berry Trees at Routes 114, 116.
+	// Given 10x from an NPC at Route 104." — which dated 93 only because the
+	// gift's route opens before the trees'. Read on the builder's output, so
+	// a builder that stops splitting fails here before anything is written.
+	const built = builder.build();
+	const joined = built.entries.filter(entry => entry.kind !== 'tm' &&
+		builder.splitSources(entry.location).length > 1);
+	assert.deepEqual(joined.map(entry => entry.name + ': ' + entry.location), [],
+		'these rows still read two sources as one place');
+	const chesto = built.entries.filter(entry => entry.name === 'Chesto Berry');
+	assert.deepEqual(chesto.map(entry => [entry.location, entry.detail, entry.opensAt]), [
+		['Given 10x from an NPC at Route 104.', null, 93],
+		['Berry Trees at Routes 114, 116.', '30 to 90.', 445],
+	], 'the gift is its own row, and the trees keep the yield column');
+	// And the trees are dated: a list with no "and" is still a list. The
+	// first route named dates a tree, as for Oran Berry, so 114 (445).
+	assert.equal(chesto[1].dating, 'the first of the places it names');
+	// The TMs keep their one row: oracle.tmFor and audit-run key one row a TM
+	// and read "Sold at" in it as "re-sold". Split, the Lilycove row (848)
+	// would overwrite Seismic Toss's field date of 80.
+	const toss = built.entries.filter(entry => entry.name === 'TM16 Seismic Toss');
+	assert.deepEqual(toss.map(entry => entry.opensAt), [80]);
+	assert.match(toss[0].location, /Sold at Lilycove/);
+});
+
+test('the ledger cites the hack\'s official Item Locations workbook', () => {
+	// review 2026-09-22: `source` named the engine's copy under
+	// engines/rab/backend/DOCS. Its worksheets and shared strings are
+	// byte-identical to docs/official's, but data here is cited from the
+	// hack's own documents, and the official folder is where they live.
+	for (const doc of [builder.build(), ledger]) {
+		assert.match(doc.source, /^pokemon-mono docs\/official\/Item Locations\.xlsx\b/);
+		assert.doesNotMatch(doc.source, /engines\/rab/);
+	}
 });
