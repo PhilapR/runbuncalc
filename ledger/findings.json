@@ -2304,6 +2304,30 @@
 			"fixed_in": "28327c1",
 			"falsified": 1,
 			"evidence": "Raised by the operator; the hack's own document says it. Ordinary ability weather permanence is also ROM-observed (pokemon-mono P0). Primal permanence is to be ROM-checked by P3. Guard: tests/fidelity_openings.test.js."
+		},
+		{
+			"id": "ai-highest-damage-uses-max-roll",
+			"source": "rom-probes/2026-09-22",
+			"raised_on": "2026-09-22",
+			"severity": "low",
+			"area": "scoring",
+			"file": "ai/src/scoring.ts",
+			"claim": "The ROM rolls each move's damage before comparing for the highest-damage bonus, so usually only one move gets +6; our scorer gives each move an independent score distribution and cannot express that (probes tie1-tie3).",
+			"verdict": "confirmed",
+			"status": "open",
+			"evidence": "tests/ai-probes.test.js: tie2 still wrong. No held-out probe covers ties, so a fix cannot be judged on held-out yet."
+		},
+		{
+			"id": "ai-spore-plus-one-roll-condition",
+			"source": "rom-probes/2026-09-22",
+			"raised_on": "2026-09-22",
+			"severity": "low",
+			"area": "scoring",
+			"file": "ai/src/status.ts",
+			"claim": "Spore's +1 roll is blocked when the player can KO; the AI document says it applies assuming the AI sees no kill, and the ROM never rolls it when the AI itself has a kill (k1-k3, 0 of 80 rows). The observed rate is about 9%, not 25%.",
+			"verdict": "confirmed",
+			"status": "open",
+			"evidence": "Fixing the condition alone worsens p0's TVD unless the rate is also changed; left for a probe that separates the two."
 		}
 	]
 }
