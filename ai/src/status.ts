@@ -640,6 +640,20 @@ function mementoScore(evaluation: ActionEvaluation): ActionEvaluation['outcomes'
   return [{score: 13, probability: 0.05}, {score: 6, probability: 0.95}];
 }
 
+/**
+ * Whether the user is slower than the opposing mon, for a move that targets
+ * the user. A self-targeting move's facts carry the user as the "defender",
+ * so defenderSpeed is its own speed and a slower check on it never fires.
+ * The ROM compares against the player's mon: Dragon Dance reads 101 when
+ * slower and 2HKO'd (u3, h10), Agility 107 when slower (u5).
+ */
+function slowerThanOpponent(facts: ActionEvaluation['facts']): boolean {
+  const opponentFastest = Math.max(...(facts.opponentSpeeds || []), -Infinity);
+  const opposingSpeed = Number.isFinite(opponentFastest) ? opponentFastest : facts.defenderSpeed;
+  return facts.attackerSpeed !== undefined && opposingSpeed !== undefined &&
+    facts.attackerSpeed < opposingSpeed;
+}
+
 function setupScore(
   state: BattleState,
   evaluation: ActionEvaluation,
@@ -652,8 +666,7 @@ function setupScore(
     ? getPokemon(state, evaluation.action.actorId)
     : undefined;
   const incapacitated = defenderIsIncapacitated(state, evaluation);
-  const slower = facts.attackerSpeed !== undefined && facts.defenderSpeed !== undefined &&
-    facts.attackerSpeed < facts.defenderSpeed;
+  const slower = slowerThanOpponent(facts);
 
   if (id === 'bellydrum') {
     if (incapacitated) return [{score: 9, probability: 1}];
@@ -1083,8 +1096,7 @@ function statusBaseScore(
     return [{score: hasBoost || evaluation.facts.attackerSubstitute ? 14 : 0, probability: 1}];
   }
   if (id === 'agility' || id === 'autotomize' || id === 'rockpolish') {
-    const slower = evaluation.facts.attackerSpeed !== undefined && evaluation.facts.defenderSpeed !== undefined &&
-      evaluation.facts.attackerSpeed < evaluation.facts.defenderSpeed;
+    const slower = slowerThanOpponent(evaluation.facts);
     return [{score: slower ? 7 : -20, probability: 1}];
   }
   if (id === 'electricterrain' || id === 'grassyterrain' || id === 'mistyterrain' || id === 'psychicterrain') {

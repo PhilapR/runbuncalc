@@ -36,11 +36,11 @@ const replay = require('../scripts/replay-ai-probes.js');
 /**
  * First measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417),
  * raised after each ROM rule landed on fix/ai-scoring. Rounded toward passing.
- * Now: immune attacks keep their tier (0.8565 / 0.1229 / 0.8769 and 0.8889 / 0.1361 / 0.8750).
+ * Now: setup compares speed with the player (0.8843 / 0.0979 / 0.8843 and 0.9722 / 0.0528 / 0.8958).
  */
 const FLOORS = {
-	reference: {n: 72, top1: 0.856, tvd: 0.123, scoreMatch: 0.876},
-	heldout: {n: 12, top1: 0.888, tvd: 0.137, scoreMatch: 0.875},
+	reference: {n: 72, top1: 0.884, tvd: 0.098, scoreMatch: 0.884},
+	heldout: {n: 12, top1: 0.972, tvd: 0.053, scoreMatch: 0.895},
 };
 
 const result = replay.gradeAll();

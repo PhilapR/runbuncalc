@@ -105,4 +105,27 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(got['Horn Attack'], [106, 108], 'i1 Horn Attack');
 }
 
+// u3-dragon-dance-slower-2hko: a self-targeting setup move compares the
+// user's speed with the player's, so the slower-and-2HKO'd -5 fires (101).
+{
+  const got = scores(probe(
+    {species: 'Dragonite', moves: ['Splash', 'Dragon Dance', 'Dragon Claw', 'Wing Attack'],
+      stats: {hp: 260, atk: 80, def: 120, spa: 40, spd: 120, spe: 40}},
+    {species: 'Lapras', moves: ['Splash', 'Ice Beam', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 85, spd: 80, spe: 100}},
+  ));
+  assert.deepEqual(got['Dragon Dance'], [101], 'u3 Dragon Dance');
+}
+
+// u5-agility-slower: Agility +7 when slower than the player (107).
+{
+  const got = scores(probe(
+    {species: 'Alakazam', moves: ['Agility', 'Psychic', 'Splash', 'Confusion'],
+      stats: {hp: 160, atk: 40, def: 90, spa: 70, spd: 90, spe: 40}},
+    {species: 'Snorlax', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 100}},
+  ));
+  assert.deepEqual(got['Agility'], [107], 'u5 Agility');
+}
+
 console.log('ROM probe scoring fixtures passed');
