@@ -33,6 +33,14 @@
  * back to where the checkpoint was. A --spec given with it replaces the
  * knobs, so a run stuck at a wall can be carried on with another hand.
  *
+ * Each LEG (the first start, then each carry-on) is recorded in the status,
+ * the checkpoint and the row as {leg, revision, dirty, engine, spec, from,
+ * to}: `engine` is the content stamp of lib/provenance.js, and from/to are
+ * {position, fights}. A carry-on can be pinned to another revision, so a run
+ * can span engines; the row's `provenance` names only the last leg, and
+ * `legs` is where the others are. A checkpoint from before legs were kept
+ * gives one leg of engine unknown (before stamps).
+ *
  * Every baseline before this was launched from a throwaway script. One batch
  * failed its provenance audit for running from a tree being edited, another
  * silently played without search because its flags lived on argv, and none
@@ -69,6 +77,22 @@ function readJson(file) {
 	}
 }
 
+/** The legs before this one: the checkpoint's, or one unknown leg for a checkpoint from before them. */
+function priorLegs(restore) {
+	if (!restore) return [];
+	if (Array.isArray(restore.legs)) return restore.legs;
+	return [{leg: 1, revision: null, dirty: null, engine: null, spec: restore.spec || '',
+		from: null, to: {position: restore.position, fights: restore.state.tally.fights}}];
+}
+
+/** This leg, at its start. */
+function openLeg(prior, stamp, spec, restore, from) {
+	const start = {position: restore ? restore.position : from ? (from.doc || from).position || 0 : 0,
+		fights: restore ? restore.state.tally.fights : 0};
+	return {leg: prior.length + 1, revision: stamp.revision, dirty: stamp.dirty, engine: stamp, spec,
+		from: start, to: Object.assign({}, start), startedAt: new Date().toISOString()};
+}
+
 function main() {
 	const seed = Number(own('seed', ''));
 	const out = own('out', '');
@@ -93,16 +117,23 @@ function main() {
 	const started = Date.now();
 	// A carried-on run keeps its knobs unless it is given others.
 	const spec = own('spec', restore ? restore.spec || '' : '');
+	const provenance = require('../lib/provenance.js');
+	const leg = openLeg(priorLegs(restore), provenance.currentStamp(), spec, restore, from);
+	const legs = priorLegs(restore).concat([leg]);
+	const reach = now => { leg.to = {position: now.position, fights: now.state.tally.fights}; };
 	const starter = restore ? restore.starter : {species: own('starter', 'Chimchar'), rival: own('rival', 'Blaziken')};
 	const sidecar = fightLog.openFightLog(base + '.fights.ndjson.gz', restore ? restore.fightLog : undefined);
 	if (restore) say('CARRIED ON from position ' + restore.position + ', fight ' + restore.state.tally.fights);
+	say('LEG ' + leg.leg + ' on ' + provenance.describe(leg.engine));
+	const engines = provenance.enginesOfLegs(legs);
+	if (engines.length > 1) say('this run now spans ' + engines.length + ' engines: ' + engines.map(entry => entry.key).join(', '));
 	try { fs.unlinkSync(base + '.control.json'); } catch (error) { /* none waiting */ }
 	let checkpointed = 0;
 	let state = 'running';
 	const status = now => writeAtomic(base + '.status.json', JSON.stringify({pid: process.pid, seed, state,
 		position: now ? now.position : null, fights: now ? now.state.tally.fights : 0,
 		attempts: now ? now.state.attempts : 0,
-		startedAt: started, updatedAt: Date.now(), spec,
+		startedAt: started, updatedAt: Date.now(), spec, legs,
 		secondsPerFight: now && now.state.tally.fights ? Number((now.state.elapsedMs / 1000 / now.state.tally.fights).toFixed(1)) : null,
 		rssMb: Math.round(process.memoryUsage().rss / 1048576)}));
 	const row = headless.playRun(policy, starter,
@@ -116,22 +147,27 @@ function main() {
 			},
 			checkpoint: (snapshot, force) => {
 				const now = snapshot();
+				reach(now);
 				if (force) state = 'stopping';
 				status(now);
 				if (!force && Date.now() - checkpointed < CHECKPOINT_MS) return;
 				checkpointed = Date.now();
-				writeAtomic(base + '.checkpoint.json', JSON.stringify(Object.assign({spec,
+				writeAtomic(base + '.checkpoint.json', JSON.stringify(Object.assign({spec, legs,
 					fightLog: {bytes: sidecar.bytes, lines: sidecar.lines}}, now)));
 			},
 			onCrash: (crash, doc) => {
 				try { fs.writeFileSync(base + '.crash-' + crash.order + '.json', JSON.stringify({crash, doc})); } catch (error) { /* a crash dump that cannot be written must not end the run */ }
 			}});
 	row.seconds = Math.round((Date.now() - started) / 1000);
+	leg.to = {position: row.position, fights: row.fights};
+	leg.endedAt = new Date().toISOString();
+	row.provenance = Object.assign({}, row.provenance, {engine: leg.engine});
+	row.legs = legs;
 	writeAtomic(base + '.json', JSON.stringify(row));
 	state = row.stopped === 'stopped by request' ? 'stopped' : row.finished ? 'finished' : 'ended';
 	const last = readJson(base + '.status.json') || {};
 	writeAtomic(base + '.status.json', JSON.stringify(Object.assign(last, {state, position: row.position,
-		fights: row.fights, updatedAt: Date.now(), stopped: row.stopped || null})));
+		fights: row.fights, updatedAt: Date.now(), stopped: row.stopped || null, legs})));
 	try { fs.unlinkSync(base + '.control.json'); } catch (error) { /* none */ }
 	say('DONE position ' + row.position + ' fights ' + row.fights + ' finished ' + !!row.finished +
 		' stopped ' + String(row.stopped || '').slice(0, 80));
@@ -140,4 +176,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {specOf, writeAtomic, readJson};
+module.exports = {specOf, writeAtomic, readJson, priorLegs, openLeg};

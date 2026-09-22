@@ -24,6 +24,7 @@
 const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
+const provenance = require('../lib/provenance.js');
 const slots = require('../lib/slots.js');
 
 const ROOT = path.join(__dirname, '..');
@@ -55,12 +56,29 @@ function list(dir) {
 				// A status that says running over a dead pid is a run that was killed.
 				const state = /^(running|stopping|paused)$/.test(status.state) && !live ? 'dead' : status.state;
 				out.push(Object.assign({}, status, {run: path.relative(dir, base), base, state,
-					checkpoint: fs.existsSync(base + '.checkpoint.json')}));
+					checkpoint: fs.existsSync(base + '.checkpoint.json'), engines: enginesOf(status)}));
 			}
 		}
 	};
 	walk(dir, 0);
 	return out.sort((a, b) => b.updatedAt - a.updatedAt);
+}
+
+/**
+ * The engines a run's legs were played on (scripts/run-one.js records them):
+ * their keys, first met first. A status from before legs reads as one unknown.
+ */
+function enginesOf(status) {
+	if (!Array.isArray(status.legs) || !status.legs.length) return [provenance.UNKNOWN];
+	return provenance.enginesOfLegs(status.legs).map(entry => entry.key);
+}
+
+/** What the list says about engines: nothing for one known, a flag for a span. */
+function engineNote(row) {
+	const engines = row.engines || [];
+	if (engines.length > 1) return ' SPANS ' + engines.length + ' ENGINES (' + engines.join(', ') + ')';
+	if (engines[0] === provenance.UNKNOWN) return ' (' + provenance.UNKNOWN + ')';
+	return engines.length ? ' ' + engines[0] : '';
 }
 
 function find(dir, name) {
@@ -110,7 +128,8 @@ function table(rows) {
 		lines.push([row.run.padEnd(28), String(row.state).padEnd(9), ('pos ' + row.position).padEnd(9),
 			(row.fights + ' fights').padEnd(12), (row.secondsPerFight === null ? '' : row.secondsPerFight + ' s/fight').padEnd(14),
 			(row.rssMb + ' MB').padEnd(8), Math.round((Date.now() - row.updatedAt) / 1000) + ' s ago',
-			row.spec ? ' [' + (row.spec.length > 48 ? row.spec.slice(0, 45) + '...' : row.spec) + ']' : ''].join(' '));
+			row.spec ? ' [' + (row.spec.length > 48 ? row.spec.slice(0, 45) + '...' : row.spec) + ']' : ''].join(' ') +
+			engineNote(row));
 	}
 	return lines;
 }
@@ -130,4 +149,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {list, find, act, table};
+module.exports = {list, find, act, table, enginesOf};
