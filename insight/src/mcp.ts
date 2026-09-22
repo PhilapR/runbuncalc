@@ -18,7 +18,7 @@ import * as readline from 'node:readline';
 import {strategyOf, walls} from './analyse.js';
 import {loadRunWithFights} from './cli.js';
 import {control, listRuns, readLive, readMachine, readStatus} from './serve.js';
-import {tagsOf} from './tags.js';
+import {readDoublesLine, tagsOf} from './tags.js';
 
 const Report = Schema.String.annotations({description: 'Path to a headless run record (JSON) written by scripts/headless-run.js.'});
 
@@ -96,8 +96,16 @@ export const TOOLS: ReadonlyArray<AnyTool> = [
 		run: args => loaded(args.report).pipe(Effect.flatMap(run => {
 			const attempt = run.ledger.find(entry => entry.n === args.n);
 			if (attempt === undefined) return Effect.fail('no attempt numbered ' + args.n);
+			// A double's tape is events, not turns: each line read for whose it was and what it did.
+			if ((attempt.log === undefined || attempt.log.length === 0) && attempt.events !== undefined) {
+				const ours = new Set((attempt.six ?? []).map(member => member.species));
+				const lines: unknown = {double: true, lines: attempt.events.map(event => ({...event,
+					read: readDoublesLine(event, ours)}))
+					.filter(line => args.tag === undefined || (line.read?.tags ?? []).some(tag => tag === args.tag))};
+				return Effect.succeed(lines);
+			}
 			if (attempt.log === undefined) return Effect.fail('attempt ' + args.n + ' kept no log (played before fight logs, or --fight-logs excluded it)');
-			return Effect.succeed(attempt.log.map(turn => ({...turn, tags: tagsOf(turn)}))
+			return Effect.succeed<unknown>(attempt.log.map(turn => ({...turn, tags: tagsOf(turn)}))
 				.filter(turn => args.tag === undefined || turn.tags.some(tag => tag === args.tag))
 				.map(turn => args.detail === true ? turn : {turn: turn.turn, us: turn.us, usHp: turn.usHp, foe: turn.foe,
 					foeHp: turn.foeHp, chose: turn.chose, why: turn.why, tags: turn.tags, events: turn.events}));

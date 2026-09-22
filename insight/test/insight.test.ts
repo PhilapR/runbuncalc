@@ -361,3 +361,26 @@ test('a double is read from its tape: who acted, what it cost, which foe took ou
 	assert.ok(old?.summaries[0]?.order.includes('Urshifu'), 'the fallback cannot see a mirror');
 	assert.equal(old?.summaries[0]?.tagCounts['we-fall'], 1, 'Lopunny-Mega is matched to Lopunny in the six');
 });
+
+test('a carried-on run is read from its newer checkpoint, not its last leg\'s stale record', async () => {
+	// 418957 played Sidney's double, Phoebe, Glacia and Drake while RUN.json
+	// still said it had stopped at Sidney; every agent tool read RUN.json.
+	const fs = await import('node:fs/promises');
+	const os = await import('node:os');
+	const path = await import('node:path');
+	const {loadRun} = await import('../src/cli.js');
+	const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'insight-carry-'));
+	const row = (n: number, trainer: string) => ({n, order: 1577, trainer, seed: n, result: 'loss'});
+	const record = path.join(dir, 'run-1.json');
+	await fs.writeFile(record, JSON.stringify({seed: 1, position: 1573, fights: 1, ledger: [row(1, 'Elite Four Sidney')]}));
+	await fs.writeFile(path.join(dir, 'run-1.checkpoint.json'), JSON.stringify({seed: 1, position: 1583,
+		state: {tally: {fights: 2, ledger: [row(1, 'Elite Four Sidney'), row(2, 'Elite Four SidneyDouble')]}}}));
+	await fs.utimes(record, new Date(1000), new Date(1000));
+	const now = await Effect.runPromise(loadRun(record));
+	assert.equal(now.ledger.length, 2, 'the newer checkpoint wins');
+	assert.equal(now.position, 1583);
+	// A record written after the checkpoint (the leg ended) is the one read.
+	await fs.utimes(record, new Date(), new Date(Date.now() + 60000));
+	assert.equal((await Effect.runPromise(loadRun(record))).ledger.length, 1);
+	await fs.rm(dir, {recursive: true});
+});

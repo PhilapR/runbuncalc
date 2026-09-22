@@ -25,9 +25,38 @@ const flag = (argv: ReadonlyArray<string>, name: string): string | undefined => 
 	return hit === undefined ? undefined : hit.slice(name.length + 3);
 };
 
-/** A run record off disk, decoded — or the reason it is not one. */
-export const loadRun = (file: string): Effect.Effect<RunRecord, ReadFailed | NotJson | NotARun> =>
+/**
+ * A checkpoint holds the run's ledger inside its state; lift it to a record's
+ * shape. Anything else passes through untouched for decodeRun to judge.
+ */
+const liftCheckpoint = (json: unknown): unknown => {
+	if (typeof json !== 'object' || json === null || !('state' in json)) return json;
+	const checkpoint = json as {seed?: unknown; position?: unknown; starter?: {species?: unknown};
+		state?: {tally?: {fights?: unknown; ledger?: unknown}}};
+	const tally = checkpoint.state?.tally;
+	if (tally === undefined) return json;
+	return {seed: checkpoint.seed, position: checkpoint.position, fights: tally.fights, ledger: tally.ledger,
+		...(typeof checkpoint.starter?.species === 'string' ? {starter: checkpoint.starter.species} : {})};
+};
+
+/**
+ * The file that holds a run as it stands now. A run carried on has both its
+ * last leg's record (RUN.json) and a newer checkpoint, and the record is
+ * stale until the leg ends: 418957 played Sidney's double, Phoebe, Glacia and
+ * Drake while RUN.json still said it had stopped at Sidney. The newer wins, as
+ * it does on the watch page.
+ */
+export const currentOf = async (file: string): Promise<string> => {
+	if (!file.endsWith('.json') || file.endsWith('.checkpoint.json')) return file;
+	const checkpoint = file.replace(/\.json$/, '.checkpoint.json');
+	const [record, kept] = await Promise.all([fs.stat(file).catch(() => null), fs.stat(checkpoint).catch(() => null)]);
+	return kept !== null && (record === null || kept.mtimeMs > record.mtimeMs) ? checkpoint : file;
+};
+
+/** A run record off disk, decoded — or the reason it is not one. A checkpoint reads as the record so far. */
+export const loadRun = (given: string): Effect.Effect<RunRecord, ReadFailed | NotJson | NotARun> =>
 	Effect.gen(function* () {
+		const file = yield* Effect.promise(() => currentOf(given));
 		const text = yield* Effect.tryPromise({
 			try: () => fs.readFile(file, 'utf8'),
 			catch: cause => new ReadFailed({file, cause}),
@@ -36,13 +65,13 @@ export const loadRun = (file: string): Effect.Effect<RunRecord, ReadFailed | Not
 			try: () => JSON.parse(text) as unknown,
 			catch: cause => new NotJson({file, cause}),
 		});
-		return yield* decodeRun(json).pipe(
+		return yield* decodeRun(liftCheckpoint(json)).pipe(
 			Effect.mapError(error => new NotARun({file, issue: ParseResult.TreeFormatter.formatErrorSync(error)})),
 		);
 	});
 
 /** Where a run's fights are streamed: `RUN.json` keeps `RUN.fights.ndjson.gz` beside it. */
-export const sidecarOf = (report: string): string => report.replace(/\.json$/, '') + '.fights.ndjson.gz';
+export const sidecarOf = (report: string): string => report.replace(/(\.checkpoint)?\.json$/, '') + '.fights.ndjson.gz';
 
 /**
  * The fights of a run, off its sidecar. Absent is not an error — a run played
