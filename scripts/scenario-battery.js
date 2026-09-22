@@ -59,13 +59,22 @@ function provenance() {
 			return null;
 		}
 	};
+	// The bytes that played, not only the commit that names them: ai/dist
+	// is a copied build, and a revision cannot see it (lib/provenance.js).
+	// Taken at start and settled now: data loads lazily, so a file changed
+	// mid-batch played under the start stamp. A moved stamp never matches,
+	// so battery-pair and battery-tape refuse the receipt.
+	const stamps = require('../lib/provenance.js');
+	const engine = stamps.settle(stamps.currentStamp());
+	if (engine.moved) {
+		console.error('WARNING: the engine moved during this batch: ' + stamps.describe(engine) + '; ' +
+			engine.moved.differs.join(', ') + ' differ. The receipt says so, and will not join or replay as one engine.');
+	}
 	return {
 		revision: git(['rev-parse', 'HEAD']),
 		dirty: git(['status', '--porcelain']) !== '',
 		date: new Date().toISOString(),
-		// The bytes that played, not only the commit that names them: ai/dist
-		// is a copied build, and a revision cannot see it (lib/provenance.js).
-		engine: require('../lib/provenance.js').currentStamp(),
+		engine,
 	};
 }
 

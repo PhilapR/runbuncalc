@@ -323,6 +323,13 @@ function enginesCheck(row) {
 			' time(s), so it may span engines' : ''), repair: 're-run it on a stamped runner to name its engine'};
 	}
 	const engines = stamps.enginesOfLegs(legs);
+	const moved = legs.filter(leg => leg.engine && leg.engine.moved);
+	if (moved.length) {
+		return {status: 'WARN', detail: 'the engine moved while leg' + (moved.length > 1 ? 's ' : ' ') +
+			moved.map(leg => leg.leg).join(',') + ' played: ' + moved.map(leg => stamps.describe(leg.engine) + ' (' +
+			leg.engine.moved.differs.join(', ') + ' differ)').join('; '),
+		repair: 'a file that decides play changed mid-leg; replay it on a tree nobody edits'};
+	}
 	const named = engines.map(entry => entry.key + ' (leg' + (entry.legs.length > 1 ? 's ' : ' ') +
 		entry.legs.join(',') + (entry.stamp && entry.stamp.revision ? ' at ' + entry.stamp.revision.slice(0, 10) : '') + ')');
 	if (engines.length > 1) {
@@ -331,6 +338,15 @@ function enginesCheck(row) {
 	}
 	if (engines[0].key === stamps.UNKNOWN) {
 		return {status: 'WARN', detail: 'played on 1 engine: ' + named[0], repair: 're-run it on a stamped runner to name its engine'};
+	}
+	// A --resume run (not a carry-on) starts from another run's log and plays
+	// on from it; the fights in that log were played by a process that left no
+	// stamp here, so one engine for this run's own legs is not one engine.
+	const resumedLog = Number(row.resumedLog) || 0;
+	if (resumedLog > 0 || Number(row.resumedAt) > 0) {
+		return {status: 'WARN', detail: 'played on 1 engine: ' + named[0] + '; resumed from position ' +
+			(row.resumedAt || 0) + ' with ' + resumedLog + ' inherited log entries played on ' + stamps.UNKNOWN,
+		repair: 'the inherited fights may be another engine; replay from the start on one engine to name it'};
 	}
 	return {status: 'PASS', detail: 'played on 1 engine: ' + named[0], repair: null};
 }

@@ -93,6 +93,18 @@ function openLeg(prior, stamp, spec, restore, from) {
 		from: start, to: Object.assign({}, start), startedAt: new Date().toISOString()};
 }
 
+/**
+ * This leg, at its end: where it reached, and its stamp settled against the
+ * tree as it is now. Data loads lazily, so a file changed hours into the leg
+ * played under the start stamp; a moved stamp says so (lib/provenance.js).
+ */
+function closeLeg(leg, row, provenance) {
+	leg.to = {position: row.position, fights: row.fights};
+	leg.endedAt = new Date().toISOString();
+	leg.engine = provenance.settle(leg.engine);
+	return leg;
+}
+
 function main() {
 	const seed = Number(own('seed', ''));
 	const out = own('out', '');
@@ -118,8 +130,9 @@ function main() {
 	// A carried-on run keeps its knobs unless it is given others.
 	const spec = own('spec', restore ? restore.spec || '' : '');
 	const provenance = require('../lib/provenance.js');
-	const leg = openLeg(priorLegs(restore), provenance.currentStamp(), spec, restore, from);
-	const legs = priorLegs(restore).concat([leg]);
+	const prior = priorLegs(restore);
+	const leg = openLeg(prior, provenance.currentStamp(), spec, restore, from);
+	const legs = prior.concat([leg]);
 	const reach = now => { leg.to = {position: now.position, fights: now.state.tally.fights}; };
 	const starter = restore ? restore.starter : {species: own('starter', 'Chimchar'), rival: own('rival', 'Blaziken')};
 	const sidecar = fightLog.openFightLog(base + '.fights.ndjson.gz', restore ? restore.fightLog : undefined);
@@ -162,8 +175,7 @@ function main() {
 				try { fs.writeFileSync(base + '.crash-' + crash.order + '.json', JSON.stringify({crash, doc})); } catch (error) { /* a crash dump that cannot be written must not end the run */ }
 			}});
 	row.seconds = Math.round((Date.now() - started) / 1000);
-	leg.to = {position: row.position, fights: row.fights};
-	leg.endedAt = new Date().toISOString();
+	closeLeg(leg, row, provenance);
 	row.provenance = Object.assign({}, row.provenance, {engine: leg.engine});
 	row.legs = legs;
 	writeAtomic(base + '.json', JSON.stringify(row));
@@ -179,4 +191,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {specOf, writeAtomic, readJson, priorLegs, openLeg};
+module.exports = {specOf, writeAtomic, readJson, priorLegs, openLeg, closeLeg};
