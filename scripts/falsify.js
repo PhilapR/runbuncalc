@@ -25,8 +25,17 @@
  * So the mutation happens in a detached worktree at HEAD and the live tree is
  * never touched. The worktree is removed afterwards, whatever the outcome.
  *
- * Exit code 0 means the guard FAILED under the mutation, which is the result
- * you want. Exit 1 means it passed and the gate is hollow.
+ * Four outcomes, four exit codes, because a script that cannot tell them apart
+ * will read the wrong one as success:
+ *
+ *   0  FALSIFIED  an assertion failed. The guard tests what you think.
+ *   1  HOLLOW     it passed with the source mutated. The guard does not.
+ *   2  BROKEN     the mutation stopped the file loading, so every test failed
+ *                 and the guard was never asked. Not a falsification.
+ *   3  DRIFTED    --from no longer matches, so nothing was mutated at all.
+ *
+ * The last two are the ones that flatter you: both look like a result and
+ * neither is one. pokemon-mono's `just falsify` made the same split.
  */
 
 const childProcess = require('node:child_process');
@@ -59,7 +68,15 @@ function main() {
 		const before = fs.readFileSync(target, 'utf8');
 		const count = before.split(from).length - 1;
 		if (count !== 1) {
-			throw new Error(`--from matches ${count} times in ${file}; it must match exactly once`);
+			// DRIFTED: the text moved or was rewritten, so the mutation never
+			// applied. It threw before, which exits 1 — the same code as HOLLOW,
+			// so a script could not tell "your guard is hollow" from "your
+			// pattern is stale" (pokemon-mono split the same three cases in
+			// fb5ab8d and needed this fourth one; raised by that session).
+			process.stdout.write('DRIFTED: --from matches ' + count + ' times in ' + file +
+				', so nothing was mutated and the guard was never asked. It must match exactly once.\n');
+			process.exitCode = 3;
+			return;
 		}
 		fs.writeFileSync(target, before.replace(from, to));
 		const args = ['--test'].concat(name ? ['--test-name-pattern=' + name] : [], [test]);

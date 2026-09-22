@@ -90,15 +90,24 @@ that never holds, on a receipt naming a revision that looks clean. Twelve such
 windows were opened in one session before a peer noticed (2026-09-22).
 
 So the mutation happens in a detached worktree at HEAD and the live tree is
-never touched. `--from` must match exactly once. Three outcomes:
+never touched. Four outcomes, four exit codes, because a script that cannot
+tell them apart will read the wrong one as success:
 
-- **FALSIFIED** (exit 0) — an assertion failed. The guard tests what you think.
-- **HOLLOW** (exit 1) — it passed with the source mutated. The guard is not
-  testing what you think, and this has caught real ones: a checkpoint gate that
-  ignored the dice, a Mega gate where party order and board order agreed.
-- **BROKEN** (exit 2) — the mutation stopped the file loading, so every test
-  failed and the guard was never asked. Not a falsification; the first cut of
-  this tool called that a pass, which is worse than no tool.
+| | | |
+|---|---|---|
+| **FALSIFIED** | 0 | an assertion failed. The guard tests what you think. |
+| **HOLLOW** | 1 | it passed with the source mutated. The guard does not. |
+| **BROKEN** | 2 | the mutation stopped the file loading, so every test failed and the guard was never asked. |
+| **DRIFTED** | 3 | `--from` no longer matches, so nothing was mutated at all. |
+
+The last two flatter you: both look like a result and neither is one. The
+first cut of this tool called BROKEN a pass (`--to=x` reported success), and
+DRIFTED threw, which exits 1 — the same code as HOLLOW, so a script could not
+tell a hollow guard from a stale pattern. pokemon-mono's `just falsify` made
+the same split in fb5ab8d, and that session raised the fourth case here.
+
+HOLLOW has caught real ones: a checkpoint gate that ignored the dice position,
+and a Mega gate where party order and board order happened to agree.
 
 ## What is not here
 

@@ -161,7 +161,7 @@ the reader's warning to verify before trusting.
 - `docs/PERFORMANCE.md` — f6708e5 2026-09-22
 - `docs/PLAN.md` — 3be1536 2026-09-22
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
-- `docs/RUN-CONTROL.md` — 7f2f5c0 2026-09-21
+- `docs/RUN-CONTROL.md` — 6481157 2026-09-22
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
 - `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18
 - `docs/RUN_API.md` — 6234521 2026-08-28
