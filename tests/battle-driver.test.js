@@ -1136,3 +1136,34 @@ test('a fight\'s seed reaches its opening: the same seed opens the same way, ano
 	assert.notEqual(draws[1], draws[2], 'another seed, another draw');
 	assert.notEqual(draws[3], draws[4], 'doubles too');
 });
+
+test('a body lost at the end of a turn is counted and has an epitaph, in doubles too', () => {
+	// Every advanceTurn went unrecorded: a doubles fight counts its deaths from
+	// the faint log, so a body poison took at the end of a turn was not a death
+	// at all, and a singles epitaph named no cause.
+	const planner = require('../lib/planner');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const original = planner.buildFightState;
+	planner.buildFightState = options => {
+		const built = original(options);
+		const sides = built.state.sides;
+		// Ours: both actives at 1 HP and poisoned. Theirs: both asleep, so
+		// nothing of theirs acts before the turn ends.
+		const edit = (side, change) => Object.assign({}, sides[side], {party: sides[side].party.map(mon =>
+			sides[side].activeIds.includes(mon.id) ? Object.assign({}, mon, change(mon)) : mon)});
+		built.state = Object.assign({}, built.state, {sides: Object.assign({}, sides, {
+			player: edit('player', mon => ({hp: Object.assign({}, mon.hp, {current: 1}), status: 'psn'})),
+			ai: edit('ai', () => ({status: 'slp', statusTurns: 3}))})});
+		return built;
+	};
+	let played;
+	try {
+		played = driver.playDoubles(saved, 'Elite Four SidneyDouble', 3);
+	} finally {
+		planner.buildFightState = original;
+	}
+	const residual = (played.killers || []).filter(death => death.by === 'end of turn');
+	assert.equal(residual.length, 2, 'both poisoned actives fell to the turn end: ' + JSON.stringify(played.killers));
+	assert.ok(played.deaths >= 2, 'and they are deaths: ' + played.deaths);
+});
