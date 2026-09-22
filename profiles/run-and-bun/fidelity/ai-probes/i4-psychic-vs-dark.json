@@ -1,0 +1,578 @@
+{
+  "probe": "i4-psychic-vs-dark",
+  "protocol": "two-turn",
+  "description": "Psychic immunity: Alakazam's STAB Psychic (0x on Dark Mightyena) vs resisted Shadow Ball (0.5x) and neutral Energy Ball.",
+  "hypothesis": "Psychic 80; Shadow Ball 100; Energy Ball 106/108",
+  "player": {
+    "species": 262,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      17,
+      17
+    ]
+  },
+  "enemy": {
+    "species": 65,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Psychic",
+      "Shadow Ball",
+      "Energy Ball"
+    ],
+    "stats": {
+      "hp": 160,
+      "atk": 50,
+      "def": 60,
+      "spa": 130,
+      "spd": 90,
+      "spe": 120
+    },
+    "ability": 50,
+    "types": [
+      14,
+      14
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 0,
+  "n_seeds": 20,
+  "distribution": {
+    "Energy Ball": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      65,
+      90,
+      94,
+      99
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 62,
+      "damage_to_b": 0,
+      "hp_a_after": 338,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0xc6417a8e",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 56,
+      "damage_to_b": 0,
+      "hp_a_after": 344,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 659,
+      "rng_after": "0xdd73c0ef",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        108
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 57,
+      "damage_to_b": 0,
+      "hp_a_after": 343,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0x5e476cf8",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 61,
+      "damage_to_b": 0,
+      "hp_a_after": 339,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 924,
+      "rng_after": "0x4492671f",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 90,
+      "damage_to_b": 0,
+      "hp_a_after": 310,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 788,
+      "rng_after": "0xbc630d92",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 56,
+      "damage_to_b": 0,
+      "hp_a_after": 344,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 659,
+      "rng_after": "0x74f437b0",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 59,
+      "damage_to_b": 0,
+      "hp_a_after": 341,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0xf3b15436",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 56,
+      "damage_to_b": 0,
+      "hp_a_after": 344,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 659,
+      "rng_after": "0xe4156c74",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 60,
+      "damage_to_b": 0,
+      "hp_a_after": 340,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0x28e6cca1",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 65,
+      "damage_to_b": 0,
+      "hp_a_after": 335,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 924,
+      "rng_after": "0xe7c00a34",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 90,
+      "damage_to_b": 0,
+      "hp_a_after": 310,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 788,
+      "rng_after": "0xd27fcceb",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 60,
+      "damage_to_b": 0,
+      "hp_a_after": 340,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 660,
+      "rng_after": "0x50b3fd56",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 57,
+      "damage_to_b": 0,
+      "hp_a_after": 343,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0x6066ad19",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 61,
+      "damage_to_b": 0,
+      "hp_a_after": 339,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0x57154be3",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 60,
+      "damage_to_b": 0,
+      "hp_a_after": 340,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 660,
+      "rng_after": "0x2c1420ae",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 62,
+      "damage_to_b": 0,
+      "hp_a_after": 338,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0x13cb52ab",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 99,
+      "damage_to_b": 0,
+      "hp_a_after": 301,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 789,
+      "rng_after": "0x5a9e755e",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 58,
+      "damage_to_b": 0,
+      "hp_a_after": 342,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0xbd7b7b76",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 58,
+      "damage_to_b": 0,
+      "hp_a_after": 342,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 661,
+      "rng_after": "0x29884ff8",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        108
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Energy Ball",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 94,
+      "damage_to_b": 0,
+      "hp_a_after": 306,
+      "hp_b_after": 160,
+      "sleep_turns_a": 0,
+      "frames": 1031,
+      "rng_after": "0x226d5365",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        80,
+        100,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Splash": [
+      81
+    ],
+    "Psychic": [
+      80
+    ],
+    "Shadow Ball": [
+      100
+    ],
+    "Energy Ball": [
+      106,
+      108
+    ]
+  },
+  "scores_explain_all_choices": true
+}

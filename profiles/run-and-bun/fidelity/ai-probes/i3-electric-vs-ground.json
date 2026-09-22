@@ -1,0 +1,572 @@
+{
+  "probe": "i3-electric-vs-ground",
+  "protocol": "two-turn",
+  "description": "Electric immunity: Jolteon's STAB Thunderbolt (0x on Ground Marowak) vs Water Gun (2x, 40BP) and Bite (60BP neutral).",
+  "hypothesis": "Thunderbolt 80; Water Gun 106/108; Bite 100",
+  "player": {
+    "species": 105,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      4,
+      4
+    ]
+  },
+  "enemy": {
+    "species": 135,
+    "level": 50,
+    "moves": [
+      "Thunderbolt",
+      "Water Gun",
+      "Splash",
+      "Bite"
+    ],
+    "stats": {
+      "hp": 180,
+      "atk": 90,
+      "def": 80,
+      "spa": 110,
+      "spd": 90,
+      "spe": 110
+    },
+    "ability": 50,
+    "types": [
+      13,
+      13
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Water Gun": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      44,
+      46,
+      48,
+      50,
+      52
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0xd714c894",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 52,
+      "damage_to_b": 0,
+      "hp_a_after": 348,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0xb0ad9bc1",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 48,
+      "damage_to_b": 0,
+      "hp_a_after": 352,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x1e5ac8ee",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 48,
+      "damage_to_b": 0,
+      "hp_a_after": 352,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0xade45a1f",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x41d9bb22",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 813,
+      "rng_after": "0xd5794b2a",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 813,
+      "rng_after": "0x05e659fc",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 44,
+      "damage_to_b": 0,
+      "hp_a_after": 356,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0xfaebc88e",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 44,
+      "damage_to_b": 0,
+      "hp_a_after": 356,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x5831b26f",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 52,
+      "damage_to_b": 0,
+      "hp_a_after": 348,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0xc7758934",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x33a582bb",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 50,
+      "damage_to_b": 0,
+      "hp_a_after": 350,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 815,
+      "rng_after": "0x9880732a",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 813,
+      "rng_after": "0xef658e27",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x1d7523e1",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x661ab63e",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 50,
+      "damage_to_b": 0,
+      "hp_a_after": 350,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x2d635d69",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 44,
+      "damage_to_b": 0,
+      "hp_a_after": 356,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x3667a5e4",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 44,
+      "damage_to_b": 0,
+      "hp_a_after": 356,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x0102af3c",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 44,
+      "damage_to_b": 0,
+      "hp_a_after": 356,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 813,
+      "rng_after": "0x9136f3ee",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Water Gun",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 44,
+      "damage_to_b": 0,
+      "hp_a_after": 356,
+      "hp_b_after": 180,
+      "sleep_turns_a": 0,
+      "frames": 814,
+      "rng_after": "0x0dcc0b5f",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Thunderbolt": [
+      80
+    ],
+    "Water Gun": [
+      106,
+      108
+    ],
+    "Splash": [
+      81
+    ],
+    "Bite": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

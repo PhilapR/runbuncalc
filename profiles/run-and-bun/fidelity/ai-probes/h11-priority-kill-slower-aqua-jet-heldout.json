@@ -1,0 +1,569 @@
+{
+  "probe": "h11-priority-kill-slower-aqua-jet-heldout",
+  "protocol": "two-turn",
+  "seed_cohort": "heldout",
+  "description": "Priority kill while slower: Azumarill (spe 50 vs 100) \u2014 STAB Aqua Jet and Waterfall both KO a Fire/Ground Camerupt (4x) at 40 HP.",
+  "hypothesis": "fast-kill tier for the priority move: Aqua Jet 112/114 beats Waterfall's slow-kill 109/111 => Aqua Jet 20/20",
+  "player": {
+    "species": 323,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 40,
+      "atk": 30,
+      "def": 90,
+      "spa": 30,
+      "spd": 90,
+      "spe": 100
+    },
+    "ability": 50,
+    "types": [
+      10,
+      4
+    ]
+  },
+  "enemy": {
+    "species": 184,
+    "level": 50,
+    "moves": [
+      "Aqua Jet",
+      "Splash",
+      "Waterfall",
+      "Tackle"
+    ],
+    "stats": {
+      "hp": 220,
+      "atk": 110,
+      "def": 110,
+      "spa": 70,
+      "spd": 90,
+      "spe": 50
+    },
+    "ability": 50,
+    "types": [
+      11,
+      11
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "n_seeds": 20,
+  "distribution": {
+    "Aqua Jet": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      40
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0x99340847",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xcb597905",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x1fa06f79",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x5100b7e7",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x5ba78d9e",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xf4b35104",
+      "resolved": true,
+      "ai_scores": [
+        114,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xe8970a14",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xd32e498a",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x3364513e",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x4905dba4",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x913a7e7f",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xe6e2d87d",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x004bd1a5",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xd966d033",
+      "resolved": true,
+      "ai_scores": [
+        114,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x3596dfda",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xa0cef2e0",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        111,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x23d0f56c",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x88b3c922",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        111,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x92d01192",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xfa4de1d8",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x8ca12583",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xf2fe6de1",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xaa3320eb",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x43609709",
+      "resolved": true,
+      "ai_scores": [
+        114,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0bead87c",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x6d4a8db2",
+      "resolved": true,
+      "ai_scores": [
+        114,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x4c4b71ce",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x12cbe1b4",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x6c26be17",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x86bcf255",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc7647f45",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x3c7234d3",
+      "resolved": true,
+      "ai_scores": [
+        114,
+        81,
+        111,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x59139b63",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xf0a6c0c1",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x658225dc",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xe5f72c12",
+      "resolved": true,
+      "ai_scores": [
+        114,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x060f1d40",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0xaa4b2ad6",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        109,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x514a9df3",
+      "enemy_move": "Aqua Jet",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 0,
+      "hp_b_after": 220,
+      "sleep_turns_a": 0,
+      "frames": 744,
+      "rng_after": "0x506cd8d1",
+      "resolved": true,
+      "ai_scores": [
+        112,
+        81,
+        111,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Aqua Jet": [
+      112,
+      114
+    ],
+    "Splash": [
+      81
+    ],
+    "Waterfall": [
+      109,
+      111
+    ],
+    "Tackle": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}
