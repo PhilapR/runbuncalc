@@ -186,6 +186,20 @@ test('the run map and the engine agree on every double battle', () => {
 		.sort();
 	assert.deepEqual(disagree, [],
 		'every fight the engine flags as doubles must be doubles on the map');
+	// And two the engine is SILENT about. It states no flag either way for
+	// Glacia's and Drake's Double variants, so the comparison above never sees
+	// them — they would have been played as singles. Both are real double
+	// teams (each fields a party its single variant does not) and the Elite
+	// Four is two members taken single and two double (operator, 2026-09-22).
+	// Pinned here so the declaration is visible, not silent.
+	const silent = ['Elite Four DrakeDouble', 'Elite Four GlaciaDouble'];
+	for (const trainer of silent) {
+		const row = rows.find(entry => entry.trainer === trainer);
+		assert.ok(!row || row.isDouble === undefined || row.isDouble === null,
+			trainer + ': the engine now states a flag — reconcile it rather than declaring it here');
+		assert.equal(fights.find(entry => entry.trainer === trainer).isDouble, true,
+			trainer + ' is a double battle on the map');
+	}
 });
 
 test('every dated ledger item is served by exactly one collect surface', () => {

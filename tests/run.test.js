@@ -2788,3 +2788,43 @@ test('a move tutor teaches only once the road has reached it', () => {
 	const later = Object.assign({}, saved, {position: 623});
 	assert.doesNotThrow(() => run.apply(later, command), 'and once Route 118 is open, it is free');
 });
+
+test('the Elite Four is four members, not eight fights: two singles, two doubles, free choice', () => {
+	// The map carries a single AND a double variant for each of Sidney,
+	// Phoebe, Glacia and Drake, and every view treated all eight as owed — so
+	// a run had to beat each member twice, four of them in doubles. The game
+	// asks for four fights (operator, 2026-09-22).
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const road = doc => run.upcoming(doc, 50).map(fight => fight.trainer.replace('Elite Four ', ''));
+	assert.deepEqual(road(saved), ['Sidney', 'SidneyDouble', 'Phoebe', 'PhoebeDouble', 'Glacia',
+		'GlaciaDouble', 'Drake', 'DrakeDouble', 'Champion Wallace'], 'every variant is offered until one is chosen');
+
+	// The choice is the act of fighting: beating a member retires BOTH of its variants.
+	const afterSidney = run.apply(saved, {kind: 'beat', trainer: 'Elite Four Sidney'});
+	assert.ok(!road(afterSidney).includes('SidneyDouble'), 'its double is no longer owed');
+	// And a format's quota of two, once spent, retires that format for the rest.
+	const afterPhoebe = run.apply(afterSidney, {kind: 'beat', trainer: 'Elite Four Phoebe'});
+	assert.deepEqual(road(afterPhoebe), ['GlaciaDouble', 'DrakeDouble', 'Champion Wallace'],
+		'two singles are spent, so Glacia and Drake can only be taken as doubles');
+
+	// Free choice of FORMAT, member by member — the Four are met in order, so
+	// taking the first two as doubles leaves the last two as singles.
+	const doubleFirst = run.applyAll(saved, [{kind: 'beat', trainer: 'Elite Four SidneyDouble'},
+		{kind: 'beat', trainer: 'Elite Four PhoebeDouble'}]);
+	assert.deepEqual(road(doubleFirst), ['Glacia', 'Drake', 'Champion Wallace']);
+
+	// Five fights end the road, not nine.
+	let done = saved;
+	for (const trainer of ['Elite Four Sidney', 'Elite Four Phoebe', 'Elite Four GlaciaDouble',
+		'Elite Four DrakeDouble', 'Champion Wallace']) {
+		done = run.apply(done, {kind: 'beat', trainer});
+	}
+	assert.deepEqual(run.upcoming(done, 5), [], 'the road is finished');
+
+	// The map's numbering does not move under a run: trainerIndexOf counts the
+	// whole visible map, and a map that shrank as the Four were chosen would
+	// renumber every fight behind it (the two-order-scales hazard).
+	const order = run.upcoming(saved, 1)[0].order;
+	assert.equal(run.trainerIndexOf(afterPhoebe, order), run.trainerIndexOf(saved, order));
+});

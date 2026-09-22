@@ -301,6 +301,16 @@ const MILESTONE_PATTERN =
  * disagreement. The run map ORs this set with the '&' convention.
  */
 const DOUBLES_FORMAT = new Set([
+	// CORRECTED 2026-09-22 (operator: 'yes 2 singles 2 doubles, free choice').
+	// The engine database flags only Sidney's and Phoebe's Double variants;
+	// Glacia's and Drake's carry no flag, and would have been PLAYED AS
+	// SINGLES by a run that reached them. All four are real double teams —
+	// each fields a party the single variant does not (GlaciaDouble opens
+	// Magearna and Crabominable where Glacia opens Mamoswine and Arctovish) —
+	// and the Elite Four is four members of which two are taken single and
+	// two double. The reconciliation gate names these two as known
+	// disagreements with the engine's flags rather than accepting silence.
+	'Elite Four DrakeDouble', 'Elite Four GlaciaDouble',
 	'Elite Four PhoebeDouble', 'Elite Four SidneyDouble', 'Leader Juan',
 	'Old Couple John And Jay', 'Sis And Bro Lila And Roy',
 	'Sis And Bro Reli And Ian', 'Sr. And Jr. Anna And Meg',
