@@ -288,6 +288,48 @@ test('a battery receipt carries the engine that played it', () => {
 	assert.match(made.engine.engine, /^e-/);
 });
 
+test('a stamp is settled when its record is written: data that moved mid-play is never one engine', () => {
+	const tree = tinyTree();
+	const taken = provenance.engineStamp(tree.root);
+	assert.equal(provenance.settle(taken, tree.root), taken, 'nothing moved: the stamp as taken');
+	tree.put('profiles/run-and-bun/data.js', 'edited while the batch played');
+	const settled = provenance.settle(taken, tree.root);
+	assert.deepEqual(settled.moved.differs, ['data']);
+	assert.equal(settled.engine, taken.engine, 'it still names what it started on');
+	const compared = provenance.compareStamps(settled, taken);
+	assert.equal(compared.same, false, 'a moved stamp matches nothing, not even its own start');
+	assert.match(compared.text, /^the engine moved while e-[0-9a-f]{12} .*\(MOVED to e-[0-9a-f]{12}\) played/);
+	assert.equal(provenance.compareStamps(taken, settled).same, false);
+
+	// Wired where the records are written: the battery receipt, and a run's leg.
+	const battery = require('../scripts/scenario-battery.js');
+	const runOne = require('../scripts/run-one.js');
+	const audit = require('../scripts/audit-run.js');
+	const real = provenance.engineStamp;
+	const start = provenance.currentStamp();
+	provenance.engineStamp = () => Object.assign({}, start, {engine: 'e-ffffffffffff',
+		parts: Object.assign({}, start.parts, {data: 'edited'})});
+	const quiet = console.error;
+	const said = [];
+	console.error = line => said.push(line);
+	try {
+		const receipt = battery.provenance();
+		assert.ok(receipt.engine.moved, 'the receipt says the engine moved under it');
+		assert.deepEqual(receipt.engine.moved.differs, ['data']);
+		assert.match(said.join('\n'), /WARNING: the engine moved during this batch/);
+		const leg = runOne.closeLeg({leg: 1, engine: start}, {position: 12, fights: 5}, provenance);
+		assert.ok(leg.engine.moved, 'the leg says the engine moved under it');
+		assert.deepEqual([leg.to, leg.engine.moved.engine], [{position: 12, fights: 5}, 'e-ffffffffffff']);
+		const check = audit.enginesCheck({legs: [leg]});
+		assert.equal(check.status, 'WARN');
+		assert.match(check.detail, /^the engine moved while leg 1 played: .*\(data differ\)/);
+	} finally {
+		provenance.engineStamp = real;
+		console.error = quiet;
+	}
+	assert.equal(battery.provenance().engine, start, 'an unmoved tree keeps the start stamp');
+});
+
 /** Two receipts that differ only in their stamps. */
 function receipts(a, b) {
 	const rows = results => [{name: 'Leader Brawly @26', rows: results.map((result, i) => ({seed: i + 1, result}))}];
