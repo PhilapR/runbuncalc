@@ -35,6 +35,7 @@ const SLOW = {
 	'search_policy.test.js': 'playbook rollouts: 87s',
 	'pivot_turn.test.js': 'full runs: 86s',
 	'run_control.test.js': 'plays real runs in child processes',
+	'item_planning.test.js': 'plays the planner at Champion Wallace: ~150s',
 };
 
 function fastFiles(root) {
