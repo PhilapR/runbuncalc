@@ -147,4 +147,16 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(u4['Dragon Dance'], [106], 'u4 Dragon Dance');
 }
 
+// u7-nasty-plot-faster-safe: Nasty Plot reads a flat 106 while faster and
+// out of 3HKO range; the document's +1/+1 does not fire.
+{
+  const got = scores(probe(
+    {species: 'Absol', moves: ['Nasty Plot', 'Bite', 'Splash', 'Tackle'],
+      stats: {hp: 200, atk: 80, def: 120, spa: 60, spd: 120, spe: 100}},
+    {species: 'Snorlax', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 40}},
+  ));
+  assert.deepEqual(got['Nasty Plot'], [106], 'u7 Nasty Plot');
+}
+
 console.log('ROM probe scoring fixtures passed');

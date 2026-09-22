@@ -36,10 +36,10 @@ const replay = require('../scripts/replay-ai-probes.js');
 /**
  * First measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417),
  * raised after each ROM rule landed on fix/ai-scoring. Rounded toward passing.
- * Now: offensive setup has no faster-and-safe +3 (0.9120 / 0.0813 / 0.8918 and 0.9722 / 0.0194 / 0.9167).
+ * Now: Nasty Plot has no cannot-3HKO bonus (0.9259 / 0.0743 / 0.8955 and 0.9722 / 0.0194 / 0.9167).
  */
 const FLOORS = {
-	reference: {n: 72, top1: 0.912, tvd: 0.082, scoreMatch: 0.891},
+	reference: {n: 72, top1: 0.925, tvd: 0.075, scoreMatch: 0.895},
 	heldout: {n: 12, top1: 0.972, tvd: 0.02, scoreMatch: 0.916},
 };
 

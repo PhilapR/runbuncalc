@@ -4687,12 +4687,12 @@ const specialSetupFacts = {
 };
 assert.deepEqual(scoreStatusAction(specialSetupState, {
   action: specialSetupAction!, facts: specialSetupFacts, outcomes: [], reasons: [],
-}).outcomes, [{score: 8, probability: 1}]);
+}).outcomes, [{score: 6, probability: 1}]); // no cannot-3HKO +1/+1: the ROM reads 106 (u7)
 assert.deepEqual(scoreStatusAction(specialSetupState, {
   action: specialSetupAction!,
   facts: {...specialSetupFacts, attackerBoosts: {spa: 2}},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 7, probability: 1}]);
+}).outcomes, [{score: 5, probability: 1}]);
 
 const sturdySetupState = state();
 sturdySetupState.sides.ai.party[0].ability = 'Sturdy';

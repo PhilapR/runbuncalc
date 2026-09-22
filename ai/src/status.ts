@@ -700,15 +700,10 @@ function setupScore(
   }
 
   if (!defensive && (id === 'tailglow' || id === 'nastyplot' || id === 'workup')) {
+    // The document's +1 (and +1 more when faster) for a player that cannot
+    // 3HKO does not fire in the ROM: Nasty Plot reads a flat 106 while faster
+    // against a Snorlax that cannot 3HKO it (u7). pokemon-mono rab 7c6d8c9.
     let score = 6 + (incapacitated ? 3 : 0);
-    const attackerHp = facts.attackerHp ?? actor?.hp.current;
-    const cannotThreeHKO = facts.opponentMaxDamage !== undefined && attackerHp !== undefined
-      ? facts.opponentMaxDamage * 3 < attackerHp
-      : !facts.opponentCan2HKO;
-    if (!incapacitated && cannotThreeHKO) {
-      score += 1;
-      if (!slower) score += 1;
-    }
     if (slower && facts.opponentCan2HKO) score -= 5;
     if ((facts.attackerBoosts?.spa || actor?.boosts?.spa || 0) >= 2) score -= 1;
     return [{score, probability: 1}];
