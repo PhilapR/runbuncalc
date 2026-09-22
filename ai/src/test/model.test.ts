@@ -4648,7 +4648,8 @@ const setupEvaluation = scoreStatusAction(setupPolicyState, {
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
 });
-assert.deepEqual(setupEvaluation.outcomes, [{score: 9, probability: 1}]);
+// Faster and safe stays on the +6 base: the ROM reads Swords Dance 106 (u1, h9).
+assert.deepEqual(setupEvaluation.outcomes, [{score: 6, probability: 1}]);
 
 const rechargeSetupState = state();
 rechargeSetupState.sides.ai.party[0].moves = [{name: 'Swords Dance'}];
@@ -4661,7 +4662,7 @@ assert.deepEqual(scoreStatusAction(rechargeSetupState, {
   action: rechargeSetupAction!,
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 12, probability: 1}]);
+}).outcomes, [{score: 9, probability: 1}]); // +6 base, +3 incapacitated; no faster-and-safe +3 (u1, h9)
 
 const truantSetupState = state();
 truantSetupState.sides.ai.party[0].moves = [{name: 'Swords Dance'}];
@@ -4673,7 +4674,7 @@ assert.deepEqual(scoreStatusAction(truantSetupState, {
   action: truantSetupAction!,
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 12, probability: 1}]);
+}).outcomes, [{score: 9, probability: 1}]); // +6 base, +3 incapacitated; no faster-and-safe +3 (u1, h9)
 
 const specialSetupState = state();
 specialSetupState.sides.ai.party[0].moves = [{name: 'Nasty Plot'}];

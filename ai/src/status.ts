@@ -715,8 +715,10 @@ function setupScore(
   }
 
   if (!defensive && OFFENSIVE_SETUP_MOVES.has(id)) {
+    // No +3 when faster and safe: the ROM reads Swords Dance 106 (u1, h9)
+    // and Dragon Dance 106 while faster (u4). The AI document now says the
+    // extra checks are bugged out of the code (pokemon-mono rab 7c6d8c9).
     let score = 6 + (incapacitated ? 3 : 0);
-    if (!slower && !facts.opponentCanKO) score += 3;
     if (slower && facts.opponentCan2HKO) score -= 5;
     return [{score, probability: 1}];
   }

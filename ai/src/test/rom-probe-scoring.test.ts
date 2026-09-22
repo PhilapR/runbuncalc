@@ -128,4 +128,23 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(got['Agility'], [107], 'u5 Agility');
 }
 
+// u1-swords-dance-safe and u4-dragon-dance-faster-2hko: offensive setup while
+// faster stays on its +6 base (106), safe or 2HKO'd.
+{
+  const u1 = scores(probe(
+    {species: 'Scizor', moves: ['Swords Dance', 'X-Scissor', 'Splash', 'Metal Claw'],
+      stats: {hp: 200, atk: 80, def: 120, spa: 40, spd: 90, spe: 80}},
+    {species: 'Snorlax', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 40}},
+  ));
+  assert.deepEqual(u1['Swords Dance'], [106], 'u1 Swords Dance');
+  const u4 = scores(probe(
+    {species: 'Dragonite', moves: ['Splash', 'Dragon Dance', 'Dragon Claw', 'Wing Attack'],
+      stats: {hp: 260, atk: 80, def: 120, spa: 40, spd: 120, spe: 120}},
+    {species: 'Lapras', moves: ['Splash', 'Ice Beam', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 85, spd: 80, spe: 100}},
+  ));
+  assert.deepEqual(u4['Dragon Dance'], [106], 'u4 Dragon Dance');
+}
+
 console.log('ROM probe scoring fixtures passed');

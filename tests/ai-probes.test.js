@@ -36,11 +36,11 @@ const replay = require('../scripts/replay-ai-probes.js');
 /**
  * First measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417),
  * raised after each ROM rule landed on fix/ai-scoring. Rounded toward passing.
- * Now: setup compares speed with the player (0.8843 / 0.0979 / 0.8843 and 0.9722 / 0.0528 / 0.8958).
+ * Now: offensive setup has no faster-and-safe +3 (0.9120 / 0.0813 / 0.8918 and 0.9722 / 0.0194 / 0.9167).
  */
 const FLOORS = {
-	reference: {n: 72, top1: 0.884, tvd: 0.098, scoreMatch: 0.884},
-	heldout: {n: 12, top1: 0.972, tvd: 0.053, scoreMatch: 0.895},
+	reference: {n: 72, top1: 0.912, tvd: 0.082, scoreMatch: 0.891},
+	heldout: {n: 12, top1: 0.972, tvd: 0.02, scoreMatch: 0.916},
 };
 
 const result = replay.gradeAll();
