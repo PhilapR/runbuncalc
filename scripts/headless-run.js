@@ -2027,7 +2027,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 				const mon = death.monId ? doc.box.find(member => member.id === death.monId) : null;
 				return {monId: death.monId || null,
 					name: death.name || (mon ? (mon.nickname || mon.species) : null),
-					species: death.species, by: death.by, of: death.of};
+					species: death.species, by: death.by, of: death.of, ofSide: death.ofSide || null};
 			}),
 			// Who took what down. A body that only appears in the record on the
 			// day it dies has no story; this is the rest of it.

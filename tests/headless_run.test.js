@@ -1057,3 +1057,16 @@ test('a lead pin knows a Mega Stone by the dex, not by "-ite", and records a Meg
 	assert.deepEqual(dropped.leadPinDroppedMega, [{trainer: 'Champion Wallace', species: holder.species, stone: holder.item,
 		pinned: holder.species + '@Focus Sash'}]);
 });
+
+test('a run\'s ledger keeps the killer\'s side, so a wall can tell their blow from our switch', () => {
+	// The driver records ofSide; the harness rebuilt each killer and dropped it,
+	// so every wall read our side from species and said it was approximate.
+	const policy = require('../scripts/ui-playthrough.js');
+	const row = headless.playRun(policy, {species: 'Turtwig', rival: 'Blaziken'}, 4,
+		headless.armFlags('--budget=10 --retries=2'));
+	const killers = row.ledger.flatMap(fight => fight.killers || []);
+	assert.ok(killers.length > 0, 'the fixture seed loses bodies');
+	assert.ok(killers.every(death => death.ofSide === 'theirs' || death.ofSide === 'ours' || death.ofSide === null),
+		JSON.stringify(killers.slice(0, 3)));
+	assert.ok(killers.some(death => death.ofSide === 'theirs'), 'a foe\'s blow is theirs');
+});
