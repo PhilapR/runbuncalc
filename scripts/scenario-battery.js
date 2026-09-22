@@ -426,6 +426,9 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 					species: death.species || null,
 					by: death.by || null,
 					of: death.of || null,
+					// Whose move it was: a body lost to hazards after our own
+					// switch names OUR switched-out body as `of`.
+					ofSide: death.ofSide || null,
 				})),
 				// And the other half: which of ours took each enemy down.
 				knockouts: (reply.knockouts || []).slice(),
