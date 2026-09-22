@@ -63,16 +63,14 @@ function parseAnnotation(location) {
 	return {note};
 }
 
-function main() {
-	const db = JSON.parse(fs.readFileSync(path.join(RAB, 'rab-trainers-database.json'), 'utf8'));
-	const list = Array.isArray(db) ? db : db.trainers;
-	const planner = require('../lib/planner.js');
+/**
+ * The four placement rules over this run map's fight names, as one function
+ * `place(trainer, base)` -> {rule, names} or null. Pure: the names are passed
+ * in, so the rules can be tested on fixtures without rab or the planner.
+ */
+function makePlacer(allNames) {
 	const ours = new Map();
-	for (const fight of planner.listFights('run-and-bun').fights) {
-		ours.set(fight.trainer.toLowerCase(), fight.trainer);
-	}
-
-	const allNames = [...ours.values()];
+	for (const name of allNames) ours.set(name.toLowerCase(), name);
 	// This run map merges rab's pair battles into one fight ("Ruin Maniac
 	// Bryan & Celia") and names location crews by their location ("Team Aqua
 	// Grunt Seafloor Cavern #3") — so a candidate also matches as the prefix
@@ -85,7 +83,7 @@ function main() {
 			name.toLowerCase().startsWith(`${candidate.toLowerCase()} &`));
 		return duo ? {rule: 'duo-prefix', names: [duo]} : null;
 	};
-	const place = (trainer, base) => {
+	return (trainer, base) => {
 		for (const candidate of [trainer.name, `${trainer.className || ''} ${trainer.name}`.trim()]) {
 			const hit = resolve(candidate);
 			if (hit) return hit;
@@ -102,7 +100,14 @@ function main() {
 		}
 		return null;
 	};
+}
 
+/**
+ * rab's trainer list and this run map's fight names -> the fight-fields.json
+ * document, plus the annotated count. Pure; main() only reads and writes.
+ */
+function buildFields(list, allNames) {
+	const place = makePlacer(allNames);
 	const fields = {};
 	const derivation = {};
 	const unmatched = [];
@@ -135,6 +140,26 @@ function main() {
 		derivation,
 		unmatched,
 	};
+	return {output, annotated};
+}
+
+/** The run map's fight names, in the planner's order. */
+function fightNames() {
+	return require('../lib/planner.js').listFights('run-and-bun').fights.map(fight => fight.trainer);
+}
+
+/** rab's trainer list from a data directory. */
+function readTrainers(dir) {
+	const db = JSON.parse(fs.readFileSync(path.join(dir, 'rab-trainers-database.json'), 'utf8'));
+	return Array.isArray(db) ? db : db.trainers;
+}
+
+function main() {
+	const built = buildFields(readTrainers(RAB), fightNames());
+	const output = built.output;
+	const annotated = built.annotated;
+	const fields = output.fields;
+	const unmatched = output.unmatched;
 	fs.writeFileSync(path.join(OUT_DIR, 'fight-fields.json'),
 		`${JSON.stringify(output, null, 0)}\n`);
 	const kinds = {};
@@ -148,3 +173,5 @@ function main() {
 }
 
 if (require.main === module) main();
+
+module.exports = {parseAnnotation, makePlacer, buildFields, fightNames, readTrainers};
