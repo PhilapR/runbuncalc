@@ -753,3 +753,51 @@ test('the story gifts are claimed when the road reaches them — the egg, Castfo
 	assert.deepEqual(off.gifted, [], '--gifts=0 plays without them');
 	assert.ok(!off.doc.log.some(entry => entry.command.gift));
 });
+
+test('the run\'s one Mega is reconsidered for the fight in front, and the stone is moved to it', () => {
+	// Two rules were wrong: the stone went to the first member in PARTY ORDER,
+	// and the step was skipped once any member held one — so a run's first
+	// assignment stuck for the rest of it. Seed 418957 met Elite Four Sidney
+	// fielding Mega Houndoom with a Lopunnite in the bag.
+	const runtime = require('../lib/run.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const next = {trainer: 'Elite Four Sidney', order: 1580};
+	const houndoom = saved.box.find(mon => mon.species === 'Houndoom');
+	const lopunny = saved.box.find(mon => mon.species === 'Lopunny');
+	assert.ok(saved.party.includes(houndoom.id) && saved.party.includes(lopunny.id), 'both are in the six');
+	assert.equal(houndoom.item, 'Houndoominite');
+
+	// Put the stone on the WRONG body: Lopunny holds Lopunnite, Houndoominite
+	// goes back to the bag. The board prefers Houndoom-Mega here (4.5 to 3.5).
+	let wrong = runtime.apply(saved, {kind: 'give', id: houndoom.id, item: 'Oran Berry'});
+	wrong = runtime.apply(wrong, {kind: 'give', id: lopunny.id, item: 'Lopunnite'});
+	assert.equal(runtime.findMon(wrong, lopunny.id).item, 'Lopunnite');
+	assert.ok((wrong.bag.Houndoominite || 0) > 0, 'the stone went back to the bag, it was not destroyed');
+
+	const tally = {};
+	const fixed = headless.giveMegaStone(wrong, tally, next);
+	assert.equal(runtime.findMon(fixed, houndoom.id).item, 'Houndoominite', 'the stone moved to the body the board rates highest');
+	assert.ok(!runtime.megaFormOf('Lopunny', runtime.findMon(fixed, lopunny.id).item), 'and off the one it rates lower');
+	assert.equal(tally.megaMoved, 1);
+	assert.ok((fixed.bag.Lopunnite || 0) > 0, 'the displaced stone is back in the bag');
+
+	// Asked again it changes nothing: the right body already holds it.
+	const settled = {};
+	const again = headless.giveMegaStone(fixed, settled, next);
+	assert.equal(settled.megaMoved, undefined);
+	assert.equal(runtime.findMon(again, houndoom.id).item, 'Houndoominite');
+
+	// It is the BOARD deciding, not party order: at Elite Four Glacia the same
+	// six prefers Lopunny-Mega (4) to Houndoom-Mega (1.5), and Lopunny stands
+	// LATER in the party, so party order could never reach it. Houndoom holds
+	// the stone here, exactly as the run arrived.
+	const glacia = {};
+	const iced = headless.giveMegaStone(saved, glacia, {trainer: 'Elite Four Glacia', order: 1600});
+	assert.equal(runtime.findMon(iced, lopunny.id).item, 'Lopunnite', 'the stone crossed the party to the body the board rates highest');
+	assert.equal(runtime.findMon(iced, houndoom.id).item, 'Oran Berry', 'and the old holder took the filler that freed its stone');
+	assert.equal(glacia.megaMoved, 1);
+
+	// And the switch that restores the old rule is real.
+	assert.equal(headless.armFlags('--mega-by-board=0').knobs.megaByBoard, 0);
+});

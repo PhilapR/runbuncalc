@@ -81,6 +81,8 @@ const KNOB_FLAGS = {
 	evolveItems: ['evolve-items', '1', value => value === '1'],
 	// The story gifts (the Lavaridge egg, Castform, Kubfu), claimed when the road reaches them.
 	gifts: ['gifts', '1', Number],
+	// Which body gets the run's one Mega: the board's best against the fight in front, not party order.
+	megaByBoard: ['mega-by-board', '1', Number],
 	fillSlots: ['fill-slots', '1', value => value === '1'],
 	// A run that only needs to answer "does it pass this wall" stops once the
 	// road is past that order, instead of playing on for hours.
@@ -891,19 +893,99 @@ const CURES = {par: 'Cheri Berry', slp: 'Chesto Berry', psn: 'Pecha Berry', tox:
  * picked, the first member whose stone the bag holds is given it, over
  * whatever it held. Nobody is given a second. --mega=0 plays without.
  */
-function giveMegaStone(doc, tally) {
+/**
+ * WHICH body gets the run's one Mega, reconsidered for the fight in front.
+ *
+ * Two rules were wrong here. The stone went to the first member of the six in
+ * PARTY ORDER, which asks nothing about the fight; and the whole step was
+ * skipped the moment ANY member already held a stone, so the first assignment
+ * a run ever made stuck for the rest of it — seed 418957 met Elite Four
+ * Sidney fielding Mega Houndoom with a Lopunnite in the bag, because Houndoom
+ * had been handed its stone hundreds of fights earlier. Four of twenty-one
+ * records fielded a six with two or more Mega-capable bodies.
+ *
+ * The board already rates each body as the Mega it would become (boxMatrix
+ * with megas:'each'), so: the candidate whose Mega form is worth most against
+ * THIS six holds the stone. Worth is the sum of its positive margins on mean
+ * rolls — the measure planByPlay ranks bodies by, so the two agree. A stone on
+ * the wrong body is moved by giving that body a filler berry, which returns
+ * the stone to the bag (run.js `give` swaps rather than destroys); with no
+ * filler to hand the stone cannot be taken off, and the holder keeps it.
+ *
+ * Party order is the tiebreak and the fallback when the board cannot be read.
+ * --mega-by-board=0 restores the old rule: party order, never reconsidered.
+ */
+function megaWorth(doc, trainer) {
+	const board = run.boxMatrix(doc, trainer);
+	const worth = new Map();
+	for (const column of board.grid) {
+		for (const cell of column.versus) {
+			const kill = Math.ceil(1 / Math.max((cell.us.min + cell.us.max) / 2, 0.0001));
+			const die = Math.ceil(1 / Math.max((cell.them.min + cell.them.max) / 2, 0.0001));
+			const margin = die - kill + (cell.speed === 'faster' ? 0.5 : 0);
+			worth.set(cell.species, (worth.get(cell.species) || 0) + Math.max(0, margin));
+		}
+	}
+	return worth;
+}
+
+const MEGA_FILLERS = ['Oran Berry', 'Sitrus Berry', 'Lum Berry', 'Pecha Berry', 'Chesto Berry'];
+
+function giveMegaStone(doc, tally, next) {
 	if (!knobs.mega || !run.megaRingHeld(doc)) return doc;
 	const six = doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean);
-	if (six.some(mon => run.megaFormOf(mon.species, mon.item))) return doc;
-	for (const mon of six) {
-		if (mon.status === 'dead') continue;
+	const stoneOf = mon => (run.megaFormOf(mon.species, mon.item) ? mon.item : run.stoneInBag(doc, mon.species));
+	const able = six.filter(mon => mon.status !== 'dead' && stoneOf(mon));
+	if (!able.length) return doc;
+	const holder = six.find(mon => run.megaFormOf(mon.species, mon.item)) || null;
+	// The old rule: the first in party order, and never touched once one holds a stone.
+	if (!knobs.megaByBoard || able.length < 2 || !next || !next.trainer) {
+		if (holder) return doc;
+		return handStone(doc, tally, able);
+	}
+	let order = able;
+	try {
+		const worth = megaWorth(doc, next.trainer);
+		const formOf = mon => {
+			const mega = run.megaFormOf(mon.species, stoneOf(mon));
+			return mega ? mega.species : mon.species;
+		};
+		const scored = able.map((mon, index) => ({mon, index, worth: worth.get(formOf(mon))}));
+		if (scored.some(entry => entry.worth !== undefined)) {
+			order = scored.sort((a, b) => (b.worth === undefined ? -1 : b.worth) - (a.worth === undefined ? -1 : a.worth) ||
+				a.index - b.index).map(entry => entry.mon);
+			tally.megaPicks = (tally.megaPicks || 0) + 1;
+		}
+	} catch (error) {
+		if (holder) return doc;
+		return handStone(doc, tally, able);
+	}
+	const want = order[0];
+	if (holder && holder.id === want.id) return doc;
+	if (holder) {
+		// Take the stone off the wrong body: a filler in its place returns it to the bag.
+		const filler = MEGA_FILLERS.find(item => (doc.bag[item] || 0) > 0);
+		if (!filler) return doc;
+		try {
+			doc = run.apply(doc, {kind: 'give', id: holder.id, item: filler});
+			tally.gives = (tally.gives || 0) + 1;
+			tally.megaMoved = (tally.megaMoved || 0) + 1;
+		} catch (error) { return doc; }
+	}
+	const fresh = doc.box.find(mon => mon.id === want.id);
+	return handStone(doc, tally, [fresh].filter(Boolean));
+}
+
+/** Give the first of these bodies the stone its species needs. */
+function handStone(doc, tally, candidates) {
+	for (const mon of candidates) {
 		const stone = run.stoneInBag(doc, mon.species);
 		if (!stone) continue;
 		try {
-			const next = run.apply(doc, {kind: 'give', id: mon.id, item: stone});
+			const kept = run.apply(doc, {kind: 'give', id: mon.id, item: stone});
 			tally.gives = (tally.gives || 0) + 1;
 			tally.megaStones = (tally.megaStones || 0) + 1;
-			return next;
+			return kept;
 		} catch (error) { /* refused: try the next body */ }
 	}
 	return doc;
@@ -1504,7 +1586,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		try {
 			// The six may have been re-picked since the advice ran, and a body
 			// that joined it afterwards arrives holding nothing.
-			doc = giveMegaStone(doc, tally);
+			doc = giveMegaStone(doc, tally, next);
 			doc = fillEmptySlots(doc, tally);
 			keptLog = knobs.fightLogs === 'all' || (knobs.fightLogs === 'bosses' &&
 				(next.isDouble || BOSS.test(next.trainer))) ? [] : undefined;
@@ -1611,6 +1693,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
 		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, plans: tally.plans || [],
 		gifts: tally.gifts || 0, gifted: tally.gifted || [],
+		megaPicks: tally.megaPicks || 0, megaMoved: tally.megaMoved || 0,
 		// Fights played in the run's head, by kind: never attempts, never free.
 		scouted: tally.scouted || {probe: 0, repick: 0, plan: 0}, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
