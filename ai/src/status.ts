@@ -55,7 +55,10 @@ const SETUP_MOVES = new Set([
   'howl', 'meditate', 'poweruppunch', 'rockpolish', 'shellsmash', 'shiftgear',
   'sharpen', 'stockpile', 'stuffcheeks', 'swordsdance', 'tailglow', 'victorydance', 'withdraw', 'workup', 'curse', 'shelter', 'takeheart', 'defendorder', 'extremeevoboost', 'geomancy',
 ]);
-const SETUP_WHEN_THREATENED = new Set(['bellydrum', 'howl', 'poweruppunch', 'shellsmash', 'swordsdance']);
+// Swords Dance is not here: the ROM scores it 86 while the player can KO the
+// user (u2), and the AI document lists it under "never set up" with the rest.
+const SETUP_WHEN_THREATENED = new Set(['bellydrum', 'howl', 'poweruppunch', 'shellsmash']);
+const SETUP_THREATENED_REASON = 'the opponent can KO before setup pays off';
 const UNAWARE_SETUP_EXCEPTIONS = new Set(['howl', 'poweruppunch', 'swordsdance']);
 const OFFENSIVE_SETUP_MOVES = new Set([
   'dragondance', 'howl', 'honeclaws', 'meditate', 'nastyplot', 'poweruppunch',
@@ -71,6 +74,13 @@ const RECOVERY_MOVES = new Set([
   'healorder', 'milkdrink', 'moonlight', 'morningsun', 'recover', 'rest', 'roost',
   'shoreup', 'slackoff', 'softboiled', 'strengthsap', 'swallow', 'synthesis',
 ]);
+/**
+ * EFFECT_DO_NOTHING moves. The ROM scores each one 81 at the 100 base, one
+ * above an immune attack (probes s12, h6, and every probe with Splash beside
+ * an attack). pokemon-mono rab 34162b2, cddeb25.
+ */
+const NO_EFFECT_MOVES = new Set(['splash', 'celebrate', 'holdhands']);
+const NO_EFFECT_SCORE = -19;
 const WEATHER_RECOVERY_MOVES = new Set(['moonlight', 'morningsun', 'synthesis']);
 const ALLY_HEALING_MOVES = new Set(['floralhealing', 'healpulse', 'pollenpuff']);
 const ALLY_TEAM_HEALING_MOVES = new Set(['junglehealing', 'lifedew']);
@@ -571,7 +581,7 @@ function noOpReason(state: BattleState, evaluation: ActionEvaluation): string | 
     }
     if (evaluation.facts.opponentCanKO && !SETUP_WHEN_THREATENED.has(id) &&
       !hasSetupSurvivalLine(state, actor, evaluation.facts)) {
-      return 'the opponent can KO before setup pays off';
+      return SETUP_THREATENED_REASON;
     }
   }
 
@@ -633,6 +643,20 @@ function mementoScore(evaluation: ActionEvaluation): ActionEvaluation['outcomes'
   return [{score: 13, probability: 0.05}, {score: 6, probability: 0.95}];
 }
 
+/**
+ * Whether the user is slower than the opposing mon, for a move that targets
+ * the user. A self-targeting move's facts carry the user as the "defender",
+ * so defenderSpeed is its own speed and a slower check on it never fires.
+ * The ROM compares against the player's mon: Dragon Dance reads 101 when
+ * slower and 2HKO'd (u3, h10), Agility 107 when slower (u5).
+ */
+function slowerThanOpponent(facts: ActionEvaluation['facts']): boolean {
+  const opponentFastest = Math.max(...(facts.opponentSpeeds || []), -Infinity);
+  const opposingSpeed = Number.isFinite(opponentFastest) ? opponentFastest : facts.defenderSpeed;
+  return facts.attackerSpeed !== undefined && opposingSpeed !== undefined &&
+    facts.attackerSpeed < opposingSpeed;
+}
+
 function setupScore(
   state: BattleState,
   evaluation: ActionEvaluation,
@@ -645,8 +669,7 @@ function setupScore(
     ? getPokemon(state, evaluation.action.actorId)
     : undefined;
   const incapacitated = defenderIsIncapacitated(state, evaluation);
-  const slower = facts.attackerSpeed !== undefined && facts.defenderSpeed !== undefined &&
-    facts.attackerSpeed < facts.defenderSpeed;
+  const slower = slowerThanOpponent(facts);
 
   if (id === 'bellydrum') {
     if (incapacitated) return [{score: 9, probability: 1}];
@@ -680,23 +703,20 @@ function setupScore(
   }
 
   if (!defensive && (id === 'tailglow' || id === 'nastyplot' || id === 'workup')) {
+    // The document's +1 (and +1 more when faster) for a player that cannot
+    // 3HKO does not fire in the ROM: Nasty Plot reads a flat 106 while faster
+    // against a Snorlax that cannot 3HKO it (u7). pokemon-mono rab 7c6d8c9.
     let score = 6 + (incapacitated ? 3 : 0);
-    const attackerHp = facts.attackerHp ?? actor?.hp.current;
-    const cannotThreeHKO = facts.opponentMaxDamage !== undefined && attackerHp !== undefined
-      ? facts.opponentMaxDamage * 3 < attackerHp
-      : !facts.opponentCan2HKO;
-    if (!incapacitated && cannotThreeHKO) {
-      score += 1;
-      if (!slower) score += 1;
-    }
     if (slower && facts.opponentCan2HKO) score -= 5;
     if ((facts.attackerBoosts?.spa || actor?.boosts?.spa || 0) >= 2) score -= 1;
     return [{score, probability: 1}];
   }
 
   if (!defensive && OFFENSIVE_SETUP_MOVES.has(id)) {
+    // No +3 when faster and safe: the ROM reads Swords Dance 106 (u1, h9)
+    // and Dragon Dance 106 while faster (u4). The AI document now says the
+    // extra checks are bugged out of the code (pokemon-mono rab 7c6d8c9).
     let score = 6 + (incapacitated ? 3 : 0);
-    if (!slower && !facts.opponentCanKO) score += 3;
     if (slower && facts.opponentCan2HKO) score -= 5;
     return [{score, probability: 1}];
   }
@@ -877,6 +897,15 @@ function statusBaseScore(
   const actor = getPokemon(state, evaluation.action.actorId);
   const targetSide = sideForPokemon(state, evaluation.action.actorId) === 'ai' ? 'player' : 'ai';
   const targetEffects = state.sides[targetSide].effects || {};
+  if (NO_EFFECT_MOVES.has(id)) return [{score: NO_EFFECT_SCORE, probability: 1}];
+  if (id === 'roar' || id === 'whirlwind') {
+    // The ROM reads a flat 105 when the target has a teammate to drag in and
+    // 85 (-20) when it has none, with no roll (d1-d4). pokemon-mono rab 286a45d.
+    const targetSideState = state.sides[targetSide];
+    const hasTeammate = targetSideState.party.some(pokemon =>
+      pokemon.hp.current > 0 && !targetSideState.activeIds.includes(pokemon.id));
+    return [{score: hasTeammate ? 5 : 5 - 20, probability: 1}];
+  }
   const hazard = hazardScore(id, evaluation, targetEffects);
   if (hazard) return hazard.outcomes.map(outcome => ({...outcome, score: outcome.score + hazard.adjustment}));
   const memento = mementoScore(evaluation);
@@ -1075,9 +1104,9 @@ function statusBaseScore(
     return [{score: hasBoost || evaluation.facts.attackerSubstitute ? 14 : 0, probability: 1}];
   }
   if (id === 'agility' || id === 'autotomize' || id === 'rockpolish') {
-    const slower = evaluation.facts.attackerSpeed !== undefined && evaluation.facts.defenderSpeed !== undefined &&
-      evaluation.facts.attackerSpeed < evaluation.facts.defenderSpeed;
-    return [{score: slower ? 7 : -20, probability: 1}];
+    // Faster: the -20 adds to the +6 default, 86 in the ROM (u6), not 80.
+    const slower = slowerThanOpponent(evaluation.facts);
+    return [{score: slower ? 7 : 6 - 20, probability: 1}];
   }
   if (id === 'electricterrain' || id === 'grassyterrain' || id === 'mistyterrain' || id === 'psychicterrain') {
     return [{score: moveId(evaluation.facts.attackerItem || '') === 'terrainextender' ? 9 : 8, probability: 1}];
@@ -1092,7 +1121,19 @@ export function scoreStatusAction(
 ): ActionEvaluation {
   evaluation = {...evaluation, facts: normalizeGenerationFacts(state, evaluation.facts)};
   const reason = noOpReason(state, evaluation);
-  const discouragedRecovery = reason === 'recovery is discouraged above 85% HP';
+  // The recovery penalties add to the recovery score (the +5 "should not
+  // recover" base): Recover at 90% HP reads 99 (r2), at full HP 85 (r1, h7).
+  // pokemon-mono rab eb074f4.
+  const moveIdForReason = evaluation.action.kind === 'move' ? moveId(evaluation.action.moveName) : '';
+  const recoveryPenalty = reason === 'recovery is discouraged above 85% HP'
+    ? -6
+    : reason === 'the user is already at full HP' && RECOVERY_MOVES.has(moveIdForReason) &&
+      moveIdForReason !== 'rest'
+      ? -20
+      : 0;
+  // Setup while the player can KO the user: the -20 adds to the move's own
+  // setup score, 86 for Swords Dance (u2), not a flat 80.
+  const threatenedSetup = reason === SETUP_THREATENED_REASON;
   const action = evaluation.action;
   const actor = action.kind === 'move' ? getPokemon(state, action.actorId) : undefined;
   const protect = action.kind === 'move' && PROTECTIVE_POLICY_MOVES.has(moveId(action.moveName));
@@ -1140,8 +1181,12 @@ export function scoreStatusAction(
   }));
   return {
     ...evaluation,
-    outcomes: reason
-      ? [{score: discouragedRecovery ? -6 : -20, probability: 1}]
+    outcomes: threatenedSetup
+      ? statusBaseScore(state, evaluation).map(outcome => ({...outcome, score: outcome.score - 20}))
+      : recoveryPenalty
+      ? statusBaseScore(state, evaluation).map(outcome => ({...outcome, score: outcome.score + recoveryPenalty}))
+      : reason
+      ? [{score: -20, probability: 1}]
       : repeatedProtect
         ? [{score: -20, probability: 1}]
         : usedProtectLastTurn
@@ -1156,5 +1201,51 @@ export function scoreStatusAction(
         ...(protectAdjustment ? ['Protect context adjustment'] : []),
         ...(usedProtectLastTurn ? ['50% repeat-Protect penalty'] : []),
       ],
+  };
+}
+
+const PARALYSIS_STATUS_MOVES = new Set(['thunderwave', 'glare', 'stunspore']);
+
+/**
+ * Whether the AI scores this move although it would have no effect, one of
+ * the classes the ROM probes show scored rather than skipped: a do-nothing
+ * move (Hold Hands with no ally, s12), a recovery move at full HP (r1, h7),
+ * and a major-status move into a target that is immune but not already
+ * statused (s2, s3, s7, s11, h1-h3). The caller has already found the move
+ * selectable and dropped by enumerateMoveActions.
+ */
+export function isScoredWithoutEffect(state: BattleState, action: ActionEvaluation['action']): boolean {
+  if (action.kind !== 'move') return false;
+  const id = moveId(action.moveName);
+  if (NO_EFFECT_MOVES.has(id)) return true;
+  const actor = getPokemon(state, action.actorId);
+  if (RECOVERY_MOVES.has(id) && id !== 'rest') return !!actor && actor.hp.current >= actor.hp.max;
+  if (STATUS_BY_MOVE[id] && id !== 'nuzzle') {
+    const target = action.targetIds.length ? getPokemon(state, action.targetIds[0]) : undefined;
+    return !!target && sideForPokemon(state, target.id) !== sideForPokemon(state, action.actorId) &&
+      !target.status;
+  }
+  return false;
+}
+
+/**
+ * The ROM's score for a move isScoredWithoutEffect admits: its normal score
+ * less 20 (SPIKE-GROUND-TRUTH.md phase 5, "Useless moves": default minus 20,
+ * not a fixed 80). A blocked paralysis move keeps only the +6 default and its
+ * 50% -1 roll, since the speed-flip +8 cannot apply (s7 and h1 read 85/86).
+ * A do-nothing move keeps its 81. pokemon-mono rab cddeb25, cea2416, eb074f4.
+ */
+export function scoreWithoutEffect(state: BattleState, evaluation: ActionEvaluation): ActionEvaluation {
+  evaluation = {...evaluation, facts: normalizeGenerationFacts(state, evaluation.facts)};
+  const id = evaluation.action.kind === 'move' ? moveId(evaluation.action.moveName) : '';
+  const base: ActionEvaluation['outcomes'] = NO_EFFECT_MOVES.has(id)
+    ? [{score: NO_EFFECT_SCORE + 20, probability: 1}]
+    : PARALYSIS_STATUS_MOVES.has(id)
+      ? chanceBonus([{score: 6, probability: 1}], -1, 0.5)
+      : statusBaseScore(state, evaluation);
+  return {
+    ...evaluation,
+    outcomes: base.map(outcome => ({...outcome, score: outcome.score - 20})),
+    reasons: ['the move would have no effect: its normal score less 20'],
   };
 }

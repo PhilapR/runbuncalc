@@ -4468,7 +4468,7 @@ assert.equal(doublesSpreadSetupFacts.opponentCanKO, true);
 assert.ok((doublesSpreadSetupFacts.opponentMaxDamage || 0) >= 1);
 assert.deepEqual(scoreStatusAction(doublesSpreadThreat, {
   action: doublesSpreadSetupAction!, facts: doublesSpreadSetupFacts, outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -14, probability: 1}]); // threatened setup: -20 on the +6 base (ROM u2 reads 86)
 
 const playerPerspectiveThreat = state();
 playerPerspectiveThreat.sides.player.party[0].hp = {current: 1, max: 100};
@@ -4648,7 +4648,8 @@ const setupEvaluation = scoreStatusAction(setupPolicyState, {
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
 });
-assert.deepEqual(setupEvaluation.outcomes, [{score: 9, probability: 1}]);
+// Faster and safe stays on the +6 base: the ROM reads Swords Dance 106 (u1, h9).
+assert.deepEqual(setupEvaluation.outcomes, [{score: 6, probability: 1}]);
 
 const rechargeSetupState = state();
 rechargeSetupState.sides.ai.party[0].moves = [{name: 'Swords Dance'}];
@@ -4661,7 +4662,7 @@ assert.deepEqual(scoreStatusAction(rechargeSetupState, {
   action: rechargeSetupAction!,
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 12, probability: 1}]);
+}).outcomes, [{score: 9, probability: 1}]); // +6 base, +3 incapacitated; no faster-and-safe +3 (u1, h9)
 
 const truantSetupState = state();
 truantSetupState.sides.ai.party[0].moves = [{name: 'Swords Dance'}];
@@ -4673,7 +4674,7 @@ assert.deepEqual(scoreStatusAction(truantSetupState, {
   action: truantSetupAction!,
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 12, probability: 1}]);
+}).outcomes, [{score: 9, probability: 1}]); // +6 base, +3 incapacitated; no faster-and-safe +3 (u1, h9)
 
 const specialSetupState = state();
 specialSetupState.sides.ai.party[0].moves = [{name: 'Nasty Plot'}];
@@ -4686,12 +4687,12 @@ const specialSetupFacts = {
 };
 assert.deepEqual(scoreStatusAction(specialSetupState, {
   action: specialSetupAction!, facts: specialSetupFacts, outcomes: [], reasons: [],
-}).outcomes, [{score: 8, probability: 1}]);
+}).outcomes, [{score: 6, probability: 1}]); // no cannot-3HKO +1/+1: the ROM reads 106 (u7)
 assert.deepEqual(scoreStatusAction(specialSetupState, {
   action: specialSetupAction!,
   facts: {...specialSetupFacts, attackerBoosts: {spa: 2}},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 7, probability: 1}]);
+}).outcomes, [{score: 5, probability: 1}]);
 
 const sturdySetupState = state();
 sturdySetupState.sides.ai.party[0].ability = 'Sturdy';
@@ -4715,7 +4716,7 @@ assert.deepEqual(scoreStatusAction(brokenSturdyState, {
   action: sturdySetupAction!,
   facts: {opponentCanKO: true},
   outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -14, probability: 1}]); // threatened setup: -20 on the +6 base (ROM u2 reads 86)
 
 const sashSetupState = state();
 sashSetupState.sides.ai.party[0].item = 'Focus Sash';
@@ -4856,11 +4857,11 @@ const strengthSapAction = enumerateMoveActions(strengthSapFullState).find(action
 assert.ok(strengthSapAction);
 assert.deepEqual(scoreStatusAction(strengthSapFullState, {
   action: strengthSapAction!, facts: {}, outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -15, probability: 1}]); // -20 on the +5 base: Recover at full HP reads 85 (r1, h7)
 strengthSapFullState.sides.ai.party[0].hp = {current: 90, max: 100};
 assert.deepEqual(scoreStatusAction(strengthSapFullState, {
   action: strengthSapAction!, facts: {}, outcomes: [], reasons: [],
-}).outcomes, [{score: -6, probability: 1}]);
+}).outcomes, [{score: -1, probability: 1}]); // -6 on the +5 base: Recover at 90% reads 99 (r2)
 
 const healBlockedStrengthSap = state();
 healBlockedStrengthSap.sides.ai.party[0].hp = {current: 50, max: 100};
@@ -5019,10 +5020,17 @@ assert.deepEqual(scoreDamagingAction({
   damage: {rolls: [10], min: 10, max: 10, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Physical', battleMode: 'Doubles', isMultiHit: true,
 }, true, tackleAction), [{score: 7, probability: 0.8}, {score: 9, probability: 0.2}]);
+// An immune attack that is still the highest damage (every attack immune)
+// keeps +6/+8 and takes -20: the ROM reads 86/88 (probes i5, h5).
 assert.deepEqual(scoreDamagingAction({
   damage: {rolls: [0], min: 0, max: 0, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Physical', isImmune: true,
-}, true, tackleAction), [{score: -20, probability: 1}]);
+}, true, tackleAction), [{score: -14, probability: 0.8}, {score: -12, probability: 0.2}]);
+// Beside a move that does damage it is not the highest and reads 80 (i1-i4).
+assert.deepEqual(scoreDamagingAction({
+  damage: {rolls: [0], min: 0, max: 0, targetHp: 100, possibleKO: false, guaranteedKO: false},
+  moveCategory: 'Physical', isImmune: true,
+}, false, tackleAction), [{score: -20, probability: 1}]);
 const contraryDamageFacts = {
   damage: {rolls: [30], min: 30, max: 30, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Special' as const, attackerAbility: 'Contrary', attackerHp: 100,

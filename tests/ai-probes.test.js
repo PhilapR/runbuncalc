@@ -10,15 +10,16 @@
  * `scripts/replay-ai-probes.js` rebuilds each position and asks the enemy
  * policy the battle driver plays for its exact choice distribution.
  *
- * THE FLOORS BELOW ARE A REGRESSION FLOOR, NOT A QUALITY BAR. They are the
- * values measured on 2026-09-22, when this engine was graded against the ROM
- * for the first time, and they are far from the ROM: Splash and Celebrate
- * score the +6 status default where the ROM reads 81, setup moves are off by
- * 3 to 27 points, and an all-immune moveset picks Splash. rab's probe-fitted
- * scoring reaches held-out top-1 0.972 and TVD 0.053 on the same 12 held-out
- * probes (pokemon-mono 1ecc0e3); here it is 0.833 and 0.428. A change that
- * makes the numbers better passes and should raise the floors. A change that
- * makes them worse fails.
+ * THE FLOORS BELOW ARE A REGRESSION FLOOR, NOT A QUALITY BAR. First measured
+ * on 2026-09-22, when this engine was graded against the ROM for the first
+ * time (held-out top-1 0.833, TVD 0.428), and raised after each ROM rule the
+ * fix/ai-scoring branch ported, one rule per commit. Held-out now reads top-1
+ * 0.972 and TVD 0.019; rab's probe-fitted scoring reads 0.972 and 0.053 on the
+ * same 12 probes (pokemon-mono 1ecc0e3). What is left is mostly 20-seed noise
+ * on ties, plus the ROM's per-move damage roll for "highest damage" (tie1-tie3),
+ * which a per-evaluation outcome list cannot express. A change that makes the
+ * numbers better passes and should raise the floors. A change that makes them
+ * worse fails.
  *
  * Reference and held-out are gated apart: the reference probes include the
  * set rab's rules were fitted to, the held-out ones are out of sample for both
@@ -33,10 +34,14 @@ const test = require('node:test');
 
 const replay = require('../scripts/replay-ai-probes.js');
 
-/** Measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417), rounded toward passing. */
+/**
+ * First measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417),
+ * raised after each ROM rule landed on fix/ai-scoring. Rounded toward passing.
+ * Now: no-effect moves scored at normal less 20 (0.9398 / 0.0327 / 0.9515 and 0.9722 / 0.0194 / 1.0000).
+ */
 const FLOORS = {
-	reference: {n: 72, top1: 0.844, tvd: 0.333, scoreMatch: 0.611},
-	heldout: {n: 12, top1: 0.833, tvd: 0.428, scoreMatch: 0.541},
+	reference: {n: 72, top1: 0.939, tvd: 0.033, scoreMatch: 0.951},
+	heldout: {n: 12, top1: 0.972, tvd: 0.02, scoreMatch: 1},
 };
 
 const result = replay.gradeAll();

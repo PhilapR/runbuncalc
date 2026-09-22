@@ -176,7 +176,11 @@ module.exports = defineProfile({
 		// score array out of emulator RAM (0x02000360, u8[4], base 100; chosen
 		// slot 0x02000391) across seeded cohorts and reproduced the 80/20 roll —
 		// see ECOSYSTEM.json, pokemon-mono groundtruth/pykemon, traces/emu/probes.
-		// SETUP remains transcription: no probe has exercised it yet.
+		// SETUP stays transcription, half-verified: the phase-5 setup probes
+		// (u1-u7, h9, h10) read the +6 baseScore directly (Swords Dance, Dragon
+		// Dance and Nasty Plot at 106) and ai/src/status.ts now passes them, but
+		// no probe has put the player to sleep, so incapacitatedBonus is unread.
+		// Raise it when a probe reads the +3.
 		'policy.SCORE_ROLL': 'emulator-observed',
 		'policy.SETUP': 'transcribed',
 		// DOCUMENTED_SCORES and DOCUMENTED_SWITCH are deliberately not tagged.
