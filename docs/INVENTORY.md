@@ -161,7 +161,7 @@ the reader's warning to verify before trusting.
 - `docs/MODELLING-GAPS.md` — 56f1c21 2026-09-22
 - `docs/PERFORMANCE.md` — f6708e5 2026-09-22
 - `docs/PLAN.md` — 2564b85 2026-09-22
-- `docs/RUN-CONTROL.md` — 42eed72 2026-09-22
+- `docs/RUN-CONTROL.md` — f382846 2026-09-22
 - `docs/RUNBUN_REBUILD_MODEL.md` — 56f1c21 2026-09-22
 - `docs/RUNBUN_UI_DESIGN.md` — 56f1c21 2026-09-22
 - `docs/RUN_API.md` — 6234521 2026-08-28
