@@ -47,7 +47,7 @@ export function evaluateDamagingActions(
  * Splash (s12). Only those probed classes are added back (isScoredWithoutEffect),
  * each aimed at the first target set isSelectableMoveAction accepts (a foe, the
  * user, no one); the battle driver already uses such a move and lets it fail.
- * An actor left with only Struggle keeps Struggle.
+ * An actor left with only Struggle keeps Struggle. Enemy side only.
  */
 function movesScoredWithoutEffect(state: BattleState, sideId: SideId, actions: MoveAction[]): MoveAction[] {
   const extra: MoveAction[] = [];
@@ -92,7 +92,10 @@ export function evaluateActions(
       outcomes: [],
       reasons: [],
     }));
-  const withoutEffect = movesScoredWithoutEffect(state, sideId, actions)
+  // The trainer AI's rule, so the enemy side only. The player side's
+  // evaluations are our own menu, and the driver refuses a player move that
+  // enumerateMoveActions does not offer.
+  const withoutEffect = (sideId === 'ai' ? movesScoredWithoutEffect(state, sideId, actions) : [])
     .map(action => scoreWithoutEffect(state, {
       action,
       facts: factProvider(state, action),
