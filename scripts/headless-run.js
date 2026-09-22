@@ -931,13 +931,21 @@ function megaWorth(doc, trainer) {
 
 const MEGA_FILLERS = ['Oran Berry', 'Sitrus Berry', 'Lum Berry', 'Pecha Berry', 'Chesto Berry'];
 
-function giveMegaStone(doc, tally, next) {
+function giveMegaStone(doc, tally, next, wanted) {
 	if (!knobs.mega || !run.megaRingHeld(doc)) return doc;
 	const six = doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean);
 	const stoneOf = mon => (run.megaFormOf(mon.species, mon.item) ? mon.item : run.stoneInBag(doc, mon.species));
 	const able = six.filter(mon => mon.status !== 'dead' && stoneOf(mon));
 	if (!able.length) return doc;
 	const holder = six.find(mon => run.megaFormOf(mon.species, mon.item)) || null;
+	// The ranker chose this six AND the Mega it should field; that choice knows
+	// what the rest of the six covers, which a body rated alone does not.
+	const asked = wanted ? able.find(mon => mon.id === wanted) : null;
+	if (knobs.megaByBoard && asked) {
+		if (holder && holder.id === asked.id) return doc;
+		tally.megaPicks = (tally.megaPicks || 0) + 1;
+		return moveStoneTo(doc, tally, holder, asked);
+	}
 	// The old rule: the first in party order, and never touched once one holds a stone.
 	if (!knobs.megaByBoard || able.length < 2 || !next || !next.trainer) {
 		if (holder) return doc;
@@ -962,8 +970,12 @@ function giveMegaStone(doc, tally, next) {
 	}
 	const want = order[0];
 	if (holder && holder.id === want.id) return doc;
-	if (holder) {
-		// Take the stone off the wrong body: a filler in its place returns it to the bag.
+	return moveStoneTo(doc, tally, holder, want);
+}
+
+/** Put the stone on `want`, taking it off `holder` first — a filler frees it back to the bag. */
+function moveStoneTo(doc, tally, holder, want) {
+	if (holder && holder.id !== want.id) {
 		const filler = MEGA_FILLERS.find(item => (doc.bag[item] || 0) > 0);
 		if (!filler) return doc;
 		try {
@@ -1110,7 +1122,18 @@ function applyAdvice(doc, row, tally, forgotten) {
 	return run.apply(doc, {kind: 'heartScale', id: row.id, stat: statKeys[stat[1]]});
 }
 
-function bestParty(doc) {
+/**
+ * The six the ranker picks, and the ONE body it wants to field as a Mega.
+ *
+ * The ranker chooses that with the six (lib/run.js scoreSix): it knows what
+ * the rest of the six already covers, which a body rated alone cannot. The
+ * two disagree in practice — at Elite Four Sidney the standalone board rates
+ * Houndoom-Mega above Lopunny-Mega, and the set score wants Lopunny, because
+ * what the six lacks is what Lopunny covers. So the ranker's choice is the
+ * authority when there is one, and `wants` carries it to giveMegaStone
+ * rather than paying eight seconds to ask the ranker again every fight.
+ */
+function bestParty(doc, wants) {
 	// The board-ranked six against the actual next fight — the same ranker
 	// the browser driver plays with (--party=matrix class), with a
 	// level-sorted fallback when the ranker refuses (tiny box, over-large
@@ -1119,6 +1142,7 @@ function bestParty(doc) {
 		const ranked = run.rankParties(doc);
 		const top = (ranked.parties || [])[0];
 		if (top && top.members.length) {
+			if (wants) wants.mega = top.mega ? top.mega.id : null;
 			const ids = top.members.map(member => member.id);
 			if (top.lead) {
 				ids.splice(ids.indexOf(top.lead), 1);
@@ -1470,6 +1494,8 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	let lastShape = kept ? kept.lastShape : '';
 	// The six the probe last judged, and what decide() won with it (--hand-by-probe).
 	let handProbe = kept ? kept.handProbe : {six: null, wins: 0};
+	// What the ranker last said this six should field as its Mega: its choice, not a body rated alone.
+	const ranked = {mega: null};
 	// A plan, once taken, holds until the wall falls: the ranker and the re-pick would only undo it.
 	let planHolds = kept ? !!kept.planHolds : false;
 	if (kept) tally.restoredAt = (tally.restoredAt || []).concat([doc.position]);
@@ -1509,7 +1535,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			// A plan holds until its wall falls: a catch made between attempts re-ran
 			// the ranker here and put its six back (842113's first Norman plan was
 			// undone this way, and the second started again from nothing).
-			if (!planHolds) doc = bestParty(doc);
+			if (!planHolds) doc = bestParty(doc, ranked);
 		}
 		const ahead = run.upcoming(doc, 1000);
 		if (!ahead.length) break;
@@ -1586,7 +1612,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		try {
 			// The six may have been re-picked since the advice ran, and a body
 			// that joined it afterwards arrives holding nothing.
-			doc = giveMegaStone(doc, tally, next);
+			doc = giveMegaStone(doc, tally, next, ranked.mega);
 			doc = fillEmptySlots(doc, tally);
 			keptLog = knobs.fightLogs === 'all' || (knobs.fightLogs === 'bosses' &&
 				(next.isDouble || BOSS.test(next.trainer))) ? [] : undefined;

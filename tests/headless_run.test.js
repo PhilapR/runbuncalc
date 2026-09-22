@@ -801,3 +801,38 @@ test('the run\'s one Mega is reconsidered for the fight in front, and the stone 
 	// And the switch that restores the old rule is real.
 	assert.equal(headless.armFlags('--mega-by-board=0').knobs.megaByBoard, 0);
 });
+
+test('the six is scored for the ONE Mega it can field, and the stone follows that choice', () => {
+	// The board rates every Mega-capable body as the Mega it would become —
+	// right for "should this body be in the six", wrong for scoring the six.
+	// Seed 418957's box holds ELEVEN such bodies, so a six of them was priced
+	// as a team of Megas and played as one Mega and five base forms.
+	const runtime = require('../lib/run.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const each = runtime.boxMatrix(saved, 'Elite Four Sidney');
+	assert.ok(each.box.filter(row => row.mega).length >= 5, 'the board rates many bodies as Megas at once');
+	assert.equal(runtime.boxMatrix(saved, 'Elite Four Sidney', {megas: 'none'}).box.filter(row => row.mega).length, 0,
+		'and can be asked for the same box in base form');
+
+	const ranked = runtime.rankParties(saved, 'Elite Four Sidney');
+	const top = ranked.parties[0];
+	const capable = top.members.filter(member => each.box.find(row => row.id === member.id && row.mega));
+	assert.ok(capable.length >= 2, 'the top six holds more than one Mega-capable body: ' + capable.map(m => m.species).join(', '));
+	assert.ok(top.mega && top.mega.id, 'and it names the ONE it fields: ' + JSON.stringify(top.mega));
+	assert.ok(top.members.some(member => member.id === top.mega.id), 'which is a member of that six');
+	assert.match(top.mega.species, /-Mega/);
+
+	// The set score is the authority, not a body rated alone: here they differ.
+	// Standalone the board rates Houndoom-Mega (4.5) over Lopunny-Mega (3.5).
+	assert.equal(top.mega.species, 'Lopunny-Mega', 'the six lacks what Lopunny covers, which rating it alone cannot see');
+
+	// And the stone follows that choice, off whoever holds it.
+	const houndoom = saved.box.find(mon => mon.species === 'Houndoom');
+	assert.equal(houndoom.item, 'Houndoominite', 'the run arrived with the stone on the other body');
+	const tally = {};
+	const fixed = headless.giveMegaStone(saved, tally, {trainer: 'Elite Four Sidney'}, top.mega.id);
+	assert.equal(runtime.findMon(fixed, top.mega.id).item, 'Lopunnite', 'the ranker asked for Lopunny and Lopunny holds it');
+	assert.ok(!runtime.megaFormOf('Houndoom', runtime.findMon(fixed, houndoom.id).item));
+	assert.equal(tally.megaMoved, 1);
+});
