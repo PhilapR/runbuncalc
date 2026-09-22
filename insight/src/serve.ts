@@ -183,6 +183,9 @@ function factsOf(s) {
   if (s.minutes !== null) add('minutes', s.minutes);
   if (s.scoutedFights !== null) { f.appendChild(el('b', {text: s.scoutedFights + ' '})); f.appendChild(el('span', {title: 'An attempt is a fight played for keeps: the run\u2019s own dice, one ledger row, counted against the retry cap. These were played in the run\u2019s head, on other dice, to choose a six or a plan: ' + Object.entries(s.scouted).map(e => e[1] + ' ' + e[0]).join(', '), text: 'scouting fights (not attempts)'})); }
   add('plans', s.plans); add('in the box', s.boxSize);
+  if (s.gifted && s.gifted.length) add('gifts claimed (' + s.gifted.map(g => g.species).join(', ') + ')', s.gifted.length);
+  // A wall at one Elite Four format hands the run the member's other: without this line a leg that moved from Sidney to SidneyDouble reads as a skip.
+  if (s.formatsSwitched && s.formatsSwitched.length) add('formats switched (' + s.formatsSwitched.map(x => x.from.replace('Elite Four ', '') + ' \u2192 ' + x.to.replace('Elite Four ', '') + ' after ' + x.after).join(', ') + ')', s.formatsSwitched.length);
   add('', s.state === 'playing' ? 'still playing' : s.state === 'finished' ? 'FINISHED' : 'ended: ' + String(s.stopped || '').split(':')[0]);
   if (s.auditOk !== null) add('', s.auditOk ? 'audit valid' : 'audit FAILS');
   return f;

@@ -46,20 +46,26 @@ const Row = Schema.Struct({
 const Doc = Schema.Struct({position: Schema.Number, party: Schema.Array(Schema.String), box: Schema.Array(Mon),
 	bag: Schema.optional(Schema.Record({key: Schema.String, value: Schema.Number}))});
 
+/** An Elite Four format given up on for the member's other one (scripts/headless-run.js otherDoor). */
+const Switched = Schema.Struct({from: Schema.String, to: Schema.String, after: Schema.Number});
+/** A gift the run claimed: the egg, Castform, Kubfu. */
+const Gifted = Schema.Struct({species: Schema.String, where: Schema.String, at: Schema.Number});
+const Journey = {formatsSwitched: Schema.optional(Schema.Array(Switched)), gifted: Schema.optional(Schema.Array(Gifted))};
+
 /** A run that has ended. */
 const Ended = Schema.Struct({seed: Schema.Number, starter: Schema.optional(Schema.String), position: Schema.Number,
 	fights: Schema.Number, seconds: Schema.optional(Schema.Number), finished: Schema.optional(Schema.Boolean),
 	stopped: Schema.optional(Schema.NullOr(Schema.String)), ledger: Schema.Array(Row), doc: Schema.optional(Doc),
 	plans: Schema.optional(Schema.Array(Schema.Unknown)), reprobes: Schema.optional(Schema.Number),
 	scouted: Schema.optional(Schema.Record({key: Schema.String, value: Schema.Number})),
-	audit: Schema.optional(Schema.Struct({ok: Schema.Boolean}))});
+	audit: Schema.optional(Schema.Struct({ok: Schema.Boolean})), ...Journey});
 
 /** A run still playing, as its checkpoint holds it. */
 const Playing = Schema.Struct({seed: Schema.Number, position: Schema.Number, doc: Doc,
 	starter: Schema.optional(Schema.Struct({species: Schema.String})),
 	state: Schema.Struct({tally: Schema.Struct({fights: Schema.Number, ledger: Schema.Array(Row),
 		plans: Schema.optional(Schema.Array(Schema.Unknown)), reprobes: Schema.optional(Schema.Number),
-		scouted: Schema.optional(Schema.Record({key: Schema.String, value: Schema.Number}))}),
+		scouted: Schema.optional(Schema.Record({key: Schema.String, value: Schema.Number})), ...Journey}),
 	elapsedMs: Schema.optional(Schema.Number)})});
 
 export const decodeEnded = Schema.decodeUnknown(Ended);
@@ -80,17 +86,21 @@ export interface RunSource {
 	readonly scouted: Readonly<Record<string, number>> | null;
 	readonly ledger: ReadonlyArray<typeof Row.Type>;
 	readonly doc: typeof Doc.Type | null;
+	readonly formatsSwitched: ReadonlyArray<typeof Switched.Type>;
+	readonly gifted: ReadonlyArray<typeof Gifted.Type>;
 }
 
 export const fromEnded = (run: typeof Ended.Type): RunSource => ({seed: run.seed, starter: run.starter ?? null,
 	position: run.position, seconds: run.seconds ?? null, state: run.finished === true ? 'finished' : 'ended',
 	stopped: run.stopped ?? null, auditOk: run.audit?.ok ?? null, plans: (run.plans ?? []).length,
-	reprobes: run.reprobes ?? 0, scouted: run.scouted ?? null, ledger: run.ledger, doc: run.doc ?? null});
+	reprobes: run.reprobes ?? 0, scouted: run.scouted ?? null, ledger: run.ledger, doc: run.doc ?? null,
+	formatsSwitched: run.formatsSwitched ?? [], gifted: run.gifted ?? []});
 
 export const fromPlaying = (run: typeof Playing.Type): RunSource => ({seed: run.seed, starter: run.starter?.species ?? null,
 	position: run.position, seconds: run.state.elapsedMs === undefined ? null : Math.round(run.state.elapsedMs / 1000),
 	state: 'playing', stopped: null, auditOk: null, plans: (run.state.tally.plans ?? []).length,
-	reprobes: run.state.tally.reprobes ?? 0, scouted: run.state.tally.scouted ?? null, ledger: run.state.tally.ledger, doc: run.doc});
+	reprobes: run.state.tally.reprobes ?? 0, scouted: run.state.tally.scouted ?? null, ledger: run.state.tally.ledger, doc: run.doc,
+	formatsSwitched: run.state.tally.formatsSwitched ?? [], gifted: run.state.tally.gifted ?? []});
 
 export interface Wall {
 	readonly trainer: string;
@@ -147,6 +157,9 @@ export interface RunSummary {
 	readonly scoutedFights: number | null;
 	readonly boxSize: number;
 	readonly roster: ReadonlyArray<Profile>;
+	/** Elite Four formats walled and given up on for the member's other format. */
+	readonly formatsSwitched: RunSource['formatsSwitched'];
+	readonly gifted: RunSource['gifted'];
 }
 
 /** A fight counts as a wall from this many attempts: below it, it is dice. */
@@ -236,6 +249,7 @@ export function summariseRun(run: RunSource): RunSummary {
 		byHand: [...hands.entries()].map(([hand, entry]) => ({hand, ...entry})).sort((a, b) => b.attempts - a.attempts),
 		walls, plans: run.plans, reprobes: run.reprobes, scouted: run.scouted,
 		scoutedFights: run.scouted === null ? null : Object.values(run.scouted).reduce((sum, value) => sum + value, 0), boxSize: run.doc?.box.length ?? 0, roster,
+		formatsSwitched: run.formatsSwitched, gifted: run.gifted,
 		bodiesLostPerWallWin: wallWins.length === 0 ? null :
 			Number((wallWins.reduce((sum, wall) => sum + (wall.bodiesLostInWin ?? 0), 0) / wallWins.length).toFixed(2))};
 }

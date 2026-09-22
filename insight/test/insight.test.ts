@@ -259,7 +259,11 @@ test('a run is read for its aggregates and a profile of every body, and runs rol
 		{id: 'mon-2', species: 'Corvisquire', nickname: 'Moss', level: 21, moves: ['Pluck'], status: 'party', origin: {mapName: 'Route102'}},
 		{id: 'mon-3', species: 'Wurmple', level: 5, status: 'dead'}];
 	const summary = summariseRun({seed: 7, starter: 'Chimchar', position: 80, seconds: 600, state: 'ended', stopped: 'Leader Norman: skip',
-		auditOk: true, plans: 1, reprobes: 0, scouted: {probe: 12, repick: 36, plan: 168}, ledger, doc: {position: 80, party: ['mon-1', 'mon-2'], box}});
+		auditOk: true, plans: 1, reprobes: 0, scouted: {probe: 12, repick: 36, plan: 168}, ledger, doc: {position: 80, party: ['mon-1', 'mon-2'], box},
+		formatsSwitched: [{from: 'Elite Four Sidney', to: 'Elite Four SidneyDouble', after: 40}],
+		gifted: [{species: 'Kubfu', where: 'Route 110', at: 1573}]});
+	assert.deepEqual(summary.formatsSwitched.map(x => x.to), ['Elite Four SidneyDouble'], 'a format switch reaches the page, not a skip');
+	assert.deepEqual(summary.gifted.map(g => g.species), ['Kubfu']);
 	assert.equal(summary.attempts, 11);
 	assert.equal(summary.scoutedFights, 216, 'and beside the attempts, the fights played in the run\'s head: never attempts, never free');
 	assert.equal(summary.trainersBeaten, 2);
