@@ -25,7 +25,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import {decodeEnded, decodePlaying, fleetOf, fromEnded, fromPlaying, summariseRun, type RunSummary} from './profile.js';
 import {wallView, type WallView} from './analyse.js';
-import {currentOf, loadRunWithFights, sidecarOf} from './cli.js';
+import {currentOf, describeFailure, loadRunWithFights, sidecarOf} from './cli.js';
 import {Turn, type RunRecord} from './schema.js';
 import {readDoublesLine, tagsOf} from './tags.js';
 import {STYLE} from './viewer.js';
@@ -229,7 +229,8 @@ function dots(max, loss, win, label) {
 }
 async function drawWall(box, mine) {
   const w = await (await fetch('/wall?run=' + encodeURIComponent(current) + '&trainer=' + encodeURIComponent(wallOpen))).json(); if (mine !== drawing) return;
-  if (!w) { box.appendChild(el('p', {class: 'sub', text: 'this run kept nothing to read for ' + wallOpen})); return; }
+  if (w && w.error) { box.appendChild(el('p', {class: 'sub', text: 'cannot read this run for ' + wallOpen + ': ' + w.error})); return; }
+  if (!w) { box.appendChild(el('p', {class: 'sub', text: 'this run never fought ' + wallOpen})); return; }
   box.appendChild(part(w.trainer + ' — ' + w.attempts + ' attempts, ' + (w.wonOn ? 'won on attempt ' + w.wonOn : 'never won') + ' · ' + w.logged + ' taped · per foe, most costly first', 'run-wall'));
   const won = w.wonOn !== null;
   const bodies = n => n + ' bod' + (n === 1 ? 'y' : 'ies');
@@ -283,6 +284,7 @@ function openAttempt(n) { pinned = n; view = 'fight'; address(); views(); }
 async function showPast() {
   const want = pinned; const a = await (await fetch('/attempt?run=' + encodeURIComponent(current) + '&n=' + want)).json(); if (want !== pinned) return;
   const sub = document.getElementById('sub');
+  if (a && a.error) { sub.textContent = 'cannot read attempt ' + want + ': ' + a.error; return; }
   if (!a) { sub.textContent = 'attempt ' + want + ' is not in this run’s record'; return; }
   attempt = 'past:' + a.n; seen = -1; held = [];
   document.body.className = 'done';
@@ -556,28 +558,36 @@ export const loadSummary = async (dir: string, run: string): Promise<RunSummary 
 	return null;
 };
 
+/** A run that could not be read, and why: the watch page shows `said`, never "it kept nothing". */
+export class Unreadable extends Error {
+	constructor(readonly said: string) { super(said); }
+}
+
 /**
  * A run with every fight it kept: its record or newer checkpoint, and its
  * sidecar. Megabytes to decode, so it is kept until either file changes.
+ *
+ * A record that does not decode REJECTS with the reason. It used to read as
+ * null, and the page said "this run kept nothing to read" of clear1's 104770,
+ * which kept 358 fights and failed on one null in a race.
  */
 const fought = new Map<string, {at: string; run: RunRecord}>();
-export const loadFought = async (dir: string, run: string): Promise<RunRecord | null> => {
+export const loadFought = async (dir: string, run: string): Promise<RunRecord> => {
 	const report = path.join(dir, run + '.json');
 	const file = await currentOf(report);
 	const stamps = await Promise.all([file, sidecarOf(report)].map(name => fs.stat(name).then(stat => String(stat.mtimeMs), () => '-')));
 	const at = file + ':' + stamps.join(':');
 	const kept = fought.get(report);
 	if (kept !== undefined && kept.at === at) return kept.run;
-	const loaded = await Effect.runPromise(loadRunWithFights(report).pipe(Effect.orElseSucceed(() => null)));
-	if (loaded !== null) fought.set(report, {at, run: loaded});
-	return loaded;
+	const loaded = await Effect.runPromise(Effect.either(loadRunWithFights(report)));
+	if (loaded._tag === 'Left') throw new Unreadable(describeFailure(loaded.left));
+	fought.set(report, {at, run: loaded.right});
+	return loaded.right;
 };
 
-/** One wall of a run, per foe (analyse.ts wallView). */
-export const loadWall = async (dir: string, run: string, trainer: string): Promise<WallView | null> => {
-	const record = await loadFought(dir, run);
-	return record === null ? null : wallView(record, trainer);
-};
+/** One wall of a run, per foe (analyse.ts wallView); null when the run never fought that trainer. */
+export const loadWall = async (dir: string, run: string, trainer: string): Promise<WallView | null> =>
+	wallView(await loadFought(dir, run), trainer);
 
 /**
  * Any attempt the run kept, as the fight tab draws it: a single's turns,
@@ -586,8 +596,8 @@ export const loadWall = async (dir: string, run: string, trainer: string): Promi
  */
 export const loadAttempt = async (dir: string, run: string, n: number) => {
 	const record = await loadFought(dir, run);
-	const attempt = record?.ledger.find(entry => entry.n === n);
-	if (record === null || attempt === undefined) return null;
+	const attempt = record.ledger.find(entry => entry.n === n);
+	if (attempt === undefined) return null;
 	const same = record.ledger.filter(entry => entry.order === attempt.order && entry.trainer === attempt.trainer);
 	const ours = new Set((attempt.six ?? []).map(member => member.species));
 	const log = attempt.log ?? [];
@@ -618,10 +628,13 @@ export const control = async (dir: string, run: string, action: 'stop' | 'pause'
 };
 
 export const serve = (dir: string, port: number): http.Server => {
-	const send = (res: http.ServerResponse, type: string, body: string): void => {
-		res.writeHead(200, {'content-type': type, 'cache-control': 'no-store'});
+	const send = (res: http.ServerResponse, type: string, body: string, status = 200): void => {
+		res.writeHead(status, {'content-type': type, 'cache-control': 'no-store'});
 		res.end(body);
 	};
+	// A run that cannot be read says why, with a status that is not 200.
+	const failed = (res: http.ServerResponse) => (error: unknown): void =>
+		send(res, 'application/json', JSON.stringify({error: error instanceof Unreadable ? error.said : String(error)}), 500);
 	return http.createServer((req, res) => {
 		const url = new URL(req.url ?? '/', 'http://localhost');
 		if (url.pathname === '/runs') {
@@ -645,14 +658,14 @@ export const serve = (dir: string, port: number): http.Server => {
 			const run = url.searchParams.get('run') ?? '';
 			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadWall(dir, run, url.searchParams.get('trainer') ?? '').then(view => send(res, 'application/json', JSON.stringify(view)),
-				() => send(res, 'application/json', 'null'));
+				failed(res));
 			return;
 		}
 		if (url.pathname === '/attempt') {
 			const run = url.searchParams.get('run') ?? '';
 			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadAttempt(dir, run, Number(url.searchParams.get('n'))).then(found => send(res, 'application/json', JSON.stringify(found)),
-				() => send(res, 'application/json', 'null'));
+				failed(res));
 			return;
 		}
 		if (url.pathname === '/fleet') {

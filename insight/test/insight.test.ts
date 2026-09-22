@@ -578,6 +578,34 @@ test('a foe met only in the win has no loss reading, not a loss reading of 0', a
 	assert.equal(row.all('circle').filter(dot => dot.attrs.class === 'loss').length, 0, 'and no grey loss dot at 0');
 });
 
+test('a run that does not decode says why on the wall and the attempt, never that it kept nothing', async () => {
+	const fs = await import('node:fs/promises');
+	const os = await import('node:os');
+	const pathOf = await import('node:path');
+	const {loadWall, serve} = await import('../src/serve.js');
+	const dir = await fs.mkdtemp(pathOf.join(os.tmpdir(), 'insight-bad-'));
+	await fs.writeFile(pathOf.join(dir, 'run-1.json'), JSON.stringify({seed: 1, position: 3, fights: 1,
+		ledger: [{n: 1, order: 2, trainer: 'Leader Brawly', seed: '7', result: 'win'}]}));
+	await assert.rejects(loadWall(dir, 'run-1', 'Leader Brawly'), /ledger\.0\.seed/, 'the reason names the field that moved');
+	const server = serve(dir, 0);
+	try {
+		await new Promise(resolve => server.once('listening', resolve));
+		const address = server.address();
+		const base = 'http://127.0.0.1:' + (typeof address === 'object' && address !== null ? address.port : 0);
+		for (const route of ['/wall?run=run-1&trainer=Leader%20Brawly', '/attempt?run=run-1&n=1']) {
+			const got = await fetch(base + route);
+			assert.equal(got.status, 500, route + ' is not a 200 with null');
+			assert.match(((await got.json()) as {error: string}).error, /is not a run record: ledger\.0\.seed/);
+		}
+	} finally {
+		server.close();
+		await fs.rm(dir, {recursive: true});
+	}
+	const text = (await drawnWall({error: 'run-1.json is not a run record: ledger.0.seed: Expected number'}, 500)).text;
+	assert.match(text, /cannot read this run for Elite Four Sidney: run-1\.json is not a run record/);
+	assert.ok(!text.includes('kept nothing'));
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');

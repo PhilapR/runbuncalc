@@ -20,6 +20,19 @@ export class NotARun extends Data.TaggedError('NotARun')<{readonly file: string;
 export class WriteFailed extends Data.TaggedError('WriteFailed')<{readonly file: string; readonly cause: unknown}> {}
 export class BadArguments extends Data.TaggedError('BadArguments')<{readonly usage: string}> {}
 
+/**
+ * Where a decode failed, one line an issue: the path of the field and what was
+ * wrong. TreeFormatter spells every anonymous struct's whole type at every
+ * level, pages of it, and the field that moved is lost in it.
+ */
+export const issueOf = (error: ParseResult.ParseError): string =>
+	ParseResult.ArrayFormatter.formatErrorSync(error).map(issue => issue.path.join('.') + ': ' + issue.message).join('\n');
+
+/** A load failure, said in one sentence a page or a terminal can show. */
+export const describeFailure = (error: ReadFailed | NotJson | NotARun): string =>
+	error._tag === 'ReadFailed' ? 'cannot read ' + error.file :
+		error._tag === 'NotJson' ? error.file + ' is not JSON' : error.file + ' is not a run record: ' + error.issue;
+
 const flag = (argv: ReadonlyArray<string>, name: string): string | undefined => {
 	const hit = argv.find(arg => arg.startsWith('--' + name + '='));
 	return hit === undefined ? undefined : hit.slice(name.length + 3);
@@ -66,7 +79,7 @@ export const loadRun = (given: string): Effect.Effect<RunRecord, ReadFailed | No
 			catch: cause => new NotJson({file, cause}),
 		});
 		return yield* decodeRun(liftCheckpoint(json)).pipe(
-			Effect.mapError(error => new NotARun({file, issue: ParseResult.TreeFormatter.formatErrorSync(error)})),
+			Effect.mapError(error => new NotARun({file, issue: issueOf(error)})),
 		);
 	});
 
@@ -101,7 +114,7 @@ export const loadFights = (file: string): Effect.Effect<ReadonlyArray<FightLine>
 				return yield* new NotARun({file, issue: 'line ' + index + ' is not JSON'});
 			}
 			kept.push(yield* decodeFightLine(json.value).pipe(Effect.mapError(error =>
-				new NotARun({file, issue: 'line ' + index + ':\n' + ParseResult.TreeFormatter.formatErrorSync(error)}))));
+				new NotARun({file, issue: 'line ' + index + ': ' + issueOf(error)}))));
 		}
 		return kept;
 	});
