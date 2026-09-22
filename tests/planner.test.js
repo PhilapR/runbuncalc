@@ -448,3 +448,42 @@ test('a lead\'s entry ability fires as the battle opens, and a strong weather en
 	const foe = opened.sides.ai.party.find(mon => mon.id === opened.sides.ai.activeIds[0]);
 	assert.equal((foe.boosts || {}).atk, -1, 'Intimidate');
 });
+
+test('a matchup cell opens as the fight does: its numbers match a fight opened on the same two', () => {
+	// The board graded every cell without entry abilities after the fights had
+	// them, so the ranker chose sixes against a dry-sky Primal Kyogre and an
+	// Intimidate that never fired. A cell is now held to the fight itself.
+	const runtime = require('../lib/run.js');
+	const ai = require('../ai');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const led = species => {
+		const mon = saved.box.find(entry => entry.species === species);
+		return runtime.apply(saved, {kind: 'party', ids: [mon.id].concat(saved.party.filter(id => id !== mon.id)).slice(0, 6)});
+	};
+	// The fight's own number for one move, as a share of the target's HP.
+	const fightMax = (trainer, doc, side, moveName) => {
+		const state = planner.buildFightState({trainer, playerParty: runtime.partySpecs(doc, {}),
+			profileId: saved.profileId}).state;
+		const hit = ai.evaluateActions(state, ai.calculateActionFacts, side).find(entry => entry.action.moveName === moveName);
+		const target = state.sides[side === 'ai' ? 'player' : 'ai'].party
+			.find(mon => mon.id === hit.action.targetIds[0]);
+		return Math.max(...hit.facts.damage.rolls) / target.hp.max;
+	};
+	const cell = (trainer, doc, enemy, species) => planner.matchup({trainer, playerParty: runtime.partySpecs(doc, {}),
+		profileId: saved.profileId}).grid.find(row => row.enemy.species === enemy).versus.find(entry => entry.species === species);
+
+	// Their hit under their weather: Primal Kyogre's Origin Pulse in heavy rain.
+	const lopunny = led('Lopunny');
+	const rained = cell('Champion Wallace', lopunny, 'Kyogre-Primal', 'Lopunny');
+	assert.equal(rained.them.move, 'Origin Pulse');
+	assert.ok(Math.abs(rained.them.max - fightMax('Champion Wallace', lopunny, 'ai', 'Origin Pulse')) < 1e-9,
+		'the cell reads the rain the fight has: ' + rained.them.max);
+
+	// Our hit under their Intimidate: Lady Sarah leads Intimidate Granbull.
+	const staraptor = led('Staraptor');
+	const cut = cell('Lady Sarah', staraptor, 'Granbull', 'Staraptor');
+	const move = cut.us.move;
+	assert.ok(Math.abs(cut.us.max - fightMax('Lady Sarah', staraptor, 'player', move)) < 1e-9,
+		'the cell reads the Intimidate the fight has: ' + move + ' ' + cut.us.max);
+});
