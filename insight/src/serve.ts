@@ -246,7 +246,11 @@ async function drawWall(box, mine) {
     cell(dots(maxT, f.losses.turnsPerFacing, f.win && f.win.turns, f.foe + ' stayed ' + num(f.losses.turnsPerFacing) + ' turns a losing facing'), '', f.losses.turnsPerFacing === null ? -1 : f.losses.turnsPerFacing),
     cell(num(f.losses.turnsPerFacing) + (f.win && f.win.turns !== null ? ' · win ' + f.win.turns : ''), 'num', f.losses.turnsPerFacing === null ? -1 : f.losses.turnsPerFacing),
     cell(list(f.killers.slice(0, 3)), 'wrap'), cell(list(f.victims.slice(0, 3)), 'wrap')])), 'wallfoes'));
-  if (w.selfInflicted) box.appendChild(el('p', {class: 'sub', text: w.selfInflicted + ' bod' + (w.selfInflicted === 1 ? 'y' : 'ies') + ' of ours fell to ' + (w.selfInflicted === 1 ? 'its' : 'their') + ' own move (recoil, Self-Destruct): charged to no foe.'}));
+  const bodies = n => n + ' bod' + (n === 1 ? 'y' : 'ies');
+  const apart = [w.hazards ? bodies(w.hazards) + ' fell on our own switch (hazards on the way in)' : '',
+    w.selfInflicted ? bodies(w.selfInflicted) + ' fell on our own move (recoil, Self-Destruct)' : ''].filter(Boolean);
+  if (apart.length) box.appendChild(el('p', {class: 'sub', text: 'Charged to no foe: ' + apart.join('; ') + '.'}));
+  if (w.approximate) box.appendChild(el('p', {class: 'sub', text: 'Approximate: this record predates the ledger naming whose side a killer was on, so ours are told from theirs by species — a mirror can be misread.'}));
   // Every attempt, in the order played: above the axis the bodies of theirs it knocked out, below it ours lost, one
   // unit for both — how close each came. Click one to read it on the fight tab.
   const most = Math.max(6, ...w.runs.map(r => Math.max(r.bodiesLost, r.knockouts || 0))), half = 14, step = 6, W = Math.max(40, w.runs.length * step + 2), H = 2 * half + 1;

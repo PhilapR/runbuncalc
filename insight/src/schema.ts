@@ -73,6 +73,12 @@ export const Fallen = Schema.Struct({
 	species: Schema.NullOr(Schema.String),
 	by: Schema.NullOr(Schema.String),
 	of: Schema.NullOr(Schema.String),
+	/**
+	 * Whose side `of` was on. `of` is whoever was ACTING when the body fell, so a
+	 * body of ours killed by hazards on its way in is "of" our outgoing body.
+	 * Absent on records written before 2026-09-22.
+	 */
+	ofSide: Schema.optional(Schema.NullOr(Schema.Literal('ours', 'theirs'))),
 });
 
 export const Knockout = Schema.Struct({

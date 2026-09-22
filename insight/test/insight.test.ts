@@ -461,6 +461,35 @@ test('a doubles wall is read per foe too, and a mirror is charged to their side,
 	assert.deepEqual([articuno?.bodiesLost, articuno?.turnsPerFacing], [2, 1]);
 });
 
+test('a wall charges a body to a foe only when the actor was on their side', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const member = (species: string) => ({name: species, species, level: 99, item: null, ability: null, nature: null, moves: []});
+	const six = ['Florges', 'Houndoom', 'Lopunny', 'Pinsir'].map(member);
+	const side = (ofSide: 'ours' | 'theirs') => <T extends object>(fall: T) => ({...fall, ofSide});
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 2, ledger: [
+		// sidney1 attempt 3, as written before ofSide: Florges switched in for Houndoom and died to Spikes.
+		{n: 1, order: 1580, trainer: 'Elite Four Sidney', seed: 5, result: 'loss', six, killers: [
+			{monId: 'mon-Florges', species: 'Florges', by: null, of: 'Houndoom'},
+			fallen('Houndoom', 'Dark Pulse', 'Yveltal'),
+			fallen('Lopunny-Mega', 'Double-Edge', 'Lopunny-Mega')]},
+		// A new ledger says the side: hazards on our switch, and a mirror Lopunny-Mega of theirs.
+		{n: 2, order: 1580, trainer: 'Elite Four Sidney', seed: 6, result: 'loss', six, killers: [
+			side('ours')({monId: 'mon-Pinsir', species: 'Pinsir', by: null, of: 'Lopunny-Mega'}),
+			side('theirs')(fallen('Lopunny-Mega', 'Double-Edge', 'Lopunny-Mega')),
+			side('theirs')(fallen('Houndoom', 'Oblivion Wing', 'Yveltal'))]},
+	]}));
+	const view = wallView(run, 'Elite Four Sidney');
+	assert.ok(view !== null);
+	assert.deepEqual(view.foes.map(foe => [foe.foe, foe.bodiesLost]).sort(), [['Lopunny-Mega', 1], ['Yveltal', 2]],
+		'Houndoom and Pinsir are ours: no foe row, and the Lopunny-Mega row is their mirror alone');
+	assert.equal(view.hazards, 2, 'Florges and Pinsir fell to hazards on our own switch');
+	assert.equal(view.selfInflicted, 1, 'our Lopunny-Mega\'s own Double-Edge, on the old ledger');
+	assert.equal(view.approximate, true, 'attempt 1 has no ofSide, so the page must say it is approximate');
+	const fresh = wallView(await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1,
+		ledger: [run.ledger[1]]})), 'Elite Four Sidney');
+	assert.equal(fresh?.approximate, false);
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');

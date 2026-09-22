@@ -87,7 +87,7 @@ export const TOOLS: ReadonlyArray<AnyTool> = [
 						order: entry.order, foeCosts: entry.foeCosts, hasLog: entry.hasLog}))});
 		}))}),
 	tool({name: 'wall_view', input: WallViewArgs,
-		description: 'A wall read PER FOE: for each of theirs, the attempts it was met in, the bodies of ours it took a facing (charged to the foe that dealt the last hit, off the ledger), how often it fell, the turns it stayed a facing, what it killed us with and whom — and the same readings in the winning attempt beside the mean of the losses. Most costly foe first. Also the bodies lost to our own recoil, the tag lift (win against losses), and every attempt\'s ledger number, which get_turns opens. Works for doubles. This is the "which of theirs is the wall" question.',
+		description: 'A wall read PER FOE: for each of theirs, the attempts it was met in, the bodies of ours it took a facing (charged to the foe that was acting when the body fell, off the ledger; a body that fell on our own switch or move is charged to no foe), how often it fell, the turns it stayed a facing, what it killed us with and whom — and the same readings in the winning attempt beside the mean of the losses. Most costly foe first. Also the bodies lost to hazards on our own switch (hazards) and to our own move (selfInflicted), whether our side was read by species on an old record (approximate), the tag lift (win against losses), and every attempt\'s ledger number, which get_turns opens. Works for doubles. This is the "which of theirs is the wall" question.',
 		run: args => loaded(args.report).pipe(Effect.flatMap(run => {
 			if (args.trainer === undefined) return Effect.succeed<unknown>(wallViews(run, args.minAttempts ?? WALL_ATTEMPTS));
 			const view = wallView(run, args.trainer);
