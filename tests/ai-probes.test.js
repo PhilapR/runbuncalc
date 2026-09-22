@@ -36,10 +36,10 @@ const replay = require('../scripts/replay-ai-probes.js');
 /**
  * First measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417),
  * raised after each ROM rule landed on fix/ai-scoring. Rounded toward passing.
- * Now: recovery penalties add to +5 (0.9259 / 0.0466 / 0.9216 and 0.9722 / 0.0194 / 0.9167).
+ * Now: multi-hit counts 3 hits (0.9398 / 0.0327 / 0.9291 and 0.9722 / 0.0194 / 0.9167).
  */
 const FLOORS = {
-	reference: {n: 72, top1: 0.925, tvd: 0.047, scoreMatch: 0.921},
+	reference: {n: 72, top1: 0.939, tvd: 0.033, scoreMatch: 0.929},
 	heldout: {n: 12, top1: 0.972, tvd: 0.02, scoreMatch: 0.916},
 };
 

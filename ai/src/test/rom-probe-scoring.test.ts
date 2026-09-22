@@ -206,4 +206,17 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(got['Recover'], [99], 'r2 Recover');
 }
 
+// m2-pin-missile-3p6-hits: the AI counts Pin Missile as 3 hits, so Bug Buzz
+// (a 3.6-hit comparator) is the highest damage: Bug Buzz 106/108, Pin Missile 100.
+{
+  const got = scores(probe(
+    {species: 'Scyther', moves: ['Splash', 'Pin Missile', 'Bug Buzz', 'Tackle'],
+      stats: {hp: 200, atk: 120, def: 90, spa: 128, spd: 90, spe: 110}},
+    {species: 'Sceptile', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 40}},
+  ));
+  assert.deepEqual(got['Pin Missile'], [100], 'm2 Pin Missile');
+  assert.deepEqual(got['Bug Buzz'], [106, 108], 'm2 Bug Buzz');
+}
+
 console.log('ROM probe scoring fixtures passed');

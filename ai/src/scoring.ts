@@ -1,6 +1,6 @@
 import {actionKey} from './actions';
 import {isDamagingFacts, scoringDamageFacts} from './facts';
-import {ActionEvaluation, ActionFacts, ScoreOutcome} from './model';
+import {ActionEvaluation, ActionFacts, DamageFacts, ScoreOutcome} from './model';
 
 /**
  * Run & Bun AI decision constants.
@@ -363,10 +363,47 @@ export function scoreDamagingAction(
     : withPriority;
 }
 
+/**
+ * The AI counts a variable multi-hit move (2-5 hits) as 3 hits. The ROM
+ * picks a 25 BP x3 Bullet Seed over a 2.5-hit comparator (m1) and a 3.6-hit
+ * Bug Buzz over a 25 BP Pin Missile, scoring Pin Missile 100 (m2). The damage
+ * facts span 2-5 hits for planning, so the scorer re-reads them at 3.
+ */
+const AI_MULTI_HIT_COUNT = 3;
+
+function aiDamage(damage: DamageFacts): DamageFacts {
+  if (!damage.hitRange) return damage;
+  const min = Math.min(...damage.rolls) * AI_MULTI_HIT_COUNT;
+  const max = Math.max(...damage.rolls) * AI_MULTI_HIT_COUNT;
+  return {
+    ...damage,
+    min,
+    max,
+    possibleKO: damage.targetHp > 0 && max >= damage.targetHp,
+    guaranteedKO: damage.targetHp > 0 && min >= damage.targetHp,
+  };
+}
+
+function aiScoringFacts(facts: ActionFacts): ActionFacts {
+  if (!facts.damage?.hitRange && !Object.values(facts.damageByTarget || {}).some(damage => damage.hitRange)) {
+    return facts;
+  }
+  return {
+    ...facts,
+    ...(facts.damage ? {damage: aiDamage(facts.damage)} : {}),
+    ...(facts.damageByTarget ? {
+      damageByTarget: Object.fromEntries(Object.entries(facts.damageByTarget)
+        .map(([targetId, damage]) => [targetId, aiDamage(damage)])),
+    } : {}),
+  };
+}
+
 export function scoreDamagingActions(
   evaluations: Array<{action: ActionEvaluation['action']; facts: ActionFacts}>,
 ): ActionEvaluation[] {
-  const damaging = evaluations.filter(evaluation => isDamagingFacts(evaluation.facts));
+  const damaging = evaluations
+    .filter(evaluation => isDamagingFacts(evaluation.facts))
+    .map(evaluation => ({...evaluation, facts: aiScoringFacts(evaluation.facts), sourceFacts: evaluation.facts}));
   const highestCandidates = damaging.filter(evaluation =>
     evaluation.action.kind !== 'move' || !NON_HIGHEST_DAMAGE_MOVES.has(moveId(evaluation.action.moveName)));
   const possibleKOs = highestCandidates.filter(evaluation => scoringDamageFacts(evaluation.facts)!.possibleKO);
@@ -382,7 +419,9 @@ export function scoreDamagingActions(
 
   return damaging.map(evaluation => ({
     action: evaluation.action,
-    facts: evaluation.facts,
+    // Callers read the planning facts (the full 2-5 hit span); the scores
+    // above read the AI's own view of them.
+    facts: evaluation.sourceFacts,
     outcomes: scoreDamagingAction(
       evaluation.facts,
       highestDamage.has(actionKey(evaluation.action)),
