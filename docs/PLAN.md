@@ -7,6 +7,9 @@ required fights, efficiently** — not by how interesting the work is.
 Every item states the evidence that motivates it, the cost, and the bar it
 must clear. An item with no bar is not ready to start.
 
+The whole workflow, stage by stage, with its weak points and backlog, is
+mapped in `docs/WORKFLOW.md`; this page is the ordered work chosen from it.
+
 ---
 
 ## Where we actually are
