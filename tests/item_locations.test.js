@@ -409,3 +409,27 @@ test('a cell that names a shop and a gift is two rows, and the gift is on the ro
 	assert.equal(evolution.length, 24);
 	assert.deepEqual(evolution.filter(entry => entry.opensAt === null), []);
 });
+
+test('every item cell that names a second source is split, not only the evolution sheet', () => {
+	// review 2026-09-22: the split ran for Evolution Items alone, and the
+	// Berries sheet has the same shape — "Berry Trees at Routes 114, 116.
+	// Given 10x from an NPC at Route 104." — which dated 93 only because the
+	// gift's route opens before the trees'. Read on the builder's output, so
+	// a builder that stops splitting fails here before anything is written.
+	const built = builder.build();
+	const joined = built.entries.filter(entry => entry.kind !== 'tm' &&
+		builder.splitSources(entry.location).length > 1);
+	assert.deepEqual(joined.map(entry => entry.name + ': ' + entry.location), [],
+		'these rows still read two sources as one place');
+	const chesto = built.entries.filter(entry => entry.name === 'Chesto Berry');
+	assert.deepEqual(chesto.map(entry => [entry.location, entry.detail, entry.opensAt]), [
+		['Given 10x from an NPC at Route 104.', null, 93],
+		['Berry Trees at Routes 114, 116.', '30 to 90.', chesto[1] && chesto[1].opensAt],
+	], 'the gift is its own row, and the trees keep the yield column');
+	// The TMs keep their one row: oracle.tmFor and audit-run key one row a TM
+	// and read "Sold at" in it as "re-sold". Split, the Lilycove row (848)
+	// would overwrite Seismic Toss's field date of 80.
+	const toss = built.entries.filter(entry => entry.name === 'TM16 Seismic Toss');
+	assert.deepEqual(toss.map(entry => entry.opensAt), [80]);
+	assert.match(toss[0].location, /Sold at Lilycove/);
+});

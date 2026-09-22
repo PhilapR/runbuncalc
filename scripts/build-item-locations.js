@@ -479,24 +479,38 @@ function build() {
 		});
 	};
 
-	for (const row of workbook.heartScales) add('Heart Scale', 'heart-scale', row.place, row.detail);
-	for (const row of workbook.rareCandies) add('Rare Candy', 'rare-candy', row.place, row.detail);
-	for (const row of workbook.heldItems) add(row.name, 'held', row.place, null);
-	for (const row of workbook.berries) add(row.name, 'berry', row.place, row.yield || null);
 	// One cell can name two ways to get the item, a shop and a gift: "Sold at
 	// Mauville City Pokémon Mart. Given 1x from NPC Cutter in Rustboro City."
 	// Read as one place it is the shop's alone, and the gift — earlier, and
 	// on the road rather than at a counter — is never offered. Each sentence
 	// is its own row, dated by the place it names, in the workbook's words.
-	for (const row of workbook.evolutionItems) {
-		for (const sentence of splitSources(row.place)) add(row.name, 'evolution', sentence, null);
-	}
-	for (const row of workbook.megaStones) add(row.name, 'mega-stone', row.place, null);
+	// The shape is not the Evolution Items sheet's alone: the Berries sheet
+	// has "Berry Trees at Routes 114, 116. Given 10x from an NPC at Route
+	// 104.", which dated 93 only because the gift's route happens to open
+	// before the trees'. So every item cell is split, the TMs aside (below).
+	// The detail column describes the cell's LEADING source — a berry's yield
+	// is the trees', not the gift's "10x" — so it stays with the first row.
+	const addEach = (name, kind, place, detail) => {
+		splitSources(place).forEach((sentence, at) => add(name, kind, sentence, at === 0 ? detail : null));
+	};
+	for (const row of workbook.heartScales) addEach('Heart Scale', 'heart-scale', row.place, row.detail);
+	for (const row of workbook.rareCandies) addEach('Rare Candy', 'rare-candy', row.place, row.detail);
+	for (const row of workbook.heldItems) addEach(row.name, 'held', row.place, null);
+	for (const row of workbook.berries) addEach(row.name, 'berry', row.place, row.yield || null);
+	for (const row of workbook.evolutionItems) addEach(row.name, 'evolution', row.place, null);
+	for (const row of workbook.megaStones) addEach(row.name, 'mega-stone', row.place, null);
 	// A TM is a ONE-TIME item in this fork, and ten of them are sold at the
 	// Lilycove Department Store, which is the only way to teach a move twice.
 	// The sheet was never transcribed, so no run ever held a TM and every
 	// teach of a TM move was free: 62 of them in one banked run, Icy Wind ten
 	// times from a TM the run never owned.
+	//
+	// A TM cell is NOT split, though ten have the shape ("Route 117. Sold at
+	// Lilycove Department Store."). Its readers — oracle.tmFor and
+	// audit-run's tmIndex — key ONE row per TM and read "Sold at" in that
+	// row's location as "re-sold, so repeatable". Two rows would let the
+	// later, Lilycove one (848) overwrite the field copy's date: Seismic
+	// Toss from Brawly at 80 would read 848.
 	for (const row of workbook.tms) add(row.name, 'tm', row.place, null);
 	// A move TUTOR is a service, not an item: it stays in the workbook and is
 	// read through oracle.moveTutors(), so the ledger's own invariant — every

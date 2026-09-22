@@ -3,9 +3,9 @@
 	"source": "pokemon-mono engines/rab/backend/DOCS/Item Locations.xlsx, via item-workbook.json",
 	"provenance": "transcribed + derived",
 	"method": "opensAt is a RUN-MAP order (cumulative enemy Pokemon, 0-1620), not an engine row index (0-434). It is the first trainer at the place the prose names, translated through trainer-orders.json. Late-biased: a place the engine splits (Route 104 South and North) takes the LATEST of its sections, because offering an item the run cannot fetch is the failure this ledger prevents. An optional fight group does not date a place that has its own fights, and a building behind a door is not a section of the route outside it. A stated gate — an HM named in the prose, or a badge count — is a floor over all of that. A place with no trainer is null and withheld.",
-	"counted": 295,
+	"counted": 296,
 	"dated": 268,
-	"undated": 27,
+	"undated": 28,
 	"entries": [
 		{
 			"name": "Oran Berry",
@@ -130,8 +130,8 @@
 		{
 			"name": "Chesto Berry",
 			"kind": "berry",
-			"location": "Berry Trees at Routes 114, 116. Given 10x from an NPC at Route 104.",
-			"detail": "30 to 90.",
+			"location": "Given 10x from an NPC at Route 104.",
+			"detail": null,
 			"opensAt": 93,
 			"dating": "the place it names"
 		},
@@ -2182,6 +2182,14 @@
 			"detail": null,
 			"opensAt": null,
 			"dating": "unavailable in this game"
+		},
+		{
+			"name": "Chesto Berry",
+			"kind": "berry",
+			"location": "Berry Trees at Routes 114, 116.",
+			"detail": "30 to 90.",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
 		},
 		{
 			"name": "Choice Band",
