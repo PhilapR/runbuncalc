@@ -651,6 +651,22 @@ test('an attempt that lost no body draws an outline to click, not a bar of bodie
 	assert.notEqual(clean?.attrs.height, '1.5', 'not a sliver that reads as a loss');
 });
 
+test('a double charges a body to the foe that last DAMAGED it, not the last that aimed at it', async () => {
+	const {summariseAttempt} = await import('../src/analyse.js');
+	const member = (species: string) => ({name: species, species, level: 99, item: null, ability: null, nature: null, moves: []});
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1, ledger: [
+		{n: 1, order: 1583, trainer: 'Elite Four SidneyDouble', seed: 5, result: 'loss', six: [member('Florges')], events: [
+			{turn: 1, text: 'Nidoking used Sludge Wave → Florges -60%', side: 'theirs'},
+			{turn: 2, text: 'Articuno-Galar used Hypnosis → Florges (missed)', side: 'theirs'},
+			{turn: 2, text: 'Yveltal used Oblivion Wing → Florges', side: 'theirs'},
+			{text: 'Florges fainted!', side: 'ours'},
+		]}]}));
+	const attempt = run.ledger[0];
+	assert.ok(attempt !== undefined);
+	const charged = summariseAttempt(attempt).foeCosts.filter(cost => cost.bodiesLost > 0).map(cost => [cost.foe, cost.bodiesLost]);
+	assert.deepEqual(charged, [['Nidoking', 1]], 'the miss and the line that dealt nothing do not take the charge');
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');

@@ -94,7 +94,8 @@ function summariseDouble(attempt: Attempt, events: NonNullable<Attempt['events']
 		if (line.side === 'theirs' && !line.fainted) {
 			const row = foeRow(line.actor);
 			if (line.turn !== null) row.turns.add(line.turn);
-			for (const target of line.targets) lastHitBy.set(target, line.actor);
+			// Only a line that did damage is a hit: a miss, a Protect or a Hypnosis does not take the charge.
+			for (const target of line.hit) lastHitBy.set(target, line.actor);
 		}
 		if (line.fainted && line.side === 'theirs') foeRow(line.actor).fell = true;
 		if (line.fainted && line.side === 'ours') {
