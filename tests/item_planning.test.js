@@ -108,3 +108,18 @@ test('knob on, on a small box: whatever the planner moves, items are conserved a
 		assert.ok(out.party.some(id => { const mon = run.findMon(out, id); return mon.species === species && mon.item === item; }), label);
 	}
 });
+
+test('an item change never touches a Mega body: a stone holder keeps its stone, and one whose stone is in the bag is left for giveMegaStone', () => {
+	const doc = wallaceDoc();
+	const lopunny = doc.box.find(mon => mon.species === 'Lopunny');
+	assert.ok(doc.party.includes(lopunny.id) && run.stoneInBag(doc, 'Lopunny'), 'the fixture: Lopunny in the six, Lopunnite in the bag');
+	assert.equal(headless.withKnobs({}, () => headless.withItem(doc, {kind: 'item', id: lopunny.id, item: 'Focus Sash'})), null,
+		'its stone in the bag: the stone is giveMegaStone\'s to hand');
+	const holding = run.apply(doc, {kind: 'give', id: lopunny.id, item: 'Lopunnite'});
+	assert.equal(headless.withKnobs({}, () => headless.withItem(holding, {kind: 'item', id: lopunny.id, item: 'Focus Sash'})), null,
+		'holding its stone: a give would swap the run\'s one Mega back into the bag');
+	const dhelmise = doc.party[0];
+	const moved = headless.withKnobs({}, () => headless.withItem(doc, {kind: 'item', id: dhelmise, item: 'Focus Sash'}));
+	assert.equal(run.findMon(moved, dhelmise).item, 'Focus Sash', 'a body with no Mega takes it — off the bench, no sash being in the bag');
+	assert.deepEqual(holdings(moved), holdings(doc), 'items conserved');
+});
