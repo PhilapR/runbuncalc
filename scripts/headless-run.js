@@ -490,8 +490,33 @@ function levelToCap(doc, tally) {
 		return doc;
 	}
 	if (cap === null) return doc;
+	const evolutions = require('../profiles/run-and-bun/oracle/evolutions.json');
 	for (const mon of doc.box) {
 		if (mon.status === 'dead' || mon.level >= cap) continue;
+		// IN STAGES, across each level evolution on the way. One jump to the
+		// cap levelled the pre-evolution the whole way and evolved it after,
+		// so the evolved form never learned its own level-up moves: the Kubfu
+		// gift, claimed at level 1 at the Elite Four, became a level-99
+		// Urshifu that knew Rock Smash, Leer, Focus Energy and Aerial Ace —
+		// never Close Combat (50), Sucker Punch (60) or Wicked Blow (90) — and
+		// the ranker rightly never fielded it. The game evolves on the level
+		// and learns the rest as the evolved form. The Lavaridge egg's Mudkip
+		// had the same defect twice over (16 and 36).
+		for (let stage = 0; stage < 4; stage++) {
+			const current = doc.box.find(entry => entry.id === mon.id);
+			const step = (evolutions[current.species] || []).filter(path => path.method === 'level' &&
+				path.level > current.level && path.level < cap).sort((a, b) => a.level - b.level)[0];
+			if (!step) break;
+			try {
+				doc = run.apply(doc, {kind: 'levelUp', id: mon.id, to: step.level});
+				tally.levelUps = (tally.levelUps || 0) + 1;
+			} catch (error) {
+				break;
+			}
+			const before = doc.box.find(entry => entry.id === mon.id).species;
+			doc = evolveByLevel(doc, tally, mon.id);
+			if (doc.box.find(entry => entry.id === mon.id).species === before) break;
+		}
 		try {
 			doc = run.apply(doc, {kind: 'levelUp', id: mon.id, to: 'cap'});
 			tally.levelUps = (tally.levelUps || 0) + 1;
@@ -508,11 +533,11 @@ function levelToCap(doc, tally) {
  * send it (dossier.evolveMon); an unconditioned choice (Wurmple) takes the
  * first path the data lists. Chains run on (Weedle, Kakuna, Beedrill).
  */
-function evolveByLevel(doc, tally) {
+function evolveByLevel(doc, tally, only) {
 	const dossier = require('../lib/dossier');
 	const evolutions = require('../profiles/run-and-bun/oracle/evolutions.json');
 	for (const mon of doc.box) {
-		if (mon.status === 'dead') continue;
+		if (mon.status === 'dead' || (only && mon.id !== only)) continue;
 		for (let hops = 0; hops < 3; hops++) {
 			const current = doc.box.find(entry => entry.id === mon.id);
 			const into = dossier.evolveMon(current, current.level);
@@ -588,6 +613,9 @@ function evolveByItem(doc, tally) {
  * one of them 970 times of 1,474 (Poison Jab over Drill Run, Drill Run over
  * Poison Jab, all game). `forgotten` is the memory that stops it.
  */
+const INERT_MOVES = new Set(['Leer', 'Growl', 'Tail Whip', 'Focus Energy', 'Sand Attack', 'Smokescreen', 'Harden',
+	'Defense Curl', 'Withdraw', 'Odor Sleuth', 'Foresight', 'Splash', 'Celebrate', 'Baby-Doll Eyes', 'Kinesis', 'Flash']);
+
 function relearn(doc, policy, tally, forgotten) {
 	const ai = require('../ai');
 	const oracle = require('../profiles').getProfile(doc.profileId).oracle;
@@ -649,7 +677,15 @@ function relearn(doc, policy, tally, forgotten) {
 				const stab = found && found.types.includes(typeOf(move)) && power(move) >= 60;
 				const offType = stab ? attacks.filter(known => !found.types.includes(typeOf(known)) &&
 					power(known) < power(move) * 2 / 3).sort((x, y) => power(x) - power(y)) : [];
-				replace = sameType[0] || filler[0] || offType[0] || null;
+				// A move that does nothing the fight model or the policy uses —
+				// Leer, Growl, Focus Energy — is the first to go for a FREE prompt.
+				// The rules above only ever forgot attacks, so a body whose four
+				// were two of these and two weak hits kept them for ever: the
+				// Kubfu gift reached L99 as an Urshifu with Leer and Focus Energy,
+				// and was offered Wicked Blow and Sucker Punch and took neither.
+				// Only for the prompt, so the Heart Scale spend is unchanged.
+				const inert = prompted.has(move) ? current.moves.filter(known => INERT_MOVES.has(known)) : [];
+				replace = inert[0] || sameType[0] || filler[0] || offType[0] || null;
 				if (!replace) continue;
 			}
 			try {

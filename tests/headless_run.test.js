@@ -870,3 +870,23 @@ test('a walled Elite Four format hands the run the member\'s other format, not a
 	const glacia = runtime.upcoming(spent, 50).find(fight => fight.trainer === 'Elite Four GlaciaDouble');
 	assert.equal(headless.otherDoor(spent, glacia, new Set()), null);
 });
+
+test('a gift levelled across its evolution learns the evolved form\'s moves, and a free prompt replaces Leer', () => {
+	// Kubfu, claimed at level 1 at the Elite Four, was levelled to 99 AS Kubfu
+	// and evolved after, so the Urshifu knew Rock Smash, Leer, Focus Energy and
+	// Aerial Ace, was never offered Wicked Blow, and never made a six.
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	let seed = 7;
+	const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+	const tally = {};
+	let doc = headless.levelToCap(headless.claimGifts(saved, random, tally), tally);
+	const urshifu = () => doc.box.find(mon => /^Urshifu/.test(mon.species));
+	assert.ok(urshifu(), 'Kubfu evolved');
+	const signature = urshifu().species === 'Urshifu' ? 'Wicked Blow' : 'Surging Strikes';
+	assert.ok(urshifu().prompted.includes(signature), 'its L90 move is offered: ' + urshifu().prompted);
+	doc = headless.relearn(doc, require('../scripts/ui-playthrough.js'), tally, new Map());
+	assert.ok(urshifu().moves.includes(signature), 'the free prompt is taken: ' + urshifu().moves);
+	assert.ok(!urshifu().moves.includes('Leer') && !urshifu().moves.includes('Focus Energy'),
+		'over the moves that do nothing: ' + urshifu().moves);
+});
