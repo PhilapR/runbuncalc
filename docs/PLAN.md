@@ -77,8 +77,12 @@ items, before the fight starts.
   Focus Sash Dhelmise lead 0. The sash halves Kyogre's cost (2.46 → 1.13
   bodies); the wall moves to Curse/Rest Hisuian Goodra (2.4 a fight). The
   leg plays with `--lead-for` (operator-assisted, on its row).
-- Next at Wallace: an answer to Curse/Rest (Perish Song, Altaria, is in the
-  box; fixed damage; crits ignore Defense), planned by play, not by hand.
+- **Parked (operator, 2026-09-22): no more work aimed at Wallace.** Too much
+  underneath needs fixing first: the review's must-fixes, the per-aspect
+  engine stance, ROM probes beyond damage, then a re-baseline on the fixed
+  engine. Wallace returns as a measurement after that, not as a lever hunt.
+  The Curse/Rest answer (Perish Song Altaria, fixed damage, crits) waits
+  with it.
 
 ### 1.1 Resume 418957 at Sidney with every fix in place — RUNNING
 Three Mega fixes landed after that run was pinned, and they change its Sidney
