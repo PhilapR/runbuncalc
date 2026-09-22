@@ -623,6 +623,11 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
       }} : {}),
     ...(chargedBasePower === undefined ? {} : {basePower: chargedBasePower * 2}),
   };
+  // Gen 8 Battle Bond (Showdown data/abilities.ts, inherited by the gen8
+  // mod): Greninja-Ash's Water Shuriken hits exactly three times. The count
+  // is pinned, so it is not a 2-5 range for the engine to roll.
+  const ashWaterShuriken = moveId(action.moveName) === 'watershuriken' &&
+    moveId(getEffectiveSpecies(projectedAttackerState)) === 'greninjaash';
   const move = new Calc.Move(gen, action.moveName, {
     ability: getCalculatorAbility(state, attackerState),
     item: calculatorItem,
@@ -630,10 +635,7 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
     isCrit: !!attackerState.volatile?.laserFocus,
     useZ,
     useMax,
-    hits: moveState?.hits ??
-      (moveId(action.moveName) === 'watershuriken' && moveId(getEffectiveSpecies(projectedAttackerState)) === 'greninjaash'
-        ? 3
-        : undefined),
+    hits: moveState?.hits ?? (ashWaterShuriken ? 3 : undefined),
     timesUsed: moveState?.timesUsed,
     timesUsedWithMetronome: moveState?.timesUsedWithMetronome ?? derivedMetronomeUses,
     forceSTAB: isCombinedPledge,
@@ -659,7 +661,7 @@ function makeMoveContext(state: BattleState, action: Extract<Action, {kind: 'mov
       isMultiHit: move.hits > 1 || isParentalBondSplit(state, attackerState, move),
       // The calculator resolves a variable multi-hit to a fixed 3 for its
       // damage display; a sampling engine has to roll the count instead.
-      multiHitRange: getCalculatorAbility(state, attackerState) === 'Skill Link'
+      multiHitRange: getCalculatorAbility(state, attackerState) === 'Skill Link' || ashWaterShuriken
         ? undefined
         : moveMetadata.multiHitRange,
       secondaryEffects: moveMetadata.secondaryEffects,

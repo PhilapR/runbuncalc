@@ -111,7 +111,10 @@ for (const strongWeather of ['Harsh Sunshine', 'Heavy Rain', 'Strong Winds'] as 
   assert.equal(strongWeatherResolution.field, undefined);
 }
 
+// The sun's holder stands across the field, so it outlasts the switch and
+// blocks the Drought. A holderless strong weather would end as ai-1 leaves.
 const strongWeatherEntry = makeState('Harsh Sunshine');
+strongWeatherEntry.sides.player.party[0].ability = 'Desolate Land';
 strongWeatherEntry.sides.ai.party.push({
   id: 'ai-2', species: 'Pikachu', level: 100, hp: {current: 100, max: 100}, moves: [], ability: 'Drought',
 });

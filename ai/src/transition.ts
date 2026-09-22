@@ -2,6 +2,7 @@ import {actionKey, canEscapeTrappingEffect, enumerateMoveActions, getPokemon, is
 import {getEffectiveAbility, isAbilityActive, isAbilityAvailable} from './abilities';
 import {applyEndTurnResolution, deriveEndTurnResolution, EndTurnOptions} from './end-turn';
 import {deriveSwitchEntryResolution, SwitchEntryOptions} from './entry-hazards';
+import {settleStrongWeather} from './strong-weather';
 import {getMoveMaxPP, getMoveMetadata} from './move-metadata';
 import {isMimicryActive, mimicryTypeOverride} from './mimicry';
 import {weatherFormSpeciesOverride} from './weather-forms';
@@ -1269,7 +1270,12 @@ export function resolveMoveAction(
   const actor = getPokemon(state, action.actorId);
   const truantActive = actor ? isTruantActive(state, actor) : false;
   const truantLoafing = truantActive && !!actor?.volatile?.truant;
-  if (truantLoafing && resolution.actionFailure !== 'truant') {
+  // Sleep and freeze stop the action before Truant runs. Showdown orders
+  // onBeforeMove by priority: slp/frz 10, truant 9. A sleeping or frozen
+  // Truant mon therefore neither loafs nor re-arms: its flag stays as it was.
+  const stoppedBeforeTruant = resolution.actionFailure === 'sleep' ||
+    resolution.actionFailure === 'freeze';
+  if (truantLoafing && resolution.actionFailure !== 'truant' && !stoppedBeforeTruant) {
     throw new Error('Truant requires a truant action failure while loafing');
   }
   if (!truantLoafing && resolution.actionFailure === 'truant') {
@@ -1328,7 +1334,7 @@ export function resolveMoveAction(
   }
   const hpDeltaByPokemon = {...(resolution.hpDeltaByPokemon || {})};
   const volatileByPokemon = {...(resolution.volatileByPokemon || {})};
-  if (actor && truantActive) {
+  if (actor && truantActive && !stoppedBeforeTruant) {
     volatileByPokemon[actor.id] = {
       ...(volatileByPokemon[actor.id] || {}),
       truant: truantLoafing ? null : {},
@@ -1879,7 +1885,11 @@ export function beginNextTurn(state: BattleState): BattleState {
 
 /** Resolve modeled residual effects, then advance timers and the turn counter. */
 export function advanceTurn(state: BattleState, options: EndTurnOptions = {}): BattleState {
-  return beginNextTurn(applyEndTurnResolution(state, deriveEndTurnResolution(state, options)));
+  // A strong-weather holder that fainted to a residual takes its weather with
+  // it (Showdown clears it on the holder's End event), before any replacement
+  // enters.
+  return beginNextTurn(settleStrongWeather(
+    applyEndTurnResolution(state, deriveEndTurnResolution(state, options))));
 }
 
 export function applyAction(
@@ -1892,36 +1902,30 @@ export function applyAction(
   return settleStrongWeather(resolveMoveAction(state, action, resolution));
 }
 
-const STRONG_WEATHER_SOURCE: Readonly<Record<string, string>> = {
-  'Heavy Rain': 'primordialsea',
-  'Harsh Sunshine': 'desolateland',
-  'Strong Winds': 'deltastream',
-};
+export {settleStrongWeather};
 
 /**
- * A strong weather lasts only while a Pokemon with its ability stands on the
- * field. When Primal Kyogre faints or leaves, the heavy rain ends at once —
- * which is what Wallace's Swift Swim Barraskewda and Mega Swampert, sent in
- * behind it, fight without.
+ * Gen 8 orders a speed tie at random (Showdown's speedSort shuffles equal
+ * speeds with the battle's PRNG). With a random stream, each run of equal
+ * speeds in the sorted list is shuffled by it; the stream is drawn from only
+ * when a tie exists. Without one the order stays as given — player leads
+ * before ai leads — which is deterministic and not the game's rule; a caller
+ * that wants the game's rule passes its fight's stream.
  */
-export function settleStrongWeather(state: BattleState): BattleState {
-  const weather = state.field.weather;
-  const source = weather === undefined ? undefined : STRONG_WEATHER_SOURCE[weather];
-  if (source === undefined) return state;
-  const held = (['ai', 'player'] as const).some(sideId => state.sides[sideId].activeIds.some(pokemonId => {
-    const pokemon = getPokemon(state, pokemonId);
-    return !!pokemon && pokemon.hp.current > 0 && isAbilityActive(pokemon, state) &&
-      (getEffectiveAbility(pokemon) ?? '').toLowerCase().replace(/[^a-z0-9]/g, '') === source;
-  }));
-  if (held) return state;
-  const field = {...state.field};
-  delete field.weather;
-  if (field.durations) {
-    const durations = {...field.durations};
-    delete durations.weather;
-    field.durations = durations;
+function breakSpeedTies<T>(sorted: T[], speedOf: (entry: T) => number, random?: () => number): void {
+  if (!random) return;
+  let start = 0;
+  while (start < sorted.length) {
+    let end = start + 1;
+    while (end < sorted.length && speedOf(sorted[end]) === speedOf(sorted[start])) end += 1;
+    for (let i = end - 1; i > start; i -= 1) {
+      const roll = random();
+      if (!Number.isFinite(roll)) throw new Error('Speed tie sampler must return a finite number');
+      const j = start + Math.floor(Math.max(0, Math.min(0.999999999999, roll)) * (i - start + 1));
+      [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
+    }
+    start = end;
   }
-  return {...state, field};
 }
 
 /**
@@ -1930,23 +1934,34 @@ export function settleStrongWeather(state: BattleState): BattleState {
  * switch — so no lead's ability ever fired: Drizzle Kyogre and Pelipper
  * opened in a dry sky, Primal Kyogre too, and no Intimidate lead ever cut an
  * Attack. The game activates them fastest first, so a slower setter's weather
- * is the one that stays.
+ * is the one that stays; a speed tie is ordered by `options.random` (see
+ * breakSpeedTies), the same stream Trace draws its pick from.
  */
 export function applyLeadEntries(state: BattleState, options: SwitchEntryOptions = {}): BattleState {
+  // A battle opens once. A second call returned a second opening: Intimidate
+  // cut Attack twice.
+  if (state.leadEntriesApplied) return state;
+  // A fainted lead does not enter: no Intimidate, no weather from 0 HP.
   const leads = (['player', 'ai'] as const).flatMap(sideId =>
-    state.sides[sideId].activeIds.map(pokemonId => ({sideId, pokemonId})));
+    state.sides[sideId].activeIds.map(pokemonId => ({sideId, pokemonId})))
+    .filter(lead => {
+      // An unknown id is kept, so the speed read below names it and throws.
+      const pokemon = getPokemon(state, lead.pokemonId);
+      return !pokemon || pokemon.hp.current > 0;
+    });
+  // No fallback: a speed that cannot be read is a malformed state, and a
+  // silent 0 would order that lead last and hand it the weather.
   const speed = (pokemonId: string): number => {
-    try {
-      return getEffectivePokemonSpeed(state, pokemonId);
-    } catch {
-      return 0;
-    }
+    const value = getEffectivePokemonSpeed(state, pokemonId);
+    if (!Number.isFinite(value)) throw new Error(`Lead ${pokemonId} has no readable speed (${value})`);
+    return value;
   };
   leads.sort((a, b) => speed(b.pokemonId) - speed(a.pokemonId));
+  breakSpeedTies(leads, lead => speed(lead.pokemonId), options.random);
   let next = state;
   for (const lead of leads) {
     const action = {kind: 'switch' as const, actorId: lead.pokemonId, replacementId: lead.pokemonId};
     next = applySwitchEntryResolution(next, lead.sideId, lead.pokemonId, deriveSwitchEntryResolution(next, action, options));
   }
-  return next;
+  return {...next, leadEntriesApplied: true};
 }

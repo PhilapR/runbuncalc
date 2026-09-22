@@ -27,6 +27,7 @@ import {
 import {getEffectiveSpecies, getRawStats} from './stat-transforms';
 import {isMimicryActive, mimicryTypeOverride} from './mimicry';
 import {weatherFormSpeciesOverride} from './weather-forms';
+import {settleStrongWeather} from './strong-weather';
 
 function id(name: string | undefined): string {
   return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -697,7 +698,7 @@ function entryFieldEffects(
   // The strong weathers. Missing until 2026-09-22, so Champion Wallace's
   // Primal Kyogre fought in a dry sky: Origin Pulse unboosted, Thunder able
   // to miss, Fire moves landing into it. They end when their holder leaves
-  // (settleStrongWeather in transition.ts).
+  // (settleStrongWeather in strong-weather.ts).
   if (state.generation >= 6 && ability === 'primordialsea') return {weather: 'Heavy Rain'};
   if (state.generation >= 6 && ability === 'desolateland') return {weather: 'Harsh Sunshine'};
   if (state.generation >= 6 && ability === 'deltastream') return {weather: 'Strong Winds'};
@@ -758,9 +759,13 @@ export function deriveSwitchEntryResolution(
     sides: {...state.sides, [sideId]: entrySide},
   };
   const fieldEffects = entryFieldEffects(entryRosterState, pokemon);
+  // The weather the replacement meets: a strong weather whose holder just
+  // left (or fainted) has already ended, so it blocks nothing. Primal Kyogre
+  // out, Drizzle Pelipper in is rain.
+  const standingWeather = settleStrongWeather(entryRosterState).field.weather;
   // Only an ordinary setter is blocked: a strong weather replaces another.
-  if (fieldEffects.weather && !isStrongWeather(fieldEffects.weather) && isStrongWeather(state.field.weather) &&
-    state.field.weather !== fieldEffects.weather) {
+  if (fieldEffects.weather && !isStrongWeather(fieldEffects.weather) && isStrongWeather(standingWeather) &&
+    standingWeather !== fieldEffects.weather) {
     delete fieldEffects.weather;
     resolution.trace!.notes!.push('strong weather blocked the entry weather setter');
   }
@@ -772,7 +777,7 @@ export function deriveSwitchEntryResolution(
     };
     resolution.trace!.notes!.push('applied permanent entry weather/terrain ability');
   }
-  const entryWeather = fieldEffects.weather || state.field.weather;
+  const entryWeather = fieldEffects.weather || standingWeather;
   const entryState: BattleState = {
     ...entryRosterState,
     field: {

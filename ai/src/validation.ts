@@ -1373,6 +1373,9 @@ export function validateBattleState(state: BattleState): void {
       invalid(`choiceLockByPokemon contains an invalid entry for ${pokemonId}`);
     }
   }
+  if (state.leadEntriesApplied !== undefined && state.leadEntriesApplied !== true) {
+    invalid('leadEntriesApplied must be true when present');
+  }
   if (state.firstTurnOutIds !== undefined) {
     if (new Set(state.firstTurnOutIds).size !== state.firstTurnOutIds.length) {
       invalid('firstTurnOutIds must contain unique IDs');

@@ -25,12 +25,38 @@ const fs = require('node:fs');
 const path = require('node:path');
 const planner = require('../lib/planner');
 const runtime = require('../lib/run.js');
+const engine = require('../ai');
 const getProfile = require('../profiles').getProfile;
 
 const WEATHER = {drought: 'Sun', drizzle: 'Rain', sandstream: 'Sand', snowwarning: 'Hail',
 	primordialsea: 'Heavy Rain', desolateland: 'Harsh Sunshine', deltastream: 'Strong Winds'};
 const TERRAIN = {electricsurge: 'Electric', grassysurge: 'Grassy', psychicsurge: 'Psychic', mistysurge: 'Misty'};
 const id = name => String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/**
+ * The weather an opening leaves, worked from the Gen 8 rule rather than read
+ * off the engine: lead entry abilities fire fastest first, so each setter
+ * overwrites the last, except that an ordinary setter cannot replace a strong
+ * weather. Returns null on a speed tie between setters (the order is a draw).
+ * Speeds are read with the opening's own weather and Speed stages removed —
+ * the order is decided before any lead's entry fires.
+ */
+function openingWeather(ai, state, weatherOf) {
+	const actives = ['player', 'ai'].flatMap(side => state.sides[side].activeIds.map(pid =>
+		state.sides[side].party.find(mon => mon.id === pid)));
+	const setters = actives.filter(mon => mon.hp.current > 0 && weatherOf(mon));
+	const before = Object.assign({}, state, {field: Object.assign({}, state.field, {weather: undefined}),
+		sides: Object.fromEntries(['player', 'ai'].map(side => [side, Object.assign({}, state.sides[side], {
+			party: state.sides[side].party.map(mon => Object.assign({}, mon,
+				{boosts: Object.assign({}, mon.boosts, {spe: 0})})),
+		})]))});
+	const speeds = setters.map(mon => ai.getEffectivePokemonSpeed(before, mon.id));
+	if (new Set(speeds).size !== speeds.length) return null;
+	const strong = new Set(['Heavy Rain', 'Harsh Sunshine', 'Strong Winds']);
+	return setters.map((mon, i) => ({weather: weatherOf(mon), speed: speeds[i]}))
+		.sort((a, b) => b.speed - a.speed)
+		.reduce((sky, next) => (!strong.has(sky) || strong.has(next.weather) ? next.weather : sky), undefined);
+}
 
 test('every fight opens as the game opens it: weather, terrain, Intimidate, Download', () => {
 	const saved = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
@@ -53,7 +79,9 @@ test('every fight opens as the game opens it: weather, terrain, Intimidate, Down
 		const declared = (profile.oracle.fightFieldOf && profile.oracle.fightFieldOf(fight.trainer)) || {};
 		if (weathers.length) {
 			checked.weather += 1;
-			if (!weathers.includes(state.field.weather)) wrong.push(fight.trainer + ': weather ' + state.field.weather + ', a lead sets ' + weathers);
+			// Not "any lead's weather": the one the Gen 8 order leaves standing.
+			const want = openingWeather(engine, state, mon => WEATHER[id(mon.ability)]);
+			if (want !== null && state.field.weather !== want) wrong.push(fight.trainer + ': weather ' + state.field.weather + ', the opening leaves ' + want);
 			if (state.field.durations && state.field.durations.weather) wrong.push(fight.trainer + ': ability weather is timed, and Run & Bun makes it permanent');
 		} else if (state.field.weather !== declared.weather) {
 			wrong.push(fight.trainer + ': weather ' + state.field.weather + ' with no setter; the fight declares ' + declared.weather);
@@ -160,6 +188,45 @@ function afterIntimidate(mon, intimidators, grassGuarded) {
 }
 
 const isGrass = (state, mon) => ai.getEffectiveTypes(state, mon.id).includes('Grass');
+
+test('where two weather setters lead, the slower setter\'s weather stands', () => {
+	// No fight on the road leads two foe setters, so our lead brings the
+	// second: a slow Torkoal (Drought) that should outlast most foes, and a
+	// fast Politoed (Drizzle) that should be outlasted. Each opening is
+	// checked against the Gen 8 order worked out independently.
+	const bench = runtime.partySpecs(SAVED, {});
+	const leads = [
+		{species: 'Torkoal', ability: 'Drought', level: 5, moves: ['Ember']},
+		{species: 'Politoed', ability: 'Drizzle', level: 100, nature: 'Timid', moves: ['Surf']},
+	];
+	const checked = {ours: 0, theirs: 0, blocked: 0, ties: 0};
+	const wrong = [];
+	for (const lead of leads) {
+		for (const fight of FIGHTS) {
+			const state = open(fight, [lead].concat(bench).slice(0, 6));
+			const theirs = activesOf(state, 'ai').filter(mon => WEATHER[id(mon.ability)]);
+			if (!theirs.length || theirs.every(mon => WEATHER[id(mon.ability)] === WEATHER[id(lead.ability)])) continue;
+			const want = openingWeather(ai, state, mon => WEATHER[id(mon.ability)]);
+			if (want === null) {
+				checked.ties += 1;
+				continue;
+			}
+			const ourSpeed = ai.getEffectivePokemonSpeed(state, 'player-1');
+			const slowest = theirs.every(mon => ai.getEffectivePokemonSpeed(state, mon.id) > ourSpeed);
+			if (want === WEATHER[id(lead.ability)]) checked.ours += 1;
+			else if (slowest) checked.blocked += 1;
+			else checked.theirs += 1;
+			if (state.field.weather !== want) {
+				wrong.push(fight.trainer + ': our ' + lead.species + ' vs ' + theirs.map(mon => mon.species) +
+					': weather ' + state.field.weather + ', the slower setter leaves ' + want);
+			}
+		}
+	}
+	if (process.env.SHOW_COUNTS) console.log(JSON.stringify(checked));
+	assert.deepEqual(wrong, [], wrong.length + ' two-setter openings wrong');
+	assert.ok(checked.ours >= 5, 'openings where our slower setter\'s weather stands: ' + checked.ours);
+	assert.ok(checked.theirs >= 5, 'openings where their slower setter\'s weather stands: ' + checked.theirs);
+});
 
 test('our Intimidate lead meets their leads as Gen 8 does: blockers, reactors, White Herb', () => {
 	const checked = {blocked: 0, dropped: 0, defiant: 0, competitive: 0, rattled: 0, whiteHerb: 0, fights: 0};
@@ -423,4 +490,33 @@ test('in a played fight, Primal Kyogre\'s heavy rain stands while it does and en
 	// 2026-09-22: Kyogre fell in 3 of seeds 1-10 (seeds 4, 6, 9).
 	assert.ok(counted.falls >= 2, 'played Kyogre faints: ' + counted.falls);
 	assert.ok(counted.rainTurns >= 20, 'turns played under Kyogre\'s rain: ' + counted.rainTurns);
+});
+
+test('a strong weather whose holder leaves or falls blocks nothing: Primal Kyogre out, Drizzle Pelipper in is rain', () => {
+	// Gen 8: Primordial Sea's rain ends the moment its holder leaves the field
+	// (Showdown clears it on the holder's End event, before the replacement
+	// enters), so the replacement's Drizzle meets a clear sky and sets rain.
+	// Two defects composed here: the entry judged the setter against the
+	// pre-switch weather and blocked it, and a holder that fainted to a
+	// residual left its heavy rain standing into the next turn.
+	const party = [
+		{species: 'Kyogre-Primal', item: 'Blue Orb', ability: 'Primordial Sea', level: 70, moves: ['Surf'],
+			hpRatio: 0.05, status: 'psn'},
+		{species: 'Pelipper', ability: 'Drizzle', level: 70, moves: ['Surf']},
+	];
+	const opened = planner.buildFightState({trainer: 'Youngster Allen', playerParty: party,
+		profileId: SAVED.profileId}).state;
+	assert.ok(activesOf(opened, 'ai').every(mon => !WEATHER[id(mon.ability)]), 'their lead sets no weather');
+	assert.equal(opened.field.weather, 'Heavy Rain', 'our Primal Kyogre opens the heavy rain');
+
+	// Switched out for Pelipper on one action.
+	const switched = ai.applyAction(opened, {kind: 'switch', actorId: 'player-1', replacementId: 'player-2'});
+	assert.equal(switched.field.weather, 'Rain', 'Drizzle sets rain as Kyogre leaves');
+
+	// Fainted to poison at the end of the turn, then replaced.
+	const residual = ai.advanceTurn(opened, {random: () => 0.5});
+	assert.equal(residual.sides.player.party[0].hp.current, 0, 'poison felled Kyogre');
+	assert.equal(residual.field.weather, undefined, 'the heavy rain fell with its holder');
+	const replaced = ai.applyAction(residual, {kind: 'switch', actorId: 'player-1', replacementId: 'player-2', forced: true});
+	assert.equal(replaced.field.weather, 'Rain', 'Drizzle sets rain behind the fallen Kyogre');
 });
