@@ -95,7 +95,7 @@ against data already in the repository; it does not track any upstream fork.
   fork-owned product data, not generated output. The inherited `import/`
   generator that overwrote it from `@smogon/sets` has been removed;
   `runbun_sets.test.js` guards the data against being regenerated. See
-  `TASKS.md`.
+  "Maintenance procedures" in `WORKFLOW.md`.
 - `AGENTS.md`, `AI_DATA_MODEL.md`, and `VALIDATION.md` define the contracts and
   evidence for these additions.
 - `RUNBUN_REBUILD_MODEL.md` defines the optional path beyond the companion:
