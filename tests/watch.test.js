@@ -105,3 +105,18 @@ test('a watched battery stops between fights and writes no receipt', () => {
 	assert.equal(tapes.length, 1, 'one fight played, then the stop');
 	assert.ok(tapes[0].result, 'and its result is on the tape');
 });
+
+test('a job that must not block gives up on a full pool, and says so', () => {
+	const dirs = scratch();
+	withEnv({RUNBUN_RUNS_DIR: dirs.runs, RUNBUN_SLOTS_DIR: dirs.slots, RUNBUN_SLOTS: '1', RUNBUN_SLOT_HELD: undefined}, () => {
+		const watch = require('../lib/watch.js');
+		const slots = require('../lib/slots.js');
+		const holder = slots.tryAcquire({label: 'a long batch'});
+		assert.ok(holder);
+		const started = Date.now();
+		assert.throws(() => watch.openJob({label: 'rab-workspace', name: 'plan', waitMs: 50, pollMs: 10}),
+			error => error.code === 'NO_SLOT' && /a long batch/.test(error.message));
+		assert.ok(Date.now() - started < 2000, 'it did not wait for ever');
+		holder.release();
+	});
+});
