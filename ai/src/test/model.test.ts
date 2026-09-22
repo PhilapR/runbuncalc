@@ -5019,10 +5019,17 @@ assert.deepEqual(scoreDamagingAction({
   damage: {rolls: [10], min: 10, max: 10, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Physical', battleMode: 'Doubles', isMultiHit: true,
 }, true, tackleAction), [{score: 7, probability: 0.8}, {score: 9, probability: 0.2}]);
+// An immune attack that is still the highest damage (every attack immune)
+// keeps +6/+8 and takes -20: the ROM reads 86/88 (probes i5, h5).
 assert.deepEqual(scoreDamagingAction({
   damage: {rolls: [0], min: 0, max: 0, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Physical', isImmune: true,
-}, true, tackleAction), [{score: -20, probability: 1}]);
+}, true, tackleAction), [{score: -14, probability: 0.8}, {score: -12, probability: 0.2}]);
+// Beside a move that does damage it is not the highest and reads 80 (i1-i4).
+assert.deepEqual(scoreDamagingAction({
+  damage: {rolls: [0], min: 0, max: 0, targetHp: 100, possibleKO: false, guaranteedKO: false},
+  moveCategory: 'Physical', isImmune: true,
+}, false, tackleAction), [{score: -20, probability: 1}]);
 const contraryDamageFacts = {
   damage: {rolls: [30], min: 30, max: 30, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Special' as const, attackerAbility: 'Contrary', attackerHp: 100,

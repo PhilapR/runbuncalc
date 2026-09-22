@@ -21,6 +21,7 @@ interface Side {
   stats: Stats;
   hp?: number;
   types?: string[];
+  ability?: string;
 }
 
 function mon(id: string, side: Side): PokemonState {
@@ -30,7 +31,7 @@ function mon(id: string, side: Side): PokemonState {
     level: 50,
     hp: {current: side.hp ?? side.stats.hp, max: side.stats.hp},
     moves: side.moves.map(name => ({name})),
-    ability: 'Run Away',
+    ability: side.ability ?? 'Run Away',
     statOverrides: {...side.stats},
     boosts: {},
     status: '',
@@ -77,6 +78,31 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(got['Celebrate'], [81], 's12 Celebrate');
   assert.deepEqual(got['Splash'], [81], 's12 Splash');
   assert.deepEqual(got['Tackle'], [106, 108], 's12 Tackle');
+}
+
+// i5-all-immune-splash-wins: every attack immune, the zero-damage tie keeps
+// the highest-damage +6/+8 and takes -20 (86/88); Splash 81 never wins.
+{
+  const got = scores(probe(
+    {species: 'Marowak', moves: ['Splash', 'Earthquake', 'Bone Club', 'Drill Run'],
+      stats: {hp: 200, atk: 110, def: 110, spa: 50, spd: 90, spe: 50}},
+    {species: 'Skarmory', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 40}},
+  ));
+  for (const move of ['Earthquake', 'Bone Club', 'Drill Run']) assert.deepEqual(got[move], [86, 88], `i5 ${move}`);
+}
+
+// i1-ground-vs-flying: an immune attack beside a damaging one reads 80.
+{
+  const got = scores(probe(
+    {species: 'Marowak', moves: ['Earthquake', 'Splash', 'Bone Club', 'Horn Attack'],
+      stats: {hp: 200, atk: 110, def: 110, spa: 50, spd: 90, spe: 50}},
+    {species: 'Pidgeot', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 40}},
+  ));
+  assert.deepEqual(got['Earthquake'], [80], 'i1 Earthquake');
+  assert.deepEqual(got['Bone Club'], [80], 'i1 Bone Club');
+  assert.deepEqual(got['Horn Attack'], [106, 108], 'i1 Horn Attack');
 }
 
 console.log('ROM probe scoring fixtures passed');

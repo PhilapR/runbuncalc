@@ -36,11 +36,11 @@ const replay = require('../scripts/replay-ai-probes.js');
 /**
  * First measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417),
  * raised after each ROM rule landed on fix/ai-scoring. Rounded toward passing.
- * Now: Splash/Celebrate 81 (0.8519 / 0.1352 / 0.8657 and 0.8333 / 0.2167 / 0.8125).
+ * Now: immune attacks keep their tier (0.8565 / 0.1229 / 0.8769 and 0.8889 / 0.1361 / 0.8750).
  */
 const FLOORS = {
-	reference: {n: 72, top1: 0.851, tvd: 0.136, scoreMatch: 0.865},
-	heldout: {n: 12, top1: 0.833, tvd: 0.217, scoreMatch: 0.812},
+	reference: {n: 72, top1: 0.856, tvd: 0.123, scoreMatch: 0.876},
+	heldout: {n: 12, top1: 0.888, tvd: 0.137, scoreMatch: 0.875},
 };
 
 const result = replay.gradeAll();

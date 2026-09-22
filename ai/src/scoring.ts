@@ -287,7 +287,13 @@ export function scoreDamagingAction(
 ): ScoreOutcome[] {
   const damageFacts = scoringDamageFacts(facts);
   if (!damageFacts) return [{score: 0, probability: 1}];
-  if (damageFacts.max <= 0) return [{score: -20, probability: 1}];
+  // An immune attack takes -20 on top of its damage tier: 80 beside a move
+  // that does damage (ROM probes i1-i4, h4), 86/88 when every attack is
+  // immune and the zero-damage tie is still the highest damage (i5, h5).
+  // pokemon-mono rab cddeb25.
+  if (damageFacts.max <= 0) {
+    return addBonus(isHighestDamage ? weightedBaseScore(6) : [{score: 0, probability: 1}], -20);
+  }
 
   const moveName = action?.kind === 'move' ? moveId(action.moveName) : '';
   if (moveName === 'steelroller' && !facts.fieldTerrain) {
