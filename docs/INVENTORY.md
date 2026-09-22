@@ -143,7 +143,7 @@ a stamp changes at the very commit that touches its doc, so gating it
 byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
 - `AGENTS.md` — a7976d2 2026-08-30
-- `README.md` — 98b4a50 2026-08-18
+- `README.md` — 1b6ba2a 2026-09-22
 - `docs/AI_DATA_MODEL.md` — 99ad9ce 2026-08-30
 - `docs/CONSTANTS-AUDIT.md` — e67d922 2026-08-20
 - `docs/DATA-ACCESS.md` — c272bcd 2026-08-25
@@ -159,7 +159,7 @@ the reader's warning to verify before trusting.
 - `docs/LEADER-KEYS.md` — 44ad51e 2026-09-21
 - `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
 - `docs/PERFORMANCE.md` — f6708e5 2026-09-22
-- `docs/PLAN.md` — 6d12a46 2026-09-22
+- `docs/PLAN.md` — 1b6ba2a 2026-09-22
 - `docs/RUN-CONTROL.md` — 42eed72 2026-09-22
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
 - `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18
@@ -167,7 +167,7 @@ the reader's warning to verify before trusting.
 - `docs/SDLC.md` — c11db8f 2026-08-16
 - `docs/STRATEGY.md` — c272bcd 2026-08-25
 - `docs/VALIDATION.md` — 98b4a50 2026-08-18
-- `docs/WORKFLOW.md` — 6d12a46 2026-09-22
+- `docs/WORKFLOW.md` — 1b6ba2a 2026-09-22
 - `docs/WORST-CASE-PLANNING.md` — c6a8955 2026-08-19
 
 ## Test files
