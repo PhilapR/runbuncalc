@@ -2045,7 +2045,7 @@
 			"status": "fixed",
 			"fixed_in": "e58bfda",
 			"falsified": 1,
-			"evidence": "Reproduced by probe. Guard: tests/fidelity_openings.test.js strong-weather holder test."
+			"evidence": "Reproduced by probe. Guard: tests/fidelity_openings.test.js strong-weather holder test. | 2026-09-22: SUPERSEDED by strong-weather-is-permanent: in Run & Bun the heavy rain never ends with its holder, so there is no handoff to get wrong; a strong weather keeps blocking the ordinary setter."
 		},
 		{
 			"id": "lead-entries-not-idempotent",
@@ -2290,6 +2290,20 @@
 			"verdict": "confirmed",
 			"status": "open",
 			"evidence": "dose2*.json repeats Leader Roxanne · 15 scales."
+		},
+		{
+			"id": "strong-weather-is-permanent",
+			"source": "operator/2026-09-22",
+			"raised_on": "2026-09-22",
+			"severity": "high",
+			"area": "engine",
+			"file": "ai/src/strong-weather.ts",
+			"claim": "The engine ended a strong weather (Primordial Sea, Desolate Land, Delta Stream) when no holder stood, the mainline rule. Run & Bun makes every ability weather permanent (Mechanic Changes.txt: \"Weather abilities: Will set Weather permanently.\"), so Wallace's bench fought in a dry sky after Primal Kyogre fell.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "28327c1",
+			"falsified": 1,
+			"evidence": "Raised by the operator; the hack's own document says it. Ordinary ability weather permanence is also ROM-observed (pokemon-mono P0). Primal permanence is to be ROM-checked by P3. Guard: tests/fidelity_openings.test.js."
 		}
 	]
 }
