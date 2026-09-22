@@ -33,6 +33,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const run = require('../lib/run.js');
+const stamps = require('../lib/provenance.js');
 const getProfile = require('../profiles').getProfile;
 const PRIZE_TIERS = require('../profiles/run-and-bun/oracle/sources.json').gameCorner.tiers;
 const ITEM_ROWS = require('../profiles/run-and-bun/oracle/item-locations.json').entries;
@@ -85,6 +86,12 @@ function auditRun(row) {
 	} else {
 		check('provenance', 'PASS', made.revision.slice(0, 10) + ' clean, flags ' + (made.flags || []).join(' '));
 	}
+
+	// Engines: a carried-on run can be played on more than one, and a result
+	// on two engines is a result on neither. A WARN, not a FAIL: the run's
+	// rules held either way; what it says about the engine is what is split.
+	const engines = enginesCheck(row);
+	check('engines', engines.status, engines.detail, engines.repair);
 
 	// Replay: the whole log through a fresh run, under the run's own rules.
 	const rules = doc.rules || {};
@@ -306,6 +313,28 @@ function auditRun(row) {
 	return verdict(row, checks);
 }
 
+/** The engines a row's legs were played on, as {status, detail, repair}. */
+function enginesCheck(row) {
+	const legs = Array.isArray(row.legs) && row.legs.length ? row.legs :
+		stamps.stampOf(row) ? [{leg: 1, engine: stamps.stampOf(row)}] : null;
+	if (!legs) {
+		const carried = (row.restoredAt || []).length;
+		return {status: 'WARN', detail: stamps.UNKNOWN + (carried ? '; carried on ' + carried +
+			' time(s), so it may span engines' : ''), repair: 're-run it on a stamped runner to name its engine'};
+	}
+	const engines = stamps.enginesOfLegs(legs);
+	const named = engines.map(entry => entry.key + ' (leg' + (entry.legs.length > 1 ? 's ' : ' ') +
+		entry.legs.join(',') + (entry.stamp && entry.stamp.revision ? ' at ' + entry.stamp.revision.slice(0, 10) : '') + ')');
+	if (engines.length > 1) {
+		return {status: 'WARN', detail: 'played on ' + engines.length + ' engines: ' + named.join(', '),
+			repair: 'a result across engines measures the change between them too; replay it on one engine to compare'};
+	}
+	if (engines[0].key === stamps.UNKNOWN) {
+		return {status: 'WARN', detail: 'played on 1 engine: ' + named[0], repair: 're-run it on a stamped runner to name its engine'};
+	}
+	return {status: 'PASS', detail: 'played on 1 engine: ' + named[0], repair: null};
+}
+
 /** Where the run stands after a fight command, in run-map orders. */
 function replayPosition(doc, command, previous) {
 	const road = run.upcoming(Object.assign({}, doc, {position: 0, skipped: [], log: []}), 1000);
@@ -339,4 +368,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {auditRun};
+module.exports = {auditRun, enginesCheck};

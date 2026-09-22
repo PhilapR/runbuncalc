@@ -65,6 +65,8 @@ function summarise(out, seeds) {
 			const failed = auditRun(row).checks.filter(check => check.status === 'FAIL').map(check => check.name);
 			verdict = failed.length ? 'AUDIT FAILS: ' + failed.join(', ') : 'audit valid';
 		} catch (error) { verdict = 'audit error: ' + String(error.message).slice(0, 60); }
+		const engines = require('./audit-run.js').enginesCheck(row);
+		if (engines.status !== 'PASS') verdict += '; ' + engines.detail;
 		const walls = {};
 		for (const fight of row.ledger) {
 			if (!/Leader|Elite|Champion|Admin|Maxie|Archie|Rival/.test(fight.trainer)) continue;

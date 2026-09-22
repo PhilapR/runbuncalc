@@ -55,6 +55,21 @@ test('a real run is stopped from outside, carried on, and ends as the uninterrup
 	assert.equal(carried.fights, 14);
 	assert.deepEqual(carried.ledger.map(line), straight.ledger.map(line), 'the same run, fight for fight, log line for log line');
 	assert.deepEqual(carried.knobs, straight.knobs, 'and it kept its knobs without being told them again');
+
+	// Each leg says which engine played it and which stretch of the road it played.
+	const stamp = require('../lib/provenance.js').currentStamp();
+	assert.deepEqual(carried.legs.map(leg => [leg.leg, leg.engine.engine, leg.revision, leg.spec]),
+		[[1, stamp.engine, stamp.revision, SPEC], [2, stamp.engine, stamp.revision, SPEC]]);
+	assert.deepEqual(carried.legs[0].from, {position: 0, fights: 0});
+	assert.ok(carried.legs[0].endedAt, 'a stopped leg says when it ended');
+	assert.deepEqual(carried.legs[0].to, {position: stopped.position, fights: stopped.fights}, 'leg 1 ends where the stop left it');
+	assert.deepEqual(carried.legs[1].from, carried.legs[0].to, 'leg 2 starts where leg 1 ended');
+	assert.deepEqual(carried.legs[1].to, {position: carried.position, fights: carried.fights});
+	assert.equal(carried.provenance.engine.engine, stamp.engine, 'the row\'s provenance names the last leg\'s engine');
+	assert.deepEqual(straight.legs.map(leg => leg.leg), [1], 'an uninterrupted run is one leg');
+	assert.deepEqual(readJson(base + '.status.json').legs, carried.legs, 'the status carries the legs too');
+	assert.deepEqual(runs.list(dir).find(row => row.run === 'cut/run-11').engines, [stamp.engine]);
+	assert.equal(require('../scripts/audit-run.js').enginesCheck(carried).status, 'PASS');
 	const fightLog = require('../lib/fight-log.js');
 
 	// The fight being watched says where on the road it is, as a player counts it.

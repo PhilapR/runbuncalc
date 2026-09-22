@@ -36,6 +36,7 @@ const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const provenance = require('../lib/provenance.js');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -146,9 +147,13 @@ function runArms(options) {
 					const receipt = path.join(dir, 'scenarios', 'receipts', arm.label + '.json');
 					const landed = fs.existsSync(receipt);
 					if (landed) fs.copyFileSync(receipt, path.join(options.out, arm.label + '.json'));
+					// Which engine the arm played on, from its own receipt: the build is
+					// copied per arm, so a rebuild mid-batch splits the arms silently.
+					const stamp = landed ? provenance.stampOf(JSON.parse(fs.readFileSync(receipt, 'utf8'))) : null;
 					git(['worktree', 'remove', '--force', dir]);
 					const seconds = Math.round((Date.now() - started) / 1000);
-					results.push({label: arm.label, status, receipt: landed, seconds});
+					results.push({label: arm.label, status, receipt: landed, seconds,
+						engine: stamp ? stamp.engine : null, stamp});
 					log((status === 0 ? 'done ' : 'FAILED ') + arm.label + ' (exit ' + status + ', ' +
 						seconds + 's)' + (landed ? '' : ' — no receipt'));
 					running -= 1;
@@ -181,10 +186,12 @@ function main() {
 		const sha = outcome.sha;
 		const results = outcome.results;
 		const failed = results.filter(result => result.status !== 0 || !result.receipt);
+		const engines = enginesOfResults(results);
 		console.log('\nrevision ' + sha.slice(0, 10) + ': ' + (results.length - failed.length) + ' of ' +
 			results.length + ' arm(s) wrote a receipt' + (failed.length ?
-			'; FAILED: ' + failed.map(result => result.label).join(', ') : ''));
-		process.exitCode = failed.length ? 1 : 0;
+			'; FAILED: ' + failed.map(result => result.label).join(', ') : '') + '; ' + engines.text);
+		if (engines.split) console.error('REFUSING the batch: ' + engines.text + ' — they cannot be compared');
+		process.exitCode = failed.length || engines.split ? 1 : 0;
 	}, error => {
 		console.error('REFUSING: ' + error.message);
 		process.exitCode = 1;
@@ -193,4 +200,17 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {parseArms, runArms, makeWorktree};
+/**
+ * The engines a batch's receipts were played on. Arms are compared with one
+ * another, so a batch on more than one engine is refused as a batch.
+ */
+function enginesOfResults(results) {
+	const landed = results.filter(result => result.receipt);
+	const keys = [...new Set(landed.map(result => result.engine || provenance.UNKNOWN))];
+	return {keys, split: keys.length > 1, text: keys.length > 1 ?
+		'the arms played on ' + keys.length + ' engines: ' + keys.map(key => key + ' (' +
+			landed.filter(result => (result.engine || provenance.UNKNOWN) === key).map(result => result.label).join(', ') + ')').join('; ') :
+		keys.length ? 'one engine: ' + keys[0] : 'no receipts'};
+}
+
+module.exports = {parseArms, runArms, makeWorktree, enginesOfResults};

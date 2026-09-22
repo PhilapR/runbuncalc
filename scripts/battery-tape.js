@@ -14,11 +14,19 @@
  * it is refused rather than printed.
  *
  *   node scripts/battery-tape.js --receipt=scenarios/receipts/koorder1-pp.json \
- *     --scenario="Bug Catcher Jose @37" --seed=4 [--json]
+ *     --scenario="Bug Catcher Jose @37" --seed=4 [--json] [--engine-differs=intended]
+ *
+ * The row check catches code that moved the row. It cannot catch code that
+ * moved the fight and landed on the same row, so a receipt stamped with an
+ * engine (lib/provenance.js) is replayed only on that engine: a different one
+ * is refused, naming the parts that differ, unless --engine-differs=intended
+ * says the difference is the point. A receipt from before stamps is replayed
+ * with a warning, and the row check is then the only guard.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
+const provenance = require('../lib/provenance.js');
 
 /** Defaults as they stood before 2026-09-18, for receipts written then. */
 const PRE_ADOPTION = {'switch-priced': '0', 'real-speed': '0', 'repick-party': '0', 'pick-by-play': '0', 'set-exposure': '0', 'loser-work': '0', 'search-keep': '0', 'enemy-switch-scoring': '0'};
@@ -41,8 +49,30 @@ function rowOf(played, seed) {
 		foe: played.foe || null};
 }
 
-function replay(receiptPath, scenarioName, seed) {
+/**
+ * The receipt's engine against this tree's: {same, text, warning}. Throws on a
+ * known difference unless it was declared intended.
+ */
+function engineCheck(receipt, here, intended) {
+	const stamped = provenance.stampOf(receipt);
+	const compared = provenance.compareStamps(stamped, here);
+	if (compared.same === false && !intended) {
+		throw new Error('REFUSING: the receipt was played on another engine, so this tape would ' +
+			'describe a fight nobody measured.\n  ' + compared.text +
+			'\n  pass --engine-differs=intended if the difference is the point');
+	}
+	const warning = compared.same === null ?
+		'WARNING: receipt ' + provenance.UNKNOWN + '; replayed on ' + provenance.describe(here) +
+			' — the row check is the only guard' :
+		compared.same === false ? 'WARNING (intended): ' + compared.text : null;
+	return {same: compared.same, receipt: provenance.describe(stamped), replay: provenance.describe(here),
+		differs: compared.differs, warning};
+}
+
+function replay(receiptPath, scenarioName, seed, options) {
 	const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+	const engine = engineCheck(receipt, provenance.currentStamp(), !!(options && options.engineDiffersIntended));
+	if (engine.warning) process.stderr.write(engine.warning + '\n');
 	const row = receipt.results.find(entry => entry.name === scenarioName);
 	if (!row) {
 		throw new Error(receiptPath + ' has no scenario ' + JSON.stringify(scenarioName) +
@@ -99,7 +129,7 @@ function replay(receiptPath, scenarioName, seed) {
 			' and this tape would describe a fight nobody measured.\n  receipt: ' +
 			JSON.stringify(want) + '\n  replay:  ' + JSON.stringify(got));
 	}
-	return {receipt: path.basename(receiptPath), scenario: scenarioName, seed,
+	return {receipt: path.basename(receiptPath), scenario: scenarioName, seed, engine,
 		row: got, counters: played.counters, tape};
 }
 
@@ -131,11 +161,12 @@ function main() {
 		process.exit(1);
 	}
 	const json = process.argv.includes('--json');
-	const out = replay(receipt, scenario, seed);
+	const out = replay(receipt, scenario, seed,
+		{engineDiffersIntended: ownFlag('engine-differs') === 'intended'});
 	if (json) console.log(JSON.stringify(out, null, '\t'));
 	else print(out);
 }
 
 if (require.main === module) main();
 
-module.exports = {replay};
+module.exports = {replay, engineCheck};
