@@ -711,6 +711,11 @@ test('an agent gets the wall per foe as JSON, and the watch page opens any past 
 	assert.equal((await call({report: pathOf.join(dir, 'run-1.json'), trainer: 'Leader Nobody'})).isError, true);
 
 	assert.equal((await loadWall(dir, 'run-1', 'Champion Wallace'))?.foes.length, 2);
+	// Asked for at once, one decode: both answers are the one record.
+	const {loadFought} = await import('../src/serve.js');
+	await fs.utimes(pathOf.join(dir, 'run-1.json'), new Date(), new Date(Date.now() + 5000));
+	const [first, second] = await Promise.all([loadFought(dir, 'run-1'), loadFought(dir, 'run-1')]);
+	assert.equal(first, second, 'two asks in flight share one load');
 	const past = await loadAttempt(dir, 'run-1', 10);
 	assert.deepEqual([past?.attempt, past?.of, past?.prev, past?.next, past?.turns.length, past?.events], [1, 3, null, 11, 3, null]);
 	assert.ok((await loadAttempt(dir, 'run-1', 12))?.turns[0]?.tags.includes('we-ko'), 'a past turn is tagged as a live one is');

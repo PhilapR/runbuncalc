@@ -574,18 +574,24 @@ export class Unreadable extends Error {
  * null, and the page said "this run kept nothing to read" of clear1's 104770,
  * which kept 358 fights and failed on one null in a race.
  */
-const fought = new Map<string, {at: string; run: RunRecord}>();
+const fought = new Map<string, {at: string; run: Promise<RunRecord>}>();
 export const loadFought = async (dir: string, run: string): Promise<RunRecord> => {
 	const report = path.join(dir, run + '.json');
 	const file = await currentOf(report);
 	const stamps = await Promise.all([file, sidecarOf(report)].map(name => fs.stat(name).then(stat => String(stat.mtimeMs), () => '-')));
 	const at = file + ':' + stamps.join(':');
 	const kept = fought.get(report);
+	// The promise is kept, not its value: the wall view and a past attempt asked
+	// for at once share one decode instead of racing two of the same megabytes.
 	if (kept !== undefined && kept.at === at) return kept.run;
-	const loaded = await Effect.runPromise(Effect.either(loadRunWithFights(report)));
-	if (loaded._tag === 'Left') throw new Unreadable(describeFailure(loaded.left));
-	fought.set(report, {at, run: loaded.right});
-	return loaded.right;
+	const loading = Effect.runPromise(Effect.either(loadRunWithFights(report))).then(loaded => {
+		if (loaded._tag === 'Left') throw new Unreadable(describeFailure(loaded.left));
+		return loaded.right;
+	});
+	fought.set(report, {at, run: loading});
+	// A failure is not kept: the next ask reads the files again.
+	loading.catch(() => { if (fought.get(report)?.run === loading) fought.delete(report); });
+	return loading;
 };
 
 /** One wall of a run, per foe (analyse.ts wallView); null when the run never fought that trainer. */
