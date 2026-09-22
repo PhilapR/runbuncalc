@@ -864,6 +864,12 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
       {get: () => band().max, enumerable: true, configurable: true});
     Object.defineProperty(withCrit, 'critMin',
       {get: () => band().min, enumerable: true, configurable: true});
+    // A split-hit move (Parental Bond) rolls crit per hit; the sampler needs
+    // each hit's own crit band, which the summed critRolls cannot give it.
+    if (damage.hitRolls) {
+      Object.defineProperty(withCrit, 'critHitRolls',
+        {get: () => band().hitRolls, enumerable: true, configurable: true});
+    }
     damage = withCrit;
   }
 
