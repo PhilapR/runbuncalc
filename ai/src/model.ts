@@ -303,6 +303,11 @@ export interface BattleState {
   /** Active Pokémon awaiting a Baton Pass replacement. */
   pendingBatonPassIds?: string[];
   pendingSubstitutePassIds?: string[];
+  /**
+   * The leads' entry effects have fired (applyLeadEntries). A battle opens
+   * once: a second call is a no-op, so Intimidate cannot stack.
+   */
+  leadEntriesApplied?: true;
 }
 
 export interface MoveAction {

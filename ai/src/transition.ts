@@ -1938,8 +1938,13 @@ function breakSpeedTies<T>(sorted: T[], speedOf: (entry: T) => number, random?: 
  * breakSpeedTies), the same stream Trace draws its pick from.
  */
 export function applyLeadEntries(state: BattleState, options: SwitchEntryOptions = {}): BattleState {
+  // A battle opens once. A second call returned a second opening: Intimidate
+  // cut Attack twice.
+  if (state.leadEntriesApplied) return state;
+  // A fainted lead does not enter: no Intimidate, no weather from 0 HP.
   const leads = (['player', 'ai'] as const).flatMap(sideId =>
-    state.sides[sideId].activeIds.map(pokemonId => ({sideId, pokemonId})));
+    state.sides[sideId].activeIds.map(pokemonId => ({sideId, pokemonId})))
+    .filter(lead => (getPokemon(state, lead.pokemonId)?.hp.current ?? 0) > 0);
   const speed = (pokemonId: string): number => {
     try {
       return getEffectivePokemonSpeed(state, pokemonId);
@@ -1954,5 +1959,5 @@ export function applyLeadEntries(state: BattleState, options: SwitchEntryOptions
     const action = {kind: 'switch' as const, actorId: lead.pokemonId, replacementId: lead.pokemonId};
     next = applySwitchEntryResolution(next, lead.sideId, lead.pokemonId, deriveSwitchEntryResolution(next, action, options));
   }
-  return next;
+  return {...next, leadEntriesApplied: true};
 }

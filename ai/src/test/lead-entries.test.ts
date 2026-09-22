@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {BattleState, PokemonState} from '../model';
 import {applyLeadEntries} from '../transition';
+import {validateBattleState} from '../validation';
 
 // The leads' entry effects as a battle opens (applyLeadEntries). Run & Bun
 // describes none of these, so each is Generation 8's ("For any mechanic
@@ -72,6 +73,26 @@ function battle(ai: PokemonState[], player: PokemonState[], mode: BattleState['m
   // No tie, no draw: a stream that throws is never asked.
   const untied = battle([mon('ai-1', 'Ninetales', 'Drought')], [mon('player-1', 'Politoed', 'Drizzle')], 'Singles');
   assert.equal(applyLeadEntries(untied, {random: () => { throw new Error('drawn'); }}).field.weather, 'Rain');
+}
+
+// A battle opens once: a second call is a no-op, so Intimidate does not
+// stack, and the opened state still validates.
+{
+  const opened = applyLeadEntries(battle([mon('ai-1', 'Gyarados', 'Intimidate')], [mon('player-1', 'Machamp', 'Guts')], 'Singles'));
+  assert.deepEqual(opened.sides.player.party[0].boosts, {atk: -1});
+  const twice = applyLeadEntries(opened);
+  assert.deepEqual(twice.sides.player.party[0].boosts, {atk: -1}, 'a second opening does not cut Attack again');
+  assert.doesNotThrow(() => validateBattleState(twice), 'the opened state validates');
+}
+
+// A fainted lead does not enter: its Intimidate and its weather never fire.
+{
+  const opened = applyLeadEntries(battle([
+    mon('ai-1', 'Gyarados', 'Intimidate', {hp: {current: 0, max: 150}}),
+    mon('ai-2', 'Pelipper', 'Drizzle', {hp: {current: 0, max: 150}}),
+  ], [mon('player-1', 'Machamp', 'Guts'), mon('player-2', 'Machamp', 'Guts')]));
+  assert.equal(opened.sides.player.party[0].boosts?.atk ?? 0, 0, 'a fainted Intimidator cuts nothing');
+  assert.equal(opened.field.weather, undefined, 'a fainted Drizzle sets nothing');
 }
 
 console.log('lead-entries: ok');
