@@ -348,9 +348,11 @@ function dateFor(index, prose) {
 	//
 	// Unless the prose says the item is REACHED through that place, which is a
 	// path and therefore a gate. Then it raises the date like an HM does.
-	const expanded = text.replace(/\bRoutes\s+([\d,\s]+?)\s+and\s+(\d+)/gi,
+	// The list may end with "and" or not: "Routes 114, 116." is Chesto
+	// Berry's, and read as no place at all it left the trees undated.
+	const expanded = text.replace(/\bRoutes\s+(\d+(?:\s*,\s*\d+)*)(?:,?\s+and\s+(\d+))?/gi,
 		(all, list, last) => list.split(/[,\s]+/).filter(Boolean)
-			.concat(last).map(n => 'Route ' + n).join(' '));
+			.concat(last ? [last] : []).map(n => 'Route ' + n).join(' '));
 	const places = [];
 	for (const entry of index.places) {
 		const place = entry[0];

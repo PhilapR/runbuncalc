@@ -424,8 +424,11 @@ test('every item cell that names a second source is split, not only the evolutio
 	const chesto = built.entries.filter(entry => entry.name === 'Chesto Berry');
 	assert.deepEqual(chesto.map(entry => [entry.location, entry.detail, entry.opensAt]), [
 		['Given 10x from an NPC at Route 104.', null, 93],
-		['Berry Trees at Routes 114, 116.', '30 to 90.', chesto[1] && chesto[1].opensAt],
+		['Berry Trees at Routes 114, 116.', '30 to 90.', 445],
 	], 'the gift is its own row, and the trees keep the yield column');
+	// And the trees are dated: a list with no "and" is still a list. The
+	// first route named dates a tree, as for Oran Berry, so 114 (445).
+	assert.equal(chesto[1].dating, 'the first of the places it names');
 	// The TMs keep their one row: oracle.tmFor and audit-run key one row a TM
 	// and read "Sold at" in it as "re-sold". Split, the Lilycove row (848)
 	// would overwrite Seismic Toss's field date of 80.
