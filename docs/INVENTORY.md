@@ -145,29 +145,29 @@ byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
 - `AGENTS.md` — 12701ed 2026-09-22
 - `README.md` — 1b6ba2a 2026-09-22
-- `docs/AI_DATA_MODEL.md` — 99ad9ce 2026-08-30
-- `docs/CONSTANTS-AUDIT.md` — e67d922 2026-08-20
+- `docs/AI_DATA_MODEL.md` — 56f1c21 2026-09-22
+- `docs/CONSTANTS-AUDIT.md` — 56f1c21 2026-09-22
 - `docs/DATA-ACCESS.md` — c272bcd 2026-08-25
 - `docs/DEPLOY.md` — 98b4a50 2026-08-18
 - `docs/ECOSYSTEM_BRIDGE.md` — 5a255c0 2026-08-25
 - `docs/ENCOUNTER-ARCHITECTURE.md` — 29ffa9f 2026-09-20
 - `docs/ENGINE-CONTRACTS.md` — c4daad8 2026-08-29
-- `docs/EVALUATION.md` — 1222266 2026-08-19
+- `docs/EVALUATION.md` — 56f1c21 2026-09-22
 - `docs/FORK_MAP.md` — 202de90 2026-09-22
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
 - `docs/HOW-WE-WIN.md` — 4ecbdc3 2026-09-21
 - `docs/IMPROVEMENT-AUDIT.md` — 6034c5c 2026-09-20
 - `docs/LEADER-KEYS.md` — 44ad51e 2026-09-21
-- `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
+- `docs/MODELLING-GAPS.md` — 56f1c21 2026-09-22
 - `docs/PERFORMANCE.md` — f6708e5 2026-09-22
 - `docs/PLAN.md` — 1b6ba2a 2026-09-22
 - `docs/RUN-CONTROL.md` — 42eed72 2026-09-22
-- `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
-- `docs/RUNBUN_UI_DESIGN.md` — 98b4a50 2026-08-18
+- `docs/RUNBUN_REBUILD_MODEL.md` — 56f1c21 2026-09-22
+- `docs/RUNBUN_UI_DESIGN.md` — 56f1c21 2026-09-22
 - `docs/RUN_API.md` — 6234521 2026-08-28
 - `docs/SDLC.md` — c11db8f 2026-08-16
 - `docs/STRATEGY.md` — c272bcd 2026-08-25
-- `docs/VALIDATION.md` — 98b4a50 2026-08-18
+- `docs/VALIDATION.md` — 56f1c21 2026-09-22
 - `docs/WORKFLOW.md` — 1b6ba2a 2026-09-22
 - `docs/WORST-CASE-PLANNING.md` — c6a8955 2026-08-19
 - `ui-playthrough-out.ARCHIVED.md` — untracked
