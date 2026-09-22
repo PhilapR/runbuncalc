@@ -345,9 +345,10 @@ active-ID-only state and are cleared when a slot switches.
   removal is applied atomically. Sleep Talk and Snore bypass the sleep gate,
   and a successful freeze thaw clears the freeze before the move proceeds.
   The gates run in this order: recharge, then sleep and freeze, then Truant,
-  then flinch, then confusion, paralysis and infatuation (Showdown's
+  then flinch, then confusion, infatuation and paralysis (Showdown's
   onBeforeMovePriority and the pokeemerald canceller agree on sleep/freeze
-  before Truant and flinch; `b193e3f`, 2026-09-22). A flinched or loafing
+  before Truant and flinch; `b193e3f`, 2026-09-22). Infatuation before
+  paralysis is the Gen 8 order, ruled by the operator on 2026-09-22 (`4ecdf5e`). A flinched or loafing
   sleeper therefore spends its sleep turn, and a Pokémon that wakes still
   meets the later gates that turn.
   Protective moves use the tracked consecutive-move state: a failed repeat

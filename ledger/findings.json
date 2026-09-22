@@ -122,11 +122,11 @@
 			"file": "ai/src/move-engine.ts",
 			"line": 924,
 			"claim": "The diff cites onBeforeMovePriority to move confusion above paralysis but leaves paralysis above infatuation, which the same ordering forbids. Reported marginals: mainline 33.0/33.5/8.4, this engine 33.0/25.1/16.75.",
-			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": null
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "4ecdf5e",
+			"falsified": 1,
+			"evidence": "2026-09-22: operator ruling — the Gen 8 order (infatuation before paralysis) replaces the pokeemerald order D12 chose. Guard: ai/src/test/infatuation-before-paralysis.test.ts, falsified by hand in a worktree."
 		},
 		{
 			"id": "serene-grace-rainbow-flinch",

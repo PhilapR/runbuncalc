@@ -496,6 +496,16 @@
 				"tests/headless_run.test.js",
 				"docs/PERFORMANCE.md"
 			]
+		},
+		{
+			"id": "gen8-gate-order-infatuation-before-paralysis",
+			"date": "2026-09-22",
+			"ruling": "A Pokemon both infatuated and paralysed is checked for infatuation BEFORE paralysis: the Gen 8 order (Showdown onBeforeMovePriority: attract 2, par 1). The action gates run recharge, sleep/freeze, Truant, flinch, confusion, infatuation, paralysis.",
+			"why": "Run & Bun's Mechanic Changes.txt changes infatuation only to be gender-free and says to assume Generation 8 for anything it does not describe. CONSTANTS-AUDIT D12 had chosen the pokeemerald order (paralysis first) as better supported for the hack; the operator ruled for the documented Gen 8 fallback. A ROM probe (pokemon-mono P4) will measure it.",
+			"enforcedBy": [
+				"ai/src/move-engine.ts",
+				"ai/src/test/infatuation-before-paralysis.test.ts"
+			]
 		}
 	],
 	"open": [
