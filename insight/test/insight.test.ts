@@ -629,6 +629,11 @@ test('a wall is ordered by the losses\' mean it plots, not by the mean over ever
 		[['Gyarados', 2, 1], ['Milotic', 1, 3]]);
 });
 
+test('a scale\'s end prints as a number, not a floating-point artefact', async () => {
+	const {nice} = await pageScript(() => ({status: 200, body: 'null'}));
+	assert.deepEqual([0.25, 0.7, 2.67, 0.03, 0].map(nice), [0.3, 0.7, 3, 0.03, 1]);
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');

@@ -218,7 +218,8 @@ async function drawRun() {
 // A WALL, one row a foe of theirs: what it costs us each time we meet it, how often it falls, how long it stays,
 // what it kills with. Each column is ONE scale down every row, so the foes compare at a glance: the losses' mean
 // is a grey dot, the win a black one, and the numbers sit beside them.
-const nice = v => { if (v <= 0) return 1; const step = Math.pow(10, Math.floor(Math.log10(v))); return Math.ceil(v / step) * step; };
+// Rounded to twelve figures: 3 × 0.1 is 0.30000000000000004 in floating point, and the caption printed it.
+const nice = v => { if (v <= 0) return 1; const step = Math.pow(10, Math.floor(Math.log10(v))); return Number((Math.ceil(v / step) * step).toPrecision(12)); };
 function dots(max, loss, win, label) {
   const W = 120, x = v => 4 + Math.max(0, Math.min(1, v / max)) * (W - 8);
   const g = svg('svg', {width: W, height: 12, viewBox: '0 0 ' + W + ' 12', class: 'dots', role: 'img', 'aria-label': label});
