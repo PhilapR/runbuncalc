@@ -2,8 +2,9 @@
 
 **Canonical product UI design** for `runbuncalc`: information architecture,
 visual system, and screen specs. Complements [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired)
-(layer ownership / phase status) and [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired) (**master prioritized
-backlog** §0 + roadmap). Engine contracts stay in `AGENTS.md` /
+(layer ownership / phase status) and the retired [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (its old
+backlog §0). The ordered work is now [`PLAN.md`](PLAN.md), chosen from
+[`WORKFLOW.md`](WORKFLOW.md). Engine contracts stay in `AGENTS.md` /
 `AI_DATA_MODEL.md` — this file is presentation only.
 
 Interactive summary (mode map, token roles, wire regions): open the Cursor
@@ -14,9 +15,9 @@ Canvas beside chat —
 **priority-ranked** (§9). Do **not** treat this pass as a full Smogon calc
 rewrite (**Park** PARK-09).
 
-**Priority scheme:** same as [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired) — **P0 / P1 / P2 / P3 /
-Park**. Product “next” statements here must match PLAN §0 (no contradictory
-unranked “next”).
+**Priority scheme:** **P0 / P1 / P2 / P3 / Park**, as in the retired
+[`docs/attic/PLAN.md`](docs/attic/PLAN.md). Product “next” statements here
+must not contradict [`PLAN.md`](PLAN.md).
 
 ---
 
@@ -612,7 +613,7 @@ Singles MVP polish is the product focus (after fixtures feel solid).
 | --- | --- |
 | **This file** | Canonical UI design + per-screen / V0–V4 priorities |
 | [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired) | Layer map + phase status (same P0–Park ranks) |
-| [`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired) | **Master prioritized backlog (§0)** + roadmap |
+| [`PLAN.md`](PLAN.md) + [`WORKFLOW.md`](WORKFLOW.md) | The ordered work and the map it is chosen from (the retired `docs/attic/PLAN.md` held the old §0 backlog) |
 | [`VALIDATION.md`](VALIDATION.md) | Engine/product completeness backlog (same ranks) |
 | [`src/css/runbun-tokens.css`](src/css/runbun-tokens.css) | Token scaffolding (**P0** UI-V0) |
 | Cursor Canvas `runbun-ui-design.canvas.tsx` | Interactive IA + token roles + wireframes |

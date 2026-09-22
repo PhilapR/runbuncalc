@@ -8,6 +8,11 @@ estimated; the commands are given so they can be re-run.
 
 The battle engine is mature. The GAME-WORLD model is thin.
 
+> Correction, 2026-09-22: the engine was not as mature as this says. No lead's entry ability
+> fired at battle start (fixed `8cc3ece`), Download and the strong weathers did not exist
+> (`e6399d2`, `8cc3ece`), and several Intimidate rules were wrong (`c381374`). See
+> `docs/WORKFLOW.md`, Fidelity. The game-world gaps below still stand as written.
+
 Nothing here is about damage, mechanics, or AI. `ai/src/switch.ts` scores
 switch-ins and `evaluateForcedSwitchActions` handles post-KO entry, so the
 Post-KO Switch-in AI workbook is already covered. The gaps are all in one
@@ -39,7 +44,7 @@ distinguish from a fact.
 | Species declared **unavailable** | 0 | ~416, in 8 generation rows |
 | Game Corner reward tiers | 0 | 8, one per badge |
 | In-game trades | 0 | 3 |
-| Other gifts | 0 | egg, Castform, Kubfu, fossils |
+| Other gifts | 0 (3 since `44ad51e`) | egg, Castform, Kubfu, fossils — the egg, Castform and Kubfu are claimed by the run since 2026-09-21; fossils are not |
 | Field items | 28 | 127 location references, 6 categories |
 
 Reproduce:

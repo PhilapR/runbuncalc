@@ -123,7 +123,7 @@ Current coverage, honestly assessed:
 
 | Surface | Today | Missing |
 |---|---|---|
-| Engine correctness | Gated exhaustively (unit, fixture, falsify) | — |
+| Engine correctness | Gated by unit, fixture and falsify; since 2026-09-22 also by `tests/fidelity_openings.test.js`, which opens every fight the way a run does | The turn loop has no composed-pipeline sweep; the unit gates missed the lead-entry defect (`8cc3ece`) because they built states by hand |
 | Contract conformance | Gated (digests, conformance, provenance) | — |
 | Determinism | Gated (current-vs-current) | The replay-compat corpus (risk 1) |
 | Accessibility/style | Gated (floors, guards) | — |
