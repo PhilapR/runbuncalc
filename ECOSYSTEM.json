@@ -11,7 +11,7 @@
 	"sources": [
 		{
 			"repo": "PhilapR/pokemon-mono",
-			"role": "The operator's primary monorepo — four earlier repos subtree-imported (see its RECEIPTS-MAP.md). Read-only prior art for this project.",
+			"role": "The operator's primary monorepo — four earlier repos subtree-imported (see its RECEIPTS-MAP.md). Home of the ROM ground truth (pykemon) and the evidence every engine is graded against; home of any aspect where its implementation grades best against the ROM (enemy AI move scoring today). Which platform is home for each aspect of the game is decided by evidence in docs/ENGINE-HOMES.md (approved 2026-09-22), not by repository.",
 			"verifiedAt": "shallow clone 2026-08-11",
 			"localPath": "/workspace/pokemon-mono",
 			"capabilities": [

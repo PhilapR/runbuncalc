@@ -161,6 +161,24 @@ run's dice. **Bar: the run's replay stays identical on a fixed seed.**
 The one TM/tutor row still undated: "Given by an NPC at Fossil Maniac's
 house", which no Run & Bun source places. Needs your knowledge or a source.
 
+### 3.5 ROM probes beyond damage — STARTED 2026-09-22
+Approved with `docs/ENGINE-HOMES.md`. The only ROM evidence is damage bands
+(1,727 observations); nothing external grades openings, weather, gate order
+or switch-ins, which is where every engine defect of 2026-09-22 was. Work in
+pokemon-mono `groundtruth/pykemon`, branch `claude/rom-probes`.
+- **P0** (running): map stat stages, status and weather in RAM; check
+  whether fixture `f4-weather-rain` ever made rain (its Drizzle is on the
+  enemy side, which the harness patches in after the opening).
+- **P1** weather openings and permanence; **P2** Intimidate with its
+  blockers and reactors, and Download; **P3** strong-weather ending and
+  handoff; **P4** action-gate order, including the open D12 question;
+  **P5** enemy entry abilities through their replacement after a KO.
+- The harness sees our side's opening and every mid-battle switch-in, but
+  not an injected enemy's opening. P1 to P5 are built around that.
+- **Bar:** every ruling made on 2026-09-22 from Showdown or "assume Gen 8"
+  is confirmed or reversed by a probe, and the ledger records which. The
+  traces grade runbuncalc and rab alike.
+
 ---
 
 ## 4. Optimize (you asked for this once the Mega work was in)
