@@ -106,7 +106,8 @@ test('a watched battery stops between fights and writes no receipt', () => {
 	assert.ok(tapes[0].result, 'and its result is on the tape');
 });
 
-test('a job that must not block gives up on a full pool, and says so', () => {
+// A timeout, so a wait that never ends fails instead of hanging the suite.
+test('a job that must not block gives up on a full pool, and says so', {timeout: 5000}, () => {
 	const dirs = scratch();
 	withEnv({RUNBUN_RUNS_DIR: dirs.runs, RUNBUN_SLOTS_DIR: dirs.slots, RUNBUN_SLOTS: '1', RUNBUN_SLOT_HELD: undefined}, () => {
 		const watch = require('../lib/watch.js');
