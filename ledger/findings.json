@@ -186,7 +186,7 @@
 			"status": "open",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Widened by 0ff6e6a: a variable multi-hit now draws N crits instead of 1, so seeded replay of any multi-hit move diverges from receipts written before it. Still only schemaVersion is checked."
+			"evidence": "Widened by 0ff6e6a: a variable multi-hit now draws N crits instead of 1, so seeded replay of any multi-hit move diverges from receipts written before it. Still only schemaVersion is checked. | 2026-09-22: Battery receipts now carry provenance.engine (lib/provenance.js, d161b4f); battery-tape refuses another engine; battery-pair refuses to join across engines; battery-arms exits 1 on a split batch (falsified). STILL OPEN for the file this finding names: src/js/attempt_store.js receipts check only schemaVersion."
 		},
 		{
 			"id": "flinch-truant-preempt-sleep-burn",
@@ -678,10 +678,10 @@
 			"line": null,
 			"claim": "The evolution-item sheet stores prose where every other sheet stores a place, so none of its 23 rows can be joined to a map and evolution planning has no source list at all.",
 			"verdict": "confirmed",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Split out of engine-debits-currencies-it-cannot-source, which closed the half about Rare Candy and Heart Scales and could not close this one. Re-derived here: heartScales joins 27 of 30 rows to a dated map by place name and rareCandies 9 of 14, while evolutionItems joins 0 of 23. The reason is shape, not coverage — the sheet's place column holds sentences. \"Sold at Mauville City Pokemon Mart. Given 1x from NPC Cutter in Rustboro City.\" and \"Granite Cave, ice floor, at the L shaped rock formation before the stairs (hidden).\" are both places, a shop and a condition, or two places, in one string. A source list built from that column would print a sentence where the other two print a route. The 23 rows name Everstone, Moon Stone, Fire Stone, Water Stone and the rest, which is the input evolution planning needs most: `adviseUpgrades` already offers an evolution the run has earned, and cannot say where the stone for it is. Fixing this is a parse rather than an import — the places are IN the prose and several are shops rather than ground items, which is a distinction the other sheets never had to make. PARTIALLY SUPERSEDED 2026-08-29: the sold-at prose is now a modeled SHOP surface (oracle.shopItems -> run.shopItems -> status wire -> panel Buy -> both drivers), commit 09dcc39. Stones are buyable once each from order 209 and fund the advisor evolve rows measured at 16/30 vs Wattson. The row remains open only for the non-shop prose places (NPC gifts with no dated anchor)."
+			"status": "fixed",
+			"fixed_in": "7638afc",
+			"falsified": 1,
+			"evidence": "Split out of engine-debits-currencies-it-cannot-source, which closed the half about Rare Candy and Heart Scales and could not close this one. Re-derived here: heartScales joins 27 of 30 rows to a dated map by place name and rareCandies 9 of 14, while evolutionItems joins 0 of 23. The reason is shape, not coverage — the sheet's place column holds sentences. \"Sold at Mauville City Pokemon Mart. Given 1x from NPC Cutter in Rustboro City.\" and \"Granite Cave, ice floor, at the L shaped rock formation before the stairs (hidden).\" are both places, a shop and a condition, or two places, in one string. A source list built from that column would print a sentence where the other two print a route. The 23 rows name Everstone, Moon Stone, Fire Stone, Water Stone and the rest, which is the input evolution planning needs most: `adviseUpgrades` already offers an evolution the run has earned, and cannot say where the stone for it is. Fixing this is a parse rather than an import — the places are IN the prose and several are shops rather than ground items, which is a distinction the other sheets never had to make. PARTIALLY SUPERSEDED 2026-08-29: the sold-at prose is now a modeled SHOP surface (oracle.shopItems -> run.shopItems -> status wire -> panel Buy -> both drivers), commit 09dcc39. Stones are buyable once each from order 209 and fund the advisor evolve rows measured at 16/30 vs Wattson. The row remains open only for the non-shop prose places (NPC gifts with no dated anchor). | 2026-09-22: The Moon Stone gift in Rustboro is its own row, dated 106 (PLAY CHANGE: a Moon Stone from order 106, not 209). Test: item_locations."
 		},
 		{
 			"id": "the-fair-dice-sampler-cannot-price-a-threshold-set",
@@ -707,11 +707,11 @@
 			"file": "profiles/run-and-bun/oracle/availability.json",
 			"line": null,
 			"claim": "Reflect, Light Screen and Aurora Veil have no row in the 78-source TM and tutor table — not undated, absent — so the advisor can never offer a screen and every screen play-rule in the driver is unreachable.",
-			"verdict": "confirmed",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Found by a mechanism check that saved a false conclusion. The screen rule was given the same lost-race lethal exception that fixed status moves and speed drops (gated, falsified three ways), and A/B batch scrctl came back with the strongest tallies of the session: control 0 of 6 past Gavi and 0 of 72 attempts, treatment 3 of 6, one Brawly win, and a run reaching order 162 — the deepest of the whole session — at p 0.05 to 0.09. Counting actual presses refuted the credit: screens were pressed ZERO times in BOTH arms across all twelve runs, so the treatment was inert and the split is box luck wearing a p-value. The cause chain, each link verified: moveObtainableAt answers null for both screens; the advisor correctly refuses undated teaches; and the moveItems table holds no row for any of the three at all, so this is a missing source rather than a missing date. No common early box species learns a screen by level-up at 21 either — a scan of 22 recorded box species found zero — which is why the n=1 Brawly win that used Reflect was an outlier catch rather than a repeatable line. What unblocks it: source the screen TMs (where does Run & Bun hand out TM33/TM16 or their equivalents), date them if the location text carries no gate, and the already-shipped play rule activates on its own. The scrctl batch is preserved in MLflow (labels scrctl-A/B, QC PASS) as the measured record of an inert treatment producing a p=0.05 tally — the standing example of why the mechanism check is part of the review standard. TEST CASE RULED BY PHILIP, 2026-08-26: Orbeetle learns both screens before Brawly, so a pinned box holding it is the activation test — no TM sourcing needed first. Verified in this tree: the whole Blipbug line is in the encounter tables, Dottler learns Reflect by level-up at 10, and Orbeetle knows both screens from level 1. Dottler was a recorded LOSS lead at Camper Gavi twelve times in the post-perf batch, so the boxes have been carrying a screen learner all along; the advisor taught Reflect exactly once. The pinned-box experiment is the next step when screens come back up, and the rule it would exercise is already shipped and gated behind --screen-control. ACTIVATED AND MEASURED, 2026-08-27, batch scrpin3: the full chain ran — pinned Blipbug line, fillToolSlots teaching Reflect and Light Screen into Dottler free slots, twelve clean runs, no disk aborts. Dottler was fielded in all 144 Camper Gavi fights; the control pressed zero screens and the treatment pressed 107, which is the first fully-verified mechanism execution of the whole thread. The outcome is a REAL null: 0 of 72 Gavi attempts won in both arms, identical stalls at orders 34-48. On this box, at this wall, screens change nothing — the seven-species pin was chosen for catch reliability, not strength, and is simply too weak for Gavi with or without screens. What this does NOT measure is screens at Brawly, the all-physical wall the n=1 win credited them for, because no pinned run reached him. The next experiment needs a Gavi-viable pin, and the box composition is a game-knowledge choice. MEASURED AT ALL THREE GYMS, 2026-08-28, battery gymcf2: the counterfactual generator taught Reflect and Light Screen to the party LEAD of banked gym-adjacent boxes (the first cut taught the last two bodies in party order and measured zero because every screen arrived after four deaths — order verified before crediting). Full mechanism chain confirmed: screens on the lead bar, pressed exactly twice per fight in 30 of 30 probed fights per gym, and the engine models the halving (Zen Headbutt 59% into Qwilfish without Reflect, 28% with, same seed). Outcome: 0/30, 0/30, 0/30 at Brawly, Roxanne, Wattson — identical to baseline — and stacking screens+slow ONTO max IVs scored WORSE than max IVs alone (Roxanne 1 vs 7, Wattson 1 vs 15), because a line move replaces a damage move and the attack-turn tax exceeds the mitigation at a wall. Max IVs alone moved Roxanne 0->7/30 and Wattson 1->15/30 (Brawly 0/30 even at 31s). The gym walls are stats, quantified; sourcing the screen TMs remains a data gap but no longer carries a measured win hypothesis at any wall tested. SEVERITY DOWNGRADED high->medium 2026-08-28: gymcf2 measured screens at zero effect on every tested wall with the full mechanism chain verified, so no win hypothesis rests on sourcing these TMs any more — the row is a data-completeness gap, not a blocker."
+			"verdict": "refuted",
+			"status": "fixed",
+			"fixed_in": "07c8a96",
+			"falsified": 1,
+			"evidence": "Found by a mechanism check that saved a false conclusion. The screen rule was given the same lost-race lethal exception that fixed status moves and speed drops (gated, falsified three ways), and A/B batch scrctl came back with the strongest tallies of the session: control 0 of 6 past Gavi and 0 of 72 attempts, treatment 3 of 6, one Brawly win, and a run reaching order 162 — the deepest of the whole session — at p 0.05 to 0.09. Counting actual presses refuted the credit: screens were pressed ZERO times in BOTH arms across all twelve runs, so the treatment was inert and the split is box luck wearing a p-value. The cause chain, each link verified: moveObtainableAt answers null for both screens; the advisor correctly refuses undated teaches; and the moveItems table holds no row for any of the three at all, so this is a missing source rather than a missing date. No common early box species learns a screen by level-up at 21 either — a scan of 22 recorded box species found zero — which is why the n=1 Brawly win that used Reflect was an outlier catch rather than a repeatable line. What unblocks it: source the screen TMs (where does Run & Bun hand out TM33/TM16 or their equivalents), date them if the location text carries no gate, and the already-shipped play rule activates on its own. The scrctl batch is preserved in MLflow (labels scrctl-A/B, QC PASS) as the measured record of an inert treatment producing a p=0.05 tally — the standing example of why the mechanism check is part of the review standard. TEST CASE RULED BY PHILIP, 2026-08-26: Orbeetle learns both screens before Brawly, so a pinned box holding it is the activation test — no TM sourcing needed first. Verified in this tree: the whole Blipbug line is in the encounter tables, Dottler learns Reflect by level-up at 10, and Orbeetle knows both screens from level 1. Dottler was a recorded LOSS lead at Camper Gavi twelve times in the post-perf batch, so the boxes have been carrying a screen learner all along; the advisor taught Reflect exactly once. The pinned-box experiment is the next step when screens come back up, and the rule it would exercise is already shipped and gated behind --screen-control. ACTIVATED AND MEASURED, 2026-08-27, batch scrpin3: the full chain ran — pinned Blipbug line, fillToolSlots teaching Reflect and Light Screen into Dottler free slots, twelve clean runs, no disk aborts. Dottler was fielded in all 144 Camper Gavi fights; the control pressed zero screens and the treatment pressed 107, which is the first fully-verified mechanism execution of the whole thread. The outcome is a REAL null: 0 of 72 Gavi attempts won in both arms, identical stalls at orders 34-48. On this box, at this wall, screens change nothing — the seven-species pin was chosen for catch reliability, not strength, and is simply too weak for Gavi with or without screens. What this does NOT measure is screens at Brawly, the all-physical wall the n=1 win credited them for, because no pinned run reached him. The next experiment needs a Gavi-viable pin, and the box composition is a game-knowledge choice. MEASURED AT ALL THREE GYMS, 2026-08-28, battery gymcf2: the counterfactual generator taught Reflect and Light Screen to the party LEAD of banked gym-adjacent boxes (the first cut taught the last two bodies in party order and measured zero because every screen arrived after four deaths — order verified before crediting). Full mechanism chain confirmed: screens on the lead bar, pressed exactly twice per fight in 30 of 30 probed fights per gym, and the engine models the halving (Zen Headbutt 59% into Qwilfish without Reflect, 28% with, same seed). Outcome: 0/30, 0/30, 0/30 at Brawly, Roxanne, Wattson — identical to baseline — and stacking screens+slow ONTO max IVs scored WORSE than max IVs alone (Roxanne 1 vs 7, Wattson 1 vs 15), because a line move replaces a damage move and the attack-turn tax exceeds the mitigation at a wall. Max IVs alone moved Roxanne 0->7/30 and Wattson 1->15/30 (Brawly 0/30 even at 31s). The gym walls are stats, quantified; sourcing the screen TMs remains a data gap but no longer carries a measured win hypothesis at any wall tested. SEVERITY DOWNGRADED high->medium 2026-08-28: gymcf2 measured screens at zero effect on every tested wall with the full mechanism chain verified, so no win hypothesis rests on sourcing these TMs any more — the row is a data-completeness gap, not a blocker. | 2026-09-22: The author's TMHMs and Move Tutors sheet lists TM01-50, HM01-08 and 20 tutors; none is a screen. Test: item_locations."
 		},
 		{
 			"id": "the-panel-counts-pokemon-where-a-player-counts-trainers",
@@ -981,7 +981,7 @@
 			"status": "open",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Checked both tables directly. profiles-side calc: Magnemite and Ditto come back gender \"N\", Jigglypuff, Piplup, Miltank, Tauros, Nidoran-F and Combee all come back undefined — including the two that are female-only. ai/node_modules/@smogon/calc answers identically, so this is not the fork having dropped it. genderRatio is undefined everywhere. The consequence is narrower than first written, because Attract is gender-independent here by design and does not need it. What still reads gender is Captivate (which does gate on it) and Cute Charm if [[cute-charm-gender-gate-undecided]] settles that way — both would behave as if every matchup were same-gender. rollIdentity does not author a gender and partySpecs does not forward one, so nothing owned ever carries one. Two routes if it is ever wanted, and the choice is Philip's: source a ratio table, or record it as an observed fact the way nature and ability already are, since gender is the most visible thing on a summary screen."
+			"evidence": "Checked both tables directly. profiles-side calc: Magnemite and Ditto come back gender \"N\", Jigglypuff, Piplup, Miltank, Tauros, Nidoran-F and Combee all come back undefined — including the two that are female-only. ai/node_modules/@smogon/calc answers identically, so this is not the fork having dropped it. genderRatio is undefined everywhere. The consequence is narrower than first written, because Attract is gender-independent here by design and does not need it. What still reads gender is Captivate (which does gate on it) and Cute Charm if [[cute-charm-gender-gate-undecided]] settles that way — both would behave as if every matchup were same-gender. rollIdentity does not author a gender and partySpecs does not forward one, so nothing owned ever carries one. Two routes if it is ever wanted, and the choice is Philip's: source a ratio table, or record it as an observed fact the way nature and ability already are, since gender is the most visible thing on a summary screen. | 2026-09-22: Re-checked: no hack document carries gender ratios; calc species data has only genderless N. No source."
 		},
 		{
 			"id": "cute-charm-gender-gate-undecided",
@@ -1323,10 +1323,10 @@
 			"line": null,
 			"claim": "498 of 1114 species have an empty levelUp list, of which 8 are catchable in the wild: Geodude, Goldeen, Sunkern, Wooper, Quagsire, Pineco, Shuckle, Smeargle. The repo asserts this is game truth with no cited source, while import-oracle.js has a code path that produces exactly that symptom from a parse failure. The two are indistinguishable from inside the repo.",
 			"verdict": "confirmed",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "lib/battle-driver.js:596 states \"Run & Bun gives a few species NO level-up moves at all ... in the game they fight with Struggle, so here they do too\" — an unfalsifiable claim with no source. Meanwhile import-oracle.js:505 is `if (!levelUp[species]) levelUp[species] = moves;` and `![]` is false, so once an empty array is stored a later non-empty block for the same species can never replace it; and the `problems` push covers a MISSING block, never one that parses to zero moves. So a zero-move parse is recorded silently and locked in. NOT a product block, which was my first and wrong reading: the catch is refused only when moves are omitted, and the refusal is helpful — it names the teachable moves and accepts the catch when they are supplied. The decomp is a separate repository and is not on this machine, so the data cannot be repaired here. Durable actions available without it: make a zero-move parse a recorded problem, let a non-empty block replace an empty one, and gate the count at 8 so it cannot silently grow.",
+			"status": "fixed",
+			"fixed_in": "39649fe",
+			"falsified": 1,
+			"evidence": "lib/battle-driver.js:596 states \"Run & Bun gives a few species NO level-up moves at all ... in the game they fight with Struggle, so here they do too\" — an unfalsifiable claim with no source. Meanwhile import-oracle.js:505 is `if (!levelUp[species]) levelUp[species] = moves;` and `![]` is false, so once an empty array is stored a later non-empty block for the same species can never replace it; and the `problems` push covers a MISSING block, never one that parses to zero moves. So a zero-move parse is recorded silently and locked in. NOT a product block, which was my first and wrong reading: the catch is refused only when moves are omitted, and the refusal is helpful — it names the teachable moves and accepts the catch when they are supplied. The decomp is a separate repository and is not on this machine, so the data cannot be repaired here. Durable actions available without it: make a zero-move parse a recorded problem, let a non-empty block replace an empty one, and gate the count at 8 so it cannot silently grow. | 2026-09-22: Closed from the author's Learnset, Evolution Methods and Abilities.txt, transcribed to oracle/learnset-doc.json: 554/554 lists equal the import; the 8 have no block and are on the Unavailable sheet, so empty is the author's. Importer refuses a short parse (24d21f8). Tests: learnset_doc, import_oracle.",
 			"enforcedBy": null
 		},
 		{
@@ -1358,7 +1358,7 @@
 			"status": "open",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Reported by the audit, not re-derived here. 408 of the 409 resolvable declared-removed species have an empty levelUp; Duraludon is the one exception and is already an open question at unavailable.json:41-45. docs/MODELLING-GAPS.md:98-99 states the gate as a Phase 0 acceptance criterion — \"a gate fails if any species falls in neither bucket and has no wild source\" — and it was never built. Corroborating: DECISIONS.json rustboro-table-drift records that the 2023 Locations workbook lists Bonsly at Rustboro City while the newer decomp import does not, and a workbook written while Bonsly was catchable cannot list Bonsly as removed; evolutions.json gives Bonsly -> Sudowoodo. NEEDS A RULING from Philip: whether the hack removed them or the workbook is stale cannot be settled from the repo. Fix thirty-eight-removed-species-join-to-nothing first, or the gate catches 35 species until the names are corrected.",
+			"evidence": "Reported by the audit, not re-derived here. 408 of the 409 resolvable declared-removed species have an empty levelUp; Duraludon is the one exception and is already an open question at unavailable.json:41-45. docs/MODELLING-GAPS.md:98-99 states the gate as a Phase 0 acceptance criterion — \"a gate fails if any species falls in neither bucket and has no wild source\" — and it was never built. Corroborating: DECISIONS.json rustboro-table-drift records that the 2023 Locations workbook lists Bonsly at Rustboro City while the newer decomp import does not, and a workbook written while Bonsly was catchable cannot list Bonsly as removed; evolutions.json gives Bonsly -> Sudowoodo. NEEDS A RULING from Philip: whether the hack removed them or the workbook is stale cannot be settled from the repo. Fix thirty-eight-removed-species-join-to-nothing first, or the gate catches 35 species until the names are corrected. | 2026-09-22: Author sources: no learnset block for Sudowoodo/Bonsly/Comfey; not on the Unavailable sheet; Bonsly and Comfey only on the hidden Temp Encounter Tables sheet. Needs a ruling.",
 			"enforcedBy": null
 		},
 		{
@@ -1371,10 +1371,10 @@
 			"line": 7,
 			"claim": "No script writes this file — only readers. Its `method` prose is the entire record of how it was made, the premise of that prose is false, and re-deriving it as documented moves a shipped date 52 orders earlier.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Reported by the audit, not re-derived here. The method says the workbook headers \"survive only in xl/sharedStrings.xml, orphaned from any cell reference\"; the audit reports all 715 shared strings are referenced and the 98 headers sit in row 1 of sheet 1 (C1..GO1). The same false sentence is repeated at tests/availability-estimate.test.js:96. Three undocumented edits are claimed: five Mt. Pyre rows dropped at index 61, Aqua Hideout B1F dropped, Level/Pokemon replaced by an appended Underwater. Restoring the six dropped rows re-dates Mossdeep City 1178 -> 1126 (earlier) and Shoal Cave Low Tide Ice Room 1178 -> 1253. The committed file does reproduce all 33 provenance:derived entries exactly. Fix: a builder that reads sheet 1 row 1 with a named, reasoned exclusion list in the adopt-availability OVERRIDES style, plus the deepEqual rebuild gate the item ledger already uses, and correct the false prose in both places. PARTIALLY RE-DERIVED, 2026-08-26, and the part that cannot be checked here is the part the severity rests on. VERIFIED. No script writes the file: five files reference tracker-order.json — scripts/ask.js, adopt-availability.js, estimate-availability.js, availability.json and tests/availability-estimate.test.js — and none of them writes it. The disputed premise is stated twice, as reported: tracker-order.json line 7 and tests/availability-estimate.test.js:95, both saying the headers \"survive only as orphaned strings in sharedStrings.xml\". NOT VERIFIABLE from this checkout, and I am not going to pretend otherwise. The claim that the premise is false — that all 715 shared strings are referenced and the 98 headers sit in row 1 of sheet 1 — is a claim about docs/official/Pokemon Locations.xlsx, which does not exist in this tree. Nor can the consequence be checked: \"re-deriving it as documented moves a shipped date 52 orders earlier\" needs the same workbook. Both stay as reported. MITIGATING, and it changes what the severity should be. The order does not rest on that prose. tests/availability-estimate.test.js computes a Spearman rank correlation LIVE from committed data — every dated location the tracker covers, position against opensAt — and asserts it. It passes. So a wrong account of HOW the headers were extracted does not make the ORDER wrong, and the file is not trusted on the strength of its own method prose. What that leaves is a real but narrower defect: a derived file with no builder, whose method cannot be re-run and whose stated derivation may not describe what was done. That is a reproducibility gap rather than a wrong answer reaching a player. Writing the builder needs the workbook, so it cannot be closed from here either.",
+			"status": "fixed",
+			"fixed_in": "c831f98",
+			"falsified": 1,
+			"evidence": "Reported by the audit, not re-derived here. The method says the workbook headers \"survive only in xl/sharedStrings.xml, orphaned from any cell reference\"; the audit reports all 715 shared strings are referenced and the 98 headers sit in row 1 of sheet 1 (C1..GO1). The same false sentence is repeated at tests/availability-estimate.test.js:96. Three undocumented edits are claimed: five Mt. Pyre rows dropped at index 61, Aqua Hideout B1F dropped, Level/Pokemon replaced by an appended Underwater. Restoring the six dropped rows re-dates Mossdeep City 1178 -> 1126 (earlier) and Shoal Cave Low Tide Ice Room 1178 -> 1253. The committed file does reproduce all 33 provenance:derived entries exactly. Fix: a builder that reads sheet 1 row 1 with a named, reasoned exclusion list in the adopt-availability OVERRIDES style, plus the deepEqual rebuild gate the item ledger already uses, and correct the false prose in both places. PARTIALLY RE-DERIVED, 2026-08-26, and the part that cannot be checked here is the part the severity rests on. VERIFIED. No script writes the file: five files reference tracker-order.json — scripts/ask.js, adopt-availability.js, estimate-availability.js, availability.json and tests/availability-estimate.test.js — and none of them writes it. The disputed premise is stated twice, as reported: tracker-order.json line 7 and tests/availability-estimate.test.js:95, both saying the headers \"survive only as orphaned strings in sharedStrings.xml\". NOT VERIFIABLE from this checkout, and I am not going to pretend otherwise. The claim that the premise is false — that all 715 shared strings are referenced and the 98 headers sit in row 1 of sheet 1 — is a claim about docs/official/Pokemon Locations.xlsx, which does not exist in this tree. Nor can the consequence be checked: \"re-deriving it as documented moves a shipped date 52 orders earlier\" needs the same workbook. Both stay as reported. MITIGATING, and it changes what the severity should be. The order does not rest on that prose. tests/availability-estimate.test.js computes a Spearman rank correlation LIVE from committed data — every dated location the tracker covers, position against opensAt — and asserts it. It passes. So a wrong account of HOW the headers were extracted does not make the ORDER wrong, and the file is not trusted on the strength of its own method prose. What that leaves is a real but narrower defect: a derived file with no builder, whose method cannot be re-run and whose stated derivation may not describe what was done. That is a reproducibility gap rather than a wrong answer reaching a player. Writing the builder needs the workbook, so it cannot be closed from here either. | 2026-09-22: scripts/build-tracker-order.js; headers verified as row 1 of the workbook's Encounter Tables; six unrecorded drops named. Restoring them is an operator ruling. Test: tracker_order.",
 			"enforcedBy": null
 		},
 		{
@@ -1486,7 +1486,7 @@
 			"status": "open",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Reported by the audit, not re-derived here. Those nine are the only rows in all 483 with a level below 2 and the only byte-identical duplicates. Cause: import-oracle.js:130 collapses nine Alcremie cream constants onto one name (documented at :40-44) while the de-dup guard at :439 covers the from-side only. NOT reachable in a real run — Milcery and Alcremie are both on the Unavailable list and in no encounter table — so the only live symptom is `ask.js evolve Milcery` printing the same line nine times. Assertion: every method:\"level\" row has an integer level >= 2, and a species' evolution rows are pairwise distinct. Both pass everywhere else in the file today.",
+			"evidence": "Reported by the audit, not re-derived here. Those nine are the only rows in all 483 with a level below 2 and the only byte-identical duplicates. Cause: import-oracle.js:130 collapses nine Alcremie cream constants onto one name (documented at :40-44) while the de-dup guard at :439 covers the from-side only. NOT reachable in a real run — Milcery and Alcremie are both on the Unavailable list and in no encounter table — so the only live symptom is `ask.js evolve Milcery` printing the same line nine times. Assertion: every method:\"level\" row has an integer level >= 2, and a species' evolution rows are pairwise distinct. Both pass everywhere else in the file today. | 2026-09-22: Generator fixed (24d21f8, dedupe, falsified); evolutions.json regenerates on the next decomp run (decomp not on this machine).",
 			"enforcedBy": null
 		},
 		{
@@ -1499,10 +1499,10 @@
 			"line": 107,
 			"claim": "fight-fields.json ships provenance \"transcribed\" and method \"exactly-name-matched trainers only; unmatched annotations reported, never guessed\", while 14 of its 35 entries are not exact name matches — and three of those are ALSO listed in `unmatched`, so the file reports a gap it filled.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Reported by the audit, not re-derived here. Breakdown given: 4 by duo prefix (:69-71), 7 by a Seafloor Cavern location regex (:84-86), 3 by a Thunderstorm rule (:98-101). Metadata honesty rather than wrong data — the values are corroborated (orders 702/708/714 sit between rab-annotated Rain+Electric fights) and pinned by tests/planner.test.js:351-356. Fix the method string and the provenance marker to name the three derivation rules.",
+			"status": "fixed",
+			"fixed_in": "69d8711",
+			"falsified": 1,
+			"evidence": "Reported by the audit, not re-derived here. Breakdown given: 4 by duo prefix (:69-71), 7 by a Seafloor Cavern location regex (:84-86), 3 by a Thunderstorm rule (:98-101). Metadata honesty rather than wrong data — the values are corroborated (orders 702/708/714 sit between rab-annotated Rain+Electric fights) and pinned by tests/planner.test.js:351-356. Fix the method string and the provenance marker to name the three derivation rules. | 2026-09-22: Four placement rules named and recorded per fight; fields map deep-equal on re-run. Test: fight_fields.",
 			"enforcedBy": null
 		},
 		{
@@ -1531,10 +1531,10 @@
 			"line": 30,
 			"claim": "Hardcodes /workspace/... with no RAB_DATA override, unlike its sibling import-availability.js:43. Commit 4ce1ea6 edited both files and added the override to only one.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Reported by the audit, not re-derived here. It says the run dies at line 52 with ENOENT before the write, and that rebuilding with the path remapped through a /tmp preload reproduced the committed file BYTE-IDENTICALLY. One-line fix. The data itself is gated by tests/planner.test.js:340-377, which pins four fights covering rain, rain+terrain, the Seafloor veil and clear skies.",
+			"status": "fixed",
+			"fixed_in": "69d8711",
+			"falsified": 1,
+			"evidence": "Reported by the audit, not re-derived here. It says the run dies at line 52 with ENOENT before the write, and that rebuilding with the path remapped through a /tmp preload reproduced the committed file BYTE-IDENTICALLY. One-line fix. The data itself is gated by tests/planner.test.js:340-377, which pins four fights covering rain, rain+terrain, the Seafloor veil and clear skies. | 2026-09-22: Takes RAB_DATA; main() only when run directly. Test: fight_fields.",
 			"enforcedBy": null
 		},
 		{
@@ -1559,14 +1559,14 @@
 			"raised_on": "2026-08-26",
 			"severity": "low",
 			"area": "data",
-			"file": "profiles/run-and-bun/oracle/catch-rates.json",
+			"file": "profiles/run-and-bun/index.js",
 			"line": 1,
 			"claim": "The dataset has no provenance row and no entry in profiles/run-and-bun/index.js, which registers every other oracle dataset. Per docs/INVENTORY.md:70-71 an unregistered claim defaults to `inferred`.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Reported by the audit; I independently checked the DATA and it is sound — 1025 keys, 0 catchable species without a rate, values in 3..255. The 121 rows the calc cannot resolve are all species this game never offers (harmless PokeAPI bloat), and the 29 catchable species absent from the raw table are all regional forms that catchRateOf() already resolves to the base line, documented at oracle.js:429-431. So this is a registration and provenance gap, not a data gap. Same omission index.js:213-216 describes for growth rates.",
+			"status": "fixed",
+			"fixed_in": "56f3ab3",
+			"falsified": 1,
+			"evidence": "Reported by the audit; I independently checked the DATA and it is sound — 1025 keys, 0 catchable species without a rate, values in 3..255. The 121 rows the calc cannot resolve are all species this game never offers (harmless PokeAPI bloat), and the 29 catchable species absent from the raw table are all regional forms that catchRateOf() already resolves to the base line, documented at oracle.js:429-431. So this is a registration and provenance gap, not a data gap. Same omission index.js:213-216 describes for growth rates. | 2026-09-22: Registered as transcribed mainline data (pokeapi); no hack document gives catch rates. Test: runbun_species. (file re-pointed 2026-09-22 from profiles/run-and-bun/oracle/catch-rates.json to the registry the claim is about.)",
 			"enforcedBy": null
 		},
 		{
@@ -1980,6 +1980,46 @@
 			"fixed_in": "e6399d2",
 			"falsified": 1,
 			"evidence": "Guard: tests/fidelity_openings.test.js; Download disabled -> 4 fights wrong."
+		},
+		{
+			"id": "run-row-records-last-leg-only",
+			"source": "review/provenance",
+			"raised_on": "2026-09-22",
+			"severity": "medium",
+			"area": "evidence",
+			"file": "scripts/run-one.js",
+			"claim": "A carried-on run recorded the revision of its last leg only, so a run spanning an engine fix read as one engine.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "06aa619",
+			"falsified": 1,
+			"evidence": "Every leg now records revision, engine stamp, spec and position range; runs.js list shows SPANS N ENGINES; audit-run warns. Tests: run_control, provenance."
+		},
+		{
+			"id": "worktree-calc-resolves-to-main-checkout",
+			"source": "review/provenance",
+			"raised_on": "2026-09-22",
+			"severity": "medium",
+			"area": "tooling",
+			"file": "scripts/battery-arms.js",
+			"claim": "makeWorktree symlinks node_modules from the main checkout, whose @smogon/calc links to ../../calc, so a pinned worktree loads the MAIN checkout's calc/dist. A rebuild there mid-batch changes play under a pinned revision.",
+			"verdict": "confirmed",
+			"status": "open",
+			"evidence": "require.resolve('@smogon/calc') in a pinned worktree resolves to the main checkout. Detected now by the calc-linked stamp part (d9d92d7), not prevented."
+		},
+		{
+			"id": "inventory-gate-cannot-fail",
+			"source": "review/data",
+			"raised_on": "2026-09-22",
+			"severity": "low",
+			"area": "tooling",
+			"file": "scripts/inventory.js",
+			"claim": "scripts/inventory.js wrote docs/INVENTORY.md when required, so tests/inventory.test.js compared the file with itself and could not fail; every test run left the doc modified.",
+			"verdict": "confirmed",
+			"status": "fixed",
+			"fixed_in": "95d606c",
+			"falsified": 1,
+			"evidence": "After the guard the gate failed on the stale doc (AssertionError: INVENTORY.md is stale), then passed once regenerated."
 		}
 	]
 }
