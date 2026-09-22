@@ -138,7 +138,11 @@ function runArms(options) {
 					arm.manifest ? ['--manifest=scenarios/' + arm.manifest + '.json'] : [], arm.flags);
 				// Through the machine's slot pool, from this tree: the arm's may predate it.
 				const child = childProcess.spawn(process.execPath, [path.join(__dirname, 'submit.js'),
-					'--label=arm/' + arm.label, '--', process.execPath].concat(args), {cwd: dir});
+					'--label=arm/' + arm.label, '--', process.execPath].concat(args), {cwd: dir,
+					// The arm's watch job (lib/watch.js) writes beside the MAIN checkout's
+					// runs, where the watch page and runs.js look — not inside its worktree.
+					env: Object.assign({}, process.env, {RUNBUN_RUNS_DIR: process.env.RUNBUN_RUNS_DIR ||
+						path.join(ROOT, 'ui-playthrough-out', 'runs')})});
 				let text = '';
 				child.stdout.on('data', chunk => { text += chunk; });
 				child.stderr.on('data', chunk => { text += chunk; });
