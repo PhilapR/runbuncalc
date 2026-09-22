@@ -36,10 +36,10 @@ const replay = require('../scripts/replay-ai-probes.js');
 /**
  * First measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417),
  * raised after each ROM rule landed on fix/ai-scoring. Rounded toward passing.
- * Now: Agility while faster 86 (0.9259 / 0.0743 / 0.8993 and 0.9722 / 0.0194 / 0.9167).
+ * Now: threatened setup adds -20 (0.9259 / 0.0688 / 0.9030 and 0.9722 / 0.0194 / 0.9167).
  */
 const FLOORS = {
-	reference: {n: 72, top1: 0.925, tvd: 0.075, scoreMatch: 0.899},
+	reference: {n: 72, top1: 0.925, tvd: 0.069, scoreMatch: 0.902},
 	heldout: {n: 12, top1: 0.972, tvd: 0.02, scoreMatch: 0.916},
 };
 

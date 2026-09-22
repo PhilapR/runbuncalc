@@ -170,4 +170,16 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(got['Agility'], [86], 'u6 Agility');
 }
 
+// u2-swords-dance-doomed: Swords Dance while the player can KO reads 86, the
+// +6 setup base less 20.
+{
+  const got = scores(probe(
+    {species: 'Scizor', moves: ['Swords Dance', 'X-Scissor', 'Splash', 'Metal Claw'],
+      stats: {hp: 120, atk: 80, def: 120, spa: 40, spd: 90, spe: 80}},
+    {species: 'Arcanine', moves: ['Splash', 'Flamethrower', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 150, spa: 120, spd: 150, spe: 40}},
+  ));
+  assert.deepEqual(got['Swords Dance'], [86], 'u2 Swords Dance');
+}
+
 console.log('ROM probe scoring fixtures passed');

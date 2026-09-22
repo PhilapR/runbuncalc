@@ -55,7 +55,10 @@ const SETUP_MOVES = new Set([
   'howl', 'meditate', 'poweruppunch', 'rockpolish', 'shellsmash', 'shiftgear',
   'sharpen', 'stockpile', 'stuffcheeks', 'swordsdance', 'tailglow', 'victorydance', 'withdraw', 'workup', 'curse', 'shelter', 'takeheart', 'defendorder', 'extremeevoboost', 'geomancy',
 ]);
-const SETUP_WHEN_THREATENED = new Set(['bellydrum', 'howl', 'poweruppunch', 'shellsmash', 'swordsdance']);
+// Swords Dance is not here: the ROM scores it 86 while the player can KO the
+// user (u2), and the AI document lists it under "never set up" with the rest.
+const SETUP_WHEN_THREATENED = new Set(['bellydrum', 'howl', 'poweruppunch', 'shellsmash']);
+const SETUP_THREATENED_REASON = 'the opponent can KO before setup pays off';
 const UNAWARE_SETUP_EXCEPTIONS = new Set(['howl', 'poweruppunch', 'swordsdance']);
 const OFFENSIVE_SETUP_MOVES = new Set([
   'dragondance', 'howl', 'honeclaws', 'meditate', 'nastyplot', 'poweruppunch',
@@ -578,7 +581,7 @@ function noOpReason(state: BattleState, evaluation: ActionEvaluation): string | 
     }
     if (evaluation.facts.opponentCanKO && !SETUP_WHEN_THREATENED.has(id) &&
       !hasSetupSurvivalLine(state, actor, evaluation.facts)) {
-      return 'the opponent can KO before setup pays off';
+      return SETUP_THREATENED_REASON;
     }
   }
 
@@ -1111,6 +1114,9 @@ export function scoreStatusAction(
   evaluation = {...evaluation, facts: normalizeGenerationFacts(state, evaluation.facts)};
   const reason = noOpReason(state, evaluation);
   const discouragedRecovery = reason === 'recovery is discouraged above 85% HP';
+  // Setup while the player can KO the user: the -20 adds to the move's own
+  // setup score, 86 for Swords Dance (u2), not a flat 80.
+  const threatenedSetup = reason === SETUP_THREATENED_REASON;
   const action = evaluation.action;
   const actor = action.kind === 'move' ? getPokemon(state, action.actorId) : undefined;
   const protect = action.kind === 'move' && PROTECTIVE_POLICY_MOVES.has(moveId(action.moveName));
@@ -1158,7 +1164,9 @@ export function scoreStatusAction(
   }));
   return {
     ...evaluation,
-    outcomes: reason
+    outcomes: threatenedSetup
+      ? statusBaseScore(state, evaluation).map(outcome => ({...outcome, score: outcome.score - 20}))
+      : reason
       ? [{score: discouragedRecovery ? -6 : -20, probability: 1}]
       : repeatedProtect
         ? [{score: -20, probability: 1}]

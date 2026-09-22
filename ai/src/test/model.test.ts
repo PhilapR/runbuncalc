@@ -4468,7 +4468,7 @@ assert.equal(doublesSpreadSetupFacts.opponentCanKO, true);
 assert.ok((doublesSpreadSetupFacts.opponentMaxDamage || 0) >= 1);
 assert.deepEqual(scoreStatusAction(doublesSpreadThreat, {
   action: doublesSpreadSetupAction!, facts: doublesSpreadSetupFacts, outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -14, probability: 1}]); // threatened setup: -20 on the +6 base (ROM u2 reads 86)
 
 const playerPerspectiveThreat = state();
 playerPerspectiveThreat.sides.player.party[0].hp = {current: 1, max: 100};
@@ -4716,7 +4716,7 @@ assert.deepEqual(scoreStatusAction(brokenSturdyState, {
   action: sturdySetupAction!,
   facts: {opponentCanKO: true},
   outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -14, probability: 1}]); // threatened setup: -20 on the +6 base (ROM u2 reads 86)
 
 const sashSetupState = state();
 sashSetupState.sides.ai.party[0].item = 'Focus Sash';
