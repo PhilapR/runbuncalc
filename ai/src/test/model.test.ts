@@ -4857,11 +4857,11 @@ const strengthSapAction = enumerateMoveActions(strengthSapFullState).find(action
 assert.ok(strengthSapAction);
 assert.deepEqual(scoreStatusAction(strengthSapFullState, {
   action: strengthSapAction!, facts: {}, outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -15, probability: 1}]); // -20 on the +5 base: Recover at full HP reads 85 (r1, h7)
 strengthSapFullState.sides.ai.party[0].hp = {current: 90, max: 100};
 assert.deepEqual(scoreStatusAction(strengthSapFullState, {
   action: strengthSapAction!, facts: {}, outcomes: [], reasons: [],
-}).outcomes, [{score: -6, probability: 1}]);
+}).outcomes, [{score: -1, probability: 1}]); // -6 on the +5 base: Recover at 90% reads 99 (r2)
 
 const healBlockedStrengthSap = state();
 healBlockedStrengthSap.sides.ai.party[0].hp = {current: 50, max: 100};

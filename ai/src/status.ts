@@ -1121,7 +1121,16 @@ export function scoreStatusAction(
 ): ActionEvaluation {
   evaluation = {...evaluation, facts: normalizeGenerationFacts(state, evaluation.facts)};
   const reason = noOpReason(state, evaluation);
-  const discouragedRecovery = reason === 'recovery is discouraged above 85% HP';
+  // The recovery penalties add to the recovery score (the +5 "should not
+  // recover" base): Recover at 90% HP reads 99 (r2), at full HP 85 (r1, h7).
+  // pokemon-mono rab eb074f4.
+  const moveIdForReason = evaluation.action.kind === 'move' ? moveId(evaluation.action.moveName) : '';
+  const recoveryPenalty = reason === 'recovery is discouraged above 85% HP'
+    ? -6
+    : reason === 'the user is already at full HP' && RECOVERY_MOVES.has(moveIdForReason) &&
+      moveIdForReason !== 'rest'
+      ? -20
+      : 0;
   // Setup while the player can KO the user: the -20 adds to the move's own
   // setup score, 86 for Swords Dance (u2), not a flat 80.
   const threatenedSetup = reason === SETUP_THREATENED_REASON;
@@ -1174,8 +1183,10 @@ export function scoreStatusAction(
     ...evaluation,
     outcomes: threatenedSetup
       ? statusBaseScore(state, evaluation).map(outcome => ({...outcome, score: outcome.score - 20}))
+      : recoveryPenalty
+      ? statusBaseScore(state, evaluation).map(outcome => ({...outcome, score: outcome.score + recoveryPenalty}))
       : reason
-      ? [{score: discouragedRecovery ? -6 : -20, probability: 1}]
+      ? [{score: -20, probability: 1}]
       : repeatedProtect
         ? [{score: -20, probability: 1}]
         : usedProtectLastTurn

@@ -194,4 +194,16 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(scores(probe(arcanine, snorlax, [quagsire]))['Roar'], [105], 'd3 Roar');
 }
 
+// r2-recover-90pct: above 85% HP the -6 adds to the +5 "should not recover"
+// base, 99, not a flat 94.
+{
+  const got = scores(probe(
+    {species: 'Starmie', moves: ['Recover', 'Surf', 'Splash', 'Tackle'],
+      stats: {hp: 200, atk: 60, def: 90, spa: 80, spd: 90, spe: 110}, hp: 180},
+    {species: 'Snorlax', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 40}},
+  ));
+  assert.deepEqual(got['Recover'], [99], 'r2 Recover');
+}
+
 console.log('ROM probe scoring fixtures passed');
