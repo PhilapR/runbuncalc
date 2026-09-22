@@ -95,4 +95,12 @@ function battle(ai: PokemonState[], player: PokemonState[], mode: BattleState['m
   assert.equal(opened.field.weather, undefined, 'a fainted Drizzle sets nothing');
 }
 
+// A lead whose speed cannot be read is a malformed state, and says so. The
+// old fallback read it as Speed 0, ordered it last and handed it the weather.
+// A NaN Speed IV reads as a NaN speed, which the sort cannot order.
+assert.throws(() => applyLeadEntries(battle(
+  [mon('ai-1', 'Pelipper', 'Drizzle', {ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: NaN}})],
+  [mon('player-1', 'Ninetales', 'Drought')], 'Singles')),
+/no readable speed/, 'an unreadable speed throws instead of opening last');
+
 console.log('lead-entries: ok');

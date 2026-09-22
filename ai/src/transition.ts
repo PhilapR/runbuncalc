@@ -1944,13 +1944,17 @@ export function applyLeadEntries(state: BattleState, options: SwitchEntryOptions
   // A fainted lead does not enter: no Intimidate, no weather from 0 HP.
   const leads = (['player', 'ai'] as const).flatMap(sideId =>
     state.sides[sideId].activeIds.map(pokemonId => ({sideId, pokemonId})))
-    .filter(lead => (getPokemon(state, lead.pokemonId)?.hp.current ?? 0) > 0);
+    .filter(lead => {
+      // An unknown id is kept, so the speed read below names it and throws.
+      const pokemon = getPokemon(state, lead.pokemonId);
+      return !pokemon || pokemon.hp.current > 0;
+    });
+  // No fallback: a speed that cannot be read is a malformed state, and a
+  // silent 0 would order that lead last and hand it the weather.
   const speed = (pokemonId: string): number => {
-    try {
-      return getEffectivePokemonSpeed(state, pokemonId);
-    } catch {
-      return 0;
-    }
+    const value = getEffectivePokemonSpeed(state, pokemonId);
+    if (!Number.isFinite(value)) throw new Error(`Lead ${pokemonId} has no readable speed (${value})`);
+    return value;
   };
   leads.sort((a, b) => speed(b.pokemonId) - speed(a.pokemonId));
   breakSpeedTies(leads, lead => speed(lead.pokemonId), options.random);
