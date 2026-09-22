@@ -989,17 +989,35 @@ const MEGA_FILLERS = ['Oran Berry', 'Sitrus Berry', 'Lum Berry', 'Pecha Berry', 
  * the fight so no later step undoes it. The item is taken from whoever holds
  * it; a body not in the six replaces the last member that does not hold a
  * Mega Stone, so the run's one Mega is kept.
+ *
+ * A pin that cannot apply (the body is dead or absent, the item is nowhere
+ * to be had) is MISSED, not thrown: it ran inside the fight's try, so a throw
+ * was recorded as a crashed loss, spent an attempt, and burned every retry
+ * until the run stopped at a "wall" it never fought. The policy's own lead
+ * plays instead, and tally.leadPinMissed says why.
  */
 function pinLead(doc, tally, next) {
 	// A spec is a space-separated flag string, so a space in the value is written '+'.
 	const pin = /^(.+):([^@]+)@(.+)$/.exec(String(knobs.leadFor || '').replace(/\+/g, ' '));
 	if (!pin || pin[1] !== next.trainer) return doc;
-	const species = pin[2];
-	const item = pin[3];
+	try {
+		return applyPin(doc, tally, pin[2], pin[3]);
+	} catch (error) {
+		const reason = String(error && error.message).slice(0, 200);
+		const missed = tally.leadPinMissed = tally.leadPinMissed || [];
+		const same = missed.find(entry => entry.trainer === next.trainer && entry.reason === reason);
+		if (same) same.times += 1;
+		else missed.push({trainer: next.trainer, species: pin[2], item: pin[3], reason, times: 1});
+		return doc;
+	}
+}
+
+function applyPin(doc, tally, species, item) {
 	const mon = doc.box.find(entry => entry.status !== 'dead' && entry.species === species);
-	if (!mon) throw new Error('--lead-for: the box has no living ' + species);
+	if (!mon) throw new Error('the box has no living ' + species);
 	if (mon.item !== item) {
 		const holder = doc.box.find(entry => entry.item === item);
+		if (!(doc.bag[item] > 0) && !holder) throw new Error('no ' + item + ' in the bag or on any body');
 		if (holder && !doc.bag[item]) doc = run.apply(doc, {kind: 'take', id: holder.id});
 		doc = run.apply(doc, {kind: 'give', id: mon.id, item});
 	}
@@ -2004,6 +2022,8 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// Elite Four formats given up on for the member's other format: {from, to, after}.
 		formatsSwitched: tally.formatsSwitched || [],
 		megaPicks: tally.megaPicks || 0, megaMoved: tally.megaMoved || 0,
+		// An operator's --lead-for that could not apply, and why: the policy's lead played instead.
+		...(tally.leadPinMissed ? {leadPinMissed: tally.leadPinMissed} : {}),
 		// Fights played in the run's head, by kind: never attempts, never free.
 		scouted: tally.scouted || {probe: 0, repick: 0, plan: 0}, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,
