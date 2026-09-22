@@ -48,4 +48,30 @@ function battle(ai: PokemonState[], player: PokemonState[], mode: BattleState['m
   ]))), {spa: 1}, 'Download ignores a fainted foe');
 }
 
+// Lead entry abilities activate fastest first, so the SLOWER weather setter's
+// weather is the one that stands — whichever side it is on.
+{
+  const weatherOf = (ai: PokemonState, player: PokemonState) =>
+    applyLeadEntries(battle([ai], [player], 'Singles')).field.weather;
+  // Ninetales (base Speed 100) outpaces Politoed (70): Politoed's rain stays.
+  assert.equal(weatherOf(mon('ai-1', 'Ninetales', 'Drought'), mon('player-1', 'Politoed', 'Drizzle')), 'Rain');
+  assert.equal(weatherOf(mon('ai-1', 'Politoed', 'Drizzle'), mon('player-1', 'Ninetales', 'Drought')), 'Rain');
+  // Pelipper (65) outpaces Torkoal (20): Torkoal's sun stays.
+  assert.equal(weatherOf(mon('ai-1', 'Pelipper', 'Drizzle'), mon('player-1', 'Torkoal', 'Drought')), 'Sun');
+  assert.equal(weatherOf(mon('ai-1', 'Torkoal', 'Drought'), mon('player-1', 'Pelipper', 'Drizzle')), 'Sun');
+}
+
+// A speed tie is random in Gen 8: the order comes from the passed stream, so
+// both setters can be the last one, and the same stream gives the same field.
+{
+  const tied = battle([mon('ai-1', 'Ninetales', 'Drought')], [mon('player-1', 'Ninetales', 'Drizzle')], 'Singles');
+  const seen = new Set([0, 0.99].map(draw => applyLeadEntries(tied, {random: () => draw}).field.weather));
+  assert.deepEqual([...seen].sort(), ['Rain', 'Sun'], 'the stream decides a speed tie');
+  const again = [0, 0.99].map(draw => applyLeadEntries(tied, {random: () => draw}).field.weather);
+  assert.deepEqual(again, [0, 0.99].map(draw => applyLeadEntries(tied, {random: () => draw}).field.weather));
+  // No tie, no draw: a stream that throws is never asked.
+  const untied = battle([mon('ai-1', 'Ninetales', 'Drought')], [mon('player-1', 'Politoed', 'Drizzle')], 'Singles');
+  assert.equal(applyLeadEntries(untied, {random: () => { throw new Error('drawn'); }}).field.weather, 'Rain');
+}
+
 console.log('lead-entries: ok');

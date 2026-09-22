@@ -1905,12 +1905,37 @@ export function applyAction(
 export {settleStrongWeather};
 
 /**
+ * Gen 8 orders a speed tie at random (Showdown's speedSort shuffles equal
+ * speeds with the battle's PRNG). With a random stream, each run of equal
+ * speeds in the sorted list is shuffled by it; the stream is drawn from only
+ * when a tie exists. Without one the order stays as given — player leads
+ * before ai leads — which is deterministic and not the game's rule; a caller
+ * that wants the game's rule passes its fight's stream.
+ */
+function breakSpeedTies<T>(sorted: T[], speedOf: (entry: T) => number, random?: () => number): void {
+  if (!random) return;
+  let start = 0;
+  while (start < sorted.length) {
+    let end = start + 1;
+    while (end < sorted.length && speedOf(sorted[end]) === speedOf(sorted[start])) end += 1;
+    for (let i = end - 1; i > start; i -= 1) {
+      const roll = random();
+      if (!Number.isFinite(roll)) throw new Error('Speed tie sampler must return a finite number');
+      const j = start + Math.floor(Math.max(0, Math.min(0.999999999999, roll)) * (i - start + 1));
+      [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
+    }
+    start = end;
+  }
+}
+
+/**
  * The leads' entry effects, at the start of the battle. A battle state is
  * built with its leads already standing, and entry effects only ran on a
  * switch — so no lead's ability ever fired: Drizzle Kyogre and Pelipper
  * opened in a dry sky, Primal Kyogre too, and no Intimidate lead ever cut an
  * Attack. The game activates them fastest first, so a slower setter's weather
- * is the one that stays.
+ * is the one that stays; a speed tie is ordered by `options.random` (see
+ * breakSpeedTies), the same stream Trace draws its pick from.
  */
 export function applyLeadEntries(state: BattleState, options: SwitchEntryOptions = {}): BattleState {
   const leads = (['player', 'ai'] as const).flatMap(sideId =>
@@ -1923,6 +1948,7 @@ export function applyLeadEntries(state: BattleState, options: SwitchEntryOptions
     }
   };
   leads.sort((a, b) => speed(b.pokemonId) - speed(a.pokemonId));
+  breakSpeedTies(leads, lead => speed(lead.pokemonId), options.random);
   let next = state;
   for (const lead of leads) {
     const action = {kind: 'switch' as const, actorId: lead.pokemonId, replacementId: lead.pokemonId};
