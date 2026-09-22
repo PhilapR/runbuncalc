@@ -138,10 +138,10 @@
 			"line": 2432,
 			"claim": "Showdown's Rainbow condition explicitly skips the doubling for a Serene Grace flinch secondary, so the x4 is wrong for the exact example the comment cites. 60% is correct there.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": null
+			"status": "fixed",
+			"fixed_in": "c83e860",
+			"falsified": 1,
+			"evidence": "2026-09-22: Rainbow doubling skipped for a flinch secondary under Serene Grace (Showdown data/moves.ts waterpledge.condition.onModifyMove). Test: ai/src/test/serene-grace-rainbow-flinch.test.ts."
 		},
 		{
 			"id": "parental-bond-crit-discarded",
@@ -153,10 +153,10 @@
 			"line": 46,
 			"claim": "On the hitRolls branch pickRoll is called without the critical argument, so a rolled crit never reaches the damage — but criticalHitTargets and the trace note are set anyway. The announced crit deals less than the ordinary hit.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": null
+			"status": "fixed",
+			"fixed_in": "37b3097",
+			"falsified": 1,
+			"evidence": "2026-09-22: DamageFacts.critHitRolls (per-hit crit rolls, computed on read); each hit honours its own crit flag (Showdown getDamage per hit). Test: parental-bond-crit.test.ts."
 		},
 		{
 			"id": "mold-breaker-crit-block",
@@ -168,10 +168,10 @@
 			"line": 777,
 			"claim": "critBlocked checks the defender's ability but never calls ignoresTargetAbility, so a Mold Breaker attacker never crits a Battle Armor or Shell Armor target.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": null
+			"status": "fixed",
+			"fixed_in": "ffac856",
+			"falsified": 1,
+			"evidence": "2026-09-22: Crit check and isHighCrit call ignoresTargetAbility; Battle/Shell Armor are breakable (Showdown data/abilities.ts). Test: mold-breaker-crit.test.ts. Remaining: status.ts Focus Energy rule still ignores Mold Breaker."
 		},
 		{
 			"id": "receipts-carry-no-engine-version",
@@ -198,10 +198,10 @@
 			"line": 887,
 			"claim": "Mainline runs sleep above truant and flinch, so the counter burns even on a flinched turn. Here both return first, so a flinched sleeper sleeps one turn longer. The recharge case is correct.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": null
+			"status": "fixed",
+			"fixed_in": "b193e3f",
+			"falsified": 1,
+			"evidence": "2026-09-22: Sleep/freeze checked before Truant and flinch: Showdown onBeforeMovePriority slp/frz 10 > truant 9 > flinch 8, and the pokeemerald lineage cancels ASLEEP/FROZEN before TRUANT/FLINCH. CONSTANTS-AUDIT D12 called flinch-first harmless, not chosen. A wake or thaw now also runs the later checks. Test: sleep-before-flinch-truant.test.ts."
 		},
 		{
 			"id": "move-state-hits-override-ignored",
@@ -213,10 +213,10 @@
 			"line": 463,
 			"claim": "getEffectiveMoveMetadata returns defaults.multiHitRange unconditionally, and resolution puts hitCountOverride ahead of targetFacts.hits, so an explicit MoveState hits is honoured by the calculator then overwritten. Not currently reachable.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": null
+			"status": "fixed",
+			"fixed_in": "2d86dff",
+			"falsified": 1,
+			"evidence": "2026-09-22: getEffectiveMoveMetadata drops multiHitRange when MoveState.hits is set. Test: move-state-hits.test.ts."
 		},
 		{
 			"id": "two-hand-maintained-crit-lists",
@@ -228,10 +228,10 @@
 			"line": 74,
 			"claim": "status.ts keeps a second crit list that folds in the always-crit four, so the Focus Energy policy believes it helps a Wicked Blow. Two hand-maintained copies of the same list is a drift hazard.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
+			"status": "fixed",
+			"fixed_in": "8561b4b",
 			"falsified": 0,
-			"evidence": null
+			"evidence": "2026-09-22: Already fixed: status.ts imports HIGH_CRIT_MOVES/ALWAYS_CRIT_MOVES; crit-lists-stacking.test.ts. CRIT_BLOCKING_ABILITIES is still defined twice (calc-adapter.ts, status.ts)."
 		},
 		{
 			"id": "dead-decrement-sleep-shim",
