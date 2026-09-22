@@ -159,4 +159,15 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(got['Nasty Plot'], [106], 'u7 Nasty Plot');
 }
 
+// u6-agility-faster: Agility while faster reads 86, the +6 default less 20.
+{
+  const got = scores(probe(
+    {species: 'Alakazam', moves: ['Agility', 'Psychic', 'Splash', 'Confusion'],
+      stats: {hp: 160, atk: 40, def: 90, spa: 70, spd: 90, spe: 120}},
+    {species: 'Snorlax', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+      stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 100}},
+  ));
+  assert.deepEqual(got['Agility'], [86], 'u6 Agility');
+}
+
 console.log('ROM probe scoring fixtures passed');

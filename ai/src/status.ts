@@ -1093,8 +1093,9 @@ function statusBaseScore(
     return [{score: hasBoost || evaluation.facts.attackerSubstitute ? 14 : 0, probability: 1}];
   }
   if (id === 'agility' || id === 'autotomize' || id === 'rockpolish') {
+    // Faster: the -20 adds to the +6 default, 86 in the ROM (u6), not 80.
     const slower = slowerThanOpponent(evaluation.facts);
-    return [{score: slower ? 7 : -20, probability: 1}];
+    return [{score: slower ? 7 : 6 - 20, probability: 1}];
   }
   if (id === 'electricterrain' || id === 'grassyterrain' || id === 'mistyterrain' || id === 'psychicterrain') {
     return [{score: moveId(evaluation.facts.attackerItem || '') === 'terrainextender' ? 9 : 8, probability: 1}];
