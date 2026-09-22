@@ -1019,3 +1019,10 @@ test('a set-aside Elite Four format survives a checkpoint under the same hand, a
 	assert.equal(old.attempts, 0);
 	assert.match(old.tally.asideDropped[0].why, /unrecorded/);
 });
+
+test('a row made by playRun outside run-one.js carries the engine stamp', () => {
+	const stamps = require('../lib/provenance.js');
+	const made = headless.provenance();
+	assert.deepEqual(made.engine, stamps.currentStamp());
+	assert.deepEqual(stamps.stampOf({provenance: made}), stamps.currentStamp(), 'where stampOf looks for it');
+});

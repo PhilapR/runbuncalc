@@ -1349,7 +1349,10 @@ function provenance() {
 	};
 	const status = git(['status', '--porcelain', '--untracked-files=no']);
 	return {revision: git(['rev-parse', 'HEAD']), dirty: status === null ? null : status.length > 0,
-		flags: process.argv.filter(arg => arg.startsWith('--')), date: new Date().toISOString()};
+		flags: process.argv.filter(arg => arg.startsWith('--')), date: new Date().toISOString(),
+		// The engine that played it (lib/provenance.js): run-one.js stamps its rows,
+		// and a row made by playRun anywhere else went unstamped.
+		engine: require('../lib/provenance.js').currentStamp()};
 }
 
 /**
