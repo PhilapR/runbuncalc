@@ -84,6 +84,7 @@ function replay(receiptPath, scenarioName, seed) {
 	driver.setSearchHalving(argOf(argv, 'search-halving') === '1');
 	driver.setSearchPath(argOf(argv, 'search-path') === '1');
 	driver.setSearchLookahead(Number(argOf(argv, 'search-lookahead') || 0));
+	driver.setEnemySwitchScoring(argOf(argv, 'enemy-switch-scoring') === '1');
 
 	// The same pre-fight choice the batch made, under the batch's argv.
 	const doc = battery.prepareDocument(

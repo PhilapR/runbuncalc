@@ -470,3 +470,35 @@ old verdict was measured with Speed reading 0, the new one without, and both
 say the yield loses on heldout2. Off, available. What the tapes said stands —
 of the 409 deaths-before-acting, most are a doomed body's last gasp or a foe
 that outspeeds and one-shots the whole bench, and neither is a click to fix.
+
+## Declared before the run: does the enemy's documented post-KO rule change our results? (2026-09-22)
+
+What we do today is take the FIRST legal replacement the engine enumerates,
+which is not a choice (ledger: enemy-post-ko-replacement-is-enumeration-order;
+1,240 of 1,328 logged send-outs followed party order, 88 did not, all
+singles). `--enemy-switch-scoring=1` applies the hack's documented switch-in
+table instead: +5 faster and OHKOs, +4 slower but OHKOs and is not OHKOd, +3
+faster and deals more percent than it takes, +2 slower and the same, +1
+faster, 0 default, −1 slower and OHKOd; ties to the earliest in party order.
+Ported doc-literal from the Run & Bun documentation, by way of pokemon-mono's
+enemy-switch-scoring.ts. **Not ROM-verified**, and the tie rule is unprobed —
+pokemon-mono breaks ties by damage percent before party order, contradicting
+its own header, so a tie is where the two disagree.
+
+This is not a lever for us; it is the foe playing better. At Elite Four
+Sidney, first knockout: enumeration sends Necrozma (score 1); the rule sends
+Nidoking (score 3) — the foe that already costs us 2.00 bodies a facing.
+Expect results to get WORSE, and that is the point: every policy lever
+measured in this repository was measured against the enumeration order.
+
+**Bar.** heldout1 + heldout2 (154 + 74 fights), both PP models, pinned,
+seed-paired, control against `--enemy-switch-scoring=1`. This is a fidelity
+change, not a policy change, so it is NOT adopted on winning:
+- adopt it as the new baseline if the run still plays (no crash, no engine
+  refusal storm: refusals per fight not worse by more than 10%), whatever it
+  does to the win rate;
+- report the win delta and the per-scenario spread beside it, because that
+  number is the cost of having been measuring against a weaker foe;
+- if it flips more than a third of seeds, every adopted lever
+  (`--plan-after`, search-keep, real-speed, the priced switch) is re-opened
+  and must be re-measured before the next claim rests on it.

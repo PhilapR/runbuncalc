@@ -1063,3 +1063,53 @@ test('who the foe sends out after a knockout is enumeration order, not a policy 
 	assert.ok(scored.length > 0 && scored.every(entry => entry.action.kind === 'switch'),
 		'with a forced switch pending the engine scores replacements, and nothing consults it');
 });
+
+test('the enemy\'s post-KO replacement, by the documented rule: highest score, ties to party order', () => {
+	// The rule is the Run & Bun documentation's switch-in table, ported
+	// doc-literal and NOT ROM-verified (ledger:
+	// enemy-post-ko-replacement-is-enumeration-order). Off by default, because
+	// every policy lever measured here was measured against enumeration order.
+	const driver = require('../lib/battle-driver.js');
+	const ai = require('../ai');
+	assert.equal(driver.enemySwitchScoring(), false, 'off until it is measured on its own bar');
+
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Elite Four Sidney', 11);
+	const downed = structuredClone((opened.battle || opened).state);
+	const party = downed.sides.ai.party;
+	downed.sides.ai.party.find(mon => mon.id === downed.sides.ai.activeIds[0]).hp.current = 0;
+	const offered = ai.enumerateForcedSwitchActions(downed, 'ai');
+	const nameOf = id => (party.find(mon => mon.id === id) || {}).species;
+	const scored = offered.map(action => [nameOf(action.replacementId), driver.enemySwitchScore(downed, action.replacementId)]);
+
+	// The table, on a real position: two candidates deal more than they take
+	// while slower or faster, the rest are merely faster.
+	assert.deepEqual(scored, [['Necrozma', 1], ['Nidoking', 3], ['Urshifu', 1], ['Yveltal', 1], ['Gyarados-Mega', 3]]);
+
+	// FAILS under first-entry selection: enumeration sends the score-1 body.
+	assert.equal(nameOf(offered[0].replacementId), 'Necrozma');
+	const chosen = driver.chooseEnemyReplacement(downed, offered);
+	assert.equal(nameOf(chosen.replacementId), 'Nidoking', 'the rule sends the highest score, not the first in the list');
+
+	// A TIE, and the one place the doc and pokemon-mono's implementation
+	// disagree: Nidoking and Gyarados-Mega both score 3, and the documented
+	// rule takes the earlier in PARTY ORDER. The mono breaks ties by damage
+	// percent first — which its own header contradicts, and which is unprobed.
+	const top = Math.max(...scored.map(row => row[1]));
+	assert.deepEqual(scored.filter(row => row[1] === top).map(row => row[0]), ['Nidoking', 'Gyarados-Mega'],
+		'the top score is shared, so this position exercises the tie rule');
+	assert.ok(party.findIndex(mon => mon.species === 'Nidoking') <
+		party.findIndex(mon => mon.species === 'Gyarados-Mega'), 'and Nidoking is the earlier of the two');
+
+	// The switch is real, end to end: the same knockout, settled both ways.
+	const asEnumerated = driver.settleAiSide(structuredClone(downed), []);
+	driver.setEnemySwitchScoring(true);
+	try {
+		const asRuled = driver.settleAiSide(structuredClone(downed), []);
+		assert.equal(nameOf(asEnumerated.sides.ai.activeIds[0]), 'Necrozma');
+		assert.equal(nameOf(asRuled.sides.ai.activeIds[0]), 'Nidoking');
+	} finally {
+		driver.setEnemySwitchScoring(false);
+	}
+});

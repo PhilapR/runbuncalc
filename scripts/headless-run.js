@@ -123,6 +123,8 @@ const KNOB_FLAGS = {
 	searchLookahead: ['search-lookahead', '0', Number],
 	// A lost-race attack is played out against every switch before it is made (scenario-battery playedSwitch).
 	switchPlayed: ['switch-played', '0', Number],
+	// The enemy's post-KO replacement, by the hack's documented switch-in scoring rather than enumeration order.
+	enemySwitchScoring: ['enemy-switch-scoring', '0', Number],
 	// The probe picks the hand: a six decide() wins with is played by decide(), not handed to search for good.
 	handByProbe: ['hand-by-probe', '0', Number],
 };
@@ -1447,6 +1449,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	driver.setSearchHalving(knobs.searchHalving);
 	driver.setSearchPath(knobs.searchPath);
 	driver.setSearchLookahead(knobs.searchLookahead);
+	driver.setEnemySwitchScoring(!!knobs.enemySwitchScoring);
 	battery.setSwitchPlayed(!!knobs.switchPlayed);
 	// options.restore is a CHECKPOINT (options.checkpoint wrote it): the
 	// document and everything else the run holds — the dice's position, the

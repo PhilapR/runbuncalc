@@ -857,6 +857,8 @@ function main() {
 	driver.setSearchPath(flag('search-path', '0') === '1');
 	// How deep the search looks EXACTLY instead of playing fights out. Off (0) until measured.
 	driver.setSearchLookahead(Number(flag('search-lookahead', '0')));
+	// Who the enemy sends out after a KO: the documented rule, or the enumeration order. Off until measured.
+	driver.setEnemySwitchScoring(flag('enemy-switch-scoring', '0') === '1');
 	// A lost-race attack is PLAYED against every switch before it is made. Off until measured.
 	setSwitchPlayed(flag('switch-played', '0') === '1');
 	const label = flag('label', 'battery');
