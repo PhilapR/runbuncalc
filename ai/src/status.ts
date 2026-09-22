@@ -71,6 +71,13 @@ const RECOVERY_MOVES = new Set([
   'healorder', 'milkdrink', 'moonlight', 'morningsun', 'recover', 'rest', 'roost',
   'shoreup', 'slackoff', 'softboiled', 'strengthsap', 'swallow', 'synthesis',
 ]);
+/**
+ * EFFECT_DO_NOTHING moves. The ROM scores each one 81 at the 100 base, one
+ * above an immune attack (probes s12, h6, and every probe with Splash beside
+ * an attack). pokemon-mono rab 34162b2, cddeb25.
+ */
+const NO_EFFECT_MOVES = new Set(['splash', 'celebrate', 'holdhands']);
+const NO_EFFECT_SCORE = -19;
 const WEATHER_RECOVERY_MOVES = new Set(['moonlight', 'morningsun', 'synthesis']);
 const ALLY_HEALING_MOVES = new Set(['floralhealing', 'healpulse', 'pollenpuff']);
 const ALLY_TEAM_HEALING_MOVES = new Set(['junglehealing', 'lifedew']);
@@ -877,6 +884,7 @@ function statusBaseScore(
   const actor = getPokemon(state, evaluation.action.actorId);
   const targetSide = sideForPokemon(state, evaluation.action.actorId) === 'ai' ? 'player' : 'ai';
   const targetEffects = state.sides[targetSide].effects || {};
+  if (NO_EFFECT_MOVES.has(id)) return [{score: NO_EFFECT_SCORE, probability: 1}];
   const hazard = hazardScore(id, evaluation, targetEffects);
   if (hazard) return hazard.outcomes.map(outcome => ({...outcome, score: outcome.score + hazard.adjustment}));
   const memento = mementoScore(evaluation);

@@ -33,10 +33,14 @@ const test = require('node:test');
 
 const replay = require('../scripts/replay-ai-probes.js');
 
-/** Measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417), rounded toward passing. */
+/**
+ * First measured 2026-09-22 (0.8449 / 0.3324 / 0.6119 and 0.8333 / 0.4278 / 0.5417),
+ * raised after each ROM rule landed on fix/ai-scoring. Rounded toward passing.
+ * Now: Splash/Celebrate 81 (0.8519 / 0.1352 / 0.8657 and 0.8333 / 0.2167 / 0.8125).
+ */
 const FLOORS = {
-	reference: {n: 72, top1: 0.844, tvd: 0.333, scoreMatch: 0.611},
-	heldout: {n: 12, top1: 0.833, tvd: 0.428, scoreMatch: 0.541},
+	reference: {n: 72, top1: 0.851, tvd: 0.136, scoreMatch: 0.865},
+	heldout: {n: 12, top1: 0.833, tvd: 0.217, scoreMatch: 0.812},
 };
 
 const result = replay.gradeAll();
