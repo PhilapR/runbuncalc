@@ -1076,3 +1076,31 @@ test('the enemy\'s post-KO replacement, by the documented rule: highest score, t
 		driver.setEnemySwitchScoring(true);
 	}
 });
+
+test('a fight\'s seed reaches its opening: the same seed opens the same way, another may not', () => {
+	// A Trace pick or a lead speed tie is a draw. The planner gave every fight
+	// one per-fight stream, so a fight opened the same way on every seed; the
+	// driver now hands the fight's own seed to the opening.
+	const planner = require('../lib/planner');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const original = planner.buildFightState;
+	const draws = [];
+	planner.buildFightState = options => {
+		assert.equal(typeof options.random, 'function', 'the opening is given a stream');
+		draws.push(options.random());
+		return original(options);
+	};
+	try {
+		driver.start(saved, 'Elite Four Sidney', 5);
+		driver.start(saved, 'Elite Four Sidney', 5);
+		driver.start(saved, 'Elite Four Sidney', 6);
+		driver.playDoubles(saved, 'Elite Four SidneyDouble', 5);
+		driver.playDoubles(saved, 'Elite Four SidneyDouble', 6);
+	} finally {
+		planner.buildFightState = original;
+	}
+	assert.equal(draws[0], draws[1], 'the same seed, the same opening');
+	assert.notEqual(draws[1], draws[2], 'another seed, another draw');
+	assert.notEqual(draws[3], draws[4], 'doubles too');
+});
