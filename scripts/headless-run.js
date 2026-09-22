@@ -105,6 +105,10 @@ const KNOB_FLAGS = {
 	// takes Primal Kyogre with Power Whip before Ice Beam can.
 	leadFor: ['lead-for', null, String],
 	planSeeds: ['plan-seeds', '12', Number],
+	// The plan proposes HELD ITEMS as well as bodies and order (docs/PLAN.md 2.1): a Focus Sash,
+	// Choice Scarf or Choice item onto the lead, a gem or a resist berry onto the body the board
+	// reads as one hit short. A policy change, so OFF until it passes the held-out wall bar.
+	planItems: ['plan-items', '0', value => value === '1'],
 	searchAfter: ['search-after', '0', Number],
 	searchRollouts: ['search-rollouts', '4', Number],
 	doublesPrep: ['doubles-prep', '1', value => value === '1'],
@@ -1338,6 +1342,133 @@ const PROBE_SEED_BASE = 900000;
 const PLAN_SEED_BASE = 700000;
 
 /**
+ * HELD ITEMS, proposed by the board and chosen by play (--plan-items, off).
+ *
+ * The item is half of what a body is, and the planner varied only the other
+ * half. At Champion Wallace a Focus Sash on the lead Dhelmise let Power Whip
+ * take Primal Kyogre before Ice Beam could, and halved Kyogre's cost — but an
+ * operator pinned it (--lead-for). These are the questions that hand asked,
+ * put as plan candidates: each one is a single `give` on the plan in hand, and
+ * play decides as it does for a body.
+ *
+ * The board only proposes, and few: every proposal costs planSeeds fights.
+ *   - the lead, into their first: a Focus Sash when it kills in two or fewer
+ *     and dies in two or fewer (one hit survived is the race); a Choice Scarf
+ *     when it would win the race if it were faster; a Choice Band or Specs
+ *     when half again the damage wins the race it loses.
+ *   - the best of the six into their first and their last two: a gem of its
+ *     hitting move's type, or the berry that halves their super-effective
+ *     hit, when that one hit wins a race it loses.
+ * An item comes from the bag, or from a body on the bench; `give` swaps and
+ * `take` returns, so nothing is created or lost. A body holding a Mega Stone,
+ * or whose stone is in the bag, is never touched: the run's one Mega stays
+ * where giveMegaStone put it.
+ */
+const ITEM_PROPOSALS = 4;
+const RESIST_BERRIES = {Normal: 'Chilan Berry', Fire: 'Occa Berry', Water: 'Passho Berry', Electric: 'Wacan Berry',
+	Grass: 'Rindo Berry', Ice: 'Yache Berry', Fighting: 'Chople Berry', Poison: 'Kebia Berry', Ground: 'Shuca Berry',
+	Flying: 'Coba Berry', Psychic: 'Payapa Berry', Bug: 'Tanga Berry', Rock: 'Charti Berry', Ghost: 'Kasib Berry',
+	Dragon: 'Haban Berry', Dark: 'Colbur Berry', Steel: 'Babiri Berry', Fairy: 'Roseli Berry'};
+
+/** Hits to take a whole bar at this share a hit. */
+function hitsFor(share) {
+	return Math.ceil(1 / Math.max(share, 0.0001));
+}
+
+/** Who wins a one-on-one: fewer hits needed, or as many and moving first. */
+function winsRace(kill, die, faster) {
+	return kill < die || (kill === die && faster);
+}
+
+/** Where a held item can come from: the bag (under the bag's own spelling), else a body on the bench. */
+function itemSource(doc, item) {
+	const lower = item.toLowerCase();
+	const inBag = Object.keys(doc.bag || {}).find(name => name.toLowerCase() === lower && doc.bag[name] > 0);
+	if (inBag) return {item: inBag};
+	const holder = doc.box.find(mon => !doc.party.includes(mon.id) && mon.item && mon.item.toLowerCase() === lower);
+	return holder ? {item: holder.item, from: holder.id} : null;
+}
+
+/** A body the item planner leaves alone: it holds a Mega Stone, or its stone is in the bag. */
+function megaBound(doc, mon) {
+	const stones = require('../calc').MEGA_STONES || {};
+	return !!(mon.item && stones[mon.item]) || !!(knobs.mega && run.stoneInBag(doc, mon.species));
+}
+
+/**
+ * The item changes worth playing on the plan in hand. `cells` is the board by
+ * body id and foe index; `into` the planner's own margin.
+ */
+function itemProposals(planned, cells, into, foes) {
+	const calc = require('../calc');
+	const gen = calc.Generations.get(8);
+	const out = [];
+	const propose = (id, item, why) => {
+		const mon = run.findMon(planned, id);
+		if (!mon || megaBound(planned, mon)) return;
+		if (mon.item && mon.item.toLowerCase() === item.toLowerCase()) return;
+		if (out.some(entry => entry.id === id && entry.item === item)) return;
+		if (!itemSource(planned, item)) return;
+		out.push({kind: 'item', id, item, why});
+	};
+	const race = cell => ({kill: hitsFor((cell.us.min + cell.us.max) / 2), die: hitsFor((cell.them.min + cell.them.max) / 2),
+		faster: cell.speed === 'faster'});
+	const lead = planned.party[0];
+	const leadCell = (cells.get(lead) || [])[0];
+	if (leadCell) {
+		const {kill, die, faster} = race(leadCell);
+		if (kill <= 2 && die <= 2) propose(lead, 'Focus Sash', 'lead survives one hit');
+		if (!winsRace(kill, die, faster) && winsRace(kill, die, true)) propose(lead, 'Choice Scarf', 'lead wins the race moving first');
+		const move = leadCell.us.move ? gen.moves.get(calc.toID(leadCell.us.move)) : null;
+		if (move && move.category !== 'Status' && !winsRace(kill, die, faster) &&
+			winsRace(hitsFor(1.5 * (leadCell.us.min + leadCell.us.max) / 2), die, faster)) {
+			propose(lead, move.category === 'Special' ? 'Choice Specs' : 'Choice Band', 'lead one hit short');
+		}
+	}
+	const targets = [...new Set([0, foes - 1, foes - 2].filter(index => index >= 0))];
+	for (const index of targets) {
+		const best = planned.party.slice().sort((a, b) => into(b, index) - into(a, index))[0];
+		const cell = best !== undefined ? (cells.get(best) || [])[index] : null;
+		if (!cell) continue;
+		const {kill, die, faster} = race(cell);
+		if (winsRace(kill, die, faster)) continue;
+		const ours = cell.us.move ? gen.moves.get(calc.toID(cell.us.move)) : null;
+		if (ours && ours.category !== 'Status' && ours.type &&
+			winsRace(hitsFor(1.5 * (cell.us.min + cell.us.max) / 2), die, faster)) {
+			propose(best, ours.type + ' Gem', 'one hit short into foe ' + (index + 1));
+		}
+		const theirs = cell.them.move ? gen.moves.get(calc.toID(cell.them.move)) : null;
+		const body = gen.species.get(calc.toID(cell.species));
+		if (theirs && theirs.type && RESIST_BERRIES[theirs.type] && body) {
+			const chart = gen.types.get(calc.toID(theirs.type));
+			const factor = body.types.reduce((product, type) => product * ((chart && chart.effectiveness[type]) ?? 1), 1);
+			const share = (cell.them.min + cell.them.max) / 2;
+			// The berry halves the first hit only.
+			const survived = Math.ceil(Math.max(1 - share / 2, 0) / Math.max(share, 0.0001)) + 1;
+			if (factor > 1 && winsRace(kill, survived, faster)) {
+				propose(best, RESIST_BERRIES[theirs.type], 'survives foe ' + (index + 1) + "'s hit");
+			}
+		}
+	}
+	return out.slice(0, ITEM_PROPOSALS);
+}
+
+/** The plan in hand with one body holding one more item; the item comes from the bag or the bench. */
+function withItem(planned, change) {
+	const mon = run.findMon(planned, change.id);
+	if (!mon || !planned.party.includes(change.id) || megaBound(planned, mon)) return null;
+	const source = itemSource(planned, change.item);
+	if (!source) return null;
+	try {
+		let out = planned;
+		if (source.from) out = run.apply(out, {kind: 'take', id: source.from});
+		return run.apply(out, {kind: 'give', id: change.id, item: source.item});
+	} catch (error) {
+		return null;
+	}
+}
+
+/**
  * A wall, PLANNED by play: who leads, who is held for the end, and who comes
  * in from the box to do it.
  *
@@ -1391,10 +1522,15 @@ function planByPlay(policy, doc, next, tally) {
 	const idOf = species => byBoardName.get(species);
 	// How a body fares into each of theirs on MEAN rolls: turns it lives minus turns it needs.
 	const margin = new Map();
+	// The cells themselves, for the item proposals (--plan-items).
+	const cells = new Map();
 	board.grid.forEach((column, index) => {
 		for (const cell of column.versus) {
 			const id = idOf(cell.species);
 			if (!id) continue;
+			const cellRow = cells.get(id) || [];
+			cellRow[index] = cell;
+			cells.set(id, cellRow);
 			const kill = Math.ceil(1 / Math.max((cell.us.min + cell.us.max) / 2, 0.0001));
 			const die = Math.ceil(1 / Math.max((cell.them.min + cell.them.max) / 2, 0.0001));
 			const row = margin.get(id) || [];
@@ -1425,6 +1561,7 @@ function planByPlay(policy, doc, next, tally) {
 	const better = (a, b) => a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9);
 	/** The plan in hand with one body put at one slot; someone makes room if it comes from the box. */
 	const changed = (planned, change) => {
+		if (change.kind === 'item') return withItem(planned, change);
 		let ids = planned.party.slice();
 		let out = planned;
 		if (ids.indexOf(change.id) === change.slot) return null;
@@ -1452,16 +1589,26 @@ function planByPlay(policy, doc, next, tally) {
 		} catch (error) { return null; }
 	};
 	const name = planned => planned.party.map(id => run.findMon(planned, id).species).join(' > ');
+	// With items planned, a plan is its six AND what they hold; without, the key is what it always was.
+	const key = planned => JSON.stringify(knobs.planItems ?
+		planned.party.map(id => id + '@' + (run.findMon(planned, id).item || '')) : planned.party);
 	let hand = {doc, score: score(doc)};
 	const stood = hand.score;
-	const seen = new Set([JSON.stringify(doc.party)]);
+	const seen = new Set([key(doc)]);
 	let tried = 1;
+	const itemsProposed = [];
 	for (let round = 0; round < 3; round++) {
 		let best = null;
-		for (const change of changes) {
+		// Item proposals are read off the plan in hand: its lead and its six change between rounds.
+		const items = knobs.planItems ? itemProposals(hand.doc, cells, into, foes) : [];
+		for (const change of items) {
+			const label = run.findMon(hand.doc, change.id).species + '@' + change.item;
+			if (!itemsProposed.includes(label)) itemsProposed.push(label);
+		}
+		for (const change of changes.concat(items)) {
 			const planned = changed(hand.doc, change);
-			if (!planned || seen.has(JSON.stringify(planned.party))) continue;
-			seen.add(JSON.stringify(planned.party));
+			if (!planned || seen.has(key(planned))) continue;
+			seen.add(key(planned));
 			tried += 1;
 			const result = score(planned);
 			if (better(result, hand.score) && (!best || better(result, best.score))) best = {doc: planned, score: result};
@@ -1470,11 +1617,17 @@ function planByPlay(policy, doc, next, tally) {
 		hand = best;
 	}
 	scouted(tally, 'plan', tried * knobs.planSeeds);
-	tally.plans = (tally.plans || []).concat([{trainer: next.trainer, of: tried, took: name(hand.doc),
+	tally.plans = (tally.plans || []).concat([Object.assign({trainer: next.trainer, of: tried, took: name(hand.doc),
 		// Who the board proposed, in the form it would fight in: what the plan chose among.
 		proposed: [...new Set(changes.map(change => { const mon = run.findMon(doc, change.id); const mega = run.megaFormOf(mon.species, mon.item) || (knobs.mega && run.stoneInBag(doc, mon.species) ? run.megaFormOf(mon.species, run.stoneInBag(doc, mon.species)) : null); return mega ? mega.species : mon.species; }))],
 		wins: hand.score.wins, left: Number(hand.score.left.toFixed(2)),
-		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2))}}]);
+		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2))}},
+	// What the item planner proposed, and what the plan taken holds that the six did not.
+	knobs.planItems ? {items: itemsProposed, held: hand.doc.party.map(id => {
+		const now = run.findMon(hand.doc, id).item || null;
+		const before = run.findMon(doc, id).item || null;
+		return now !== before ? run.findMon(hand.doc, id).species + '@' + now : null;
+	}).filter(Boolean)} : {})]);
 	return hand.doc;
 }
 
