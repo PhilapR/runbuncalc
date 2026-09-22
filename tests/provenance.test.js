@@ -382,6 +382,11 @@ test('a run on two engines says so in the list and in its audit; a run from befo
 	assert.equal(split.status, 'WARN', 'a split is visible, not a FAIL');
 	assert.match(split.detail, /^played on 2 engines: e-[0-9a-f]{12} \(leg 1 at [0-9a-f]{10}\), e-000000000000 \(leg 2 at ffffffffff\)$/);
 	assert.equal(audit.enginesCheck({legs: [legs[0]]}).status, 'PASS');
+	// A --resume run plays on from another run's log, whose engine is unknown.
+	const resumed = audit.enginesCheck({legs: [legs[0]], resumedAt: 30, resumedLog: 57});
+	assert.equal(resumed.status, 'WARN', 'an inherited log was played on an unknown engine');
+	assert.match(resumed.detail, /resumed from position 30 with 57 inherited log entries played on engine unknown/);
+	assert.equal(audit.enginesCheck({legs: [legs[0]], resumedAt: 30, resumedLog: 0}).status, 'WARN');
 	assert.match(audit.enginesCheck({provenance: {revision: 'r'}, restoredAt: [3]}).detail,
 		/engine unknown \(before stamps\); carried on 1 time/);
 

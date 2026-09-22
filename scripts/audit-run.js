@@ -332,6 +332,15 @@ function enginesCheck(row) {
 	if (engines[0].key === stamps.UNKNOWN) {
 		return {status: 'WARN', detail: 'played on 1 engine: ' + named[0], repair: 're-run it on a stamped runner to name its engine'};
 	}
+	// A --resume run (not a carry-on) starts from another run's log and plays
+	// on from it; the fights in that log were played by a process that left no
+	// stamp here, so one engine for this run's own legs is not one engine.
+	const resumedLog = Number(row.resumedLog) || 0;
+	if (resumedLog > 0 || Number(row.resumedAt) > 0) {
+		return {status: 'WARN', detail: 'played on 1 engine: ' + named[0] + '; resumed from position ' +
+			(row.resumedAt || 0) + ' with ' + resumedLog + ' inherited log entries played on ' + stamps.UNKNOWN,
+		repair: 'the inherited fights may be another engine; replay from the start on one engine to name it'};
+	}
 	return {status: 'PASS', detail: 'played on 1 engine: ' + named[0], repair: null};
 }
 
