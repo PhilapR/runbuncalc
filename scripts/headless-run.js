@@ -1024,7 +1024,7 @@ function pinLead(doc, tally, next) {
 	const pin = /^(.+):([^@]+)@(.+)$/.exec(String(knobs.leadFor || '').replace(/\+/g, ' '));
 	if (!pin || pin[1] !== next.trainer) return doc;
 	try {
-		return applyPin(doc, tally, pin[2], pin[3]);
+		return applyPin(doc, tally, next.trainer, pin[2], pin[3]);
 	} catch (error) {
 		const reason = String(error && error.message).slice(0, 200);
 		const missed = tally.leadPinMissed = tally.leadPinMissed || [];
@@ -1035,7 +1035,9 @@ function pinLead(doc, tally, next) {
 	}
 }
 
-function applyPin(doc, tally, species, item) {
+function applyPin(doc, tally, trainer, species, item) {
+	const megaIn = at => at.party.map(id => run.findMon(at, id)).find(entry => entry && run.megaFormOf(entry.species, entry.item)) || null;
+	const megaBefore = megaIn(doc);
 	const mon = doc.box.find(entry => entry.status !== 'dead' && entry.species === species);
 	if (!mon) throw new Error('the box has no living ' + species);
 	if (mon.item !== item) {
@@ -1046,12 +1048,19 @@ function applyPin(doc, tally, species, item) {
 	}
 	let ids = doc.party.slice();
 	if (!ids.includes(mon.id)) {
-		const megaStone = id => /ite( [XY])?$/.test((doc.box.find(entry => entry.id === id) || {}).item || '');
+		// A Mega Stone by the dex, not by its spelling: /ite$/ also read an Eviolite as one.
+		const megaStone = id => { const entry = run.findMon(doc, id); return !!(entry && run.megaFormOf(entry.species, entry.item)); };
 		const out = ids.slice().reverse().find(id => !megaStone(id)) || ids[ids.length - 1];
 		ids = ids.map(id => id === out ? mon.id : id);
 	}
 	ids = [mon.id].concat(ids.filter(id => id !== mon.id));
 	if (ids.join() !== doc.party.join()) doc = run.apply(doc, {kind: 'party', ids});
+	// The operator's hand wins over the run's one Mega, but not silently: pinning
+	// the stone's holder to another item puts the stone back in the bag.
+	if (megaBefore && !megaIn(doc)) {
+		tally.leadPinDroppedMega = (tally.leadPinDroppedMega || []).concat([{trainer, species: megaBefore.species,
+			stone: megaBefore.item, pinned: species + '@' + item}]);
+	}
 	tally.leadsPinned = (tally.leadsPinned || 0) + 1;
 	return doc;
 }
@@ -2086,6 +2095,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		megaPicks: tally.megaPicks || 0, megaMoved: tally.megaMoved || 0,
 		// An operator's --lead-for that could not apply, and why: the policy's lead played instead.
 		...(tally.leadPinMissed ? {leadPinMissed: tally.leadPinMissed} : {}),
+		...(tally.leadPinDroppedMega ? {leadPinDroppedMega: tally.leadPinDroppedMega} : {}),
 		// Fights played in the run's head, by kind: never attempts, never free.
 		scouted: tally.scouted || {probe: 0, repick: 0, plan: 0}, prizes: tally.prizes || 0,
 		// What "beat the game" is judged on: the road finished, nothing skipped,

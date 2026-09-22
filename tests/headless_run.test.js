@@ -1026,3 +1026,30 @@ test('a row made by playRun outside run-one.js carries the engine stamp', () => 
 	assert.deepEqual(made.engine, stamps.currentStamp());
 	assert.deepEqual(stamps.stampOf({provenance: made}), stamps.currentStamp(), 'where stampOf looks for it');
 });
+
+test('a lead pin knows a Mega Stone by the dex, not by "-ite", and records a Mega it drops', () => {
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const wallace = {trainer: 'Champion Wallace'};
+	const bySpecies = (doc, species) => doc.box.find(mon => mon.species === species && mon.status !== 'dead');
+	// The last of the six holds an Eviolite (set by hand: this run never found one).
+	const doc = structuredClone(saved);
+	const last = run.findMon(doc, doc.party[5]);
+	last.item = 'Eviolite';
+	const benched = doc.box.find(mon => !doc.party.includes(mon.id) && mon.status !== 'dead' && mon.item);
+	const tally = {};
+	const pinned = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:' + benched.species.replace(/ /g, '+') +
+		'@' + benched.item.replace(/ /g, '+')).knobs, () => headless.pinLead(doc, tally, wallace));
+	assert.equal(pinned.party[0], benched.id);
+	assert.ok(!pinned.party.includes(last.id), 'the Eviolite holder made room: it holds no Mega Stone');
+	assert.equal(tally.leadPinDroppedMega, undefined, 'the Mega was kept');
+
+	// Pinning the stone's own holder to another item drops the run's Mega: recorded.
+	const holder = saved.party.map(id => run.findMon(saved, id)).find(mon => run.megaFormOf(mon.species, mon.item));
+	const dropped = {};
+	const swapped = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:' + holder.species + '@Focus+Sash').knobs,
+		() => headless.pinLead(saved, dropped, wallace));
+	assert.equal(bySpecies(swapped, holder.species).item, 'Focus Sash');
+	assert.deepEqual(dropped.leadPinDroppedMega, [{trainer: 'Champion Wallace', species: holder.species, stone: holder.item,
+		pinned: holder.species + '@Focus Sash'}]);
+});
