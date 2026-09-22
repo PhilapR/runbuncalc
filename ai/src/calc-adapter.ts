@@ -809,10 +809,17 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
   // The crit distribution, computed once beside the normal one. Without it
   // P(crit) was zero in every sampled outcome outside Laser Focus — the
   // engine knew the crit STAGE and had no consumer for it.
-  const critBlocked = !!context.state.sides[defenderSide].effects?.luckyChant ||
-    (isAbilityActive(defenderState, context.state) &&
-      isAbilityAvailable(context.state.generation, getEffectiveAbility(defenderState)) &&
-      CRIT_BLOCKING_ABILITIES.has(moveId(getEffectiveAbility(defenderState) || '')));
+  //
+  // Battle Armor, Shell Armor (and Run & Bun's Magma Armor) are breakable:
+  // a Mold Breaker attacker crits straight through them. The calculator
+  // already blanks the defender's ability for Mold Breaker before its own
+  // crit check (calc/src/mechanics/gen789.ts); this gate has to agree, or
+  // the crit band is never computed and the attacker never crits.
+  const critBlockedByAbility = isAbilityActive(defenderState, context.state) &&
+    isAbilityAvailable(context.state.generation, getEffectiveAbility(defenderState)) &&
+    CRIT_BLOCKING_ABILITIES.has(moveId(getEffectiveAbility(defenderState) || '')) &&
+    !ignoresTargetAbility(context.state, context.attackerState.id, defenderState.id, context.move.category);
+  const critBlocked = !!context.state.sides[defenderSide].effects?.luckyChant || critBlockedByAbility;
   if (context.move.category !== 'Status' && damage.max > 0 &&
     !context.baseFacts.criticalHitGuaranteed && !critBlocked) {
     // DEFERRED, because most of these are never asked for. The band costs a
@@ -893,9 +900,7 @@ function calculateTargetFacts(context: MoveContext, targetId: string): ActionFac
       (HIGH_CRIT_MOVES.has(moveId(context.move.name)) ||
       ALWAYS_CRIT_MOVES.has(moveId(context.move.name)) ||
       !!context.attackerState.volatile?.laserFocus) &&
-      !(isAbilityActive(defenderState, context.state) &&
-        isAbilityAvailable(context.state.generation, getEffectiveAbility(defenderState)) &&
-        CRIT_BLOCKING_ABILITIES.has(moveId(getEffectiveAbility(defenderState) || ''))),
+      !critBlockedByAbility,
     criticalHitGuaranteed: context.baseFacts.criticalHitGuaranteed &&
       !context.state.sides[defenderSide].effects?.luckyChant,
     criticalHit: context.baseFacts.criticalHitGuaranteed &&
