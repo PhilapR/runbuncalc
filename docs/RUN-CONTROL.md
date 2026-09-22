@@ -75,6 +75,31 @@ plays on under the new ones — a run stuck at a wall can be given another hand.
 This is not `--resume=RUN.json`, which starts from a document alone and
 restarts all of that state.
 
+## Falsify a guard without touching the tree
+
+```bash
+node scripts/falsify.js --file=lib/run.js --test=tests/run.test.js --name="the Elite Four is four members" --from="return named[2] ? state.doublesSpent : state.singlesSpent;" --to="return false;"
+```
+
+A gate nobody has watched fail is not a gate, so every guard here is broken
+once on purpose and restored. Do that IN the working tree and you hand broken
+code to anything that loads this repository live — the rab-workspace companion
+spawns planner and advice children from the checked-out tree, and a child
+spawned inside one of those windows plays a race that never wins or a plan
+that never holds, on a receipt naming a revision that looks clean. Twelve such
+windows were opened in one session before a peer noticed (2026-09-22).
+
+So the mutation happens in a detached worktree at HEAD and the live tree is
+never touched. `--from` must match exactly once. Three outcomes:
+
+- **FALSIFIED** (exit 0) — an assertion failed. The guard tests what you think.
+- **HOLLOW** (exit 1) — it passed with the source mutated. The guard is not
+  testing what you think, and this has caught real ones: a checkpoint gate that
+  ignored the dice, a Mega gate where party order and board order agreed.
+- **BROKEN** (exit 2) — the mutation stopped the file loading, so every test
+  failed and the guard was never asked. Not a falsification; the first cut of
+  this tool called that a pass, which is worse than no tool.
+
 ## What is not here
 
 - No queue priorities and no pre-emption: first come, first served, and a
