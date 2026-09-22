@@ -75,6 +75,35 @@ plays on under the new ones — a run stuck at a wall can be given another hand.
 This is not `--resume=RUN.json`, which starts from a document alone and
 restarts all of that state.
 
+## Jobs: fights that are not a run
+
+A battery, the headless A/B arms, and rab-workspace's planning requests play
+the same fights as a run. Until 2026-09-22 they did it unseen: no status, no
+live tape, no stop, no slot. `lib/watch.js` makes any of them a **job**:
+
+```js
+const watch = require('../lib/watch.js');
+const job = watch.openJob({label: 'battery', name: watch.jobName(label), what: 'battery'});
+const fight = job.fight({trainer, order, position, six});   // the live header
+fight.end(played.result);
+job.progress({fights});
+if (job.stopRequested()) { /* finish cleanly */ }
+job.close();                                                 // gives the slot back
+```
+
+- It takes a slot, unless the process already holds one: `submit.js` sets
+  `RUNBUN_SLOT_HELD` for the command it runs.
+- It writes `<label>/<name>.status.json` in run-one's shape, plus
+  `kind: 'job'` and its engine leg, and a live tape, so `runs.js list`, the
+  watch page and `runs.js stop | pause | cont` all work on it.
+- A job has no checkpoint: `carry-on` refuses it, and stop means "finish the
+  fight in progress and close". A stopped battery writes no receipt and exits 3.
+- `RUNBUN_RUNS_DIR` points jobs (and `runs.js`) at another folder. Tests use it.
+
+Wired today: the battery. Next: the headless A/B arms, and rab-workspace's
+`plan.byPlay` and `turn.search` (a change in rab-workspace, which this
+repository does not edit).
+
 ## Falsify a guard without touching the tree
 
 ```bash
