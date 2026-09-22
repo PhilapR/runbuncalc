@@ -842,3 +842,31 @@ test('the six is scored for the ONE Mega it can field, and the stone follows tha
 	assert.ok(!runtime.megaFormOf('Houndoom', runtime.findMon(fixed, houndoom.id).item));
 	assert.equal(tally.megaMoved, 1);
 });
+
+test('a walled Elite Four format hands the run the member\'s other format, not a stop', () => {
+	// Seed 418957 went 0 of 40 at Sidney's single twice and stopped both times
+	// ("a required fight"), with his double — a different team — never tried.
+	const runtime = require('../lib/run.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const road = runtime.upcoming(saved, 50);
+	const single = road.find(fight => fight.trainer === 'Elite Four Sidney');
+	const double = road.find(fight => fight.trainer === 'Elite Four SidneyDouble');
+	assert.equal(runtime.eliteFourCounterpart('Elite Four Sidney'), 'Elite Four SidneyDouble');
+	assert.equal(runtime.eliteFourCounterpart('Elite Four SidneyDouble'), 'Elite Four Sidney');
+	assert.equal(runtime.eliteFourCounterpart('Champion Wallace'), null, 'only the Four have a second door');
+
+	const aside = new Set();
+	assert.equal(headless.otherDoor(saved, single, aside).trainer, 'Elite Four SidneyDouble');
+	assert.equal(headless.otherDoor(saved, double, aside).trainer, 'Elite Four Sidney', 'either way round');
+	// Set aside, the walled format is passed over and the other is next.
+	aside.add(single.order);
+	assert.equal(headless.nextFight(saved, new Map(), aside).trainer, 'Elite Four SidneyDouble');
+	// Both walled is a wall: there is no third door.
+	assert.equal(headless.otherDoor(saved, double, aside), null);
+	// A format whose quota is spent is not a door: two singles taken leave Glacia only her double.
+	const spent = runtime.applyAll(saved, [{kind: 'beat', trainer: 'Elite Four Sidney'},
+		{kind: 'beat', trainer: 'Elite Four Phoebe'}]);
+	const glacia = runtime.upcoming(spent, 50).find(fight => fight.trainer === 'Elite Four GlaciaDouble');
+	assert.equal(headless.otherDoor(spent, glacia, new Set()), null);
+});

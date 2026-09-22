@@ -379,7 +379,7 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 		return {result: doubles.result, turns: doubles.turns, engineRefusals: doubles.engineRefusals,
 			refused: doubles.events.filter(event => event.engineRefusal).map(event => ({turn: event.turn, text: event.text})),
 			deaths: doubles.deaths, killers: doubles.killers,
-			knockouts: doubles.knockouts || [], foe: null, counters: {},
+			knockouts: doubles.knockouts || [], foe: doubles.foe || null, counters: {},
 			// A double has no one-active view to tape; its events are the log.
 			events: tape ? doubles.events.map(event => ({turn: event.turn, text: event.text})).filter(event => event.text) : undefined,
 			policy: doublesSearch > 0 ? (driver.doublesJoint() ? 'joint-' : 'search-') + doublesSearch : 'engine-ai-doubles'};

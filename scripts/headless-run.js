@@ -1182,9 +1182,36 @@ function startRun(starter, random) {
 
 /** The fight to play: the road's first, less an owed fight still waiting
  * at the cap it was put off under. */
-function nextFight(doc, waiting) {
+function nextFight(doc, waiting, aside) {
 	const capNow = run.levelCap(doc).cap;
-	return run.upcoming(doc, 1000).find(fight => waiting.get(fight.order) !== capNow) || null;
+	return run.upcoming(doc, 1000).find(fight => waiting.get(fight.order) !== capNow &&
+		!(aside && aside.has(fight.order))) || null;
+}
+
+/**
+ * THE OTHER DOOR. A run walled at one format of an Elite Four member takes the
+ * other format instead of stopping.
+ *
+ * The road offers both formats of a member until one is beaten (lib/run.js
+ * eliteFourClosed), but the run fights the first one offered, and at the retry
+ * cap it tried to SKIP it — which the rules refuse, the Four being required —
+ * and stopped. Seed 418957, the deepest run there has been, did that twice at
+ * Elite Four Sidney: 0 of 40 at his single both times, and never once tried
+ * his double, a different team entirely (Darkrai, Galarian Articuno and
+ * Incineroar in place of Yveltal and Nidoking). Played against the same box,
+ * the single went 0 of 20 more and the double 1 of 20: at 5% an attempt forty
+ * retries clear a wall 87% of the time, at 0% never.
+ *
+ * So at the cap, if the member's other format is still on the road — its
+ * format's quota not spent — this format is set aside and the other is fought.
+ * The document is not touched: the Four are chosen by fighting, and a format
+ * set aside is simply never beaten, which `upcoming` retires once its member
+ * falls the other way. Both formats walled is a wall, and the run stops.
+ */
+function otherDoor(doc, next, aside) {
+	const counterpart = run.eliteFourCounterpart(next.trainer);
+	if (!counterpart) return null;
+	return run.upcoming(doc, 1000).find(fight => fight.trainer === counterpart && !aside.has(fight.order)) || null;
 }
 
 /**
@@ -1485,6 +1512,8 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// first once passed, and a second skip of it is refused (sweep 10: three
 	// of the five deepest runs ended "already being skipped").
 	const waiting = new Map(kept ? kept.waiting : []);
+	// Elite Four formats set aside after walling a run: the other format of that member is fought instead.
+	const aside = new Set(kept ? kept.aside || [] : []);
 	// What each body has given up, so the relearn rule cannot swap two moves
 	// back and forth for the whole run.
 	const forgotten = new Map(kept ? kept.forgotten.map(entry => [entry[0], new Set(entry[1])]) : []);
@@ -1506,7 +1535,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// of every turn of the loop, the one place where none of it is half-done.
 	const snapshot = () => ({version: 1, seed, starter, position: doc.position, doc,
 		state: {dice: random.at(), fightSeed, attempts, lastShape, handProbe, planHolds,
-			caughtFrom: [...caughtFrom], waiting: [...waiting],
+			caughtFrom: [...caughtFrom], waiting: [...waiting], aside: [...aside],
 			forgotten: [...forgotten].map(entry => [entry[0], [...entry[1]]]),
 			tally, elapsedMs: Date.now() - started}});
 
@@ -1543,7 +1572,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		const ahead = run.upcoming(doc, 1000);
 		if (!ahead.length) break;
 		const capNow = run.levelCap(doc).cap;
-		const next = nextFight(doc, waiting);
+		const next = nextFight(doc, waiting, aside);
 		if (!next) {
 			tally.stopped = 'owed fights wait on a higher cap that never comes: ' +
 				ahead.map(fight => fight.trainer).join(', ');
@@ -1698,6 +1727,13 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			waiting.set(next.order, capNow);
 			tally.skipped.push({trainer: next.trainer, why: 'owed, waits for the next cap'});
 			attempts = 0;
+		} else if (attempts >= cap && otherDoor(doc, next, aside)) {
+			const door = otherDoor(doc, next, aside);
+			aside.add(next.order);
+			tally.formatsSwitched = (tally.formatsSwitched || []).concat([{from: next.trainer, to: door.trainer, after: attempts}]);
+			attempts = 0;
+			handProbe = {six: null, wins: 0};
+			planHolds = false;
 		} else if (attempts >= cap) {
 			try {
 				doc = run.apply(doc, {kind: 'skip', trainer: next.trainer,
@@ -1722,6 +1758,8 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
 		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, plans: tally.plans || [],
 		gifts: tally.gifts || 0, gifted: tally.gifted || [],
+		// Elite Four formats given up on for the member's other format: {from, to, after}.
+		formatsSwitched: tally.formatsSwitched || [],
 		megaPicks: tally.megaPicks || 0, megaMoved: tally.megaMoved || 0,
 		// Fights played in the run's head, by kind: never attempts, never free.
 		scouted: tally.scouted || {probe: 0, repick: 0, plan: 0}, prizes: tally.prizes || 0,
@@ -1823,4 +1861,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {planByPlay, claimGifts, playRun, startRun, nextFight, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {planByPlay, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
