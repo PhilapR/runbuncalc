@@ -235,3 +235,149 @@ export function strategyOf(run: RunRecord): Strategy {
 		leads: [...leads.entries()].map(([lead, row]) => ({lead, ...row})).sort((a, b) => b.attempts - a.attempts).slice(0, 8),
 	};
 }
+
+/** One foe of a wall, read over every attempt that met it. */
+export interface FoeRow {
+	readonly foe: string;
+	/** Attempts in which it was seen: on the tape, or named by the ledger as a killer or a knockout. */
+	readonly facedIn: number;
+	/** Of those, attempts whose tape was kept: turns are counted over these only. */
+	readonly loggedIn: number;
+	/** Bodies of ours it took, over every attempt: the ledger's `killers[].of`, or the tape's last hitter without one. */
+	readonly bodiesLost: number;
+	readonly bodiesPerFacing: number;
+	/** Attempts in which we knocked it out. */
+	readonly fell: number;
+	readonly fellShare: number;
+	readonly turnsPerFacing: number | null;
+	/** What it killed us with, most first. */
+	readonly killers: ReadonlyArray<readonly [string, number]>;
+	/** Which of ours it killed, most first. */
+	readonly victims: ReadonlyArray<readonly [string, number]>;
+	/** The same three readings in the winning attempt, and averaged over the losses that met it. */
+	readonly win: {readonly bodiesLost: number; readonly fell: boolean; readonly turns: number | null} | null;
+	readonly losses: {readonly facedIn: number; readonly bodiesPerFacing: number; readonly fellShare: number;
+		readonly turnsPerFacing: number | null};
+}
+
+export interface WallView {
+	readonly trainer: string;
+	readonly order: number;
+	readonly attempts: number;
+	readonly wonOn: number | null;
+	/** The winning attempt's ledger number. */
+	readonly winN: number | null;
+	readonly logged: number;
+	/** Most costly first: one row a foe, every number on one scale across the rows. */
+	readonly foes: ReadonlyArray<FoeRow>;
+	/** Bodies lost to their own move — recoil, Self-Destruct — which no foe is charged with. */
+	readonly selfInflicted: number;
+	readonly tagLift: WallSummary['tagLift'];
+	/** Every attempt, in order: what the strip of attempts draws, and what the fight view opens. */
+	readonly runs: ReadonlyArray<{readonly n: number; readonly result: string; readonly policy: string;
+		readonly bodiesLost: number; readonly knockouts: number | null; readonly foeLeft: number | null; readonly turns: number | null;
+		readonly hasLog: boolean}>;
+}
+
+const bump = (counts: Map<string, number>, key: string | null | undefined): void => {
+	if (key === null || key === undefined || key === '') return;
+	counts.set(key, (counts.get(key) ?? 0) + 1);
+};
+
+const ranked = (counts: Map<string, number>): ReadonlyArray<readonly [string, number]> =>
+	[...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+const ratio = (top: number, bottom: number): number => bottom === 0 ? 0 : Number((top / bottom).toFixed(2));
+
+/**
+ * One wall, per FOE: what each of theirs cost us a facing, how often it fell,
+ * what it killed us with, how long it stayed — and the win beside the losses.
+ *
+ * This is the table the operator kept building by hand (Champion Wallace:
+ * which of six costs the bodies). A body is charged from the ledger, where
+ * the harness names the foe that dealt the last hit (`killers[].of`); that
+ * row exists for every attempt, logged or not, singles or doubles. A body
+ * whose killer is its own species fell to its own move (Double-Edge, Brave
+ * Bird) and is counted apart. Only an attempt without killers falls back to
+ * the tape's reading (summariseAttempt's foeCosts).
+ */
+export function wallView(run: RunRecord, trainer: string): WallView | null {
+	const wall = walls(run).find(entry => entry.trainer === trainer);
+	return wall === undefined ? null : viewOf(run, wall);
+}
+
+/** Every fight of a run that took at least `minAttempts` attempts, each as its wall view. */
+export function wallViews(run: RunRecord, minAttempts: number): ReadonlyArray<WallView> {
+	return walls(run).filter(wall => wall.attempts >= minAttempts).map(wall => viewOf(run, wall));
+}
+
+function viewOf(run: RunRecord, wall: WallSummary): WallView {
+	const trainer = wall.trainer;
+	const attempts = run.ledger.filter(attempt => attempt.order === wall.order && attempt.trainer === trainer);
+	const rows = new Map<string, {faced: number; logged: number; bodies: number; fell: number; turns: number;
+		killers: Map<string, number>; victims: Map<string, number>;
+		lossFaced: number; lossLogged: number; lossBodies: number; lossFell: number; lossTurns: number;
+		win: {bodiesLost: number; fell: boolean; turns: number | null} | null}>();
+	const rowOf = (foe: string) => {
+		let row = rows.get(foe);
+		if (row === undefined) {
+			row = {faced: 0, logged: 0, bodies: 0, fell: 0, turns: 0, killers: new Map(), victims: new Map(),
+				lossFaced: 0, lossLogged: 0, lossBodies: 0, lossFell: 0, lossTurns: 0, win: null};
+			rows.set(foe, row);
+		}
+		return row;
+	};
+	let selfInflicted = 0;
+	for (const [index, attempt] of attempts.entries()) {
+		const summary = wall.summaries[index];
+		if (summary === undefined) continue;
+		const won = attempt.result === 'win';
+		const bodies = new Map<string, number>();
+		const fell = new Set<string>();
+		const turns = new Map<string, number>();
+		for (const cost of summary.hasLog ? summary.foeCosts : []) {
+			turns.set(cost.foe, cost.turns);
+			if (cost.fell) fell.add(cost.foe);
+			if (attempt.killers === undefined) bodies.set(cost.foe, (bodies.get(cost.foe) ?? 0) + cost.bodiesLost);
+		}
+		for (const ko of attempt.kos ?? []) fell.add(ko.foe);
+		for (const fall of attempt.killers ?? []) {
+			if (fall.of === null) continue;
+			// Killed by its own species: its own recoil — unless the tape saw that species on THEIR side, a mirror.
+			if (fall.of === fall.species && !turns.has(fall.of)) { selfInflicted += 1; continue; }
+			bodies.set(fall.of, (bodies.get(fall.of) ?? 0) + 1);
+			const row = rowOf(fall.of);
+			bump(row.killers, fall.by);
+			bump(row.victims, fall.species);
+		}
+		const met = new Set([...turns.keys(), ...bodies.keys(), ...fell]);
+		for (const foe of met) {
+			const row = rowOf(foe);
+			const lost = bodies.get(foe) ?? 0;
+			const spent = turns.get(foe);
+			row.faced += 1;
+			row.bodies += lost;
+			if (fell.has(foe)) row.fell += 1;
+			if (spent !== undefined) { row.logged += 1; row.turns += spent; }
+			if (won) row.win = {bodiesLost: lost, fell: fell.has(foe), turns: spent ?? null};
+			else {
+				row.lossFaced += 1;
+				row.lossBodies += lost;
+				if (fell.has(foe)) row.lossFell += 1;
+				if (spent !== undefined) { row.lossLogged += 1; row.lossTurns += spent; }
+			}
+		}
+	}
+	const foes: FoeRow[] = [...rows.entries()].filter(([, row]) => row.faced > 0).map(([foe, row]) => ({
+		foe, facedIn: row.faced, loggedIn: row.logged, bodiesLost: row.bodies, bodiesPerFacing: ratio(row.bodies, row.faced),
+		fell: row.fell, fellShare: ratio(row.fell, row.faced), turnsPerFacing: row.logged === 0 ? null : ratio(row.turns, row.logged),
+		killers: ranked(row.killers), victims: ranked(row.victims), win: row.win,
+		losses: {facedIn: row.lossFaced, bodiesPerFacing: ratio(row.lossBodies, row.lossFaced), fellShare: ratio(row.lossFell, row.lossFaced),
+			turnsPerFacing: row.lossLogged === 0 ? null : ratio(row.lossTurns, row.lossLogged)},
+	})).sort((a, b) => b.bodiesPerFacing - a.bodiesPerFacing || a.foe.localeCompare(b.foe));
+	const win = wall.wonOn === null ? undefined : wall.summaries[wall.wonOn - 1];
+	return {trainer: wall.trainer, order: wall.order, attempts: wall.attempts, wonOn: wall.wonOn, winN: win?.n ?? null,
+		logged: wall.logged, foes, selfInflicted, tagLift: wall.tagLift,
+		runs: wall.summaries.map((entry, index) => ({n: entry.n, result: entry.result, policy: entry.policy, bodiesLost: entry.bodiesLost,
+			knockouts: attempts[index]?.kos?.length ?? null, foeLeft: entry.foeLeft, turns: entry.turns, hasLog: entry.hasLog}))};
+}

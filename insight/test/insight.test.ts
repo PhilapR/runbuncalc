@@ -69,7 +69,7 @@ test('the agent face shows the signature it enforces', async () => {
 	const {handle} = await import('../src/mcp.js');
 	const listed = await Effect.runPromise(handle({id: 1, method: 'tools/list'})) as
 		{result: {tools: Array<{name: string; inputSchema: {required?: string[]; properties: Record<string, unknown>}}>}};
-	assert.deepEqual(listed.result.tools.map(entry => entry.name), ['run_strategy', 'list_walls', 'compare_attempts', 'get_attempt', 'get_turns',
+	assert.deepEqual(listed.result.tools.map(entry => entry.name), ['run_strategy', 'list_walls', 'compare_attempts', 'wall_view', 'get_attempt', 'get_turns',
 		'list_live_runs', 'control_run']);
 	const turns = listed.result.tools.find(entry => entry.name === 'get_turns');
 	assert.deepEqual(turns?.inputSchema.required, ['report', 'n'], 'the schema an agent is shown names what is required');
@@ -383,4 +383,124 @@ test('a carried-on run is read from its newer checkpoint, not its last leg\'s st
 	await fs.utimes(record, new Date(), new Date(Date.now() + 60000));
 	assert.equal((await Effect.runPromise(loadRun(record))).ledger.length, 1);
 	await fs.rm(dir, {recursive: true});
+});
+
+// A wall read per foe, composed from decoded records: the table the operator
+// kept building by hand at Champion Wallace.
+const fallen = (species: string, by: string, of: string) => ({monId: 'mon-' + species, species, by, of});
+const singlesWall = () => decodeRun({seed: 1, position: 1700, fights: 3, ledger: [
+	// Loss 1: Kyogre takes three with Origin Pulse, Goodra two; Lopunny dies to its own Double-Edge.
+	{n: 10, order: 1625, trainer: 'Champion Wallace', seed: 5, result: 'loss', deaths: 6, policy: 'search-8',
+		killers: [fallen('Dhelmise', 'Origin Pulse', 'Kyogre-Primal'), fallen('Walrein', 'Origin Pulse', 'Kyogre-Primal'),
+			fallen('Florges', 'Thunder', 'Kyogre-Primal'), fallen('Eldegoss', 'Heavy Slam', 'Goodra-Hisui'),
+			fallen('Togekiss', 'Heavy Slam', 'Goodra-Hisui'), fallen('Lopunny-Mega', 'Double-Edge', 'Lopunny-Mega')],
+		kos: [{foe: 'Kyogre-Primal', by: 'Power Whip', monId: 'mon-Dhelmise'}],
+		log: [turn({us: 'Dhelmise L99', foe: 'Kyogre-Primal L100', chose: 'Power Whip'}),
+			turn({us: 'Walrein L99', foe: 'Goodra-Hisui L100', chose: 'Super Fang'}),
+			turn({us: 'Walrein L99', foe: 'Goodra-Hisui L100', chose: 'Super Fang'})]},
+	// Loss 2: no tape; Kyogre takes one, Goodra five.
+	{n: 11, order: 1625, trainer: 'Champion Wallace', seed: 6, result: 'loss', deaths: 6,
+		killers: [fallen('Dhelmise', 'Ice Beam', 'Kyogre-Primal'), ...['Walrein', 'Florges', 'Eldegoss', 'Togekiss', 'Lopunny-Mega']
+			.map(species => fallen(species, 'Heavy Slam', 'Goodra-Hisui'))], kos: []},
+	// The win: Goodra takes one, both fall.
+	{n: 12, order: 1625, trainer: 'Champion Wallace', seed: 7, result: 'win', deaths: 1,
+		killers: [fallen('Walrein', 'Aqua Tail', 'Goodra-Hisui')],
+		kos: [{foe: 'Kyogre-Primal', by: 'Power Whip', monId: 'mon-Dhelmise'}, {foe: 'Goodra-Hisui', by: 'Moonblast', monId: 'mon-Florges'}],
+		log: [turn({us: 'Dhelmise L99', foe: 'Kyogre-Primal L100', chose: 'Power Whip', events: ['Kyogre-Primal fainted!']}),
+			turn({us: 'Florges L99', foe: 'Goodra-Hisui L100', chose: 'Moonblast'})]},
+]});
+
+test('a wall is read per foe: what each costs a facing, how often it falls, what it kills with, the win beside the losses', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const run = await Effect.runPromise(singlesWall());
+	assert.equal(wallView(run, 'Leader Nobody'), null);
+	const view = wallView(run, 'Champion Wallace');
+	assert.ok(view !== null);
+	assert.deepEqual([view.attempts, view.wonOn, view.winN, view.logged], [3, 3, 12, 2]);
+	assert.deepEqual(view.foes.map(foe => foe.foe), ['Goodra-Hisui', 'Kyogre-Primal'], 'most costly a facing first');
+	const [goodra, kyogre] = view.foes;
+	assert.ok(goodra !== undefined && kyogre !== undefined);
+	// Goodra: met in all three (on the tape in 10 and 12, named by the ledger in 11), 2 + 5 + 1 bodies.
+	assert.deepEqual([goodra.facedIn, goodra.bodiesLost, goodra.bodiesPerFacing, goodra.fell, goodra.fellShare],
+		[3, 8, 2.67, 1, 0.33]);
+	assert.deepEqual(goodra.killers, [['Heavy Slam', 7], ['Aqua Tail', 1]], 'what kills us, by move, most first');
+	assert.deepEqual(goodra.win, {bodiesLost: 1, fell: true, turns: 1});
+	assert.deepEqual(goodra.losses, {facedIn: 2, bodiesPerFacing: 3.5, fellShare: 0, turnsPerFacing: 2},
+		'turns are counted over taped facings only: 2 in attempt 10, attempt 11 had no tape');
+	assert.deepEqual([kyogre.facedIn, kyogre.bodiesLost, kyogre.bodiesPerFacing, kyogre.fell], [3, 4, 1.33, 2]);
+	assert.deepEqual(kyogre.killers, [['Origin Pulse', 2], ['Ice Beam', 1], ['Thunder', 1]]);
+	assert.equal(view.selfInflicted, 1, 'Lopunny\'s own Double-Edge is charged to no foe');
+	assert.ok(!view.foes.some(foe => foe.foe === 'Lopunny-Mega'));
+	assert.deepEqual(view.runs.map(entry => [entry.n, entry.result, entry.knockouts]), [[10, 'loss', 1], [11, 'loss', 0], [12, 'win', 2]]);
+});
+
+test('a doubles wall is read per foe too, and a mirror is charged to their side, not to our recoil', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const member = (species: string) => ({name: species, species, level: 99, item: null, ability: null, nature: null, moves: []});
+	const six = [member('Octillery'), member('Urshifu')];
+	const tape = [
+		{turn: 1, text: 'Articuno-Galar used Hurricane → Octillery -100%', side: 'theirs'},
+		{text: 'Octillery fainted!', side: 'ours'},
+		{turn: 2, text: 'Urshifu used Wicked Blow → Urshifu -100%', side: 'theirs'},
+		{text: 'Urshifu fainted!', side: 'ours'},
+	];
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 2, ledger: [
+		// The ledger names the killers: their Urshifu killed ours — a mirror the tape sees on their side.
+		{n: 1, order: 1583, trainer: 'Elite Four SidneyDouble', seed: 5, result: 'loss', events: tape, six,
+			killers: [fallen('Octillery', 'Hurricane', 'Articuno-Galar'), fallen('Urshifu', 'Wicked Blow', 'Urshifu')]},
+		// No killers on the row: the tape's own charge (the foe that last hit) stands in.
+		{n: 2, order: 1583, trainer: 'Elite Four SidneyDouble', seed: 6, result: 'win', events: tape, six},
+	]}));
+	const view = wallView(run, 'Elite Four SidneyDouble');
+	assert.ok(view !== null);
+	assert.equal(view.selfInflicted, 0, 'their Urshifu killing ours is not our recoil');
+	const urshifu = view.foes.find(foe => foe.foe === 'Urshifu');
+	const articuno = view.foes.find(foe => foe.foe === 'Articuno-Galar');
+	assert.deepEqual([urshifu?.facedIn, urshifu?.bodiesLost, urshifu?.killers], [2, 2, [['Wicked Blow', 1]]]);
+	assert.deepEqual(urshifu?.win, {bodiesLost: 1, fell: false, turns: 1}, 'the win, read off the tape alone');
+	assert.deepEqual([articuno?.bodiesLost, articuno?.turnsPerFacing], [2, 1]);
+});
+
+test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
+	const fs = await import('node:fs/promises');
+	const os = await import('node:os');
+	const pathOf = await import('node:path');
+	const zlib = await import('node:zlib');
+	const {handle} = await import('../src/mcp.js');
+	const {loadAttempt, loadWall, serve} = await import('../src/serve.js');
+	const dir = await fs.mkdtemp(pathOf.join(os.tmpdir(), 'insight-wall-'));
+	const run = await Effect.runPromise(singlesWall());
+	// The ledger row keeps no tape; the sidecar has it, by ledger number.
+	await fs.writeFile(pathOf.join(dir, 'run-1.json'), JSON.stringify({...run, ledger: run.ledger.map(({log: _log, ...row}) => row)}));
+	await fs.writeFile(pathOf.join(dir, 'run-1.fights.ndjson.gz'), Buffer.concat(run.ledger.filter(row => row.log !== undefined)
+		.map(row => zlib.gzipSync(JSON.stringify({n: row.n, trainer: row.trainer, log: row.log}) + '\n'))));
+	const call = async (args: unknown) => (await Effect.runPromise(handle({id: 1, method: 'tools/call',
+		params: {name: 'wall_view', arguments: args}})) as {result: {isError?: boolean; content: Array<{text: string}>}}).result;
+	const one = await call({report: pathOf.join(dir, 'run-1.json'), trainer: 'Champion Wallace'});
+	const read = JSON.parse(one.content[0]?.text ?? 'null') as {foes: Array<{foe: string; bodiesPerFacing: number; turnsPerFacing: number}>};
+	assert.deepEqual(read.foes.map(foe => [foe.foe, foe.bodiesPerFacing, foe.turnsPerFacing]), [['Goodra-Hisui', 2.67, 1.5], ['Kyogre-Primal', 1.33, 1]],
+		'the tapes come back off the sidecar');
+	assert.equal((JSON.parse((await call({report: pathOf.join(dir, 'run-1.json')})).content[0]?.text ?? '[]') as unknown[]).length, 0,
+		'three attempts is not a wall by default');
+	assert.equal((JSON.parse((await call({report: pathOf.join(dir, 'run-1.json'), minAttempts: 3})).content[0]?.text ?? '[]') as unknown[]).length, 1);
+	assert.equal((await call({report: pathOf.join(dir, 'run-1.json'), trainer: 'Leader Nobody'})).isError, true);
+
+	assert.equal((await loadWall(dir, 'run-1', 'Champion Wallace'))?.foes.length, 2);
+	const past = await loadAttempt(dir, 'run-1', 10);
+	assert.deepEqual([past?.attempt, past?.of, past?.prev, past?.next, past?.turns.length, past?.events], [1, 3, null, 11, 3, null]);
+	assert.ok((await loadAttempt(dir, 'run-1', 12))?.turns[0]?.tags.includes('we-ko'), 'a past turn is tagged as a live one is');
+	assert.equal(await loadAttempt(dir, 'run-1', 99), null);
+	const server = serve(dir, 0);
+	try {
+		await new Promise(resolve => server.once('listening', resolve));
+		const address = server.address();
+		const base = 'http://127.0.0.1:' + (typeof address === 'object' && address !== null ? address.port : 0);
+		const got = await (await fetch(base + '/attempt?run=run-1&n=12')).json() as {result: string; prev: number};
+		assert.deepEqual([got.result, got.prev], ['win', 11]);
+		assert.equal((await fetch(base + '/attempt?run=../etc&n=1')).status, 400, 'a run name cannot walk out of the directory');
+		assert.equal((await fetch(base + '/wall?run=../etc&trainer=x')).status, 400);
+	} finally {
+		server.close();
+		await fs.rm(dir, {recursive: true});
+	}
 });

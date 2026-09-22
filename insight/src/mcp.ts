@@ -9,14 +9,15 @@
  * check that enforces it are one declaration — the signature an agent is shown
  * is the one that is applied.
  *
- * Hand-rolled JSON-RPC, as scripts/engine-mcp.js is: four tools do not earn a
+ * Hand-rolled JSON-RPC, as scripts/engine-mcp.js is: eight tools do not earn a
  * dependency.
  */
 import {Effect, JSONSchema, ParseResult, Schema} from 'effect';
 import * as path from 'node:path';
 import * as readline from 'node:readline';
-import {strategyOf, walls} from './analyse.js';
+import {strategyOf, wallView, wallViews, walls} from './analyse.js';
 import {loadRunWithFights} from './cli.js';
+import {WALL_ATTEMPTS} from './profile.js';
 import {control, listRuns, readLive, readMachine, readStatus} from './serve.js';
 import {readDoublesLine, tagsOf} from './tags.js';
 
@@ -26,6 +27,9 @@ const ListWalls = Schema.Struct({report: Report,
 	minAttempts: Schema.optional(Schema.Number.annotations({description: 'Only fights that took at least this many attempts. Default 2.'}))});
 const CompareAttempts = Schema.Struct({report: Report,
 	trainer: Schema.String.annotations({description: 'The trainer exactly as the ledger names it, e.g. "Leader Norman".'})});
+const WallViewArgs = Schema.Struct({report: Report,
+	trainer: Schema.optional(Schema.String.annotations({description: 'One wall, the trainer exactly as the ledger names it, e.g. "Champion Wallace". Omit for every wall.'})),
+	minAttempts: Schema.optional(Schema.Number.annotations({description: 'Without a trainer: only fights that took at least this many attempts. Default ' + WALL_ATTEMPTS + '.'}))});
 const GetAttempt = Schema.Struct({report: Report,
 	n: Schema.Number.annotations({description: 'The attempt\'s ledger number (the `n` a wall\'s summaries list).'})});
 const GetTurns = Schema.Struct({report: Report, n: Schema.Number,
@@ -81,6 +85,14 @@ export const TOOLS: ReadonlyArray<AnyTool> = [
 					attempts: wall.summaries.map(entry => ({n: entry.n, result: entry.result, policy: entry.policy,
 						turns: entry.turns, foeLeft: entry.foeLeft, bodiesLost: entry.bodiesLost, lead: entry.lead,
 						order: entry.order, foeCosts: entry.foeCosts, hasLog: entry.hasLog}))});
+		}))}),
+	tool({name: 'wall_view', input: WallViewArgs,
+		description: 'A wall read PER FOE: for each of theirs, the attempts it was met in, the bodies of ours it took a facing (charged to the foe that dealt the last hit, off the ledger), how often it fell, the turns it stayed a facing, what it killed us with and whom — and the same readings in the winning attempt beside the mean of the losses. Most costly foe first. Also the bodies lost to our own recoil, the tag lift (win against losses), and every attempt\'s ledger number, which get_turns opens. Works for doubles. This is the "which of theirs is the wall" question.',
+		run: args => loaded(args.report).pipe(Effect.flatMap(run => {
+			if (args.trainer === undefined) return Effect.succeed<unknown>(wallViews(run, args.minAttempts ?? WALL_ATTEMPTS));
+			const view = wallView(run, args.trainer);
+			return view === null ? Effect.fail('this run never fought ' + args.trainer + '; list_walls names the fights it did') :
+				Effect.succeed<unknown>(view);
 		}))}),
 	tool({name: 'get_attempt', input: GetAttempt,
 		description: 'One attempt: the six that fought it (items, abilities, natures, moves), who fell to what, who knocked out what, and the pre-fight probe.',

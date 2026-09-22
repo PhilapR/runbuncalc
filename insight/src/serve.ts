@@ -24,8 +24,10 @@ import * as http from 'node:http';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import {decodeEnded, decodePlaying, fleetOf, fromEnded, fromPlaying, summariseRun, type RunSummary} from './profile.js';
-import {Turn} from './schema.js';
-import {tagsOf} from './tags.js';
+import {wallView, type WallView} from './analyse.js';
+import {currentOf, loadRunWithFights, sidecarOf} from './cli.js';
+import {Turn, type RunRecord} from './schema.js';
+import {readDoublesLine, tagsOf} from './tags.js';
 import {STYLE} from './viewer.js';
 
 const Header = Schema.Struct({kind: Schema.Literal('attempt'), at: Schema.Number, n: Schema.Number,
@@ -112,13 +114,14 @@ body{font-variant-numeric:tabular-nums}.num{text-align:right!important;font-vari
 .road .ahead{stroke:var(--line);stroke-width:1}.road .behind{stroke:var(--mute);stroke-width:1}.road .wall{stroke:var(--fg);stroke-width:1.6}.road .wall.lost{stroke:var(--loss);stroke-width:2}.road .here{fill:var(--mute)}.road .here.live{fill:var(--win)}
 .turn{background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:8px 0;margin:0}.tag{background:none;padding:0;margin:2px 10px 0 0;color:var(--mute)}.tag.hot{color:var(--hot)}.tag.warn{color:var(--loss)}
 .weighed{margin:6px 0 0}.weighed .opt{display:flex;gap:10px;align-items:center;color:var(--mute);font-size:12px}.weighed .opt.chosen{color:var(--fg)}.weighed .name{flex:0 0 190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.weighed .num{flex:0 0 44px}.weighed .axis{stroke:var(--line)}.weighed .other{fill:var(--line)}.weighed .dot{fill:none;stroke:var(--mute);stroke-width:1.2}.weighed .dot.chosen{fill:var(--fg);stroke:var(--fg)}.compact .events,.compact .turn table{display:none}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
+.dots .axis{stroke:var(--line)}.dots .loss{fill:var(--mute)}.dots .win{fill:var(--fg)}.tries rect{fill:var(--loss)}.tries rect.ko{fill:var(--fg)}table.dense tr[aria-current=true] td{font-weight:600}.tries rect.untaped{fill:var(--line)}.tries rect.won{fill:var(--win)}.tries rect.at{fill:var(--hot)}.tries rect{cursor:pointer}.tries rect:focus-visible{outline:none;stroke:var(--hot);stroke-width:1.5}#sub button{font:inherit;font-size:12px;padding:0 8px;margin-left:6px;border:1px solid var(--line);border-radius:4px;background:transparent;color:inherit;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}</style></head><body>
 <header><h1 id="title">Live run</h1><p id="sub">waiting for a fight…</p></header>
 <main><p class="sub" id="machine"></p><table id="overview"></table><div class="filters" id="views"></div><div id="fightView"><div class="filters" id="controls"></div><div class="filters" id="tagbar"></div><div class="speed" id="six"></div><div id="turns"></div></div><div id="runView" hidden></div><div id="fleetView" hidden></div></main>
 <script>
 const HOT = new Set(['speed-control','status','set-up','sack','pivot','search-overrode','screen','hazard','disrupt','priority','sacrifice-forced','sacrifice-chosen']);
 const WARN = new Set(['they-move-first','coin-flip','we-fall','foe-set-up','foe-recovered','crit-theirs','sacrifice-unforced']);
-let current = null, seen = -1, attempt = null, said = false;
+let current = null, seen = -1, attempt = null, said = false, wallOpen = null, pinned = null;
 const el = (tag, attrs, kids) => { const n = document.createElement(tag); for (const k in (attrs||{})) { if (k === 'text') n.textContent = attrs[k]; else if (k === 'on') for (const e in attrs.on) n.addEventListener(e, attrs.on[e]); else n.setAttribute(k, attrs[k]); } for (const kid of (kids||[])) n.appendChild(kid); return n; };
 const bar = (pct, foe) => el('span', {class: 'bar' + (foe ? ' foe' : '')}, [el('i', {style: 'width:' + Math.max(0, Math.min(100, pct)) + '%'})]);
 // What the search weighed, on ONE axis from 0 to 1: a dot an option, the chosen one filled. Two dots that touch
@@ -200,8 +203,10 @@ async function drawRun() {
   box.appendChild(jump([['run-hands', 'played by'], ['run-walls', 'walls (' + s.walls.length + ')'], ['run-box', 'the box (' + s.roster.length + ')']]));
   box.appendChild(part('played by', 'run-hands'));
   box.appendChild(dense(['hand', 'attempts', 'won', 'rate'], s.byHand.map(h => el('tr', {}, [cell(h.hand), cell(h.attempts, 'num'), cell(h.wins, 'num'), cell(Math.round(100 * h.wins / Math.max(1, h.attempts)) + '%', 'num', h.wins / Math.max(1, h.attempts))])), 'hands'));
-  box.appendChild(part('walls — fights that took 5 attempts or more · bar: 0 to ' + ATTEMPT_CAP + ' attempts, a tick every ten', 'run-walls'));
-  box.appendChild(s.walls.length ? dense(['trainer', 'attempts', '0 — ' + ATTEMPT_CAP, 'outcome', 'won by', 'bodies lost in the win'], s.walls.map(w => el('tr', {class: w.cleared ? '' : 'out'}, [cell(w.trainer, '', w.order), cell(w.attempts, 'num'), cell(attemptsBar(w.attempts, w.cleared), '', w.attempts), cell(w.cleared ? 'cleared' : 'NOT cleared', w.cleared ? '' : 'loss'), cell(w.wonBy), cell(w.bodiesLostInWin, 'num')])), 'walls') : el('p', {class: 'sub', text: 'none yet'}));
+  box.appendChild(part('walls — fights that took 5 attempts or more · bar: 0 to ' + ATTEMPT_CAP + ' attempts, a tick every ten · click one to read it per foe', 'run-walls'));
+  const pick = w => { wallOpen = wallOpen === w.trainer ? null : w.trainer; address(); drawRun().catch(() => {}); };
+  box.appendChild(s.walls.length ? dense(['trainer', 'attempts', '0 — ' + ATTEMPT_CAP, 'outcome', 'won by', 'bodies lost in the win'], s.walls.map(w => el('tr', {class: 'go' + (w.cleared ? '' : ' out'), tabindex: '0', 'aria-current': String(wallOpen === w.trainer), on: {click: () => pick(w), keydown: e => { if (e.key === 'Enter') pick(w); }}}, [cell(w.trainer, '', w.order), cell(w.attempts, 'num'), cell(attemptsBar(w.attempts, w.cleared), '', w.attempts), cell(w.cleared ? 'cleared' : 'NOT cleared', w.cleared ? '' : 'loss'), cell(w.wonBy), cell(w.bodiesLostInWin, 'num')])), 'walls') : el('p', {class: 'sub', text: 'none yet'}));
+  const wv = el('div', {id: 'wallView'}); box.appendChild(wv); if (wallOpen) await drawWall(wv, mine);
   const full = fullOf(s.roster), six = s.roster.filter(m => m.inParty).length;
   box.appendChild(part('the box — falls ◀ | ▶ knockouts, one unit for both · full half-width = ' + full + ' · amber: knockouts in a fight that cleared a wall', 'run-box'));
   const only = el('button', {'aria-pressed': String(!!prefs.sixOnly), text: 'the six only (' + six + ')', on: {click: () => { prefs.sixOnly = !prefs.sixOnly; keep(); drawRun(); }}});
@@ -209,6 +214,80 @@ async function drawRun() {
   box.appendChild(dense(['', 'level', 'falls', 'falls | KOs', 'KOs', 'in wall clears', 'kills with', 'knocked out', 'fell to', 'holds · nature · ability', 'moves', 'caught'], s.roster.filter(m => !prefs.sixOnly || m.inParty).map(m => el('tr', {class: (m.inParty ? 'six' : '') + (m.alive ? '' : ' out')}, [
     cell(m.name + (m.name === m.species ? '' : ' the ' + m.species)), cell('L' + m.level, 'num', m.level), cell(m.falls, 'num'), cell(pair(m.knockouts, m.falls, m.wallKnockouts, full), '', m.knockouts - m.falls), cell(m.knockouts, 'num'), cell(m.wallKnockouts || '', 'num', m.wallKnockouts),
     cell(list(m.bestMoves), 'wrap'), cell(list(m.victims), 'wrap'), cell(list(m.fellTo), 'wrap'), cell([m.item, m.nature, m.ability].filter(Boolean).join(' · ') + (m.ivTotal === null ? '' : ' · IVs ' + m.ivTotal), 'wrap'), cell(m.moves.join(' / '), 'wrap'), cell(m.caught, 'wrap')])), 'box'));
+}
+// A WALL, one row a foe of theirs: what it costs us each time we meet it, how often it falls, how long it stays,
+// what it kills with. Each column is ONE scale down every row, so the foes compare at a glance: the losses' mean
+// is a grey dot, the win a black one, and the numbers sit beside them.
+const nice = v => { if (v <= 0) return 1; const step = Math.pow(10, Math.floor(Math.log10(v))); return Math.ceil(v / step) * step; };
+function dots(max, loss, win, label) {
+  const W = 120, x = v => 4 + Math.max(0, Math.min(1, v / max)) * (W - 8);
+  const g = svg('svg', {width: W, height: 12, viewBox: '0 0 ' + W + ' 12', class: 'dots', role: 'img', 'aria-label': label});
+  g.appendChild(svg('line', {x1: 4, x2: W - 4, y1: 6, y2: 6, class: 'axis'}));
+  if (loss !== null && loss !== undefined) g.appendChild(svg('circle', {cx: x(loss), cy: 6, r: 3, class: 'loss'}));
+  if (win !== null && win !== undefined) g.appendChild(svg('circle', {cx: x(win), cy: 6, r: 3, class: 'win'}));
+  return g;
+}
+async function drawWall(box, mine) {
+  const w = await (await fetch('/wall?run=' + encodeURIComponent(current) + '&trainer=' + encodeURIComponent(wallOpen))).json(); if (mine !== drawing) return;
+  if (!w) { box.appendChild(el('p', {class: 'sub', text: 'this run kept nothing to read for ' + wallOpen})); return; }
+  box.appendChild(part(w.trainer + ' — ' + w.attempts + ' attempts, ' + (w.wonOn ? 'won on attempt ' + w.wonOn : 'never won') + ' · ' + w.logged + ' taped · per foe, most costly first', 'run-wall'));
+  const won = w.wonOn !== null;
+  const maxB = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.bodiesPerFacing, f.win ? f.win.bodiesLost : 0))));
+  const maxT = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.turnsPerFacing || 0, f.win && f.win.turns !== null ? f.win.turns : 0))));
+  box.appendChild(el('p', {class: 'sub', text: (won ? 'Grey dot: the mean of the ' + (w.attempts - 1) + ' losses; black dot: the win. ' : 'Every dot is the mean of the losses: there is no win to set beside them. ') +
+    'One scale down each column — bodies of ours lost a facing 0 to ' + maxB + ', fell 0 to 100% of facings, turns it stayed 0 to ' + maxT + '. A body is charged to the foe that dealt its last hit.'}));
+  const num = v => v === null || v === undefined ? '—' : String(v);
+  box.appendChild(dense(['their', 'met', 'bodies a facing', '', 'fell', '', 'turns a facing', '', 'kills with', 'kills'], w.foes.map(f => el('tr', {}, [
+    cell(f.foe), cell(f.facedIn, 'num'),
+    cell(dots(maxB, f.losses.bodiesPerFacing, f.win && f.win.bodiesLost, f.foe + ': ' + f.losses.bodiesPerFacing + ' bodies a losing facing'), '', f.losses.bodiesPerFacing),
+    cell(num(f.losses.bodiesPerFacing) + (f.win ? ' · win ' + f.win.bodiesLost : ''), 'num', f.losses.bodiesPerFacing),
+    cell(dots(1, f.losses.fellShare, f.win && (f.win.fell ? 1 : 0), f.foe + ' fell in ' + Math.round(100 * f.losses.fellShare) + '% of losing facings'), '', f.losses.fellShare),
+    cell(Math.round(100 * f.losses.fellShare) + '%' + (f.win ? (f.win.fell ? ' · fell in the win' : ' · stood in the win') : ''), 'num', f.losses.fellShare),
+    cell(dots(maxT, f.losses.turnsPerFacing, f.win && f.win.turns, f.foe + ' stayed ' + num(f.losses.turnsPerFacing) + ' turns a losing facing'), '', f.losses.turnsPerFacing === null ? -1 : f.losses.turnsPerFacing),
+    cell(num(f.losses.turnsPerFacing) + (f.win && f.win.turns !== null ? ' · win ' + f.win.turns : ''), 'num', f.losses.turnsPerFacing === null ? -1 : f.losses.turnsPerFacing),
+    cell(list(f.killers.slice(0, 3)), 'wrap'), cell(list(f.victims.slice(0, 3)), 'wrap')])), 'wallfoes'));
+  if (w.selfInflicted) box.appendChild(el('p', {class: 'sub', text: w.selfInflicted + ' bod' + (w.selfInflicted === 1 ? 'y' : 'ies') + ' of ours fell to ' + (w.selfInflicted === 1 ? 'its' : 'their') + ' own move (recoil, Self-Destruct): charged to no foe.'}));
+  // Every attempt, in the order played: above the axis the bodies of theirs it knocked out, below it ours lost, one
+  // unit for both — how close each came. Click one to read it on the fight tab.
+  const most = Math.max(6, ...w.runs.map(r => Math.max(r.bodiesLost, r.knockouts || 0))), half = 14, step = 6, W = Math.max(40, w.runs.length * step + 2), H = 2 * half + 1;
+  const g = svg('svg', {width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, class: 'tries', role: 'group', 'aria-label': 'every attempt, in order'});
+  g.appendChild(svg('line', {x1: 0, x2: W, y1: half + 0.5, y2: half + 0.5, stroke: 'var(--line)'}));
+  w.runs.forEach((r, i) => {
+    const up = ((r.knockouts || 0) / most) * (half - 1), down = (r.bodiesLost / most) * (half - 1);
+    if (up > 0) { const top = svg('rect', {x: 1 + i * step, y: half - up, width: step - 2, height: up, class: 'ko' + (r.result === 'win' ? ' won' : '')}); top.addEventListener('click', () => openAttempt(r.n)); g.appendChild(top); }
+    const bar = svg('rect', {x: 1 + i * step, y: half + 1, width: step - 2, height: Math.max(1.5, down), tabindex: '0', class: (r.result === 'win' ? 'won' : r.hasLog ? '' : 'untaped') + (pinned === r.n ? ' at' : '')},
+      [tip('attempt ' + (i + 1) + ' · ' + r.result + ' · ' + r.policy + ' · ' + (r.knockouts === null ? '' : r.knockouts + ' of theirs down · ') + r.bodiesLost + ' of ours lost' + (r.foeLeft === null ? '' : ' · ' + r.foeLeft + ' of theirs left') + (r.hasLog ? '' : ' · no tape'))]);
+    bar.addEventListener('click', () => openAttempt(r.n)); bar.addEventListener('keydown', e => { if (e.key === 'Enter') openAttempt(r.n); });
+    g.appendChild(bar);
+  });
+  box.appendChild(part('every attempt, in order — above: theirs knocked out · below: ours lost · 0 to ' + most + ' each way' + (won ? ' · green: the win' : '') + ' · click one to read it on the fight tab', 'run-tries'));
+  box.appendChild(g);
+  if (won) {
+    const lift = w.tagLift.filter(t => HOT.has(t.tag) || WARN.has(t.tag)).slice().sort((a, b) => Math.abs(b.win - b.lossMean) - Math.abs(a.win - a.lossMean)).slice(0, 10);
+    const maxL = nice(Math.max(0, ...lift.map(t => Math.max(t.win, t.lossMean))));
+    box.appendChild(part('what the win did — turns of each kind, the win (black) beside the losses’ mean (grey), 0 to ' + maxL, 'run-lift'));
+    box.appendChild(dense(['kind of turn', '', 'win', 'losses'], lift.map(t => el('tr', {}, [cell(t.tag, HOT.has(t.tag) ? '' : 'loss'), cell(dots(maxL, t.lossMean, t.win, t.tag + ': ' + t.win + ' in the win, ' + t.lossMean + ' a loss'), '', t.win - t.lossMean), cell(t.win, 'num'), cell(t.lossMean, 'num')])), 'walllift'));
+  }
+}
+// A past attempt, on the fight tab: the live file holds only the one being played, the run's sidecar every other.
+function openAttempt(n) { pinned = n; view = 'fight'; address(); views(); }
+async function showPast() {
+  const want = pinned; const a = await (await fetch('/attempt?run=' + encodeURIComponent(current) + '&n=' + want)).json(); if (want !== pinned) return;
+  const sub = document.getElementById('sub');
+  if (!a) { sub.textContent = 'attempt ' + want + ' is not in this run’s record'; return; }
+  attempt = 'past:' + a.n; seen = -1; held = [];
+  document.body.className = 'done';
+  document.getElementById('title').textContent = a.trainer + ' — attempt ' + a.attempt + ' of ' + a.of;
+  const go = (label, n) => el('button', Object.assign({text: label, on: {click: () => { if (n !== null) openAttempt(n); }}}, n === null ? {disabled: ''} : {}));
+  sub.replaceChildren(document.createTextNode('a past attempt · fight ' + a.n + ' of the run · played by ' + a.policy + ' · ' + a.result.toUpperCase() + ' · ' + a.killers.length + ' of ours lost '),
+    go('◀ earlier', a.prev), go('later ▶', a.next), el('button', {text: 'back to the live fight', on: {click: () => { pinned = null; attempt = null; shown = []; address(); redraw(); tick(); }}}));
+  document.getElementById('six').textContent = 'Our six: ' + a.six.map(m => m.name + ' the ' + m.species + (m.item ? ' @ ' + m.item : '')).join(' · ');
+  if (a.events) {
+    const turns = []; for (const e of a.events) { let t = turns[turns.length - 1]; if (!t || t.turn !== e.turn) { t = {turn: e.turn, double: true, events: [], tags: []}; turns.push(t); } t.events.push(e.text); for (const tag of e.tags) if (!t.tags.includes(tag)) t.tags.push(tag); }
+    shown = turns;
+  } else shown = a.turns;
+  if (!shown.length) document.getElementById('turns').replaceChildren(el('p', {class: 'sub', text: 'this attempt kept no tape'}));
+  else redraw();
 }
 async function drawFleet() {
   const box = document.getElementById('fleetView'); const mine = ++drawing; const f = await (await fetch('/fleet')).json(); if (mine !== drawing) return; box.replaceChildren();
@@ -233,15 +312,15 @@ async function drawFleet() {
 }
 let view = 'fight';
 // The page's state is its address: #run=LABEL/run-SEED&view=run. A view can be linked, reloaded and gone Back to.
-function address() { const want = '#' + (current ? 'run=' + encodeURIComponent(current) + '&' : '') + 'view=' + view; if (location.hash !== want) history.pushState(null, '', want); }
-function fromAddress() { const q = new URLSearchParams(location.hash.slice(1)); const v = q.get('view'); if (v === 'fight' || v === 'run' || v === 'fleet') view = v; const r = q.get('run'); if (r && r !== current) { current = r; seen = -1; attempt = null; shown = []; held = []; lastOverview = ''; redraw(); } }
-function open(run, to) { if (run && run !== current) { current = run; seen = -1; attempt = null; shown = []; held = []; redraw(); } if (to) view = to; lastOverview = ''; address(); views(); runs(); }
+function address() { const want = '#' + (current ? 'run=' + encodeURIComponent(current) + '&' : '') + 'view=' + view + (wallOpen ? '&wall=' + encodeURIComponent(wallOpen) : '') + (pinned !== null ? '&n=' + pinned : ''); if (location.hash !== want) history.pushState(null, '', want); }
+function fromAddress() { const q = new URLSearchParams(location.hash.slice(1)); const v = q.get('view'); if (v === 'fight' || v === 'run' || v === 'fleet') view = v; wallOpen = q.get('wall') || null; pinned = q.get('n') ? Number(q.get('n')) : null; if (pinned === null && String(attempt).startsWith('past:')) { attempt = null; shown = []; redraw(); } const r = q.get('run'); if (r && r !== current) { current = r; seen = -1; attempt = null; shown = []; held = []; lastOverview = ''; redraw(); } }
+function open(run, to) { if (run && run !== current) { current = run; seen = -1; attempt = null; shown = []; held = []; wallOpen = null; pinned = null; redraw(); } if (to) view = to; lastOverview = ''; address(); views(); runs(); }
 function views() {
   const box = document.getElementById('views'); box.replaceChildren();
   [['fight', 'the fight', '1'], ['run', 'this run', '2'], ['fleet', 'all runs', '3']].forEach(v => box.appendChild(el('button', {'aria-pressed': String(view === v[0]), title: 'key ' + v[2], text: v[1], on: {click: () => { prefs.view = v[0]; keep(); open(null, v[0]); }}})));
   box.appendChild(el('span', {class: 'sub', text: current ? '  ' + current : ''}));
   document.getElementById('fightView').hidden = view !== 'fight'; document.getElementById('runView').hidden = view !== 'run'; document.getElementById('fleetView').hidden = view !== 'fleet';
-  if (view === 'run') drawRun().catch(() => {}); if (view === 'fleet') drawFleet().catch(() => {});
+  if (view === 'run') drawRun().catch(() => {}); if (view === 'fleet') drawFleet().catch(() => {}); if (view === 'fight' && pinned !== null) showPast().catch(() => {});
 }
 // 1 2 3 change the view; [ and ] step through the runs in the table above.
 document.addEventListener('keydown', e => {
@@ -252,6 +331,12 @@ document.addEventListener('keydown', e => {
 window.addEventListener('popstate', () => { fromAddress(); views(); runs(); });
 function card(t) {
   const c = el('div', {class: 'turn'});
+  if (t.double) {
+    c.appendChild(el('div', {class: 'head'}, [el('b', {text: t.turn === null ? '—' : 'T' + t.turn})]));
+    const tags = el('div'); for (const tag of t.tags) tags.appendChild(el('span', {class: 'tag' + (HOT.has(tag) ? ' hot' : WARN.has(tag) ? ' warn' : ''), text: tag})); c.appendChild(tags);
+    const ev = el('ul', {class: 'events'}); for (const e of t.events) ev.appendChild(el('li', {text: e})); c.appendChild(ev);
+    return c;
+  }
   c.appendChild(el('div', {class: 'head'}, [el('b', {text: 'T' + t.turn}), el('span', {}, [document.createTextNode(t.us + ' '), bar(t.usHp), document.createTextNode(' ' + t.usHp + '%')]), el('span', {class: 'sub', text: 'vs'}), el('span', {}, [document.createTextNode(t.foe + ' '), bar(t.foeHp, true), document.createTextNode(' ' + t.foeHp + '%')]), el('span', {class: 'chosen', text: '→ ' + t.chose}), el('span', {class: 'sub', text: t.why || ''})]));
   const tags = el('div'); for (const tag of t.tags) tags.appendChild(el('span', {class: 'tag' + (HOT.has(tag) ? ' hot' : WARN.has(tag) ? ' warn' : ''), text: tag})); c.appendChild(tags);
   const ev = el('ul', {class: 'events'}); for (const e of t.events) ev.appendChild(el('li', {text: e})); c.appendChild(ev);
@@ -325,7 +410,7 @@ async function runs() {
   if (!current && rows.length) { current = (live[0] || rows[0]).run; lastOverview = ''; runs(); }
 }
 async function tick() {
-  if (!current) return;
+  if (!current || pinned !== null) return;
   const s = await (await fetch('/state?run=' + encodeURIComponent(current))).json();
   if (!s.header) return;
   const key = s.header.n + ':' + s.header.attempt;
@@ -461,6 +546,51 @@ export const loadSummary = async (dir: string, run: string): Promise<RunSummary 
 	return null;
 };
 
+/**
+ * A run with every fight it kept: its record or newer checkpoint, and its
+ * sidecar. Megabytes to decode, so it is kept until either file changes.
+ */
+const fought = new Map<string, {at: string; run: RunRecord}>();
+export const loadFought = async (dir: string, run: string): Promise<RunRecord | null> => {
+	const report = path.join(dir, run + '.json');
+	const file = await currentOf(report);
+	const stamps = await Promise.all([file, sidecarOf(report)].map(name => fs.stat(name).then(stat => String(stat.mtimeMs), () => '-')));
+	const at = file + ':' + stamps.join(':');
+	const kept = fought.get(report);
+	if (kept !== undefined && kept.at === at) return kept.run;
+	const loaded = await Effect.runPromise(loadRunWithFights(report).pipe(Effect.orElseSucceed(() => null)));
+	if (loaded !== null) fought.set(report, {at, run: loaded});
+	return loaded;
+};
+
+/** One wall of a run, per foe (analyse.ts wallView). */
+export const loadWall = async (dir: string, run: string, trainer: string): Promise<WallView | null> => {
+	const record = await loadFought(dir, run);
+	return record === null ? null : wallView(record, trainer);
+};
+
+/**
+ * Any attempt the run kept, as the fight tab draws it: a single's turns,
+ * tagged as a live turn is, or a double's tape, each line read. The live
+ * file holds only the attempt being played; this is every other one.
+ */
+export const loadAttempt = async (dir: string, run: string, n: number) => {
+	const record = await loadFought(dir, run);
+	const attempt = record?.ledger.find(entry => entry.n === n);
+	if (record === null || attempt === undefined) return null;
+	const same = record.ledger.filter(entry => entry.order === attempt.order && entry.trainer === attempt.trainer);
+	const ours = new Set((attempt.six ?? []).map(member => member.species));
+	const log = attempt.log ?? [];
+	const at = same.indexOf(attempt);
+	return {n: attempt.n, trainer: attempt.trainer, order: attempt.order, attempt: at + 1, of: same.length,
+		prev: same[at - 1]?.n ?? null, next: same[at + 1]?.n ?? null,
+		result: attempt.result, policy: attempt.policy ?? 'decide', seed: attempt.seed, six: attempt.six ?? [],
+		killers: attempt.killers ?? [], kos: attempt.kos ?? [],
+		turns: log.map(turn => ({...turn, tags: tagsOf(turn)})),
+		events: log.length === 0 && attempt.events !== undefined ?
+			attempt.events.map(event => ({turn: event.turn ?? null, text: event.text, tags: readDoublesLine(event, ours)?.tags ?? []})) : null};
+};
+
 const RUN_NAME = /^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/;
 
 /** Stop, pause or continue one run — by its own status file's pid, as scripts/runs.js does. */
@@ -499,6 +629,20 @@ export const serve = (dir: string, port: number): http.Server => {
 			const run = url.searchParams.get('run') ?? '';
 			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadSummary(dir, run).then(summary => send(res, 'application/json', JSON.stringify(summary)));
+			return;
+		}
+		if (url.pathname === '/wall') {
+			const run = url.searchParams.get('run') ?? '';
+			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			void loadWall(dir, run, url.searchParams.get('trainer') ?? '').then(view => send(res, 'application/json', JSON.stringify(view)),
+				() => send(res, 'application/json', 'null'));
+			return;
+		}
+		if (url.pathname === '/attempt') {
+			const run = url.searchParams.get('run') ?? '';
+			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			void loadAttempt(dir, run, Number(url.searchParams.get('n'))).then(found => send(res, 'application/json', JSON.stringify(found)),
+				() => send(res, 'application/json', 'null'));
 			return;
 		}
 		if (url.pathname === '/fleet') {
