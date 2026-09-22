@@ -212,12 +212,18 @@ function render(inv) {
 	return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 }
 
-const output = render(inventory());
-if (process.argv.includes('--print')) {
-	process.stdout.write(output);
-} else {
-	fs.writeFileSync(path.join(root, 'docs', 'INVENTORY.md'), output);
-	console.log(`docs/INVENTORY.md written (${output.length} bytes)`);
+// Only when run, never when required: the gate (tests/inventory.test.js)
+// requires this module, and a write on load regenerated the file it then
+// compared, so the gate could not fail — and every test run left the doc
+// modified (found 2026-09-22).
+if (require.main === module) {
+	const output = render(inventory());
+	if (process.argv.includes('--print')) {
+		process.stdout.write(output);
+	} else {
+		fs.writeFileSync(path.join(root, 'docs', 'INVENTORY.md'), output);
+		console.log(`docs/INVENTORY.md written (${output.length} bytes)`);
+	}
 }
 
 module.exports = {inventory, render, DOCS_MARKER};

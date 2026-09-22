@@ -55,12 +55,13 @@ Oracle datasets:
 - `fight-dossiers.json`: 3 species
 - `fight-fields.json`: 35 fights
 - `growth.json`: 1114 species
-- `item-locations.json`: 294 entries
+- `item-locations.json`: 295 entries
 - `item-workbook.json`: 314 rows
+- `learnset-doc.json`: 6 species
 - `learnsets.json`: 1114 species
 - `move-dates.json`: 79 entries
 - `sources.json`: 10 species
-- `tracker-order.json`: 7 species
+- `tracker-order.json`: 10 species
 - `trainer-orders.json`: 338 entries
 - `unavailable.json`: 7 species
 
@@ -71,7 +72,7 @@ defaults to `inferred` — the weakest tag — and the ratchet test in
 - **source-of-truth** (24): `data.ABILITY_SLOT_CHANGES` · `data.BASE_STAT_CHANGES` · `data.MOVE_OVERLAY` · `data.NOT_FULLY_EVOLVED` · `data.PORTED_SPECIES` · `data.REMOVED_ITEMS` · `encounters.LEVEL_CAPS` · `mechanics.attractIsGenderIndependent` · `mechanics.confusionBerriesRestoreHalfHpAtQuarter` · `mechanics.covetType` · `mechanics.defogRemovesTerrain` · `mechanics.disguiseBreaksWithoutChipDamage` · `mechanics.evsRemoved` · `mechanics.galeWingsRequiresFullHp` · `mechanics.magmaArmorBlocksCriticalHits` · `mechanics.paralysisSpeedMultiplier` · `mechanics.sleepTurnsResetOnEntry` · `mechanics.soulDewGrantsStages` · `mechanics.superFangType` · `mechanics.terrainDamageBoost` · `oracle.encounters` · `oracle.evolutions` · `oracle.growth` · `oracle.learnsets`
 - **emulator-observed** (3): `mechanics.criticalHitChance` · `mechanics.criticalHitMultiplier` · `policy.SCORE_ROLL`
 - **observed** (1): `oracle.LIMITS`
-- **transcribed** (7): `encounters.COVERAGE` · `encounters.INVARIANTS` · `encounters.KNOWN_GAPS` · `mechanics.psychicTerrainUsesModernScaling` · `oracle.availability` · `oracle.fightFields` · `policy.SETUP`
+- **transcribed** (8): `encounters.COVERAGE` · `encounters.INVARIANTS` · `encounters.KNOWN_GAPS` · `mechanics.psychicTerrainUsesModernScaling` · `oracle.availability` · `oracle.catchRates` · `oracle.fightFields` · `policy.SETUP`
 
 ## Standing rulings (from DECISIONS.json)
 The law of the tool: each ruling names the files that enforce it, and the
@@ -142,7 +143,7 @@ regenerated. Advisory, and deliberately BELOW the drift gate's waterline:
 a stamp changes at the very commit that touches its doc, so gating it
 byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
-- `AGENTS.md` — a7976d2 2026-08-30
+- `AGENTS.md` — 12701ed 2026-09-22
 - `README.md` — 1b6ba2a 2026-09-22
 - `docs/AI_DATA_MODEL.md` — 99ad9ce 2026-08-30
 - `docs/CONSTANTS-AUDIT.md` — e67d922 2026-08-20
@@ -169,9 +170,10 @@ the reader's warning to verify before trusting.
 - `docs/VALIDATION.md` — 98b4a50 2026-08-18
 - `docs/WORKFLOW.md` — 1b6ba2a 2026-09-22
 - `docs/WORST-CASE-PLANNING.md` — c6a8955 2026-08-19
+- `ui-playthrough-out.ARCHIVED.md` — untracked
 
 ## Test files
-`tests/ability_reconciliation.test.js` · `tests/adjudication_cost.test.js` · `tests/ask.test.js` · `tests/attempt_store.test.js` · `tests/audit_run.test.js` · `tests/availability-estimate.test.js` · `tests/battery_arms.test.js` · `tests/battery_receipts.test.js` · `tests/battle-driver.test.js` · `tests/battle_contribution.test.js` · `tests/battle_view.test.js` · `tests/browser_calc_load.test.js` · `tests/browser_entrypoint.test.js` · `tests/browser_planner.test.js` · `tests/browser_run.test.js` · `tests/browser_run_fight.test.js` · `tests/browser_run_panel.test.js` · `tests/browser_run_setup.test.js` · `tests/catch_values.test.js` · `tests/chronicle.test.js` · `tests/doubles.test.js` · `tests/encounter_dating.test.js` · `tests/engine_mcp.test.js` · `tests/evolution_branches.test.js` · `tests/fast_tier.test.js` · `tests/fidelity_openings.test.js` · `tests/fight_dossiers.test.js` · `tests/fight_log.test.js` · `tests/game-runtime-adapter.test.js` · `tests/headless_run.test.js` · `tests/how_it_won.test.js` · `tests/inventory.test.js` · `tests/item_facts.test.js` · `tests/item_locations.test.js` · `tests/ledger.test.js` · `tests/manifest_provenance.test.js` · `tests/mega_forms.test.js` · `tests/order_scales.test.js` · `tests/pivot_turn.test.js` · `tests/planner.test.js` · `tests/planning_review.test.js` · `tests/play.test.js` · `tests/playthrough_policy.test.js` · `tests/pokemon-bridge.test.js` · `tests/pokemon-provider-client.test.js` · `tests/provider-data.test.js` · `tests/recheck_findings.test.js` · `tests/rl-dataset.test.js` · `tests/rom-band.test.js` · `tests/run.test.js` · `tests/run_advise.test.js` · `tests/run_api.test.js` · `tests/run_batch.test.js` · `tests/run_control.test.js` · `tests/run_history.test.js` · `tests/run_rank.test.js` · `tests/runbun_mechanics.test.js` · `tests/runbun_oracle.test.js` · `tests/runbun_policy.test.js` · `tests/runbun_sets.test.js` · `tests/runbun_species.test.js` · `tests/scale_consistency.test.js` · `tests/search_policy.test.js` · `tests/semi_invulnerable.test.js` · `tests/server.smoke.test.js` · `tests/sets_to_battle_state.test.js` · `tests/simulate.test.js` · `tests/slots.test.js` · `tests/team.test.js` · `tests/tm_sourcing.test.js` · `tests/trainer_orders.test.js` · `tests/ui_style.test.js` · `tests/wall_report.test.js` · `tests/worker-runtime.test.js` · `tests/worker.test.js`
+`tests/ability_reconciliation.test.js` · `tests/adjudication_cost.test.js` · `tests/ask.test.js` · `tests/attempt_store.test.js` · `tests/audit_run.test.js` · `tests/availability-estimate.test.js` · `tests/battery_arms.test.js` · `tests/battery_receipts.test.js` · `tests/battle-driver.test.js` · `tests/battle_contribution.test.js` · `tests/battle_view.test.js` · `tests/browser_calc_load.test.js` · `tests/browser_entrypoint.test.js` · `tests/browser_planner.test.js` · `tests/browser_run.test.js` · `tests/browser_run_fight.test.js` · `tests/browser_run_panel.test.js` · `tests/browser_run_setup.test.js` · `tests/catch_values.test.js` · `tests/chronicle.test.js` · `tests/doubles.test.js` · `tests/encounter_dating.test.js` · `tests/engine_mcp.test.js` · `tests/evolution_branches.test.js` · `tests/fast_tier.test.js` · `tests/fidelity_openings.test.js` · `tests/fight_dossiers.test.js` · `tests/fight_fields.test.js` · `tests/fight_log.test.js` · `tests/game-runtime-adapter.test.js` · `tests/headless_run.test.js` · `tests/how_it_won.test.js` · `tests/import_oracle.test.js` · `tests/inventory.test.js` · `tests/item_facts.test.js` · `tests/item_locations.test.js` · `tests/learnset_doc.test.js` · `tests/ledger.test.js` · `tests/manifest_provenance.test.js` · `tests/mega_forms.test.js` · `tests/order_scales.test.js` · `tests/pivot_turn.test.js` · `tests/planner.test.js` · `tests/planning_review.test.js` · `tests/play.test.js` · `tests/playthrough_policy.test.js` · `tests/pokemon-bridge.test.js` · `tests/pokemon-provider-client.test.js` · `tests/provenance.test.js` · `tests/provider-data.test.js` · `tests/recheck_findings.test.js` · `tests/rl-dataset.test.js` · `tests/rom-band.test.js` · `tests/run.test.js` · `tests/run_advise.test.js` · `tests/run_api.test.js` · `tests/run_batch.test.js` · `tests/run_control.test.js` · `tests/run_history.test.js` · `tests/run_rank.test.js` · `tests/runbun_mechanics.test.js` · `tests/runbun_oracle.test.js` · `tests/runbun_policy.test.js` · `tests/runbun_sets.test.js` · `tests/runbun_species.test.js` · `tests/scale_consistency.test.js` · `tests/search_policy.test.js` · `tests/semi_invulnerable.test.js` · `tests/server.smoke.test.js` · `tests/sets_to_battle_state.test.js` · `tests/simulate.test.js` · `tests/slots.test.js` · `tests/team.test.js` · `tests/tm_sourcing.test.js` · `tests/tracker_order.test.js` · `tests/trainer_orders.test.js` · `tests/ui_style.test.js` · `tests/wall_report.test.js` · `tests/worker-runtime.test.js` · `tests/worker.test.js`
 
 ## Prior art elsewhere (from ECOSYSTEM.json)
 
