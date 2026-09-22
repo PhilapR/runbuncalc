@@ -379,6 +379,53 @@ test('battery-pair refuses to join receipts from different engines unless told t
 	assert.match(allowed.stdout, /Leader Brawly @26 .*gained 1 .*\[engine unverified\]/);
 });
 
+test('battery-pair tests the flips (exact McNemar), lists unjoined scenarios, and tells duplicate names apart', () => {
+	const pair = require('../scripts/battery-pair.js');
+	// Two-sided binomial at one half on the discordant seeds: 7 gained, 2 lost is 2 * 46/512.
+	assert.equal(pair.mcnemar(7, 2).toFixed(4), '0.1797');
+	assert.equal(pair.mcnemar(2, 7), pair.mcnemar(7, 2), 'two-sided');
+	assert.equal(pair.mcnemar(5, 0), 2 / 32);
+	assert.equal(pair.mcnemar(0, 0), 1, 'no flips, no evidence');
+	assert.equal(pair.mcnemar(1, 1), 1);
+	assert.ok(pair.mcnemar(1500, 1400) > 0 && pair.mcnemar(1500, 1400) < 0.1, 'no underflow on a large batch');
+
+	const seeds = results => results.map((result, i) => ({seed: i + 1, result}));
+	const control = {provenance: {revision: 'r1'}, results: [
+		{name: 'Leader Roxanne · 15 scales', report: 'dose-roxanne-15.run.json', rows: seeds(['loss', 'loss'])},
+		{name: 'Leader Roxanne · 15 scales', report: 'dose-roxanne-28.run.json', rows: seeds(['win', 'loss'])},
+		{name: 'Leader Brawly @26', report: 'b.json', rows: seeds(['loss'])}]};
+	const treatment = {provenance: {revision: 'r1'}, results: [
+		{name: 'Leader Roxanne · 15 scales', report: 'dose-roxanne-15.run.json', rows: seeds(['win', 'win'])},
+		{name: 'Leader Roxanne · 15 scales', report: 'dose-roxanne-28.run.json', rows: seeds(['loss', 'loss'])},
+		{name: 'Leader Wattson @30', report: 'w.json', rows: seeds(['win'])}]};
+	let rows = null;
+	assert.doesNotThrow(() => { rows = pair.pair(control, treatment); }, 'one name from two reports is joined, not refused');
+	assert.deepEqual(rows.map(row => [row.name, row.gained, row.lost]), [
+		['Leader Roxanne · 15 scales [dose-roxanne-15.run.json]', [1, 2], []],
+		['Leader Roxanne · 15 scales [dose-roxanne-28.run.json]', [], [1]]]);
+	assert.deepEqual(pair.unmatched(control, treatment), {control: ['Leader Brawly @26'], treatment: ['Leader Wattson @30']});
+	assert.deepEqual(pair.total(rows), {seeds: 4, control: 1, treatment: 2, gained: 2, lost: 1, p: 1});
+
+	const twice = {provenance: {revision: 'r1'}, results: [control.results[0], control.results[0]]};
+	assert.throws(() => pair.pair(twice, treatment), /REFUSING to join: the control receipt has two scenarios named/);
+
+	// From the command line: the pooled test and the unjoined scenarios are printed, not dropped.
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pair-'));
+	fs.writeFileSync(path.join(dir, 'c.json'), JSON.stringify(control));
+	fs.writeFileSync(path.join(dir, 't.json'), JSON.stringify(treatment));
+	fs.writeFileSync(path.join(dir, 'twice.json'), JSON.stringify(twice));
+	const run = (c, t) => childProcess.spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'battery-pair.js'),
+		'--control=' + path.join(dir, c), '--treatment=' + path.join(dir, t)], {encoding: 'utf8'});
+	const joined = run('c.json', 't.json');
+	assert.equal(joined.status, 0, joined.stderr);
+	assert.match(joined.stdout, /^TOTAL +1\/4 +-> 2\/4 +gained 2 lost 1 \(exact McNemar\) p=1\.000/m);
+	assert.match(joined.stdout, /^only in control, not joined: Leader Brawly @26$/m);
+	assert.match(joined.stdout, /^only in treatment, not joined: Leader Wattson @30$/m);
+	const refused = run('twice.json', 't.json');
+	assert.equal(refused.status, 1);
+	assert.match(refused.stderr, /two scenarios named "Leader Roxanne · 15 scales" from one report/);
+});
+
 test('battery-tape refuses a stamped receipt from another engine, and warns on one from before stamps', () => {
 	const tape = require('../scripts/battery-tape.js');
 	const here = provenance.engineStamp(ROOT);
