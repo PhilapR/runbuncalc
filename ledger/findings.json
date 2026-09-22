@@ -1884,6 +1884,22 @@
 			"evidence": "Leader Brawly, leaders.json box brkeys3b-A-7, seed 2, refused in all three leader arms at 3ac2086: our faster Leaf Tornado hits a sleeping Lopunny holding Eject Button, Combusken comes in, Lopunny's move is refused. Fix: onField skips an actor no longer active. Seed 2 now plays with no refusal and Lopunny does not act.",
 			"fixed_in": "425301b",
 			"falsified": 1
+		},
+		{
+			"id": "enemy-post-ko-replacement-is-enumeration-order",
+			"source": "codex handoff, 2026-09-22",
+			"raised_on": "2026-09-22",
+			"severity": "medium",
+			"area": "driver",
+			"file": "lib/battle-driver.js",
+			"line": 286,
+			"claim": "settleAiSide enumerates the foe's legal forced switches and applies actions[0], so who the enemy sends out after a knockout is the enumeration order of ai.enumerateForcedSwitchActions — not a replacement policy. The engine says so itself: that function's docstring states \"Post-KO replacement preference is intentionally left to the battle/policy layer; this function only exposes the legal state transition.\" A policy layer exists and is never called (ai.evaluateForcedSwitchActions, reached through evaluateActions when a forced switch is pending).",
+			"verdict": "confirmed",
+			"status": "open",
+			"evidence": "Read at lib/battle-driver.js settleAiSide and ai/src/actions.ts enumerateForcedSwitchActions. Measured over every logged fight on disk (1,328 fights with a foe send-out): 1,240 followed the fight data's party order exactly and 88 deviated, all of them singles (e.g. Leader Brawly sent Lopunny where party order gives Hitmontop; Aqua Admin Shelly sent Darmanitan-Galar before Slowbro-Mega). So the send-out is the BATTLE STATE's enumeration order, which is usually but not always the fight data's party order — and in neither case is it a choice.",
+			"impact": "Every fight where a foe faints, which is nearly all of them. It also misinforms our own side twice over: decide() reads the threat from whoever the engine happened to send, and the rollout search plays out continuations on the same wrong replacement — so a lever measured against it was measured against a foe that does not replace the way the game does.",
+			"open_question": "What IS the rule? It cannot be established from inside this repository: our ai package exposes a scoring function but nothing here shows it is a faithful port of the hack's replacement routine. Establishing it needs the decomp or the hack's own AI source, or observation on the emulator. Not guessed here, per the handoff: route mismatches, do not invent replacements.",
+			"bar": "Before any change: state the rule and its source. Then a regression that FAILS under first-entry selection (a position where the rule's choice is not actions[0]), covering a tie and an ambiguous case. Then the held-out battery both ways, since every existing measurement of our own policy was taken against the current behaviour."
 		}
 	]
 }

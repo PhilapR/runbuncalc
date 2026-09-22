@@ -558,6 +558,12 @@
 			"question": "The story gifts are now claimed by the run (--gifts=1: the Lavaridge egg at 571, Castform at 701, Kubfu at 1125; scripts/headless-run.js claimGifts). A gift is a scripted event, not an encounter-table roll, so the run does NOT count it against its area's wild encounter, and does apply the dupes clause. Is that the rule you play by? The alternative — a gift spends the encounter for Lavaridge, Route 119 and Mossdeep — costs three wild catches and is what some nuzlocke rulesets require. Also unwired and waiting on the same answer: the three trades (they consume a body we own), the fossils, and the seven roaming legendaries (undated, gated on the Sootopolis story event, so late and cheap to leave).",
 			"raised": "2026-09-21",
 			"settledBy": "operator ruling"
+		},
+		{
+			"id": "what-rule-replaces-a-knocked-out-foe",
+			"question": "When one of the enemy trainer's Pokemon faints, which one do they send out? We apply the FIRST legal replacement the engine enumerates (lib/battle-driver.js settleAiSide), and the engine's own docstring says that choice is meant to be made by the policy layer. Measured over 1,328 logged fights: 1,240 send-outs matched the fight data's party order and 88 did not, all singles — so it is the battle state's enumeration order, and never a decision. The hack may score replacements (our ai package has evaluateForcedSwitchActions, unused here), or it may send the next in party order; nothing in this repository establishes which, and it was not guessed. Needs the decomp, the hack's AI source, or emulator observation. Raised by Codex 2026-09-22; ledger finding enemy-post-ko-replacement-is-enumeration-order carries the evidence and the bar for changing it.",
+			"raised": "2026-09-22",
+			"settledBy": "operator ruling"
 		}
 	]
 }
