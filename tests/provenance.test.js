@@ -108,6 +108,28 @@ test('the engine digest is what plays: build inputs, sources and browser bundles
 	assert.notEqual(provenance.engineStamp(tree.root).parts.data, before.parts.data);
 });
 
+test('the profile policy is policy, the linked calc hashes like the tree calc, and a skipped directory is named', () => {
+	const tree = tinyTree();
+	tree.put('profiles/run-and-bun/policy.js', 'module.exports = {};');
+	const was = provenance.engineStamp(tree.root);
+	tree.put('profiles/run-and-bun/policy.js', 'module.exports = {lead: 1};');
+	assert.deepEqual(provenance.compareStamps(was, provenance.engineStamp(tree.root)).differs, ['policy']);
+
+	// The calc resolves by package name to this tree's own calc: the two parts agree.
+	tree.put('calc/package.json', JSON.stringify({name: '@smogon/calc', main: 'dist/calc.js'}));
+	fs.mkdirSync(path.join(tree.root, 'node_modules', '@smogon'), {recursive: true});
+	fs.symlinkSync(path.join(tree.root, 'calc'), path.join(tree.root, 'node_modules', '@smogon', 'calc'), 'dir');
+	const linked = provenance.engineStamp(tree.root);
+	assert.match(linked.parts['calc-linked'], /^[0-9a-f]{12}$/);
+	assert.equal(linked.parts['calc-linked'], linked.parts['calc-dist'], 'the same bytes hash the same from either root');
+	assert.deepEqual(linked.skipped, []);
+
+	fs.mkdirSync(path.join(tree.root, 'elsewhere'));
+	fs.writeFileSync(path.join(tree.root, 'elsewhere', 'more.js'), 'x');
+	fs.symlinkSync(path.join(tree.root, 'elsewhere'), path.join(tree.root, 'ai', 'dist', 'linked'), 'dir');
+	assert.deepEqual(provenance.engineStamp(tree.root).skipped, ['ai/dist/linked (symlinked directory, not followed)']);
+});
+
 test('a stamp of another format is not compared as an engine', () => {
 	const now = provenance.engineStamp(ROOT);
 	const old = Object.assign({}, now, {version: 1});

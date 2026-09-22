@@ -118,8 +118,9 @@ function main() {
 	// A carried-on run keeps its knobs unless it is given others.
 	const spec = own('spec', restore ? restore.spec || '' : '');
 	const provenance = require('../lib/provenance.js');
-	const leg = openLeg(priorLegs(restore), provenance.currentStamp(), spec, restore, from);
-	const legs = priorLegs(restore).concat([leg]);
+	const prior = priorLegs(restore);
+	const leg = openLeg(prior, provenance.currentStamp(), spec, restore, from);
+	const legs = prior.concat([leg]);
 	const reach = now => { leg.to = {position: now.position, fights: now.state.tally.fights}; };
 	const starter = restore ? restore.starter : {species: own('starter', 'Chimchar'), rival: own('rival', 'Blaziken')};
 	const sidecar = fightLog.openFightLog(base + '.fights.ndjson.gz', restore ? restore.fightLog : undefined);
