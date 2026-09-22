@@ -878,8 +878,31 @@ function spendScales(doc, tally) {
 	return doc;
 }
 
-/** Teach and (treatment) scale-spend from the same advice the panel shows. */
-function followAdvice(doc, treatment, tally, forgotten) {
+/**
+ * The bodies whose held item a HELD plan placed (its record's `held`, as
+ * Species@Item), so advice between attempts cannot hand them another:
+ * planHolds kept the plan's six, and followAdvice still ran whenever the box
+ * or bag changed, and its "Colbur Berry over Focus Sash" undid the Focus Sash
+ * lead the planner had just taken by play at Champion Wallace.
+ */
+function plannedHolders(doc, tally) {
+	const plans = (tally && tally.plans) || [];
+	const last = plans[plans.length - 1];
+	const keep = new Set();
+	for (const label of (last && last.held) || []) {
+		const at = label.lastIndexOf('@');
+		const mon = doc.party.map(id => run.findMon(doc, id)).find(entry => entry && !keep.has(entry.id) &&
+			entry.species === label.slice(0, at) && entry.item === label.slice(at + 1));
+		if (mon) keep.add(mon.id);
+	}
+	return keep;
+}
+
+/**
+ * Teach and (treatment) scale-spend from the same advice the panel shows.
+ * `keep` (plannedHolders) names bodies whose item is not the advice's to change.
+ */
+function followAdvice(doc, treatment, tally, forgotten, keep) {
 	// The marts first: a stone the bag holds is an evolve row the advisor
 	// can price. One buy per row, receipts in the log.
 	if (treatment.keyEvolve) {
@@ -909,7 +932,7 @@ function followAdvice(doc, treatment, tally, forgotten) {
 			entry.kind === 'teach' ||
 			(entry.kind === 'heartScale' && treatment.keyScales) ||
 			(entry.kind === 'evolve' && treatment.keyEvolve) ||
-			entry.kind === 'give'));
+			(entry.kind === 'give' && !(keep && keep.has(entry.id)))));
 		if (!row) return doc;
 		refused.add(row.kind + '|' + row.id + '|' + row.detail);
 		try {
@@ -1856,7 +1879,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			lastShape = shape;
 			doc = levelToCap(doc, tally);
 			doc = relearn(doc, policy, tally, forgotten);
-			doc = followAdvice(doc, treatment, tally, forgotten);
+			doc = followAdvice(doc, treatment, tally, forgotten, planHolds ? plannedHolders(doc, tally) : null);
 			if (knobs.scaleIvs) doc = spendScales(doc, tally);
 			doc = thresholdPrep(doc, tally);
 			// A plan holds until its wall falls: a catch made between attempts re-ran
@@ -2160,4 +2183,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {plannedHolders, pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};

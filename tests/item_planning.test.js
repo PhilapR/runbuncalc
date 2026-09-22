@@ -79,9 +79,18 @@ test('knob off: the planner is exactly what it was before items were planned', (
 		'73a1c100e3af4094cde8b1f66d7b2482ba4215f78ea4b657691ffeedebffa291', JSON.stringify(tally.plans));
 });
 
+/** The knob-on plan at Champion Wallace, played once and shared: it costs about a minute and a half. */
+let wallacePlanned = null;
+function wallacePlan() {
+	if (!wallacePlanned) {
+		const doc = wallaceDoc();
+		wallacePlanned = Object.assign({doc}, plan(doc, 'Champion Wallace', {planItems: true}));
+	}
+	return wallacePlanned;
+}
+
 test('knob on, at Champion Wallace: the planner proposes the Focus Sash lead and takes it by play', () => {
-	const doc = wallaceDoc();
-	const {out, plan: taken} = plan(doc, 'Champion Wallace', {planItems: true});
+	const {doc, out, plan: taken} = wallacePlan();
 	assert.ok(taken.items.includes('Dhelmise@Focus Sash'), 'proposed: ' + JSON.stringify(taken));
 	// Deterministic on these seeds: the sash wins its scouting fights.
 	assert.deepEqual(taken.held, ['Dhelmise@Focus Sash'], JSON.stringify(taken));
@@ -122,4 +131,19 @@ test('an item change never touches a Mega body: a stone holder keeps its stone, 
 	const moved = headless.withKnobs({}, () => headless.withItem(doc, {kind: 'item', id: dhelmise, item: 'Focus Sash'}));
 	assert.equal(run.findMon(moved, dhelmise).item, 'Focus Sash', 'a body with no Mega takes it — off the bench, no sash being in the bag');
 	assert.deepEqual(holdings(moved), holdings(doc), 'items conserved');
+});
+
+test('a held plan keeps its items: advice between attempts does not replace the planned Focus Sash', () => {
+	// planHolds kept the plan's six but not what it held: followAdvice ran again
+	// whenever the box or bag changed, and its "Colbur Berry over Focus Sash"
+	// undid the lead the planner had just taken by play.
+	const {out, tally} = wallacePlan();
+	const lead = out.party[0];
+	assert.equal(run.findMon(out, lead).item, 'Focus Sash', 'the fixture: the plan put the sash on the lead');
+	const keep = headless.plannedHolders(out, tally);
+	assert.deepEqual([...keep], [lead], 'the plan\'s held item names its holder');
+	const advised = headless.withKnobs({}, () => headless.followAdvice(out, headless.armFlags(''), {}, new Map(), keep));
+	assert.equal(run.findMon(advised, lead).species + '@' + run.findMon(advised, lead).item, 'Dhelmise@Focus Sash',
+		'the advice passed over the planned holder');
+	assert.deepEqual(headless.plannedHolders(out, {}), new Set(), 'no plan, nothing kept');
 });
