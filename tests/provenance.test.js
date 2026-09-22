@@ -71,6 +71,55 @@ test('the engine stamp is a hash of the bytes that play, and names the part that
 	assert.match(here.revision, /^[0-9a-f]{40}$/);
 });
 
+test('the engine digest is what plays: build inputs, sources and browser bundles do not move it', () => {
+	const tree = tinyTree();
+	tree.put('profiles/run-and-bun/oracle.js', "const load = name => name;\nload('growth');\n" +
+		"const sources = require('./oracle/sources.json');\n");
+	tree.put('profiles/run-and-bun/oracle/growth.json', '{}');
+	tree.put('profiles/run-and-bun/oracle/sources.json', '{}');
+	tree.put('lib/dossier.js', "const table = require('../profiles/run-and-bun/oracle/learnsets.json');");
+	tree.put('profiles/run-and-bun/oracle/learnsets.json', '{}');
+	tree.put('profiles/run-and-bun/oracle/tracker-order.json', '[]');
+	tree.put('profiles/run-and-bun/rebuild-model.json', '{}');
+	tree.put('calc/dist/production.min.js', 'bundle');
+	const files = provenance.filesOf(tree.root, provenance.PARTS.data);
+	for (const rel of ['profiles/run-and-bun/oracle/growth.json', 'profiles/run-and-bun/oracle/sources.json',
+		'profiles/run-and-bun/oracle/learnsets.json']) assert.ok(files.includes(rel), rel + ' is loaded, so hashed');
+	const before = provenance.engineStamp(tree.root);
+	assert.equal(before.version, 2);
+
+	// c831f98 touched only tracker-order.json and moved `data`: a build input does not play.
+	tree.put('profiles/run-and-bun/oracle/tracker-order.json', '[1]');
+	tree.put('profiles/run-and-bun/rebuild-model.json', '{"a": 1}');
+	tree.put('calc/dist/production.min.js', 'another bundle');
+	assert.deepEqual(provenance.engineStamp(tree.root), before);
+
+	// A source nobody rebuilt is recorded, but it did not play.
+	tree.put('ai/src/abilities.ts', 'export const a = 2;');
+	const edited = provenance.engineStamp(tree.root);
+	assert.notEqual(edited.parts['ai-src'], before.parts['ai-src'], 'the source is still hashed, for information');
+	assert.equal(edited.engine, before.engine);
+	assert.equal(provenance.compareStamps(before, edited).same, true);
+
+	// A table the oracle loads lazily, hours into a run, does play.
+	tree.put('profiles/run-and-bun/oracle/growth.json', '{"Pikachu": "fast"}');
+	assert.deepEqual(provenance.compareStamps(before, provenance.engineStamp(tree.root)).differs, ['data']);
+	tree.put('profiles/run-and-bun/oracle/learnsets.json', '{"Pikachu": []}');
+	assert.notEqual(provenance.engineStamp(tree.root).parts.data, before.parts.data);
+});
+
+test('a stamp of another format is not compared as an engine', () => {
+	const now = provenance.engineStamp(ROOT);
+	const old = Object.assign({}, now, {version: 1});
+	const compared = provenance.compareStamps(old, now);
+	assert.equal(compared.same, false, 'never a match, even with the same engine string');
+	assert.equal(compared.format, true);
+	assert.match(compared.text, /^different stamp format \(v1 against v2\)/);
+	const unversioned = Object.assign({}, now);
+	delete unversioned.version;
+	assert.equal(provenance.compareStamps(unversioned, now).format, true, 'a stamp without a version is v1');
+});
+
 test('a record without a stamp is engine unknown, never a match', () => {
 	const known = provenance.engineStamp(ROOT);
 	assert.equal(provenance.describe(null), 'engine unknown (before stamps)');
