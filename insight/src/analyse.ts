@@ -275,6 +275,12 @@ export interface WallView {
 	/** Bodies of ours that fell on our own switch: hazards on the way in. Charged to no foe. */
 	readonly hazards: number;
 	/**
+	 * Bodies of ours whose ledger row names no actor (`of: null`). The driver
+	 * records none for end-of-turn damage — weather, status, seeds — so these
+	 * are charged to no foe; on the sidney1 Sidney wall they were 40 of 240 bodies lost.
+	 */
+	readonly unattributed: number;
+	/**
 	 * True when some attempt's ledger has no `ofSide` (written before 2026-09-22):
 	 * our side is then told from theirs by species, which a mirror can fool.
 	 */
@@ -345,6 +351,7 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 	};
 	let selfInflicted = 0;
 	let hazards = 0;
+	let unattributed = 0;
 	let approximate = false;
 	for (const [index, attempt] of attempts.entries()) {
 		const summary = wall.summaries[index];
@@ -362,7 +369,7 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 		const ours = new Set([...(attempt.six ?? []).map(member => baseOf(member.species)),
 			...(attempt.killers ?? []).flatMap(fall => fall.species === null ? [] : [baseOf(fall.species)])]);
 		for (const fall of attempt.killers ?? []) {
-			if (fall.of === null) continue;
+			if (fall.of === null) { unattributed += 1; continue; }
 			if (fall.ofSide === undefined) approximate = true;
 			// An old ledger: ours if our side holds the species and the tape never saw it on theirs (a mirror).
 			const side = fall.ofSide ?? (ours.has(baseOf(fall.of)) && !turns.has(fall.of) ? 'ours' : 'theirs');
@@ -404,7 +411,7 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 	})).sort((a, b) => b.bodiesPerFacing - a.bodiesPerFacing || a.foe.localeCompare(b.foe));
 	const win = wall.wonOn === null ? undefined : wall.summaries[wall.wonOn - 1];
 	return {trainer: wall.trainer, order: wall.order, attempts: wall.attempts, wonOn: wall.wonOn, winN: win?.n ?? null,
-		logged: wall.logged, foes, selfInflicted, hazards, approximate, tagLift: wall.tagLift,
+		logged: wall.logged, foes, selfInflicted, hazards, unattributed, approximate, tagLift: wall.tagLift,
 		runs: wall.summaries.map((entry, index) => ({n: entry.n, result: entry.result, policy: entry.policy, bodiesLost: entry.bodiesLost,
 			knockouts: attempts[index]?.kos?.length ?? null, foeLeft: entry.foeLeft, turns: entry.turns, hasLog: entry.hasLog}))};
 }

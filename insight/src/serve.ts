@@ -100,7 +100,7 @@ export const readLive = (file: string): Effect.Effect<LiveState, never> =>
 		return {header, turns, ended};
 	});
 
-const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+export const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Live Run</title><style>${STYLE}
 main{display:block;height:auto;max-width:1180px;margin:0 auto;padding:12px 16px}#overview{width:100%;margin:0 0 10px}#overview tr{cursor:pointer}#overview tr[aria-current=true] td{font-weight:600}#overview{display:block;overflow-x:auto}#overview td,#overview th{padding:3px 12px 3px 0;text-align:left;white-space:nowrap}#overview th{font-weight:400;color:var(--mute);font-size:12px}#overview tr.over td{color:var(--mute)}#overview tr.fold td{color:var(--mute);font-size:12px;padding-top:8px}#overview .warn{color:var(--warn,#b7791f)}#overview .acts button{font:inherit;font-size:12px;padding:1px 8px;margin-right:4px;border:1px solid var(--line,#8884);border-radius:4px;background:transparent;color:inherit;cursor:pointer}#overview .acts button:hover{background:var(--line,#8882)}#machine{margin:0 0 8px}
 .facts{margin:6px 0 12px;line-height:1.7}.facts b{font-weight:600}.facts span{color:var(--mute);margin-right:14px}
@@ -232,10 +232,13 @@ async function drawWall(box, mine) {
   if (!w) { box.appendChild(el('p', {class: 'sub', text: 'this run kept nothing to read for ' + wallOpen})); return; }
   box.appendChild(part(w.trainer + ' — ' + w.attempts + ' attempts, ' + (w.wonOn ? 'won on attempt ' + w.wonOn : 'never won') + ' · ' + w.logged + ' taped · per foe, most costly first', 'run-wall'));
   const won = w.wonOn !== null;
+  const bodies = n => n + ' bod' + (n === 1 ? 'y' : 'ies');
   const maxB = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.bodiesPerFacing, f.win ? f.win.bodiesLost : 0))));
   const maxT = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.turnsPerFacing || 0, f.win && f.win.turns !== null ? f.win.turns : 0))));
   box.appendChild(el('p', {class: 'sub', text: (won ? 'Grey dot: the mean of the ' + (w.attempts - 1) + ' losses; black dot: the win. ' : 'Every dot is the mean of the losses: there is no win to set beside them. ') +
-    'One scale down each column — bodies of ours lost a facing 0 to ' + maxB + ', fell 0 to 100% of facings, turns it stayed 0 to ' + maxT + '. A body is charged to the foe that dealt its last hit.'}));
+    'One scale down each column — bodies of ours lost a facing 0 to ' + maxB + ', fell 0 to 100% of facings, turns it stayed 0 to ' + maxT + '. ' +
+    'A body is charged to the foe that was acting when it fell: ' + bodies(w.foes.reduce((sum, f) => sum + f.bodiesLost, 0)) + ' here' +
+    (w.unattributed + w.hazards + w.selfInflicted ? ', and ' + (w.unattributed + w.hazards + w.selfInflicted) + ' more charged to no foe (below)' : '') + '.'}));
   const num = v => v === null || v === undefined ? '—' : String(v);
   box.appendChild(dense(['their', 'met', 'bodies a facing', '', 'fell', '', 'turns a facing', '', 'kills with', 'kills'], w.foes.map(f => el('tr', {}, [
     cell(f.foe), cell(f.facedIn, 'num'),
@@ -246,8 +249,8 @@ async function drawWall(box, mine) {
     cell(dots(maxT, f.losses.turnsPerFacing, f.win && f.win.turns, f.foe + ' stayed ' + num(f.losses.turnsPerFacing) + ' turns a losing facing'), '', f.losses.turnsPerFacing === null ? -1 : f.losses.turnsPerFacing),
     cell(num(f.losses.turnsPerFacing) + (f.win && f.win.turns !== null ? ' · win ' + f.win.turns : ''), 'num', f.losses.turnsPerFacing === null ? -1 : f.losses.turnsPerFacing),
     cell(list(f.killers.slice(0, 3)), 'wrap'), cell(list(f.victims.slice(0, 3)), 'wrap')])), 'wallfoes'));
-  const bodies = n => n + ' bod' + (n === 1 ? 'y' : 'ies');
-  const apart = [w.hazards ? bodies(w.hazards) + ' fell on our own switch (hazards on the way in)' : '',
+  const apart = [w.unattributed ? bodies(w.unattributed) + ' fell with no actor recorded (end-of-turn damage: weather, status, seeds)' : '',
+    w.hazards ? bodies(w.hazards) + ' fell on our own switch (hazards on the way in)' : '',
     w.selfInflicted ? bodies(w.selfInflicted) + ' fell on our own move (recoil, Self-Destruct)' : ''].filter(Boolean);
   if (apart.length) box.appendChild(el('p', {class: 'sub', text: 'Charged to no foe: ' + apart.join('; ') + '.'}));
   if (w.approximate) box.appendChild(el('p', {class: 'sub', text: 'Approximate: this record predates the ledger naming whose side a killer was on, so ours are told from theirs by species — a mirror can be misread.'}));

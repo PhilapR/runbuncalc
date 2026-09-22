@@ -471,7 +471,8 @@ test('a wall charges a body to a foe only when the actor was on their side', asy
 		{n: 1, order: 1580, trainer: 'Elite Four Sidney', seed: 5, result: 'loss', six, killers: [
 			{monId: 'mon-Florges', species: 'Florges', by: null, of: 'Houndoom'},
 			fallen('Houndoom', 'Dark Pulse', 'Yveltal'),
-			fallen('Lopunny-Mega', 'Double-Edge', 'Lopunny-Mega')]},
+			fallen('Lopunny-Mega', 'Double-Edge', 'Lopunny-Mega'),
+			{monId: 'mon-Araquanid', species: 'Araquanid', by: null, of: null}]},
 		// A new ledger says the side: hazards on our switch, and a mirror Lopunny-Mega of theirs.
 		{n: 2, order: 1580, trainer: 'Elite Four Sidney', seed: 6, result: 'loss', six, killers: [
 			side('ours')({monId: 'mon-Pinsir', species: 'Pinsir', by: null, of: 'Lopunny-Mega'}),
@@ -485,9 +486,65 @@ test('a wall charges a body to a foe only when the actor was on their side', asy
 	assert.equal(view.hazards, 2, 'Florges and Pinsir fell to hazards on our own switch');
 	assert.equal(view.selfInflicted, 1, 'our Lopunny-Mega\'s own Double-Edge, on the old ledger');
 	assert.equal(view.approximate, true, 'attempt 1 has no ofSide, so the page must say it is approximate');
+	assert.equal(view.unattributed, 1, 'Araquanid fell with no actor named: counted, not dropped');
 	const fresh = wallView(await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1,
 		ledger: [run.ledger[1]]})), 'Elite Four Sidney');
 	assert.equal(fresh?.approximate, false);
+});
+
+/**
+ * The watch page's own script, run against a stub document: what the wall
+ * view DRAWS, as text and as SVG shapes. The startup line (polls, timers) is
+ * cut; `fetch` answers from `reply`.
+ */
+class Stub {
+	readonly children: Stub[] = [];
+	readonly attrs: Record<string, string> = {};
+	textContent = '';
+	constructor(readonly tag: string) {}
+	appendChild(kid: Stub) { this.children.push(kid); return kid; }
+	replaceChildren(...kids: Stub[]) { this.children.splice(0, this.children.length, ...kids); }
+	setAttribute(key: string, value: unknown) { this.attrs[key] = String(value); }
+	getAttribute(key: string) { return this.attrs[key] ?? null; }
+	addEventListener() { /* nothing is clicked here */ }
+	get text(): string { return [this.textContent, ...this.children.map(kid => kid.text)].filter(Boolean).join(' '); }
+	all(tag: string): Stub[] { return [...(this.tag === tag ? [this] : []), ...this.children.flatMap(kid => kid.all(tag))]; }
+}
+const pageScript = async (reply: (url: string) => {status: number; body: string}) => {
+	const {PAGE} = await import('../src/serve.js');
+	const script = (/<script>([\s\S]*?)<\/script>/.exec(PAGE)?.[1] ?? '').replace(/^view = prefs\.view[\s\S]*$/m, '');
+	const document = {createElement: (tag: string) => new Stub(tag), createElementNS: (_ns: string, tag: string) => new Stub(tag),
+		createTextNode: (text: string) => Object.assign(new Stub('#text'), {textContent: text}),
+		getElementById: () => new Stub('div'), addEventListener() {}, body: new Stub('body')};
+	const fetch = async (url: string) => { const {status, body} = reply(url);
+		return {ok: status < 400, status, json: async () => JSON.parse(body), text: async () => body}; };
+	const localStorage = {getItem: () => null, setItem() {}};
+	const make = new Function('document', 'window', 'localStorage', 'fetch', 'Node', 'location', 'history',
+		script + '\n;return {drawWall, nice, open: (run, trainer) => { current = run; wallOpen = trainer; return drawing; }};');
+	return make(document, {addEventListener() {}}, localStorage, fetch, Stub, {search: '', hash: ''}, {replaceState() {}}) as
+		{drawWall: (box: Stub, mine: number) => Promise<void>; nice: (value: number) => number; open: (run: string, trainer: string) => number};
+};
+const drawnWall = async (view: unknown, status = 200) => {
+	const page = await pageScript(() => ({status, body: JSON.stringify(view)}));
+	const box = new Stub('div');
+	await page.drawWall(box, page.open('run-1', 'Elite Four Sidney'));
+	return box;
+};
+
+test('the wall page says what is charged to a foe and what is not', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1, ledger: [
+		{n: 1, order: 1580, trainer: 'Elite Four Sidney', seed: 5, result: 'loss', killers: [
+			{...fallen('Houndoom', 'Dark Pulse', 'Yveltal'), ofSide: 'theirs'},
+			{monId: 'mon-Araquanid', species: 'Araquanid', by: null, of: null},
+			{monId: 'mon-Florges', species: 'Florges', by: null, of: 'Houndoom', ofSide: 'ours'}]}]}));
+	const view = wallView(run, 'Elite Four Sidney');
+	assert.equal(view?.unattributed, 1, 'a body with no actor is counted, not dropped');
+	const text = (await drawnWall(view)).text;
+	assert.ok(!text.includes('dealt its last hit'), 'the caption no longer claims every body is charged');
+	assert.match(text, /1 body here, and 2 more charged to no foe/);
+	assert.match(text, /1 body fell with no actor recorded/);
+	assert.match(text, /1 body fell on our own switch/);
 });
 
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
