@@ -581,9 +581,11 @@ function applyEntryStatBoostAbilities(
   pokemon: PokemonState,
 ) {
   if (pokemon.hp.current <= 0) return;
-  // Download: +1 Special Attack when the foes' Defense is lower than their
-  // Special Defense, otherwise +1 Attack — summed over the active foes, at
-  // their current stages. Not modelled until 2026-09-22; four trainers on the
+  // Download: +1 Attack when the foes' Defense is lower than their Special
+  // Defense, otherwise +1 Special Attack (a tie raises Special Attack) —
+  // summed over the active foes, at their current stages. ROM-observed
+  // (pokemon-mono P2, 2026-09-22: Def 200/SpD 50 -> SpA, Def 50/SpD 200 ->
+  // Atk, 100/100 -> SpA); implemented backwards on the same day. Not modelled until 2026-09-22; four trainers on the
   // road lead with it (the fidelity sweep, tests/fidelity_openings.test.js).
   if (state.generation >= 4 && hasAbility(state, pokemon, 'download')) {
     const gen = Calc.Generations.get(state.generation);
@@ -599,7 +601,7 @@ function applyEntryStatBoostAbilities(
       spd += staged(raw.spd, foe.boosts?.spd || 0);
     }
     if (def + spd > 0) {
-      const stat = def < spd ? 'spa' : 'atk';
+      const stat = def < spd ? 'atk' : 'spa';
       addBoost(resolution, pokemon.id, stat, stageDelta(pokemon, stat, [1]));
       resolution.trace!.notes!.push(`Download raised ${pokemon.id}'s ${def < spd ? 'Special Attack' : 'Attack'}`);
     }

@@ -26,27 +26,28 @@ function battle(ai: PokemonState[], player: PokemonState[], mode: BattleState['m
   };
 }
 
-// Download: +1 Special Attack when the foes' summed Defense is lower than
-// their summed Special Defense, otherwise +1 Attack (a tie raises Attack).
+// Download: +1 Attack when the foes' summed Defense is lower than their summed
+// Special Defense, otherwise +1 Special Attack (a tie raises Special Attack).
+// ROM-observed in pokemon-mono P2 (2026-09-22); first written backwards here.
 // A fainted foe does not count.
 {
   const boostsOf = (state: BattleState) => state.sides.ai.party[0].boosts || {};
   const porygon = () => mon('ai-1', 'Porygon-Z', 'Download');
   // Chansey: base Defense 5, Special Defense 105.
   assert.deepEqual(boostsOf(applyLeadEntries(battle([porygon()], [mon('player-1', 'Chansey', 'Natural Cure')]))),
-    {spa: 1}, 'Download vs Chansey raises Special Attack');
+    {atk: 1}, 'Download vs Chansey (low Defense) raises Attack');
   // Cloyster: base Defense 180, Special Defense 45.
   assert.deepEqual(boostsOf(applyLeadEntries(battle([porygon()], [mon('player-1', 'Cloyster', 'Shell Armor')]))),
-    {atk: 1}, 'Download vs Cloyster raises Attack');
+    {spa: 1}, 'Download vs Cloyster (low Special Defense) raises Special Attack');
   // Shuckle: base Defense 230, Special Defense 230 — a tie.
   assert.deepEqual(boostsOf(applyLeadEntries(battle([porygon()], [mon('player-1', 'Shuckle', 'Sturdy')]))),
-    {atk: 1}, 'Download on a tie raises Attack');
+    {spa: 1}, 'Download on a tie raises Special Attack');
   // Chansey beside a fainted Cloyster: counted, Cloyster's Defense would
-  // outweigh Chansey's Special Defense and flip the raise to Attack.
+  // outweigh Chansey's Special Defense and flip the raise to Special Attack.
   assert.deepEqual(boostsOf(applyLeadEntries(battle([porygon()], [
     mon('player-1', 'Chansey', 'Natural Cure'),
     mon('player-2', 'Cloyster', 'Shell Armor', {hp: {current: 0, max: 150}}),
-  ]))), {spa: 1}, 'Download ignores a fainted foe');
+  ]))), {atk: 1}, 'Download ignores a fainted foe');
 }
 
 // Lead entry abilities activate fastest first, so the SLOWER weather setter's
