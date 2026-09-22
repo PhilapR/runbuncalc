@@ -2446,15 +2446,17 @@ function resolveSecondaryEffects(
   const attacker = getPokemon(state, action.actorId);
   const suppressesSecondaries = facts.moveCategory !== 'Status' && !!attacker &&
     hasAbility(state, attacker, 'sheerforce');
-  // Serene Grace and a Rainbow stack multiplicatively (x4, capped at 100):
-  // a Serene Grace user behind its own Rainbow flinches with Iron Head 100%
-  // of the time, not 60%.
-  let secondaryChanceMultiplier = 1;
-  if (attacker && hasAbility(state, attacker, 'serenegrace')) secondaryChanceMultiplier *= 2;
-  if (attacker && state.generation >= 5 &&
-    state.sides[sideForPokemon(state, attacker.id)].effects?.pledgeRainbow === true) {
-    secondaryChanceMultiplier *= 2;
-  }
+  // Serene Grace and a Rainbow stack multiplicatively (x4, capped at 100) —
+  // EXCEPT on a flinch. Showdown's Water Pledge side condition skips the
+  // doubling for a flinch secondary when the user has Serene Grace
+  // (data/moves.ts, waterpledge.condition.onModifyMove), so a Serene Grace
+  // Iron Head behind its own Rainbow flinches 60%, not 100%.
+  const sereneGrace = !!attacker && hasAbility(state, attacker, 'serenegrace');
+  const rainbow = !!attacker && state.generation >= 5 &&
+    state.sides[sideForPokemon(state, attacker.id)].effects?.pledgeRainbow === true;
+  const secondaryChanceMultiplierFor = (effect: SecondaryEffect) =>
+    (sereneGrace ? 2 : 1) *
+    (rainbow && !(sereneGrace && effect.volatile?.name === 'flinch') ? 2 : 1);
   const secondaryRolls: Record<string, number> = {};
   const secondaryTargetIds = facts.isMultiHit
     ? Array.from(new Set([
@@ -2493,7 +2495,7 @@ function resolveSecondaryEffects(
           ? `${targetId}:${index}:hit${hitIndex + 1}`
           : `${targetId}:${index}`;
         secondaryRolls[rollKey] = roll;
-        const chance = Math.min(100, effect.chance * secondaryChanceMultiplier);
+        const chance = Math.min(100, effect.chance * secondaryChanceMultiplierFor(effect));
         if (suppressesSecondaries || bounded >= chance / 100) continue;
 
         const recipientId = effect.target === 'self' ? action.actorId : targetId;
