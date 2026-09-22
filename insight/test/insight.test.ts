@@ -47,6 +47,16 @@ test('a record that has drifted is refused with the field that moved', async () 
 	assert.equal(good.ledger[0]?.trainer, 'Leader Brawly');
 });
 
+test('a race with no damaging answer decodes: turnsToKill and turnsToDie may be null', async () => {
+	const {decodeFightLine} = await import('../src/schema.js');
+	// Unknown, as off disk: the decoder is what is on trial here, not the compiler.
+	const line: unknown = {n: 1, trainer: 'Leader Brawly', log: [{...turn({}), options: {moves: [], bench: [], switches: [
+		{label: 'Shedinja', race: 'cannot win', raceDetail: {turnsToKill: null, turnsToDie: 3, faster: true}},
+		{label: 'Chansey', race: 'stall', raceDetail: {turnsToKill: 9, turnsToDie: null, faster: false}}]}}]};
+	const decoded = await Effect.runPromise(Effect.either(decodeFightLine(line)));
+	assert.ok(Either.isRight(decoded), 'clear1/run-104770 held 133 of these and did not decode');
+});
+
 test('a wall sets its win beside its losses', async () => {
 	const log = (chose: string): Turn[] => [turn({chose, why: 'search-8'})];
 	const run = await Effect.runPromise(decodeRun({seed: 1, position: 90, fights: 3, ledger: [

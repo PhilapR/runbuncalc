@@ -18,9 +18,15 @@ export const MoveOption = Schema.Struct({
 	damage: Schema.NullOr(Schema.String),
 });
 
+/**
+ * A priced race. `turnsToKill` is null when we have no damaging answer at all
+ * (lib/battle-driver.js: "cannot-win"); `turnsToDie` is Math.ceil(hp / their
+ * ceiling), which JSON writes as null when that is Infinity. clear1's 104770
+ * held 133 null turnsToKill, and the whole run failed to decode on them.
+ */
 export const RaceDetail = Schema.Struct({
-	turnsToKill: Schema.Number,
-	turnsToDie: Schema.Number,
+	turnsToKill: Schema.NullOr(Schema.Number),
+	turnsToDie: Schema.NullOr(Schema.Number),
 	faster: Schema.optional(Schema.Boolean),
 });
 
