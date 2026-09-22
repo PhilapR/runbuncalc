@@ -898,6 +898,14 @@ function statusBaseScore(
   const targetSide = sideForPokemon(state, evaluation.action.actorId) === 'ai' ? 'player' : 'ai';
   const targetEffects = state.sides[targetSide].effects || {};
   if (NO_EFFECT_MOVES.has(id)) return [{score: NO_EFFECT_SCORE, probability: 1}];
+  if (id === 'roar' || id === 'whirlwind') {
+    // The ROM reads a flat 105 when the target has a teammate to drag in and
+    // 85 (-20) when it has none, with no roll (d1-d4). pokemon-mono rab 286a45d.
+    const targetSideState = state.sides[targetSide];
+    const hasTeammate = targetSideState.party.some(pokemon =>
+      pokemon.hp.current > 0 && !targetSideState.activeIds.includes(pokemon.id));
+    return [{score: hasTeammate ? 5 : 5 - 20, probability: 1}];
+  }
   const hazard = hazardScore(id, evaluation, targetEffects);
   if (hazard) return hazard.outcomes.map(outcome => ({...outcome, score: outcome.score + hazard.adjustment}));
   const memento = mementoScore(evaluation);

@@ -182,4 +182,16 @@ function scores(state: BattleState): Record<string, number[]> {
   assert.deepEqual(got['Swords Dance'], [86], 'u2 Swords Dance');
 }
 
+// d1-roar-no-bench and d3-roar-with-bench: Roar reads 85 with no teammate
+// to drag in and 105 with one, flat.
+{
+  const arcanine = {species: 'Arcanine', moves: ['Roar', 'Bite', 'Splash', 'Tackle'],
+    stats: {hp: 200, atk: 90, def: 90, spa: 60, spd: 90, spe: 100}};
+  const snorlax = {species: 'Snorlax', moves: ['Splash', 'Tackle', 'Growl', 'Leer'],
+    stats: {hp: 400, atk: 30, def: 80, spa: 30, spd: 80, spe: 40}};
+  const quagsire = {...snorlax, species: 'Quagsire'};
+  assert.deepEqual(scores(probe(arcanine, snorlax))['Roar'], [85], 'd1 Roar');
+  assert.deepEqual(scores(probe(arcanine, snorlax, [quagsire]))['Roar'], [105], 'd3 Roar');
+}
+
 console.log('ROM probe scoring fixtures passed');
