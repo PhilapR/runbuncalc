@@ -60,6 +60,21 @@ items, before the fight starts.
 - The doubles battery never reported the foe's remainder (`ac10aec`), so
   planByPlay's fewest-foes-left tie-break read 0 in every double.
 
+### 1.0b Wallace, and the rules underneath every number (2026-09-22)
+- 418957 took the Elite Four as SidneyDouble (17), Phoebe (5), GlaciaDouble
+  (2, after Glacia's single walled at 40) and Drake (15). It is at Champion
+  Wallace, 358 of 358.
+- **No lead's entry ability had ever fired** (`8cc3ece`): no Drizzle, no
+  Intimidate, and Primordial Sea was never modelled. Every tally before that
+  commit ran on an easier game. The Wallace leg was restarted on the fixed
+  engine.
+- Wallace on this box, searched, correct rules, 24 paired seeds: control 0,
+  Focus Sash Dhelmise lead 0. The sash halves Kyogre's cost (2.46 → 1.13
+  bodies); the wall moves to Curse/Rest Hisuian Goodra (2.4 a fight). The
+  leg plays with `--lead-for` (operator-assisted, on its row).
+- Next at Wallace: an answer to Curse/Rest (Perish Song, Altaria, is in the
+  box; fixed damage; crits ignore Defense), planned by play, not by hand.
+
 ### 1.1 Resume 418957 at Sidney with every fix in place — RUNNING
 Three Mega fixes landed after that run was pinned, and they change its Sidney
 six: it fielded Mega Houndoom, and the set score wants Mega Lopunny (the six's
