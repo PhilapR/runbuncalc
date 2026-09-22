@@ -511,8 +511,10 @@ function growthRateOf(species) {
 
 /**
  * A species' catch rate — the one number the ball math runs on. Mainline dex
- * data (veekun import), not decomp data: the hack does not touch capture
- * rates. Keys are normalized to alphanumerics so naming styles meet.
+ * data (PokeAPI, scripts/import-catch-rates.js), not decomp data, and no Run &
+ * Bun source confirms the hack leaves capture rates alone: registered as
+ * `transcribed` in index.js. Keys are normalized to alphanumerics so naming
+ * styles meet.
  */
 function catchRateOf(species) {
 	const rates = load('catch-rates').rates;
