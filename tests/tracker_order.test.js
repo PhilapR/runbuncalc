@@ -15,8 +15,17 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+
 const builder = require('../scripts/build-tracker-order.js');
 const tracker = require('../profiles/run-and-bun/oracle/tracker-order.json');
+
+// Run & Bun's own tracker workbook. Absent off the build machine: the gate
+// that reads it then SKIPS and says why.
+const XLSX = process.env.TRACKER_XLSX || path.join(os.homedir(), 'Projects', 'pokemon-mono',
+	'docs', 'official', 'Pok\u00e9mon Locations.xlsx');
 
 test('the committed tracker order is what its builder makes from the pinned headers', () => {
 	assert.deepEqual(builder.build(tracker.headers), tracker,
@@ -43,4 +52,17 @@ test('the workbook reader takes row 1 in column order, through the shared string
 	const sheet = '<sheetData><row r="1"><c r="A1" s="1"/><c r="C1" s="3" t="s"><v>1</v></c><c r="D1" s="4"/>' +
 		'<c r="E1" s="3" t="s"><v>0</v></c></row><row r="2"><c r="C2" t="s"><v>2</v></c></row></sheetData>';
 	assert.deepEqual(builder.parseRowOne(sheet, strings), ['Steven\'s Room', 'Route 101']);
+});
+
+// review 2026-09-22: the first test builds from the file's own `headers`, so
+// a wrong headers block passes it — the file only agrees with itself. This
+// one holds `headers` to row 1 of the workbook they claim to pin.
+const workbookMissing = fs.existsSync(XLSX) ? false :
+	'the tracker workbook is not on this machine (' + XLSX + '); set TRACKER_XLSX to check the pinned headers';
+
+test('the pinned headers are row 1 of the tracker workbook, and the order is built from them', {skip: workbookMissing}, () => {
+	const headers = builder.readHeaders(XLSX);
+	assert.deepEqual(tracker.headers, headers,
+		'tracker-order.json pins headers the workbook does not have: node scripts/build-tracker-order.js --xlsx <workbook>');
+	assert.deepEqual(builder.build(headers), tracker, 'and the committed file is what the workbook builds');
 });
