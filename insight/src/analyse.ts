@@ -272,7 +272,7 @@ export interface WallView {
 	/** The winning attempt's ledger number. */
 	readonly winN: number | null;
 	readonly logged: number;
-	/** Most costly first: one row a foe, every number on one scale across the rows. */
+	/** Most costly in the losses first (losses.bodiesPerFacing, what the page plots): one row a foe, every number on one scale across the rows. */
 	readonly foes: ReadonlyArray<FoeRow>;
 	/** Bodies of ours that fell on our own move — recoil, Self-Destruct, a partner's spread move — which no foe is charged with. */
 	readonly selfInflicted: number;
@@ -414,7 +414,11 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 			bodiesPerFacing: row.lossFaced === 0 ? null : ratio(row.lossBodies, row.lossFaced),
 			fellShare: row.lossFaced === 0 ? null : ratio(row.lossFell, row.lossFaced),
 			turnsPerFacing: row.lossLogged === 0 ? null : ratio(row.lossTurns, row.lossLogged)},
-	})).sort((a, b) => b.bodiesPerFacing - a.bodiesPerFacing || a.foe.localeCompare(b.foe));
+	}))
+		// Sorted by what the page plots — the losses' mean — so the order and the grey dots agree; a foe no loss
+		// met goes last, then the mean over every attempt breaks ties.
+		.sort((a, b) => (b.losses.bodiesPerFacing ?? -1) - (a.losses.bodiesPerFacing ?? -1) ||
+		b.bodiesPerFacing - a.bodiesPerFacing || a.foe.localeCompare(b.foe));
 	const win = wall.wonOn === null ? undefined : wall.summaries[wall.wonOn - 1];
 	return {trainer: wall.trainer, order: wall.order, attempts: wall.attempts, wonOn: wall.wonOn, winN: win?.n ?? null,
 		logged: wall.logged, foes, selfInflicted, hazards, unattributed, approximate, tagLift: wall.tagLift,

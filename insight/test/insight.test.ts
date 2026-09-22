@@ -613,6 +613,22 @@ test('a run that does not decode says why on the wall and the attempt, never tha
 	assert.ok(!text.includes('kept nothing'));
 });
 
+test('a wall is ordered by the losses\' mean it plots, not by the mean over every attempt', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const theirs = (species: string, of: string) => ({...fallen(species, 'Tackle', of), ofSide: 'theirs' as const});
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1700, fights: 2, ledger: [
+		// In the loss Gyarados takes two, Milotic one; in the win Milotic takes five. Over all: Milotic 3, Gyarados 1.
+		{n: 1, order: 1625, trainer: 'Champion Wallace', seed: 5, result: 'loss',
+			killers: [theirs('Walrein', 'Gyarados'), theirs('Florges', 'Gyarados'), theirs('Dhelmise', 'Milotic')]},
+		{n: 2, order: 1625, trainer: 'Champion Wallace', seed: 6, result: 'win',
+			killers: ['Walrein', 'Florges', 'Dhelmise', 'Togekiss', 'Eldegoss'].map(species => theirs(species, 'Milotic')),
+			kos: [{foe: 'Gyarados', by: 'Thunder'}]},
+	]}));
+	const view = wallView(run, 'Champion Wallace');
+	assert.deepEqual(view?.foes.map(foe => [foe.foe, foe.losses.bodiesPerFacing, foe.bodiesPerFacing]),
+		[['Gyarados', 2, 1], ['Milotic', 1, 3]]);
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');
