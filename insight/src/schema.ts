@@ -99,6 +99,17 @@ export const Probe = Schema.Struct({
 	crashed: Schema.optional(Schema.String),
 });
 
+/**
+ * One line of a double's tape. `side` is whose move or whose faint it was;
+ * tapes written before 2026-09-22 lack it, and a reader falls back to the six.
+ */
+export const DoublesEvent = Schema.Struct({
+	turn: Schema.optional(Schema.NullOr(Schema.Number)),
+	text: Schema.String,
+	side: Schema.optional(Schema.Literal('ours', 'theirs')),
+});
+export type DoublesEvent = typeof DoublesEvent.Type;
+
 /** One attempt at one fight: the ledger row, with the fight itself when kept. */
 export const Attempt = Schema.Struct({
 	n: Schema.Number,
@@ -119,8 +130,7 @@ export const Attempt = Schema.Struct({
 	logLine: Schema.optional(Schema.Number),
 	log: Schema.optional(Schema.Array(Turn)),
 	/** A double has no one-active view to log turn by turn; its events are its record. */
-	events: Schema.optional(Schema.Array(Schema.Struct({
-		turn: Schema.optional(Schema.NullOr(Schema.Number)), text: Schema.String}))),
+	events: Schema.optional(Schema.Array(DoublesEvent)),
 	six: Schema.optional(Schema.Array(Member)),
 });
 export type Attempt = typeof Attempt.Type;
@@ -146,8 +156,7 @@ export const FightLine = Schema.Struct({
 	n: Schema.Number,
 	trainer: Schema.String,
 	log: Schema.optional(Schema.Array(Turn)),
-	events: Schema.optional(Schema.Array(Schema.Struct({
-		turn: Schema.optional(Schema.NullOr(Schema.Number)), text: Schema.String}))),
+	events: Schema.optional(Schema.Array(DoublesEvent)),
 	six: Schema.optional(Schema.Array(Member)),
 });
 export type FightLine = typeof FightLine.Type;

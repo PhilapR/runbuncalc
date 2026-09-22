@@ -56,6 +56,21 @@ test('a double is the same fight on the same seed, and a single is refused', () 
 	assert.throws(() => driver.playDoubles(box, 'Leader Wattson', 1), /is a single battle/);
 });
 
+test('a double\'s tape says whose move and whose faint each line was', () => {
+	// The text is species names only, so a reader guessed the side from the
+	// six — which a mirror cannot survive (Urshifu on both sides at Sidney).
+	const box = doc();
+	const played = driver.playDoubles(box, DOUBLES[2], 7);
+	const ours = new Set(box.party.map(id => box.box.find(mon => mon.id === id).species));
+	const lines = played.events.filter(event => / used |fainted!/.test(event.text || ''));
+	assert.ok(lines.length > 4);
+	for (const event of lines) assert.ok(event.side === 'ours' || event.side === 'theirs', event.text);
+	const mine = lines.filter(event => event.side === 'ours' && / used /.test(event.text));
+	assert.ok(mine.length > 0 && mine.every(event => ours.has(event.text.split(' used ')[0].replace(/-Mega.*$/, ''))),
+		'our lines are our six');
+	assert.ok(lines.some(event => event.side === 'theirs' && / used /.test(event.text)));
+});
+
 test('the battery plays a double through the two-slot loop and says which policy fought', () => {
 	// The default searches our two actives jointly: the measured hand (67 real
 	// run states x 6 seeds, net +37, p < 0.0001), which the battery has to

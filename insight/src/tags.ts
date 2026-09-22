@@ -44,6 +44,65 @@ const floorOf = (damage: string | null): number => {
 	return hit && hit[1] !== undefined ? Number(hit[1]) : 0;
 };
 
+/** What a move is, as control: the tags a player would give it wherever it is played. */
+export function moveTags(move: string): ReadonlyArray<Tag> {
+	const tags: Tag[] = [];
+	if (SPEED.test(move)) tags.push('speed-control');
+	if (STATUS.test(move)) tags.push('status');
+	if (SETUP.test(move)) tags.push('set-up');
+	if (SCREEN.test(move)) tags.push('screen');
+	if (HAZARD.test(move)) tags.push('hazard');
+	if (PROTECT.test(move)) tags.push('protect');
+	if (DISRUPT.test(move)) tags.push('disrupt');
+	if (PIVOT_MOVE.test(move)) tags.push('pivot-move');
+	if (PRIORITY.test(move)) tags.push('priority');
+	if (RECOVERY.test(move)) tags.push('recovery');
+	return tags;
+}
+
+/** A Mega or regional suffix off a tape name, so it matches the six. */
+const baseOf = (species: string): string => species.replace(/-Mega(-[XY])?$/, '');
+
+export interface DoublesLine {
+	readonly turn: number | null;
+	readonly side: 'ours' | 'theirs';
+	readonly actor: string;
+	readonly move: string | null;
+	readonly targets: ReadonlyArray<string>;
+	readonly fainted: boolean;
+	readonly tags: ReadonlyArray<Tag>;
+}
+
+/**
+ * One line of a double's tape, read. A double has no one-active view, so
+ * there is no turn to tag the way tagsOf does; each line is tagged instead.
+ * Whose line it was comes from `side` when the tape has it (2026-09-22 on),
+ * and otherwise from the six — which cannot tell a mirror apart.
+ */
+export function readDoublesLine(event: {readonly turn?: number | null | undefined; readonly text: string;
+	readonly side?: 'ours' | 'theirs' | undefined}, ours: ReadonlySet<string>): DoublesLine | null {
+	const fell = /^(.+?) fainted!/.exec(event.text);
+	const used = /^(.+?) used (.+?)(?: → (.*?))?((?: \([a-z]+\))*)$/.exec(event.text);
+	const actor = fell?.[1] ?? used?.[1];
+	if (actor === undefined) return null;
+	const side = event.side ?? (ours.has(baseOf(actor)) ? 'ours' : 'theirs');
+	const turn = event.turn ?? null;
+	if (fell) return {turn, side, actor, move: null, targets: [], fainted: true, tags: [side === 'ours' ? 'we-fall' : 'we-ko']};
+	const move = used?.[2] ?? '';
+	const marks = used?.[4] ?? '';
+	const targets = (used?.[3] ?? '').split(', ').filter(Boolean).map(hit => hit.replace(/ -\d+%$/, ''));
+	const tags: Tag[] = [];
+	const failed = /\((sleep|flinch|freeze|paralysis|confusion|infatuation|protect|truant)\)/.test(marks);
+	if (side === 'ours') tags.push(...moveTags(move));
+	else {
+		if (SETUP.test(move)) tags.push('foe-set-up');
+		if (RECOVERY.test(move)) tags.push('foe-recovered');
+	}
+	if (/\(missed\)/.test(marks)) tags.push(side === 'ours' ? 'miss-ours' : 'miss-theirs');
+	if (/\(crit\)/.test(marks)) tags.push(side === 'ours' ? 'crit-ours' : 'crit-theirs');
+	return {turn, side, actor, move: failed ? null : move, targets, fainted: false, tags};
+}
+
 export function tagsOf(turn: Turn): ReadonlyArray<Tag> {
 	const tags = new Set<Tag>();
 	const chose = turn.chose;

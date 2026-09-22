@@ -381,7 +381,8 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 			deaths: doubles.deaths, killers: doubles.killers,
 			knockouts: doubles.knockouts || [], foe: doubles.foe || null, counters: {},
 			// A double has no one-active view to tape; its events are the log.
-			events: tape ? doubles.events.map(event => ({turn: event.turn, text: event.text})).filter(event => event.text) : undefined,
+			events: tape ? doubles.events.map(event => Object.assign({turn: event.turn, text: event.text},
+				event.side ? {side: event.side} : {})).filter(event => event.text) : undefined,
 			policy: doublesSearch > 0 ? (driver.doublesJoint() ? 'joint-' : 'search-') + doublesSearch : 'engine-ai-doubles'};
 	}
 	const roster = (doc.box || []).map(mon => ({id: mon.id, moves: mon.moves}));

@@ -316,3 +316,44 @@ test('the page the watcher serves is a script that parses', async () => {
 		server.close();
 	}
 });
+
+test('a double is read from its tape: who acted, what it cost, which foe took our bodies', async () => {
+	// Every double was hasLog: false here — its tape is events, not turns — so
+	// Sidney's double, won on attempt 17, had none of its 17 tapes read.
+	const member = (species: string) => ({name: species, species, level: 99, item: null, ability: null, nature: null, moves: []});
+	const six = [member('Octillery'), member('Lopunny'), member('Urshifu')];
+	const tape = (hypnosis: string, sided: boolean) => [
+		{turn: 1, text: 'Incineroar used Fake Out → Octillery -15%', side: 'theirs'},
+		{turn: 1, text: 'Articuno-Galar used Hypnosis → Octillery' + hypnosis, side: 'theirs'},
+		{turn: 1, text: 'Octillery used Icy Wind → Incineroar, Articuno-Galar (crit)', side: 'ours'},
+		// A mirror: their Urshifu. Only `side` can tell it from ours.
+		{turn: 2, text: 'Urshifu used Wicked Blow → Lopunny-Mega -100%', side: 'theirs'},
+		{text: 'Lopunny-Mega fainted!', side: 'ours'},
+		{turn: 2, text: 'Octillery used Water Spout → Incineroar -100%', side: 'ours'},
+		{text: 'Incineroar fainted!', side: 'theirs'},
+	].map(event => sided ? event : {turn: event.turn, text: event.text});
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 2, ledger: [
+		{n: 1, order: 1583, trainer: 'Elite Four SidneyDouble', seed: 5, result: 'loss', events: tape('', true), six},
+		{n: 2, order: 1583, trainer: 'Elite Four SidneyDouble', seed: 6, result: 'win', events: tape(' (missed)', true), six},
+	]}));
+	const [wall] = walls(run);
+	assert.ok(wall !== undefined);
+	assert.equal(wall.logged, 2, 'both doubles count as logged');
+	const win = wall.summaries[1];
+	assert.ok(win !== undefined);
+	assert.equal(win.lead, 'Octillery', 'the lead is ours, in the order we acted');
+	assert.equal(win.turns, 2);
+	assert.equal(win.bodiesLost, 1);
+	assert.equal(win.tagCounts['speed-control'], 1);
+	assert.equal(win.tagCounts['crit-ours'], 1);
+	assert.equal(win.tagCounts['we-ko'], 1);
+	assert.deepEqual(wall.tagLift.find(entry => entry.tag === 'miss-theirs'), {tag: 'miss-theirs', win: 1, lossMean: 0});
+	const urshifu = win.foeCosts.find(cost => cost.foe === 'Urshifu');
+	assert.deepEqual(urshifu, {foe: 'Urshifu', faced: 1, bodiesLost: 1, turns: 1, fell: false},
+		'their Urshifu is theirs, and Lopunny is charged to it');
+	// Without `side` (tapes before 2026-09-22) the six decides — and a mirror reads as ours.
+	const [old] = walls(await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1, ledger: [
+		{n: 1, order: 1583, trainer: 'Elite Four SidneyDouble', seed: 5, result: 'loss', events: tape('', false), six}]})));
+	assert.ok(old?.summaries[0]?.order.includes('Urshifu'), 'the fallback cannot see a mirror');
+	assert.equal(old?.summaries[0]?.tagCounts['we-fall'], 1, 'Lopunny-Mega is matched to Lopunny in the six');
+});

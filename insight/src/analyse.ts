@@ -7,7 +7,7 @@
  * a fight is actually beaten.
  */
 import type {Attempt, RunRecord, Turn} from './schema.js';
-import {speciesOf, tagsOf, type Tag} from './tags.js';
+import {readDoublesLine, speciesOf, tagsOf, type Tag} from './tags.js';
 
 export interface FoeCost {
 	readonly foe: string;
@@ -62,8 +62,69 @@ const foeCostsOf = (log: ReadonlyArray<Turn>): ReadonlyArray<FoeCost> => {
 	return [...byFoe.entries()].map(([foe, row]) => ({foe, ...row}));
 };
 
+/**
+ * A double, read from its tape. Until 2026-09-22 every double was `hasLog:
+ * false` here — the tape is events, not turns — so every wall fought in
+ * doubles (the Elite Four's doubles, the rival doubles) vanished from the
+ * wall view and from strategyOf, and Sidney's double was won on attempt 17
+ * with none of its 17 tapes read.
+ *
+ * A body of ours that falls is charged to the foe that last hit it: that is
+ * the question a wall asks, which foe costs us bodies.
+ */
+function summariseDouble(attempt: Attempt, events: NonNullable<Attempt['events']>): AttemptSummary {
+	const ours = new Set((attempt.six ?? []).map(member => member.species));
+	const counts: Record<string, number> = {};
+	const order: string[] = [];
+	const lastHitBy = new Map<string, string>();
+	const byFoe = new Map<string, {faced: number; bodiesLost: number; turns: Set<number>; fell: boolean}>();
+	const foeRow = (foe: string) => {
+		const row = byFoe.get(foe) ?? {faced: 1, bodiesLost: 0, turns: new Set<number>(), fell: false};
+		byFoe.set(foe, row);
+		return row;
+	};
+	let turns = 0;
+	let ourFalls = 0;
+	for (const event of events) {
+		const line = readDoublesLine(event, ours);
+		if (line === null) continue;
+		if (line.turn !== null) turns = Math.max(turns, line.turn);
+		for (const tag of line.tags) counts[tag] = (counts[tag] ?? 0) + 1;
+		if (line.side === 'ours' && !line.fainted && !order.includes(line.actor)) order.push(line.actor);
+		if (line.side === 'theirs' && !line.fainted) {
+			const row = foeRow(line.actor);
+			if (line.turn !== null) row.turns.add(line.turn);
+			for (const target of line.targets) lastHitBy.set(target, line.actor);
+		}
+		if (line.fainted && line.side === 'theirs') foeRow(line.actor).fell = true;
+		if (line.fainted && line.side === 'ours') {
+			ourFalls += 1;
+			const by = lastHitBy.get(line.actor);
+			if (by !== undefined) foeRow(by).bodiesLost += 1;
+		}
+	}
+	return {
+		n: attempt.n,
+		seed: attempt.seed,
+		result: attempt.result,
+		policy: attempt.policy ?? 'decide',
+		turns: attempt.turns ?? (turns || null),
+		foeLeft: attempt.foeLeft ?? null,
+		bodiesLost: attempt.deaths ?? ourFalls,
+		hasLog: true,
+		tagCounts: counts,
+		foeCosts: [...byFoe.entries()].map(([foe, row]) => ({foe, faced: row.faced, bodiesLost: row.bodiesLost,
+			turns: row.turns.size, fell: row.fell})),
+		lead: order.length === 0 ? null : order.slice(0, 2).join(' + '),
+		order,
+	};
+}
+
 export function summariseAttempt(attempt: Attempt): AttemptSummary {
 	const log = attempt.log ?? [];
+	if (log.length === 0 && attempt.events !== undefined && attempt.events.length > 0) {
+		return summariseDouble(attempt, attempt.events);
+	}
 	const order: string[] = [];
 	for (const turn of log) {
 		const mine = speciesOf(turn.us);
