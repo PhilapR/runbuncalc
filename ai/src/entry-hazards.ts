@@ -572,7 +572,31 @@ function applyEntryStatBoostAbilities(
   resolution: SwitchEntryResolution,
   pokemon: PokemonState,
 ) {
-  if (state.generation < 8 || pokemon.hp.current <= 0) return;
+  if (pokemon.hp.current <= 0) return;
+  // Download: +1 Special Attack when the foes' Defense is lower than their
+  // Special Defense, otherwise +1 Attack — summed over the active foes, at
+  // their current stages. Not modelled until 2026-09-22; four trainers on the
+  // road lead with it (the fidelity sweep, tests/fidelity_openings.test.js).
+  if (state.generation >= 4 && hasAbility(state, pokemon, 'download')) {
+    const gen = Calc.Generations.get(state.generation);
+    const foeSide = sideForPokemon(state, pokemon.id) === 'ai' ? 'player' : 'ai';
+    const staged = (raw: number, stage: number) => Math.floor(raw * Math.max(2, 2 + stage) / Math.max(2, 2 - stage));
+    let def = 0;
+    let spd = 0;
+    for (const foeId of state.sides[foeSide].activeIds) {
+      const foe = getPokemon(state, foeId);
+      if (!foe || foe.hp.current <= 0) continue;
+      const raw = getRawStats(gen, foe);
+      def += staged(raw.def, foe.boosts?.def || 0);
+      spd += staged(raw.spd, foe.boosts?.spd || 0);
+    }
+    if (def + spd > 0) {
+      const stat = def < spd ? 'spa' : 'atk';
+      addBoost(resolution, pokemon.id, stat, stageDelta(pokemon, stat, [1]));
+      resolution.trace!.notes!.push(`Download raised ${pokemon.id}'s ${def < spd ? 'Special Attack' : 'Attack'}`);
+    }
+  }
+  if (state.generation < 8) return;
   if (hasAbility(state, pokemon, 'intrepidsword') && !pokemon.intrepidSwordTriggered) {
     addBoost(resolution, pokemon.id, 'atk', stageDelta(pokemon, 'atk', [1]));
     resolution.intrepidSwordTriggeredByPokemon = {[pokemon.id]: true};
