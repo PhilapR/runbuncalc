@@ -367,6 +367,15 @@ test('the author hands out no screen: no TM, HM or tutor teaches Reflect, Light 
 	// item-workbook.json) numbers TM01-TM50 and HM01-HM08 with no gap, and
 	// lists twenty tutors, and none of them is a screen. In Run & Bun a screen
 	// comes from a level-up list or not at all.
+	//
+	// "Or not at all" includes egg moves, and that is checked below, not
+	// assumed. Egg moves ARE reachable here: learnsets.json carries the
+	// decomp's egg_moves.h, and the nurse remembers one for a Heart Scale
+	// (ruling remembering-a-move-costs-a-scale). The hack's own documents say
+	// nothing of breeding — Mechanic Changes.txt names the Day Care only for
+	// experience past the cap. No egg list holds a screen: the five hits a
+	// substring search finds (Gastly, Omanyte, Castform, both Stunfisk) are
+	// Reflect Type, which is not Reflect.
 	const workbook = require('../profiles/run-and-bun/oracle/item-workbook.json');
 	const numbered = prefix => workbook.tms.map(row => row.name.match(new RegExp('^' + prefix + '(\\d\\d) ')))
 		.filter(Boolean).map(match => Number(match[1]));
@@ -382,6 +391,15 @@ test('the author hands out no screen: no TM, HM or tutor teaches Reflect, Light 
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	assert.deepEqual(oracle.moveItems().filter(row => screens.test(row.move)), [],
 		'so the moveItems table has no screen row, and that is the game');
+
+	// Exact names: a pattern would read Reflect Type as Reflect.
+	const learnsets = require('../profiles/run-and-bun/oracle/learnsets.json');
+	const SCREENS = ['Reflect', 'Light Screen', 'Aurora Veil'];
+	const holding = table => Object.keys(table).filter(species =>
+		table[species].some(move => SCREENS.includes(Array.isArray(move) ? move[1] : move)));
+	assert.deepEqual(holding(learnsets.egg), [], 'no egg list teaches a screen');
+	assert.deepEqual(holding(learnsets.teachable), [], 'nor does any teachable list');
+	assert.ok(holding(learnsets.levelUp).length > 0, 'the level-up lists are where the screens are');
 });
 
 test('a cell that names a shop and a gift is two rows, and the gift is on the road', () => {
