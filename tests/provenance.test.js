@@ -152,6 +152,111 @@ test('the stamp names node and each installed package where the engine resolves 
 	assert.equal(here.runtime.node, process.version);
 });
 
+/**
+ * Modules a played process loads that do not decide play, and why. The walk
+ * stops at each: a module reached only through one of these is not checked.
+ * Anything else a played process loads must be in some part of the stamp.
+ */
+const NOT_PLAY = {
+	'lib/server.js': 'the UI server ui-playthrough starts for its browser mode; its express, API and adapter tree never runs headless',
+	'playwright-core': 'drives a browser for the UI mode; it chooses nothing',
+	'lib/nicknames.js': 'names a caught mon; no rule reads a nickname',
+	'lib/fight-log.js': 'writes the fight sidecar, read after a fight, never during one',
+	'lib/provenance.js': 'the stamp itself',
+	'scripts/audit-run.js': 'audits a finished run',
+};
+
+/**
+ * What a played process loads, from a child: the require graph from the
+ * entry points (runtime edges, plus the literal requires a module makes
+ * lazily, hours into a run), and the files read at load time that are not
+ * modules.
+ */
+function playedModules() {
+	const probe = `
+const fs = require('node:fs');
+const path = require('node:path');
+const root = ${JSON.stringify(ROOT)};
+const read = fs.readFileSync;
+const reads = new Set();
+fs.readFileSync = function (file) {
+	if (typeof file === 'string') reads.add(path.resolve(file));
+	return read.apply(this, arguments);
+};
+const entries = ['scripts/headless-run.js', 'scripts/scenario-battery.js', 'scripts/ui-playthrough.js']
+	.map(rel => require.resolve(path.join(root, rel)));
+entries.forEach(file => require(file));
+fs.readFileSync = read;
+const edges = {};
+for (const key of Object.keys(require.cache)) {
+	edges[key] = new Set(require.cache[key].children.map(child => child.id));
+	if (!key.endsWith('.js') || key.includes('/node_modules/')) continue;
+	for (const hit of read(key, 'utf8').matchAll(/\\brequire\\((['"])([^'"]+)\\1\\)/g)) {
+		if (hit[2].startsWith('node:')) continue;
+		try {
+			const to = require.resolve(hit[2], {paths: [path.dirname(key)]});
+			if (path.isAbsolute(to)) edges[key].add(to);
+		} catch (error) { /* a require of an optional or absent module */ }
+	}
+}
+const real = file => fs.realpathSync(file);
+const graph = {};
+for (const key of Object.keys(edges)) graph[real(key)] = [...edges[key]].map(real);
+const loaded = new Set(Object.keys(require.cache).map(real));
+process.stdout.write(JSON.stringify({entries: entries.map(real), graph,
+	reads: [...reads].filter(file => fs.existsSync(file)).map(real).filter(file => !loaded.has(file))}));
+`;
+	const env = Object.assign({}, process.env);
+	delete env.NODE_TEST_CONTEXT;
+	const out = childProcess.spawnSync(process.execPath, ['-e', probe], {cwd: ROOT, encoding: 'utf8', env,
+		maxBuffer: 64 * 1024 * 1024});
+	assert.equal(out.status, 0, out.stderr);
+	return JSON.parse(out.stdout);
+}
+
+/** The allow-list key of a file: its repo path, or the package it is in. */
+function notPlayKey(file, root) {
+	const pkg = file.match(/\/node_modules\/((?:@[^/]+\/)?[^/]+)\//);
+	if (pkg) return pkg[1];
+	return file.startsWith(root + '/') ? file.slice(root.length + 1) : file;
+}
+
+test('every module a played process loads is in the stamp, or is named as not deciding play', () => {
+	const root = fs.realpathSync(ROOT);
+	const played = playedModules();
+	const covered = provenance.coverage(ROOT);
+	const isCovered = file => covered.files.has(file) || covered.dirs.some(dir => file.startsWith(dir + '/'));
+	const uncovered = [];
+	const stopped = new Set();
+	const seen = new Set();
+	const queue = played.entries.slice();
+	while (queue.length) {
+		const file = queue.pop();
+		if (seen.has(file)) continue;
+		seen.add(file);
+		const key = notPlayKey(file, root);
+		if (Object.prototype.hasOwnProperty.call(NOT_PLAY, key)) {
+			stopped.add(key);
+			continue;
+		}
+		if (!isCovered(file)) uncovered.push(key);
+		queue.push(...(played.graph[file] || []));
+	}
+	for (const file of played.reads) {
+		if (!isCovered(file) && !Object.prototype.hasOwnProperty.call(NOT_PLAY, notPlayKey(file, root))) {
+			uncovered.push(notPlayKey(file, root) + ' (read at load)');
+		}
+	}
+	assert.deepEqual(uncovered.sort(), [], 'loaded while playing, but in no part of the stamp');
+	// The walk met what it claims to cover: the dex, the linked calc, a lazily required module.
+	const met = [...seen];
+	assert.ok(met.some(file => file.includes('/@pkmn/dex/')), 'the walk reached @pkmn/dex');
+	assert.ok(met.some(file => file.endsWith('/lib/dossier.js')), 'the walk reached a lazy require');
+	assert.ok(met.length > 100, 'the walk reached the engine, not only the entry points');
+	// And every allow-list entry is still met, so the list cannot rot into cover for a new module.
+	assert.deepEqual(Object.keys(NOT_PLAY).filter(key => !stopped.has(key)), []);
+});
+
 test('a stamp of another format is not compared as an engine', () => {
 	const now = provenance.engineStamp(ROOT);
 	const old = Object.assign({}, now, {version: 1});
