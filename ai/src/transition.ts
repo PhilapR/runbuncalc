@@ -1269,7 +1269,12 @@ export function resolveMoveAction(
   const actor = getPokemon(state, action.actorId);
   const truantActive = actor ? isTruantActive(state, actor) : false;
   const truantLoafing = truantActive && !!actor?.volatile?.truant;
-  if (truantLoafing && resolution.actionFailure !== 'truant') {
+  // Sleep and freeze stop the action before Truant runs. Showdown orders
+  // onBeforeMove by priority: slp/frz 10, truant 9. A sleeping or frozen
+  // Truant mon therefore neither loafs nor re-arms: its flag stays as it was.
+  const stoppedBeforeTruant = resolution.actionFailure === 'sleep' ||
+    resolution.actionFailure === 'freeze';
+  if (truantLoafing && resolution.actionFailure !== 'truant' && !stoppedBeforeTruant) {
     throw new Error('Truant requires a truant action failure while loafing');
   }
   if (!truantLoafing && resolution.actionFailure === 'truant') {
@@ -1328,7 +1333,7 @@ export function resolveMoveAction(
   }
   const hpDeltaByPokemon = {...(resolution.hpDeltaByPokemon || {})};
   const volatileByPokemon = {...(resolution.volatileByPokemon || {})};
-  if (actor && truantActive) {
+  if (actor && truantActive && !stoppedBeforeTruant) {
     volatileByPokemon[actor.id] = {
       ...(volatileByPokemon[actor.id] || {}),
       truant: truantLoafing ? null : {},
