@@ -920,8 +920,8 @@ test('a body caught at or past its evolution level evolves before it is levelled
 		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
 	const ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
 	let doc = saved;
-	for (const [species, level, ability] of [['Magikarp', 40, 'Swift Swim'], ['Dratini', 50, 'Shed Skin']]) {
-		doc = run.apply(doc, {kind: 'catch', species, level, nickname: 'Late' + species, ivs, nature: 'Adamant', ability});
+	for (const late of [{species: 'Magikarp', level: 40, ability: 'Swift Swim'}, {species: 'Dratini', level: 50, ability: 'Shed Skin'}]) {
+		doc = run.apply(doc, Object.assign({kind: 'catch', nickname: 'Late' + late.species, ivs, nature: 'Adamant'}, late));
 	}
 	const tally = {};
 	doc = headless.levelToCap(doc, tally);
@@ -945,15 +945,19 @@ test('a lead pin that cannot apply is missed, not crashed: the policy leads, and
 	const wallace = {trainer: 'Champion Wallace'};
 	const absent = {};
 	let noBody;
-	assert.doesNotThrow(() => { noBody = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:Mewtwo@Focus+Sash').knobs,
-		() => headless.pinLead(saved, absent, wallace)); }, 'a pin on an absent body does not throw');
+	assert.doesNotThrow(() => {
+		noBody = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:Mewtwo@Focus+Sash').knobs,
+			() => headless.pinLead(saved, absent, wallace));
+	}, 'a pin on an absent body does not throw');
 	assert.equal(noBody, saved, 'the document is untouched');
 	assert.equal(absent.leadPinMissed.length, 1);
 	assert.match(absent.leadPinMissed[0].reason, /no living Mewtwo/);
 	const noItem = {};
 	let unheld;
-	assert.doesNotThrow(() => { unheld = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:Dhelmise@Kings+Rock').knobs,
-		() => headless.pinLead(saved, noItem, wallace)); }, 'a pin on an item nobody has does not throw');
+	assert.doesNotThrow(() => {
+		unheld = headless.withKnobs(headless.armFlags('--lead-for=Champion+Wallace:Dhelmise@Kings+Rock').knobs,
+			() => headless.pinLead(saved, noItem, wallace));
+	}, 'a pin on an item nobody has does not throw');
 	assert.equal(unheld, saved);
 	assert.match(noItem.leadPinMissed[0].reason, /no Kings Rock/);
 	assert.equal(noItem.leadsPinned, undefined);

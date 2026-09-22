@@ -50,9 +50,9 @@ function plan(doc, trainer, knobs) {
 /** Every item the run owns, bag and bodies, as name -> count. */
 function holdings(doc) {
 	const all = {};
-	for (const [name, count] of Object.entries(doc.bag || {})) all[name] = (all[name] || 0) + count;
+	for (const name of Object.keys(doc.bag || {})) all[name] = (all[name] || 0) + doc.bag[name];
 	for (const mon of doc.box) if (mon.item) all[mon.item] = (all[mon.item] || 0) + 1;
-	return Object.fromEntries(Object.entries(all).filter(([, count]) => count > 0).sort());
+	return Object.fromEntries(Object.entries(all).filter(entry => entry[1] > 0).sort());
 }
 
 function megaHolders(doc) {
@@ -70,7 +70,10 @@ test('knob off: the planner is exactly what it was before items were planned', (
 	// The hash is of the plan taken, every body's item, the bag, the plan record
 	// and the scouting count, recorded from the planner at 6d12a46 (before this
 	// change) on the same document, trainer and seeds.
-	const {out, tally, plan: taken} = plan(wallaceDoc(), 'Champion Wallace', {});
+	const planned = plan(wallaceDoc(), 'Champion Wallace', {});
+	const out = planned.out;
+	const tally = planned.tally;
+	const taken = planned.plan;
 	const view = {party: out.party, items: out.box.map(mon => [mon.id, mon.item || null]), bag: out.bag,
 		plans: tally.plans, scouted: tally.scouted};
 	assert.equal(taken.items, undefined, 'no item record when the knob is off');
@@ -90,7 +93,10 @@ function wallacePlan() {
 }
 
 test('knob on, at Champion Wallace: the planner proposes the Focus Sash lead and takes it by play', () => {
-	const {doc, out, plan: taken} = wallacePlan();
+	const planned = wallacePlan();
+	const doc = planned.doc;
+	const out = planned.out;
+	const taken = planned.plan;
 	assert.ok(taken.items.includes('Dhelmise@Focus Sash'), 'proposed: ' + JSON.stringify(taken));
 	// Deterministic on these seeds: the sash wins its scouting fights.
 	assert.deepEqual(taken.held, ['Dhelmise@Focus Sash'], JSON.stringify(taken));
@@ -108,12 +114,15 @@ test('knob on, at Champion Wallace: the planner proposes the Focus Sash lead and
 
 test('knob on, on a small box: whatever the planner moves, items are conserved and the Mega untouched', () => {
 	const doc = battery.loadDocument(BRAWLY);
-	const {out, plan: taken} = plan(doc, 'Leader Brawly', {planItems: true});
+	const planned = plan(doc, 'Leader Brawly', {planItems: true});
+	const out = planned.out;
+	const taken = planned.plan;
 	assert.ok(Array.isArray(taken.items) && Array.isArray(taken.held), JSON.stringify(taken));
 	assert.deepEqual(holdings(out), holdings(doc), 'items conserved');
 	assert.deepEqual(megaHolders(out), megaHolders(doc));
 	for (const label of taken.held) {
-		const [species, item] = label.split('@');
+		const species = label.split('@')[0];
+		const item = label.split('@')[1];
 		assert.ok(out.party.some(id => { const mon = run.findMon(out, id); return mon.species === species && mon.item === item; }), label);
 	}
 });
@@ -137,7 +146,8 @@ test('a held plan keeps its items: advice between attempts does not replace the 
 	// planHolds kept the plan's six but not what it held: followAdvice ran again
 	// whenever the box or bag changed, and its "Colbur Berry over Focus Sash"
 	// undid the lead the planner had just taken by play.
-	const {out, tally} = wallacePlan();
+	const out = wallacePlan().out;
+	const tally = wallacePlan().tally;
 	const lead = out.party[0];
 	assert.equal(run.findMon(out, lead).item, 'Focus Sash', 'the fixture: the plan put the sash on the lead');
 	const keep = headless.plannedHolders(out, tally);

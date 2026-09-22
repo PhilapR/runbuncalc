@@ -1474,7 +1474,10 @@ function itemProposals(planned, cells, into, foes) {
 	const lead = planned.party[0];
 	const leadCell = (cells.get(lead) || [])[0];
 	if (leadCell) {
-		const {kill, die, faster} = race(leadCell);
+		const raced = race(leadCell);
+		const kill = raced.kill;
+		const die = raced.die;
+		const faster = raced.faster;
 		if (kill <= 2 && die <= 2) propose(lead, 'Focus Sash', 'lead survives one hit');
 		if (!winsRace(kill, die, faster) && winsRace(kill, die, true)) propose(lead, 'Choice Scarf', 'lead wins the race moving first');
 		const move = leadCell.us.move ? gen.moves.get(calc.toID(leadCell.us.move)) : null;
@@ -1488,7 +1491,10 @@ function itemProposals(planned, cells, into, foes) {
 		const best = planned.party.slice().sort((a, b) => into(b, index) - into(a, index))[0];
 		const cell = best !== undefined ? (cells.get(best) || [])[index] : null;
 		if (!cell) continue;
-		const {kill, die, faster} = race(cell);
+		const raced = race(cell);
+		const kill = raced.kill;
+		const die = raced.die;
+		const faster = raced.faster;
 		if (winsRace(kill, die, faster)) continue;
 		const ours = cell.us.move ? gen.moves.get(calc.toID(cell.us.move)) : null;
 		if (ours && ours.category !== 'Status' && ours.type &&
