@@ -254,9 +254,13 @@ export interface FoeRow {
 	readonly killers: ReadonlyArray<readonly [string, number]>;
 	/** Which of ours it killed, most first. */
 	readonly victims: ReadonlyArray<readonly [string, number]>;
-	/** The same three readings in the winning attempt, and averaged over the losses that met it. */
+	/**
+	 * The same three readings in the winning attempt, and averaged over the
+	 * losses that met it: null when no loss met it (a foe seen only in the win),
+	 * never a 0 that reads as "it cost nothing".
+	 */
 	readonly win: {readonly bodiesLost: number; readonly fell: boolean; readonly turns: number | null} | null;
-	readonly losses: {readonly facedIn: number; readonly bodiesPerFacing: number; readonly fellShare: number;
+	readonly losses: {readonly facedIn: number; readonly bodiesPerFacing: number | null; readonly fellShare: number | null;
 		readonly turnsPerFacing: number | null};
 }
 
@@ -406,7 +410,9 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 		foe, facedIn: row.faced, loggedIn: row.logged, bodiesLost: row.bodies, bodiesPerFacing: ratio(row.bodies, row.faced),
 		fell: row.fell, fellShare: ratio(row.fell, row.faced), turnsPerFacing: row.logged === 0 ? null : ratio(row.turns, row.logged),
 		killers: ranked(row.killers), victims: ranked(row.victims), win: row.win,
-		losses: {facedIn: row.lossFaced, bodiesPerFacing: ratio(row.lossBodies, row.lossFaced), fellShare: ratio(row.lossFell, row.lossFaced),
+		losses: {facedIn: row.lossFaced,
+			bodiesPerFacing: row.lossFaced === 0 ? null : ratio(row.lossBodies, row.lossFaced),
+			fellShare: row.lossFaced === 0 ? null : ratio(row.lossFell, row.lossFaced),
 			turnsPerFacing: row.lossLogged === 0 ? null : ratio(row.lossTurns, row.lossLogged)},
 	})).sort((a, b) => b.bodiesPerFacing - a.bodiesPerFacing || a.foe.localeCompare(b.foe));
 	const win = wall.wonOn === null ? undefined : wall.summaries[wall.wonOn - 1];

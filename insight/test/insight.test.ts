@@ -547,6 +547,27 @@ test('the wall page says what is charged to a foe and what is not', async () => 
 	assert.match(text, /1 body fell on our own switch/);
 });
 
+test('a foe met only in the win has no loss reading, not a loss reading of 0', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1700, fights: 2, ledger: [
+		{n: 1, order: 1625, trainer: 'Champion Wallace', seed: 5, result: 'loss',
+			killers: [{...fallen('Walrein', 'Origin Pulse', 'Kyogre-Primal'), ofSide: 'theirs'}], kos: []},
+		// Only the win got as far as Milotic.
+		{n: 2, order: 1625, trainer: 'Champion Wallace', seed: 6, result: 'win',
+			killers: [{...fallen('Florges', 'Scald', 'Milotic'), ofSide: 'theirs'}],
+			kos: [{foe: 'Kyogre-Primal', by: 'Power Whip'}, {foe: 'Milotic', by: 'Moonblast'}]},
+	]}));
+	const view = wallView(run, 'Champion Wallace');
+	const milotic = view?.foes.find(foe => foe.foe === 'Milotic');
+	assert.deepEqual(milotic?.losses, {facedIn: 0, bodiesPerFacing: null, fellShare: null, turnsPerFacing: null});
+	assert.deepEqual(milotic?.win, {bodiesLost: 1, fell: true, turns: null});
+	const box = await drawnWall(view);
+	const row = box.all('tr').find(tr => tr.text.startsWith('Milotic'));
+	assert.ok(row !== undefined);
+	assert.ok(!/\b0%/.test(row.text), 'no "0%" fell for losses that never met it: ' + row.text);
+	assert.equal(row.all('circle').filter(dot => dot.attrs.class === 'loss').length, 0, 'and no grey loss dot at 0');
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');
