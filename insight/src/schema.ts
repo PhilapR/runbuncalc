@@ -18,9 +18,15 @@ export const MoveOption = Schema.Struct({
 	damage: Schema.NullOr(Schema.String),
 });
 
+/**
+ * A priced race. `turnsToKill` is null when we have no damaging answer at all
+ * (lib/battle-driver.js: "cannot-win"); `turnsToDie` is Math.ceil(hp / their
+ * ceiling), which JSON writes as null when that is Infinity. clear1's 104770
+ * held 133 null turnsToKill, and the whole run failed to decode on them.
+ */
 export const RaceDetail = Schema.Struct({
-	turnsToKill: Schema.Number,
-	turnsToDie: Schema.Number,
+	turnsToKill: Schema.NullOr(Schema.Number),
+	turnsToDie: Schema.NullOr(Schema.Number),
 	faster: Schema.optional(Schema.Boolean),
 });
 
@@ -73,6 +79,12 @@ export const Fallen = Schema.Struct({
 	species: Schema.NullOr(Schema.String),
 	by: Schema.NullOr(Schema.String),
 	of: Schema.NullOr(Schema.String),
+	/**
+	 * Whose side `of` was on. `of` is whoever was ACTING when the body fell, so a
+	 * body of ours killed by hazards on its way in is "of" our outgoing body.
+	 * Absent on records written before 2026-09-22.
+	 */
+	ofSide: Schema.optional(Schema.NullOr(Schema.Literal('ours', 'theirs'))),
 });
 
 export const Knockout = Schema.Struct({

@@ -145,7 +145,7 @@ function drawFight() {
     const parts = s => s ? [String(s.value), s.wins === undefined ? '' : s.wins + ' of ' + s.runs, s.removed === undefined ? '' : Math.round(s.removed * 100) + '%', s.oursAlive === undefined ? '' : String(s.oursAlive), s.lead === undefined ? '' : (s.lead > 0 ? '+' : '') + s.lead] : ['', '', '', '', ''];
     const score = name => (t.scores || []).find(s => s.choice === name);
     for (const m of (t.options ? t.options.moves : [])) { const s = score(m.move); tbl.appendChild(el('tr', {class: m.move === t.chose ? 'chosen' : ''}, [m.move, m.damage || 'no damage'].concat(parts(s)).map(v => el('td', {text: v})))); }
-    for (const w of (t.options ? t.options.switches : [])) { const name = 'switch to ' + w.label.replace(/\\s+\\d+%$/, ''); const s = score(name); const d = w.raceDetail; tbl.appendChild(el('tr', {class: name === t.chose ? 'chosen' : ''}, [name + ' (' + w.label.replace(/^.*\\s/, '') + ')', (w.race || '—') + (d ? ' — need ' + d.turnsToKill + ', they need ' + d.turnsToDie : '')].concat(parts(s)).map(v => el('td', {text: v})))); }
+    for (const w of (t.options ? t.options.switches : [])) { const name = 'switch to ' + w.label.replace(/\\s+\\d+%$/, ''); const s = score(name); const d = w.raceDetail; tbl.appendChild(el('tr', {class: name === t.chose ? 'chosen' : ''}, [name + ' (' + w.label.replace(/^.*\\s/, '') + ')', (w.race || '—') + (d ? ' — need ' + (d.turnsToKill === null ? 'no KO' : d.turnsToKill) + ', they need ' + (d.turnsToDie === null ? 'none' : d.turnsToDie) : '')].concat(parts(s)).map(v => el('td', {text: v})))); }
     more.appendChild(tbl); card.appendChild(more); box.appendChild(card);
   }
 }

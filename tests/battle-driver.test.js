@@ -134,6 +134,38 @@ test('a mid-turn faint pauses for the replacement, and the epitaph survives to t
 	}
 });
 
+test('a death says whose side the acting body was on: ours for a hazard on the way in, theirs for a hit', () => {
+	// `of` names whoever was acting when a body fell. Florges switched in for
+	// Houndoom and died to Spikes read `of: "Houndoom"`, and the wall view
+	// charged our own Houndoom as a foe. `ofSide` is what tells them apart.
+	const doc = docWith([
+		{species: 'Skitty', map: 'Route101', level: 2},
+		{species: 'Starly', map: 'Route102', level: 5},
+	]);
+	const opened = driver.start(doc, 'Leader Brawly', 7);
+	// Test-only surgery: Stealth Rock on our side and a bench body at 1 HP, so
+	// the voluntary switch kills it on entry.
+	const player = opened.battle.state.sides.player;
+	player.effects = Object.assign({}, player.effects, {stealthRock: true});
+	player.party[1].hp.current = 1;
+	const pivot = opened.actions.find(entry => entry.kind === 'switch');
+	assert.ok(pivot, 'a voluntary switch is on offer');
+	let reply = driver.act(opened.battle, pivot.action);
+	let guard = 0;
+	while (!reply.result && guard++ < 80) {
+		const pick = reply.actions[0];
+		reply = driver.act(reply.battle, pick.kind === 'move' ? {kind: 'move', move: pick.move} :
+			{kind: 'switch', replacementId: pick.action.replacementId});
+	}
+	assert.equal(reply.result, 'loss');
+	const starly = reply.deaths.find(death => death.species === 'Starly');
+	const skitty = reply.deaths.find(death => death.species === 'Skitty');
+	assert.deepEqual([starly.by, starly.of, starly.ofSide], [null, 'Skitty', 'ours'],
+		'the hazard death is of our own outgoing body, on our side');
+	assert.ok(skitty.by && skitty.of, 'the hit names its move and its user');
+	assert.equal(skitty.ofSide, 'theirs', 'a foe\'s hit is on their side');
+});
+
 test('the driver refuses what the fight cannot do, by name', () => {
 	const doc = docWith([{species: 'Poochyena', map: 'Route101', level: 3}]);
 	const opened = driver.start(doc, undefined, 1);

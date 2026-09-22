@@ -69,6 +69,12 @@ export interface DoublesLine {
 	readonly actor: string;
 	readonly move: string | null;
 	readonly targets: ReadonlyArray<string>;
+	/**
+	 * The targets the line shows damage on (" -N%"; the driver writes it only
+	 * when HP was lost, so -0% is a rounded scratch): a miss, a Protect or a
+	 * status move carries no mark and is no hit.
+	 */
+	readonly hit: ReadonlyArray<string>;
 	readonly fainted: boolean;
 	readonly tags: ReadonlyArray<Tag>;
 }
@@ -87,10 +93,12 @@ export function readDoublesLine(event: {readonly turn?: number | null | undefine
 	if (actor === undefined) return null;
 	const side = event.side ?? (ours.has(baseOf(actor)) ? 'ours' : 'theirs');
 	const turn = event.turn ?? null;
-	if (fell) return {turn, side, actor, move: null, targets: [], fainted: true, tags: [side === 'ours' ? 'we-fall' : 'we-ko']};
+	if (fell) return {turn, side, actor, move: null, targets: [], hit: [], fainted: true, tags: [side === 'ours' ? 'we-fall' : 'we-ko']};
 	const move = used?.[2] ?? '';
 	const marks = used?.[4] ?? '';
-	const targets = (used?.[3] ?? '').split(', ').filter(Boolean).map(hit => hit.replace(/ -\d+%$/, ''));
+	const aimed = (used?.[3] ?? '').split(', ').filter(Boolean);
+	const targets = aimed.map(hit => hit.replace(/ -\d+%$/, ''));
+	const hit = aimed.filter(target => / -\d+%$/.test(target)).map(target => target.replace(/ -\d+%$/, ''));
 	const tags: Tag[] = [];
 	const failed = /\((sleep|flinch|freeze|paralysis|confusion|infatuation|protect|truant)\)/.test(marks);
 	if (side === 'ours') tags.push(...moveTags(move));
@@ -100,7 +108,7 @@ export function readDoublesLine(event: {readonly turn?: number | null | undefine
 	}
 	if (/\(missed\)/.test(marks)) tags.push(side === 'ours' ? 'miss-ours' : 'miss-theirs');
 	if (/\(crit\)/.test(marks)) tags.push(side === 'ours' ? 'crit-ours' : 'crit-theirs');
-	return {turn, side, actor, move: failed ? null : move, targets, fainted: false, tags};
+	return {turn, side, actor, move: failed ? null : move, targets, hit, fainted: false, tags};
 }
 
 export function tagsOf(turn: Turn): ReadonlyArray<Tag> {

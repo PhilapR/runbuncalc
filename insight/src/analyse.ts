@@ -94,7 +94,8 @@ function summariseDouble(attempt: Attempt, events: NonNullable<Attempt['events']
 		if (line.side === 'theirs' && !line.fainted) {
 			const row = foeRow(line.actor);
 			if (line.turn !== null) row.turns.add(line.turn);
-			for (const target of line.targets) lastHitBy.set(target, line.actor);
+			// Only a line that did damage is a hit: a miss, a Protect or a Hypnosis does not take the charge.
+			for (const target of line.hit) lastHitBy.set(target, line.actor);
 		}
 		if (line.fainted && line.side === 'theirs') foeRow(line.actor).fell = true;
 		if (line.fainted && line.side === 'ours') {
@@ -254,9 +255,13 @@ export interface FoeRow {
 	readonly killers: ReadonlyArray<readonly [string, number]>;
 	/** Which of ours it killed, most first. */
 	readonly victims: ReadonlyArray<readonly [string, number]>;
-	/** The same three readings in the winning attempt, and averaged over the losses that met it. */
+	/**
+	 * The same three readings in the winning attempt, and averaged over the
+	 * losses that met it: null when no loss met it (a foe seen only in the win),
+	 * never a 0 that reads as "it cost nothing".
+	 */
 	readonly win: {readonly bodiesLost: number; readonly fell: boolean; readonly turns: number | null} | null;
-	readonly losses: {readonly facedIn: number; readonly bodiesPerFacing: number; readonly fellShare: number;
+	readonly losses: {readonly facedIn: number; readonly bodiesPerFacing: number | null; readonly fellShare: number | null;
 		readonly turnsPerFacing: number | null};
 }
 
@@ -268,10 +273,23 @@ export interface WallView {
 	/** The winning attempt's ledger number. */
 	readonly winN: number | null;
 	readonly logged: number;
-	/** Most costly first: one row a foe, every number on one scale across the rows. */
+	/** Most costly in the losses first (losses.bodiesPerFacing, what the page plots): one row a foe, every number on one scale across the rows. */
 	readonly foes: ReadonlyArray<FoeRow>;
-	/** Bodies lost to their own move — recoil, Self-Destruct — which no foe is charged with. */
+	/** Bodies of ours that fell on our own move — recoil, Self-Destruct, a partner's spread move — which no foe is charged with. */
 	readonly selfInflicted: number;
+	/** Bodies of ours that fell on our own switch: hazards on the way in. Charged to no foe. */
+	readonly hazards: number;
+	/**
+	 * Bodies of ours whose ledger row names no actor (`of: null`). The driver
+	 * records none for end-of-turn damage — weather, status, seeds — so these
+	 * are charged to no foe; on the sidney1 Sidney wall they were 40 of 240 bodies lost.
+	 */
+	readonly unattributed: number;
+	/**
+	 * True when some attempt's ledger has no `ofSide` (written before 2026-09-22):
+	 * our side is then told from theirs by species, which a mirror can fool.
+	 */
+	readonly approximate: boolean;
 	readonly tagLift: WallSummary['tagLift'];
 	/** Every attempt, in order: what the strip of attempts draws, and what the fight view opens. */
 	readonly runs: ReadonlyArray<{readonly n: number; readonly result: string; readonly policy: string;
@@ -287,6 +305,9 @@ const bump = (counts: Map<string, number>, key: string | null | undefined): void
 const ranked = (counts: Map<string, number>): ReadonlyArray<readonly [string, number]> =>
 	[...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
+/** A species without its Mega form: the six boxes Lopunny, the ledger names Lopunny-Mega. */
+const baseOf = (species: string): string => species.replace(/-Mega(-[XY])?$/, '');
+
 const ratio = (top: number, bottom: number): number => bottom === 0 ? 0 : Number((top / bottom).toFixed(2));
 
 /**
@@ -295,11 +316,17 @@ const ratio = (top: number, bottom: number): number => bottom === 0 ? 0 : Number
  *
  * This is the table the operator kept building by hand (Champion Wallace:
  * which of six costs the bodies). A body is charged from the ledger, where
- * the harness names the foe that dealt the last hit (`killers[].of`); that
- * row exists for every attempt, logged or not, singles or doubles. A body
- * whose killer is its own species fell to its own move (Double-Edge, Brave
- * Bird) and is counted apart. Only an attempt without killers falls back to
- * the tape's reading (summariseAttempt's foeCosts).
+ * the harness names the body that was ACTING when ours fell (`killers[].of`);
+ * that row exists for every attempt, logged or not, singles or doubles. Only
+ * an actor on THEIR side is a foe. An actor on ours is our own switch (the
+ * body fell to hazards on the way in) or our own move (recoil, Self-Destruct),
+ * and each is counted apart. Until 2026-09-22 this charged every actor to a
+ * foe, and on the Sidney wall five of eleven foe rows were our own team.
+ * The side is the ledger's `ofSide`; an older ledger has none, and the side
+ * is read by species — ours if the six (or the fallen) hold it and the tape
+ * never saw it on their side — which is approximate, and the view says so.
+ * Only an attempt without killers falls back to the tape's reading
+ * (summariseAttempt's foeCosts).
  */
 export function wallView(run: RunRecord, trainer: string): WallView | null {
 	const wall = walls(run).find(entry => entry.trainer === trainer);
@@ -328,6 +355,9 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 		return row;
 	};
 	let selfInflicted = 0;
+	let hazards = 0;
+	let unattributed = 0;
+	let approximate = false;
 	for (const [index, attempt] of attempts.entries()) {
 		const summary = wall.summaries[index];
 		if (summary === undefined) continue;
@@ -341,10 +371,19 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 			if (attempt.killers === undefined) bodies.set(cost.foe, (bodies.get(cost.foe) ?? 0) + cost.bodiesLost);
 		}
 		for (const ko of attempt.kos ?? []) fell.add(ko.foe);
+		const ours = new Set([...(attempt.six ?? []).map(member => baseOf(member.species)),
+			...(attempt.killers ?? []).flatMap(fall => fall.species === null ? [] : [baseOf(fall.species)])]);
 		for (const fall of attempt.killers ?? []) {
-			if (fall.of === null) continue;
-			// Killed by its own species: its own recoil — unless the tape saw that species on THEIR side, a mirror.
-			if (fall.of === fall.species && !turns.has(fall.of)) { selfInflicted += 1; continue; }
+			if (fall.of === null) { unattributed += 1; continue; }
+			if (fall.ofSide === undefined) approximate = true;
+			// An old ledger: ours if our side holds the species and the tape never saw it on theirs (a mirror).
+			const side = fall.ofSide ?? (ours.has(baseOf(fall.of)) && !turns.has(fall.of) ? 'ours' : 'theirs');
+			if (side === 'ours') {
+				// Our own switch carries no move: the body fell to hazards on the way in.
+				if (fall.by === null) hazards += 1;
+				else selfInflicted += 1;
+				continue;
+			}
 			bodies.set(fall.of, (bodies.get(fall.of) ?? 0) + 1);
 			const row = rowOf(fall.of);
 			bump(row.killers, fall.by);
@@ -372,12 +411,18 @@ function viewOf(run: RunRecord, wall: WallSummary): WallView {
 		foe, facedIn: row.faced, loggedIn: row.logged, bodiesLost: row.bodies, bodiesPerFacing: ratio(row.bodies, row.faced),
 		fell: row.fell, fellShare: ratio(row.fell, row.faced), turnsPerFacing: row.logged === 0 ? null : ratio(row.turns, row.logged),
 		killers: ranked(row.killers), victims: ranked(row.victims), win: row.win,
-		losses: {facedIn: row.lossFaced, bodiesPerFacing: ratio(row.lossBodies, row.lossFaced), fellShare: ratio(row.lossFell, row.lossFaced),
+		losses: {facedIn: row.lossFaced,
+			bodiesPerFacing: row.lossFaced === 0 ? null : ratio(row.lossBodies, row.lossFaced),
+			fellShare: row.lossFaced === 0 ? null : ratio(row.lossFell, row.lossFaced),
 			turnsPerFacing: row.lossLogged === 0 ? null : ratio(row.lossTurns, row.lossLogged)},
-	})).sort((a, b) => b.bodiesPerFacing - a.bodiesPerFacing || a.foe.localeCompare(b.foe));
+	}))
+		// Sorted by what the page plots — the losses' mean — so the order and the grey dots agree; a foe no loss
+		// met goes last, then the mean over every attempt breaks ties.
+		.sort((a, b) => (b.losses.bodiesPerFacing ?? -1) - (a.losses.bodiesPerFacing ?? -1) ||
+		b.bodiesPerFacing - a.bodiesPerFacing || a.foe.localeCompare(b.foe));
 	const win = wall.wonOn === null ? undefined : wall.summaries[wall.wonOn - 1];
 	return {trainer: wall.trainer, order: wall.order, attempts: wall.attempts, wonOn: wall.wonOn, winN: win?.n ?? null,
-		logged: wall.logged, foes, selfInflicted, tagLift: wall.tagLift,
+		logged: wall.logged, foes, selfInflicted, hazards, unattributed, approximate, tagLift: wall.tagLift,
 		runs: wall.summaries.map((entry, index) => ({n: entry.n, result: entry.result, policy: entry.policy, bodiesLost: entry.bodiesLost,
 			knockouts: attempts[index]?.kos?.length ?? null, foeLeft: entry.foeLeft, turns: entry.turns, hasLog: entry.hasLog}))};
 }

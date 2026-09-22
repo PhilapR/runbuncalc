@@ -25,7 +25,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import {decodeEnded, decodePlaying, fleetOf, fromEnded, fromPlaying, summariseRun, type RunSummary} from './profile.js';
 import {wallView, type WallView} from './analyse.js';
-import {currentOf, loadRunWithFights, sidecarOf} from './cli.js';
+import {currentOf, describeFailure, loadRunWithFights, sidecarOf} from './cli.js';
 import {Turn, type RunRecord} from './schema.js';
 import {readDoublesLine, tagsOf} from './tags.js';
 import {STYLE} from './viewer.js';
@@ -100,7 +100,7 @@ export const readLive = (file: string): Effect.Effect<LiveState, never> =>
 		return {header, turns, ended};
 	});
 
-const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+export const PAGE = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Live Run</title><style>${STYLE}
 main{display:block;height:auto;max-width:1180px;margin:0 auto;padding:12px 16px}#overview{width:100%;margin:0 0 10px}#overview tr{cursor:pointer}#overview tr[aria-current=true] td{font-weight:600}#overview{display:block;overflow-x:auto}#overview td,#overview th{padding:3px 12px 3px 0;text-align:left;white-space:nowrap}#overview th{font-weight:400;color:var(--mute);font-size:12px}#overview tr.over td{color:var(--mute)}#overview tr.fold td{color:var(--mute);font-size:12px;padding-top:8px}#overview .warn{color:var(--warn,#b7791f)}#overview .acts button{font:inherit;font-size:12px;padding:1px 8px;margin-right:4px;border:1px solid var(--line,#8884);border-radius:4px;background:transparent;color:inherit;cursor:pointer}#overview .acts button:hover{background:var(--line,#8882)}#machine{margin:0 0 8px}
 .facts{margin:6px 0 12px;line-height:1.7}.facts b{font-weight:600}.facts span{color:var(--mute);margin-right:14px}
@@ -114,7 +114,7 @@ body{font-variant-numeric:tabular-nums}.num{text-align:right!important;font-vari
 .road .ahead{stroke:var(--line);stroke-width:1}.road .behind{stroke:var(--mute);stroke-width:1}.road .wall{stroke:var(--fg);stroke-width:1.6}.road .wall.lost{stroke:var(--loss);stroke-width:2}.road .here{fill:var(--mute)}.road .here.live{fill:var(--win)}
 .turn{background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:8px 0;margin:0}.tag{background:none;padding:0;margin:2px 10px 0 0;color:var(--mute)}.tag.hot{color:var(--hot)}.tag.warn{color:var(--loss)}
 .weighed{margin:6px 0 0}.weighed .opt{display:flex;gap:10px;align-items:center;color:var(--mute);font-size:12px}.weighed .opt.chosen{color:var(--fg)}.weighed .name{flex:0 0 190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.weighed .num{flex:0 0 44px}.weighed .axis{stroke:var(--line)}.weighed .other{fill:var(--line)}.weighed .dot{fill:none;stroke:var(--mute);stroke-width:1.2}.weighed .dot.chosen{fill:var(--fg);stroke:var(--fg)}.compact .events,.compact .turn table{display:none}.runs button{margin:0 6px 6px 0}.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-right:6px;animation:p 1s infinite}.done .pulse,.lost .pulse{background:var(--mute);animation:none}@keyframes p{50%{opacity:.25}}
-.dots .axis{stroke:var(--line)}.dots .loss{fill:var(--mute)}.dots .win{fill:var(--fg)}.tries rect{fill:var(--loss)}.tries rect.ko{fill:var(--fg)}table.dense tr[aria-current=true] td{font-weight:600}.tries rect.untaped{fill:var(--line)}.tries rect.won{fill:var(--win)}.tries rect.at{fill:var(--hot)}.tries rect{cursor:pointer}.tries rect:focus-visible{outline:none;stroke:var(--hot);stroke-width:1.5}#sub button{font:inherit;font-size:12px;padding:0 8px;margin-left:6px;border:1px solid var(--line);border-radius:4px;background:transparent;color:inherit;cursor:pointer}#sub button[disabled]{opacity:.35;cursor:default}
+.dots .axis{stroke:var(--line)}.dots .loss{fill:var(--mute)}.dots .win{fill:var(--fg)}.tries rect{fill:var(--loss)}.tries rect.ko{fill:var(--fg)}table.dense tr[aria-current=true] td{font-weight:600}.tries rect.untaped{fill:var(--line)}.tries rect.won{fill:var(--win)}.tries rect.at{fill:var(--hot)}.tries rect{cursor:pointer}.tries rect:focus-visible{outline:none;stroke:var(--hot);stroke-width:1.5}.tries rect.none{fill:transparent;stroke:var(--line);stroke-width:1}.tries rect.none.won{stroke:var(--win)}.tries rect.none.at{stroke:var(--hot)}#sub button{font:inherit;font-size:12px;padding:0 8px;margin-left:6px;border:1px solid var(--line);border-radius:4px;background:transparent;color:inherit;cursor:pointer}#sub button[disabled]{opacity:.35;cursor:default}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}</style></head><body>
 <header><h1 id="title">Live run</h1><p id="sub">waiting for a fight…</p></header>
 <main><p class="sub" id="machine"></p><table id="overview"></table><div class="filters" id="views"></div><div id="fightView"><div class="filters" id="controls"></div><div class="filters" id="tagbar"></div><div class="speed" id="six"></div><div id="turns"></div></div><div id="runView" hidden></div><div id="fleetView" hidden></div></main>
@@ -218,7 +218,8 @@ async function drawRun() {
 // A WALL, one row a foe of theirs: what it costs us each time we meet it, how often it falls, how long it stays,
 // what it kills with. Each column is ONE scale down every row, so the foes compare at a glance: the losses' mean
 // is a grey dot, the win a black one, and the numbers sit beside them.
-const nice = v => { if (v <= 0) return 1; const step = Math.pow(10, Math.floor(Math.log10(v))); return Math.ceil(v / step) * step; };
+// Rounded to twelve figures: 3 × 0.1 is 0.30000000000000004 in floating point, and the caption printed it.
+const nice = v => { if (v <= 0) return 1; const step = Math.pow(10, Math.floor(Math.log10(v))); return Number((Math.ceil(v / step) * step).toPrecision(12)); };
 function dots(max, loss, win, label) {
   const W = 120, x = v => 4 + Math.max(0, Math.min(1, v / max)) * (W - 8);
   const g = svg('svg', {width: W, height: 12, viewBox: '0 0 ' + W + ' 12', class: 'dots', role: 'img', 'aria-label': label});
@@ -229,24 +230,34 @@ function dots(max, loss, win, label) {
 }
 async function drawWall(box, mine) {
   const w = await (await fetch('/wall?run=' + encodeURIComponent(current) + '&trainer=' + encodeURIComponent(wallOpen))).json(); if (mine !== drawing) return;
-  if (!w) { box.appendChild(el('p', {class: 'sub', text: 'this run kept nothing to read for ' + wallOpen})); return; }
+  if (w && w.error) { box.appendChild(el('p', {class: 'sub', text: 'cannot read this run for ' + wallOpen + ': ' + w.error})); return; }
+  if (!w) { box.appendChild(el('p', {class: 'sub', text: 'this run never fought ' + wallOpen})); return; }
   box.appendChild(part(w.trainer + ' — ' + w.attempts + ' attempts, ' + (w.wonOn ? 'won on attempt ' + w.wonOn : 'never won') + ' · ' + w.logged + ' taped · per foe, most costly first', 'run-wall'));
   const won = w.wonOn !== null;
-  const maxB = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.bodiesPerFacing, f.win ? f.win.bodiesLost : 0))));
+  const bodies = n => n + ' bod' + (n === 1 ? 'y' : 'ies');
+  const maxB = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.bodiesPerFacing || 0, f.win ? f.win.bodiesLost : 0))));
   const maxT = nice(Math.max(0, ...w.foes.map(f => Math.max(f.losses.turnsPerFacing || 0, f.win && f.win.turns !== null ? f.win.turns : 0))));
-  box.appendChild(el('p', {class: 'sub', text: (won ? 'Grey dot: the mean of the ' + (w.attempts - 1) + ' losses; black dot: the win. ' : 'Every dot is the mean of the losses: there is no win to set beside them. ') +
-    'One scale down each column — bodies of ours lost a facing 0 to ' + maxB + ', fell 0 to 100% of facings, turns it stayed 0 to ' + maxT + '. A body is charged to the foe that dealt its last hit.'}));
+  box.appendChild(el('p', {class: 'sub', text: (won ? 'Grey dot: the mean over the losses that met that foe, which “losses met” counts; black dot: the win. ' : 'Every dot is the mean over the losses that met that foe, which “losses met” counts: there is no win to set beside them. ') +
+    'One scale down each column — bodies of ours lost a facing 0 to ' + maxB + ', fell 0 to 100% of facings, turns it stayed 0 to ' + maxT + '. ' +
+    'A body is charged to the foe that was acting when it fell: ' + bodies(w.foes.reduce((sum, f) => sum + f.bodiesLost, 0)) + ' here' +
+    (w.unattributed + w.hazards + w.selfInflicted ? ', and ' + (w.unattributed + w.hazards + w.selfInflicted) + ' more charged to no foe (below)' : '') + '.'}));
   const num = v => v === null || v === undefined ? '—' : String(v);
-  box.appendChild(dense(['their', 'met', 'bodies a facing', '', 'fell', '', 'turns a facing', '', 'kills with', 'kills'], w.foes.map(f => el('tr', {}, [
-    cell(f.foe), cell(f.facedIn, 'num'),
-    cell(dots(maxB, f.losses.bodiesPerFacing, f.win && f.win.bodiesLost, f.foe + ': ' + f.losses.bodiesPerFacing + ' bodies a losing facing'), '', f.losses.bodiesPerFacing),
-    cell(num(f.losses.bodiesPerFacing) + (f.win ? ' · win ' + f.win.bodiesLost : ''), 'num', f.losses.bodiesPerFacing),
-    cell(dots(1, f.losses.fellShare, f.win && (f.win.fell ? 1 : 0), f.foe + ' fell in ' + Math.round(100 * f.losses.fellShare) + '% of losing facings'), '', f.losses.fellShare),
-    cell(Math.round(100 * f.losses.fellShare) + '%' + (f.win ? (f.win.fell ? ' · fell in the win' : ' · stood in the win') : ''), 'num', f.losses.fellShare),
-    cell(dots(maxT, f.losses.turnsPerFacing, f.win && f.win.turns, f.foe + ' stayed ' + num(f.losses.turnsPerFacing) + ' turns a losing facing'), '', f.losses.turnsPerFacing === null ? -1 : f.losses.turnsPerFacing),
-    cell(num(f.losses.turnsPerFacing) + (f.win && f.win.turns !== null ? ' · win ' + f.win.turns : ''), 'num', f.losses.turnsPerFacing === null ? -1 : f.losses.turnsPerFacing),
+  const pct = v => v === null || v === undefined ? '—' : Math.round(100 * v) + '%';
+  const key = v => v === null || v === undefined ? -1 : v;
+  box.appendChild(dense(['their', 'met', 'losses met', 'bodies a facing', '', 'fell', '', 'turns a facing', '', 'kills with', 'kills'], w.foes.map(f => el('tr', {}, [
+    cell(f.foe), cell(f.facedIn, 'num'), cell(f.losses.facedIn, 'num'),
+    cell(dots(maxB, f.losses.bodiesPerFacing, f.win && f.win.bodiesLost, f.foe + ': ' + num(f.losses.bodiesPerFacing) + ' bodies a losing facing'), '', key(f.losses.bodiesPerFacing)),
+    cell(num(f.losses.bodiesPerFacing) + (f.win ? ' · win ' + f.win.bodiesLost : ''), 'num', key(f.losses.bodiesPerFacing)),
+    cell(dots(1, f.losses.fellShare, f.win && (f.win.fell ? 1 : 0), f.foe + ' fell in ' + pct(f.losses.fellShare) + ' of losing facings'), '', key(f.losses.fellShare)),
+    cell(pct(f.losses.fellShare) + (f.win ? (f.win.fell ? ' · fell in the win' : ' · stood in the win') : ''), 'num', key(f.losses.fellShare)),
+    cell(dots(maxT, f.losses.turnsPerFacing, f.win && f.win.turns, f.foe + ' stayed ' + num(f.losses.turnsPerFacing) + ' turns a losing facing'), '', key(f.losses.turnsPerFacing)),
+    cell(num(f.losses.turnsPerFacing) + (f.win && f.win.turns !== null ? ' · win ' + f.win.turns : ''), 'num', key(f.losses.turnsPerFacing)),
     cell(list(f.killers.slice(0, 3)), 'wrap'), cell(list(f.victims.slice(0, 3)), 'wrap')])), 'wallfoes'));
-  if (w.selfInflicted) box.appendChild(el('p', {class: 'sub', text: w.selfInflicted + ' bod' + (w.selfInflicted === 1 ? 'y' : 'ies') + ' of ours fell to ' + (w.selfInflicted === 1 ? 'its' : 'their') + ' own move (recoil, Self-Destruct): charged to no foe.'}));
+  const apart = [w.unattributed ? bodies(w.unattributed) + ' fell with no actor recorded (end-of-turn damage: weather, status, seeds)' : '',
+    w.hazards ? bodies(w.hazards) + ' fell on our own switch (hazards on the way in)' : '',
+    w.selfInflicted ? bodies(w.selfInflicted) + ' fell on our own move (recoil, Self-Destruct)' : ''].filter(Boolean);
+  if (apart.length) box.appendChild(el('p', {class: 'sub', text: 'Charged to no foe: ' + apart.join('; ') + '.'}));
+  if (w.approximate) box.appendChild(el('p', {class: 'sub', text: 'Approximate: this record predates the ledger naming whose side a killer was on, so ours are told from theirs by species — a mirror can be misread.'}));
   // Every attempt, in the order played: above the axis the bodies of theirs it knocked out, below it ours lost, one
   // unit for both — how close each came. Click one to read it on the fight tab.
   const most = Math.max(6, ...w.runs.map(r => Math.max(r.bodiesLost, r.knockouts || 0))), half = 14, step = 6, W = Math.max(40, w.runs.length * step + 2), H = 2 * half + 1;
@@ -255,7 +266,9 @@ async function drawWall(box, mine) {
   w.runs.forEach((r, i) => {
     const up = ((r.knockouts || 0) / most) * (half - 1), down = (r.bodiesLost / most) * (half - 1);
     if (up > 0) { const top = svg('rect', {x: 1 + i * step, y: half - up, width: step - 2, height: up, class: 'ko' + (r.result === 'win' ? ' won' : '')}); top.addEventListener('click', () => openAttempt(r.n)); g.appendChild(top); }
-    const bar = svg('rect', {x: 1 + i * step, y: half + 1, width: step - 2, height: Math.max(1.5, down), tabindex: '0', class: (r.result === 'win' ? 'won' : r.hasLog ? '' : 'untaped') + (pinned === r.n ? ' at' : '')},
+    // No bodies lost draws no bar — a 1.5px one read as a loss — but an outline the height of the lane, to click.
+    const bar = svg('rect', {x: 1 + i * step, y: half + 1, width: step - 2, height: down > 0 ? down : half - 1, tabindex: '0',
+      class: (r.result === 'win' ? 'won' : r.hasLog ? '' : 'untaped') + (down > 0 ? '' : ' none') + (pinned === r.n ? ' at' : '')},
       [tip('attempt ' + (i + 1) + ' · ' + r.result + ' · ' + r.policy + ' · ' + (r.knockouts === null ? '' : r.knockouts + ' of theirs down · ') + r.bodiesLost + ' of ours lost' + (r.foeLeft === null ? '' : ' · ' + r.foeLeft + ' of theirs left') + (r.hasLog ? '' : ' · no tape'))]);
     bar.addEventListener('click', () => openAttempt(r.n)); bar.addEventListener('keydown', e => { if (e.key === 'Enter') openAttempt(r.n); });
     g.appendChild(bar);
@@ -274,6 +287,7 @@ function openAttempt(n) { pinned = n; view = 'fight'; address(); views(); }
 async function showPast() {
   const want = pinned; const a = await (await fetch('/attempt?run=' + encodeURIComponent(current) + '&n=' + want)).json(); if (want !== pinned) return;
   const sub = document.getElementById('sub');
+  if (a && a.error) { sub.textContent = 'cannot read attempt ' + want + ': ' + a.error; return; }
   if (!a) { sub.textContent = 'attempt ' + want + ' is not in this run’s record'; return; }
   attempt = 'past:' + a.n; seen = -1; held = [];
   document.body.className = 'done';
@@ -547,28 +561,42 @@ export const loadSummary = async (dir: string, run: string): Promise<RunSummary 
 	return null;
 };
 
+/** A run that could not be read, and why: the watch page shows `said`, never "it kept nothing". */
+export class Unreadable extends Error {
+	constructor(readonly said: string) { super(said); }
+}
+
 /**
  * A run with every fight it kept: its record or newer checkpoint, and its
  * sidecar. Megabytes to decode, so it is kept until either file changes.
+ *
+ * A record that does not decode REJECTS with the reason. It used to read as
+ * null, and the page said "this run kept nothing to read" of clear1's 104770,
+ * which kept 358 fights and failed on one null in a race.
  */
-const fought = new Map<string, {at: string; run: RunRecord}>();
-export const loadFought = async (dir: string, run: string): Promise<RunRecord | null> => {
+const fought = new Map<string, {at: string; run: Promise<RunRecord>}>();
+export const loadFought = async (dir: string, run: string): Promise<RunRecord> => {
 	const report = path.join(dir, run + '.json');
 	const file = await currentOf(report);
 	const stamps = await Promise.all([file, sidecarOf(report)].map(name => fs.stat(name).then(stat => String(stat.mtimeMs), () => '-')));
 	const at = file + ':' + stamps.join(':');
 	const kept = fought.get(report);
+	// The promise is kept, not its value: the wall view and a past attempt asked
+	// for at once share one decode instead of racing two of the same megabytes.
 	if (kept !== undefined && kept.at === at) return kept.run;
-	const loaded = await Effect.runPromise(loadRunWithFights(report).pipe(Effect.orElseSucceed(() => null)));
-	if (loaded !== null) fought.set(report, {at, run: loaded});
-	return loaded;
+	const loading = Effect.runPromise(Effect.either(loadRunWithFights(report))).then(loaded => {
+		if (loaded._tag === 'Left') throw new Unreadable(describeFailure(loaded.left));
+		return loaded.right;
+	});
+	fought.set(report, {at, run: loading});
+	// A failure is not kept: the next ask reads the files again.
+	loading.catch(() => { if (fought.get(report)?.run === loading) fought.delete(report); });
+	return loading;
 };
 
-/** One wall of a run, per foe (analyse.ts wallView). */
-export const loadWall = async (dir: string, run: string, trainer: string): Promise<WallView | null> => {
-	const record = await loadFought(dir, run);
-	return record === null ? null : wallView(record, trainer);
-};
+/** One wall of a run, per foe (analyse.ts wallView); null when the run never fought that trainer. */
+export const loadWall = async (dir: string, run: string, trainer: string): Promise<WallView | null> =>
+	wallView(await loadFought(dir, run), trainer);
 
 /**
  * Any attempt the run kept, as the fight tab draws it: a single's turns,
@@ -577,8 +605,8 @@ export const loadWall = async (dir: string, run: string, trainer: string): Promi
  */
 export const loadAttempt = async (dir: string, run: string, n: number) => {
 	const record = await loadFought(dir, run);
-	const attempt = record?.ledger.find(entry => entry.n === n);
-	if (record === null || attempt === undefined) return null;
+	const attempt = record.ledger.find(entry => entry.n === n);
+	if (attempt === undefined) return null;
 	const same = record.ledger.filter(entry => entry.order === attempt.order && entry.trainer === attempt.trainer);
 	const ours = new Set((attempt.six ?? []).map(member => member.species));
 	const log = attempt.log ?? [];
@@ -593,6 +621,13 @@ export const loadAttempt = async (dir: string, run: string, n: number) => {
 };
 
 const RUN_NAME = /^([A-Za-z0-9_.-]+\/)?[A-Za-z0-9_.-]+$/;
+
+/**
+ * A run is named LABEL/run-SEED (or run-SEED); anything else is refused, so a
+ * name can never walk out of the directory being watched. One rule for every
+ * route that takes a run: it was written out five times.
+ */
+export const guardRun = (run: string): boolean => RUN_NAME.test(run) && !run.includes('..');
 
 /** Stop, pause or continue one run — by its own status file's pid, as scripts/runs.js does. */
 export const control = async (dir: string, run: string, action: 'stop' | 'pause' | 'cont'): Promise<{ok: boolean; said: string}> => {
@@ -609,10 +644,13 @@ export const control = async (dir: string, run: string, action: 'stop' | 'pause'
 };
 
 export const serve = (dir: string, port: number): http.Server => {
-	const send = (res: http.ServerResponse, type: string, body: string): void => {
-		res.writeHead(200, {'content-type': type, 'cache-control': 'no-store'});
+	const send = (res: http.ServerResponse, type: string, body: string, status = 200): void => {
+		res.writeHead(status, {'content-type': type, 'cache-control': 'no-store'});
 		res.end(body);
 	};
+	// A run that cannot be read says why, with a status that is not 200.
+	const failed = (res: http.ServerResponse) => (error: unknown): void =>
+		send(res, 'application/json', JSON.stringify({error: error instanceof Unreadable ? error.said : String(error)}), 500);
 	return http.createServer((req, res) => {
 		const url = new URL(req.url ?? '/', 'http://localhost');
 		if (url.pathname === '/runs') {
@@ -628,22 +666,22 @@ export const serve = (dir: string, port: number): http.Server => {
 		}
 		if (url.pathname === '/summary') {
 			const run = url.searchParams.get('run') ?? '';
-			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!guardRun(run)) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadSummary(dir, run).then(summary => send(res, 'application/json', JSON.stringify(summary)));
 			return;
 		}
 		if (url.pathname === '/wall') {
 			const run = url.searchParams.get('run') ?? '';
-			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!guardRun(run)) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadWall(dir, run, url.searchParams.get('trainer') ?? '').then(view => send(res, 'application/json', JSON.stringify(view)),
-				() => send(res, 'application/json', 'null'));
+				failed(res));
 			return;
 		}
 		if (url.pathname === '/attempt') {
 			const run = url.searchParams.get('run') ?? '';
-			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!guardRun(run)) { res.writeHead(400); res.end('bad run name'); return; }
 			void loadAttempt(dir, run, Number(url.searchParams.get('n'))).then(found => send(res, 'application/json', JSON.stringify(found)),
-				() => send(res, 'application/json', 'null'));
+				failed(res));
 			return;
 		}
 		if (url.pathname === '/fleet') {
@@ -659,16 +697,14 @@ export const serve = (dir: string, port: number): http.Server => {
 		if (url.pathname === '/control') {
 			const run = url.searchParams.get('run') ?? '';
 			const action = url.searchParams.get('action') ?? '';
-			if (req.method !== 'POST' || req.headers['x-insight'] !== '1' || !RUN_NAME.test(run) || run.includes('..') ||
+			if (req.method !== 'POST' || req.headers['x-insight'] !== '1' || !guardRun(run) ||
 				!/^(stop|pause|cont)$/.test(action)) { res.writeHead(400); res.end('refused'); return; }
 			void control(dir, run, action as 'stop' | 'pause' | 'cont').then(said => send(res, 'application/json', JSON.stringify(said)));
 			return;
 		}
 		if (url.pathname === '/state') {
-			// A run is named LABEL/run-SEED (or run-SEED); anything else is refused,
-			// so the name can never walk out of the directory being watched.
 			const run = url.searchParams.get('run') ?? '';
-			if (!RUN_NAME.test(run) || run.includes('..')) { res.writeHead(400); res.end('bad run name'); return; }
+			if (!guardRun(run)) { res.writeHead(400); res.end('bad run name'); return; }
 			void Effect.runPromise(readLive(path.join(dir, run + '.live.ndjson')))
 				.then(state => send(res, 'application/json', JSON.stringify(state)));
 			return;

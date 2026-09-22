@@ -47,6 +47,16 @@ test('a record that has drifted is refused with the field that moved', async () 
 	assert.equal(good.ledger[0]?.trainer, 'Leader Brawly');
 });
 
+test('a race with no damaging answer decodes: turnsToKill and turnsToDie may be null', async () => {
+	const {decodeFightLine} = await import('../src/schema.js');
+	// Unknown, as off disk: the decoder is what is on trial here, not the compiler.
+	const line: unknown = {n: 1, trainer: 'Leader Brawly', log: [{...turn({}), options: {moves: [], bench: [], switches: [
+		{label: 'Shedinja', race: 'cannot win', raceDetail: {turnsToKill: null, turnsToDie: 3, faster: true}},
+		{label: 'Chansey', race: 'stall', raceDetail: {turnsToKill: 9, turnsToDie: null, faster: false}}]}}]};
+	const decoded = await Effect.runPromise(Effect.either(decodeFightLine(line)));
+	assert.ok(Either.isRight(decoded), 'clear1/run-104770 held 133 of these and did not decode');
+});
+
 test('a wall sets its win beside its losses', async () => {
 	const log = (chose: string): Turn[] => [turn({chose, why: 'search-8'})];
 	const run = await Effect.runPromise(decodeRun({seed: 1, position: 90, fights: 3, ledger: [
@@ -461,6 +471,221 @@ test('a doubles wall is read per foe too, and a mirror is charged to their side,
 	assert.deepEqual([articuno?.bodiesLost, articuno?.turnsPerFacing], [2, 1]);
 });
 
+test('a wall charges a body to a foe only when the actor was on their side', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const member = (species: string) => ({name: species, species, level: 99, item: null, ability: null, nature: null, moves: []});
+	const six = ['Florges', 'Houndoom', 'Lopunny', 'Pinsir'].map(member);
+	const side = (ofSide: 'ours' | 'theirs') => <T extends object>(fall: T) => ({...fall, ofSide});
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 2, ledger: [
+		// sidney1 attempt 3, as written before ofSide: Florges switched in for Houndoom and died to Spikes.
+		{n: 1, order: 1580, trainer: 'Elite Four Sidney', seed: 5, result: 'loss', six, killers: [
+			{monId: 'mon-Florges', species: 'Florges', by: null, of: 'Houndoom'},
+			fallen('Houndoom', 'Dark Pulse', 'Yveltal'),
+			fallen('Lopunny-Mega', 'Double-Edge', 'Lopunny-Mega'),
+			{monId: 'mon-Araquanid', species: 'Araquanid', by: null, of: null}]},
+		// A new ledger says the side: hazards on our switch, and a mirror Lopunny-Mega of theirs.
+		{n: 2, order: 1580, trainer: 'Elite Four Sidney', seed: 6, result: 'loss', six, killers: [
+			side('ours')({monId: 'mon-Pinsir', species: 'Pinsir', by: null, of: 'Lopunny-Mega'}),
+			side('theirs')(fallen('Lopunny-Mega', 'Double-Edge', 'Lopunny-Mega')),
+			side('theirs')(fallen('Houndoom', 'Oblivion Wing', 'Yveltal'))]},
+	]}));
+	const view = wallView(run, 'Elite Four Sidney');
+	assert.ok(view !== null);
+	assert.deepEqual(view.foes.map(foe => [foe.foe, foe.bodiesLost]).sort(), [['Lopunny-Mega', 1], ['Yveltal', 2]],
+		'Houndoom and Pinsir are ours: no foe row, and the Lopunny-Mega row is their mirror alone');
+	assert.equal(view.hazards, 2, 'Florges and Pinsir fell to hazards on our own switch');
+	assert.equal(view.selfInflicted, 1, 'our Lopunny-Mega\'s own Double-Edge, on the old ledger');
+	assert.equal(view.approximate, true, 'attempt 1 has no ofSide, so the page must say it is approximate');
+	assert.equal(view.unattributed, 1, 'Araquanid fell with no actor named: counted, not dropped');
+	const fresh = wallView(await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1,
+		ledger: [run.ledger[1]]})), 'Elite Four Sidney');
+	assert.equal(fresh?.approximate, false);
+});
+
+/**
+ * The watch page's own script, run against a stub document: what the wall
+ * view DRAWS, as text and as SVG shapes. The startup line (polls, timers) is
+ * cut; `fetch` answers from `reply`.
+ */
+class Stub {
+	readonly children: Stub[] = [];
+	readonly attrs: Record<string, string> = {};
+	textContent = '';
+	constructor(readonly tag: string) {}
+	appendChild(kid: Stub) { this.children.push(kid); return kid; }
+	replaceChildren(...kids: Stub[]) { this.children.splice(0, this.children.length, ...kids); }
+	setAttribute(key: string, value: unknown) { this.attrs[key] = String(value); }
+	getAttribute(key: string) { return this.attrs[key] ?? null; }
+	addEventListener() { /* nothing is clicked here */ }
+	get text(): string { return [this.textContent, ...this.children.map(kid => kid.text)].filter(Boolean).join(' '); }
+	all(tag: string): Stub[] { return [...(this.tag === tag ? [this] : []), ...this.children.flatMap(kid => kid.all(tag))]; }
+}
+const pageScript = async (reply: (url: string) => {status: number; body: string}) => {
+	const {PAGE} = await import('../src/serve.js');
+	const script = (/<script>([\s\S]*?)<\/script>/.exec(PAGE)?.[1] ?? '').replace(/^view = prefs\.view[\s\S]*$/m, '');
+	const document = {createElement: (tag: string) => new Stub(tag), createElementNS: (_ns: string, tag: string) => new Stub(tag),
+		createTextNode: (text: string) => Object.assign(new Stub('#text'), {textContent: text}),
+		getElementById: () => new Stub('div'), addEventListener() {}, body: new Stub('body')};
+	const fetch = async (url: string) => { const {status, body} = reply(url);
+		return {ok: status < 400, status, json: async () => JSON.parse(body), text: async () => body}; };
+	const localStorage = {getItem: () => null, setItem() {}};
+	const make = new Function('document', 'window', 'localStorage', 'fetch', 'Node', 'location', 'history',
+		script + '\n;return {drawWall, nice, open: (run, trainer) => { current = run; wallOpen = trainer; return drawing; }};');
+	return make(document, {addEventListener() {}}, localStorage, fetch, Stub, {search: '', hash: ''}, {replaceState() {}}) as
+		{drawWall: (box: Stub, mine: number) => Promise<void>; nice: (value: number) => number; open: (run: string, trainer: string) => number};
+};
+const drawnWall = async (view: unknown, status = 200) => {
+	const page = await pageScript(() => ({status, body: JSON.stringify(view)}));
+	const box = new Stub('div');
+	await page.drawWall(box, page.open('run-1', 'Elite Four Sidney'));
+	return box;
+};
+
+test('the wall page says what is charged to a foe and what is not', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1, ledger: [
+		{n: 1, order: 1580, trainer: 'Elite Four Sidney', seed: 5, result: 'loss', killers: [
+			{...fallen('Houndoom', 'Dark Pulse', 'Yveltal'), ofSide: 'theirs'},
+			{monId: 'mon-Araquanid', species: 'Araquanid', by: null, of: null},
+			{monId: 'mon-Florges', species: 'Florges', by: null, of: 'Houndoom', ofSide: 'ours'}]}]}));
+	const view = wallView(run, 'Elite Four Sidney');
+	assert.equal(view?.unattributed, 1, 'a body with no actor is counted, not dropped');
+	const text = (await drawnWall(view)).text;
+	assert.ok(!text.includes('dealt its last hit'), 'the caption no longer claims every body is charged');
+	assert.match(text, /1 body here, and 2 more charged to no foe/);
+	assert.match(text, /1 body fell with no actor recorded/);
+	assert.match(text, /1 body fell on our own switch/);
+});
+
+test('a foe met only in the win has no loss reading, not a loss reading of 0', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1700, fights: 2, ledger: [
+		{n: 1, order: 1625, trainer: 'Champion Wallace', seed: 5, result: 'loss',
+			killers: [{...fallen('Walrein', 'Origin Pulse', 'Kyogre-Primal'), ofSide: 'theirs'}], kos: []},
+		// Only the win got as far as Milotic.
+		{n: 2, order: 1625, trainer: 'Champion Wallace', seed: 6, result: 'win',
+			killers: [{...fallen('Florges', 'Scald', 'Milotic'), ofSide: 'theirs'}],
+			kos: [{foe: 'Kyogre-Primal', by: 'Power Whip'}, {foe: 'Milotic', by: 'Moonblast'}]},
+	]}));
+	const view = wallView(run, 'Champion Wallace');
+	const milotic = view?.foes.find(foe => foe.foe === 'Milotic');
+	assert.deepEqual(milotic?.losses, {facedIn: 0, bodiesPerFacing: null, fellShare: null, turnsPerFacing: null});
+	assert.deepEqual(milotic?.win, {bodiesLost: 1, fell: true, turns: null});
+	const box = await drawnWall(view);
+	const row = box.all('tr').find(tr => tr.text.startsWith('Milotic'));
+	assert.ok(row !== undefined);
+	assert.ok(!/\b0%/.test(row.text), 'no "0%" fell for losses that never met it: ' + row.text);
+	assert.equal(row.all('circle').filter(dot => dot.attrs.class === 'loss').length, 0, 'and no grey loss dot at 0');
+	// The grey dot is a mean over the losses that MET the foe: one for Kyogre, none for Milotic — not "the 1 losses".
+	const heads = box.all('th').map(th => th.text);
+	const met = heads.indexOf('losses met');
+	assert.ok(met > 0, 'the table counts the losses each mean is over');
+	assert.deepEqual(box.all('tr').filter(tr => tr.all('td').length > 0).map(tr => [tr.all('td')[0]?.text, tr.all('td')[met]?.text]).sort(),
+		[['Kyogre-Primal', '1'], ['Milotic', '0']]);
+	assert.ok(!/mean of the \d+ losses/.test(box.text), 'the caption no longer counts every loss');
+});
+
+test('a run that does not decode says why on the wall and the attempt, never that it kept nothing', async () => {
+	const fs = await import('node:fs/promises');
+	const os = await import('node:os');
+	const pathOf = await import('node:path');
+	const {loadWall, serve} = await import('../src/serve.js');
+	const dir = await fs.mkdtemp(pathOf.join(os.tmpdir(), 'insight-bad-'));
+	await fs.writeFile(pathOf.join(dir, 'run-1.json'), JSON.stringify({seed: 1, position: 3, fights: 1,
+		ledger: [{n: 1, order: 2, trainer: 'Leader Brawly', seed: '7', result: 'win'}]}));
+	await assert.rejects(loadWall(dir, 'run-1', 'Leader Brawly'), /ledger\.0\.seed/, 'the reason names the field that moved');
+	const server = serve(dir, 0);
+	try {
+		await new Promise(resolve => server.once('listening', resolve));
+		const address = server.address();
+		const base = 'http://127.0.0.1:' + (typeof address === 'object' && address !== null ? address.port : 0);
+		for (const route of ['/wall?run=run-1&trainer=Leader%20Brawly', '/attempt?run=run-1&n=1']) {
+			const got = await fetch(base + route);
+			assert.equal(got.status, 500, route + ' is not a 200 with null');
+			assert.match(((await got.json()) as {error: string}).error, /is not a run record: ledger\.0\.seed/);
+		}
+	} finally {
+		server.close();
+		await fs.rm(dir, {recursive: true});
+	}
+	const text = (await drawnWall({error: 'run-1.json is not a run record: ledger.0.seed: Expected number'}, 500)).text;
+	assert.match(text, /cannot read this run for Elite Four Sidney: run-1\.json is not a run record/);
+	assert.ok(!text.includes('kept nothing'));
+});
+
+test('a wall is ordered by the losses\' mean it plots, not by the mean over every attempt', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const theirs = (species: string, of: string) => ({...fallen(species, 'Tackle', of), ofSide: 'theirs' as const});
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1700, fights: 2, ledger: [
+		// In the loss Gyarados takes two, Milotic one; in the win Milotic takes five. Over all: Milotic 3, Gyarados 1.
+		{n: 1, order: 1625, trainer: 'Champion Wallace', seed: 5, result: 'loss',
+			killers: [theirs('Walrein', 'Gyarados'), theirs('Florges', 'Gyarados'), theirs('Dhelmise', 'Milotic')]},
+		{n: 2, order: 1625, trainer: 'Champion Wallace', seed: 6, result: 'win',
+			killers: ['Walrein', 'Florges', 'Dhelmise', 'Togekiss', 'Eldegoss'].map(species => theirs(species, 'Milotic')),
+			kos: [{foe: 'Gyarados', by: 'Thunder'}]},
+	]}));
+	const view = wallView(run, 'Champion Wallace');
+	assert.deepEqual(view?.foes.map(foe => [foe.foe, foe.losses.bodiesPerFacing, foe.bodiesPerFacing]),
+		[['Gyarados', 2, 1], ['Milotic', 1, 3]]);
+});
+
+test('a scale\'s end prints as a number, not a floating-point artefact', async () => {
+	const {nice} = await pageScript(() => ({status: 200, body: 'null'}));
+	assert.deepEqual([0.25, 0.7, 2.67, 0.03, 0].map(nice), [0.3, 0.7, 3, 0.03, 1]);
+});
+
+test('an attempt that lost no body draws an outline to click, not a bar of bodies lost', async () => {
+	const {wallView} = await import('../src/analyse.js');
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1700, fights: 2, ledger: [
+		{n: 1, order: 1625, trainer: 'Champion Wallace', seed: 5, result: 'loss', deaths: 1,
+			killers: [{...fallen('Walrein', 'Origin Pulse', 'Kyogre-Primal'), ofSide: 'theirs'}]},
+		{n: 2, order: 1625, trainer: 'Champion Wallace', seed: 6, result: 'win', deaths: 0, killers: [],
+			kos: [{foe: 'Kyogre-Primal', by: 'Power Whip'}]},
+	]}));
+	const box = await drawnWall(wallView(run, 'Champion Wallace'));
+	const lanes = box.all('rect').filter(rect => rect.attrs.tabindex === '0');
+	assert.equal(lanes.length, 2, 'every attempt keeps a target to click');
+	const [lost, clean] = lanes;
+	assert.ok(!/\bnone\b/.test(lost?.attrs.class ?? ''), 'a body lost is a filled bar');
+	assert.match(clean?.attrs.class ?? '', /\bnone\b/, 'the clean win is an outline');
+	assert.notEqual(clean?.attrs.height, '1.5', 'not a sliver that reads as a loss');
+});
+
+test('a double charges a body to the foe that last DAMAGED it, not the last that aimed at it', async () => {
+	const {summariseAttempt} = await import('../src/analyse.js');
+	const member = (species: string) => ({name: species, species, level: 99, item: null, ability: null, nature: null, moves: []});
+	const run = await Effect.runPromise(decodeRun({seed: 1, position: 1600, fights: 1, ledger: [
+		{n: 1, order: 1583, trainer: 'Elite Four SidneyDouble', seed: 5, result: 'loss', six: [member('Florges')], events: [
+			{turn: 1, text: 'Nidoking used Sludge Wave → Florges -60%', side: 'theirs'},
+			{turn: 2, text: 'Articuno-Galar used Hypnosis → Florges (missed)', side: 'theirs'},
+			{turn: 2, text: 'Yveltal used Oblivion Wing → Florges', side: 'theirs'},
+			{text: 'Florges fainted!', side: 'ours'},
+		]}]}));
+	const attempt = run.ledger[0];
+	assert.ok(attempt !== undefined);
+	const charged = summariseAttempt(attempt).foeCosts.filter(cost => cost.bodiesLost > 0).map(cost => [cost.foe, cost.bodiesLost]);
+	assert.deepEqual(charged, [['Nidoking', 1]], 'the miss and the line that dealt nothing do not take the charge');
+});
+
+test('one rule names a run for every route: a label and a run, never a walk out of the directory', async () => {
+	const {guardRun, serve} = await import('../src/serve.js');
+	for (const good of ['run-418957', 'sidney1/run-418957', 'clear1/run-104770.checkpoint']) assert.ok(guardRun(good), good);
+	for (const bad of ['', '..', '../etc', 'a/../b', 'a/b/c', 'sidney1/..', '/etc/passwd', 'run 1']) assert.ok(!guardRun(bad), bad);
+	const os = await import('node:os');
+	const server = serve(os.tmpdir(), 0);
+	try {
+		await new Promise(resolve => server.once('listening', resolve));
+		const address = server.address();
+		const base = 'http://127.0.0.1:' + (typeof address === 'object' && address !== null ? address.port : 0);
+		for (const route of ['/summary?run=..', '/wall?run=..&trainer=x', '/attempt?run=..&n=1', '/state?run=..']) {
+			assert.equal((await fetch(base + route)).status, 400, route);
+		}
+		assert.equal((await fetch(base + '/control?run=..&action=stop', {method: 'POST', headers: {'x-insight': '1'}})).status, 400);
+	} finally {
+		server.close();
+	}
+});
+
 test('an agent gets the wall per foe as JSON, and the watch page opens any past attempt', async () => {
 	const fs = await import('node:fs/promises');
 	const os = await import('node:os');
@@ -486,6 +711,11 @@ test('an agent gets the wall per foe as JSON, and the watch page opens any past 
 	assert.equal((await call({report: pathOf.join(dir, 'run-1.json'), trainer: 'Leader Nobody'})).isError, true);
 
 	assert.equal((await loadWall(dir, 'run-1', 'Champion Wallace'))?.foes.length, 2);
+	// Asked for at once, one decode: both answers are the one record.
+	const {loadFought} = await import('../src/serve.js');
+	await fs.utimes(pathOf.join(dir, 'run-1.json'), new Date(), new Date(Date.now() + 5000));
+	const [first, second] = await Promise.all([loadFought(dir, 'run-1'), loadFought(dir, 'run-1')]);
+	assert.equal(first, second, 'two asks in flight share one load');
 	const past = await loadAttempt(dir, 'run-1', 10);
 	assert.deepEqual([past?.attempt, past?.of, past?.prev, past?.next, past?.turns.length, past?.events], [1, 3, null, 11, 3, null]);
 	assert.ok((await loadAttempt(dir, 'run-1', 12))?.turns[0]?.tags.includes('we-ko'), 'a past turn is tagged as a live one is');
