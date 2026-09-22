@@ -436,3 +436,14 @@ test('every item cell that names a second source is split, not only the evolutio
 	assert.deepEqual(toss.map(entry => entry.opensAt), [80]);
 	assert.match(toss[0].location, /Sold at Lilycove/);
 });
+
+test('the ledger cites the hack\'s official Item Locations workbook', () => {
+	// review 2026-09-22: `source` named the engine's copy under
+	// engines/rab/backend/DOCS. Its worksheets and shared strings are
+	// byte-identical to docs/official's, but data here is cited from the
+	// hack's own documents, and the official folder is where they live.
+	for (const doc of [builder.build(), ledger]) {
+		assert.match(doc.source, /^pokemon-mono docs\/official\/Item Locations\.xlsx\b/);
+		assert.doesNotMatch(doc.source, /engines\/rab/);
+	}
+});

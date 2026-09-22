@@ -526,7 +526,10 @@ function build() {
 	const dated = entries.filter(entry => entry.opensAt !== null).length;
 	return {
 		schemaVersion: 'runbun.item.locations/1.1.0',
-		source: 'pokemon-mono engines/rab/backend/DOCS/Item Locations.xlsx, via item-workbook.json',
+		// The hack's own document. engines/rab/backend/DOCS carries a copy whose
+		// worksheets and shared strings are byte-identical, but the official
+		// folder is the one this project dates from.
+		source: 'pokemon-mono docs/official/Item Locations.xlsx, via item-workbook.json',
 		provenance: 'transcribed + derived',
 		method: 'opensAt is a RUN-MAP order (cumulative enemy Pokemon, 0-1620), not an engine ' +
 			'row index (0-434). It is the first trainer at the place the prose names, ' +
