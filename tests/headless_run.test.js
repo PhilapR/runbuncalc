@@ -911,3 +911,27 @@ test('an operator\'s lead is applied last: that body leads, holding that item, t
 	assert.deepEqual(other.party, before);
 	void runtime;
 });
+
+test('a body caught at or past its evolution level evolves before it is levelled, and learns as the evolved form', () => {
+	// levelToCap staged only across evolutions ABOVE the body's level, so a
+	// Magikarp caught at 40 was levelled to the cap AS a Magikarp and evolved
+	// after: a Gyarados knowing Splash, Tackle and Flail, offered nothing.
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+	let doc = saved;
+	for (const [species, level, ability] of [['Magikarp', 40, 'Swift Swim'], ['Dratini', 50, 'Shed Skin']]) {
+		doc = run.apply(doc, {kind: 'catch', species, level, nickname: 'Late' + species, ivs, nature: 'Adamant', ability});
+	}
+	const tally = {};
+	doc = headless.levelToCap(doc, tally);
+	const late = name => doc.box.find(mon => mon.nickname === 'Late' + name);
+	// Magikarp at 40 is past Gyarados (20): evolved first, then levelled as Gyarados.
+	assert.equal(late('Magikarp').species, 'Gyarados');
+	assert.ok((late('Magikarp').prompted || []).concat(late('Magikarp').moves).includes('Waterfall'),
+		'Gyarados\'s own level-up moves are offered: ' + JSON.stringify(late('Magikarp')));
+	// Dratini at 50 is past Dragonair (30) and short of Dragonite (55): evolved, then staged at 55.
+	assert.equal(late('Dratini').species, 'Dragonite');
+	assert.ok((late('Dratini').prompted || []).includes('Extreme Speed'),
+		'Dragonite\'s own level-up moves are offered: ' + JSON.stringify(late('Dratini')));
+});

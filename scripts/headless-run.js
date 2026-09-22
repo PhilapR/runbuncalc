@@ -512,6 +512,11 @@ function levelToCap(doc, tally) {
 		// the ranker rightly never fielded it. The game evolves on the level
 		// and learns the rest as the evolved form. The Lavaridge egg's Mudkip
 		// had the same defect twice over (16 and 36).
+		// A body ALREADY at or past its evolution level (a Magikarp caught at
+		// 40) evolves first: the stages below only look above its level, so it
+		// was levelled to the cap as a Magikarp and became a Gyarados knowing
+		// Splash, Tackle and Flail.
+		doc = evolveByLevel(doc, tally, mon.id);
 		for (let stage = 0; stage < 4; stage++) {
 			const current = doc.box.find(entry => entry.id === mon.id);
 			const step = (evolutions[current.species] || []).filter(path => path.method === 'level' &&
