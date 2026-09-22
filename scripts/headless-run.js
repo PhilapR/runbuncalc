@@ -1120,7 +1120,20 @@ function planByPlay(policy, doc, next, tally) {
 	const foes = board.grid.length;
 	if (!foes) return doc;
 	const alive = doc.box.filter(mon => mon.status !== 'dead');
-	const idOf = species => (alive.find(mon => mon.species === species) || {}).id;
+	// The board names a body by the form it would FIGHT in: a stone holder, or
+	// a body whose stone is in the bag, is 'Camerupt-Mega'. The first cut looked
+	// that name up in the box, found nothing, and gave every Mega no margin at
+	// all — so no plan ever proposed one, on runs holding nine stones and dying
+	// at Matt to a foe a Mega answers (418957 fielded a Mega in 36 of 88 wins;
+	// the three seeds dead at Matt in 0, 1 and 2).
+	const byBoardName = new Map();
+	for (const mon of alive) {
+		byBoardName.set(mon.species, mon.id);
+		const stone = run.megaFormOf(mon.species, mon.item) ? mon.item : (knobs.mega ? run.stoneInBag(doc, mon.species) : null);
+		const mega = stone ? run.megaFormOf(mon.species, stone) : null;
+		if (mega) byBoardName.set(mega.species, mon.id);
+	}
+	const idOf = species => byBoardName.get(species);
 	// How a body fares into each of theirs on MEAN rolls: turns it lives minus turns it needs.
 	const margin = new Map();
 	board.grid.forEach((column, index) => {
@@ -1165,8 +1178,15 @@ function planByPlay(policy, doc, next, tally) {
 			const weakest = ids.filter((id, at) => at !== 0 && at < 4).sort((x, y) => worth(x) - worth(y))[0];
 			if (!weakest) return null;
 			ids = ids.filter(id => id !== weakest);
+			// A newcomer whose stone is in the bag comes in AS its Mega, if the six has
+			// none: its margin was read that way, and the play must be too.
+			const newcomer = run.findMon(planned, change.id);
+			const stone = knobs.mega && run.megaRingHeld(planned) ? run.stoneInBag(planned, newcomer.species) : null;
+			if (stone && !ids.some(id => { const mon = run.findMon(planned, id); return run.megaFormOf(mon.species, mon.item); })) {
+				try { out = run.apply(out, {kind: 'give', id: change.id, item: stone}); } catch (error) { /* keeps what it holds */ }
+			}
 			try {
-				out = battery.teachSwapped(Object.assign({}, planned, {party: [change.id].concat(ids)}), next.trainer, change.id).doc;
+				out = battery.teachSwapped(Object.assign({}, out, {party: [change.id].concat(ids)}), next.trainer, change.id).doc;
 			} catch (error) { return null; }
 		} else {
 			ids = ids.filter(id => id !== change.id);
@@ -1196,6 +1216,8 @@ function planByPlay(policy, doc, next, tally) {
 	}
 	scouted(tally, 'plan', tried * knobs.planSeeds);
 	tally.plans = (tally.plans || []).concat([{trainer: next.trainer, of: tried, took: name(hand.doc),
+		// Who the board proposed, in the form it would fight in: what the plan chose among.
+		proposed: [...new Set(changes.map(change => { const mon = run.findMon(doc, change.id); const mega = run.megaFormOf(mon.species, mon.item) || (knobs.mega && run.stoneInBag(doc, mon.species) ? run.megaFormOf(mon.species, run.stoneInBag(doc, mon.species)) : null); return mega ? mega.species : mon.species; }))],
 		wins: hand.score.wins, left: Number(hand.score.left.toFixed(2)),
 		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2))}}]);
 	return hand.doc;

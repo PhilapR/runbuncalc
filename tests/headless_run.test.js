@@ -695,3 +695,21 @@ test('a wall lost often enough is planned by play, and the plan holds until the 
 	assert.equal(holds[1], false, 'nothing holds before the plan');
 	assert.equal(holds[2], true, 'and once taken it holds — the ranker and the re-pick would only undo it — and is carried in a checkpoint');
 });
+
+test('the planner sees a Mega: a stone holder, or a body whose stone is in the bag, is proposed in its Mega form', () => {
+	// The board names such a body 'Camerupt-Mega'; the planner looked that name
+	// up in the box, found nothing, and never proposed a Mega — on runs holding
+	// nine stones and dying at Aqua Admin Matt, whom a Mega answers.
+	const policy = require('../scripts/ui-playthrough.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1b-731001-matt.run.json'), 'utf8'));
+	const runtime = require('../lib/run.js');
+	const camerupt = saved.box.find(mon => mon.species === 'Camerupt');
+	assert.ok(runtime.stoneInBag(saved, 'Camerupt') && !saved.party.includes(camerupt.id), 'the fixture: Camerupt boxed, Cameruptite in the bag');
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 731001,
+		headless.armFlags('--budget=2 --boss-retries=40 --probe=0 --repick-after=0 --search-after=0 --plan-after=1 --plan-seeds=1 --fight-logs=none'),
+		{resume: saved, keepDoc: true});
+	const plan = row.plans && row.plans[0];
+	assert.ok(plan, 'a plan was made: ' + JSON.stringify(row.ledger.map(entry => entry.result)));
+	assert.ok(plan.proposed.some(name => /-Mega$/.test(name)), 'a Mega form is among what the board proposed: ' + plan.proposed.join(', '));
+});
