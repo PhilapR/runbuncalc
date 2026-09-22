@@ -164,6 +164,7 @@ const NOT_PLAY = {
 	'lib/fight-log.js': 'writes the fight sidecar, read after a fight, never during one',
 	'lib/provenance.js': 'the stamp itself',
 	'scripts/audit-run.js': 'audits a finished run',
+	'lib/watch.js': 'a job\'s status file, live tape and slot: it watches fights, it chooses nothing',
 };
 
 /**
