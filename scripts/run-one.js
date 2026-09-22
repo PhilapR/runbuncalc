@@ -148,7 +148,10 @@ function main() {
 			checkpoint: (snapshot, force) => {
 				const now = snapshot();
 				reach(now);
-				if (force) state = 'stopping';
+				if (force) {
+					state = 'stopping';
+					leg.endedAt = new Date().toISOString();
+				}
 				status(now);
 				if (!force && Date.now() - checkpointed < CHECKPOINT_MS) return;
 				checkpointed = Date.now();

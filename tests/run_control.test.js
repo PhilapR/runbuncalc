@@ -61,6 +61,7 @@ test('a real run is stopped from outside, carried on, and ends as the uninterrup
 	assert.deepEqual(carried.legs.map(leg => [leg.leg, leg.engine.engine, leg.revision, leg.spec]),
 		[[1, stamp.engine, stamp.revision, SPEC], [2, stamp.engine, stamp.revision, SPEC]]);
 	assert.deepEqual(carried.legs[0].from, {position: 0, fights: 0});
+	assert.ok(carried.legs[0].endedAt, 'a stopped leg says when it ended');
 	assert.deepEqual(carried.legs[0].to, {position: stopped.position, fights: stopped.fights}, 'leg 1 ends where the stop left it');
 	assert.deepEqual(carried.legs[1].from, carried.legs[0].to, 'leg 2 starts where leg 1 ended');
 	assert.deepEqual(carried.legs[1].to, {position: carried.position, fights: carried.fights});
