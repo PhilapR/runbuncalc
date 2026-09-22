@@ -92,12 +92,12 @@ test('geography only reaches numbered routes, and says nothing about the rest', 
 
 test('the R&B tracker order is validated against the dates, not assumed', () => {
 	// Philip pointed at the community tracker as the likely-correct route
-	// order, and it is. But its location HEADERS survive only as orphaned
-	// strings in sharedStrings.xml — no cell references them — so "the order
-	// they appear in is the column order" is an INFERENCE. This is what
-	// makes it safe to act on: across every dated location the tracker
-	// covers, its position ranks with opensAt at 0.85. A wrong order could
-	// not do that.
+	// order, and it is. Its location headers are row 1 of the Encounter
+	// Tables sheet, read by scripts/build-tracker-order.js (an earlier note
+	// here said they were orphaned strings in sharedStrings.xml; they are
+	// not). What makes the ORDER safe to act on is still measured, not
+	// assumed: across every dated location the tracker covers, its position
+	// ranks with opensAt at 0.85. A wrong order could not do that.
 	//
 	// 0.85, not the 0.96 the exact-name subset shows. The gap is five Meteor
 	// Falls rooms, which the tracker places right after Route 114 and

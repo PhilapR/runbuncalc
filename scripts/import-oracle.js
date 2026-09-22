@@ -442,6 +442,12 @@ function importEvolutions(decomp, problems) {
 			else if (/^MOVE_/.test(evo[2])) step.move = resolveMove(evo[2]);
 			else if (/^\d+$/.test(evo[2])) step.value = Number(evo[2]);
 			else if (evo[2] !== '0') step.condition = evo[2];
+			// The cosmetic collapse works on the TO side too: Milcery's nine
+			// branches, one per Alcremie cream, all resolve to one Alcremie and
+			// became nine byte-identical rows. A branch is a distinct outcome or
+			// it is not a branch.
+			const key = JSON.stringify(step);
+			if (evos.some(prior => JSON.stringify(prior) === key)) continue;
 			evos.push(step);
 		}
 		// Mega evolution and primal reversion are in-battle form changes, not
@@ -508,7 +514,18 @@ function importLearnsets(decomp, problems) {
 			continue;
 		}
 		const moves = [];
-		for (const move of block.matchAll(/LEVEL_UP_MOVE\(\s*(\d+),\s*(MOVE_[A-Z0-9_]+)\)/g)) {
+		// An entry the pattern does not read is a lost move, and a block that
+		// loses all of them is stored as an empty list — the removed-species
+		// signature — without a word. Count what the block says against what
+		// was read, so a short parse is a problem and not a fact.
+		const written = (block.match(/LEVEL_UP_MOVE\s*\(/g) || []).length;
+		const read = [...block.matchAll(/LEVEL_UP_MOVE\(\s*(\d+),\s*(MOVE_[A-Z0-9_]+)\)/g)];
+		if (read.length !== written) {
+			problems.push(`level_up_learnsets: ${levelPointers[constant]} writes ${written} ` +
+				`LEVEL_UP_MOVE entries and ${read.length} were read (${constant})`);
+			continue;
+		}
+		for (const move of read) {
 			// `MOVE_NONE` terminates the list; it is a sentinel, not a move.
 			if (move[2] === 'MOVE_NONE') continue;
 			const name = resolveMove(move[2]);

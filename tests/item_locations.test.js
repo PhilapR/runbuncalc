@@ -359,3 +359,53 @@ test('every TM and tutor is dated from Run & Bun\'s own sources, and the two led
 		'Me First', 'Night Shade', 'Play Rough', 'Poison Jab', 'Rock Blast', 'Shadow Ball', 'Shadow Punch', 'Smart Strike', 'Swagger',
 		'Tailwind', 'Thunder', 'Thunder Punch', 'Weather Ball', 'Will-O-Wisp']);
 });
+
+test('the author hands out no screen: no TM, HM or tutor teaches Reflect, Light Screen or Aurora Veil', () => {
+	// ledger: the-screen-tms-are-not-sourced. The moveItems table has no row for
+	// any screen, and that was read as a missing source. It is not: the author's
+	// TMHMs and Move Tutors sheet (Item Locations.xlsx, transcribed verbatim in
+	// item-workbook.json) numbers TM01-TM50 and HM01-HM08 with no gap, and
+	// lists twenty tutors, and none of them is a screen. In Run & Bun a screen
+	// comes from a level-up list or not at all.
+	const workbook = require('../profiles/run-and-bun/oracle/item-workbook.json');
+	const numbered = prefix => workbook.tms.map(row => row.name.match(new RegExp('^' + prefix + '(\\d\\d) ')))
+		.filter(Boolean).map(match => Number(match[1]));
+	const tms = numbered('TM');
+	const hms = numbered('HM');
+	assert.deepEqual(tms, Array.from({length: 50}, (unused, index) => index + 1), 'TM01-TM50, each once, none missing');
+	assert.deepEqual(hms, [1, 2, 3, 4, 5, 6, 7, 8], 'HM01-HM08');
+	assert.equal(workbook.tms.length, 50 + 8 + 1, 'and the sheet\'s second header row, nothing else');
+	assert.equal(workbook.tutors.length, 20);
+
+	const screens = /reflect|light screen|aurora veil/i;
+	assert.deepEqual(workbook.tms.concat(workbook.tutors).filter(row => screens.test(JSON.stringify(row))), []);
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	assert.deepEqual(oracle.moveItems().filter(row => screens.test(row.move)), [],
+		'so the moveItems table has no screen row, and that is the game');
+});
+
+test('a cell that names a shop and a gift is two rows, and the gift is on the road', () => {
+	// ledger: evolution-stones-have-prose-where-a-place-should-be. The one
+	// non-shop place left on the Evolution Items sheet is inside a shop's
+	// cell: "Sold at Mauville City Pokémon Mart. Given 1x from NPC Cutter in
+	// Rustboro City." Read whole, it was the shop's alone and the gift was
+	// never offered.
+	assert.deepEqual(builder.splitSources('Sold at Mauville City Pokémon Mart. Given 1x from NPC Cutter in Rustboro City.'),
+		['Sold at Mauville City Pokémon Mart.', 'Given 1x from NPC Cutter in Rustboro City.']);
+	assert.deepEqual(builder.splitSources('Granite Cave, ice floor, at the \'L\' shaped rock formation before the stairs (hidden).'),
+		['Granite Cave, ice floor, at the \'L\' shaped rock formation before the stairs (hidden).']);
+
+	const moon = ledger.entries.filter(entry => entry.name === 'Moon Stone');
+	assert.deepEqual(moon.map(entry => [entry.location, entry.opensAt]), [
+		['Given 1x from NPC Cutter in Rustboro City.', 106],
+		['Sold at Mauville City Pokémon Mart.', 209],
+	]);
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	assert.ok(oracle.fieldItems().some(row => row.name === 'Moon Stone' && row.opensAt === 106),
+		'the gift is a field item from Rustboro');
+	assert.ok(oracle.shopItems().some(row => row.name === 'Moon Stone' && row.opensAt === 209), 'and the mart still sells it');
+	// Every evolution row now names one place, or one shop.
+	const evolution = ledger.entries.filter(entry => entry.kind === 'evolution');
+	assert.equal(evolution.length, 24);
+	assert.deepEqual(evolution.filter(entry => entry.opensAt === null), []);
+});

@@ -213,6 +213,13 @@ module.exports = defineProfile({
 		// this row was simply missing, which the registry's own rules call
 		// 'inferred' by default and which it never was.
 		'oracle.growth': 'source-of-truth',
+		// Species catch rates are NOT the author's data. catch-rates.json is the
+		// mainline dex (PokeAPI pokemon_species.csv, capture_rate) via
+		// scripts/import-catch-rates.js. None of the hack's own documents gives a
+		// species rate — Mechanic Changes.txt names one catch rule, Safari Balls
+		// at 100% — and the decomp's base_stats.h, which would, is not on this
+		// machine. Copied and unverified against the hack: transcribed.
+		'oracle.catchRates': 'transcribed',
 		// Route availability, encounter-method gates and the HM teach gates:
 		// the operator's rab curation, translated through name-matched anchors
 		// (late-biased, never early — see scripts/import-availability.js).
@@ -245,5 +252,7 @@ module.exports = defineProfile({
 		// availability, HM-gate and fight-field transcriptions. Claims about it
 		// are registered with paths in ECOSYSTEM.json.
 		'rab-curation': 'PhilapR/pokemon-mono — engines/rab/backend/src/data/',
+		// Mainline species data, for what the hack's sources do not state.
+		pokeapi: 'https://github.com/PokeAPI/pokeapi — data/v2/csv/pokemon_species.csv',
 	},
 });
