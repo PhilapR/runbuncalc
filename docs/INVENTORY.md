@@ -69,7 +69,7 @@ Oracle datasets:
 Every registered claim, by how it is known. A claim missing from this list
 defaults to `inferred` — the weakest tag — and the ratchet test in
 `runbun_species.test.js` fails if the verified share ever falls.
-- **source-of-truth** (24): `data.ABILITY_SLOT_CHANGES` · `data.BASE_STAT_CHANGES` · `data.MOVE_OVERLAY` · `data.NOT_FULLY_EVOLVED` · `data.PORTED_SPECIES` · `data.REMOVED_ITEMS` · `encounters.LEVEL_CAPS` · `mechanics.attractIsGenderIndependent` · `mechanics.confusionBerriesRestoreHalfHpAtQuarter` · `mechanics.covetType` · `mechanics.defogRemovesTerrain` · `mechanics.disguiseBreaksWithoutChipDamage` · `mechanics.evsRemoved` · `mechanics.galeWingsRequiresFullHp` · `mechanics.magmaArmorBlocksCriticalHits` · `mechanics.paralysisSpeedMultiplier` · `mechanics.sleepTurnsResetOnEntry` · `mechanics.soulDewGrantsStages` · `mechanics.superFangType` · `mechanics.terrainDamageBoost` · `oracle.encounters` · `oracle.evolutions` · `oracle.growth` · `oracle.learnsets`
+- **source-of-truth** (26): `data.ABILITY_SLOT_CHANGES` · `data.BASE_STAT_CHANGES` · `data.MOVE_OVERLAY` · `data.NOT_FULLY_EVOLVED` · `data.PORTED_SPECIES` · `data.REMOVED_ITEMS` · `encounters.LEVEL_CAPS` · `mechanics.abilityWeatherIsPermanent` · `mechanics.attractIsGenderIndependent` · `mechanics.confusionBerriesRestoreHalfHpAtQuarter` · `mechanics.covetType` · `mechanics.defogRemovesTerrain` · `mechanics.disguiseBreaksWithoutChipDamage` · `mechanics.evsRemoved` · `mechanics.galeWingsRequiresFullHp` · `mechanics.magmaArmorBlocksCriticalHits` · `mechanics.moodyRaisesAccuracyEvasion` · `mechanics.paralysisSpeedMultiplier` · `mechanics.sleepTurnsResetOnEntry` · `mechanics.soulDewGrantsStages` · `mechanics.superFangType` · `mechanics.terrainDamageBoost` · `oracle.encounters` · `oracle.evolutions` · `oracle.growth` · `oracle.learnsets`
 - **emulator-observed** (3): `mechanics.criticalHitChance` · `mechanics.criticalHitMultiplier` · `policy.SCORE_ROLL`
 - **observed** (1): `oracle.LIMITS`
 - **transcribed** (8): `encounters.COVERAGE` · `encounters.INVARIANTS` · `encounters.KNOWN_GAPS` · `mechanics.psychicTerrainUsesModernScaling` · `oracle.availability` · `oracle.catchRates` · `oracle.fightFields` · `policy.SETUP`
@@ -152,7 +152,7 @@ the reader's warning to verify before trusting.
 - `docs/ECOSYSTEM_BRIDGE.md` — 5a255c0 2026-08-25
 - `docs/ENCOUNTER-ARCHITECTURE.md` — 29ffa9f 2026-09-20
 - `docs/ENGINE-CONTRACTS.md` — c4daad8 2026-08-29
-- `docs/ENGINE-HOMES.md` — 4b053b1 2026-09-22
+- `docs/ENGINE-HOMES.md` — 9fb40e4 2026-09-22
 - `docs/EVALUATION.md` — 56f1c21 2026-09-22
 - `docs/FORK_MAP.md` — 202de90 2026-09-22
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
