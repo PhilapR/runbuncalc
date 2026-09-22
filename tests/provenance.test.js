@@ -130,6 +130,28 @@ test('the profile policy is policy, the linked calc hashes like the tree calc, a
 	assert.deepEqual(provenance.engineStamp(tree.root).skipped, ['ai/dist/linked (symlinked directory, not followed)']);
 });
 
+test('the stamp names node and each installed package where the engine resolves it', () => {
+	const tree = tinyTree();
+	tree.put('node_modules/@pkmn/dex/package.json', JSON.stringify({name: '@pkmn/dex', version: '0.7.13'}));
+	tree.put('node_modules/@pkmn/dex/index.js', '');
+	tree.put('ai/node_modules/@pkmn/dex/package.json', JSON.stringify({name: '@pkmn/dex', version: '0.7.59', main: 'index.js'}));
+	tree.put('ai/node_modules/@pkmn/dex/index.js', '');
+	const was = provenance.engineStamp(tree.root);
+	assert.deepEqual(was.runtime, {node: process.version, packages: {'@pkmn/dex': '0.7.59'}},
+		'ai/dist loads ai/node_modules, not the root copy');
+	tree.put('ai/node_modules/@pkmn/dex/package.json', JSON.stringify({name: '@pkmn/dex', version: '0.7.60', main: 'index.js'}));
+	const now = provenance.engineStamp(tree.root);
+	assert.notEqual(now.engine, was.engine, 'a package upgrade is another engine');
+	assert.deepEqual(provenance.compareStamps(was, now).differs, ['runtime']);
+
+	// The real tree: the version the engine plays, read where ai/dist finds it.
+	const here = provenance.engineStamp(ROOT);
+	const installed = JSON.parse(fs.readFileSync(require.resolve('@pkmn/dex/package.json',
+		{paths: [path.join(ROOT, 'ai', 'dist')]}), 'utf8')).version;
+	assert.equal(here.runtime.packages['@pkmn/dex'], installed);
+	assert.equal(here.runtime.node, process.version);
+});
+
 test('a stamp of another format is not compared as an engine', () => {
 	const now = provenance.engineStamp(ROOT);
 	const old = Object.assign({}, now, {version: 1});
