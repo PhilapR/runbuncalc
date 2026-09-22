@@ -155,9 +155,10 @@ the reader's warning to verify before trusting.
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
 - `docs/HOW-WE-WIN.md` — 4ecbdc3 2026-09-21
 - `docs/IMPROVEMENT-AUDIT.md` — 6034c5c 2026-09-20
-- `docs/LEADER-KEYS.md` — 510c0be 2026-09-21
+- `docs/LEADER-KEYS.md` — 44ad51e 2026-09-21
 - `docs/MODELLING-GAPS.md` — 6daf056 2026-08-30
-- `docs/PERFORMANCE.md` — 9ca3059 2026-09-21
+- `docs/PERFORMANCE.md` — 44ad51e 2026-09-21
+- `docs/PLAN.md` — untracked
 - `docs/ROADMAP.md` — 1ca89ed 2026-08-17
 - `docs/RUN-CONTROL.md` — 7f2f5c0 2026-09-21
 - `docs/RUNBUN_REBUILD_MODEL.md` — 98b4a50 2026-08-18
