@@ -1070,3 +1070,29 @@ test('a run\'s ledger keeps the killer\'s side, so a wall can tell their blow fr
 		JSON.stringify(killers.slice(0, 3)));
 	assert.ok(killers.some(death => death.ofSide === 'theirs'), 'a foe\'s blow is theirs');
 });
+
+test('a watched plan puts each scouting fight on the job\'s tape and stops when asked', () => {
+	// rab-workspace's plan request plays tens of scouting fights on this code;
+	// with a job (lib/watch.js) each is seen, and a stop ends the scouting with
+	// the best plan found so far standing.
+	const policy = require('../scripts/ui-playthrough.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const fights = [];
+	const job = {
+		fight(header) {
+			const tape = {header, end(result) { tape.result = result; }};
+			fights.push(tape);
+			return tape;
+		},
+		progress() {},
+		stopRequested() { return fights.length >= 3; },
+	};
+	const tally = {};
+	const planned = headless.planByPlay(policy, saved, {trainer: 'Elite Four Sidney', order: 1577}, tally, {job});
+	assert.equal(fights.length, 3, 'three scouting fights, then the stop');
+	assert.ok(fights.every(fight => fight.header.trainer === 'Elite Four Sidney' && fight.header.six.length === 6 &&
+		fight.result), 'each on the tape with its six and its result');
+	assert.equal(tally.planStopped, true);
+	assert.ok(planned && planned.party.length === 6, 'a plan still comes back');
+});

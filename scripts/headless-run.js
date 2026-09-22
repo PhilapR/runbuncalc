@@ -1560,7 +1560,13 @@ function withItem(planned, change) {
  * six the run has is where it starts, so a plan is only ever taken when play
  * says it is better.
  */
-function planByPlay(policy, doc, next, tally) {
+function planByPlay(policy, doc, next, tally, options) {
+	// A watched caller (lib/watch.js: rab-workspace's plan request, a run)
+	// passes its job: each scouting fight goes on the job's live tape, and a
+	// stop ends the scouting — the plans not yet played score as losses
+	// without a fight, so the best plan found so far stands.
+	const job = options && options.job;
+	let scoutingStopped = false;
 	let board;
 	try {
 		board = run.boxMatrix(doc, next.trainer);
@@ -1612,11 +1618,24 @@ function planByPlay(policy, doc, next, tally) {
 	const score = planned => {
 		let wins = 0;
 		let left = 0;
+		if (scoutingStopped) return {wins: -1, left: Infinity};
 		for (let offset = 1; offset <= knobs.planSeeds; offset++) {
 			let played;
+			const watched = job ? job.fight({trainer: next.trainer, order: next.order, position: planned.position,
+				seed: PLAN_SEED_BASE + offset, six: planned.party.map(id => planned.box.find(mon => mon.id === id)).filter(Boolean)
+					.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level, item: mon.item || null}))}) : null;
 			try {
 				played = battery.playScenario(policy, planned, next.trainer, PLAN_SEED_BASE + offset, undefined, {search: 0});
 			} catch (error) { played = {result: 'loss', foe: {alive: foes}}; }
+			if (watched) {
+				watched.end(played.result);
+				job.progress({fights: job.scouted = (job.scouted || 0) + 1});
+				if (job.stopRequested()) {
+					scoutingStopped = true;
+					tally.planStopped = true;
+					return {wins: -1, left: Infinity};
+				}
+			}
 			if (played.result === 'win') wins += 1;
 			left += (played.foe && played.foe.alive) || 0;
 		}
