@@ -98,6 +98,12 @@ const KNOB_FLAGS = {
 	// Admin Shelly in 7 where the control went 0 for 40 on both, lost none, and took the same 7 on the wall
 	// every arm cleared. --plan-after=0 restores the run without it.
 	planAfter: ['plan-after', '5', Number],
+	// An OPERATOR's lead for one fight, "TRAINER:SPECIES@ITEM" (spaces as +): that body leads,
+	// holding that item, whatever the six and the plan chose. Not a policy — a
+	// hand on the run, recorded in its knobs so a leg played with it reads as
+	// assisted. Added 2026-09-22 for Champion Wallace: a Focus Sash Dhelmise
+	// takes Primal Kyogre with Power Whip before Ice Beam can.
+	leadFor: ['lead-for', null, String],
 	planSeeds: ['plan-seeds', '12', Number],
 	searchAfter: ['search-after', '0', Number],
 	searchRollouts: ['search-rollouts', '4', Number],
@@ -969,6 +975,37 @@ function megaWorth(doc, trainer) {
 
 const MEGA_FILLERS = ['Oran Berry', 'Sitrus Berry', 'Lum Berry', 'Pecha Berry', 'Chesto Berry'];
 
+/**
+ * The operator's lead (--lead-for=TRAINER:SPECIES@ITEM), applied last before
+ * the fight so no later step undoes it. The item is taken from whoever holds
+ * it; a body not in the six replaces the last member that does not hold a
+ * Mega Stone, so the run's one Mega is kept.
+ */
+function pinLead(doc, tally, next) {
+	// A spec is a space-separated flag string, so a space in the value is written '+'.
+	const pin = /^(.+):([^@]+)@(.+)$/.exec(String(knobs.leadFor || '').replace(/\+/g, ' '));
+	if (!pin || pin[1] !== next.trainer) return doc;
+	const species = pin[2];
+	const item = pin[3];
+	const mon = doc.box.find(entry => entry.status !== 'dead' && entry.species === species);
+	if (!mon) throw new Error('--lead-for: the box has no living ' + species);
+	if (mon.item !== item) {
+		const holder = doc.box.find(entry => entry.item === item);
+		if (holder && !doc.bag[item]) doc = run.apply(doc, {kind: 'take', id: holder.id});
+		doc = run.apply(doc, {kind: 'give', id: mon.id, item});
+	}
+	let ids = doc.party.slice();
+	if (!ids.includes(mon.id)) {
+		const megaStone = id => /ite( [XY])?$/.test((doc.box.find(entry => entry.id === id) || {}).item || '');
+		const out = ids.slice().reverse().find(id => !megaStone(id)) || ids[ids.length - 1];
+		ids = ids.map(id => id === out ? mon.id : id);
+	}
+	ids = [mon.id].concat(ids.filter(id => id !== mon.id));
+	if (ids.join() !== doc.party.join()) doc = run.apply(doc, {kind: 'party', ids});
+	tally.leadsPinned = (tally.leadsPinned || 0) + 1;
+	return doc;
+}
+
 function giveMegaStone(doc, tally, next, wanted) {
 	if (!knobs.mega || !run.megaRingHeld(doc)) return doc;
 	const six = doc.party.map(id => doc.box.find(mon => mon.id === id)).filter(Boolean);
@@ -1475,6 +1512,17 @@ function probeWall(policy, doc, next, tally) {
 	return {wins, of: knobs.probe, foeLeft: Number((left / knobs.probe).toFixed(2))};
 }
 
+/** Run fn under these knobs (armFlags(spec).knobs), and restore the run's own after. */
+function withKnobs(given, fn) {
+	const before = knobs;
+	knobs = withDefaults(Object.assign({}, before, given));
+	try {
+		return fn();
+	} finally {
+		knobs = before;
+	}
+}
+
 function playRun(policy, starter, seed, treatment, options) {
 	// An arm's knobs hold for its run and no longer: two arms in one process
 	// must not inherit each other's budget.
@@ -1682,6 +1730,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 			// that joined it afterwards arrives holding nothing.
 			doc = giveMegaStone(doc, tally, next, ranked.mega);
 			doc = fillEmptySlots(doc, tally);
+			doc = pinLead(doc, tally, next);
 			keptLog = knobs.fightLogs === 'all' || (knobs.fightLogs === 'bosses' &&
 				(next.isDouble || BOSS.test(next.trainer))) ? [] : undefined;
 			// A watched run reports EVERY fight as it happens, kept or not: the
@@ -1897,4 +1946,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {planByPlay, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {pinLead, withKnobs, planByPlay, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};

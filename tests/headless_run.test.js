@@ -890,3 +890,24 @@ test('a gift levelled across its evolution learns the evolved form\'s moves, and
 	assert.ok(!urshifu().moves.includes('Leer') && !urshifu().moves.includes('Focus Energy'),
 		'over the moves that do nothing: ' + urshifu().moves);
 });
+
+test('an operator\'s lead is applied last: that body leads, holding that item, the Mega kept', () => {
+	const runtime = require('../lib/run.js');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const flags = headless.armFlags('--lead-for=Champion+Wallace:Dhelmise@Focus+Sash').knobs;
+	const before = saved.party.slice();
+	const mega = saved.box.find(mon => saved.party.includes(mon.id) && /ite$/.test(mon.item || ''));
+	const pinned = headless.withKnobs(flags, () => headless.pinLead(saved, {}, {trainer: 'Champion Wallace'}));
+	const lead = pinned.box.find(mon => mon.id === pinned.party[0]);
+	assert.equal(lead.species, 'Dhelmise');
+	assert.equal(lead.item, 'Focus Sash', 'taken from whoever held it');
+	const sashes = doc => doc.box.filter(mon => mon.item === 'Focus Sash').length + (doc.bag['Focus Sash'] || 0);
+	assert.equal(sashes(pinned), sashes(saved), 'moved, never made');
+	assert.equal(pinned.party.length, 6);
+	assert.ok(pinned.party.includes(mega.id), 'the run\'s one Mega is kept');
+	// Another fight is untouched.
+	const other = headless.withKnobs(flags, () => headless.pinLead(saved, {}, {trainer: 'Elite Four Drake'}));
+	assert.deepEqual(other.party, before);
+	void runtime;
+});
