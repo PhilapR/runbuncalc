@@ -415,8 +415,11 @@ function addIntimidateStatChange(
   target: PokemonState,
   allowMirrorArmor = true,
 ) {
+  // Gen 8 made Inner Focus, Oblivious, Own Tempo and Scrappy block Intimidate
+  // (Run & Bun: "assume Generation 8 mechanics"). Only Inner Focus was
+  // modelled until 2026-09-22, found by tests/fidelity_openings.test.js.
   if (target.hp.current <= 0 ||
-    (state.generation >= 8 && hasAbility(state, target, 'innerfocus')) ||
+    (state.generation >= 8 && hasAbility(state, target, 'innerfocus', 'oblivious', 'owntempo', 'scrappy')) ||
     hasAbility(state, target, 'clearbody', 'fullmetalbody', 'whitesmoke', 'hypercutter') ||
     (isItemEffectActive(state, target) && isItemAvailable(state, target.item) && id(target.item) === 'clearamulet')) return;
   if (state.generation >= 7 && isItemEffectActive(state, target) && id(target.item) === 'adrenalineorb') {
@@ -440,6 +443,10 @@ function addIntimidateStatChange(
   const drop = contrary ? 1 : simple ? -2 : -1;
   if (drop < 0 && hasFlowerVeilProtection(state, target)) return;
   const canTriggerResponse = drop < 0 && stageDelta(target, 'atk', [drop]) < 0;
+  // Gen 8 Rattled: an Intimidate drop also raises Speed a stage.
+  if (state.generation >= 8 && hasAbility(state, target, 'rattled') && canTriggerResponse) {
+    addBoost(resolution, target.id, 'spe', stageDelta(target, 'spe', [1]));
+  }
   if (state.generation >= 5 && hasAbility(state, target, 'defiant') && canTriggerResponse) {
     addBoost(resolution, target.id, 'atk', stageDelta(target, 'atk', [-1, 2]));
     return;
@@ -620,15 +627,30 @@ function applyWhiteHerbEntry(
     if (!holder || holder.hp.current <= 0 || !isItemEffectActive(state, holder) || id(holder.item) !== 'whiteherb') continue;
     const additive = resolution.boostsByPokemon?.[holder.id] || {};
     const absolute = resolution.setBoostsByPokemon?.[holder.id];
-    const restoration: StatBoosts = {};
+    // The whole stage map after this entry, with each negative stage cleared.
+    // An absolute map replaces the holder's boosts outright when applied, so
+    // it must carry every stage, not only the cleared ones. It carried the
+    // negated drop instead, so a White Herb holder Intimidated at the
+    // opening ended at +1 Attack, not 0 (found 2026-09-22 by
+    // tests/fidelity_openings.test.js).
+    const restored: StatBoosts = {};
+    let cleared = false;
     for (const stat of ['atk', 'def', 'spa', 'spd', 'spe', 'acc', 'eva'] as const) {
       const base = absolute?.[stat] !== undefined ? absolute[stat]! : holder.boosts?.[stat] || 0;
-      const additiveAmount = additive[stat] || 0;
-      const finalStage = base + additiveAmount;
-      if (finalStage < 0) restoration[stat] = additiveAmount ? -additiveAmount : 0;
+      const finalStage = base + (additive[stat] || 0);
+      if (finalStage < 0) {
+        restored[stat] = 0;
+        cleared = true;
+      } else if (finalStage) {
+        restored[stat] = finalStage;
+      }
     }
-    if (!Object.keys(restoration).length) continue;
-    setBoosts(resolution, holder.id, restoration);
+    if (!cleared) continue;
+    if (resolution.boostsByPokemon?.[holder.id]) {
+      const {[holder.id]: _cleared, ...others} = resolution.boostsByPokemon;
+      resolution.boostsByPokemon = others;
+    }
+    setBoosts(resolution, holder.id, restored);
     consumeItem(resolution, holder.id, holder.item!);
     resolution.trace!.notes!.push(`White Herb cleared negative entry stages for ${holder.id}`);
   }
