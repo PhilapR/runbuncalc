@@ -501,6 +501,10 @@ export interface DamageFacts {
   critRolls?: number[];
   critMin?: number;
   critMax?: number;
+  /** The crit band split per hit, present beside `hitRolls` (Parental
+   * Bond). Each hit rolls its own crit, so a crit on one hit must draw from
+   * that hit's crit distribution, not the summed `critRolls`. */
+  critHitRolls?: number[][];
   /** Number of sequential hits represented by the per-hit rolls. */
   hits?: number;
   /** The [min, max] hit count of a VARIABLE multi-hit move. Present only

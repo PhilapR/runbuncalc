@@ -484,7 +484,9 @@ export function getEffectiveMoveMetadata(
     category: move.category ?? defaults.category,
     priority: move.priority ?? defaults.priority,
     target: move.target ?? defaults.target,
-    multiHitRange: defaults.multiHitRange,
+    // An explicit MoveState.hits pins the count: the calculator honours it,
+    // so the engine must not roll a 2-5 range over the top of it.
+    multiHitRange: move.hits !== undefined ? undefined : defaults.multiHitRange,
     contact: move.contact ?? defaults.contact,
     heal: move.heal ?? defaults.heal,
     punch: move.punch ?? defaults.punch,

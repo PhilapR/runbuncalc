@@ -45,9 +45,14 @@ export function sampleDamageResolution(
     // One flag per hit. A shared boolean made every hit of a multi-hit move
     // crit together or not at all.
     const criticalHits = criticalByTarget[targetId] || [];
+    // A split-hit move (Parental Bond) carries one roll list per hit, and a
+    // crit on a hit draws from that hit's crit band. Dropping the flag here
+    // announced a crit (criticalHitTargets, the trace note) and dealt the
+    // ordinary hit.
     const hits = targetFacts.hitRolls
-      ? targetFacts.hitRolls.map(rolls => pickRoll({rolls, min: 0, max: 0, targetHp: 0,
-        possibleKO: false, guaranteedKO: false}, random))
+      ? targetFacts.hitRolls.map((rolls, index) => pickRoll({rolls, min: 0, max: 0, targetHp: 0,
+        possibleKO: false, guaranteedKO: false,
+        critRolls: targetFacts.critHitRolls?.[index]}, random, criticalHits[index] === true))
       : Array.from({length: hitCount}, (unused, index) =>
         pickRoll(targetFacts, random, criticalHits[index] === true));
     const damage = hits.reduce((total, hit) => total + hit, 0);

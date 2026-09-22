@@ -881,13 +881,24 @@ function sampleActionRoll(random: () => number, label: string): number {
   return Math.max(0, Math.min(0.999999999999, roll));
 }
 
-function actionFailure(
+type ActionGate = {failure?: ActionFailure; clearStatus?: boolean; sleepTurns?: number; wake?: boolean};
+
+/**
+ * Sleep and freeze: the first action gates, ahead of Truant and flinch.
+ * Showdown orders onBeforeMove by priority — slp/frz 10, truant 9, flinch 8
+ * (data/conditions.ts, data/abilities.ts). Recharge is the one gate ahead
+ * of them there (mustrecharge 11), and the caller keeps it there.
+ *
+ * A sleeper that stays asleep fails here and burns its counter on the
+ * attempt, flinched or loafing or not. A sleeper that wakes, or a frozen mon
+ * that thaws, falls through to the later gates with its status cleared.
+ */
+function statusActionGate(
   state: BattleState,
   actor: BattleState['sides'][SideId]['party'][number],
   actionMoveId: string,
   random: () => number,
-): {failure?: ActionFailure; clearStatus?: boolean; sleepTurns?: number; wake?: boolean} {
-  if (actor.volatile?.flinch) return {failure: 'flinch'};
+): ActionGate {
   if (actor.status === 'slp') {
     // Gen 8 sleep: the counter burns on each ACTION ATTEMPT — a 2-4 counter
     // is always 1-3 missed turns, whoever moved first. The old boundary
@@ -909,6 +920,20 @@ function actionFailure(
     if (sampleActionRoll(random, 'Freeze') >= 0.2) return {failure: 'freeze'};
     return {clearStatus: true};
   }
+  return {};
+}
+
+/** The gates after sleep, freeze and Truant; a wake or thaw carries through. */
+function actionFailure(
+  state: BattleState,
+  actor: BattleState['sides'][SideId]['party'][number],
+  actionMoveId: string,
+  random: () => number,
+  statusGate: ActionGate,
+): ActionGate {
+  if (statusGate.failure) return statusGate;
+  const failed = (failure: ActionFailure): ActionGate => ({...statusGate, failure});
+  if (actor.volatile?.flinch) return failed('flinch');
   // Confusion is checked BEFORE paralysis: Showdown's onBeforeMovePriority
   // and the pokeemerald lineage agree. With paralysis first, a mon that was
   // both paralyzed and confused self-hit 25% of the time and was fully
@@ -922,13 +947,13 @@ function actionFailure(
   // was copy-patterned from the Protect streak check below, where 2/3
   // failure is genuinely correct.
   if (actor.volatile?.confusion && sampleActionRoll(random, 'Confusion') < 0.33) {
-    return {failure: 'confusion'};
+    return failed('confusion');
   }
   if (actor.status === 'par' && sampleActionRoll(random, 'Paralysis') < 0.25) {
-    return {failure: 'paralysis'};
+    return failed('paralysis');
   }
   if (actor.volatile?.infatuated && sampleActionRoll(random, 'Infatuation') < 0.5) {
-    return {failure: 'infatuation'};
+    return failed('infatuation');
   }
   if (CONSECUTIVE_PROTECTIVE_MOVES.has(actionMoveId) &&
     !['wideguard', 'quickguard'].includes(actionMoveId) &&
@@ -941,9 +966,18 @@ function actionFailure(
     // stall counter would persist — strictly player-favorable, and rare.
     const streak = state.moveStreakByPokemon?.[actor.id]?.count ?? 1;
     const successChance = Math.max(1 / 729, Math.pow(1 / 3, streak));
-    if (sampleActionRoll(random, 'Protect') >= successChance) return {failure: 'protect'};
+    if (sampleActionRoll(random, 'Protect') >= successChance) return failed('protect');
   }
-  return {};
+  return statusGate;
+}
+
+/** Record a wake or thaw that happened on an attempt the action then lost. */
+function applyStatusGateRelease(resolution: MoveResolution, actorId: string, gate: ActionGate) {
+  if (!gate.clearStatus && !gate.wake) return;
+  resolution.statusByPokemon = {...(resolution.statusByPokemon || {}), [actorId]: ''};
+  resolution.statusTurnsByPokemon = {...(resolution.statusTurnsByPokemon || {}), [actorId]: null};
+  resolution.toxicCounterByPokemon = {...(resolution.toxicCounterByPokemon || {}), [actorId]: 0};
+  resolution.trace!.notes!.push(gate.clearStatus ? 'actor thawed and cleared freeze' : 'actor woke on the attempt');
 }
 
 function addSubstituteHp(resolution: MoveResolution, pokemonId: string, hp: number) {
@@ -2446,15 +2480,17 @@ function resolveSecondaryEffects(
   const attacker = getPokemon(state, action.actorId);
   const suppressesSecondaries = facts.moveCategory !== 'Status' && !!attacker &&
     hasAbility(state, attacker, 'sheerforce');
-  // Serene Grace and a Rainbow stack multiplicatively (x4, capped at 100):
-  // a Serene Grace user behind its own Rainbow flinches with Iron Head 100%
-  // of the time, not 60%.
-  let secondaryChanceMultiplier = 1;
-  if (attacker && hasAbility(state, attacker, 'serenegrace')) secondaryChanceMultiplier *= 2;
-  if (attacker && state.generation >= 5 &&
-    state.sides[sideForPokemon(state, attacker.id)].effects?.pledgeRainbow === true) {
-    secondaryChanceMultiplier *= 2;
-  }
+  // Serene Grace and a Rainbow stack multiplicatively (x4, capped at 100) —
+  // EXCEPT on a flinch. Showdown's Water Pledge side condition skips the
+  // doubling for a flinch secondary when the user has Serene Grace
+  // (data/moves.ts, waterpledge.condition.onModifyMove), so a Serene Grace
+  // Iron Head behind its own Rainbow flinches 60%, not 100%.
+  const sereneGrace = !!attacker && hasAbility(state, attacker, 'serenegrace');
+  const rainbow = !!attacker && state.generation >= 5 &&
+    state.sides[sideForPokemon(state, attacker.id)].effects?.pledgeRainbow === true;
+  const secondaryChanceMultiplierFor = (effect: SecondaryEffect) =>
+    (sereneGrace ? 2 : 1) *
+    (rainbow && !(sereneGrace && effect.volatile?.name === 'flinch') ? 2 : 1);
   const secondaryRolls: Record<string, number> = {};
   const secondaryTargetIds = facts.isMultiHit
     ? Array.from(new Set([
@@ -2493,7 +2529,7 @@ function resolveSecondaryEffects(
           ? `${targetId}:${index}:hit${hitIndex + 1}`
           : `${targetId}:${index}`;
         secondaryRolls[rollKey] = roll;
-        const chance = Math.min(100, effect.chance * secondaryChanceMultiplier);
+        const chance = Math.min(100, effect.chance * secondaryChanceMultiplierFor(effect));
         if (suppressesSecondaries || bounded >= chance / 100) continue;
 
         const recipientId = effect.target === 'self' ? action.actorId : targetId;
@@ -2798,8 +2834,9 @@ export function deriveMoveResolution(
   const secondaryEffects = options.secondaryEffects ?? options.facts?.secondaryEffects ?? moveMetadata.secondaryEffects;
   const moveType = options.facts?.moveType ?? moveMetadata.type;
   const moveCategory = options.facts?.moveCategory ?? moveMetadata.category;
-  if (isTruantActive(state, actor) && actor.volatile?.truant) {
-    return {
+  const statusGate = statusActionGate(state, actor, id, random);
+  if (!statusGate.failure && isTruantActive(state, actor) && actor.volatile?.truant) {
+    const loafed: MoveResolution = {
       hit: false,
       actionFailure: 'truant',
       volatileByPokemon: {[actor.id]: {truant: null}},
@@ -2810,8 +2847,12 @@ export function deriveMoveResolution(
         notes: [`${actor.id} loafed around because of Truant`],
       },
     };
+    // A Sleep Talk or Snore attempt still burned the counter before loafing.
+    if (statusGate.sleepTurns !== undefined) loafed.statusTurnsByPokemon = {[actor.id]: statusGate.sleepTurns};
+    applyStatusGateRelease(loafed, actor.id, statusGate);
+    return loafed;
   }
-  const gate = actionFailure(state, actor, id, random);
+  const gate = actionFailure(state, actor, id, random, statusGate);
   if (actor.volatile?.recharge && id === moveId(actor.volatile.recharge.moveName)) {
     return {
       hit: false,
@@ -2839,6 +2880,7 @@ export function deriveMoveResolution(
       resolution.statusTurnsByPokemon = {[actor.id]: gate.sleepTurns};
       resolution.trace!.notes!.push('sleep counter burned on the attempt');
     }
+    applyStatusGateRelease(resolution, actor.id, gate);
     if (gate.failure === 'confusion' && options.facts?.confusionDamage) {
       const damage = sampleDamageFact(options.facts.confusionDamage, random);
       if (damage > 0) addHpDelta(resolution, actor.id, -damage);
