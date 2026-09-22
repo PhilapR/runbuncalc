@@ -487,3 +487,24 @@ test('a matchup cell opens as the fight does: its numbers match a fight opened o
 	assert.ok(Math.abs(cut.us.max - fightMax('Lady Sarah', staraptor, 'player', move)) < 1e-9,
 		'the cell reads the Intimidate the fight has: ' + move + ' ' + cut.us.max);
 });
+
+test('a fight opens the same way every time: Trace and lead speed ties draw from a stream, not Math.random', () => {
+	// Our Porygon2's Trace faces two different abilities (Twins Gina And Mia:
+	// Cheek Pouch and Friend Guard), so the copy is a draw. It fell back to
+	// Math.random, so the same fight built twice could open two ways.
+	const party = [
+		{species: 'Porygon2', ability: 'Trace', level: 50, moves: ['Tackle']},
+		{species: 'Blissey', ability: 'Natural Cure', level: 50, moves: ['Tackle']},
+	];
+	const build = extra => planner.buildFightState(Object.assign({trainer: 'Twins Gina And Mia',
+		playerParty: party, profileId: 'run-and-bun', doubles: true}, extra)).state;
+	const traced = state => state.sides.player.party[0].abilityOverride;
+	const theirs = build({}).sides.ai.party.slice(0, 2).map(mon => mon.ability);
+	assert.notEqual(theirs[0], theirs[1], 'Trace has two abilities to choose from');
+	const seen = new Set();
+	for (let i = 0; i < 24; i++) seen.add(traced(build({})));
+	assert.equal(seen.size, 1, 'the same fight opens the same way: ' + Array.from(seen));
+	// A caller's own stream decides it instead, and both picks are reachable.
+	const picks = [0, 0.99].map(draw => traced(build({random: () => draw})));
+	assert.deepEqual(picks.slice().sort(), theirs.slice().sort(), 'opts.random picks the traced foe');
+});
