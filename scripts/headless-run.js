@@ -81,6 +81,12 @@ const KNOB_FLAGS = {
 	// With --nuzlocke: the first lost fight ends the run (a blackout), the
 	// strict reading. Off, the run retries the wall with its survivors.
 	blackoutEnds: ['blackout-ends', '0', value => value === '1'],
+	// Under permadeath the first attempt is the one that costs bodies, so the
+	// strong hand belongs there, not after losses: --search-first plays every
+	// singles fight by rollout search from its first attempt, and --plan-first
+	// plans each boss by play before its first attempt. Off until measured.
+	searchFirst: ['search-first', '0', value => value === '1'],
+	planFirst: ['plan-first', '0', value => value === '1'],
 	bossRetries: ['boss-retries', '20', Number],
 	budget: ['budget', '110', Number],
 	skipDoubles: ['skip-doubles', '0', value => value === '1'],
@@ -1304,6 +1310,17 @@ function bestParty(doc, wants) {
 	}
 }
 
+/**
+ * What the preparation between attempts keys on: the box, the living, the bag
+ * and the position. The living count is in it because under permadeath a death
+ * changes who can be fielded and nothing else here. One definition: the plan
+ * writes it too, and a second copy of the formula had drifted from the first.
+ */
+function shapeOf(doc) {
+	return doc.box.length + '|' + doc.box.filter(mon => mon.status !== 'dead').length + '|' +
+		JSON.stringify(doc.bag) + '|' + doc.position;
+}
+
 /** A fresh run under the project's rules, the starter caught and fielded. */
 function startRun(starter, random) {
 	// The project's own rules: 153 of the 155 banked runs play one encounter
@@ -1931,10 +1948,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		doc = claimGifts(doc, random, tally);
 		doc = claimPrizes(doc, random, tally, attempts);
 		doc = sweepItems(doc, tally);
-		// The living count is part of the shape: under permadeath a death changes
-		// who can be fielded and nothing else here, and the dead cannot stay in the six.
-		const shape = doc.box.length + '|' + doc.box.filter(mon => mon.status !== 'dead').length + '|' +
-			JSON.stringify(doc.bag) + '|' + doc.position;
+		const shape = shapeOf(doc);
 		if (shape !== lastShape) {
 			lastShape = shape;
 			doc = levelToCap(doc, tally);
@@ -1982,16 +1996,19 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		}
 		// A wall is PLANNED by play (--plan-after, default off): once, when it has
 		// been lost that many times, and again every ten losses after.
-		if (knobs.planAfter > 0 && attempts >= knobs.planAfter && (attempts - knobs.planAfter) % 10 === 0 && !next.isDouble) {
+		const planNow = knobs.planAfter > 0 && attempts >= knobs.planAfter && (attempts - knobs.planAfter) % 10 === 0;
+		const planFirst = knobs.planFirst && attempts === 0 && BOSS.test(next.trainer);
+		if ((planNow || planFirst) && !next.isDouble) {
 			doc = planByPlay(policy, doc, next, tally);
 			planHolds = true;
-			lastShape = doc.box.length + '|' + JSON.stringify(doc.bag) + '|' + doc.position;
+			lastShape = shapeOf(doc);
 		}
 		// A fight lost twice is played by search from then on (--search-after,
 		// default off): decide() has shown it cannot, and search costs about a
 		// minute a fight, so it is spent only where it is needed.
 		const searchAfter = knobs.searchAfter;
-		let searching = searchAfter > 0 && attempts >= searchAfter ? {search: knobs.searchRollouts} : undefined;
+		let searching = (knobs.searchFirst && !next.isDouble) || (searchAfter > 0 && attempts >= searchAfter) ?
+			{search: knobs.searchRollouts} : undefined;
 		// Search is not the stronger hand on every box. Seed 731001 (clear1,
 		// 2026-09-21) re-picked its six on Brawly's third attempt, and with it
 		// decide() wins 12 of 30 — but the run had already gone over to search,

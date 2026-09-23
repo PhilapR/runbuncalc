@@ -1181,3 +1181,19 @@ test('nuzlocke mode: a wall lost with bodies left in the box is retried with a f
 	assert.ok(lostWithSurvivors, 'the fixture must lose a fight and fight on: ' + JSON.stringify(row.ledger.map(entry => entry.result)));
 	for (const entry of fielded) assert.equal(entry.six, Math.min(6, entry.alive), JSON.stringify(fielded));
 });
+
+test('--search-first plays a singles fight by search from its first attempt, and --plan-first plans a boss before its first', () => {
+	const policy = require('../scripts/ui-playthrough.js');
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 418957,
+		headless.armFlags('--nuzlocke=1 --stop-at=20 --search-first=1 --plan-first=1 --search-rollouts=2 --plan-seeds=1'));
+	const first = row.ledger[0];
+	assert.match(first.policy, /^search/, 'the first attempt of the first fight is searched: ' + first.policy);
+	assert.ok(row.ledger.every(entry => /^search|joint|doubles/.test(entry.policy)), row.ledger.map(entry => entry.policy).join(', '));
+	const bosses = row.ledger.filter(entry => /Rival|Leader/.test(entry.trainer));
+	assert.ok(bosses.length, 'the fixture meets a boss');
+	assert.ok((row.plans || []).some(plan => plan.trainer === bosses[0].trainer), 'planned before its first attempt: ' +
+		JSON.stringify((row.plans || []).map(plan => plan.trainer)));
+	const off = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 418957,
+		headless.armFlags('--nuzlocke=1 --stop-at=20'));
+	assert.equal(off.ledger[0].policy, 'decide', 'off, the first attempt is decide()');
+});
