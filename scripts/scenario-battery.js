@@ -259,6 +259,8 @@ const GATED_COUNTERS = {
 	'ko-respects-order': {counter: 'koYielded', on: value => value !== '0'},
 	'stall-clock': {counter: 'clockHeld', on: value => value === 'net'},
 	'repick-party': {counter: 'repicked', on: value => value === '1'},
+	'plan-by-play': {counter: 'planned', on: value => value === '1'},
+	'plan-items': {counter: 'itemsHeld', on: value => value === '1'},
 	'pick-by-play': {counter: 'pickedByPlay', on: value => Number(value) > 1},
 	'set-exposure': {counter: 'exposurePriced', on: value => Number(value) > 0},
 	'swap-catch': {counter: 'catchSwapped', on: value => value !== ''},
@@ -732,7 +734,36 @@ function prepareDocument(doc, trainer, policy) {
 	if (swap) doc = swap.doc;
 	const prepared = prepareSix(doc, trainer, policy);
 	if (swap) prepared.swapped = swap.swapped;
-	return prepared;
+	return planPrepared(prepared, trainer, policy);
+}
+
+/**
+ * --plan-by-play=1: after the re-pick, the run's own planner (planByPlay)
+ * plans the fight once, as a live run does at a wall: who leads, who is held
+ * back, who comes in from the box, and with --plan-items=1 what they hold.
+ * The battery had no planning step, so a planner knob could not be measured
+ * on scenarios at all. Its knobs (--plan-items, --plan-seeds, --mega) mean
+ * what they mean on a run; an unnamed one keeps the run's default.
+ */
+function planPrepared(prepared, trainer, policy) {
+	const mode = flag('plan-by-play', '0');
+	if (mode !== '0' && mode !== '1') throw new Error('--plan-by-play must be 0 or 1, not ' + JSON.stringify(mode));
+	if (mode === '0') {
+		if (flag('plan-items', '0') !== '0') throw new Error('--plan-items is a planner knob; it needs --plan-by-play=1');
+		return prepared;
+	}
+	if (!policy) throw new Error('--plan-by-play needs the policy that will fight');
+	// Required here, not at the top: headless-run.js requires this module.
+	const headless = require('./headless-run.js');
+	const tally = {};
+	// Passed, not left to headless-run.js's load-time argv: a battery driven in
+	// process (tests, battery-tape) sets its flags after that module loaded.
+	const given = {planItems: flag('plan-items', '0') === '1'};
+	if (flag('plan-seeds', '') !== '') given.planSeeds = Number(flag('plan-seeds', ''));
+	if (flag('mega', '') !== '') given.mega = flag('mega', '') === '1';
+	const doc = headless.withKnobs(given, () => headless.planByPlay(policy, prepared.doc, {trainer}, tally));
+	const plan = (tally.plans || [])[0] || null;
+	return Object.assign({}, prepared, {doc, plan});
 }
 
 function prepareSix(doc, trainer, policy) {
@@ -843,6 +874,12 @@ function runScenario(policy, scenario, job) {
 	}
 	// Written only when the arm is on, so a control receipt is byte-identical
 	// to one from before the flag existed.
+	if (prepared.plan !== undefined) {
+		out.plan = prepared.plan;
+		out.counters.planned = prepared.plan ? 1 : 0;
+		// The item knob fired only where the plan taken holds what the six did not.
+		out.counters.itemsHeld = prepared.plan && prepared.plan.held && prepared.plan.held.length ? 1 : 0;
+	}
 	if (prepared.repick) {
 		out.repick = prepared.repick;
 		out.counters.repicked = prepared.repick.changed ? 1 : 0;
@@ -887,7 +924,9 @@ const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds'
 	// treatment arms outright rather than run them as a silent control, which is
 	// what that guard is for. search-lookahead and switch-played were measured
 	// by calling the module directly and so never met it.
-	'search-lookahead', 'switch-played', 'enemy-switch-scoring'];
+	'search-lookahead', 'switch-played', 'enemy-switch-scoring',
+	// The planner's step and the knobs headless-run.js reads for it (planPrepared).
+	'plan-by-play', 'plan-items', 'plan-seeds', 'mega'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at

@@ -156,3 +156,28 @@ test('a held plan keeps its items: advice between attempts does not replace the 
 		'the advice passed over the planned holder');
 	assert.deepEqual(headless.plannedHolders(out, {}), new Set(), 'no plan, nothing kept');
 });
+
+test('the battery plans a scenario the way a run does, and --plan-items reaches the planner', () => {
+	const withArgv = (extra, fn) => {
+		const saved = process.argv;
+		process.argv = ['node', 'battery'].concat(extra);
+		try {
+			return fn();
+		} finally {
+			process.argv = saved;
+		}
+	};
+	const scenario = {name: 'Brawly', trainer: 'Leader Brawly', report: BRAWLY, seeds: 1};
+	const base = ['--repick-party=0', '--plan-seeds=1'];
+	assert.throws(() => withArgv(['--repick-party=0', '--plan-items=1'], () => battery.runScenario(policy, scenario)),
+		/--plan-items is a planner knob; it needs --plan-by-play=1/);
+	const off = withArgv(base.concat(['--plan-by-play=1']), () => battery.runScenario(policy, scenario));
+	assert.equal(off.counters.planned, 1, JSON.stringify(off.plan));
+	assert.equal(off.plan.trainer, 'Leader Brawly');
+	assert.equal(off.plan.items, undefined, 'no item record with the knob off');
+	const on = withArgv(base.concat(['--plan-by-play=1', '--plan-items=1']), () => battery.runScenario(policy, scenario));
+	assert.ok(Array.isArray(on.plan.items), 'the knob reached the planner: ' + JSON.stringify(on.plan));
+	assert.equal(on.counters.itemsHeld, on.plan.held.length ? 1 : 0);
+	const control = withArgv(['--repick-party=0'], () => battery.runScenario(policy, scenario));
+	assert.equal(control.plan, undefined, 'a receipt without the flag carries no plan');
+});
