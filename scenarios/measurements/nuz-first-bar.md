@@ -35,3 +35,19 @@ nuz0923b (baseline spec at df1bd2ee), nuzf0923b (search-first spec at
 f1d81af6), nuzd0923b (delay spec at aaa26bb2, already queued). Confirmed if each
 step is better on more seeds than worse with one-sided sign test p < 0.05 over
 the non-tied seeds, the same rule as the later bars.
+
+## Held-out result, 2026-09-23: CONFIRMED
+
+```
+== baseline -> search-first
+paired 12: better 9, worse 2, tied 1 | one-sided sign test over the non-tied p = 0.0327  PASSES the primary
+median fights won 11.5 -> 17 | bodies lost per fight won 0.95 -> 0.81
+== search-first -> delay-until
+paired 12: better 6, worse 0, tied 6 | one-sided sign test over the non-tied p = 0.0156  PASSES the primary
+median fights won 17 -> 19.5 | bodies lost per fight won 0.81 -> 0.72
+== baseline -> delay-until
+paired 12: better 10, worse 2, tied 0 | one-sided sign test over the non-tied p = 0.0193  PASSES the primary
+median fights won 11.5 -> 19.5 | bodies lost per fight won 0.95 -> 0.72
+```
+
+Both steps hold on twelve seeds no design decision had read. All runs audit-valid.
