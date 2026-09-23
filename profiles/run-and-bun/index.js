@@ -218,8 +218,10 @@ module.exports = defineProfile({
 		'mechanics.sleepTurnsResetOnEntry': 'source-of-truth',
 		'mechanics.disguiseBreaksWithoutChipDamage': 'source-of-truth',
 		'mechanics.confusionBerriesRestoreHalfHpAtQuarter': 'source-of-truth',
-		// Ordinary ability weather's permanence is also emulator-observed
-		// (pokemon-mono P0, 2026-09-22); strong weather is not probed yet.
+		// Also emulator-observed (pokemon-mono groundtruth P0 and P3,
+		// 2026-09-22/23): ordinary ability weather holds 10/10 turns, and
+		// Primal weather survives its holder leaving or fainting in 120/120
+		// runs while blocking every ordinary setter.
 		'mechanics.abilityWeatherIsPermanent': 'source-of-truth',
 		'mechanics.moodyRaisesAccuracyEvasion': 'source-of-truth',
 		// "Soul Dew: Boosts Latias and Latios SpA/SpD by one stage" — and the

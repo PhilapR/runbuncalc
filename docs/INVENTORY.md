@@ -171,7 +171,7 @@ the reader's warning to verify before trusting.
 - `docs/SDLC.md` — e342a33 2026-09-22
 - `docs/STRATEGY.md` — c272bcd 2026-08-25
 - `docs/VALIDATION.md` — 56f1c21 2026-09-22
-- `docs/WORKFLOW.md` — 1b6ba2a 2026-09-22
+- `docs/WORKFLOW.md` — f27e160 2026-09-22
 - `docs/WORST-CASE-PLANNING.md` — c6a8955 2026-08-19
 - `ui-playthrough-out.ARCHIVED.md` — untracked
 

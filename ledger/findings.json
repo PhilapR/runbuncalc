@@ -2301,7 +2301,7 @@
 			"status": "fixed",
 			"fixed_in": "28327c1",
 			"falsified": 1,
-			"evidence": "Raised by the operator; the hack's own document says it. Ordinary ability weather permanence is also ROM-observed (pokemon-mono P0). Primal permanence is to be ROM-checked by P3. Guard: tests/fidelity_openings.test.js."
+			"evidence": "Raised by the operator; the hack's own document says it. Ordinary ability weather permanence is also ROM-observed (pokemon-mono P0). Primal permanence is to be ROM-checked by P3. Guard: tests/fidelity_openings.test.js. | 2026-09-23: ROM-confirmed (pokemon-mono P3, receipt 20260923T002258Z-entry-probe): Primal Kyogre/Groudon weather stays after the holder switches out or is KO'd, 120/120 runs, and blocks Drizzle/Drought 40/40."
 		},
 		{
 			"id": "ai-highest-damage-uses-max-roll",
