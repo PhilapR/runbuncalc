@@ -20,6 +20,18 @@
  * divergence, never silence. The real fix — curating the mono-side species
  * table to R&B values — retires ledger entries as it lands.
  *
+ * It reads TWO tables. The species table is what a player's catch is built
+ * from. The trainer records are what an enemy is built from, and they can
+ * disagree where the species table agrees: the bundle's species table holds
+ * "Ampharos-Mega" with Mold Breaker, correctly, while its record of Leader
+ * Wattson holds a plain Ampharos with Static and an Ampharosite. Neither
+ * engine performs Mega Evolution, so the planner fights the base form for the
+ * whole battle while this run fights the Mega from turn one. Reading only the
+ * species table, this ledger held 140 entries and not one Mega
+ * (the-forecast-fights-a-pokemon-that-never-mega-evolves). So every enemy
+ * Pokemon both sides hold is compared too, fight by fight through
+ * trainer-orders.json, and a species or ability they disagree on is an entry.
+ *
  *   node scripts/diff-provider-data.js           # print the diff summary
  *   node scripts/diff-provider-data.js --write   # rewrite the ledger
  */
@@ -52,6 +64,63 @@ function vendorSpecies() {
 			Object.keys(found).length + ' entries — the bundle layout changed; fix the pattern');
 	}
 	return found;
+}
+
+/**
+ * One comparable name for a species: the two sides spell forms differently
+ * ("Rotom-Fan" and "Rotom_Fan", "Farfetch’d" and "Farfetchd") without
+ * disagreeing about the Pokemon. A Mega suffix is NOT spelling: it is a
+ * different Pokemon, so it survives here.
+ */
+function speciesId(name) {
+	return String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+/** The key that pairs one enemy across the two records: the base species and
+ * the level, the fingerprint build-trainer-order-map.js matches teams on. */
+function pairKey(mon) {
+	return speciesId(mon.species).replace(/(?:mega[xy]?|primal)$/, '') + '@' + mon.level;
+}
+
+/**
+ * Every enemy Pokemon the run map and the pinned engine both hold, compared on
+ * species and ability. Fights are joined by trainer-orders.json (engine order
+ * per run-map fight label); within a fight, Pokemon pair on base species and
+ * level. A Pokemon that pairs with none is counted, not guessed.
+ */
+function trainerDivergences() {
+	const planner = require(path.join(ROOT, 'lib', 'planner'));
+	const runtime = require('@philapr/pokemon-run-runtime');
+	const byOrder = runtime.createRabRunRuntimeProvider({}).options.resolveTrainer;
+	const orders = JSON.parse(fs.readFileSync(path.join(ROOT, 'profiles', 'run-and-bun', 'oracle', 'trainer-orders.json'), 'utf8'));
+	const fights = new Map(planner.loadRunMap('run-and-bun').map(fight => [fight.trainer, fight]));
+	const entries = [];
+	let compared = 0;
+	let unpaired = 0;
+	for (const joined of orders.entries) {
+		const fight = fights.get(joined.trainer);
+		const engine = byOrder(joined.order);
+		if (!fight || !engine || !engine.pokemon) continue;
+		const pool = engine.pokemon.slice();
+		fight.party.forEach((ours, slot) => {
+			const at = pool.findIndex(theirs => pairKey(theirs) === pairKey(ours));
+			if (at === -1) {
+				unpaired += 1;
+				return;
+			}
+			const theirs = pool.splice(at, 1)[0];
+			compared += 1;
+			if (speciesId(theirs.species) !== speciesId(ours.species)) {
+				entries.push({trainer: joined.trainer, order: joined.order, slot, field: 'species',
+					vendor: theirs.species, fork: ours.species});
+			}
+			if (theirs.ability !== ours.ability) {
+				entries.push({trainer: joined.trainer, order: joined.order, slot, field: 'ability',
+					vendor: theirs.ability, fork: ours.ability});
+			}
+		});
+	}
+	return {compared, unpaired, entries};
 }
 
 function computeDiff() {
@@ -88,8 +157,9 @@ function computeDiff() {
 				vendor: vendorTypes, fork: forkTypes});
 		}
 	}
+	const trainers = trainerDivergences();
 	return {
-		schemaVersion: 'pokemon.provider.data-divergences/1.0.0',
+		schemaVersion: 'pokemon.provider.data-divergences/1.1.0',
 		providerRevision: provenance.revision,
 		providerArtifactSha256: provenance.artifactSha256,
 		meaning: 'Fields where the pinned provider\'s embedded species data disagrees ' +
@@ -99,6 +169,15 @@ function computeDiff() {
 		speciesCompared: compared,
 		divergenceCount: entries.length,
 		entries,
+		trainerMeaning: 'Enemy Pokemon whose species or ability the pinned provider\'s TRAINER ' +
+			'records hold differently from this run map, joined fight by fight through ' +
+			'trainer-orders.json. A species entry whose fork value is a Mega or Primal form is a ' +
+			'Pokemon the provider fights as its base form for the whole battle: neither engine ' +
+			'performs Mega Evolution. Retired by the provider holding the evolved form, or evolving it.',
+		trainerPokemonCompared: trainers.compared,
+		trainerPokemonUnpaired: trainers.unpaired,
+		trainerDivergenceCount: trainers.entries.length,
+		trainerEntries: trainers.entries,
 	};
 }
 
@@ -108,6 +187,8 @@ function main() {
 	console.log(`compared ${diff.speciesCompared} species against provider ` +
 		`${diff.providerRevision.slice(0, 8)}: ${diff.divergenceCount} divergences ` +
 		`across ${speciesTouched.size} species`);
+	console.log(`compared ${diff.trainerPokemonCompared} enemy Pokemon (${diff.trainerPokemonUnpaired} unpaired): ` +
+		`${diff.trainerDivergenceCount} trainer-record divergences`);
 	if (process.argv.includes('--write')) {
 		fs.writeFileSync(LEDGER, JSON.stringify(diff, null, '\t') + '\n');
 		console.log('ledger written: ' + path.relative(ROOT, LEDGER));
@@ -121,6 +202,7 @@ function main() {
 		return;
 	}
 	if (JSON.stringify(committed.entries) !== JSON.stringify(diff.entries) ||
+		JSON.stringify(committed.trainerEntries) !== JSON.stringify(diff.trainerEntries) ||
 		committed.providerRevision !== diff.providerRevision) {
 		console.log('DRIFT: the computed divergences do not match the committed ledger. ' +
 			'If this change is deliberate (a re-pin or a fork data fix), rerun with ' +
@@ -132,4 +214,4 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = {computeDiff, vendorSpecies};
+module.exports = {computeDiff, vendorSpecies, trainerDivergences};

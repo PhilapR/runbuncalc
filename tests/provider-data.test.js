@@ -73,3 +73,30 @@ test('the worst-case planning design names the provider revision the repository 
 	const line = read('scripts/check-sdlc.js').split('\n')[Number(at[1]) - 1];
 	assert.equal(line, `assert.equal(providerProvenance.revision, '${pin.revision}');`);
 });
+
+test('the divergence ledger reads the trainer records, where the Megas are', () => {
+	// the-forecast-fights-a-pokemon-that-never-mega-evolves: the ledger read
+	// only the species table, where the bundle is right, and held no Mega. Its
+	// trainer records hold Wattson's ace as a plain Ampharos with Static and
+	// an Ampharosite, and neither engine evolves it. Every Mega or Primal this
+	// run fields in a fight the engine is joined to must now be an entry.
+	const committed = JSON.parse(fs.readFileSync(LEDGER, 'utf8'));
+	const computed = providerDiff.trainerDivergences();
+	assert.deepEqual(committed.trainerEntries, computed.entries,
+		'trainer divergences drifted — rerun scripts/diff-provider-data.js --write and commit the ledger');
+	assert.ok(computed.entries.some(entry => entry.trainer === 'Leader Wattson' && entry.field === 'species' &&
+		entry.fork === 'Ampharos-Mega' && entry.vendor === 'Ampharos'), 'Wattson\'s ace is the sentinel');
+	const planner = require('../lib/planner');
+	const joined = new Set(require('../profiles/run-and-bun/oracle/trainer-orders.json').entries.map(entry => entry.trainer));
+	const megas = [];
+	for (const fight of planner.loadRunMap('run-and-bun')) {
+		if (!joined.has(fight.trainer)) continue;
+		fight.party.forEach((mon, slot) => {
+			if (/-(?:Mega|Primal)\b/.test(mon.species)) megas.push(fight.trainer + '#' + slot);
+		});
+	}
+	const recorded = new Set(computed.entries.filter(entry => entry.field === 'species')
+		.map(entry => entry.trainer + '#' + entry.slot));
+	assert.ok(megas.length > 50, 'the run fields its Megas where the engine is joined, found ' + megas.length);
+	assert.deepEqual(megas.filter(key => !recorded.has(key)), [], 'every joined Mega is a recorded divergence');
+});
