@@ -66,7 +66,7 @@ const choppedResolution = deriveMoveResolution(chopped, growl, {
   facts: calculateActionFacts(chopped, growl), hit: true, random: () => 0,
 });
 assert.equal(choppedResolution.hit, false, 'queued before the chop: used, and blocked');
-applyAction(chopped, growl, choppedResolution);
+assert.doesNotThrow(() => applyAction(chopped, growl, choppedResolution), 'and not refused');
 const locked: BattleState = JSON.parse(JSON.stringify(withGrowl));
 locked.sides.player.party[0].volatile = {rampage: {moveName: withGrowl.sides.player.party[0].moves[0].name, turns: 2}} as never;
 assert.throws(() => applyAction(locked, growl, deriveMoveResolution(locked, growl, {
