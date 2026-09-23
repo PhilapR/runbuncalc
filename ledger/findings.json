@@ -2415,6 +2415,22 @@
 			"falsified": 0,
 			"evidence": "ui-playthrough-out/suite-logs/fast-c6442e71.log (both failed under the nuzf0923 runs); rerun alone, both pass. The likeliest identity of the unnamed intermittent fast-suite failure of 2026-09-22 (docs/WORKFLOW.md weakness 5). Fix: count the work the ranker does (calculator objects, candidate sixes scored), as tests/adjudication_cost.test.js does.",
 			"enforcedBy": null
+		},
+		{
+			"id": "battery-roster-uses-box-ids",
+			"source": "review/2026-09-23",
+			"raised_on": "2026-09-23",
+			"severity": "medium",
+			"area": "policy",
+			"file": "scripts/scenario-battery.js",
+			"line": 402,
+			"claim": "playScenario builds the policy's roster from box ids (mon-2), but the fight's switch ids are battle ids (player-2), so canAttack never finds the body and returns true: the rule 'never send in a body that cannot damage anything' (the Abra pressing Kinesis fix) has never applied in a battery or headless fight.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "driver.start on the banked Brawly box: switch ids player-2..player-6, party box ids mon-2, mon-5, ... canAttack (scripts/ui-playthrough.js:2325) returns true when the id is not in the roster. Fixing it changes decide() play, so it needs a measured arm; under the permadeath configuration decide() now plays only the scouting fights (search plays every kept singles attempt).",
+			"enforcedBy": null
 		}
 	]
 }
