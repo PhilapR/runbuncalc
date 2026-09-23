@@ -1197,3 +1197,14 @@ test('--search-first plays a singles fight by search from its first attempt, and
 		headless.armFlags('--nuzlocke=1 --stop-at=20'));
 	assert.equal(off.ledger[0].policy, 'decide', 'off, the first attempt is decide()');
 });
+
+test('--delay-until scouts a delayable fight in the run\'s head and puts it off while it is unsafe', () => {
+	// Seed 523658 meets Camper Gavi with a box that wins none of eight scouts.
+	const policy = require('../scripts/ui-playthrough.js');
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 523658,
+		headless.armFlags('--nuzlocke=1 --delay-until=0.75 --stop-at=120'));
+	assert.ok(row.delayScouts && row.delayScouts.length >= 1, JSON.stringify(row.delayScouts));
+	assert.ok(row.delayScouts.every(scout => scout.trainer === 'Camper Gavi' && scout.of === 8));
+	assert.ok(row.skipped.some(entry => entry.trainer === 'Camper Gavi' && /put off/.test(entry.why)));
+	assert.equal(row.ledger.filter(entry => entry.trainer === 'Camper Gavi').length, 0, 'never learned by losing it');
+});

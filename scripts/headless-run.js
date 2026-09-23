@@ -87,6 +87,13 @@ const KNOB_FLAGS = {
 	// plans each boss by play before its first attempt. Off until measured.
 	searchFirst: ['search-first', '0', value => value === '1'],
 	planFirst: ['plan-first', '0', value => value === '1'],
+	// A DELAYABLE fight (the profile's delayableFights: Camper Gavi) is scouted
+	// before each first attempt — decide() fights in the run's head, costing no
+	// body — and put off to the next cap while the scouted win rate is under this
+	// share, instead of being learned by losing it. Under permadeath a loss is the
+	// box. 0 is off. A fight still unsafe when the caps run out is left owed,
+	// and the run stops there as it always has ("owed fights wait on a higher cap").
+	delayUntil: ['delay-until', '0', Number],
 	bossRetries: ['boss-retries', '20', Number],
 	budget: ['budget', '110', Number],
 	skipDoubles: ['skip-doubles', '0', value => value === '1'],
@@ -1970,6 +1977,26 @@ function playRunWith(policy, starter, seed, treatment, options) {
 				ahead.map(fight => fight.trainer).join(', ');
 			break;
 		}
+		if (knobs.delayUntil > 0 && attempts === 0 &&
+			(require('../profiles').getProfile(doc.profileId).delayableFights || []).includes(next.trainer)) {
+			const scouts = 8;
+			let wins = 0;
+			for (let offset = 1; offset <= scouts; offset++) {
+				try {
+					if (battery.playScenario(policy, doc, next.trainer, PROBE_SEED_BASE + offset).result === 'win') wins++;
+				} catch (error) { /* a crashed scout is not a win */ }
+			}
+			scouted(tally, 'probe', scouts);
+			tally.delayScouts = (tally.delayScouts || []).concat([{trainer: next.trainer, cap: capNow, wins, of: scouts}]);
+			if (wins / scouts < knobs.delayUntil) {
+				try {
+					if (!(doc.skipped || []).includes(next.order)) doc = run.apply(doc, {kind: 'skip', trainer: next.trainer, for: 'a higher cap'});
+					waiting.set(next.order, capNow);
+					tally.skipped.push({trainer: next.trainer, why: 'scouted ' + wins + '/' + scouts + ' at cap ' + capNow + ': put off'});
+					continue;
+				} catch (error) { /* not skippable here: fight it */ }
+			}
+		}
 		// Doubles are played (driver.playDoubles, both sides on the engine's
 		// trainer AI) unless --skip-doubles=1 asks for the old behaviour.
 		if (next.isDouble && knobs.skipDoubles) {
@@ -2186,6 +2213,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		scaleSpends: tally.scaleSpends, pickups: tally.pickups, fights: tally.fights,
 		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, plans: tally.plans || [],
 		gifts: tally.gifts || 0, gifted: tally.gifted || [],
+		...(tally.delayScouts ? {delayScouts: tally.delayScouts} : {}),
 		// Elite Four formats given up on for the member's other format: {from, to, after}.
 		formatsSwitched: tally.formatsSwitched || [],
 		megaPicks: tally.megaPicks || 0, megaMoved: tally.megaMoved || 0,
