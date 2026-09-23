@@ -69,3 +69,29 @@ test('each arm runs from its own clean worktree and leaves only its receipt', as
 	await assert.rejects(arms.runArms({arms: arms.parseArms(['--arm=x:battery:']),
 		rev: 'no-such-revision-anywhere', concurrency: 1, out, worktrees}), /no commit named/);
 });
+
+test('a pinned worktree loads its own calc, not the main checkout\'s', () => {
+	// node_modules/@smogon/calc is a workspace link, `../../calc`. Linking the
+	// whole node_modules directory resolved it from the main checkout, so a
+	// worktree pinned to one revision played the main checkout's calc/dist.
+	const root = path.join(__dirname, '..');
+	const dir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'arms-calc-')), 'tree');
+	arms.makeWorktree(dir, 'HEAD');
+	try {
+		const real = fs.realpathSync(dir);
+		const resolve = (cwd, request) => childProcess.execFileSync(process.execPath,
+			['-e', 'process.stdout.write(require.resolve(process.argv[1]))', request],
+			{cwd, encoding: 'utf8'});
+		const calc = resolve(dir, '@smogon/calc');
+		assert.ok(calc.startsWith(path.join(real, 'calc') + path.sep),
+			'@smogon/calc from the worktree resolves to ' + calc);
+		const fromAi = resolve(path.join(dir, 'ai'), '@smogon/calc');
+		assert.ok(fromAi.startsWith(path.join(real, 'calc') + path.sep),
+			'@smogon/calc from the worktree\'s ai/ resolves to ' + fromAi);
+		// An ordinary package is still this checkout's copy, not a second install.
+		const dex = resolve(dir, '@pkmn/dex');
+		assert.ok(!dex.startsWith(real + path.sep), '@pkmn/dex is shared: ' + dex);
+	} finally {
+		childProcess.spawnSync('git', ['worktree', 'remove', '--force', dir], {cwd: root});
+	}
+});

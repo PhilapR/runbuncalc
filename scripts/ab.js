@@ -66,15 +66,11 @@ function makeWorktree(revision) {
 	} catch (error) { /* nothing to remove */ }
 	execFileSync('git', ['worktree', 'add', '--detach', dir, revision],
 		{cwd: ROOT, stdio: 'ignore'});
-	// node_modules is SYMLINKED: 512MB across three directories, identical
-	// between the trees, and dependencies do not change inside a batch.
-	for (const rel of ['node_modules', 'calc/node_modules', 'ai/node_modules']) {
-		const target = path.join(ROOT, rel);
-		if (!fs.existsSync(target)) continue;
-		const link = path.join(dir, rel);
-		fs.mkdirSync(path.dirname(link), {recursive: true});
-		if (!fs.existsSync(link)) fs.symlinkSync(target, link, 'dir');
-	}
+	// node_modules is SYMLINKED package by package: 512MB across three
+	// directories, identical between the trees, and dependencies do not change
+	// inside a batch. The workspace link @smogon/calc names THIS tree's calc
+	// (battery-arms.js linkModules says why a whole-directory link did not).
+	require('./battery-arms.js').linkModules(dir);
 	// The build outputs are COPIED, not linked, and the difference is the whole
 	// point of isolating. ai/dist and calc/dist are gitignored, so the worktree
 	// has their source and not their build — and a symlink would put the main
