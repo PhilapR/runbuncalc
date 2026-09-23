@@ -147,6 +147,8 @@ const KNOB_FLAGS = {
 	mega: ['mega', '1', value => value === '1'],
 	// A won rollout valued by the bodies it kept (driver.setSearchKeep).
 	searchKeep: ['search-keep', '1', value => value === '1'],
+	// What winning is worth apart from the bodies it kept (driver.setSearchKeepWeight).
+	searchKeepWeight: ['search-keep-weight', '0.5', Number],
 	// The same playouts spent by sequential halving (driver.setSearchHalving).
 	searchHalving: ['search-halving', '0', value => value === '1'],
 	// A lost playout valued by its path too (driver.setSearchPath).
@@ -1846,6 +1848,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// How wide the boss search stays after its first look.
 	driver.setSearchWiden(Number(flag('search-widen', '0')));
 	driver.setSearchKeep(knobs.searchKeep);
+	driver.setSearchKeepWeight(knobs.searchKeepWeight);
 	driver.setSearchHalving(knobs.searchHalving);
 	driver.setSearchPath(knobs.searchPath);
 	driver.setSearchLookahead(knobs.searchLookahead);

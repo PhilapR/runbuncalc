@@ -137,6 +137,7 @@ function replay(receiptPath, scenarioName, seed, options) {
 	driver.setDoublesJoint(argOf(argv, 'doubles-joint') === '1');
 	driver.setSearchWiden(Number(argOf(argv, 'search-widen') || 0));
 	driver.setSearchKeep(argOf(argv, 'search-keep') === '1');
+	driver.setSearchKeepWeight(Number(argOf(argv, 'search-keep-weight') || '0.5'));
 	driver.setSearchHalving(argOf(argv, 'search-halving') === '1');
 	driver.setSearchPath(argOf(argv, 'search-path') === '1');
 	driver.setSearchLookahead(Number(argOf(argv, 'search-lookahead') || 0));

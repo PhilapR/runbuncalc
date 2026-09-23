@@ -1167,3 +1167,26 @@ test('a body lost at the end of a turn is counted and has an epitaph, in doubles
 	assert.equal(residual.length, 2, 'both poisoned actives fell to the turn end: ' + JSON.stringify(played.killers));
 	assert.ok(played.deaths >= 2, 'and they are deaths: ' + played.deaths);
 });
+test('--search-keep-weight prices a body kept in a won playout, and never lets a win fall to a loss', () => {
+	const driver = require('../lib/battle-driver.js');
+	const bundle = (oursUp, ours, foesUp) => ({state: {sides: {
+		player: {party: Array.from({length: ours}, (_, i) => ({hp: {current: i < oursUp ? 10 : 0, max: 10}}))},
+		ai: {party: Array.from({length: 6}, (_, i) => ({hp: {current: i < foesUp ? 10 : 0, max: 10}}))}}}});
+	const keep = driver.searchKeep();
+	const weight = driver.searchKeepWeightOf();
+	try {
+		driver.setSearchKeep(true);
+		driver.setSearchKeepWeight(0.5);
+		assert.equal(driver.rolloutValue(bundle(5, 6, 0), {result: 'win'}), 0.5 + 0.5 * 5 / 6, 'the ruling\'s default');
+		driver.setSearchKeepWeight(0.25);
+		assert.equal(driver.rolloutValue(bundle(5, 6, 0), {result: 'win'}), 0.25 + 0.75 * 5 / 6);
+		const cheapest = driver.rolloutValue(bundle(1, 6, 0), {result: 'win'});
+		const bestLoss = driver.rolloutValue(bundle(0, 6, 0), {result: 'loss'});
+		assert.ok(cheapest > bestLoss, 'a win with one left still beats a loss that took everything of theirs');
+		assert.throws(() => driver.setSearchKeepWeight(0.2), /must be in \(0.2, 1\]/);
+		assert.throws(() => driver.setSearchKeepWeight(Number('x')), /must be in/);
+	} finally {
+		driver.setSearchKeep(keep);
+		driver.setSearchKeepWeight(weight);
+	}
+});

@@ -936,7 +936,7 @@ function refuseUnread(policy, own) {
 }
 
 const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds',
-	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search', 'search-widen', 'search-keep', 'search-halving', 'search-path',
+	'repick-party', 'pick-by-play', 'pick-seeds', 'set-exposure', 'swap-catch', 'swap-teach', 'search', 'search-bosses', 'shard', 'hiding-forecast', 'real-speed', 'charge-threat', 'doubles-joint', 'doubles-search', 'search-widen', 'search-keep', 'search-keep-weight', 'search-halving', 'search-path',
 	// Declared so the unread-flag audit lets an arm pass them: it refused four
 	// treatment arms outright rather than run them as a silent control, which is
 	// what that guard is for. search-lookahead and switch-played were measured
@@ -967,6 +967,7 @@ function main() {
 	driver.setSearchWiden(Number(flag('search-widen', '0')));
 	// A won rollout valued by what it kept, not a flat 1.
 	driver.setSearchKeep(flag('search-keep', '1') === '1');
+	driver.setSearchKeepWeight(Number(flag('search-keep-weight', '0.5')));
 	// The same playouts, spent by sequential halving instead of evenly.
 	driver.setSearchHalving(flag('search-halving', '0') === '1');
 	// A lost playout valued by its path (the average material lead) as well as its end.
