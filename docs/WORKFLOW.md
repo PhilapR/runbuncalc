@@ -17,13 +17,13 @@ clear predates the engine fix.
 | # | Stage | What it is | Health | Weak points and backlog |
 |---|---|---|---|---|
 | 1 | Game data | sets, run map, encounters, items, dates (`profiles/run-and-bun`) | amber | Gifts, trades, fossils and roamers wait on one ruling (`do-gifts-consume-an-area-encounter`). Earth Power has no dated place. Every gendered Pokémon is male, and no gender-ratio data exists. 8 catchable species have no level-up moves. The Rustboro encounter table has drifted. About 12 open findings are data or provenance. |
-| 2 | Battle engine | mechanics (`ai/src`) | amber | See "Fidelity" below. PP is off by default, so a stall is infinite. 18 doubles are planned as singles. The enemy's post-KO replacement follows documentation, not the ROM. About 10 mechanics findings are open (paralysis before infatuation, Parental Bond crits, Mold Breaker crit block, a consumed item never consumed). Mega timing is not modelled. Kubfu's form is never rolled. |
+| 2 | Battle engine | mechanics (`ai/src`) | amber → green where graded | **2026-09-22:** lead entry abilities fire at battle start; Download (ROM direction), Intimidate blockers and reactors, White Herb, Primal weathers (permanent, as the hack's doc says); gate order from the ROM (sleep/freeze before Truant and flinch, paralysis before infatuation); enemy AI move scoring ported to 85 ROM probes (held-out top-1 0.972, TVD 0.019). Every opening is swept (`tests/fidelity_openings.test.js`); the mechanics gate drives each declared hack rule. Still open: PP off by default (a stall is infinite), 18 doubles planned as singles, Mega timing, Kubfu's form roll, Room Service. |
 | 3 | Run rules and audit | `lib/run.js`, `scripts/audit-run.js` | amber | The audit replays commands, not battles, so it cannot see an engine change. Receipts carry no engine version. A run row names only its last leg's revision. A move at the evolution level costs a Heart Scale. Status and forgetting a move at the nurse (free in game) are not modelled. The economy spends items it has no source for. |
-| 4 | Planner | the six, order, Mega, plan-by-play | amber | **Held items are not planned** (PLAN 2.1), and it is the lever that keeps recurring: a Focus Sash lead at Wallace, the Fairy Gem at Sidney. Plans vary only the first foe and the last two (2.3). The Mega is not a planned choice (2.2). The upgrade advisor prices a tenth of the movepool. |
+| 4 | Planner | the six, order, Mega, plan-by-play | amber | Held items can be planned (`--plan-items`, off until measured on held-out walls); the matchup board now opens cells as the fight does. Plans vary only the first foe and the last two (2.3). The Mega is not a planned choice (2.2). The upgrade advisor prices a tenth of the movepool. |
 | 5 | Fight policy | decide, search, joint doubles search | green | Mostly measured and rejected, which is fine. Unbuilt: phazing set-up users, stall play. When search scores a loss, it ignores how many of our Pokémon survive. Which two lead in doubles is an assumption (`doubles-lead-order`). |
-| 6 | Harness and run control | slot pool, checkpoints, carry-on, fallbacks | green | Per-wall experiments are scratch scripts, not repository tools with receipts. Background launches from the agent shell are fragile. Runs span revisions. |
-| 7 | Measurement | battery, held-out seeds, paired tests, `scripts/falsify.js` | green method, **red baseline** | Every stored baseline predates `8cc3ece` and `e6399d2`. Re-run it before comparing anything. |
-| 8 | Observability | watch page, insight MCP tools, fight view | green | No wall view (PLAN 5.2). Past attempts open in a separate page (5.1). Jev triage belongs to Codex in rab-workspace. |
+| 6 | Harness and run control | slot pool, checkpoints, carry-on, fallbacks, jobs | green | Every leg of a run names its engine; batteries, A/B arms and plan-by-play are watchable jobs (`lib/watch.js`). Open: rab-workspace's planning worker needs its side of the job wiring (a change request exists); pinned worktrees load the main checkout's calc. |
+| 7 | Measurement | battery, held-out seeds, paired tests, `scripts/falsify.js` | green | Re-baselined on the corrected engine (`base0923-*` receipts, one engine stamp); `battery-pair` refuses cross-engine joins and reports McNemar. heldout3 is kept unspent as the confirmation set. |
+| 8 | Observability | watch page, insight MCP tools, fight view, wall view | green | The wall view (per foe, hazards, end-of-turn and recoil counted apart) and past attempts on the fight tab exist; doubles tapes are read. |
 | 9 | Performance | cost per decision | amber | `rankParties` about 8 s, twice that with a Mega. One searched decision 8–12 s. About 10 h a run, about 1 h for a wall at 40 attempts. |
 
 ## Fidelity
@@ -42,9 +42,11 @@ What changed the game under every earlier number:
 - Declared, not a defect: ability weather and terrain are **permanent** in
   Run & Bun (`docs/AI_DATA_MODEL.md`).
 
-Still unchecked by any sweep: other entry effects (Trace, Frisk, Neutralizing
-Gas, Air Lock), item entry effects, and mid-fight rules that a composed-pipeline
-test does not reach.
+ROM evidence beyond damage now exists (pokemon-mono PR #6, `groundtruth/pykemon`
+P0–P5): stat stages, status and weather mapped in RAM; entry abilities and the
+action-gate order observed. Open: whether Primal weather outlives a fainted
+holder in the ROM (P3, needs a second party member), and a sweep for the
+turn loop (mid-fight rules a composed-pipeline test does not reach).
 
 ## Where we are weakest
 
