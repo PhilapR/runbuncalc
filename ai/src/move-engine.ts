@@ -473,6 +473,26 @@ function activateTerrainSeeds(resolution: MoveResolution, state: BattleState, te
   }
 }
 
+/**
+ * Room Service (Gen 8; Run & Bun's doc is silent, so the Gen 8 fallback):
+ * when Trick Room goes up, every active holder takes -1 Speed and the item
+ * is used up. Showdown data/items.ts roomservice, onAnyPseudoWeatherChange.
+ * The switch-in half lives in entry-hazards.ts.
+ */
+function activateRoomService(resolution: MoveResolution, state: BattleState) {
+  if (state.generation < 8) return;
+  for (const sideId of ['ai', 'player'] as const) {
+    for (const pokemonId of state.sides[sideId].activeIds) {
+      const pokemon = getPokemon(state, pokemonId);
+      if (!pokemon || pokemon.hp.current <= 0 || !heldItemEffectsActive(state, pokemon)) continue;
+      if (moveId(pokemon.item) !== 'roomservice') continue;
+      addBoosts(resolution, state, pokemon.id, {spe: -1});
+      consumeItem(resolution, pokemon.id, pokemon.item!);
+      resolution.trace!.notes!.push(`Room Service lowered ${pokemon.id}'s Speed under Trick Room`);
+    }
+  }
+}
+
 function setSaltCure(resolution: MoveResolution, pokemonId: string, active: boolean | null) {
   resolution.isSaltCureByPokemon = {
     ...(resolution.isSaltCureByPokemon || {}),
@@ -5578,8 +5598,10 @@ export function deriveMoveResolution(
   }
   if (id === 'trickroom' && state.generation >= 4) {
     addField(resolution, {trickRoom: !state.field.trickRoom});
-    if (!state.field.trickRoom) addFieldDuration(resolution, 'trickRoom', 5);
-    else resolution.fieldDurations = {...(resolution.fieldDurations || {}), trickRoom: null};
+    if (!state.field.trickRoom) {
+      addFieldDuration(resolution, 'trickRoom', 5);
+      activateRoomService(resolution, state);
+    } else resolution.fieldDurations = {...(resolution.fieldDurations || {}), trickRoom: null};
   }
   if (id === 'gravity' && state.generation >= 4) {
     addField(resolution, {gravity: true});
