@@ -135,6 +135,14 @@ DRIFTED threw, which exits 1 — the same code as HOLLOW, so a script could not
 tell a hollow guard from a stale pattern. pokemon-mono's `just falsify` made
 the same split in fb5ab8d, and that session raised the fourth case here.
 
+The engine's own tests (`ai/src/test/*`, built to `ai/dist/test/`) are plain
+scripts, not `node:test` files. Falsify them with `--runner=script`, mutating
+the built file (falsify does not compile TypeScript):
+
+```bash
+node scripts/falsify.js --runner=script --file=ai/dist/move-engine.js --test=ai/dist/test/paralysis-before-infatuation.test.js --from="TEXT" --to="MUTATION"
+```
+
 HOLLOW has caught real ones: a checkpoint gate that ignored the dice position,
 and a Mega gate where party order and board order happened to agree.
 
