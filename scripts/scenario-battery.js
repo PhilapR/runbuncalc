@@ -378,7 +378,8 @@ function playScenario(policy, doc, trainer, seed, tape, options) {
 	if (searchRollouts > 0 && !fightInfo.isDouble && (flag('search-bosses', '0') !== '1' ||
 		(options && options.search !== undefined) ||
 		/Leader|Elite|Champion|Rival|Admin|Wally|Maxie|Archie|Chelle/i.test(trainer))) {
-		const searched = driver.playSearch(doc, trainer, seed, {rollouts: searchRollouts, tape});
+		const searched = driver.playSearch(doc, trainer, seed, {rollouts: searchRollouts, tape,
+			...(options && options.values ? {values: options.values} : {})});
 		return Object.assign({counters: {}, refused: [],
 			policy: driver.searchLookahead() > 0 ? 'lookahead-' + driver.searchLookahead() : 'search-' + searchRollouts}, searched);
 	}

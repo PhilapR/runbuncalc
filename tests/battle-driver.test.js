@@ -1190,3 +1190,27 @@ test('--search-keep-weight prices a body kept in a won playout, and never lets a
 		driver.setSearchKeepWeight(weight);
 	}
 });
+
+test('--search-value: a won playout that keeps the valuable body outranks one that keeps a spare', () => {
+	const driver = require('../lib/battle-driver.js');
+	const bundle = alive => ({state: {sides: {
+		player: {party: ['player-1', 'player-2', 'player-3'].map(id => ({id, hp: {current: alive.includes(id) ? 10 : 0, max: 10}}))},
+		ai: {party: [{hp: {current: 0, max: 10}}]}}}});
+	const keep = driver.searchKeep();
+	try {
+		driver.setSearchKeep(true);
+		const keptStarter = bundle(['player-1']);
+		const keptSpare = bundle(['player-3']);
+		assert.equal(driver.rolloutValue(keptStarter, {result: 'win'}), driver.rolloutValue(keptSpare, {result: 'win'}),
+			'unweighted, one survivor is one survivor');
+		const weights = new Map([['player-1', 3], ['player-2', 1], ['player-3', 1]]);
+		const starter = driver.withBodyWeights(weights, () => driver.rolloutValue(keptStarter, {result: 'win'}));
+		const spare = driver.withBodyWeights(weights, () => driver.rolloutValue(keptSpare, {result: 'win'}));
+		assert.ok(starter > spare, 'weighted, the starter is worth keeping: ' + starter + ' vs ' + spare);
+		assert.equal(driver.rolloutValue(keptStarter, {result: 'win'}), driver.rolloutValue(keptSpare, {result: 'win'}), 'and the weights are cleared after');
+		assert.ok(driver.withBodyWeights(weights, () => driver.rolloutValue(bundle(['player-3']), {result: 'win'})) >
+			driver.rolloutValue(bundle([]), {result: 'loss'}), 'any win still beats a loss');
+	} finally {
+		driver.setSearchKeep(keep);
+	}
+});

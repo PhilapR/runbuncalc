@@ -119,6 +119,10 @@ const KNOB_FLAGS = {
 	// future, spread, unique, ivs. The default is current alone, the value
 	// --plan-value was measured with; each other part is its own arm.
 	valueWeights: ['value-weights', 'current=1', String],
+	// A searched kept attempt weighs our survivors in a won playout by 1 plus
+	// their value (driver.playSearch's values): the search then trades a spare
+	// before the body the road needs. Off: every survivor counts 1.
+	searchValue: ['search-value', '0', value => value === '1'],
 	bossRetries: ['boss-retries', '20', Number],
 	budget: ['budget', '110', Number],
 	skipDoubles: ['skip-doubles', '0', value => value === '1'],
@@ -2213,6 +2217,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		const searchAfter = knobs.searchAfter;
 		let searching = (knobs.searchFirst && !next.isDouble) || (searchAfter > 0 && attempts >= searchAfter) ?
 			{search: knobs.searchRollouts} : undefined;
+		if (searching && knobs.searchValue) searching.values = bodyValues(doc, knobs.valueHorizon);
 		// Search is not the stronger hand on every box. Seed 731001 (clear1,
 		// 2026-09-21) re-picked its six on Brawly's third attempt, and with it
 		// decide() wins 12 of 30 — but the run had already gone over to search,
