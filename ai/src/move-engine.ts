@@ -2841,6 +2841,21 @@ export function deriveMoveResolution(
   const secondaryEffects = options.secondaryEffects ?? options.facts?.secondaryEffects ?? moveMetadata.secondaryEffects;
   const moveType = options.facts?.moveType ?? moveMetadata.type;
   const moveCategory = options.facts?.moveCategory ?? moveMetadata.category;
+  // Recharge is the first gate (Showdown mustrecharge, onBeforeMovePriority
+  // 11), ahead of sleep, freeze and Truant, and it spends an owed loaf with
+  // it: a Truant mon after Hyper Beam loses one turn, not two. Not
+  // ROM-probed; the Gen 8 fallback and DECISIONS.json's declared gate order.
+  if (actor.volatile?.recharge && id === moveId(actor.volatile.recharge.moveName)) {
+    return {
+      hit: false,
+      volatileByPokemon: {[actor.id]: actor.volatile.truant ? {recharge: null, truant: null} : {recharge: null}},
+      trace: {
+        source: 'battle-engine',
+        hit: false,
+        notes: [`${actor.id} spent the turn recharging after ${actor.volatile.recharge.moveName}`],
+      },
+    };
+  }
   const statusGate = statusActionGate(state, actor, id, random);
   if (!statusGate.failure && isTruantActive(state, actor) && actor.volatile?.truant) {
     const loafed: MoveResolution = {
@@ -2860,17 +2875,6 @@ export function deriveMoveResolution(
     return loafed;
   }
   const gate = actionFailure(state, actor, id, random, statusGate);
-  if (actor.volatile?.recharge && id === moveId(actor.volatile.recharge.moveName)) {
-    return {
-      hit: false,
-      volatileByPokemon: {[actor.id]: {recharge: null}},
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${actor.id} spent the turn recharging after ${actor.volatile.recharge.moveName}`],
-      },
-    };
-  }
   if (gate.failure) {
     const resolution: MoveResolution = {
       hit: false,

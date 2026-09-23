@@ -1275,7 +1275,12 @@ export function resolveMoveAction(
   // Truant mon therefore neither loafs nor re-arms: its flag stays as it was.
   const stoppedBeforeTruant = resolution.actionFailure === 'sleep' ||
     resolution.actionFailure === 'freeze';
-  if (truantLoafing && resolution.actionFailure !== 'truant' && !stoppedBeforeTruant) {
+  // Recharge gates ahead of all of them (mustrecharge 11) and spends an owed
+  // loaf with it: the recharge turn IS the loafing turn. The move engine's
+  // resolution clears both flags, on the failed-move path below.
+  const rechargeTurn = !!actor?.volatile?.recharge &&
+    moveId(action.moveName) === moveId(actor.volatile.recharge.moveName);
+  if (truantLoafing && resolution.actionFailure !== 'truant' && !stoppedBeforeTruant && !rechargeTurn) {
     throw new Error('Truant requires a truant action failure while loafing');
   }
   if (!truantLoafing && resolution.actionFailure === 'truant') {
