@@ -1162,10 +1162,21 @@ async function levelAndEvolve(page) {
 			document.querySelectorAll('#runbun-run-mon-facts .runbun-run-fact'))
 			.some(el => /Evolution/.test(el.textContent) && /ready now/.test(el.textContent)));
 		if (!ready) continue;
-		const evolved = await act(page, 'evolve ' + mon.species,
-			() => press(page, '#runbun-run-evolve'));
-		if (evolved.changed) note('evolve', mon.species + ' — ' + evolved.status);
+		await pressEvolve(page, mon.species);
 	}
+}
+
+/**
+ * Press Evolve for the selected Pokemon and note the outcome either way. A
+ * refused evolve used to go unnoted here, so the journal held only the
+ * network hook's constant "the server refused a command", with no reason —
+ * which the panel had already put on the status line.
+ */
+async function pressEvolve(page, species) {
+	const evolved = await act(page, 'evolve ' + species, () => press(page, '#runbun-run-evolve'));
+	note('evolve', evolved.changed ? species + ' — ' + evolved.status :
+		species + ' did not evolve — ' + (evolved.status || 'no reason given'));
+	return evolved;
 }
 
 /**
@@ -2750,6 +2761,23 @@ function decide(view, memory, roster) {
 
 
 /**
+ * Teach one assumed TM through the panel; a refusal is noted with the
+ * panel's reason. The loop below tries three candidates per Pokemon, and its
+ * refusals were the bulk of the journal's reasonless "the server refused a
+ * command" entries — while the comment above the loop reasons about a cause
+ * (no Heart Scale) that was never recorded.
+ */
+async function assumeTeach(page, species, move, replace) {
+	await page.fill('#runbun-run-move', move);
+	await page.selectOption('#runbun-run-replace', replace);
+	const taught = await act(page, 'assume ' + move, () => press(page, '#runbun-run-teach'));
+	if (!taught.changed) {
+		note('tm', species + ' could not learn ' + move + ' — ' + (taught.status || 'no reason given'));
+	}
+	return taught;
+}
+
+/**
  * EXPERIMENT, not ordinary play: teach the best move the panel says this
  * Pokemon can learn, on the assumption that the player owns the TM.
  *
@@ -2865,9 +2893,7 @@ async function assumeTms(page, roster) {
 			const buyingLine = !partyHasLine && isLineMove(best);
 			if (value(best) === 0 && !buyingLine) break;
 			if (!buyingLine && weakest && value(best) <= value(weakest)) break;
-			await page.fill('#runbun-run-move', best);
-			await page.selectOption('#runbun-run-replace', known.length >= 4 ? weakest : '');
-			const taught = await act(page, 'assume ' + best, () => press(page, '#runbun-run-teach'));
+			const taught = await assumeTeach(page, mon.species, best, known.length >= 4 ? weakest : '');
 			if (taught.changed) {
 				if (isLineMove(best)) partyHasLine = true;
 				note('tm', mon.species + ' learned ' + best + ' (' + bp(best) + ' BP, ' +
@@ -3423,6 +3449,8 @@ module.exports = {
 	pickReplace: pickReplace,
 	// The page-driving parts a fake panel can drive (tests/playthrough_panel.test.js).
 	markBeaten: markBeaten,
+	pressEvolve: pressEvolve,
+	assumeTeach: assumeTeach,
 	journal: () => journal,
 	decide: decide,
 	isSlowControl: isSlowControl,

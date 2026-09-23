@@ -99,3 +99,29 @@ test('markBeaten calls a refused mark a refusal, not a beaten fight', async () =
 	const none = fakePanel(() => ({ok: true, status: ''}));
 	assert.equal(await policy.markBeaten(none.page), null, 'no button, no mark');
 });
+
+test('a refused TM teach and a refused evolve are journalled with the panel\'s reason', async () => {
+	// 9,700 refusal entries across 350 playthroughs carried only the network
+	// hook's constant string. The reason was on the status line the whole
+	// time; these two sites read it and dropped it.
+	const refusing = fakePanel(selector => ({ok: false,
+		status: selector === '#runbun-run-teach' ? 'Drain Punch is an egg move and the bag holds no Heart Scale' :
+			'Machoke evolves by trade, which this run has not allowed'}));
+	const from = policy.journal().length;
+	const taught = await policy.assumeTeach(refusing.page, 'Makuhita', 'Drain Punch', 'Tackle');
+	assert.equal(taught.changed, false);
+	assert.deepEqual(refusing.state.pressed[0].inputs,
+		{'#runbun-run-move': 'Drain Punch', '#runbun-run-replace': 'Tackle'}, 'the teach names its move and slot');
+	const evolved = await policy.pressEvolve(refusing.page, 'Machoke');
+	assert.equal(evolved.changed, false);
+	const said = since(from).map(entry => entry.kind + ': ' + entry.message);
+	assert.ok(said.includes('tm: Makuhita could not learn Drain Punch — Drain Punch is an egg move and the bag holds no Heart Scale'), said.join('\n'));
+	assert.ok(said.includes('evolve: Machoke did not evolve — Machoke evolves by trade, which this run has not allowed'), said.join('\n'));
+
+	const accepting = fakePanel(() => ({ok: true, status: 'Machoke evolved into Machamp'}));
+	const before = policy.journal().length;
+	assert.equal((await policy.assumeTeach(accepting.page, 'Makuhita', 'Drain Punch', '')).changed, true);
+	assert.equal((await policy.pressEvolve(accepting.page, 'Machoke')).changed, true);
+	assert.deepEqual(since(before).map(entry => entry.message), ['Machoke — Machoke evolved into Machamp'],
+		'an accepted teach is noted by the caller, an accepted evolve here');
+});
