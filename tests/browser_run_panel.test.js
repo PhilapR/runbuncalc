@@ -253,8 +253,15 @@ test('a player starts a run, catches off a real route, and plans the next fight'
 		() => document.querySelector('#runbun-run-advice .runbun-run-advice-row, ' +
 			'#runbun-run-advice .runbun-run-advice-empty') !== null,
 		null, {timeout: 30000});
-	assert.match(await page.textContent('#runbun-run-advice-note'),
-		/Youngster Calvin \(#2\) · \d+ available upgrades compared.*TM\/tutor moves skipped/);
+	// The note names the fight and the upgrades compared, and says how many
+	// TM/tutor moves it skipped exactly when some were undated. Since the TMs
+	// were dated from the hack's own sources (2026-09-21/22) none is undated
+	// this early, so the clause is absent; the check follows the count rather
+	// than pinning a gap that no longer exists.
+	const note = await page.textContent('#runbun-run-advice-note');
+	assert.match(note, /Youngster Calvin \(#2\) · \d+ available upgrades compared/);
+	const undated = /(\d+) TM\/tutor moves skipped/.exec(note);
+	assert.ok(!undated || Number(undated[1]) > 0, 'a skipped clause names a positive count: ' + note);
 	const rows = await page.$$eval('#runbun-run-advice .runbun-run-advice-row',
 		els => els.map(el => el.textContent));
 	assert.ok(rows.length <= 10, 'the advisor offers a shortlist, not a catalogue');
