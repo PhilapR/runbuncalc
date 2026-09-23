@@ -48,18 +48,29 @@ const after = applyAction(asleep, thunderWave, resolution);
 assert.equal(after.sides.ai.party[0].status, 'slp', 'used and failed: the sleeping target is not paralysed');
 assert.equal(after.sides.player.party[0].moves[0].pp, 19, 'and the PP is spent, as the game spends it');
 
-// An ACTOR-level change is still a refusal: Throat Chop landing before a
-// sound move resolves means the move cannot be used at all (canUseMove), and
-// the widened gate must keep saying so. Disabled/PP have their own older
-// clause in recordMoveAction; this is the case only the new check decides.
+// Throat Chop landing before a queued sound move is used and fails, not refused
+// (AI_DATA_MODEL: sound moves "fail at direct-resolution boundaries"). Until
+// 2026-09-23 this fixture asserted a refusal, standing in for "the new check
+// still applies canUseMove"; frontier Archie's refused Hyper Voice showed the
+// refusal made a turn up and voided a batch. The stand-in is now a rule that
+// is illegal mid-turn: a body locked into a rampage cannot choose another move.
 const withGrowl: BattleState = JSON.parse(JSON.stringify(start));
 withGrowl.sides.player.party[0].moves[1] = {name: 'Growl', pp: 40, maxPP: 40};
 const growl = enumerateMoveActions(withGrowl, 'player').find(action => action.moveName === 'Growl');
 assert.ok(growl, 'Growl is offered while the throat is clear');
 const chopped: BattleState = JSON.parse(JSON.stringify(withGrowl));
 chopped.sides.player.party[0].volatile = {throatChop: {turns: 2}} as never;
-assert.throws(() => applyAction(chopped, growl, deriveMoveResolution(chopped, growl, {
+assert.equal(enumerateMoveActions(chopped, 'player').some(action => action.moveName === 'Growl'), false,
+  'not offered under Throat Chop');
+const choppedResolution = deriveMoveResolution(chopped, growl, {
   facts: calculateActionFacts(chopped, growl), hit: true, random: () => 0,
+});
+assert.equal(choppedResolution.hit, false, 'queued before the chop: used, and blocked');
+applyAction(chopped, growl, choppedResolution);
+const locked: BattleState = JSON.parse(JSON.stringify(withGrowl));
+locked.sides.player.party[0].volatile = {rampage: {moveName: withGrowl.sides.player.party[0].moves[0].name, turns: 2}} as never;
+assert.throws(() => applyAction(locked, growl, deriveMoveResolution(locked, growl, {
+  facts: calculateActionFacts(locked, growl), hit: true, random: () => 0,
 })), /Move action is not legal in this battle state/);
 
 console.log('Mid-turn no-effect fixtures passed');

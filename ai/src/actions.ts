@@ -565,7 +565,10 @@ function canUseMove(
   if (actor.volatile?.recharge && id !== moveId(actor.volatile.recharge.moveName)) return false;
   if (actor.volatile?.charge && id !== moveId(actor.volatile.charge.moveName)) return false;
   if (actor.volatile?.uproar && id !== moveId(actor.volatile.uproar.moveName)) return false;
-  if (actor.volatile?.throatChop && moveMetadata.sound) return false;
+  // Offered actions leave a sound move out under Throat Chop. One queued before a
+  // faster Throat Chop landed is used and fails (move-engine.ts carries the block),
+  // not refused: frontier Archie, Pyroar's Hyper Voice after Overqwil's Throat Chop.
+  if (!midTurn && actor.volatile?.throatChop && moveMetadata.sound) return false;
   if (id === 'gigatonhammer' && moveId(state.lastMoveUsedByPokemon?.[actor.id]) === id) return false;
   if (RECHARGE_MOVE_MIN_GENERATION[id] !== undefined &&
     state.generation < RECHARGE_MOVE_MIN_GENERATION[id]) return false;

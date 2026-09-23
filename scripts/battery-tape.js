@@ -108,7 +108,7 @@ function replay(receiptPath, scenarioName, seed, options) {
 	if (!recorded) throw new Error(scenarioName + ' has no row for seed ' + seed);
 	const scenario = receipt.manifest ?
 		JSON.parse(fs.readFileSync(receipt.manifest, 'utf8')).scenarios
-			.find(entry => entry.name === row.name && (row.report === undefined || entry.report === row.report)) :
+			.find(entry => entry.name === row.name && (row.report === undefined || path.basename(entry.report) === row.report)) :
 		{report: argOf(receipt.argv, 'report'), trainer: argOf(receipt.argv, 'trainer')};
 	if (!scenario) throw new Error(receipt.manifest + ' no longer names ' + scenarioName);
 

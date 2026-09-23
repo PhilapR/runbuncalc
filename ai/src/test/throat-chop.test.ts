@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {calculateActionFacts} from '../calc-adapter';
-import {enumerateMoveActions} from '../actions';
+import {enumerateMoveActions, isSelectableMoveAction} from '../actions';
 import {deriveMoveResolution} from '../move-engine';
 import {BattleState} from '../model';
 import {applyAction, beginNextTurn} from '../transition';
@@ -41,6 +41,10 @@ assert.equal(enumerateMoveActions(silenced, 'ai').some(candidate => candidate.mo
 assert.equal(deriveMoveResolution(silenced, {
   kind: 'move', actorId: 'ai-1', moveName: 'Snarl', targetIds: ['player-1'],
 }, {hit: true}).hit, false);
+// Queued before the Throat Chop landed, the sound move is used and fails: selectable mid-turn, not refused.
+assert.equal(isSelectableMoveAction(silenced, 'ai', {
+  kind: 'move', actorId: 'ai-1', moveName: 'Snarl', targetIds: ['player-1'],
+}), true);
 
 const factsAgainstSilenced = calculateActionFacts(silenced, {
   kind: 'move', actorId: 'player-1', moveName: 'Tackle', targetIds: ['ai-1'],
