@@ -465,3 +465,14 @@ test('the ledger cites the hack\'s official Item Locations workbook', () => {
 		assert.doesNotMatch(doc.source, /engines\/rab/);
 	}
 });
+
+test('the transcribed workbook cites the hack\'s official Item Locations workbook', () => {
+	// review 2026-09-22 (item-workbook-cites-backend-copy): item-workbook.json
+	// has no builder; it was transcribed by hand in 1941b38. It named the
+	// engine's copy under engines/rab/backend/DOCS. Every worksheet and
+	// sharedStrings.xml there hashes the same as docs/official's, so only the
+	// citation moves, and it moves in the file, where it is recorded.
+	const workbook = require('../profiles/run-and-bun/oracle/item-workbook.json');
+	assert.equal(workbook.source, 'pokemon-mono docs/official/Item Locations.xlsx');
+	assert.match(workbook.note, /no builder for this file/);
+});

@@ -1,8 +1,8 @@
 {
 	"schemaVersion": "runbun.item.workbook/1.0.0",
-	"source": "pokemon-mono engines/rab/backend/DOCS/Item Locations.xlsx",
+	"source": "pokemon-mono docs/official/Item Locations.xlsx",
 	"provenance": "transcribed",
-	"note": "Verbatim rows of the engine operator do not-edit-by-hand item workbook, read with polars and pinned here so scripts/build-item-locations.js is reproducible. The prose is the workbook words, unaltered; all dating is derived from it in the builder.",
+	"note": "Verbatim rows of the hack's own Item Locations workbook (Run & Bun 1.07 documentation dump), read with polars and pinned here so scripts/build-item-locations.js is reproducible. The prose is the workbook words, unaltered; all dating is derived from it in the builder. There is no builder for this file: it is a transcription, and its source is recorded here. The copy under engines/rab/backend/DOCS has byte-identical worksheets and shared strings.",
 	"sheets": {
 		"heartScales": 30,
 		"rareCandies": 14,
