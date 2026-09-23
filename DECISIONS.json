@@ -500,11 +500,21 @@
 		{
 			"id": "gen8-gate-order-infatuation-before-paralysis",
 			"date": "2026-09-22",
-			"ruling": "A Pokemon both infatuated and paralysed is checked for infatuation BEFORE paralysis: the Gen 8 order (Showdown onBeforeMovePriority: attract 2, par 1). The action gates run recharge, sleep/freeze, Truant, flinch, confusion, infatuation, paralysis.",
+			"ruling": "SUPERSEDED 2026-09-22 by rom-gate-order-paralysis-before-infatuation. Was: infatuation checked before paralysis (the Gen 8 order).",
 			"why": "Run & Bun's Mechanic Changes.txt changes infatuation only to be gender-free and says to assume Generation 8 for anything it does not describe. CONSTANTS-AUDIT D12 had chosen the pokeemerald order (paralysis first) as better supported for the hack; the operator ruled for the documented Gen 8 fallback. A ROM probe (pokemon-mono P4) will measure it.",
 			"enforcedBy": [
 				"ai/src/move-engine.ts",
-				"ai/src/test/infatuation-before-paralysis.test.ts"
+				"ai/src/test/paralysis-before-infatuation.test.ts"
+			]
+		},
+		{
+			"id": "rom-gate-order-paralysis-before-infatuation",
+			"date": "2026-09-22",
+			"ruling": "A Pokemon both paralysed and infatuated is checked for paralysis BEFORE infatuation, as the ROM does. The action gates run recharge, sleep/freeze, Truant, flinch, confusion, paralysis, infatuation.",
+			"why": "Measured in the ROM (pokemon-mono groundtruth P4, receipt 20260922T225743Z-gate-probe): 300 turns over 100 seeds, 78 full paralyses with no love message, 101 immobilised by love, 121 moved; a paralysis message never followed a love message. The approved stance (docs/ENGINE-HOMES.md) makes the ROM the truth, over the Gen 8 fallback that the same day's ruling used.",
+			"enforcedBy": [
+				"ai/src/move-engine.ts",
+				"ai/src/test/paralysis-before-infatuation.test.ts"
 			]
 		}
 	],

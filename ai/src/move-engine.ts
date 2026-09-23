@@ -949,17 +949,18 @@ function actionFailure(
   if (actor.volatile?.confusion && sampleActionRoll(random, 'Confusion') < 0.33) {
     return failed('confusion');
   }
-  // Infatuation is checked BEFORE paralysis: the Gen 8 order (Showdown's
-  // onBeforeMovePriority: attract 2, par 1). Run & Bun's doc changes
-  // infatuation only to be gender-free and mandates Gen 8 for the rest; the
-  // operator ruled it on 2026-09-22, replacing the pokeemerald order
-  // CONSTANTS-AUDIT D12 had chosen. A mon both infatuated and paralysed is
-  // immobilised by love 50% and fully paralysed 12.5% (not 25% / 37.5%).
-  if (actor.volatile?.infatuated && sampleActionRoll(random, 'Infatuation') < 0.5) {
-    return failed('infatuation');
-  }
+  // Paralysis is checked BEFORE infatuation: the ROM (pokemon-mono P4,
+  // 2026-09-22, receipt 20260922T225743Z-gate-probe): a mon both paralysed
+  // and infatuated, 300 turns over 100 seeds — 78 full paralyses with no love
+  // message, 101 immobilised by love, 121 moved; a paralysis message never
+  // followed a love message. That is the pokeemerald order CONSTANTS-AUDIT
+  // D12 chose. The Gen 8 order (infatuation first) was ruled the same day
+  // from the doc's "assume Gen 8" fallback and is superseded by the ROM.
   if (actor.status === 'par' && sampleActionRoll(random, 'Paralysis') < 0.25) {
     return failed('paralysis');
+  }
+  if (actor.volatile?.infatuated && sampleActionRoll(random, 'Infatuation') < 0.5) {
+    return failed('infatuation');
   }
   if (CONSECUTIVE_PROTECTIVE_MOVES.has(actionMoveId) &&
     !['wideguard', 'quickguard'].includes(actionMoveId) &&

@@ -121,7 +121,8 @@ ruling, never by quiet drift.
 - **the-player-megas** (2026-09-21): The player holds the Mega Ring from beating Leader Flannery (the fifth gym) and may field ONE Mega Evolution a fight. It is modelled the way the enemy's are: the evolved form, holding its stone, from the start of the fight. The stone TAKES THE HELD-ITEM SLOT. A stone held before the ring is just an item; a second stone-holder in the six stays in its base form. The party ranker rates a body whose stone is in the bag as the Mega it would become (holding the stone, not its current item), and the harness hands the first such member of the picked six its stone before the fight. Stones are acquired as the item ledger dates them (47 rows, 28 dated, the first at order 594). --mega=0 plays without.
 - **a-win-is-valued-by-what-it-kept** (2026-09-21): In the singles rollout search a WON playout is worth 0.5 plus half the share of our party still standing, not a flat 1. A loss is unchanged (0.3 x the share of their HP removed), so any win still outranks any loss and a cheaper win outranks a dearer one. On by default in the headless harness and the battery; --search-keep=0 restores the flat objective; battery-tape replays a receipt without the record at 0. The doubles search has its own value and is unchanged.
 - **a-wall-is-planned-by-play** (2026-09-21): A fight the headless run has lost five times is PLANNED by play (scripts/headless-run.js planByPlay), and again every ten losses after: the board proposes generously (mean rolls; three leads into their first, two closers into each of their last two, whoever is weakest making room, the newcomer taught what the advisor would teach it) and play decides, greedily, most wins then fewest of theirs left standing, on seeds no attempt is played on. The six the run has is one of the plans, so a plan is only taken when play says it is better; once taken it holds until the wall falls (neither the ranker nor the re-pick undoes it). On by default at 5; --plan-after=0 restores the run without it. --hand-by-probe stays OFF: it matched the control on all three walls.
-- **gen8-gate-order-infatuation-before-paralysis** (2026-09-22): A Pokemon both infatuated and paralysed is checked for infatuation BEFORE paralysis: the Gen 8 order (Showdown onBeforeMovePriority: attract 2, par 1). The action gates run recharge, sleep/freeze, Truant, flinch, confusion, infatuation, paralysis.
+- **gen8-gate-order-infatuation-before-paralysis** (2026-09-22): SUPERSEDED 2026-09-22 by rom-gate-order-paralysis-before-infatuation. Was: infatuation checked before paralysis (the Gen 8 order).
+- **rom-gate-order-paralysis-before-infatuation** (2026-09-22): A Pokemon both paralysed and infatuated is checked for paralysis BEFORE infatuation, as the ROM does. The action gates run recharge, sleep/freeze, Truant, flinch, confusion, paralysis, infatuation.
 
 ## Open questions (from DECISIONS.json)
 Ruled on by nobody yet — each names what would settle it. An answered
@@ -153,7 +154,7 @@ the reader's warning to verify before trusting.
 - `docs/ECOSYSTEM_BRIDGE.md` — 5a255c0 2026-08-25
 - `docs/ENCOUNTER-ARCHITECTURE.md` — 29ffa9f 2026-09-20
 - `docs/ENGINE-CONTRACTS.md` — c4daad8 2026-08-29
-- `docs/ENGINE-HOMES.md` — c9f32c2 2026-09-22
+- `docs/ENGINE-HOMES.md` — 46698d9 2026-09-22
 - `docs/EVALUATION.md` — 56f1c21 2026-09-22
 - `docs/FORK_MAP.md` — 202de90 2026-09-22
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18

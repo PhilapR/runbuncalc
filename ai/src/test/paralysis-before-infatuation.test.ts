@@ -3,12 +3,11 @@ import {calculateActionFacts} from '../calc-adapter';
 import {deriveMoveResolution} from '../move-engine';
 import {BattleState, PokemonState} from '../model';
 
-// Infatuation gates an action BEFORE paralysis: the Gen 8 order (Showdown's
-// onBeforeMovePriority: attract 2, par 1). Run & Bun's doc changes
-// infatuation only to be gender-free and mandates Gen 8 for the rest; the
-// operator ruled it on 2026-09-22 over the pokeemerald order CONSTANTS-AUDIT
-// D12 had chosen. A mon both infatuated and paralysed then loses its turn to
-// love 50% of the time and to paralysis 12.5%.
+// Paralysis gates an action BEFORE infatuation: the ROM (pokemon-mono P4,
+// 2026-09-22): over 300 turns of a paralysed and infatuated mon, a paralysis
+// message never followed a love message, and full paralysis came at the
+// paralysis-only rate (78/300 against 75/300). The Gen 8 order (infatuation
+// first) was ruled the same day from the doc's fallback and is superseded.
 function state(actor: Partial<PokemonState>): BattleState {
   return {
     generation: 8,
@@ -35,9 +34,10 @@ function failureAt(draw: number): string | undefined {
     .actionFailure;
 }
 
-// A low first draw is spent on the FIRST gate: love under Gen 8, paralysis under the old order.
-assert.equal(failureAt(0.1), 'infatuation', 'infatuation is checked before paralysis');
-// A draw that passes love (>= 0.5) never reaches a paralysis failure (needs < 0.25) on the same roll.
-assert.equal(failureAt(0.6), undefined, 'past love, the same draw passes paralysis');
+// A low first draw is spent on the FIRST gate: paralysis in the ROM's order, love in Gen 8's.
+assert.equal(failureAt(0.1), 'paralysis', 'paralysis is checked before infatuation');
+// A draw that passes paralysis (>= 0.25) can still fall to love on the same roll (< 0.5).
+assert.equal(failureAt(0.3), 'infatuation', 'past paralysis, love');
+assert.equal(failureAt(0.6), undefined, 'past both');
 
-console.log('infatuation-before-paralysis: ok');
+console.log('paralysis-before-infatuation: ok');
