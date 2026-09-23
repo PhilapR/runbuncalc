@@ -259,3 +259,25 @@ test('a body is valued by what the road ahead loses without it, and its understu
 	assert.ok([...brawlyOnly.values()].reduce((sum, value) => sum + value, 0) < bestSum - 1e-9,
 		'the cost of a loss is the gap to the next answer, not the answer');
 });
+
+test('value in parts: a control role only one body fills is worth one to it, and the weights are refused unless well formed', () => {
+	const doc = structuredClone(battery.loadDocument(BRAWLY));
+	const alive = doc.box.filter(mon => mon.status !== 'dead');
+	// Nobody else may hold Thunder Wave for the fixture to mean anything.
+	for (const mon of alive) mon.moves = (mon.moves || []).filter(move => move !== 'Thunder Wave' && move !== 'Tailwind' && move !== 'Icy Wind' &&
+		move !== 'Rock Tomb' && move !== 'Bulldoze' && move !== 'Electroweb' && move !== 'Glare' && move !== 'Stun Spore' && move !== 'Nuzzle');
+	alive[0].moves = alive[0].moves.slice(0, 3).concat(['Thunder Wave']);
+	const alone = headless.bodyValueParts(doc, 2);
+	assert.ok(alone.get(alive[0].id).unique >= 1, 'the only speed control in the box');
+	alive[1].moves = alive[1].moves.slice(0, 3).concat(['Thunder Wave']);
+	const shared = headless.bodyValueParts(doc, 2);
+	assert.equal(shared.get(alive[0].id).unique, alone.get(alive[0].id).unique - 1, 'shared with a second body, the role is no longer its alone');
+	for (const part of shared.values()) {
+		for (const name of ['current', 'future', 'spread', 'unique', 'ivs']) assert.ok(part[name] >= 0, name);
+		assert.ok(part.spread <= 1 && part.ivs <= 1);
+	}
+	assert.throws(() => headless.bodyValues(doc, 2, 'current=1,luck=2'), /not a part=weight pair/);
+	assert.throws(() => headless.bodyValues(doc, 2, 'current=-1'), /not a part=weight pair/);
+	const weighed = headless.bodyValues(doc, 2, 'unique=1');
+	assert.equal(weighed.get(alive[1].id), shared.get(alive[1].id).unique);
+});

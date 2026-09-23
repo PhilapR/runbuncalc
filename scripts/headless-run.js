@@ -109,6 +109,10 @@ const KNOB_FLAGS = {
 	// dies (bodyValues). The one answer to a coming boss is not a spare. Off: 1 each.
 	planValue: ['plan-value', '0', value => value === '1'],
 	valueHorizon: ['value-horizon', '10', Number],
+	// How the parts of a body's value are weighed (bodyValueParts): current,
+	// future, spread, unique, ivs. The default is current alone, the value
+	// --plan-value was measured with; each other part is its own arm.
+	valueWeights: ['value-weights', 'current=1', String],
 	bossRetries: ['boss-retries', '20', Number],
 	budget: ['budget', '110', Number],
 	skipDoubles: ['skip-doubles', '0', value => value === '1'],
@@ -1348,32 +1352,99 @@ function planBetter(a, b, byKept) {
 }
 
 /**
- * What each living body is worth to the road ahead: for every foe of the next
- * `horizon` fights, the drop in the box's best answer score (run.answerTable,
- * the ranker's arithmetic) if that body were gone — the best answer minus the
- * next best, floored at no answer. The only body that answers a coming foe
- * carries the whole gap; one of five answers carries almost nothing. This is
- * the opportunity cost of losing it, in answer-score units. Cached per shape.
+ * A body's worth to the run, in parts, each the opportunity cost of losing it
+ * in one sense. Answer scores come from run.answerTable, the ranker's own
+ * arithmetic; a foe's column is "answered" by the body with the best score.
+ *
+ *   current  for every foe of the next `horizon` fights, the drop in the box's
+ *            best answer if the body were gone: the best minus the next best,
+ *            floored at no answer. The one answer to a coming foe carries the
+ *            whole gap; one of five answers carries almost nothing.
+ *   future   the same, over the next three bosses past that window: the walls
+ *            a body is being kept for.
+ *   spread   the share of the window's foe columns where the body is a real
+ *            answer (score > 0 and within 0.15 of the best): cover, even
+ *            where someone else is better.
+ *   unique   one for each control role only this body fills in the living box:
+ *            speed control, screens, status, priority, pivot, Fake Out,
+ *            Intimidate (the player's tools; the hack strips set-up moves).
+ *   ivs      its IV total over 186. IVs already move every answer score above,
+ *            so this part is for reading, and weighed 0 by default.
+ *
+ * Cached on the position and every body's species, level, item, moves and life.
  */
+const CONTROL = {
+	speed: new Set(['thunderwave', 'tailwind', 'icywind', 'rocktomb', 'bulldoze', 'electroweb', 'glare', 'stunspore', 'nuzzle']),
+	screens: new Set(['reflect', 'lightscreen', 'auroraveil']),
+	status: new Set(['willowisp', 'toxic', 'spore', 'sleeppowder', 'hypnosis', 'yawn', 'sing', 'lovelykiss', 'poisonpowder', 'confuseray']),
+	pivot: new Set(['uturn', 'voltswitch', 'flipturn', 'partingshot', 'teleport', 'batonpass']),
+	fakeout: new Set(['fakeout']),
+};
 const valueCache = new Map();
-function bodyValues(doc, horizon) {
-	const key = shapeOf(doc) + '|' + horizon;
+function bodyValueParts(doc, horizon) {
+	// Keyed on what each body IS, not the preparation's shape: a teach, a level,
+	// an item or an evolution changes a body's worth without moving the shape.
+	const key = doc.position + '|' + horizon + '|' + JSON.stringify(doc.box.map(mon =>
+		[mon.id, mon.species, mon.level, mon.status === 'dead', mon.item || null, mon.moves || [], mon.ability || null]));
 	if (valueCache.has(key)) return valueCache.get(key);
-	const values = new Map(doc.box.filter(mon => mon.status !== 'dead').map(mon => [mon.id, 0]));
-	for (const fight of run.upcoming(doc, horizon)) {
+	const calc = require('../calc');
+	const gen = calc.Generations.get(8);
+	const alive = doc.box.filter(mon => mon.status !== 'dead');
+	const parts = new Map(alive.map(mon => [mon.id, {current: 0, future: 0, spread: 0, unique: 0,
+		ivs: Object.values(mon.ivs || {}).reduce((sum, iv) => sum + iv, 0) / 186}]));
+	let columns = 0;
+	const credit = (fight, part, countSpread) => {
 		let matrix;
-		try { matrix = run.boxMatrix(doc, fight.trainer); } catch (error) { continue; }
+		try { matrix = run.boxMatrix(doc, fight.trainer); } catch (error) { return; }
 		const table = run.answerTable(matrix);
 		matrix.grid.forEach((cell, e) => {
 			const scores = matrix.box.map((member, m) => ({id: member.id, score: table[m][e].withEntry}))
-				.filter(entry => values.has(entry.id)).sort((a, b) => b.score - a.score);
+				.filter(entry => parts.has(entry.id)).sort((a, b) => b.score - a.score);
+			if (countSpread) columns++;
 			if (!scores.length || scores[0].score <= 0) return;
 			const next = scores.length > 1 ? Math.max(0, scores[1].score) : 0;
-			values.set(scores[0].id, values.get(scores[0].id) + scores[0].score - next);
+			parts.get(scores[0].id)[part] += scores[0].score - next;
+			if (countSpread) {
+				for (const entry of scores) if (entry.score > 0 && entry.score >= scores[0].score - 0.15) parts.get(entry.id).spread += 1;
+			}
 		});
+	};
+	const road = run.upcoming(doc, 400);
+	for (const fight of road.slice(0, horizon)) credit(fight, 'current', true);
+	for (const fight of road.slice(horizon).filter(entry => BOSS.test(entry.trainer)).slice(0, 3)) credit(fight, 'future', false);
+	if (columns) for (const part of parts.values()) part.spread /= columns;
+	// Control roles: a role only one living body fills is worth one to it.
+	const holders = {};
+	for (const mon of alive) {
+		const roles = new Set();
+		for (const move of mon.moves || []) {
+			const id = calc.toID(move);
+			for (const role of Object.keys(CONTROL)) if (CONTROL[role].has(id)) roles.add(role);
+			const data = gen.moves.get(id);
+			if (data && data.priority > 0 && data.category !== 'Status' && id !== 'fakeout') roles.add('priority');
+		}
+		if (calc.toID(mon.ability || '') === 'intimidate') roles.add('intimidate');
+		for (const role of roles) (holders[role] = holders[role] || []).push(mon.id);
 	}
+	for (const role of Object.keys(holders)) if (holders[role].length === 1) parts.get(holders[role][0]).unique += 1;
 	if (valueCache.size > 200) valueCache.clear();
-	valueCache.set(key, values);
+	valueCache.set(key, parts);
+	return parts;
+}
+
+/** The weighed value of every living body: the parts under --value-weights. */
+function bodyValues(doc, horizon, weightsSpec) {
+	const weights = {current: 0, future: 0, spread: 0, unique: 0, ivs: 0};
+	for (const pair of String(weightsSpec || knobs.valueWeights).split(',').filter(Boolean)) {
+		const at = pair.indexOf('=');
+		const name = pair.slice(0, at);
+		if (!(name in weights) || !(Number(pair.slice(at + 1)) >= 0)) throw new Error('--value-weights: not a part=weight pair: ' + pair);
+		weights[name] = Number(pair.slice(at + 1));
+	}
+	const values = new Map();
+	for (const entry of bodyValueParts(doc, horizon)) {
+		values.set(entry[0], Object.keys(weights).reduce((sum, part) => sum + weights[part] * entry[1][part], 0));
+	}
 	return values;
 }
 
@@ -2417,4 +2488,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {bodyValues, planBetter, plannedHolders, pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {bodyValues, bodyValueParts, planBetter, plannedHolders, pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
