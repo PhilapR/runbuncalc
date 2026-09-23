@@ -36,6 +36,7 @@ const SLOW = {
 	'pivot_turn.test.js': 'full runs: 86s',
 	'run_control.test.js': 'plays real runs in child processes',
 	'item_planning.test.js': 'plays the planner at Champion Wallace: ~150s',
+	'frontier_set.test.js': 'replays 16 banked run logs: ~48s',
 };
 
 function fastFiles(root) {

@@ -514,13 +514,32 @@ function requireScale(doc) {
  * the next offload. Anything that is neither is refused by name rather than
  * played as an empty box.
  */
-function loadDocument(file) {
-	const loaded = JSON.parse(fs.readFileSync(file, 'utf8'));
+function loadDocument(file, at) {
+	const raw = fs.readFileSync(file);
+	const loaded = JSON.parse(/\.gz$/.test(file) ? require('node:zlib').gunzipSync(raw).toString('utf8') : raw.toString('utf8'));
 	const doc = loaded.run || loaded;
 	if (!Array.isArray(doc.box) || !doc.profileId) {
 		throw new Error(file + ' is neither a report nor a run document');
 	}
-	return doc;
+	return at === undefined || at === null ? doc : replayTo(doc, at);
+}
+
+/**
+ * The document the first `at` commands of a run's log build: `undo`'s replay,
+ * stopped early. A frontier scenario (scripts/frontier-set.js) is one banked
+ * source cut at the fight it names, so the set shares its sources. A cut past
+ * the log's end is refused rather than read as the whole run.
+ */
+function replayTo(doc, at) {
+	if (!Number.isInteger(at) || at < 0 || at > doc.log.length) {
+		throw new Error('cannot cut a log of ' + doc.log.length + ' commands at ' + JSON.stringify(at));
+	}
+	let rebuilt = run.createRun({profileId: doc.profileId, attemptId: doc.attemptId, name: doc.name,
+		now: doc.createdAt, levelCap: doc.rules.levelCap});
+	// The rules travel verbatim, as in undo: a save from before a rule existed is not upgraded.
+	rebuilt.rules = JSON.parse(JSON.stringify(doc.rules));
+	for (const entry of doc.log.slice(0, at)) rebuilt = run.apply(rebuilt, entry.command, {now: entry.at});
+	return rebuilt;
 }
 
 /**
@@ -780,7 +799,7 @@ function shardOf(scenarios, spec) {
 class StopRequested extends Error {}
 
 function runScenario(policy, scenario, job) {
-	const prepared = prepareDocument(requireScale(loadDocument(scenario.report)),
+	const prepared = prepareDocument(requireScale(loadDocument(scenario.report, scenario.at)),
 		scenario.trainer, policy);
 	const doc = prepared.doc;
 	const seeds = scenario.seeds || 20;
@@ -984,7 +1003,7 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument,
+module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument, replayTo,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
 	prepareDocument, teachSwapped, setSwitchPlayed, switchPlayed, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
 	OWN_FLAGS, provenance,

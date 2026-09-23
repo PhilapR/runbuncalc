@@ -1,0 +1,808 @@
+{
+	"comment": "The frontier set: the fights the full runs stall on. Built by scripts/frontier-set.js by a fixed rule, from counts alone: a fight a stored run lost at least 3 times, one scenario per (run, fight), at most 3 runs per trainer (those that lost it most), played from the document the run fielded (the log up to that fight's beat, or the whole log when the run stopped there unbeaten, or just after the last fight won before it when the run skipped it). `lost` counts losses on that run's own engine and is a pointer, not a measurement. Doubles are included. Sources whose logs do not replay byte-identical under today's rules and order scale are left out and named in `refused`.",
+	"generator": "node scripts/frontier-set.js --min-losses=3 --per-trainer=3 --write",
+	"sources": [
+		{
+			"file": "fixtures/banked-runs/frontier/base0922-209499.run.json.gz",
+			"from": "ui-playthrough-out/runs/base0922/run-209499.json",
+			"sha256": "cf8198a0701085bc8ce7a339b01c87ee40307c23459dd274bdbb135392c018e5",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/base0922-842113.run.json.gz",
+			"from": "ui-playthrough-out/runs/base0922/run-842113.json",
+			"sha256": "11ef282d135d3a15239fb3fb4b5ae2353732a1c1ecc660e3761b9fc823a3fa95",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"from": "ui-playthrough-out/runs/clear1/run-104770.json",
+			"sha256": "83b12d66da15c666297dc0b22b1c4546700a9d4ddeb8ec6a73648e21399b0c86",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"from": "ui-playthrough-out/runs/clear1/run-209499.json",
+			"sha256": "bc7191a1d0076af20fc00b970f8cfa4fffc52adec13fad651d2594a2ab7c633f",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"from": "ui-playthrough-out/runs/clear1/run-314228.json",
+			"sha256": "42588ca005d2482065568026aed533a4c26fc526d01ef7fd47de4b963e4c0258",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"from": "ui-playthrough-out/runs/clear1/run-418957.json",
+			"sha256": "b925ea2f6a26c4dc58a0837294e7515b9bc0ee114accbd5f85cdc6108718cfc1",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/clear1-731001.run.json.gz",
+			"from": "ui-playthrough-out/runs/clear1/run-731001.json",
+			"sha256": "d47b039a62f049a3d3d3802d49d55481d364a547389422073ddbae5ae7549d5f",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/clear1-842113.run.json.gz",
+			"from": "ui-playthrough-out/runs/clear1/run-842113.json",
+			"sha256": "751c612efa029b82f8839520cce5d1aad82c1f82a7408dde65762c1b647a17f7",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"from": "ui-playthrough-out/runs/clear1b/run-731001.json",
+			"sha256": "47a6544869cb3adfa6dc22d73fe88db0c32ccccdf91f6a86a53e08cf978e2c24",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/logged1-418957.run.json.gz",
+			"from": "ui-playthrough-out/runs/logged1/run-418957.json",
+			"sha256": "7c5558e2b46303f3fd822079b7766305f9554e53260e850969cc5ff15eb750f4",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/megaplan-842113.run.json.gz",
+			"from": "ui-playthrough-out/runs/megaplan/run-842113.json",
+			"sha256": "121fa577bd014e773c4ad8d684c7b3f54542c4d06336ba205bfe6151ca5ed483",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/norman1-842113.run.json.gz",
+			"from": "ui-playthrough-out/runs/norman1/run-842113.json",
+			"sha256": "f692fa34823f27375c0e8126bd57631b22deb5fd5f4cf05c8171117bb4be0c53",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/sidney1-418957.run.json.gz",
+			"from": "ui-playthrough-out/runs/sidney1/run-418957.json",
+			"sha256": "9161230729bec32deb7f7de948cec41acea57f81ff3b30dfc6c92ebf657476bc",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/sidney2-418957.run.json.gz",
+			"from": "ui-playthrough-out/runs/sidney2/run-418957.json",
+			"sha256": "29106a93bafa9745cf094beffb7533079afa958eb53adb5c257c096e649f7995",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/walls1-both-104770.run.json.gz",
+			"from": "ui-playthrough-out/runs/walls1-both/run-104770.json",
+			"sha256": "14c1a73bfc862a1df72de6b6eeefe26b5b852b42442613eb96c030966a5fbab3",
+			"engine": null
+		},
+		{
+			"file": "fixtures/banked-runs/frontier/walls1-both-314228.run.json.gz",
+			"from": "ui-playthrough-out/runs/walls1-both/run-314228.json",
+			"sha256": "5e5ee932f4cde6354e0db4db8cd3809893e099c9e097243131b5c0f3e0f97244",
+			"engine": null
+		}
+	],
+	"refused": [
+		{
+			"run": "logged1/run-104770",
+			"why": "replay differs from the stored document"
+		},
+		{
+			"run": "logged1/run-314228",
+			"why": "replay differs from the stored document"
+		}
+	],
+	"scenarios": [
+		{
+			"name": "Camper Gavi @51 [clear1/run-842113]",
+			"report": "fixtures/banked-runs/frontier/clear1-842113.run.json.gz",
+			"at": 150,
+			"trainer": "Camper Gavi",
+			"seeds": 10,
+			"lost": 7,
+			"beaten": true
+		},
+		{
+			"name": "Leader Brawly @80 [base0922/run-842113]",
+			"report": "fixtures/banked-runs/frontier/base0922-842113.run.json.gz",
+			"at": 242,
+			"trainer": "Leader Brawly",
+			"seeds": 10,
+			"lost": 21,
+			"beaten": false
+		},
+		{
+			"name": "Leader Brawly @80 [clear1/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1-731001.run.json.gz",
+			"at": 224,
+			"trainer": "Leader Brawly",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Leader Brawly @80 [clear1/run-842113]",
+			"report": "fixtures/banked-runs/frontier/clear1-842113.run.json.gz",
+			"at": 221,
+			"trainer": "Leader Brawly",
+			"seeds": 10,
+			"lost": 12,
+			"beaten": true
+		},
+		{
+			"name": "Leader Roxanne @142 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 344,
+			"trainer": "Leader Roxanne",
+			"seeds": 10,
+			"lost": 7,
+			"beaten": true
+		},
+		{
+			"name": "Leader Roxanne @142 [clear1/run-209499]",
+			"report": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"at": 339,
+			"trainer": "Leader Roxanne",
+			"seeds": 10,
+			"lost": 11,
+			"beaten": true
+		},
+		{
+			"name": "Leader Roxanne @142 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 328,
+			"trainer": "Leader Roxanne",
+			"seeds": 10,
+			"lost": 5,
+			"beaten": true
+		},
+		{
+			"name": "Sr. And Jr. Anna And Meg @180 [base0922/run-209499]",
+			"report": "fixtures/banked-runs/frontier/base0922-209499.run.json.gz",
+			"at": 451,
+			"trainer": "Sr. And Jr. Anna And Meg",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Chelle Daycare @184 [clear1/run-209499]",
+			"report": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"at": 433,
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Leader Wattson @229 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 549,
+			"trainer": "Leader Wattson",
+			"seeds": 10,
+			"lost": 15,
+			"beaten": true
+		},
+		{
+			"name": "Leader Wattson @229 [clear1/run-209499]",
+			"report": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"at": 548,
+			"trainer": "Leader Wattson",
+			"seeds": 10,
+			"lost": 8,
+			"beaten": true
+		},
+		{
+			"name": "Leader Wattson @229 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 529,
+			"trainer": "Leader Wattson",
+			"seeds": 10,
+			"lost": 9,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Cycling Road Blaziken @264 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 616,
+			"trainer": "Trainer Rival Cycling Road Blaziken",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Cycling Road Blaziken @264 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 637,
+			"trainer": "Trainer Rival Cycling Road Blaziken",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Cycling Road Blaziken @264 [logged1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/logged1-418957.run.json.gz",
+			"at": 621,
+			"trainer": "Trainer Rival Cycling Road Blaziken",
+			"seeds": 10,
+			"lost": 7,
+			"beaten": true
+		},
+		{
+			"name": "Leader Norman @342 [clear1/run-842113]",
+			"report": "fixtures/banked-runs/frontier/clear1-842113.run.json.gz",
+			"at": 716,
+			"trainer": "Leader Norman",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Leader Norman @342 [clear1b/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"at": 721,
+			"trainer": "Leader Norman",
+			"seeds": 10,
+			"lost": 16,
+			"beaten": true
+		},
+		{
+			"name": "Leader Norman @342 [norman1/run-842113]",
+			"report": "fixtures/banked-runs/frontier/norman1-842113.run.json.gz",
+			"at": 722,
+			"trainer": "Leader Norman",
+			"seeds": 10,
+			"lost": 18,
+			"beaten": true
+		},
+		{
+			"name": "Winstrate Vito Fallarbor @439 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 904,
+			"trainer": "Winstrate Vito Fallarbor",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Winstrate Vito Fallarbor @439 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 865,
+			"trainer": "Winstrate Vito Fallarbor",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Winstrate Vito Fallarbor @439 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 908,
+			"trainer": "Winstrate Vito Fallarbor",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Bird Keeper Josue & Andres @600 [clear1b/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"at": 1286,
+			"trainer": "Bird Keeper Josue & Andres",
+			"seeds": 10,
+			"lost": 7,
+			"beaten": true
+		},
+		{
+			"name": "Cool Trainer Carolina & Cory @606 [clear1/run-209499]",
+			"report": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"at": 1261,
+			"trainer": "Cool Trainer Carolina & Cory",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Cool Trainer Carolina & Cory @606 [clear1b/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"at": 1295,
+			"trainer": "Cool Trainer Carolina & Cory",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Aqua Admin Shelly Weather Institute @701 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 1488,
+			"trainer": "Aqua Admin Shelly Weather Institute",
+			"seeds": 10,
+			"lost": 6,
+			"beaten": true
+		},
+		{
+			"name": "Aqua Admin Shelly Weather Institute @701 [clear1b/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"at": 1466,
+			"trainer": "Aqua Admin Shelly Weather Institute",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Bridge Blaziken @713 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 1615,
+			"trainer": "Trainer Rival Bridge Blaziken",
+			"seeds": 10,
+			"lost": 88,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Bridge Blaziken @713 [clear1/run-209499]",
+			"report": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"at": 1459,
+			"trainer": "Trainer Rival Bridge Blaziken",
+			"seeds": 10,
+			"lost": 10,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Bridge Blaziken @713 [clear1b/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"at": 1570,
+			"trainer": "Trainer Rival Bridge Blaziken",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": true
+		},
+		{
+			"name": "Expert Kevin @740 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 1624,
+			"trainer": "Expert Kevin",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Expert Kevin @740 [clear1b/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"at": 1607,
+			"trainer": "Expert Kevin",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Leader Winona @763 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 1563,
+			"trainer": "Leader Winona",
+			"seeds": 10,
+			"lost": 8,
+			"beaten": true
+		},
+		{
+			"name": "Leader Winona @763 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 1577,
+			"trainer": "Leader Winona",
+			"seeds": 10,
+			"lost": 9,
+			"beaten": true
+		},
+		{
+			"name": "Leader Winona @763 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 1646,
+			"trainer": "Leader Winona",
+			"seeds": 10,
+			"lost": 30,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Lilycove Blaziken @854 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 1728,
+			"trainer": "Trainer Rival Lilycove Blaziken",
+			"seeds": 10,
+			"lost": 7,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Lilycove Blaziken @854 [clear1/run-209499]",
+			"report": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"at": 1743,
+			"trainer": "Trainer Rival Lilycove Blaziken",
+			"seeds": 10,
+			"lost": 21,
+			"beaten": true
+		},
+		{
+			"name": "Trainer Rival Lilycove Blaziken @854 [norman1/run-842113]",
+			"report": "fixtures/banked-runs/frontier/norman1-842113.run.json.gz",
+			"at": 1702,
+			"trainer": "Trainer Rival Lilycove Blaziken",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Magma Admin Tabitha Magma Hideout @1008 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 1987,
+			"trainer": "Magma Admin Tabitha Magma Hideout",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Magma Admin Tabitha Magma Hideout @1008 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 2014,
+			"trainer": "Magma Admin Tabitha Magma Hideout",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Magma Admin Tabitha Magma Hideout @1008 [clear1b/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"at": 2092,
+			"trainer": "Magma Admin Tabitha Magma Hideout",
+			"seeds": 10,
+			"lost": 11,
+			"beaten": true
+		},
+		{
+			"name": "Magma Leader Maxie Magma Hideout @1014 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 1993,
+			"trainer": "Magma Leader Maxie Magma Hideout",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Magma Leader Maxie Magma Hideout @1014 [clear1/run-209499]",
+			"report": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"at": 2010,
+			"trainer": "Magma Leader Maxie Magma Hideout",
+			"seeds": 10,
+			"lost": 6,
+			"beaten": true
+		},
+		{
+			"name": "Magma Leader Maxie Magma Hideout @1014 [norman1/run-842113]",
+			"report": "fixtures/banked-runs/frontier/norman1-842113.run.json.gz",
+			"at": 2006,
+			"trainer": "Magma Leader Maxie Magma Hideout",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Team Aqua Grunt Aqua Hideout #3 @1031 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 2084,
+			"trainer": "Team Aqua Grunt Aqua Hideout #3",
+			"seeds": 10,
+			"lost": 5,
+			"beaten": true
+		},
+		{
+			"name": "Aqua Admin Matt Aqua Hideout @1061 [clear1/run-209499]",
+			"report": "fixtures/banked-runs/frontier/clear1-209499.run.json.gz",
+			"at": 2084,
+			"trainer": "Aqua Admin Matt Aqua Hideout",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Aqua Admin Matt Aqua Hideout @1061 [clear1b/run-731001]",
+			"report": "fixtures/banked-runs/frontier/clear1b-731001.run.json.gz",
+			"at": 2172,
+			"trainer": "Aqua Admin Matt Aqua Hideout",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Aqua Admin Matt Aqua Hideout @1061 [megaplan/run-842113]",
+			"report": "fixtures/banked-runs/frontier/megaplan-842113.run.json.gz",
+			"at": 2121,
+			"trainer": "Aqua Admin Matt Aqua Hideout",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Swimmer♂ Cranberry @1072 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 2130,
+			"trainer": "Swimmer♂ Cranberry",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Bird Keeper Presley & Auron @1083 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2273,
+			"trainer": "Bird Keeper Presley & Auron",
+			"seeds": 10,
+			"lost": 5,
+			"beaten": true
+		},
+		{
+			"name": "Psychic Blake & Samantha @1101 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 2151,
+			"trainer": "Psychic Blake & Samantha",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Psychic Hannah & Sylvia @1113 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 2160,
+			"trainer": "Psychic Hannah & Sylvia",
+			"seeds": 10,
+			"lost": 8,
+			"beaten": true
+		},
+		{
+			"name": "Magma Admin Courtney Space center @1155 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 2272,
+			"trainer": "Magma Admin Courtney Space center",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Triathlete Pablo @1189 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2488,
+			"trainer": "Triathlete Pablo",
+			"seeds": 10,
+			"lost": 11,
+			"beaten": true
+		},
+		{
+			"name": "Team Aqua Grunt Seafloor Cavern #2 @1225 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 2351,
+			"trainer": "Team Aqua Grunt Seafloor Cavern #2",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Team Aqua Grunt Seafloor Cavern #2 @1225 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 2406,
+			"trainer": "Team Aqua Grunt Seafloor Cavern #2",
+			"seeds": 10,
+			"lost": 11,
+			"beaten": true
+		},
+		{
+			"name": "Team Aqua Grunt Seafloor Cavern #2 @1225 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2537,
+			"trainer": "Team Aqua Grunt Seafloor Cavern #2",
+			"seeds": 10,
+			"lost": 7,
+			"beaten": true
+		},
+		{
+			"name": "Team Aqua Grunt Seafloor Cavern #3 @1231 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 2428,
+			"trainer": "Team Aqua Grunt Seafloor Cavern #3",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Team Aqua Grunt Seafloor Cavern #4 @1236 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2552,
+			"trainer": "Team Aqua Grunt Seafloor Cavern #4",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Team Aqua Grunt Seafloor Cavern #5 @1240 [clear1/run-314228]",
+			"report": "fixtures/banked-runs/frontier/clear1-314228.run.json.gz",
+			"at": 2433,
+			"trainer": "Team Aqua Grunt Seafloor Cavern #5",
+			"seeds": 10,
+			"lost": 24,
+			"beaten": false
+		},
+		{
+			"name": "Team Aqua Grunt Seafloor Cavern #5 @1240 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2554,
+			"trainer": "Team Aqua Grunt Seafloor Cavern #5",
+			"seeds": 10,
+			"lost": 6,
+			"beaten": true
+		},
+		{
+			"name": "Team Aqua Grunt Seafloor Cavern #5 @1240 [walls1-both/run-314228]",
+			"report": "fixtures/banked-runs/frontier/walls1-both-314228.run.json.gz",
+			"at": 2474,
+			"trainer": "Team Aqua Grunt Seafloor Cavern #5",
+			"seeds": 10,
+			"lost": 6,
+			"beaten": true
+		},
+		{
+			"name": "Aqua Admin ShellySeafloorCavern @1246 [clear1/run-104770]",
+			"report": "fixtures/banked-runs/frontier/clear1-104770.run.json.gz",
+			"at": 2361,
+			"trainer": "Aqua Admin ShellySeafloorCavern",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Aqua Admin ShellySeafloorCavern @1246 [walls1-both/run-314228]",
+			"report": "fixtures/banked-runs/frontier/walls1-both-314228.run.json.gz",
+			"at": 2478,
+			"trainer": "Aqua Admin ShellySeafloorCavern",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Aqua Admin ShellySeafloorCavern @1246 [walls1-plan/run-314228]",
+			"report": "fixtures/banked-runs/frontier/walls1-both-314228.run.json.gz",
+			"at": 2478,
+			"trainer": "Aqua Admin ShellySeafloorCavern",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Aqua Leader Archie Seafloor Cavern @1252 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2558,
+			"trainer": "Aqua Leader Archie Seafloor Cavern",
+			"seeds": 10,
+			"lost": 22,
+			"beaten": true
+		},
+		{
+			"name": "Aqua Leader Archie Seafloor Cavern @1252 [walls1-both/run-104770]",
+			"report": "fixtures/banked-runs/frontier/walls1-both-104770.run.json.gz",
+			"at": 2410,
+			"trainer": "Aqua Leader Archie Seafloor Cavern",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Swimmer♀ Katie @1288 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2656,
+			"trainer": "Swimmer♀ Katie",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Sis And Bro Reli And Ian @1306 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2683,
+			"trainer": "Sis And Bro Reli And Ian",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Cool Trainer Hope & Albert @1381 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2859,
+			"trainer": "Cool Trainer Hope & Albert",
+			"seeds": 10,
+			"lost": 7,
+			"beaten": true
+		},
+		{
+			"name": "Cool Trainer Michelle @1429 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 2908,
+			"trainer": "Cool Trainer Michelle",
+			"seeds": 10,
+			"lost": 3,
+			"beaten": true
+		},
+		{
+			"name": "Elite Four Sidney @1577 [clear1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/clear1-418957.run.json.gz",
+			"at": 3165,
+			"trainer": "Elite Four Sidney",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Elite Four Sidney @1577 [sidney1/run-418957]",
+			"report": "fixtures/banked-runs/frontier/sidney1-418957.run.json.gz",
+			"at": 3258,
+			"trainer": "Elite Four Sidney",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false
+		},
+		{
+			"name": "Elite Four SidneyDouble @1583 [sidney2/run-418957]",
+			"report": "fixtures/banked-runs/frontier/sidney2-418957.run.json.gz",
+			"at": 3251,
+			"trainer": "Elite Four SidneyDouble",
+			"seeds": 10,
+			"lost": 16,
+			"beaten": true
+		},
+		{
+			"name": "Elite Four Phoebe @1589 [sidney2/run-418957]",
+			"report": "fixtures/banked-runs/frontier/sidney2-418957.run.json.gz",
+			"at": 3266,
+			"trainer": "Elite Four Phoebe",
+			"seeds": 10,
+			"lost": 4,
+			"beaten": true
+		},
+		{
+			"name": "Elite Four Glacia @1601 [sidney2/run-418957]",
+			"report": "fixtures/banked-runs/frontier/sidney2-418957.run.json.gz",
+			"at": 3267,
+			"trainer": "Elite Four Glacia",
+			"seeds": 10,
+			"lost": 40,
+			"beaten": false,
+			"skipped": true
+		},
+		{
+			"name": "Elite Four Drake @1613 [sidney2/run-418957]",
+			"report": "fixtures/banked-runs/frontier/sidney2-418957.run.json.gz",
+			"at": 3327,
+			"trainer": "Elite Four Drake",
+			"seeds": 10,
+			"lost": 14,
+			"beaten": true
+		},
+		{
+			"name": "Champion Wallace @1625 [sidney2/run-418957]",
+			"report": "fixtures/banked-runs/frontier/sidney2-418957.run.json.gz",
+			"at": 3355,
+			"trainer": "Champion Wallace",
+			"seeds": 10,
+			"lost": 75,
+			"beaten": false
+		}
+	]
+}
