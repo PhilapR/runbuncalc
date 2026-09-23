@@ -47,10 +47,26 @@ test('each arm runs from its own clean worktree and leaves only its receipt', as
 	const worktrees = fs.mkdtempSync(path.join(os.tmpdir(), 'arms-wt-'));
 	const head = childProcess.execFileSync('git', ['rev-parse', 'HEAD'],
 		{cwd: path.join(__dirname, '..'), encoding: 'utf8'}).trim();
-	const outcome = await arms.runArms({
-		arms: arms.parseArms(['--arm=gate-a::' + ONE_FIGHT, '--arm=gate-b::' + ONE_FIGHT + ',--pp-model=1']),
-		rev: 'HEAD', concurrency: 2, out, worktrees,
-	});
+	// A pool and a runs folder of the test's own: on the machine's pool the two
+	// arms waited behind real runs for ever (the fast suite hung 28 minutes on
+	// 2026-09-23 with every slot held), and their status files landed beside
+	// the real runs.
+	const saved = {slots: process.env.RUNBUN_SLOTS_DIR, count: process.env.RUNBUN_SLOTS, runs: process.env.RUNBUN_RUNS_DIR};
+	process.env.RUNBUN_SLOTS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'arms-slots-'));
+	process.env.RUNBUN_SLOTS = '2';
+	process.env.RUNBUN_RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'arms-runs-'));
+	let outcome;
+	try {
+		outcome = await arms.runArms({
+			arms: arms.parseArms(['--arm=gate-a::' + ONE_FIGHT, '--arm=gate-b::' + ONE_FIGHT + ',--pp-model=1']),
+			rev: 'HEAD', concurrency: 2, out, worktrees,
+		});
+	} finally {
+		for (const pair of [['slots', 'RUNBUN_SLOTS_DIR'], ['count', 'RUNBUN_SLOTS'], ['runs', 'RUNBUN_RUNS_DIR']]) {
+			if (saved[pair[0]] === undefined) delete process.env[pair[1]];
+			else process.env[pair[1]] = saved[pair[0]];
+		}
+	}
 	assert.equal(outcome.sha, head);
 	assert.deepEqual(outcome.results.map(result => [result.label, result.status, result.receipt]).sort(),
 		[['gate-a', 0, true], ['gate-b', 0, true]]);
