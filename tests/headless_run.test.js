@@ -1131,6 +1131,11 @@ test('nuzlocke mode: every death in a kept attempt is written, the dead never fi
 	}
 	const failed = row.audit.checks.filter(check => check.status === 'FAIL' && check.name !== 'provenance');
 	assert.deepEqual(failed, [], 'the rules replay clean under permadeath');
+	assert.equal((row.audit.checks.find(check => check.name === 'permadeath') || {}).status, 'PASS');
+	// And the audit catches a document that forgot a death.
+	const forgot = Object.assign({}, row, {doc: Object.assign({}, row.doc, {log: row.doc.log.filter((entry, index) =>
+		index !== row.doc.log.findIndex(first => first.command.kind === 'faint'))})});
+	assert.equal(require('../scripts/audit-run.js').auditRun(forgot).checks.find(check => check.name === 'permadeath').status, 'FAIL');
 });
 
 test('rehearsal mode writes no deaths, and still reports what its wins cost', () => {

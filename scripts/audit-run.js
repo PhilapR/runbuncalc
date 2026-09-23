@@ -169,6 +169,19 @@ function auditRun(row) {
 			refusedCommands.push('#' + (index + 1) + ' ' + command.kind + ': ' + error.message.slice(0, 100));
 		}
 	});
+	// Permadeath: every body that fell in a kept attempt is written dead. A death
+	// the document never recorded is a body fielded again after it died, which
+	// is the one thing a permadeath run must not do. Crashed attempts played nothing.
+	if (rules.permadeath) {
+		const died = (row.ledger || []).reduce((sum, entry) => sum + (entry.policy === 'crashed' ? 0 : (entry.deaths || 0)), 0);
+		const written = doc.log.filter((entry, index) => entry.command && entry.command.kind === 'faint' &&
+			(resumedLog === null || index >= resumedLog)).length;
+		const lost = doc.box.filter(mon => mon.status === 'dead').length;
+		check('permadeath', died === written ? 'PASS' : 'FAIL',
+			died === written ? lost + ' bod' + (lost === 1 ? 'y' : 'ies') + ' lost, every death written' :
+				died + ' death(s) in the ledger, ' + written + ' faint command(s) written',
+			died === written ? null : 'write a faint for every death in a kept attempt');
+	}
 	const shape = box => JSON.stringify((box || []).map(mon => [mon.id, mon.species, mon.level, mon.moves]));
 	if (ownRefusals.length) {
 		check('replay', 'FAIL', ownRefusals.length + ' command(s) of this run\'s own the rules refuse: ' + ownRefusals.slice(0, 3).join(' | ') +
