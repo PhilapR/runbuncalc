@@ -110,13 +110,9 @@ test('a fix names a commit that exists, and an open finding names none', t => {
 	// (2026-09-22). Each fix is real and landed beside the named file; the row
 	// needs a `files` list saying where. The list may only shrink: a row here
 	// that now passes must leave it.
-	const LANDED_BESIDE = [
-		'eight-catchable-species-have-no-level-up-movepool',
-		'evolution-stones-have-prose-where-a-place-should-be',
-		'greninja-ash-shuriken-rolled',
-		'non-wild-sources-not-modelled',
-		'worst-case-covers-the-ceiling-not-the-race',
-	];
+	// Fixes that landed beside their finding's file, allowed while listed. Empty
+	// since 2026-09-23: each such row names the files its fix touched (`files`).
+	const LANDED_BESIDE = [];
 	for (const id of LANDED_BESIDE) {
 		assert.ok(misses.some(miss => miss.id === id),
 			`${id} now names a commit that touches its files — remove it from LANDED_BESIDE`);

@@ -180,11 +180,11 @@
 			"file": "src/js/attempt_store.js",
 			"line": 420,
 			"claim": "The mechanics wave added three draw sites, removed one and reordered two, but seed-keyed receipts record only schemaVersion. Every receipt written before the change now replays to different outcomes with no signal.",
-			"verdict": "reported",
-			"status": "open",
+			"verdict": "refuted",
+			"status": "wontfix",
 			"fixed_in": null,
 			"falsified": 0,
-			"evidence": "Widened by 0ff6e6a: a variable multi-hit now draws N crits instead of 1, so seeded replay of any multi-hit move diverges from receipts written before it. Still only schemaVersion is checked. | 2026-09-22: Battery receipts now carry provenance.engine (lib/provenance.js, d161b4f); battery-tape refuses another engine; battery-pair refuses to join across engines; battery-arms exits 1 on a split batch (falsified). STILL OPEN for the file this finding names: src/js/attempt_store.js receipts check only schemaVersion."
+			"evidence": "Widened by 0ff6e6a: a variable multi-hit now draws N crits instead of 1, so seeded replay of any multi-hit move diverges from receipts written before it. Still only schemaVersion is checked. | 2026-09-22: Battery receipts now carry provenance.engine (lib/provenance.js, d161b4f); battery-tape refuses another engine; battery-pair refuses to join across engines; battery-arms exits 1 on a split batch (falsified). STILL OPEN for the file this finding names: src/js/attempt_store.js receipts check only schemaVersion. | 2026-09-23: For src/js/attempt_store.js: stored receipts carry receipt.producer.revision (enforced at pokemon_provider_client.js:245), inside the evidence hash, and import refuses a changed hash (attempt_store.js:1110). The battery part was fixed in d161b4f."
 		},
 		{
 			"id": "flinch-truant-preempt-sleep-burn",
@@ -391,10 +391,10 @@
 			"line": 1326,
 			"claim": "27 of 28 tests in the file carry a skip guard; the one added by this diff does not, so without Chromium it throws instead of skipping and breaks the file's stated contract.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": null
+			"status": "fixed",
+			"fixed_in": "3df343c",
+			"falsified": 1,
+			"evidence": "2026-09-23: Guard added in 3df343c; 814d306 adds tests/browser_skip_guard.test.js (falsified), which names any unguarded test in a Chromium file."
 		},
 		{
 			"id": "ledger-fallback-funded-one-item-twice",
@@ -619,7 +619,11 @@
 			"status": "fixed",
 			"fixed_in": "6040180",
 			"falsified": 1,
-			"evidence": "Found via the tracker workbook's 'Other' and 'Game Corner' sheets while checking a starter question. Probed with scripts/ask.js: Kubfu (Mossdeep gift) NOT FINDABLE; Castform (Weather Institute gift) NOT FINDABLE; Growlithe-Hisui (Rustboro trade) NOT FINDABLE. The sheets list: 3 trades (Rustboro Growlithe-Hisui, Fortree Weezing-Galar, Pacifidlog Zorua-Hisui), 3 gifts (Lavaridge 'Egg with a random Hoenn starter', Weather Institute Castform, Mossdeep Kubfu), fossils at Rustboro, and 8 badge-gated Game Corner rewards up to 'Mew, Celebi, Jirachi or Victini' at the Rain Badge. For a run where every encounter is scarce these are the opposite of marginal. MERGED with non-wild-species-sources-missing, which the platform audit raised independently: 8 badge-gated Game Corner tiers (ending at 'Mew, Celebi, Jirachi or Victini' on the Rain Badge), 3 in-game trades, the Lavaridge starter egg, Castform, Kubfu and the fossils. Two audits reaching the same defect from different directions is corroboration, not two problems. FIXED. profiles/run-and-bun/oracle/sources.json now carries the 8 badge-gated Game Corner tiers with their options and odds, the 3 trades with what they cost, the gifts, the fossils and the 7 roaming legendaries. availabilityOfSpecies gained an obtainable status and reports EVERY route — Larvitar is both a Heat Badge reward and a wild, and an earlier version returned on the first wild table and dropped the guaranteed one. Timing that the source does not give is null rather than guessed: the roaming legendaries carry after-prose, and three gifts have no location on file."
+			"evidence": "Found via the tracker workbook's 'Other' and 'Game Corner' sheets while checking a starter question. Probed with scripts/ask.js: Kubfu (Mossdeep gift) NOT FINDABLE; Castform (Weather Institute gift) NOT FINDABLE; Growlithe-Hisui (Rustboro trade) NOT FINDABLE. The sheets list: 3 trades (Rustboro Growlithe-Hisui, Fortree Weezing-Galar, Pacifidlog Zorua-Hisui), 3 gifts (Lavaridge 'Egg with a random Hoenn starter', Weather Institute Castform, Mossdeep Kubfu), fossils at Rustboro, and 8 badge-gated Game Corner rewards up to 'Mew, Celebi, Jirachi or Victini' at the Rain Badge. For a run where every encounter is scarce these are the opposite of marginal. MERGED with non-wild-species-sources-missing, which the platform audit raised independently: 8 badge-gated Game Corner tiers (ending at 'Mew, Celebi, Jirachi or Victini' on the Rain Badge), 3 in-game trades, the Lavaridge starter egg, Castform, Kubfu and the fossils. Two audits reaching the same defect from different directions is corroboration, not two problems. FIXED. profiles/run-and-bun/oracle/sources.json now carries the 8 badge-gated Game Corner tiers with their options and odds, the 3 trades with what they cost, the gifts, the fossils and the 7 roaming legendaries. availabilityOfSpecies gained an obtainable status and reports EVERY route — Larvitar is both a Heat Badge reward and a wild, and an earlier version returned on the first wild table and dropped the guaranteed one. Timing that the source does not give is null rather than guessed: the roaming legendaries carry after-prose, and three gifts have no location on file.",
+			"files": [
+				"profiles/run-and-bun/oracle/sources.json",
+				"profiles/run-and-bun/oracle.js"
+			]
 		},
 		{
 			"id": "starters-not-modelled-as-data",
@@ -679,7 +683,11 @@
 			"status": "fixed",
 			"fixed_in": "7638afc",
 			"falsified": 1,
-			"evidence": "Split out of engine-debits-currencies-it-cannot-source, which closed the half about Rare Candy and Heart Scales and could not close this one. Re-derived here: heartScales joins 27 of 30 rows to a dated map by place name and rareCandies 9 of 14, while evolutionItems joins 0 of 23. The reason is shape, not coverage — the sheet's place column holds sentences. \"Sold at Mauville City Pokemon Mart. Given 1x from NPC Cutter in Rustboro City.\" and \"Granite Cave, ice floor, at the L shaped rock formation before the stairs (hidden).\" are both places, a shop and a condition, or two places, in one string. A source list built from that column would print a sentence where the other two print a route. The 23 rows name Everstone, Moon Stone, Fire Stone, Water Stone and the rest, which is the input evolution planning needs most: `adviseUpgrades` already offers an evolution the run has earned, and cannot say where the stone for it is. Fixing this is a parse rather than an import — the places are IN the prose and several are shops rather than ground items, which is a distinction the other sheets never had to make. PARTIALLY SUPERSEDED 2026-08-29: the sold-at prose is now a modeled SHOP surface (oracle.shopItems -> run.shopItems -> status wire -> panel Buy -> both drivers), commit 09dcc39. Stones are buyable once each from order 209 and fund the advisor evolve rows measured at 16/30 vs Wattson. The row remains open only for the non-shop prose places (NPC gifts with no dated anchor). | 2026-09-22: The Moon Stone gift in Rustboro is its own row, dated 106 (PLAY CHANGE: a Moon Stone from order 106, not 209). Test: item_locations."
+			"evidence": "Split out of engine-debits-currencies-it-cannot-source, which closed the half about Rare Candy and Heart Scales and could not close this one. Re-derived here: heartScales joins 27 of 30 rows to a dated map by place name and rareCandies 9 of 14, while evolutionItems joins 0 of 23. The reason is shape, not coverage — the sheet's place column holds sentences. \"Sold at Mauville City Pokemon Mart. Given 1x from NPC Cutter in Rustboro City.\" and \"Granite Cave, ice floor, at the L shaped rock formation before the stairs (hidden).\" are both places, a shop and a condition, or two places, in one string. A source list built from that column would print a sentence where the other two print a route. The 23 rows name Everstone, Moon Stone, Fire Stone, Water Stone and the rest, which is the input evolution planning needs most: `adviseUpgrades` already offers an evolution the run has earned, and cannot say where the stone for it is. Fixing this is a parse rather than an import — the places are IN the prose and several are shops rather than ground items, which is a distinction the other sheets never had to make. PARTIALLY SUPERSEDED 2026-08-29: the sold-at prose is now a modeled SHOP surface (oracle.shopItems -> run.shopItems -> status wire -> panel Buy -> both drivers), commit 09dcc39. Stones are buyable once each from order 209 and fund the advisor evolve rows measured at 16/30 vs Wattson. The row remains open only for the non-shop prose places (NPC gifts with no dated anchor). | 2026-09-22: The Moon Stone gift in Rustboro is its own row, dated 106 (PLAY CHANGE: a Moon Stone from order 106, not 209). Test: item_locations.",
+			"files": [
+				"profiles/run-and-bun/oracle/item-locations.json",
+				"scripts/build-item-locations.js"
+			]
 		},
 		{
 			"id": "the-fair-dice-sampler-cannot-price-a-threshold-set",
@@ -734,10 +742,10 @@
 			"line": null,
 			"claim": "When a level-up brings a pending move, teachPending replaces options[0] — whatever happens to sit first in the replace select — so a levelling Pokemon can blindly overwrite a real attack with a status move, and the advisor then spends a later round buying the slot back.",
 			"verdict": "confirmed",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Found while answering whether the taught-but-never-pressed Attack drops were advisor picks. They were not: 48 of 48 journal-attributable teaches of Charm, Baby-Doll Eyes and Feather Dance came from level-up prompts, zero from the advisor, and 72 of 85 were overwritten again by later teaches — only 13 survived to run end. The churn pair that exposes the mechanism is Spheal: \"learned Charm over Ice Ball\" 27 times across the batches, then \"Brine over Charm\" 27 times — the level-up prompt ate Ice Ball because it was FIRST IN THE SELECT, not because it was worth least, and the advisor later paid a round to restore a Water attack. teachPending picks options[0] as the replace target; the driver already owns a priced answer (moveValue) and uses it nowhere in this path. The cost is bounded — level-up teaches are free and the advisor does reclaim slots — but every reclaim is an advise round spent undoing a blind choice, and a party can walk into a fight between the two states. Fix shape: replace the least valuable current move by moveValue instead of options[0], which is one line plus a gate. Philip also notes stat-drop moves can be deliberately kept to create advantages for OTHER party members — a support-role line the driver does not yet have — so a smarter replace choice should undervalue a drop the play rules can now actually press, rather than auto-purging it."
+			"status": "fixed",
+			"fixed_in": "184247f",
+			"falsified": 1,
+			"evidence": "Found while answering whether the taught-but-never-pressed Attack drops were advisor picks. They were not: 48 of 48 journal-attributable teaches of Charm, Baby-Doll Eyes and Feather Dance came from level-up prompts, zero from the advisor, and 72 of 85 were overwritten again by later teaches — only 13 survived to run end. The churn pair that exposes the mechanism is Spheal: \"learned Charm over Ice Ball\" 27 times across the batches, then \"Brine over Charm\" 27 times — the level-up prompt ate Ice Ball because it was FIRST IN THE SELECT, not because it was worth least, and the advisor later paid a round to restore a Water attack. teachPending picks options[0] as the replace target; the driver already owns a priced answer (moveValue) and uses it nowhere in this path. The cost is bounded — level-up teaches are free and the advisor does reclaim slots — but every reclaim is an advise round spent undoing a blind choice, and a party can walk into a fight between the two states. Fix shape: replace the least valuable current move by moveValue instead of options[0], which is one line plus a gate. Philip also notes stat-drop moves can be deliberately kept to create advantages for OTHER party members — a support-role line the driver does not yet have — so a smarter replace choice should undervalue a drop the play rules can now actually press, rather than auto-purging it. | 2026-09-23: 184247f fixed pickReplace; reverting teachPending to options[0] was HOLLOW until 8f6f4be gated the call site (falsified)."
 		},
 		{
 			"id": "worst-case-covers-the-ceiling-not-the-race",
@@ -752,7 +760,11 @@
 			"status": "fixed",
 			"fixed_in": "3b9f53e",
 			"falsified": 1,
-			"evidence": "Played a complete nuzlocke in the browser. Won 5 fights (Calvin, Rick, Allen, Tiana, Mikey; position 0->9), then wiped: all four survivors died to Triathlete Mikey's Sonic Boom. Measured: Sonic Boom is fixed 20 damage, rolls=[20], min=max=20, every roll identical — no crit and no variance, so possibleKO and guaranteedKO both read false against a 34 HP target it two-shots. The switch logic fired four times, each triggered by the panel's own 'a crit KOs you' line, each into a 100% body, and every switch merely fed the next Pokemon in to be two-shotted. Against a fixed-damage attacker a switch is not a mitigation, and the tool's advice pointed at one. The ceiling verdict is sound; the missing question is 'can I out-race 20 a turn'. REPLAYED from the stored battle.ended event, which carries seed 435922576, 17 turns, outcome lost, and the full 20-action sequence: Tackle, Tackle, switch, Tackle, Tackle, switch, Leafage, Leafage, switch, Bubble x5, switch, Tackle, switch, Leafage, switch, Tackle. Six switches into a Yanma using Sonic Boom, and all four deaths recorded as by:'Sonic Boom' of:'Yanma'. The capture is good; the advice that produced those six switches is the defect. FIXED in 3b9f53e. incomingThreat now returns a race: turnsToKill against turnsToDie, pessimal on both sides, ties broken by Speed, and cannot-win when nothing we hold damages it. Verified live: \"you need 2 turns to KO, they need 4 — you win it\"."
+			"evidence": "Played a complete nuzlocke in the browser. Won 5 fights (Calvin, Rick, Allen, Tiana, Mikey; position 0->9), then wiped: all four survivors died to Triathlete Mikey's Sonic Boom. Measured: Sonic Boom is fixed 20 damage, rolls=[20], min=max=20, every roll identical — no crit and no variance, so possibleKO and guaranteedKO both read false against a 34 HP target it two-shots. The switch logic fired four times, each triggered by the panel's own 'a crit KOs you' line, each into a 100% body, and every switch merely fed the next Pokemon in to be two-shotted. Against a fixed-damage attacker a switch is not a mitigation, and the tool's advice pointed at one. The ceiling verdict is sound; the missing question is 'can I out-race 20 a turn'. REPLAYED from the stored battle.ended event, which carries seed 435922576, 17 turns, outcome lost, and the full 20-action sequence: Tackle, Tackle, switch, Tackle, Tackle, switch, Leafage, Leafage, switch, Bubble x5, switch, Tackle, switch, Leafage, switch, Tackle. Six switches into a Yanma using Sonic Boom, and all four deaths recorded as by:'Sonic Boom' of:'Yanma'. The capture is good; the advice that produced those six switches is the defect. FIXED in 3b9f53e. incomingThreat now returns a race: turnsToKill against turnsToDie, pessimal on both sides, ties broken by Speed, and cannot-win when nothing we hold damages it. Verified live: \"you need 2 turns to KO, they need 4 — you win it\".",
+			"files": [
+				"lib/battle-driver.js",
+				"src/js/run_panel.js"
+			]
 		},
 		{
 			"id": "levelling-is-never-listed-as-work",
@@ -809,9 +821,9 @@
 			"line": 41,
 			"claim": "The ledger's commit gate asserts fixed_in is an ancestor of HEAD. It does not assert the named commit CONTAINS the fix, so a finding can point at a commit that has nothing to do with it and stay green.",
 			"verdict": "confirmed",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
+			"status": "fixed",
+			"fixed_in": "7db2477",
+			"falsified": 1,
 			"evidence": "Happened here. A shell && chain broke on a gitignored path, so two code fixes landed inside a LEDGER commit while findings.json pointed at the ledger commit BEFORE it (a7cd070) — which contains only findings.json. Both findings read as fixed, the gate passed, and the SHA was unrelated to the change. This is the same shape as the defect the gate was built for: a commit message claiming an edit it does not carry. A stronger gate would check that the named commit touches at least one file the finding names, which is cheap since findings already carry a file path."
 		},
 		{
@@ -1323,7 +1335,11 @@
 			"fixed_in": "39649fe",
 			"falsified": 1,
 			"evidence": "lib/battle-driver.js:596 states \"Run & Bun gives a few species NO level-up moves at all ... in the game they fight with Struggle, so here they do too\" — an unfalsifiable claim with no source. Meanwhile import-oracle.js:505 is `if (!levelUp[species]) levelUp[species] = moves;` and `![]` is false, so once an empty array is stored a later non-empty block for the same species can never replace it; and the `problems` push covers a MISSING block, never one that parses to zero moves. So a zero-move parse is recorded silently and locked in. NOT a product block, which was my first and wrong reading: the catch is refused only when moves are omitted, and the refusal is helpful — it names the teachable moves and accepts the catch when they are supplied. The decomp is a separate repository and is not on this machine, so the data cannot be repaired here. Durable actions available without it: make a zero-move parse a recorded problem, let a non-empty block replace an empty one, and gate the count at 8 so it cannot silently grow. | 2026-09-22: Closed from the author's Learnset, Evolution Methods and Abilities.txt, transcribed to oracle/learnset-doc.json: 554/554 lists equal the import; the 8 have no block and are on the Unavailable sheet, so empty is the author's. Importer refuses a short parse (24d21f8). Tests: learnset_doc, import_oracle.",
-			"enforcedBy": null
+			"enforcedBy": null,
+			"files": [
+				"profiles/run-and-bun/oracle/learnset-doc.json",
+				"scripts/build-learnset-doc.js"
+			]
 		},
 		{
 			"id": "thirty-eight-removed-species-join-to-nothing",
@@ -1431,9 +1447,9 @@
 			"line": 2245,
 			"claim": "9,700 refusal entries across 350 playthrough files carry a constant string and zero detail. The reason is not lost at the network layer — the driver already holds it.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
+			"status": "fixed",
+			"fixed_in": "81c55ac",
+			"falsified": 1,
 			"evidence": "Reported by the audit, not re-derived here. run_panel.js:1709 writes the 400's message into the status line and act() returns it as .status; six call sites note it and two do not — the TM loop at :2085-2095 (an `if (taught.changed)` with no else) and the evolve press at :749. 3,196 refusals immediately follow a `tm` entry and 5,007 follow another refusal, which is the TM loop trying three candidates per Pokemon. The driver's own comment at :2073 reasons about a refusal cause it never records. Fix: note taught.status and evolved.status at those two sites — cheaper and more accurate than awaiting response.text() in the hook, which would also reorder journal entries. Diagnostic only: no player-visible answer can be wrong because of this.",
 			"enforcedBy": null
 		},
@@ -1447,9 +1463,9 @@
 			"line": 688,
 			"claim": "markBeaten's anti-loop guard is `return clicked ? next : null`, and act() ends in a bare object literal, so it is always truthy. On a refusal the panel leaves the save untouched but changes the status line, so act returns {changed: false, moved: true} and markBeaten calls it success — logging \"<trainer> — beaten unfought\" for a fight that was never marked.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
+			"status": "fixed",
+			"fixed_in": "71a82e5",
+			"falsified": 1,
 			"evidence": "Reported by the audit, not re-derived here. act() also discards the click callback's boolean (`await click()`, so the `return false` at :685 is dead) and computes `moved` and `after.error` that nothing reads. The guard is not fully inert — `if (!next) return null` at :679 fires when the button is missing. Commit 909dd92's message asserts \"a refusal ends the run instead of repeating\"; only the name-sourcing half shipped. Fix: `return clicked.changed ? next : null`. Explicitly do NOT use `moved` (true on a refusal) or `after.error` (queries .is-error/.error while status() sets a data-kind attribute, so it is always false). No gate is possible today: neither function is exported.",
 			"enforcedBy": null
 		},
@@ -1463,9 +1479,9 @@
 			"line": 1098,
 			"claim": "Six assertions about the /run/advise response shape sit inside two `for (const upgrade of advice.body.upgrades)` loops over an empty list, so none can fail — and two of them are already false against current behaviour.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
+			"status": "fixed",
+			"fixed_in": "69861ef",
+			"falsified": 1,
 			"evidence": "Reported by the audit, not re-derived here. The fixture yields \"trainer Youngster Calvin, considered 2, upgrades 0, []\". :1107-1108 deep-equals [damage, koConceded, koGained] but lib/run.js:1957 sets delta.statusAnswered unconditionally, so there are four keys; :1109-1110 asserts \"a change is only offered if it moves the board\" but lib/run.js:1966 deliberately ships status-only upgrades with damage === 0 and koGained === 0, asserted at tests/run.test.js:1008-1010. The assertion arrived in ee686b5 and statusAnswered the next day in bec7672. Fix: give the test the bag-carrying fixture from tests/run.test.js:1852-1858 and add assert.ok(upgrades.length > 0) before the loops — this turns the suite RED unless :1107-1110 are corrected in the same commit.",
 			"enforcedBy": null
 		},
@@ -1543,10 +1559,10 @@
 			"line": 653,
 			"claim": "The four largest datasets — encounters, evolutions, learnsets, growth — ship with no provenance header at all. The importer takes --decomp <path> and never reads a revision, so nothing records WHICH version of the decomp produced them.",
 			"verdict": "reported",
-			"status": "open",
-			"fixed_in": null,
-			"falsified": 0,
-			"evidence": "Reported by the audit, not re-derived here. Its explicit caution: do NOT assert a hardcoded revision in check-sdlc, because the decomp is not vendored, so the sha cannot be verified against bytes and a literal would fail on the next legitimate re-import. Record the decomp revision into each output instead. The audit also flags that the exact field to record depends on how the decomp is obtained (clone against tarball), which is Philip's call. Exposure is narrow: tests/runbun_oracle.test.js already pins counts, Route 101's roster and the hack's slot weights.",
+			"status": "fixed",
+			"fixed_in": "744040a",
+			"falsified": 1,
+			"evidence": "Reported by the audit, not re-derived here. Its explicit caution: do NOT assert a hardcoded revision in check-sdlc, because the decomp is not vendored, so the sha cannot be verified against bytes and a literal would fail on the next legitimate re-import. Record the decomp revision into each output instead. The audit also flags that the exact field to record depends on how the decomp is obtained (clone against tarball), which is Philip's call. Exposure is narrow: tests/runbun_oracle.test.js already pins counts, Route 101's roster and the hack's slot weights. | 2026-09-23: Importer writes oracle/decomp-import.json: git revision + dirty flag, per-input and per-output sha256. The committed data has no stamp until the next import; that gate skips with that reason.",
 			"enforcedBy": null
 		},
 		{
@@ -2000,8 +2016,10 @@
 			"file": "scripts/battery-arms.js",
 			"claim": "makeWorktree symlinks node_modules from the main checkout, whose @smogon/calc links to ../../calc, so a pinned worktree loads the MAIN checkout's calc/dist. A rebuild there mid-batch changes play under a pinned revision.",
 			"verdict": "confirmed",
-			"status": "open",
-			"evidence": "require.resolve('@smogon/calc') in a pinned worktree resolves to the main checkout. Detected now by the calc-linked stamp part (d9d92d7), not prevented."
+			"status": "fixed",
+			"evidence": "require.resolve('@smogon/calc') in a pinned worktree resolves to the main checkout. Detected now by the calc-linked stamp part (d9d92d7), not prevented.",
+			"fixed_in": "b59a706",
+			"falsified": 1
 		},
 		{
 			"id": "inventory-gate-cannot-fail",
@@ -2099,7 +2117,10 @@
 			"status": "fixed",
 			"fixed_in": "84e95bb",
 			"falsified": 1,
-			"evidence": "Guard: ai/src/test/multi-hit.test.ts."
+			"evidence": "Guard: ai/src/test/multi-hit.test.ts.",
+			"files": [
+				"ai/src/calc-adapter.ts"
+			]
 		},
 		{
 			"id": "matchup-board-without-entry-abilities",
@@ -2286,8 +2307,10 @@
 			"file": "scripts/battery-tape.js",
 			"claim": "battery-tape takes the first scenario matching a repeated name; battery-pair now tells them apart (f266598).",
 			"verdict": "confirmed",
-			"status": "open",
-			"evidence": "dose2*.json repeats Leader Roxanne · 15 scales."
+			"status": "fixed",
+			"evidence": "dose2*.json repeats Leader Roxanne · 15 scales.",
+			"fixed_in": "12ed796",
+			"falsified": 1
 		},
 		{
 			"id": "strong-weather-is-permanent",
