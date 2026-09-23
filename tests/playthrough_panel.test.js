@@ -125,3 +125,19 @@ test('a refused TM teach and a refused evolve are journalled with the panel\'s r
 	assert.deepEqual(since(before).map(entry => entry.message), ['Machoke — Machoke evolved into Machamp'],
 		'an accepted teach is noted by the caller, an accepted evolve here');
 });
+
+test('a level-up teach replaces the move pickReplace chooses, not the first in the select', async () => {
+	// pickReplace is gated in playthrough_policy.test.js, but nothing there
+	// sees teachPending, so reverting its call to options[0] — the Spheal
+	// "Charm over Ice Ball" churn — passed every gate.
+	const panel = fakePanel(() => ({ok: true, status: 'Marill learned Ice Beam'}),
+		{options: ['Charm', 'Bubble Beam', 'Water Gun', 'Growl']});
+	const from = policy.journal().length;
+	await policy.teachPending(panel.page, {species: 'Marill'},
+		'Marill reached L30, so Ice Beam must be taught over something');
+	assert.equal(panel.state.pressed.length, 1);
+	assert.deepEqual(panel.state.pressed[0].inputs,
+		{'#runbun-run-move': 'Ice Beam', '#runbun-run-replace': 'Water Gun'},
+		'the weakest attack goes, not the first-listed Charm');
+	assert.ok(since(from).some(entry => entry.message === 'Marill learned Ice Beam over Water Gun'));
+});

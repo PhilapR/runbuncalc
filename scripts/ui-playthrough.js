@@ -3449,6 +3449,7 @@ module.exports = {
 	pickReplace: pickReplace,
 	// The page-driving parts a fake panel can drive (tests/playthrough_panel.test.js).
 	markBeaten: markBeaten,
+	teachPending: teachPending,
 	pressEvolve: pressEvolve,
 	assumeTeach: assumeTeach,
 	journal: () => journal,
