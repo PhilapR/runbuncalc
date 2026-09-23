@@ -938,3 +938,47 @@ test('a survival check that fails says so inside its block, not by vanishing', {
 
 	await opened.context.close();
 });
+
+test('the plan verdict gives its margin a unit and a scale', {skip}, async () => {
+	// Raised by Philip reading the panel: "what is contested by 0.1 or 4.12?
+	// The unit is not clear." The margin is the gap between the enemy AI's
+	// best and second-best action on the game's own scoring scale, where a
+	// setup move starts at 6 — and nothing on screen said so.
+	const opened = await open();
+	const page = opened.page;
+	// One fight reads one way. Both stances are rendered by their own branch,
+	// so the real plan answer is relabelled each way in turn, margin intact.
+	let stance = null;
+	await page.route('**/run/plan', async route => {
+		const response = await route.fetch();
+		const plan = await response.json();
+		if (stance) plan.confidence = stance;
+		await route.fulfill({response, json: plan});
+	});
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party[0] === 'mon-1',
+		null, {timeout: 10000});
+	const setup = require('../ai/dist/scoring.js').SETUP_BASE_SCORE;
+	for (stance of ['decided', 'contested']) {
+		await page.evaluate(() => { document.querySelector('#runbun-run-plan-verdict').textContent = ''; });
+		await page.click('#runbun-run-plan');
+		await page.waitForFunction(
+			() => document.querySelector('#runbun-run-plan-verdict').textContent.length > 0,
+			null, {timeout: 30000});
+		const verdict = await page.textContent('#runbun-run-plan-verdict');
+		assert.match(verdict,
+			new RegExp('AI move choice ' + stance + ' by [\\d.]+ score points over its next-best ' +
+				'\\(a setup move scores ' + setup + '\\)'),
+			`a ${stance} margin must carry its unit and the engine's own setup-move anchor: ${verdict}`);
+		// The drivers read the number back out; it must still parse as one.
+		const margin = new RegExp(stance + ' by ([\\d.]+)').exec(verdict)[1];
+		assert.ok(Number.isFinite(Number(margin)), `the margin ${JSON.stringify(margin)} must parse`);
+	}
+
+	await opened.context.close();
+});

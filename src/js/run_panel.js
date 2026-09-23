@@ -34,6 +34,15 @@
 
 	var STORAGE_KEY = 'runbun.run.v1';
 	var PARTY_LIMIT = 6;
+	/**
+	 * The plan margin's unit anchor. The margin is the gap between the enemy
+	 * AI's best and second-best action on Run & Bun's own scoring scale, and a
+	 * bare "decided by 4.12" carried no unit and no sense of size. A setup
+	 * move starts at SETUP_BASE_SCORE in ai/src/scoring.ts — the scale's one
+	 * natural unit, and within 0.4 of the median margin over 490 planned
+	 * fights. A test pins this to the engine's constant.
+	 */
+	var AI_SETUP_SCORE = 6;
 
 	var state = null;
 	var maps = [];
@@ -2294,11 +2303,16 @@
 				caution += ' · TECH: ' + result.dossierTech.join(' · ');
 			}
 			$('#runbun-run-plan-verdict').text((
+				// "decided by N" / "contested by N" stay verbatim: the playthrough
+				// driver and plan-calibration read the number back out of them.
 				result.confidence === 'contested' ?
-					result.trainer + ' — contested by ' + result.margin + '. Plan for both.' :
+					result.trainer + ' — AI move choice contested by ' + result.margin +
+						' score points over its next-best (a setup move scores ' + AI_SETUP_SCORE +
+						'). Plan for both.' :
 					result.confidence === 'only-option' ?
 						result.trainer + ' — only one action available.' :
-						result.trainer + ' — decided by ' + result.margin + '.'
+						result.trainer + ' — AI move choice decided by ' + result.margin +
+							' score points over its next-best (a setup move scores ' + AI_SETUP_SCORE + ').'
 			) + survival + caution);
 			// The button lives at the top of the panel and the answer renders
 			// below the fold — bring the verdict to the player, same as
