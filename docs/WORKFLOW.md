@@ -6,8 +6,14 @@ findings open), `docs/IMPROVEMENT-AUDIT.md` (backlog) and
 `docs/MODELLING-GAPS.md`. `docs/PLAN.md` holds the ordered work and its bars;
 this page is the map it is chosen from.
 
-The goal it serves: **a pinned, start-to-finish run that beats every required
-fight, on one revision, audit valid, with no operator hand.** None exists yet.
+The goal it serves: **a pinned, start-to-finish PERMADEATH run that beats every
+required fight, on one revision, audit valid, with no operator hand** (ruling,
+Philip, 2026-09-23). None exists yet. Rehearsal runs (`permadeath: false`, walls
+retried) are how the policy got better; their depth says nothing about a
+permadeath run. Under `--nuzlocke=1` every run so far loses its last body before
+Brawly: median fights won 13.5 at baseline, 18 with search and planning on the
+first attempt, 21 with Camper Gavi put off until it scouts safe
+(`scenarios/measurements/nuz-*-bar.md`).
 Seed 418957 reached Champion Wallace across four revisions, with its Elite Four
 played before the engine fix and an operator lead at the end. Seed 209499's
 clear predates the engine fix.
