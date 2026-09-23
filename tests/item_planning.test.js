@@ -181,3 +181,27 @@ test('the battery plans a scenario the way a run does, and --plan-items reaches 
 	const control = withArgv(['--repick-party=0'], () => battery.runScenario(policy, scenario));
 	assert.equal(control.plan, undefined, 'a receipt without the flag carries no plan');
 });
+
+test('run as an arm runs it, the battery plans with a planner that can play its scouting fights', () => {
+	// In process the battery has finished loading before the planner asks for it;
+	// as the entry script it had not, and every scouting fight threw unseen.
+	const fs = require('node:fs');
+	const root = path.join(__dirname, '..');
+	const label = 'guard-plan-cli';
+	const receipt = path.join(root, 'scenarios', 'receipts', label + '.json');
+	const scratch = path.join(root, 'ui-playthrough-out', label + '-battery.json');
+	fs.mkdirSync(path.dirname(scratch), {recursive: true});
+	const result = require('node:child_process').spawnSync(process.execPath,
+		[path.join(root, 'scripts', 'scenario-battery.js'), '--report=' + path.relative(root, BRAWLY),
+			'--trainer=Leader Brawly', '--seeds=1', '--label=' + label, '--repick-party=0',
+			'--plan-by-play=1', '--plan-seeds=1'],
+		{cwd: root, encoding: 'utf8', env: Object.assign({}, process.env, {RUNBUN_SLOT_HELD: 'test',
+			RUNBUN_RUNS_DIR: fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'battery-watch-'))})});
+	const written = fs.existsSync(receipt) ? JSON.parse(fs.readFileSync(receipt, 'utf8')) : null;
+	fs.rmSync(receipt, {force: true});
+	fs.rmSync(scratch, {force: true});
+	assert.doesNotMatch(result.stderr, /circular dependency/, result.stderr.slice(0, 400));
+	assert.equal(result.status, 0, result.stderr.slice(-600));
+	assert.ok(written && written.results[0].plan && written.results[0].plan.of > 1, 'plans were scouted: ' +
+		JSON.stringify(written && written.results[0].plan));
+});

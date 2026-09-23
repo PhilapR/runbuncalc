@@ -762,6 +762,11 @@ function planPrepared(prepared, trainer, policy) {
 	if (flag('plan-seeds', '') !== '') given.planSeeds = Number(flag('plan-seeds', ''));
 	if (flag('mega', '') !== '') given.mega = flag('mega', '') === '1';
 	const doc = headless.withKnobs(given, () => headless.planByPlay(policy, prepared.doc, {trainer}, tally));
+	// A scouting fight that throws is scored a loss, so a broken planner reads as
+	// one that found nothing better. An arm is refused rather than measured on it.
+	if (tally.scoutErrors) {
+		throw new Error('--plan-by-play: ' + tally.scoutErrors + ' scouting fight(s) threw at ' + trainer + ': ' + tally.scoutError);
+	}
 	const plan = (tally.plans || [])[0] || null;
 	return Object.assign({}, prepared, {doc, plan});
 }
@@ -1052,10 +1057,14 @@ function main() {
 	}
 }
 
-if (require.main === module) main();
-
 module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument, replayTo, formatOf,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
 	prepareDocument, teachSwapped, setSwitchPlayed, switchPlayed, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
 	OWN_FLAGS, provenance,
 	GATED_COUNTERS};
+
+// After the exports, not before: headless-run.js requires this module back, and
+// run as the entry script (--plan-by-play), main() once reached it while these
+// exports were still empty. Every scouting fight threw, was scored a loss, and
+// the planner never moved a body in either arm of fpi (2026-09-22).
+if (require.main === module) main();

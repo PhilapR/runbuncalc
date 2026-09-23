@@ -1626,7 +1626,13 @@ function planByPlay(policy, doc, next, tally, options) {
 					.map(mon => ({name: mon.nickname || mon.species, species: mon.species, level: mon.level, item: mon.item || null}))}) : null;
 			try {
 				played = battery.playScenario(policy, planned, next.trainer, PLAN_SEED_BASE + offset, undefined, {search: 0});
-			} catch (error) { played = {result: 'loss', foe: {alive: foes}}; }
+			} catch (error) {
+				// Still a loss for the plan, but counted: a planner whose every fight throws
+				// looks exactly like one that found nothing better (the fpi arms, 2026-09-22).
+				played = {result: 'loss', foe: {alive: foes}};
+				tally.scoutErrors = (tally.scoutErrors || 0) + 1;
+				tally.scoutError = tally.scoutError || String(error && error.message).slice(0, 200);
+			}
 			if (watched) {
 				watched.end(played.result);
 				job.progress({fights: job.scouted = (job.scouted || 0) + 1});
