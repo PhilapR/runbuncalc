@@ -16,7 +16,6 @@
  */
 
 const assert = require('node:assert/strict');
-const crypto = require('node:crypto');
 const path = require('node:path');
 const test = require('node:test');
 
@@ -67,19 +66,19 @@ test('the knob is read from an arm and recorded as a knob, off unless named', ()
 });
 
 test('knob off: the planner is exactly what it was before items were planned', () => {
-	// The hash is of the plan taken, every body's item, the bag, the plan record
-	// and the scouting count, recorded from the planner at 6d12a46 (before this
-	// change) on the same document, trainer and seeds.
-	const planned = plan(wallaceDoc(), 'Champion Wallace', {});
+	// When the knob landed (ad01a5f), a hash of the whole output matched the
+	// planner at 6d12a46 byte for byte. That pin could not outlive the engine:
+	// every fidelity fix since moves the fights it scores. What holds on any
+	// engine: no item record, the same six, and no item moved, made or lost.
+	const doc = wallaceDoc();
+	const planned = plan(doc, 'Champion Wallace', {});
 	const out = planned.out;
-	const tally = planned.tally;
 	const taken = planned.plan;
-	const view = {party: out.party, items: out.box.map(mon => [mon.id, mon.item || null]), bag: out.bag,
-		plans: tally.plans, scouted: tally.scouted};
 	assert.equal(taken.items, undefined, 'no item record when the knob is off');
 	assert.equal(taken.took, 'Dhelmise > Donphan > Florges > Ampharos > Lopunny > Togekiss');
-	assert.equal(crypto.createHash('sha256').update(JSON.stringify(view)).digest('hex'),
-		'73a1c100e3af4094cde8b1f66d7b2482ba4215f78ea4b657691ffeedebffa291', JSON.stringify(tally.plans));
+	assert.deepEqual(out.box.map(mon => [mon.id, mon.item || null]), doc.box.map(mon => [mon.id, mon.item || null]),
+		'every body holds what it held');
+	assert.deepEqual(out.bag, doc.bag, 'the bag is untouched');
 });
 
 /** The knob-on plan at Champion Wallace, played once and shared: it costs about a minute and a half. */
