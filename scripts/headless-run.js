@@ -99,6 +99,12 @@ const KNOB_FLAGS = {
 	// under permadeath a fight nobody is confident in is not walked into
 	// unprepared. Bosses have --plan-first. 0 is off.
 	planUnsafe: ['plan-when-unsafe', '0', Number],
+	// The permadeath reading of "unsafe": a fight is planned when its eight
+	// scouting fights lose this many of OUR bodies on average (a lost scout
+	// counts the whole six). Wins that cost bodies were three quarters of the
+	// deaths the search-first runs took, and --plan-when-unsafe, which asks only
+	// whether the fight is lost, called nearly all of them safe. 0 is off.
+	planCostly: ['plan-when-costly', '0', Number],
 	// What a plan is chosen for. Off: most wins, then fewest of theirs left.
 	// On: most of OUR bodies kept per scouting fight (a win keeps whoever is
 	// standing, a loss keeps none), then wins, then theirs left — under
@@ -1450,14 +1456,26 @@ function bodyValues(doc, horizon, weightsSpec) {
 
 /** Wins in N decide() fights in the run's head on probe seeds: no body is spent. */
 function scoutWins(policy, doc, trainer, n, tally) {
+	return scout(policy, doc, trainer, n, tally).wins;
+}
+
+/** N decide() fights in the run's head: wins, and our bodies lost per fight (a loss loses the six). */
+function scout(policy, doc, trainer, n, tally) {
 	let wins = 0;
+	let lost = 0;
 	for (let offset = 1; offset <= n; offset++) {
 		try {
-			if (battery.playScenario(policy, doc, trainer, PROBE_SEED_BASE + offset).result === 'win') wins++;
-		} catch (error) { /* a crashed scout is not a win */ }
+			const played = battery.playScenario(policy, doc, trainer, PROBE_SEED_BASE + offset);
+			if (played.result === 'win') {
+				wins++;
+				lost += played.deaths || 0;
+			} else {
+				lost += doc.party.length;
+			}
+		} catch (error) { lost += doc.party.length; }
 	}
 	if (tally) scouted(tally, 'probe', n);
-	return wins;
+	return {wins, lost: lost / n};
 }
 
 /**
@@ -2177,10 +2195,12 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		const planNow = knobs.planAfter > 0 && attempts >= knobs.planAfter && (attempts - knobs.planAfter) % 10 === 0;
 		const planFirst = knobs.planFirst && attempts === 0 && BOSS.test(next.trainer);
 		let planUnsafe = false;
-		if (knobs.planUnsafe > 0 && attempts === 0 && !next.isDouble && !BOSS.test(next.trainer)) {
-			const wins = scoutWins(policy, doc, next.trainer, 8, tally);
-			planUnsafe = wins / 8 < knobs.planUnsafe;
-			tally.unsafeScouts = (tally.unsafeScouts || []).concat([{trainer: next.trainer, wins, of: 8, planned: planUnsafe}]);
+		if ((knobs.planUnsafe > 0 || knobs.planCostly > 0) && attempts === 0 && !next.isDouble && !BOSS.test(next.trainer)) {
+			const scouting = scout(policy, doc, next.trainer, 8, tally);
+			planUnsafe = (knobs.planUnsafe > 0 && scouting.wins / 8 < knobs.planUnsafe) ||
+				(knobs.planCostly > 0 && scouting.lost >= knobs.planCostly);
+			tally.unsafeScouts = (tally.unsafeScouts || []).concat([{trainer: next.trainer, wins: scouting.wins, of: 8,
+				lost: Number(scouting.lost.toFixed(2)), planned: planUnsafe}]);
 		}
 		if ((planNow || planFirst || planUnsafe) && !next.isDouble) {
 			doc = planByPlay(policy, doc, next, tally);

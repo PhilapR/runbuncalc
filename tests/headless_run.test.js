@@ -1222,3 +1222,17 @@ test('--plan-when-unsafe plans a fight nobody is confident in before its first a
 	}
 	assert.ok(row.unsafeScouts.every(scout => scout.planned === scout.wins < 8));
 });
+
+test('--plan-when-costly plans a fight whose scouts cost bodies, even when they win it', () => {
+	const policy = require('../scripts/ui-playthrough.js');
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 418957,
+		headless.armFlags('--nuzlocke=1 --stop-at=20 --plan-when-costly=0.5 --plan-seeds=1'));
+	const scouts = row.unsafeScouts || [];
+	assert.ok(scouts.length && scouts.every(scout => typeof scout.lost === 'number'), JSON.stringify(scouts));
+	assert.ok(scouts.every(scout => scout.planned === scout.lost >= 0.5), JSON.stringify(scouts));
+	const costlyWins = scouts.filter(scout => scout.planned && scout.wins === scout.of);
+	assert.ok(costlyWins.length, 'a fight every scout wins, and still pays for: ' + JSON.stringify(scouts));
+	for (const scout of scouts.filter(entry => entry.planned)) {
+		assert.ok((row.plans || []).some(entry => entry.trainer === scout.trainer), scout.trainer + ' was planned');
+	}
+});
