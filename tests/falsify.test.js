@@ -64,6 +64,26 @@ test('falsify tells an assertion, a crash inside the test, a pass and a load fai
 	assert.match(broken.text, /TypeError/);
 });
 
+test('a long deepEqual diff is still an assertion, though node elides it with its own "..." lines', () => {
+	// The diff elides unchanged elements with a bare "...", the same text that ends
+	// the YAML block. Read at any indent, it ended the block before `name:`, and a
+	// real assertion read FALSIFIED-BY-ERROR. The objects' own `name:` and `code:`
+	// keys are in the diff too, and must not be read as the error's.
+	const source = `const test = require('node:test');
+const assert = require('node:assert/strict');
+test('the guard compares a long list', () => {
+	const rows = Array.from({length: 60}, (_, i) => ({name: 'TypeError', code: 'row' + i}));
+	const expected = rows.map(row => Object.assign({}, row));
+	expected[30].code = 'moved';
+	assert.deepEqual(rows, expected);
+});
+`;
+	const output = tapOf(source, 'the guard compares a long list');
+	assert.match(output, /^ {4,}\.\.\.\s*$/m, 'the fixture really prints an elided diff');
+	const verdict = falsify.classify(output, 'guard.test.js', 'the guard compares a long list');
+	assert.equal(verdict.code, 0, verdict.text);
+});
+
 test('falsify refuses a mutation of TypeScript source, which never plays unbuilt', () => {
 	const run = childProcess.spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'falsify.js'),
 		'--file=ai/src/abilities.ts', '--test=tests/provenance.test.js', '--from=x'], {cwd: ROOT, encoding: 'utf8'});

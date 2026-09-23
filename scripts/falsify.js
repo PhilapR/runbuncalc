@@ -162,20 +162,30 @@ function classifyScript(run, test) {
 /**
  * The results of a TAP run: [{name, ok, error, code, failureType, depth}].
  * An error's name, code and failure type come from the YAML block after its
- * `not ok` line.
+ * `not ok` line. Only lines at the block's own indent (its `---`) count: a
+ * deepEqual diff inside the block elides with a bare `...` of its own and
+ * prints the compared objects' `name:` and `code:` keys, deeper in.
  */
 function tapResults(output) {
 	const results = [];
 	let open = null;
+	let block = null;
 	for (const line of output.split('\n')) {
 		const hit = line.match(/^(\s*)(not ok|ok) \d+ - (.*?)(?: # (?:SKIP|TODO).*)?$/);
 		if (hit) {
 			open = {name: hit[3], ok: hit[2] === 'ok', error: null, code: null, failureType: null,
 				depth: hit[1].length, skipped: / # SKIP/.test(line)};
 			results.push(open);
+			block = null;
 			continue;
 		}
 		if (!open || open.ok) continue;
+		const indent = line.match(/^\s*/)[0];
+		if (block === null) {
+			if (/^\s*---\s*$/.test(line)) block = indent;
+			continue;
+		}
+		if (indent !== block) continue;
 		const field = line.match(/^\s*(name|code|failureType): '?([^']*)'?\s*$/);
 		if (field && open[field[1] === 'name' ? 'error' : field[1]] === null) {
 			open[field[1] === 'name' ? 'error' : field[1]] = field[2];
