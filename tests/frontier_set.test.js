@@ -65,11 +65,15 @@ test('every frontier scenario is cut before its wall, on the map\'s scale, and r
 });
 
 test('the battery loads a scenario at its cut, and refuses a cut past the log', () => {
-	const scenario = manifest.scenarios.find(entry => /Champion Wallace/.test(entry.trainer));
+	// A wall the run won: the next command after the cut is its beat.
+	const scenario = manifest.scenarios.find(entry => entry.beaten && /Elite Four Drake/.test(entry.trainer));
 	const whole = battery.loadDocument(path.join(ROOT, scenario.report));
+	assert.equal(whole.log[scenario.at].command.kind, 'beat');
 	const cut = battery.loadDocument(path.join(ROOT, scenario.report), scenario.at);
 	assert.equal(cut.log.length, scenario.at);
 	assert.deepEqual(cut.log, whole.log.slice(0, scenario.at), 'the cut is the log\'s own prefix');
+	assert.ok(!cut.log.some(entry => entry.command.kind === 'beat' && entry.command.trainer === scenario.trainer),
+		'and it has not beaten its wall');
 	assert.throws(() => battery.replayTo(whole, whole.log.length + 1), /cannot cut a log/);
 });
 
