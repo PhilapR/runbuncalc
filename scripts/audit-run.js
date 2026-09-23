@@ -173,14 +173,20 @@ function auditRun(row) {
 	// the document never recorded is a body fielded again after it died, which
 	// is the one thing a permadeath run must not do. Crashed attempts played nothing.
 	if (rules.permadeath) {
-		const died = (row.ledger || []).reduce((sum, entry) => sum + (entry.policy === 'crashed' ? 0 : (entry.deaths || 0)), 0);
-		const written = doc.log.filter((entry, index) => entry.command && entry.command.kind === 'faint' &&
-			(resumedLog === null || index >= resumedLog)).length;
+		// The same bodies, not only the same count: a faint written for the wrong
+		// body leaves a dead one fielded and a living one gone.
+		const kept = (row.ledger || []).filter(entry => entry.policy !== 'crashed');
+		const died = kept.reduce((sum, entry) => sum + (entry.deaths || 0), 0);
+		const diedIds = kept.flatMap(entry => (entry.killers || []).map(death => death.monId)).sort();
+		const writtenIds = doc.log.filter((entry, index) => entry.command && entry.command.kind === 'faint' &&
+			(resumedLog === null || index >= resumedLog)).map(entry => entry.command.id).sort();
 		const lost = doc.box.filter(mon => mon.status === 'dead').length;
-		check('permadeath', died === written ? 'PASS' : 'FAIL',
-			died === written ? lost + ' bod' + (lost === 1 ? 'y' : 'ies') + ' lost, every death written' :
-				died + ' death(s) in the ledger, ' + written + ' faint command(s) written',
-			died === written ? null : 'write a faint for every death in a kept attempt');
+		const same = died === writtenIds.length && JSON.stringify(diedIds) === JSON.stringify(writtenIds);
+		check('permadeath', same ? 'PASS' : 'FAIL',
+			same ? lost + ' bod' + (lost === 1 ? 'y' : 'ies') + ' lost, every death written' :
+				died + ' death(s) in the ledger, ' + writtenIds.length + ' faint command(s) written' +
+				(died === writtenIds.length ? ', for different bodies' : ''),
+			same ? null : 'write a faint for every death in a kept attempt, for the body that died');
 	}
 	const shape = box => JSON.stringify((box || []).map(mon => [mon.id, mon.species, mon.level, mon.moves]));
 	if (ownRefusals.length) {

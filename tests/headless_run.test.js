@@ -1136,6 +1136,14 @@ test('nuzlocke mode: every death in a kept attempt is written, the dead never fi
 	const forgot = Object.assign({}, row, {doc: Object.assign({}, row.doc, {log: row.doc.log.filter((entry, index) =>
 		index !== row.doc.log.findIndex(first => first.command.kind === 'faint'))})});
 	assert.equal(require('../scripts/audit-run.js').auditRun(forgot).checks.find(check => check.name === 'permadeath').status, 'FAIL');
+	// And one that wrote the right number of deaths for the wrong body.
+	const living = row.doc.box.find(mon => mon.status !== 'dead') || row.doc.box[0];
+	const firstFaint = row.doc.log.findIndex(entry => entry.command.kind === 'faint');
+	const swapped = Object.assign({}, row, {doc: Object.assign({}, row.doc, {log: row.doc.log.map((entry, index) => index !== firstFaint ? entry :
+		Object.assign({}, entry, {command: Object.assign({}, entry.command, {id: living.id + '-not-the-dead-one'})}))})});
+	const verdict = require('../scripts/audit-run.js').auditRun(swapped).checks.find(check => check.name === 'permadeath');
+	assert.equal(verdict.status, 'FAIL');
+	assert.match(verdict.detail, /for different bodies/);
 });
 
 test('rehearsal mode writes no deaths, and still reports what its wins cost', () => {
