@@ -53,3 +53,23 @@ test('the vendor extraction reads a plausible species table, not a lucky regex',
 		'extraction must read exact embedded values');
 	assert.deepEqual(marill.abilities, ['Thick Fat']);
 });
+
+test('the worst-case planning design names the provider revision the repository pins', () => {
+	// data-integrity audit (worst-case-planning-cites-a-stale-revision): the
+	// design named head 2ae1b7e and "scripts/check-sdlc.js:63" after 5a255c0
+	// re-pinned to bf28a069 and moved the assertion. It now names the pin, its
+	// branch and the line that asserts it, and this holds all three to the
+	// files that own them, so the next re-pin fails here until the doc moves.
+	const root = path.join(__dirname, '..');
+	const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
+	const pin = JSON.parse(read('vendor/pokemon-run-runtime/PROVENANCE.json'));
+	const status = read('docs/WORST-CASE-PLANNING.md').split('\n').find(line => line.startsWith('**Status:**'));
+	const named = status.match(/The pin is now `([0-9a-f]{7,})…` \(branch `([^`]+)`\)/);
+	assert.ok(named, 'the status line names the current pin and its branch');
+	assert.ok(pin.revision.startsWith(named[1]), `the doc names ${named[1]}, PROVENANCE.json pins ${pin.revision}`);
+	assert.match(pin.note, new RegExp('Built from branch ' + named[2].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b'));
+	const at = status.match(/asserted by `scripts\/check-sdlc\.js:(\d+)`/);
+	assert.ok(at, 'the status line names the line that asserts the pin');
+	const line = read('scripts/check-sdlc.js').split('\n')[Number(at[1]) - 1];
+	assert.equal(line, `assert.equal(providerProvenance.revision, '${pin.revision}');`);
+});

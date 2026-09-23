@@ -1,6 +1,6 @@
 # Worst-Case Planning
 
-**Status:** approved design, synthesized from three adversarially-reviewed proposals (mechanics / systems / player) with every fatal and serious critique repair folded in. Every code claim below was re-verified against this worktree and against pokemon-mono branch `codex/run-runtime-provider-v1` (head `2ae1b7e…`, the revision pinned by `vendor/pokemon-run-runtime/PROVENANCE.json` and asserted by `scripts/check-sdlc.js:63`).
+**Status:** approved design, synthesized from three adversarially-reviewed proposals (mechanics / systems / player) with every fatal and serious critique repair folded in. Every code claim below was re-verified against this worktree and against pokemon-mono branch `codex/run-runtime-provider-v1` (head `2ae1b7e…`, the pin at the time). The pin is now `bf28a069…` (branch `fix/rab-abilities-from-runbuncalc`), recorded in `vendor/pokemon-run-runtime/PROVENANCE.json` and asserted by `scripts/check-sdlc.js:81`. Its one change from `2ae1b7e` is the species table (`engines/rab/backend/src/data/rab-gen8-pokemon-complete.ts`), so the provider code claims below hold at both revisions.
 
 **The directive (operator, verbatim):** plan with the worst case in mind — our secondary effects do not happen, theirs do; hope crits do not happen, plan for them to happen; accept that this narrows the effective range.
 
