@@ -2449,6 +2449,8 @@ table.field {
 	font-size: var(--rb-text-body);
 }
 #runbun-run .runbun-run-survival-verdict[data-risk="lethal"] { color: var(--rb-danger); }
+/* No answer is not a safe answer: the withheld verdict wears the warning ink. */
+#runbun-run .runbun-run-survival-verdict[data-risk="unknown"] { color: var(--rb-warn-ink); }
 #runbun-run .runbun-run-survival-label {
 	margin: var(--rb-space-xs) 0 0;
 	font-family: var(--rb-font-mono);

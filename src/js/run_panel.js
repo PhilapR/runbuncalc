@@ -2452,8 +2452,15 @@
 		// harder", which a party can gain while staying just as dead. This
 		// asks the preparation graph the other question — what, if anything,
 		// removes a lethal branch, and what it costs.
-		api('/run/safety', body).then(renderSurvival).catch(function () {
-			$('#runbun-run-survival').prop('hidden', true);
+		// A failed survival check is named in its own block. Hiding the block
+		// said nothing: it ships hidden, so hidden read as "never asked", and
+		// the damage list below it arrived clean with no lethality answer —
+		// reachable whenever /run/safety refuses a save /run/advise accepts.
+		api('/run/safety', body).then(renderSurvival).catch(function (error) {
+			$('#runbun-run-survival').empty().prop('hidden', false)
+				.append($('<p class="runbun-run-survival-verdict" data-risk="unknown"></p>')
+					.text('The survival check could not run, so nothing here says who a crit kills — ' +
+						error.message));
 		});
 		api('/run/advise', body).then(function (payload) {
 			renderAdvice(payload);

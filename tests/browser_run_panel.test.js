@@ -898,3 +898,43 @@ test('a ranked six is a control: pressing it stages that party, lead first', {sk
 
 	await opened.context.close();
 });
+
+test('a survival check that fails says so inside its block, not by vanishing', {skip}, async () => {
+	// The catch on /run/safety used to set the block hidden — and the block
+	// ships hidden, so a refused check looked exactly like one never asked,
+	// while the damage list beside it arrived clean. A save /run/advise takes
+	// and /run/safety refuses reaches that state with no message at all.
+	const opened = await open();
+	const page = opened.page;
+	await page.route('**/run/safety', route => route.fulfill({
+		status: 400, contentType: 'application/json',
+		body: JSON.stringify({error: 'unknown routeUnit "zone"'}),
+	}));
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party[0] === 'mon-1',
+		null, {timeout: 10000});
+
+	await page.click('#runbun-run-advise');
+	await page.waitForFunction(
+		() => document.querySelector('#runbun-run-advice').children.length > 0,
+		null, {timeout: 30000});
+	await page.waitForFunction(
+		() => !document.querySelector('#runbun-run-survival').hidden,
+		null, {timeout: 10000}).catch(() => {});
+	const block = await page.$eval('#runbun-run-survival', el => ({
+		hidden: el.hidden, text: el.textContent,
+		risk: (el.querySelector('[data-risk]') || {getAttribute: () => null}).getAttribute('data-risk'),
+	}));
+	assert.equal(block.hidden, false, 'a refused survival check must stay on screen');
+	assert.match(block.text, /survival check could not run/);
+	assert.match(block.text, /unknown routeUnit "zone"/, 'the refusal carries its reason');
+	assert.equal(block.risk, 'unknown', 'no answer is not a safe answer');
+
+	await opened.context.close();
+});
