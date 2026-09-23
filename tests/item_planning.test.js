@@ -225,3 +225,21 @@ test('--plan-keep ranks plans by bodies kept first, and by wins otherwise', () =
 	assert.equal(headless.planBetter({wins: 3, left: 2, kept: 1}, {wins: 2, left: 0, kept: 1}, true), true);
 	assert.equal(headless.planBetter({wins: 2, left: 1, kept: 1}, {wins: 2, left: 2, kept: 1}, true), true);
 });
+
+test('a body is valued by what the road ahead loses without it, and its understudy inherits that when it dies', () => {
+	const doc = battery.loadDocument(BRAWLY);
+	const values = headless.bodyValues(doc, 3);
+	const alive = doc.box.filter(mon => mon.status !== 'dead');
+	assert.equal(values.size, alive.length, 'every living body is valued');
+	assert.ok([...values.values()].every(value => value >= 0));
+	const ranked = [...values].sort((a, b) => b[1] - a[1]);
+	assert.ok(ranked[0][1] > 0, 'someone answers the fights ahead');
+	assert.ok(ranked.some(entry => entry[1] === 0), 'and some bodies are spares');
+	// The opportunity cost made concrete: take the most valuable body away, and
+	// the one that covers for it becomes the answer, so its value rises.
+	const without = run.apply(run.apply(structuredClone(doc), {kind: 'party', ids: alive.filter(mon => mon.id !== ranked[0][0]).slice(0, 6).map(mon => mon.id)}),
+		{kind: 'release', id: ranked[0][0]});
+	const after = headless.bodyValues(without, 3);
+	assert.equal(after.has(ranked[0][0]), false, 'the gone are not valued');
+	assert.ok([...after].some(entry => entry[1] > (values.get(entry[0]) || 0)), 'an understudy inherits the answer');
+});

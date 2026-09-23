@@ -104,6 +104,11 @@ const KNOB_FLAGS = {
 	// standing, a loss keeps none), then wins, then theirs left — under
 	// permadeath a win bought with three bodies is not the plan to take.
 	planKeep: ['plan-keep', '0', value => value === '1'],
+	// With --plan-keep, a survivor counts 1 plus its VALUE: how much worse the
+	// box's best answer to each foe of the next --value-horizon fights gets if it
+	// dies (bodyValues). The one answer to a coming boss is not a spare. Off: 1 each.
+	planValue: ['plan-value', '0', value => value === '1'],
+	valueHorizon: ['value-horizon', '10', Number],
 	bossRetries: ['boss-retries', '20', Number],
 	budget: ['budget', '110', Number],
 	skipDoubles: ['skip-doubles', '0', value => value === '1'],
@@ -1342,6 +1347,36 @@ function planBetter(a, b, byKept) {
 	return a.kept > b.kept + 1e-9 || (Math.abs(a.kept - b.kept) <= 1e-9 && byWins);
 }
 
+/**
+ * What each living body is worth to the road ahead: for every foe of the next
+ * `horizon` fights, the drop in the box's best answer score (run.answerTable,
+ * the ranker's arithmetic) if that body were gone — the best answer minus the
+ * next best, floored at no answer. The only body that answers a coming foe
+ * carries the whole gap; one of five answers carries almost nothing. This is
+ * the opportunity cost of losing it, in answer-score units. Cached per shape.
+ */
+const valueCache = new Map();
+function bodyValues(doc, horizon) {
+	const key = shapeOf(doc) + '|' + horizon;
+	if (valueCache.has(key)) return valueCache.get(key);
+	const values = new Map(doc.box.filter(mon => mon.status !== 'dead').map(mon => [mon.id, 0]));
+	for (const fight of run.upcoming(doc, horizon)) {
+		let matrix;
+		try { matrix = run.boxMatrix(doc, fight.trainer); } catch (error) { continue; }
+		const table = run.answerTable(matrix);
+		matrix.grid.forEach((cell, e) => {
+			const scores = matrix.box.map((member, m) => ({id: member.id, score: table[m][e].withEntry}))
+				.filter(entry => values.has(entry.id)).sort((a, b) => b.score - a.score);
+			if (!scores.length || scores[0].score <= 0) return;
+			const next = scores.length > 1 ? Math.max(0, scores[1].score) : 0;
+			values.set(scores[0].id, values.get(scores[0].id) + scores[0].score - next);
+		});
+	}
+	if (valueCache.size > 200) valueCache.clear();
+	valueCache.set(key, values);
+	return values;
+}
+
 /** Wins in N decide() fights in the run's head on probe seeds: no body is spent. */
 function scoutWins(policy, doc, trainer, n, tally) {
 	let wins = 0;
@@ -1685,6 +1720,8 @@ function planByPlay(policy, doc, next, tally, options) {
 	for (const id of bestInto(0, 3)) changes.push({id, slot: 0});
 	for (const id of bestInto(foes - 1, 2)) changes.push({id, slot: 5});
 	if (foes > 1) for (const id of bestInto(foes - 2, 2)) changes.push({id, slot: 4});
+	// Under --plan-value a survivor is weighed by what it is worth to the road ahead.
+	const values = knobs.planKeep && knobs.planValue ? bodyValues(doc, knobs.valueHorizon) : null;
 	const score = planned => {
 		let wins = 0;
 		let left = 0;
@@ -1715,7 +1752,12 @@ function planByPlay(policy, doc, next, tally, options) {
 			}
 			if (played.result === 'win') {
 				wins += 1;
-				kept += Math.max(0, planned.party.length - (played.deaths || 0));
+				if (values) {
+					const fell = new Set((played.killers || []).map(death => death.monId));
+					kept += planned.party.filter(id => !fell.has(id)).reduce((sum, id) => sum + 1 + (values.get(id) || 0), 0);
+				} else {
+					kept += Math.max(0, planned.party.length - (played.deaths || 0));
+				}
 			}
 			left += (played.foe && played.foe.alive) || 0;
 		}
@@ -1784,6 +1826,8 @@ function planByPlay(policy, doc, next, tally, options) {
 		// Who the board proposed, in the form it would fight in: what the plan chose among.
 		proposed: [...new Set(changes.map(change => { const mon = run.findMon(doc, change.id); const mega = run.megaFormOf(mon.species, mon.item) || (knobs.mega && run.stoneInBag(doc, mon.species) ? run.megaFormOf(mon.species, run.stoneInBag(doc, mon.species)) : null); return mega ? mega.species : mon.species; }))],
 		wins: hand.score.wins, left: Number(hand.score.left.toFixed(2)), kept: Number((hand.score.kept || 0).toFixed(2)),
+		...(values ? {valued: [...values].filter(entry => entry[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 4)
+			.map(entry => run.findMon(doc, entry[0]).species + ' ' + entry[1].toFixed(2))} : {}),
 		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2)), kept: Number((stood.kept || 0).toFixed(2))}},
 	// What the item planner proposed, and what the plan taken holds that the six did not.
 	knobs.planItems ? {items: itemsProposed, held: hand.doc.party.map(id => {
@@ -2373,4 +2417,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {planBetter, plannedHolders, pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {bodyValues, planBetter, plannedHolders, pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
