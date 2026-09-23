@@ -847,3 +847,54 @@ test('a member unstaged from the party returns to the PC list with its add contr
 
 	await opened.context.close();
 });
+
+test('a ranked six is a control: pressing it stages that party, lead first', {skip}, async () => {
+	// Found by playing a run. Best parties rendered every six as spans in a
+	// bare <ol>: no way to press the winner, and no ids on the row, so the
+	// player read species names off it and rebuilt the six by hand, in order.
+	const opened = await open();
+	const page = opened.page;
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-encounters .runbun-run-encounter:has-text("Lillipup")');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-rank');
+	await page.waitForSelector('#runbun-run-ranking .runbun-run-rank-row');
+
+	const six = await page.$eval('#runbun-run-ranking .runbun-run-rank-row .runbun-run-rank-six',
+		el => ({tag: el.tagName, ids: el.getAttribute('data-ids'), text: el.textContent,
+			label: el.getAttribute('aria-label')}));
+	assert.equal(six.tag, 'BUTTON', 'the six must be a real button, reachable by keyboard');
+	const ids = six.ids.split(',');
+	assert.equal(ids.length, 2, 'the row names both Pokémon in the box');
+	assert.match(six.label, /^Stage this party: \w+ \(lead\), \w+$/);
+
+	await page.click('#runbun-run-ranking .runbun-run-rank-row .runbun-run-rank-six');
+	assert.deepEqual(
+		await page.$$eval('#runbun-run-party-strip .runbun-run-party-slot[data-id]',
+			els => els.map(el => el.getAttribute('data-id'))),
+		ids, 'the strip must hold exactly the ranked six, lead first');
+	// The bracketed species on the row is the one the strip leads with.
+	const lead = /\[(\w+)\]/.exec(six.text)[1];
+	assert.match(await page.textContent('#runbun-run-party-strip .runbun-run-party-slot[data-id]'),
+		new RegExp('Lead.*' + lead));
+	assert.match(await page.textContent('#runbun-run-status'), /Use this party/);
+
+	// Staged, not committed: the logged decision is still the player's press.
+	assert.deepEqual((await savedRun(page)).party, []);
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		expected => JSON.parse(localStorage.getItem('runbun.run.v1')).party.join(',') === expected,
+		six.ids, {timeout: 10000});
+
+	await opened.context.close();
+});

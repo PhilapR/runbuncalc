@@ -2499,9 +2499,20 @@
 			var names = party.members.map(function (member) {
 				return member.id === party.lead ? '[' + member.species + ']' : member.species;
 			});
+			// The six IS the control: pressing it stages exactly this party,
+			// lead first, the way the row reads it. Reading the names off and
+			// rebuilding the six by hand was the only way to act on a ranking.
+			var ordered = party.members.filter(function (member) { return member.id === party.lead; })
+				.concat(party.members.filter(function (member) { return member.id !== party.lead; }));
 			var $row = $('<li class="runbun-run-rank-row"></li>')
 				.append($('<span class="runbun-run-rank-score"></span>').text(party.score))
-				.append($('<span class="runbun-run-rank-six"></span>').text(names.join(' ')));
+				.append($('<button type="button" class="runbun-run-rank-six"></button>')
+					.attr('data-ids', ordered.map(function (member) { return member.id; }).join(','))
+					.attr('title', 'Stage this party, lead first')
+					.attr('aria-label', 'Stage this party: ' + ordered.map(function (member, i) {
+						return member.species + (i === 0 ? ' (lead)' : '');
+					}).join(', '))
+					.text(names.join(' ')));
 			// The played verdict outranks the grid and says so first: what
 			// happened in twelve fights beats what the matrix predicted.
 			if (party.adjudication) {
@@ -3898,6 +3909,31 @@
 				stagedParty.splice(at - 1, 0, id);
 				renderPartyStrip();
 			}
+		});
+		// A ranked six stages as one press, lead first. It stages, not commits:
+		// the party command stays the one logged decision, one more press away.
+		// A ranking is an answer about the box it was asked of, so a member
+		// that has since died or left refuses the whole six rather than stage
+		// five of it silently.
+		$('#runbun-run-ranking').on('click', '.runbun-run-rank-six', function () {
+			var ids = String($(this).attr('data-ids') || '').split(',').filter(Boolean);
+			var gone = ids.filter(function (id) {
+				var mon = findBoxed(id);
+				return !mon || mon.status === 'dead';
+			});
+			if (gone.length || !ids.length) {
+				status('That six is no longer in your box — rank again.', 'error');
+				return;
+			}
+			stagedParty = ids.slice(0, PARTY_LIMIT);
+			renderBox(lastStatus);
+			renderPartyStrip();
+			$('#runbun-run-party-strip')[0].scrollIntoView({block: 'center'});
+			status(stagedParty.join(',') === state.party.join(',') ?
+				'That six is already your party, in that order.' :
+				'Staged ' + stagedParty.map(function (id) {
+					return monLabel(findBoxed(id));
+				}).join(', ') + ' — press Use this party to commit it.', '');
 		});
 		$('#runbun-run-set-party').on('click', function () {
 			command({kind: 'party', ids: stagedParty.slice()});

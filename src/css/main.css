@@ -4857,8 +4857,31 @@ table.field {
 	font-variant-numeric: tabular-nums;
 	color: var(--rb-ink-muted);
 }
+/* The six is the control that stages it. It keeps the box names' grammar —
+   plain ink, action colour on hover — plus a quiet underline, the one mark
+   that says a row of names can be pressed. */
 #runbun-run .runbun-run-rank-six {
+	min-width: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
 	color: var(--rb-ink);
+	text-align: left;
+	cursor: pointer;
+	text-decoration: underline;
+	text-decoration-color: var(--rb-stroke-strong);
+	text-underline-offset: 3px;
+}
+@media (hover: hover) {
+	#runbun-run .runbun-run-rank-six:hover {
+		color: var(--rb-action);
+		text-decoration-color: currentColor;
+	}
+}
+#runbun-run .runbun-run-rank-six:focus-visible {
+	outline: 2px solid var(--rb-focus);
+	outline-offset: 2px;
 }
 /* The played verdict: measured, so it wears state colors — win-band green,
    wipe-band red, the undecided middle stays ink. */
