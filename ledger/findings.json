@@ -2399,6 +2399,22 @@
 			"falsified": 0,
 			"evidence": "Found for Throat Chop at frontier Archie (fpi-items-s0 seeds 2 and 7: Overqwil Throat Chop before Pyroar Hyper Voice), fixed for Throat Chop alone in d7f1f0cc because only it has a resolution-time block in move-engine.ts. The others have no such block, so letting them through mid-turn would make them succeed; each needs its block first. Not yet seen in a receipt.",
 			"enforcedBy": null
+		},
+		{
+			"id": "ranker-gates-time-the-machine",
+			"source": "measured/fast-suite-2026-09-23",
+			"raised_on": "2026-09-23",
+			"severity": "medium",
+			"area": "gates",
+			"file": "tests/run_rank.test.js",
+			"line": 68,
+			"claim": "Two fast-suite gates assert wall-clock time against a 5 s budget: 'the ranker finishes a box of 30 in interactive time' and 'the cheap cut keeps the best six and only runs when the box is expensive' (a box of 76). Under load they fail (5.8 s and 5.2 s with 12 runs on the machine) and pass alone at load average 38. AGENTS.md: measure work, not time.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "ui-playthrough-out/suite-logs/fast-c6442e71.log (both failed under the nuzf0923 runs); rerun alone, both pass. The likeliest identity of the unnamed intermittent fast-suite failure of 2026-09-22 (docs/WORKFLOW.md weakness 5). Fix: count the work the ranker does (calculator objects, candidate sixes scored), as tests/adjudication_cost.test.js does.",
+			"enforcedBy": null
 		}
 	]
 }
