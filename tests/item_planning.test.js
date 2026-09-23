@@ -281,3 +281,15 @@ test('value in parts: a control role only one body fills is worth one to it, and
 	const weighed = headless.bodyValues(doc, 2, 'unique=1');
 	assert.equal(weighed.get(alive[1].id), shared.get(alive[1].id).unique);
 });
+
+test('--rank-survival: the ranker orders the sixes it played by expected bodies lost, and by wins without it', () => {
+	const doc = battery.loadDocument(BRAWLY);
+	const playedOf = ranked => (ranked.parties || []).filter(party => party.adjudication).map(party => party.adjudication);
+	const byWins = playedOf(run.rankParties(doc, 'Leader Brawly', {rollouts: 6}));
+	const bySurvival = playedOf(run.rankParties(doc, 'Leader Brawly', {rollouts: 6, survival: true}));
+	assert.ok(byWins.length >= 2 && bySurvival.length === byWins.length, 'several sixes were played');
+	for (let i = 1; i < bySurvival.length; i++) {
+		assert.ok(bySurvival[i - 1].eDeaths <= bySurvival[i].eDeaths, 'survival order: ' + JSON.stringify(bySurvival));
+		assert.ok(byWins[i - 1].pWin >= byWins[i].pWin, 'win order: ' + JSON.stringify(byWins));
+	}
+});

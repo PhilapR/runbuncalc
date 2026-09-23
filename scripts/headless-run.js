@@ -123,6 +123,9 @@ const KNOB_FLAGS = {
 	// their value (driver.playSearch's values): the search then trades a spare
 	// before the body the road needs. Off: every survivor counts 1.
 	searchValue: ['search-value', '0', value => value === '1'],
+	// The ranker's played sixes ordered by expected bodies lost before wins
+	// (run.rankParties' survival option), for every six the run fields. Off.
+	rankSurvival: ['rank-survival', '0', value => value === '1'],
 	bossRetries: ['boss-retries', '20', Number],
 	budget: ['budget', '110', Number],
 	skipDoubles: ['skip-doubles', '0', value => value === '1'],
@@ -1326,7 +1329,7 @@ function bestParty(doc, wants) {
 	// level-sorted fallback when the ranker refuses (tiny box, over-large
 	// combination count).
 	try {
-		const ranked = run.rankParties(doc);
+		const ranked = run.rankParties(doc, undefined, knobs.rankSurvival ? {survival: true} : undefined);
 		const top = (ranked.parties || [])[0];
 		if (top && top.members.length) {
 			if (wants) wants.mega = top.mega ? top.mega.id : null;
