@@ -242,4 +242,20 @@ test('a body is valued by what the road ahead loses without it, and its understu
 	const after = headless.bodyValues(without, 3);
 	assert.equal(after.has(ranked[0][0]), false, 'the gone are not valued');
 	assert.ok([...after].some(entry => entry[1] > (values.get(entry[0]) || 0)), 'an understudy inherits the answer');
+	// Marginal, not absolute: where a second body answers a foe nearly as well,
+	// losing the best one costs only the gap. So over Brawly's columns the values
+	// sum to less than the best answers do whenever any column has a real second.
+	const matrix = run.boxMatrix(doc, 'Leader Brawly');
+	const table = run.answerTable(matrix);
+	let bestSum = 0;
+	let seconded = false;
+	matrix.grid.forEach((cell, e) => {
+		const scores = matrix.box.map((member, m) => table[m][e].withEntry).sort((a, b) => b - a);
+		if (scores[0] > 0) bestSum += scores[0];
+		if (scores[0] > 0 && scores[1] > 0) seconded = true;
+	});
+	const brawlyOnly = headless.bodyValues(doc, 1);
+	assert.ok(seconded, 'the fixture has a foe two bodies answer');
+	assert.ok([...brawlyOnly.values()].reduce((sum, value) => sum + value, 0) < bestSum - 1e-9,
+		'the cost of a loss is the gap to the next answer, not the answer');
 });
