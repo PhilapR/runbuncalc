@@ -172,7 +172,7 @@ the reader's warning to verify before trusting.
 - `docs/STRATEGY.md` — c272bcd 2026-08-25
 - `docs/VALIDATION.md` — 56f1c21 2026-09-22
 - `docs/WORKFLOW.md` — f27e160 2026-09-22
-- `docs/WORST-CASE-PLANNING.md` — c6a8955 2026-08-19
+- `docs/WORST-CASE-PLANNING.md` — a7f3d1e 2026-09-22
 - `ui-playthrough-out.ARCHIVED.md` — untracked
 
 ## Test files
