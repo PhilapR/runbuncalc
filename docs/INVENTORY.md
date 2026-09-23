@@ -154,7 +154,7 @@ the reader's warning to verify before trusting.
 - `docs/ECOSYSTEM_BRIDGE.md` — 5a255c0 2026-08-25
 - `docs/ENCOUNTER-ARCHITECTURE.md` — 29ffa9f 2026-09-20
 - `docs/ENGINE-CONTRACTS.md` — c4daad8 2026-08-29
-- `docs/ENGINE-HOMES.md` — 784dc61 2026-09-22
+- `docs/ENGINE-HOMES.md` — a464f32 2026-09-22
 - `docs/EVALUATION.md` — 56f1c21 2026-09-22
 - `docs/FORK_MAP.md` — 202de90 2026-09-22
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
