@@ -72,6 +72,15 @@ const STARTERS = [
  */
 const KNOB_FLAGS = {
 	retries: ['retries', '12', Number],
+	// PERMADEATH (docs/ENCOUNTER-ARCHITECTURE.md, "nuzlocke" mode): the run is
+	// created with permadeath, every body that faints in a kept attempt, won or
+	// lost, is written dead with a faint command, and a lost fight is retried
+	// with whoever is left. The run ends when no body is left. Scouting fights
+	// (probes, plans, search) are played in the run's head and cost nothing.
+	nuzlocke: ['nuzlocke', '0', value => value === '1'],
+	// With --nuzlocke: the first lost fight ends the run (a blackout), the
+	// strict reading. Off, the run retries the wall with its survivors.
+	blackoutEnds: ['blackout-ends', '0', value => value === '1'],
 	bossRetries: ['boss-retries', '20', Number],
 	budget: ['budget', '110', Number],
 	skipDoubles: ['skip-doubles', '0', value => value === '1'],
@@ -1302,7 +1311,7 @@ function startRun(starter, random) {
 	// harness had the dupes clause off, spending encounters on lines the box
 	// already held.
 	let doc = run.createRun({name: 'headless', now: 't0',
-		levelCap: 'next-milestone-ace', permadeath: false, onePerRoute: true,
+		levelCap: 'next-milestone-ace', permadeath: knobs.nuzlocke, onePerRoute: true,
 		dupesClause: 'line', rival: starter.rival});
 	const identity = run.rollIdentity(starter.species, random, {perfectIvs: 3});
 	doc = run.apply(doc, Object.assign(
@@ -1917,7 +1926,10 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		doc = claimGifts(doc, random, tally);
 		doc = claimPrizes(doc, random, tally, attempts);
 		doc = sweepItems(doc, tally);
-		const shape = doc.box.length + '|' + JSON.stringify(doc.bag) + '|' + doc.position;
+		// The living count is part of the shape: under permadeath a death changes
+		// who can be fielded and nothing else here, and the dead cannot stay in the six.
+		const shape = doc.box.length + '|' + doc.box.filter(mon => mon.status !== 'dead').length + '|' +
+			JSON.stringify(doc.bag) + '|' + doc.position;
 		if (shape !== lastShape) {
 			lastShape = shape;
 			doc = levelToCap(doc, tally);
@@ -2066,6 +2078,37 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		const t = tally.trainers[next.trainer] =
 			tally.trainers[next.trainer] || {attempts: 0, wins: 0};
 		t.attempts += 1;
+		// What each win cost in bodies, in either mode: the least a permadeath run
+		// would have paid for the same wins, had it won every fight first time.
+		if (played.result === 'win') tally.winCost = (tally.winCost || 0) + (played.deaths || 0);
+		if (knobs.nuzlocke && played.policy !== 'crashed') {
+			const killers = played.killers || [];
+			// A death with no body named would spare that body: the silent failure
+			// permadeath exists to prevent. The run stops rather than play on.
+			if (killers.length !== (played.deaths || 0) || killers.some(death => !death.monId)) {
+				tally.stopped = next.trainer + ': a death the driver could not name to a body (' +
+					killers.length + ' named, ' + (played.deaths || 0) + ' died)';
+				break;
+			}
+			for (const death of killers) {
+				const mon = doc.box.find(member => member.id === death.monId);
+				doc = run.apply(doc, Object.assign({kind: 'faint', id: death.monId, to: next.trainer},
+					death.by ? {move: death.by} : {}));
+				tally.lost = (tally.lost || []).concat([{species: mon ? mon.species : death.species,
+					name: mon ? (mon.nickname || mon.species) : null, to: next.trainer, order: next.order,
+					move: death.by || null, result: played.result}]);
+			}
+			if (killers.length) planHolds = false;
+			if (!doc.box.some(mon => mon.status !== 'dead')) {
+				if (played.result === 'win') doc = run.apply(doc, {kind: 'beat', trainer: next.trainer});
+				tally.stopped = 'every body is lost: the last fell to ' + next.trainer;
+				break;
+			}
+			if (knobs.blackoutEnds && played.result !== 'win') {
+				tally.stopped = 'blacked out at ' + next.trainer;
+				break;
+			}
+		}
 		if (options && options.log) {
 			options.log(tally.fights + ' #' + (run.trainerIndexOf(doc, next.order) || '?') + ' ' + next.trainer +
 				' ' + played.result + (played.policy ? ' (' + played.policy + ')' : '') +
@@ -2133,6 +2176,16 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// no win bought by an engine refusal.
 		finished: run.upcoming(doc, 1).length === 0,
 		skipped: tally.skipped, engineRefusals: tally.engineRefusals, stopped: tally.stopped || null,
+		// Bodies: winCost in either mode (deaths in the winning attempts), and under
+		// --nuzlocke every body written dead, in order, with what took it.
+		winCost: tally.winCost || 0,
+		// Read off the document, not the tally: a run carried on from its checkpoint
+		// keeps every epitaph there, and only there.
+		...(knobs.nuzlocke ? (() => {
+			const dead = doc.box.filter(mon => mon.status === 'dead');
+			return {permadeath: true, bodiesLost: dead.length, lost: dead.map(mon => Object.assign(
+				{id: mon.id, species: mon.species, name: mon.nickname || mon.species}, mon.died || {}))};
+		})() : {}),
 		// Where a stopped run was carried on from its checkpoint, if it ever was.
 		...(tally.restoredAt ? {restoredAt: tally.restoredAt} : {}),
 		provenance: made, ledger: tally.ledger,

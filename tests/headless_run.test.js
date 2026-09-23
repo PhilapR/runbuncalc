@@ -1096,3 +1096,50 @@ test('a watched plan puts each scouting fight on the job\'s tape and stops when 
 	assert.equal(tally.planStopped, true);
 	assert.ok(planned && planned.party.length === 6, 'a plan still comes back');
 });
+
+test('nuzlocke mode: every death in a kept attempt is written, the dead never fight again, and the six is refilled from the living', () => {
+	const policy = require('../scripts/ui-playthrough.js');
+	// Seed 418957 loses every body by fight 12 under permadeath, in about ten seconds.
+	const run = require('../lib/run.js');
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 418957,
+		headless.armFlags('--nuzlocke=1 --stop-at=120'), {keepDoc: true});
+	assert.equal(row.doc.rules.permadeath, true);
+	assert.equal(row.permadeath, true);
+	const faints = row.doc.log.filter(entry => entry.command.kind === 'faint');
+	const died = row.ledger.reduce((sum, entry) => sum + (entry.policy === 'crashed' ? 0 : (entry.deaths || 0)), 0);
+	assert.ok(died > 0, 'the fixture must lose bodies');
+	assert.equal(faints.length, died, 'one faint command for every death the ledger records');
+	assert.equal(row.bodiesLost, faints.length);
+	assert.ok(row.lost.every(entry => entry.to), 'each epitaph names the trainer that took it');
+	// Replay the log: no party names the dead, and every win fielded min(6, alive).
+	let doc = run.createRun({profileId: row.doc.profileId, attemptId: row.doc.attemptId, name: row.doc.name,
+		now: row.doc.createdAt, levelCap: row.doc.rules.levelCap});
+	doc.rules = JSON.parse(JSON.stringify(row.doc.rules));
+	const dead = new Set();
+	// A won fight's own dead are written just before its beat: the six that
+	// FOUGHT it is the party at the beat plus those consecutive faints.
+	let justFell = 0;
+	for (const entry of row.doc.log) {
+		if (entry.command.kind === 'party') assert.ok(entry.command.ids.every(id => !dead.has(id)), 'a dead body fielded');
+		if (entry.command.kind === 'beat') {
+			const alive = doc.box.filter(mon => mon.status !== 'dead').length + justFell;
+			assert.equal(doc.party.length + justFell, Math.min(6, alive), 'the six is refilled before ' + entry.command.trainer);
+		}
+		justFell = entry.command.kind === 'faint' ? justFell + 1 : 0;
+		if (entry.command.kind === 'faint') dead.add(entry.command.id);
+		doc = run.apply(doc, entry.command, {now: entry.at});
+	}
+	const failed = row.audit.checks.filter(check => check.status === 'FAIL' && check.name !== 'provenance');
+	assert.deepEqual(failed, [], 'the rules replay clean under permadeath');
+});
+
+test('rehearsal mode writes no deaths, and still reports what its wins cost', () => {
+	const policy = require('../scripts/ui-playthrough.js');
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 418957,
+		headless.armFlags('--stop-at=40'), {keepDoc: true});
+	assert.equal(row.doc.rules.permadeath, false);
+	assert.equal(row.doc.log.filter(entry => entry.command.kind === 'faint').length, 0);
+	assert.equal(row.bodiesLost, undefined);
+	const wonDeaths = row.ledger.filter(entry => entry.result === 'win').reduce((sum, entry) => sum + (entry.deaths || 0), 0);
+	assert.equal(row.winCost, wonDeaths);
+});
