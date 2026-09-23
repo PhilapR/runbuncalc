@@ -1143,3 +1143,36 @@ test('rehearsal mode writes no deaths, and still reports what its wins cost', ()
 	const wonDeaths = row.ledger.filter(entry => entry.result === 'win').reduce((sum, entry) => sum + (entry.deaths || 0), 0);
 	assert.equal(row.winCost, wonDeaths);
 });
+
+test('nuzlocke mode: a wall lost with bodies left in the box is retried with a full six of the living', () => {
+	// The banked Brawly box (16 bodies), replayed under permadeath. Brawly beats it
+	// often, so a lost attempt leaves ten or more alive; the six must be refilled
+	// from them, though a death changes neither the box size, the bag nor the position.
+	const policy = require('../scripts/ui-playthrough.js');
+	const battery = require('../scripts/scenario-battery.js');
+	const run = require('../lib/run.js');
+	const banked = battery.loadDocument(require('node:path').join(__dirname, '..', 'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json'));
+	let doc = run.createRun({profileId: banked.profileId, attemptId: banked.attemptId, name: banked.name,
+		now: banked.createdAt, levelCap: banked.rules.levelCap});
+	doc.rules = Object.assign(JSON.parse(JSON.stringify(banked.rules)), {permadeath: true});
+	for (const entry of banked.log) doc = run.apply(doc, entry.command, {now: entry.at});
+	assert.throws(() => headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 731001,
+		headless.armFlags('--nuzlocke=1 --stop-at=78'), {resume: banked}), /--nuzlocke needs a document with permadeath/);
+	const fielded = [];
+	const play = battery.playScenario;
+	battery.playScenario = function watched(policyIn, fightDoc) {
+		fielded.push({six: fightDoc.party.length, alive: fightDoc.box.filter(mon => mon.status !== 'dead').length});
+		return play.apply(this, arguments);
+	};
+	let row;
+	try {
+		row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 731001,
+			headless.armFlags('--nuzlocke=1 --stop-at=85 --search-after=0 --plan-after=0 --probe=0'), {resume: doc, keepDoc: true});
+	} finally {
+		battery.playScenario = play;
+	}
+	const lostWithSurvivors = row.ledger.some((entry, index) => entry.result !== 'win' && entry.deaths > 0 &&
+		index < row.ledger.length - 1);
+	assert.ok(lostWithSurvivors, 'the fixture must lose a fight and fight on: ' + JSON.stringify(row.ledger.map(entry => entry.result)));
+	for (const entry of fielded) assert.equal(entry.six, Math.min(6, entry.alive), JSON.stringify(fielded));
+});

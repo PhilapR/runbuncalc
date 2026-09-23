@@ -1842,6 +1842,11 @@ function playRunWith(policy, starter, seed, treatment, options) {
 	// as auditable as a whole one; the row says where it picked up.
 	let doc = kept ? structuredClone(options.restore.doc) :
 		options && options.resume ? structuredClone(options.resume) : startRun(starter, random);
+	// A document's rules are its own and travel verbatim: --nuzlocke on a document
+	// played without permadeath would write faints that change nothing.
+	if (knobs.nuzlocke && !doc.rules.permadeath) {
+		throw new Error('--nuzlocke needs a document with permadeath; this one was played without it');
+	}
 
 	const tally = kept ? structuredClone(kept.tally) : {catches: 0, keyRolls: 0, scaleSpends: 0, pickups: 0,
 		stoneBuys: 0, evolves: 0, gives: 0,
