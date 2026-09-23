@@ -826,6 +826,18 @@ function shardOf(scenarios, spec) {
 	return scenarios.filter((scenario, index) => index % Number(hit[2]) === Number(hit[1]));
 }
 
+/**
+ * --format=singles|doubles: only the scenarios whose fight is that format,
+ * chosen before sharding so the shards stay even. An arm scoped to one format
+ * says so in its argv, and a join of two receipts must agree on it.
+ */
+function formatOf(scenarios, spec) {
+	if (!spec) return scenarios;
+	if (spec !== 'singles' && spec !== 'doubles') throw new Error('--format is singles or doubles, not ' + JSON.stringify(spec));
+	const planner = require('../lib/planner');
+	return scenarios.filter(scenario => Boolean(planner.getFight(scenario.trainer, 'run-and-bun').isDouble) === (spec === 'doubles'));
+}
+
 /** Thrown between fights when a watched battery is asked to stop. */
 class StopRequested extends Error {}
 
@@ -926,7 +938,7 @@ const OWN_FLAGS = ['manifest', 'label', 'pp-model', 'report', 'trainer', 'seeds'
 	// by calling the module directly and so never met it.
 	'search-lookahead', 'switch-played', 'enemy-switch-scoring',
 	// The planner's step and the knobs headless-run.js reads for it (planPrepared).
-	'plan-by-play', 'plan-items', 'plan-seeds', 'mega'];
+	'plan-by-play', 'plan-items', 'plan-seeds', 'mega', 'format'];
 
 function main() {
 	// Loaded here, not at the top: the policy reads its flags from argv at
@@ -962,10 +974,10 @@ function main() {
 	setSwitchPlayed(flag('switch-played', '0') === '1');
 	const label = flag('label', 'battery');
 	const manifest = flag('manifest', '');
-	const scenarios = shardOf(manifest ?
+	const scenarios = shardOf(formatOf(manifest ?
 		JSON.parse(fs.readFileSync(manifest, 'utf8')).scenarios :
 		[{name: flag('trainer', ''), report: flag('report', ''),
-			trainer: flag('trainer', ''), seeds: Number(flag('seeds', '20'))}], flag('shard', ''));
+			trainer: flag('trainer', ''), seeds: Number(flag('seeds', '20'))}], flag('format', '')), flag('shard', ''));
 	if (!scenarios.length || !scenarios[0].report) {
 		console.error('need --manifest=FILE or --report=FILE --trainer=NAME');
 		process.exit(1);
@@ -1042,7 +1054,7 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument, replayTo,
+module.exports = {playScenario, runScenario, freshMemory, requireScale, loadDocument, replayTo, formatOf,
 	countersOf, foeRemainderOf, unfiredTreatments, requireWholeReceipt, refuseUnread, unreadBy,
 	prepareDocument, teachSwapped, setSwitchPlayed, switchPlayed, engineRefusalReport, shardOf, chooseByTally, effectivePick, effectiveDefaults, swapCatch, SELECTION_SEED_BASE,
 	OWN_FLAGS, provenance,

@@ -98,3 +98,15 @@ test('the rule: a wall the run won is cut before its beat, one it stopped at is 
 		{trainer: 'X', lost: 5, name: 'c'}, {trainer: 'Y', lost: 1, name: 'd'}], 2);
 	assert.deepEqual(capped.map(entry => entry.name), ['b', 'c', 'd'], 'the runs that lost it most');
 });
+
+test('--format keeps one format of the set, and refuses a third', () => {
+	const singles = battery.formatOf(manifest.scenarios, 'singles');
+	const doubles = battery.formatOf(manifest.scenarios, 'doubles');
+	assert.equal(singles.length + doubles.length, manifest.scenarios.length);
+	assert.ok(singles.length > 0 && doubles.length > 0);
+	const trainers = list => new Set(list.map(scenario => scenario.trainer));
+	assert.ok(trainers(doubles).has('Elite Four SidneyDouble') && trainers(doubles).has('Trainer Rival Bridge Blaziken'));
+	assert.ok(trainers(singles).has('Champion Wallace') && trainers(singles).has('Elite Four Sidney'));
+	assert.equal(battery.formatOf(manifest.scenarios, ''), manifest.scenarios);
+	assert.throws(() => battery.formatOf(manifest.scenarios, 'triples'), /--format is singles or doubles/);
+});
