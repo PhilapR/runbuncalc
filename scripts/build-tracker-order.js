@@ -147,7 +147,7 @@ function build(headers) {
 	if (unknown.length) throw new Error(`excluded but not a header: ${unknown.join(', ')}`);
 	const order = headers.filter(name => !EXCLUDED[name]).concat(Object.keys(APPENDED));
 	return {
-		source: 'docs/official/Pokemon Locations.xlsx (the R&B Google-Drive tracker), sheet \'Encounter Tables\'',
+		source: 'pokemon-mono docs/official/Pokémon Locations.xlsx (the R&B Google-Drive tracker), sheet \'Encounter Tables\'',
 		provenance: 'derived',
 		method: [
 			'The tracker lays each location out as a column pair on the Encounter Tables',

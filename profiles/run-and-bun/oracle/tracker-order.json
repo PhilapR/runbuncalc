@@ -1,5 +1,5 @@
 {
-	"source": "docs/official/Pokemon Locations.xlsx (the R&B Google-Drive tracker), sheet 'Encounter Tables'",
+	"source": "pokemon-mono docs/official/Pokémon Locations.xlsx (the R&B Google-Drive tracker), sheet 'Encounter Tables'",
 	"provenance": "derived",
 	"method": [
 		"The tracker lays each location out as a column pair on the Encounter Tables",

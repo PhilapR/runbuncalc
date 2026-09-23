@@ -66,3 +66,21 @@ test('the pinned headers are row 1 of the tracker workbook, and the order is bui
 		'tracker-order.json pins headers the workbook does not have: node scripts/build-tracker-order.js --xlsx <workbook>');
 	assert.deepEqual(builder.build(headers), tracker, 'and the committed file is what the workbook builds');
 });
+
+test('every transcription of the Locations workbook cites it in pokemon-mono, by its real name', () => {
+	// data-integrity audit (docs-official-is-cited-as-a-repo-relative-path):
+	// three oracle files cited `docs/official/Pokemon Locations.xlsx` as if
+	// it were in this repository. It lives in pokemon-mono, and its name
+	// carries the accented e (U+00E9). tracker-order.json is built, so its
+	// builder carries the string; sources.json and unavailable.json are
+	// transcriptions with no builder, so the string is fixed where it is.
+	const cite = /^pokemon-mono docs\/official\/Pokémon Locations\.xlsx\b/;
+	const oracle = name => require('../profiles/run-and-bun/oracle/' + name);
+	const docs = {
+		'build-tracker-order.js': builder.build(tracker.headers),
+		'tracker-order.json': tracker,
+		'sources.json': oracle('sources.json'),
+		'unavailable.json': oracle('unavailable.json'),
+	};
+	for (const name of Object.keys(docs)) assert.match(docs[name].source, cite, name);
+});
