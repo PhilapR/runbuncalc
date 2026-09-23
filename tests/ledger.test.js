@@ -38,7 +38,7 @@ test('the ledger loads, and its vocabularies are enforced by the schema', () => 
 		/CHECK|constraint/i, 'an unknown status is refused');
 });
 
-test('a fix names a commit that exists, and an open finding names none', () => {
+test('a fix names a commit that exists, and an open finding names none', t => {
 	// This is the gate that matters. The defect that cost this branch the most
 	// was a commit message claiming an edit that never reached disk — the
 	// supersedes wiring in run_history.js. A ledger that records "fixed in
@@ -83,24 +83,51 @@ test('a fix names a commit that exists, and an open finding names none', () => {
 	// hole opened for real: a bungled `git add` put a fix under the wrong
 	// message and left the ledger pointing at the PREVIOUS commit, and this
 	// test stayed green because the previous commit is of course an ancestor.
-	// A finding that names a file must name a commit that touched it.
+	//
+	// The unit is the FILE. It used to be the file's directory, which let a
+	// commit that touched a neighbour stand in for the fix — ai/src/calc-
+	// adapter.ts for a finding about ai/src/move-metadata.ts. A fix that lands
+	// beside its file rather than in it (a data file that feeds it, a builder
+	// that writes it) names those files in `files`, so the ledger says where
+	// the fix went instead of the gate guessing.
+	const raw = new Map(JSON.parse(fs.readFileSync(path.join(root, 'ledger', 'findings.json'), 'utf8'))
+		.findings.map(row => [row.id, row]));
 	const located = db.prepare(
 		"SELECT id, fixed_in, file FROM findings WHERE status = 'fixed' AND file IS NOT NULL").all();
 	assert.ok(located.length, 'some fixes name a file to check against');
+	const misses = [];
 	for (const row of located) {
 		const touched = childProcess.execFileSync('git',
 			['show', '--name-only', '--format=', row.fixed_in],
 			{cwd: root, encoding: 'utf8'}).split('\n').map(line => line.trim()).filter(Boolean);
-		// A fix may land beside its file rather than in it — a data file that
-		// feeds it, a test that pins it. Requiring the exact path would force
-		// false precision, so the directory is the unit.
-		const directory = path.dirname(row.file);
-		assert.ok(
-			touched.some(name => name === row.file || path.dirname(name) === directory ||
-				name.startsWith(directory + '/')),
-			`${row.id} says it was fixed in ${row.fixed_in}, but that commit touches ` +
-			`nothing under ${directory} — it names the file ${row.file}`);
+		const named = [row.file].concat((raw.get(row.id) || {}).files || []);
+		if (!named.some(name => touched.includes(name))) {
+			misses.push({id: row.id, text: `${row.id} says it was fixed in ${row.fixed_in}, but that commit ` +
+				`touches none of ${named.join(', ')} — it touches ${touched.join(', ') || 'nothing'}`});
+		}
 	}
+	// Rows that met the directory rule and not the file rule when it tightened
+	// (2026-09-22). Each fix is real and landed beside the named file; the row
+	// needs a `files` list saying where. The list may only shrink: a row here
+	// that now passes must leave it.
+	const LANDED_BESIDE = [
+		'eight-catchable-species-have-no-level-up-movepool',
+		'evolution-stones-have-prose-where-a-place-should-be',
+		'greninja-ash-shuriken-rolled',
+		'non-wild-sources-not-modelled',
+		'worst-case-covers-the-ceiling-not-the-race',
+	];
+	for (const id of LANDED_BESIDE) {
+		assert.ok(misses.some(miss => miss.id === id),
+			`${id} now names a commit that touches its files — remove it from LANDED_BESIDE`);
+	}
+	assert.deepEqual(misses.filter(miss => !LANDED_BESIDE.includes(miss.id)).map(miss => miss.text), [],
+		'a fixed finding must name a commit that touches its file (or one in its `files`)');
+	// A fix without a file cannot be checked for containment. There are none
+	// today; if one appears it is named here rather than passed in silence.
+	const unlocated = db.prepare(
+		"SELECT id FROM findings WHERE status = 'fixed' AND file IS NULL").all().map(row => row.id);
+	if (unlocated.length) t.diagnostic('fixed with no file, containment unchecked: ' + unlocated.join(', '));
 });
 
 test('every finding points at a file that is really there', () => {
