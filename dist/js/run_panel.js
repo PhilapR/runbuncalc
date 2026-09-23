@@ -34,6 +34,15 @@
 
 	var STORAGE_KEY = 'runbun.run.v1';
 	var PARTY_LIMIT = 6;
+	/**
+	 * The plan margin's unit anchor. The margin is the gap between the enemy
+	 * AI's best and second-best action on Run & Bun's own scoring scale, and a
+	 * bare "decided by 4.12" carried no unit and no sense of size. A setup
+	 * move starts at SETUP_BASE_SCORE in ai/src/scoring.ts — the scale's one
+	 * natural unit, and within 0.4 of the median margin over 490 planned
+	 * fights. A test pins this to the engine's constant.
+	 */
+	var AI_SETUP_SCORE = 6;
 
 	var state = null;
 	var maps = [];
@@ -854,8 +863,14 @@
 
 		var alive = payload.box.filter(function (mon) { return mon.status !== 'dead'; });
 		var lost = payload.box.filter(function (mon) { return mon.status === 'dead'; });
+		// A mon leaves the reserve only while it is in BOTH parties: committed
+		// and still staged. Reading the committed party alone lost a member the
+		// strip's × had just unstaged — on neither list, with no control to
+		// bring it back. A staged newcomer stays here, carrying its − toggle.
 		var party = state.party;
-		var reserve = alive.filter(function (mon) { return party.indexOf(mon.id) === -1; });
+		var reserve = alive.filter(function (mon) {
+			return party.indexOf(mon.id) === -1 || stagedParty.indexOf(mon.id) === -1;
+		});
 		// The box's IV picture beside its size. The MEDIAN is the honest
 		// summary — a mean moves with one lucky catch — and 186 travels with
 		// it so the number carries its own scale instead of needing one.
@@ -2288,11 +2303,16 @@
 				caution += ' · TECH: ' + result.dossierTech.join(' · ');
 			}
 			$('#runbun-run-plan-verdict').text((
+				// "decided by N" / "contested by N" stay verbatim: the playthrough
+				// driver and plan-calibration read the number back out of them.
 				result.confidence === 'contested' ?
-					result.trainer + ' — contested by ' + result.margin + '. Plan for both.' :
+					result.trainer + ' — AI move choice contested by ' + result.margin +
+						' score points over its next-best (a setup move scores ' + AI_SETUP_SCORE +
+						'). Plan for both.' :
 					result.confidence === 'only-option' ?
 						result.trainer + ' — only one action available.' :
-						result.trainer + ' — decided by ' + result.margin + '.'
+						result.trainer + ' — AI move choice decided by ' + result.margin +
+							' score points over its next-best (a setup move scores ' + AI_SETUP_SCORE + ').'
 			) + survival + caution);
 			// The button lives at the top of the panel and the answer renders
 			// below the fold — bring the verdict to the player, same as
@@ -2446,8 +2466,15 @@
 		// harder", which a party can gain while staying just as dead. This
 		// asks the preparation graph the other question — what, if anything,
 		// removes a lethal branch, and what it costs.
-		api('/run/safety', body).then(renderSurvival).catch(function () {
-			$('#runbun-run-survival').prop('hidden', true);
+		// A failed survival check is named in its own block. Hiding the block
+		// said nothing: it ships hidden, so hidden read as "never asked", and
+		// the damage list below it arrived clean with no lethality answer —
+		// reachable whenever /run/safety refuses a save /run/advise accepts.
+		api('/run/safety', body).then(renderSurvival).catch(function (error) {
+			$('#runbun-run-survival').empty().prop('hidden', false)
+				.append($('<p class="runbun-run-survival-verdict" data-risk="unknown"></p>')
+					.text('The survival check could not run, so nothing here says who a crit kills — ' +
+						error.message));
 		});
 		api('/run/advise', body).then(function (payload) {
 			renderAdvice(payload);
@@ -2493,9 +2520,20 @@
 			var names = party.members.map(function (member) {
 				return member.id === party.lead ? '[' + member.species + ']' : member.species;
 			});
+			// The six IS the control: pressing it stages exactly this party,
+			// lead first, the way the row reads it. Reading the names off and
+			// rebuilding the six by hand was the only way to act on a ranking.
+			var ordered = party.members.filter(function (member) { return member.id === party.lead; })
+				.concat(party.members.filter(function (member) { return member.id !== party.lead; }));
 			var $row = $('<li class="runbun-run-rank-row"></li>')
 				.append($('<span class="runbun-run-rank-score"></span>').text(party.score))
-				.append($('<span class="runbun-run-rank-six"></span>').text(names.join(' ')));
+				.append($('<button type="button" class="runbun-run-rank-six"></button>')
+					.attr('data-ids', ordered.map(function (member) { return member.id; }).join(','))
+					.attr('title', 'Stage this party, lead first')
+					.attr('aria-label', 'Stage this party: ' + ordered.map(function (member, i) {
+						return member.species + (i === 0 ? ' (lead)' : '');
+					}).join(', '))
+					.text(names.join(' ')));
 			// The played verdict outranks the grid and says so first: what
 			// happened in twelve fights beats what the matrix predicted.
 			if (party.adjudication) {
@@ -3892,6 +3930,31 @@
 				stagedParty.splice(at - 1, 0, id);
 				renderPartyStrip();
 			}
+		});
+		// A ranked six stages as one press, lead first. It stages, not commits:
+		// the party command stays the one logged decision, one more press away.
+		// A ranking is an answer about the box it was asked of, so a member
+		// that has since died or left refuses the whole six rather than stage
+		// five of it silently.
+		$('#runbun-run-ranking').on('click', '.runbun-run-rank-six', function () {
+			var ids = String($(this).attr('data-ids') || '').split(',').filter(Boolean);
+			var gone = ids.filter(function (id) {
+				var mon = findBoxed(id);
+				return !mon || mon.status === 'dead';
+			});
+			if (gone.length || !ids.length) {
+				status('That six is no longer in your box — rank again.', 'error');
+				return;
+			}
+			stagedParty = ids.slice(0, PARTY_LIMIT);
+			renderBox(lastStatus);
+			renderPartyStrip();
+			$('#runbun-run-party-strip')[0].scrollIntoView({block: 'center'});
+			status(stagedParty.join(',') === state.party.join(',') ?
+				'That six is already your party, in that order.' :
+				'Staged ' + stagedParty.map(function (id) {
+					return monLabel(findBoxed(id));
+				}).join(', ') + ' — press Use this party to commit it.', '');
 		});
 		$('#runbun-run-set-party').on('click', function () {
 			command({kind: 'party', ids: stagedParty.slice()});

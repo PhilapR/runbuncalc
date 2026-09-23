@@ -804,3 +804,181 @@ test('the worst-case cell is a control, and pressing it actually answers', {skip
 
 	await opened.context.close();
 });
+
+test('a member unstaged from the party returns to the PC list with its add control', {skip}, async () => {
+	// Found by playing a run. The PC list was built from the COMMITTED party
+	// while the strip draws the STAGED one, so the strip's × took a member
+	// off the screen entirely: the strip empty, the list still saying
+	// "Every living Pokémon is in the party.", and no control anywhere to
+	// bring it back short of committing a party nobody wanted, or reloading.
+	const opened = await open();
+	const page = opened.page;
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party[0] === 'mon-1' &&
+			!document.querySelector('#runbun-run-box .runbun-run-mon[data-id="mon-1"]'),
+		null, {timeout: 10000});
+	assert.match(await page.textContent('#runbun-run-box'), /Every living Pokémon is in the party/);
+
+	// Unstage it. It must land somewhere a player can press.
+	await page.click('#runbun-run-party-strip .runbun-run-party-rm[data-id="mon-1"]');
+	assert.equal(await page.$$eval('#runbun-run-party-strip .runbun-run-party-slot[data-id]',
+		els => els.length), 0, 'the strip dropped it');
+	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon[data-id="mon-1"] .runbun-run-add',
+		els => els.length), 1, 'the unstaged member must be back in the PC list with an add control');
+	assert.doesNotMatch(await page.textContent('#runbun-run-box'), /Every living Pokémon is in the party/,
+		'the list must not claim the party holds a member the strip just dropped');
+	assert.match(await page.textContent('#runbun-run-box-counts'), /^1 reserve/);
+
+	// And the control works: pressing it restages, and the list gives it back.
+	await page.click('#runbun-run-box .runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	assert.equal(await page.$$eval('#runbun-run-party-strip .runbun-run-party-slot[data-id="mon-1"]',
+		els => els.length), 1);
+	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon[data-id="mon-1"]',
+		els => els.length), 0, 'restaged as committed, it leaves the reserve again');
+	assert.equal(await page.isVisible('#runbun-run-set-party'), false,
+		'the staged six equals the committed one, so there is nothing to commit');
+
+	await opened.context.close();
+});
+
+test('a ranked six is a control: pressing it stages that party, lead first', {skip}, async () => {
+	// Found by playing a run. Best parties rendered every six as spans in a
+	// bare <ol>: no way to press the winner, and no ids on the row, so the
+	// player read species names off it and rebuilt the six by hand, in order.
+	const opened = await open();
+	const page = opened.page;
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await selectManualMap(page, 'Route101');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-encounters li').length > 5,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-encounters .runbun-run-encounter:has-text("Lillipup")');
+	await page.click('#runbun-run-catch');
+	await page.waitForFunction(
+		() => document.querySelectorAll('#runbun-run-box .runbun-run-mon').length === 2,
+		null, {timeout: 10000});
+	await page.click('#runbun-run-rank');
+	await page.waitForSelector('#runbun-run-ranking .runbun-run-rank-row');
+
+	const six = await page.$eval('#runbun-run-ranking .runbun-run-rank-row .runbun-run-rank-six',
+		el => ({tag: el.tagName, ids: el.getAttribute('data-ids'), text: el.textContent,
+			label: el.getAttribute('aria-label')}));
+	assert.equal(six.tag, 'BUTTON', 'the six must be a real button, reachable by keyboard');
+	const ids = six.ids.split(',');
+	assert.equal(ids.length, 2, 'the row names both Pokémon in the box');
+	assert.match(six.label, /^Stage this party: \w+ \(lead\), \w+$/);
+
+	await page.click('#runbun-run-ranking .runbun-run-rank-row .runbun-run-rank-six');
+	assert.deepEqual(
+		await page.$$eval('#runbun-run-party-strip .runbun-run-party-slot[data-id]',
+			els => els.map(el => el.getAttribute('data-id'))),
+		ids, 'the strip must hold exactly the ranked six, lead first');
+	// The bracketed species on the row is the one the strip leads with.
+	const lead = /\[(\w+)\]/.exec(six.text)[1];
+	assert.match(await page.textContent('#runbun-run-party-strip .runbun-run-party-slot[data-id]'),
+		new RegExp('Lead.*' + lead));
+	assert.match(await page.textContent('#runbun-run-status'), /Use this party/);
+
+	// Staged, not committed: the logged decision is still the player's press.
+	assert.deepEqual((await savedRun(page)).party, []);
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		expected => JSON.parse(localStorage.getItem('runbun.run.v1')).party.join(',') === expected,
+		six.ids, {timeout: 10000});
+
+	await opened.context.close();
+});
+
+test('a survival check that fails says so inside its block, not by vanishing', {skip}, async () => {
+	// The catch on /run/safety used to set the block hidden — and the block
+	// ships hidden, so a refused check looked exactly like one never asked,
+	// while the damage list beside it arrived clean. A save /run/advise takes
+	// and /run/safety refuses reaches that state with no message at all.
+	const opened = await open();
+	const page = opened.page;
+	await page.route('**/run/safety', route => route.fulfill({
+		status: 400, contentType: 'application/json',
+		body: JSON.stringify({error: 'unknown routeUnit "zone"'}),
+	}));
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party[0] === 'mon-1',
+		null, {timeout: 10000});
+
+	await page.click('#runbun-run-advise');
+	await page.waitForFunction(
+		() => document.querySelector('#runbun-run-advice').children.length > 0,
+		null, {timeout: 30000});
+	await page.waitForFunction(
+		() => !document.querySelector('#runbun-run-survival').hidden,
+		null, {timeout: 10000}).catch(() => {});
+	const block = await page.$eval('#runbun-run-survival', el => ({
+		hidden: el.hidden, text: el.textContent,
+		risk: (el.querySelector('[data-risk]') || {getAttribute: () => null}).getAttribute('data-risk'),
+	}));
+	assert.equal(block.hidden, false, 'a refused survival check must stay on screen');
+	assert.match(block.text, /survival check could not run/);
+	assert.match(block.text, /unknown routeUnit "zone"/, 'the refusal carries its reason');
+	assert.equal(block.risk, 'unknown', 'no answer is not a safe answer');
+
+	await opened.context.close();
+});
+
+test('the plan verdict gives its margin a unit and a scale', {skip}, async () => {
+	// Raised by Philip reading the panel: "what is contested by 0.1 or 4.12?
+	// The unit is not clear." The margin is the gap between the enemy AI's
+	// best and second-best action on the game's own scoring scale, where a
+	// setup move starts at 6 — and nothing on screen said so.
+	const opened = await open();
+	const page = opened.page;
+	// One fight reads one way. Both stances are rendered by their own branch,
+	// so the real plan answer is relabelled each way in turn, margin intact.
+	let stance = null;
+	await page.route('**/run/plan', async route => {
+		const response = await route.fetch();
+		const plan = await response.json();
+		if (stance) plan.confidence = stance;
+		await route.fulfill({response, json: plan});
+	});
+	await page.click('.runbun-run-starter[data-species="Turtwig"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party[0] === 'mon-1',
+		null, {timeout: 10000});
+	const setup = require('../ai/dist/scoring.js').SETUP_BASE_SCORE;
+	for (stance of ['decided', 'contested']) {
+		await page.evaluate(() => { document.querySelector('#runbun-run-plan-verdict').textContent = ''; });
+		await page.click('#runbun-run-plan');
+		await page.waitForFunction(
+			() => document.querySelector('#runbun-run-plan-verdict').textContent.length > 0,
+			null, {timeout: 30000});
+		const verdict = await page.textContent('#runbun-run-plan-verdict');
+		assert.match(verdict,
+			new RegExp('AI move choice ' + stance + ' by [\\d.]+ score points over its next-best ' +
+				'\\(a setup move scores ' + setup + '\\)'),
+			`a ${stance} margin must carry its unit and the engine's own setup-move anchor: ${verdict}`);
+		// The drivers read the number back out; it must still parse as one.
+		const margin = new RegExp(stance + ' by ([\\d.]+)').exec(verdict)[1];
+		assert.ok(Number.isFinite(Number(margin)), `the margin ${JSON.stringify(margin)} must parse`);
+	}
+
+	await opened.context.close();
+});
