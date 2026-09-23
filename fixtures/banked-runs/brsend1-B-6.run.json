@@ -1,0 +1,7885 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "742c1f0c-ad36-4f1f-b7b4-7d5546bba4c5",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-28T05:59:06.722Z",
+	"updatedAt": "2026-08-28T05:59:06.722Z",
+	"position": 128,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Blaziken"
+	},
+	"nextId": 19,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Prinplup",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bold",
+			"ability": "Torrent",
+			"item": "Oran Berry",
+			"moves": [
+				"Bubble Beam",
+				"Icy Wind",
+				"Pluck",
+				"Aqua Jet"
+			],
+			"ivs": {
+				"hp": 5,
+				"atk": 31,
+				"def": 13,
+				"spa": 19,
+				"spd": 31,
+				"spe": 26
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Diggersby",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lonely",
+			"ability": "Cheek Pouch",
+			"item": null,
+			"moves": [
+				"Take Down",
+				"Double Slap",
+				"Quick Attack",
+				"Double Kick"
+			],
+			"ivs": {
+				"hp": 20,
+				"atk": 6,
+				"def": 5,
+				"spa": 12,
+				"spd": 27,
+				"spe": 30
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Corvisquire",
+			"nickname": null,
+			"level": 25,
+			"nature": "Impish",
+			"ability": "Unnerve",
+			"item": null,
+			"moves": [
+				"Pluck",
+				"Drill Peck",
+				"Fury Attack",
+				"Sand Attack"
+			],
+			"ivs": {
+				"hp": 26,
+				"atk": 10,
+				"def": 18,
+				"spa": 10,
+				"spd": 1,
+				"spe": 9
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Eldegoss",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Cotton Down",
+			"item": "Miracle Seed",
+			"moves": [
+				"Secret Power",
+				"Leaf Tornado",
+				"Hidden Power",
+				"Sweet Scent"
+			],
+			"ivs": {
+				"hp": 26,
+				"atk": 31,
+				"def": 9,
+				"spa": 25,
+				"spd": 16,
+				"spe": 3
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Lumineon",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quirky",
+			"ability": "Swift Swim",
+			"item": "Poison Barb",
+			"moves": [
+				"Water Pulse",
+				"Air Cutter",
+				"Secret Power",
+				"Blizzard"
+			],
+			"ivs": {
+				"hp": 23,
+				"atk": 25,
+				"def": 2,
+				"spa": 21,
+				"spd": 20,
+				"spe": 14
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Houndoom",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lax",
+			"ability": "Early Bird",
+			"item": "Twisted Spoon",
+			"moves": [
+				"Inferno",
+				"Flame Burst",
+				"Fire Fang",
+				"Bite"
+			],
+			"ivs": {
+				"hp": 13,
+				"atk": 9,
+				"def": 21,
+				"spa": 21,
+				"spd": 3,
+				"spe": 21
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Arbok",
+			"nickname": null,
+			"level": 25,
+			"nature": "Rash",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Crunch",
+				"Thunder Fang",
+				"Fire Fang",
+				"Seed Bomb"
+			],
+			"ivs": {
+				"hp": 26,
+				"atk": 12,
+				"def": 12,
+				"spa": 26,
+				"spd": 0,
+				"spe": 13
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Croagunk",
+			"nickname": null,
+			"level": 25,
+			"nature": "Adamant",
+			"ability": "Poison Touch",
+			"item": "Soft Sand",
+			"moves": [
+				"Mud Shot",
+				"Low Sweep",
+				"Seismic Toss",
+				"Vacuum Wave"
+			],
+			"ivs": {
+				"hp": 18,
+				"atk": 25,
+				"def": 6,
+				"spa": 11,
+				"spd": 6,
+				"spe": 10
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Aron",
+			"nickname": null,
+			"level": 25,
+			"nature": "Rash",
+			"ability": "Heavy Metal",
+			"item": null,
+			"moves": [
+				"Iron Head",
+				"Growl",
+				"Rock Slide",
+				"Roar"
+			],
+			"ivs": {
+				"hp": 14,
+				"atk": 22,
+				"def": 2,
+				"spa": 17,
+				"spd": 7,
+				"spe": 28
+			},
+			"status": "party",
+			"origin": {
+				"at": 16,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Breloom",
+			"nickname": null,
+			"level": 25,
+			"nature": "Impish",
+			"ability": "Effect Spore",
+			"item": "Silk Scarf",
+			"moves": [
+				"Thunder Punch",
+				"Superpower",
+				"Poison Powder",
+				"Fake Tears"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 24,
+				"def": 31,
+				"spa": 12,
+				"spd": 31,
+				"spe": 9
+			},
+			"status": "party",
+			"origin": {
+				"at": 19,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Sealeo",
+			"nickname": null,
+			"level": 25,
+			"nature": "Naive",
+			"ability": "Thick Fat",
+			"item": null,
+			"moves": [
+				"Hidden Power",
+				"Aurora Beam",
+				"Brine",
+				"Charm"
+			],
+			"ivs": {
+				"hp": 2,
+				"atk": 14,
+				"def": 20,
+				"spa": 24,
+				"spd": 29,
+				"spe": 28
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 22,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Tyrogue",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quiet",
+			"ability": "Guts",
+			"item": null,
+			"moves": [
+				"Tackle",
+				"Helping Hand",
+				"Fake Out",
+				"Foresight"
+			],
+			"ivs": {
+				"hp": 14,
+				"atk": 11,
+				"def": 31,
+				"spa": 30,
+				"spd": 4,
+				"spe": 27
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 29,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Seadra",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bold",
+			"ability": "Poison Point",
+			"item": null,
+			"moves": [
+				"Bubble Beam",
+				"Aurora Beam",
+				"Leer",
+				"Twister"
+			],
+			"ivs": {
+				"hp": 30,
+				"atk": 19,
+				"def": 10,
+				"spa": 28,
+				"spd": 10,
+				"spe": 19
+			},
+			"status": "party",
+			"origin": {
+				"at": 37,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Krabby",
+			"nickname": null,
+			"level": 25,
+			"nature": "Calm",
+			"ability": "Sheer Force",
+			"item": null,
+			"moves": [
+				"Secret Power",
+				"Mud Shot",
+				"Brick Break",
+				"Aqua Jet"
+			],
+			"ivs": {
+				"hp": 18,
+				"atk": 4,
+				"def": 3,
+				"spa": 2,
+				"spd": 17,
+				"spe": 11
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 42,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Electrike",
+			"nickname": null,
+			"level": 25,
+			"nature": "Adamant",
+			"ability": "Static",
+			"item": null,
+			"moves": [
+				"Hidden Power",
+				"Odor Sleuth",
+				"Leer",
+				"Fire Fang"
+			],
+			"ivs": {
+				"hp": 3,
+				"atk": 5,
+				"def": 4,
+				"spa": 11,
+				"spd": 12,
+				"spe": 30
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 56,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Octillery",
+			"nickname": null,
+			"level": 25,
+			"nature": "Jolly",
+			"ability": "Suction Cups",
+			"item": null,
+			"moves": [
+				"Rock Blast",
+				"Octazooka",
+				"Psybeam",
+				"Aurora Beam"
+			],
+			"ivs": {
+				"hp": 3,
+				"atk": 21,
+				"def": 25,
+				"spa": 17,
+				"spd": 23,
+				"spe": 12
+			},
+			"status": "party",
+			"origin": {
+				"at": 56,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-17",
+			"species": "Hattrem",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lax",
+			"ability": "Synchronize",
+			"item": null,
+			"moves": [
+				"Psybeam",
+				"Play Nice",
+				"Life Dew",
+				"Psyshock"
+			],
+			"ivs": {
+				"hp": 23,
+				"atk": 26,
+				"def": 14,
+				"spa": 22,
+				"spd": 12,
+				"spe": 7
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_ROUTE116",
+				"mapName": "Route116"
+			}
+		},
+		{
+			"id": "mon-18",
+			"species": "Stantler",
+			"nickname": null,
+			"level": 25,
+			"nature": "Adamant",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Hidden Power",
+				"Secret Power",
+				"Sand Attack",
+				"Hypnosis"
+			],
+			"ivs": {
+				"hp": 10,
+				"atk": 6,
+				"def": 9,
+				"spa": 27,
+				"spd": 8,
+				"spe": 14
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_RUSTBORO_CITY",
+				"mapName": "Rustboro City"
+			}
+		}
+	],
+	"party": [
+		"mon-5",
+		"mon-10",
+		"mon-13",
+		"mon-16",
+		"mon-1",
+		"mon-9"
+	],
+	"bag": {
+		"Potion": 1,
+		"Super Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Piplup",
+				"level": 5,
+				"ivs": {
+					"hp": 5,
+					"atk": 31,
+					"def": 13,
+					"spa": 19,
+					"spd": 31,
+					"spe": 26
+				},
+				"nature": "Bold",
+				"ability": "Torrent"
+			},
+			"summary": "caught Piplup at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Bunnelby",
+				"level": 3,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 20,
+					"atk": 6,
+					"def": 5,
+					"spa": 12,
+					"spd": 27,
+					"spe": 30
+				},
+				"nature": "Lonely",
+				"ability": "Cheek Pouch"
+			},
+			"summary": "caught Bunnelby at level 3 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Rookidee",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 26,
+					"atk": 10,
+					"def": 18,
+					"spa": 10,
+					"spd": 1,
+					"spe": 9
+				},
+				"nature": "Impish",
+				"ability": "Unnerve"
+			},
+			"summary": "caught Rookidee at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Gossifleur",
+				"level": 2,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 26,
+					"atk": 31,
+					"def": 9,
+					"spa": 25,
+					"spd": 16,
+					"spe": 3
+				},
+				"nature": "Bashful",
+				"ability": "Cotton Down"
+			},
+			"summary": "caught Gossifleur at level 2 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Finneon",
+				"level": 2,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 23,
+					"atk": 25,
+					"def": 2,
+					"spa": 21,
+					"spd": 20,
+					"spe": 14
+				},
+				"nature": "Quirky",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Finneon at level 2 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Houndour",
+				"level": 3,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 13,
+					"atk": 9,
+					"def": 21,
+					"spa": 21,
+					"spd": 3,
+					"spe": 21
+				},
+				"nature": "Lax",
+				"ability": "Early Bird"
+			},
+			"summary": "caught Houndour at level 3 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Piplup grew from L5 to L12 and learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L3 to L12 and learned Quick Attack, Double Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Rookidee grew from L5 to L12 and learned Sand Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L2 to L12 and learned Rapid Spin, Sweet Scent; its moves are full, so Magical Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Leafage"
+			},
+			"summary": "Gossifleur forgot Leafage, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L2 to L12 and learned Water Gun, Gust",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L3 to L12 and learned Smog, Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Piplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-4",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Houndour takes the lead — with Piplup, Finneon, Gossifleur, Rookidee, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Blizzard"
+			},
+			"summary": "Finneon learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Piplup is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-4",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Houndour, Piplup, Gossifleur, Rookidee, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Houndour takes the lead — with Piplup, Finneon, Rookidee, Bunnelby, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Piplup, Gossifleur, Houndour, Rookidee, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-6",
+					"mon-1",
+					"mon-2",
+					"mon-3"
+				]
+			},
+			"summary": "Finneon takes the lead — with Gossifleur, Houndour, Piplup, Bunnelby, Rookidee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-1",
+					"mon-3",
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Finneon, Piplup, Rookidee, Houndour, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-4",
+					"mon-5",
+					"mon-1",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Houndour takes the lead — with Gossifleur, Finneon, Piplup, Rookidee, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Triathlete Mikey",
+				"move": "Sonic Boom"
+			},
+			"summary": "Houndour fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Triathlete Mikey",
+				"move": "Rock Smash"
+			},
+			"summary": "Gossifleur fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Ekans",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 26,
+					"atk": 12,
+					"def": 12,
+					"spa": 26,
+					"spd": 0,
+					"spe": 13
+				},
+				"nature": "Rash",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Ekans at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Croagunk",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 18,
+					"atk": 25,
+					"def": 6,
+					"spa": 11,
+					"spd": 6,
+					"spe": 10
+				},
+				"nature": "Adamant",
+				"ability": "Poison Touch"
+			},
+			"summary": "caught Croagunk at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ekans grew from L5 to L12 and learned Bite; its moves are full, so Glare must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Glare",
+				"replace": "Wrap"
+			},
+			"summary": "Ekans forgot Wrap, learned Glare",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L5 to L12 and learned Fake Out, Vacuum Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Finneon, Piplup, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-1",
+					"mon-8",
+					"mon-7",
+					"mon-2"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Finneon, Piplup, Croagunk, Ekans, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-4",
+				"item": "Miracle Seed"
+			},
+			"summary": "Gossifleur is holding Miracle Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Finneon, Piplup, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Piplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Piplup takes the lead — with Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-1",
+					"mon-6",
+					"mon-8",
+					"mon-7"
+				]
+			},
+			"summary": "Finneon takes the lead — with Gossifleur, Piplup, Houndour, Croagunk, Ekans",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Lady Cindy",
+				"move": "Stomp"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Lady Cindy",
+				"move": "Draining Kiss"
+			},
+			"summary": "Gossifleur fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Lady Cindy",
+				"move": "Stomp"
+			},
+			"summary": "Piplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Lady Cindy",
+				"move": "Stomp"
+			},
+			"summary": "Houndour fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Lady Cindy",
+				"move": "Stomp"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Aron",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 14,
+					"atk": 22,
+					"def": 2,
+					"spa": 17,
+					"spd": 7,
+					"spe": 28
+				},
+				"nature": "Rash",
+				"ability": "Heavy Metal"
+			},
+			"summary": "caught Aron at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Aron grew from L8 to L12; its moves are full, so Rock Smash must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Smash",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Aron forgot Mud-Slap, learned Rock Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Finneon takes the lead — with Gossifleur, Piplup, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Piplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Rookidee takes the lead — with Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-7",
+					"mon-6",
+					"mon-5",
+					"mon-8"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Rookidee, Ekans, Houndour, Finneon, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Feint Attack",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Croagunk forgot Mud-Slap, learned Feint Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-4",
+					"mon-3",
+					"mon-7",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Croagunk takes the lead — with Gossifleur, Rookidee, Ekans, Houndour, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Belch"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Bite"
+			},
+			"summary": "Gossifleur fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Rock Smash"
+			},
+			"summary": "Rookidee fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Confusion"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shroomish",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 21,
+					"atk": 24,
+					"def": 31,
+					"spa": 12,
+					"spd": 31,
+					"spe": 9
+				},
+				"nature": "Impish",
+				"ability": "Effect Spore"
+			},
+			"summary": "caught Shroomish at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Rookidee grew from L12 to L17; its moves are full, so Pluck must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Pluck",
+				"replace": "Peck"
+			},
+			"summary": "Rookidee forgot Peck, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L12 to L17; its moves are full, so Round must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Round",
+				"replace": "Rapid Spin"
+			},
+			"summary": "Gossifleur forgot Rapid Spin, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L12 to L17; its moves are full, so Water Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Water Pulse",
+				"replace": "Pound"
+			},
+			"summary": "Finneon forgot Pound, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L12 to L17; its moves are full, so Fire Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Fang",
+				"replace": "Smog"
+			},
+			"summary": "Houndour forgot Smog, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ekans grew from L12 to L17; its moves are full, so Poison Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Poison Fang",
+				"replace": "Poison Sting"
+			},
+			"summary": "Ekans forgot Poison Sting, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L12 to L17; its moves are full, so Mud Shot, Sludge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Shot",
+				"replace": "Poison Sting"
+			},
+			"summary": "Croagunk forgot Poison Sting, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge",
+				"replace": "Feint Attack"
+			},
+			"summary": "Croagunk forgot Feint Attack, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Piplup grew from L12 to L17; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Bubble Beam",
+				"replace": "Pound"
+			},
+			"summary": "Piplup forgot Pound, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Piplup evolved into Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L12 to L17; its moves are full, so Mud-Slap, Mud Shot must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Mud-Slap",
+				"replace": "Tackle"
+			},
+			"summary": "Bunnelby forgot Tackle, learned Mud-Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Mud Shot",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Bunnelby forgot Mud-Slap, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Aron grew from L12 to L17; its moves are full, so Rock Tomb, Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Tomb",
+				"replace": "Tackle"
+			},
+			"summary": "Aron forgot Tackle, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Headbutt",
+				"replace": "Rock Smash"
+			},
+			"summary": "Aron forgot Rock Smash, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Shroomish grew from L14 to L17; its moves are full, so Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Headbutt",
+				"replace": "Tackle"
+			},
+			"summary": "Shroomish forgot Tackle, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Rookidee, Houndour, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Rookidee, Gossifleur, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-10",
+					"mon-1",
+					"mon-7",
+					"mon-5",
+					"mon-3"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Shroomish, Prinplup, Ekans, Finneon, Rookidee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Spheal",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 2,
+					"atk": 14,
+					"def": 20,
+					"spa": 24,
+					"spd": 29,
+					"spe": 28
+				},
+				"nature": "Naive",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Spheal at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Spheal grew from L8 to L17; its moves are full, so Ice Ball, Charm, Brine must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Ice Ball",
+				"replace": "Rollout"
+			},
+			"summary": "Spheal forgot Rollout, learned Ice Ball",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Charm",
+				"replace": "Ice Ball"
+			},
+			"summary": "Spheal forgot Ice Ball, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Brine",
+				"replace": "Water Gun"
+			},
+			"summary": "Spheal forgot Water Gun, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-3"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Prinplup, Finneon, Rookidee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Gossifleur, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-5",
+					"mon-10",
+					"mon-4",
+					"mon-11"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Aron, Finneon, Shroomish, Gossifleur, Spheal",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-10",
+				"item": "Silk Scarf"
+			},
+			"summary": "Shroomish is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leafage",
+				"replace": "Sing"
+			},
+			"summary": "Gossifleur forgot Sing, learned Leafage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-6",
+					"mon-5",
+					"mon-11",
+					"mon-10"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Houndour, Finneon, Spheal, Shroomish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Metal Claw",
+				"replace": "Growl"
+			},
+			"summary": "Prinplup forgot Growl, learned Metal Claw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-9",
+					"mon-1",
+					"mon-5",
+					"mon-11",
+					"mon-10"
+				]
+			},
+			"summary": "Houndour takes the lead — with Aron, Prinplup, Finneon, Spheal, Shroomish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Tuber Chandler",
+				"move": "Shock Wave"
+			},
+			"summary": "Houndour fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tyrogue",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 14,
+					"atk": 11,
+					"def": 31,
+					"spa": 30,
+					"spd": 4,
+					"spe": 27
+				},
+				"nature": "Quiet",
+				"ability": "Guts"
+			},
+			"summary": "caught Tyrogue at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Tyrogue grew from L8 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Houndour takes the lead — with Prinplup, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-11",
+					"mon-5",
+					"mon-10",
+					"mon-6"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Spheal, Finneon, Shroomish, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-11",
+					"mon-5",
+					"mon-10",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Aron, Spheal, Finneon, Shroomish, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Tuber Lola",
+				"move": "Bite"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Tuber Lola",
+				"move": "Ice Fang"
+			},
+			"summary": "Spheal fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Gossifleur, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-1",
+					"mon-10",
+					"mon-11",
+					"mon-2"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Finneon, Prinplup, Shroomish, Spheal, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icy Wind",
+				"replace": "Growl"
+			},
+			"summary": "Spheal forgot Growl, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Icy Wind",
+				"replace": "Metal Claw"
+			},
+			"summary": "Prinplup forgot Metal Claw, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-1",
+					"mon-10",
+					"mon-11",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Gossifleur, Prinplup, Shroomish, Spheal, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Sailor Edmond",
+				"move": "Water Pulse"
+			},
+			"summary": "Gossifleur fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Gossifleur, Prinplup, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Rookidee, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-3",
+					"mon-1",
+					"mon-8",
+					"mon-6",
+					"mon-7"
+				]
+			},
+			"summary": "Aron takes the lead — with Rookidee, Prinplup, Croagunk, Houndour, Ekans",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Feint Attack",
+				"replace": "Fake Out"
+			},
+			"summary": "Croagunk forgot Fake Out, learned Feint Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Fisherman Bill",
+				"move": "Struggle Bug"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 30,
+					"atk": 19,
+					"def": 10,
+					"spa": 28,
+					"spd": 10,
+					"spe": 19
+				},
+				"nature": "Bold",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L8 to L17 and learned Leer, Twister; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Rookidee takes the lead — with Prinplup, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Prinplup takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-10",
+					"mon-8",
+					"mon-7",
+					"mon-13"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Shroomish, Croagunk, Ekans, Horsea",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-9",
+					"mon-1",
+					"mon-10",
+					"mon-7",
+					"mon-13"
+				]
+			},
+			"summary": "Croagunk takes the lead — with Aron, Prinplup, Shroomish, Ekans, Horsea",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Tuber Ricky",
+				"move": "Venoshock"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Krabby",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 18,
+					"atk": 4,
+					"def": 3,
+					"spa": 2,
+					"spd": 17,
+					"spe": 11
+				},
+				"nature": "Calm",
+				"ability": "Sheer Force"
+			},
+			"summary": "caught Krabby at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Krabby grew from L10 to L17; its moves are full, so Bubble Beam, Mud Shot must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bubble Beam",
+				"replace": "Metal Claw"
+			},
+			"summary": "Krabby forgot Metal Claw, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Mud Shot",
+				"replace": "Vise Grip"
+			},
+			"summary": "Krabby forgot Vise Grip, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Prinplup takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Gossifleur, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-8",
+					"mon-7",
+					"mon-10",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Croagunk, Ekans, Shroomish, Finneon, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-8",
+				"item": "Soft Sand"
+			},
+			"summary": "Croagunk is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-8",
+					"mon-7",
+					"mon-10",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Prinplup, Croagunk, Ekans, Shroomish, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Tuber Hailey"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Prinplup, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Super Fang"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Sludge Bomb"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Ekans, Croagunk, Shroomish, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-5"
+				]
+			},
+			"summary": "Shroomish takes the lead — with Aron, Prinplup, Ekans, Croagunk, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Shroomish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Ekans fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "skip",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "skipping Camper Gavi (#48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-5",
+					"mon-11",
+					"mon-13",
+					"mon-14"
+				]
+			},
+			"summary": "Aron takes the lead — with Prinplup, Finneon, Spheal, Horsea, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Icy Wind",
+				"replace": "Smokescreen"
+			},
+			"summary": "Horsea forgot Smokescreen, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Metal Claw",
+				"replace": "Leer"
+			},
+			"summary": "Krabby forgot Leer, learned Metal Claw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Aqua Jet"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Acid"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Ancient Power"
+			},
+			"summary": "Horsea fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Aqua Jet"
+			},
+			"summary": "Krabby fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bunnelby, Rookidee, Gossifleur, Finneon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-8",
+					"mon-7",
+					"mon-1",
+					"mon-5",
+					"mon-11"
+				]
+			},
+			"summary": "Aron takes the lead — with Croagunk, Ekans, Prinplup, Finneon, Spheal",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-9",
+					"mon-7",
+					"mon-1",
+					"mon-5",
+					"mon-11"
+				]
+			},
+			"summary": "Croagunk takes the lead — with Aron, Ekans, Prinplup, Finneon, Spheal",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Prinplup grew from L17 to L21; its moves are full, so Aqua Jet must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Aqua Jet",
+				"replace": "Pluck"
+			},
+			"summary": "Prinplup forgot Pluck, learned Aqua Jet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Finneon evolved into Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ekans grew from L17 to L21; its moves are full, so Scary Face must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Scary Face",
+				"replace": "Poison Fang"
+			},
+			"summary": "Ekans forgot Poison Fang, learned Scary Face",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L17 to L21; its moves are full, so Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Seismic Toss",
+				"replace": "Feint Attack"
+			},
+			"summary": "Croagunk forgot Feint Attack, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Aron grew from L17 to L21; its moves are full, so Roar must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Roar",
+				"replace": "Metal Claw"
+			},
+			"summary": "Aron forgot Metal Claw, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Spheal grew from L17 to L21; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Brine"
+			},
+			"summary": "Spheal forgot Brine, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-11"
+			},
+			"summary": "Spheal evolved into Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L17 to L21; its moves are full, so Take Down, Double Kick must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Take Down",
+				"replace": "Double Slap"
+			},
+			"summary": "Bunnelby forgot Double Slap, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Double Kick",
+				"replace": "Take Down"
+			},
+			"summary": "Bunnelby forgot Take Down, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Bunnelby evolved into Diggersby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Rookidee grew from L17 to L21; its moves are full, so Scary Face must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Scary Face",
+				"replace": "Pluck"
+			},
+			"summary": "Rookidee forgot Pluck, learned Scary Face",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Rookidee evolved into Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L17 to L21; its moves are full, so Leaf Tornado must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leaf Tornado",
+				"replace": "Leafage"
+			},
+			"summary": "Gossifleur forgot Leafage, learned Leaf Tornado",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-4"
+			},
+			"summary": "Gossifleur evolved into Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L17 to L21; its moves are full, so Flame Burst must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Burst",
+				"replace": "Ember"
+			},
+			"summary": "Houndour forgot Ember, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Shroomish grew from L17 to L21; its moves are full, so Fake Tears, Worry Seed must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Fake Tears",
+				"replace": "Mega Drain"
+			},
+			"summary": "Shroomish forgot Mega Drain, learned Fake Tears",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Worry Seed",
+				"replace": "Stun Spore"
+			},
+			"summary": "Shroomish forgot Stun Spore, learned Worry Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Tyrogue grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L17 to L21; its moves are full, so Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Clear Smog",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Horsea forgot Bubble Beam, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Krabby grew from L17 to L21; its moves are full, so Aerial Ace must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Aerial Ace",
+				"replace": "Metal Claw"
+			},
+			"summary": "Krabby forgot Metal Claw, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-2",
+					"mon-8",
+					"mon-9"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup, Lumineon, Diggersby, Croagunk, Aron",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Double Slap",
+				"replace": "Leer"
+			},
+			"summary": "Diggersby forgot Leer, learned Double Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hammer Arm",
+				"replace": "Mud Shot"
+			},
+			"summary": "Diggersby forgot Mud Shot, learned Hammer Arm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Pluck",
+				"replace": "Bubble"
+			},
+			"summary": "Prinplup forgot Bubble, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (#48, skipped earlier — still at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Electrike",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 3,
+					"atk": 5,
+					"def": 4,
+					"spa": 11,
+					"spd": 12,
+					"spe": 30
+				},
+				"nature": "Adamant",
+				"ability": "Static"
+			},
+			"summary": "caught Electrike at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Remoraid",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 3,
+					"atk": 21,
+					"def": 25,
+					"spa": 17,
+					"spd": 23,
+					"spe": 12
+				},
+				"nature": "Jolly",
+				"ability": "Hustle"
+			},
+			"summary": "caught Remoraid at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Electrike grew from L12 to L21; its moves are full, so Thunder Fang, Bite, Shock Wave must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Fang",
+				"replace": "Quick Attack"
+			},
+			"summary": "Electrike forgot Quick Attack, learned Thunder Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Bite",
+				"replace": "Thunder Fang"
+			},
+			"summary": "Electrike forgot Thunder Fang, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Shock Wave",
+				"replace": "Bite"
+			},
+			"summary": "Electrike forgot Bite, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L10 to L21 and learned Aurora Beam; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Water Gun"
+			},
+			"summary": "Remoraid forgot Water Gun, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup, Lumineon, Diggersby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-14",
+					"mon-5",
+					"mon-13",
+					"mon-11"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup, Krabby, Lumineon, Seadra, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Clear Smog"
+			},
+			"summary": "Seadra forgot Clear Smog, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Air Cutter",
+				"replace": "Water Pulse"
+			},
+			"summary": "Lumineon forgot Water Pulse, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Secret Power",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Krabby forgot Bubble Beam, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Poison Barb"
+			},
+			"summary": "Lumineon is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-13",
+					"mon-11"
+				]
+			},
+			"summary": "Krabby takes the lead — with Eldegoss, Prinplup, Lumineon, Seadra, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Battle Girl Laura",
+				"move": "Body Slam"
+			},
+			"summary": "Krabby fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Corvisquire, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-5",
+					"mon-3",
+					"mon-1",
+					"mon-14",
+					"mon-11"
+				]
+			},
+			"summary": "Seadra takes the lead — with Lumineon, Corvisquire, Prinplup, Krabby, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Pluck",
+				"replace": "Scary Face"
+			},
+			"summary": "Corvisquire forgot Scary Face, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-13",
+					"mon-3",
+					"mon-1",
+					"mon-14",
+					"mon-11"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Seadra, Corvisquire, Prinplup, Krabby, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Sailor Brenden",
+				"move": "Pin Missile"
+			},
+			"summary": "Corvisquire fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Corvisquire, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Corvisquire, Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-13",
+					"mon-5",
+					"mon-1",
+					"mon-14",
+					"mon-4"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Seadra, Lumineon, Prinplup, Krabby, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Secret Power",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Eldegoss forgot Magical Leaf, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3",
+					"mon-13",
+					"mon-1",
+					"mon-14",
+					"mon-4"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Corvisquire, Seadra, Prinplup, Krabby, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Battle Girl Lilith",
+				"move": "Reversal"
+			},
+			"summary": "Corvisquire fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Battle Girl Lilith",
+				"move": "Ice Punch"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Corvisquire, Prinplup, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Corvisquire, Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-13",
+					"mon-4",
+					"mon-5",
+					"mon-1",
+					"mon-14"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Seadra, Eldegoss, Lumineon, Prinplup, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-1",
+					"mon-14"
+				]
+			},
+			"summary": "Seadra takes the lead — with Corvisquire, Eldegoss, Lumineon, Prinplup, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Eldegoss, Lumineon, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-13",
+					"mon-4",
+					"mon-8",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Seadra, Eldegoss, Croagunk, Shroomish, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-3",
+					"mon-13",
+					"mon-4",
+					"mon-10",
+					"mon-5"
+				]
+			},
+			"summary": "Croagunk takes the lead — with Corvisquire, Seadra, Eldegoss, Shroomish, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Black Belt Takao",
+				"move": "Drain Punch"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Corvisquire, Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-5",
+					"mon-1",
+					"mon-4",
+					"mon-3",
+					"mon-14"
+				]
+			},
+			"summary": "Seadra takes the lead — with Lumineon, Prinplup, Eldegoss, Corvisquire, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Water Pulse",
+				"replace": "Air Cutter"
+			},
+			"summary": "Lumineon forgot Air Cutter, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-13",
+					"mon-5",
+					"mon-4",
+					"mon-3",
+					"mon-14"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Seadra, Lumineon, Eldegoss, Corvisquire, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Battle Girl Jocelyn",
+				"move": "Mega Punch"
+			},
+			"summary": "Corvisquire fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-4",
+					"mon-3"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Lumineon, Eldegoss, Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Corvisquire, Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-13",
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-14"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Seadra, Prinplup, Lumineon, Corvisquire, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Air Cutter",
+				"replace": "Water Gun"
+			},
+			"summary": "Lumineon forgot Water Gun, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Hidden Power",
+				"replace": "Icy Wind"
+			},
+			"summary": "Seadra forgot Icy Wind, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Hidden Power",
+				"replace": "Icy Wind"
+			},
+			"summary": "Prinplup forgot Icy Wind, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-14"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eldegoss, Prinplup, Lumineon, Corvisquire, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Corvisquire fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Krabby fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-3"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup, Lumineon, Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Corvisquire, Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-13",
+					"mon-5",
+					"mon-1",
+					"mon-3",
+					"mon-14"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Seadra, Lumineon, Prinplup, Corvisquire, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Secret Power",
+				"replace": "Gust"
+			},
+			"summary": "Lumineon forgot Gust, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-13",
+					"mon-5",
+					"mon-1",
+					"mon-14"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Eldegoss, Seadra, Lumineon, Prinplup, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Corvisquire fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Rock Slide"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Krabby fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Eldegoss, Lumineon, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Corvisquire, Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-13",
+					"mon-5",
+					"mon-1",
+					"mon-3",
+					"mon-14"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Seadra, Lumineon, Prinplup, Corvisquire, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-13",
+					"mon-5",
+					"mon-1",
+					"mon-14"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Eldegoss, Seadra, Lumineon, Prinplup, Krabby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Corvisquire fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Brawly"
+			},
+			"summary": "beat Leader Brawly (now at 77)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Prinplup grew from L21 to L25; its moves are full, so Life Dew must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Life Dew",
+				"replace": "Hidden Power"
+			},
+			"summary": "Prinplup forgot Hidden Power, learned Life Dew",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Corvisquire grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Eldegoss grew from L21 to L25; its moves are full, so Cotton Spore, Synthesis must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Cotton Spore",
+				"replace": "Round"
+			},
+			"summary": "Eldegoss forgot Round, learned Cotton Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Synthesis",
+				"replace": "Leaf Tornado"
+			},
+			"summary": "Eldegoss forgot Leaf Tornado, learned Synthesis",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Lumineon grew from L21 to L25; its moves are full, so Bounce, Whirlpool must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bounce",
+				"replace": "Water Pulse"
+			},
+			"summary": "Lumineon forgot Water Pulse, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Whirlpool",
+				"replace": "Secret Power"
+			},
+			"summary": "Lumineon forgot Secret Power, learned Whirlpool",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L21 to L25; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Hidden Power"
+			},
+			"summary": "Seadra forgot Hidden Power, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Krabby grew from L21 to L25; its moves are full, so Brick Break must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Brick Break",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Krabby forgot Aerial Ace, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Diggersby grew from L21 to L25; its moves are full, so Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Bounce",
+				"replace": "Hammer Arm"
+			},
+			"summary": "Diggersby forgot Hammer Arm, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-6"
+			},
+			"summary": "Houndour evolved into Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Ekans grew from L21 to L25; its moves are full, so Seed Bomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Seed Bomb",
+				"replace": "Bite"
+			},
+			"summary": "Ekans forgot Bite, learned Seed Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Ekans evolved into Arbok",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L21 to L25; its moves are full, so Low Sweep must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Low Sweep",
+				"replace": "Sludge"
+			},
+			"summary": "Croagunk forgot Sludge, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Aron grew from L21 to L25; its moves are full, so Iron Head, Rock Slide must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Iron Head",
+				"replace": "Headbutt"
+			},
+			"summary": "Aron forgot Headbutt, learned Iron Head",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Slide",
+				"replace": "Iron Head"
+			},
+			"summary": "Aron forgot Iron Head, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Shroomish grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-10"
+			},
+			"summary": "Shroomish evolved into Breloom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Sealeo grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Tyrogue grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Electrike grew from L21 to L25; its moves are full, so Fire Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Fire Fang",
+				"replace": "Shock Wave"
+			},
+			"summary": "Electrike forgot Shock Wave, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L21 to L25; its moves are full, so Focus Energy must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Focus Energy",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Remoraid forgot Bubble Beam, learned Focus Energy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-16"
+			},
+			"summary": "Remoraid evolved into Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Eldegoss, Lumineon, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-6",
+					"mon-3",
+					"mon-11",
+					"mon-5",
+					"mon-13"
+				]
+			},
+			"summary": "Aron takes the lead — with Houndoom, Corvisquire, Sealeo, Lumineon, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Drill Peck",
+				"replace": "Leer"
+			},
+			"summary": "Corvisquire forgot Leer, learned Drill Peck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Inferno",
+				"replace": "Leer"
+			},
+			"summary": "Houndoom forgot Leer, learned Inferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-9",
+					"mon-3",
+					"mon-11",
+					"mon-5",
+					"mon-13"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Aron, Corvisquire, Sealeo, Lumineon, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Lyle"
+			},
+			"summary": "beat Bug Catcher Lyle (now at 83)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Corvisquire, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Corvisquire, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-9",
+					"mon-3",
+					"mon-1",
+					"mon-15"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Lumineon, Aron, Corvisquire, Prinplup, Electrike",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Iron Head",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Aron forgot Rock Tomb, learned Iron Head",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Water Pulse",
+				"replace": "Bounce"
+			},
+			"summary": "Lumineon forgot Bounce, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Hidden Power",
+				"replace": "Thunder Wave"
+			},
+			"summary": "Electrike forgot Thunder Wave, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Bug Maniac James",
+				"move": "Stomping Tantrum"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Maniac James"
+			},
+			"summary": "beat Bug Maniac James (now at 86)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Lumineon, Corvisquire, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-13",
+					"mon-11",
+					"mon-5",
+					"mon-1",
+					"mon-10"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Seadra, Sealeo, Lumineon, Prinplup, Breloom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Superpower",
+				"replace": "Worry Seed"
+			},
+			"summary": "Breloom forgot Worry Seed, learned Superpower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-13",
+					"mon-11",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Breloom takes the lead — with Houndoom, Seadra, Sealeo, Lumineon, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Winston"
+			},
+			"summary": "beat Rich Boy Winston (now at 90)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Lumineon, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-16",
+					"mon-7",
+					"mon-5",
+					"mon-11",
+					"mon-1"
+				]
+			},
+			"summary": "Breloom takes the lead — with Octillery, Arbok, Lumineon, Sealeo, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Rock Blast",
+				"replace": "Focus Energy"
+			},
+			"summary": "Octillery forgot Focus Energy, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hidden Power",
+				"replace": "Icy Wind"
+			},
+			"summary": "Sealeo forgot Icy Wind, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Thunder Punch",
+				"replace": "Headbutt"
+			},
+			"summary": "Breloom forgot Headbutt, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-10",
+					"mon-7",
+					"mon-5",
+					"mon-11",
+					"mon-1"
+				]
+			},
+			"summary": "Octillery takes the lead — with Breloom, Arbok, Lumineon, Sealeo, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Ivan"
+			},
+			"summary": "beat Fisherman Ivan (now at 92)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Diggersby takes the lead — with Eldegoss, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-9",
+					"mon-10",
+					"mon-2",
+					"mon-4",
+					"mon-7"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Aron, Breloom, Diggersby, Eldegoss, Arbok",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Take Down",
+				"replace": "Bounce"
+			},
+			"summary": "Diggersby forgot Bounce, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Crunch",
+				"replace": "Glare"
+			},
+			"summary": "Arbok forgot Glare, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leaf Tornado",
+				"replace": "Synthesis"
+			},
+			"summary": "Eldegoss forgot Synthesis, learned Leaf Tornado",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Twins Gina And Mia",
+				"move": "Dazzling Gleam"
+			},
+			"summary": "Aron fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Twins Gina And Mia",
+				"move": "Dazzling Gleam"
+			},
+			"summary": "Diggersby fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Twins Gina And Mia"
+			},
+			"summary": "beat Twins Gina And Mia (now at 95)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Diggersby, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-11",
+					"mon-13"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Prinplup, Eldegoss, Lumineon, Sealeo, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Brine",
+				"replace": "Powder Snow"
+			},
+			"summary": "Sealeo forgot Powder Snow, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Icy Wind",
+				"replace": "Life Dew"
+			},
+			"summary": "Prinplup forgot Life Dew, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hidden Power",
+				"replace": "Cotton Spore"
+			},
+			"summary": "Eldegoss forgot Cotton Spore, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-6",
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-13"
+				]
+			},
+			"summary": "Sealeo takes the lead — with Houndoom, Prinplup, Eldegoss, Lumineon, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Lass Haley",
+				"move": "Surf"
+			},
+			"summary": "Sealeo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Haley"
+			},
+			"summary": "beat Lass Haley (now at 99)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Prinplup, Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-5",
+					"mon-6",
+					"mon-13",
+					"mon-11",
+					"mon-4"
+				]
+			},
+			"summary": "Breloom takes the lead — with Lumineon, Houndoom, Seadra, Sealeo, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-5",
+					"mon-13",
+					"mon-11",
+					"mon-4"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Breloom, Lumineon, Seadra, Sealeo, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Youngster Joey",
+				"move": "Retaliate"
+			},
+			"summary": "Houndoom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Youngster Joey",
+				"move": "Air Slash"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Joey"
+			},
+			"summary": "beat Youngster Joey (now at 103)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Hatenna",
+				"level": 14,
+				"map": "Route116",
+				"method": "walk",
+				"ivs": {
+					"hp": 23,
+					"atk": 26,
+					"def": 14,
+					"spa": 22,
+					"spd": 12,
+					"spe": 7
+				},
+				"nature": "Lax",
+				"ability": "Synchronize"
+			},
+			"summary": "caught Hatenna at level 14 on Route116",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Stantler",
+				"level": 14,
+				"map": "Rustboro City",
+				"method": "walk",
+				"ivs": {
+					"hp": 10,
+					"atk": 6,
+					"def": 9,
+					"spa": 27,
+					"spd": 8,
+					"spe": 14
+				},
+				"nature": "Adamant",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Stantler at level 14 on Rustboro City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Super Potion"
+			},
+			"summary": "bag: Super Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Twisted Spoon"
+			},
+			"summary": "bag: Twisted Spoon x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Hatenna grew from L14 to L25; its moves are full, so Aromatherapy, Psybeam, Psyshock must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Aromatherapy",
+				"replace": "Confusion"
+			},
+			"summary": "Hatenna forgot Confusion, learned Aromatherapy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psybeam",
+				"replace": "Disarming Voice"
+			},
+			"summary": "Hatenna forgot Disarming Voice, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psyshock",
+				"replace": "Psybeam"
+			},
+			"summary": "Hatenna forgot Psybeam, learned Psyshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-17"
+			},
+			"summary": "Hatenna evolved into Hattrem",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Stantler grew from L14 to L25; its moves are full, so Stomp, Sand Attack, Double Kick, Confuse Ray must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Stomp",
+				"replace": "Tackle"
+			},
+			"summary": "Stantler forgot Tackle, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Sand Attack",
+				"replace": "Astonish"
+			},
+			"summary": "Stantler forgot Astonish, learned Sand Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Double Kick",
+				"replace": "Stomp"
+			},
+			"summary": "Stantler forgot Stomp, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Confuse Ray",
+				"replace": "Leer"
+			},
+			"summary": "Stantler forgot Leer, learned Confuse Ray",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Lumineon, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-16",
+					"mon-6",
+					"mon-4",
+					"mon-5",
+					"mon-11"
+				]
+			},
+			"summary": "Breloom takes the lead — with Octillery, Houndoom, Eldegoss, Lumineon, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Secret Power",
+				"replace": "Whirlpool"
+			},
+			"summary": "Lumineon forgot Whirlpool, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-6",
+				"item": "Twisted Spoon"
+			},
+			"summary": "Houndoom is holding Twisted Spoon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-10",
+					"mon-6",
+					"mon-4",
+					"mon-5",
+					"mon-11"
+				]
+			},
+			"summary": "Octillery takes the lead — with Breloom, Houndoom, Eldegoss, Lumineon, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Lass Janice",
+				"move": "Dazzling Gleam"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Lass Janice",
+				"move": "Dazzling Gleam"
+			},
+			"summary": "Houndoom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Lass Janice",
+				"move": "Energy Ball"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Janice"
+			},
+			"summary": "beat Lass Janice (now at 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Eldegoss, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-4",
+					"mon-17",
+					"mon-6",
+					"mon-7",
+					"mon-3"
+				]
+			},
+			"summary": "Breloom takes the lead — with Eldegoss, Hattrem, Houndoom, Arbok, Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Thunder Fang",
+				"replace": "Leer"
+			},
+			"summary": "Arbok forgot Leer, learned Thunder Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Rich Boy Dawson",
+				"move": "Dragon Rage"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Rich Boy Dawson",
+				"move": "Dragon Rage"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Dawson"
+			},
+			"summary": "beat Rich Boy Dawson (now at 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Houndoom, Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-18",
+					"mon-6",
+					"mon-16",
+					"mon-5",
+					"mon-7"
+				]
+			},
+			"summary": "Breloom takes the lead — with Stantler, Houndoom, Octillery, Lumineon, Arbok",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Secret Power",
+				"replace": "Confuse Ray"
+			},
+			"summary": "Stantler forgot Confuse Ray, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Fire Fang",
+				"replace": "Scary Face"
+			},
+			"summary": "Arbok forgot Scary Face, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-18",
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-5",
+					"mon-7"
+				]
+			},
+			"summary": "Stantler takes the lead — with Breloom, Houndoom, Octillery, Lumineon, Arbok",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Air Cutter"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Ice Punch"
+			},
+			"summary": "Arbok fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Jerry & Johnson"
+			},
+			"summary": "beat School Kid Jerry & Johnson (now at 111)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-7",
+					"mon-16",
+					"mon-5",
+					"mon-13",
+					"mon-11"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Arbok, Octillery, Lumineon, Seadra, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Octazooka",
+				"replace": "Lock-On"
+			},
+			"summary": "Octillery forgot Lock-On, learned Octazooka",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Bug Catcher Jose",
+				"move": "Storm Throw"
+			},
+			"summary": "Houndoom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Bug Catcher Jose",
+				"move": "Air Slash"
+			},
+			"summary": "Arbok fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Bug Catcher Jose",
+				"move": "X-Scissor"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Jose"
+			},
+			"summary": "beat Bug Catcher Jose (now at 115)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-16",
+					"mon-10",
+					"mon-5",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Octillery, Breloom, Lumineon, Prinplup, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Seismic Toss",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Breloom forgot Thunder Punch, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Lady Sarah",
+				"move": "Play Rough"
+			},
+			"summary": "Houndoom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Lady Sarah",
+				"move": "Play Rough"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Sarah"
+			},
+			"summary": "beat Lady Sarah (now at 118)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Lumineon, Prinplup, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-7",
+					"mon-18",
+					"mon-17",
+					"mon-4"
+				]
+			},
+			"summary": "Breloom takes the lead — with Houndoom, Arbok, Stantler, Hattrem, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Thunder Punch",
+				"replace": "Seismic Toss"
+			},
+			"summary": "Breloom forgot Seismic Toss, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psybeam",
+				"replace": "Aromatherapy"
+			},
+			"summary": "Hattrem forgot Aromatherapy, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Hidden Power",
+				"replace": "Double Kick"
+			},
+			"summary": "Stantler forgot Double Kick, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-7",
+					"mon-18",
+					"mon-17",
+					"mon-4"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Breloom, Arbok, Stantler, Hattrem, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "School Kid Karen",
+				"move": "Drill Peck"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "School Kid Karen",
+				"move": "Thunder Fang"
+			},
+			"summary": "Arbok fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Karen"
+			},
+			"summary": "beat School Kid Karen (now at 120)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-4"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-4",
+					"mon-13",
+					"mon-16",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Breloom takes the lead — with Eldegoss, Seadra, Octillery, Prinplup, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Hiker Clark",
+				"move": "Earthquake"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Clark"
+			},
+			"summary": "beat Hiker Clark (now at 123)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-13",
+					"mon-16",
+					"mon-5",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Breloom takes the lead — with Seadra, Octillery, Lumineon, Prinplup, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Hiker Devan",
+				"move": "Crunch"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Devan"
+			},
+			"summary": "beat Hiker Devan (now at 125)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Prinplup, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Diggersby, Corvisquire, Eldegoss, Lumineon, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-5",
+					"mon-13",
+					"mon-16",
+					"mon-1",
+					"mon-9"
+				]
+			},
+			"summary": "Breloom takes the lead — with Lumineon, Seadra, Octillery, Prinplup, Aron",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-10",
+					"mon-13",
+					"mon-16",
+					"mon-1",
+					"mon-9"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Breloom, Seadra, Octillery, Prinplup, Aron",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

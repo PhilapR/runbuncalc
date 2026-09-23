@@ -1,0 +1,172 @@
+{
+	"label": "pp-econ-b",
+	"manifest": "scenarios/battery.json",
+	"argv": [
+		"--manifest=scenarios/battery.json",
+		"--label=pp-econ-b",
+		"--pp-model=1"
+	],
+	"provenance": {
+		"revision": "6d468ffbbc2faae01164b1dc4b1fc3675ff72e13",
+		"dirty": false,
+		"date": "2026-08-30T18:17:12.402Z"
+	},
+	"results": [
+		{
+			"name": "Leader Brawly @26",
+			"trainer": "Leader Brawly",
+			"report": "report-brbank1-A-1.json",
+			"position": 76,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 532
+		},
+		{
+			"name": "Leader Roxanne @45",
+			"trainer": "Leader Roxanne",
+			"report": "report-br-1.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 512
+		},
+		{
+			"name": "Leader Wattson @65",
+			"trainer": "Leader Wattson",
+			"report": "report-sac-A-11.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 1,
+			"losses": 29,
+			"stuck": 0,
+			"deaths": 179,
+			"turns": 513
+		},
+		{
+			"name": "Bug Catcher Jose @37",
+			"trainer": "Bug Catcher Jose",
+			"report": "report-brheal1-B-2.json",
+			"position": 112,
+			"seeds": 20,
+			"wins": 6,
+			"losses": 14,
+			"stuck": 0,
+			"deaths": 84,
+			"turns": 323
+		},
+		{
+			"name": "Hiker Mike @46",
+			"trainer": "Hiker Mike",
+			"report": "report-br-6.json",
+			"position": 142,
+			"seeds": 20,
+			"wins": 20,
+			"losses": 0,
+			"stuck": 0,
+			"deaths": 49,
+			"turns": 236
+		},
+		{
+			"name": "Breeder Lydia @47",
+			"trainer": "Breeder Lydia",
+			"report": "report-br-6.json",
+			"position": 142,
+			"seeds": 20,
+			"wins": 20,
+			"losses": 0,
+			"stuck": 0,
+			"deaths": 37,
+			"turns": 293
+		},
+		{
+			"name": "Breeder Isaac @53",
+			"trainer": "Breeder Isaac",
+			"report": "report-forecast-today-M-6.json",
+			"position": 173,
+			"seeds": 20,
+			"wins": 19,
+			"losses": 1,
+			"stuck": 0,
+			"deaths": 52,
+			"turns": 222
+		},
+		{
+			"name": "Psychic Edward @60",
+			"trainer": "Psychic Edward",
+			"report": "report-pf-2.json",
+			"position": 202,
+			"seeds": 20,
+			"wins": 14,
+			"losses": 6,
+			"stuck": 0,
+			"deaths": 74,
+			"turns": 229
+		},
+		{
+			"name": "Guitarist Kirk @61",
+			"trainer": "Guitarist Kirk",
+			"report": "report-pf-2.json",
+			"position": 202,
+			"seeds": 20,
+			"wins": 20,
+			"losses": 0,
+			"stuck": 0,
+			"deaths": 37,
+			"turns": 109
+		},
+		{
+			"name": "Triathlete Abigail @67",
+			"trainer": "Triathlete Abigail",
+			"report": "report-acc-11.json",
+			"position": 235,
+			"seeds": 20,
+			"wins": 20,
+			"losses": 0,
+			"stuck": 0,
+			"deaths": 45,
+			"turns": 185
+		},
+		{
+			"name": "Triathlete Anthony @68",
+			"trainer": "Triathlete Anthony",
+			"report": "report-acc-11.json",
+			"position": 235,
+			"seeds": 20,
+			"wins": 20,
+			"losses": 0,
+			"stuck": 0,
+			"deaths": 41,
+			"turns": 143
+		},
+		{
+			"name": "Pokéfan Miguel @78",
+			"trainer": "Pokéfan Miguel",
+			"report": "report-flannery-3.json",
+			"position": 287,
+			"seeds": 20,
+			"wins": 14,
+			"losses": 6,
+			"stuck": 0,
+			"deaths": 74,
+			"turns": 260
+		},
+		{
+			"name": "Aroma Lady Daisy @79",
+			"trainer": "Aroma Lady Daisy",
+			"report": "report-flannery-3.json",
+			"position": 287,
+			"seeds": 20,
+			"wins": 18,
+			"losses": 2,
+			"stuck": 0,
+			"deaths": 47,
+			"turns": 517
+		}
+	]
+}

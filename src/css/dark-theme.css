@@ -23,15 +23,23 @@ html, body {
     color: var(--text);
 }
 
-.btn:hover {
+@media (hover: hover) {
+	.btn:hover {
+	    z-index: 10;
+	    background: var(--button-hover);
+	}
+}
+
+.visually-hidden:focus + .btn {
     z-index: 10;
     background: var(--button-hover);
 }
 
-.visually-hidden:focus + .btn,
-.btn:hover {
-    z-index: 10;
-    background: var(--button-hover);
+@media (hover: hover) {
+	.btn:hover {
+	    z-index: 10;
+	    background: var(--button-hover);
+	}
 }
 
 .visually-hidden:checked + .btn {
@@ -57,16 +65,20 @@ a.links-lighten {
     color: #7A9CFF;
 }
 
-a.links-lighten:hover {
-    color: #C2D0FF;
+@media (hover: hover) {
+	a.links-lighten:hover {
+	    color: #C2D0FF;
+	}
 }
 
 a.links-lighten:visited {
     color: #BC8BEA;
 }
 
-a.links-lighten:visited:hover {
-    color: #DACAF7;
+@media (hover: hover) {
+	a.links-lighten:visited:hover {
+	    color: #DACAF7;
+	}
 }
 
 input {
@@ -93,10 +105,12 @@ a.collapsible-link {
     color: var(--text);
 }
 
-.bs-btn:hover {
-    z-index: 10;
-    background: var(--button-hover);
-    color: var(--text);
+@media (hover: hover) {
+	.bs-btn:hover {
+	    z-index: 10;
+	    background: var(--button-hover);
+	    color: var(--text);
+	}
 }
 
 .dataTables_info {

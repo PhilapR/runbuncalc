@@ -60,8 +60,10 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 		{species: 'Pidgey', map: 'Route102', level: 5},
 	]);
 	const opened = driver.start(doc, undefined, 42);
-	// The next unbeaten fight, unasked: the recreation's "next" is the run's.
-	assert.equal(opened.battle.trainer, 'Youngster Calvin');
+	// The next unbeaten fight, unasked: the recreation's "next" is the run's —
+	// and since 2026-08-28 the run opens where the game does, on the Route 103
+	// rival (undeclared rival: the first variant).
+	assert.equal(opened.battle.trainer, 'Trainer Rival Route 103 Sceptile');
 	// The party enters at the projected cap — the infinite candy IS the XP
 	// system, so a level 3 catch fights at what it will be leveled to.
 	assert.equal(opened.viewState.player.active.level, 12);
@@ -89,7 +91,9 @@ test('a fight opens at the cap, offers priced moves, and the same seed replays t
 
 test('move forecasts stay on max HP and a miss says that it missed', () => {
 	const doc = docWith([{species: 'Mudkip', map: undefined, level: 5}]);
-	const opened = driver.start(doc, 'Youngster Calvin', 0);
+	// Seed 1 scripts hit-then-miss now; seed 0 did before the engine started
+	// sampling critical hits (constants audit D1) and reshaped every stream.
+	const opened = driver.start(doc, 'Youngster Calvin', 1);
 	const firstWaterGun = opened.actions.find(action => action.move === 'Water Gun');
 	assert.ok(firstWaterGun && firstWaterGun.damage,
 		'Water Gun should carry a damage forecast');
@@ -128,6 +132,38 @@ test('a mid-turn faint pauses for the replacement, and the epitaph survives to t
 		assert.ok(death.by, `${death.species} died to a named move, got ${death.by}`);
 		assert.ok(death.of, `${death.species} died to a named killer, got ${death.of}`);
 	}
+});
+
+test('a death says whose side the acting body was on: ours for a hazard on the way in, theirs for a hit', () => {
+	// `of` names whoever was acting when a body fell. Florges switched in for
+	// Houndoom and died to Spikes read `of: "Houndoom"`, and the wall view
+	// charged our own Houndoom as a foe. `ofSide` is what tells them apart.
+	const doc = docWith([
+		{species: 'Skitty', map: 'Route101', level: 2},
+		{species: 'Starly', map: 'Route102', level: 5},
+	]);
+	const opened = driver.start(doc, 'Leader Brawly', 7);
+	// Test-only surgery: Stealth Rock on our side and a bench body at 1 HP, so
+	// the voluntary switch kills it on entry.
+	const player = opened.battle.state.sides.player;
+	player.effects = Object.assign({}, player.effects, {stealthRock: true});
+	player.party[1].hp.current = 1;
+	const pivot = opened.actions.find(entry => entry.kind === 'switch');
+	assert.ok(pivot, 'a voluntary switch is on offer');
+	let reply = driver.act(opened.battle, pivot.action);
+	let guard = 0;
+	while (!reply.result && guard++ < 80) {
+		const pick = reply.actions[0];
+		reply = driver.act(reply.battle, pick.kind === 'move' ? {kind: 'move', move: pick.move} :
+			{kind: 'switch', replacementId: pick.action.replacementId});
+	}
+	assert.equal(reply.result, 'loss');
+	const starly = reply.deaths.find(death => death.species === 'Starly');
+	const skitty = reply.deaths.find(death => death.species === 'Skitty');
+	assert.deepEqual([starly.by, starly.of, starly.ofSide], [null, 'Skitty', 'ours'],
+		'the hazard death is of our own outgoing body, on our side');
+	assert.ok(skitty.by && skitty.of, 'the hit names its move and its user');
+	assert.equal(skitty.ofSide, 'theirs', 'a foe\'s hit is on their side');
 });
 
 test('the driver refuses what the fight cannot do, by name', () => {
@@ -328,4 +364,853 @@ test('the playbook: same seeds same tape, honest spread, a line that replays the
 	// Odds must agree with adjudicate — one tape deck, two readouts.
 	const adjudicated = driver.adjudicate(doc, 'Youngster Calvin', {rollouts: 6});
 	assert.deepEqual(first.odds, adjudicated);
+});
+
+test('pre-fight catch odds quote the free ball always and tiered balls only when held', () => {
+	const driver = require('../lib/battle-driver');
+	const bare = driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Poochyena');
+	assert.deepEqual(bare.map(entry => entry.ball), ['Poke Ball'],
+		'an empty bag still quotes the free baseline');
+	assert.equal(bare[0].held, null, 'the free ball is uncounted');
+	const stocked = driver.catchOddsAtFullHp(
+		{profileId: 'run-and-bun', bag: {'Great Ball': 2, 'Ultra Ball': 1}}, 'Poochyena');
+	assert.deepEqual(stocked.map(entry => [entry.ball, entry.held]),
+		[['Poke Ball', null], ['Great Ball', 2], ['Ultra Ball', 1]]);
+	// The quote must be the same number the fight's ball buttons compute at
+	// full HP — one formula, two surfaces.
+	//
+	// This read `assert.equal(entry.chance, recomputed && entry.chance)`, and
+	// `X && entry.chance` IS entry.chance whenever X is non-zero — so it
+	// compared a value to itself and threw the recomputed number away. Shifting
+	// the real quote by -5% left it green.
+	//
+	// It also hardcoded 255, which is Poochyena's own rate, so it could not
+	// tell "reads the species rate" from "hardcodes 255". The rate now comes
+	// from the oracle, and a SECOND species with a different rate proves the
+	// formula actually varies with it.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const fullHp = {hp: {max: 3, current: 3}, status: ''};
+	const poochyenaRate = oracle.catchRateOf('Poochyena');
+	for (const entry of stocked) {
+		assert.equal(entry.chance,
+			Math.round(driver.catchMath(fullHp, poochyenaRate, driver.BALLS[entry.ball]).chance * 100),
+			entry.ball + ' must quote exactly what the fight computes');
+	}
+
+	// A harder species must quote strictly worse odds with the same ball.
+	// Abra at 200 against Poochyena's 255, NOT Ralts at 235: the quote rounds
+	// to a whole percent, and 235 and 255 both land on 34%, so Ralts would
+	// have proved nothing. A discriminator has to survive the rounding.
+	const harder = driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Abra');
+	assert.ok(oracle.catchRateOf('Abra') < poochyenaRate,
+		'the fixture only means something if Abra is genuinely harder');
+	assert.ok(harder[0].chance < stocked[0].chance,
+		`a lower catch rate must quote lower odds — saw ${harder[0].chance}% for Abra ` +
+		`against ${stocked[0].chance}% for Poochyena, so the rate is being read`);
+	assert.ok(stocked[1].chance > stocked[0].chance,
+		'a better ball must quote better odds');
+	assert.throws(() => driver.catchOddsAtFullHp({profileId: 'run-and-bun'}, 'Mewthree'),
+		/no catch rate/, 'an unknown species is refused, not quoted at 0');
+});
+
+test('a seeded fight never touches Math.random, even through random end-turn effects', () => {
+	// Starf Berry under 25% HP is the deterministic trigger: the end-turn
+	// resolver samples a random stat to boost. Before the fix the driver's
+	// three advanceTurn calls passed no rng, so this fell through to
+	// Math.random — invisible to every fixture fight that never reached a
+	// random branch (the exact green-on-broken shape AGENTS rule 5 names).
+	// A L20 holder that knows only Growl: it can never KO the wild (a
+	// finished fight skips end-of-turn), and the L3 wild cannot KO it.
+	let doc = run.createRun({name: 'Recreation', now: 't0', permadeath: true});
+	doc = run.apply(doc, {kind: 'catch', species: 'Starly', level: 20,
+		moves: ['Growl'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'party', ids: ['mon-1']});
+	doc = run.apply(doc, {kind: 'acquire', item: 'Starf Berry'});
+	doc = run.apply(doc, {kind: 'give', id: 'mon-1', item: 'Starf Berry'});
+	const rolled = run.rollEncounter(doc, {map: 'Route101', random: () => 0.01});
+	function lowHpBundle() {
+		const opened = driver.startWild(doc, rolled, 7);
+		// Test-only surgery: the driver has no command that starts a fight
+		// wounded, and the berry only wakes at a quarter health.
+		const holder = opened.battle.state.sides.player.party[0];
+		holder.hp.current = Math.floor(holder.hp.max / 4);
+		return opened.battle;
+	}
+	const realRandom = Math.random;
+	Math.random = () => { throw new Error('Math.random leaked into a seeded battle'); };
+	try {
+		const first = driver.act(lowHpBundle(), {kind: 'move', move: 'Growl'});
+		const second = driver.act(lowHpBundle(), {kind: 'move', move: 'Growl'});
+		assert.deepEqual(first.viewState, second.viewState,
+			'the same seed and step must resolve the random berry identically');
+		const boosts = first.battle.state.sides.player.party[0].boosts || {};
+		assert.ok(Object.values(boosts).some(value => value >= 2),
+			'the Starf Berry must actually have fired for this test to mean anything');
+
+		// The ordinary-move path is only ONE of the driver's three advanceTurn
+		// calls. The fix repaired all three; removing the rng from either of
+		// the other two left this green, so each is now driven under the same
+		// poisoned Math.random.
+		//
+		// The ball throw closes its own turn on a break-out.
+		const thrown = driver.act(lowHpBundle(), {kind: 'ball', ball: 'Poke Ball'});
+		assert.ok(thrown.battle, 'a ball throw resolves without reaching Math.random');
+		const thrownAgain = driver.act(lowHpBundle(), {kind: 'ball', ball: 'Poke Ball'});
+		assert.deepEqual(thrown.viewState, thrownAgain.viewState,
+			'and the same seed throws the same ball twice');
+	} finally {
+		Math.random = realRandom;
+	}
+});
+
+test('a forced replacement closes its turn without reaching Math.random', () => {
+	// The third advanceTurn site: when the player's active falls mid-turn the
+	// end-of-turn is HELD until a replacement is chosen, then runs. Removing
+	// the rng from that call left the seeded-fight test above green, because
+	// nothing there ever fainted.
+	let doc = run.createRun({name: 'Replace', now: 't0', permadeath: true});
+	// Two party members, the lead paper-thin so it falls on the first hit.
+	doc = run.apply(doc, {kind: 'catch', species: 'Starly', level: 5,
+		moves: ['Growl'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'catch', species: 'Lillipup', level: 20,
+		moves: ['Tackle'], ivs: Object.assign({}, TEST_IVS)});
+	doc = run.apply(doc, {kind: 'party', ids: ['mon-1', 'mon-2']});
+	// The REPLACEMENT carries the berry. Without it the held end-of-turn has
+	// nothing random to resolve, so removing the rng from that call changes
+	// nothing and the gate cannot see it — which is exactly what happened on
+	// the first attempt at this test.
+	doc = run.apply(doc, {kind: 'acquire', item: 'Starf Berry'});
+	doc = run.apply(doc, {kind: 'give', id: 'mon-2', item: 'Starf Berry'});
+	const rolled = run.rollEncounter(doc, {map: 'Route101', random: () => 0.01});
+	const opened = driver.startWild(doc, rolled, 11);
+	// Test-only surgery, the same shape the berry fixture uses: the driver has
+	// no command that starts a fight one hit from a faint, nor one that starts
+	// the bench wounded.
+	opened.battle.state.sides.player.party[0].hp.current = 1;
+	const bench = opened.battle.state.sides.player.party[1];
+	bench.hp.current = Math.floor(bench.hp.max / 4);
+
+	const realRandom = Math.random;
+	Math.random = () => { throw new Error('Math.random leaked into a seeded battle'); };
+	try {
+		let bundle = opened.battle;
+		let reply = driver.act(bundle, {kind: 'move', move: 'Growl'});
+		// If the lead fell, the fight is waiting on a replacement — take it,
+		// which is the path that runs the held end-of-turn.
+		const replacing = (reply.actions || [])
+			.filter(entry => entry.action && entry.action.kind === 'switch');
+		assert.ok(replacing.length,
+			'the lead must actually have fallen, or this drives nothing');
+		reply = driver.act(reply.battle,
+			{kind: 'switch', replacementId: replacing[0].action.replacementId});
+		assert.ok(reply.battle, 'the replacement resolves without Math.random');
+		// The held end-of-turn must have FIRED the berry, or the rng on that
+		// call is never exercised and removing it would go unnoticed.
+		const incoming = reply.battle.state.sides.player.party[1];
+		const boosts = incoming.boosts || {};
+		assert.ok(Object.values(boosts).some(value => value >= 2),
+			'the replacement\'s Starf Berry must fire in the held end-of-turn');
+	} finally {
+		Math.random = realRandom;
+	}
+});
+
+test('the threat line states the attrition race, not just the hardest hit', () => {
+	// A full nuzlocke wiped to Triathlete Mikey's Yanma while the panel read
+	// "survives one crit, not two". That sentence is TRUE and reads as a mild
+	// caution. The real position was two turns to die against eight to kill —
+	// Sonic Boom is a fixed 20 into 34 HP, and the best answer on hand did 5
+	// on its floor into 38 HP. Losing a race four to one is not a caution,
+	// and nothing on screen said it.
+	const mon = (id, species, extra) => Object.assign({
+		id, species, level: 12, hp: {current: 34, max: 34},
+		moves: [{name: 'Scratch', pp: 10, maxPP: 10}],
+	}, extra || {});
+	const position = (playerMoves, foeMoves) => ({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Yanma',
+				{level: 11, hp: {current: 38, max: 38}, moves: foeMoves})]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar',
+				playerMoves ? {moves: playerMoves} : {})]},
+		},
+	});
+
+	const losing = driver.incomingThreat(
+		position(null, [{name: 'Sonic Boom', pp: 10, maxPP: 10}]));
+	// The old verdict still stands and is still true — it is just not enough.
+	assert.equal(losing.survivesCrit, true, 'one Sonic Boom does not kill');
+	assert.equal(losing.survivesTwoCrits, false, 'two do');
+	// The new one names the race.
+	assert.equal(losing.race.outcome, 'lose');
+	assert.equal(losing.race.turnsToDie, 2, 'fixed 20 into 34 HP');
+	assert.equal(losing.race.turnsToKill, 8, 'a 5-damage floor into 38 HP');
+
+	// A better move shortens the race but does not automatically win it.
+	// Ember takes the kill from eight turns to three, and three against two
+	// is still a loss — which is the point: a stronger attack is not a
+	// mitigation when you are already too slow.
+	const withEmber = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	const better = driver.incomingThreat(withEmber);
+	assert.equal(better.race.turnsToKill, 3, 'Ember kills far faster than Scratch');
+	assert.equal(better.race.outcome, 'lose', 'and three turns is still more than two');
+
+	// A TIE goes to the faster side, because the faster side lands the last
+	// hit. Chimchar is slower here, so 3-against-3 is a loss, not a draw.
+	const tied = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	tied.sides.player.party[0].hp = {current: 60, max: 60};
+	const tie = driver.incomingThreat(tied);
+	assert.equal(tie.race.turnsToKill, tie.race.turnsToDie, 'a genuine tie on turns');
+	assert.equal(tie.race.faster, false);
+	assert.equal(tie.race.outcome, 'lose', 'the slower side loses a tie');
+
+	// Enough bulk to outlast it, and the verdict finally flips.
+	const bulky = position([{name: 'Ember', pp: 10, maxPP: 10}],
+		[{name: 'Sonic Boom', pp: 10, maxPP: 10}]);
+	bulky.sides.player.party[0].hp = {current: 100, max: 100};
+	const winning = driver.incomingThreat(bulky);
+	assert.equal(winning.race.turnsToDie, 5);
+	assert.equal(winning.race.outcome, 'win');
+
+	// Nothing that damages it at all is not a slow race, it is an unwinnable
+	// one, and must not read as "9 turns".
+	const helpless = driver.incomingThreat(
+		position([{name: 'Growl', pp: 10, maxPP: 10}], [{name: 'Sonic Boom', pp: 10, maxPP: 10}]));
+	assert.equal(helpless.race.outcome, 'cannot-win');
+	assert.equal(helpless.race.turnsToKill, null, 'no number can describe never');
+});
+
+test('the card carries the conditions a switch would clear', () => {
+	// `status` was on the card and volatiles were not, so the one condition
+	// switching CURES was the one the screen never showed. Measured over 66
+	// scripted fights, infatuation was 13 of 58 turns we lost — and every one
+	// of them was recoverable by switching, from information that appeared
+	// only as a line in the scrolling battle log.
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const opened = driver.start(doc, 'Youngster Calvin', 7);
+	assert.deepEqual(opened.viewState.player.active.volatiles, [],
+		'a fresh Pokemon carries no conditions');
+
+	// Reach into the live state the way the engine would, then re-read the
+	// card: the point is that the view PROJECTS volatiles, not that this
+	// particular volatile was applied by a move.
+	const state = opened.battle.state;
+	const us = state.sides.player.party[0];
+	us.volatile = {infatuated: {}, leechSeed: {}, roost: {}};
+	const painted = driver.view(state).player.active;
+	assert.ok(painted.volatiles.indexOf('infatuated') !== -1,
+		'infatuation must reach the card — switching is what clears it');
+	assert.ok(painted.volatiles.indexOf('seeded') !== -1, 'Leech Seed too');
+	assert.equal(painted.volatiles.indexOf('roost'), -1,
+		'bookkeeping volatiles stay off the card');
+
+	// Major status still reads separately, because switching does NOT clear
+	// it — the two have to stay distinguishable on screen.
+	us.status = 'par';
+	assert.equal(driver.view(state).player.active.status, 'par');
+});
+
+test('the threat line prices Pursuit against a switch-out', () => {
+	// Twelve of the forty-eight deaths in skipwall4 A7's Brawly wipes came
+	// from Hitmontop's Pursuit, and the driver kept offering switches into
+	// it: nothing on the threat line said the move exists, let alone that it
+	// doubles on the way out. The engine can see the foe's whole movepool —
+	// the same loop that finds the hardest hit now prices the doubled catch.
+	const mon = (id, species, extra) => Object.assign({
+		id, species, level: 20, hp: {current: 60, max: 60},
+		moves: [{name: 'Scratch', pp: 10, maxPP: 10}],
+	}, extra || {});
+	const position = hp => ({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Hitmontop',
+				{moves: [{name: 'Pursuit', pp: 10, maxPP: 10},
+					{name: 'Brick Break', pp: 10, maxPP: 10}]})]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar',
+				{hp: {current: hp, max: 60}})]},
+		},
+	});
+
+	const healthy = driver.incomingThreat(position(60));
+	assert.ok(healthy.pursuit, 'a foe holding Pursuit is named on the threat');
+	assert.ok(healthy.pursuit.max > 0, 'the catch is priced');
+	assert.equal(healthy.pursuit.kills, false, 'a healthy body walks out alive');
+
+	// The doubled hit is the number that matters: a body the plain Pursuit
+	// leaves standing still dies on the way out.
+	const clipped = driver.incomingThreat(position(Math.ceil(healthy.pursuit.max * 0.6 / 100 * 60)));
+	assert.equal(clipped.pursuit.kills, true, 'the doubled catch kills what the plain hit spares');
+
+	// No Pursuit, no field — the sentence must not appear against foes that
+	// cannot punish the switch.
+	const plain = driver.incomingThreat({
+		generation: 8, mode: 'Singles', turn: 1, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [mon('ai-1', 'Hitmontop')]},
+			player: {activeIds: ['player-1'], party: [mon('player-1', 'Chimchar')]},
+		},
+	});
+	assert.equal(plain.pursuit, null);
+});
+
+test('a forced replacement offers each candidate with its race priced', () => {
+	// Who gets sent in after a faint is where fights are spent: the driver
+	// picked by resist-vs-one-move and HP, which is how Bayleef was sent
+	// into an Ice Beam Poliwhirl. attritionRace already answers "who runs
+	// out of HP first" for the active body — seating each candidate in a
+	// cloned state asks it for the bench too.
+	const mon = (id, species, level, moves, hp) => ({
+		id, species, level, hp: hp || {current: 60, max: 60},
+		moves: moves.map(name => ({name, pp: 10, maxPP: 10})),
+	});
+	const state = {
+		generation: 8, mode: 'Singles', turn: 3, field: {},
+		sides: {
+			ai: {activeIds: ['ai-1'], party: [
+				mon('ai-1', 'Machop', 10, ['Karate Chop'])]},
+			player: {activeIds: ['player-1'], party: [
+				mon('player-1', 'Skitty', 10, ['Scratch'], {current: 0, max: 40}),
+				mon('player-2', 'Marill', 30, ['Water Gun']),
+				mon('player-3', 'Caterpie', 5, ['Tackle']),
+			]},
+		},
+	};
+	const offered = driver.legalActions(state);
+	assert.equal(offered.length, 2, 'the fainted body is not on offer');
+	const byId = Object.fromEntries(offered.map(entry => [entry.action.replacementId, entry]));
+	assert.ok(byId['player-2'].race, 'every candidate carries a race');
+	assert.equal(byId['player-2'].race.outcome, 'win', 'a L30 Marill outlasts a L10 Machop');
+	assert.ok(byId['player-3'].race, 'the hopeless candidate carries one too');
+	assert.equal(byId['player-3'].race.outcome, 'lose', 'a L5 Caterpie does not');
+});
+
+test('a double battle refuses to start as singles', () => {
+	// The operator's ruling: doubles are real doubles. Until the play stack
+	// runs two actives, pretending is worse than refusing — every past
+	// "win" against an And-spelled pair was adjudicated in the wrong mode.
+	// The run layer lets a doubles fight be skipped and owed instead.
+	const doc = docWith([{species: 'Skitty', map: 'Route101', level: 2}]);
+	assert.throws(() => driver.start(doc, 'Twins Gina And Mia', 7),
+		/double battle.*not modeled|doubles.*skip/i,
+		'a doubles fight must refuse play, naming the skip as the way past');
+});
+
+test('the PP model is a switch: off leaves fuel infinite, on fills and spends it', () => {
+	// The recorded default is OFF — every fixture in this file was recorded
+	// fuel-free, and the finding that made PP a switch lives in
+	// docs/MODELLING-GAPS.md (2026-08-30 addendum). ON must fill both
+	// sides' tanks at construction and the engine must then spend them.
+	const doc = docWith([
+		{species: 'Poochyena', map: 'Route101', level: 3},
+		{species: 'Pidgey', map: 'Route102', level: 5},
+	]);
+	const off = driver.start(doc, undefined, 42);
+	for (const mon of [...off.battle.state.sides.player.party,
+		...off.battle.state.sides.ai.party]) {
+		for (const move of mon.moves) {
+			assert.equal(move.pp, undefined,
+				`off is the default: ${mon.id} ${move.name} must not carry pp`);
+		}
+	}
+	driver.setPPModel(true);
+	try {
+		const on = driver.start(doc, undefined, 42);
+		for (const mon of [...on.battle.state.sides.player.party,
+			...on.battle.state.sides.ai.party]) {
+			for (const move of mon.moves) {
+				assert.ok(Number.isInteger(move.pp) && move.pp > 0,
+					`on: ${mon.id} ${move.name} must carry pp`);
+				assert.equal(move.pp, move.maxPP,
+					`on: ${mon.id} ${move.name} opens with a full tank`);
+			}
+		}
+		const activeId = on.battle.state.sides.player.activeIds[0];
+		const pick = on.actions.find(action => action.kind === 'move');
+		const reply = driver.act(on.battle, {kind: 'move', move: pick.move});
+		const active = reply.battle.state.sides.player.party
+			.find(mon => mon.id === activeId);
+		const spent = active.moves.find(move => move.name === pick.move);
+		assert.equal(spent.pp, spent.maxPP - 1,
+			'the engine spends the pp the driver filled');
+	} finally {
+		driver.setPPModel(false);
+	}
+});
+
+test('a voluntary switch is priced by default, and the price includes the entry hit', () => {
+	// The composed pipeline, from the tape that found the bug (776bfdd): the
+	// ranker's six against Lass Haley, seed 2. The policy's lost-race switch
+	// sent Rhyhorn in because Rock resists Air Slash — the hit on the threat
+	// line — and Lumineon's Surf killed it on all twenty seeds. Priced by
+	// seating it, Rhyhorn loses before it acts.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	let doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys1-B-1.run.json'), 'utf8'));
+	// The six the Rhyhorn line was found in. The exposure-priced ranker
+	// (2026-09-18) no longer fields Rhyhorn here; the price is still tested on it.
+	const top = run.rankParties(doc, 'Lass Haley', {exposureWeight: 0}).parties[0];
+	doc = run.apply(doc, {kind: 'party', ids: [top.lead].concat(
+		top.members.map(member => member.id).filter(id => id !== top.lead))});
+	const state = driver.start(doc, 'Lass Haley', 2).battle.state;
+	const voluntary = () => driver.legalActions(state).filter(entry => entry.kind === 'switch');
+
+	assert.equal(driver.switchPricing(), true, 'pricing is on unless an arm turns it off (adopted 2026-09-18)');
+	try {
+		driver.setSwitchPricing(false);
+		assert.ok(voluntary().every(entry => entry.race === undefined),
+			'off: voluntary switches carry no race, so the control policy reads what it always read');
+
+		driver.setSwitchPricing(true);
+		const priced = voluntary();
+		assert.ok(priced.length && priced.every(entry => entry.race && entry.race.outcome),
+			'on: every voluntary candidate carries a race');
+		const rhyhorn = priced.find(entry => entry.species === 'Rhyhorn');
+		assert.equal(rhyhorn.race.outcome, 'lose', 'Surf into Rhyhorn is the price the type check never saw');
+		assert.equal(rhyhorn.race.turnsToDie, 0, 'the entry hit alone kills it');
+
+		// The entry hit is one of their turns: the voluntary race is exactly the
+		// free-entry bench race with one fewer turn to live.
+		for (const entry of priced) {
+			const free = driver.benchRace(state, entry.action.replacementId);
+			assert.equal(entry.race.turnsToDie, free.turnsToDie - 1, entry.species);
+			assert.equal(entry.race.turnsToKill, free.turnsToKill, entry.species);
+		}
+	} finally {
+		driver.setSwitchPricing(true);
+	}
+	assert.equal(driver.switchPricing(), true, 'the default is restored for every later test');
+});
+
+test('a Burn Up user is hit next turn: Fire is burned off, the fight is not', () => {
+	// The composed pipeline that hid the defect: a real banked run, the real
+	// driver, a real trainer. Burn Up made Fire/Bug Centiskorch typeless,
+	// damage into a typeless body came back null, the transition refused every
+	// foe move, and the driver turned each refusal into a lost turn — "flinched
+	// at the engine" — so the foe never acted again. 113 wins in the adopted
+	// baselines were that (2026-09-18); this scenario (Cool Trainer George on
+	// flannery-3) was 20 of them.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	let doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'flannery-3.run.json'), 'utf8'));
+	const centiskorch = doc.box.find(mon => mon.species === 'Centiskorch');
+	assert.ok(centiskorch.moves.includes('Burn Up'), 'the fixture carries the move under test');
+	doc = run.apply(doc, {kind: 'party',
+		ids: [centiskorch.id].concat(doc.party.filter(id => id !== centiskorch.id)).slice(0, 6)});
+
+	let reply = driver.start(doc, 'Cool Trainer George', 1);
+	reply = driver.act(reply.battle, {kind: 'move', move: 'Burn Up'});
+	const self = () => reply.battle.state.sides.player.party.find(mon => mon.species === 'Centiskorch');
+	assert.deepEqual(self().typeOverride, ['Bug'], 'Fire/Bug loses Fire and keeps Bug');
+
+	const hp = self().hp.current;
+	reply = driver.act(reply.battle, {kind: 'move', move: 'Lunge'});
+	const texts = reply.events.map(event => event.text);
+	assert.ok(!texts.some(text => /flinched at the engine/.test(text)),
+		'no engine refusal: ' + texts.join(' | '));
+	assert.ok(texts.some(text => /^Foe \S+ used /.test(text)), 'the foe acts: ' + texts.join(' | '));
+	assert.ok(self().hp.current < hp, 'and its hit lands on the Burn Up user');
+});
+
+test('a move that loses its effect mid-turn is used, not refused', () => {
+	// Youngster Ben on the banked sv-20 run, seed 1: we switch Drednaw out for
+	// Donphan, and Porygon's Thunder Wave, chosen against Drednaw, meets a
+	// Ground type. The engine refused it as illegal and the driver turned
+	// that into a lost turn; the game uses it and it does nothing.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'sv-20.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Youngster Ben', 1);
+	const donphan = opened.actions.find(entry => entry.kind === 'switch' && entry.species === 'Donphan');
+	assert.ok(donphan, 'Donphan is on the bench to switch to');
+	const reply = driver.act(opened.battle, {kind: 'switch', replacementId: donphan.action.replacementId});
+	const texts = reply.events.map(event => event.text);
+	assert.ok(!reply.events.some(event => event.engineRefusal), 'no engine refusal: ' + texts.join(' | '));
+	assert.ok(texts.some(text => /^Foe Porygon/.test(text)), 'Porygon acts: ' + texts.join(' | '));
+	const seated = reply.battle.state.sides.player.party.find(mon => mon.species === 'Donphan');
+	assert.notEqual(seated.status, 'par', 'and a Ground type is not paralysed by it');
+});
+
+test('a powder move that meets a Grass type mid-turn applies nothing', () => {
+	// School Kid Karen on the banked brheal1-B-2 run, seed 1: Tangela picks
+	// Stun Spore at Vespiquen, we switch Deerling in, and the Stun Spore
+	// lands on a Grass type. From Generation VI powder moves have no effect
+	// on Grass, Overcoat or Safety Goggles; the engine had no such rule and
+	// paralysed it, and offered powder moves into Grass targets besides.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const ai = require('../ai');
+	const base = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brheal1-B-2.run.json'), 'utf8'));
+	const lead = base.box.find(mon => mon.species === 'Vespiquen');
+	const grass = base.box.find(mon => mon.species === 'Deerling');
+	assert.ok(lead && grass, 'the fixture carries Vespiquen and Deerling');
+	const doc = run.apply(base, {kind: 'party', ids: [lead.id, grass.id].concat(
+		base.party.filter(id => id !== lead.id && id !== grass.id)).slice(0, 6)});
+
+	const opened = driver.start(doc, 'School Kid Karen', 1);
+	const tangela = opened.battle.state.sides.ai.party.find(mon => mon.species === 'Tangela');
+	assert.equal(opened.battle.state.sides.ai.activeIds[0], tangela.id, 'Tangela leads');
+	assert.ok(tangela.moves.some(move => move.name === 'Stun Spore'), 'and carries Stun Spore');
+
+	const deerling = opened.actions.find(entry => entry.kind === 'switch' && entry.species === 'Deerling');
+	const reply = driver.act(opened.battle, {kind: 'switch', replacementId: deerling.action.replacementId});
+	const texts = reply.events.map(event => event.text);
+	assert.ok(texts.some(text => /^Foe Tangela.*Stun Spore/.test(text)),
+		'Tangela uses Stun Spore into the switch: ' + texts.join(' | '));
+	assert.ok(!reply.events.some(event => event.engineRefusal), 'no engine refusal: ' + texts.join(' | '));
+	const seated = reply.battle.state.sides.player.party.find(mon => mon.species === 'Deerling');
+	assert.equal(seated.status, undefined, 'a Grass type is not paralysed by Stun Spore');
+
+	// And with Deerling in, the foe is no longer offered the powder move.
+	const offered = ai.enumerateMoveActions(reply.battle.state, 'ai').map(action => action.moveName);
+	assert.ok(offered.length && !offered.includes('Stun Spore'),
+		'Stun Spore is not offered into a Grass type: ' + offered.join(', '));
+});
+
+test('Effect Spore does not status a Grass attacker that makes contact', () => {
+	// Cool Trainer George on the banked flannery-3 run, seed 3: Rillaboom
+	// U-turns into our Effect Spore Amoonguss. Effect Spore is powder, so a
+	// Grass attacker is immune from Generation VI; the engine rolled it
+	// anyway, and on seed 3 poisoned Rillaboom (Tsareena's Knock Off into
+	// Parasect on heldout1-c-pp, Battle Girl Luna seed 15, was the same bug).
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const base = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'flannery-3.run.json'), 'utf8'));
+	const amoonguss = base.box.find(mon => mon.species === 'Amoonguss');
+	assert.equal(amoonguss.ability, 'Effect Spore', 'the fixture carries the ability under test');
+	const doc = run.apply(base, {kind: 'party',
+		ids: [amoonguss.id].concat(base.party.filter(id => id !== amoonguss.id)).slice(0, 6)});
+
+	const opened = driver.start(doc, 'Cool Trainer George', 3);
+	const reply = driver.act(opened.battle, {kind: 'move', move: 'Foul Play'});
+	const texts = reply.events.map(event => event.text);
+	assert.ok(texts.some(text => /^Foe Rillaboom used U-turn/.test(text)),
+		'Rillaboom makes contact: ' + texts.join(' | '));
+	const rillaboom = reply.battle.state.sides.ai.party.find(mon => mon.species === 'Rillaboom');
+	assert.equal(rillaboom.status, undefined, 'a Grass attacker is not statused by Effect Spore');
+});
+
+test('a widened search spends the budget unevenly and removes no option', () => {
+	// The rollout search is the harness: a searched fight is 77s against
+	// decide()'s 0.3, and a boss retried sixty times is an hour on one fight
+	// (docs/PERFORMANCE.md). The first attempt at cheapening it DROPPED
+	// candidates — best damaging move per type, and only switches that win
+	// their race — and at Brawly on 11 paired seeds that went from 8 wins to
+	// 2 while running 2.3x faster. The switches it deleted are the pivots
+	// that win boss fights. So nothing is removed; the budget is spent
+	// unevenly instead, and this pins the arithmetic of that.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys3b-A-7.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Leader Brawly', 1);
+	const actions = opened.actions;
+	const candidates = new Set(actions.map(entry => entry.kind === 'move' ?
+		'move:' + entry.move : 'switch:' + entry.action.replacementId)).size;
+	assert.ok(candidates > 4, 'Brawly opens with a real branching factor: ' + candidates);
+
+	const rollouts = 3;
+	driver.setSearchWiden(0);
+	const flat = driver.searchChoice(opened.battle, actions, 1, rollouts, 0);
+	assert.equal(flat.dice, candidates * rollouts, 'flat rolls every candidate every time');
+
+	driver.setSearchWiden(2);
+	const widened = driver.searchChoice(opened.battle, actions, 1, rollouts, 0);
+	// One scouting rollout each, then the remaining budget for the top two.
+	assert.equal(widened.dice, candidates + 2 * (rollouts - 1));
+	assert.ok(widened.dice < flat.dice, 'widening is cheaper: ' + widened.dice + ' < ' + flat.dice);
+
+	// A width at or above the branching factor is the flat search exactly —
+	// same dice, same choice — so the switch can never quietly halve a run.
+	driver.setSearchWiden(candidates);
+	const wide = driver.searchChoice(opened.battle, actions, 1, rollouts, 0);
+	assert.equal(wide.dice, flat.dice);
+	assert.deepEqual(wide.chosen, flat.chosen);
+	driver.setSearchWiden(0);
+});
+
+test('a won rollout can be valued by what it kept, and a win still beats any loss', () => {
+	// A win was worth 1 whether six stood at the end or one, so the search had
+	// never preferred a cheaper win: eleven replayed boss wins each gave up
+	// four to six bodies.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys3b-A-7.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Youngster Calvin', 1);
+	const scoresOf = () => driver.searchChoice(opened.battle, opened.actions, 1, 4, 0).scores;
+
+	driver.setSearchKeep(false);
+	const flat = scoresOf();
+	const won = flat.filter(entry => entry.wins === entry.runs);
+	assert.ok(won.length > 0, 'an easy fight has options that win every playout');
+	for (const entry of won) assert.equal(entry.value, 1, 'flat: a win is 1 whatever it cost');
+
+	driver.setSearchKeep(true);
+	const kept = scoresOf();
+	for (const entry of kept.filter(row => row.wins === row.runs)) {
+		const party = doc.party.length;
+		assert.equal(entry.value, Number((0.5 + 0.5 * entry.oursAlive / party).toFixed(3)),
+			'keeping: half for the win, half for the share of ours still standing');
+		assert.ok(entry.value > 0.5 && entry.value <= 1);
+	}
+	assert.ok(Math.min(...kept.filter(row => row.wins === row.runs).map(row => row.value)) > 0.3,
+		'and the dearest win still outranks the best loss, which tops out at 0.3');
+	driver.setSearchKeep(false);
+	assert.deepEqual(scoresOf(), flat, 'off is the flat objective exactly');
+});
+
+test('sequential halving spends the same playouts, and spends them on the contenders', () => {
+	// With nine options at eight rollouts the flat search chose "switch to
+	// Grotle" because ONE playout in eight won. Halving keeps the budget and
+	// moves it: every option a short look, the weaker half dropped, the last
+	// two decided on many times the flat eight.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys3b-A-7.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Leader Brawly', 1);
+	const rollouts = 8;
+
+	driver.setSearchHalving(false);
+	const flat = driver.searchChoice(opened.battle, opened.actions, 1, rollouts, 0);
+	const options = flat.scores.length;
+	assert.ok(options > 4, 'Brawly opens with a real branching factor: ' + options);
+	assert.ok(flat.scores.every(entry => entry.runs === rollouts), 'flat: everybody gets the same');
+
+	driver.setSearchHalving(true);
+	const halved = driver.searchChoice(opened.battle, opened.actions, 1, rollouts, 0);
+	driver.setSearchHalving(false);
+	const runs = halved.scores.map(entry => entry.runs).sort((a, b) => b - a);
+	assert.ok(halved.dice <= options * rollouts, 'never more than the flat budget: ' + halved.dice + ' <= ' + options * rollouts);
+	assert.ok(halved.dice >= options * rollouts - options, 'and all but a rounding of it is spent: ' + halved.dice);
+	assert.ok(Math.min(...runs) >= 2, 'nobody is dropped on a single playout');
+	assert.ok(runs[0] >= 2 * rollouts, 'the finalists are measured at least twice what flat would give them: ' + runs.join(','));
+	assert.equal(runs[0], runs[1], 'and the last two get the same look');
+	const chosen = halved.chosen.kind === 'move' ? halved.chosen.move : 'switch:' + halved.chosen.replacementId;
+	const finalists = halved.scores.filter(entry => entry.runs === runs[0]).map(entry => entry.choice);
+	assert.ok(finalists.includes(chosen), 'the choice is a finalist, never an option dropped early on a lucky mean');
+});
+
+test('a lost playout can be valued by its path, not only its end', () => {
+	// At the end of a loss we have lost everyone by definition, so the end
+	// state says nothing about our side and the keep term never applies where
+	// nearly every playout loses. The PATH does: the average material lead —
+	// their HP share removed minus ours, step by step.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const doc = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'banked-runs',
+		'brkeys3b-A-7.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Leader Brawly', 2);
+	const scoresOf = () => driver.searchChoice(opened.battle, opened.actions, 2, 3, 0).scores;
+
+	driver.setSearchPath(false);
+	const flat = scoresOf();
+	assert.ok(flat.every(entry => typeof entry.lead === 'number' && entry.lead >= -1 && entry.lead <= 1),
+		'every score carries its average material lead, on or off');
+	const lost = flat.filter(entry => entry.wins === 0);
+	assert.ok(lost.length > 0, 'Brawly beats some options every time');
+	for (const entry of lost) {
+		assert.ok(Math.abs(entry.value - 0.3 * entry.removed) < 0.002, 'off: a loss is 0.3 x their HP removed, as before');
+	}
+
+	driver.setSearchPath(true);
+	const pathed = scoresOf();
+	driver.setSearchPath(false);
+	for (const entry of pathed.filter(row => row.wins === 0)) {
+		const expected = 0.3 * (0.5 * entry.removed + 0.5 * (entry.lead + 1) / 2);
+		assert.ok(Math.abs(entry.value - expected) < 0.003,
+			entry.choice + ': half the end, half the path — ' + entry.value + ' vs ' + expected.toFixed(3));
+		assert.ok(entry.value <= 0.3, 'a loss never outranks a win');
+	}
+	assert.deepEqual(scoresOf(), flat, 'off is the old value exactly');
+});
+
+test('a race is priced both ways: with no crit, with every crit, and the odds between', () => {
+	// Operator, 2026-09-21: "we have to price both crit and non-crit outcomes."
+	// The verdict stays pessimal (their crit ceiling every turn); beside it the
+	// race now says what that pessimism is worth in probability.
+	const driver = require('../lib/battle-driver.js');
+	const us = {hp: {current: 100, max: 100}};
+	const them = {hp: {current: 100, max: 100}};
+	// We need two hits of 50; they hit for 30, 45 on a crit; we are slower.
+	const forced = driver.raceOdds(us, them, {mean: 50}, {mean: 30, crit: 45}, false, 0);
+	assert.deepEqual(forced, {turns: 2, hits: 2, noCrit: 'win', allCrit: 'win', win: 1}, 'a free entry survives two hits even if both crit');
+	// The same body coming in by CHOICE owes one hit more: three hits, and one crit among them is 105.
+	const chosen = driver.raceOdds(us, them, {mean: 50}, {mean: 30, crit: 45}, false, 1);
+	assert.equal(chosen.noCrit, 'win');
+	assert.equal(chosen.allCrit, 'lose');
+	assert.equal(chosen.win, Number(Math.pow(23 / 24, 3).toFixed(3)), 'it wins unless one of three hits crits: 88%');
+	// Moving first saves a hit of theirs.
+	assert.equal(driver.raceOdds(us, them, {mean: 50}, {mean: 30, crit: 45}, true, 1).win, 1);
+	assert.equal(driver.raceOdds(us, them, {mean: 0}, {mean: 30, crit: 45}, true, 0), null, 'no damage of ours is no race');
+});
+
+test('the enemy\'s post-KO replacement, by the documented rule: highest score, ties to party order', () => {
+	// The rule is the Run & Bun documentation's switch-in table, ported
+	// doc-literal and NOT ROM-verified (ledger:
+	// enemy-post-ko-replacement-is-enumeration-order). Off by default, because
+	// every policy lever measured here was measured against enumeration order.
+	const driver = require('../lib/battle-driver.js');
+	const ai = require('../ai');
+	// ADOPTED 2026-09-22 on its declared fidelity bar: the run still plays
+	// (zero refusals, zero stuck, 3,480 fights), so it is the baseline
+	// whatever it costs us — and it costs 3.4 points of win rate on heldout2.
+	assert.equal(driver.enemySwitchScoring(), true, 'the documented rule is the baseline');
+
+	const doc = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const opened = driver.start(doc, 'Elite Four Sidney', 11);
+	const downed = structuredClone((opened.battle || opened).state);
+	const party = downed.sides.ai.party;
+	downed.sides.ai.party.find(mon => mon.id === downed.sides.ai.activeIds[0]).hp.current = 0;
+	const offered = ai.enumerateForcedSwitchActions(downed, 'ai');
+	const nameOf = id => (party.find(mon => mon.id === id) || {}).species;
+	const scored = offered.map(action => [nameOf(action.replacementId), driver.enemySwitchScore(downed, action.replacementId)]);
+
+	// The table, on a real position: two candidates deal more than they take
+	// while slower or faster, the rest are merely faster.
+	assert.deepEqual(scored, [['Necrozma', 1], ['Nidoking', 3], ['Urshifu', 1], ['Yveltal', 1], ['Gyarados-Mega', 3]]);
+
+	// FAILS under first-entry selection: enumeration sends the score-1 body.
+	assert.equal(nameOf(offered[0].replacementId), 'Necrozma');
+	const chosen = driver.chooseEnemyReplacement(downed, offered);
+	assert.equal(nameOf(chosen.replacementId), 'Nidoking', 'the rule sends the highest score, not the first in the list');
+
+	// A TIE, and the one place the doc and pokemon-mono's implementation
+	// disagree: Nidoking and Gyarados-Mega both score 3, and the documented
+	// rule takes the earlier in PARTY ORDER. The mono breaks ties by damage
+	// percent first — which its own header contradicts, and which is unprobed.
+	const top = Math.max(...scored.map(row => row[1]));
+	assert.deepEqual(scored.filter(row => row[1] === top).map(row => row[0]), ['Nidoking', 'Gyarados-Mega'],
+		'the top score is shared, so this position exercises the tie rule');
+	assert.ok(party.findIndex(mon => mon.species === 'Nidoking') <
+		party.findIndex(mon => mon.species === 'Gyarados-Mega'), 'and Nidoking is the earlier of the two');
+
+	// The switch is real, end to end: the same knockout, settled both ways.
+	const asRuled = driver.settleAiSide(structuredClone(downed), []);
+	assert.equal(nameOf(asRuled.sides.ai.activeIds[0]), 'Nidoking');
+	driver.setEnemySwitchScoring(false);
+	try {
+		const asEnumerated = driver.settleAiSide(structuredClone(downed), []);
+		assert.equal(nameOf(asEnumerated.sides.ai.activeIds[0]), 'Necrozma',
+			'--enemy-switch-scoring=0 restores the enumeration order every earlier measurement was taken against');
+	} finally {
+		driver.setEnemySwitchScoring(true);
+	}
+});
+
+test('a fight\'s seed reaches its opening: the same seed opens the same way, another may not', () => {
+	// A Trace pick or a lead speed tie is a draw. The planner gave every fight
+	// one per-fight stream, so a fight opened the same way on every seed; the
+	// driver now hands the fight's own seed to the opening.
+	const planner = require('../lib/planner');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const original = planner.buildFightState;
+	const draws = [];
+	planner.buildFightState = options => {
+		assert.equal(typeof options.random, 'function', 'the opening is given a stream');
+		draws.push(options.random());
+		return original(options);
+	};
+	try {
+		driver.start(saved, 'Elite Four Sidney', 5);
+		driver.start(saved, 'Elite Four Sidney', 5);
+		driver.start(saved, 'Elite Four Sidney', 6);
+		driver.playDoubles(saved, 'Elite Four SidneyDouble', 5);
+		driver.playDoubles(saved, 'Elite Four SidneyDouble', 6);
+	} finally {
+		planner.buildFightState = original;
+	}
+	assert.equal(draws[0], draws[1], 'the same seed, the same opening');
+	assert.notEqual(draws[1], draws[2], 'another seed, another draw');
+	assert.notEqual(draws[3], draws[4], 'doubles too');
+});
+
+test('a body lost at the end of a turn is counted and has an epitaph, in doubles too', () => {
+	// Every advanceTurn went unrecorded: a doubles fight counts its deaths from
+	// the faint log, so a body poison took at the end of a turn was not a death
+	// at all, and a singles epitaph named no cause.
+	const planner = require('../lib/planner');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const original = planner.buildFightState;
+	planner.buildFightState = options => {
+		const built = original(options);
+		const sides = built.state.sides;
+		// Ours: both actives at 1 HP and poisoned. Theirs: both asleep, so
+		// nothing of theirs acts before the turn ends.
+		const edit = (side, change) => Object.assign({}, sides[side], {party: sides[side].party.map(mon =>
+			sides[side].activeIds.includes(mon.id) ? Object.assign({}, mon, change(mon)) : mon)});
+		built.state = Object.assign({}, built.state, {sides: Object.assign({}, sides, {
+			player: edit('player', mon => ({hp: Object.assign({}, mon.hp, {current: 1}), status: 'psn'})),
+			ai: edit('ai', () => ({status: 'slp', statusTurns: 3}))})});
+		return built;
+	};
+	let played;
+	try {
+		played = driver.playDoubles(saved, 'Elite Four SidneyDouble', 3);
+	} finally {
+		planner.buildFightState = original;
+	}
+	const residual = (played.killers || []).filter(death => death.by === 'end of turn');
+	assert.equal(residual.length, 2, 'both poisoned actives fell to the turn end: ' + JSON.stringify(played.killers));
+	assert.ok(played.deaths >= 2, 'and they are deaths: ' + played.deaths);
+});
+test('--search-keep-weight prices a body kept in a won playout, and never lets a win fall to a loss', () => {
+	const driver = require('../lib/battle-driver.js');
+	const bundle = (oursUp, ours, foesUp) => ({state: {sides: {
+		player: {party: Array.from({length: ours}, (_, i) => ({hp: {current: i < oursUp ? 10 : 0, max: 10}}))},
+		ai: {party: Array.from({length: 6}, (_, i) => ({hp: {current: i < foesUp ? 10 : 0, max: 10}}))}}}});
+	const keep = driver.searchKeep();
+	const weight = driver.searchKeepWeightOf();
+	try {
+		driver.setSearchKeep(true);
+		driver.setSearchKeepWeight(0.5);
+		assert.equal(driver.rolloutValue(bundle(5, 6, 0), {result: 'win'}), 0.5 + 0.5 * 5 / 6, 'the ruling\'s default');
+		driver.setSearchKeepWeight(0.25);
+		assert.equal(driver.rolloutValue(bundle(5, 6, 0), {result: 'win'}), 0.25 + 0.75 * 5 / 6);
+		const cheapest = driver.rolloutValue(bundle(1, 6, 0), {result: 'win'});
+		const bestLoss = driver.rolloutValue(bundle(0, 6, 0), {result: 'loss'});
+		assert.ok(cheapest > bestLoss, 'a win with one left still beats a loss that took everything of theirs');
+		assert.throws(() => driver.setSearchKeepWeight(0.2), /must be in \(0.2, 1\]/);
+		assert.throws(() => driver.setSearchKeepWeight(Number('x')), /must be in/);
+	} finally {
+		driver.setSearchKeep(keep);
+		driver.setSearchKeepWeight(weight);
+	}
+});
+
+test('--search-value: a won playout that keeps the valuable body outranks one that keeps a spare', () => {
+	const driver = require('../lib/battle-driver.js');
+	const bundle = alive => ({state: {sides: {
+		player: {party: ['player-1', 'player-2', 'player-3'].map(id => ({id, hp: {current: alive.includes(id) ? 10 : 0, max: 10}}))},
+		ai: {party: [{hp: {current: 0, max: 10}}]}}}});
+	const keep = driver.searchKeep();
+	try {
+		driver.setSearchKeep(true);
+		const keptStarter = bundle(['player-1']);
+		const keptSpare = bundle(['player-3']);
+		assert.equal(driver.rolloutValue(keptStarter, {result: 'win'}), driver.rolloutValue(keptSpare, {result: 'win'}),
+			'unweighted, one survivor is one survivor');
+		const weights = new Map([['player-1', 3], ['player-2', 1], ['player-3', 1]]);
+		const starter = driver.withBodyWeights(weights, () => driver.rolloutValue(keptStarter, {result: 'win'}));
+		const spare = driver.withBodyWeights(weights, () => driver.rolloutValue(keptSpare, {result: 'win'}));
+		assert.ok(starter > spare, 'weighted, the starter is worth keeping: ' + starter + ' vs ' + spare);
+		assert.equal(driver.rolloutValue(keptStarter, {result: 'win'}), driver.rolloutValue(keptSpare, {result: 'win'}), 'and the weights are cleared after');
+		assert.ok(driver.withBodyWeights(weights, () => driver.rolloutValue(bundle(['player-3']), {result: 'win'})) >
+			driver.rolloutValue(bundle([]), {result: 'loss'}), 'any win still beats a loss');
+	} finally {
+		driver.setSearchKeep(keep);
+	}
 });

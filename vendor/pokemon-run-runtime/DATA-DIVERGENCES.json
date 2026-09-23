@@ -1,0 +1,1044 @@
+{
+	"schemaVersion": "pokemon.provider.data-divergences/1.1.0",
+	"providerRevision": "bf28a069148903cc02315cc434f91e24816045e2",
+	"providerArtifactSha256": "1f14f88abe410deff6ff81f0d13db067db04b0b69ad70b93cc35c8fd85117128",
+	"meaning": "Fields where the pinned provider's embedded species data disagrees with the fork's decomp-verified tables. Planning receipts for teams holding these species are computed from the vendor values. Retired by curating mono's species table to R&B values and re-pinning.",
+	"speciesCompared": 1244,
+	"divergenceCount": 14,
+	"entries": [
+		{
+			"species": "Cresselia",
+			"field": "baseStats.def",
+			"vendor": 110,
+			"fork": 120
+		},
+		{
+			"species": "Cresselia",
+			"field": "baseStats.spd",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Kleavor",
+			"field": "baseStats.atk",
+			"vendor": 130,
+			"fork": 135
+		},
+		{
+			"species": "Kleavor",
+			"field": "baseStats.spd",
+			"vendor": 75,
+			"fork": 70
+		},
+		{
+			"species": "Zacian",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zacian-Crowned",
+			"field": "baseStats.atk",
+			"vendor": 150,
+			"fork": 170
+		},
+		{
+			"species": "Zamazenta",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.atk",
+			"vendor": 120,
+			"fork": 130
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.def",
+			"vendor": 140,
+			"fork": 145
+		},
+		{
+			"species": "Zamazenta-Crowned",
+			"field": "baseStats.spd",
+			"vendor": 140,
+			"fork": 145
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.hp",
+			"vendor": 60,
+			"fork": 55
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.atk",
+			"vendor": 105,
+			"fork": 100
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.spa",
+			"vendor": 120,
+			"fork": 125
+		},
+		{
+			"species": "Zoroark-Hisui",
+			"field": "baseStats.spe",
+			"vendor": 105,
+			"fork": 110
+		}
+	],
+	"trainerMeaning": "Enemy Pokemon whose species or ability the pinned provider's TRAINER records hold differently from this run map, joined fight by fight through trainer-orders.json. A species entry whose fork value is a Mega or Primal form is a Pokemon the provider fights as its base form for the whole battle: neither engine performs Mega Evolution. Retired by the provider holding the evolved form, or evolving it.",
+	"trainerPokemonCompared": 1419,
+	"trainerPokemonUnpaired": 77,
+	"trainerDivergenceCount": 118,
+	"trainerEntries": [
+		{
+			"trainer": "Youngster Calvin",
+			"order": 3,
+			"slot": 2,
+			"field": "ability",
+			"vendor": "Keen Eye",
+			"fork": "Unnerve"
+		},
+		{
+			"trainer": "Leader Wattson",
+			"order": 64,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Ampharos",
+			"fork": "Ampharos-Mega"
+		},
+		{
+			"trainer": "Leader Wattson",
+			"order": 64,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Static",
+			"fork": "Mold Breaker"
+		},
+		{
+			"trainer": "Leader Norman",
+			"order": 90,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Pidgeot",
+			"fork": "Pidgeot-Mega"
+		},
+		{
+			"trainer": "Leader Norman",
+			"order": 90,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Keen Eye",
+			"fork": "No Guard"
+		},
+		{
+			"trainer": "Winstrate Vicky",
+			"order": 95,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Medicham",
+			"fork": "Medicham-Mega"
+		},
+		{
+			"trainer": "Winstrate Vicky",
+			"order": 95,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Inner Focus",
+			"fork": "Pure Power"
+		},
+		{
+			"trainer": "Winstrate Vito Fallarbor",
+			"order": 118,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Aggron",
+			"fork": "Aggron-Mega"
+		},
+		{
+			"trainer": "Winstrate Vito Fallarbor",
+			"order": 118,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Sturdy",
+			"fork": "Filter"
+		},
+		{
+			"trainer": "Magma Admin Tabitha Mt Chimney",
+			"order": 141,
+			"slot": 4,
+			"field": "species",
+			"vendor": "Absol",
+			"fork": "Absol-Mega"
+		},
+		{
+			"trainer": "Magma Admin Tabitha Mt Chimney",
+			"order": 141,
+			"slot": 4,
+			"field": "ability",
+			"vendor": "Pressure",
+			"fork": "Magic Bounce"
+		},
+		{
+			"trainer": "Magma Leader Maxie Mt Chimney",
+			"order": 142,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Camerupt",
+			"fork": "Camerupt-Mega"
+		},
+		{
+			"trainer": "Magma Leader Maxie Mt Chimney",
+			"order": 142,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Own Tempo",
+			"fork": "Sheer Force"
+		},
+		{
+			"trainer": "Bird Keeper Josue & Andres",
+			"order": 164,
+			"slot": 2,
+			"field": "species",
+			"vendor": "Beedrill",
+			"fork": "Beedrill-Mega"
+		},
+		{
+			"trainer": "Bird Keeper Josue & Andres",
+			"order": 164,
+			"slot": 2,
+			"field": "ability",
+			"vendor": "Swarm",
+			"fork": "Adaptability"
+		},
+		{
+			"trainer": "Cool Trainer Carolina & Cory",
+			"order": 177,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Lopunny",
+			"fork": "Lopunny-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Carolina & Cory",
+			"order": 177,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Cute Charm",
+			"fork": "Scrappy"
+		},
+		{
+			"trainer": "Ruin Maniac Garrison & Jani",
+			"order": 184,
+			"slot": 3,
+			"field": "species",
+			"vendor": "Audino",
+			"fork": "Audino-Mega"
+		},
+		{
+			"trainer": "Ruin Maniac Garrison & Jani",
+			"order": 184,
+			"slot": 3,
+			"field": "ability",
+			"vendor": "Regenerator",
+			"fork": "Healer"
+		},
+		{
+			"trainer": "Aqua Admin Shelly Weather Institute",
+			"order": 209,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Blastoise",
+			"fork": "Blastoise-Mega"
+		},
+		{
+			"trainer": "Aqua Admin Shelly Weather Institute",
+			"order": 209,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Torrent",
+			"fork": "Mega Launcher"
+		},
+		{
+			"trainer": "Trainer Rival Bridge Sceptile",
+			"order": 210,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Sceptile",
+			"fork": "Sceptile-Mega"
+		},
+		{
+			"trainer": "Trainer Rival Bridge Sceptile",
+			"order": 210,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Overgrow",
+			"fork": "Lightning Rod"
+		},
+		{
+			"trainer": "Trainer Rival Bridge Blaziken",
+			"order": 211,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Blaziken",
+			"fork": "Blaziken-Mega"
+		},
+		{
+			"trainer": "Trainer Rival Bridge Blaziken",
+			"order": 211,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Blaze",
+			"fork": "Speed Boost"
+		},
+		{
+			"trainer": "Trainer Rival Bridge Swampert",
+			"order": 212,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Swampert",
+			"fork": "Swampert-Mega"
+		},
+		{
+			"trainer": "Trainer Rival Bridge Swampert",
+			"order": 212,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Torrent",
+			"fork": "Swift Swim"
+		},
+		{
+			"trainer": "Leader Winona",
+			"order": 222,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Altaria",
+			"fork": "Altaria-Mega"
+		},
+		{
+			"trainer": "Leader Winona",
+			"order": 222,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Natural Cure",
+			"fork": "Pixilate"
+		},
+		{
+			"trainer": "Trainer Rival Lilycove Sceptile",
+			"order": 237,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Sceptile",
+			"fork": "Sceptile-Mega"
+		},
+		{
+			"trainer": "Trainer Rival Lilycove Sceptile",
+			"order": 237,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Overgrow",
+			"fork": "Lightning Rod"
+		},
+		{
+			"trainer": "Trainer Rival Lilycove Blaziken",
+			"order": 238,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Blaziken",
+			"fork": "Blaziken-Mega"
+		},
+		{
+			"trainer": "Trainer Rival Lilycove Blaziken",
+			"order": 238,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Blaze",
+			"fork": "Speed Boost"
+		},
+		{
+			"trainer": "Trainer Rival Lilycove Swampert",
+			"order": 239,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Swampert",
+			"fork": "Swampert-Mega"
+		},
+		{
+			"trainer": "Trainer Rival Lilycove Swampert",
+			"order": 239,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Torrent",
+			"fork": "Swift Swim"
+		},
+		{
+			"trainer": "Trainer Chelle Mt Pyre",
+			"order": 256,
+			"slot": 2,
+			"field": "species",
+			"vendor": "Venusaur",
+			"fork": "Venusaur-Mega"
+		},
+		{
+			"trainer": "Trainer Chelle Mt Pyre",
+			"order": 256,
+			"slot": 2,
+			"field": "ability",
+			"vendor": "Overgrow",
+			"fork": "Thick Fat"
+		},
+		{
+			"trainer": "Magma Admin Tabitha Magma Hideout",
+			"order": 272,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Absol",
+			"fork": "Absol-Mega"
+		},
+		{
+			"trainer": "Magma Admin Tabitha Magma Hideout",
+			"order": 272,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Pressure",
+			"fork": "Magic Bounce"
+		},
+		{
+			"trainer": "Magma Leader Maxie Magma Hideout",
+			"order": 273,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Houndoom",
+			"fork": "Houndoom-Mega"
+		},
+		{
+			"trainer": "Magma Leader Maxie Magma Hideout",
+			"order": 273,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Flash Fire",
+			"fork": "Solar Power"
+		},
+		{
+			"trainer": "Aqua Admin Matt Aqua Hideout",
+			"order": 283,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gyarados",
+			"fork": "Gyarados-Mega"
+		},
+		{
+			"trainer": "Aqua Admin Matt Aqua Hideout",
+			"order": 283,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Intimidate",
+			"fork": "Mold Breaker"
+		},
+		{
+			"trainer": "Bird Keeper Presley & Auron",
+			"order": 294,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Manectric",
+			"fork": "Manectric-Mega"
+		},
+		{
+			"trainer": "Bird Keeper Presley & Auron",
+			"order": 294,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Static",
+			"fork": "Intimidate"
+		},
+		{
+			"trainer": "Leader Tate",
+			"order": 303,
+			"slot": 1,
+			"field": "species",
+			"vendor": "Latios",
+			"fork": "Latios-Mega"
+		},
+		{
+			"trainer": "Leader Liza",
+			"order": 304,
+			"slot": 2,
+			"field": "species",
+			"vendor": "Metagross",
+			"fork": "Metagross-Mega"
+		},
+		{
+			"trainer": "Leader Liza",
+			"order": 304,
+			"slot": 2,
+			"field": "ability",
+			"vendor": "Clear Body",
+			"fork": "Tough Claws"
+		},
+		{
+			"trainer": "Magma Leader Maxie Space Center",
+			"order": 312,
+			"slot": 2,
+			"field": "species",
+			"vendor": "Garchomp",
+			"fork": "Garchomp-Mega"
+		},
+		{
+			"trainer": "Magma Leader Maxie Space Center",
+			"order": 312,
+			"slot": 2,
+			"field": "ability",
+			"vendor": "Rough Skin",
+			"fork": "Sand Force"
+		},
+		{
+			"trainer": "Magma Admin Tabitha Space Center",
+			"order": 313,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Tyranitar",
+			"fork": "Tyranitar-Mega"
+		},
+		{
+			"trainer": "Trainer Steven Space Center",
+			"order": 314,
+			"slot": 2,
+			"field": "species",
+			"vendor": "Steelix",
+			"fork": "Steelix-Mega"
+		},
+		{
+			"trainer": "Trainer Steven Space Center",
+			"order": 314,
+			"slot": 2,
+			"field": "ability",
+			"vendor": "Sturdy",
+			"fork": "Sand Force"
+		},
+		{
+			"trainer": "Triathlete Pablo",
+			"order": 323,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Aerodactyl",
+			"fork": "Aerodactyl-Mega"
+		},
+		{
+			"trainer": "Triathlete Pablo",
+			"order": 323,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Unnerve",
+			"fork": "Tough Claws"
+		},
+		{
+			"trainer": "Bird Keeper Aidan & Athena",
+			"order": 325,
+			"slot": 4,
+			"field": "species",
+			"vendor": "Pinsir",
+			"fork": "Pinsir-Mega"
+		},
+		{
+			"trainer": "Bird Keeper Aidan & Athena",
+			"order": 325,
+			"slot": 4,
+			"field": "ability",
+			"vendor": "Hyper Cutter",
+			"fork": "Aerilate"
+		},
+		{
+			"trainer": "Fisherman Roger & Koji",
+			"order": 326,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Banette",
+			"fork": "Banette-Mega"
+		},
+		{
+			"trainer": "Fisherman Roger & Koji",
+			"order": 326,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Insomnia",
+			"fork": "Prankster"
+		},
+		{
+			"trainer": "Aqua Admin ShellySeafloorCavern",
+			"order": 340,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Slowbro",
+			"fork": "Slowbro-Mega"
+		},
+		{
+			"trainer": "Aqua Admin ShellySeafloorCavern",
+			"order": 340,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Oblivious",
+			"fork": "Shell Armor"
+		},
+		{
+			"trainer": "Expert Mollie & Conor",
+			"order": 365,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gyarados",
+			"fork": "Gyarados-Mega"
+		},
+		{
+			"trainer": "Expert Mollie & Conor",
+			"order": 365,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Intimidate",
+			"fork": "Mold Breaker"
+		},
+		{
+			"trainer": "Leader Juan",
+			"order": 385,
+			"slot": 1,
+			"field": "species",
+			"vendor": "Glalie",
+			"fork": "Glalie-Mega"
+		},
+		{
+			"trainer": "Leader Juan",
+			"order": 385,
+			"slot": 1,
+			"field": "ability",
+			"vendor": "Inner Focus",
+			"fork": "Refrigerate"
+		},
+		{
+			"trainer": "Trainer Wally VR",
+			"order": 386,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gardevoir",
+			"fork": "Gardevoir-Mega"
+		},
+		{
+			"trainer": "Trainer Wally VR",
+			"order": 386,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Synchronize",
+			"fork": "Pixilate"
+		},
+		{
+			"trainer": "Cool Trainer Hope & Albert",
+			"order": 387,
+			"slot": 2,
+			"field": "species",
+			"vendor": "Venusaur",
+			"fork": "Venusaur-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Hope & Albert",
+			"order": 387,
+			"slot": 2,
+			"field": "ability",
+			"vendor": "Overgrow",
+			"fork": "Thick Fat"
+		},
+		{
+			"trainer": "Cool Trainer Hope & Albert",
+			"order": 387,
+			"slot": 3,
+			"field": "species",
+			"vendor": "Aerodactyl",
+			"fork": "Aerodactyl-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Hope & Albert",
+			"order": 387,
+			"slot": 3,
+			"field": "ability",
+			"vendor": "Unnerve",
+			"fork": "Tough Claws"
+		},
+		{
+			"trainer": "Cool Trainer Katelynn",
+			"order": 388,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Pinsir",
+			"fork": "Pinsir-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Katelynn",
+			"order": 388,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Hyper Cutter",
+			"fork": "Aerilate"
+		},
+		{
+			"trainer": "Cool Trainer Quincy",
+			"order": 389,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Beedrill",
+			"fork": "Beedrill-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Quincy",
+			"order": 389,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Swarm",
+			"fork": "Adaptability"
+		},
+		{
+			"trainer": "Cool Trainer Felix",
+			"order": 390,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Ampharos",
+			"fork": "Ampharos-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Felix",
+			"order": 390,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Static",
+			"fork": "Mold Breaker"
+		},
+		{
+			"trainer": "Cool Trainer Julie & Dianne",
+			"order": 391,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Sceptile",
+			"fork": "Sceptile-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Julie & Dianne",
+			"order": 391,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Overgrow",
+			"fork": "Lightning Rod"
+		},
+		{
+			"trainer": "Cool Trainer Julie & Dianne",
+			"order": 391,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Kangaskhan",
+			"fork": "Kangaskhan-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Julie & Dianne",
+			"order": 391,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Scrappy",
+			"fork": "Parental Bond"
+		},
+		{
+			"trainer": "Cool Trainer Samuel",
+			"order": 392,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Blaziken",
+			"fork": "Blaziken-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Samuel",
+			"order": 392,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Blaze",
+			"fork": "Speed Boost"
+		},
+		{
+			"trainer": "Cool Trainer Shannon",
+			"order": 393,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Swampert",
+			"fork": "Swampert-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Shannon",
+			"order": 393,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Damp",
+			"fork": "Swift Swim"
+		},
+		{
+			"trainer": "Cool Trainer Caroline",
+			"order": 394,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gallade",
+			"fork": "Gallade-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Michelle",
+			"order": 395,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Heracross",
+			"fork": "Heracross-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Michelle",
+			"order": 395,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Swarm",
+			"fork": "Skill Link"
+		},
+		{
+			"trainer": "Cool Trainer Specter",
+			"order": 396,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Sableye",
+			"fork": "Sableye-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Specter",
+			"order": 396,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Keen Eye",
+			"fork": "Magic Bounce"
+		},
+		{
+			"trainer": "Cool Trainer Edgar",
+			"order": 397,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Charizard",
+			"fork": "Charizard-Mega-Y"
+		},
+		{
+			"trainer": "Cool Trainer Edgar",
+			"order": 397,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Blaze",
+			"fork": "Drought"
+		},
+		{
+			"trainer": "Triathlete Darren",
+			"order": 398,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Charizard",
+			"fork": "Charizard-Mega-X"
+		},
+		{
+			"trainer": "Triathlete Darren",
+			"order": 398,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Blaze",
+			"fork": "Tough Claws"
+		},
+		{
+			"trainer": "Cool Trainer Halle",
+			"order": 399,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Mawile",
+			"fork": "Mawile-Mega"
+		},
+		{
+			"trainer": "Cool Trainer Halle",
+			"order": 399,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Intimidate",
+			"fork": "Huge Power"
+		},
+		{
+			"trainer": "Winstrate Vito VR",
+			"order": 400,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Alakazam",
+			"fork": "Alakazam-Mega"
+		},
+		{
+			"trainer": "Winstrate Vito VR",
+			"order": 400,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Magic Guard",
+			"fork": "Trace"
+		},
+		{
+			"trainer": "Bug Catcher Davis",
+			"order": 406,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Scizor",
+			"fork": "Scizor-Mega"
+		},
+		{
+			"trainer": "Bug Catcher Davis",
+			"order": 406,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Swarm",
+			"fork": "Technician"
+		},
+		{
+			"trainer": "Dragon Tamer Nicolas",
+			"order": 412,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Latias",
+			"fork": "Latias-Mega"
+		},
+		{
+			"trainer": "Psychic Alix",
+			"order": 416,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gardevoir",
+			"fork": "Gardevoir-Mega"
+		},
+		{
+			"trainer": "Psychic Alix",
+			"order": 416,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Synchronize",
+			"fork": "Pixilate"
+		},
+		{
+			"trainer": "Black Belt Koichi",
+			"order": 417,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gallade",
+			"fork": "Gallade-Mega"
+		},
+		{
+			"trainer": "Expert Timothy",
+			"order": 418,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Lucario",
+			"fork": "Lucario-Mega"
+		},
+		{
+			"trainer": "Expert Timothy",
+			"order": 418,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Inner Focus",
+			"fork": "Adaptability"
+		},
+		{
+			"trainer": "Elite Four Sidney",
+			"order": 426,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gyarados",
+			"fork": "Gyarados-Mega"
+		},
+		{
+			"trainer": "Elite Four Sidney",
+			"order": 426,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Intimidate",
+			"fork": "Mold Breaker"
+		},
+		{
+			"trainer": "Elite Four SidneyDouble",
+			"order": 427,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gyarados",
+			"fork": "Gyarados-Mega"
+		},
+		{
+			"trainer": "Elite Four SidneyDouble",
+			"order": 427,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Intimidate",
+			"fork": "Mold Breaker"
+		},
+		{
+			"trainer": "Elite Four Phoebe",
+			"order": 428,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gengar",
+			"fork": "Gengar-Mega"
+		},
+		{
+			"trainer": "Elite Four Phoebe",
+			"order": 428,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Levitate",
+			"fork": "Shadow Tag"
+		},
+		{
+			"trainer": "Elite Four PhoebeDouble",
+			"order": 429,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Gengar",
+			"fork": "Gengar-Mega"
+		},
+		{
+			"trainer": "Elite Four PhoebeDouble",
+			"order": 429,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Levitate",
+			"fork": "Shadow Tag"
+		},
+		{
+			"trainer": "Champion Wallace",
+			"order": 434,
+			"slot": 0,
+			"field": "species",
+			"vendor": "Kyogre",
+			"fork": "Kyogre-Primal"
+		},
+		{
+			"trainer": "Champion Wallace",
+			"order": 434,
+			"slot": 0,
+			"field": "ability",
+			"vendor": "Drizzle",
+			"fork": "Primordial Sea"
+		},
+		{
+			"trainer": "Champion Wallace",
+			"order": 434,
+			"slot": 5,
+			"field": "species",
+			"vendor": "Swampert",
+			"fork": "Swampert-Mega"
+		},
+		{
+			"trainer": "Champion Wallace",
+			"order": 434,
+			"slot": 5,
+			"field": "ability",
+			"vendor": "Torrent",
+			"fork": "Swift Swim"
+		}
+	]
+}

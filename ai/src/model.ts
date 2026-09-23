@@ -303,6 +303,11 @@ export interface BattleState {
   /** Active Pokémon awaiting a Baton Pass replacement. */
   pendingBatonPassIds?: string[];
   pendingSubstitutePassIds?: string[];
+  /**
+   * The leads' entry effects have fired (applyLeadEntries). A battle opens
+   * once: a second call is a no-op, so Intimidate cannot stack.
+   */
+  leadEntriesApplied?: true;
 }
 
 export interface MoveAction {
@@ -365,6 +370,8 @@ export interface ResolutionTrace {
 }
 
 export interface MoveResolution {
+  /** Targets whose damage this resolution sampled as a critical hit. */
+  criticalHitTargets?: string[];
   hit?: boolean;
   /** The actor failed to execute the selected move for this turn. */
   actionFailure?: ActionFailure;
@@ -493,10 +500,31 @@ export interface SwitchEntryResolution {
 
 export interface DamageFacts {
   rolls: number[];
+  /** The same hit resolved as a critical: rolls, and their bounds. Absent
+   * when a crit is impossible (Lucky Chant, Battle Armor) or already
+   * guaranteed (Laser Focus), in which case `rolls` IS the crit. */
+  critRolls?: number[];
+  critMin?: number;
+  critMax?: number;
+  /** The crit band split per hit, present beside `hitRolls` (Parental
+   * Bond). Each hit rolls its own crit, so a crit on one hit must draw from
+   * that hit's crit distribution, not the summed `critRolls`. */
+  critHitRolls?: number[][];
   /** Number of sequential hits represented by the per-hit rolls. */
   hits?: number;
+  /** The [min, max] hit count of a VARIABLE multi-hit move. Present only
+   * when the count is rolled: `hits` carries the calculator's fixed pin of
+   * 3, while `min`/`max` span this range instead. Absent when the count is
+   * fixed (Skill Link, Triple Axel, a single hit). */
+  hitRange?: [number, number];
   /** Independent per-hit roll distributions, used by calculator split-hit effects such as Parental Bond. */
   hitRolls?: number[][];
+  /**
+   * Set when an intact Disguise or Ice Face converted an otherwise positive
+   * forecast to zero. The hit still lands: the move engine breaks the guarding
+   * effect instead of treating the zero as an immunity.
+   */
+  zeroedByGuard?: 'disguise' | 'iceface';
   min: number;
   max: number;
   targetHp: number;
@@ -505,6 +533,8 @@ export interface DamageFacts {
 }
 
 export interface ActionFacts {
+  /** Variable multi-hit bounds when the count must be sampled per use. */
+  multiHitRange?: [number, number];
   damage?: DamageFacts;
   damageByTarget?: Record<string, DamageFacts>;
   /** Calculator-backed self-hit damage when the acting Pokémon is confused. */

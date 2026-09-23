@@ -1,0 +1,642 @@
+{
+	"comment": "Third held-out set, to confirm the set-score exposure term (--set-exposure) on fights it was not chosen on. Selected 2026-09-18 from the sweep2 archive sweep (control policy only, next 8 singles per report, 5 seeds), before any treatment ran on these fights, by heldout2's rule from counts alone: won 1-4 of 5; excluding the eight trainers read to design --ko-yield-min-hp (Wattson, Jose, Edward, Miguel, Daisy, Lyle, Roxanne, Vivian); excluding every (trainer, report) pair already in battery.json, heldout.json or heldout2.json; one fight per (trainer, report); at most 10 per trainer, first by report name. The stricter rule, excluding every heldout1/heldout2 trainer, left no fight: every trainer left in sweep2 is already in those sets. So each fight here is a box the term never saw against a trainer it did. 80 fights, 13 trainers.",
+	"generator": null,
+	"measured": [
+		{
+			"label": "h3-pbp-s0-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 at 1e98596, real PP, shard 0/5"
+		},
+		{
+			"label": "h3-pbp-s1-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 at 1e98596, real PP, shard 1/5"
+		},
+		{
+			"label": "h3-pbp-s2-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 at 1e98596, real PP, shard 2/5"
+		},
+		{
+			"label": "h3-pbp-s3-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 at 1e98596, real PP, shard 3/5"
+		},
+		{
+			"label": "h3-pbp-s4-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 at 1e98596, real PP, shard 4/5"
+		},
+		{
+			"label": "h3-pbpx05-s0-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 with --set-exposure=0.5 at 1e98596, real PP, shard 0/5"
+		},
+		{
+			"label": "h3-pbpx05-s1-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 with --set-exposure=0.5 at 1e98596, real PP, shard 1/5"
+		},
+		{
+			"label": "h3-pbpx05-s2-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 with --set-exposure=0.5 at 1e98596, real PP, shard 2/5"
+		},
+		{
+			"label": "h3-pbpx05-s3-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 with --set-exposure=0.5 at 1e98596, real PP, shard 3/5"
+		},
+		{
+			"label": "h3-pbpx05-s4-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 with --set-exposure=0.5 at 1e98596, real PP, shard 4/5"
+		},
+		{
+			"label": "h3-ctl-s0-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control, --pick-by-play=0 at 1e98596, real PP, shard 0/4"
+		},
+		{
+			"label": "h3-ctl-s1-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control, --pick-by-play=0 at 1e98596, real PP, shard 1/4"
+		},
+		{
+			"label": "h3-ctl-s2-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control, --pick-by-play=0 at 1e98596, real PP, shard 2/4"
+		},
+		{
+			"label": "h3-ctl-s3-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control, --pick-by-play=0 at 1e98596, real PP, shard 3/4"
+		},
+		{
+			"label": "h3-x05-s0-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5, --pick-by-play=0 at 1e98596, real PP, shard 0/4"
+		},
+		{
+			"label": "h3-x05-s1-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5, --pick-by-play=0 at 1e98596, real PP, shard 1/4"
+		},
+		{
+			"label": "h3-x05-s2-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5, --pick-by-play=0 at 1e98596, real PP, shard 2/4"
+		},
+		{
+			"label": "h3-x05-s3-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5, --pick-by-play=0 at 1e98596, real PP, shard 3/4"
+		},
+		{
+			"label": "h3-x025-s0-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.25, --pick-by-play=0 at 1e98596, real PP, shard 0/4"
+		},
+		{
+			"label": "h3-x025-s1-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.25, --pick-by-play=0 at 1e98596, real PP, shard 1/4"
+		},
+		{
+			"label": "h3-x025-s2-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.25, --pick-by-play=0 at 1e98596, real PP, shard 2/4"
+		},
+		{
+			"label": "h3-x025-s3-pp",
+			"measured_in": "ef4718e",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.25, --pick-by-play=0 at 1e98596, real PP, shard 3/4"
+		}
+	],
+	"scenarios": [
+		{
+			"name": "Youngster Ben @65 [acc-12]",
+			"report": "fixtures/banked-runs/acc-12.run.json",
+			"trainer": "Youngster Ben",
+			"seeds": 20
+		},
+		{
+			"name": "Youngster Ben @65 [acc-17]",
+			"report": "fixtures/banked-runs/acc-17.run.json",
+			"trainer": "Youngster Ben",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [acc-20]",
+			"report": "fixtures/banked-runs/acc-20.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-1]",
+			"report": "fixtures/banked-runs/br-1.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [br-10]",
+			"report": "fixtures/banked-runs/br-10.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [br-12]",
+			"report": "fixtures/banked-runs/br-12.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-12]",
+			"report": "fixtures/banked-runs/br-12.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [br-12]",
+			"report": "fixtures/banked-runs/br-12.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [br-14]",
+			"report": "fixtures/banked-runs/br-14.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [br-14]",
+			"report": "fixtures/banked-runs/br-14.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [br-16]",
+			"report": "fixtures/banked-runs/br-16.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-16]",
+			"report": "fixtures/banked-runs/br-16.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [br-16]",
+			"report": "fixtures/banked-runs/br-16.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-16]",
+			"report": "fixtures/banked-runs/br-16.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-17]",
+			"report": "fixtures/banked-runs/br-17.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-18]",
+			"report": "fixtures/banked-runs/br-18.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-19]",
+			"report": "fixtures/banked-runs/br-19.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-19]",
+			"report": "fixtures/banked-runs/br-19.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-20]",
+			"report": "fixtures/banked-runs/br-20.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-20]",
+			"report": "fixtures/banked-runs/br-20.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [br-21]",
+			"report": "fixtures/banked-runs/br-21.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-21]",
+			"report": "fixtures/banked-runs/br-21.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [br-21]",
+			"report": "fixtures/banked-runs/br-21.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-21]",
+			"report": "fixtures/banked-runs/br-21.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [br-27]",
+			"report": "fixtures/banked-runs/br-27.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-27]",
+			"report": "fixtures/banked-runs/br-27.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-27]",
+			"report": "fixtures/banked-runs/br-27.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-28]",
+			"report": "fixtures/banked-runs/br-28.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [br-28]",
+			"report": "fixtures/banked-runs/br-28.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-28]",
+			"report": "fixtures/banked-runs/br-28.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-4]",
+			"report": "fixtures/banked-runs/br-4.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [br-4]",
+			"report": "fixtures/banked-runs/br-4.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-5]",
+			"report": "fixtures/banked-runs/br-5.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [br-5]",
+			"report": "fixtures/banked-runs/br-5.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Maria @53 [br-5]",
+			"report": "fixtures/banked-runs/br-5.run.json",
+			"trainer": "Triathlete Maria",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Luna @51 [br-6]",
+			"report": "fixtures/banked-runs/br-6.run.json",
+			"trainer": "Battle Girl Luna",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [br-9]",
+			"report": "fixtures/banked-runs/br-9.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [br-9]",
+			"report": "fixtures/banked-runs/br-9.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Fisherman Dale @60 [brbank1-A-2]",
+			"report": "fixtures/banked-runs/brbank1-A-2.run.json",
+			"trainer": "Fisherman Dale",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [brbank1-A-3]",
+			"report": "fixtures/banked-runs/brbank1-A-3.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [brbank1-A-6]",
+			"report": "fixtures/banked-runs/brbank1-A-6.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [brbank1-B-5]",
+			"report": "fixtures/banked-runs/brbank1-B-5.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [brbank1-B-5]",
+			"report": "fixtures/banked-runs/brbank1-B-5.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Corgi @49 [brbank2-B-8]",
+			"report": "fixtures/banked-runs/brbank2-B-8.run.json",
+			"trainer": "Breeder Corgi",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Dylan @52 [brbank2-B-8]",
+			"report": "fixtures/banked-runs/brbank2-B-8.run.json",
+			"trainer": "Triathlete Dylan",
+			"seeds": 20
+		},
+		{
+			"name": "Youngster Joey @34 [brkeys1-A-2]",
+			"report": "fixtures/banked-runs/brkeys1-A-2.run.json",
+			"trainer": "Youngster Joey",
+			"seeds": 20
+		},
+		{
+			"name": "Bug Maniac James @29 [brkeys3-A-4]",
+			"report": "fixtures/banked-runs/brkeys3-A-4.run.json",
+			"trainer": "Bug Maniac James",
+			"seeds": 20
+		},
+		{
+			"name": "Youngster Joey @34 [brkeys3-A-6]",
+			"report": "fixtures/banked-runs/brkeys3-A-6.run.json",
+			"trainer": "Youngster Joey",
+			"seeds": 20
+		},
+		{
+			"name": "Bug Maniac James @29 [brkeys3-A-8]",
+			"report": "fixtures/banked-runs/brkeys3-A-8.run.json",
+			"trainer": "Bug Maniac James",
+			"seeds": 20
+		},
+		{
+			"name": "Bug Maniac James @29 [brkeys3-B-2]",
+			"report": "fixtures/banked-runs/brkeys3-B-2.run.json",
+			"trainer": "Bug Maniac James",
+			"seeds": 20
+		},
+		{
+			"name": "Youngster Joey @34 [brkeys3-B-8]",
+			"report": "fixtures/banked-runs/brkeys3-B-8.run.json",
+			"trainer": "Youngster Joey",
+			"seeds": 20
+		},
+		{
+			"name": "Lady Sarah @39 [brkeys3b-A-1]",
+			"report": "fixtures/banked-runs/brkeys3b-A-1.run.json",
+			"trainer": "Lady Sarah",
+			"seeds": 20
+		},
+		{
+			"name": "Bug Maniac James @29 [brkeys3b-A-8]",
+			"report": "fixtures/banked-runs/brkeys3b-A-8.run.json",
+			"trainer": "Bug Maniac James",
+			"seeds": 20
+		},
+		{
+			"name": "Youngster Joey @34 [brkeys3b-A-8]",
+			"report": "fixtures/banked-runs/brkeys3b-A-8.run.json",
+			"trainer": "Youngster Joey",
+			"seeds": 20
+		},
+		{
+			"name": "Lady Sarah @39 [brkeys3b-B-3]",
+			"report": "fixtures/banked-runs/brkeys3b-B-3.run.json",
+			"trainer": "Lady Sarah",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Janice @35 [brkeys3b-B-4]",
+			"report": "fixtures/banked-runs/brkeys3b-B-4.run.json",
+			"trainer": "Lass Janice",
+			"seeds": 20
+		},
+		{
+			"name": "Bug Maniac James @29 [brkeys3b-B-5]",
+			"report": "fixtures/banked-runs/brkeys3b-B-5.run.json",
+			"trainer": "Bug Maniac James",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [fin-5]",
+			"report": "fixtures/banked-runs/fin-5.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Fisherman Dale @60 [fin-5]",
+			"report": "fixtures/banked-runs/fin-5.run.json",
+			"trainer": "Fisherman Dale",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [fin-6]",
+			"report": "fixtures/banked-runs/fin-6.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [nab-15]",
+			"report": "fixtures/banked-runs/nab-15.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Fisherman Dale @60 [nab-15]",
+			"report": "fixtures/banked-runs/nab-15.run.json",
+			"trainer": "Fisherman Dale",
+			"seeds": 20
+		},
+		{
+			"name": "Youngster Ben @65 [pf-2]",
+			"report": "fixtures/banked-runs/pf-2.run.json",
+			"trainer": "Youngster Ben",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [rank5-A-15]",
+			"report": "fixtures/banked-runs/rank5-A-15.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [rank5-B-1]",
+			"report": "fixtures/banked-runs/rank5-B-1.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [reteach-A-12]",
+			"report": "fixtures/banked-runs/reteach-A-12.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [reteach-A-6]",
+			"report": "fixtures/banked-runs/reteach-A-6.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [reteach-B-12]",
+			"report": "fixtures/banked-runs/reteach-B-12.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [reteach-B-9]",
+			"report": "fixtures/banked-runs/reteach-B-9.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [reteach2-A-8]",
+			"report": "fixtures/banked-runs/reteach2-A-8.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [reteach2-B-11]",
+			"report": "fixtures/banked-runs/reteach2-B-11.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [reteach2-B-9]",
+			"report": "fixtures/banked-runs/reteach2-B-9.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [sac-A-1]",
+			"report": "fixtures/banked-runs/sac-A-1.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [sac-A-14]",
+			"report": "fixtures/banked-runs/sac-A-14.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [sac-A-8]",
+			"report": "fixtures/banked-runs/sac-A-8.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Lady Sarah @39 [starteriv1-M-1]",
+			"report": "fixtures/banked-runs/starteriv1-M-1.run.json",
+			"trainer": "Lady Sarah",
+			"seeds": 20
+		},
+		{
+			"name": "Fisherman Dale @60 [sv-19]",
+			"report": "fixtures/banked-runs/sv-19.run.json",
+			"trainer": "Fisherman Dale",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [tmsource-B-1]",
+			"report": "fixtures/banked-runs/tmsource-B-1.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [tmsource-B-9]",
+			"report": "fixtures/banked-runs/tmsource-B-9.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Picnicker Bianca @58 [tmsource-B-9]",
+			"report": "fixtures/banked-runs/tmsource-B-9.run.json",
+			"trainer": "Picnicker Bianca",
+			"seeds": 20
+		}
+	]
+}

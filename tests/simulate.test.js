@@ -51,8 +51,8 @@ test('a team missing its set label is refused, not guessed at', () => {
 test('milestones are the profile\'s notion of a story fight, not this tool\'s', () => {
 	const all = simulate.selectFights({});
 	const milestones = simulate.selectFights({milestones: true});
-	assert.equal(all.length, 362, 'the unfiltered walk is the whole run map');
-	assert.equal(milestones.length, 44);
+	assert.equal(all.length, 366, 'the unfiltered walk is the whole run map');
+	assert.equal(milestones.length, 47);
 
 	const pattern = getProfile().encounters.MILESTONE_PATTERN;
 	assert.ok(pattern, 'the profile must declare the pattern the walk filters on');
@@ -60,15 +60,15 @@ test('milestones are the profile\'s notion of a story fight, not this tool\'s', 
 		assert.match(fight.trainer, pattern);
 	}
 	// The spine has to start and end where a playthrough does.
-	assert.equal(milestones[0].trainer, 'Leader Brawly');
+	assert.equal(milestones[0].trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(milestones[milestones.length - 1].trainer, 'Champion Wallace');
 });
 
 test('a window selects by progression index, not by position in the list', () => {
-	const window = simulate.selectFights({from: 77, to: 340});
+	const window = simulate.selectFights({from: 80, to: 345});
 	assert.ok(window.length > 1);
-	assert.equal(window[0].order, 77);
-	assert.ok(window.every(f => f.order >= 77 && f.order <= 340));
+	assert.equal(window[0].order, 80);
+	assert.ok(window.every(f => f.order >= 80 && f.order <= 345));
 	assert.equal(simulate.selectFights({from: 0, count: 3}).length, 3);
 });
 
@@ -115,11 +115,14 @@ test('the first fight of the run predicts what it predicted before', () => {
 		count: 1,
 	});
 	const step = run.steps[0];
-	assert.equal(step.trainer, 'Youngster Calvin');
-	assert.equal(step.lead.species, 'Poochyena');
+	// The map opens on the restored Route 103 rival now: one Treecko at L5.
+	assert.equal(step.trainer, 'Trainer Rival Route 103 Sceptile');
+	assert.equal(step.lead.species, 'Treecko');
 	assert.equal(step.lead.level, 5);
-	assert.equal(step.actions[0].label, 'Quick Attack');
-	assert.equal(step.confidence, 'decided');
+	assert.equal(step.actions[0].label, 'Absorb');
+	// Treecko's Absorb (6.4) and Leer (6.0) sit close, so the AI-move
+	// prediction is contested where Poochyena's Quick Attack was decided.
+	assert.equal(step.confidence, 'contested');
 });
 
 test('one unbuildable fight does not take the rest of the walk with it', () => {
@@ -266,9 +269,9 @@ const runtime = require('../lib/run');
 const RUN_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
 
 /**
- * A run parked at #250, on Cycling Road with a Swampert rival.
+ * A run parked at #255, on Cycling Road with a Swampert rival.
  *
- * Chosen because the fight next up (#265) and the ones after it sit in DIFFERENT
+ * Chosen because the fight next up (#270) and the ones after it sit in DIFFERENT
  * cap stretches — 38 then 42 — so a walk that reuses one party across the rows
  * shows up as an equal level on both instead of hiding.
  */
@@ -289,10 +292,10 @@ test('a run is walked from where it is, at the levels it will have there', () =>
 	const walk = simulate.simulate({run: state, count: 2});
 
 	assert.equal(walk.run.name, 'Cycling Road');
-	assert.equal(walk.run.position, 250);
-	assert.deepEqual(walk.steps.map(s => s.order), [265, 271],
+	assert.equal(walk.run.position, 255);
+	assert.deepEqual(walk.steps.map(s => s.order), [270, 276],
 		'the walk starts at the fight after the position, not at the top of the map');
-	// The box holds one level 3 Poochyena. It fights #265 at 38 and #271 at 42,
+	// The box holds one level 3 Poochyena. It fights #270 at 38 and #276 at 42,
 	// because the free candy puts the whole box at the cap of the fight being
 	// fought — planning both rows at 3 would answer for a team never fielded.
 	assert.deepEqual(walk.steps.map(s => s.playerLevel), [38, 42]);
@@ -306,7 +309,7 @@ test('a run walk says whose run it is, and that the rows are not today\'s levels
 	const text = simulate.format(simulate.simulate({run: midRun(), count: 1}));
 	// Without this line every row reads as a report on the team the player is
 	// looking at right now, which is the one thing the projection is not.
-	assert.match(text, /^run: Cycling Road — the map from #251 onward, each row planned at the level cap/);
+	assert.match(text, /^run: Cycling Road — the map from #256 onward, each row planned at the level cap/);
 	assert.match(text, /you L38/);
 
 	// A run that declines caps projects nothing, and must not claim it did.
@@ -318,12 +321,12 @@ test('a run walk says whose run it is, and that the rows are not today\'s levels
 test('a run walks its own map: variants it can never see are not fights', () => {
 	// One story event, three variants; the starter choice fixed which one happens.
 	assert.deepEqual(
-		simulate.selectFights({run: midRun(), to: 265}).map(f => f.trainer),
+		simulate.selectFights({run: midRun(), to: 270}).map(f => f.trainer),
 		['Trainer Rival Cycling Road Swampert']
 	);
 	// The filter is the run's own, not a second copy here — an undeclared starter
 	// still sees all three, which is honest and is why it cannot be hardcoded.
-	assert.equal(simulate.selectFights({run: midRun({rival: null}), to: 265}).length, 3);
+	assert.equal(simulate.selectFights({run: midRun({rival: null}), to: 270}).length, 3);
 	// The selection flags still compose, and the spine they walk is this run's:
 	// the rival milestone ahead is the Swampert one, once.
 	assert.deepEqual(

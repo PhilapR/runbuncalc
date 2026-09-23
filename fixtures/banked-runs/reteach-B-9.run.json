@@ -1,0 +1,8053 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "36d2e9eb-aa52-4c2a-a22d-0fb907d1ed7f",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-25T20:58:19.883Z",
+	"updatedAt": "2026-08-25T20:58:19.883Z",
+	"position": 138,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Blaziken"
+	},
+	"nextId": 19,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Prinplup",
+			"nickname": null,
+			"level": 25,
+			"nature": "Adamant",
+			"ability": "Torrent",
+			"item": "Oran Berry",
+			"moves": [
+				"Waterfall",
+				"Hydro Pump",
+				"Surf",
+				"Brick Break"
+			],
+			"ivs": {
+				"hp": 7,
+				"atk": 6,
+				"def": 18,
+				"spa": 23,
+				"spd": 20,
+				"spe": 23
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Linoone-Galar",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quirky",
+			"ability": "Gluttony",
+			"item": "Poison Barb",
+			"moves": [
+				"Thunder",
+				"Hyper Voice",
+				"Blizzard",
+				"Headbutt"
+			],
+			"ivs": {
+				"hp": 22,
+				"atk": 19,
+				"def": 11,
+				"spa": 23,
+				"spd": 27,
+				"spe": 30
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Fletchinder",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lonely",
+			"ability": "Flame Body",
+			"item": "Twisted Spoon",
+			"moves": [
+				"Roost",
+				"Hurricane",
+				"Fire Blast",
+				"Flamethrower"
+			],
+			"ivs": {
+				"hp": 3,
+				"atk": 27,
+				"def": 27,
+				"spa": 19,
+				"spd": 18,
+				"spe": 9
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Eldegoss",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quiet",
+			"ability": "Cotton Down",
+			"item": "Miracle Seed",
+			"moves": [
+				"Leaf Tornado",
+				"Cotton Spore",
+				"Solar Beam",
+				"Magical Leaf"
+			],
+			"ivs": {
+				"hp": 30,
+				"atk": 14,
+				"def": 20,
+				"spa": 19,
+				"spd": 18,
+				"spe": 3
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Masquerain",
+			"nickname": null,
+			"level": 25,
+			"nature": "Hardy",
+			"ability": "Intimidate",
+			"item": "Silk Scarf",
+			"moves": [
+				"Air Cutter",
+				"Aerial Ace",
+				"Hydro Pump",
+				"Hurricane"
+			],
+			"ivs": {
+				"hp": 13,
+				"atk": 13,
+				"def": 31,
+				"spa": 11,
+				"spd": 0,
+				"spe": 8
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Growlithe",
+			"nickname": null,
+			"level": 25,
+			"nature": "Adamant",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Take Down",
+				"Bite",
+				"Will-O-Wisp",
+				"Fire Blast"
+			],
+			"ivs": {
+				"hp": 14,
+				"atk": 10,
+				"def": 7,
+				"spa": 31,
+				"spd": 20,
+				"spe": 4
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Vivillon",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bold",
+			"ability": "Shield Dust",
+			"item": null,
+			"moves": [
+				"Signal Beam",
+				"String Shot",
+				"Hurricane",
+				"Electroweb"
+			],
+			"ivs": {
+				"hp": 12,
+				"atk": 9,
+				"def": 31,
+				"spa": 16,
+				"spd": 2,
+				"spe": 4
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Croagunk",
+			"nickname": null,
+			"level": 25,
+			"nature": "Docile",
+			"ability": "Poison Touch",
+			"item": null,
+			"moves": [
+				"Low Sweep",
+				"Poison Jab",
+				"Earthquake",
+				"Sludge Bomb"
+			],
+			"ivs": {
+				"hp": 5,
+				"atk": 22,
+				"def": 13,
+				"spa": 27,
+				"spd": 5,
+				"spe": 21
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Onix",
+			"nickname": null,
+			"level": 25,
+			"nature": "Adamant",
+			"ability": "Rock Head",
+			"item": "Soft Sand",
+			"moves": [
+				"Sand Tomb",
+				"Earth Power",
+				"Bulldoze",
+				"Earthquake"
+			],
+			"ivs": {
+				"hp": 6,
+				"atk": 15,
+				"def": 15,
+				"spa": 24,
+				"spd": 16,
+				"spe": 30
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 16,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Bayleef",
+			"nickname": null,
+			"level": 25,
+			"nature": "Careful",
+			"ability": "Overgrow",
+			"item": null,
+			"moves": [
+				"Synthesis",
+				"Razor Leaf",
+				"Solar Beam",
+				"Magical Leaf"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 21,
+				"def": 1,
+				"spa": 14,
+				"spd": 1,
+				"spe": 28
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 19,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Sealeo",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quirky",
+			"ability": "Thick Fat",
+			"item": null,
+			"moves": [
+				"Waterfall",
+				"Blizzard",
+				"Surf",
+				"Earthquake"
+			],
+			"ivs": {
+				"hp": 27,
+				"atk": 4,
+				"def": 2,
+				"spa": 2,
+				"spd": 2,
+				"spe": 17
+			},
+			"status": "party",
+			"origin": {
+				"at": 22,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Mienfoo",
+			"nickname": null,
+			"level": 25,
+			"nature": "Careful",
+			"ability": "Inner Focus",
+			"item": null,
+			"moves": [
+				"Drain Punch",
+				"Rock Smash",
+				"Fake Out",
+				"Focus Blast"
+			],
+			"ivs": {
+				"hp": 11,
+				"atk": 13,
+				"def": 15,
+				"spa": 17,
+				"spd": 6,
+				"spe": 9
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 29,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Octillery",
+			"nickname": null,
+			"level": 25,
+			"nature": "Mild",
+			"ability": "Suction Cups",
+			"item": null,
+			"moves": [
+				"Hydro Pump",
+				"Surf",
+				"Octazooka",
+				"Waterfall"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 2,
+				"def": 17,
+				"spa": 15,
+				"spd": 3,
+				"spe": 12
+			},
+			"status": "party",
+			"origin": {
+				"at": 37,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Drednaw",
+			"nickname": null,
+			"level": 25,
+			"nature": "Careful",
+			"ability": "Strong Jaw",
+			"item": null,
+			"moves": [
+				"Waterfall",
+				"Earthquake",
+				"Hydro Pump",
+				"Head Smash"
+			],
+			"ivs": {
+				"hp": 20,
+				"atk": 30,
+				"def": 22,
+				"spa": 29,
+				"spd": 15,
+				"spe": 21
+			},
+			"status": "party",
+			"origin": {
+				"at": 42,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Eelektrik",
+			"nickname": null,
+			"level": 25,
+			"nature": "Naive",
+			"ability": "Levitate",
+			"item": null,
+			"moves": [
+				"Flash Cannon",
+				"Crunch",
+				"Thunderbolt",
+				"Thunder"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 23,
+				"def": 27,
+				"spa": 29,
+				"spd": 10,
+				"spe": 3
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 48,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Seadra",
+			"nickname": null,
+			"level": 25,
+			"nature": "Gentle",
+			"ability": "Poison Point",
+			"item": null,
+			"moves": [
+				"Surf",
+				"Bubble Beam",
+				"Hydro Pump",
+				"Waterfall"
+			],
+			"ivs": {
+				"hp": 25,
+				"atk": 24,
+				"def": 20,
+				"spa": 1,
+				"spd": 22,
+				"spe": 9
+			},
+			"status": "party",
+			"origin": {
+				"at": 48,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-17",
+			"species": "Hattrem",
+			"nickname": null,
+			"level": 25,
+			"nature": "Modest",
+			"ability": "Synchronize",
+			"item": null,
+			"moves": [
+				"Psyshock",
+				"Psychic",
+				"Life Dew",
+				"Psybeam"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 30,
+				"def": 31,
+				"spa": 25,
+				"spd": 17,
+				"spe": 22
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_ROUTE116",
+				"mapName": "Route116"
+			}
+		},
+		{
+			"id": "mon-18",
+			"species": "Houndoom",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Early Bird",
+			"item": null,
+			"moves": [
+				"Flame Burst",
+				"Inferno",
+				"Flamethrower",
+				"Fire Blast"
+			],
+			"ivs": {
+				"hp": 24,
+				"atk": 25,
+				"def": 7,
+				"spa": 8,
+				"spd": 21,
+				"spe": 4
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_RUSTBORO_CITY",
+				"mapName": "Rustboro City"
+			}
+		}
+	],
+	"party": [
+		"mon-14",
+		"mon-11",
+		"mon-13",
+		"mon-16",
+		"mon-4",
+		"mon-1"
+	],
+	"bag": {
+		"Potion": 1,
+		"Super Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Piplup",
+				"level": 5,
+				"ivs": {
+					"hp": 7,
+					"atk": 6,
+					"def": 18,
+					"spa": 23,
+					"spd": 20,
+					"spe": 23
+				},
+				"nature": "Adamant",
+				"ability": "Torrent"
+			},
+			"summary": "caught Piplup at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Zigzagoon-Galar",
+				"level": 2,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 22,
+					"atk": 19,
+					"def": 11,
+					"spa": 23,
+					"spd": 27,
+					"spe": 30
+				},
+				"nature": "Quirky",
+				"ability": "Gluttony"
+			},
+			"summary": "caught Zigzagoon-Galar at level 2 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Fletchling",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 3,
+					"atk": 27,
+					"def": 27,
+					"spa": 19,
+					"spd": 18,
+					"spe": 9
+				},
+				"nature": "Lonely",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Fletchling at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Gossifleur",
+				"level": 3,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 30,
+					"atk": 14,
+					"def": 20,
+					"spa": 19,
+					"spd": 18,
+					"spe": 3
+				},
+				"nature": "Quiet",
+				"ability": "Cotton Down"
+			},
+			"summary": "caught Gossifleur at level 3 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Surskit",
+				"level": 3,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 13,
+					"atk": 13,
+					"def": 31,
+					"spa": 11,
+					"spd": 0,
+					"spe": 8
+				},
+				"nature": "Hardy",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Surskit at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Growlithe",
+				"level": 2,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 14,
+					"atk": 10,
+					"def": 7,
+					"spa": 31,
+					"spd": 20,
+					"spe": 4
+				},
+				"nature": "Adamant",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Growlithe at level 2 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Piplup grew from L5 to L12 and learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Zigzagoon-Galar grew from L2 to L12 and learned Rock Smash, Snarl; its moves are full, so Baby-Doll Eyes must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Baby-Doll Eyes",
+				"replace": "Tackle"
+			},
+			"summary": "Zigzagoon-Galar forgot Tackle, learned Baby-Doll Eyes",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Fletchling grew from L5 to L12 and learned Quick Attack, Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L3 to L12 and learned Rapid Spin, Sweet Scent; its moves are full, so Magical Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Leafage"
+			},
+			"summary": "Gossifleur forgot Leafage, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L3 to L12 and learned Quick Attack, Sweet Scent, Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Growlithe grew from L2 to L12 and learned Covet, Odor Sleuth; its moves are full, so Flame Wheel must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Ember"
+			},
+			"summary": "Growlithe forgot Ember, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Piplup takes the lead — with Zigzagoon-Galar, Fletchling, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-5",
+					"mon-1",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Fletchling, Surskit, Piplup, Gossifleur, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Hurricane",
+				"replace": "Growl"
+			},
+			"summary": "Fletchling forgot Growl, learned Hurricane",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hydro Pump",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Surskit forgot Sweet Scent, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Hydro Pump",
+				"replace": "Growl"
+			},
+			"summary": "Piplup forgot Growl, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hyper Voice",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Gossifleur forgot Sweet Scent, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Blizzard",
+				"replace": "Baby-Doll Eyes"
+			},
+			"summary": "Zigzagoon-Galar forgot Baby-Doll Eyes, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Piplup is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Fletchling takes the lead — with Growlithe, Piplup, Surskit, Gossifleur, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Tackle"
+			},
+			"summary": "Fletchling forgot Tackle, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Blast",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Growlithe forgot Odor Sleuth, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Surf",
+				"replace": "Pound"
+			},
+			"summary": "Piplup forgot Pound, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Surf",
+				"replace": "Quick Attack"
+			},
+			"summary": "Surskit forgot Quick Attack, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Facade",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Gossifleur forgot Magical Leaf, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Voice",
+				"replace": "Sand Attack"
+			},
+			"summary": "Zigzagoon-Galar forgot Sand Attack, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Piplup takes the lead — with Fletchling, Surskit, Growlithe, Zigzagoon-Galar, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Facade"
+			},
+			"summary": "Gossifleur forgot Facade, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Waterfall",
+				"replace": "Bubble"
+			},
+			"summary": "Piplup forgot Bubble, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Facade",
+				"replace": "Quick Attack"
+			},
+			"summary": "Fletchling forgot Quick Attack, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Waterfall",
+				"replace": "Bubble"
+			},
+			"summary": "Surskit forgot Bubble, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Thunder",
+				"replace": "Rock Smash"
+			},
+			"summary": "Zigzagoon-Galar forgot Rock Smash, learned Thunder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Solar Beam",
+				"replace": "Rapid Spin"
+			},
+			"summary": "Gossifleur forgot Rapid Spin, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Piplup, Surskit, Fletchling, Gossifleur, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Blizzard",
+				"replace": "Pluck"
+			},
+			"summary": "Piplup forgot Pluck, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Blizzard",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Surskit forgot Bubble Beam, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Secret Power",
+				"replace": "Fly"
+			},
+			"summary": "Fletchling forgot Fly, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Facade",
+				"replace": "Snarl"
+			},
+			"summary": "Zigzagoon-Galar forgot Snarl, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Fletchling takes the lead — with Growlithe, Piplup, Gossifleur, Surskit, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Secret Power"
+			},
+			"summary": "Fletchling forgot Secret Power, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Rock Tomb",
+				"replace": "Waterfall"
+			},
+			"summary": "Piplup forgot Waterfall, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Ice Beam",
+				"replace": "Waterfall"
+			},
+			"summary": "Surskit forgot Waterfall, learned Ice Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Thunderbolt",
+				"replace": "Facade"
+			},
+			"summary": "Zigzagoon-Galar forgot Facade, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Scatterbug",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 12,
+					"atk": 9,
+					"def": 31,
+					"spa": 16,
+					"spd": 2,
+					"spe": 4
+				},
+				"nature": "Bold",
+				"ability": "Shield Dust"
+			},
+			"summary": "caught Scatterbug at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Croagunk",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 5,
+					"atk": 22,
+					"def": 13,
+					"spa": 27,
+					"spd": 5,
+					"spe": 21
+				},
+				"nature": "Docile",
+				"ability": "Poison Touch"
+			},
+			"summary": "caught Croagunk at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Scatterbug grew from L5 to L12",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Scatterbug evolved into Spewpa",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L5 to L12 and learned Fake Out, Vacuum Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Fletchling takes the lead — with Piplup, Gossifleur, Surskit, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-3",
+					"mon-1",
+					"mon-5",
+					"mon-8"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Zigzagoon-Galar, Fletchling, Piplup, Surskit, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-4",
+				"item": "Miracle Seed"
+			},
+			"summary": "Gossifleur is holding Miracle Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leafage",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Gossifleur forgot Hyper Voice, learned Leafage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Facade",
+				"replace": "Blizzard"
+			},
+			"summary": "Zigzagoon-Galar forgot Blizzard, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Secret Power",
+				"replace": "Fly"
+			},
+			"summary": "Fletchling forgot Fly, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Brick Break",
+				"replace": "Blizzard"
+			},
+			"summary": "Piplup forgot Blizzard, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Solar Beam",
+				"replace": "Ice Beam"
+			},
+			"summary": "Surskit forgot Ice Beam, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Thunder Punch",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Croagunk forgot Mud-Slap, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-3",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Zigzagoon-Galar, Fletchling, Piplup, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Piplup takes the lead — with Zigzagoon-Galar, Fletchling, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Piplup takes the lead — with Fletchling, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-5",
+					"mon-4",
+					"mon-3",
+					"mon-8"
+				]
+			},
+			"summary": "Piplup takes the lead — with Growlithe, Surskit, Gossifleur, Fletchling, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Waterfall",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Piplup forgot Rock Tomb, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Waterfall",
+				"replace": "Solar Beam"
+			},
+			"summary": "Surskit forgot Solar Beam, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hyper Voice",
+				"replace": "Leafage"
+			},
+			"summary": "Gossifleur forgot Leafage, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Aura Sphere",
+				"replace": "Poison Sting"
+			},
+			"summary": "Croagunk forgot Poison Sting, learned Aura Sphere",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Onix",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 6,
+					"atk": 15,
+					"def": 15,
+					"spa": 24,
+					"spd": 16,
+					"spe": 30
+				},
+				"nature": "Adamant",
+				"ability": "Rock Head"
+			},
+			"summary": "caught Onix at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Onix grew from L8 to L12 and learned Screech; its moves are full, so Dragon Breath must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Dragon Breath",
+				"replace": "Tackle"
+			},
+			"summary": "Onix forgot Tackle, learned Dragon Breath",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-5",
+					"mon-4",
+					"mon-3"
+				]
+			},
+			"summary": "Piplup takes the lead — with Growlithe, Surskit, Gossifleur, Fletchling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Piplup takes the lead — with Zigzagoon-Galar, Fletchling, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Fletchling takes the lead — with Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-6",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-7"
+				]
+			},
+			"summary": "Croagunk takes the lead — with Growlithe, Fletchling, Gossifleur, Surskit, Spewpa",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "X-Scissor",
+				"replace": "Fake Out"
+			},
+			"summary": "Croagunk forgot Fake Out, learned X-Scissor",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Secret Power"
+			},
+			"summary": "Fletchling forgot Secret Power, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bug Bite",
+				"replace": "Waterfall"
+			},
+			"summary": "Surskit forgot Waterfall, learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Bug Bite"
+			},
+			"summary": "Spewpa learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chikorita",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 15,
+					"atk": 21,
+					"def": 1,
+					"spa": 14,
+					"spd": 1,
+					"spe": 28
+				},
+				"nature": "Careful",
+				"ability": "Overgrow"
+			},
+			"summary": "caught Chikorita at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Fletchling grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Fletchling evolved into Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L12 to L17; its moves are full, so Round must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Round",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Gossifleur forgot Magical Leaf, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L12 to L17; its moves are full, so Struggle Bug must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Struggle Bug",
+				"replace": "Bug Bite"
+			},
+			"summary": "Surskit forgot Bug Bite, learned Struggle Bug",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Growlithe grew from L12 to L17; its moves are full, so Fire Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Fang",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Growlithe forgot Flame Wheel, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Spewpa grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Spewpa evolved into Vivillon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L12 to L17; its moves are full, so Mud Shot, Sludge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Shot",
+				"replace": "Aura Sphere"
+			},
+			"summary": "Croagunk forgot Aura Sphere, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge",
+				"replace": "Mud Shot"
+			},
+			"summary": "Croagunk forgot Mud Shot, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Piplup grew from L12 to L17; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Bubble Beam",
+				"replace": "Surf"
+			},
+			"summary": "Piplup forgot Surf, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Piplup evolved into Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Zigzagoon-Galar grew from L12 to L17; its moves are full, so Headbutt, Pin Missile must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Headbutt",
+				"replace": "Facade"
+			},
+			"summary": "Zigzagoon-Galar forgot Facade, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Pin Missile",
+				"replace": "Headbutt"
+			},
+			"summary": "Zigzagoon-Galar forgot Headbutt, learned Pin Missile",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Onix grew from L12 to L17; its moves are full, so Rock Tomb, Block must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Tomb",
+				"replace": "Dragon Breath"
+			},
+			"summary": "Onix forgot Dragon Breath, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Block",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Onix forgot Rock Tomb, learned Block",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Chikorita grew from L14 to L17; its moves are full, so Synthesis must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Synthesis",
+				"replace": "Growl"
+			},
+			"summary": "Chikorita forgot Growl, learned Synthesis",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-10"
+			},
+			"summary": "Chikorita evolved into Bayleef",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Fletchinder, Gossifleur, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-2",
+					"mon-3",
+					"mon-1",
+					"mon-7",
+					"mon-4"
+				]
+			},
+			"summary": "Bayleef takes the lead — with Zigzagoon-Galar, Fletchinder, Prinplup, Vivillon, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Round"
+			},
+			"summary": "Gossifleur forgot Round, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Air Cutter",
+				"replace": "Tackle"
+			},
+			"summary": "Vivillon forgot Tackle, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Pluck",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Prinplup forgot Bubble Beam, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Solar Beam",
+				"replace": "Poison Powder"
+			},
+			"summary": "Bayleef forgot Poison Powder, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Facade",
+				"replace": "Pin Missile"
+			},
+			"summary": "Zigzagoon-Galar forgot Pin Missile, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fire Blast",
+				"replace": "Facade"
+			},
+			"summary": "Fletchinder forgot Facade, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Aerial Ace",
+				"replace": "Waterfall"
+			},
+			"summary": "Prinplup forgot Waterfall, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Hurricane",
+				"replace": "Stun Spore"
+			},
+			"summary": "Vivillon forgot Stun Spore, learned Hurricane",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leafage",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Gossifleur forgot Hyper Voice, learned Leafage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Spheal",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 27,
+					"atk": 4,
+					"def": 2,
+					"spa": 2,
+					"spd": 2,
+					"spe": 17
+				},
+				"nature": "Quirky",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Spheal at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Spheal grew from L8 to L17; its moves are full, so Ice Ball, Charm, Brine must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Ice Ball",
+				"replace": "Growl"
+			},
+			"summary": "Spheal forgot Growl, learned Ice Ball",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Charm",
+				"replace": "Ice Ball"
+			},
+			"summary": "Spheal forgot Ice Ball, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Brine",
+				"replace": "Charm"
+			},
+			"summary": "Spheal forgot Charm, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Zigzagoon-Galar takes the lead — with Fletchinder, Prinplup, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-10",
+					"mon-4",
+					"mon-6",
+					"mon-5",
+					"mon-7"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Bayleef, Gossifleur, Growlithe, Surskit, Vivillon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Surf",
+				"replace": "Pluck"
+			},
+			"summary": "Prinplup forgot Pluck, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Waterfall",
+				"replace": "Struggle Bug"
+			},
+			"summary": "Surskit forgot Struggle Bug, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Roost",
+				"replace": "Bug Bite"
+			},
+			"summary": "Vivillon forgot Bug Bite, learned Roost",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Silk Scarf"
+			},
+			"summary": "Surskit is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Gossifleur, Growlithe, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-3",
+					"mon-5",
+					"mon-9",
+					"mon-11"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Growlithe, Fletchinder, Surskit, Onix, Spheal",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Tomb",
+				"replace": "Block"
+			},
+			"summary": "Onix forgot Block, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Flame Charge",
+				"replace": "Fly"
+			},
+			"summary": "Fletchinder forgot Fly, learned Flame Charge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Metal Claw",
+				"replace": "Surf"
+			},
+			"summary": "Prinplup forgot Surf, learned Metal Claw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Surf",
+				"replace": "Metal Claw"
+			},
+			"summary": "Prinplup forgot Metal Claw, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Will-O-Wisp",
+				"replace": "Covet"
+			},
+			"summary": "Growlithe forgot Covet, learned Will-O-Wisp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Flamethrower",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Fletchinder forgot Aerial Ace, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble Beam",
+				"replace": "Blizzard"
+			},
+			"summary": "Surskit forgot Blizzard, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earthquake",
+				"replace": "Screech"
+			},
+			"summary": "Onix forgot Screech, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Powder Snow"
+			},
+			"summary": "Spheal forgot Powder Snow, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Mienfoo",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 11,
+					"atk": 13,
+					"def": 15,
+					"spa": 17,
+					"spd": 6,
+					"spe": 9
+				},
+				"nature": "Careful",
+				"ability": "Inner Focus"
+			},
+			"summary": "caught Mienfoo at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Mienfoo grew from L8 to L17 and learned Fake Out, Double Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Growlithe, Fletchinder, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-7",
+					"mon-11",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Onix, Vivillon, Spheal, Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-9",
+				"item": "Soft Sand"
+			},
+			"summary": "Onix is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Waterfall",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Prinplup forgot Aerial Ace, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Body Press",
+				"replace": "Bind"
+			},
+			"summary": "Onix forgot Bind, learned Body Press",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Aerial Ace",
+				"replace": "Roost"
+			},
+			"summary": "Vivillon forgot Roost, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Waterfall",
+				"replace": "Rollout"
+			},
+			"summary": "Spheal forgot Rollout, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Aerial Ace",
+				"replace": "Flame Charge"
+			},
+			"summary": "Fletchinder forgot Flame Charge, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-2",
+					"mon-10",
+					"mon-1",
+					"mon-4",
+					"mon-8"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Zigzagoon-Galar, Bayleef, Prinplup, Gossifleur, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Pin Missile",
+				"replace": "Facade"
+			},
+			"summary": "Zigzagoon-Galar forgot Facade, learned Pin Missile",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Solar Beam",
+				"replace": "Air Cutter"
+			},
+			"summary": "Vivillon forgot Air Cutter, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Facade",
+				"replace": "Pin Missile"
+			},
+			"summary": "Zigzagoon-Galar forgot Pin Missile, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Blizzard",
+				"replace": "Brick Break"
+			},
+			"summary": "Prinplup forgot Brick Break, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge Bomb",
+				"replace": "Vacuum Wave"
+			},
+			"summary": "Croagunk forgot Vacuum Wave, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Zigzagoon-Galar takes the lead — with Prinplup, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-3",
+					"mon-6",
+					"mon-1",
+					"mon-8",
+					"mon-9"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Fletchinder, Growlithe, Prinplup, Croagunk, Onix",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Pluck",
+				"replace": "Surf"
+			},
+			"summary": "Prinplup forgot Surf, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Air Cutter",
+				"replace": "Solar Beam"
+			},
+			"summary": "Vivillon forgot Solar Beam, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Surf",
+				"replace": "Blizzard"
+			},
+			"summary": "Prinplup forgot Blizzard, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Aerial Ace",
+				"replace": "X-Scissor"
+			},
+			"summary": "Croagunk forgot X-Scissor, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earth Power",
+				"replace": "Body Press"
+			},
+			"summary": "Onix forgot Body Press, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Remoraid",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 31,
+					"atk": 2,
+					"def": 17,
+					"spa": 15,
+					"spd": 3,
+					"spe": 12
+				},
+				"nature": "Mild",
+				"ability": "Hustle"
+			},
+			"summary": "caught Remoraid at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L8 to L17 and learned Psybeam, Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Onix takes the lead — with Prinplup, Vivillon, Growlithe, Croagunk, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Shot",
+				"replace": "Sludge"
+			},
+			"summary": "Croagunk forgot Sludge, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Body Press",
+				"replace": "Rock Throw"
+			},
+			"summary": "Onix forgot Rock Throw, learned Body Press",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Blizzard",
+				"replace": "Pluck"
+			},
+			"summary": "Prinplup forgot Pluck, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Psychic",
+				"replace": "Air Cutter"
+			},
+			"summary": "Vivillon forgot Air Cutter, learned Psychic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Earthquake",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Croagunk forgot Aerial Ace, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Roost",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Fletchinder forgot Aerial Ace, learned Roost",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chewtle",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 20,
+					"atk": 30,
+					"def": 22,
+					"spa": 29,
+					"spd": 15,
+					"spe": 21
+				},
+				"nature": "Careful",
+				"ability": "Strong Jaw"
+			},
+			"summary": "caught Chewtle at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L10 to L17 and learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Growlithe, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-7",
+					"mon-8",
+					"mon-1",
+					"mon-6",
+					"mon-10"
+				]
+			},
+			"summary": "Onix takes the lead — with Vivillon, Croagunk, Prinplup, Growlithe, Bayleef",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Strength",
+				"replace": "Body Press"
+			},
+			"summary": "Onix forgot Body Press, learned Strength",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Aura Sphere",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Croagunk forgot Thunder Punch, learned Aura Sphere",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Strength",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Bayleef forgot Razor Leaf, learned Strength",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-1",
+					"mon-6",
+					"mon-3",
+					"mon-8",
+					"mon-10"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Prinplup, Growlithe, Fletchinder, Croagunk, Bayleef",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Air Cutter",
+				"replace": "Psychic"
+			},
+			"summary": "Vivillon forgot Psychic, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Poison Jab",
+				"replace": "Mud Shot"
+			},
+			"summary": "Croagunk forgot Mud Shot, learned Poison Jab",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tynamo",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 15,
+					"atk": 23,
+					"def": 27,
+					"spa": 29,
+					"spd": 10,
+					"spe": 3
+				},
+				"nature": "Naive",
+				"ability": "Levitate"
+			},
+			"summary": "caught Tynamo at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 25,
+					"atk": 24,
+					"def": 20,
+					"spa": 1,
+					"spd": 22,
+					"spe": 9
+				},
+				"nature": "Gentle",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L10 to L17 and learned Twister; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Growlithe, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-14",
+					"mon-2",
+					"mon-15",
+					"mon-11"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Vivillon, Chewtle, Zigzagoon-Galar, Tynamo, Spheal",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Electroweb",
+				"replace": "Air Cutter"
+			},
+			"summary": "Vivillon forgot Air Cutter, learned Electroweb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Tackle"
+			},
+			"summary": "Chewtle forgot Tackle, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Blizzard",
+				"replace": "Facade"
+			},
+			"summary": "Zigzagoon-Galar forgot Facade, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Blizzard",
+				"replace": "Water Gun"
+			},
+			"summary": "Spheal forgot Water Gun, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-2",
+				"item": "Poison Barb"
+			},
+			"summary": "Zigzagoon-Galar is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Zigzagoon-Galar, Fletchinder, Gossifleur, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-7",
+					"mon-8",
+					"mon-6",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Onix takes the lead — with Vivillon, Croagunk, Growlithe, Fletchinder, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Throw",
+				"replace": "Strength"
+			},
+			"summary": "Onix forgot Strength, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Psychic",
+				"replace": "Electroweb"
+			},
+			"summary": "Vivillon forgot Electroweb, learned Psychic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Thunder Punch",
+				"replace": "Aura Sphere"
+			},
+			"summary": "Croagunk forgot Aura Sphere, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Aerial Ace",
+				"replace": "Blizzard"
+			},
+			"summary": "Prinplup forgot Blizzard, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Prinplup grew from L17 to L21; its moves are full, so Aqua Jet must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Aqua Jet",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Prinplup forgot Aerial Ace, learned Aqua Jet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Fletchinder grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Growlithe grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Vivillon grew from L17 to L21; its moves are full, so Draining Kiss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Draining Kiss",
+				"replace": "Psychic"
+			},
+			"summary": "Vivillon forgot Psychic, learned Draining Kiss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L17 to L21; its moves are full, so Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Seismic Toss",
+				"replace": "Poison Jab"
+			},
+			"summary": "Croagunk forgot Poison Jab, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Onix grew from L17 to L21; its moves are full, so Bulldoze, Iron Head must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Onix forgot Rock Tomb, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Iron Head",
+				"replace": "Bulldoze"
+			},
+			"summary": "Onix forgot Bulldoze, learned Iron Head",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Zigzagoon-Galar grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Zigzagoon-Galar evolved into Linoone-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L17 to L21; its moves are full, so Leaf Tornado must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leaf Tornado",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Gossifleur forgot Magical Leaf, learned Leaf Tornado",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-4"
+			},
+			"summary": "Gossifleur evolved into Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Bayleef grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Spheal grew from L17 to L21; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Brine"
+			},
+			"summary": "Spheal forgot Brine, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-11"
+			},
+			"summary": "Spheal evolved into Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Mienfoo grew from L17 to L21; its moves are full, so Force Palm must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Force Palm",
+				"replace": "Pound"
+			},
+			"summary": "Mienfoo forgot Pound, learned Force Palm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L17 to L21; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Water Gun"
+			},
+			"summary": "Remoraid forgot Water Gun, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L17 to L21; its moves are full, so Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Headbutt",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Chewtle forgot Hydro Pump, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Tynamo evolved into Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L17 to L21; its moves are full, so Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Clear Smog",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Horsea forgot Bubble Beam, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-16"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Fletchinder, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-3",
+					"mon-1",
+					"mon-4",
+					"mon-9",
+					"mon-11"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Fletchinder, Prinplup, Eldegoss, Onix, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Air Cutter",
+				"replace": "Draining Kiss"
+			},
+			"summary": "Vivillon forgot Draining Kiss, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Aerial Ace",
+				"replace": "Flamethrower"
+			},
+			"summary": "Fletchinder forgot Flamethrower, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Aerial Ace",
+				"replace": "Aqua Jet"
+			},
+			"summary": "Prinplup forgot Aqua Jet, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hyper Voice",
+				"replace": "Leafage"
+			},
+			"summary": "Eldegoss forgot Leafage, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Body Press",
+				"replace": "Rock Throw"
+			},
+			"summary": "Onix forgot Rock Throw, learned Body Press",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Ice Beam",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Sealeo forgot Aurora Beam, learned Ice Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Prinplup, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-3",
+					"mon-6",
+					"mon-9",
+					"mon-1",
+					"mon-11"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Fletchinder, Growlithe, Onix, Prinplup, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Flash Cannon",
+				"replace": "Body Press"
+			},
+			"summary": "Onix forgot Body Press, learned Flash Cannon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Pluck",
+				"replace": "Waterfall"
+			},
+			"summary": "Prinplup forgot Waterfall, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-15",
+					"mon-3",
+					"mon-8",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Eelektrik, Fletchinder, Croagunk, Growlithe, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder"
+			},
+			"summary": "Eelektrik learned Thunder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Aerial Ace",
+				"replace": "Seismic Toss"
+			},
+			"summary": "Croagunk forgot Seismic Toss, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Blizzard",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Prinplup forgot Aerial Ace, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-15",
+					"mon-4",
+					"mon-1",
+					"mon-16",
+					"mon-8"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Eelektrik, Eldegoss, Prinplup, Seadra, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Smokescreen"
+			},
+			"summary": "Seadra forgot Smokescreen, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunderbolt",
+				"replace": "Shock Wave"
+			},
+			"summary": "Eelektrik forgot Shock Wave, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Aerial Ace",
+				"replace": "Blizzard"
+			},
+			"summary": "Prinplup forgot Blizzard, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Hydro Pump",
+				"replace": "Leer"
+			},
+			"summary": "Seadra forgot Leer, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Poison Jab",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Croagunk forgot Thunder Punch, learned Poison Jab",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Eldegoss, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-16",
+					"mon-3",
+					"mon-4",
+					"mon-6",
+					"mon-15"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Seadra, Fletchinder, Eldegoss, Growlithe, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Sludge",
+				"replace": "Thunder Wave"
+			},
+			"summary": "Eelektrik forgot Thunder Wave, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Blizzard",
+				"replace": "Twister"
+			},
+			"summary": "Seadra forgot Twister, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Eldegoss, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-7",
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-11"
+				]
+			},
+			"summary": "Seadra takes the lead — with Vivillon, Prinplup, Fletchinder, Eldegoss, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Clear Smog"
+			},
+			"summary": "Seadra forgot Clear Smog, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Waterfall",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Prinplup forgot Aerial Ace, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Eldegoss forgot Hyper Voice, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Surskit, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-16",
+					"mon-4",
+					"mon-1",
+					"mon-10"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Seadra, Eldegoss, Prinplup, Bayleef",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Body Slam",
+				"replace": "Synthesis"
+			},
+			"summary": "Bayleef forgot Synthesis, learned Body Slam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Round",
+				"replace": "Sing"
+			},
+			"summary": "Eldegoss forgot Sing, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Shock Wave",
+				"replace": "Sludge"
+			},
+			"summary": "Eelektrik forgot Sludge, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Waterfall",
+				"replace": "Blizzard"
+			},
+			"summary": "Seadra forgot Blizzard, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hyper Voice",
+				"replace": "Round"
+			},
+			"summary": "Eldegoss forgot Round, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Bubble Beam",
+				"replace": "Pluck"
+			},
+			"summary": "Prinplup forgot Pluck, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Strength"
+			},
+			"summary": "Bayleef forgot Strength, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Brawly"
+			},
+			"summary": "beat Leader Brawly (now at 77)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Prinplup grew from L21 to L25; its moves are full, so Life Dew must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Life Dew",
+				"replace": "Waterfall"
+			},
+			"summary": "Prinplup forgot Waterfall, learned Life Dew",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Eldegoss grew from L21 to L25; its moves are full, so Cotton Spore, Synthesis must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Cotton Spore",
+				"replace": "Leaf Tornado"
+			},
+			"summary": "Eldegoss forgot Leaf Tornado, learned Cotton Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Synthesis",
+				"replace": "Cotton Spore"
+			},
+			"summary": "Eldegoss forgot Cotton Spore, learned Synthesis",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Vivillon grew from L21 to L25; its moves are full, so Signal Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Signal Beam",
+				"replace": "Air Cutter"
+			},
+			"summary": "Vivillon forgot Air Cutter, learned Signal Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Bayleef grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Eelektrik grew from L21 to L25; its moves are full, so Thunder Punch must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Shock Wave"
+			},
+			"summary": "Eelektrik forgot Shock Wave, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L21 to L25; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Seadra forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Linoone-Galar grew from L21 to L25; its moves are full, so Night Slash must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Night Slash",
+				"replace": "Blizzard"
+			},
+			"summary": "Linoone-Galar forgot Blizzard, learned Night Slash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Fletchinder grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L21 to L25; its moves are full, so Haze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Haze",
+				"replace": "Waterfall"
+			},
+			"summary": "Surskit forgot Waterfall, learned Haze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Surskit evolved into Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Growlithe grew from L21 to L25; its moves are full, so Take Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Take Down",
+				"replace": "Fire Fang"
+			},
+			"summary": "Growlithe forgot Fire Fang, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L21 to L25; its moves are full, so Low Sweep must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Low Sweep",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Croagunk forgot Aerial Ace, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Onix grew from L21 to L25; its moves are full, so Smack Down, Sand Tomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Iron Head"
+			},
+			"summary": "Onix forgot Iron Head, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Sand Tomb",
+				"replace": "Smack Down"
+			},
+			"summary": "Onix forgot Smack Down, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Sealeo grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Mienfoo grew from L21 to L25; its moves are full, so Bounce, Drain Punch must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Bounce",
+				"replace": "Force Palm"
+			},
+			"summary": "Mienfoo forgot Force Palm, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Drain Punch",
+				"replace": "Bounce"
+			},
+			"summary": "Mienfoo forgot Bounce, learned Drain Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L21 to L25; its moves are full, so Focus Energy must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Focus Energy",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Remoraid forgot Bubble Beam, learned Focus Energy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Remoraid evolved into Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L21 to L25; its moves are full, so Razor Shell must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Razor Shell",
+				"replace": "Headbutt"
+			},
+			"summary": "Chewtle forgot Headbutt, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-14"
+			},
+			"summary": "Chewtle evolved into Drednaw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-3",
+					"mon-6",
+					"mon-15",
+					"mon-14",
+					"mon-11"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Fletchinder, Growlithe, Eelektrik, Drednaw, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Head Smash",
+				"replace": "Water Pulse"
+			},
+			"summary": "Drednaw forgot Water Pulse, learned Head Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Air Cutter",
+				"replace": "Signal Beam"
+			},
+			"summary": "Vivillon forgot Signal Beam, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Flamethrower",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Fletchinder forgot Aerial Ace, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Rock Tomb",
+				"replace": "Bite"
+			},
+			"summary": "Drednaw forgot Bite, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Rock Tomb",
+				"replace": "Waterfall"
+			},
+			"summary": "Sealeo forgot Waterfall, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Lyle"
+			},
+			"summary": "beat Bug Catcher Lyle (now at 83)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Linoone-Galar takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-7",
+					"mon-6",
+					"mon-3",
+					"mon-2",
+					"mon-11"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Vivillon, Growlithe, Fletchinder, Linoone-Galar, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Pin Missile",
+				"replace": "Thunder"
+			},
+			"summary": "Linoone-Galar forgot Thunder, learned Pin Missile",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Covet",
+				"replace": "Bite"
+			},
+			"summary": "Growlithe forgot Bite, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Headbutt",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Linoone-Galar forgot Thunderbolt, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Blizzard",
+				"replace": "Pin Missile"
+			},
+			"summary": "Linoone-Galar forgot Pin Missile, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Sealeo forgot Rock Tomb, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Maniac James"
+			},
+			"summary": "beat Bug Maniac James (now at 86)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Fletchinder, Linoone-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Prinplup takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-16",
+					"mon-7",
+					"mon-15",
+					"mon-11",
+					"mon-1"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Seadra, Vivillon, Eelektrik, Sealeo, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Signal Beam",
+				"replace": "Air Cutter"
+			},
+			"summary": "Vivillon forgot Air Cutter, learned Signal Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Body Press",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Drednaw forgot Rock Tomb, learned Body Press",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Seadra forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Bug Bite",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Vivillon forgot Aerial Ace, learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Waterfall",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Sealeo forgot Aurora Beam, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Brick Break",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Prinplup forgot Bubble Beam, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Winston"
+			},
+			"summary": "beat Rich Boy Winston (now at 90)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Prinplup takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-15",
+					"mon-4",
+					"mon-13",
+					"mon-1",
+					"mon-11"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Eelektrik, Eldegoss, Octillery, Prinplup, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Rock Blast",
+				"replace": "Focus Energy"
+			},
+			"summary": "Octillery forgot Focus Energy, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leaf Tornado",
+				"replace": "Synthesis"
+			},
+			"summary": "Eldegoss forgot Synthesis, learned Leaf Tornado",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Earthquake",
+				"replace": "Razor Shell"
+			},
+			"summary": "Drednaw forgot Razor Shell, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leafage",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Eldegoss forgot Hyper Voice, learned Leafage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Psychic",
+				"replace": "Lock-On"
+			},
+			"summary": "Octillery forgot Lock-On, learned Psychic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Rock Tomb",
+				"replace": "Surf"
+			},
+			"summary": "Prinplup forgot Surf, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Earthquake",
+				"replace": "Ice Beam"
+			},
+			"summary": "Sealeo forgot Ice Beam, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Ivan"
+			},
+			"summary": "beat Fisherman Ivan (now at 92)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Linoone-Galar takes the lead — with Eldegoss, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-9",
+					"mon-15",
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Onix, Eelektrik, Linoone-Galar, Eldegoss, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Spark"
+			},
+			"summary": "Eelektrik forgot Spark, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Pin Missile",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Linoone-Galar forgot Hyper Voice, learned Pin Missile",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Bite",
+				"replace": "Covet"
+			},
+			"summary": "Growlithe forgot Covet, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Earth Power",
+				"replace": "Body Press"
+			},
+			"summary": "Drednaw forgot Body Press, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Flash Cannon"
+			},
+			"summary": "Onix forgot Flash Cannon, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Flash Cannon",
+				"replace": "Crunch"
+			},
+			"summary": "Eelektrik forgot Crunch, learned Flash Cannon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Voice",
+				"replace": "Pin Missile"
+			},
+			"summary": "Linoone-Galar forgot Pin Missile, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Cotton Spore",
+				"replace": "Leafage"
+			},
+			"summary": "Eldegoss forgot Leafage, learned Cotton Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Twins Gina And Mia"
+			},
+			"summary": "beat Twins Gina And Mia (now at 95)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Linoone-Galar takes the lead — with Eldegoss, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Prinplup takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-7",
+					"mon-11",
+					"mon-15",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Vivillon, Sealeo, Eelektrik, Prinplup, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Eelektrik forgot Thunder Punch, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Seadra forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Pluck",
+				"replace": "Life Dew"
+			},
+			"summary": "Prinplup forgot Life Dew, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Surf",
+				"replace": "Earth Power"
+			},
+			"summary": "Drednaw forgot Earth Power, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Aerial Ace",
+				"replace": "Bug Bite"
+			},
+			"summary": "Vivillon forgot Bug Bite, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Ice Beam",
+				"replace": "Earthquake"
+			},
+			"summary": "Sealeo forgot Earthquake, learned Ice Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Flash Cannon"
+			},
+			"summary": "Eelektrik forgot Flash Cannon, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Surf",
+				"replace": "Brick Break"
+			},
+			"summary": "Prinplup forgot Brick Break, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Seadra forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Haley"
+			},
+			"summary": "beat Lass Haley (now at 99)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Prinplup takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-12",
+					"mon-15",
+					"mon-11",
+					"mon-16",
+					"mon-7"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Mienfoo, Eelektrik, Sealeo, Seadra, Vivillon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Body Press",
+				"replace": "Earthquake"
+			},
+			"summary": "Drednaw forgot Earthquake, learned Body Press",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Focus Blast",
+				"replace": "Double Slap"
+			},
+			"summary": "Mienfoo forgot Double Slap, learned Focus Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Spark",
+				"replace": "Crunch"
+			},
+			"summary": "Eelektrik forgot Crunch, learned Spark",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Waterfall"
+			},
+			"summary": "Sealeo forgot Waterfall, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Blizzard",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Seadra forgot Bubble Beam, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Bug Bite",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Vivillon forgot Aerial Ace, learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Joey"
+			},
+			"summary": "beat Youngster Joey (now at 103)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Hatenna",
+				"level": 14,
+				"map": "Route116",
+				"method": "walk",
+				"ivs": {
+					"hp": 21,
+					"atk": 30,
+					"def": 31,
+					"spa": 25,
+					"spd": 17,
+					"spe": 22
+				},
+				"nature": "Modest",
+				"ability": "Synchronize"
+			},
+			"summary": "caught Hatenna at level 14 on Route116",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Houndour",
+				"level": 14,
+				"map": "Rustboro City",
+				"method": "walk",
+				"ivs": {
+					"hp": 24,
+					"atk": 25,
+					"def": 7,
+					"spa": 8,
+					"spd": 21,
+					"spe": 4
+				},
+				"nature": "Bashful",
+				"ability": "Early Bird"
+			},
+			"summary": "caught Houndour at level 14 on Rustboro City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Super Potion"
+			},
+			"summary": "bag: Super Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Twisted Spoon"
+			},
+			"summary": "bag: Twisted Spoon x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Hatenna grew from L14 to L25; its moves are full, so Aromatherapy, Psybeam, Psyshock must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Aromatherapy",
+				"replace": "Confusion"
+			},
+			"summary": "Hatenna forgot Confusion, learned Aromatherapy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psybeam",
+				"replace": "Aromatherapy"
+			},
+			"summary": "Hatenna forgot Aromatherapy, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psyshock",
+				"replace": "Psybeam"
+			},
+			"summary": "Hatenna forgot Psybeam, learned Psyshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-17"
+			},
+			"summary": "Hatenna evolved into Hattrem",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L14 to L25; its moves are full, so Fire Fang, Flame Burst must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Fire Fang",
+				"replace": "Leer"
+			},
+			"summary": "Houndour forgot Leer, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Flame Burst",
+				"replace": "Fire Fang"
+			},
+			"summary": "Houndour forgot Fire Fang, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-18"
+			},
+			"summary": "Houndour evolved into Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-6",
+					"mon-15",
+					"mon-11",
+					"mon-18",
+					"mon-3"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Growlithe, Eelektrik, Sealeo, Houndoom, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Inferno",
+				"replace": "Ember"
+			},
+			"summary": "Houndoom forgot Ember, learned Inferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Sludge",
+				"replace": "Spark"
+			},
+			"summary": "Eelektrik forgot Spark, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Rock Tomb",
+				"replace": "Body Press"
+			},
+			"summary": "Drednaw forgot Body Press, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Spark",
+				"replace": "Sludge"
+			},
+			"summary": "Eelektrik forgot Sludge, learned Spark",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Rock Tomb",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Sealeo forgot Aurora Beam, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Sludge Bomb",
+				"replace": "Smog"
+			},
+			"summary": "Houndoom forgot Smog, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-3",
+				"item": "Twisted Spoon"
+			},
+			"summary": "Fletchinder is holding Twisted Spoon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Janice"
+			},
+			"summary": "beat Lass Janice (now at 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-14",
+					"mon-7",
+					"mon-4",
+					"mon-17",
+					"mon-5"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Drednaw, Vivillon, Eldegoss, Hattrem, Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Air Cutter",
+				"replace": "Haze"
+			},
+			"summary": "Masquerain forgot Haze, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Blizzard",
+				"replace": "Surf"
+			},
+			"summary": "Drednaw forgot Surf, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Electroweb",
+				"replace": "Bug Bite"
+			},
+			"summary": "Vivillon forgot Bug Bite, learned Electroweb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psychic",
+				"replace": "Play Nice"
+			},
+			"summary": "Hattrem forgot Play Nice, learned Psychic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hurricane",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Masquerain forgot Bubble Beam, learned Hurricane",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Dawson"
+			},
+			"summary": "beat Rich Boy Dawson (now at 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-4",
+					"mon-15",
+					"mon-18",
+					"mon-5",
+					"mon-16"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Eldegoss, Eelektrik, Houndoom, Masquerain, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Round",
+				"replace": "Cotton Spore"
+			},
+			"summary": "Eldegoss forgot Cotton Spore, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Body Press",
+				"replace": "Blizzard"
+			},
+			"summary": "Drednaw forgot Blizzard, learned Body Press",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Cotton Spore",
+				"replace": "Round"
+			},
+			"summary": "Eldegoss forgot Round, learned Cotton Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Fire Blast",
+				"replace": "Bite"
+			},
+			"summary": "Houndoom forgot Bite, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Aerial Ace",
+				"replace": "Surf"
+			},
+			"summary": "Masquerain forgot Surf, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Jerry & Johnson"
+			},
+			"summary": "beat School Kid Jerry & Johnson (now at 111)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Growlithe takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-18",
+					"mon-6",
+					"mon-15",
+					"mon-16",
+					"mon-11"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Houndoom, Growlithe, Eelektrik, Seadra, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Surf",
+				"replace": "Body Press"
+			},
+			"summary": "Drednaw forgot Body Press, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Flamethrower",
+				"replace": "Sludge Bomb"
+			},
+			"summary": "Houndoom forgot Sludge Bomb, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Jose"
+			},
+			"summary": "beat Bug Catcher Jose (now at 115)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Growlithe takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Fletchinder, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-18",
+					"mon-15",
+					"mon-14",
+					"mon-6",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Houndoom takes the lead — with Eelektrik, Drednaw, Growlithe, Fletchinder, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Razor Shell",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Drednaw forgot Rock Tomb, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Flash Cannon",
+				"replace": "Spark"
+			},
+			"summary": "Eelektrik forgot Spark, learned Flash Cannon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Earthquake",
+				"replace": "Razor Shell"
+			},
+			"summary": "Drednaw forgot Razor Shell, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Waterfall",
+				"replace": "Pluck"
+			},
+			"summary": "Prinplup forgot Pluck, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Sarah"
+			},
+			"summary": "beat Lady Sarah (now at 118)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Fletchinder, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Linoone-Galar takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-18",
+					"mon-4",
+					"mon-15",
+					"mon-17",
+					"mon-2"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Houndoom, Eldegoss, Eelektrik, Hattrem, Linoone-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Sludge",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Eelektrik forgot Thunderbolt, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Bite",
+				"replace": "Flame Burst"
+			},
+			"summary": "Houndoom forgot Flame Burst, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Flash Cannon"
+			},
+			"summary": "Eelektrik forgot Flash Cannon, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Blizzard",
+				"replace": "Earthquake"
+			},
+			"summary": "Drednaw forgot Earthquake, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Flame Burst",
+				"replace": "Bite"
+			},
+			"summary": "Houndoom forgot Bite, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hyper Voice",
+				"replace": "Solar Beam"
+			},
+			"summary": "Eldegoss forgot Solar Beam, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunderbolt",
+				"replace": "Crunch"
+			},
+			"summary": "Eelektrik forgot Crunch, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psybeam",
+				"replace": "Disarming Voice"
+			},
+			"summary": "Hattrem forgot Disarming Voice, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Thunder",
+				"replace": "Night Slash"
+			},
+			"summary": "Linoone-Galar forgot Night Slash, learned Thunder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Karen"
+			},
+			"summary": "beat School Kid Karen (now at 120)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Linoone-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-16",
+					"mon-1",
+					"mon-11",
+					"mon-10",
+					"mon-15"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Seadra, Prinplup, Sealeo, Bayleef, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Eelektrik forgot Thunder Punch, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Solar Beam",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Eldegoss forgot Hyper Voice, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Blizzard"
+			},
+			"summary": "Seadra forgot Blizzard, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Bubble Beam",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Prinplup forgot Rock Tomb, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Waterfall",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Sealeo forgot Rock Tomb, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Synthesis",
+				"replace": "Body Slam"
+			},
+			"summary": "Bayleef forgot Body Slam, learned Synthesis",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Flash Cannon",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Eelektrik forgot Thunderbolt, learned Flash Cannon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Clark"
+			},
+			"summary": "beat Hiker Clark (now at 123)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Eldegoss takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-4",
+					"mon-14",
+					"mon-15",
+					"mon-16",
+					"mon-13"
+				]
+			},
+			"summary": "Sealeo takes the lead — with Eldegoss, Drednaw, Eelektrik, Seadra, Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ice Fang",
+				"replace": "Surf"
+			},
+			"summary": "Drednaw forgot Surf, learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Octazooka",
+				"replace": "Psybeam"
+			},
+			"summary": "Octillery forgot Psybeam, learned Octazooka",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Razor Shell",
+				"replace": "Blizzard"
+			},
+			"summary": "Drednaw forgot Blizzard, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Waterfall"
+			},
+			"summary": "Sealeo forgot Waterfall, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Blizzard",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunderbolt",
+				"replace": "Sludge"
+			},
+			"summary": "Eelektrik forgot Sludge, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Blizzard",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Seadra forgot Bubble Beam, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Hydro Pump",
+				"replace": "Rock Blast"
+			},
+			"summary": "Octillery forgot Rock Blast, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Devan"
+			},
+			"summary": "beat Hiker Devan (now at 125)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Eldegoss takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-13",
+					"mon-16",
+					"mon-1",
+					"mon-15",
+					"mon-4"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Octillery, Seadra, Prinplup, Eelektrik, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Surf",
+				"replace": "Blizzard"
+			},
+			"summary": "Drednaw forgot Blizzard, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Surf",
+				"replace": "Psychic"
+			},
+			"summary": "Octillery forgot Psychic, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Blizzard",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Prinplup forgot Bubble Beam, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Crunch"
+			},
+			"summary": "Eelektrik forgot Crunch, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Josh"
+			},
+			"summary": "beat Youngster Josh (now at 128)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-4",
+					"mon-14",
+					"mon-1",
+					"mon-16",
+					"mon-15"
+				]
+			},
+			"summary": "Octillery takes the lead — with Eldegoss, Drednaw, Prinplup, Seadra, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Waterfall",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Octillery forgot Aurora Beam, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Waterfall",
+				"replace": "Razor Shell"
+			},
+			"summary": "Drednaw forgot Razor Shell, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Bubble Beam",
+				"replace": "Blizzard"
+			},
+			"summary": "Prinplup forgot Blizzard, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Blizzard"
+			},
+			"summary": "Seadra forgot Blizzard, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Tommy"
+			},
+			"summary": "beat Youngster Tommy (now at 131)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-4",
+					"mon-16",
+					"mon-14",
+					"mon-1",
+					"mon-15"
+				]
+			},
+			"summary": "Octillery takes the lead — with Eldegoss, Seadra, Drednaw, Prinplup, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Earthquake",
+				"replace": "Head Smash"
+			},
+			"summary": "Drednaw forgot Head Smash, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Eelektrik forgot Thunder Punch, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Marc"
+			},
+			"summary": "beat Hiker Marc (now at 135)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-11",
+					"mon-16",
+					"mon-14",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Octillery takes the lead — with Sealeo, Seadra, Drednaw, Eldegoss, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ice Fang",
+				"replace": "Surf"
+			},
+			"summary": "Drednaw forgot Surf, learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Head Smash",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Drednaw forgot Hydro Pump, learned Head Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Octillery forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Octillery forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Earthquake",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Sealeo forgot Aurora Beam, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Brick Break",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Prinplup forgot Bubble Beam, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Roxanne",
+				"move": "Icy Wind"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Discharge"
+			},
+			"summary": "Sealeo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Roxanne",
+				"move": "Ancient Power"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Ancient Power"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Roxanne",
+				"move": "Skitter Smack"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Stored Power"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-11",
+					"mon-13",
+					"mon-16",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Sealeo, Octillery, Seadra, Eldegoss, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ice Fang",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Drednaw forgot Hydro Pump, learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Octillery forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Seadra forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Waterfall",
+				"replace": "Ice Beam"
+			},
+			"summary": "Sealeo forgot Ice Beam, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Octillery forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Seadra forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Brick Break"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Thousand Arrows"
+			},
+			"summary": "Sealeo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Roxanne",
+				"move": "Thousand Arrows"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Roxanne",
+				"move": "Discharge"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Roxanne",
+				"move": "Knock Off"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-11",
+					"mon-13",
+					"mon-16",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Sealeo, Octillery, Seadra, Eldegoss, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ice Fang",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Drednaw forgot Hydro Pump, learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Octillery forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Seadra forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Octillery forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Seadra forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Thousand Arrows"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Discharge"
+			},
+			"summary": "Sealeo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Roxanne",
+				"move": "Body Slam"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Roxanne",
+				"move": "Ancient Power"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Roxanne",
+				"move": "Grass Knot"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Stored Power"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-11",
+					"mon-13",
+					"mon-16",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Sealeo, Octillery, Seadra, Eldegoss, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ice Fang",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Drednaw forgot Hydro Pump, learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Octillery forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Seadra forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Octillery forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Seadra forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Iron Head"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Dragon Claw"
+			},
+			"summary": "Sealeo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Roxanne",
+				"move": "Dragon Claw"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Roxanne",
+				"move": "Discharge"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Roxanne",
+				"move": "Knock Off"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-11",
+					"mon-13",
+					"mon-16",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Sealeo, Octillery, Seadra, Eldegoss, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ice Fang",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Drednaw forgot Hydro Pump, learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Octillery forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Seadra forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Octillery forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Seadra forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Brick Break"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Power Gem"
+			},
+			"summary": "Sealeo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Roxanne",
+				"move": "Power Gem"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Roxanne",
+				"move": "Ancient Power"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Roxanne",
+				"move": "Knock Off"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Stored Power"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Linoone-Galar, Fletchinder, Eldegoss, Masquerain, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Prinplup takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-11",
+					"mon-13",
+					"mon-16",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Sealeo, Octillery, Seadra, Eldegoss, Prinplup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ice Fang",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Drednaw forgot Hydro Pump, learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Octillery forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Surf"
+			},
+			"summary": "Seadra forgot Surf, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Octillery forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Seadra forgot Aurora Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Iron Head"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Discharge"
+			},
+			"summary": "Sealeo fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Roxanne",
+				"move": "Discharge"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Roxanne",
+				"move": "Aqua Jet"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Roxanne",
+				"move": "Knock Off"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Stored Power"
+			},
+			"summary": "Prinplup fainted; permadeath is off, so nothing changed",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

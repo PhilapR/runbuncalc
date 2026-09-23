@@ -1,0 +1,273 @@
+{
+	"comment": "Post-Brawly scenario battery: banked run documents at a spread of depths, each fighting the next trainers on its own road. Curated 2026-08-28 from the ui-playthrough-out archive. Double battles are excluded (operator ruling 2026-08-28: doubles are real doubles, and play refuses them until two-active play exists).",
+	"generator": null,
+	"measured": [
+		{
+			"label": "battery1",
+			"measured_in": "841fbe9",
+			"date": "2026-08-28",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "battery1-nostall",
+			"measured_in": "841fbe9",
+			"date": "2026-08-28",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "battery2-stall",
+			"measured_in": "841fbe9",
+			"date": "2026-08-28",
+			"verdict": "reconstructed"
+		},
+		{
+			"label": "battery3",
+			"measured_in": "365cdd2",
+			"date": "2026-08-30",
+			"verdict": "recorded",
+			"note": "first batch under the receipt discipline; plain policy, clean tree at 3371469"
+		},
+		{
+			"label": "pp-econ-a",
+			"measured_in": "6d468ff",
+			"date": "2026-08-30",
+			"verdict": "recorded",
+			"note": "PP-model A/B control (fuel-free); first batch after the Disguise fix merged, so Miguel reads 14/20 against battery3's 1/20"
+		},
+		{
+			"label": "pp-econ-b",
+			"measured_in": "ca3161d",
+			"date": "2026-08-30",
+			"verdict": "recorded",
+			"note": "PP-model A/B treatment (--pp-model=1); Daisy 18/20 stuck 0, Jose 6/20, leaders unmoved — fuel resolves stalls, not walls"
+		},
+		{
+			"label": "battery4",
+			"measured_in": "be2f113",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "first batch on the curated 18-scenario battery and the first with per-seed rows; plain policy, fuel-free; clean worktree at bf07dfd"
+		},
+		{
+			"label": "battery4-pp",
+			"measured_in": "be2f113",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "battery4 with --pp-model=1; the real-PP control for koorder1-pp"
+		},
+		{
+			"label": "koorder1",
+			"measured_in": "be2f113",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 vs battery4, seed-paired: 20 seeds gained, 21 lost, McNemar p = 1.0; Jose +5, Vivian +3, the winnable Roxanne -5"
+		},
+		{
+			"label": "koorder1-pp",
+			"measured_in": "be2f113",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 --pp-model=1 vs battery4-pp: 22 gained, 21 lost, p = 1.0; Jose 6->12/20, the winnable Roxanne 8->3. Net-neutral: the flag stays off"
+		},
+		{
+			"label": "battery5",
+			"measured_in": "7b9c267",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "plain policy at 2b413f9; reproduces battery4 exactly, so the control did not move"
+		},
+		{
+			"label": "battery5-pp",
+			"measured_in": "7b9c267",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "battery5 with --pp-model=1; reproduces battery4-pp exactly"
+		},
+		{
+			"label": "koorder2",
+			"measured_in": "7b9c267",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 --ko-yield-min-hp=50 vs battery5: 9 gained, 5 lost, p = 0.42; Daisy loses 4"
+		},
+		{
+			"label": "koorder2-pp",
+			"measured_in": "7b9c267",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "koorder2 with --pp-model=1 vs battery5-pp: 10 gained, 1 lost, p = 0.012; in-sample, the fights the gate was fit on"
+		},
+		{
+			"label": "stallnet1",
+			"measured_in": "536a96a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--stall-clock=net vs battery5 (re-run at f524e5a, identical play): 2 gained, 1 lost; Daisy stuck 4 -> 3"
+		},
+		{
+			"label": "stallnet1-pp",
+			"measured_in": "536a96a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--stall-clock=net --pp-model=1 vs battery5-pp: 0 gained, 0 lost; clock held 101 times, no outcome moved"
+		},
+		{
+			"label": "repick1",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 vs battery5: 45 gained, 42 lost; Miguel net -12, winnable Roxanne 8 -> 2; Brawly 0 -> 2, Wattson 1 -> 2"
+		},
+		{
+			"label": "repick1-pp",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 --pp-model=1 vs battery5-pp: 48 gained, 42 lost, p = 0.60; the leader walls barely move"
+		},
+		{
+			"label": "switchpriced1",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 vs battery5: 44 gained, 14 lost, p = 0.0001, no veto"
+		},
+		{
+			"label": "switchpriced1-pp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --pp-model=1 vs battery5-pp: 46 gained, 11 lost, p < 0.0001, no veto; leaders unmoved"
+		},
+		{
+			"label": "battery9",
+			"measured_in": "a9ad493",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted baseline (priced switch + re-pick by default), fuel-free: 138/300 against battery5 121. Carries Burn Up refusals (Jose 12, Daisy 20 wins, real PP): not a clean baseline; see ledger burn-up-user-is-unhittable"
+		},
+		{
+			"label": "battery9-pp",
+			"measured_in": "a9ad493",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted baseline, real PP: 150/300 against battery5-pp 130; the control for arms from here. Carries Burn Up refusals (Jose 12, Daisy 20 wins, real PP): not a clean baseline; see ledger burn-up-user-is-unhittable"
+		}
+	],
+	"scenarios": [
+		{
+			"name": "Leader Brawly @26",
+			"report": "fixtures/banked-runs/brbank1-A-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Roxanne @45",
+			"report": "fixtures/banked-runs/br-1.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 30
+		},
+		{
+			"name": "Leader Wattson @65",
+			"report": "fixtures/banked-runs/sac-A-11.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 30
+		},
+		{
+			"name": "Bug Catcher Jose @37",
+			"report": "fixtures/banked-runs/brheal1-B-2.run.json",
+			"trainer": "Bug Catcher Jose",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Mike @46",
+			"report": "fixtures/banked-runs/br-6.run.json",
+			"trainer": "Hiker Mike",
+			"seeds": 5
+		},
+		{
+			"name": "Breeder Lydia @47",
+			"report": "fixtures/banked-runs/br-6.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 5
+		},
+		{
+			"name": "Breeder Isaac @53",
+			"report": "fixtures/banked-runs/forecast-today-M-6.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 5
+		},
+		{
+			"name": "Psychic Edward @60",
+			"report": "fixtures/banked-runs/pf-2.run.json",
+			"trainer": "Psychic Edward",
+			"seeds": 20
+		},
+		{
+			"name": "Guitarist Kirk @61",
+			"report": "fixtures/banked-runs/pf-2.run.json",
+			"trainer": "Guitarist Kirk",
+			"seeds": 5
+		},
+		{
+			"name": "Triathlete Abigail @67",
+			"report": "fixtures/banked-runs/acc-11.run.json",
+			"trainer": "Triathlete Abigail",
+			"seeds": 5
+		},
+		{
+			"name": "Triathlete Anthony @68",
+			"report": "fixtures/banked-runs/acc-11.run.json",
+			"trainer": "Triathlete Anthony",
+			"seeds": 5
+		},
+		{
+			"name": "Pokéfan Miguel @78",
+			"report": "fixtures/banked-runs/flannery-3.run.json",
+			"trainer": "Pokéfan Miguel",
+			"seeds": 20
+		},
+		{
+			"name": "Aroma Lady Daisy @79",
+			"report": "fixtures/banked-runs/flannery-3.run.json",
+			"trainer": "Aroma Lady Daisy",
+			"seeds": 20
+		},
+		{
+			"name": "Bug Catcher Lyle @28",
+			"report": "fixtures/banked-runs/brkeys2-A-1.run.json",
+			"trainer": "Bug Catcher Lyle",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40",
+			"report": "fixtures/banked-runs/brheal1-B-6.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Roxanne @46 (reteach-B-8 box)",
+			"report": "fixtures/banked-runs/reteach-B-8.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56",
+			"report": "fixtures/banked-runs/nab-15.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Battle Girl Vivian @64",
+			"report": "fixtures/banked-runs/sv-20.run.json",
+			"trainer": "Battle Girl Vivian",
+			"seeds": 20
+		}
+	],
+	"curation": [
+		"2026-09-17: re-curated from an archive sweep (scripts/battery-sweep.js, 153 reports x next 3 singles x 5 seeds, then a 20-seed confirmation of the shortlist). Six fights the policy wins on every seed (Mike, Lydia, Isaac, Kirk, Abigail, Anthony) drop to 5 seeds each: they cannot show an improvement, only a regression, and five seeds is a canary for that, not a measurement. Isaac's canary baseline is 4/5, not 5/5: his one loss in twenty is seed 4, so 4/5 is the expected reading. Five fights confirmed between 8/20 and 11/20 take the freed seeds: Lyle, Karen, a winnable Roxanne, Chelle, Vivian.",
+		"The leaders keep 30 seeds at the floor on purpose: they are what the policy work targets. No box in the archive puts Brawly above 1/5.",
+		"Scenario names are join keys across receipts, so the original thirteen keep the fight numbers they were curated with; the map has since shifted them by one or two (Brawly is fight 27 today, Miguel 80, Daisy 81). The five added names use today's numbers from run.trainerIndexOf.",
+		"Every report path now names a tracked run document in fixtures/banked-runs/, so the battery runs on any checkout; the reports it came from were offloaded to Drive on 2026-09-14 and restored for this sweep."
+	]
+}

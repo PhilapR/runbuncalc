@@ -1,0 +1,150 @@
+/* eslint-env node, es6 */
+'use strict';
+
+/**
+ * Gate for the semi-invulnerable states: each is reached by its own moves.
+ * One list served them all, so Gust struck a Pokemon underground and
+ * Earthquake missed one there, and nothing hit for double. Fisherman Darian's
+ * Choice Band Bounce Magikarp (fight #7) is where a player reaches for Gust.
+ */
+
+const assert = require('node:assert/strict');
+const test = require('node:test');
+
+const ai = require('../ai');
+const planner = require('../lib/planner');
+
+const IVS = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+
+function damageInto(moveName, charge) {
+	const lead = {species: 'Pidgey', level: 12, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Gust', 'Tackle', 'Earthquake', 'Surf'], ivs: IVS};
+	let state = planner.buildFightState({trainer: 'Fisherman Darian', playerParty: [lead],
+		profileId: 'run-and-bun'}).state;
+	const foe = state.sides.ai.activeIds[0];
+	const me = state.sides.player.activeIds[0];
+	if (charge) {
+		state = Object.assign({}, state, {sides: Object.assign({}, state.sides, {ai: Object.assign({}, state.sides.ai, {
+			party: state.sides.ai.party.map(mon => mon.id !== foe ? mon : Object.assign({}, mon,
+				{volatile: Object.assign({}, mon.volatile, {charge: {moveName: charge, targetIds: [me]}})})),
+		})})});
+	}
+	const facts = ai.calculateActionFacts(state, {kind: 'move', actorId: me, moveName, targetIds: [foe]});
+	const damage = (facts.damageByTarget && facts.damageByTarget[foe]) || facts.damage;
+	return damage.max;
+}
+
+test('each hidden state is reached by its own moves, some for double', () => {
+	const gust = damageInto('Gust');
+	assert.ok(gust > 0);
+	assert.equal(damageInto('Gust', 'Bounce'), gust * 2, 'Gust into the air is doubled');
+	assert.equal(damageInto('Gust', 'Dig'), 0, 'Gust does not reach underground');
+	assert.equal(damageInto('Gust', 'Dive'), 0);
+	assert.equal(damageInto('Tackle', 'Bounce'), 0, 'a plain move does not reach the air');
+	const quake = damageInto('Earthquake');
+	assert.ok(quake > 0);
+	assert.equal(damageInto('Earthquake', 'Dig'), quake * 2, 'Earthquake underground is doubled');
+	assert.equal(damageInto('Earthquake', 'Fly'), 0);
+	const surf = damageInto('Surf');
+	assert.equal(damageInto('Surf', 'Dive'), surf * 2, 'Surf into the water is doubled');
+	assert.equal(damageInto('Surf', 'Phantom Force'), 0);
+});
+
+test('a hiding foe that moves first is priced where it will be, behind a switch', () => {
+	// Magikarp (Speed 27) outruns Pidgey (21) and Bounces: Tackle lands on
+	// nothing this turn, Gust lands for double. Off, the list prices the
+	// ground as it stands.
+	const driver = require('../lib/battle-driver.js');
+	const lead = {species: 'Pidgey', level: 12, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Gust', 'Tackle'], ivs: IVS};
+	const state = planner.buildFightState({trainer: 'Fisherman Darian', playerParty: [lead],
+		profileId: 'run-and-bun'}).state;
+	const priced = () => {
+		const out = {};
+		for (const entry of driver.legalActions(state)) if (entry.kind === 'move') out[entry.move] = entry.damage.max;
+		return out;
+	};
+	const ground = priced();
+	try {
+		driver.setHidingForecast(true);
+		const air = priced();
+		assert.equal(air.Tackle, 0, 'Tackle into the air');
+		assert.ok(air.Gust >= ground.Gust * 2 - 1, 'Gust into the air: ' + air.Gust + ' vs ' + ground.Gust);
+	} finally {
+		driver.setHidingForecast(false);
+	}
+	assert.ok(ground.Tackle > 0);
+});
+
+test('races read the engine Speed; switched off, they read the old zero', () => {
+	// Off, every Speed read 0 and no body was ever "faster". A Level 30
+	// Starly outruns Bug Catcher Rick's lead by any count.
+	const driver = require('../lib/battle-driver.js');
+	const lead = {species: 'Pidgey', level: 12, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Gust', 'Tackle'], ivs: IVS};
+	const bench = {species: 'Starly', level: 30, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Wing Attack', 'Growl'], ivs: IVS};
+	const state = planner.buildFightState({trainer: 'Bug Catcher Rick', playerParty: [lead, bench],
+		profileId: 'run-and-bun'}).state;
+	const starly = state.sides.player.party.find(mon => mon.species === 'Starly').id;
+	const before = driver.realSpeedReads();
+	assert.equal(driver.benchRace(state, starly).faster, true, 'faster on the engine Speed, by default');
+	assert.ok(driver.realSpeedReads() > before, 'the switch served the read');
+	try {
+		driver.setRealSpeed(false);
+		assert.equal(driver.benchRace(state, starly).faster, false, 'the old zero');
+	} finally {
+		driver.setRealSpeed(true);
+	}
+});
+
+test('a charge move is a threat priced by its release, behind a switch', () => {
+	// The engine resolves Bounce's first turn as a Status move, and the race
+	// read those facts: Darian's Magikarp had no ceiling, so the threat line
+	// saw nothing and no race could be run against it.
+	const driver = require('../lib/battle-driver.js');
+	const lead = {species: 'Pidgey', level: 12, nature: 'Hardy', ability: 'Keen Eye', item: null,
+		moves: ['Gust', 'Tackle'], ivs: IVS};
+	const state = planner.buildFightState({trainer: 'Fisherman Darian', playerParty: [lead],
+		profileId: 'run-and-bun'}).state;
+	assert.equal(driver.incomingThreat(state).move, null, 'off: no threat at all');
+	try {
+		driver.setChargeThreat(true);
+		const before = driver.chargeThreats();
+		const threat = driver.incomingThreat(state);
+		assert.equal(threat.move, 'Bounce');
+		assert.ok(threat.max > 0 && threat.race, 'a hit and a race: ' + JSON.stringify(threat));
+		assert.ok(driver.chargeThreats() > before, 'the switch served the price');
+	} finally {
+		driver.setChargeThreat(false);
+	}
+});
+
+test('a stat stage the calculator cannot index is repaired, and counted', () => {
+	// Sweep 14's deepest run beat 410 fights and died at #271 here: the
+	// calculator indexes its stage table by 6 + stage, so a stage past +/-6
+	// (or NaN) reads off the end and takes the whole run with it.
+	const state = planner.buildFightState({trainer: 'Leader Tate',
+		playerParty: [{species: 'Reuniclus', level: 85, nature: 'Hardy', ability: 'Magic Guard', item: null,
+			moves: ['Psychic'], ivs: IVS}], profileId: 'run-and-bun'}).state;
+	const us = state.sides.player.activeIds[0];
+	const foe = state.sides.ai.activeIds[0];
+	const withBoosts = boosts => Object.assign({}, state, {sides: Object.assign({}, state.sides, {
+		player: Object.assign({}, state.sides.player, {party: state.sides.player.party
+			.map(mon => mon.id === us ? Object.assign({}, mon, {boosts}) : mon)}),
+	})});
+	const damageWith = boosts => {
+		const facts = ai.calculateActionFacts(withBoosts(boosts), {kind: 'move', actorId: us,
+			moveName: 'Psychic', targetIds: [foe]});
+		return facts.damage.max;
+	};
+	const legal = damageWith({spa: 6});
+	const before = ai.boostRepairs();
+	assert.equal(damageWith({spa: 8}), legal, 'a stage past +6 is played as +6');
+	assert.ok(damageWith({spa: -9}) > 0, 'a stage past -6 is played as -6');
+	assert.ok(damageWith({spa: NaN}) > 0, 'a stage that is not a number is played as 0');
+	assert.equal(ai.boostRepairs() - before, 3, 'each repair is counted, so the source stays findable');
+	const clean = ai.boostRepairs();
+	damageWith({spa: 2});
+	assert.equal(ai.boostRepairs(), clean, 'a legal stage is not a repair');
+});

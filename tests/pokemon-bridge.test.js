@@ -32,9 +32,13 @@ test('a run becomes a pinned planning DTO with owned IVs intact', () => {
 	assert.equal(result.schemaVersion, bridge.REQUEST_SCHEMA);
 	assert.equal(result.capability, 'pokemon.rab.plan');
 	assert.equal(result.task.state.trainer.order, 1);
+	// Bullet Seed is there because the team is pinned at L12 and levelling
+	// TEACHES now. This expected ['Pound', 'Leer'] — the level-3 moveset on a
+	// level-12 Pokemon — which is exactly the shape of the defect: the DTO
+	// handed a provider a team the player would never field.
 	assert.deepEqual(result.task.state.playerTeam[0], {
 		id: 'mon-1', species: 'Treecko', level: 12, nature: 'Hardy', ability: 'Overgrow',
-		item: null, moves: ['Pound', 'Leer'], ivs: IVS,
+		item: null, moves: ['Pound', 'Leer', 'Bullet Seed'], ivs: IVS,
 	});
 	assert.deepEqual(result.task.seeds, [1450]);
 	assert.deepEqual(result.task.constraints, {zeroDeaths: true, wholeBranch: true});

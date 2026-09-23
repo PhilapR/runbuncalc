@@ -120,6 +120,15 @@ module.exports = defineProfile({
 		sleepTurnsResetOnEntry: true,
 		disguiseBreaksWithoutChipDamage: true,
 		confusionBerriesRestoreHalfHpAtQuarter: true,
+		// "Weather abilities: Will set Weather permanently." / "Terrain
+		// abilities: Will set Terrain permanently." — strong weathers
+		// (Primordial Sea, Desolate Land, Delta Stream) included: they are
+		// weather abilities, so they outlive their holder. Declared
+		// 2026-09-22 after the engine ended them with their holder (the
+		// mainline rule) and nothing held it to this line.
+		abilityWeatherIsPermanent: true,
+		// "Moody: Can still raise Accuracy and Evasion." (Gen 8 removed them.)
+		moodyRaisesAccuracyEvasion: true,
 	},
 
 	/**
@@ -167,7 +176,11 @@ module.exports = defineProfile({
 		// score array out of emulator RAM (0x02000360, u8[4], base 100; chosen
 		// slot 0x02000391) across seeded cohorts and reproduced the 80/20 roll —
 		// see ECOSYSTEM.json, pokemon-mono groundtruth/pykemon, traces/emu/probes.
-		// SETUP remains transcription: no probe has exercised it yet.
+		// SETUP stays transcription, half-verified: the phase-5 setup probes
+		// (u1-u7, h9, h10) read the +6 baseScore directly (Swords Dance, Dragon
+		// Dance and Nasty Plot at 106) and ai/src/status.ts now passes them, but
+		// no probe has put the player to sleep, so incapacitatedBonus is unread.
+		// Raise it when a probe reads the +3.
 		'policy.SCORE_ROLL': 'emulator-observed',
 		'policy.SETUP': 'transcribed',
 		// DOCUMENTED_SCORES and DOCUMENTED_SWITCH are deliberately not tagged.
@@ -205,6 +218,12 @@ module.exports = defineProfile({
 		'mechanics.sleepTurnsResetOnEntry': 'source-of-truth',
 		'mechanics.disguiseBreaksWithoutChipDamage': 'source-of-truth',
 		'mechanics.confusionBerriesRestoreHalfHpAtQuarter': 'source-of-truth',
+		// Also emulator-observed (pokemon-mono groundtruth P0 and P3,
+		// 2026-09-22/23): ordinary ability weather holds 10/10 turns, and
+		// Primal weather survives its holder leaving or fainting in 120/120
+		// runs while blocking every ordinary setter.
+		'mechanics.abilityWeatherIsPermanent': 'source-of-truth',
+		'mechanics.moodyRaisesAccuracyEvasion': 'source-of-truth',
 		// "Soul Dew: Boosts Latias and Latios SpA/SpD by one stage" — and the
 		// calc fork implements it as literal stages (clamped, clone-safe,
 		// composing with Calm Mind and ignored by crits like any stage).
@@ -213,6 +232,13 @@ module.exports = defineProfile({
 		// this row was simply missing, which the registry's own rules call
 		// 'inferred' by default and which it never was.
 		'oracle.growth': 'source-of-truth',
+		// Species catch rates are NOT the author's data. catch-rates.json is the
+		// mainline dex (PokeAPI pokemon_species.csv, capture_rate) via
+		// scripts/import-catch-rates.js. None of the hack's own documents gives a
+		// species rate — Mechanic Changes.txt names one catch rule, Safari Balls
+		// at 100% — and the decomp's base_stats.h, which would, is not on this
+		// machine. Copied and unverified against the hack: transcribed.
+		'oracle.catchRates': 'transcribed',
 		// Route availability, encounter-method gates and the HM teach gates:
 		// the operator's rab curation, translated through name-matched anchors
 		// (late-biased, never early — see scripts/import-availability.js).
@@ -245,5 +271,7 @@ module.exports = defineProfile({
 		// availability, HM-gate and fight-field transcriptions. Claims about it
 		// are registered with paths in ECOSYSTEM.json.
 		'rab-curation': 'PhilapR/pokemon-mono — engines/rab/backend/src/data/',
+		// Mainline species data, for what the hack's sources do not state.
+		pokeapi: 'https://github.com/PokeAPI/pokeapi — data/v2/csv/pokemon_species.csv',
 	},
 });

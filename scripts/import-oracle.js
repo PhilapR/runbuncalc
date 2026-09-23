@@ -44,6 +44,8 @@
  * than a regex that happened to match.
  */
 
+const childProcess = require('node:child_process');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -385,6 +387,23 @@ const EVO_METHODS = {
 	EVO_LEVEL_NATURE_LOW_KEY: 'level-nature-low-key',
 };
 
+/**
+ * What a method demands of the Pokemon itself, beyond its level or item.
+ * The method map above folds these into plain 'level' and 'item', and the
+ * import used to drop the difference: Tyrogue's three level-20 branches came
+ * out unconditioned, and every consumer took the first (Hitmonchan) whatever
+ * the Tyrogue's stats. Recorded as `requires` so a consumer can tell.
+ */
+const EVO_REQUIRES = {
+	EVO_LEVEL_ATK_GT_DEF: 'atk>def',
+	EVO_LEVEL_ATK_EQ_DEF: 'atk=def',
+	EVO_LEVEL_ATK_LT_DEF: 'atk<def',
+	EVO_LEVEL_FEMALE: 'female',
+	EVO_LEVEL_MALE: 'male',
+	EVO_ITEM_FEMALE: 'female',
+	EVO_ITEM_MALE: 'male',
+};
+
 /** Methods whose numeric parameter is a level the player must reach. */
 const LEVEL_METHODS = new Set(['level', 'level-night', 'level-day', 'level-dusk', 'level-rain',
 	'level-dark-in-party', 'level-nature-amped', 'level-nature-low-key']);
@@ -419,11 +438,18 @@ function importEvolutions(decomp, problems) {
 				continue;
 			}
 			const step = {into, method};
+			if (EVO_REQUIRES[evo[1]]) step.requires = EVO_REQUIRES[evo[1]];
 			if (LEVEL_METHODS.has(method)) step.level = Number(evo[2]);
 			else if (/^ITEM_/.test(evo[2])) step.item = resolveItem(evo[2]);
 			else if (/^MOVE_/.test(evo[2])) step.move = resolveMove(evo[2]);
 			else if (/^\d+$/.test(evo[2])) step.value = Number(evo[2]);
 			else if (evo[2] !== '0') step.condition = evo[2];
+			// The cosmetic collapse works on the TO side too: Milcery's nine
+			// branches, one per Alcremie cream, all resolve to one Alcremie and
+			// became nine byte-identical rows. A branch is a distinct outcome or
+			// it is not a branch.
+			const key = JSON.stringify(step);
+			if (evos.some(prior => JSON.stringify(prior) === key)) continue;
 			evos.push(step);
 		}
 		// Mega evolution and primal reversion are in-battle form changes, not
@@ -490,7 +516,18 @@ function importLearnsets(decomp, problems) {
 			continue;
 		}
 		const moves = [];
-		for (const move of block.matchAll(/LEVEL_UP_MOVE\(\s*(\d+),\s*(MOVE_[A-Z0-9_]+)\)/g)) {
+		// An entry the pattern does not read is a lost move, and a block that
+		// loses all of them is stored as an empty list — the removed-species
+		// signature — without a word. Count what the block says against what
+		// was read, so a short parse is a problem and not a fact.
+		const written = (block.match(/LEVEL_UP_MOVE\s*\(/g) || []).length;
+		const read = [...block.matchAll(/LEVEL_UP_MOVE\(\s*(\d+),\s*(MOVE_[A-Z0-9_]+)\)/g)];
+		if (read.length !== written) {
+			problems.push(`level_up_learnsets: ${levelPointers[constant]} writes ${written} ` +
+				`LEVEL_UP_MOVE entries and ${read.length} were read (${constant})`);
+			continue;
+		}
+		for (const move of read) {
 			// `MOVE_NONE` terminates the list; it is a sentinel, not a move.
 			if (move[2] === 'MOVE_NONE') continue;
 			const name = resolveMove(move[2]);
@@ -638,6 +675,64 @@ function importGrowth(decomp, problems) {
 	return rates;
 }
 
+// ------------------------------------------------------------------ provenance
+
+/** Every decomp file the importers read, relative to the decomp root. */
+const DECOMP_INPUTS = [
+	'locations/wild_encounters.json',
+	'species/base_stats.h',
+	'species/egg_moves.h',
+	'species/evolution.h',
+	'species/level_up_learnset_pointers.h',
+	'species/level_up_learnsets.h',
+	'species/teachable_learnset_pointers.h',
+	'species/teachable_learnsets.h',
+];
+
+/** The file the import stamps beside its outputs. */
+const STAMP = 'decomp-import.json';
+
+function sha256(file) {
+	return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+}
+
+/**
+ * WHICH decomp produced an import. `--decomp <path>` names a place, and a
+ * place holds different bytes on different days, so the four datasets it
+ * writes could not say what they were made from.
+ *
+ * Two identities are recorded, because a decomp can arrive as a clone or as a
+ * tarball: the git revision when the path is a git checkout (with whether it
+ * had uncommitted changes), and in every case the sha256 of each file the
+ * importers read — which names the input bytes however they were obtained.
+ */
+function decompSource(decomp) {
+	const git = args => childProcess.spawnSync('git', ['-C', decomp].concat(args), {encoding: 'utf8'});
+	const head = git(['rev-parse', 'HEAD']);
+	const revision = head.status === 0 ? head.stdout.trim() : null;
+	const inputs = {};
+	for (const rel of DECOMP_INPUTS) inputs[rel] = sha256(path.join(decomp, rel));
+	return {
+		revision,
+		dirty: revision === null ? null : git(['status', '--porcelain', '--', '.']).stdout.trim() !== '',
+		obtained: revision === null ? 'not a git checkout: the input hashes are the identity' : 'git checkout',
+		inputs,
+	};
+}
+
+/**
+ * Write the stamp: the decomp's identity and the sha256 of each output, so
+ * the committed data can be checked against the import that made it without
+ * the decomp on hand (tests/import_oracle.test.js).
+ */
+function stampImport(decomp, outDir, outputs) {
+	const hashes = {};
+	for (const name of outputs) hashes[name] = sha256(path.join(outDir, name));
+	const stamp = {importer: 'scripts/import-oracle.js', decomp: decompSource(decomp), outputs: hashes};
+	fs.writeFileSync(path.join(outDir, STAMP), JSON.stringify(stamp, null, '\t') + '\n');
+	return stamp;
+}
+
 // ------------------------------------------------------------------------ main
 
 function write(name, value, summary) {
@@ -679,6 +774,10 @@ function main(argv) {
 		`${Object.keys(learnsets.teachable).length} teachable, ` +
 		`${Object.keys(learnsets.egg).length} egg`);
 	write('growth.json', growth, `${Object.keys(growth).length} species rated`);
+	const stamp = stampImport(decomp, OUT_DIR,
+		['encounters.json', 'evolutions.json', 'learnsets.json', 'growth.json']);
+	console.log(`${STAMP.padEnd(20)} decomp ${stamp.decomp.revision || 'without a git revision'}` +
+		(stamp.decomp.dirty ? ' (DIRTY)' : ''));
 }
 
 if (require.main === module) {
@@ -691,4 +790,4 @@ if (require.main === module) {
 }
 
 module.exports = {resolveSpecies, resolveMove, resolveItem, importEncounters,
-	importEvolutions, importLearnsets, importGrowth};
+	importEvolutions, importLearnsets, importGrowth, decompSource, stampImport, DECOMP_INPUTS, STAMP};

@@ -7,16 +7,22 @@ private deployment agree.
 
 ## Repository roles
 
-| Repository | Owns | Must not own |
-| --- | --- | --- |
-| `runbuncalc` | Playable companion UX, local attempt head, commands, archive export/import, Cloudflare adapter | Canonical cross-game simulation mechanics or fleet scheduling |
-| `pokemon-mono` | Run & Bun mechanics truth, deterministic simulator, replay parity, batch execution | Product navigation, user save authority, or experiment governance |
-| `stochastic-inference-core` | Capability discovery/routing, cheap-to-exact fleet policy, evidence envelopes, experiment lineage | Battle mechanics, mutable attempt state, or UI projections |
+Which platform is the home of each part of the game is decided per aspect,
+by evidence against the ROM, in [`ENGINE-HOMES.md`](ENGINE-HOMES.md)
+(approved 2026-09-22). In short:
 
-The current in-repository `ai/` engine remains a compatibility and prototyping
-provider until a `pokemon-mono` provider passes the same contract fixtures and
-replay parity gate. New cross-project mechanics should land in `pokemon-mono`,
-not deepen that temporary duplication.
+| Repository | Owns |
+| --- | --- |
+| `runbuncalc` | The playable companion, the run document and its rules, the headless run harness and planner, and, today, the home of most battle mechanics (`ai/`, the calc fork) |
+| `pokemon-mono` | The ROM ground truth (pykemon) and the evidence corpus every engine is graded against; rab, the home of any aspect where its grading is best (enemy AI move scoring, measured 0.972 held-out); rlm, a graded damage core |
+| `stochastic-inference-core` | Capability discovery/routing, cheap-to-exact fleet policy, evidence envelopes, experiment lineage |
+
+The earlier rule here (2026-08-16), that `pokemon-mono` owns all mechanics
+truth and runbuncalc's `ai/` is temporary duplication that new mechanics must
+not deepen, is retired. It disagreed with `ECOSYSTEM.json` and with practice,
+where runs, planning and live advice run on `ai/`. New mechanics land in the
+aspect's home. An aspect moves when a graded comparison on the same fixtures
+says the other implementation is better.
 
 ## Required change packet
 

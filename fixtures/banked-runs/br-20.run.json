@@ -1,0 +1,3028 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "936ff732-6b26-4e1c-ad81-35511193c4e3",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-25T20:05:21.206Z",
+	"updatedAt": "2026-08-25T20:05:21.206Z",
+	"position": 156,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Sceptile"
+	},
+	"nextId": 19,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Monferno",
+			"nickname": null,
+			"level": 25,
+			"nature": "Docile",
+			"ability": "Blaze",
+			"item": "Oran Berry",
+			"moves": [
+				"Low Sweep",
+				"Brick Break",
+				"Ember",
+				"Mach Punch"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 31,
+				"def": 0,
+				"spa": 0,
+				"spd": 12,
+				"spe": 18
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Herdier",
+			"nickname": null,
+			"level": 25,
+			"nature": "Timid",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Submission",
+				"Tackle",
+				"Odor Sleuth",
+				"Bite"
+			],
+			"ivs": {
+				"hp": 29,
+				"atk": 10,
+				"def": 5,
+				"spa": 6,
+				"spd": 14,
+				"spe": 13
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Pidgeotto",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lonely",
+			"ability": "Keen Eye",
+			"item": null,
+			"moves": [
+				"Air Slash",
+				"Sand Attack",
+				"Tackle",
+				"Air Cutter"
+			],
+			"ivs": {
+				"hp": 28,
+				"atk": 24,
+				"def": 8,
+				"spa": 11,
+				"spd": 23,
+				"spe": 3
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Steenee",
+			"nickname": null,
+			"level": 25,
+			"nature": "Gentle",
+			"ability": "Sweet Veil",
+			"item": null,
+			"moves": [
+				"Stomp",
+				"Play Nice",
+				"Rapid Spin",
+				"Razor Leaf"
+			],
+			"ivs": {
+				"hp": 8,
+				"atk": 7,
+				"def": 9,
+				"spa": 22,
+				"spd": 0,
+				"spe": 20
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Palpitoad",
+			"nickname": null,
+			"level": 25,
+			"nature": "Jolly",
+			"ability": "Swift Swim",
+			"item": "Silk Scarf",
+			"moves": [
+				"Muddy Water",
+				"Hydro Pump",
+				"Supersonic",
+				"Earth Power"
+			],
+			"ivs": {
+				"hp": 6,
+				"atk": 11,
+				"def": 0,
+				"spa": 10,
+				"spd": 7,
+				"spe": 16
+			},
+			"status": "party",
+			"origin": {
+				"at": 73,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Houndoom",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quirky",
+			"ability": "Early Bird",
+			"item": null,
+			"moves": [
+				"Flame Burst",
+				"Ember",
+				"Smog",
+				"Bite"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 8,
+				"def": 20,
+				"spa": 26,
+				"spd": 13,
+				"spe": 1
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Parasect",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lax",
+			"ability": "Effect Spore",
+			"item": null,
+			"moves": [
+				"Giga Drain",
+				"Stun Spore",
+				"Poison Powder",
+				"Bug Bite"
+			],
+			"ivs": {
+				"hp": 29,
+				"atk": 16,
+				"def": 8,
+				"spa": 7,
+				"spd": 31,
+				"spe": 11
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Shellos",
+			"nickname": null,
+			"level": 25,
+			"nature": "Gentle",
+			"ability": "Sticky Hold",
+			"item": null,
+			"moves": [
+				"Mud Bomb",
+				"Mud Sport",
+				"Water Pulse",
+				"Mud Shot"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 4,
+				"def": 17,
+				"spa": 4,
+				"spd": 28,
+				"spe": 23
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Rhyhorn",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lax",
+			"ability": "Reckless",
+			"item": null,
+			"moves": [
+				"Chip Away",
+				"Tail Whip",
+				"Scary Face",
+				"Sand Attack"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 17,
+				"def": 12,
+				"spa": 18,
+				"spd": 2,
+				"spe": 7
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Carnivine",
+			"nickname": null,
+			"level": 25,
+			"nature": "Adamant",
+			"ability": "Levitate",
+			"item": "Miracle Seed",
+			"moves": [
+				"Razor Leaf",
+				"Magical Leaf",
+				"Bite",
+				"Leaf Tornado"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 12,
+				"def": 27,
+				"spa": 11,
+				"spd": 29,
+				"spe": 27
+			},
+			"status": "party",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Staryu",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quiet",
+			"ability": "Natural Cure",
+			"item": "Poison Barb",
+			"moves": [
+				"Aurora Beam",
+				"Rapid Spin",
+				"Hydro Pump",
+				"Confuse Ray"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 25,
+				"def": 25,
+				"spa": 23,
+				"spd": 15,
+				"spe": 17
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Hariyama",
+			"nickname": null,
+			"level": 25,
+			"nature": "Gentle",
+			"ability": "Thick Fat",
+			"item": "Twisted Spoon",
+			"moves": [
+				"Payback",
+				"Focus Energy",
+				"Sand Attack",
+				"Arm Thrust"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 24,
+				"def": 30,
+				"spa": 16,
+				"spd": 13,
+				"spe": 31
+			},
+			"status": "party",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Octillery",
+			"nickname": null,
+			"level": 25,
+			"nature": "Sassy",
+			"ability": "Suction Cups",
+			"item": null,
+			"moves": [
+				"Octazooka",
+				"Hydro Pump",
+				"Psybeam",
+				"Aurora Beam"
+			],
+			"ivs": {
+				"hp": 13,
+				"atk": 24,
+				"def": 11,
+				"spa": 0,
+				"spd": 27,
+				"spe": 14
+			},
+			"status": "party",
+			"origin": {
+				"at": 73,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Clauncher",
+			"nickname": null,
+			"level": 25,
+			"nature": "Calm",
+			"ability": "Mega Launcher",
+			"item": null,
+			"moves": [
+				"Water Pulse",
+				"Aqua Jet",
+				"Focus Blast",
+				"Vise Grip"
+			],
+			"ivs": {
+				"hp": 4,
+				"atk": 20,
+				"def": 20,
+				"spa": 18,
+				"spd": 13,
+				"spe": 30
+			},
+			"status": "party",
+			"origin": {
+				"at": 73,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Luxio",
+			"nickname": null,
+			"level": 25,
+			"nature": "Brave",
+			"ability": "Intimidate",
+			"item": "Soft Sand",
+			"moves": [
+				"Covet",
+				"Thunder",
+				"Baby-Doll Eyes",
+				"Spark"
+			],
+			"ivs": {
+				"hp": 2,
+				"atk": 13,
+				"def": 20,
+				"spa": 24,
+				"spd": 29,
+				"spe": 26
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 73,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Seadra",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quirky",
+			"ability": "Poison Point",
+			"item": null,
+			"moves": [
+				"Aurora Beam",
+				"Bubble Beam",
+				"Hydro Pump",
+				"Surf"
+			],
+			"ivs": {
+				"hp": 17,
+				"atk": 16,
+				"def": 29,
+				"spa": 30,
+				"spd": 31,
+				"spe": 30
+			},
+			"status": "party",
+			"origin": {
+				"at": 73,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-17",
+			"species": "Nidorino",
+			"nickname": null,
+			"level": 25,
+			"nature": "Calm",
+			"ability": "Poison Point",
+			"item": null,
+			"moves": [
+				"Mud-Slap",
+				"Tail Whip",
+				"Bug Bite",
+				"Double Kick"
+			],
+			"ivs": {
+				"hp": 5,
+				"atk": 11,
+				"def": 25,
+				"spa": 12,
+				"spd": 13,
+				"spe": 1
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 135,
+				"method": "walk",
+				"map": "MAP_ROUTE116",
+				"mapName": "Route116"
+			}
+		},
+		{
+			"id": "mon-18",
+			"species": "Growlithe",
+			"nickname": null,
+			"level": 25,
+			"nature": "Calm",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Take Down",
+				"Covet",
+				"Odor Sleuth",
+				"Flame Wheel"
+			],
+			"ivs": {
+				"hp": 28,
+				"atk": 23,
+				"def": 31,
+				"spa": 2,
+				"spd": 0,
+				"spe": 26
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 135,
+				"method": "walk",
+				"map": "MAP_RUSTBORO_CITY",
+				"mapName": "Rustboro City"
+			}
+		}
+	],
+	"party": [
+		"mon-16",
+		"mon-12",
+		"mon-5",
+		"mon-10",
+		"mon-13",
+		"mon-14"
+	],
+	"bag": {
+		"Potion": 1,
+		"Super Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chimchar",
+				"level": 5,
+				"ivs": {
+					"hp": 31,
+					"atk": 31,
+					"def": 0,
+					"spa": 0,
+					"spd": 12,
+					"spe": 18
+				},
+				"nature": "Docile",
+				"ability": "Blaze"
+			},
+			"summary": "caught Chimchar at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Lillipup",
+				"level": 3,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 29,
+					"atk": 10,
+					"def": 5,
+					"spa": 6,
+					"spd": 14,
+					"spe": 13
+				},
+				"nature": "Timid",
+				"ability": "Vital Spirit"
+			},
+			"summary": "caught Lillipup at level 3 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Pidgey",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 28,
+					"atk": 24,
+					"def": 8,
+					"spa": 11,
+					"spd": 23,
+					"spe": 3
+				},
+				"nature": "Lonely",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Pidgey at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Bounsweet",
+				"level": 2,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 8,
+					"atk": 7,
+					"def": 9,
+					"spa": 22,
+					"spd": 0,
+					"spe": 20
+				},
+				"nature": "Gentle",
+				"ability": "Sweet Veil"
+			},
+			"summary": "caught Bounsweet at level 2 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tympole",
+				"level": 3,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 6,
+					"atk": 11,
+					"def": 0,
+					"spa": 10,
+					"spd": 7,
+					"spe": 16
+				},
+				"nature": "Jolly",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Tympole at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Houndour",
+				"level": 3,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 31,
+					"atk": 8,
+					"def": 20,
+					"spa": 26,
+					"spd": 13,
+					"spe": 1
+				},
+				"nature": "Quirky",
+				"ability": "Early Bird"
+			},
+			"summary": "caught Houndour at level 3 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Paras",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 29,
+					"atk": 16,
+					"def": 8,
+					"spa": 7,
+					"spd": 31,
+					"spe": 11
+				},
+				"nature": "Lax",
+				"ability": "Effect Spore"
+			},
+			"summary": "caught Paras at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shellos",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 16,
+					"atk": 4,
+					"def": 17,
+					"spa": 4,
+					"spd": 28,
+					"spe": 23
+				},
+				"nature": "Gentle",
+				"ability": "Sticky Hold"
+			},
+			"summary": "caught Shellos at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Rhyhorn",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 31,
+					"atk": 17,
+					"def": 12,
+					"spa": 18,
+					"spd": 2,
+					"spe": 7
+				},
+				"nature": "Lax",
+				"ability": "Reckless"
+			},
+			"summary": "caught Rhyhorn at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Carnivine",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 15,
+					"atk": 12,
+					"def": 27,
+					"spa": 11,
+					"spd": 29,
+					"spe": 27
+				},
+				"nature": "Adamant",
+				"ability": "Levitate"
+			},
+			"summary": "caught Carnivine at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Staryu",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 21,
+					"atk": 25,
+					"def": 25,
+					"spa": 23,
+					"spd": 15,
+					"spe": 17
+				},
+				"nature": "Quiet",
+				"ability": "Natural Cure"
+			},
+			"summary": "caught Staryu at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Makuhita",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 24,
+					"def": 30,
+					"spa": 16,
+					"spd": 13,
+					"spe": 31
+				},
+				"nature": "Gentle",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Makuhita at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Remoraid",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 13,
+					"atk": 24,
+					"def": 11,
+					"spa": 0,
+					"spd": 27,
+					"spe": 14
+				},
+				"nature": "Sassy",
+				"ability": "Hustle"
+			},
+			"summary": "caught Remoraid at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Clauncher",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 4,
+					"atk": 20,
+					"def": 20,
+					"spa": 18,
+					"spd": 13,
+					"spe": 30
+				},
+				"nature": "Calm",
+				"ability": "Mega Launcher"
+			},
+			"summary": "caught Clauncher at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shinx",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 2,
+					"atk": 13,
+					"def": 20,
+					"spa": 24,
+					"spd": 29,
+					"spe": 26
+				},
+				"nature": "Brave",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Shinx at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 17,
+					"atk": 16,
+					"def": 29,
+					"spa": 30,
+					"spd": 31,
+					"spe": 30
+				},
+				"nature": "Quirky",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Chimchar grew from L5 to L21 and learned Mach Punch; its moves are full, so Flame Wheel, Fire Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Flame Wheel",
+				"replace": "Scratch"
+			},
+			"summary": "Chimchar forgot Scratch, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Fire Spin",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Chimchar forgot Flame Wheel, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Chimchar evolved into Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Lillipup grew from L3 to L21 and learned Odor Sleuth, Bite; its moves are full, so Baby-Doll Eyes, Covet, Take Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Baby-Doll Eyes",
+				"replace": "Leer"
+			},
+			"summary": "Lillipup forgot Leer, learned Baby-Doll Eyes",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Covet",
+				"replace": "Baby-Doll Eyes"
+			},
+			"summary": "Lillipup forgot Baby-Doll Eyes, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Take Down",
+				"replace": "Covet"
+			},
+			"summary": "Lillipup forgot Covet, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Lillipup evolved into Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Pidgey grew from L5 to L21 and learned Tackle, Air Cutter; its moves are full, so Feather Dance, Air Slash must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Feather Dance",
+				"replace": "Gust"
+			},
+			"summary": "Pidgey forgot Gust, learned Feather Dance",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Air Slash",
+				"replace": "Feather Dance"
+			},
+			"summary": "Pidgey forgot Feather Dance, learned Air Slash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Pidgey evolved into Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Bounsweet grew from L2 to L21 and learned Play Nice, Rapid Spin, Razor Leaf; its moves are full, so Sweet Scent, Magical Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Sweet Scent",
+				"replace": "Splash"
+			},
+			"summary": "Bounsweet forgot Splash, learned Sweet Scent",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Bounsweet forgot Sweet Scent, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-4"
+			},
+			"summary": "Bounsweet evolved into Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Tympole grew from L3 to L21 and learned Supersonic, Echoed Voice; its moves are full, so Mud-Slap, Mud Shot, Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud-Slap",
+				"replace": "Bubble"
+			},
+			"summary": "Tympole forgot Bubble, learned Mud-Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Tympole forgot Mud-Slap, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble Beam",
+				"replace": "Mud Shot"
+			},
+			"summary": "Tympole forgot Mud Shot, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Tympole evolved into Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L3 to L21 and learned Smog, Bite; its moves are full, so Fire Fang, Flame Burst must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Fang",
+				"replace": "Leer"
+			},
+			"summary": "Houndour forgot Leer, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Burst",
+				"replace": "Fire Fang"
+			},
+			"summary": "Houndour forgot Fire Fang, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Paras grew from L5 to L21 and learned Stun Spore, Poison Powder, Bug Bite; its moves are full, so Mega Drain, Spore must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Mega Drain",
+				"replace": "Absorb"
+			},
+			"summary": "Paras forgot Absorb, learned Mega Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Spore",
+				"replace": "Mega Drain"
+			},
+			"summary": "Paras forgot Mega Drain, learned Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L5 to L21 and learned Water Pulse, Mud Shot; its moves are full, so Hidden Power must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Hidden Power",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Shellos forgot Mud-Slap, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L8 to L21 and learned Sand Attack; its moves are full, so Smack Down, Stomp, Bulldoze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Horn Attack"
+			},
+			"summary": "Rhyhorn forgot Horn Attack, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Stomp",
+				"replace": "Smack Down"
+			},
+			"summary": "Rhyhorn forgot Smack Down, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Stomp"
+			},
+			"summary": "Rhyhorn forgot Stomp, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L14 to L21; its moves are full, so Sweet Scent must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Sweet Scent",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Carnivine forgot Razor Leaf, learned Sweet Scent",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Staryu grew from L8 to L21; its moves are full, so Camouflage, Swift, Water Pulse, Psybeam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Camouflage",
+				"replace": "Water Gun"
+			},
+			"summary": "Staryu forgot Water Gun, learned Camouflage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Swift",
+				"replace": "Camouflage"
+			},
+			"summary": "Staryu forgot Camouflage, learned Swift",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Water Pulse",
+				"replace": "Swift"
+			},
+			"summary": "Staryu forgot Swift, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Psybeam",
+				"replace": "Water Pulse"
+			},
+			"summary": "Staryu forgot Water Pulse, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Makuhita grew from L8 to L21; its moves are full, so Fake Out, Force Palm, Whirlwind, Payback must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Fake Out",
+				"replace": "Tackle"
+			},
+			"summary": "Makuhita forgot Tackle, learned Fake Out",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Force Palm",
+				"replace": "Fake Out"
+			},
+			"summary": "Makuhita forgot Fake Out, learned Force Palm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Whirlwind",
+				"replace": "Force Palm"
+			},
+			"summary": "Makuhita forgot Force Palm, learned Whirlwind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Payback",
+				"replace": "Whirlwind"
+			},
+			"summary": "Makuhita forgot Whirlwind, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L8 to L21 and learned Psybeam, Aurora Beam; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Water Gun"
+			},
+			"summary": "Remoraid forgot Water Gun, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Clauncher grew from L10 to L21; its moves are full, so Bubble Beam, Aurora Beam, Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bubble Beam",
+				"replace": "Splash"
+			},
+			"summary": "Clauncher forgot Splash, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Aurora Beam",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Clauncher forgot Bubble Beam, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bounce",
+				"replace": "Aurora Beam"
+			},
+			"summary": "Clauncher forgot Aurora Beam, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Shinx grew from L12 to L21; its moves are full, so Nuzzle, Bite, Covet must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Nuzzle",
+				"replace": "Tackle"
+			},
+			"summary": "Shinx forgot Tackle, learned Nuzzle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Bite",
+				"replace": "Nuzzle"
+			},
+			"summary": "Shinx forgot Nuzzle, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Covet",
+				"replace": "Bite"
+			},
+			"summary": "Shinx forgot Bite, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Shinx evolved into Luxio",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L10 to L21 and learned Twister; its moves are full, so Bubble Beam, Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Clear Smog",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Horsea forgot Bubble Beam, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-16"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Herdier, Pidgeotto, Steenee, Palpitoad, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-11",
+					"mon-5"
+				]
+			},
+			"summary": "Luxio takes the lead — with Carnivine, Seadra, Monferno, Staryu, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Smokescreen"
+			},
+			"summary": "Seadra forgot Smokescreen, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Low Sweep",
+				"replace": "Fire Spin"
+			},
+			"summary": "Monferno forgot Fire Spin, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-10",
+				"item": "Miracle Seed"
+			},
+			"summary": "Carnivine is holding Miracle Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder",
+				"replace": "Leer"
+			},
+			"summary": "Luxio forgot Leer, learned Thunder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Magical Leaf",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Carnivine forgot Sweet Scent, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Hydro Pump",
+				"replace": "Leer"
+			},
+			"summary": "Seadra forgot Leer, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Brick Break",
+				"replace": "Leer"
+			},
+			"summary": "Monferno forgot Leer, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Psywave"
+			},
+			"summary": "Staryu forgot Psywave, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hydro Pump",
+				"replace": "Growl"
+			},
+			"summary": "Palpitoad forgot Growl, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Monferno is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Silk Scarf"
+			},
+			"summary": "Palpitoad is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-11",
+				"item": "Poison Barb"
+			},
+			"summary": "Staryu is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-15",
+				"item": "Soft Sand"
+			},
+			"summary": "Luxio is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Luxio fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Staryu fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Herdier, Pidgeotto, Steenee, Palpitoad, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-10",
+					"mon-11",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Seadra takes the lead — with Luxio, Carnivine, Staryu, Monferno, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Carnivine forgot Magical Leaf, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Palpitoad forgot Bubble Beam, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Luxio fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Staryu fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Herdier, Pidgeotto, Steenee, Palpitoad, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-10",
+					"mon-11",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Seadra takes the lead — with Luxio, Carnivine, Staryu, Monferno, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Luxio fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Staryu fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Brawly"
+			},
+			"summary": "beat Leader Brawly (now at 77)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Lyle"
+			},
+			"summary": "beat Bug Catcher Lyle (now at 83)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Maniac James"
+			},
+			"summary": "beat Bug Maniac James (now at 86)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Winston"
+			},
+			"summary": "beat Rich Boy Winston (now at 90)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Ivan"
+			},
+			"summary": "beat Fisherman Ivan (now at 92)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Twins Gina And Mia"
+			},
+			"summary": "beat Twins Gina And Mia (now at 95)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Haley"
+			},
+			"summary": "beat Lass Haley (now at 99)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Joey"
+			},
+			"summary": "beat Youngster Joey (now at 103)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Janice"
+			},
+			"summary": "beat Lass Janice (now at 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Dawson"
+			},
+			"summary": "beat Rich Boy Dawson (now at 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Jerry & Johnson"
+			},
+			"summary": "beat School Kid Jerry & Johnson (now at 111)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Jose"
+			},
+			"summary": "beat Bug Catcher Jose (now at 115)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Sarah"
+			},
+			"summary": "beat Lady Sarah (now at 118)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Karen"
+			},
+			"summary": "beat School Kid Karen (now at 120)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Clark"
+			},
+			"summary": "beat Hiker Clark (now at 123)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Devan"
+			},
+			"summary": "beat Hiker Devan (now at 125)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Josh"
+			},
+			"summary": "beat Youngster Josh (now at 128)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Tommy"
+			},
+			"summary": "beat Youngster Tommy (now at 131)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Marc"
+			},
+			"summary": "beat Hiker Marc (now at 135)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Nidoran-M",
+				"level": 14,
+				"map": "Route116",
+				"method": "walk",
+				"ivs": {
+					"hp": 5,
+					"atk": 11,
+					"def": 25,
+					"spa": 12,
+					"spd": 13,
+					"spe": 1
+				},
+				"nature": "Calm",
+				"ability": "Poison Point"
+			},
+			"summary": "caught Nidoran-M at level 14 on Route116",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Growlithe",
+				"level": 14,
+				"map": "Rustboro City",
+				"method": "walk",
+				"ivs": {
+					"hp": 28,
+					"atk": 23,
+					"def": 31,
+					"spa": 2,
+					"spd": 0,
+					"spe": 26
+				},
+				"nature": "Calm",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Growlithe at level 14 on Rustboro City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Super Potion"
+			},
+			"summary": "bag: Super Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Twisted Spoon"
+			},
+			"summary": "bag: Twisted Spoon x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Palpitoad grew from L21 to L25; its moves are full, so Muddy Water must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Muddy Water",
+				"replace": "Mud Shot"
+			},
+			"summary": "Palpitoad forgot Mud Shot, learned Muddy Water",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L21 to L25; its moves are full, so Acid Spray must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Acid Spray",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Carnivine forgot Razor Leaf, learned Acid Spray",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Staryu grew from L21 to L25; its moves are full, so Reflect Type, Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Reflect Type",
+				"replace": "Psybeam"
+			},
+			"summary": "Staryu forgot Psybeam, learned Reflect Type",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Reflect Type"
+			},
+			"summary": "Staryu forgot Reflect Type, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Luxio grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L21 to L25; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Clear Smog"
+			},
+			"summary": "Seadra forgot Clear Smog, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Herdier grew from L21 to L25; its moves are full, so Submission must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Submission",
+				"replace": "Take Down"
+			},
+			"summary": "Herdier forgot Take Down, learned Submission",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Pidgeotto grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Steenee grew from L21 to L25; its moves are full, so Teeter Dance, Stomp must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Teeter Dance",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Steenee forgot Magical Leaf, learned Teeter Dance",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Stomp",
+				"replace": "Teeter Dance"
+			},
+			"summary": "Steenee forgot Teeter Dance, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-6"
+			},
+			"summary": "Houndour evolved into Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Paras grew from L21 to L25; its moves are full, so Giga Drain must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Giga Drain",
+				"replace": "Spore"
+			},
+			"summary": "Paras forgot Spore, learned Giga Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Paras evolved into Parasect",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L21 to L25; its moves are full, so Mud Bomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Bomb",
+				"replace": "Hidden Power"
+			},
+			"summary": "Shellos forgot Hidden Power, learned Mud Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L21 to L25; its moves are full, so Chip Away must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Chip Away",
+				"replace": "Bulldoze"
+			},
+			"summary": "Rhyhorn forgot Bulldoze, learned Chip Away",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Makuhita grew from L21 to L25; its moves are full, so Vital Throw, Smelling Salts must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Vital Throw",
+				"replace": "Payback"
+			},
+			"summary": "Makuhita forgot Payback, learned Vital Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Smelling Salts",
+				"replace": "Vital Throw"
+			},
+			"summary": "Makuhita forgot Vital Throw, learned Smelling Salts",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-12"
+			},
+			"summary": "Makuhita evolved into Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L21 to L25; its moves are full, so Focus Energy must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Focus Energy",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Remoraid forgot Bubble Beam, learned Focus Energy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Remoraid evolved into Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Clauncher grew from L21 to L25; its moves are full, so Water Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Water Pulse",
+				"replace": "Bounce"
+			},
+			"summary": "Clauncher forgot Bounce, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Nidoran-M grew from L14 to L25; its moves are full, so Poison Fang, Mud-Slap must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Poison Fang",
+				"replace": "Poison Sting"
+			},
+			"summary": "Nidoran-M forgot Poison Sting, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Mud-Slap",
+				"replace": "Poison Fang"
+			},
+			"summary": "Nidoran-M forgot Poison Fang, learned Mud-Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-17"
+			},
+			"summary": "Nidoran-M evolved into Nidorino",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Growlithe grew from L14 to L25; its moves are full, so Fire Fang, Take Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Fire Fang",
+				"replace": "Bite"
+			},
+			"summary": "Growlithe forgot Bite, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Take Down",
+				"replace": "Fire Fang"
+			},
+			"summary": "Growlithe forgot Fire Fang, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Herdier, Pidgeotto, Steenee, Palpitoad, Houndoom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Palpitoad takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-12",
+					"mon-5",
+					"mon-10",
+					"mon-13",
+					"mon-14"
+				]
+			},
+			"summary": "Seadra takes the lead — with Hariyama, Palpitoad, Carnivine, Octillery, Clauncher",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Octazooka",
+				"replace": "Focus Energy"
+			},
+			"summary": "Octillery forgot Focus Energy, learned Octazooka",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Acid Spray"
+			},
+			"summary": "Carnivine forgot Acid Spray, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Payback",
+				"replace": "Smelling Salts"
+			},
+			"summary": "Hariyama forgot Smelling Salts, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Surf",
+				"replace": "Twister"
+			},
+			"summary": "Seadra forgot Twister, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Earth Power",
+				"replace": "Echoed Voice"
+			},
+			"summary": "Palpitoad forgot Echoed Voice, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Magical Leaf",
+				"replace": "Bind"
+			},
+			"summary": "Carnivine forgot Bind, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Hydro Pump",
+				"replace": "Lock-On"
+			},
+			"summary": "Octillery forgot Lock-On, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Focus Blast",
+				"replace": "Water Sport"
+			},
+			"summary": "Clauncher forgot Water Sport, learned Focus Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-12",
+				"item": "Twisted Spoon"
+			},
+			"summary": "Hariyama is holding Twisted Spoon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Roxanne",
+				"move": "Aqua Jet"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Roxanne",
+				"move": "Earth Power"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Roxanne",
+				"move": "Knock Off"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Roxanne",
+				"move": "Stored Power"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Stored Power"
+			},
+			"summary": "Clauncher fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Roxanne"
+			},
+			"summary": "beat Leader Roxanne (now at 139)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Mike"
+			},
+			"summary": "beat Hiker Mike (now at 145)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Breeder Lydia"
+			},
+			"summary": "beat Breeder Lydia (now at 149)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Breeder Corgi"
+			},
+			"summary": "beat Breeder Corgi (now at 153)",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

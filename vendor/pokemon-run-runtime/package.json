@@ -1,6 +1,6 @@
 {
   "name": "@philapr/pokemon-run-runtime",
-  "version": "0.1.0-pokemon-mono.2ae1b7e",
+  "version": "0.1.0-pokemon-mono.bf28a06",
   "private": true,
   "type": "module",
   "exports": "./index.js"

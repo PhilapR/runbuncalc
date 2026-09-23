@@ -296,6 +296,22 @@
 		var runtime = resolveRuntime(options[0], 'plan');
 		var requests = [];
 		var requestIds = {};
+		// PER FIGHT, not per batch. Both loops used to be fail-fast, so one
+		// Pokemon the engine will not accept — a single ability its table
+		// spells differently — threw and took every fight in the batch with
+		// it. Measured across 180 planned fights, 141 of them lost their
+		// forecast to an ability, and the panel asks for three at a time: two
+		// of those three were losable only by association.
+		//
+		// A rejected fight now yields an {error} in its own slot, so the array
+		// stays index-aligned with the fights the caller passed and a fight
+		// whose party the engine CAN build still gets its answer. The error
+		// object is the one the engine threw, unchanged, because the panel
+		// already renders it and the message names the Pokemon.
+		// Building the requests stays fail-fast, because everything that can go
+		// wrong here is the CALLER's error and not the engine's verdict on a
+		// party: a duplicate requestId, a batch over the cap, a malformed run.
+		// Those must reject before any provider work, and a gate asserts it.
 		for (var index = 0; index < options.length; index += 1) {
 			var item = Object.assign({}, options[index], {runtime: runtime});
 			var request = await createRequest(Object.assign({}, item, {
@@ -305,9 +321,23 @@
 			requestIds[request.requestId] = true;
 			requests.push(request);
 		}
+		// Executing them does NOT. This is where the engine looks at a party and
+		// refuses it — an ability its own table spells differently is the common
+		// one — and that is a verdict about one fight, not about the batch. It
+		// used to throw and take the others with it: across 180 planned fights,
+		// 141 lost their forecast to an ability, and the panel asks for three at
+		// a time, so two in three of those were lost only by association.
+		//
+		// A refused fight yields an {error} in its own slot so the array stays
+		// index-aligned, carrying the engine's own error because the panel
+		// renders it and its message names the Pokemon.
 		var results = [];
 		for (var requestIndex = 0; requestIndex < requests.length; requestIndex += 1) {
-			results.push(await executeRequest(runtime, requests[requestIndex]));
+			try {
+				results.push(await executeRequest(runtime, requests[requestIndex]));
+			} catch (error) {
+				results.push({error: error});
+			}
 		}
 		return results;
 	}

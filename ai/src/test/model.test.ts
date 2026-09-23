@@ -722,8 +722,8 @@ assert.equal(deriveSwitchEntryResolution({...pastelVeilEntry, generation: 7 as c
 const flowerVeilState = doublesState();
 flowerVeilState.sides.player.party[0].species = 'Bulbasaur';
 flowerVeilState.sides.player.party[1].ability = 'Flower Veil';
-flowerVeilState.sides.ai.party[0].moves = [{name: 'Spore'}];
-assert.equal(deriveMoveResolution(flowerVeilState, move(flowerVeilState, 'Spore'), {hit: true})
+flowerVeilState.sides.ai.party[0].moves = [{name: 'Hypnosis'}];
+assert.equal(deriveMoveResolution(flowerVeilState, move(flowerVeilState, 'Hypnosis'), {hit: true})
   .statusByPokemon, undefined);
 flowerVeilState.sides.ai.party[0].moves = [{name: 'Growl'}];
 assert.equal(deriveMoveResolution(flowerVeilState, move(flowerVeilState, 'Growl'), {hit: true})
@@ -732,17 +732,17 @@ const flowerVeilFainted = {...flowerVeilState, sides: {...flowerVeilState.sides,
   player: {...flowerVeilState.sides.player, party: flowerVeilState.sides.player.party.map(pokemon =>
     pokemon.id === 'player-2' ? {...pokemon, hp: {...pokemon.hp, current: 0}} : pokemon)},
 }};
-flowerVeilFainted.sides.ai.party[0].moves = [{name: 'Spore'}];
-assert.equal(deriveMoveResolution(flowerVeilFainted, move(flowerVeilFainted, 'Spore'), {hit: true})
+flowerVeilFainted.sides.ai.party[0].moves = [{name: 'Hypnosis'}];
+assert.equal(deriveMoveResolution(flowerVeilFainted, move(flowerVeilFainted, 'Hypnosis'), {hit: true})
   .statusByPokemon?.['player-1'], 'slp');
 const flowerVeilGen5 = {...flowerVeilState, generation: 5 as const};
-assert.equal(deriveMoveResolution(flowerVeilGen5, move(flowerVeilGen5, 'Spore'), {hit: true})
+assert.equal(deriveMoveResolution(flowerVeilGen5, move(flowerVeilGen5, 'Hypnosis'), {hit: true})
   .statusByPokemon?.['player-1'], 'slp');
 const flowerVeilSuppressed = {...flowerVeilState, sides: {...flowerVeilState.sides,
   player: {...flowerVeilState.sides.player, party: flowerVeilState.sides.player.party.map(pokemon =>
     pokemon.id === 'player-2' ? {...pokemon, abilitySuppressed: true} : pokemon)},
 }};
-assert.equal(deriveMoveResolution(flowerVeilSuppressed, move(flowerVeilSuppressed, 'Spore'), {hit: true})
+assert.equal(deriveMoveResolution(flowerVeilSuppressed, move(flowerVeilSuppressed, 'Hypnosis'), {hit: true})
   .statusByPokemon?.['player-1'], 'slp');
 const flowerVeilEntry = doublesState();
 flowerVeilEntry.sides.player.party[0].species = 'Bulbasaur';
@@ -3192,7 +3192,9 @@ assert.equal(deriveMoveResolution(awakeSleepTalkState, {
 
 const emptySleepTalkState = state();
 emptySleepTalkState.sides.ai.party[0].status = 'slp';
-emptySleepTalkState.sides.ai.party[0].statusTurns = 1;
+// Turns 2: still asleep after the attempt burn (turns 1 would wake and act
+// under Gen 8 attempt-decremented sleep).
+emptySleepTalkState.sides.ai.party[0].statusTurns = 2;
 emptySleepTalkState.sides.ai.party[0].moves = [{name: 'Sleep Talk'}];
 assert.equal(deriveMoveResolution(emptySleepTalkState, enumerateMoveActions(emptySleepTalkState)[0], {
   hit: true,
@@ -3201,22 +3203,38 @@ assert.equal(deriveMoveResolution(emptySleepTalkState, enumerateMoveActions(empt
 const normalSleepCountdown = state();
 normalSleepCountdown.sides.ai.party[0].status = 'slp';
 normalSleepCountdown.sides.ai.party[0].statusTurns = 3;
-assert.equal(beginNextTurn(normalSleepCountdown).sides.ai.party[0].statusTurns, 2);
+// The boundary leaves sleep alone now — the counter burns on the action
+// attempt (see sleep-decrement.test.ts), so a mon that never attempted
+// keeps its full counter.
+assert.equal(beginNextTurn(normalSleepCountdown).sides.ai.party[0].statusTurns, 3);
+// Sleep burns on the ACTION ATTEMPT (Gen 8), so Early Bird's double
+// decrement rides the gate now, not the turn boundary. The boundary must
+// leave the counter alone in every variant.
 const earlyBirdSleep = state();
 earlyBirdSleep.sides.ai.party[0].ability = 'Early Bird';
 earlyBirdSleep.sides.ai.party[0].status = 'slp';
 earlyBirdSleep.sides.ai.party[0].statusTurns = 3;
-const earlyBirdNextTurn = beginNextTurn(earlyBirdSleep);
-assert.equal(earlyBirdNextTurn.sides.ai.party[0].statusTurns, 1);
-assert.equal(beginNextTurn(earlyBirdNextTurn).sides.ai.party[0].status, '');
+earlyBirdSleep.sides.ai.party[0].moves = [{name: 'Tackle', pp: 35, maxPP: 35}];
+assert.equal(beginNextTurn(earlyBirdSleep).sides.ai.party[0].statusTurns, 3,
+  'the boundary no longer decrements sleep');
+const earlyBirdAttempt = deriveMoveResolution(earlyBirdSleep,
+  enumerateMoveActions(earlyBirdSleep)[0], {hit: true});
+assert.equal(earlyBirdAttempt.statusTurnsByPokemon?.['ai-1'], 1,
+  'Early Bird burns two counter points on the attempt');
 const earlyBirdGen2 = {...earlyBirdSleep, generation: 2 as BattleState['generation']};
-assert.equal(beginNextTurn(earlyBirdGen2).sides.ai.party[0].statusTurns, 2);
+const gen2Attempt = deriveMoveResolution(earlyBirdGen2,
+  enumerateMoveActions(earlyBirdGen2)[0], {hit: true});
+assert.equal(gen2Attempt.statusTurnsByPokemon?.['ai-1'], 2,
+  'Early Bird is single-decrement before gen 3');
 const suppressedEarlyBird = {...earlyBirdSleep, sides: {...earlyBirdSleep.sides,
   ai: {...earlyBirdSleep.sides.ai, party: earlyBirdSleep.sides.ai.party.map(pokemon => ({
     ...pokemon, abilitySuppressed: true,
   }))},
 }};
-assert.equal(beginNextTurn(suppressedEarlyBird).sides.ai.party[0].statusTurns, 2);
+const suppressedAttempt = deriveMoveResolution(suppressedEarlyBird,
+  enumerateMoveActions(suppressedEarlyBird)[0], {hit: true});
+assert.equal(suppressedAttempt.statusTurnsByPokemon?.['ai-1'], 2,
+  'a suppressed Early Bird decrements once');
 
 const naturePowerState = state();
 naturePowerState.sides.ai.party[0].moves = [{name: 'Nature Power'}];
@@ -4345,8 +4363,10 @@ uproarState.sides.player.party[0].status = 'slp';
 uproarState.sides.player.party[0].statusTurns = 2;
 const uproarAction = move(uproarState, 'Uproar');
 const uproarResolution = deriveMoveResolution(uproarState, uproarAction, {hit: true, random: () => 0});
+// Gen 5+ Uproar is a fixed 3 turns; the roll-based 2-5 was the Gen 3/4
+// table (constants audit D17). The state() fixture is gen 9.
 assert.deepEqual(uproarResolution.volatileByPokemon?.['ai-1']?.uproar, {
-  turns: 2, moveName: 'Uproar',
+  turns: 3, moveName: 'Uproar',
 });
 assert.equal(uproarResolution.statusByPokemon?.['player-1'], '');
 const uproarStarted = applyAction(uproarState, uproarAction, uproarResolution);
@@ -4366,7 +4386,8 @@ const faintedUproar = doublesState();
 faintedUproar.sides.ai.party[0].volatile = {uproar: {turns: 1}};
 faintedUproar.sides.ai.party[0].hp.current = 0;
 assert.equal(canApplyMajorStatus(faintedUproar, 'player-1', 'ai-2', 'slp', undefined, true), true);
-const uproarFinishedState = beginNextTurn(uproarStarted);
+// Two boundaries now, not one: gen 5+ Uproar runs a fixed 3 turns (D17).
+const uproarFinishedState = beginNextTurn(beginNextTurn(uproarStarted));
 const uproarFinalAction = enumerateMoveActions(uproarFinishedState, 'ai')[0];
 const uproarFinalResolution = deriveMoveResolution(uproarFinishedState, uproarFinalAction, {hit: true});
 assert.equal(uproarFinalResolution.volatileByPokemon?.['ai-1']?.uproar, null);
@@ -4447,7 +4468,7 @@ assert.equal(doublesSpreadSetupFacts.opponentCanKO, true);
 assert.ok((doublesSpreadSetupFacts.opponentMaxDamage || 0) >= 1);
 assert.deepEqual(scoreStatusAction(doublesSpreadThreat, {
   action: doublesSpreadSetupAction!, facts: doublesSpreadSetupFacts, outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -14, probability: 1}]); // threatened setup: -20 on the +6 base (ROM u2 reads 86)
 
 const playerPerspectiveThreat = state();
 playerPerspectiveThreat.sides.player.party[0].hp = {current: 1, max: 100};
@@ -4627,7 +4648,8 @@ const setupEvaluation = scoreStatusAction(setupPolicyState, {
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
 });
-assert.deepEqual(setupEvaluation.outcomes, [{score: 9, probability: 1}]);
+// Faster and safe stays on the +6 base: the ROM reads Swords Dance 106 (u1, h9).
+assert.deepEqual(setupEvaluation.outcomes, [{score: 6, probability: 1}]);
 
 const rechargeSetupState = state();
 rechargeSetupState.sides.ai.party[0].moves = [{name: 'Swords Dance'}];
@@ -4640,7 +4662,7 @@ assert.deepEqual(scoreStatusAction(rechargeSetupState, {
   action: rechargeSetupAction!,
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 12, probability: 1}]);
+}).outcomes, [{score: 9, probability: 1}]); // +6 base, +3 incapacitated; no faster-and-safe +3 (u1, h9)
 
 const truantSetupState = state();
 truantSetupState.sides.ai.party[0].moves = [{name: 'Swords Dance'}];
@@ -4652,7 +4674,7 @@ assert.deepEqual(scoreStatusAction(truantSetupState, {
   action: truantSetupAction!,
   facts: {attackerSpeed: 200, defenderSpeed: 100, opponentCanKO: false},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 12, probability: 1}]);
+}).outcomes, [{score: 9, probability: 1}]); // +6 base, +3 incapacitated; no faster-and-safe +3 (u1, h9)
 
 const specialSetupState = state();
 specialSetupState.sides.ai.party[0].moves = [{name: 'Nasty Plot'}];
@@ -4665,12 +4687,12 @@ const specialSetupFacts = {
 };
 assert.deepEqual(scoreStatusAction(specialSetupState, {
   action: specialSetupAction!, facts: specialSetupFacts, outcomes: [], reasons: [],
-}).outcomes, [{score: 8, probability: 1}]);
+}).outcomes, [{score: 6, probability: 1}]); // no cannot-3HKO +1/+1: the ROM reads 106 (u7)
 assert.deepEqual(scoreStatusAction(specialSetupState, {
   action: specialSetupAction!,
   facts: {...specialSetupFacts, attackerBoosts: {spa: 2}},
   outcomes: [], reasons: [],
-}).outcomes, [{score: 7, probability: 1}]);
+}).outcomes, [{score: 5, probability: 1}]);
 
 const sturdySetupState = state();
 sturdySetupState.sides.ai.party[0].ability = 'Sturdy';
@@ -4694,7 +4716,7 @@ assert.deepEqual(scoreStatusAction(brokenSturdyState, {
   action: sturdySetupAction!,
   facts: {opponentCanKO: true},
   outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -14, probability: 1}]); // threatened setup: -20 on the +6 base (ROM u2 reads 86)
 
 const sashSetupState = state();
 sashSetupState.sides.ai.party[0].item = 'Focus Sash';
@@ -4835,11 +4857,11 @@ const strengthSapAction = enumerateMoveActions(strengthSapFullState).find(action
 assert.ok(strengthSapAction);
 assert.deepEqual(scoreStatusAction(strengthSapFullState, {
   action: strengthSapAction!, facts: {}, outcomes: [], reasons: [],
-}).outcomes, [{score: -20, probability: 1}]);
+}).outcomes, [{score: -15, probability: 1}]); // -20 on the +5 base: Recover at full HP reads 85 (r1, h7)
 strengthSapFullState.sides.ai.party[0].hp = {current: 90, max: 100};
 assert.deepEqual(scoreStatusAction(strengthSapFullState, {
   action: strengthSapAction!, facts: {}, outcomes: [], reasons: [],
-}).outcomes, [{score: -6, probability: 1}]);
+}).outcomes, [{score: -1, probability: 1}]); // -6 on the +5 base: Recover at 90% reads 99 (r2)
 
 const healBlockedStrengthSap = state();
 healBlockedStrengthSap.sides.ai.party[0].hp = {current: 50, max: 100};
@@ -4998,10 +5020,17 @@ assert.deepEqual(scoreDamagingAction({
   damage: {rolls: [10], min: 10, max: 10, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Physical', battleMode: 'Doubles', isMultiHit: true,
 }, true, tackleAction), [{score: 7, probability: 0.8}, {score: 9, probability: 0.2}]);
+// An immune attack that is still the highest damage (every attack immune)
+// keeps +6/+8 and takes -20: the ROM reads 86/88 (probes i5, h5).
 assert.deepEqual(scoreDamagingAction({
   damage: {rolls: [0], min: 0, max: 0, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Physical', isImmune: true,
-}, true, tackleAction), [{score: -20, probability: 1}]);
+}, true, tackleAction), [{score: -14, probability: 0.8}, {score: -12, probability: 0.2}]);
+// Beside a move that does damage it is not the highest and reads 80 (i1-i4).
+assert.deepEqual(scoreDamagingAction({
+  damage: {rolls: [0], min: 0, max: 0, targetHp: 100, possibleKO: false, guaranteedKO: false},
+  moveCategory: 'Physical', isImmune: true,
+}, false, tackleAction), [{score: -20, probability: 1}]);
 const contraryDamageFacts = {
   damage: {rolls: [30], min: 30, max: 30, targetHp: 100, possibleKO: false, guaranteedKO: false},
   moveCategory: 'Special' as const, attackerAbility: 'Contrary', attackerHp: 100,

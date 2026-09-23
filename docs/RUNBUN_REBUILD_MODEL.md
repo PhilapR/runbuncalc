@@ -209,6 +209,9 @@ Acceptance: a recorded fixture can be replayed offline into an identical run.
 
 ### R1 — Read-only emulator sync
 
+> Parked, 2026-09-22: `docs/WORKFLOW.md` parks the emulator phases with no bar,
+> so R1 onward is not ready to start.
+
 - Replace the manual Showdown export with a loopback mGBA adapter.
 - Observe scene mode, party/box, HP/status, current map and position first.
 - Derive catch, faint, map-entry, and battle boundary events.

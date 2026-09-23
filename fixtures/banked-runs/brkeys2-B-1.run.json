@@ -1,0 +1,6566 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"orderScale": "route103-wally-2026-08-28",
+	"attemptId": "d2f3221c-6ad5-4e34-a32e-3ff7b78a0f71",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-29T03:46:36.285Z",
+	"updatedAt": "2026-08-29T03:46:36.285Z",
+	"position": 76,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Blaziken"
+	},
+	"nextId": 17,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Grotle",
+			"nickname": null,
+			"level": 21,
+			"nature": "Modest",
+			"ability": "Overgrow",
+			"item": "Oran Berry",
+			"moves": [
+				"Secret Power",
+				"Sand Tomb",
+				"Razor Leaf",
+				"Confide"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 31,
+				"def": 11,
+				"spa": 0,
+				"spd": 31,
+				"spe": 30
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Staravia",
+			"nickname": null,
+			"level": 21,
+			"nature": "Modest",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Secret Power",
+				"Growl",
+				"Quick Attack",
+				"Aerial Ace"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 2,
+				"def": 12,
+				"spa": 14,
+				"spd": 19,
+				"spe": 20
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Sizzlipede",
+			"nickname": null,
+			"level": 21,
+			"nature": "Mild",
+			"ability": "Flame Body",
+			"item": null,
+			"moves": [
+				"Flame Wheel",
+				"Smokescreen",
+				"Bite",
+				"Bug Bite"
+			],
+			"ivs": {
+				"hp": 4,
+				"atk": 26,
+				"def": 8,
+				"spa": 5,
+				"spd": 8,
+				"spe": 13
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Linoone-Galar",
+			"nickname": null,
+			"level": 21,
+			"nature": "Lax",
+			"ability": "Gluttony",
+			"item": null,
+			"moves": [
+				"Headbutt",
+				"Sand Attack",
+				"Pin Missile",
+				"Snarl"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 25,
+				"def": 8,
+				"spa": 4,
+				"spd": 16,
+				"spe": 0
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Steenee",
+			"nickname": null,
+			"level": 21,
+			"nature": "Naive",
+			"ability": "Sweet Veil",
+			"item": "Silk Scarf",
+			"moves": [
+				"Magical Leaf",
+				"Play Nice",
+				"Sweet Scent",
+				"Razor Leaf"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 8,
+				"def": 23,
+				"spa": 11,
+				"spd": 19,
+				"spe": 12
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Lumineon",
+			"nickname": null,
+			"level": 21,
+			"nature": "Timid",
+			"ability": "Swift Swim",
+			"item": "Poison Barb",
+			"moves": [
+				"Water Pulse",
+				"Air Cutter",
+				"Gust",
+				"Blizzard"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 28,
+				"def": 12,
+				"spa": 28,
+				"spd": 31,
+				"spe": 0
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Paras",
+			"nickname": null,
+			"level": 21,
+			"nature": "Jolly",
+			"ability": "Effect Spore",
+			"item": "Miracle Seed",
+			"moves": [
+				"Spore",
+				"Stun Spore",
+				"Poison Powder",
+				"Bug Bite"
+			],
+			"ivs": {
+				"hp": 8,
+				"atk": 14,
+				"def": 25,
+				"spa": 13,
+				"spd": 1,
+				"spe": 15
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 14,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Surskit",
+			"nickname": null,
+			"level": 21,
+			"nature": "Quiet",
+			"ability": "Swift Swim",
+			"item": null,
+			"moves": [
+				"Icy Wind",
+				"Bubble Beam",
+				"Sweet Scent",
+				"Struggle Bug"
+			],
+			"ivs": {
+				"hp": 13,
+				"atk": 22,
+				"def": 14,
+				"spa": 1,
+				"spd": 21,
+				"spe": 29
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 14,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Phanpy",
+			"nickname": null,
+			"level": 21,
+			"nature": "Careful",
+			"ability": "Cute Charm",
+			"item": "Soft Sand",
+			"moves": [
+				"Rock Throw",
+				"Ice Shard",
+				"Sand Attack",
+				"Bulldoze"
+			],
+			"ivs": {
+				"hp": 23,
+				"atk": 28,
+				"def": 21,
+				"spa": 17,
+				"spd": 16,
+				"spe": 12
+			},
+			"status": "party",
+			"origin": {
+				"at": 19,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Carnivine",
+			"nickname": null,
+			"level": 21,
+			"nature": "Sassy",
+			"ability": "Levitate",
+			"item": null,
+			"moves": [
+				"Razor Leaf",
+				"Secret Power",
+				"Bite",
+				"Leaf Tornado"
+			],
+			"ivs": {
+				"hp": 3,
+				"atk": 29,
+				"def": 26,
+				"spa": 3,
+				"spd": 29,
+				"spe": 6
+			},
+			"status": "party",
+			"origin": {
+				"at": 22,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Chewtle",
+			"nickname": null,
+			"level": 21,
+			"nature": "Adamant",
+			"ability": "Strong Jaw",
+			"item": null,
+			"moves": [
+				"Headbutt",
+				"Water Pulse",
+				"Bite",
+				"Ice Fang"
+			],
+			"ivs": {
+				"hp": 24,
+				"atk": 13,
+				"def": 14,
+				"spa": 26,
+				"spd": 19,
+				"spe": 2
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 25,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Meditite",
+			"nickname": null,
+			"level": 21,
+			"nature": "Rash",
+			"ability": "Pure Power",
+			"item": null,
+			"moves": [
+				"Confusion",
+				"Seismic Toss",
+				"Force Palm",
+				"Detect"
+			],
+			"ivs": {
+				"hp": 4,
+				"atk": 13,
+				"def": 31,
+				"spa": 13,
+				"spd": 25,
+				"spe": 14
+			},
+			"status": "party",
+			"origin": {
+				"at": 32,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Remoraid",
+			"nickname": null,
+			"level": 21,
+			"nature": "Hasty",
+			"ability": "Hustle",
+			"item": null,
+			"moves": [
+				"Bubble Beam",
+				"Lock-On",
+				"Psybeam",
+				"Aurora Beam"
+			],
+			"ivs": {
+				"hp": 30,
+				"atk": 19,
+				"def": 31,
+				"spa": 8,
+				"spd": 31,
+				"spe": 18
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 40,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Corphish",
+			"nickname": null,
+			"level": 21,
+			"nature": "Quirky",
+			"ability": "Hyper Cutter",
+			"item": null,
+			"moves": [
+				"Secret Power",
+				"Aerial Ace",
+				"Leer",
+				"Mud Shot"
+			],
+			"ivs": {
+				"hp": 6,
+				"atk": 6,
+				"def": 31,
+				"spa": 14,
+				"spd": 0,
+				"spe": 19
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 45,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Yamper",
+			"nickname": null,
+			"level": 21,
+			"nature": "Naive",
+			"ability": "Ball Fetch",
+			"item": null,
+			"moves": [
+				"Roar",
+				"Tail Whip",
+				"Bite",
+				"Spark"
+			],
+			"ivs": {
+				"hp": 10,
+				"atk": 12,
+				"def": 31,
+				"spa": 18,
+				"spd": 19,
+				"spe": 24
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 51,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Qwilfish",
+			"nickname": null,
+			"level": 21,
+			"nature": "Quirky",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Bubble Beam",
+				"Poison Fang",
+				"Pin Missile",
+				"Icy Wind"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 29,
+				"def": 8,
+				"spa": 19,
+				"spd": 29,
+				"spe": 29
+			},
+			"status": "party",
+			"origin": {
+				"at": 51,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		}
+	],
+	"party": [
+		"mon-6",
+		"mon-10",
+		"mon-16",
+		"mon-1",
+		"mon-9",
+		"mon-12"
+	],
+	"bag": {
+		"Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Turtwig",
+				"level": 5,
+				"ivs": {
+					"hp": 31,
+					"atk": 31,
+					"def": 11,
+					"spa": 0,
+					"spd": 31,
+					"spe": 30
+				},
+				"nature": "Modest",
+				"ability": "Overgrow"
+			},
+			"summary": "caught Turtwig at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Starly",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 2,
+					"def": 12,
+					"spa": 14,
+					"spd": 19,
+					"spe": 20
+				},
+				"nature": "Modest",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Starly at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Sizzlipede",
+				"level": 2,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 4,
+					"atk": 26,
+					"def": 8,
+					"spa": 5,
+					"spd": 8,
+					"spe": 13
+				},
+				"nature": "Mild",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Sizzlipede at level 2 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Zigzagoon-Galar",
+				"level": 3,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 19,
+					"atk": 25,
+					"def": 8,
+					"spa": 4,
+					"spd": 16,
+					"spe": 0
+				},
+				"nature": "Lax",
+				"ability": "Gluttony"
+			},
+			"summary": "caught Zigzagoon-Galar at level 3 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Bounsweet",
+				"level": 3,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 21,
+					"atk": 8,
+					"def": 23,
+					"spa": 11,
+					"spd": 19,
+					"spe": 12
+				},
+				"nature": "Naive",
+				"ability": "Sweet Veil"
+			},
+			"summary": "caught Bounsweet at level 3 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Finneon",
+				"level": 2,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 21,
+					"atk": 28,
+					"def": 12,
+					"spa": 28,
+					"spd": 31,
+					"spe": 0
+				},
+				"nature": "Timid",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Finneon at level 2 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L5 to L12 and learned Confide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Starly grew from L5 to L12 and learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L2 to L12 and learned Wrap, Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Zigzagoon-Galar grew from L3 to L12 and learned Rock Smash, Snarl; its moves are full, so Baby-Doll Eyes must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Baby-Doll Eyes",
+				"replace": "Tackle"
+			},
+			"summary": "Zigzagoon-Galar forgot Tackle, learned Baby-Doll Eyes",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Bounsweet grew from L3 to L12 and learned Play Nice, Rapid Spin, Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Bounsweet evolved into Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L2 to L12 and learned Water Gun, Gust",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Starly, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-2",
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Finneon takes the lead — with Starly, Turtwig, Sizzlipede, Zigzagoon-Galar, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Double Slap",
+				"replace": "Splash"
+			},
+			"summary": "Steenee forgot Splash, learned Double Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Blizzard"
+			},
+			"summary": "Finneon learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Turtwig is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Trainer Rival Route 103 Blaziken"
+			},
+			"summary": "beat Trainer Rival Route 103 Blaziken (now at 1)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-2",
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Finneon takes the lead — with Sizzlipede, Starly, Zigzagoon-Galar, Turtwig, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6",
+					"mon-3",
+					"mon-1",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Starly takes the lead — with Finneon, Sizzlipede, Turtwig, Steenee, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-2",
+					"mon-1",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Sizzlipede, Starly, Turtwig, Steenee, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Sizzlipede, Turtwig, Starly, Steenee, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Tackle",
+				"replace": "Baby-Doll Eyes"
+			},
+			"summary": "Zigzagoon-Galar forgot Baby-Doll Eyes, learned Tackle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 12)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Turtwig, Starly, Steenee, Sizzlipede, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Triathlete Mikey",
+				"move": "Aqua Jet"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Triathlete Mikey",
+				"move": "Acrobatics"
+			},
+			"summary": "Turtwig fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Triathlete Mikey",
+				"move": "Sonic Boom"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Paras",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 8,
+					"atk": 14,
+					"def": 25,
+					"spa": 13,
+					"spd": 1,
+					"spe": 15
+				},
+				"nature": "Jolly",
+				"ability": "Effect Spore"
+			},
+			"summary": "caught Paras at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Surskit",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 13,
+					"atk": 22,
+					"def": 14,
+					"spa": 1,
+					"spd": 21,
+					"spe": 29
+				},
+				"nature": "Quiet",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Surskit at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Paras grew from L5 to L12 and learned Stun Spore, Poison Powder, Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L5 to L12 and learned Quick Attack, Sweet Scent, Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Turtwig, Steenee, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-5",
+					"mon-6",
+					"mon-8",
+					"mon-4"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Paras, Steenee, Finneon, Surskit, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-7",
+				"item": "Miracle Seed"
+			},
+			"summary": "Paras is holding Miracle Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-7",
+					"mon-5",
+					"mon-8",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Turtwig, Paras, Steenee, Surskit, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 17)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Turtwig, Steenee, Zigzagoon-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Starly, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Sizzlipede, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-8",
+					"mon-7",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Finneon takes the lead — with Turtwig, Surskit, Paras, Sizzlipede, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Lady Cindy",
+				"move": "Swift"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Lady Cindy",
+				"move": "Stomp"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Phanpy",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 23,
+					"atk": 28,
+					"def": 21,
+					"spa": 17,
+					"spd": 16,
+					"spe": 12
+				},
+				"nature": "Careful",
+				"ability": "Cute Charm"
+			},
+			"summary": "caught Phanpy at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L8 to L12; its moves are full, so Ice Shard must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Ice Shard",
+				"replace": "Rock Throw"
+			},
+			"summary": "Phanpy forgot Rock Throw, learned Ice Shard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Finneon takes the lead — with Turtwig, Sizzlipede, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Starly, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Starly, Sizzlipede, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-3",
+					"mon-1",
+					"mon-5",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Paras takes the lead — with Sizzlipede, Turtwig, Steenee, Starly, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "Paras fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Confusion"
+			},
+			"summary": "Turtwig fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Carnivine",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 3,
+					"atk": 29,
+					"def": 26,
+					"spa": 3,
+					"spd": 29,
+					"spe": 6
+				},
+				"nature": "Sassy",
+				"ability": "Levitate"
+			},
+			"summary": "caught Carnivine at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L12 to L17; its moves are full, so Razor Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Absorb"
+			},
+			"summary": "Turtwig forgot Absorb, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Turtwig evolved into Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Starly grew from L12 to L17; its moves are full, so Endeavor must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Endeavor",
+				"replace": "Tackle"
+			},
+			"summary": "Starly forgot Tackle, learned Endeavor",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Starly evolved into Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L12 to L17; its moves are full, so Bite must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Bite",
+				"replace": "Wrap"
+			},
+			"summary": "Sizzlipede forgot Wrap, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Steenee grew from L12 to L17; its moves are full, so Sweet Scent must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Sweet Scent",
+				"replace": "Rapid Spin"
+			},
+			"summary": "Steenee forgot Rapid Spin, learned Sweet Scent",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L12 to L17; its moves are full, so Water Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Water Pulse",
+				"replace": "Pound"
+			},
+			"summary": "Finneon forgot Pound, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Paras grew from L12 to L17; its moves are full, so Mega Drain must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Mega Drain",
+				"replace": "Absorb"
+			},
+			"summary": "Paras forgot Absorb, learned Mega Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Zigzagoon-Galar grew from L12 to L17; its moves are full, so Headbutt, Pin Missile must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Headbutt",
+				"replace": "Tackle"
+			},
+			"summary": "Zigzagoon-Galar forgot Tackle, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Pin Missile",
+				"replace": "Rock Smash"
+			},
+			"summary": "Zigzagoon-Galar forgot Rock Smash, learned Pin Missile",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L12 to L17; its moves are full, so Struggle Bug must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Struggle Bug",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Surskit forgot Bubble Beam, learned Struggle Bug",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L12 to L17; its moves are full, so Bulldoze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Ice Shard"
+			},
+			"summary": "Phanpy forgot Ice Shard, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L14 to L17; its moves are full, so Sweet Scent must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Sweet Scent",
+				"replace": "Bind"
+			},
+			"summary": "Carnivine forgot Bind, learned Sweet Scent",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-5",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Sizzlipede takes the lead — with Grotle, Steenee, Staravia, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-1",
+					"mon-7",
+					"mon-2",
+					"mon-5",
+					"mon-8"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Grotle, Paras, Staravia, Steenee, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-10",
+					"mon-7",
+					"mon-2",
+					"mon-5",
+					"mon-8"
+				]
+			},
+			"summary": "Grotle takes the lead — with Carnivine, Paras, Staravia, Steenee, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chewtle",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 24,
+					"atk": 13,
+					"def": 14,
+					"spa": 26,
+					"spd": 19,
+					"spe": 2
+				},
+				"nature": "Adamant",
+				"ability": "Strong Jaw"
+			},
+			"summary": "caught Chewtle at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L8 to L17 and learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-6",
+					"mon-11",
+					"mon-5"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Phanpy, Grotle, Finneon, Chewtle, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Sand Tomb",
+				"replace": "Bite"
+			},
+			"summary": "Grotle forgot Bite, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Throw",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Phanpy forgot Odor Sleuth, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Silk Scarf"
+			},
+			"summary": "Steenee is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-11",
+					"mon-5"
+				]
+			},
+			"summary": "Finneon takes the lead — with Carnivine, Phanpy, Grotle, Chewtle, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 28)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Finneon takes the lead — with Grotle, Steenee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-3",
+					"mon-10",
+					"mon-11",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Sizzlipede, Carnivine, Chewtle, Finneon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Bite",
+				"replace": "Growl"
+			},
+			"summary": "Grotle forgot Growl, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-9",
+					"mon-10",
+					"mon-11",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Sizzlipede takes the lead — with Phanpy, Carnivine, Chewtle, Finneon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Meditite",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 4,
+					"atk": 13,
+					"def": 31,
+					"spa": 13,
+					"spd": 25,
+					"spe": 14
+				},
+				"nature": "Rash",
+				"ability": "Pure Power"
+			},
+			"summary": "caught Meditite at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Meditite grew from L8 to L17 and learned Detect; its moves are full, so Endure, Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Endure",
+				"replace": "Rock Smash"
+			},
+			"summary": "Meditite forgot Rock Smash, learned Endure",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Seismic Toss",
+				"replace": "Bide"
+			},
+			"summary": "Meditite forgot Bide, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Sizzlipede takes the lead — with Finneon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-6",
+					"mon-11",
+					"mon-10",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Finneon, Chewtle, Carnivine, Grotle, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-9",
+					"mon-11",
+					"mon-10",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Phanpy, Chewtle, Carnivine, Grotle, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Tuber Lola",
+				"move": "Ice Fang"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 35)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Grotle, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-1",
+					"mon-6",
+					"mon-11",
+					"mon-2",
+					"mon-8"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Grotle, Finneon, Chewtle, Staravia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Icy Wind",
+				"replace": "Bubble"
+			},
+			"summary": "Surskit forgot Bubble, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Bubble Beam",
+				"replace": "Quick Attack"
+			},
+			"summary": "Surskit forgot Quick Attack, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-10",
+					"mon-6",
+					"mon-11",
+					"mon-2",
+					"mon-8"
+				]
+			},
+			"summary": "Grotle takes the lead — with Carnivine, Finneon, Chewtle, Staravia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Sailor Edmond",
+				"move": "Bubble Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Grotle takes the lead — with Finneon, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-9",
+					"mon-6",
+					"mon-11",
+					"mon-12"
+				]
+			},
+			"summary": "Staravia takes the lead — with Sizzlipede, Phanpy, Finneon, Chewtle, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 40)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Remoraid",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 30,
+					"atk": 19,
+					"def": 31,
+					"spa": 8,
+					"spd": 31,
+					"spe": 18
+				},
+				"nature": "Hasty",
+				"ability": "Hustle"
+			},
+			"summary": "caught Remoraid at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L8 to L17 and learned Psybeam, Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-10",
+					"mon-1",
+					"mon-12",
+					"mon-6",
+					"mon-11"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Carnivine, Grotle, Meditite, Finneon, Chewtle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Corphish",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 6,
+					"atk": 6,
+					"def": 31,
+					"spa": 14,
+					"spd": 0,
+					"spe": 19
+				},
+				"nature": "Quirky",
+				"ability": "Hyper Cutter"
+			},
+			"summary": "caught Corphish at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Corphish grew from L10 to L17; its moves are full, so Bubble Beam, Knock Off must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bubble Beam",
+				"replace": "False Swipe"
+			},
+			"summary": "Corphish forgot False Swipe, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Knock Off",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Corphish forgot Bubble Beam, learned Knock Off",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-12",
+					"mon-10",
+					"mon-1",
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Meditite, Carnivine, Grotle, Finneon, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-9",
+				"item": "Soft Sand"
+			},
+			"summary": "Phanpy is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-9",
+					"mon-12",
+					"mon-10",
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Phanpy, Meditite, Carnivine, Grotle, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Tuber Hailey",
+				"move": "Water Pulse"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Grotle, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-10",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Carnivine, Grotle, Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Ice Shard",
+				"replace": "Growl"
+			},
+			"summary": "Phanpy forgot Growl, learned Ice Shard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Phanpy, Grotle, Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Pluck"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Sludge Bomb"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Sludge Bomb"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Staravia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-10",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Carnivine, Grotle, Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Phanpy, Grotle, Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Camper Gavi",
+				"move": "Venoshock"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Venoshock"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Infestation"
+			},
+			"summary": "Staravia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-10",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Carnivine, Grotle, Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-9",
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Phanpy, Grotle, Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Venoshock"
+			},
+			"summary": "Staravia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 51)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Yamper",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 10,
+					"atk": 12,
+					"def": 31,
+					"spa": 18,
+					"spd": 19,
+					"spe": 24
+				},
+				"nature": "Naive",
+				"ability": "Ball Fetch"
+			},
+			"summary": "caught Yamper at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Qwilfish",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 19,
+					"atk": 29,
+					"def": 8,
+					"spa": 19,
+					"spd": 29,
+					"spe": 29
+				},
+				"nature": "Quirky",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Qwilfish at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Yamper grew from L12 to L17; its moves are full, so Bite must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Bite",
+				"replace": "Nuzzle"
+			},
+			"summary": "Yamper forgot Nuzzle, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Qwilfish grew from L10 to L17; its moves are full, so Venoshock, Poison Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Venoshock",
+				"replace": "Poison Sting"
+			},
+			"summary": "Qwilfish forgot Poison Sting, learned Venoshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Poison Fang",
+				"replace": "Venoshock"
+			},
+			"summary": "Qwilfish forgot Venoshock, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-11",
+					"mon-16",
+					"mon-15",
+					"mon-1"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Finneon, Chewtle, Qwilfish, Yamper, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Secret Power",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Carnivine forgot Sweet Scent, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Secret Power",
+				"replace": "Sand Tomb"
+			},
+			"summary": "Grotle forgot Sand Tomb, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Secret Power",
+				"replace": "Bubble"
+			},
+			"summary": "Qwilfish forgot Bubble, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-6",
+				"item": "Poison Barb"
+			},
+			"summary": "Finneon is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-11",
+					"mon-16",
+					"mon-15",
+					"mon-1"
+				]
+			},
+			"summary": "Finneon takes the lead — with Carnivine, Chewtle, Qwilfish, Yamper, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Wing Attack"
+			},
+			"summary": "Yamper fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Finneon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Zigzagoon-Galar, Steenee, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-10",
+					"mon-16",
+					"mon-2",
+					"mon-15",
+					"mon-1"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Carnivine, Qwilfish, Staravia, Yamper, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Secret Power",
+				"replace": "Endeavor"
+			},
+			"summary": "Staravia forgot Endeavor, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-9",
+					"mon-10",
+					"mon-2",
+					"mon-15",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Phanpy, Carnivine, Staravia, Yamper, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Team Aqua Grunt Museum #2",
+				"move": "Water Pulse"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Team Aqua Grunt Museum #2",
+				"move": "Rollout"
+			},
+			"summary": "Staravia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Grotle grew from L17 to L21; its moves are full, so Roar must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Roar",
+				"replace": "Bite"
+			},
+			"summary": "Grotle forgot Bite, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L17 to L21; its moves are full, so Charm must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Charm",
+				"replace": "Rock Throw"
+			},
+			"summary": "Phanpy forgot Rock Throw, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Yamper grew from L17 to L21; its moves are full, so Roar must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Roar",
+				"replace": "Tackle"
+			},
+			"summary": "Yamper forgot Tackle, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Qwilfish grew from L17 to L21; its moves are full, so Bubble Beam, Revenge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Poison Fang"
+			},
+			"summary": "Qwilfish forgot Poison Fang, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Revenge",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Qwilfish forgot Bubble Beam, learned Revenge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L17 to L21; its moves are full, so Flame Wheel must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Flame Wheel",
+				"replace": "Ember"
+			},
+			"summary": "Sizzlipede forgot Ember, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Zigzagoon-Galar grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-4"
+			},
+			"summary": "Zigzagoon-Galar evolved into Linoone-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Steenee grew from L17 to L21; its moves are full, so Magical Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Magical Leaf",
+				"replace": "Double Slap"
+			},
+			"summary": "Steenee forgot Double Slap, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-6"
+			},
+			"summary": "Finneon evolved into Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Paras grew from L17 to L21; its moves are full, so Spore must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Spore",
+				"replace": "Mega Drain"
+			},
+			"summary": "Paras forgot Mega Drain, learned Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L17 to L21; its moves are full, so Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Headbutt",
+				"replace": "Tackle"
+			},
+			"summary": "Chewtle forgot Tackle, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Meditite grew from L17 to L21; its moves are full, so Force Palm must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Force Palm",
+				"replace": "Confusion"
+			},
+			"summary": "Meditite forgot Confusion, learned Force Palm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L17 to L21; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Water Gun"
+			},
+			"summary": "Remoraid forgot Water Gun, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Corphish grew from L17 to L21; its moves are full, so Aerial Ace must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Aerial Ace",
+				"replace": "Knock Off"
+			},
+			"summary": "Corphish forgot Knock Off, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-1"
+				]
+			},
+			"summary": "Staravia takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-1",
+					"mon-6",
+					"mon-9",
+					"mon-14",
+					"mon-16"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Grotle, Lumineon, Phanpy, Corphish, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Air Cutter",
+				"replace": "Water Pulse"
+			},
+			"summary": "Lumineon forgot Water Pulse, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Poison Fang",
+				"replace": "Revenge"
+			},
+			"summary": "Qwilfish forgot Revenge, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Secret Power",
+				"replace": "Bubble"
+			},
+			"summary": "Corphish forgot Bubble, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-1",
+					"mon-9",
+					"mon-14",
+					"mon-16"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Grotle, Phanpy, Corphish, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Battle Girl Laura",
+				"move": "Force Palm"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Battle Girl Laura",
+				"move": "Thrash"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-16",
+					"mon-6",
+					"mon-14",
+					"mon-9",
+					"mon-15"
+				]
+			},
+			"summary": "Staravia takes the lead — with Qwilfish, Lumineon, Corphish, Phanpy, Yamper",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Secret Power",
+				"replace": "Charm"
+			},
+			"summary": "Phanpy forgot Charm, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-2",
+					"mon-16",
+					"mon-14",
+					"mon-9",
+					"mon-15"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Staravia, Qwilfish, Corphish, Phanpy, Yamper",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 65)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-15",
+					"mon-16",
+					"mon-6",
+					"mon-10",
+					"mon-9"
+				]
+			},
+			"summary": "Meditite takes the lead — with Yamper, Qwilfish, Lumineon, Carnivine, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Throw",
+				"replace": "Secret Power"
+			},
+			"summary": "Phanpy forgot Secret Power, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Secret Power",
+				"replace": "Endure"
+			},
+			"summary": "Meditite forgot Endure, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-12",
+					"mon-15",
+					"mon-16",
+					"mon-10",
+					"mon-9"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Meditite, Yamper, Qwilfish, Carnivine, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Lumineon takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-6",
+					"mon-1",
+					"mon-10",
+					"mon-12",
+					"mon-9"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Lumineon, Grotle, Carnivine, Meditite, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Confusion",
+				"replace": "Seismic Toss"
+			},
+			"summary": "Meditite forgot Seismic Toss, learned Confusion",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Secret Power"
+			},
+			"summary": "Qwilfish forgot Secret Power, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-10",
+					"mon-12",
+					"mon-9"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Qwilfish, Grotle, Carnivine, Meditite, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Black Belt Cristian",
+				"move": "Facade"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Black Belt Cristian",
+				"move": "Mach Punch"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-1",
+					"mon-10",
+					"mon-12",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Grotle, Carnivine, Meditite, Staravia, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-10",
+					"mon-12",
+					"mon-2"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Qwilfish, Grotle, Carnivine, Meditite, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Black Belt Takao",
+				"move": "Wake-Up Slap"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-16",
+					"mon-9",
+					"mon-10",
+					"mon-1",
+					"mon-11"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Qwilfish, Phanpy, Carnivine, Grotle, Chewtle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Water Pulse",
+				"replace": "Air Cutter"
+			},
+			"summary": "Lumineon forgot Air Cutter, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Icy Wind",
+				"replace": "Venom Drench"
+			},
+			"summary": "Qwilfish forgot Venom Drench, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Sand Tomb",
+				"replace": "Roar"
+			},
+			"summary": "Grotle forgot Roar, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-6",
+					"mon-9",
+					"mon-10",
+					"mon-1",
+					"mon-11"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Lumineon, Phanpy, Carnivine, Grotle, Chewtle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Battle Girl Jocelyn",
+				"move": "Shadow Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 76)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Air Cutter",
+				"replace": "Water Gun"
+			},
+			"summary": "Lumineon forgot Water Gun, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Seismic Toss",
+				"replace": "Secret Power"
+			},
+			"summary": "Meditite forgot Secret Power, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Mega Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Mega Punch"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Staravia, Sizzlipede, Linoone-Galar, Steenee, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-6",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Lumineon, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-16",
+					"mon-1",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Carnivine, Qwilfish, Grotle, Phanpy, Meditite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Meditite fainted; permadeath is off, so nothing changed",
+			"at": null
+		}
+	]
+}

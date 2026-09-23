@@ -1,0 +1,7709 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "e65170aa-a324-404f-8ef6-5ff8ca09b219",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-28T05:58:41.886Z",
+	"updatedAt": "2026-08-28T05:58:41.886Z",
+	"position": 152,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Sceptile"
+	},
+	"nextId": 20,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Monferno",
+			"nickname": null,
+			"level": 32,
+			"nature": "Serious",
+			"ability": "Blaze",
+			"item": "Oran Berry",
+			"moves": [
+				"Low Sweep",
+				"Feint",
+				"Torment",
+				"Mach Punch"
+			],
+			"ivs": {
+				"hp": 2,
+				"atk": 30,
+				"def": 20,
+				"spa": 14,
+				"spd": 16,
+				"spe": 7
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Sawsbuck",
+			"nickname": null,
+			"level": 32,
+			"nature": "Serious",
+			"ability": "Chlorophyll",
+			"item": "Miracle Seed",
+			"moves": [
+				"Smart Strike",
+				"Jump Kick",
+				"Secret Power",
+				"Horn Leech"
+			],
+			"ivs": {
+				"hp": 2,
+				"atk": 22,
+				"def": 19,
+				"spa": 5,
+				"spd": 6,
+				"spe": 20
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Staravia",
+			"nickname": null,
+			"level": 32,
+			"nature": "Mild",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Dual Wingbeat",
+				"Growl",
+				"Quick Attack",
+				"Whirlwind"
+			],
+			"ivs": {
+				"hp": 0,
+				"atk": 28,
+				"def": 30,
+				"spa": 11,
+				"spd": 10,
+				"spe": 14
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Roselia",
+			"nickname": null,
+			"level": 32,
+			"nature": "Bold",
+			"ability": "Natural Cure",
+			"item": "Poison Barb",
+			"moves": [
+				"Grass Whistle",
+				"Sludge",
+				"Worry Seed",
+				"Venoshock"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 15,
+				"def": 27,
+				"spa": 8,
+				"spd": 1,
+				"spe": 16
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Masquerain",
+			"nickname": null,
+			"level": 32,
+			"nature": "Timid",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Air Cutter",
+				"Struggle Bug",
+				"Ice Beam",
+				"Stun Spore"
+			],
+			"ivs": {
+				"hp": 20,
+				"atk": 7,
+				"def": 22,
+				"spa": 19,
+				"spd": 24,
+				"spe": 28
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Rapidash",
+			"nickname": null,
+			"level": 32,
+			"nature": "Modest",
+			"ability": "Flame Body",
+			"item": null,
+			"moves": [
+				"Morning Sun",
+				"Double Kick",
+				"Secret Power",
+				"Bounce"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 6,
+				"def": 6,
+				"spa": 22,
+				"spd": 1,
+				"spe": 30
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Vespiquen",
+			"nickname": null,
+			"level": 32,
+			"nature": "Rash",
+			"ability": "Unnerve",
+			"item": "Twisted Spoon",
+			"moves": [
+				"Air Slash",
+				"Power Gem",
+				"X-Scissor",
+				"Dual Wingbeat"
+			],
+			"ivs": {
+				"hp": 29,
+				"atk": 28,
+				"def": 4,
+				"spa": 0,
+				"spd": 28,
+				"spe": 1
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Toxicroak",
+			"nickname": null,
+			"level": 32,
+			"nature": "Bashful",
+			"ability": "Poison Touch",
+			"item": "Soft Sand",
+			"moves": [
+				"Sludge Bomb",
+				"Seismic Toss",
+				"Low Sweep",
+				"Icy Wind"
+			],
+			"ivs": {
+				"hp": 13,
+				"atk": 4,
+				"def": 13,
+				"spa": 14,
+				"spd": 7,
+				"spe": 12
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Rhyhorn",
+			"nickname": null,
+			"level": 32,
+			"nature": "Lax",
+			"ability": "Reckless",
+			"item": "Silk Scarf",
+			"moves": [
+				"Bulldoze",
+				"Chip Away",
+				"Rock Blast",
+				"Sand Attack"
+			],
+			"ivs": {
+				"hp": 11,
+				"atk": 28,
+				"def": 21,
+				"spa": 26,
+				"spd": 9,
+				"spe": 27
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 16,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Breloom",
+			"nickname": null,
+			"level": 32,
+			"nature": "Adamant",
+			"ability": "Effect Spore",
+			"item": null,
+			"moves": [
+				"Giga Drain",
+				"Superpower",
+				"Poison Powder",
+				"Fake Tears"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 3,
+				"def": 0,
+				"spa": 8,
+				"spd": 1,
+				"spe": 26
+			},
+			"status": "party",
+			"origin": {
+				"at": 19,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Drednaw",
+			"nickname": null,
+			"level": 32,
+			"nature": "Bashful",
+			"ability": "Strong Jaw",
+			"item": null,
+			"moves": [
+				"Head Smash",
+				"Rock Blast",
+				"Razor Shell",
+				"Rock Slide"
+			],
+			"ivs": {
+				"hp": 6,
+				"atk": 7,
+				"def": 27,
+				"spa": 24,
+				"spd": 20,
+				"spe": 0
+			},
+			"status": "party",
+			"origin": {
+				"at": 22,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Gurdurr",
+			"nickname": null,
+			"level": 32,
+			"nature": "Rash",
+			"ability": "Guts",
+			"item": null,
+			"moves": [
+				"Payback",
+				"Low Kick",
+				"Chip Away",
+				"Bide"
+			],
+			"ivs": {
+				"hp": 0,
+				"atk": 21,
+				"def": 19,
+				"spa": 3,
+				"spd": 6,
+				"spe": 30
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 29,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Octillery",
+			"nickname": null,
+			"level": 32,
+			"nature": "Modest",
+			"ability": "Suction Cups",
+			"item": null,
+			"moves": [
+				"Octazooka",
+				"Signal Beam",
+				"Psybeam",
+				"Aurora Beam"
+			],
+			"ivs": {
+				"hp": 12,
+				"atk": 17,
+				"def": 16,
+				"spa": 25,
+				"spd": 15,
+				"spe": 12
+			},
+			"status": "party",
+			"origin": {
+				"at": 37,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Crawdaunt",
+			"nickname": null,
+			"level": 32,
+			"nature": "Mild",
+			"ability": "Hyper Cutter",
+			"item": null,
+			"moves": [
+				"Bubble",
+				"Protect",
+				"Leer",
+				"Mud Shot"
+			],
+			"ivs": {
+				"hp": 6,
+				"atk": 26,
+				"def": 19,
+				"spa": 10,
+				"spd": 1,
+				"spe": 6
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 42,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Eelektrik",
+			"nickname": null,
+			"level": 32,
+			"nature": "Mild",
+			"ability": "Levitate",
+			"item": null,
+			"moves": [
+				"Crunch",
+				"Hidden Power",
+				"Sludge Bomb",
+				"Thunder Punch"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 3,
+				"def": 22,
+				"spa": 11,
+				"spd": 14,
+				"spe": 31
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 48,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Seadra",
+			"nickname": null,
+			"level": 32,
+			"nature": "Hardy",
+			"ability": "Poison Point",
+			"item": null,
+			"moves": [
+				"Bubble Beam",
+				"Aurora Beam",
+				"Octazooka",
+				"Twister"
+			],
+			"ivs": {
+				"hp": 25,
+				"atk": 12,
+				"def": 19,
+				"spa": 24,
+				"spd": 25,
+				"spe": 23
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 48,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-17",
+			"species": "Hariyama",
+			"nickname": null,
+			"level": 32,
+			"nature": "Quiet",
+			"ability": "Thick Fat",
+			"item": null,
+			"moves": [
+				"Arm Thrust",
+				"Smelling Salts",
+				"Seismic Toss",
+				"Whirlwind"
+			],
+			"ivs": {
+				"hp": 30,
+				"atk": 22,
+				"def": 9,
+				"spa": 3,
+				"spd": 25,
+				"spe": 30
+			},
+			"status": "party",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_ROUTE116",
+				"mapName": "Route116"
+			}
+		},
+		{
+			"id": "mon-18",
+			"species": "Stoutland",
+			"nickname": null,
+			"level": 32,
+			"nature": "Sassy",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Play Rough",
+				"Take Down",
+				"Submission",
+				"Roar"
+			],
+			"ivs": {
+				"hp": 24,
+				"atk": 1,
+				"def": 15,
+				"spa": 6,
+				"spd": 25,
+				"spe": 28
+			},
+			"status": "party",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_RUSTBORO_CITY",
+				"mapName": "Rustboro City"
+			}
+		},
+		{
+			"id": "mon-19",
+			"species": "Piloswine",
+			"nickname": null,
+			"level": 32,
+			"nature": "Gentle",
+			"ability": "Oblivious",
+			"item": null,
+			"moves": [
+				"Charm",
+				"Icy Wind",
+				"Stomping Tantrum",
+				"Bulldoze"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 21,
+				"def": 19,
+				"spa": 16,
+				"spd": 14,
+				"spe": 13
+			},
+			"status": "party",
+			"origin": {
+				"at": 145,
+				"method": "walk",
+				"map": "MAP_RUSTURF_TUNNEL",
+				"mapName": "Rusturf Tunnel"
+			}
+		}
+	],
+	"party": [
+		"mon-10",
+		"mon-19",
+		"mon-11",
+		"mon-18",
+		"mon-13",
+		"mon-17"
+	],
+	"bag": {
+		"Potion": 1,
+		"Super Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chimchar",
+				"level": 5,
+				"ivs": {
+					"hp": 2,
+					"atk": 30,
+					"def": 20,
+					"spa": 14,
+					"spd": 16,
+					"spe": 7
+				},
+				"nature": "Serious",
+				"ability": "Blaze"
+			},
+			"summary": "caught Chimchar at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Deerling",
+				"level": 3,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 2,
+					"atk": 22,
+					"def": 19,
+					"spa": 5,
+					"spd": 6,
+					"spe": 20
+				},
+				"nature": "Serious",
+				"ability": "Chlorophyll"
+			},
+			"summary": "caught Deerling at level 3 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Starly",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 0,
+					"atk": 28,
+					"def": 30,
+					"spa": 11,
+					"spd": 10,
+					"spe": 14
+				},
+				"nature": "Mild",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Starly at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Budew",
+				"level": 2,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 19,
+					"atk": 15,
+					"def": 27,
+					"spa": 8,
+					"spd": 1,
+					"spe": 16
+				},
+				"nature": "Bold",
+				"ability": "Natural Cure"
+			},
+			"summary": "caught Budew at level 2 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Surskit",
+				"level": 2,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 20,
+					"atk": 7,
+					"def": 22,
+					"spa": 19,
+					"spd": 24,
+					"spe": 28
+				},
+				"nature": "Timid",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Surskit at level 2 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Ponyta",
+				"level": 3,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 6,
+					"def": 6,
+					"spa": 22,
+					"spd": 1,
+					"spe": 30
+				},
+				"nature": "Modest",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Ponyta at level 3 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Chimchar grew from L5 to L12 and learned Mach Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Deerling grew from L3 to L12 and learned Growl, Sand Attack; its moves are full, so Double Kick, Razor Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Double Kick",
+				"replace": "Tackle"
+			},
+			"summary": "Deerling forgot Tackle, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Razor Leaf",
+				"replace": "Double Kick"
+			},
+			"summary": "Deerling forgot Double Kick, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Starly grew from L5 to L12 and learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Budew grew from L2 to L12 and learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L2 to L12 and learned Quick Attack, Sweet Scent, Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L3 to L12 and learned Tail Whip, Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Deerling, Starly, Budew, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3",
+					"mon-6",
+					"mon-1",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Surskit takes the lead — with Starly, Ponyta, Chimchar, Budew, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Double Kick",
+				"replace": "Camouflage"
+			},
+			"summary": "Deerling forgot Camouflage, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Tackle",
+				"replace": "Growl"
+			},
+			"summary": "Deerling forgot Growl, learned Tackle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Chimchar is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-3",
+					"mon-6",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Budew takes the lead — with Surskit, Starly, Ponyta, Chimchar, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-1",
+					"mon-5",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Starly, Chimchar, Surskit, Budew, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Starly takes the lead — with Ponyta, Chimchar, Surskit, Budew, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Deerling takes the lead — with Starly, Budew, Surskit, Ponyta, Chimchar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-6",
+					"mon-5",
+					"mon-1",
+					"mon-3"
+				]
+			},
+			"summary": "Budew takes the lead — with Deerling, Ponyta, Surskit, Chimchar, Starly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6",
+					"mon-5",
+					"mon-2",
+					"mon-1"
+				]
+			},
+			"summary": "Starly takes the lead — with Budew, Ponyta, Surskit, Deerling, Chimchar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-6",
+					"mon-5",
+					"mon-2",
+					"mon-1"
+				]
+			},
+			"summary": "Budew takes the lead — with Starly, Ponyta, Surskit, Deerling, Chimchar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Triathlete Mikey",
+				"move": "Acrobatics"
+			},
+			"summary": "Surskit fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Combee",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 29,
+					"atk": 28,
+					"def": 4,
+					"spa": 0,
+					"spd": 28,
+					"spe": 1
+				},
+				"nature": "Rash",
+				"ability": "Honey Gather"
+			},
+			"summary": "caught Combee at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Croagunk",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 13,
+					"atk": 4,
+					"def": 13,
+					"spa": 14,
+					"spd": 7,
+					"spe": 12
+				},
+				"nature": "Bashful",
+				"ability": "Poison Touch"
+			},
+			"summary": "caught Croagunk at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Combee grew from L5 to L12 and learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L5 to L12 and learned Fake Out, Vacuum Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Budew takes the lead — with Starly, Surskit, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-5",
+					"mon-8",
+					"mon-3",
+					"mon-7"
+				]
+			},
+			"summary": "Budew takes the lead — with Deerling, Surskit, Croagunk, Starly, Combee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-2",
+				"item": "Miracle Seed"
+			},
+			"summary": "Deerling is holding Miracle Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Dual Wingbeat"
+			},
+			"summary": "Combee learned Dual Wingbeat",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-5",
+					"mon-3"
+				]
+			},
+			"summary": "Budew takes the lead — with Deerling, Surskit, Starly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Deerling, Starly, Budew, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Deerling takes the lead — with Budew, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-5",
+					"mon-6",
+					"mon-7",
+					"mon-8"
+				]
+			},
+			"summary": "Deerling takes the lead — with Budew, Surskit, Ponyta, Combee, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-5",
+					"mon-6",
+					"mon-7",
+					"mon-8"
+				]
+			},
+			"summary": "Budew takes the lead — with Deerling, Surskit, Ponyta, Combee, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Lady Cindy",
+				"move": "Round"
+			},
+			"summary": "Deerling fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Rhyhorn",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 11,
+					"atk": 28,
+					"def": 21,
+					"spa": 26,
+					"spd": 9,
+					"spe": 27
+				},
+				"nature": "Lax",
+				"ability": "Reckless"
+			},
+			"summary": "caught Rhyhorn at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L8 to L12 and learned Sand Attack; its moves are full, so Smack Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Horn Attack"
+			},
+			"summary": "Rhyhorn forgot Horn Attack, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Budew takes the lead — with Deerling, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Deerling, Starly, Budew, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Deerling, Starly, Budew, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-2",
+					"mon-4",
+					"mon-6",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Combee takes the lead — with Deerling, Budew, Ponyta, Starly, Chimchar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Feint Attack",
+				"replace": "Double Kick"
+			},
+			"summary": "Deerling forgot Double Kick, learned Feint Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-7",
+					"mon-4",
+					"mon-6",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Deerling takes the lead — with Combee, Budew, Ponyta, Starly, Chimchar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shroomish",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 15,
+					"atk": 3,
+					"def": 0,
+					"spa": 8,
+					"spd": 1,
+					"spe": 26
+				},
+				"nature": "Adamant",
+				"ability": "Effect Spore"
+			},
+			"summary": "caught Shroomish at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Chimchar grew from L12 to L17; its moves are full, so Flame Wheel must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Flame Wheel",
+				"replace": "Scratch"
+			},
+			"summary": "Chimchar forgot Scratch, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Chimchar evolved into Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Deerling grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Starly grew from L12 to L17; its moves are full, so Endeavor must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Endeavor",
+				"replace": "Tackle"
+			},
+			"summary": "Starly forgot Tackle, learned Endeavor",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Starly evolved into Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Budew grew from L12 to L17 and learned Worry Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-4"
+			},
+			"summary": "Budew evolved into Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L12 to L17; its moves are full, so Flame Wheel, Fire Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Ember"
+			},
+			"summary": "Ponyta forgot Ember, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Spin",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Combee grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L12 to L17; its moves are full, so Struggle Bug must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Struggle Bug",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Surskit forgot Bubble Beam, learned Struggle Bug",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L12 to L17; its moves are full, so Mud Shot, Sludge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Shot",
+				"replace": "Poison Sting"
+			},
+			"summary": "Croagunk forgot Poison Sting, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Croagunk forgot Mud-Slap, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L12 to L17; its moves are full, so Stomp must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Stomp",
+				"replace": "Smack Down"
+			},
+			"summary": "Rhyhorn forgot Smack Down, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Shroomish grew from L14 to L17; its moves are full, so Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Headbutt",
+				"replace": "Tackle"
+			},
+			"summary": "Shroomish forgot Tackle, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-6",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Deerling takes the lead — with Roselia, Ponyta, Staravia, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Deerling takes the lead — with Staravia, Roselia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-3",
+					"mon-10",
+					"mon-5",
+					"mon-7"
+				]
+			},
+			"summary": "Roselia takes the lead — with Deerling, Staravia, Shroomish, Surskit, Combee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Mega Drain"
+			},
+			"summary": "Roselia learned Mega Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chewtle",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 6,
+					"atk": 7,
+					"def": 27,
+					"spa": 24,
+					"spd": 20,
+					"spe": 0
+				},
+				"nature": "Bashful",
+				"ability": "Strong Jaw"
+			},
+			"summary": "caught Chewtle at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L8 to L17 and learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Deerling, Staravia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-9",
+					"mon-11",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Roselia takes the lead — with Ponyta, Rhyhorn, Chewtle, Monferno, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Blast",
+				"replace": "Tail Whip"
+			},
+			"summary": "Rhyhorn forgot Tail Whip, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Low Sweep",
+				"replace": "Leer"
+			},
+			"summary": "Monferno forgot Leer, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Double Kick",
+				"replace": "Feint Attack"
+			},
+			"summary": "Deerling forgot Feint Attack, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-4",
+				"item": "Silk Scarf"
+			},
+			"summary": "Roselia is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Roselia takes the lead — with Ponyta, Monferno, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-11",
+					"mon-1",
+					"mon-6",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Chewtle, Monferno, Ponyta, Roselia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Growl"
+			},
+			"summary": "Ponyta forgot Growl, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble Beam",
+				"replace": "Quick Attack"
+			},
+			"summary": "Surskit forgot Quick Attack, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-11",
+					"mon-6",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Rhyhorn, Chewtle, Ponyta, Roselia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Timburr",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 0,
+					"atk": 21,
+					"def": 19,
+					"spa": 3,
+					"spd": 6,
+					"spe": 30
+				},
+				"nature": "Rash",
+				"ability": "Guts"
+			},
+			"summary": "caught Timburr at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Timburr grew from L8 to L17; its moves are full, so Low Kick, Rock Throw must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Low Kick",
+				"replace": "Leer"
+			},
+			"summary": "Timburr forgot Leer, learned Low Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Rock Throw",
+				"replace": "Pound"
+			},
+			"summary": "Timburr forgot Pound, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta, Roselia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-12",
+					"mon-11",
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Timburr, Chewtle, Monferno, Staravia, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Tuber Lola",
+				"move": "Bite"
+			},
+			"summary": "Chewtle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Deerling takes the lead — with Staravia, Roselia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-11",
+					"mon-10",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Deerling, Chewtle, Shroomish, Staravia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Icy Wind",
+				"replace": "Bubble"
+			},
+			"summary": "Surskit forgot Bubble, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Deerling, Staravia, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6",
+					"mon-9",
+					"mon-7",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Ponyta, Rhyhorn, Combee, Timburr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-6",
+					"mon-9",
+					"mon-7",
+					"mon-12"
+				]
+			},
+			"summary": "Staravia takes the lead — with Monferno, Ponyta, Rhyhorn, Combee, Timburr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Remoraid",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 12,
+					"atk": 17,
+					"def": 16,
+					"spa": 25,
+					"spd": 15,
+					"spe": 12
+				},
+				"nature": "Modest",
+				"ability": "Hustle"
+			},
+			"summary": "caught Remoraid at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L8 to L17 and learned Psybeam, Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Monferno, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-8",
+					"mon-9",
+					"mon-12",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Croagunk, Rhyhorn, Timburr, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Tuber Ricky",
+				"move": "Double Kick"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Tuber Ricky",
+				"move": "Bite"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Corphish",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 6,
+					"atk": 26,
+					"def": 19,
+					"spa": 10,
+					"spd": 1,
+					"spe": 6
+				},
+				"nature": "Mild",
+				"ability": "Hyper Cutter"
+			},
+			"summary": "caught Corphish at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Corphish grew from L10 to L17; its moves are full, so Bubble Beam, Knock Off must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bubble Beam",
+				"replace": "False Swipe"
+			},
+			"summary": "Corphish forgot False Swipe, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Knock Off",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Corphish forgot Bubble Beam, learned Knock Off",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-9",
+					"mon-1",
+					"mon-8",
+					"mon-6",
+					"mon-12"
+				]
+			},
+			"summary": "Roselia takes the lead — with Rhyhorn, Monferno, Croagunk, Ponyta, Timburr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-8",
+				"item": "Soft Sand"
+			},
+			"summary": "Croagunk is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-9",
+					"mon-8",
+					"mon-6",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Rhyhorn, Croagunk, Ponyta, Timburr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Monferno, Roselia, Ponyta, Croagunk, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-4",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Rhyhorn, Roselia, Ponyta, Croagunk, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Camper Gavi"
+			},
+			"summary": "Ponyta fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Staravia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Ponyta, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Monferno, Roselia, Ponyta, Croagunk, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-4",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Rhyhorn, Roselia, Ponyta, Croagunk, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Sludge Bomb"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Ponyta fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Staravia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Ponyta, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Monferno, Roselia, Ponyta, Croagunk, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-4",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Rhyhorn, Roselia, Ponyta, Croagunk, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Energy Ball"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Ponyta fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Staravia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Ponyta, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Monferno, Roselia, Ponyta, Croagunk, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-4",
+					"mon-6",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Rhyhorn, Roselia, Ponyta, Croagunk, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Camper Gavi",
+				"move": "Shock Wave"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Sludge Bomb"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tynamo",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 3,
+					"def": 22,
+					"spa": 11,
+					"spd": 14,
+					"spe": 31
+				},
+				"nature": "Mild",
+				"ability": "Levitate"
+			},
+			"summary": "caught Tynamo at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 25,
+					"atk": 12,
+					"def": 19,
+					"spa": 24,
+					"spd": 25,
+					"spe": 23
+				},
+				"nature": "Hardy",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L10 to L17 and learned Twister; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Ponyta, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Roselia takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-4",
+					"mon-11",
+					"mon-15",
+					"mon-13",
+					"mon-16"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Roselia, Chewtle, Tynamo, Remoraid, Horsea",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Rock Blast",
+				"replace": "Lock-On"
+			},
+			"summary": "Remoraid forgot Lock-On, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-4",
+				"item": "Poison Barb"
+			},
+			"summary": "Roselia is holding Poison Barb; Silk Scarf went back to the bag",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Hidden Power",
+				"replace": "Smokescreen"
+			},
+			"summary": "Horsea forgot Smokescreen, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-9",
+				"item": "Silk Scarf"
+			},
+			"summary": "Rhyhorn is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Roselia takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-9",
+					"mon-1",
+					"mon-8",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Deerling takes the lead — with Rhyhorn, Monferno, Croagunk, Staravia, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Feint Attack",
+				"replace": "Sludge"
+			},
+			"summary": "Croagunk forgot Sludge, learned Feint Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Secret Power",
+				"replace": "Double Kick"
+			},
+			"summary": "Deerling forgot Double Kick, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Secret Power",
+				"replace": "Ember"
+			},
+			"summary": "Monferno forgot Ember, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-2",
+					"mon-9",
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Croagunk takes the lead — with Deerling, Rhyhorn, Monferno, Staravia, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L17 to L21; its moves are full, so Fire Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Fire Spin",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Monferno forgot Flame Wheel, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Deerling grew from L17 to L21; its moves are full, so Take Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Take Down",
+				"replace": "Tackle"
+			},
+			"summary": "Deerling forgot Tackle, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Roselia grew from L17 to L21; its moves are full, so Magical Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Absorb"
+			},
+			"summary": "Roselia forgot Absorb, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L17 to L21; its moves are full, so Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Seismic Toss",
+				"replace": "Feint Attack"
+			},
+			"summary": "Croagunk forgot Feint Attack, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L17 to L21; its moves are full, so Bulldoze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Stomp"
+			},
+			"summary": "Rhyhorn forgot Stomp, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L17 to L21; its moves are full, so Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Bounce",
+				"replace": "Fire Spin"
+			},
+			"summary": "Ponyta forgot Fire Spin, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Combee grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Combee evolved into Vespiquen",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Shroomish grew from L17 to L21; its moves are full, so Fake Tears, Worry Seed must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Fake Tears",
+				"replace": "Mega Drain"
+			},
+			"summary": "Shroomish forgot Mega Drain, learned Fake Tears",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Worry Seed",
+				"replace": "Stun Spore"
+			},
+			"summary": "Shroomish forgot Stun Spore, learned Worry Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L17 to L21; its moves are full, so Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Headbutt",
+				"replace": "Tackle"
+			},
+			"summary": "Chewtle forgot Tackle, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Timburr grew from L17 to L21; its moves are full, so Wake-Up Slap must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Wake-Up Slap",
+				"replace": "Rock Throw"
+			},
+			"summary": "Timburr forgot Rock Throw, learned Wake-Up Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L17 to L21; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Water Gun"
+			},
+			"summary": "Remoraid forgot Water Gun, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Corphish grew from L17 to L21; its moves are full, so Aerial Ace must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Aerial Ace",
+				"replace": "Knock Off"
+			},
+			"summary": "Corphish forgot Knock Off, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Tynamo evolved into Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L17 to L21; its moves are full, so Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Clear Smog",
+				"replace": "Hidden Power"
+			},
+			"summary": "Horsea forgot Hidden Power, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-16"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Deerling takes the lead — with Monferno, Staravia, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Staravia takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-16",
+					"mon-4",
+					"mon-12",
+					"mon-3",
+					"mon-15"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Seadra, Roselia, Timburr, Staravia, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Air Slash",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Vespiquen forgot Sweet Scent, learned Air Slash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Secret Power",
+				"replace": "Endeavor"
+			},
+			"summary": "Staravia forgot Endeavor, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3"
+				]
+			},
+			"summary": "Roselia takes the lead — with Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-3",
+					"mon-9",
+					"mon-6",
+					"mon-16",
+					"mon-1"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Staravia, Rhyhorn, Ponyta, Seadra, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Flame Wheel",
+				"replace": "Secret Power"
+			},
+			"summary": "Monferno forgot Secret Power, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Staravia takes the lead — with Ponyta, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-15",
+					"mon-1",
+					"mon-4",
+					"mon-16",
+					"mon-3"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Eelektrik, Monferno, Roselia, Seadra, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Icy Wind",
+				"replace": "Clear Smog"
+			},
+			"summary": "Seadra forgot Clear Smog, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Staravia takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-4",
+					"mon-16",
+					"mon-15",
+					"mon-12",
+					"mon-3"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Roselia, Seadra, Eelektrik, Timburr, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Secret Power",
+				"replace": "Focus Energy"
+			},
+			"summary": "Timburr forgot Focus Energy, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Black Belt Cristian",
+				"move": "Facade"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3"
+				]
+			},
+			"summary": "Roselia takes the lead — with Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Staravia, Roselia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-12",
+					"mon-1",
+					"mon-4",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Timburr, Monferno, Roselia, Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Black Belt Takao",
+				"move": "Rock Slide"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Black Belt Takao",
+				"move": "Drain Punch"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia, Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-16",
+					"mon-1",
+					"mon-4",
+					"mon-12",
+					"mon-11"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Seadra, Monferno, Roselia, Timburr, Chewtle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Rock Throw",
+				"replace": "Secret Power"
+			},
+			"summary": "Timburr forgot Secret Power, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Battle Girl Jocelyn",
+				"move": "Drain Punch"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-15",
+					"mon-12",
+					"mon-16",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Eelektrik, Timburr, Seadra, Roselia, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Hidden Power",
+				"replace": "Icy Wind"
+			},
+			"summary": "Seadra forgot Icy Wind, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Roselia takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-15",
+					"mon-12",
+					"mon-16",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Eelektrik, Timburr, Seadra, Roselia, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Roselia takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-15",
+					"mon-12",
+					"mon-16",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Eelektrik, Timburr, Seadra, Roselia, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Brawly"
+			},
+			"summary": "beat Leader Brawly (now at 77)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Roselia grew from L21 to L25; its moves are full, so Grass Whistle must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Grass Whistle",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Roselia forgot Magical Leaf, learned Grass Whistle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Vespiquen grew from L21 to L25; its moves are full, so Power Gem must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Power Gem",
+				"replace": "Gust"
+			},
+			"summary": "Vespiquen forgot Gust, learned Power Gem",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Timburr grew from L21 to L25; its moves are full, so Chip Away must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Chip Away",
+				"replace": "Rock Throw"
+			},
+			"summary": "Timburr forgot Rock Throw, learned Chip Away",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-12"
+			},
+			"summary": "Timburr evolved into Gurdurr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Eelektrik grew from L21 to L25 and learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L21 to L25; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Aurora Beam",
+				"replace": "Hidden Power"
+			},
+			"summary": "Seadra forgot Hidden Power, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Deerling grew from L21 to L25; its moves are full, so Jump Kick must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Jump Kick",
+				"replace": "Secret Power"
+			},
+			"summary": "Deerling forgot Secret Power, learned Jump Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L21 to L25; its moves are full, so Whirlwind must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Whirlwind",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Staravia forgot Aerial Ace, learned Whirlwind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L21 to L25; its moves are full, so Haze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Haze",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Surskit forgot Bubble Beam, learned Haze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Surskit evolved into Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L21 to L25; its moves are full, so Low Sweep must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Low Sweep",
+				"replace": "Fake Out"
+			},
+			"summary": "Croagunk forgot Fake Out, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L21 to L25; its moves are full, so Chip Away must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Chip Away",
+				"replace": "Rock Blast"
+			},
+			"summary": "Rhyhorn forgot Rock Blast, learned Chip Away",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Shroomish grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-10"
+			},
+			"summary": "Shroomish evolved into Breloom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L21 to L25; its moves are full, so Razor Shell must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Water Pulse"
+			},
+			"summary": "Chewtle forgot Water Pulse, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-11"
+			},
+			"summary": "Chewtle evolved into Drednaw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L21 to L25; its moves are full, so Focus Energy must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Focus Energy",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Remoraid forgot Bubble Beam, learned Focus Energy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Remoraid evolved into Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Corphish grew from L21 to L25; its moves are full, so Whirlpool must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Whirlpool",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Corphish forgot Aerial Ace, learned Whirlpool",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Roselia takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-11",
+					"mon-13",
+					"mon-6",
+					"mon-16",
+					"mon-1"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Drednaw, Octillery, Ponyta, Seadra, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Head Smash",
+				"replace": "Headbutt"
+			},
+			"summary": "Drednaw forgot Headbutt, learned Head Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-7",
+					"mon-13",
+					"mon-6",
+					"mon-16",
+					"mon-1"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Vespiquen, Octillery, Ponyta, Seadra, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Bug Catcher Lyle",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Lyle"
+			},
+			"summary": "beat Bug Catcher Lyle (now at 83)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-7",
+					"mon-1",
+					"mon-6",
+					"mon-13",
+					"mon-16"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Vespiquen, Monferno, Ponyta, Octillery, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Secret Power",
+				"replace": "Tail Whip"
+			},
+			"summary": "Ponyta forgot Tail Whip, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Clear Smog",
+				"replace": "Leer"
+			},
+			"summary": "Seadra forgot Leer, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Maniac James"
+			},
+			"summary": "beat Bug Maniac James (now at 86)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-12",
+					"mon-7",
+					"mon-16",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Gurdurr, Vespiquen, Seadra, Monferno, Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "U-turn",
+				"replace": "Power Gem"
+			},
+			"summary": "Vespiquen forgot Power Gem, learned U-turn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Air Cutter",
+				"replace": "Icy Wind"
+			},
+			"summary": "Masquerain forgot Icy Wind, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Rock Blast",
+				"replace": "Razor Shell"
+			},
+			"summary": "Drednaw forgot Razor Shell, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Winston"
+			},
+			"summary": "beat Rich Boy Winston (now at 90)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-15",
+					"mon-13",
+					"mon-7",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Eelektrik, Octillery, Vespiquen, Roselia, Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Giga Drain",
+				"replace": "Haze"
+			},
+			"summary": "Masquerain forgot Haze, learned Giga Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Power Gem",
+				"replace": "U-turn"
+			},
+			"summary": "Vespiquen forgot U-turn, learned Power Gem",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Fisherman Ivan",
+				"move": "Venoshock"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Ivan"
+			},
+			"summary": "beat Fisherman Ivan (now at 92)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Deerling takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-12",
+					"mon-7",
+					"mon-15",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Gurdurr, Vespiquen, Eelektrik, Roselia, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Thunder Wave"
+			},
+			"summary": "Eelektrik forgot Thunder Wave, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "U-turn",
+				"replace": "Air Slash"
+			},
+			"summary": "Vespiquen forgot Air Slash, learned U-turn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Sludge",
+				"replace": "Spark"
+			},
+			"summary": "Eelektrik forgot Spark, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-11",
+					"mon-12",
+					"mon-7",
+					"mon-15",
+					"mon-2"
+				]
+			},
+			"summary": "Roselia takes the lead — with Drednaw, Gurdurr, Vespiquen, Eelektrik, Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Twins Gina And Mia",
+				"move": "Psybeam"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Twins Gina And Mia",
+				"move": "Iron Head"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Twins Gina And Mia"
+			},
+			"summary": "beat Twins Gina And Mia (now at 95)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Roselia takes the lead — with Deerling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-7",
+					"mon-15",
+					"mon-16",
+					"mon-5",
+					"mon-13"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Vespiquen, Eelektrik, Seadra, Masquerain, Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Octazooka",
+				"replace": "Focus Energy"
+			},
+			"summary": "Octillery forgot Focus Energy, learned Octazooka",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Ice Beam",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Masquerain forgot Sweet Scent, learned Ice Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble Beam",
+				"replace": "Struggle Bug"
+			},
+			"summary": "Masquerain forgot Struggle Bug, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Lass Haley",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Lass Haley",
+				"move": "Surf"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Haley"
+			},
+			"summary": "beat Lass Haley (now at 99)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-12",
+					"mon-7",
+					"mon-15",
+					"mon-5",
+					"mon-16"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Gurdurr, Vespiquen, Eelektrik, Masquerain, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Struggle Bug",
+				"replace": "Giga Drain"
+			},
+			"summary": "Masquerain forgot Giga Drain, learned Struggle Bug",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-11",
+					"mon-7",
+					"mon-15",
+					"mon-5",
+					"mon-16"
+				]
+			},
+			"summary": "Gurdurr takes the lead — with Drednaw, Vespiquen, Eelektrik, Masquerain, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Youngster Joey",
+				"move": "Hyper Fang"
+			},
+			"summary": "Gurdurr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Youngster Joey",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Joey"
+			},
+			"summary": "beat Youngster Joey (now at 103)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Makuhita",
+				"level": 14,
+				"map": "Route116",
+				"method": "walk",
+				"ivs": {
+					"hp": 30,
+					"atk": 22,
+					"def": 9,
+					"spa": 3,
+					"spd": 25,
+					"spe": 30
+				},
+				"nature": "Quiet",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Makuhita at level 14 on Route116",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Herdier",
+				"level": 14,
+				"map": "Rustboro City",
+				"method": "walk",
+				"ivs": {
+					"hp": 24,
+					"atk": 1,
+					"def": 15,
+					"spa": 6,
+					"spd": 25,
+					"spe": 28
+				},
+				"nature": "Sassy",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Herdier at level 14 on Rustboro City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Super Potion"
+			},
+			"summary": "bag: Super Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Twisted Spoon"
+			},
+			"summary": "bag: Twisted Spoon x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Makuhita grew from L14 to L25; its moves are full, so Whirlwind, Payback, Vital Throw, Smelling Salts must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Whirlwind",
+				"replace": "Force Palm"
+			},
+			"summary": "Makuhita forgot Force Palm, learned Whirlwind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Payback",
+				"replace": "Arm Thrust"
+			},
+			"summary": "Makuhita forgot Arm Thrust, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Vital Throw",
+				"replace": "Payback"
+			},
+			"summary": "Makuhita forgot Payback, learned Vital Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Smelling Salts",
+				"replace": "Vital Throw"
+			},
+			"summary": "Makuhita forgot Vital Throw, learned Smelling Salts",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-17"
+			},
+			"summary": "Makuhita evolved into Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Herdier grew from L14 to L25; its moves are full, so Take Down, Submission must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Take Down",
+				"replace": "Bite"
+			},
+			"summary": "Herdier forgot Bite, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Submission",
+				"replace": "Covet"
+			},
+			"summary": "Herdier forgot Covet, learned Submission",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Roselia takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-4",
+					"mon-7",
+					"mon-15",
+					"mon-13",
+					"mon-18"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Roselia, Vespiquen, Eelektrik, Octillery, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-7",
+				"item": "Twisted Spoon"
+			},
+			"summary": "Vespiquen is holding Twisted Spoon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-11",
+					"mon-4",
+					"mon-15",
+					"mon-13",
+					"mon-18"
+				]
+			},
+			"summary": "Vespiquen takes the lead — with Drednaw, Roselia, Eelektrik, Octillery, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Janice"
+			},
+			"summary": "beat Lass Janice (now at 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Roselia takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-15",
+					"mon-7",
+					"mon-17",
+					"mon-5",
+					"mon-10"
+				]
+			},
+			"summary": "Gurdurr takes the lead — with Eelektrik, Vespiquen, Hariyama, Masquerain, Breloom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Superpower",
+				"replace": "Worry Seed"
+			},
+			"summary": "Breloom forgot Worry Seed, learned Superpower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Thunder Punch",
+				"replace": "Headbutt"
+			},
+			"summary": "Breloom forgot Headbutt, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Arm Thrust",
+				"replace": "Sand Attack"
+			},
+			"summary": "Hariyama forgot Sand Attack, learned Arm Thrust",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-12",
+					"mon-15",
+					"mon-7",
+					"mon-17",
+					"mon-5"
+				]
+			},
+			"summary": "Breloom takes the lead — with Gurdurr, Eelektrik, Vespiquen, Hariyama, Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Rich Boy Dawson",
+				"move": "Dragon Rage"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Rich Boy Dawson",
+				"move": "Dragon Rage"
+			},
+			"summary": "Gurdurr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Dawson"
+			},
+			"summary": "beat Rich Boy Dawson (now at 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-17",
+					"mon-7",
+					"mon-13",
+					"mon-18",
+					"mon-15"
+				]
+			},
+			"summary": "Breloom takes the lead — with Hariyama, Vespiquen, Octillery, Herdier, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Payback",
+				"replace": "Fake Out"
+			},
+			"summary": "Hariyama forgot Fake Out, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Icy Wind"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-17",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Ice Punch"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Ice Punch"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Water Pledge"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-18",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Knock Off"
+			},
+			"summary": "Herdier fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Giga Drain"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-17",
+					"mon-7",
+					"mon-13",
+					"mon-18",
+					"mon-15"
+				]
+			},
+			"summary": "Breloom takes the lead — with Hariyama, Vespiquen, Octillery, Herdier, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Air Cutter"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-17",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Brick Break"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "School Kid Jerry & Johnson",
+				"move": "Ice Beam"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Jerry & Johnson"
+			},
+			"summary": "beat School Kid Jerry & Johnson (now at 111)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-1",
+					"mon-13",
+					"mon-17",
+					"mon-7",
+					"mon-16"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Monferno, Octillery, Hariyama, Vespiquen, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Ember",
+				"replace": "Low Sweep"
+			},
+			"summary": "Monferno forgot Low Sweep, learned Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Air Slash",
+				"replace": "U-turn"
+			},
+			"summary": "Vespiquen forgot U-turn, learned Air Slash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Bug Catcher Jose",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Bug Catcher Jose",
+				"move": "Air Slash"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Bug Catcher Jose",
+				"move": "Bug Buzz"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-17",
+				"to": "Bug Catcher Jose",
+				"move": "Air Slash"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Bug Catcher Jose",
+				"move": "Air Slash"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Bug Catcher Jose",
+				"move": "Bug Buzz"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-1",
+					"mon-13",
+					"mon-17",
+					"mon-7",
+					"mon-16"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Monferno, Octillery, Hariyama, Vespiquen, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Bug Catcher Jose",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Bug Catcher Jose",
+				"move": "Air Slash"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-17",
+				"to": "Bug Catcher Jose",
+				"move": "Air Slash"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Jose"
+			},
+			"summary": "beat Bug Catcher Jose (now at 115)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Monferno takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-7",
+					"mon-11",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Octillery takes the lead — with Eelektrik, Vespiquen, Drednaw, Ponyta, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Ember",
+				"replace": "Stomp"
+			},
+			"summary": "Ponyta forgot Stomp, learned Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Low Sweep",
+				"replace": "Fire Spin"
+			},
+			"summary": "Monferno forgot Fire Spin, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Bite"
+			},
+			"summary": "Drednaw forgot Bite, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-13",
+					"mon-15",
+					"mon-7",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Octillery, Eelektrik, Vespiquen, Ponyta, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Lady Sarah",
+				"move": "Play Rough"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Lady Sarah",
+				"move": "Play Rough"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Lady Sarah",
+				"move": "Play Rough"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Lady Sarah",
+				"move": "Play Rough"
+			},
+			"summary": "Vespiquen fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Lady Sarah",
+				"move": "Brick Break"
+			},
+			"summary": "Ponyta fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Sarah"
+			},
+			"summary": "beat Lady Sarah (now at 118)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Roselia takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-10",
+					"mon-4",
+					"mon-15",
+					"mon-18",
+					"mon-17"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Breloom, Roselia, Eelektrik, Herdier, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-11",
+					"mon-10",
+					"mon-15",
+					"mon-18",
+					"mon-17"
+				]
+			},
+			"summary": "Roselia takes the lead — with Drednaw, Breloom, Eelektrik, Herdier, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "School Kid Karen",
+				"move": "Drill Peck"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "School Kid Karen",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Karen"
+			},
+			"summary": "beat School Kid Karen (now at 120)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Roselia takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Deerling takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-13",
+					"mon-12",
+					"mon-16",
+					"mon-2",
+					"mon-15"
+				]
+			},
+			"summary": "Breloom takes the lead — with Octillery, Gurdurr, Seadra, Deerling, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Hiker Clark",
+				"move": "Earthquake"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Hiker Clark",
+				"move": "Reversal"
+			},
+			"summary": "Gurdurr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Clark"
+			},
+			"summary": "beat Hiker Clark (now at 123)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Deerling takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-11",
+					"mon-13",
+					"mon-16",
+					"mon-15",
+					"mon-12"
+				]
+			},
+			"summary": "Breloom takes the lead — with Drednaw, Octillery, Seadra, Eelektrik, Gurdurr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Hidden Power",
+				"replace": "Sludge"
+			},
+			"summary": "Eelektrik forgot Sludge, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Devan"
+			},
+			"summary": "beat Hiker Devan (now at 125)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-12",
+					"mon-13",
+					"mon-10",
+					"mon-16",
+					"mon-9"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Gurdurr, Octillery, Breloom, Seadra, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Blast",
+				"replace": "Scary Face"
+			},
+			"summary": "Rhyhorn forgot Scary Face, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-11",
+					"mon-12",
+					"mon-13",
+					"mon-16",
+					"mon-9"
+				]
+			},
+			"summary": "Breloom takes the lead — with Drednaw, Gurdurr, Octillery, Seadra, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Youngster Josh",
+				"move": "Aerial Ace"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Josh"
+			},
+			"summary": "beat Youngster Josh (now at 128)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Roselia takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-13",
+					"mon-17",
+					"mon-12",
+					"mon-11",
+					"mon-4"
+				]
+			},
+			"summary": "Breloom takes the lead — with Octillery, Hariyama, Gurdurr, Drednaw, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Youngster Tommy",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Tommy"
+			},
+			"summary": "beat Youngster Tommy (now at 131)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Roselia takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-16",
+					"mon-12",
+					"mon-13",
+					"mon-17",
+					"mon-11"
+				]
+			},
+			"summary": "Breloom takes the lead — with Seadra, Gurdurr, Octillery, Hariyama, Drednaw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Hiker Marc",
+				"move": "Wild Charge"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Marc"
+			},
+			"summary": "beat Hiker Marc (now at 135)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Deerling, Staravia, Roselia, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-13",
+					"mon-10",
+					"mon-17",
+					"mon-11",
+					"mon-16"
+				]
+			},
+			"summary": "Gurdurr takes the lead — with Octillery, Breloom, Hariyama, Drednaw, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-12",
+					"mon-10",
+					"mon-17",
+					"mon-11",
+					"mon-16"
+				]
+			},
+			"summary": "Octillery takes the lead — with Gurdurr, Breloom, Hariyama, Drednaw, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Roxanne",
+				"move": "Iron Head"
+			},
+			"summary": "Gurdurr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Roxanne",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-17",
+				"to": "Leader Roxanne",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Ancient Power"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Roxanne"
+			},
+			"summary": "beat Leader Roxanne (now at 139)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Breloom grew from L25 to L32; its moves are full, so Giga Drain must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Giga Drain",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Breloom forgot Thunder Punch, learned Giga Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Drednaw grew from L25 to L32; its moves are full, so Rock Slide must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Rock Slide",
+				"replace": "Ice Fang"
+			},
+			"summary": "Drednaw forgot Ice Fang, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Gurdurr grew from L25 to L32; its moves are full, so Payback must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Payback",
+				"replace": "Wake-Up Slap"
+			},
+			"summary": "Gurdurr forgot Wake-Up Slap, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Octillery grew from L25 to L32; its moves are full, so Bind must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bind",
+				"replace": "Psybeam"
+			},
+			"summary": "Octillery forgot Psybeam, learned Bind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L25 to L32; its moves are full, so Octazooka must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Octazooka",
+				"replace": "Clear Smog"
+			},
+			"summary": "Seadra forgot Clear Smog, learned Octazooka",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Hariyama grew from L25 to L32; its moves are full, so Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Seismic Toss",
+				"replace": "Payback"
+			},
+			"summary": "Hariyama forgot Payback, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L25 to L32; its moves are full, so Feint, Torment must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Feint",
+				"replace": "Ember"
+			},
+			"summary": "Monferno forgot Ember, learned Feint",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Torment",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Monferno forgot Flame Wheel, learned Torment",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Deerling grew from L25 to L32; its moves are full, so Secret Power must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Secret Power",
+				"replace": "Take Down"
+			},
+			"summary": "Deerling forgot Take Down, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Deerling evolved into Sawsbuck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L25 to L32; its moves are full, so Dual Wingbeat must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Dual Wingbeat",
+				"replace": "Secret Power"
+			},
+			"summary": "Staravia forgot Secret Power, learned Dual Wingbeat",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Roselia grew from L25 to L32; its moves are full, so Venoshock must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Venoshock",
+				"replace": "Mega Drain"
+			},
+			"summary": "Roselia forgot Mega Drain, learned Venoshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Masquerain grew from L25 to L32; its moves are full, so Signal Beam, Stun Spore must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Signal Beam",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Masquerain forgot Bubble Beam, learned Signal Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Stun Spore",
+				"replace": "Signal Beam"
+			},
+			"summary": "Masquerain forgot Signal Beam, learned Stun Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L25 to L32; its moves are full, so Double Kick, Morning Sun must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Double Kick",
+				"replace": "Ember"
+			},
+			"summary": "Ponyta forgot Ember, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Morning Sun",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Morning Sun",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-6"
+			},
+			"summary": "Ponyta evolved into Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Vespiquen grew from L25 to L32; its moves are full, so X-Scissor must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "X-Scissor",
+				"replace": "Bug Bite"
+			},
+			"summary": "Vespiquen forgot Bug Bite, learned X-Scissor",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L25 to L32; its moves are full, so Sucker Punch, Sludge Bomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sucker Punch",
+				"replace": "Vacuum Wave"
+			},
+			"summary": "Croagunk forgot Vacuum Wave, learned Sucker Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge Bomb",
+				"replace": "Mud Shot"
+			},
+			"summary": "Croagunk forgot Mud Shot, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-8"
+			},
+			"summary": "Croagunk evolved into Toxicroak",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L25 to L32",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Corphish grew from L25 to L32; its moves are full, so Razor Shell, Protect must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Razor Shell",
+				"replace": "Whirlpool"
+			},
+			"summary": "Corphish forgot Whirlpool, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Protect",
+				"replace": "Razor Shell"
+			},
+			"summary": "Corphish forgot Razor Shell, learned Protect",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-14"
+			},
+			"summary": "Corphish evolved into Crawdaunt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Eelektrik grew from L25 to L32; its moves are full, so Sludge Bomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Sludge Bomb",
+				"replace": "Shock Wave"
+			},
+			"summary": "Eelektrik forgot Shock Wave, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Herdier grew from L25 to L32; its moves are full, so Roar must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Roar",
+				"replace": "Submission"
+			},
+			"summary": "Herdier forgot Submission, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-18"
+			},
+			"summary": "Herdier evolved into Stoutland",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sawsbuck, Staravia, Roselia, Masquerain, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Sawsbuck takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-8",
+					"mon-12",
+					"mon-11",
+					"mon-2",
+					"mon-13"
+				]
+			},
+			"summary": "Breloom takes the lead — with Toxicroak, Gurdurr, Drednaw, Sawsbuck, Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Horn Leech",
+				"replace": "Sand Attack"
+			},
+			"summary": "Sawsbuck forgot Sand Attack, learned Horn Leech",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Icy Wind",
+				"replace": "Sucker Punch"
+			},
+			"summary": "Toxicroak forgot Sucker Punch, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Smart Strike",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Sawsbuck forgot Razor Leaf, learned Smart Strike",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-10",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-13"
+				]
+			},
+			"summary": "Drednaw takes the lead — with Breloom, Toxicroak, Gurdurr, Sawsbuck, Octillery",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Mike"
+			},
+			"summary": "beat Hiker Mike (now at 145)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Swinub",
+				"level": 16,
+				"map": "Rusturf Tunnel",
+				"method": "walk",
+				"ivs": {
+					"hp": 19,
+					"atk": 21,
+					"def": 19,
+					"spa": 16,
+					"spd": 14,
+					"spe": 13
+				},
+				"nature": "Gentle",
+				"ability": "Oblivious"
+			},
+			"summary": "caught Swinub at level 16 on Rusturf Tunnel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-19",
+				"to": "cap"
+			},
+			"summary": "Swinub grew from L16 to L32; its moves are full, so Charm, Ice Shard, Avalanche, Stomping Tantrum must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Charm",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Swinub forgot Mud-Slap, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Ice Shard",
+				"replace": "Ice Fang"
+			},
+			"summary": "Swinub forgot Ice Fang, learned Ice Shard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Avalanche",
+				"replace": "Ice Shard"
+			},
+			"summary": "Swinub forgot Ice Shard, learned Avalanche",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-19",
+				"move": "Stomping Tantrum",
+				"replace": "Avalanche"
+			},
+			"summary": "Swinub forgot Avalanche, learned Stomping Tantrum",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-19"
+			},
+			"summary": "Swinub evolved into Piloswine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2"
+				]
+			},
+			"summary": "Sawsbuck takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sawsbuck, Staravia, Roselia, Masquerain, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-19",
+					"mon-11",
+					"mon-7",
+					"mon-18",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Piloswine takes the lead — with Drednaw, Vespiquen, Stoutland, Octillery, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Play Rough",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Stoutland forgot Odor Sleuth, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Signal Beam",
+				"replace": "Rock Blast"
+			},
+			"summary": "Octillery forgot Rock Blast, learned Signal Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Psybeam",
+				"replace": "Bind"
+			},
+			"summary": "Octillery forgot Bind, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-19",
+				"to": "Breeder Lydia",
+				"move": "Mach Punch"
+			},
+			"summary": "Piloswine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Breeder Lydia",
+				"move": "Night Shade"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Breeder Lydia"
+			},
+			"summary": "beat Breeder Lydia (now at 149)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sawsbuck, Staravia, Roselia, Masquerain, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-19",
+					"mon-11",
+					"mon-18",
+					"mon-13",
+					"mon-17"
+				]
+			},
+			"summary": "Breloom takes the lead — with Piloswine, Drednaw, Stoutland, Octillery, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Submission",
+				"replace": "Helping Hand"
+			},
+			"summary": "Stoutland forgot Helping Hand, learned Submission",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Breeder Corgi",
+				"move": "Flare Blitz"
+			},
+			"summary": "Breloom fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-19",
+				"to": "Breeder Corgi",
+				"move": "Flare Blitz"
+			},
+			"summary": "Piloswine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Breeder Corgi",
+				"move": "Head Smash"
+			},
+			"summary": "Drednaw fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-18",
+				"to": "Breeder Corgi",
+				"move": "Take Down"
+			},
+			"summary": "Stoutland fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Breeder Corgi",
+				"move": "Flash Cannon"
+			},
+			"summary": "Octillery fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-17",
+				"to": "Breeder Corgi",
+				"move": "Thunderbolt"
+			},
+			"summary": "Hariyama fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sawsbuck, Staravia, Roselia, Masquerain, Rapidash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-19",
+					"mon-11",
+					"mon-18",
+					"mon-13",
+					"mon-17"
+				]
+			},
+			"summary": "Breloom takes the lead — with Piloswine, Drednaw, Stoutland, Octillery, Hariyama",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

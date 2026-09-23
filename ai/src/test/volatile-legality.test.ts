@@ -69,6 +69,11 @@ repeatedNightmare.sides.player.party[0].volatile = {nightmare: {turns: 2}};
 assert.equal(enumerateMoveActions(repeatedNightmare, 'ai').some((action: MoveAction) => action.moveName === 'Nightmare'), false);
 assert.equal(deriveMoveResolution(repeatedNightmare, move('Nightmare'), {hit: true}).hit, false);
 
+// Deliberate, and sourced: Run & Bun's Attract is gender-independent
+// (`mechanics.attractIsGenderIndependent`, source-of-truth; ruling
+// `soul-dew-and-infatuation-verified`). This asserts the rule, not an
+// omission — it has been flipped once by someone reading it as a locked-in
+// bug, and reverted. See tests/runbun_mechanics.test.js.
 const sameGenderAttract = state();
 sameGenderAttract.sides.ai.party[0].gender = 'M';
 sameGenderAttract.sides.player.party[0].gender = 'M';

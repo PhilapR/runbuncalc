@@ -1,4 +1,5 @@
 import * as Calc from '@smogon/calc';
+import {bareMoveFacts} from './dex-facts';
 import {getEffectiveAbility, isAbilityActive, isAbilityAvailable} from './abilities';
 import {isItemEffectActive, preventsAbilityChange} from './items';
 import {Action, BattleState, MoveAction, MoveTarget, PokemonState, SideId, SwitchAction, Weather} from './model';
@@ -17,7 +18,7 @@ import {hasInstructEffect} from './instruct-legality';
 import {hasPureItemTransferEffect, PURE_ITEM_TRANSFER_MOVE_IDS} from './item-legality';
 import {hasSelfStageEffect} from './setup-legality';
 import {PURE_STATUS_EFFECTS, PURE_STATUS_MOVE_IDS} from './status-legality';
-import {canApplyMajorStatus, canApplyVolatile, getEffectiveTypes, isGhostTrapImmune, isGrounded} from './eligibility';
+import {canApplyMajorStatus, canApplyVolatile, getEffectiveTypes, isGhostTrapImmune, isGrounded, isPowderImmune} from './eligibility';
 import {
   hasMixedTargetStageEffect,
   hasTargetStageBoostEffect,
@@ -32,6 +33,7 @@ import {PURE_CONFUSION_MOVE_IDS} from './volatile-legality';
 import {hasPureStatTransferEffect, PURE_STAT_TRANSFER_MOVE_IDS} from './stat-transfer-legality';
 import {hasPureTypeEffect, PURE_TYPE_MOVE_IDS} from './type-legality';
 import {hasPurePPEffect, PURE_PP_MOVE_IDS} from './pp-legality';
+import {canUseSleepOnlyMove} from './sleep';
 
 const SELF_TARGET_MOVES = new Set([
   'acidarmor', 'agility', 'amnesia', 'aquaring', 'assist', 'autotomize', 'barrier', 'bellydrum', 'bulkup', 'calmmind',
@@ -204,7 +206,7 @@ function targetForMove(state: BattleState, move: PokemonState['moves'][number]):
   // the shared metadata boundary for those names instead of throwing.
   try {
     const gen = Calc.Generations.get(state.generation);
-    return new Calc.Move(gen, move.name).target as MoveTarget;
+    return bareMoveFacts(gen, move.name).target as MoveTarget;
   } catch {
     return getMoveMetadata(move.name, state.generation).target || 'normal';
   }
@@ -534,7 +536,25 @@ function targetsForMove(
   }
 }
 
-function canUseMove(state: BattleState, actor: PokemonState, move: PokemonState['moves'][number]): boolean {
+/**
+ * Moves the game lets a player choose whatever the actor's HP or stockpile,
+ * which then fail when used — the move engine carries the failure for each
+ * (Belly Drum below half HP, Rest at full HP, Substitute with one up, ...).
+ * They are still filtered out when actions are OFFERED, so no one picks a
+ * move that must fail; a move chosen before the turn changed the actor
+ * (Munchlax queued Belly Drum and a faster hit took it under half) is used
+ * and fails, not refused.
+ */
+const USED_AND_FAILS = new Set([
+  'stockpile', 'swallow', 'spitup', 'rest', 'bellydrum', 'clangoroussoul', 'filletaway', 'substitute',
+]);
+
+function canUseMove(
+  state: BattleState,
+  actor: PokemonState,
+  move: PokemonState['moves'][number],
+  midTurn = false,
+): boolean {
   const moveMetadata = getMoveMetadata(move.name, state.generation);
   const id = moveId(move.name);
   if (actor.volatile?.commanding) return false;
@@ -545,7 +565,10 @@ function canUseMove(state: BattleState, actor: PokemonState, move: PokemonState[
   if (actor.volatile?.recharge && id !== moveId(actor.volatile.recharge.moveName)) return false;
   if (actor.volatile?.charge && id !== moveId(actor.volatile.charge.moveName)) return false;
   if (actor.volatile?.uproar && id !== moveId(actor.volatile.uproar.moveName)) return false;
-  if (actor.volatile?.throatChop && moveMetadata.sound) return false;
+  // Offered actions leave a sound move out under Throat Chop. One queued before a
+  // faster Throat Chop landed is used and fails (move-engine.ts carries the block),
+  // not refused: frontier Archie, Pyroar's Hyper Voice after Overqwil's Throat Chop.
+  if (!midTurn && actor.volatile?.throatChop && moveMetadata.sound) return false;
   if (id === 'gigatonhammer' && moveId(state.lastMoveUsedByPokemon?.[actor.id]) === id) return false;
   if (RECHARGE_MOVE_MIN_GENERATION[id] !== undefined &&
     state.generation < RECHARGE_MOVE_MIN_GENERATION[id]) return false;
@@ -591,17 +614,18 @@ function canUseMove(state: BattleState, actor: PokemonState, move: PokemonState[
     return false;
   }
   if (id === 'belch' && (state.generation < 6 || !isBerry(actor.lastConsumedItem))) return false;
-  if (['sleeptalk', 'snore'].includes(id) && (actor.status !== 'slp' || actor.statusTurns === 0)) return false;
+  if (['sleeptalk', 'snore'].includes(id) && !canUseSleepOnlyMove(actor)) return false;
   const stockpileCount = actor.volatile?.stockpile?.stacks || 0;
-  if (id === 'stockpile' && stockpileCount >= 3) return false;
-  if ((id === 'swallow' || id === 'spitup') && stockpileCount === 0) return false;
-  if (id === 'swallow' && actor.hp.current >= actor.hp.max) return false;
-  if (id === 'rest' && actor.hp.current >= actor.hp.max) return false;
-  if (id === 'bellydrum' && actor.hp.current <= Math.floor(actor.hp.max / 2)) return false;
-  if (id === 'clangoroussoul' && state.generation >= 8 && actor.hp.current <= Math.floor(actor.hp.max / 3)) return false;
-  if (id === 'filletaway' && state.generation >= 9 && actor.hp.current <= Math.floor(actor.hp.max / 2)) return false;
-  if (id === 'substitute' && (actor.substituteHp || 0) > 0) return false;
-  if (id === 'substitute' && actor.hp.current <= Math.floor(actor.hp.max / 4)) return false;
+  const failsWhenUsed = midTurn && USED_AND_FAILS.has(id);
+  if (!failsWhenUsed && id === 'stockpile' && stockpileCount >= 3) return false;
+  if (!failsWhenUsed && (id === 'swallow' || id === 'spitup') && stockpileCount === 0) return false;
+  if (!failsWhenUsed && id === 'swallow' && actor.hp.current >= actor.hp.max) return false;
+  if (!failsWhenUsed && id === 'rest' && actor.hp.current >= actor.hp.max) return false;
+  if (!failsWhenUsed && id === 'bellydrum' && actor.hp.current <= Math.floor(actor.hp.max / 2)) return false;
+  if (!failsWhenUsed && id === 'clangoroussoul' && state.generation >= 8 && actor.hp.current <= Math.floor(actor.hp.max / 3)) return false;
+  if (!failsWhenUsed && id === 'filletaway' && state.generation >= 9 && actor.hp.current <= Math.floor(actor.hp.max / 2)) return false;
+  if (!failsWhenUsed && id === 'substitute' && (actor.substituteHp || 0) > 0) return false;
+  if (!failsWhenUsed && id === 'substitute' && actor.hp.current <= Math.floor(actor.hp.max / 4)) return false;
   if (id === 'noretreat' && actor.volatile?.trapped) return false;
   if (id === 'lastresort' && (actor.moves.length <= 1 || actor.moves.some(candidate =>
     moveId(candidate.name) !== 'lastresort' && (candidate.timesUsed || 0) < 1))) return false;
@@ -630,6 +654,31 @@ function canUseMove(state: BattleState, actor: PokemonState, move: PokemonState[
   return true;
 }
 
+/**
+ * Where a charged move lands when it is released.
+ *
+ * The charge remembers who was in when it began (Bounce, Fly, Dig, Solar
+ * Beam...). If that Pokemon has since left the field, the move lands on
+ * whoever now holds that side's position — the game's rule — instead of on
+ * a benched body. The stored ids were used verbatim: Sawsbuck's Bounce went
+ * up at Walrein, we switched to Empoleon, and the release computed damage
+ * for Walrein while the driver had aimed the action at Empoleon, so the
+ * engine refused it ("Damage references a non-target of the move") and the
+ * driver made the refusal a lost turn.
+ */
+export function chargeTargets(state: BattleState, targetIds: string[]): string[] {
+  const chosen: string[] = [];
+  for (const id of targetIds) {
+    if (!getPokemon(state, id)) continue;
+    const side = state.sides[sideForPokemon(state, id)];
+    const replacement = side.activeIds.includes(id)
+      ? id
+      : side.activeIds.find(active => !chosen.includes(active) && (getPokemon(state, active)?.hp.current ?? 0) > 0);
+    if (replacement && !chosen.includes(replacement)) chosen.push(replacement);
+  }
+  return chosen;
+}
+
 export function enumerateMoveActions(state: BattleState, sideId: SideId = 'ai'): MoveAction[] {
   const actions: MoveAction[] = [];
 
@@ -654,7 +703,7 @@ export function enumerateMoveActions(state: BattleState, sideId: SideId = 'ai'):
           kind: 'move',
           actorId: actor.id,
           moveName: chargedMove.name,
-          targetIds: [...(actor.volatile.charge.targetIds || [])],
+          targetIds: chargeTargets(state, actor.volatile.charge.targetIds || []),
         });
       }
       actions.push(...actorActions);
@@ -679,6 +728,7 @@ export function enumerateMoveActions(state: BattleState, sideId: SideId = 'ai'):
           'healpulse', 'pollenpuff', 'lifedew', 'junglehealing', 'aromatherapy', 'healbell'].includes(id) &&
           !hasTargetMoveEffect(state, actor, id, targetIds)) continue;
         if (id === 'dreameater' && !targetIds.some(targetId => getPokemon(state, targetId)?.status === 'slp')) continue;
+        if (targetIds.length && targetIds.every(targetId => isPowderImmune(state, actor.id, targetId, move.name))) continue;
         actorActions.push({
           kind: 'move',
           actorId: actor.id,
@@ -699,6 +749,38 @@ export function enumerateMoveActions(state: BattleState, sideId: SideId = 'ai'):
   }
 
   return actions;
+}
+
+/**
+ * Whether the actor may SELECT this move, whatever it would then do.
+ *
+ * enumerateMoveActions answers a different question — which moves are worth
+ * offering — and folds "would have no effect" into its list: Thunder Wave
+ * into a body already asleep, a status move into an immune target. That is a
+ * fine menu, but recordMoveAction used it as the legality gate, and an action
+ * chosen at the start of the turn loses its effect when the faster action
+ * changes the board first (Gothitelle Rests before our Thunder Wave; we
+ * switch Drednaw out and Porygon's Thunder Wave meets Donphan). The game uses
+ * the move and it fails, PP spent. The engine refused it, and the driver made
+ * the refusal a lost turn (164 of them in the re-measure, 2026-09-18).
+ *
+ * This keeps every ACTOR-level rule — active, alive, the move known, not
+ * disabled, PP left, canUseMove (Taunt, Encore, choice lock, Imprison, ...),
+ * a target the move can reach — and drops only the effect filters.
+ */
+export function isSelectableMoveAction(state: BattleState, sideId: SideId, action: MoveAction): boolean {
+  const actor = activePokemon(state, sideId).find(pokemon => pokemon.id === action.actorId);
+  if (!actor || actor.hp.current <= 0 || actor.volatile?.recharge || actor.volatile?.charge) return false;
+  const move = actor.moves.find(candidate => candidate.name === action.moveName);
+  if (!move || move.disabled || move.pp === 0 || !canUseMove(state, actor, move, true)) return false;
+  const wanted = action.targetIds.join(',');
+  // A move for the ally alone (Coaching, Helping Hand) whose ally fell
+  // earlier in the turn is used at no one and fails. Poliwrath's Coaching
+  // after Surf took Sawk was refused (Cool Trainer Jennifer & Callie).
+  const target = targetForMove(state, move);
+  if ((target === 'adjacentAlly' || target === 'allies') && !wanted &&
+    !activePokemon(state, sideId).some(pokemon => pokemon.id !== actor.id)) return true;
+  return targetsForMove(state, sideId, actor, move).some(targetIds => targetIds.join(',') === wanted);
 }
 
 export function enumerateSwitchActions(state: BattleState, sideId: SideId = 'ai'): SwitchAction[] {

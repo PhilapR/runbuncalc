@@ -50,10 +50,31 @@ export const SEMI_INVULNERABLE_CHARGE_MOVES = new Set([
   'fly', 'dig', 'dive', 'bounce', 'phantomforce', 'shadowforce',
 ]);
 
-/** Canonical moves that can strike a semi-invulnerable charge target. */
-export const SEMI_INVULNERABLE_BYPASS_MOVES = new Set([
-  'gust', 'twister', 'thunder', 'hurricane', 'smackdown', 'skyuppercut', 'thousandarrows',
-]);
+/**
+ * The moves that reach each semi-invulnerable state, and those of them that
+ * hit it for double. One list served every state: Gust struck a Pokemon
+ * underground, and Earthquake missed one there.
+ */
+const AIRBORNE_REACH = {
+  hits: ['gust', 'twister', 'thunder', 'hurricane', 'smackdown', 'skyuppercut', 'thousandarrows'],
+  doubles: ['gust', 'twister'],
+};
+const SEMI_INVULNERABLE_REACH: Record<string, {hits: string[]; doubles: string[]}> = {
+  fly: AIRBORNE_REACH,
+  bounce: AIRBORNE_REACH,
+  dig: {hits: ['earthquake', 'magnitude', 'fissure'], doubles: ['earthquake', 'magnitude']},
+  dive: {hits: ['surf', 'whirlpool'], doubles: ['surf', 'whirlpool']},
+};
+
+/** Whether a move (canonical id) strikes a target hidden by this charge move. */
+export function reachesSemiInvulnerable(chargeMoveId: string, moveIdValue: string): boolean {
+  return !!SEMI_INVULNERABLE_REACH[chargeMoveId]?.hits.includes(moveIdValue);
+}
+
+/** Whether a move (canonical id) strikes a target hidden by this charge move for double. */
+export function doublesIntoSemiInvulnerable(chargeMoveId: string, moveIdValue: string): boolean {
+  return !!SEMI_INVULNERABLE_REACH[chargeMoveId]?.doubles.includes(moveIdValue);
+}
 
 /** Uproar is a Generation III+ multi-turn sound move. */
 export const UPROAR_MOVE_MIN_GENERATION: Record<string, GenerationNum> = {
@@ -94,6 +115,8 @@ export interface MoveMetadata {
   priority?: number;
   /** Canonical target shape used by control moves such as Snatch. */
   target?: MoveTarget;
+  /** Variable multi-hit bounds (e.g. [2, 5]); absent for fixed-hit moves. */
+  multiHitRange?: [number, number];
   /** Canonical move-data flag used by contact-triggered effects. */
   contact?: boolean;
   /** Canonical move-data flag used by Triage and healing-aware calculation. */
@@ -114,6 +137,8 @@ export interface MoveMetadata {
   dance?: boolean;
   /** Canonical move-data flag used by Magic Bounce and Magic Coat. */
   reflectable?: boolean;
+  /** Canonical move-data flag: Grass types, Overcoat and Safety Goggles are immune from Generation VI. */
+  powder?: boolean;
   source: MoveMetadataSource;
 }
 
@@ -250,6 +275,11 @@ export const OVERLAY_MOVE_IDS: string[] = Array.from(new Set([
 ])).sort();
 
 const SUPPORTED_STAT_IDS = new Set(['hp', 'atk', 'def', 'spa', 'spd', 'spe']);
+// The Dex names these stats in full; the engine's boost vocabulary
+// abbreviates them (BoostStatID). Without this map every accuracy-drop
+// secondary was dropped on the floor — including Leaf Tornado, Mirror Shot,
+// Mud Bomb, Night Daze and Octazooka, which the hack author buffed.
+const BOOST_STAT_ALIASES: Record<string, string> = {accuracy: 'acc', evasion: 'eva'};
 const SUPPORTED_STATUS_NAMES = new Set<StatusName>(['slp', 'psn', 'brn', 'frz', 'par', 'tox']);
 const SUPPORTED_VOLATILES: Record<string, VolatileStatusName> = {
   confusion: 'confusion',
@@ -273,11 +303,21 @@ function moveId(name: string): string {
   return id;
 }
 
+function multiHitRange(move: ReturnType<typeof Dex.moves.get>): [number, number] | undefined {
+  const multihit = (move as {multihit?: number | number[]}).multihit;
+  return Array.isArray(multihit) && multihit.length === 2 && multihit[0] !== multihit[1]
+    ? [multihit[0], multihit[1]]
+    : undefined;
+}
+
 function toBoosts(boosts: Record<string, number> | undefined): StatBoosts | undefined {
   if (!boosts) return undefined;
   const result: StatBoosts = {};
   for (const [stat, amount] of Object.entries(boosts)) {
-    if (SUPPORTED_STAT_IDS.has(stat)) result[stat as keyof StatBoosts] = amount;
+    const key = BOOST_STAT_ALIASES[stat] ?? stat;
+    if (SUPPORTED_STAT_IDS.has(key) || key === 'acc' || key === 'eva') {
+      result[key as keyof StatBoosts] = amount;
+    }
   }
   return Object.keys(result).length ? result : undefined;
 }
@@ -388,6 +428,7 @@ function buildMoveMetadata(name: string, generation: GenerationNum): MoveMetadat
     category: move.category as MoveCategory,
     priority: move.priority,
     target: move.target as MoveTarget,
+    multiHitRange: multiHitRange(move),
     contact: !!move.flags?.contact,
     heal: !!move.flags?.heal,
     punch: !!move.flags?.punch,
@@ -400,6 +441,7 @@ function buildMoveMetadata(name: string, generation: GenerationNum): MoveMetadat
     wind: !!move.flags?.wind,
     dance: !!move.flags?.dance,
     reflectable: !!move.flags?.reflectable,
+    powder: !!move.flags?.powder,
     source: customBasePower !== undefined || customMaxPP !== undefined || customAccuracy !== undefined ||
       customType !== undefined || CUSTOM_SECONDARY_CHANCE[id] !== undefined
       ? 'run-and-bun'
@@ -442,6 +484,9 @@ export function getEffectiveMoveMetadata(
     category: move.category ?? defaults.category,
     priority: move.priority ?? defaults.priority,
     target: move.target ?? defaults.target,
+    // An explicit MoveState.hits pins the count: the calculator honours it,
+    // so the engine must not roll a 2-5 range over the top of it.
+    multiHitRange: move.hits !== undefined ? undefined : defaults.multiHitRange,
     contact: move.contact ?? defaults.contact,
     heal: move.heal ?? defaults.heal,
     punch: move.punch ?? defaults.punch,

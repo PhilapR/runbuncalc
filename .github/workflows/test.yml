@@ -20,6 +20,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        # Full history. tests/ledger.test.js asserts that every finding marked
+        # fixed names a commit that is an ANCESTOR of HEAD, and the default
+        # depth of 1 gives a checkout with no history to ask. The gate then
+        # fails on all 39 fixed findings for a reason that has nothing to do
+        # with the ledger.
+        fetch-depth: 0
     - name: Use Node.js ${{ matrix.node-version }}
       uses: Zarel/setup-node@patch-1
       with:

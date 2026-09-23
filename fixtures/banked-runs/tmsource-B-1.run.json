@@ -1,0 +1,6193 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "c9208161-f07b-407b-8809-bf574f8f4595",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-25T22:32:50.713Z",
+	"updatedAt": "2026-08-25T22:32:50.713Z",
+	"position": 138,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Swampert"
+	},
+	"nextId": 19,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Grotle",
+			"nickname": null,
+			"level": 25,
+			"nature": "Rash",
+			"ability": "Overgrow",
+			"item": "Miracle Seed",
+			"moves": [
+				"Sand Tomb",
+				"Razor Leaf",
+				"Mega Drain",
+				"Confide"
+			],
+			"ivs": {
+				"hp": 17,
+				"atk": 1,
+				"def": 26,
+				"spa": 14,
+				"spd": 21,
+				"spe": 24
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Diggersby",
+			"nickname": null,
+			"level": 25,
+			"nature": "Relaxed",
+			"ability": "Cheek Pouch",
+			"item": null,
+			"moves": [
+				"Bounce",
+				"Strength",
+				"Quick Attack",
+				"Double Slap"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 8,
+				"def": 29,
+				"spa": 11,
+				"spd": 8,
+				"spe": 17
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Corvisquire",
+			"nickname": null,
+			"level": 25,
+			"nature": "Mild",
+			"ability": "Unnerve",
+			"item": null,
+			"moves": [
+				"Drill Peck",
+				"Aerial Ace",
+				"Hurricane",
+				"Pluck"
+			],
+			"ivs": {
+				"hp": 4,
+				"atk": 20,
+				"def": 21,
+				"spa": 2,
+				"spd": 0,
+				"spe": 11
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Exeggcute",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quirky",
+			"ability": "Chlorophyll",
+			"item": "Oran Berry",
+			"moves": [
+				"Energy Ball",
+				"Magical Leaf",
+				"Psychic",
+				"Stun Spore"
+			],
+			"ivs": {
+				"hp": 14,
+				"atk": 28,
+				"def": 29,
+				"spa": 30,
+				"spd": 8,
+				"spe": 16
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Masquerain",
+			"nickname": null,
+			"level": 25,
+			"nature": "Rash",
+			"ability": "Intimidate",
+			"item": "Silk Scarf",
+			"moves": [
+				"Ice Beam",
+				"Bug Bite",
+				"Hydro Pump",
+				"Hurricane"
+			],
+			"ivs": {
+				"hp": 6,
+				"atk": 27,
+				"def": 31,
+				"spa": 18,
+				"spd": 31,
+				"spe": 5
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Ponyta",
+			"nickname": null,
+			"level": 25,
+			"nature": "Naughty",
+			"ability": "Flame Body",
+			"item": "Twisted Spoon",
+			"moves": [
+				"Stomp",
+				"Flamethrower",
+				"Fire Blast",
+				"Play Rough"
+			],
+			"ivs": {
+				"hp": 30,
+				"atk": 21,
+				"def": 1,
+				"spa": 1,
+				"spd": 17,
+				"spe": 16
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Centiskorch",
+			"nickname": null,
+			"level": 25,
+			"nature": "Hardy",
+			"ability": "Flame Body",
+			"item": null,
+			"moves": [
+				"Bug Bite",
+				"Burn Up",
+				"Facade",
+				"Will-O-Wisp"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 21,
+				"def": 11,
+				"spa": 7,
+				"spd": 27,
+				"spe": 19
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Shellos",
+			"nickname": null,
+			"level": 25,
+			"nature": "Calm",
+			"ability": "Sticky Hold",
+			"item": "Poison Barb",
+			"moves": [
+				"Mud Bomb",
+				"Earth Power",
+				"Hydro Pump",
+				"Mud Shot"
+			],
+			"ivs": {
+				"hp": 24,
+				"atk": 10,
+				"def": 2,
+				"spa": 3,
+				"spd": 21,
+				"spe": 22
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Rhyhorn",
+			"nickname": null,
+			"level": 25,
+			"nature": "Docile",
+			"ability": "Reckless",
+			"item": "Soft Sand",
+			"moves": [
+				"Blizzard",
+				"Smack Down",
+				"Scary Face",
+				"Earthquake"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 9,
+				"def": 19,
+				"spa": 30,
+				"spd": 31,
+				"spe": 20
+			},
+			"status": "party",
+			"origin": {
+				"at": 16,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Carnivine",
+			"nickname": null,
+			"level": 25,
+			"nature": "Rash",
+			"ability": "Levitate",
+			"item": null,
+			"moves": [
+				"Razor Leaf",
+				"Magical Leaf",
+				"Sludge Bomb",
+				"Leaf Tornado"
+			],
+			"ivs": {
+				"hp": 8,
+				"atk": 10,
+				"def": 19,
+				"spa": 6,
+				"spd": 6,
+				"spe": 18
+			},
+			"status": "party",
+			"origin": {
+				"at": 19,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Staryu",
+			"nickname": null,
+			"level": 25,
+			"nature": "Naive",
+			"ability": "Natural Cure",
+			"item": null,
+			"moves": [
+				"Aurora Beam",
+				"Rapid Spin",
+				"Hydro Pump",
+				"Confuse Ray"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 25,
+				"def": 0,
+				"spa": 20,
+				"spd": 18,
+				"spe": 15
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 22,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Pancham",
+			"nickname": null,
+			"level": 25,
+			"nature": "Calm",
+			"ability": "Iron Fist",
+			"item": null,
+			"moves": [
+				"Rock Tomb",
+				"Fire Punch",
+				"Aerial Ace",
+				"Feint Attack"
+			],
+			"ivs": {
+				"hp": 13,
+				"atk": 21,
+				"def": 15,
+				"spa": 14,
+				"spd": 4,
+				"spe": 20
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 29,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Seadra",
+			"nickname": null,
+			"level": 25,
+			"nature": "Timid",
+			"ability": "Poison Point",
+			"item": null,
+			"moves": [
+				"Aurora Beam",
+				"Bubble Beam",
+				"Hydro Pump",
+				"Blizzard"
+			],
+			"ivs": {
+				"hp": 27,
+				"atk": 3,
+				"def": 25,
+				"spa": 7,
+				"spd": 28,
+				"spe": 26
+			},
+			"status": "party",
+			"origin": {
+				"at": 37,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Tirtouga",
+			"nickname": null,
+			"level": 25,
+			"nature": "Impish",
+			"ability": "Solid Rock",
+			"item": null,
+			"moves": [
+				"Rock Slide",
+				"Hydro Pump",
+				"Smack Down",
+				"Ancient Power"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 27,
+				"def": 15,
+				"spa": 28,
+				"spd": 17,
+				"spe": 18
+			},
+			"status": "party",
+			"origin": {
+				"at": 42,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Eelektrik",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Levitate",
+			"item": null,
+			"moves": [
+				"Thunder Punch",
+				"Crunch",
+				"Sludge",
+				"Thunder"
+			],
+			"ivs": {
+				"hp": 26,
+				"atk": 24,
+				"def": 14,
+				"spa": 9,
+				"spd": 21,
+				"spe": 2
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 48,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Buizel",
+			"nickname": null,
+			"level": 25,
+			"nature": "Hasty",
+			"ability": "Swift Swim",
+			"item": null,
+			"moves": [
+				"Brick Break",
+				"Growl",
+				"Water Sport",
+				"Double Hit"
+			],
+			"ivs": {
+				"hp": 11,
+				"atk": 20,
+				"def": 4,
+				"spa": 22,
+				"spd": 7,
+				"spe": 10
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 48,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-17",
+			"species": "Hariyama",
+			"nickname": null,
+			"level": 25,
+			"nature": "Calm",
+			"ability": "Thick Fat",
+			"item": null,
+			"moves": [
+				"Smelling Salts",
+				"Arm Thrust",
+				"Payback",
+				"Force Palm"
+			],
+			"ivs": {
+				"hp": 29,
+				"atk": 27,
+				"def": 31,
+				"spa": 15,
+				"spd": 17,
+				"spe": 16
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_ROUTE116",
+				"mapName": "Route116"
+			}
+		},
+		{
+			"id": "mon-18",
+			"species": "Herdier",
+			"nickname": null,
+			"level": 25,
+			"nature": "Hardy",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Submission",
+				"Hyper Voice",
+				"Take Down",
+				"Covet"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 4,
+				"def": 27,
+				"spa": 5,
+				"spd": 21,
+				"spe": 5
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_RUSTBORO_CITY",
+				"mapName": "Rustboro City"
+			}
+		}
+	],
+	"party": [
+		"mon-13",
+		"mon-14",
+		"mon-1",
+		"mon-10",
+		"mon-4",
+		"mon-9"
+	],
+	"bag": {
+		"Potion": 1,
+		"Super Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Turtwig",
+				"level": 5,
+				"ivs": {
+					"hp": 17,
+					"atk": 1,
+					"def": 26,
+					"spa": 14,
+					"spd": 21,
+					"spe": 24
+				},
+				"nature": "Rash",
+				"ability": "Overgrow"
+			},
+			"summary": "caught Turtwig at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Bunnelby",
+				"level": 3,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 19,
+					"atk": 8,
+					"def": 29,
+					"spa": 11,
+					"spd": 8,
+					"spe": 17
+				},
+				"nature": "Relaxed",
+				"ability": "Cheek Pouch"
+			},
+			"summary": "caught Bunnelby at level 3 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Rookidee",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 4,
+					"atk": 20,
+					"def": 21,
+					"spa": 2,
+					"spd": 0,
+					"spe": 11
+				},
+				"nature": "Mild",
+				"ability": "Unnerve"
+			},
+			"summary": "caught Rookidee at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Exeggcute",
+				"level": 3,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 14,
+					"atk": 28,
+					"def": 29,
+					"spa": 30,
+					"spd": 8,
+					"spe": 16
+				},
+				"nature": "Quirky",
+				"ability": "Chlorophyll"
+			},
+			"summary": "caught Exeggcute at level 3 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Surskit",
+				"level": 3,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 6,
+					"atk": 27,
+					"def": 31,
+					"spa": 18,
+					"spd": 31,
+					"spe": 5
+				},
+				"nature": "Rash",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Surskit at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Ponyta",
+				"level": 3,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 30,
+					"atk": 21,
+					"def": 1,
+					"spa": 1,
+					"spd": 17,
+					"spe": 16
+				},
+				"nature": "Naughty",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Ponyta at level 3 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L5 to L12 and learned Confide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L3 to L12 and learned Quick Attack, Double Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Rookidee grew from L5 to L12 and learned Sand Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Exeggcute grew from L3 to L12 and learned Stun Spore; its moves are full, so Poison Powder must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Poison Powder",
+				"replace": "Bullet Seed"
+			},
+			"summary": "Exeggcute forgot Bullet Seed, learned Poison Powder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L3 to L12 and learned Quick Attack, Sweet Scent, Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L3 to L12 and learned Tail Whip, Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Surskit, Turtwig, Bunnelby, Exeggcute, Rookidee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Bullet Seed",
+				"replace": "Poison Powder"
+			},
+			"summary": "Exeggcute forgot Poison Powder, learned Bullet Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Blast",
+				"replace": "Growl"
+			},
+			"summary": "Ponyta forgot Growl, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hydro Pump",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Surskit forgot Sweet Scent, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Strength",
+				"replace": "Leer"
+			},
+			"summary": "Bunnelby forgot Leer, learned Strength",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Psychic",
+				"replace": "Hypnosis"
+			},
+			"summary": "Exeggcute forgot Hypnosis, learned Psychic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Aerial Ace",
+				"replace": "Leer"
+			},
+			"summary": "Rookidee forgot Leer, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Turtwig is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-3",
+					"mon-2",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Surskit, Rookidee, Bunnelby, Turtwig, Exeggcute",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-6",
+					"mon-1",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Surskit takes the lead — with Exeggcute, Ponyta, Turtwig, Rookidee, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-4",
+					"mon-1",
+					"mon-2",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Surskit, Exeggcute, Turtwig, Bunnelby, Rookidee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-5",
+					"mon-1",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Ponyta, Surskit, Turtwig, Rookidee, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Sizzlipede",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 21,
+					"def": 11,
+					"spa": 7,
+					"spd": 27,
+					"spe": 19
+				},
+				"nature": "Hardy",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Sizzlipede at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shellos",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 24,
+					"atk": 10,
+					"def": 2,
+					"spa": 3,
+					"spd": 21,
+					"spe": 22
+				},
+				"nature": "Calm",
+				"ability": "Sticky Hold"
+			},
+			"summary": "caught Shellos at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L5 to L12 and learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L5 to L12 and learned Water Pulse, Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Ponyta, Surskit, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-8",
+					"mon-6",
+					"mon-7"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Exeggcute, Surskit, Shellos, Ponyta, Sizzlipede",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Miracle Seed"
+			},
+			"summary": "Turtwig is holding Miracle Seed; Oran Berry went back to the bag",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Earth Power",
+				"replace": "Mud Sport"
+			},
+			"summary": "Shellos forgot Mud Sport, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Struggle Bug",
+				"replace": "Smokescreen"
+			},
+			"summary": "Sizzlipede forgot Smokescreen, learned Struggle Bug",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-4",
+				"item": "Oran Berry"
+			},
+			"summary": "Exeggcute is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-8",
+					"mon-4",
+					"mon-1",
+					"mon-7"
+				]
+			},
+			"summary": "Surskit takes the lead — with Ponyta, Shellos, Exeggcute, Turtwig, Sizzlipede",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Rhyhorn",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 9,
+					"def": 19,
+					"spa": 30,
+					"spd": 31,
+					"spe": 20
+				},
+				"nature": "Docile",
+				"ability": "Reckless"
+			},
+			"summary": "caught Rhyhorn at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L8 to L12 and learned Sand Attack; its moves are full, so Smack Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Horn Attack"
+			},
+			"summary": "Rhyhorn forgot Horn Attack, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Surskit takes the lead — with Ponyta, Exeggcute, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-1",
+					"mon-7",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Ponyta, Turtwig, Sizzlipede, Rookidee, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Carnivine",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 8,
+					"atk": 10,
+					"def": 19,
+					"spa": 6,
+					"spd": 6,
+					"spe": 18
+				},
+				"nature": "Rash",
+				"ability": "Levitate"
+			},
+			"summary": "caught Carnivine at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L12 to L17; its moves are full, so Razor Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Bite"
+			},
+			"summary": "Turtwig forgot Bite, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Turtwig evolved into Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Rookidee grew from L12 to L17; its moves are full, so Pluck must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Pluck",
+				"replace": "Peck"
+			},
+			"summary": "Rookidee forgot Peck, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Exeggcute grew from L12 to L17; its moves are full, so Sleep Powder must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Sleep Powder",
+				"replace": "Bullet Seed"
+			},
+			"summary": "Exeggcute forgot Bullet Seed, learned Sleep Powder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L12 to L17; its moves are full, so Struggle Bug must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Struggle Bug",
+				"replace": "Bubble"
+			},
+			"summary": "Surskit forgot Bubble, learned Struggle Bug",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L12 to L17; its moves are full, so Flame Wheel, Fire Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Fire Blast"
+			},
+			"summary": "Ponyta forgot Fire Blast, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Spin",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L12 to L17; its moves are full, so Bite must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Bite",
+				"replace": "Ember"
+			},
+			"summary": "Sizzlipede forgot Ember, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L12 to L17; its moves are full, so Mud-Slap, Mud Shot must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Mud-Slap",
+				"replace": "Tackle"
+			},
+			"summary": "Bunnelby forgot Tackle, learned Mud-Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Mud Shot",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Bunnelby forgot Mud-Slap, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L12 to L17; its moves are full, so Hidden Power must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Hidden Power",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Shellos forgot Mud-Slap, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L12 to L17; its moves are full, so Stomp must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Stomp",
+				"replace": "Smack Down"
+			},
+			"summary": "Rhyhorn forgot Smack Down, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L14 to L17; its moves are full, so Sweet Scent must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Sweet Scent",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Carnivine forgot Razor Leaf, learned Sweet Scent",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-1",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Ponyta, Grotle, Rookidee, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Exeggcute, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-1",
+					"mon-4",
+					"mon-8",
+					"mon-5",
+					"mon-7"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Grotle, Exeggcute, Shellos, Surskit, Sizzlipede",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Bullet Seed",
+				"replace": "Sleep Powder"
+			},
+			"summary": "Exeggcute forgot Sleep Powder, learned Bullet Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Carnivine forgot Sweet Scent, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Magical Leaf",
+				"replace": "Bind"
+			},
+			"summary": "Carnivine forgot Bind, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Solar Beam",
+				"replace": "Growl"
+			},
+			"summary": "Grotle forgot Growl, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Bullet Seed"
+			},
+			"summary": "Exeggcute forgot Bullet Seed, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Blizzard",
+				"replace": "Water Pulse"
+			},
+			"summary": "Shellos forgot Water Pulse, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bug Bite",
+				"replace": "Quick Attack"
+			},
+			"summary": "Surskit forgot Quick Attack, learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Facade",
+				"replace": "Wrap"
+			},
+			"summary": "Sizzlipede forgot Wrap, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Staryu",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 15,
+					"atk": 25,
+					"def": 0,
+					"spa": 20,
+					"spd": 18,
+					"spe": 15
+				},
+				"nature": "Naive",
+				"ability": "Natural Cure"
+			},
+			"summary": "caught Staryu at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Staryu grew from L8 to L17; its moves are full, so Camouflage, Swift, Water Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Camouflage",
+				"replace": "Water Gun"
+			},
+			"summary": "Staryu forgot Water Gun, learned Camouflage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Swift",
+				"replace": "Camouflage"
+			},
+			"summary": "Staryu forgot Camouflage, learned Swift",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Water Pulse",
+				"replace": "Swift"
+			},
+			"summary": "Staryu forgot Swift, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Exeggcute, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-9",
+					"mon-10",
+					"mon-1",
+					"mon-8"
+				]
+			},
+			"summary": "Surskit takes the lead — with Ponyta, Rhyhorn, Carnivine, Grotle, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Tail Whip"
+			},
+			"summary": "Rhyhorn forgot Tail Whip, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Fire Spin"
+			},
+			"summary": "Ponyta forgot Fire Spin, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Water Pulse",
+				"replace": "Hidden Power"
+			},
+			"summary": "Shellos forgot Hidden Power, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Blast",
+				"replace": "Tail Whip"
+			},
+			"summary": "Ponyta forgot Tail Whip, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earthquake",
+				"replace": "Sand Attack"
+			},
+			"summary": "Rhyhorn forgot Sand Attack, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Silk Scarf"
+			},
+			"summary": "Surskit is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Surskit takes the lead — with Ponyta, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Surskit takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-6",
+					"mon-7",
+					"mon-5",
+					"mon-8",
+					"mon-10"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Ponyta, Sizzlipede, Surskit, Shellos, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Pancham",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 13,
+					"atk": 21,
+					"def": 15,
+					"spa": 14,
+					"spd": 4,
+					"spe": 20
+				},
+				"nature": "Calm",
+				"ability": "Iron Fist"
+			},
+			"summary": "caught Pancham at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Pancham grew from L8 to L17 and learned Feint Attack; its moves are full, so Karate Chop, Covet must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Karate Chop",
+				"replace": "Tackle"
+			},
+			"summary": "Pancham forgot Tackle, learned Karate Chop",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Covet",
+				"replace": "Karate Chop"
+			},
+			"summary": "Pancham forgot Karate Chop, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-8",
+					"mon-4",
+					"mon-6",
+					"mon-11",
+					"mon-10"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Shellos, Exeggcute, Ponyta, Staryu, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-9",
+				"item": "Soft Sand"
+			},
+			"summary": "Rhyhorn is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Bullet Seed",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Exeggcute forgot Magical Leaf, learned Bullet Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Psywave"
+			},
+			"summary": "Staryu forgot Psywave, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Exeggcute, Surskit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-1",
+					"mon-8",
+					"mon-11",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Carnivine takes the lead — with Grotle, Shellos, Staryu, Surskit, Exeggcute",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Surskit, Exeggcute",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Rookidee takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-9",
+					"mon-3",
+					"mon-11",
+					"mon-7",
+					"mon-12"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Rhyhorn, Rookidee, Staryu, Sizzlipede, Pancham",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Ember",
+				"replace": "Bite"
+			},
+			"summary": "Sizzlipede forgot Bite, learned Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Sand Attack"
+			},
+			"summary": "Rookidee forgot Sand Attack, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Fire Punch",
+				"replace": "Leer"
+			},
+			"summary": "Pancham forgot Leer, learned Fire Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 27,
+					"atk": 3,
+					"def": 25,
+					"spa": 7,
+					"spd": 28,
+					"spe": 26
+				},
+				"nature": "Timid",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L8 to L17 and learned Leer, Twister; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Rookidee",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Exeggcute, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-6",
+					"mon-4",
+					"mon-10",
+					"mon-1",
+					"mon-12"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Ponyta, Exeggcute, Carnivine, Grotle, Pancham",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Sand Tomb",
+				"replace": "Solar Beam"
+			},
+			"summary": "Grotle forgot Solar Beam, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tirtouga",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 21,
+					"atk": 27,
+					"def": 15,
+					"spa": 28,
+					"spd": 17,
+					"spe": 18
+				},
+				"nature": "Impish",
+				"ability": "Solid Rock"
+			},
+			"summary": "caught Tirtouga at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L10 to L17; its moves are full, so Bite, Block must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bite",
+				"replace": "Whirlpool"
+			},
+			"summary": "Tirtouga forgot Whirlpool, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Block",
+				"replace": "Bite"
+			},
+			"summary": "Tirtouga forgot Bite, learned Block",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Exeggcute, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Exeggcute, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-4",
+					"mon-6",
+					"mon-1",
+					"mon-10",
+					"mon-8"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Exeggcute, Ponyta, Grotle, Carnivine, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Ponyta, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-6",
+					"mon-7",
+					"mon-1",
+					"mon-12",
+					"mon-10"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Ponyta, Sizzlipede, Grotle, Pancham, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Bite",
+				"replace": "Absorb"
+			},
+			"summary": "Grotle forgot Absorb, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tynamo",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 26,
+					"atk": 24,
+					"def": 14,
+					"spa": 9,
+					"spd": 21,
+					"spe": 2
+				},
+				"nature": "Bashful",
+				"ability": "Levitate"
+			},
+			"summary": "caught Tynamo at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Buizel",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 11,
+					"atk": 20,
+					"def": 4,
+					"spa": 22,
+					"spd": 7,
+					"spe": 10
+				},
+				"nature": "Hasty",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Buizel at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Buizel grew from L10 to L17 and learned Double Hit; its moves are full, so Sonic Boom must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Sonic Boom",
+				"replace": "Aqua Jet"
+			},
+			"summary": "Buizel forgot Aqua Jet, learned Sonic Boom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Grotle takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-8",
+					"mon-10",
+					"mon-15",
+					"mon-1",
+					"mon-11"
+				]
+			},
+			"summary": "Tirtouga takes the lead — with Shellos, Carnivine, Tynamo, Grotle, Staryu",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Block"
+			},
+			"summary": "Tirtouga forgot Block, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-8",
+				"item": "Poison Barb"
+			},
+			"summary": "Shellos is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Grotle takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Rookidee, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-6",
+					"mon-12",
+					"mon-14",
+					"mon-8"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Grotle, Ponyta, Pancham, Tirtouga, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bite",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Tirtouga forgot Hydro Pump, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Grotle grew from L17 to L21; its moves are full, so Roar must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Roar",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Grotle forgot Razor Leaf, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L17 to L21; its moves are full, so Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Bounce",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L17 to L21; its moves are full, so Bulldoze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Stomp"
+			},
+			"summary": "Rhyhorn forgot Stomp, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Pancham grew from L17 to L21; its moves are full, so Circle Throw must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Circle Throw",
+				"replace": "Covet"
+			},
+			"summary": "Pancham forgot Covet, learned Circle Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L17 to L21; its moves are full, so Ancient Power, Brine must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ancient Power",
+				"replace": "Bite"
+			},
+			"summary": "Tirtouga forgot Bite, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Brine",
+				"replace": "Ancient Power"
+			},
+			"summary": "Tirtouga forgot Ancient Power, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L17 to L21; its moves are full, so Take Down, Double Kick must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Take Down",
+				"replace": "Mud Shot"
+			},
+			"summary": "Bunnelby forgot Mud Shot, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Double Kick",
+				"replace": "Take Down"
+			},
+			"summary": "Bunnelby forgot Take Down, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Bunnelby evolved into Diggersby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Rookidee grew from L17 to L21; its moves are full, so Scary Face must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Scary Face",
+				"replace": "Pluck"
+			},
+			"summary": "Rookidee forgot Pluck, learned Scary Face",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Rookidee evolved into Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Exeggcute grew from L17 to L21; its moves are full, so Psybeam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Psybeam",
+				"replace": "Bullet Seed"
+			},
+			"summary": "Exeggcute forgot Bullet Seed, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L17 to L21; its moves are full, so Flame Wheel must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flame Wheel",
+				"replace": "Ember"
+			},
+			"summary": "Sizzlipede forgot Ember, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Staryu grew from L17 to L21; its moves are full, so Psybeam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Psybeam",
+				"replace": "Water Pulse"
+			},
+			"summary": "Staryu forgot Water Pulse, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L17 to L21; its moves are full, so Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Clear Smog",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Horsea forgot Bubble Beam, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Tynamo evolved into Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Buizel grew from L17 to L21; its moves are full, so Water Pulse, Fake Out must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Water Pulse",
+				"replace": "Sonic Boom"
+			},
+			"summary": "Buizel forgot Sonic Boom, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Fake Out",
+				"replace": "Water Pulse"
+			},
+			"summary": "Buizel forgot Water Pulse, learned Fake Out",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Exeggcute, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-9",
+					"mon-10",
+					"mon-3",
+					"mon-6",
+					"mon-15"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Rhyhorn, Carnivine, Corvisquire, Ponyta, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earth Power",
+				"replace": "Smack Down"
+			},
+			"summary": "Rhyhorn forgot Smack Down, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Sludge Bomb",
+				"replace": "Bite"
+			},
+			"summary": "Carnivine forgot Bite, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Hurricane",
+				"replace": "Fury Attack"
+			},
+			"summary": "Corvisquire forgot Fury Attack, learned Hurricane",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Play Rough",
+				"replace": "Ember"
+			},
+			"summary": "Ponyta forgot Ember, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder"
+			},
+			"summary": "Eelektrik learned Thunder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Corvisquire, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-9",
+					"mon-15",
+					"mon-14",
+					"mon-12"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Corvisquire, Rhyhorn, Eelektrik, Tirtouga, Pancham",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Tirtouga forgot Mud-Slap, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Aerial Ace",
+				"replace": "Arm Thrust"
+			},
+			"summary": "Pancham forgot Arm Thrust, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Exeggcute, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-14",
+					"mon-15",
+					"mon-3",
+					"mon-6",
+					"mon-12"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Tirtouga, Eelektrik, Corvisquire, Ponyta, Pancham",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Bullet Seed",
+				"replace": "Confusion"
+			},
+			"summary": "Exeggcute forgot Confusion, learned Bullet Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Arm Thrust",
+				"replace": "Circle Throw"
+			},
+			"summary": "Pancham forgot Circle Throw, learned Arm Thrust",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Bounce"
+			},
+			"summary": "Ponyta forgot Bounce, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Corvisquire, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Exeggcute, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-15",
+					"mon-10",
+					"mon-6",
+					"mon-14"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Corvisquire, Eelektrik, Carnivine, Ponyta, Tirtouga",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Corvisquire, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Exeggcute, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-15",
+					"mon-6",
+					"mon-3",
+					"mon-10",
+					"mon-12"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Eelektrik, Ponyta, Corvisquire, Carnivine, Pancham",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Sludge",
+				"replace": "Thunder Wave"
+			},
+			"summary": "Eelektrik forgot Thunder Wave, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fury Attack",
+				"replace": "Scary Face"
+			},
+			"summary": "Corvisquire forgot Scary Face, learned Fury Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Exeggcute takes the lead — with Ponyta, Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-10",
+					"mon-3",
+					"mon-9",
+					"mon-14",
+					"mon-15"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Carnivine, Corvisquire, Rhyhorn, Tirtouga, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Spark"
+			},
+			"summary": "Eelektrik forgot Spark, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3"
+				]
+			},
+			"summary": "Corvisquire takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-9",
+					"mon-3",
+					"mon-10",
+					"mon-14",
+					"mon-13"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Rhyhorn, Corvisquire, Carnivine, Tirtouga, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Smokescreen"
+			},
+			"summary": "Seadra forgot Smokescreen, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Hydro Pump",
+				"replace": "Leer"
+			},
+			"summary": "Seadra forgot Leer, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Corvisquire fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3"
+				]
+			},
+			"summary": "Corvisquire takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-10",
+					"mon-14",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eelektrik, Carnivine, Tirtouga, Exeggcute, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Exeggcute fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-10",
+					"mon-14",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eelektrik, Carnivine, Tirtouga, Exeggcute, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Exeggcute fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-10",
+					"mon-14",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eelektrik, Carnivine, Tirtouga, Exeggcute, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Exeggcute fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-10",
+					"mon-14",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eelektrik, Carnivine, Tirtouga, Exeggcute, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Exeggcute fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-10",
+					"mon-14",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eelektrik, Carnivine, Tirtouga, Exeggcute, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Exeggcute fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Surskit, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-10",
+					"mon-14",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eelektrik, Carnivine, Tirtouga, Exeggcute, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Carnivine fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Exeggcute fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Brawly"
+			},
+			"summary": "beat Leader Brawly (now at 77)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Exeggcute grew from L21 to L25; its moves are full, so Energy Ball must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Energy Ball",
+				"replace": "Psybeam"
+			},
+			"summary": "Exeggcute forgot Psybeam, learned Energy Ball",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L21 to L25; its moves are full, so Chip Away must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Chip Away",
+				"replace": "Bulldoze"
+			},
+			"summary": "Rhyhorn forgot Bulldoze, learned Chip Away",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Carnivine grew from L21 to L25; its moves are full, so Acid Spray must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Acid Spray",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Carnivine forgot Razor Leaf, learned Acid Spray",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Seadra grew from L21 to L25; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aurora Beam",
+				"replace": "Clear Smog"
+			},
+			"summary": "Seadra forgot Clear Smog, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L21 to L25; its moves are full, so Rock Slide must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Rock Slide",
+				"replace": "Brine"
+			},
+			"summary": "Tirtouga forgot Brine, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Eelektrik grew from L21 to L25; its moves are full, so Thunder Punch must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Sludge"
+			},
+			"summary": "Eelektrik forgot Sludge, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Grotle grew from L21 to L25; its moves are full, so Mega Drain must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Mega Drain",
+				"replace": "Roar"
+			},
+			"summary": "Grotle forgot Roar, learned Mega Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Diggersby grew from L21 to L25; its moves are full, so Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Bounce",
+				"replace": "Double Kick"
+			},
+			"summary": "Diggersby forgot Double Kick, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Corvisquire grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Surskit grew from L21 to L25; its moves are full, so Haze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Haze",
+				"replace": "Struggle Bug"
+			},
+			"summary": "Surskit forgot Struggle Bug, learned Haze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Surskit evolved into Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L21 to L25; its moves are full, so Flame Burst must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flame Burst",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Sizzlipede forgot Flame Wheel, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Sizzlipede evolved into Centiskorch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L21 to L25; its moves are full, so Mud Bomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Bomb",
+				"replace": "Water Pulse"
+			},
+			"summary": "Shellos forgot Water Pulse, learned Mud Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Staryu grew from L21 to L25; its moves are full, so Reflect Type, Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Reflect Type",
+				"replace": "Psybeam"
+			},
+			"summary": "Staryu forgot Psybeam, learned Reflect Type",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Reflect Type"
+			},
+			"summary": "Staryu forgot Reflect Type, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Pancham grew from L21 to L25; its moves are full, so Bullet Punch must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Bullet Punch",
+				"replace": "Arm Thrust"
+			},
+			"summary": "Pancham forgot Arm Thrust, learned Bullet Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Buizel grew from L21 to L25; its moves are full, so Brick Break must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Brick Break",
+				"replace": "Fake Out"
+			},
+			"summary": "Buizel forgot Fake Out, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4"
+				]
+			},
+			"summary": "Exeggcute takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-7",
+					"mon-6",
+					"mon-3",
+					"mon-15",
+					"mon-13"
+				]
+			},
+			"summary": "Tirtouga takes the lead — with Centiskorch, Ponyta, Corvisquire, Eelektrik, Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Burn Up",
+				"replace": "Struggle Bug"
+			},
+			"summary": "Centiskorch forgot Struggle Bug, learned Burn Up",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Drill Peck",
+				"replace": "Fury Attack"
+			},
+			"summary": "Corvisquire forgot Fury Attack, learned Drill Peck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ancient Power",
+				"replace": "Aqua Jet"
+			},
+			"summary": "Tirtouga forgot Aqua Jet, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Will-O-Wisp",
+				"replace": "Bug Bite"
+			},
+			"summary": "Centiskorch forgot Bug Bite, learned Will-O-Wisp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flamethrower",
+				"replace": "Stomp"
+			},
+			"summary": "Ponyta forgot Stomp, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Pluck",
+				"replace": "Fly"
+			},
+			"summary": "Corvisquire forgot Fly, learned Pluck",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunderbolt",
+				"replace": "Crunch"
+			},
+			"summary": "Eelektrik forgot Crunch, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Blizzard",
+				"replace": "Twister"
+			},
+			"summary": "Seadra forgot Twister, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Lyle"
+			},
+			"summary": "beat Bug Catcher Lyle (now at 83)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Corvisquire, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-6",
+					"mon-3",
+					"mon-14",
+					"mon-12",
+					"mon-1"
+				]
+			},
+			"summary": "Centiskorch takes the lead — with Ponyta, Corvisquire, Tirtouga, Pancham, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Arm Thrust",
+				"replace": "Bullet Punch"
+			},
+			"summary": "Pancham forgot Bullet Punch, learned Arm Thrust",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Bug Bite",
+				"replace": "Flame Burst"
+			},
+			"summary": "Centiskorch forgot Flame Burst, learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Sand Tomb"
+			},
+			"summary": "Grotle forgot Sand Tomb, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Rock Tomb",
+				"replace": "Arm Thrust"
+			},
+			"summary": "Pancham forgot Arm Thrust, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Maniac James"
+			},
+			"summary": "beat Bug Maniac James (now at 86)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Corvisquire, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-13",
+					"mon-14",
+					"mon-9",
+					"mon-15",
+					"mon-5"
+				]
+			},
+			"summary": "Centiskorch takes the lead — with Seadra, Tirtouga, Rhyhorn, Eelektrik, Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Struggle Bug",
+				"replace": "Haze"
+			},
+			"summary": "Masquerain forgot Haze, learned Struggle Bug",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Blizzard",
+				"replace": "Chip Away"
+			},
+			"summary": "Rhyhorn forgot Chip Away, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hurricane",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Masquerain forgot Bubble Beam, learned Hurricane",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Winston"
+			},
+			"summary": "beat Rich Boy Winston (now at 90)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-5",
+					"mon-7",
+					"mon-8",
+					"mon-13",
+					"mon-14"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Masquerain, Centiskorch, Shellos, Seadra, Tirtouga",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Hydro Pump",
+				"replace": "Blizzard"
+			},
+			"summary": "Shellos forgot Blizzard, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Ivan"
+			},
+			"summary": "beat Fisherman Ivan (now at 92)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-9",
+					"mon-5",
+					"mon-15",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Centiskorch takes the lead — with Rhyhorn, Masquerain, Eelektrik, Ponyta, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Crunch",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Eelektrik forgot Thunderbolt, learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Sand Tomb",
+				"replace": "Mega Drain"
+			},
+			"summary": "Grotle forgot Mega Drain, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Sludge",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Eelektrik forgot Thunder Punch, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Twins Gina And Mia"
+			},
+			"summary": "beat Twins Gina And Mia (now at 95)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Masquerain takes the lead — with Ponyta, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Corvisquire takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-5",
+					"mon-13",
+					"mon-7",
+					"mon-8",
+					"mon-3"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Masquerain, Seadra, Centiskorch, Shellos, Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Ice Beam",
+				"replace": "Struggle Bug"
+			},
+			"summary": "Masquerain forgot Struggle Bug, learned Ice Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Haley"
+			},
+			"summary": "beat Lass Haley (now at 99)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3"
+				]
+			},
+			"summary": "Masquerain takes the lead — with Corvisquire",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-13",
+					"mon-5",
+					"mon-14",
+					"mon-9"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Centiskorch, Seadra, Masquerain, Tirtouga, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Earth Power"
+			},
+			"summary": "Rhyhorn forgot Earth Power, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Joey"
+			},
+			"summary": "beat Youngster Joey (now at 103)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Makuhita",
+				"level": 14,
+				"map": "Route116",
+				"method": "walk",
+				"ivs": {
+					"hp": 29,
+					"atk": 27,
+					"def": 31,
+					"spa": 15,
+					"spd": 17,
+					"spe": 16
+				},
+				"nature": "Calm",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Makuhita at level 14 on Route116",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Herdier",
+				"level": 14,
+				"map": "Rustboro City",
+				"method": "walk",
+				"ivs": {
+					"hp": 21,
+					"atk": 4,
+					"def": 27,
+					"spa": 5,
+					"spd": 21,
+					"spe": 5
+				},
+				"nature": "Hardy",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Herdier at level 14 on Rustboro City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Super Potion"
+			},
+			"summary": "bag: Super Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Twisted Spoon"
+			},
+			"summary": "bag: Twisted Spoon x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Makuhita grew from L14 to L25; its moves are full, so Whirlwind, Payback, Vital Throw, Smelling Salts must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Whirlwind",
+				"replace": "Sand Attack"
+			},
+			"summary": "Makuhita forgot Sand Attack, learned Whirlwind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Payback",
+				"replace": "Whirlwind"
+			},
+			"summary": "Makuhita forgot Whirlwind, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Vital Throw",
+				"replace": "Payback"
+			},
+			"summary": "Makuhita forgot Payback, learned Vital Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Smelling Salts",
+				"replace": "Vital Throw"
+			},
+			"summary": "Makuhita forgot Vital Throw, learned Smelling Salts",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-17"
+			},
+			"summary": "Makuhita evolved into Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Herdier grew from L14 to L25; its moves are full, so Take Down, Submission must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Take Down",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Herdier forgot Odor Sleuth, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Submission",
+				"replace": "Take Down"
+			},
+			"summary": "Herdier forgot Take Down, learned Submission",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Masquerain takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-5",
+					"mon-7",
+					"mon-15",
+					"mon-13",
+					"mon-6"
+				]
+			},
+			"summary": "Tirtouga takes the lead — with Masquerain, Centiskorch, Eelektrik, Seadra, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Stomp",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-6",
+				"item": "Twisted Spoon"
+			},
+			"summary": "Ponyta is holding Twisted Spoon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Janice"
+			},
+			"summary": "beat Lass Janice (now at 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Masquerain takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-5",
+					"mon-7",
+					"mon-17",
+					"mon-1",
+					"mon-10"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Masquerain, Centiskorch, Hariyama, Grotle, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Payback",
+				"replace": "Fake Out"
+			},
+			"summary": "Hariyama forgot Fake Out, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Acid Spray"
+			},
+			"summary": "Carnivine forgot Acid Spray, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Sludge"
+			},
+			"summary": "Eelektrik forgot Sludge, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Solar Beam",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Carnivine forgot Razor Leaf, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Dawson"
+			},
+			"summary": "beat Rich Boy Dawson (now at 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Masquerain takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-15",
+					"mon-17",
+					"mon-5",
+					"mon-13",
+					"mon-18"
+				]
+			},
+			"summary": "Centiskorch takes the lead — with Eelektrik, Hariyama, Masquerain, Seadra, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Take Down",
+				"replace": "Helping Hand"
+			},
+			"summary": "Herdier forgot Helping Hand, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Hyper Voice",
+				"replace": "Bite"
+			},
+			"summary": "Herdier forgot Bite, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Jerry & Johnson"
+			},
+			"summary": "beat School Kid Jerry & Johnson (now at 111)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Ponyta takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-6",
+					"mon-14",
+					"mon-13",
+					"mon-15",
+					"mon-17"
+				]
+			},
+			"summary": "Centiskorch takes the lead — with Ponyta, Tirtouga, Seadra, Eelektrik, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Jose"
+			},
+			"summary": "beat Bug Catcher Jose (now at 115)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Ponyta takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-6",
+					"mon-15",
+					"mon-13",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Centiskorch takes the lead — with Ponyta, Eelektrik, Seadra, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Mega Drain",
+				"replace": "Bite"
+			},
+			"summary": "Grotle forgot Bite, learned Mega Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Sarah"
+			},
+			"summary": "beat Lady Sarah (now at 118)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-17",
+					"mon-18",
+					"mon-5",
+					"mon-10"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Centiskorch, Hariyama, Herdier, Masquerain, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Sludge",
+				"replace": "Shock Wave"
+			},
+			"summary": "Eelektrik forgot Shock Wave, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Solar Beam"
+			},
+			"summary": "Carnivine forgot Solar Beam, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Karen"
+			},
+			"summary": "beat School Kid Karen (now at 120)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5"
+				]
+			},
+			"summary": "Masquerain takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Masquerain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-13",
+					"mon-1",
+					"mon-10",
+					"mon-15",
+					"mon-17"
+				]
+			},
+			"summary": "Masquerain takes the lead — with Seadra, Grotle, Carnivine, Eelektrik, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Clark"
+			},
+			"summary": "beat Hiker Clark (now at 123)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Masquerain takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Grotle takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-10",
+					"mon-14",
+					"mon-15",
+					"mon-1",
+					"mon-17"
+				]
+			},
+			"summary": "Seadra takes the lead — with Carnivine, Tirtouga, Eelektrik, Grotle, Hariyama",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Devan"
+			},
+			"summary": "beat Hiker Devan (now at 125)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Grotle takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-9",
+					"mon-14",
+					"mon-15",
+					"mon-8",
+					"mon-10"
+				]
+			},
+			"summary": "Seadra takes the lead — with Rhyhorn, Tirtouga, Eelektrik, Shellos, Carnivine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Josh"
+			},
+			"summary": "beat Youngster Josh (now at 128)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": []
+			},
+			"summary": "the party is empty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Grotle takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-15",
+					"mon-17",
+					"mon-8",
+					"mon-10",
+					"mon-1"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eelektrik, Hariyama, Shellos, Carnivine, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Tommy"
+			},
+			"summary": "beat Youngster Tommy (now at 131)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1"
+				]
+			},
+			"summary": "Grotle takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Corvisquire, Exeggcute, Masquerain, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Exeggcute",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-14",
+					"mon-1",
+					"mon-10",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Seadra takes the lead — with Tirtouga, Grotle, Carnivine, Exeggcute, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Bullet Seed"
+			},
+			"summary": "Exeggcute forgot Bullet Seed, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Marc"
+			},
+			"summary": "beat Hiker Marc (now at 135)",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

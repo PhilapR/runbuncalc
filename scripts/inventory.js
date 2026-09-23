@@ -52,10 +52,15 @@ function inventory() {
 	const oracleCounts = {};
 	for (const file of fs.readdirSync(oracleDir).filter(f => f.endsWith('.json')).sort()) {
 		const data = JSON.parse(fs.readFileSync(path.join(oracleDir, file), 'utf8'));
+		// The last branch is a default, not a reading: it counts top-level keys
+		// and calls them species. A transcription filed by sheet has eleven of
+		// those and no species at all, so it needs its own branch or the
+		// inventory states a number that is simply untrue.
 		oracleCounts[file] = data.maps ? `${data.maps.length} maps` :
 			data.entries ? `${data.entries.length} entries` :
-				data.fields ? `${Object.keys(data.fields).length} fights` :
-					`${Object.keys(data.levelUp || data).length} species`;
+				data.sheets ? `${Object.values(data.sheets).reduce((a, b) => a + b, 0)} rows` :
+					data.fields ? `${Object.keys(data.fields).length} fights` :
+						`${Object.keys(data.levelUp || data).length} species`;
 	}
 
 	// The knowledge map: every claim the profile registers, grouped by how it
@@ -207,12 +212,18 @@ function render(inv) {
 	return lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
 }
 
-const output = render(inventory());
-if (process.argv.includes('--print')) {
-	process.stdout.write(output);
-} else {
-	fs.writeFileSync(path.join(root, 'docs', 'INVENTORY.md'), output);
-	console.log(`docs/INVENTORY.md written (${output.length} bytes)`);
+// Only when run, never when required: the gate (tests/inventory.test.js)
+// requires this module, and a write on load regenerated the file it then
+// compared, so the gate could not fail — and every test run left the doc
+// modified (found 2026-09-22).
+if (require.main === module) {
+	const output = render(inventory());
+	if (process.argv.includes('--print')) {
+		process.stdout.write(output);
+	} else {
+		fs.writeFileSync(path.join(root, 'docs', 'INVENTORY.md'), output);
+		console.log(`docs/INVENTORY.md written (${output.length} bytes)`);
+	}
 }
 
 module.exports = {inventory, render, DOCS_MARKER};

@@ -22,7 +22,7 @@ const ai = require('../ai');
 
 test('the run map loads in authored playthrough order', () => {
 	const fights = planner.loadRunMap();
-	assert.equal(fights.length, 362, 'expected every battle in the run map');
+	assert.equal(fights.length, 366, 'expected every battle in the run map');
 
 	for (let i = 1; i < fights.length; i++) {
 		assert.ok(
@@ -32,14 +32,15 @@ test('the run map loads in authored playthrough order', () => {
 	}
 
 	// The first fight is the run's opening battle. If this moves, either the
-	// progression index changed or the opening trainer did.
-	assert.equal(fights[0].trainer, 'Youngster Calvin');
+	// progression index changed or the opening trainer did — as it did on
+	// 2026-08-28, when the lost Route 103 rival was restored to the front.
+	assert.equal(fights[0].trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(fights[0].order, 0);
 });
 
 test('the caches are keyed by profile: a warm cache never answers for a stranger', () => {
 	// The failure this pins was silent: an unkeyed module-level cache, once
-	// warmed by run-and-bun, served its 362 fights to ANY profile id — so an
+	// warmed by run-and-bun, served its 366 fights to ANY profile id — so an
 	// unknown game got a confident wrong answer instead of a refusal.
 	planner.loadRunMap('run-and-bun');
 	assert.throws(() => planner.loadRunMap('bogus-game'), /unknown profile/i);
@@ -146,14 +147,14 @@ test('a party is grouped whole, including duplicate species', () => {
 	assert.equal(phil.party.length, 3);
 	assert.deepEqual(phil.party.map(m => m.species), ['Luvdisc', 'Luvdisc', 'Luvdisc']);
 	// Party order follows the progression index, not object key order.
-	assert.deepEqual(phil.party.map(m => m.index), [638, 639, 640]);
+	assert.deepEqual(phil.party.map(m => m.index), [643, 644, 645]);
 });
 
 test('listFights carries the coverage caveat', () => {
 	// A planner that reports fights without reporting what it is missing invites
 	// a caller to treat the run map as a complete trainer census. It is not.
 	const listed = planner.listFights();
-	assert.equal(listed.fights.length, 362);
+	assert.equal(listed.fights.length, 366);
 	assert.equal(listed.coverage.completeTrainerCensus, false);
 	assert.ok(listed.coverage.coversMandatoryProgression);
 });
@@ -233,10 +234,44 @@ const MATRIX_PARTY = [
 	{species: 'Mudkip', level: 5, moves: ['Water Gun', 'Tackle', 'Growl']},
 ];
 
+test('only their crit band is computed, because only their crit is a plan\'s problem', () => {
+	// The doctrine this rides on is stated in `matchupDirection`: their crit is
+	// what a plan has to survive, and our floor is what a plan may rely on. So
+	// the player-side band answers a question nobody is allowed to ask, and
+	// building it cost a second Calc.Move and a second Calc.calculate for every
+	// damaging move we could throw — 10,022 of the 25,975 objects an advise
+	// call used to build.
+	//
+	// The fields are ABSENT rather than zeroed. A plausible-looking number
+	// would be a quiet lie about a worst case; an absent one makes
+	// `us.critMax / hp` come back NaN, which is a caller finding out. That is
+	// the same choice `skipThem` makes for the same reason.
+	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: MATRIX_PARTY});
+	let sawThem = 0;
+	for (const cell of matrix.grid) {
+		for (const versus of cell.versus) {
+			for (const field of ['critMax', 'critMove', 'critKO', 'critPriority']) {
+				assert.equal(versus.us[field], undefined,
+					`us.${field} must not be computed: nothing reads it, and reading ` +
+					'it is what builds the crit calculation');
+			}
+			// Their side must still carry it, or the pessimal half of every
+			// plan in this repository quietly became an average.
+			if (versus.them && versus.them.move) {
+				assert.equal(typeof versus.them.critMax, 'number',
+					'them.critMax is what a plan has to survive');
+				assert.equal(typeof versus.them.critKO, 'boolean');
+				sawThem += 1;
+			}
+		}
+	}
+	assert.ok(sawThem > 0, 'the fixture must actually produce an enemy attack to price');
+});
+
 test('the matchup matrix covers every pair in both directions', () => {
 	const matrix = planner.matchup({trainer: 'Youngster Calvin', playerParty: MATRIX_PARTY});
 	assert.equal(matrix.trainer, 'Youngster Calvin');
-	assert.equal(matrix.order, 0);
+	assert.equal(matrix.order, 3);
 	assert.equal(matrix.borrowedPlayerBuild, false);
 
 	// A grid is only a grid if it is complete: one block per opposing Pokemon,
@@ -382,4 +417,95 @@ test('a matrix without a team is refused rather than guessed at', () => {
 		() => planner.matchup({trainer: 'Youngster Calvin', playerParty: []}),
 		/playerParty is required/
 	);
+});
+
+test('a lead\'s entry ability fires as the battle opens, and a strong weather is permanent', () => {
+	// No lead's entry ability ever fired: a state is built with its leads
+	// standing, and entry effects ran only on a switch. Champion Wallace's
+	// Primal Kyogre fought in a dry sky, so did every Drizzle lead, and no
+	// Intimidate lead ever cut an Attack.
+	const runtime = require('../lib/run.js');
+	const ai = require('../ai');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const built = (trainer, doc) => planner.buildFightState({trainer, playerParty: runtime.partySpecs(doc || saved, {}),
+		profileId: saved.profileId}).state;
+	const wallace = built('Champion Wallace');
+	assert.equal(wallace.field.weather, 'Heavy Rain', 'Primordial Sea');
+	assert.equal(built('Aqua Leader Archie Seafloor Cavern').field.weather, 'Rain', 'Drizzle');
+
+	// The rain stands while Kyogre does, and after it falls: ability weather is
+	// permanent in Run & Bun, strong weather included.
+	assert.equal(ai.settleStrongWeather(wallace).field.weather, 'Heavy Rain');
+	const kyogre = wallace.sides.ai.activeIds[0];
+	const fallen = {...wallace, sides: {...wallace.sides, ai: {...wallace.sides.ai,
+		party: wallace.sides.ai.party.map(mon => mon.id === kyogre ? {...mon, hp: {...mon.hp, current: 0}} : mon)}}};
+	assert.equal(ai.settleStrongWeather(fallen).field.weather, 'Heavy Rain', 'permanent: it outlives Kyogre');
+
+	// Our Intimidate lead cuts the foe's Attack before the first move.
+	const staraptor = saved.box.find(mon => mon.species === 'Staraptor');
+	const led = runtime.apply(saved, {kind: 'party', ids: [staraptor.id].concat(saved.party.filter(id => id !== staraptor.id)).slice(0, 6)});
+	const opened = built('Champion Wallace', led);
+	const foe = opened.sides.ai.party.find(mon => mon.id === opened.sides.ai.activeIds[0]);
+	assert.equal((foe.boosts || {}).atk, -1, 'Intimidate');
+});
+
+test('a matchup cell opens as the fight does: its numbers match a fight opened on the same two', () => {
+	// The board graded every cell without entry abilities after the fights had
+	// them, so the ranker chose sixes against a dry-sky Primal Kyogre and an
+	// Intimidate that never fired. A cell is now held to the fight itself.
+	const runtime = require('../lib/run.js');
+	const ai = require('../ai');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const led = species => {
+		const mon = saved.box.find(entry => entry.species === species);
+		return runtime.apply(saved, {kind: 'party', ids: [mon.id].concat(saved.party.filter(id => id !== mon.id)).slice(0, 6)});
+	};
+	// The fight's own number for one move, as a share of the target's HP.
+	const fightMax = (trainer, doc, side, moveName) => {
+		const state = planner.buildFightState({trainer, playerParty: runtime.partySpecs(doc, {}),
+			profileId: saved.profileId}).state;
+		const hit = ai.evaluateActions(state, ai.calculateActionFacts, side).find(entry => entry.action.moveName === moveName);
+		const target = state.sides[side === 'ai' ? 'player' : 'ai'].party
+			.find(mon => mon.id === hit.action.targetIds[0]);
+		return Math.max(...hit.facts.damage.rolls) / target.hp.max;
+	};
+	const cell = (trainer, doc, enemy, species) => planner.matchup({trainer, playerParty: runtime.partySpecs(doc, {}),
+		profileId: saved.profileId}).grid.find(row => row.enemy.species === enemy).versus.find(entry => entry.species === species);
+
+	// Their hit under their weather: Primal Kyogre's Origin Pulse in heavy rain.
+	const lopunny = led('Lopunny');
+	const rained = cell('Champion Wallace', lopunny, 'Kyogre-Primal', 'Lopunny');
+	assert.equal(rained.them.move, 'Origin Pulse');
+	assert.ok(Math.abs(rained.them.max - fightMax('Champion Wallace', lopunny, 'ai', 'Origin Pulse')) < 1e-9,
+		'the cell reads the rain the fight has: ' + rained.them.max);
+
+	// Our hit under their Intimidate: Lady Sarah leads Intimidate Granbull.
+	const staraptor = led('Staraptor');
+	const cut = cell('Lady Sarah', staraptor, 'Granbull', 'Staraptor');
+	const move = cut.us.move;
+	assert.ok(Math.abs(cut.us.max - fightMax('Lady Sarah', staraptor, 'player', move)) < 1e-9,
+		'the cell reads the Intimidate the fight has: ' + move + ' ' + cut.us.max);
+});
+
+test('a fight opens the same way every time: Trace and lead speed ties draw from a stream, not Math.random', () => {
+	// Our Porygon2's Trace faces two different abilities (Twins Gina And Mia:
+	// Cheek Pouch and Friend Guard), so the copy is a draw. It fell back to
+	// Math.random, so the same fight built twice could open two ways.
+	const party = [
+		{species: 'Porygon2', ability: 'Trace', level: 50, moves: ['Tackle']},
+		{species: 'Blissey', ability: 'Natural Cure', level: 50, moves: ['Tackle']},
+	];
+	const build = extra => planner.buildFightState(Object.assign({trainer: 'Twins Gina And Mia',
+		playerParty: party, profileId: 'run-and-bun', doubles: true}, extra)).state;
+	const traced = state => state.sides.player.party[0].abilityOverride;
+	const theirs = build({}).sides.ai.party.slice(0, 2).map(mon => mon.ability);
+	assert.notEqual(theirs[0], theirs[1], 'Trace has two abilities to choose from');
+	const seen = new Set();
+	for (let i = 0; i < 24; i++) seen.add(traced(build({})));
+	assert.equal(seen.size, 1, 'the same fight opens the same way: ' + Array.from(seen));
+	// A caller's own stream decides it instead, and both picks are reachable.
+	const picks = [0, 0.99].map(draw => traced(build({random: () => draw})));
+	assert.deepEqual(picks.slice().sort(), theirs.slice().sort(), 'opts.random picks the traced foe');
 });

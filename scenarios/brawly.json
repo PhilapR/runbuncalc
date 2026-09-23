@@ -1,0 +1,381 @@
+{
+	"comment": "The 19 leaders.json boxes whose next leader is Brawly, at 20 seeds: the set for measuring early-catch counterfactuals (--swap-catch) against the first gym wall. Every box caught a non-answer on Route 104, and Brawly's named answers Salandit, Combee (Vespiquen) and Yanma are all in that table.",
+	"generator": null,
+	"measured": [
+		{
+			"label": "r104-ctl-s0-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control, the box as caught at b3af778, adopted defaults, real PP, shard 0/2"
+		},
+		{
+			"label": "r104-ctl-s1-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control, the box as caught at b3af778, adopted defaults, real PP, shard 1/2"
+		},
+		{
+			"label": "r104-salandit-s0-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Salandit at b3af778, adopted defaults, real PP, shard 0/2"
+		},
+		{
+			"label": "r104-salandit-s1-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Salandit at b3af778, adopted defaults, real PP, shard 1/2"
+		},
+		{
+			"label": "r104-combee-s0-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Combee (fielded as Vespiquen) at b3af778, adopted defaults, real PP, shard 0/2"
+		},
+		{
+			"label": "r104-combee-s1-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Combee (fielded as Vespiquen) at b3af778, adopted defaults, real PP, shard 1/2"
+		},
+		{
+			"label": "r104-yanma-s0-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Yanma at b3af778, adopted defaults, real PP, shard 0/2"
+		},
+		{
+			"label": "r104-yanma-s1-pp",
+			"measured_in": "27ba6b8",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:Yanma at b3af778, adopted defaults, real PP, shard 1/2"
+		},
+		{
+			"label": "r104b-blipbug-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:blipbug at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-buizel-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:buizel at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-clauncher-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:clauncher at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-ctl-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-ekans-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:ekans at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-horsea-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:horsea at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-krabby-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:krabby at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-ledyba-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:ledyba at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-paras-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:paras at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-remoraid-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:remoraid at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-scatterbug-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:scatterbug at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-sizzlipede-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:sizzlipede at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-venipede-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:venipede at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "r104b-weedle-pp",
+			"measured_in": "a6816d5",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE104:weedle at e1c4ec5, adopted defaults, real PP"
+		},
+		{
+			"label": "early-ctl-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-dewford-chan-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_DEWFORD_TOWN:Tyrogue>Hitmonchan at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-dewford-lee-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_DEWFORD_TOWN:Tyrogue>Hitmonlee at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-dewford-top-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_DEWFORD_TOWN:Tyrogue>Hitmontop at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-granite-phanpy-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_GRANITE_CAVE_1F:Phanpy at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-oldale-fletchling-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_OLDALE_TOWN:Fletchling at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-petalburg-tympole-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_PETALBURG_CITY:Tympole at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r101-lillipup-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE101:Lillipup at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r101-pidgey-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE101:Pidgey at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r101-poochyena-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE101:Poochyena at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r101-starly-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE101:Starly at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r107-horsea-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE107:Horsea at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-r110-shinx-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_ROUTE110:Shinx at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-slateport-qwilfish-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_SLATEPORT_CITY:Qwilfish at 9d0f602, adopted defaults, real PP"
+		},
+		{
+			"label": "early-woods-gossifleur-pp",
+			"measured_in": "ab9ad9d",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--swap-catch=MAP_PETALBURG_WOODS:Gossifleur at 9d0f602, adopted defaults, real PP"
+		}
+	],
+	"scenarios": [
+		{
+			"name": "Leader Brawly [brbank1-A-1]",
+			"report": "fixtures/banked-runs/brbank1-A-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys1-A-2]",
+			"report": "fixtures/banked-runs/brkeys1-A-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys1-B-1]",
+			"report": "fixtures/banked-runs/brkeys1-B-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys2-A-1]",
+			"report": "fixtures/banked-runs/brkeys2-A-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys2-A-2]",
+			"report": "fixtures/banked-runs/brkeys2-A-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys2-B-1]",
+			"report": "fixtures/banked-runs/brkeys2-B-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-3]",
+			"report": "fixtures/banked-runs/brkeys3-A-3.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-4]",
+			"report": "fixtures/banked-runs/brkeys3-A-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-5]",
+			"report": "fixtures/banked-runs/brkeys3-A-5.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-6]",
+			"report": "fixtures/banked-runs/brkeys3-A-6.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-8]",
+			"report": "fixtures/banked-runs/brkeys3-A-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-2]",
+			"report": "fixtures/banked-runs/brkeys3-B-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-4]",
+			"report": "fixtures/banked-runs/brkeys3-B-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-8]",
+			"report": "fixtures/banked-runs/brkeys3-B-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-4]",
+			"report": "fixtures/banked-runs/brkeys3b-A-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-6]",
+			"report": "fixtures/banked-runs/brkeys3b-A-6.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-7]",
+			"report": "fixtures/banked-runs/brkeys3b-A-7.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-8]",
+			"report": "fixtures/banked-runs/brkeys3b-A-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-B-5]",
+			"report": "fixtures/banked-runs/brkeys3b-B-5.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		}
+	]
+}

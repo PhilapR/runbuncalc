@@ -1,0 +1,575 @@
+{
+  "probe": "u4-dragon-dance-faster-2hko",
+  "protocol": "two-turn",
+  "description": "Control for u3: same 2HKO threat but Dragonite is faster (spe 120).",
+  "hypothesis": "Dragon Dance 106 (no -5); Dragon Claw 106/108; mix",
+  "player": {
+    "species": 131,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Ice Beam",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 85,
+      "spd": 80,
+      "spe": 100
+    },
+    "ability": 50,
+    "types": [
+      11,
+      15
+    ]
+  },
+  "enemy": {
+    "species": 149,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Dragon Dance",
+      "Dragon Claw",
+      "Wing Attack"
+    ],
+    "stats": {
+      "hp": 260,
+      "atk": 80,
+      "def": 120,
+      "spa": 40,
+      "spd": 120,
+      "spe": 120
+    },
+    "ability": 50,
+    "types": [
+      16,
+      2
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 0,
+  "n_seeds": 20,
+  "distribution": {
+    "Dragon Claw": 12,
+    "Dragon Dance": 8
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      0,
+      46,
+      48,
+      51,
+      52,
+      54,
+      72
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 52,
+      "damage_to_b": 0,
+      "hp_a_after": 348,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 696,
+      "rng_after": "0x2e9e1d42",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Dragon Dance",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 1077,
+      "rng_after": "0x0c9fb622",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Dragon Dance",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 1077,
+      "rng_after": "0x6341b753",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 51,
+      "damage_to_b": 0,
+      "hp_a_after": 349,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 696,
+      "rng_after": "0x8f7992f5",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 72,
+      "damage_to_b": 0,
+      "hp_a_after": 328,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 822,
+      "rng_after": "0x2285e3bc",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 54,
+      "damage_to_b": 0,
+      "hp_a_after": 346,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 696,
+      "rng_after": "0x9fceac28",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        108,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Dragon Dance",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 1077,
+      "rng_after": "0x1a216879",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 52,
+      "damage_to_b": 0,
+      "hp_a_after": 348,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 696,
+      "rng_after": "0x8be6d46c",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 48,
+      "damage_to_b": 0,
+      "hp_a_after": 352,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 695,
+      "rng_after": "0x1ca1a123",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 51,
+      "damage_to_b": 0,
+      "hp_a_after": 349,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 696,
+      "rng_after": "0x5e15c8e2",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Dragon Dance",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 1077,
+      "rng_after": "0xc4cf51a4",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 48,
+      "damage_to_b": 0,
+      "hp_a_after": 352,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 695,
+      "rng_after": "0xfa7d128a",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 54,
+      "damage_to_b": 0,
+      "hp_a_after": 346,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 696,
+      "rng_after": "0x0ab232bd",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 695,
+      "rng_after": "0x2f963ab5",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 51,
+      "damage_to_b": 0,
+      "hp_a_after": 349,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 696,
+      "rng_after": "0xccc4dc9c",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Dragon Dance",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 1077,
+      "rng_after": "0x63c29cea",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Dragon Claw",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 52,
+      "damage_to_b": 0,
+      "hp_a_after": 348,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 696,
+      "rng_after": "0xed040812",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Dragon Dance",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 1077,
+      "rng_after": "0x9e5886b9",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Dragon Dance",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 1077,
+      "rng_after": "0xe780be53",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Dragon Dance",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 0,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 260,
+      "sleep_turns_a": 0,
+      "frames": 1077,
+      "rng_after": "0xe73ad118",
+      "resolved": true,
+      "ai_scores": [
+        81,
+        106,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Splash": [
+      81
+    ],
+    "Dragon Dance": [
+      106
+    ],
+    "Dragon Claw": [
+      106,
+      108
+    ],
+    "Wing Attack": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

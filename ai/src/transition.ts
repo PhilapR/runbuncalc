@@ -1,11 +1,12 @@
-import {actionKey, canEscapeTrappingEffect, enumerateMoveActions, getPokemon, isChoiceItem, isSwitchBlockedByAbility, sideForPokemon} from './actions';
+import {actionKey, canEscapeTrappingEffect, enumerateMoveActions, getPokemon, isChoiceItem, isSelectableMoveAction, isSwitchBlockedByAbility, sideForPokemon} from './actions';
 import {getEffectiveAbility, isAbilityActive, isAbilityAvailable} from './abilities';
 import {applyEndTurnResolution, deriveEndTurnResolution, EndTurnOptions} from './end-turn';
 import {deriveSwitchEntryResolution, SwitchEntryOptions} from './entry-hazards';
+import {settleStrongWeather} from './strong-weather';
 import {getMoveMaxPP, getMoveMetadata} from './move-metadata';
 import {isMimicryActive, mimicryTypeOverride} from './mimicry';
 import {weatherFormSpeciesOverride} from './weather-forms';
-import {getActionOrderFacts} from './order';
+import {getActionOrderFacts, getEffectivePokemonSpeed} from './order';
 import {isItemEffectActive} from './items';
 import {
   Action,
@@ -532,21 +533,6 @@ function decrementVolatile(state: BattleState, pokemon: BattleState['sides'][Sid
   return {...pokemon, volatile: Object.keys(volatile).length ? volatile : undefined};
 }
 
-function decrementSleep(
-  state: BattleState,
-  pokemon: BattleState['sides'][SideId]['party'][number],
-  generation: BattleState['generation'],
-) {
-  if (pokemon.status !== 'slp' || pokemon.statusTurns === undefined) return pokemon;
-  const decrement = generation >= 3 && isAbilityActive(pokemon, state) &&
-    moveId(getEffectiveAbility(pokemon)) === 'earlybird' ? 2 : 1;
-  const statusTurns = pokemon.statusTurns - decrement;
-  if (statusTurns <= 0) {
-    return {...pokemon, status: '' as const, statusTurns: undefined, toxicCounter: undefined};
-  }
-  return {...pokemon, statusTurns};
-}
-
 function decrementSideDurations(state: BattleState, side: BattleState['sides'][SideId]) {
   const effects = {...(side.effects || {})};
   const durations = {...(side.effectDurations || {})};
@@ -569,7 +555,7 @@ function decrementSideDurations(state: BattleState, side: BattleState['sides'][S
   return {
     ...side,
     party: side.party.map(pokemon => side.activeIds.includes(pokemon.id)
-      ? decrementSleep(state, decrementVolatile(state, pokemon), state.generation)
+      ? decrementVolatile(state, pokemon)
       : pokemon),
     effects: Object.keys(effects).length ? effects : undefined,
     effectDurations: Object.keys(durations).length ? durations : undefined,
@@ -886,11 +872,17 @@ export function recordMoveAction(state: BattleState, action: MoveAction): Battle
   const actor = getPokemon(state, action.actorId);
   const move = actor?.moves.find(candidate => candidate.name === action.moveName);
   const isStruggle = moveId(action.moveName) === 'struggle';
+  // Offered at resolution, or at least selectable: a move that lost its
+  // effect mid-turn is used and fails, it is not an illegal action.
   const isEnumerated = enumerateMoveActions(state, sideId)
-    .some(candidate => actionKey(candidate) === actionKey(action));
+    .some(candidate => actionKey(candidate) === actionKey(action)) ||
+    isSelectableMoveAction(state, sideId, action);
 
   if (!actor || !side.activeIds.includes(actor.id) || actor.hp.current <= 0 ||
-    (!isStruggle && !move) || (!isStruggle && !actor.volatile?.recharge && (move!.disabled || move!.pp === 0)) ||
+    // A charge release (Bounce's second turn) spends no PP, so the charge
+    // turn may have spent the last: Magikarp's Bounce was refused in the air.
+    (!isStruggle && !move) || (!isStruggle && !actor.volatile?.recharge &&
+      (move!.disabled || (move!.pp === 0 && !actor.volatile?.charge))) ||
     !isEnumerated) {
     throw new Error('Move action is not legal in this battle state');
   }
@@ -1266,7 +1258,17 @@ export function resolveMoveAction(
   const actor = getPokemon(state, action.actorId);
   const truantActive = actor ? isTruantActive(state, actor) : false;
   const truantLoafing = truantActive && !!actor?.volatile?.truant;
-  if (truantLoafing && resolution.actionFailure !== 'truant') {
+  // Sleep and freeze stop the action before Truant runs. Showdown orders
+  // onBeforeMove by priority: slp/frz 10, truant 9. A sleeping or frozen
+  // Truant mon therefore neither loafs nor re-arms: its flag stays as it was.
+  const stoppedBeforeTruant = resolution.actionFailure === 'sleep' ||
+    resolution.actionFailure === 'freeze';
+  // Recharge gates ahead of all of them (mustrecharge 11) and spends an owed
+  // loaf with it: the recharge turn IS the loafing turn. The move engine's
+  // resolution clears both flags, on the failed-move path below.
+  const rechargeTurn = !!actor?.volatile?.recharge &&
+    moveId(action.moveName) === moveId(actor.volatile.recharge.moveName);
+  if (truantLoafing && resolution.actionFailure !== 'truant' && !stoppedBeforeTruant && !rechargeTurn) {
     throw new Error('Truant requires a truant action failure while loafing');
   }
   if (!truantLoafing && resolution.actionFailure === 'truant') {
@@ -1325,7 +1327,7 @@ export function resolveMoveAction(
   }
   const hpDeltaByPokemon = {...(resolution.hpDeltaByPokemon || {})};
   const volatileByPokemon = {...(resolution.volatileByPokemon || {})};
-  if (actor && truantActive) {
+  if (actor && truantActive && !stoppedBeforeTruant) {
     volatileByPokemon[actor.id] = {
       ...(volatileByPokemon[actor.id] || {}),
       truant: truantLoafing ? null : {},
@@ -1354,9 +1356,12 @@ export function resolveMoveAction(
   validatePokemonMap(state, action, resolution.statOverridesByPokemon, 'Stat override');
   validatePokemonMap(state, action, resolution.movesByPokemon, 'Move set');
   validatePokemonMap(state, action, resolution.copyMoveByPokemon, 'Copied move');
-  validatePokemonMap(state, action, resolution.calledMoveModifiersByPokemon, 'Called move modifiers');
-  validatePokemonMap(state, action, resolution.calledMoveTargetIdsByPokemon, 'Called move targets');
-  validatePokemonMap(state, action, resolution.calledMoveExternalByPokemon, 'Called move external');
+  validatePokemonMap(state, action, resolution.calledMoveModifiersByPokemon, 'Called move modifiers', true);
+  // A Dancer ally copies the dance: its called move (targets, external
+  // marker, modifiers) is keyed by an active responder, not by the actor or
+  // a target of the move.
+  validatePokemonMap(state, action, resolution.calledMoveTargetIdsByPokemon, 'Called move targets', true);
+  validatePokemonMap(state, action, resolution.calledMoveExternalByPokemon, 'Called move external', true);
   validatePokemonMap(state, action, resolution.forcedSwitchByPokemon, 'Forced switch');
   validatePokemonMap(state, action, resolution.batonPassByPokemon, 'Baton Pass switch');
   validatePokemonMap(state, action, resolution.substitutePassByPokemon, 'Substitute switch');
@@ -1369,7 +1374,9 @@ export function resolveMoveAction(
   validatePokemonMap(state, action, resolution.toxicCounterByPokemon, 'Toxic counter');
   validatePokemonMap(state, action, resolution.boostsByPokemon, 'Boost', true);
   validatePokemonMap(state, action, resolution.resetBoostsByPokemon, 'Boost reset');
-  validatePokemonMap(state, action, resolution.setBoostsByPokemon, 'Boost set');
+  // White Herb restores any active holder's lowered stages after an action,
+  // ally or foe, target or not — the same responders 'Boost' admits.
+  validatePokemonMap(state, action, resolution.setBoostsByPokemon, 'Boost set', true);
   for (const [id, swap] of Object.entries(resolution.allySwitchByPokemon || {})) {
     if (typeof swap !== 'boolean') throw new Error(`Ally Switch state for ${id} must be boolean`);
     if (!swap) continue;
@@ -1871,7 +1878,11 @@ export function beginNextTurn(state: BattleState): BattleState {
 
 /** Resolve modeled residual effects, then advance timers and the turn counter. */
 export function advanceTurn(state: BattleState, options: EndTurnOptions = {}): BattleState {
-  return beginNextTurn(applyEndTurnResolution(state, deriveEndTurnResolution(state, options)));
+  // A strong-weather holder that fainted to a residual takes its weather with
+  // it (Showdown clears it on the holder's End event), before any replacement
+  // enters.
+  return beginNextTurn(settleStrongWeather(
+    applyEndTurnResolution(state, deriveEndTurnResolution(state, options))));
 }
 
 export function applyAction(
@@ -1879,7 +1890,71 @@ export function applyAction(
   action: Action,
   resolution?: MoveResolution,
 ): BattleState {
-  if (action.kind === 'switch') return applySwitchAction(state, action);
+  if (action.kind === 'switch') return settleStrongWeather(applySwitchAction(state, action));
   if (!resolution) throw new Error('Move resolution is required for move actions');
-  return resolveMoveAction(state, action, resolution);
+  return settleStrongWeather(resolveMoveAction(state, action, resolution));
+}
+
+export {settleStrongWeather};
+
+/**
+ * Gen 8 orders a speed tie at random (Showdown's speedSort shuffles equal
+ * speeds with the battle's PRNG). With a random stream, each run of equal
+ * speeds in the sorted list is shuffled by it; the stream is drawn from only
+ * when a tie exists. Without one the order stays as given — player leads
+ * before ai leads — which is deterministic and not the game's rule; a caller
+ * that wants the game's rule passes its fight's stream.
+ */
+function breakSpeedTies<T>(sorted: T[], speedOf: (entry: T) => number, random?: () => number): void {
+  if (!random) return;
+  let start = 0;
+  while (start < sorted.length) {
+    let end = start + 1;
+    while (end < sorted.length && speedOf(sorted[end]) === speedOf(sorted[start])) end += 1;
+    for (let i = end - 1; i > start; i -= 1) {
+      const roll = random();
+      if (!Number.isFinite(roll)) throw new Error('Speed tie sampler must return a finite number');
+      const j = start + Math.floor(Math.max(0, Math.min(0.999999999999, roll)) * (i - start + 1));
+      [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
+    }
+    start = end;
+  }
+}
+
+/**
+ * The leads' entry effects, at the start of the battle. A battle state is
+ * built with its leads already standing, and entry effects only ran on a
+ * switch — so no lead's ability ever fired: Drizzle Kyogre and Pelipper
+ * opened in a dry sky, Primal Kyogre too, and no Intimidate lead ever cut an
+ * Attack. The game activates them fastest first, so a slower setter's weather
+ * is the one that stays; a speed tie is ordered by `options.random` (see
+ * breakSpeedTies), the same stream Trace draws its pick from.
+ */
+export function applyLeadEntries(state: BattleState, options: SwitchEntryOptions = {}): BattleState {
+  // A battle opens once. A second call returned a second opening: Intimidate
+  // cut Attack twice.
+  if (state.leadEntriesApplied) return state;
+  // A fainted lead does not enter: no Intimidate, no weather from 0 HP.
+  const leads = (['player', 'ai'] as const).flatMap(sideId =>
+    state.sides[sideId].activeIds.map(pokemonId => ({sideId, pokemonId})))
+    .filter(lead => {
+      // An unknown id is kept, so the speed read below names it and throws.
+      const pokemon = getPokemon(state, lead.pokemonId);
+      return !pokemon || pokemon.hp.current > 0;
+    });
+  // No fallback: a speed that cannot be read is a malformed state, and a
+  // silent 0 would order that lead last and hand it the weather.
+  const speed = (pokemonId: string): number => {
+    const value = getEffectivePokemonSpeed(state, pokemonId);
+    if (!Number.isFinite(value)) throw new Error(`Lead ${pokemonId} has no readable speed (${value})`);
+    return value;
+  };
+  leads.sort((a, b) => speed(b.pokemonId) - speed(a.pokemonId));
+  breakSpeedTies(leads, lead => speed(lead.pokemonId), options.random);
+  let next = state;
+  for (const lead of leads) {
+    const action = {kind: 'switch' as const, actorId: lead.pokemonId, replacementId: lead.pokemonId};
+    next = applySwitchEntryResolution(next, lead.sideId, lead.pokemonId, deriveSwitchEntryResolution(next, action, options));
+  }
+  return {...next, leadEntriesApplied: true};
 }

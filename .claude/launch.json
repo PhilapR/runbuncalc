@@ -1,0 +1,41 @@
+{
+	"version": "0.0.1",
+	"configurations": [
+		{
+			"name": "runbun",
+			"runtimeExecutable": "node",
+			"runtimeArgs": [
+				"lib/server.js"
+			],
+			"port": 3000
+		},
+		{
+			"name": "mlflow",
+			"runtimeExecutable": "uv",
+			"runtimeArgs": [
+				"run",
+				"--project",
+				"experiments",
+				"mlflow",
+				"ui",
+				"--backend-store-uri",
+				"sqlite:///experiments/mlflow.db",
+				"--host",
+				"127.0.0.1",
+				"--port",
+				"5555"
+			],
+			"port": 5555
+		},
+		{
+			"name": "watch-runs",
+			"runtimeExecutable": "node",
+			"runtimeArgs": [
+				"insight/dist/src/serve.js",
+				"--dir=ui-playthrough-out/runs",
+				"--port=4173"
+			],
+			"port": 4173
+		}
+	]
+}

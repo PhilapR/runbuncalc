@@ -99,7 +99,8 @@
 			"why": "Operator ruling on how Run & Bun actually serves egg moves.",
 			"enforcedBy": [
 				"lib/run.js",
-				"tests/run.test.js"
+				"tests/run.test.js",
+				"tests/run_advise.test.js"
 			]
 		},
 		{
@@ -110,6 +111,7 @@
 			"enforcedBy": [
 				"lib/run.js",
 				"tests/run.test.js",
+				"tests/run_advise.test.js",
 				"tests/server.smoke.test.js"
 			]
 		},
@@ -121,7 +123,7 @@
 			"enforcedBy": [
 				"lib/planner.js",
 				"tests/planner.test.js",
-				"tests/run.test.js",
+				"tests/run_advise.test.js",
 				"ai/src/move-metadata.ts"
 			]
 		},
@@ -175,7 +177,8 @@
 			"enforcedBy": [
 				"calc/src/test/fork.test.ts",
 				"ai/src/test/volatile-legality.test.ts",
-				"profiles/run-and-bun/index.js"
+				"profiles/run-and-bun/index.js",
+				"tests/runbun_mechanics.test.js"
 			]
 		},
 		{
@@ -196,7 +199,8 @@
 			"why": "The evolve command took a Ludicolo no Water Stone ever paid for, and the advisor graded level-21 Treeckos as Treeckos — which called Brawly unwinnable (0/30 rollouts) when the same box evolved won 27/30.",
 			"enforcedBy": [
 				"lib/run.js",
-				"tests/run.test.js"
+				"tests/run.test.js",
+				"tests/run_advise.test.js"
 			]
 		},
 		{
@@ -290,6 +294,228 @@
 				"lib/run.js",
 				"tests/run.test.js"
 			]
+		},
+		{
+			"id": "a-voluntary-switch-is-priced",
+			"date": "2026-09-18",
+			"ruling": "A voluntary switch is priced the way a forced replacement is: the candidate is seated and charged the hit it concedes on the way in, and the panel shows that race on every switch button. The automated policy's lost-race switch goes only to a body that wins that race; with no winner it stays and attacks. --switch-priced=0 (and driver.setSwitchPricing(false)) restore the old type-multiplier switch for arms that measure against it.",
+			"why": "The old switch judged 'resists' by the move on the threat line, the foe's hardest hit against the body in play, and sent Rhyhorn into Surf on all twenty Lass Haley seeds. Priced, it gains 227 seeds and loses 143 on 77 held-out fights (real PP, p < 0.0001, receipts 540165b). Adopted by the operator knowing seven of those fights lose 5+ seeds each: overall win rate was ruled the measure, over the per-fight veto.",
+			"enforcedBy": [
+				"lib/battle-driver.js",
+				"tests/battle-driver.test.js",
+				"scripts/ui-playthrough.js",
+				"tests/playthrough_policy.test.js"
+			]
+		},
+		{
+			"id": "the-battery-re-picks-like-a-live-run",
+			"date": "2026-09-18",
+			"ruling": "A battery scenario fields the ranker's six against its own trainer, lead first, as a live run does when it presses Rank before a fight. --repick-party=0 plays the banked party verbatim. Receipts record the defaults they ran under, and battery-tape.js replays a receipt without that record under the pre-adoption defaults.",
+			"why": "The battery played whatever six the banked run last set, against a trainer it may never have been picked for, so it measured a pre-fight choice no live run makes. Re-picking gains 339 seeds and loses 183 on the held-out fights (real PP, receipts e6722f6), and with the priced switch 391 against 158 (fuel-free, receipts 540165b). Adopted together with a-voluntary-switch-is-priced, the same trade on the per-fight veto.",
+			"enforcedBy": [
+				"scripts/scenario-battery.js",
+				"scripts/battery-tape.js",
+				"tests/battery_receipts.test.js"
+			]
+		},
+		{
+			"id": "the-battery-picks-the-six-by-play",
+			"date": "2026-09-18",
+			"ruling": "A re-picking battery scenario fields, of the ranker's first six sixes, the one that wins most of six selection fights played by the real policy on seeds 100001-100006, disjoint from every evaluation seed; a tie keeps the ranker's order. --pick-by-play=0 fields the ranker's first six. The receipt records every tally; battery-tape.js replays a receipt without the record as --pick-by-play=0. The live run still fields the ranker's first six.",
+			"why": "The ranker scores a six with an assignment-following playout that is not the policy that fights: at Roxanne its pWin tracks wins at r = 0.13. On the 87 held-out fights with real PP, picking by play won 1430 of 1740 seeds against the adopted defaults' 1356 (+102 -28, p = 4.4e-11, receipts 2111544), +29 without the largest trainer, and no fight worse than -2. It costs 36 selection fights per scenario, about twice the battery's time.",
+			"enforcedBy": [
+				"scripts/scenario-battery.js",
+				"scripts/battery-tape.js",
+				"tests/battery_receipts.test.js"
+			]
+		},
+		{
+			"id": "the-set-score-prices-shared-weakness",
+			"date": "2026-09-18",
+			"ruling": "rankParties charges a six EXPOSURE_WEIGHT (0.5) per member an enemy one-shots from the slower side, summed over enemies, in the live ranker and the battery alike. exposureWeight: 0 and --set-exposure=0 restore the ranker as it stood. Receipts record the weight; battery-tape.js replays a receipt without the record at 0.",
+			"why": "The set score sums each enemy's best answer, so it cannot see a six whose members share a weakness; among the ranker's top six sixes it tracked play at r = 0.006. The term gained +80 seeds on heldout1+2 (in-sample by fight, p = 1.3e-8, receipts 4e41406) and +54 on heldout3's 80 unseen boxes (p = 2.5e-4), and +40 on top of pick-by-play (p = 0.002, receipts ef4718e). It costs nothing at Rank time. Battle Girl Luna loses 38 to it on the ranker's first six; that is open.",
+			"enforcedBy": [
+				"lib/run.js",
+				"scripts/scenario-battery.js",
+				"scripts/battery-tape.js",
+				"tests/run_rank.test.js",
+				"tests/battery_receipts.test.js"
+			]
+		},
+		{
+			"id": "races-read-the-engine-speed",
+			"date": "2026-09-19",
+			"ruling": "The race, the threat line and the switch prices read each Pokemon's effective Speed from the engine (ai.getEffectivePokemonSpeed). --real-speed=0 (driver.setRealSpeed(false)) restores the old constant zero for arms that measure against it; battery-tape.js replays a receipt without the record at 0.",
+			"why": "speedOf called ai.buildStats, which the engine never exported, so from 3b9f53e (2026-08-21) every Speed read 0: no body was ever faster, every tied race read lost, and the threat line said \"they act first\" on every turn. Bar declared before the run (not worse on heldout2 + heldout3, real PP, no fight net -5): 154 fights, wins 2686 -> 2718, +92 -60, net +32, p = 0.012, no fight net -5. Adopted on the declared bar as an engine-deficiency fix inside the operator's standing request, not by a separate operator ruling; the operator may overrule.",
+			"enforcedBy": [
+				"lib/battle-driver.js",
+				"tests/semi_invulnerable.test.js",
+				"scripts/scenario-battery.js",
+				"scripts/headless-run.js"
+			]
+		},
+		{
+			"id": "a-double-is-searched-jointly",
+			"date": "2026-09-19",
+			"ruling": "A double is played with our two actives searched as ONE choice (driver.setDoublesJoint, --doubles-joint=1), four rollouts a pair (--doubles-search=4), and the party is taught its doubles tools before the fight (--doubles-prep=1: Fake Out, Wide Guard, Icy Wind, Protect, Helping Hand, Tailwind, at most two bodies, never over a priority move). --doubles-search=0 restores the engine's own hand.",
+			"why": "Doubles are the road's blocker: Trainer Rival Bridge (a double) went 0 of 120 attempts in sweep 13's deepest run, and that run's doubles were 24 of 198. Measured on 67 states taken from real runs at the doubles they fought, 6 seeds each (402 paired fights), real PP: the joint search with the prep won 363 against the engine hand's 326 (net +37, p < 0.0001, no state net -3), the joint search alone +20 (p = 0.027, one state -3), and the prep alone -1 (p = 1.0) — the tools only pay with a hand that uses them. It costs about 20 seconds a fight against 0.16. Rows: scenarios/measurements/doubles-arms.json (scratch runners, not a battery batch). Adopted on the declared bar inside the operator's standing request; the operator may overrule.",
+			"enforcedBy": [
+				"lib/battle-driver.js",
+				"scripts/scenario-battery.js",
+				"scripts/headless-run.js",
+				"tests/doubles.test.js"
+			]
+		},
+		{
+			"id": "a-tm-is-a-one-time-item",
+			"date": "2026-09-20",
+			"ruling": "A TM is a ONE-TIME item: a move whose only free route is the teachable pool requires that TM in the bag and spends it, unless the TM is an HM (reusable) or one of the ten the Lilycove Department Store re-sells. A move a tutor teaches stays free, because a tutor is a service. The learnable surfaces name the TM a move costs and whether the bag holds one, so no surface offers what the run cannot pay for.",
+			"why": "Operator ruling, 2026-09-20 ('we need a TM case for the available TM'), against the author's own sources: the Run & Bun FAQ (gbacodes.com/pokemon-run-bun-faq) and the release thread say TMs are a limited resource, mostly one-time, with a few re-sold at the Lilycove Department Store, and that Heart Scales cannot be farmed (one maxes an IV, three change a nature). The 'TMHMs and Move Tutors' sheet had never been transcribed, so the ledger held no TM, every teach of a TM move was free, and runs taught Rock Blast 42 times from a TM they never owned and Earthquake from a TM lying in Victory Road while fighting in the Brawly era. Every banked run predates this and is invalid under it: the audit's replay refuses those teaches by name.",
+			"enforcedBy": [
+				"lib/run.js",
+				"profiles/run-and-bun/oracle.js",
+				"tests/run.test.js",
+				"scripts/audit-run.js"
+			]
+		},
+		{
+			"id": "money-and-balls-are-not-modelled",
+			"date": "2026-09-20",
+			"ruling": "Money and Poke Balls are deliberately NOT modelled: a mart purchase costs nothing in the run document and a catch consumes no ball. The audit therefore cannot see either, and must not claim to — a run's validity says nothing about what it could afford.",
+			"why": "Operator ruling, 2026-09-20: money is generally not a restriction in this game. Sized before ruling, across 27 banked runs: 15.4 mart purchases and 32.4 catches a run, all free. The item ledger carries locations, not prices, so modelling either would need price data from the ROM rather than the documentation. Revisit only if a run's depth turns out to hinge on buying more than the game would allow.",
+			"enforcedBy": [
+				"scripts/audit-run.js"
+			]
+		},
+		{
+			"id": "remembering-a-move-costs-a-scale",
+			"date": "2026-09-20",
+			"ruling": "The second nurse's menu is the model: REMEMBER A MOVE — an egg move or one from a previous learnset — costs one Heart Scale; MAXIMIZE IVs costs one; CHANGE NATURE costs three; FORGET A MOVE, CHANGE NICKNAME and APPLY STATUS are free. Only the level-up's own prompt is free for a move, and it stands until that body's next level-up (run.apply records it as mon.prompted). The harness spends a scale only on a body that fights.",
+			"why": "Operator, reading the menu in game (2026-09-20). Before this the harness relearned any passed level-up move for nothing — about 276 free relearns a run, against a game that holds thirty Heart Scales in total — so every banked run's moveset was richer than the game allows. The level-up prompt keeps a run from being starved unfairly: a move the level-up offers while the moveset is full may still be taken over something, free, right then.",
+			"enforcedBy": [
+				"lib/run.js",
+				"scripts/headless-run.js",
+				"tests/run.test.js",
+				"tests/run_advise.test.js",
+				"tests/headless_run.test.js"
+			]
+		},
+		{
+			"id": "forget-and-apply-status-are-free",
+			"date": "2026-09-20",
+			"ruling": "FORGET A MOVE and APPLY STATUS are free at the nurse and are NOT yet modelled. Forgetting matters for dropping an HM move or arming Last Resort; applying status before a fight matters twice — a body that already carries a status cannot be given a worse one (sleep, burn), and poison or burn can be used to pre-damage a body to a chosen HP.",
+			"why": "Operator, reading the menu in game (2026-09-20). Recorded now so the capability is not forgotten: it is a real strategic lever this run has never used, and both walls the road ends at (Norman's Cinccino flinches, Archie's Dark Void and Hypnosis leads) are exactly the kind of fight a pre-applied status answers.",
+			"enforcedBy": [
+				"docs/IMPROVEMENT-AUDIT.md"
+			]
+		},
+		{
+			"id": "the-game-corner-pays-once",
+			"date": "2026-09-20",
+			"ruling": "The Game Corner pays out ONE Pokemon a run. The player chooses the tier, from any tier whose gym is beaten; the prize is random within that tier. It is therefore an option with an exercise date: taken after Brawly it is a Smoochum, Elekid or Magby, and held to the Rain Badge it is Mew, Celebi, Jirachi or Victini. lib/run.js refuses a second prize, a species outside its tier, and a tier whose leader is not beaten.",
+			"why": "Operator, who has played it (2026-09-20). The author's workbook says only that each badge 'unlocks a new set' and that the prize is random within it; one player record (x.com/moxittv/status/1771610582745047503) delays the pull all game for the Rain Badge set, which agrees. CONSEQUENCE: scripts/headless-run.js claimed one prize PER BADGE from its introduction until this ruling. Every sweep run that passed Leader Roxanne held prize bodies a real run cannot, and scripts/audit-run.js now FAILS such a run. Depth tallies past Roxanne from before this date are over-supplied and are not comparable with runs after it.",
+			"enforcedBy": [
+				"lib/run.js",
+				"scripts/headless-run.js",
+				"scripts/audit-run.js",
+				"tests/run.test.js",
+				"tests/audit_run.test.js",
+				"profiles/run-and-bun/oracle/sources.json"
+			]
+		},
+		{
+			"id": "losers-are-ranked-by-work",
+			"date": "2026-09-21",
+			"ruling": "When every forced replacement loses its race, the automated hand sends the one that removes the most of the foe before it falls (acts before death over turns to kill, from the priced race the panel already prints on each switch button). A replacement that wins is never displaced and winners keep their order. --loser-work=0 restores armed, resistance, health.",
+			"why": "Found at Norman with the knockout record: with three losers benched the hand sent Ampharos (three turns to kill, one to die, slower) into Huge Power Diggersby, where it fell to one Earthquake having done nothing. Bar declared before the run. heldout2, 74 fights x 20 seeds, real PP, paired at revision 16fb345: 23 seeds lost, 51 gained, net +28 of 1480, McNemar exact two-sided p = 0.0015; worst scenario -2 against a veto of -5; positive at seven of the eight trainers that moved; without the largest contributor (Breeder Isaac, +12) still 18 vs 34, p = 0.037. The treatment fired 2241 times. First policy arm of four to pass held-out in this stretch.",
+			"enforcedBy": [
+				"scripts/ui-playthrough.js",
+				"lib/battle-view.js",
+				"scripts/battery-tape.js",
+				"scripts/scenario-battery.js",
+				"tests/playthrough_policy.test.js",
+				"scenarios/receipts/lw-c.json",
+				"scenarios/receipts/lw-t.json"
+			]
+		},
+		{
+			"id": "over-cap-is-legal-when-candied",
+			"date": "2026-09-21",
+			"ruling": "A party member over the level cap is LEGAL when Rare Candies paid for the levels above the cap. A body CAUGHT over the cap (Route 118's level-50 grass, reached at cap 35) has paid for nothing and may not fight until the cap reaches its level. scripts/audit-run.js FAILS a fight that fields such a body and PASSES candied levels; lib/run.js already debits one Rare Candy per level over the cap and refuses without it.",
+			"why": "Operator, 2026-09-21: 'an over cap party legal if rare candies got us there'. This closes the audit's standing WARN. It also unblocks the backlog's 'over-cap candy at stat walls': the game holds 14 Rare Candies, and spending them on the six before a stat wall (Norman's back three outspeed every body in every legal box) is now a legal lever, never yet exercised.",
+			"enforcedBy": [
+				"scripts/audit-run.js",
+				"lib/run.js",
+				"tests/audit_run.test.js"
+			]
+		},
+		{
+			"id": "one-scale-one-stat-and-the-harbor-swap",
+			"date": "2026-09-21",
+			"ruling": "Two operator confirmations from play. (1) MAXIMIZE IVs at the nurse sets ONE stat to 31 for one Heart Scale, not all six; lib/run.js heartScale already models it that way. (2) The Slateport Harbor trade is RE-SWAPPABLE: the Scanner buys one of Assault Vest, Leftovers, Choice Band, Choice Scarf or Choice Specs, and that item can be traded back for another of the five at the Harbor, any number of times. It is one flexible slot, not five items.",
+			"why": "Operator, 2026-09-21. The nurse's menu text reads 'Maximize IVs' in the plural, which would have made a perfect six cost 6 scales instead of 36; asked rather than assumed. The Harbor trade is NOT YET MODELLED: the workbook names the five items and the swap but not where the Scanner is (vanilla puts it in the Abandoned Ship's Dive-only rooms; Dive dates at 1183), so the slot is undated. The run already picks up a Choice Band, Specs and Scarf in the field (Routes 118, 119, 120).",
+			"enforcedBy": [
+				"lib/run.js",
+				"profiles/run-and-bun/oracle/item-locations.json"
+			]
+		},
+		{
+			"id": "the-player-megas",
+			"date": "2026-09-21",
+			"ruling": "The player holds the Mega Ring from beating Leader Flannery (the fifth gym) and may field ONE Mega Evolution a fight. It is modelled the way the enemy's are: the evolved form, holding its stone, from the start of the fight. The stone TAKES THE HELD-ITEM SLOT. A stone held before the ring is just an item; a second stone-holder in the six stays in its base form. The party ranker rates a body whose stone is in the bag as the Mega it would become (holding the stone, not its current item), and the harness hands the first such member of the picked six its stone before the fight. Stones are acquired as the item ledger dates them (47 rows, 28 dated, the first at order 594). --mega=0 plays without.",
+			"why": "Operator, 2026-09-21: 'yes mega ring after flannery, one mega per fight, model it', and 'we also need to map acquiring the mega stone (and the fact that those take up the item spot)'. Neither engine performs a Mega Evolution, so until now the player had none: a run reached the Elite Four with about twenty stones loose in the bag, thirteen of them for bodies in its box, its six holding Pixie Plates and resist berries, against bosses that have fielded a Mega since the third gym. KNOWN LIMITS: the ranker may rate two bodies of one six as Megas where only one can be (the harness then evolves the first); the enemy's turn-one CHOICE is made against the evolved form (the same approximation tests/mega_forms.test.js records for their side); the nineteen undated stones are never collected.",
+			"enforcedBy": [
+				"lib/run.js",
+				"scripts/headless-run.js",
+				"profiles/run-and-bun/oracle.js",
+				"tests/run.test.js",
+				"tests/headless_run.test.js"
+			]
+		},
+		{
+			"id": "a-win-is-valued-by-what-it-kept",
+			"date": "2026-09-21",
+			"ruling": "In the singles rollout search a WON playout is worth 0.5 plus half the share of our party still standing, not a flat 1. A loss is unchanged (0.3 x the share of their HP removed), so any win still outranks any loss and a cheaper win outranks a dearer one. On by default in the headless harness and the battery; --search-keep=0 restores the flat objective; battery-tape replays a receipt without the record at 0. The doubles search has its own value and is unchanged.",
+			"why": "Operator, watching the live page: 'it does make me think about how value is decided', then 'start with valuing what we keep'. A win had been worth 1 whether six stood at the end or one, so nothing had ever preferred a cheaper win: eleven replayed boss wins each gave up four to six bodies. Bar declared before the run (wins not worse; at least 0.3 fewer bodies lost over fights both arms win). Held-out, four trainers never tuned on, 5 seeds each, search-8, real PP, paired: wins 17 -> 18 of 20 (discordant 1 vs 2, no trainer worse); over the 16 fights both won, our bodies lost 4.56 -> 2.00, fewer in 15 and more in 1 (sign test p ~ 0.0005). Rows: docs/measurements/search-keep-heldout-2026-09-21.jsonl. It is the precondition for a nuzlocke mode, where a body lost is lost for good.",
+			"enforcedBy": [
+				"lib/battle-driver.js",
+				"scripts/headless-run.js",
+				"scripts/scenario-battery.js",
+				"scripts/battery-tape.js",
+				"tests/battle-driver.test.js",
+				"docs/measurements/search-keep-heldout-2026-09-21.jsonl"
+			]
+		},
+		{
+			"id": "a-wall-is-planned-by-play",
+			"date": "2026-09-21",
+			"ruling": "A fight the headless run has lost five times is PLANNED by play (scripts/headless-run.js planByPlay), and again every ten losses after: the board proposes generously (mean rolls; three leads into their first, two closers into each of their last two, whoever is weakest making room, the newcomer taught what the advisor would teach it) and play decides, greedily, most wins then fewest of theirs left standing, on seeds no attempt is played on. The six the run has is one of the plans, so a plan is only taken when play says it is better; once taken it holds until the wall falls (neither the ranker nor the re-pick undoes it). On by default at 5; --plan-after=0 restores the run without it. --hand-by-probe stays OFF: it matched the control on all three walls.",
+			"why": "Bar declared before the data existed (docs/PERFORMANCE.md, 2026-09-21): adopt a switch if over held-out walls it clears at least one the control does not and loses none, with attempts not worse by more than 5 where both clear. Three walls clear1 stopped at, four arms each from the same document, 40 attempts, pinned d5fd588/47a4adb: Aqua Admin Matt (209499) control 0 of 40, plan cleared in 6; Aqua Admin Shelly (104770) control 0 of 40, plan cleared in 7; Seafloor grunt #5 (314228) both cleared in 7. Found on Norman (842113: 0 of 40, then won on attempt 19). Stated with the bar and still true: three walls can reject but only weakly adopt. It does not always work — 842113 went 0 of 40 at Matt with it on, where 14 plans won no planning fight.",
+			"enforcedBy": [
+				"scripts/headless-run.js",
+				"tests/headless_run.test.js",
+				"docs/PERFORMANCE.md"
+			]
+		},
+		{
+			"id": "gen8-gate-order-infatuation-before-paralysis",
+			"date": "2026-09-22",
+			"ruling": "SUPERSEDED 2026-09-22 by rom-gate-order-paralysis-before-infatuation. Was: infatuation checked before paralysis (the Gen 8 order).",
+			"why": "Run & Bun's Mechanic Changes.txt changes infatuation only to be gender-free and says to assume Generation 8 for anything it does not describe. CONSTANTS-AUDIT D12 had chosen the pokeemerald order (paralysis first) as better supported for the hack; the operator ruled for the documented Gen 8 fallback. A ROM probe (pokemon-mono P4) will measure it.",
+			"enforcedBy": [
+				"ai/src/move-engine.ts",
+				"ai/src/test/paralysis-before-infatuation.test.ts"
+			]
+		},
+		{
+			"id": "rom-gate-order-paralysis-before-infatuation",
+			"date": "2026-09-22",
+			"ruling": "A Pokemon both paralysed and infatuated is checked for paralysis BEFORE infatuation, as the ROM does. The action gates run recharge, sleep/freeze, Truant, flinch, confusion, paralysis, infatuation.",
+			"why": "Measured in the ROM (pokemon-mono groundtruth P4, receipt 20260922T225743Z-gate-probe): 300 turns over 100 seeds, 78 full paralyses with no love message, 101 immobilised by love, 121 moved; a paralysis message never followed a love message. The approved stance (docs/ENGINE-HOMES.md) makes the ROM the truth, over the Gen 8 fallback that the same day's ruling used.",
+			"enforcedBy": [
+				"ai/src/move-engine.ts",
+				"ai/src/test/paralysis-before-infatuation.test.ts"
+			]
 		}
 	],
 	"open": [
@@ -339,6 +565,24 @@
 			"id": "rustboro-table-drift",
 			"question": "The author's Pokémon Locations sheet (2023) lists Bonsly and Lillipup at Rustboro City; the current decomp import has Herdier and Stantler instead (Lillipup's evolution among them). Decomp is source-of-truth and newer, so ours stands — but a v1.0x changelog line confirming the Rustboro table change would close this, and nuzlocke.app's transcription (bonsly/lillipup/steenee) matches the OLD sheet, dating their data too.",
 			"raised": "2026-08-12",
+			"settledBy": "operator ruling"
+		},
+		{
+			"id": "earth-power-has-no-place",
+			"question": "Every TM and tutor is now dated from Run & Bun's own sources (scripts/build-item-locations.js moveDates, read by oracle.moveItems for rows availability.json leaves undated) except ONE: TM30 Earth Power, \"Given by an NPC at Fossil Maniac's house\". No hack source places that house, so it stays undated and teachable at any order once the TM is held. Where is it? Two more for a look, where the TM ledger that stands is EARLIER than the builder: Feint Attack 14 v 93 (the Floral Shop is in Route 104's north half), Hyper Voice 211 v 287 and Night Shade 211 v 235 (both \"requires a Bike\").",
+			"raised": "2026-09-21",
+			"settledBy": "operator ruling"
+		},
+		{
+			"id": "do-gifts-consume-an-area-encounter",
+			"question": "The story gifts are now claimed by the run (--gifts=1: the Lavaridge egg at 571, Castform at 701, Kubfu at 1125; scripts/headless-run.js claimGifts). A gift is a scripted event, not an encounter-table roll, so the run does NOT count it against its area's wild encounter, and does apply the dupes clause. Is that the rule you play by? The alternative — a gift spends the encounter for Lavaridge, Route 119 and Mossdeep — costs three wild catches and is what some nuzlocke rulesets require. Also unwired and waiting on the same answer: the three trades (they consume a body we own), the fossils, and the seven roaming legendaries (undated, gated on the Sootopolis story event, so late and cheap to leave).",
+			"raised": "2026-09-21",
+			"settledBy": "operator ruling"
+		},
+		{
+			"id": "what-rule-replaces-a-knocked-out-foe",
+			"question": "When one of the enemy trainer's Pokemon faints, which one do they send out? We apply the FIRST legal replacement the engine enumerates (lib/battle-driver.js settleAiSide), and the engine's own docstring says that choice is meant to be made by the policy layer. Measured over 1,328 logged fights: 1,240 send-outs matched the fight data's party order and 88 did not, all singles — so it is the battle state's enumeration order, and never a decision. The hack may score replacements (our ai package has evaluateForcedSwitchActions, unused here), or it may send the next in party order; nothing in this repository establishes which, and it was not guessed. Needs the decomp, the hack's AI source, or emulator observation. Raised by Codex 2026-09-22; ledger finding enemy-post-ko-replacement-is-enumeration-order carries the evidence and the bar for changing it.",
+			"raised": "2026-09-22",
 			"settledBy": "operator ruling"
 		}
 	]

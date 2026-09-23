@@ -104,6 +104,37 @@ test('warm browser batch preserves road order and exact single receipt semantics
 		batch.map(result => result.request.requestId));
 });
 
+test('one fight the engine refuses does not cost the others their forecast', async () => {
+	// The engine rejects a party it cannot build — an ability its own table
+	// spells differently is the common case, and across 180 planned fights 141
+	// lost their forecast that way. The panel asks for three fights at a time,
+	// so a batch that failed as a whole lost two answers it already had.
+	const observed = [];
+	const refuse = {
+		metadata: {engineRevision: 'engine-revision'},
+		provider: {plan: async request => {
+			observed.push(request);
+			if (request.task.state.trainer.order === 3) {
+				throw new Error('Ability "Flame Body" is not legal for Ponyta');
+			}
+			return receiptFor(request);
+		}},
+	};
+	const options = [1, 3, 7].map(order => ({
+		runtime: refuse, run: run(), trainerOrder: order, revision: 4,
+		profileRevision: 'engine-revision',
+	}));
+	const batch = await client.planBatch(options);
+
+	assert.equal(batch.length, 3, 'every fight keeps its slot');
+	assert.ok(batch[0].receipt, 'the fight before the refusal still has its answer');
+	assert.ok(batch[2].receipt, 'and so does the one after it');
+	assert.ok(!batch[1].receipt, 'the refused fight has none');
+	assert.match(batch[1].error.message, /not legal for Ponyta/,
+		'and it carries the engine\'s own reason, which names the Pokemon');
+	assert.equal(observed.length, 3, 'the refusal did not stop the batch early');
+});
+
 test('browser batch is bounded and rejects duplicate requests before provider work', async () => {
 	const observed = [];
 	const provider = runtime(observed);

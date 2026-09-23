@@ -272,9 +272,9 @@ Solrock L25. Ice one-shots the Zygarde, and the engine's own assignments say so
 
 Everything at or above 100% minimum is a guaranteed one-shot. **Carvanha is on
 Route102's fish table (20% of Surskit 40 / Psyduck 20 / Remoraid 20 / Carvanha
-20) and Route102 is open at fight #0** — `rollEncounter` on a fresh doc returns
+20) and Route102 is open at order 0** — `rollEncounter` on a fresh doc returns
 Psyduck and never refuses. Route106's fish table is Spheal 40 / Chewtle 40 /
-Shellder 10 / Staryu 10 and opens with Elliot at #22, the same fight that opens
+Shellder 10 / Staryu 10 and opens with Elliot at order 22, the same fight that opens
 B2f, at no cost to the cave's single encounter.
 
 So: the cave's one catch is worth spending on **Gligar** for Brawly (§III–IV),
@@ -384,7 +384,7 @@ cap 38 is #230, which is where "after #230" came from.
 **"Elliot must fall before you roll the cave, because B2f is the run's only
 pre-Roxanne answer to Zygarde-10%."** The guard, the one-catch-per-cave rule
 and Elliot's zero cost all check out. The reason does not. §V shows Carvanha
-on **Route102 fish, open at fight #0**, one-shots the Zygarde at 113-138%
+on **Route102 fish, open at order 0**, one-shots the Zygarde at 113-138%
 minimum — before any guard falls. And the same fight that opens B2f opens
 **Route106**, a separate location whose fish table is 80% Spheal/Chewtle, both
 guaranteed one-shots, at no cost to the cave's encounter. Beating Elliot before

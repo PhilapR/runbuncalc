@@ -97,7 +97,8 @@ test('the planner panel loads the run map and predicts a real fight', {skip}, as
 		{timeout: 15000}
 	);
 	const fightCount = await page.$$eval('#runbun-planner-trainer option', els => els.length);
-	assert.equal(fightCount, 362, 'the run map should populate the trainer list');
+	// 366 with the restored Route 103 rival trio and Mauville Wally in the map.
+	assert.equal(fightCount, 366, 'the run map should populate the trainer list');
 
 	// The coverage caveat must be visible to the player, not buried in an API
 	// response. A planner that looks complete invites trust in a gap nobody

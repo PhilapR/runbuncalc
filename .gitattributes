@@ -1,0 +1,12 @@
+# Measurement data, not code: battery receipts and banked run documents are
+# evidence that tests, manifests and rulings cite by name (189 of 193 receipts
+# are named somewhere). They were 98% of this branch's 6.5M-line diff against
+# master, and nobody reviews them by reading. `-diff` collapses each to one
+# line in a diff; `git diff --text` shows the content when it is wanted.
+scenarios/receipts/*.json      -diff linguist-generated=true
+fixtures/banked-runs/*.json    -diff linguist-generated=true
+scenarios/measurements/**      -diff linguist-generated=true
+docs/measurements/*.jsonl      -diff linguist-generated=true
+ledger/findings.json           linguist-generated=true
+experiments/uv.lock            linguist-generated=true
+dist/js/**                     linguist-generated=true

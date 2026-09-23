@@ -1,0 +1,2408 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "4bc6d355-92a3-417b-a6ca-8226c6a1539d",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-25T19:59:06.628Z",
+	"updatedAt": "2026-08-25T19:59:06.628Z",
+	"position": 138,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Swampert"
+	},
+	"nextId": 17,
+	"box": [
+		{
+			"id": "choice-1",
+			"species": "Hariyama",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Thick Fat",
+			"item": null,
+			"moves": [
+				"Force Palm",
+				"Whirlwind",
+				"Payback",
+				"Vital Throw"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 31,
+				"def": 31,
+				"spa": 31,
+				"spd": 31,
+				"spe": 31
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "choice-2",
+			"species": "Hitmonchan",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Inner Focus",
+			"item": null,
+			"moves": [
+				"Focus Punch",
+				"Pursuit",
+				"Comet Punch",
+				"Mach Punch"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 31,
+				"def": 31,
+				"spa": 31,
+				"spd": 31,
+				"spe": 31
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "choice-3",
+			"species": "Palpitoad",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Swift Swim",
+			"item": null,
+			"moves": [
+				"Mud-Slap",
+				"Mud Shot",
+				"Bubble Beam",
+				"Muddy Water"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 31,
+				"def": 31,
+				"spa": 31,
+				"spd": 31,
+				"spe": 31
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "choice-4",
+			"species": "Sneasel",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Inner Focus",
+			"item": null,
+			"moves": [
+				"Screech",
+				"Punishment",
+				"Low Sweep",
+				"Ice Punch"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 31,
+				"def": 31,
+				"spa": 31,
+				"spd": 31,
+				"spe": 31
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "choice-5",
+			"species": "Sandshrew-Alola",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Slush Rush",
+			"item": null,
+			"moves": [
+				"Metal Claw",
+				"Ice Punch",
+				"Slash",
+				"Super Fang"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 31,
+				"def": 31,
+				"spa": 31,
+				"spd": 31,
+				"spe": 31
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "choice-6",
+			"species": "Octillery",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bashful",
+			"ability": "Suction Cups",
+			"item": null,
+			"moves": [
+				"Aurora Beam",
+				"Bubble Beam",
+				"Focus Energy",
+				"Octazooka"
+			],
+			"ivs": {
+				"hp": 31,
+				"atk": 31,
+				"def": 31,
+				"spa": 31,
+				"spd": 31,
+				"spe": 31
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		}
+	],
+	"party": [
+		"choice-1",
+		"choice-2",
+		"choice-3",
+		"choice-4",
+		"choice-5",
+		"choice-6"
+	],
+	"bag": {
+		"Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Turtwig",
+				"level": 5,
+				"ivs": {
+					"hp": 5,
+					"atk": 2,
+					"def": 4,
+					"spa": 19,
+					"spd": 26,
+					"spe": 7
+				},
+				"nature": "Timid",
+				"ability": "Overgrow"
+			},
+			"summary": "caught Turtwig at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Buneary",
+				"level": 2,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 4,
+					"atk": 3,
+					"def": 31,
+					"spa": 15,
+					"spd": 21,
+					"spe": 19
+				},
+				"nature": "Impish",
+				"ability": "Cute Charm"
+			},
+			"summary": "caught Buneary at level 2 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Fletchling",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 20,
+					"atk": 19,
+					"def": 12,
+					"spa": 8,
+					"spd": 1,
+					"spe": 4
+				},
+				"nature": "Serious",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Fletchling at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Exeggcute",
+				"level": 2,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 21,
+					"atk": 14,
+					"def": 24,
+					"spa": 22,
+					"spd": 22,
+					"spe": 26
+				},
+				"nature": "Brave",
+				"ability": "Chlorophyll"
+			},
+			"summary": "caught Exeggcute at level 2 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tympole",
+				"level": 3,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 10,
+					"atk": 29,
+					"def": 19,
+					"spa": 26,
+					"spd": 29,
+					"spe": 18
+				},
+				"nature": "Quiet",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Tympole at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Ponyta",
+				"level": 2,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 25,
+					"atk": 3,
+					"def": 19,
+					"spa": 21,
+					"spd": 30,
+					"spe": 9
+				},
+				"nature": "Naughty",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Ponyta at level 2 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Blipbug",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 16,
+					"def": 11,
+					"spa": 15,
+					"spd": 11,
+					"spe": 14
+				},
+				"nature": "Calm",
+				"ability": "Swarm"
+			},
+			"summary": "caught Blipbug at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Croagunk",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 12,
+					"atk": 18,
+					"def": 21,
+					"spa": 30,
+					"spd": 23,
+					"spe": 2
+				},
+				"nature": "Adamant",
+				"ability": "Poison Touch"
+			},
+			"summary": "caught Croagunk at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Sandile",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 13,
+					"atk": 11,
+					"def": 28,
+					"spa": 19,
+					"spd": 25,
+					"spe": 4
+				},
+				"nature": "Careful",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Sandile at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Gossifleur",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 28,
+					"atk": 23,
+					"def": 23,
+					"spa": 17,
+					"spd": 12,
+					"spe": 2
+				},
+				"nature": "Quirky",
+				"ability": "Cotton Down"
+			},
+			"summary": "caught Gossifleur at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chewtle",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 22,
+					"atk": 6,
+					"def": 8,
+					"spa": 22,
+					"spd": 19,
+					"spe": 18
+				},
+				"nature": "Jolly",
+				"ability": "Strong Jaw"
+			},
+			"summary": "caught Chewtle at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tyrogue",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 27,
+					"atk": 24,
+					"def": 7,
+					"spa": 17,
+					"spd": 10,
+					"spe": 16
+				},
+				"nature": "Sassy",
+				"ability": "Guts"
+			},
+			"summary": "caught Tyrogue at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 7,
+					"atk": 23,
+					"def": 14,
+					"spa": 18,
+					"spd": 28,
+					"spe": 9
+				},
+				"nature": "Quirky",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tirtouga",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 16,
+					"atk": 24,
+					"def": 22,
+					"spa": 9,
+					"spd": 5,
+					"spe": 18
+				},
+				"nature": "Modest",
+				"ability": "Solid Rock"
+			},
+			"summary": "caught Tirtouga at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Mareep",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 2,
+					"atk": 31,
+					"def": 12,
+					"spa": 15,
+					"spd": 22,
+					"spe": 12
+				},
+				"nature": "Serious",
+				"ability": "Static"
+			},
+			"summary": "caught Mareep at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Qwilfish",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 2,
+					"atk": 12,
+					"def": 0,
+					"spa": 13,
+					"spd": 8,
+					"spe": 14
+				},
+				"nature": "Careful",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Qwilfish at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L5 to L21 and learned Confide; its moves are full, so Razor Leaf, Roar must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Bite"
+			},
+			"summary": "Turtwig forgot Bite, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Roar",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Turtwig forgot Razor Leaf, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Turtwig evolved into Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Buneary grew from L2 to L21 and learned Foresight, Baby-Doll Eyes; its moves are full, so Quick Attack, Covet must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Quick Attack",
+				"replace": "Splash"
+			},
+			"summary": "Buneary forgot Splash, learned Quick Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Covet",
+				"replace": "Quick Attack"
+			},
+			"summary": "Buneary forgot Quick Attack, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Buneary evolved into Lopunny",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Fletchling grew from L5 to L21 and learned Quick Attack, Aerial Ace; its moves are full, so Roost must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Roost",
+				"replace": "Tackle"
+			},
+			"summary": "Fletchling forgot Tackle, learned Roost",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Fletchling evolved into Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Exeggcute grew from L2 to L21 and learned Stun Spore; its moves are full, so Poison Powder, Sleep Powder, Psybeam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Poison Powder",
+				"replace": "Bullet Seed"
+			},
+			"summary": "Exeggcute forgot Bullet Seed, learned Poison Powder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Sleep Powder",
+				"replace": "Poison Powder"
+			},
+			"summary": "Exeggcute forgot Poison Powder, learned Sleep Powder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Psybeam",
+				"replace": "Sleep Powder"
+			},
+			"summary": "Exeggcute forgot Sleep Powder, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Tympole grew from L3 to L21 and learned Supersonic, Echoed Voice; its moves are full, so Mud-Slap, Mud Shot, Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud-Slap",
+				"replace": "Bubble"
+			},
+			"summary": "Tympole forgot Bubble, learned Mud-Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Tympole forgot Mud-Slap, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble Beam",
+				"replace": "Mud Shot"
+			},
+			"summary": "Tympole forgot Mud Shot, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Tympole evolved into Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L2 to L21 and learned Tail Whip, Ember; its moves are full, so Flame Wheel, Fire Spin, Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Growl"
+			},
+			"summary": "Ponyta forgot Growl, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Spin",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Bounce",
+				"replace": "Fire Spin"
+			},
+			"summary": "Ponyta forgot Fire Spin, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Blipbug grew from L5 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Blipbug evolved into Dottler",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L5 to L21 and learned Fake Out, Vacuum Wave; its moves are full, so Mud Shot, Sludge, Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Shot",
+				"replace": "Poison Sting"
+			},
+			"summary": "Croagunk forgot Poison Sting, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge",
+				"replace": "Mud Shot"
+			},
+			"summary": "Croagunk forgot Mud Shot, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Seismic Toss",
+				"replace": "Sludge"
+			},
+			"summary": "Croagunk forgot Sludge, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Sandile grew from L8 to L21; its moves are full, so Rock Tomb, Snarl, Bulldoze, Payback must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Tomb",
+				"replace": "Leer"
+			},
+			"summary": "Sandile forgot Leer, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Snarl",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Sandile forgot Rock Tomb, learned Snarl",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Snarl"
+			},
+			"summary": "Sandile forgot Snarl, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Payback",
+				"replace": "Bulldoze"
+			},
+			"summary": "Sandile forgot Bulldoze, learned Payback",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L14 to L21; its moves are full, so Round, Leaf Tornado must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Round",
+				"replace": "Sing"
+			},
+			"summary": "Gossifleur forgot Sing, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Leaf Tornado",
+				"replace": "Round"
+			},
+			"summary": "Gossifleur forgot Round, learned Leaf Tornado",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-10"
+			},
+			"summary": "Gossifleur evolved into Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Chewtle grew from L8 to L21 and learned Ice Fang; its moves are full, so Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Headbutt",
+				"replace": "Tackle"
+			},
+			"summary": "Chewtle forgot Tackle, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Tyrogue grew from L8 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L8 to L21 and learned Leer, Twister; its moves are full, so Bubble Beam, Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Clear Smog",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Horsea forgot Bubble Beam, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L10 to L21; its moves are full, so Bite, Block, Ancient Power, Brine must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bite",
+				"replace": "Whirlpool"
+			},
+			"summary": "Tirtouga forgot Whirlpool, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Block",
+				"replace": "Bite"
+			},
+			"summary": "Tirtouga forgot Bite, learned Block",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ancient Power",
+				"replace": "Block"
+			},
+			"summary": "Tirtouga forgot Block, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Brine",
+				"replace": "Ancient Power"
+			},
+			"summary": "Tirtouga forgot Ancient Power, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Mareep grew from L12 to L21; its moves are full, so Shock Wave, Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Shock Wave",
+				"replace": "Thunder Shock"
+			},
+			"summary": "Mareep forgot Thunder Shock, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Headbutt",
+				"replace": "Shock Wave"
+			},
+			"summary": "Mareep forgot Shock Wave, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Mareep evolved into Flaaffy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Qwilfish grew from L10 to L21; its moves are full, so Venoshock, Poison Fang, Bubble Beam, Revenge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Venoshock",
+				"replace": "Bubble"
+			},
+			"summary": "Qwilfish forgot Bubble, learned Venoshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Poison Fang",
+				"replace": "Venoshock"
+			},
+			"summary": "Qwilfish forgot Venoshock, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Poison Fang"
+			},
+			"summary": "Qwilfish forgot Poison Fang, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Revenge",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Qwilfish forgot Bubble Beam, learned Revenge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lopunny, Fletchinder, Exeggcute, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-10",
+					"mon-5",
+					"mon-13",
+					"mon-16",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Palpitoad, Seadra, Qwilfish, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-10",
+				"item": "Miracle Seed"
+			},
+			"summary": "Eldegoss is holding Miracle Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Smokescreen"
+			},
+			"summary": "Seadra forgot Smokescreen, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Roar"
+			},
+			"summary": "Grotle forgot Roar, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Solar Beam",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Eldegoss forgot Sweet Scent, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hydro Pump",
+				"replace": "Growl"
+			},
+			"summary": "Palpitoad forgot Growl, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Hydro Pump",
+				"replace": "Leer"
+			},
+			"summary": "Seadra forgot Leer, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Hydro Pump",
+				"replace": "Venom Drench"
+			},
+			"summary": "Qwilfish forgot Venom Drench, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Tirtouga forgot Mud-Slap, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Grotle is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Silk Scarf"
+			},
+			"summary": "Palpitoad is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-13",
+				"item": "Poison Barb"
+			},
+			"summary": "Seadra is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-14",
+				"item": "Soft Sand"
+			},
+			"summary": "Tirtouga is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lopunny, Fletchinder, Exeggcute, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-10",
+					"mon-5",
+					"mon-16",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eldegoss, Palpitoad, Qwilfish, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Palpitoad forgot Bubble Beam, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Sand Tomb",
+				"replace": "Growl"
+			},
+			"summary": "Grotle forgot Growl, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ancient Power",
+				"replace": "Brine"
+			},
+			"summary": "Tirtouga forgot Brine, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lopunny, Fletchinder, Exeggcute, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-10",
+					"mon-5",
+					"mon-16",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eldegoss, Palpitoad, Qwilfish, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Round",
+				"replace": "Rapid Spin"
+			},
+			"summary": "Eldegoss forgot Rapid Spin, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lopunny, Fletchinder, Exeggcute, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-10",
+					"mon-5",
+					"mon-16",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eldegoss, Palpitoad, Qwilfish, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lopunny, Fletchinder, Exeggcute, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-10",
+					"mon-5",
+					"mon-16",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eldegoss, Palpitoad, Qwilfish, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Mega Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lopunny, Fletchinder, Exeggcute, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-10",
+					"mon-5",
+					"mon-16",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eldegoss, Palpitoad, Qwilfish, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lopunny, Fletchinder, Exeggcute, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-10",
+					"mon-5",
+					"mon-16",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Seadra takes the lead — with Eldegoss, Palpitoad, Qwilfish, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-10",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Brawly"
+			},
+			"summary": "beat Leader Brawly (now at 77)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Lyle"
+			},
+			"summary": "beat Bug Catcher Lyle (now at 83)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Maniac James"
+			},
+			"summary": "beat Bug Maniac James (now at 86)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Winston"
+			},
+			"summary": "beat Rich Boy Winston (now at 90)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Ivan"
+			},
+			"summary": "beat Fisherman Ivan (now at 92)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Twins Gina And Mia"
+			},
+			"summary": "beat Twins Gina And Mia (now at 95)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Haley"
+			},
+			"summary": "beat Lass Haley (now at 99)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Joey"
+			},
+			"summary": "beat Youngster Joey (now at 103)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Janice"
+			},
+			"summary": "beat Lass Janice (now at 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Dawson"
+			},
+			"summary": "beat Rich Boy Dawson (now at 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Jerry & Johnson"
+			},
+			"summary": "beat School Kid Jerry & Johnson (now at 111)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Jose"
+			},
+			"summary": "beat Bug Catcher Jose (now at 115)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Sarah"
+			},
+			"summary": "beat Lady Sarah (now at 118)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Karen"
+			},
+			"summary": "beat School Kid Karen (now at 120)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Clark"
+			},
+			"summary": "beat Hiker Clark (now at 123)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Devan"
+			},
+			"summary": "beat Hiker Devan (now at 125)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Josh"
+			},
+			"summary": "beat Youngster Josh (now at 128)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Tommy"
+			},
+			"summary": "beat Youngster Tommy (now at 131)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Marc"
+			},
+			"summary": "beat Hiker Marc (now at 135)",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

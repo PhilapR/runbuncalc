@@ -17,34 +17,23 @@
  * slot, an evolution that has not come due, a move the species cannot hold. A
  * command engine that accepts everything is a data-entry form, and the whole
  * point of importing the decomp was to stop it being one.
+ *
+ * The ranker's gates are in run_rank.test.js and the advisor's and
+ * playbook's in run_advise.test.js: split out because they carry most of
+ * this family's run time, so Node can run them beside the rest. The shared
+ * fixtures are in tests/helpers/run-fixtures.js.
  */
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const run = require('../lib/run');
-
-/**
- * Real coordinates from the game, used throughout.
- *
- * Marill is fished out of Route 114 with the Super Rod at level 40 — chosen
- * because it exercises method, rod and an exact level range at once, and because
- * getting it wrong (Route 102, Route 117) is what the refusal cases assert.
- */
-const MARILL = {kind: 'catch', species: 'Marill', map: 'Route114', level: 40, method: 'fish'};
-const TEST_IVS = {hp: 17, atk: 18, def: 19, spa: 20, spd: 21, spe: 22};
-const PERFECT_IVS = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
-
-/** Complete owned-Pokemon fixture; supplied stats override the stable test roll. */
-function owned(command) {
-	return Object.assign({}, command, {
-		ivs: Object.assign({}, TEST_IVS, command.ivs || {}),
-	});
-}
-
-function fresh(options) {
-	return run.createRun(Object.assign({name: 'Gate', now: 't0'}, options));
-}
+const fixtures = require('./helpers/run-fixtures.js');
+const MARILL = fixtures.MARILL;
+const TEST_IVS = fixtures.TEST_IVS;
+const PERFECT_IVS = fixtures.PERFECT_IVS;
+const owned = fixtures.owned;
+const fresh = fixtures.fresh;
 
 test('a new run is empty, positioned before the first fight, and serializable', () => {
 	const state = fresh({attemptId: 'attempt-1'});
@@ -225,53 +214,110 @@ test('evolution follows the table, including when it is not due yet', () => {
 		/does not become Beautifly/);
 });
 
-test('the ranker ranks the box the player will field, never the one they hold today', () => {
-	// The non-negotiable from the co-design: a ranking at current levels ranks
-	// a team that will never exist. Same box, caps on vs off, against Wattson
-	// (fought under cap 35): the projections differ AND the ordering differs.
-	const catches = [
-		{kind: 'catch', species: 'Breloom', level: 24},
-		{kind: 'catch', species: 'Kadabra', level: 24},
-		{kind: 'catch', species: 'Marshtomp', level: 24},
-		{kind: 'catch', species: 'Camerupt', level: 24},
-		{kind: 'catch', species: 'Manectric', level: 24},
-		{kind: 'catch', species: 'Swellow', level: 24, moves: ['Fly', 'Hurricane']},
-		{kind: 'catch', species: 'Pelipper', level: 24, moves: ['Surf', 'Hurricane']},
-	];
-	const capped = run.rankParties(
-		run.applyAll(fresh(), catches.map(owned)), 'Leader Wattson');
-	const uncapped = run.rankParties(
-		run.applyAll(fresh({levelCap: 'none'}), catches.map(owned)), 'Leader Wattson');
-	assert.deepEqual(capped.projection, {applied: true, cap: 35, from: 'projected'});
-	assert.deepEqual(uncapped.projection, {applied: false, cap: null, from: 'current'});
-	assert.notDeepEqual(
-		capped.parties.map(party => party.members.map(member => member.id)),
-		uncapped.parties.map(party => party.members.map(member => member.id)),
-		'projection must be able to change the ordering, not just the scores');
+test('a refusal that charges a currency says where to earn it', () => {
+	// The run debits a Rare Candy per level over the cap and a Heart Scale per
+	// relearned move, and `fieldItems` models 28 items with neither among them —
+	// so it spent currencies it could not tell you how to get. The workbook has
+	// held 30 Heart Scale locations and 14 Rare Candy the whole time, read by
+	// nothing, which is the same shape as `lib/item-facts` before it had a
+	// consumer.
+	//
+	// PLACES, not dates. Inferring an unlock from a place name is what
+	// `moveObtainableAt` refuses to do for TMs, and for the same reason: a
+	// location string carrying no gating clause is not evidence that none
+	// exists. Where is the whole of what these refusals were missing.
+	let state = fresh({levelCap: 'next-milestone-ace'});
+	state = run.apply(state, owned({kind: 'catch', species: 'Turtwig', level: 5}));
+	state = run.apply(state, {kind: 'party', ids: [state.box[0].id]});
 
-	// Deterministic: the same question twice is the same answer, byte for byte.
-	assert.deepEqual(run.rankParties(run.applyAll(fresh(), catches.map(owned)), 'Leader Wattson'), capped);
+	assert.throws(
+		() => run.apply(state, {kind: 'levelUp', id: state.box[0].id, to: 20}),
+		error => {
+			assert.match(error.message, /costs a Rare Candy/, 'still names the price');
+			assert.match(error.message, /known sources/, 'and now names where to get one');
+			assert.match(error.message, /Route 110/, 'by place, from the workbook');
+			return true;
+		});
 
-	// The shortlist is exhaustive over C(7,6) = 7 sixes, top plus diversity.
-	assert.equal(capped.combinations, 7);
-	assert.equal(capped.parties[0].label, 'top');
-	assert.ok(capped.parties[0].perEnemy.length >= 6, 'the assignment travels with the six');
-	assert.ok(capped.caveats.some(text => /assumes you can always switch/.test(text)));
+	assert.throws(
+		() => run.apply(state, {kind: 'heartScale', id: state.box[0].id, stat: 'atk'}),
+		error => {
+			assert.match(error.message, /no shop\s+sells them|no shop sells them/,
+				'still says the shops do not stock them');
+			assert.match(error.message, /known sources/, 'and now names where they lie');
+			assert.match(error.message, /Route 104/, 'by place, from the workbook');
+			return true;
+		});
+
+	// The prefix survives, or the wire stops turning these into 400s and starts
+	// returning 500s: `lib/run-api.js` keys on the command name at the front.
+	try {
+		run.apply(state, {kind: 'levelUp', id: state.box[0].id, to: 20});
+		assert.fail('expected a refusal');
+	} catch (error) {
+		assert.match(error.message, /^levelUp: /, 'the refusal still leads with its command');
+	}
+
+	// An item the run does not charge for gets no invented source list.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	assert.deepEqual(oracle.currencySources('Potion'), [],
+		'only a charged currency has sources to name');
+	assert.ok(oracle.currencySources('Heart Scale').length > 10);
+	assert.ok(oracle.currencySources('Rare Candy').length > 5);
 });
 
-test('the ranker finishes a box of 30 in interactive time', () => {
-	const catches = [];
-	for (let i = 0; i < 30; i++) catches.push(owned(
-		{kind: 'catch', species: 'Poochyena', level: 20}));
-	const state = run.applyAll(fresh({levelCap: 'none'}), catches);
-	const started = process.hrtime.bigint();
-	// Measure the exhaustive C(30,6) ranker, not the seeded battle adjudication
-	// that follows its shortlist. Rollout timing is covered by the driver gates
-	// and is too sensitive to shared-runner load to be part of this 5s budget.
-	const ranking = run.rankParties(state, 'Leader Brawly', {rollouts: 0});
-	const ms = Number(process.hrtime.bigint() - started) / 1e6;
-	assert.equal(ranking.combinations, 593775, 'C(30,6), exhaustively');
-	assert.ok(ms < 5000, `ranking took ${ms.toFixed(0)}ms; the budget is 5s`);
+test('the list before a fight names the levelling nobody had listed', () => {
+	// Philip, reading a completed run: 'we didn't level did we...'. The run had
+	// no levelUp command at all and the box sat at catch levels, while the
+	// driver fought at 'Turtwig L12 · at cap' because the plan projects to the
+	// next milestone. The projection is RIGHT and stays right — a plan drawn at
+	// current levels is a plan for a team nobody fields — so the bug was never
+	// the numbers. It was that `preFightOpportunities`, the literal
+	// before-this-fight list, had keys for encounters, items and moves and no
+	// key for the hours of grinding between the two.
+	//
+	// This is that run: Turtwig L5, and three L2s, against Team Aqua Grunt
+	// Petalburg Woods' Croagunk at cap 12.
+	let state = fresh({levelCap: 'next-milestone-ace'});
+	for (const caught of [['Turtwig', 5], ['Lillipup', 2], ['Gossifleur', 2], ['Surskit', 2]]) {
+		state = run.apply(state, owned({kind: 'catch', species: caught[0], level: caught[1]}));
+	}
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+
+	const levels = run.preFightOpportunities(state).levels;
+	assert.equal(levels.cap, 12, 'the cap the next fight is planned at');
+	assert.equal(levels.setBy.trainer, 'Team Aqua Grunt Petalburg Woods',
+		'and which fight sets it, so the grind has a destination');
+	assert.equal(levels.setBy.ace, 'Croagunk');
+
+	// The whole point: a number for the work. Seven levels for the Turtwig and
+	// ten for each L2 is 37, and a run that never levelled was told none of it.
+	assert.equal(levels.levelsNeeded, 37);
+	assert.deepEqual(levels.behind.map(row => [row.species, row.level, row.gain]),
+		[['Turtwig', 5, 7], ['Lillipup', 2, 10], ['Gossifleur', 2, 10], ['Surskit', 2, 10]]);
+	assert.match(levels.note, /4 of 4 below the cap of 12, 37 levels between them/);
+
+	// A party already at the cap owes nothing, and must say so rather than
+	// omitting the key — an absent key reads as "not modelled", which is the
+	// exact silence this closes.
+	let levelled = state;
+	for (const mon of state.box) {
+		levelled = run.apply(levelled, {kind: 'levelUp', id: mon.id, to: 12});
+	}
+	const atCap = run.preFightOpportunities(levelled).levels;
+	assert.equal(atCap.levelsNeeded, 0);
+	assert.deepEqual(atCap.behind, []);
+	assert.match(atCap.note, /the whole party is at the cap of 12/);
+
+	// Over the cap is not work owed. The projection raises and never lowers, so
+	// a Pokemon past the line fights at its own level and is nobody's grind.
+	// Levelling past the cap costs a Rare Candy per level, which is the run's
+	// own rule and a separate open finding — the bag has to fund it.
+	let funded = levelled;
+	for (let i = 0; i < 8; i++) funded = run.apply(funded, {kind: 'acquire', item: 'Rare Candy'});
+	const over = run.apply(funded, {kind: 'levelUp', id: funded.box[0].id, to: 20});
+	assert.equal(run.preFightOpportunities(over).levels.levelsNeeded, 0,
+		'a Pokemon above the cap owes no levels');
 });
 
 test('a named replace is honored below four moves too', () => {
@@ -283,12 +329,17 @@ test('a named replace is honored below four moves too', () => {
 		{kind: 'catch', species: 'Skrelp', map: 'Route103', level: 2, method: 'fish'},
 	]);
 	assert.ok(state.box[0].moves.includes('Water Gun'));
+	// Hydro Pump is the Weather Institute tutor's, reached at order 729: the
+	// replace is what is under test here, so the road is put past it.
+	state = Object.assign({}, state, {position: 729});
 	state = run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Hydro Pump', replace: 'Water Gun'});
 	assert.ok(!state.box[0].moves.includes('Water Gun'), 'the replaced move must be gone');
 	assert.ok(state.box[0].moves.includes('Hydro Pump'));
 	assert.match(state.log[state.log.length - 1].summary, /forgot Water Gun/);
-	// And a replace naming a move it does not know is still refused.
-	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Play Rough', replace: 'Tackle'}),
+	// And a replace naming a move it does not know is still refused — with the
+	// nurse's Heart Scale in the bag, so the refusal is about the replace.
+	const funded = run.apply(state, {kind: 'acquire', item: 'Heart Scale', where: 'granted for the gate'});
+	assert.throws(() => run.apply(funded, {kind: 'teach', id: 'mon-1', move: 'Play Rough', replace: 'Tackle'}),
 		/does not know Tackle/);
 });
 
@@ -299,16 +350,20 @@ test('a move must be one the species can actually hold', () => {
 	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Dragon Dance'}),
 		/Azumarill cannot learn Dragon Dance/);
 
-	// Four moves is four moves; a fifth needs one named to replace.
+	// Four moves is four moves; a fifth needs one named to replace — and a TM
+	// move needs its TM, which is a one-time item in this fork.
 	const full = run.applyAll(state, [
+		{kind: 'acquire', item: 'TM13 Play Rough', where: 'Route 104'},
 		{kind: 'teach', id: 'mon-1', move: 'Play Rough', replace: state.box[0].moves[0]},
 	]);
 	assert.ok(full.box[0].moves.includes('Play Rough'));
 	assert.equal(full.box[0].moves.length, state.box[0].moves.length);
 	assert.throws(() => run.apply(full, {kind: 'teach', id: 'mon-1', move: 'Play Rough'}),
 		/already knows Play Rough/);
+	// The HM is in the bag, so the refusal is about the replace, not the item.
+	const withHm = run.apply(full, {kind: 'acquire', item: 'HM07 Waterfall', where: 'Route 119'});
 	assert.throws(
-		() => run.apply(full, {kind: 'teach', id: 'mon-1', move: 'Waterfall', replace: 'Fly'}),
+		() => run.apply(withHm, {kind: 'teach', id: 'mon-1', move: 'Waterfall', replace: 'Fly'}),
 		/does not know Fly/
 	);
 });
@@ -319,16 +374,40 @@ test('a level-up move is not available before its level', () => {
 	const state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
 	const later = run.learnable(state, 'mon-1').later;
 	assert.ok(later.length > 0, 'a level 3 Poochyena should have moves still ahead of it');
-	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: later[0].move}),
+	// A move it only learns later, and which no TM can hand over: a TM move
+	// is refused for the missing TM first, which is a different sentence.
+	const oracle = require('../profiles').getProfile(state.profileId || 'run-and-bun').oracle;
+	const byLevel = later.find(row => !oracle.tmFor(row.move) && row.tutorOpensAt === undefined);
+	assert.ok(byLevel, 'some move ahead of it comes only by level-up: ' + later.map(r => r.move).join(', '));
+	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: byLevel.move}),
 		/learns .* at level \d+; it is 3/);
 	// And what it CAN learn now is offered separately, so a UI need not guess —
 	// egg-only entries carry their relearner price as `scale`, so the free
 	// teach is the one to exercise here.
-	const now = run.learnable(state, 'mon-1').now;
+	// At the start of the road nothing is free: every move a level 3 Poochyena
+	// could be handed comes from a tutor the run has not reached, and those
+	// now read as LATER, with the order they open at.
+	assert.ok(later.some(row => row.tutorOpensAt > 0), 'an unreached tutor\'s move waits, and says until when');
+	assert.ok(!run.learnable(state, 'mon-1').now.some(row => !row.scale && !oracle.tmFor(row.move)),
+		'and none of them is offered now');
+	const reached = Object.assign({}, state, {position: 729});
+	const now = run.learnable(reached, 'mon-1').now;
 	assert.ok(now.length > 0);
-	const free = now.find(entry => !entry.scale);
-	assert.ok(free, 'a free teach exists alongside the priced egg moves');
-	assert.ok(run.apply(state, {kind: 'teach', id: 'mon-1', move: free.move}));
+	// Free means free of BOTH prices now: a Heart Scale for an egg move, and
+	// the TM itself for a TM move, which is a one-time item in this fork.
+	const free = now.find(entry => !entry.scale && !oracle.tmFor(entry.move));
+	assert.ok(free, 'a free teach exists alongside the priced ones');
+	assert.ok(run.apply(reached, {kind: 'teach', id: 'mon-1', move: free.move}));
+	const byTm = now.find(entry => !entry.scale && oracle.tmFor(entry.move));
+	if (byTm) {
+		const tm = oracle.tmFor(byTm.move);
+		assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: byTm.move}),
+			error => error.message.includes('comes from ' + tm.name),
+			'a TM move is refused while the bag has no TM');
+		const armed = run.apply(state, {kind: 'acquire', item: tm.name, where: 'Route 104'});
+		assert.ok(run.apply(armed, {kind: 'teach', id: 'mon-1', move: byTm.move}),
+			'and taught once the TM is in the bag');
+	}
 });
 
 test('the level caps are the game\'s own ladder, all twenty-three rows', () => {
@@ -338,10 +417,10 @@ test('the level caps are the game\'s own ladder, all twenty-three rows', () => {
 	// of 16; Fallarbor Vito's 48 exists with no badge; and no cap lifts at
 	// Chelle's Mt Pyre fight or Maxie's Space Center raid).
 	const DOC_LADDER = [
-		[19, 12], [56, 17], [77, 21], [139, 25], [181, 32], [224, 35],
-		[265, 38], [337, 42], [434, 48], [519, 54], [571, 57], [696, 65],
-		[714, 66], [758, 69], [855, 73], [927, 76], [1009, 79], [1056, 81],
-		[1130, 85], [1247, 89], [1364, 91], [1454, 95], [1620, 99],
+		[22, 12], [59, 17], [80, 21], [142, 25], [184, 32], [229, 35],
+		[270, 38], [342, 42], [439, 48], [524, 54], [576, 57], [701, 65],
+		[719, 66], [763, 69], [860, 73], [932, 76], [1014, 79], [1061, 81],
+		[1135, 85], [1252, 89], [1369, 91], [1459, 95], [1625, 99],
 	];
 	const state = fresh({permadeath: true, rival: 'Swampert'});
 	let previous = -1;
@@ -358,11 +437,11 @@ test('the level caps are the game\'s own ladder, all twenty-three rows', () => {
 	assert.equal(capped.cap, 12);
 	assert.equal(capped.trainer, 'Team Aqua Grunt Petalburg Woods');
 	assert.equal(capped.ace, 'Croagunk');
-	// The rival boundary holds for a declared rival: fight #253 is the
+	// The rival boundary holds for a declared rival: order 253 is the
 	// Sceptile variant, invisible to a Swampert run, but the cap segment is
-	// the triplet's — 38 through #265, 42 after.
-	assert.equal(run.capAt(state, 253), 38);
-	assert.equal(run.capAt(state, 266), 42);
+	// the triplet's — 38 through #270, 42 after.
+	assert.equal(run.capAt(state, 258), 38);
+	assert.equal(run.capAt(state, 271), 42);
 });
 
 test('the level cap follows boss tiers, not badges', () => {
@@ -440,6 +519,28 @@ test('levels do not go down', () => {
 		/already level 40; levels do not go down/);
 });
 
+// Run & Bun, Mechanic Changes: "Items that get consumed or removed from your
+// Pokémon in any way during battle will not be restored." An Aron holding a
+// Chople Berry through Brawly kept it forever, so every later matchup priced
+// a resist that could never fire again. Only the player of the fight knows the
+// berry was eaten, so it is a recorded command, and a replay is exact.
+test('a held item used up in a fight is gone, not returned to the bag', () => {
+	let state = run.apply(fresh(), MARILL);
+	state = run.apply(state, {kind: 'acquire', item: 'Chople Berry'});
+	state = run.apply(state, {kind: 'give', id: 'mon-1', item: 'Chople Berry'});
+	const eaten = run.apply(state, {kind: 'consume', id: 'mon-1', item: 'Chople Berry', to: 'Leader Brawly'});
+	assert.equal(eaten.box[0].item, null, 'the holder holds nothing');
+	assert.deepEqual(eaten.bag, {}, 'and the bag did not get it back');
+	assert.match(eaten.log[eaten.log.length - 1].summary, /Chople Berry was used up/);
+	// A consume that names the wrong item refuses rather than eating another.
+	assert.throws(() => run.apply(state, {kind: 'consume', id: 'mon-1', item: 'Oran Berry'}),
+		/holding Chople Berry, not Oran Berry/);
+	assert.throws(() => run.apply(eaten, {kind: 'consume', id: 'mon-1', item: 'Chople Berry'}),
+		/holding nothing, not Chople Berry/);
+	// Undo replays the log without it: the berry is back on the holder.
+	assert.equal(run.undo(eaten).box[0].item, 'Chople Berry');
+});
+
 test('the bag conserves items across every move', () => {
 	let state = run.apply(fresh(), MARILL);
 	state = run.apply(state, {kind: 'acquire', item: 'Leftovers', count: 2});
@@ -461,6 +562,20 @@ test('the bag conserves items across every move', () => {
 	state = run.apply(state, {kind: 'take', id: 'mon-1'});
 	assert.equal(state.box[0].item, null);
 	assert.deepEqual(state.bag, {Leftovers: 2, 'Sitrus Berry': 1});
+
+	// Most of a bag is not a held item, and `give` used to take any of it. The
+	// refusal then arrived from the calculator, one layer down and one action
+	// later, naming a battle slot rather than a box entry — so the run could
+	// not plan or fight until somebody worked out who was holding what.
+	for (const junk of ['Potion', 'Rare Candy', 'Heart Scale', 'Escape Rope']) {
+		const stocked = run.apply(state, {kind: 'acquire', item: junk});
+		assert.throws(
+			() => run.apply(stocked, {kind: 'give', id: 'mon-1', item: junk}),
+			new RegExp(junk + ' is not an item a Pokemon can hold'),
+			`${junk} must be refused by give, not by the calculator later`);
+		// A refusal leaves the bag exactly as it was.
+		assert.equal(stocked.bag[junk], 1);
+	}
 	// Releasing a holder returns what it held rather than destroying it.
 	const released = run.apply(
 		run.apply(state, {kind: 'give', id: 'mon-1', item: 'Leftovers'}),
@@ -576,7 +691,7 @@ test('a loss carries its epitaph, and the trainer named must be real', () => {
 	assert.equal(mon.status, 'dead');
 	assert.equal(mon.died.to, 'Leader Brawly');
 	assert.equal(mon.died.move, 'Drain Punch');
-	assert.equal(mon.died.order, 77);
+	assert.equal(mon.died.order, 80);
 	assert.match(state.log[state.log.length - 1].summary, /Leader Brawly's Drain Punch/);
 
 	// The epitaph is optional: a bare faint still records that it happened here.
@@ -617,16 +732,16 @@ test('route availability: imported unlock dates order the routes view', () => {
 
 	// Petalburg Woods is the import's hardest case: rab's proxy dates it
 	// post-Brawly because it labels the in-woods grunt "Route 104 (South)",
-	// but this run map NAMES a fight after the woods at #19 — direct evidence
+	// but this run map NAMES a fight after the woods at #22 — direct evidence
 	// that outranks the proxy.
 	const woods = oracle.availabilityOf('Petalburg Woods');
-	assert.equal(woods.opensAt, 19);
+	assert.equal(woods.opensAt, 22);
 	assert.equal(woods.method, 'our-fight');
 
 	// A multi-floor complex expands to every floor: rab says "Victory Road",
-	// all three of our wild tables inherit the date (post-Juan, #1364).
-	assert.equal(oracle.availabilityOf('Victory Road B1f').opensAt, 1382);
-	assert.equal(oracle.availabilityOf('Victory Road B2f').opensAt, 1382);
+	// all three of our wild tables inherit the date (post-Juan, #1369).
+	assert.equal(oracle.availabilityOf('Victory Road B1f').opensAt, 1387);
+	assert.equal(oracle.availabilityOf('Victory Road B2f').opensAt, 1387);
 
 	// And the nuzlocke unit folds the floors into one location.
 	assert.equal(oracle.areaOf('Victory Road B2f'), 'Victory Road');
@@ -634,9 +749,16 @@ test('route availability: imported unlock dates order the routes view', () => {
 	assert.equal(oracle.areaOf('Underwater Route124'), 'Route124');
 	assert.equal(oracle.areaOf('Route101'), 'Route101');
 
-	// A map the import never dated answers null — unknown, not closed.
-	assert.equal(oracle.availabilityOf('Altering Cave'), null);
+	// A map NOTHING can date answers null — unknown, not closed. Artisan Cave
+	// is the honest example: post-game content the R&B tracker never lists,
+	// so neither the transcribed anchor nor the derived tracker order reaches
+	// it. Altering Cave used to stand here and no longer can — it is dated
+	// now, from the tracker.
+	assert.equal(oracle.availabilityOf('Artisan Cave 1f'), null);
 	assert.equal(oracle.availabilityOf('no such place'), null);
+	// And a location the tracker DID place carries its provenance, so nobody
+	// mistakes a derived date for the original transcription.
+	assert.equal(oracle.availabilityOf('Altering Cave').provenance, 'derived');
 
 	// The routes view: open means the run's NEXT fight is at-or-past the date,
 	// so a fresh run sees Route 101 open and the woods still ahead.
@@ -646,11 +768,11 @@ test('route availability: imported unlock dates order the routes view', () => {
 	assert.equal(r101.opensAt, 0);
 	assert.equal(r101.open, true);
 	const woodsRow = routes.find(route => route.name === 'Petalburg Woods');
-	assert.equal(woodsRow.opensAt, 19);
+	assert.equal(woodsRow.opensAt, 22);
 	assert.equal(woodsRow.open, false);
-	assert.equal(routes.find(route => route.name === 'Altering Cave').opensAt, undefined);
+	assert.equal(routes.find(route => route.name === 'Artisan Cave').opensAt, undefined);
 
-	// Beating the run forward opens it: position 19 makes fight #19 the last
+	// Beating the run forward opens it: position 19 makes order 19 the last
 	// one beaten, so a map dated to #19 is open.
 	const advanced = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Petalburg Woods'});
 	assert.equal(run.unusedRoutes(advanced).routes
@@ -709,86 +831,33 @@ test('one encounter per LOCATION: a cave is one route, whatever its floors say',
 	assert.throws(() => run.unusedRoutes(tampered), /unknown route unit "region"/);
 });
 
-test('the advisor never teaches suicide: self-KO moves price as trades', () => {
-	// A lone Seedot vs Calvin: its learnset holds Misty Explosion and
-	// Explosion, both guaranteed KOs on paper, both fatal to Seedot. The
-	// optimizer used to lead with "Misty Explosion, +3 KO"; the board now
-	// refuses to call a sacrifice an answer, so the whole family prices at
-	// no gain and drops off the list — and the top teach is a real move.
-	let state = run.apply(fresh({permadeath: true}),
-		owned({kind: 'catch', species: 'Seedot', map: 'Route103', level: 2}));
-	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
-	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
-	const advice = run.adviseUpgrades(state, 'Youngster Calvin');
-	assert.equal(advice.upgrades.length, 0,
-		'a bare Seedot has no confirmed, currently obtainable improvement here');
-	assert.ok(advice.availability.undatedMovesExcluded > 0,
-		'legal but undated TM/tutor ideas are withheld instead of sold as current prep');
-	assert.ok(advice.upgrades.every(u => !/Explosion|Self-Destruct|Final Gambit/.test(u.detail)),
-		'no self-KO move may be sold as an upgrade');
-
-	// Bullet Seed is Seedot's best answer here — and an EGG move, reachable
-	// only through the relearner, which charges one Heart Scale. With an
-	// empty bag it may not be offered; with a scale it returns, price named.
-	assert.ok(advice.upgrades.every(u => !/Bullet Seed|Take Down/.test(u.detail)),
-		'an egg move without a Heart Scale is not a change the player can make');
-	const funded = run.apply(state, {kind: 'acquire', item: 'Heart Scale'});
-	const paid = run.adviseUpgrades(funded, 'Youngster Calvin');
-	assert.equal(paid.upgrades[0].detail, 'Bullet Seed (one Heart Scale)');
-	assert.equal(paid.upgrades[0].delta.koGained, 1);
-
-	// The teach command charges the same price: refused broke, paid funded,
-	// and a move with any free route (Play Rough is also a TM) stays free.
-	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Bullet Seed'}),
-		/Bullet Seed is an egg move for Seedot — the relearner charges one Heart Scale/);
-	const taught = run.apply(funded, {kind: 'teach', id: 'mon-1', move: 'Bullet Seed'});
-	assert.ok(taught.log[taught.log.length - 1].summary.includes('for one Heart Scale'));
-	assert.equal(taught.bag['Heart Scale'], undefined, 'the scale is spent');
-	let pooch = run.apply(fresh({permadeath: true}),
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
-	pooch = run.apply(pooch, {kind: 'teach', id: 'mon-1', move: 'Play Rough'});
-	assert.ok(!pooch.log[pooch.log.length - 1].summary.includes('Heart Scale'));
-
-	// And never an HM the story has not handed over: Lotad's Surf gates at
-	// #589, so an advisor for fight #3 may not offer it. TMs carry no dates
-	// in the source, so only the HM spine is gated.
-	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
-	assert.equal(oracle.moveObtainableAt('Surf'), 589);
-	assert.equal(oracle.moveObtainableAt('Rock Smash'), 139);
-	assert.equal(oracle.moveObtainableAt('Tackle'), null);
-	let wet = run.apply(fresh({permadeath: true}),
-		owned({kind: 'catch', species: 'Lotad', map: 'Petalburg City', level: 5,
-			method: 'fish'}));
-	wet = run.apply(wet, {kind: 'party', ids: ['mon-1']});
-	wet = run.apply(wet, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
-	const early = run.adviseUpgrades(wet, 'Bug Catcher Rick');
-	assert.ok(early.upgrades.every(u => !/^Surf\b|\bSurf$/.test(u.detail) &&
-		!/Waterfall|\bDive\b|\bFly\b|Strength/.test(u.detail)),
-	'no undelivered HM may be offered as a teach');
-});
-
 test('a hold saves a location on purpose, and says when the wait pays off', () => {
-	// The canonical case from the operator's own practice: Petalburg City's
-	// rod offers Croagunk today, but its surf water holds Popplio at 50% —
-	// the Primarina line — once Surf exists at #589. The route is walked
-	// past ON PURPOSE, and the tool records the purpose.
+	// The canonical case from the operator's own practice, in Philip's words:
+	// "you could wait and save Littleroot Town for a surfing encounter much
+	// later." Littleroot is reachable from the first fight and holds nothing
+	// but water — the four starters on surf, a Super Rod table below them —
+	// so it is walked past ON PURPOSE, and the tool records the purpose.
+	//
+	// This stood on Petalburg City until Philip corrected its date: Petalburg
+	// is reachable only through Route 102, so it is no longer open at the
+	// start and cannot demonstrate a hold there.
 	let state = run.apply(fresh({permadeath: true}),
-		{kind: 'hold', map: 'Petalburg City', for: 'Popplio'});
-	assert.match(state.log[state.log.length - 1].summary, /held Petalburg City for Popplio/);
+		{kind: 'hold', map: 'Littleroot Town', for: 'Squirtle'});
+	assert.match(state.log[state.log.length - 1].summary, /held Littleroot Town for Squirtle/);
 
 	// The routes view names the wait — and it is not ready at position -1.
-	const route = run.unusedRoutes(state).routes.find(r => r.name === 'Petalburg City');
-	assert.deepEqual(route.held, {for: 'Popplio', ready: false});
+	const route = run.unusedRoutes(state).routes.find(r => r.name === 'Littleroot Town');
+	assert.deepEqual(route.held, {for: 'Squirtle', ready: false});
 
 	// The scout stops nagging about it and says so.
 	const scouted = run.adviseCatches(state);
 	assert.equal(scouted.held, 1);
-	assert.ok(scouted.catches.every(c => c.area !== 'Petalburg City'));
+	assert.ok(scouted.catches.every(c => c.area !== 'Littleroot Town'));
 
 	// Once the run passes the Surf gate, the hold reads READY.
 	const late = JSON.parse(JSON.stringify(state));
 	late.position = 600;
-	const readyRoute = run.unusedRoutes(late).routes.find(r => r.name === 'Petalburg City');
+	const readyRoute = run.unusedRoutes(late).routes.find(r => r.name === 'Littleroot Town');
 	assert.equal(readyRoute.held.ready, true);
 
 	// Waiting for a ghost is refused with the roster; a held location cannot
@@ -796,8 +865,8 @@ test('a hold saves a location on purpose, and says when the wait pays off', () =
 	assert.throws(() => run.apply(fresh({permadeath: true}),
 		{kind: 'hold', map: 'Route101', for: 'Popplio'}),
 	/Popplio does not appear anywhere on Route101/);
-	assert.throws(() => run.apply(state, {kind: 'hold', map: 'Petalburg City'}),
-		/already held for Popplio/);
+	assert.throws(() => run.apply(state, {kind: 'hold', map: 'Littleroot Town'}),
+		/already held for Squirtle/);
 	assert.throws(() => run.apply(state, {kind: 'unhold', map: 'Route101'}),
 		/Route101 is not held/);
 
@@ -810,56 +879,16 @@ test('a hold saves a location on purpose, and says when the wait pays off', () =
 	// A catch that spends the held location resolves the hold, fulfilled or
 	// not; a spent location cannot be held after the fact.
 	const caught = run.apply(state,
-		{kind: 'catch', species: 'Croagunk', map: 'Petalburg City', level: 5, method: 'fish'});
+		{kind: 'catch', species: 'Lotad', map: 'Littleroot Town', level: 3, method: 'fish'});
 	assert.equal(Object.keys(caught.holds).length, 0, 'the catch resolves the hold');
-	assert.throws(() => run.apply(caught, {kind: 'hold', map: 'Petalburg City'}),
-		/already gave its encounter \(Croagunk\)/);
+	assert.throws(() => run.apply(caught, {kind: 'hold', map: 'Littleroot Town'}),
+		/already gave its encounter \(Lotad\)/);
 
 	// Release works and undo replays holds faithfully.
-	const released = run.apply(state, {kind: 'unhold', map: 'Petalburg City'});
+	const released = run.apply(state, {kind: 'unhold', map: 'Littleroot Town'});
 	assert.equal(Object.keys(released.holds).length, 0);
 	const undone = run.undo(released);
-	assert.deepEqual(undone.holds, {'Petalburg City': {for: 'Popplio'}});
-});
-
-test('the advisor recommends field pickups, with where to go get them', () => {
-	// A player who never records pickups has an empty bag, and the bag-only
-	// advisor priced no items at all. The overworld hands out a Miracle Seed
-	// on Route 104 (#11) — a Grass Treecko fighting a fisherman's water mons
-	// at #22 should be told to go get it.
-	let state = run.apply(fresh({permadeath: true}),
-		owned({kind: 'catch', species: 'Treecko', level: 5}));
-	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
-	state = run.apply(state, {kind: 'levelUp', id: 'mon-1', to: 'cap'});
-	const advice = run.adviseUpgrades(state, 'Fisherman Elliot');
-	const seed = advice.upgrades.find(u => u.kind === 'pickup' && /Miracle Seed/.test(u.detail));
-	assert.ok(seed, 'the Miracle Seed pickup must be offered against water');
-	assert.match(seed.detail, /Miracle Seed \(pickup @ Route 104\)/);
-	assert.ok(seed.delta.damage > 0);
-
-	// Not before the overworld has handed it out: fight #0 predates every
-	// type-boost pickup, so none may be offered there.
-	const early = run.adviseUpgrades(state, 'Youngster Calvin');
-	assert.ok(early.upgrades.every(u => !/Miracle Seed|Silk Scarf|Soft Sand/.test(u.detail)),
-		'no pickup that the overworld has not handed out yet');
-
-	// Once the bag records the pickup, the same item is a GIVE, not a trip.
-	const bagged = run.apply(state, {kind: 'acquire', item: 'Miracle Seed'});
-	const again = run.adviseUpgrades(bagged, 'Fisherman Elliot');
-	assert.ok(again.upgrades.some(u => u.kind === 'give' && u.detail === 'Miracle Seed'));
-	assert.ok(again.upgrades.every(u => !/pickup @ Route 104/.test(u.detail)));
-
-	// The split sheet lists the same items as prep: names, places, and
-	// whether the run can reach them yet.
-	const prep = run.splitPrep(state);
-	const sheet = prep.pickups.map(p => p.name);
-	assert.ok(sheet.includes('Miracle Seed') && sheet.includes('Silk Scarf') &&
-		sheet.includes('Soft Sand'), `Brawly-split pickups missing from ${sheet}`);
-	const scarf = prep.pickups.find(p => p.name === 'Silk Scarf');
-	assert.equal(scarf.location, 'Route 106');
-	assert.equal(scarf.reachable, false, 'not reachable at position -1');
-	// Collected items drop off the sheet.
-	assert.ok(!run.splitPrep(bagged).pickups.some(p => p.name === 'Miracle Seed'));
+	assert.deepEqual(undone.holds, {'Littleroot Town': {for: 'Squirtle'}});
 });
 
 test('the catch advisor scouts only what is really catchable, on the board', () => {
@@ -872,7 +901,7 @@ test('the catch advisor scouts only what is really catchable, on the board', () 
 	assert.equal(out.enemies, 6);
 
 	// Petalburg City's surf slots are geography the run can reach but water it
-	// cannot ride: Surf gates at #589, so they are counted out, not proposed.
+	// cannot ride: Surf gates at #594, so they are counted out, not proposed.
 	assert.ok(out.gated >= 1, 'surf prospects before Surf must be gated');
 	assert.ok(out.catches.every(c => c.method !== 'surf'));
 	// Fishing is open from the start — Run & Bun's one rod is given on Route 103.
@@ -887,9 +916,16 @@ test('the catch advisor scouts only what is really catchable, on the board', () 
 	// The routes view carries the same gate: an open route lists its surf slot
 	// with the order the method starts working, so the forecast never promises
 	// surfing before Surf exists.
-	const petalburg = run.unusedRoutes(state).routes.find(route => route.name === 'Petalburg City');
-	assert.ok(petalburg.open);
-	assert.ok(petalburg.best.some(mon => mon.gated === 589));
+	//
+	// Littleroot Town, not Petalburg City. Petalburg used to sit at order 0
+	// and no longer does — Philip's correction, since you reach it only
+	// through Route 102 and its intro trainers. Littleroot is the better
+	// example anyway: it is open from the first fight and has NOTHING but
+	// surf and fish, so the method gate is the entire story there.
+	const littleroot = run.unusedRoutes(state).routes.find(route => route.name === 'Littleroot Town');
+	assert.ok(littleroot.open, 'the town the run starts in is reachable at once');
+	assert.ok(littleroot.best.every(mon => mon.gated || mon.rod),
+		'and everything in it waits on Surf or a Rod');
 });
 
 test('platform contract: rivals come from the profile, and layers fail by name', () => {
@@ -1029,6 +1065,7 @@ test('the split sheet is the gauntlet with its caps, and it moves with the run',
 	// each under the cap in force when it is fought — the Museum pair shares
 	// the authored 17.
 	assert.deepEqual(prep.gauntlet.map(f => [f.trainer, f.tier, f.cap]), [
+		['Trainer Rival Route 103 Swampert', 'story', 12],
 		['Team Aqua Grunt Petalburg Woods', 'story', 12],
 		['Team Aqua Grunt Museum #1', 'story', 17],
 		['Team Aqua Grunt Museum #2', 'story', 17],
@@ -1101,7 +1138,9 @@ test('nuzlocke: the encounter list is a forecast — odds, dupes, and a used rou
 
 test('position fast-forwards; a declared skip is the one way back', () => {
 	let state = run.apply(fresh(), {kind: 'beat', trainer: 'Youngster Calvin'});
-	assert.equal(state.position, 0);
+	// Calvin sits past the Route 103 rival trio, so beating him fast-forwards
+	// the road over them: position is his order on the restored map.
+	assert.equal(state.position, 3);
 	assert.equal(run.upcoming(state, 1)[0].trainer, 'Bug Catcher Rick');
 	// Beating ahead is the fast-forward: the road behind fell on the way,
 	// and walking it back is refused — that is how a run is recorded.
@@ -1121,27 +1160,27 @@ test('a skipped guard keeps his route closed until he actually falls', () => {
 	let state = run.apply(fresh({onePerRoute: true}),
 		{kind: 'skip', trainer: 'Camper Gavi', for: 'a box that can afford him'});
 	assert.match(state.log[state.log.length - 1].summary,
-		/skipping Camper Gavi \(#48\) — waiting for a box that can afford him/);
+		/skipping Camper Gavi \(#51\) — waiting for a box that can afford him/);
 	// Never twice, and the skipped fight leads the road once passed.
 	assert.throws(() => run.apply(state, {kind: 'skip', trainer: 'Camper Gavi'}),
 		/already being skipped/);
 	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'});
-	assert.deepEqual(state.skipped, [48]);
+	assert.deepEqual(state.skipped, [51]);
 	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi');
 	// Passed, not beaten: the electric grass he guards stays shut.
 	assert.throws(() => run.rollEncounter(state, {map: 'Route110'}),
-		/Route110 is not reachable yet — Camper Gavi \(#48\) guards it/);
+		/Route110 is not reachable yet — Camper Gavi \(#51\) guards it/);
 	// While he stands the debt is VISIBLE: mandatory-but-delayed is owed.
-	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 48}]);
+	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 51}]);
 	// An OPTIONAL skip is different: never owed, and simply not the road.
 	state = run.apply(state, {kind: 'skip', trainer: 'Triathlete Pablo'});
-	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 48}],
+	assert.deepEqual(run.summarize(state).owed, [{trainer: 'Camper Gavi', order: 51}],
 		'an optional skip is not a debt');
 	assert.ok(!run.upcoming(state, 500).some(fight => fight.trainer === 'Triathlete Pablo'),
 		'a skipped optional fight leaves the road entirely');
 	// Beat him late and the route opens, position unmoved, the debt settled.
 	state = run.apply(state, {kind: 'beat', trainer: 'Camper Gavi'});
-	assert.equal(state.position, 56);
+	assert.equal(state.position, 59);
 	assert.deepEqual(run.summarize(state).owed, []);
 	const rolled = run.rollEncounter(state, {map: 'Route110', random: () => 0.01});
 	assert.ok(rolled.species, 'the guarded route rolls once the guard falls');
@@ -1206,12 +1245,153 @@ test('the run plans the next fight with the party it actually has', () => {
 	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
 
 	const plan = run.planNext(state);
-	assert.equal(plan.trainer, 'Youngster Calvin', 'the run starts before the first fight');
+	assert.equal(plan.trainer, 'Trainer Rival Route 103 Sceptile',
+		'the run starts before the first fight — the Route 103 rival since 2026-08-28');
 	// The party is the player's own box, never a borrowed trainer build.
 	assert.equal(plan.borrowedPlayerBuild, false);
 	assert.equal(plan.state.sides.player.party[0].species, 'Azumarill');
 	assert.equal(plan.state.sides.player.party[0].level, 40);
 	assert.ok(plan.actions.length > 1);
+});
+
+test('before a threshold fight, the list demands a priority answer', () => {
+	// The enforcement half of the threshold warning. Lilith's sash Mankey swept
+	// six SLOWER Pokemon from 2% HP — nothing alive could move first, so
+	// nothing could collect a 1-HP kill. A priority move ignores the speeds,
+	// which makes it the tool the fight demands, and preFightOpportunities now
+	// refuses to stay quiet when the party lacks one.
+	const IVS = {hp: 20, atk: 20, def: 20, spa: 20, spd: 20, spe: 20};
+	let state = fresh({levelCap: 'none'});
+	state = run.apply(state, {kind: 'catch', species: 'Poochyena', level: 12, ivs: IVS});
+	// A second member who could ALSO learn a priority move (Marill: Aqua Jet),
+	// so "stops shopping once covered" is observable: without it, an emptied
+	// teachable list after teaching Poochyena proves nothing, because the
+	// taught move simply left its own learnable set — which is exactly how the
+	// first falsification of this gate failed to fire.
+	state = run.apply(state, {kind: 'catch', species: 'Marill', level: 12, ivs: IVS});
+	state = run.apply(state, {kind: 'party', ids: [state.box[0].id, state.box[1].id]});
+	for (const trainer of ['Youngster Calvin', 'Bug Catcher Rick', 'Youngster Allen',
+		'Lass Tiana', 'Triathlete Mikey']) {
+		state = run.apply(state, {kind: 'beat', trainer});
+	}
+
+	// Standing before Fisherman Darian and his sash Flail Magikarp.
+	const prep = run.preFightOpportunities(state).thresholdPrep;
+	assert.deepEqual(prep.threats,
+		[{species: 'Magikarp', move: 'Flail', holds: 'Focus Sash'}]);
+	assert.equal(prep.covered, false, 'Poochyena at 12 has no priority attack');
+	assert.deepEqual(prep.teachable,
+		[{id: 'mon-1', species: 'Poochyena', move: 'Sucker Punch'},
+			{id: 'mon-2', species: 'Marill', move: 'Aqua Jet'}],
+		'every fix is named, and each is one that Pokemon can actually learn');
+	// Snatch is +4 priority and learnable RIGHT NOW, and it must not be here:
+	// status priority cannot collect a 1-HP kill, which is the whole job.
+	assert.ok(!prep.teachable.some(row => row.move === 'Snatch'),
+		'status priority is not an answer');
+
+	// Teach the suggestion — through the run's own economy, which charges a
+	// Heart Scale for an egg move — and the demand is satisfied.
+	state = run.apply(state, {kind: 'acquire', item: 'Heart Scale'});
+	state = run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Sucker Punch',
+		replace: state.box[0].moves[0]});
+	const after = run.preFightOpportunities(state).thresholdPrep;
+	assert.equal(after.covered, true);
+	assert.deepEqual(after.priorityAnswers,
+		[{id: 'mon-1', species: 'Poochyena', move: 'Sucker Punch'}]);
+	assert.deepEqual(after.teachable, [],
+		'once covered it stops shopping: the point is a missing tool, not a catalogue');
+
+	// A next fight with no threshold set reports the quiet shape, not a missing
+	// key — absent reads as "not modelled", and this is modelled.
+	const calm = run.preFightOpportunities(run.apply(fresh({levelCap: 'none'}),
+		{kind: 'catch', species: 'Poochyena', level: 12, ivs: IVS})).thresholdPrep;
+	assert.deepEqual(calm, {threats: [], priorityAnswers: [], teachable: [], covered: true});
+});
+
+test('a skipped Gavi steps aside going out and stands first coming back', () => {
+	// The operator's ruling: Camper Gavi is MEANT to be tough because he can
+	// be passed and taken after the museum Aqua Grunts. The engine had the
+	// whole loop — skip declares the debt, beat settles it in place — but
+	// upcoming() sorted the owed fight first ALWAYS, so the play surface
+	// offered a skipped Gavi again on the very next cycle and the skip was a
+	// no-op. Now the declaration means something in both directions.
+	const IVS = {hp: 20, atk: 20, def: 20, spa: 20, spd: 20, spe: 20};
+	const planner = require('../lib/planner');
+	let state = fresh({levelCap: 'none'});
+	state = run.apply(state, {kind: 'catch', species: 'Poochyena', level: 20, ivs: IVS});
+	state = run.apply(state, {kind: 'party', ids: [state.box[0].id]});
+	for (const fight of planner.listFights('run-and-bun').fights) {
+		if (fight.order >= 51) break;
+		try { state = run.apply(state, {kind: 'beat', trainer: fight.trainer}); } catch (error) { /* variant */ }
+	}
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi');
+
+	// Skipping sends the road FORWARD — and the map itself vindicates the
+	// ruling: the next fights are the museum grunts.
+	state = run.apply(state, {kind: 'skip', trainer: 'Camper Gavi'});
+	const forward = run.upcoming(state, 2);
+	assert.equal(forward[0].trainer, 'Team Aqua Grunt Museum #1');
+	assert.equal(forward[1].trainer, 'Team Aqua Grunt Museum #2');
+
+	// The grunts are BACK TO BACK, no heals, no way out to fight Gavi in the
+	// middle — the operator's correction, encoded off the shared name stem.
+	// After grunt #1 the road must offer grunt #2, not the debt.
+	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #1'});
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Team Aqua Grunt Museum #2',
+		'a debt must not interrupt a gauntlet');
+
+	// The gauntlet done, the debt stands first: the player went and did the
+	// other thing, and the owed fight is the nearest thing left standing.
+	state = run.apply(state, {kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'});
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Camper Gavi');
+
+	// Settling the debt does not move the run, and clears the skip.
+	state = run.apply(state, {kind: 'beat', trainer: 'Camper Gavi'});
+	assert.equal(state.skipped, undefined);
+	assert.equal(run.upcoming(state, 1)[0].trainer, 'Battle Girl Laura');
+});
+
+test('a plan names the threshold set the samples cannot price', () => {
+	// Battle Girl Lilith's Mankey holds Focus Sash + Reversal. The fair-dice
+	// sampler is known blind to HP-threshold power — the pinned provider's
+	// bundle carries the move name and no scaling formula — and it forecast
+	// "worst sampled branch loses 1" fourteen times while the Mankey swept six
+	// Pokemon in twelve of them. The plan cannot fix the sampler, but it can
+	// refuse to stay quiet about the set: the threat rides the plan itself, so
+	// every consumer — panel, driver, calibration — sees the same warning.
+	let state = run.apply(fresh(), owned(MARILL));
+	state = run.apply(state, {kind: 'party', ids: ['mon-1']});
+
+	const lilith = run.planNext(state, {trainer: 'Battle Girl Lilith'});
+	assert.deepEqual(lilith.thresholdThreats,
+		[{species: 'Mankey', move: 'Reversal', holds: 'Focus Sash'}],
+		'sash Reversal is exactly the set the sampler under-prices');
+
+	// Flail and a pinch berry are the same mechanic wearing other names, and
+	// this one sits at fight #14 — the earliest place the blindness can bite.
+	const darian = run.planNext(state, {trainer: 'Fisherman Darian'});
+	assert.deepEqual(darian.thresholdThreats,
+		[{species: 'Magikarp', move: 'Flail', holds: 'Focus Sash'}]);
+
+	// A trainer with no such set must report an EMPTY list, not a missing key:
+	// an absent key reads as "not modelled", and this is modelled.
+	const calvin = run.planNext(state, {trainer: 'Youngster Calvin'});
+	assert.deepEqual(calvin.thresholdThreats, []);
+
+	// A pinch BERRY anchors the state just as a sash does.
+	const marc = run.planNext(state, {trainer: 'Hiker Marc'});
+	assert.deepEqual(marc.thresholdThreats,
+		[{species: 'Lairon', move: 'Reversal', holds: 'Custap Berry'}]);
+
+	// And a threshold move WITHOUT an anchor is not the threat. Tuber Hailey's
+	// Mienfoo carries Reversal with a Black Belt: nothing guarantees it the
+	// pinch state, so its Reversal is a damage roll like any other and naming
+	// it would teach the player to ignore the warning. The first version of
+	// this gate had no such fixture, and dropping the anchor requirement
+	// passed it.
+	const hailey = run.planNext(state, {trainer: 'Tuber Hailey'});
+	assert.deepEqual(hailey.thresholdThreats, [],
+		'Reversal without a sash, pinch berry, Sturdy or Endure is not named');
 });
 
 test('a look-ahead plan fights with the party the run will legally have', () => {
@@ -1279,7 +1459,7 @@ test('the summary states where the run has got to', () => {
 		{kind: 'acquire', item: 'Leftovers'},
 	]);
 	const summary = run.summarize(state);
-	assert.equal(summary.position, 0);
+	assert.equal(summary.position, 3);
 	assert.equal(summary.next.trainer, 'Bug Catcher Rick');
 	assert.equal(summary.boxed, 1);
 	assert.equal(summary.lost, 0);
@@ -1296,11 +1476,12 @@ test('the summary states where the run has got to', () => {
 test('the story spine derives beaten from position, not from bookkeeping', () => {
 	const state = fresh();
 	const spine = run.milestones(state);
-	// 44: nine badge battles, eight Elite Four rounds, the Champion, nine rival
-	// battles, seven admin battles, five team-leader battles, Wally, Steven, both
-	// Chelle fights and Dumbass Soupercell.
-	assert.equal(spine.length, 44, 'every milestone fight in the map');
-	assert.equal(spine[0].trainer, 'Leader Brawly');
+	// 47: nine badge battles, eight Elite Four rounds, the Champion, twelve
+	// rival battles (the restored Route 103 trio included), seven admin battles,
+	// five team-leader battles, Wally, Steven, both Chelle fights and Dumbass
+	// Soupercell.
+	assert.equal(spine.length, 47, 'every milestone fight in the map');
+	assert.equal(spine[0].trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(spine[spine.length - 1].trainer, 'Champion Wallace');
 	assert.ok(spine.every(m => !m.beaten), 'a fresh run has beaten nothing');
 
@@ -1308,12 +1489,13 @@ test('the story spine derives beaten from position, not from bookkeeping', () =>
 	// both rounds of rivals included — with no per-trainer bookkeeping.
 	const later = run.apply(state, {kind: 'beat', trainer: 'Leader Norman'});
 	const after = run.milestones(later);
-	assert.equal(after.filter(m => m.beaten).length, 8);
+	assert.equal(after.filter(m => m.beaten).length, 11);
 	assert.equal(after.filter(m => m.beaten).pop().trainer, 'Leader Norman');
 	assert.equal(after.filter(m => !m.beaten)[0].trainer, 'Magma Admin Tabitha Mt Chimney');
 	// Milestones carry their tier so the spine can draw badges taller than
 	// story bosses.
-	assert.equal(after[0].tier, 'boss');
+	assert.equal(after[0].tier, 'story', 'the Route 103 rival opens the spine');
+	assert.equal(after.find(m => m.trainer === 'Leader Brawly').tier, 'boss');
 	assert.equal(after.find(m => m.trainer === 'Magma Admin Tabitha Mt Chimney').tier, 'story');
 });
 
@@ -1391,13 +1573,13 @@ test('the cap at a fight is the cap of the stretch that fight belongs to', () =>
 	// not at Roxanne's 25.
 	assert.equal(run.capAt(state, 77), 21);
 	// The first filler AFTER a cap fight has already moved to the next stretch —
-	// #57 is past the Museum grunts (#56), so it is played under Brawly's 21.
-	assert.equal(run.capAt(state, 57), 21);
-	assert.equal(run.capAt(state, 59), 21, 'route filler mid-stretch, still Brawly');
-	// Filler BEFORE a cap fight is still under it: #20 sits between the Petalburg
-	// Woods grunt (#19) and the Museum grunts (#53), so 17.
-	assert.equal(run.capAt(state, 20), 17);
-	assert.equal(run.capAt(state, 53), 17, "the Museum grunt's own order");
+	// #60 is past the Museum grunts (#59), so it is played under Brawly's 21.
+	assert.equal(run.capAt(state, 60), 21);
+	assert.equal(run.capAt(state, 62), 21, 'route filler mid-stretch, still Brawly');
+	// Filler BEFORE a cap fight is still under it: #23 sits between the Petalburg
+	// Woods grunt (#22) and the Museum grunts (#56), so 17.
+	assert.equal(run.capAt(state, 23), 17);
+	assert.equal(run.capAt(state, 56), 17, "the Museum grunt's own order");
 	// The start of the run, before any fight, is the first story boss' 12 — the
 	// same answer `levelCap` gives a fresh run, from the other direction.
 	assert.equal(run.capAt(state, -1), 12);
@@ -1406,8 +1588,8 @@ test('the cap at a fight is the cap of the stretch that fight belongs to', () =>
 	assert.equal(run.levelCap(state).cap, run.capAt(state, state.position + 1));
 
 	// Nothing boss-tier past the Champion, so nothing sets a cap there.
-	assert.equal(run.capAt(state, 1620), 99, 'the Champion fight plays under the authored 99');
-	assert.equal(run.capAt(state, 1621), null);
+	assert.equal(run.capAt(state, 1625), 99, 'the Champion fight plays under the authored 99');
+	assert.equal(run.capAt(state, 1626), null);
 	// And a run that declines caps has none anywhere.
 	assert.equal(run.capAt(fresh({levelCap: 'none'}), 77), null);
 
@@ -1431,11 +1613,25 @@ test('projecting the party to a cap raises levels and never lowers them', () => 
 		'with no order asked about, the specs are the box as it stands');
 	assert.deepEqual(run.partySpecs(state, {atOrder: 77}).map(m => m.level), [21, 40],
 		'Poochyena rises to Brawly\'s cap; the overlevelled Marill keeps its 40');
-	// Only the level moves: a projection is about the cap, not about the box.
+	// The MOVESET rises with the level. This asserted that only the level
+	// moved and the moves came through untouched, which is how a Chimchar
+	// planned at L12 kept its level-5 moveset and never learned Mach Punch —
+	// every matchup computed against a team the player would not field.
 	const projected = run.partySpecs(state, {atOrder: 77});
 	assert.equal(projected[0].species, 'Poochyena');
-	assert.deepEqual(projected[0].moves, run.findMon(state, 'mon-1').moves);
+	const boxMoves = run.findMon(state, 'mon-1').moves;
+	assert.notDeepEqual(projected[0].moves, boxMoves,
+		'a Pokemon projected from L3 to L21 has learned things on the way');
+	for (const move of boxMoves) {
+		assert.ok(projected[0].moves.includes(move),
+			`projection adds, never drops: ${move} was known at L3`);
+	}
+	assert.equal(new Set(projected[0].moves).size, projected[0].moves.length,
+		'and never repeats a move — a learnset can list one at two levels');
+	assert.ok(projected[0].moves.length <= 4, 'four slots, always');
 	assert.equal(state.box[0].level, 3, 'projection must not write back to the run');
+	assert.deepEqual(run.findMon(state, 'mon-1').moves, boxMoves,
+		'nor write the learned moves back into the box');
 	// A capless run projects nothing, whatever order it is asked about.
 	const free = run.applyAll(fresh({levelCap: 'none'}), [
 		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
@@ -1520,11 +1716,11 @@ test('a declared rival collapses the variant fights to the ones this run can see
 	// identical ace levels; a run faces exactly one, fixed by its starter.
 	const declared = fresh({rival: 'Swampert'});
 	const spine = run.milestones(declared);
-	assert.equal(spine.length, 38, '44 minus the six variants this run never sees');
+	assert.equal(spine.length, 39, '47 minus the eight variants this run never sees');
 	assert.deepEqual(
 		spine.filter(m => /Rival/.test(m.trainer)).map(m => m.trainer),
-		['Trainer Rival Cycling Road Swampert', 'Trainer Rival Bridge Swampert',
-			'Trainer Rival Lilycove Swampert']
+		['Trainer Rival Route 103 Swampert', 'Trainer Rival Cycling Road Swampert',
+			'Trainer Rival Bridge Swampert', 'Trainer Rival Lilycove Swampert']
 	);
 
 	// A fight the run can never see cannot be beaten.
@@ -1543,7 +1739,7 @@ test('a declared rival collapses the variant fights to the ones this run can see
 	assert.equal(cap.cap, 38);
 
 	// Undeclared stays honest: everything visible, nothing refused.
-	assert.equal(run.milestones(fresh()).length, 44);
+	assert.equal(run.milestones(fresh()).length, 47);
 	assert.ok(run.apply(fresh(), {kind: 'beat', trainer: 'Trainer Rival Cycling Road Sceptile'}));
 
 	// Undo replays with the rule intact.
@@ -1566,9 +1762,9 @@ test('the box matrix compares the WHOLE box, at the cap the fight is fought unde
 	const matrix = run.boxMatrix(state);
 	// With no trainer named it compares the fight actually next, which for a
 	// fresh run is the run map's opening battle.
-	assert.equal(matrix.trainer, 'Youngster Calvin');
+	assert.equal(matrix.trainer, 'Trainer Rival Route 103 Sceptile');
 	assert.equal(matrix.order, 0);
-	assert.equal(matrix.grid.length, 3);
+	assert.equal(matrix.grid.length, 1, 'the rival brings one Treecko');
 
 	// Every alive box entry gets a row, party or not.
 	assert.deepEqual(matrix.box.map(entry => entry.id), ['mon-1', 'mon-2']);
@@ -1585,13 +1781,13 @@ test('the box matrix compares the WHOLE box, at the cap the fight is fought unde
 
 	// A named trainer projects to ITS cap, not the run's current one.
 	const ahead = run.boxMatrix(state, 'Leader Brawly');
-	assert.equal(ahead.order, 77);
+	assert.equal(ahead.order, 80);
 	assert.deepEqual(ahead.projection, {applied: true, cap: 21, from: 'projected'});
 	assert.deepEqual(ahead.grid[0].versus.map(row => row.level), [21, 21]);
 	// The same projection `partySpecs` applies, because it IS `partySpecs`.
 	assert.deepEqual(ahead.grid[0].versus.map(row => row.level),
 		run.partySpecs(run.apply(state, {kind: 'party', ids: ['mon-1', 'mon-2']}),
-			{atOrder: 77}).map(spec => spec.level));
+			{atOrder: 80}).map(spec => spec.level));
 
 	assert.throws(() => run.boxMatrix(state, 'Leader Brawley'), /no fight named/);
 });
@@ -1645,7 +1841,7 @@ test('a Heart Scale sets one IV to 31, out of a bag that has one', () => {
 	assert.equal(spent.box[0].ivs.spe, 31);
 	assert.deepEqual(spent.bag, {'Heart Scale': 1}, 'one scale spent, one left');
 	assert.equal(spent.log[spent.log.length - 1].summary,
-		'Poochyena (mon-1) Speed IV 5 → 31 (Heart Scale spent, 1 left)');
+		'Poochyena Speed IV 5 → 31 (Heart Scale spent, 1 left)');
 	// The last scale leaves the bag rather than sitting there as a zero.
 	assert.deepEqual(run.apply(spent, {kind: 'heartScale', id: 'mon-1', stat: 'spa'}).bag, {});
 
@@ -1658,167 +1854,6 @@ test('a Heart Scale sets one IV to 31, out of a bag that has one', () => {
 	// from the bag has to come back byte-identical or the economy drifts.
 	assert.equal(JSON.stringify(run.undo(spent)), JSON.stringify(state));
 	assert.deepEqual(JSON.parse(JSON.stringify(spent)), spent, 'a run must survive JSON');
-});
-
-test('the advisor prices single changes by what they do to the board', () => {
-	const state = run.applyAll(fresh(), [
-		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
-			ivs: Object.assign({}, PERFECT_IVS, {spe: 5})}),
-		{kind: 'party', ids: ['mon-1']},
-		{kind: 'acquire', item: 'Heart Scale'},
-		{kind: 'acquire', item: 'Rare Candy', count: 3},
-		{kind: 'acquire', item: 'Choice Band'},
-	]);
-	const before = JSON.stringify(state);
-	const advice = run.adviseUpgrades(state);
-	assert.equal(JSON.stringify(state), before, 'asking a question must not move the run');
-	assert.equal(advice.trainer, 'Youngster Calvin');
-	assert.equal(advice.order, 0);
-	// The board's projection, because it is the board's numbers: a level 3 catch
-	// stands in front of that grunt at 12.
-	assert.deepEqual(advice.projection, {applied: true, cap: 12, from: 'projected'});
-	assert.deepEqual(advice.party, [{id: 'mon-1', species: 'Poochyena', nickname: null,
-		level: 12, from: 3}]);
-
-	// The candidate set is every move with a confirmed route NOW, every HOLDABLE bag item,
-	// and one scale per recorded sub-31 IV. Rare Candy and the Heart Scale are
-	// both in the bag and in neither list: the calculator cannot hold them, so a
-	// build made of them is not a build.
-	// Derived at the PROJECTED cap, because that is where the advisor draws
-	// candidates: the free candy guarantees the levels between — minus any HM
-	// the story has not handed over by this fight, which the advisor may not
-	// offer (learnable itself stays a capability list).
-	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
-	const teachable = run.learnable(state, 'mon-1', {atLevel: 12}).now
-		.filter(entry => {
-			const gate = oracle.moveObtainableAt(entry.move);
-			const level = entry.sources.some(source =>
-				source.level !== undefined && source.level <= 12);
-			const egg = entry.sources.some(source => /^egg(?:\s|$|\()/.test(source.source));
-			const datedTeach = entry.sources.some(source => source.source === 'teachable') &&
-				gate !== null && gate <= 0;
-			return level || datedTeach || egg;
-		}).length;
-	// ...plus every holdable field pickup the overworld has handed out by
-	// fight #0 that the run has not collected (the advisor's fourth kind).
-	const pickups = oracle.itemsObtainableBy(0)
-		.filter(p => require('../lib/planner').holdableItem(p.name)).length;
-	assert.equal(advice.considered, teachable + 1 + 1 + pickups);
-
-	// The deterministic case. Poochyena knows only Tackle, which leaves the
-	// grunt's own Poochyena standing; paid relearner access to Play Rough turns
-	// that cell into a guaranteed KO, and the advisor has to name the price.
-	const top = advice.upgrades[0];
-	assert.deepEqual({kind: top.kind, id: top.id, detail: top.detail},
-		{kind: 'teach', id: 'mon-1', detail: 'Play Rough (one Heart Scale)'});
-	assert.equal(top.delta.koGained, 1);
-	assert.equal(top.delta.koConceded, 0);
-	assert.ok(top.delta.damage > 0, 'a flipped cell also moves the damage');
-
-	// And the claim is the BOARD's claim, cell for cell — the advisor scores by
-	// rebuilding the row through the planner, so an upgrade can never disagree
-	// with the grid a player reads next to it.
-	const planner = require('../lib/planner');
-	const specs = run.partySpecs(state, {atOrder: 0});
-	const ko = payload => payload.grid.filter(cell => cell.versus[0].us.guaranteedKO).length;
-	assert.equal(ko(planner.matchup({trainer: 'Youngster Calvin', playerParty: specs,
-		profileId: state.profileId})), 0);
-	assert.equal(ko(planner.matchup({trainer: 'Youngster Calvin', profileId: state.profileId,
-		playerParty: [Object.assign({}, specs[0],
-			{moves: specs[0].moves.concat(['Play Rough'])})]})), 1);
-
-	// Best first, capped at ten, and nothing in it that changes nothing: a
-	// shortlist padded with moves worth zero has told the player nothing.
-	assert.ok(advice.upgrades.length <= 10);
-	const net = advice.upgrades.map(e => e.delta.koGained - e.delta.koConceded);
-	assert.deepEqual(net.slice().sort((a, b) => b - a), net);
-	for (const entry of advice.upgrades) {
-		assert.ok(net[advice.upgrades.indexOf(entry)] > 0 || entry.delta.damage > 0,
-			`${entry.detail} improves nothing and should not be listed`);
-	}
-	// Deterministic: the same run must produce the same shortlist twice.
-	assert.deepEqual(run.adviseUpgrades(state).upgrades, advice.upgrades);
-});
-
-test('the advisor draws teach candidates at the projected cap, not today\'s level', () => {
-	// A level 3 Poochyena stands in front of the first grunt at 12, and the free
-	// candy guarantees the levels between — so Bite (level 10) is a candidate
-	// even though the box holds a level 3. Gating on today's level hid every
-	// level-up move between here and the cap while scoring the board at the cap.
-	const state = run.applyAll(fresh(), [
-		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
-		{kind: 'party', ids: ['mon-1']},
-	]);
-	assert.ok(run.learnable(state, 'mon-1', {atLevel: 12}).now.some(e => e.move === 'Bite'));
-	assert.ok(!run.learnable(state, 'mon-1').now.some(e => e.move === 'Bite'),
-		'without atLevel the line stays at the box level — other callers keep their meaning');
-	const details = run.adviseUpgrades(state).upgrades
-		.filter(u => u.kind === 'teach').map(u => u.detail);
-	assert.ok(details.some(d => /^Bite/.test(d)),
-		`Bite should be weighed at cap 12; teach candidates were: ${details.join(', ')}`);
-});
-
-test('the advisor only offers a Heart Scale it can pay for and price', () => {
-	const box = owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
-		ivs: Object.assign({}, PERFECT_IVS, {spe: 5})});
-	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
-	// Same derivation the advisor uses: the capability list minus HMs the
-	// story has not handed over by fight #0, minus egg moves when no Heart
-	// Scale is in the bag to pay the relearner with.
-	const teachableAt = (state, hasScale) => run.learnable(state, 'mon-1', {atLevel: 12}).now
-		.filter(entry => {
-			const gate = oracle.moveObtainableAt(entry.move);
-			const level = entry.sources.some(source =>
-				source.level !== undefined && source.level <= 12);
-			const egg = entry.sources.some(source => /^egg(?:\s|$|\()/.test(source.source));
-			const datedTeach = entry.sources.some(source => source.source === 'teachable') &&
-				gate !== null && gate <= 0;
-			return level || datedTeach || (egg && hasScale);
-		}).length;
-	const teachable = teachableAt(
-		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}]), false);
-	const pickupsAt0 = oracle.itemsObtainableBy(0)
-		.filter(p => require('../lib/planner').holdableItem(p.name)).length;
-
-	// No scale in the bag, no scale candidate: the advisor ranks changes a
-	// player can make today, not ones they could make after finding an item.
-	assert.equal(run.adviseUpgrades(
-		run.applyAll(fresh(), [box, {kind: 'party', ids: ['mon-1']}])).considered,
-	teachable + pickupsAt0);
-
-	// A fully perfect roll has no IV candidate. The scale in the bag still
-	// unlocks egg-move teaches, and the count grows by exactly those.
-	const funded = run.applyAll(fresh(), [
-		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
-			ivs: PERFECT_IVS}),
-		{kind: 'party', ids: ['mon-1']},
-		{kind: 'acquire', item: 'Heart Scale'},
-	]);
-	assert.equal(run.adviseUpgrades(funded).considered, teachableAt(funded, true) + pickupsAt0);
-	// (Evolutions are the advisor's fifth kind, but a Poochyena projected to 12
-	// is short of Mightyena's 18 — it contributes no candidate here, which is
-	// itself the claim: eligibility is judged at the projected cap.)
-});
-
-test('the advisor weighs an evolution the run has already earned', () => {
-	// A box full of level-16+ Treeckos graded as Treeckos called Brawly
-	// unwinnable when Grovyle wins it: the sim that first ran this split wiped
-	// 30/30 unevolved and won 26/30 evolved, with no other change. The advisor
-	// must surface the free upgrade, judged at the projected cap like teaches.
-	const state = run.applyAll(fresh(), [
-		owned({kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3}),
-		{kind: 'party', ids: ['mon-1']},
-	]);
-	// Against Brawly the cap is 21 and Mightyena's 18 is inside it.
-	const advice = run.adviseUpgrades(state, 'Leader Brawly');
-	const evolve = advice.upgrades.find(u => u.kind === 'evolve');
-	assert.ok(evolve, 'an earned evolution must be on the shortlist');
-	assert.equal(evolve.detail, 'evolve into Mightyena');
-	assert.ok(evolve.delta.damage > 0 || evolve.delta.koGained > 0,
-		'the evolved row must beat the unevolved one somewhere');
-	// Against the first grunt the cap is 12: not earned yet, not offered.
-	assert.ok(!run.adviseUpgrades(state).upgrades.some(u => u.kind === 'evolve'),
-		'an evolution the cap has not reached is not a change the player can make');
 });
 
 test('evolve charges the stone and demands the move, not just the level', () => {
@@ -1857,18 +1892,6 @@ test('evolve charges the stone and demands the move, not just the level', () => 
 	// The run replays clean: undo rebuilds Yanma from the log, stone and all.
 	assert.equal(run.undo(state).box[1].species, 'Yanma');
 	assert.deepEqual(JSON.parse(JSON.stringify(state)), state, 'a run must survive JSON');
-});
-
-test('the advisor refuses what it cannot answer, with the reason', () => {
-	// The party, not the box: six mons times their learnsets is already hundreds
-	// of policy evaluations, and which six is the board's question, not this one.
-	assert.throws(() => run.adviseUpgrades(fresh()),
-		/the party is empty: add Pokemon to the party/);
-	const state = run.applyAll(fresh(), [
-		{kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3},
-		{kind: 'party', ids: ['mon-1']},
-	]);
-	assert.throws(() => run.adviseUpgrades(state, 'Leader Brawley'), /no fight named/);
 });
 
 test('a spent route is used with nothing kept, and the rule does not refund it', () => {
@@ -1925,7 +1948,8 @@ test('the roll draws the route\'s encounter from the same tables a catch is chec
 	assert.throws(() => run.rollEncounter(kept, {map: 'Route101', random: () => 0}),
 		/roll: Route101 already gave its encounter/);
 	// Neither does a method whose HM has not been handed over (rock smash
-	// opens at fight #139; a fresh run stands at the very start).
+	// opens at ORDER 139, which is Leader Roxanne and the 45th fight; a
+	// fresh run stands at the very start).
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
 	// An unreachable route refuses BEFORE its methods do, naming its guard —
 	// so the method probe needs a map whose guard falls before the HM gate.
@@ -1983,7 +2007,7 @@ test('the field items standing on a location, with the log as the collection rec
 	assert.ok(seed, 'Route 104 holds a Miracle Seed');
 	assert.equal(seed.open, false);
 	assert.equal(seed.collected, false);
-	assert.equal(seed.opensAt, 11);
+	assert.equal(seed.opensAt, 14);
 
 	// Route 101's Potion opens at the very start — and collecting it is the
 	// acquire the bag already records, not a new kind of event.
@@ -2009,17 +2033,34 @@ test('the field items standing on a location, with the log as the collection rec
 	}
 });
 
-test('pre-fight opportunities show only reachable, unspent work and preserve unknown move timing', () => {
+test('pre-fight opportunities show only reachable, unspent work and honest move timing', () => {
 	const state = fresh({permadeath: true});
 	const before = run.preFightOpportunities(state);
-	assert.deepEqual(before.before, {trainer: 'Youngster Calvin', order: 0});
+	assert.deepEqual(before.before, {trainer: 'Trainer Rival Route 103 Sceptile', order: 0});
 	assert.equal(before.encounters.mode, 'unspent');
+	// Littleroot and Oldale are here and Petalburg is not. Both changes come
+	// from Philip's account of the route, corroborated independently by the
+	// R&B tracker's own order: you start in Littleroot, walk Route 101 to
+	// Oldale, and reach Petalburg only through Route 102. The transcribed
+	// data had Petalburg at order 0 because its first-trainer anchor landed
+	// level with Route 101, and had the two towns nowhere at all because no
+	// trainer stands in either.
 	assert.deepEqual(before.encounters.routes.map(route => route.name),
-		['Route101', 'Route102', 'Route103', 'Petalburg City']);
+		['Route101', 'Route102', 'Route103', 'Littleroot Town', 'Oldale Town']);
 	assert.deepEqual(before.items.pickups.map(item => item.name), ['Potion', 'Oran Berry']);
 	assert.deepEqual(before.items.pickups.map(item => item.map), ['Route101', 'Route102']);
-	assert.equal(before.moves.status, 'undated');
-	assert.match(before.moves.note, /locations and unlock timing are not dated/);
+	// Move locations are imported now: the projection is run-aware, counts
+	// only dated-and-open rows, and names the undated remainder instead of
+	// hiding it.
+	assert.equal(before.moves.status, 'dated');
+	assert.equal(before.moves.count, 0, 'nothing is reachable before the first fight');
+	// A floor on the REMAINDER, not on a number. This read >= 20 and went red
+	// when three rows were dated on a ruling, which is the mechanism working
+	// rather than breaking: 22 undated became 19. What the assertion is for is
+	// that the remainder is reported at all, so it is written as that.
+	assert.ok(before.moves.undated > 0,
+		'the undated remainder is counted, not hidden');
+	assert.match(before.moves.note, /undated/);
 
 	const collected = run.apply(state, {kind: 'acquire', item: 'Potion'});
 	assert.deepEqual(run.preFightOpportunities(collected).items.pickups.map(item => item.name),
@@ -2040,7 +2081,7 @@ test('an egg move is relearner-only: charged a Heart Scale, refused without one'
 	doc = run.apply(doc, {kind: 'catch', species: 'Treecko', level: 12});
 	assert.throws(() => run.apply(doc,
 		{kind: 'teach', id: 'mon-1', move: 'Leaf Storm', replace: 'Leer'}),
-	/teach: Leaf Storm is an egg move for Treecko — the relearner charges one Heart Scale/);
+	/Treecko must REMEMBER Leaf Storm — an egg move or one from a previous learnset, and the nurse charges one Heart Scale/);
 	doc = run.apply(doc, {kind: 'acquire', item: 'Heart Scale'});
 	doc = run.apply(doc, {kind: 'teach', id: 'mon-1', move: 'Leaf Storm', replace: 'Leer'});
 	assert.match(doc.log[doc.log.length - 1].summary, /for one Heart Scale/);
@@ -2116,4 +2157,696 @@ test('the scout grades the whole open table, not a display shortlist', () => {
 	// The display path is untouched: three rows per route.
 	const viewed = run.unusedRoutes(doc).routes.find(route => route.best && route.best.length);
 	assert.ok(viewed.best.length <= 3, 'the routes view keeps its shortlist');
+});
+
+test('TM and tutor locations are dated late-biased and projected run-aware', () => {
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const rows = oracle.moveItems();
+	assert.equal(rows.length, 78, '50 TMs and 28 tutor rows from the Items Locations sheet');
+	const dated = rows.filter(row => row.opensAt !== null);
+	assert.ok(dated.length >= 56, 'most rows carry an unlock date');
+	// A prose HM requirement must gate the pickup: Surf rows can never open
+	// before Surf itself does.
+	const surfGate = oracle.moveObtainableAt('Surf');
+	for (const row of rows) {
+		if (/requires Surf/i.test(row.location) && row.opensAt !== null) {
+			assert.ok(row.opensAt >= surfGate,
+				row.move + ' requires Surf but opens at ' + row.opensAt + ' < ' + surfGate);
+		}
+	}
+	// Undated rows must say so, never masquerade as reachable.
+	for (const row of rows) {
+		if (row.opensAt === null) assert.equal(row.dating, 'no-datable-place');
+	}
+	// Run-aware: at the start of a run, nothing is reachable yet and the
+	// projection reports the undated remainder honestly.
+	const moves = run.preFightOpportunities(fresh({})).moves;
+	assert.equal(moves.status, 'dated');
+	assert.equal(moves.count, 0, 'no TM or tutor is reachable before the first fight');
+	assert.ok(moves.undated > 0, 'the undated remainder is counted, not hidden');
+});
+
+test('evolution readiness reports the ladder and whether the run is there', () => {
+	const caught = run.apply(fresh({}), {kind: 'catch', species: 'Treecko', level: 5,
+		ivs: {hp: 1, atk: 2, def: 3, spa: 4, spd: 5, spe: 6}, nature: 'Adamant', ability: 'Overgrow'});
+	const monId = caught.box[0].id;
+	const before = run.evolutionReadiness(caught, monId);
+	assert.deepEqual(before.evolutions, [{into: 'Grovyle', method: 'level', level: 16, ready: false}]);
+	// Over-cap levels cost Rare Candy, exactly as the game charges them.
+	const stocked = run.apply(caught, {kind: 'acquire', item: 'Rare Candy', count: 4});
+	const leveled = run.apply(stocked, {kind: 'levelUp', id: monId, to: 16});
+	assert.equal(run.evolutionReadiness(leveled, monId).evolutions[0].ready, true,
+		'reaching the level flips readiness');
+});
+
+test('the safety path refuses an empty party and names who a crit can kill', () => {
+	let state = fresh();
+	assert.throws(() => run.safetyPath(state, 'Bug Catcher Rick'),
+		/party is empty/, 'nothing to make safe without a party');
+
+	state = run.apply(state, owned({kind: 'catch', species: 'Mudkip', level: 5}));
+	state = run.apply(state, owned({kind: 'catch', species: 'Poochyena', level: 5}));
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+	const answer = run.safetyPath(state, 'Bug Catcher Rick');
+	assert.equal(answer.trainer, 'Bug Catcher Rick');
+	// Pineco's crit exceeds Poochyena's whole HP bar at this cap; Mudkip's it
+	// does not. The exposure list is the fight's honest death list.
+	const exposedSpecies = answer.exposed.map(entry => entry.species);
+	assert.ok(exposedSpecies.includes('Poochyena'),
+		'Poochyena dies to a crit here and must be listed');
+	assert.ok(!exposedSpecies.includes('Mudkip'),
+		'Mudkip survives every crit in this fight');
+	const killer = answer.exposed.find(entry => entry.species === 'Poochyena').killers[0];
+	assert.equal(typeof killer.enemy, 'string');
+	assert.equal(typeof killer.move, 'string');
+});
+
+test('the safety path answers with an assignment when no build fixes a fight', () => {
+	let state = fresh();
+	state = run.apply(state, owned({kind: 'catch', species: 'Mudkip', level: 5}));
+	state = run.apply(state, owned({kind: 'catch', species: 'Poochyena', level: 5}));
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+	const answer = run.safetyPath(state, 'Bug Catcher Rick');
+	// No teachable move changes what a Pokemon TAKES, so the real answer to a
+	// crit that outdamages a whole HP bar is who to send instead.
+	assert.ok(answer.coverage.length > 0, 'a lethal fight must name its coverage');
+	const row = answer.coverage[0];
+	assert.ok(row.kills.length > 0, 'a coverage row exists because someone dies');
+	assert.ok(row.answers.length === 0 || typeof row.bestAnswer === 'string');
+	if (row.bestAnswer) {
+		assert.ok(!row.kills.includes(row.bestAnswer),
+			'the answer to an enemy is never someone that enemy kills');
+		assert.ok(row.bestAnswerCrit < 100,
+			'a safe answer survives the crit it is answering');
+	}
+	// Every step, if any, must actually reduce lethality and price itself.
+	answer.steps.forEach(step => {
+		assert.ok(step.removes > 0, 'a step that removes nothing is not a step');
+		assert.ok(Array.isArray(step.path) && step.path.length >= 1);
+		assert.equal(typeof step.cost, 'string');
+	});
+});
+
+test('the lethality rule credits an outspeeding floor KO and nothing weaker', () => {
+	// Tested directly because a scan of the whole run map found no live
+	// pairing that exercises this branch: the condition needs a Pokemon that
+	// floor-KOs its opponent AND would die to that opponent's crit. The rule
+	// decides every 'exposed' verdict in the app, so it is pinned here rather
+	// than left to a fixture that does not reach it.
+	const lethalCrit = {critKO: true, critMax: 1.4, move: 'Bite'};
+	assert.equal(run.pairingLethal(
+		{them: lethalCrit, us: {min: 1.05}, speed: 'faster'}), false,
+	'outspeeding with a floor KO means the crit never lands');
+	// Priority ignores Speed: a Mach Punch crit swings first however fast we
+	// are, so the outspeed credit must not apply to it. Without this the app
+	// reports a Pokemon safe against the exact move that kills it.
+	assert.equal(run.pairingLethal(
+		{them: {critKO: true, critMax: 1.4, move: 'Mach Punch', critPriority: true},
+			us: {min: 1.05}, speed: 'faster'}), true,
+	'a priority crit cancels the outspeed credit');
+	assert.equal(run.pairingLethal(
+		{them: lethalCrit, us: {min: 1.05}, speed: 'tie'}), true,
+	'a speed tie is not outspeeding');
+	assert.equal(run.pairingLethal(
+		{them: lethalCrit, us: {min: 1.05}, speed: 'slower'}), true,
+	'slower means they swing first');
+	assert.equal(run.pairingLethal(
+		{them: lethalCrit, us: {min: 0.99}, speed: 'faster'}), true,
+	'a 99% floor is not a KO — the roll can leave them alive to crit back');
+	assert.equal(run.pairingLethal(
+		{them: {critKO: false, critMax: 0.5}, us: {min: 0.1}, speed: 'slower'}), false,
+	'a crit that cannot kill is not a lethal pairing');
+	assert.equal(run.pairingLethal(null), false, 'a missing pairing is not lethal');
+});
+
+test('a clean fight reports no exposure, coverage or steps', () => {
+	// A Pokemon that outspeeds and KOs on its WORST roll is never hit, so the
+	// crit that would have killed it never happens. This is the model
+	// decision that makes teaching a move able to buy survival at all; if it
+	// regresses, the safety path silently reports fights as lethal that are
+	// not, and every 'nothing fixes this' answer becomes untrustworthy.
+	let state = fresh();
+	state = run.apply(state, owned({kind: 'catch', species: 'Mudkip', level: 5,
+		ivs: PERFECT_IVS}));
+	state = run.apply(state, {kind: 'party', ids: state.box.map(mon => mon.id)});
+	const capped = run.safetyPath(state, 'Youngster Calvin');
+	// Calvin's team cannot crit-kill a capped Mudkip; the fight is clean.
+	assert.deepEqual(capped.exposed, [], 'no exposure means no death list');
+	assert.deepEqual(capped.coverage, [], 'no exposure means nothing to cover');
+	assert.deepEqual(capped.steps, [], 'a safe fight needs no steps');
+	assert.ok(Array.isArray(capped.openRoutes), 'unspent routes are always reported');
+});
+
+test('an option the bag cannot fund is never offered as a step', () => {
+	// Pinned on the selection rule itself, because no live fixture I could
+	// build produces an item step at all — and an end-to-end assertion that
+	// counts zero claims against a bag passes whether the rule works or not.
+	// The rule matters: an earlier version fell back to the unfunded list
+	// when nothing affordable helped, which handed one Focus Sash to three
+	// Pokemon and called each of them safe.
+	const sashStep = {steps: [{kind: 'give', spec: {item: 'Focus Sash'}, detail: 'Focus Sash'}]};
+	const teachStep = {steps: [{kind: 'teach', detail: 'Bite over Tackle'}]};
+	const twoSashes = {steps: [
+		{kind: 'give', spec: {item: 'Focus Sash'}, detail: 'Focus Sash'},
+		{kind: 'pickup', spec: {item: 'Focus Sash'}, detail: 'Focus Sash @ Route 121'},
+	]};
+
+	const stocked = run.affordableOptions([sashStep, teachStep], {'Focus Sash': 1});
+	assert.equal(stocked.length, 2, 'a funded item and a free teach both stand');
+
+	const empty = run.affordableOptions([sashStep], {});
+	assert.deepEqual(empty, [],
+		'an unfunded option is dropped, never offered as a fallback');
+
+	assert.deepEqual(run.affordableOptions([twoSashes], {'Focus Sash': 1}), [],
+		'one Sash cannot fund an option that claims two');
+
+	// The ledger is what makes the SECOND Pokemon see an empty pool.
+	const ledger = {'Focus Sash': 1};
+	assert.equal(run.affordableOptions([sashStep], ledger).length, 1);
+	run.spendFromBag(['Focus Sash'], ledger);
+	assert.deepEqual(run.affordableOptions([sashStep], ledger), [],
+		'once the first Pokemon claims it, no one else can be told to hold it');
+});
+
+test('one bag cannot fund two Pokemon', () => {
+	// Tested directly, for the same reason the lethality rule is: the search
+	// only reaches this ledger when an ITEM step removes a lethal branch, and
+	// no live fixture currently produces one. The rule still decides who gets
+	// the run's only Oran Berry, so it is pinned here rather than left to a
+	// fixture that never exercises it.
+	const bag = {'Oran Berry': 1, Potion: 2};
+	assert.equal(run.affordableFromBag(['Oran Berry'], bag), true);
+	assert.equal(run.affordableFromBag(['Oran Berry', 'Oran Berry'], bag), false,
+		'one berry cannot be claimed twice inside a single option');
+	assert.equal(run.affordableFromBag(['Potion', 'Potion'], bag), true,
+		'two of a doubled item is affordable');
+	assert.equal(run.affordableFromBag(['Potion', 'Potion', 'Potion'], bag), false);
+	assert.equal(run.affordableFromBag(['Max Revive'], bag), false,
+		'an item the bag does not hold is never affordable');
+	assert.equal(run.affordableFromBag([], bag), true, 'a stepless option is free');
+
+	// Spending is what makes the SECOND Pokemon unable to claim the same one.
+	const ledger = Object.assign({}, bag);
+	run.spendFromBag(['Oran Berry'], ledger);
+	assert.equal(ledger['Oran Berry'], 0);
+	assert.equal(run.affordableFromBag(['Oran Berry'], ledger), false,
+		'once spent, the berry is gone for everyone else');
+});
+
+test('a location the data cannot date is reported, never silently dropped', () => {
+	// availability.json dates a location by its FIRST TRAINER. Anywhere
+	// without one — Oldale Town, the whole Safari Zone, Fiery Path, Sky
+	// Pillar, Altering Cave — gets no date at all, and unusedRoutes used to
+	// leave `open` unset for those. Every consumer filters on `route.open`,
+	// and undefined is falsy, so 18 of 69 locations vanished from every
+	// answer at every point in the run. Twelve of them have walk encounters.
+	// Oldale Town is one of the first places a run can catch anything and the
+	// scout would never once mention it.
+	const state = fresh({permadeath: true});
+	const routes = run.unusedRoutes(state).routes;
+
+	// Artisan Cave, not Oldale Town. Oldale stood here until the R&B tracker
+	// dated it; Artisan Cave is post-game content the tracker never lists, so
+	// nothing can reach it and it is the honest remaining example.
+	const undatable = routes.find(route => route.name === 'Artisan Cave');
+	assert.ok(undatable, 'Artisan Cave is in the wild tables');
+	assert.equal(undatable.undated, true, 'and it is reported as undated');
+	assert.equal(undatable.opensAt, undefined, 'because nothing dates it');
+	// Undated is not open. Claiming it were would send a fresh run to Sky
+	// Pillar, which is the same error in the other direction.
+	assert.ok(!undatable.open, 'undated is not a licence to call it open');
+
+	const dated = routes.find(route => route.name === 'Route101');
+	assert.equal(dated.opensAt, 0, 'a dated route still carries its date');
+	assert.equal(dated.open, true, 'and Route 101 is open on turn one');
+	assert.equal(dated.undated, undefined, 'a dated route is not flagged undated');
+
+	// The scout counts them out loud. This is the assertion that would have
+	// caught the original bug: the answer must account for every location it
+	// did not scan, the way it already accounts for held ones.
+	const scouted = run.adviseCatches(state, 'Youngster Calvin');
+	const undatedRoutes = routes.filter(route => route.undated);
+	assert.ok(undatedRoutes.length > 0, 'the fixture must have undated locations');
+	assert.equal(scouted.undated.count, undatedRoutes.length,
+		'the scout reports exactly the locations it could not date');
+	assert.ok(scouted.undated.routes.includes('Artisan Cave'),
+		'and names Artisan Cave among them');
+	assert.match(scouted.undated.why, /first trainer/,
+		'and says why, so the gap reads as missing data rather than as an empty map');
+
+	// The count has to TRACK, not be a constant that happens to match today's
+	// data — asserting it against the current 18 passes just as well when the
+	// number is hardcoded. Catching on an undated location spends it, so the
+	// count must fall and that location must leave the list. This also proves
+	// the underlying tables were fine all along: the catch is accepted, the
+	// tool simply never offered it.
+	const spent = run.apply(state,
+		owned({kind: 'catch', species: 'Smeargle', map: 'Artisan Cave 1f', level: 40, moves: ['Flamethrower']}));
+	const after = run.adviseCatches(spent, 'Youngster Calvin');
+	assert.equal(after.undated.count, scouted.undated.count - 1,
+		'spending an undated location drops it from the count');
+	assert.ok(!after.undated.routes.includes('Artisan Cave'),
+		'and it is no longer named as unscanned');
+});
+
+test('a spent route only closes when the run says one encounter per route', () => {
+	// Found by playing a run in the browser. The catch advisor filtered on
+	// `route.used` unconditionally, so a run WITHOUT the nuzlocke rule lost
+	// advice for every route it had already caught on — the route was still
+	// perfectly legal to catch from, and the scout simply stopped mentioning
+	// it. preFightOpportunities had always asked the question correctly, so
+	// the two surfaces disagreed about the same run: 4 against 5.
+	const IVS = {hp: 20, atk: 20, def: 20, spa: 20, spd: 20, spe: 20};
+	function afterCatchingOnRoute101(onePerRoute) {
+		let state = run.apply(fresh({onePerRoute}),
+			owned({kind: 'catch', species: 'Mudkip', level: 5, ivs: IVS}));
+		state = run.apply(state,
+			owned({kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3, ivs: IVS}));
+		const advice = run.adviseCatches(state);
+		const opportunities = run.preFightOpportunities(state);
+		return {
+			adviseCount: advice.routesOpen,
+			adviseOffersIt: advice.catches.some(entry => entry.area === 'Route101'),
+			opportunityCount: opportunities.encounters.count,
+			opportunityListsIt: opportunities.encounters.routes
+				.some(route => route.name === 'Route101'),
+		};
+	}
+
+	// Rule OFF: the route is still legal, so both surfaces must still offer it.
+	const loose = afterCatchingOnRoute101(false);
+	assert.equal(loose.adviseOffersIt, true,
+		'without the rule, a route you have caught on is still catchable');
+	assert.equal(loose.opportunityListsIt, true, 'and the opportunity list agrees');
+
+	// Rule ON: the route is spent, so neither surface may offer it.
+	const nuzlocke = afterCatchingOnRoute101(true);
+	assert.equal(nuzlocke.adviseOffersIt, false, 'with the rule, the route is spent');
+	assert.equal(nuzlocke.opportunityListsIt, false, 'and the opportunity list agrees');
+
+	// The counts are the same question and must never disagree, either way.
+	assert.equal(loose.adviseCount, loose.opportunityCount,
+		'the two surfaces must count the same routes with the rule off');
+	assert.equal(nuzlocke.adviseCount, nuzlocke.opportunityCount,
+		'and with the rule on');
+	assert.equal(loose.adviseCount - nuzlocke.adviseCount, 1,
+		'and the rule must actually cost exactly the one spent route');
+});
+
+test('evolving carries the ability by slot, so it stays legal for the new species', () => {
+	// The run kept the ability STRING across evolution, which leaves a Seadra
+	// holding Swift Swim — an ability Seadra cannot have. That is not cosmetic:
+	// the planning provider validates the ability it is handed against the
+	// species, so a stale one throws and the fight loses its survival forecast.
+	// 527 of the recorded forecast failures are exactly this, and every one is
+	// a pre-evolution's ability sitting on an evolved form.
+	//
+	// The games carry the SLOT, so slot one becomes slot one.
+	//
+	// Honest limit: this cannot falsify the slot INDEXING. Every one of the
+	// 1,244 species in the fork's calc data has exactly one ability, so slot is
+	// always zero and hard-coding zero passes this test. What it does pin is
+	// that the ability is remapped at all and lands on something the new
+	// species can legally have — which is the failure that was costing runs
+	// their forecast.
+	const calc = require('../calc');
+	const legal = species => {
+		const found = calc.Generations.get(8).species.get(calc.toID(species));
+		return [...new Set(Object.values(found.abilities || {}).filter(Boolean))];
+	};
+	const cases = [
+		{from: 'Horsea', ability: 'Swift Swim', into: 'Seadra', level: 32},
+		{from: 'Fletchling', ability: 'Keen Eye', into: 'Fletchinder', level: 17},
+		{from: 'Phanpy', ability: 'Cute Charm', into: 'Donphan', level: 25},
+		{from: 'Starly', ability: 'Keen Eye', into: 'Staravia', level: 14},
+	];
+	for (const step of cases) {
+		let doc = run.createRun({
+			name: 'evo', now: 't0', levelCap: 'none', permadeath: false, onePerRoute: false,
+		});
+		doc = run.apply(doc, {
+			kind: 'catch', species: step.from, level: step.level, nature: 'Modest',
+			ability: step.ability, ivs: {hp: 20, atk: 18, def: 19, spa: 22, spd: 17, spe: 21},
+		});
+		assert.equal(doc.box[0].ability, step.ability, 'the roll is what it says it is');
+		doc = run.apply(doc, {kind: 'evolve', id: doc.box[0].id});
+		assert.equal(doc.box[0].species, step.into);
+		assert.ok(legal(step.into).includes(doc.box[0].ability),
+			step.from + ' -> ' + step.into + ' left ' + doc.box[0].ability +
+			', which is not legal for ' + step.into + ' (legal: ' + legal(step.into).join(', ') + ')');
+		assert.notEqual(doc.box[0].ability, step.ability,
+			'and it is not the pre-evolution ability carried across');
+	}
+});
+
+test('an unrecorded IV plans as the floor, never as a perfect one', () => {
+	// playerStateFromEntry filled missing IVs with 31, and a Pokemon caught
+	// without a rolled spread stores ivs {} — so Object.assign({all 31s}, {})
+	// planned it flawless. Optimistic is the dangerous direction: at level 30 it
+	// overstated Speed by five against an average roll, and five points of Speed
+	// flips turn order, which flips a survival verdict.
+	const planner = require('../lib/planner');
+	// The bridge is the setdex one, and it needs the setdex loaded — which
+	// building any fight state does. matchup warms it as a side effect.
+	planner.matchup({trainer: 'Leader Brawly', profileId: 'run-and-bun',
+		playerParty: [{species: 'Poochyena', level: 5, moves: ['Tackle']}]});
+	const bridge = require('../src/js/sets_to_battle_state.js');
+	const build = entry => planner.playerStateFromEntry(bridge,
+		Object.assign({species: 'Poochyena', level: 30, moves: ['Tackle']}, entry),
+		'player-1').state;
+
+	// Assert on the STAT, not the ivs field: the bridge omits IVs from the state
+	// when they are its default of 31, so `ivs: undefined` there MEANS perfect
+	// and reads like an absence. HP is the consequence and cannot be misread.
+	const hp = entry => build(entry).hp.max;
+
+	// OWNED with nothing rolled — ivs is {}, present and empty.
+	assert.equal(hp({ivs: {}}), 61,
+		'a Pokemon the run owns plans at the floor when nothing was rolled');
+	assert.equal(hp({ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31}}), 70,
+		'and at 70 when the spread is actually perfect, which is the number the ' +
+		'unrolled case used to borrow');
+
+	// A PROSPECT is a different question. adviseCatches builds {species, level,
+	// moves} with no ivs key at all, and "is this worth catching" is asked at its
+	// best rather than its worst. Flattening the two broke two existing gates
+	// before this split existed.
+	assert.equal(hp({}), 70, 'an uncaught prospect is still graded at its best');
+});
+
+test('a scripted gift rolls its three guaranteed perfect IVs', () => {
+	// Run & Bun guarantees three perfect IVs on the starter (operator ruling,
+	// 2026-08-28). The model rolled it like a wild catch: across 72 banked
+	// runs, 59 starters had ZERO perfect IVs, 11 had one, 2 had two, none had
+	// three — the uniform distribution exactly, and the starter is the one
+	// body every run owns. The gym counterfactuals (gymcf2) measured IVs as
+	// the only lever that moves a wall, which is what makes this modelling
+	// hole a wall-height error and not a detail.
+	const stream = values => {
+		let i = 0;
+		return () => values[i++ % values.length];
+	};
+	// A deliberately terrible stream: every raw roll would be IV 3.
+	const gift = run.rollIdentity('Torchic', stream([0.1]), {perfectIvs: 3});
+	const perfect = Object.values(gift.ivs).filter(v => v === 31).length;
+	assert.equal(perfect, 3, 'three stats are perfect whatever the dice said');
+	assert.ok(Object.values(gift.ivs).some(v => v === 3),
+		'the other stats still come from the die');
+
+	// The same stream twice authors the same identity — replay holds.
+	const again = run.rollIdentity('Torchic', stream([0.1]), {perfectIvs: 3});
+	assert.deepEqual(again.ivs, gift.ivs);
+
+	// A wild catch is untouched: no opts, no guarantee.
+	const wild = run.rollIdentity('Torchic', stream([0.1]));
+	assert.equal(Object.values(wild.ivs).filter(v => v === 31).length, 0);
+});
+
+test('a double battle is delayable: skip it, owe it, settle it late', () => {
+	// Doubles are real doubles (operator ruling, 2026-08-28), and the play
+	// stack cannot run them yet — so the road must be allowed to go around
+	// them the way it goes around Camper Gavi: skipped, visible as owed,
+	// settled whenever they fall.
+	const state = run.apply(fresh({onePerRoute: true}),
+		{kind: 'skip', trainer: 'Twins Gina And Mia', for: 'doubles play is not modeled yet'});
+	assert.ok((state.skipped || []).length, 'the doubles fight can be declared skipped');
+	assert.deepEqual(run.summarize(state).owed.map(o => o.trainer), ['Twins Gina And Mia'],
+		'and it stays owed until beaten');
+});
+
+test('a Heart Scale on the road reaches the bag, one instance at a time', () => {
+	// Seventeen treatment runs across two instruments spent zero scales while
+	// two sat on the corridor: fieldItems served availability's 28 curated
+	// rows and never the item ledger's currencies. And with thirty scales in
+	// the game all named alike, collected-tracking by NAME would mark the
+	// Route 109 scale taken the moment Route 106's was — so an acquire may
+	// now say WHERE, and only that instance is crossed off.
+	let state = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'},
+	]);
+	const r106 = run.fieldItems(state, 'Route106');
+	const scale106 = r106.find(item => item.name === 'Heart Scale');
+	assert.ok(scale106, 'the ledger scale on Route 106 is a field item now');
+	assert.equal(scale106.open, true, 'and the road there is open');
+	assert.equal(scale106.collected, false);
+
+	state = run.apply(state, {kind: 'acquire', item: 'Heart Scale', where: 'Route 106'});
+	assert.equal(state.bag['Heart Scale'], 1, 'the scale lands in the bag');
+	assert.equal(run.fieldItems(state, 'Route106')
+		.find(item => item.name === 'Heart Scale').collected, true,
+	'the taken instance is crossed off');
+	assert.equal(run.fieldItems(state, 'Route109')
+		.find(item => item.name === 'Heart Scale').collected, false,
+	'and the Route 109 scale is NOT — collected is per place, not per name');
+});
+
+test('the shop sells what the road has opened, and a stone can be bought once', () => {
+	// Stones are shop stock — "Sold at Mauville City Pokémon Mart", open at
+	// order 209 — so they can never ride the route-pickup flow, and without
+	// them every evolve row the advisor prices is unreachable in a run. The
+	// shop surface lists dated sold-at ledger rows the position has opened;
+	// buying is an acquire with a where, bounded to one per shop row because
+	// nothing models money yet and unbounded free stones would be a cheat,
+	// not a model.
+	let state = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+	]);
+	assert.equal(run.shopItems(state).length, 0,
+		'nothing is sold before the road reaches a mart');
+	state = run.apply(state, {kind: 'beat', trainer: 'Guitarist Kirk'});
+	const stock = run.shopItems(state);
+	const fire = stock.find(item => item.name === 'Fire Stone');
+	assert.ok(fire, 'the Mauville mart is open past order 209');
+	assert.equal(fire.bought, false);
+	state = run.apply(state, {kind: 'acquire', item: 'Fire Stone', where: fire.location});
+	assert.equal(state.bag['Fire Stone'], 1);
+	assert.equal(run.shopItems(state).find(item => item.name === 'Fire Stone').bought, true,
+		'a bought row says so, which is what bounds the driver to one');
+});
+
+test('the ledger\'s held items and berries are field pickups too', () => {
+	// The Give-item advice rows price held items the bag could never fund:
+	// 44 dated held rows sat in the ledger unserved, the same hole the Heart
+	// Scales came out of.
+	let state = run.applyAll(fresh({permadeath: true}), [
+		{kind: 'catch', species: 'Lillipup', map: 'Route101', level: 3},
+		{kind: 'beat', trainer: 'Team Aqua Grunt Museum #2'},
+	]);
+	const r109 = run.fieldItems(state, 'Route109');
+	assert.ok(r109.some(item => item.kind === 'held'),
+		'Route 109 shows its ledger held item');
+});
+
+test('a TM is a one-time item, and the surfaces say which TM a move costs', () => {
+	// The author's FAQ and the release thread: a TM is one-time in this fork,
+	// except the ten re-sold at the Lilycove Department Store; an HM is
+	// reusable. The sheet was never transcribed, so the run charged nothing
+	// and taught Rock Blast 42 times from a TM it never owned.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3});
+	const rows = run.learnable(state, 'mon-1').now.filter(entry => entry.tm);
+	assert.ok(rows.length > 0, 'the surface names the TM a move costs');
+	assert.ok(rows.every(entry => entry.owned === false), 'and says the bag holds none of them');
+	const row = rows[0];
+	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: row.move}),
+		error => error.message.includes('comes from ' + row.tm));
+	const armed = run.apply(state, {kind: 'acquire', item: row.tm, where: 'a mart'});
+	assert.equal(run.learnable(armed, 'mon-1').now.find(entry => entry.move === row.move).owned, true);
+	const taught = run.apply(armed, {kind: 'teach', id: 'mon-1', move: row.move});
+	const spent = !oracle.tmFor(row.move).repeatable;
+	assert.equal((taught.bag[row.tm] || 0), spent ? 0 : 1,
+		spent ? 'a one-time TM is spent' : 'a re-sold TM or an HM is not');
+	// An HM is reusable wherever it is used.
+	const hm = Object.keys(oracle.tmFor('Surf') ? {Surf: 1} : {});
+	if (hm.length) assert.equal(oracle.tmFor('Surf').repeatable, true, 'HM03 Surf is reusable');
+	assert.equal(oracle.tmFor('Seismic Toss').repeatable, true, 'the Lilycove TMs are re-sold');
+});
+
+test('the Game Corner pays out once a run, from a tier whose gym is beaten', () => {
+	// Operator ruling 2026-09-20, from play: ONE prize a run, the player
+	// picks the tier from any gym already beaten, the species is random in
+	// it. The harness had claimed one per badge — up to eight extra bodies
+	// and a mythical — so the rule lives in the document, where no caller
+	// can forget it.
+	const before = fresh();
+	assert.throws(() => run.apply(before, {kind: 'catch', species: 'Elekid', level: 20,
+		prize: 'Knuckle Badge'}), /opens when Leader Brawly is beaten/,
+	'a tier is closed until its leader falls');
+
+	const past = run.apply(run.apply(before, {kind: 'beat', trainer: 'Leader Brawly'}),
+		{kind: 'beat', trainer: 'Leader Roxanne'});
+	assert.throws(() => run.apply(past, {kind: 'catch', species: 'Tauros', level: 25,
+		prize: 'Knuckle Badge'}), /pays Smoochum, Elekid, Magby, not Tauros/,
+	'a prize comes from its own tier');
+	assert.throws(() => run.apply(past, {kind: 'catch', species: 'Pinsir', level: 25,
+		prize: 'Balance Badge'}), /opens when Leader Norman is beaten/);
+
+	// Either open tier may be chosen — the older one is still on offer.
+	const older = run.apply(past, {kind: 'catch', species: 'Elekid', level: 25, prize: 'Knuckle Badge'});
+	assert.equal(older.box[older.box.length - 1].species, 'Elekid');
+	const newer = run.apply(past, {kind: 'catch', species: 'Tauros', level: 25, prize: 'Stone Badge'});
+	assert.throws(() => run.apply(newer, {kind: 'catch', species: 'Elekid', level: 25,
+		prize: 'Knuckle Badge'}), /pays out once a run, and this run took Tauros from the Stone Badge tier/,
+	'and the second pull is refused, naming the first');
+});
+
+test('the nurse changes a nature for three Heart Scales', () => {
+	// Ruled from the operator's screenshot of the nurse's menu (maximize IVs
+	// one scale, change nature three) and never modelled: the run could max an
+	// IV and nothing else, so no run had ever changed a nature.
+	let state = run.apply(fresh(), {kind: 'catch', species: 'Poochyena', map: 'Route101', level: 3,
+		nature: 'Modest'});
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', nature: 'Jolly'}),
+		/costs 3 Heart Scales — need 3, the bag has 0/);
+	state = run.apply(state, {kind: 'acquire', item: 'Heart Scale', count: 4});
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', nature: 'Spicy'}), /is not a nature/);
+	assert.throws(() => run.apply(state, {kind: 'heartScale', id: 'mon-1', nature: 'Modest'}),
+		/already Modest; three Heart Scales would buy nothing/);
+
+	const changed = run.apply(state, {kind: 'heartScale', id: 'mon-1', nature: 'Jolly'});
+	assert.equal(changed.box[0].nature, 'Jolly');
+	assert.equal(changed.bag['Heart Scale'], 1, 'three spent, one left');
+	assert.throws(() => run.apply(changed, {kind: 'heartScale', id: 'mon-1', nature: 'Adamant'}),
+		/need 3, the bag has 1/, 'and a second change is three more');
+	// The IV service is untouched: still one scale, one stat.
+	const iv = run.apply(changed, {kind: 'heartScale', id: 'mon-1', stat: 'spe'});
+	assert.equal(iv.box[0].ivs.spe, 31);
+	assert.ok(!iv.bag['Heart Scale']);
+});
+
+test('the player has one Mega a fight, from Flannery on, and the stone takes the item slot', () => {
+	// Operator ruling the-player-megas (2026-09-21). Neither engine performs a
+	// Mega Evolution, so the enemy's are stored evolved and ours are modelled
+	// the same way — which the run had never done: a box reached the Elite Four
+	// with about twenty stones in the bag against bosses fielding a Mega since
+	// the third gym.
+	assert.deepEqual(run.megaFormOf('Gyarados', 'Gyaradosite'), {species: 'Gyarados-Mega', ability: 'Mold Breaker'});
+	assert.equal(run.megaFormOf('Charizard', 'Charizardite X').species, 'Charizard-Mega-X');
+	assert.equal(run.megaFormOf('Gyarados', 'Aggronite'), null, 'somebody else\'s stone does nothing');
+	assert.equal(run.megaFormOf('Gyarados', 'Leftovers'), null);
+
+	let state = fresh();
+	state = run.apply(state, {kind: 'catch', species: 'Aron', map: 'GraniteCave1f', level: 8, ivs: PERFECT_IVS});
+	state = run.apply(state, {kind: 'catch', species: 'Lopunny', level: 20, ivs: PERFECT_IVS});
+	state.box[0].species = 'Aggron';
+	state.box[0].level = 50;
+	state.box[1].level = 50;
+	state = Object.assign({}, state, {party: state.box.map(mon => mon.id),
+		bag: Object.assign({}, state.bag, {Aggronite: 1, Lopunnite: 1})});
+	const holding = Object.assign({}, state, {box: state.box.map((mon, i) =>
+		Object.assign({}, mon, {item: i === 0 ? 'Aggronite' : 'Lopunnite'}))});
+
+	assert.equal(run.megaRingHeld(holding), false, 'no ring before Flannery');
+	assert.deepEqual(run.partySpecs(holding, {}).map(spec => spec.species), ['Aggron', 'Lopunny'],
+		'and a stone held without the ring is just an item');
+
+	const ringed = Object.assign({}, holding, {position: 600});
+	assert.equal(run.megaRingHeld(ringed), true);
+	const specs = run.partySpecs(ringed, {});
+	assert.deepEqual(specs.map(spec => spec.species), ['Aggron-Mega', 'Lopunny'], 'ONE Mega: the first in party order');
+	assert.equal(specs[0].item, 'Aggronite', 'the stone is what it holds — the item slot is spent');
+	assert.equal(specs[0].megaOf, 'Aggron');
+	assert.equal(run.partySpecs(holding, {atOrder: 700})[0].species, 'Aggron-Mega',
+		'a fight past Flannery is planned with the ring, even from before her');
+
+	// The box matrix rates a body ALONE, as the Mega its bagged stone would
+	// make it — holding the stone, not the item it has now.
+	const benched = Object.assign({}, ringed, {box: ringed.box.map(mon => Object.assign({}, mon, {item: 'Oran Berry'}))});
+	const rated = run.partySpecs(benched, {megas: 'each'});
+	assert.deepEqual(rated.map(spec => [spec.species, spec.item]), [['Aggron-Mega', 'Aggronite'], ['Lopunny-Mega', 'Lopunnite']]);
+	assert.deepEqual(run.partySpecs(benched, {}).map(spec => spec.species), ['Aggron', 'Lopunny'],
+		'but in a fight nobody is a Mega until the stone is in its hands');
+});
+
+test('a TM the store re-sells is one copy before Lilycove, and on the shelf after it', () => {
+	// The author's sheet: ten TMs are "Sold at Lilycove Department Store". Money
+	// is not modelled, so once the store is open such a TM is simply available.
+	// The first cut of the rule still demanded a copy in the bag, and refused
+	// ten teaches of Icy Wind in the first run to finish the game.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	const tm = oracle.tmFor('Rock Tomb');
+	assert.deepEqual([tm.name, tm.unlimitedFrom], ['TM46 Rock Tomb', 871]);
+	let state = run.apply(fresh(), {kind: 'catch', species: 'Aron', map: 'GraniteCave1f', level: 8, ivs: PERFECT_IVS});
+	assert.ok(run.learnable(state, 'mon-1').now.some(entry => entry.move === 'Rock Tomb'), 'Aron can be taught it');
+	assert.throws(() => run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Rock Tomb', replace: 'Growl'}),
+		/comes from TM46 Rock Tomb, and the bag has none/, 'before Lilycove it must be held');
+	const owned = run.apply(state, {kind: 'acquire', item: 'TM46 Rock Tomb'});
+	assert.ok(!run.apply(owned, {kind: 'teach', id: 'mon-1', move: 'Rock Tomb', replace: 'Growl'}).bag['TM46 Rock Tomb'],
+		'and teaching it spends the one copy');
+
+	state = Object.assign({}, state, {position: 900});
+	const taught = run.apply(state, {kind: 'teach', id: 'mon-1', move: 'Rock Tomb', replace: 'Growl'});
+	assert.ok(taught.box[0].moves.includes('Rock Tomb'), 'past Lilycove it is on the shelf: no copy needed');
+
+	// An HM is never sold; it must be in the bag wherever the run is.
+	const surfer = run.apply(Object.assign({}, fresh(), {position: 900}),
+		{kind: 'catch', species: 'Marill', level: 30, ivs: PERFECT_IVS});
+	assert.throws(() => run.apply(surfer, {kind: 'teach', id: 'mon-1', move: 'Surf', replace: surfer.box[0].moves[0]}), /HM03 Surf, and the bag has none/);
+});
+
+test('a move tutor teaches only once the road has reached it', () => {
+	// Brick Break's tutor stands on Route 118, which opens at order 623. The
+	// teach rule called a tutor "a free service" and never asked where it was,
+	// so a hand experiment taught it at Norman (337) and measured an illegal
+	// moveset as a lever. The harness's own advisor dates moves and never
+	// leaned on this; the rule itself did not hold.
+	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
+	assert.equal(oracle.tutorOpensAt('Brick Break'), 623);
+	assert.equal(oracle.tutorOpensAt('Thunderbolt'), undefined, 'a TM move has no tutor');
+	// The HM spine is handed over by people, so the sheet cannot place it — the
+	// story gates can: Surf at the Seashore House, Fly on Route 119, Dive from Steven.
+	assert.deepEqual(['Surf', 'Fly', 'Dive'].map(move => oracle.tutorOpensAt(move)), [594, 729, 1183]);
+	assert.equal(oracle.tutorOpensAt('Hurricane'), 763, 'Fortree City holds no trainer: dated by its gym, through the item builder');
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'headless-norman-cufant.run.json'), 'utf8'));
+	const learner = saved.box.find(mon => mon.status !== 'dead' && oracle.canLearn(mon.species, 'Brick Break') &&
+		!mon.moves.includes('Brick Break') && !oracle.levelUpMoves(mon.species).some(row => row[1] === 'Brick Break'));
+	assert.ok(learner, 'the fixture holds a body whose only way to Brick Break is the tutor');
+	assert.ok(saved.position + 1 < 623);
+	const command = {kind: 'teach', id: learner.id, move: 'Brick Break', replace: learner.moves.length >= 4 ? learner.moves[0] : undefined};
+	assert.throws(() => run.apply(saved, command), /tutor for Brick Break is not reached until order 623/);
+	const later = Object.assign({}, saved, {position: 623});
+	assert.doesNotThrow(() => run.apply(later, command), 'and once Route 118 is open, it is free');
+});
+
+test('the Elite Four is four members, not eight fights: two singles, two doubles, free choice', () => {
+	// The map carries a single AND a double variant for each of Sidney,
+	// Phoebe, Glacia and Drake, and every view treated all eight as owed — so
+	// a run had to beat each member twice, four of them in doubles. The game
+	// asks for four fights (operator, 2026-09-22).
+	const saved = JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname, '..',
+		'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json'), 'utf8'));
+	const road = doc => run.upcoming(doc, 50).map(fight => fight.trainer.replace('Elite Four ', ''));
+	assert.deepEqual(road(saved), ['Sidney', 'SidneyDouble', 'Phoebe', 'PhoebeDouble', 'Glacia',
+		'GlaciaDouble', 'Drake', 'DrakeDouble', 'Champion Wallace'], 'every variant is offered until one is chosen');
+
+	// The choice is the act of fighting: beating a member retires BOTH of its variants.
+	const afterSidney = run.apply(saved, {kind: 'beat', trainer: 'Elite Four Sidney'});
+	assert.ok(!road(afterSidney).includes('SidneyDouble'), 'its double is no longer owed');
+	// And a format's quota of two, once spent, retires that format for the rest.
+	const afterPhoebe = run.apply(afterSidney, {kind: 'beat', trainer: 'Elite Four Phoebe'});
+	assert.deepEqual(road(afterPhoebe), ['GlaciaDouble', 'DrakeDouble', 'Champion Wallace'],
+		'two singles are spent, so Glacia and Drake can only be taken as doubles');
+
+	// Free choice of FORMAT, member by member — the Four are met in order, so
+	// taking the first two as doubles leaves the last two as singles.
+	const doubleFirst = run.applyAll(saved, [{kind: 'beat', trainer: 'Elite Four SidneyDouble'},
+		{kind: 'beat', trainer: 'Elite Four PhoebeDouble'}]);
+	assert.deepEqual(road(doubleFirst), ['Glacia', 'Drake', 'Champion Wallace']);
+
+	// Five fights end the road, not nine.
+	let done = saved;
+	for (const trainer of ['Elite Four Sidney', 'Elite Four Phoebe', 'Elite Four GlaciaDouble',
+		'Elite Four DrakeDouble', 'Champion Wallace']) {
+		done = run.apply(done, {kind: 'beat', trainer});
+	}
+	assert.deepEqual(run.upcoming(done, 5), [], 'the road is finished');
+
+	// The map's numbering does not move under a run: trainerIndexOf counts the
+	// whole visible map, and a map that shrank as the Four were chosen would
+	// renumber every fight behind it (the two-order-scales hazard).
+	const order = run.upcoming(saved, 1)[0].order;
+	assert.equal(run.trainerIndexOf(afterPhoebe, order), run.trainerIndexOf(saved, order));
 });

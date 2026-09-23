@@ -1,0 +1,702 @@
+{
+	"comment": "Every archive box against the next gym leader on its own road, to ask whether a change reaches the walls rather than the trainers between them. Built 2026-09-18 by a fixed rule: each tracked document in fixtures/banked-runs/ except the generated variants (dose-, speed-, counterfactual-, strat-, choice-); the first trainer named Leader within the next 40 fights; singles only; the scale must hold. 104 boxes: Roxanne 44, Wattson 37, Brawly 19, Norman 4. Ten seeds each: the question is a rate per leader across boxes, not any one box.",
+	"generator": null,
+	"measured": [
+		{
+			"label": "ldr-now-s0-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted defaults (pick-by-play 6, exposure 0.5) at b9833c5, real PP, shard 0/6"
+		},
+		{
+			"label": "ldr-now-s1-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted defaults (pick-by-play 6, exposure 0.5) at b9833c5, real PP, shard 1/6"
+		},
+		{
+			"label": "ldr-now-s2-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted defaults (pick-by-play 6, exposure 0.5) at b9833c5, real PP, shard 2/6"
+		},
+		{
+			"label": "ldr-now-s3-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted defaults (pick-by-play 6, exposure 0.5) at b9833c5, real PP, shard 3/6"
+		},
+		{
+			"label": "ldr-now-s4-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted defaults (pick-by-play 6, exposure 0.5) at b9833c5, real PP, shard 4/6"
+		},
+		{
+			"label": "ldr-now-s5-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted defaults (pick-by-play 6, exposure 0.5) at b9833c5, real PP, shard 5/6"
+		},
+		{
+			"label": "ldr-pre-s0-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the pre-2026-09-18 ranker: --pick-by-play=0 --set-exposure=0 at b9833c5, real PP, shard 0/2"
+		},
+		{
+			"label": "ldr-pre-s1-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the pre-2026-09-18 ranker: --pick-by-play=0 --set-exposure=0 at b9833c5, real PP, shard 1/2"
+		},
+		{
+			"label": "ldr-xo-s0-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "exposure only: --pick-by-play=0 at b9833c5, real PP, shard 0/2"
+		},
+		{
+			"label": "ldr-xo-s1-pp",
+			"measured_in": "a7ffef0",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "exposure only: --pick-by-play=0 at b9833c5, real PP, shard 1/2"
+		}
+	],
+	"scenarios": [
+		{
+			"name": "Leader Norman [acc-11]",
+			"report": "fixtures/banked-runs/acc-11.run.json",
+			"trainer": "Leader Norman",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [acc-12]",
+			"report": "fixtures/banked-runs/acc-12.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [acc-17]",
+			"report": "fixtures/banked-runs/acc-17.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [acc-20]",
+			"report": "fixtures/banked-runs/acc-20.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [acc-26]",
+			"report": "fixtures/banked-runs/acc-26.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-1]",
+			"report": "fixtures/banked-runs/br-1.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [br-10]",
+			"report": "fixtures/banked-runs/br-10.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-12]",
+			"report": "fixtures/banked-runs/br-12.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-14]",
+			"report": "fixtures/banked-runs/br-14.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-16]",
+			"report": "fixtures/banked-runs/br-16.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [br-17]",
+			"report": "fixtures/banked-runs/br-17.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-18]",
+			"report": "fixtures/banked-runs/br-18.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-19]",
+			"report": "fixtures/banked-runs/br-19.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [br-20]",
+			"report": "fixtures/banked-runs/br-20.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-21]",
+			"report": "fixtures/banked-runs/br-21.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-27]",
+			"report": "fixtures/banked-runs/br-27.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [br-28]",
+			"report": "fixtures/banked-runs/br-28.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [br-4]",
+			"report": "fixtures/banked-runs/br-4.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [br-5]",
+			"report": "fixtures/banked-runs/br-5.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [br-6]",
+			"report": "fixtures/banked-runs/br-6.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [br-9]",
+			"report": "fixtures/banked-runs/br-9.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brbank1-A-1]",
+			"report": "fixtures/banked-runs/brbank1-A-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [brbank1-A-2]",
+			"report": "fixtures/banked-runs/brbank1-A-2.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brbank1-A-3]",
+			"report": "fixtures/banked-runs/brbank1-A-3.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brbank1-A-6]",
+			"report": "fixtures/banked-runs/brbank1-A-6.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [brbank1-A-7]",
+			"report": "fixtures/banked-runs/brbank1-A-7.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brbank1-B-5]",
+			"report": "fixtures/banked-runs/brbank1-B-5.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brbank2-B-8]",
+			"report": "fixtures/banked-runs/brbank2-B-8.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brheal1-B-2]",
+			"report": "fixtures/banked-runs/brheal1-B-2.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brheal1-B-3]",
+			"report": "fixtures/banked-runs/brheal1-B-3.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brheal1-B-6]",
+			"report": "fixtures/banked-runs/brheal1-B-6.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys1-A-2]",
+			"report": "fixtures/banked-runs/brkeys1-A-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys1-B-1]",
+			"report": "fixtures/banked-runs/brkeys1-B-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys2-A-1]",
+			"report": "fixtures/banked-runs/brkeys2-A-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys2-A-2]",
+			"report": "fixtures/banked-runs/brkeys2-A-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys2-B-1]",
+			"report": "fixtures/banked-runs/brkeys2-B-1.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-3]",
+			"report": "fixtures/banked-runs/brkeys3-A-3.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-4]",
+			"report": "fixtures/banked-runs/brkeys3-A-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-5]",
+			"report": "fixtures/banked-runs/brkeys3-A-5.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-6]",
+			"report": "fixtures/banked-runs/brkeys3-A-6.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3-A-8]",
+			"report": "fixtures/banked-runs/brkeys3-A-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-2]",
+			"report": "fixtures/banked-runs/brkeys3-B-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brkeys3-B-3]",
+			"report": "fixtures/banked-runs/brkeys3-B-3.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-4]",
+			"report": "fixtures/banked-runs/brkeys3-B-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3-B-8]",
+			"report": "fixtures/banked-runs/brkeys3-B-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brkeys3b-A-1]",
+			"report": "fixtures/banked-runs/brkeys3b-A-1.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brkeys3b-A-3]",
+			"report": "fixtures/banked-runs/brkeys3b-A-3.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-4]",
+			"report": "fixtures/banked-runs/brkeys3b-A-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-6]",
+			"report": "fixtures/banked-runs/brkeys3b-A-6.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-7]",
+			"report": "fixtures/banked-runs/brkeys3b-A-7.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-A-8]",
+			"report": "fixtures/banked-runs/brkeys3b-A-8.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brkeys3b-B-3]",
+			"report": "fixtures/banked-runs/brkeys3b-B-3.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brkeys3b-B-4]",
+			"report": "fixtures/banked-runs/brkeys3b-B-4.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Brawly [brkeys3b-B-5]",
+			"report": "fixtures/banked-runs/brkeys3b-B-5.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brkeys3b-B-8]",
+			"report": "fixtures/banked-runs/brkeys3b-B-8.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [brsend1-A-5]",
+			"report": "fixtures/banked-runs/brsend1-A-5.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [brsend1-B-4]",
+			"report": "fixtures/banked-runs/brsend1-B-4.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [brsend1-B-6]",
+			"report": "fixtures/banked-runs/brsend1-B-6.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [fin-3]",
+			"report": "fixtures/banked-runs/fin-3.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [fin-5]",
+			"report": "fixtures/banked-runs/fin-5.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [fin-6]",
+			"report": "fixtures/banked-runs/fin-6.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Norman [flannery-3]",
+			"report": "fixtures/banked-runs/flannery-3.run.json",
+			"trainer": "Leader Norman",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [forecast-today-M-2]",
+			"report": "fixtures/banked-runs/forecast-today-M-2.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [forecast-today-M-6]",
+			"report": "fixtures/banked-runs/forecast-today-M-6.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [lead1-A-12]",
+			"report": "fixtures/banked-runs/lead1-A-12.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [lead1-A-9]",
+			"report": "fixtures/banked-runs/lead1-A-9.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [lead1-B-1]",
+			"report": "fixtures/banked-runs/lead1-B-1.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [nab-12]",
+			"report": "fixtures/banked-runs/nab-12.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [nab-15]",
+			"report": "fixtures/banked-runs/nab-15.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [pf-2]",
+			"report": "fixtures/banked-runs/pf-2.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [pf-5]",
+			"report": "fixtures/banked-runs/pf-5.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [rank5-A-1]",
+			"report": "fixtures/banked-runs/rank5-A-1.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [rank5-A-15]",
+			"report": "fixtures/banked-runs/rank5-A-15.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [rank5-B-1]",
+			"report": "fixtures/banked-runs/rank5-B-1.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [rank5-B-5]",
+			"report": "fixtures/banked-runs/rank5-B-5.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [reteach-A-1]",
+			"report": "fixtures/banked-runs/reteach-A-1.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [reteach-A-10]",
+			"report": "fixtures/banked-runs/reteach-A-10.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [reteach-A-12]",
+			"report": "fixtures/banked-runs/reteach-A-12.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [reteach-A-6]",
+			"report": "fixtures/banked-runs/reteach-A-6.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [reteach-B-12]",
+			"report": "fixtures/banked-runs/reteach-B-12.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [reteach-B-5]",
+			"report": "fixtures/banked-runs/reteach-B-5.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [reteach-B-8]",
+			"report": "fixtures/banked-runs/reteach-B-8.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [reteach-B-9]",
+			"report": "fixtures/banked-runs/reteach-B-9.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [reteach2-A-10]",
+			"report": "fixtures/banked-runs/reteach2-A-10.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [reteach2-A-8]",
+			"report": "fixtures/banked-runs/reteach2-A-8.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [reteach2-B-11]",
+			"report": "fixtures/banked-runs/reteach2-B-11.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [reteach2-B-4]",
+			"report": "fixtures/banked-runs/reteach2-B-4.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [reteach2-B-9]",
+			"report": "fixtures/banked-runs/reteach2-B-9.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [sac-A-1]",
+			"report": "fixtures/banked-runs/sac-A-1.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [sac-A-11]",
+			"report": "fixtures/banked-runs/sac-A-11.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [sac-A-14]",
+			"report": "fixtures/banked-runs/sac-A-14.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Norman [sac-A-4]",
+			"report": "fixtures/banked-runs/sac-A-4.run.json",
+			"trainer": "Leader Norman",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Norman [sac-A-6]",
+			"report": "fixtures/banked-runs/sac-A-6.run.json",
+			"trainer": "Leader Norman",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [sac-A-8]",
+			"report": "fixtures/banked-runs/sac-A-8.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [skipwall4-A-7]",
+			"report": "fixtures/banked-runs/skipwall4-A-7.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [starteriv1-M-1]",
+			"report": "fixtures/banked-runs/starteriv1-M-1.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [sv-14]",
+			"report": "fixtures/banked-runs/sv-14.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [sv-19]",
+			"report": "fixtures/banked-runs/sv-19.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [sv-20]",
+			"report": "fixtures/banked-runs/sv-20.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [sv-26]",
+			"report": "fixtures/banked-runs/sv-26.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [sv-8]",
+			"report": "fixtures/banked-runs/sv-8.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [tmsource-B-1]",
+			"report": "fixtures/banked-runs/tmsource-B-1.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Roxanne [tmsource-B-4]",
+			"report": "fixtures/banked-runs/tmsource-B-4.run.json",
+			"trainer": "Leader Roxanne",
+			"seeds": 10
+		},
+		{
+			"name": "Leader Wattson [tmsource-B-9]",
+			"report": "fixtures/banked-runs/tmsource-B-9.run.json",
+			"trainer": "Leader Wattson",
+			"seeds": 10
+		}
+	]
+}

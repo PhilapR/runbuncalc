@@ -2,6 +2,7 @@ import * as Calc from '@smogon/calc';
 import {COPY_BLOCKED_MOVES} from './copy-legality';
 import {getMoveMetadata, isMoveAvailable} from './move-metadata';
 import {BattleState, PokemonState} from './model';
+import {canUseSleepOnlyMove} from './sleep';
 
 export const PURE_CALL_MOVE_IDS = new Set(['assist', 'mefirst', 'sleeptalk', 'metronome']);
 
@@ -39,7 +40,7 @@ function hasMeFirstCandidate(state: BattleState, target: PokemonState | undefine
 }
 
 function hasSleepTalkCandidate(state: BattleState, actor: PokemonState): boolean {
-  if (state.generation < 2 || actor.status !== 'slp' || actor.statusTurns === 0) return false;
+  if (state.generation < 2 || !canUseSleepOnlyMove(actor)) return false;
   return actor.moves.some(move => isMoveAvailable(move.name, state.generation) &&
     moveId(move.name) !== 'sleeptalk' && !move.disabled);
 }

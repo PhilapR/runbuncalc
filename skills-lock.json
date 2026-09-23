@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "mlflow-onboarding": {
+      "source": "mlflow/skills",
+      "sourceType": "github",
+      "skillPath": "mlflow-onboarding/SKILL.md",
+      "computedHash": "db2504d1febf66fff823eb69c50216dc4c73631641ea8eae299c5c0132a564c1"
+    },
+    "searching-mlflow-docs": {
+      "source": "mlflow/skills",
+      "sourceType": "github",
+      "skillPath": "searching-mlflow-docs/SKILL.md",
+      "computedHash": "b493bd3becb75a2bed6a6cb385700b25fe5ca0656a0c505756af4873d4c237dd"
+    }
+  }
+}

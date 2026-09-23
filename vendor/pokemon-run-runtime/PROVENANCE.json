@@ -1,11 +1,12 @@
 {
   "schemaVersion": "pokemon.runtime.provenance/1.0.0",
   "repository": "pokemon-mono",
-  "revision": "2ae1b7e5721a2d2ff3b9692df75f65329c891650",
+  "revision": "bf28a069148903cc02315cc434f91e24816045e2",
   "sourcePath": "engines/rab/backend/src/bridge/rab-provider.ts",
   "buildCommand": "bun run build:run-runtime:browser",
   "artifact": "index.js",
-  "artifactSha256": "5503927e7d7cccc85bae88f30c4d73a2c4f7c2c207096c0166693fcb8d108e55",
+  "artifactSha256": "1f14f88abe410deff6ff81f0d13db067db04b0b69ad70b93cc35c8fd85117128",
   "contractRevision": "8e2c3c8f021094814b1b44844c7de4992095d274",
-  "contractDigest": "402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75"
+  "contractDigest": "402809acb338a7fc274e72ae9bcc6efbe4956f8a980a951e05b665ee52f0ba75",
+  "note": "Rebuilt from RunBunCalc-sourced species data. The previous pin, 2ae1b7e5, carried vanilla abilities for 124 of 1,244 comparable species, and the provider refuses any Pokemon whose ability it does not list \u2014 which kills the survival forecast for every fight while one is in the box. An unmodified rebuild of 2ae1b7e5 reproduced that artifact byte for byte, so this bundle differs from it only by that correction. Built from branch fix/rab-abilities-from-runbuncalc, whose parent is the previous pin."
 }

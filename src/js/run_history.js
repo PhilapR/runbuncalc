@@ -458,7 +458,19 @@
 			store.exportAttempt(attemptId(run));
 		return portable.then(function (checked) {
 			var entry = record(run, outcome, endedAt, checked);
-			return store.archive(entry).then(function () { return entry; });
+			// Ending a run IS the deliberate act the shelf's guard asks about.
+			// A run that was archived before (ended, re-imported, played on,
+			// ended again) must name what it replaces or the guard refuses it
+			// and the run can never be saved at all.
+			return store.listArchives().then(function (existing) {
+				var prior = existing.filter(function (row) {
+					return row.attemptId === entry.attemptId;
+				})[0];
+				if (prior && prior.evidence && prior.evidence.checksum) {
+					entry.supersedes = prior.evidence.checksum;
+				}
+				return store.archive(entry).then(function () { return entry; });
+			});
 		});
 	}
 
@@ -471,7 +483,18 @@
 		var store = durableStore();
 		if (!store) return legacyList();
 		return legacyList().catch(function () { return []; }).then(function (entries) {
-			return store.importArchives(entries);
+			// The legacy database is migration INPUT, one record at a time. A
+			// legacy row that diverges from the durable shelf is skipped — the
+			// shelf is the authority — and must never take the whole history
+			// view down with it.
+			return entries.reduce(function (chain, entry) {
+				return chain.then(function () {
+					return store.importArchives([entry]).catch(function (error) {
+						if (error && error.code === 'ARCHIVE_CONFLICT') return null;
+						throw error;
+					});
+				});
+			}, Promise.resolve());
 		}).then(function () { return store.listArchives(); });
 	}
 

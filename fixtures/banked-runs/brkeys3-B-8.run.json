@@ -1,0 +1,7715 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"orderScale": "route103-wally-2026-08-28",
+	"attemptId": "ac52e080-23b4-4d4e-8fff-c54381d87a39",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-29T16:30:00.511Z",
+	"updatedAt": "2026-08-29T16:30:00.511Z",
+	"position": 76,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Swampert"
+	},
+	"nextId": 17,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Monferno",
+			"nickname": null,
+			"level": 21,
+			"nature": "Bashful",
+			"ability": "Blaze",
+			"item": "Oran Berry",
+			"moves": [
+				"Focus Punch",
+				"Flame Wheel",
+				"Mach Punch",
+				"Heat Wave"
+			],
+			"ivs": {
+				"hp": 23,
+				"atk": 31,
+				"def": 29,
+				"spa": 31,
+				"spd": 31,
+				"spe": 24
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Pidgeotto",
+			"nickname": null,
+			"level": 21,
+			"nature": "Lonely",
+			"ability": "Keen Eye",
+			"item": "Poison Barb",
+			"moves": [
+				"Feint Attack",
+				"Sand Attack",
+				"Air Slash",
+				"Air Cutter"
+			],
+			"ivs": {
+				"hp": 2,
+				"atk": 3,
+				"def": 5,
+				"spa": 26,
+				"spd": 24,
+				"spe": 10
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Houndour",
+			"nickname": null,
+			"level": 21,
+			"nature": "Hasty",
+			"ability": "Early Bird",
+			"item": null,
+			"moves": [
+				"Leer",
+				"Flame Burst",
+				"Fire Fang",
+				"Bite"
+			],
+			"ivs": {
+				"hp": 25,
+				"atk": 25,
+				"def": 19,
+				"spa": 14,
+				"spd": 31,
+				"spe": 9
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Skitty",
+			"nickname": null,
+			"level": 21,
+			"nature": "Timid",
+			"ability": "Normalize",
+			"item": null,
+			"moves": [
+				"Play Rough",
+				"Charm",
+				"Tail Whip",
+				"Sing"
+			],
+			"ivs": {
+				"hp": 11,
+				"atk": 4,
+				"def": 10,
+				"spa": 15,
+				"spd": 25,
+				"spe": 27
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Eldegoss",
+			"nickname": null,
+			"level": 21,
+			"nature": "Quirky",
+			"ability": "Cotton Down",
+			"item": "Miracle Seed",
+			"moves": [
+				"Leaf Tornado",
+				"Sing",
+				"Round",
+				"Sweet Scent"
+			],
+			"ivs": {
+				"hp": 23,
+				"atk": 8,
+				"def": 1,
+				"spa": 3,
+				"spd": 4,
+				"spe": 29
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Palpitoad",
+			"nickname": null,
+			"level": 21,
+			"nature": "Docile",
+			"ability": "Swift Swim",
+			"item": "Silk Scarf",
+			"moves": [
+				"Icy Wind",
+				"Bubble Beam",
+				"Supersonic",
+				"Mud Shot"
+			],
+			"ivs": {
+				"hp": 4,
+				"atk": 24,
+				"def": 12,
+				"spa": 5,
+				"spd": 5,
+				"spe": 2
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Sizzlipede",
+			"nickname": null,
+			"level": 21,
+			"nature": "Lonely",
+			"ability": "Flame Body",
+			"item": null,
+			"moves": [
+				"Flame Wheel",
+				"Smokescreen",
+				"Bite",
+				"Bug Bite"
+			],
+			"ivs": {
+				"hp": 23,
+				"atk": 28,
+				"def": 17,
+				"spa": 31,
+				"spd": 28,
+				"spe": 18
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 14,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Croagunk",
+			"nickname": null,
+			"level": 21,
+			"nature": "Sassy",
+			"ability": "Poison Touch",
+			"item": null,
+			"moves": [
+				"Vacuum Wave",
+				"Icy Wind",
+				"Seismic Toss",
+				"Sludge"
+			],
+			"ivs": {
+				"hp": 2,
+				"atk": 4,
+				"def": 26,
+				"spa": 18,
+				"spd": 29,
+				"spe": 12
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 14,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Phanpy",
+			"nickname": null,
+			"level": 21,
+			"nature": "Serious",
+			"ability": "Cute Charm",
+			"item": "Soft Sand",
+			"moves": [
+				"Secret Power",
+				"Rock Throw",
+				"Sand Attack",
+				"Bulldoze"
+			],
+			"ivs": {
+				"hp": 29,
+				"atk": 23,
+				"def": 23,
+				"spa": 19,
+				"spd": 9,
+				"spe": 26
+			},
+			"status": "party",
+			"origin": {
+				"at": 19,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Shroomish",
+			"nickname": null,
+			"level": 21,
+			"nature": "Careful",
+			"ability": "Effect Spore",
+			"item": null,
+			"moves": [
+				"Headbutt",
+				"Worry Seed",
+				"Poison Powder",
+				"Fake Tears"
+			],
+			"ivs": {
+				"hp": 7,
+				"atk": 29,
+				"def": 8,
+				"spa": 21,
+				"spd": 8,
+				"spe": 23
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 22,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Sealeo",
+			"nickname": null,
+			"level": 21,
+			"nature": "Rash",
+			"ability": "Thick Fat",
+			"item": null,
+			"moves": [
+				"Icy Wind",
+				"Aurora Beam",
+				"Powder Snow",
+				"Charm"
+			],
+			"ivs": {
+				"hp": 2,
+				"atk": 27,
+				"def": 3,
+				"spa": 24,
+				"spd": 25,
+				"spe": 12
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 25,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Farfetch’d-Galar",
+			"nickname": null,
+			"level": 21,
+			"nature": "Careful",
+			"ability": "Steadfast",
+			"item": null,
+			"moves": [
+				"Pluck",
+				"Secret Power",
+				"Rock Smash",
+				"Brutal Swing"
+			],
+			"ivs": {
+				"hp": 16,
+				"atk": 29,
+				"def": 15,
+				"spa": 21,
+				"spd": 1,
+				"spe": 30
+			},
+			"status": "party",
+			"origin": {
+				"at": 32,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Seadra",
+			"nickname": null,
+			"level": 21,
+			"nature": "Sassy",
+			"ability": "Poison Point",
+			"item": null,
+			"moves": [
+				"Hidden Power",
+				"Bubble Beam",
+				"Leer",
+				"Twister"
+			],
+			"ivs": {
+				"hp": 3,
+				"atk": 7,
+				"def": 18,
+				"spa": 17,
+				"spd": 15,
+				"spe": 2
+			},
+			"status": "party",
+			"origin": {
+				"at": 40,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Eelektrik",
+			"nickname": null,
+			"level": 21,
+			"nature": "Quiet",
+			"ability": "Levitate",
+			"item": null,
+			"moves": [
+				"Sludge",
+				"Spark",
+				"Headbutt",
+				"Crunch"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 29,
+				"def": 16,
+				"spa": 10,
+				"spd": 15,
+				"spe": 16
+			},
+			"status": "party",
+			"origin": {
+				"at": 45,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Flaaffy",
+			"nickname": null,
+			"level": 21,
+			"nature": "Careful",
+			"ability": "Static",
+			"item": null,
+			"moves": [
+				"Headbutt",
+				"Thunder Wave",
+				"Growl",
+				"Cotton Spore"
+			],
+			"ivs": {
+				"hp": 19,
+				"atk": 4,
+				"def": 19,
+				"spa": 9,
+				"spd": 30,
+				"spe": 24
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 59,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Remoraid",
+			"nickname": null,
+			"level": 21,
+			"nature": "Impish",
+			"ability": "Hustle",
+			"item": null,
+			"moves": [
+				"Bubble Beam",
+				"Lock-On",
+				"Psybeam",
+				"Aurora Beam"
+			],
+			"ivs": {
+				"hp": 18,
+				"atk": 13,
+				"def": 13,
+				"spa": 3,
+				"spd": 23,
+				"spe": 20
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 59,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		}
+	],
+	"party": [
+		"mon-12",
+		"mon-1",
+		"mon-5",
+		"mon-14",
+		"mon-13",
+		"mon-9"
+	],
+	"bag": {
+		"Potion": 1,
+		"Rare Candy": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chimchar",
+				"level": 5,
+				"ivs": {
+					"hp": 23,
+					"atk": 31,
+					"def": 29,
+					"spa": 31,
+					"spd": 31,
+					"spe": 24
+				},
+				"nature": "Bashful",
+				"ability": "Blaze"
+			},
+			"summary": "caught Chimchar at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry",
+				"where": "Route 102"
+			},
+			"summary": "bag: Oran Berry x1 (Route 102)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion",
+				"where": "Route 101"
+			},
+			"summary": "bag: Potion x1 (Route 101)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Pidgey",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 2,
+					"atk": 3,
+					"def": 5,
+					"spa": 26,
+					"spd": 24,
+					"spe": 10
+				},
+				"nature": "Lonely",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Pidgey at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Houndour",
+				"level": 3,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 25,
+					"atk": 25,
+					"def": 19,
+					"spa": 14,
+					"spd": 31,
+					"spe": 9
+				},
+				"nature": "Hasty",
+				"ability": "Early Bird"
+			},
+			"summary": "caught Houndour at level 3 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Skitty",
+				"level": 3,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 11,
+					"atk": 4,
+					"def": 10,
+					"spa": 15,
+					"spd": 25,
+					"spe": 27
+				},
+				"nature": "Timid",
+				"ability": "Normalize"
+			},
+			"summary": "caught Skitty at level 3 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Gossifleur",
+				"level": 3,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 23,
+					"atk": 8,
+					"def": 1,
+					"spa": 3,
+					"spd": 4,
+					"spe": 29
+				},
+				"nature": "Quirky",
+				"ability": "Cotton Down"
+			},
+			"summary": "caught Gossifleur at level 3 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tympole",
+				"level": 3,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 4,
+					"atk": 24,
+					"def": 12,
+					"spa": 5,
+					"spd": 5,
+					"spe": 2
+				},
+				"nature": "Docile",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Tympole at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Chimchar grew from L5 to L12 and learned Mach Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Pidgey grew from L5 to L12 and learned Tackle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L3 to L12 and learned Smog, Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Skitty grew from L3 to L12 and learned Tail Whip, Sing; its moves are full, so Wake-Up Slap must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Wake-Up Slap",
+				"replace": "Double Slap"
+			},
+			"summary": "Skitty forgot Double Slap, learned Wake-Up Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L3 to L12 and learned Rapid Spin, Sweet Scent; its moves are full, so Magical Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Magical Leaf",
+				"replace": "Leafage"
+			},
+			"summary": "Gossifleur forgot Leafage, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Tympole grew from L3 to L12 and learned Supersonic, Echoed Voice; its moves are full, so Mud-Slap must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Mud-Slap",
+				"replace": "Echoed Voice"
+			},
+			"summary": "Tympole forgot Echoed Voice, learned Mud-Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Pidgey, Houndour, Skitty, Gossifleur, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3",
+					"mon-4",
+					"mon-2",
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Houndour, Skitty, Pidgey, Chimchar, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Double Slap",
+				"replace": "Fake Out"
+			},
+			"summary": "Skitty forgot Fake Out, learned Double Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Echoed Voice",
+				"replace": "Growl"
+			},
+			"summary": "Tympole forgot Growl, learned Echoed Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Chimchar is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Trainer Rival Route 103 Swampert"
+			},
+			"summary": "beat Trainer Rival Route 103 Swampert (now at 2)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-6",
+					"mon-5",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Houndour takes the lead — with Chimchar, Tympole, Gossifleur, Skitty, Pidgey",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-2",
+					"mon-6",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Houndour, Pidgey, Tympole, Skitty, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Gossifleur, Houndour, Pidgey, Skitty, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-5",
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Houndour takes the lead — with Chimchar, Gossifleur, Pidgey, Skitty, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Houndour, Gossifleur, Tympole, Skitty, Pidgey",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-5",
+					"mon-6",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Houndour takes the lead — with Chimchar, Gossifleur, Tympole, Skitty, Pidgey",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 12)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3",
+					"mon-1",
+					"mon-2",
+					"mon-6",
+					"mon-4"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Houndour, Chimchar, Pidgey, Tympole, Skitty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-3",
+					"mon-1",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Tympole takes the lead — with Gossifleur, Houndour, Chimchar, Pidgey, Skitty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Triathlete Mikey",
+				"move": "Aqua Jet"
+			},
+			"summary": "Tympole fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Triathlete Mikey",
+				"move": "Rock Smash"
+			},
+			"summary": "Gossifleur fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed",
+				"where": "Route 104"
+			},
+			"summary": "bag: Miracle Seed x1 (Route 104)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Sizzlipede",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 23,
+					"atk": 28,
+					"def": 17,
+					"spa": 31,
+					"spd": 28,
+					"spe": 18
+				},
+				"nature": "Lonely",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Sizzlipede at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Croagunk",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 2,
+					"atk": 4,
+					"def": 26,
+					"spa": 18,
+					"spd": 29,
+					"spe": 12
+				},
+				"nature": "Sassy",
+				"ability": "Poison Touch"
+			},
+			"summary": "caught Croagunk at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L5 to L12 and learned Bug Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L5 to L12 and learned Fake Out, Vacuum Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Tympole takes the lead — with Gossifleur, Houndour, Pidgey",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-8",
+					"mon-6",
+					"mon-7",
+					"mon-2",
+					"mon-3"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Croagunk, Tympole, Sizzlipede, Pidgey, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Miracle Seed"
+			},
+			"summary": "Gossifleur is holding Miracle Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 17)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-2",
+					"mon-3"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Tympole, Pidgey, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Pidgey, Houndour, Skitty, Gossifleur, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Houndour, Gossifleur, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-7",
+					"mon-8",
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Sizzlipede, Croagunk, Chimchar, Houndour, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-8",
+					"mon-5",
+					"mon-7",
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Croagunk takes the lead — with Gossifleur, Sizzlipede, Chimchar, Houndour, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Lady Cindy",
+				"move": "Draining Kiss"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Lady Cindy",
+				"move": "Stomp"
+			},
+			"summary": "Chimchar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Phanpy",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 29,
+					"atk": 23,
+					"def": 23,
+					"spa": 19,
+					"spd": 9,
+					"spe": 26
+				},
+				"nature": "Serious",
+				"ability": "Cute Charm"
+			},
+			"summary": "caught Phanpy at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L8 to L12; its moves are full, so Ice Shard must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Ice Shard",
+				"replace": "Rock Throw"
+			},
+			"summary": "Phanpy forgot Rock Throw, learned Ice Shard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Chimchar, Houndour, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Pidgey, Houndour, Skitty, Gossifleur, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Chimchar takes the lead — with Pidgey, Skitty, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-5",
+					"mon-1",
+					"mon-2",
+					"mon-8",
+					"mon-4"
+				]
+			},
+			"summary": "Sizzlipede takes the lead — with Gossifleur, Chimchar, Pidgey, Croagunk, Skitty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Feint Attack",
+				"replace": "Fake Out"
+			},
+			"summary": "Croagunk forgot Fake Out, learned Feint Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-7",
+					"mon-1",
+					"mon-2",
+					"mon-8",
+					"mon-4"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Sizzlipede, Chimchar, Pidgey, Croagunk, Skitty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Bullet Seed"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shroomish",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 7,
+					"atk": 29,
+					"def": 8,
+					"spa": 21,
+					"spd": 8,
+					"spe": 23
+				},
+				"nature": "Careful",
+				"ability": "Effect Spore"
+			},
+			"summary": "caught Shroomish at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Chimchar grew from L12 to L17; its moves are full, so Flame Wheel must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Flame Wheel",
+				"replace": "Scratch"
+			},
+			"summary": "Chimchar forgot Scratch, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Chimchar evolved into Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Pidgey grew from L12 to L17 and learned Air Cutter; its moves are full, so Feather Dance must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Feather Dance",
+				"replace": "Gust"
+			},
+			"summary": "Pidgey forgot Gust, learned Feather Dance",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Pidgey evolved into Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Skitty grew from L12 to L17; its moves are full, so Charm must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Charm",
+				"replace": "Wake-Up Slap"
+			},
+			"summary": "Skitty forgot Wake-Up Slap, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L12 to L17; its moves are full, so Round must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Round",
+				"replace": "Rapid Spin"
+			},
+			"summary": "Gossifleur forgot Rapid Spin, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L12 to L17; its moves are full, so Bite must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Bite",
+				"replace": "Wrap"
+			},
+			"summary": "Sizzlipede forgot Wrap, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L12 to L17; its moves are full, so Mud Shot, Sludge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Shot",
+				"replace": "Poison Sting"
+			},
+			"summary": "Croagunk forgot Poison Sting, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Croagunk forgot Mud-Slap, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L12 to L17; its moves are full, so Fire Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fire Fang",
+				"replace": "Smog"
+			},
+			"summary": "Houndour forgot Smog, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Tympole grew from L12 to L17; its moves are full, so Mud Shot must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Mud Shot",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Tympole forgot Mud-Slap, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-6"
+			},
+			"summary": "Tympole evolved into Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L12 to L17; its moves are full, so Bulldoze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Ice Shard"
+			},
+			"summary": "Phanpy forgot Ice Shard, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Shroomish grew from L14 to L17; its moves are full, so Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Headbutt",
+				"replace": "Tackle"
+			},
+			"summary": "Shroomish forgot Tackle, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Monferno, Pidgeotto, Skitty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-8",
+					"mon-10",
+					"mon-2",
+					"mon-7",
+					"mon-1"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Croagunk, Shroomish, Pidgeotto, Sizzlipede, Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Low Sweep",
+				"replace": "Leer"
+			},
+			"summary": "Monferno forgot Leer, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-8",
+					"mon-10",
+					"mon-2",
+					"mon-7"
+				]
+			},
+			"summary": "Monferno takes the lead — with Gossifleur, Croagunk, Shroomish, Pidgeotto, Sizzlipede",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf",
+				"where": "Route 106"
+			},
+			"summary": "bag: Silk Scarf x1 (Route 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Heart Scale",
+				"where": "Route 106"
+			},
+			"summary": "bag: Heart Scale x1 (Route 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Spheal",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 2,
+					"atk": 27,
+					"def": 3,
+					"spa": 24,
+					"spd": 25,
+					"spe": 12
+				},
+				"nature": "Rash",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Spheal at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Spheal grew from L8 to L17; its moves are full, so Ice Ball, Charm, Brine must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Ice Ball",
+				"replace": "Rollout"
+			},
+			"summary": "Spheal forgot Rollout, learned Ice Ball",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Charm",
+				"replace": "Ice Ball"
+			},
+			"summary": "Spheal forgot Ice Ball, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Brine",
+				"replace": "Water Gun"
+			},
+			"summary": "Spheal forgot Water Gun, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Gossifleur, Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6",
+					"mon-9",
+					"mon-10",
+					"mon-8"
+				]
+			},
+			"summary": "Monferno takes the lead — with Gossifleur, Palpitoad, Phanpy, Shroomish, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Heat Wave",
+				"replace": "Mach Punch"
+			},
+			"summary": "Monferno forgot Mach Punch, learned Heat Wave, for one Heart Scale",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Icy Wind",
+				"replace": "Sludge"
+			},
+			"summary": "Croagunk forgot Sludge, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Throw",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Phanpy forgot Odor Sleuth, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-6",
+				"item": "Silk Scarf"
+			},
+			"summary": "Palpitoad is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Ruin Maniac Georgie",
+				"move": "Fire Fang"
+			},
+			"summary": "Gossifleur fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 28)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Houndour, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-6",
+					"mon-3",
+					"mon-9",
+					"mon-11"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Palpitoad, Houndour, Phanpy, Spheal",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Rollout",
+				"replace": "Growl"
+			},
+			"summary": "Spheal forgot Growl, learned Rollout",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Farfetch’d-Galar",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 16,
+					"atk": 29,
+					"def": 15,
+					"spa": 21,
+					"spd": 1,
+					"spe": 30
+				},
+				"nature": "Careful",
+				"ability": "Steadfast"
+			},
+			"summary": "caught Farfetch’d-Galar at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Farfetch’d-Galar grew from L8 to L17 and learned Rock Smash; its moves are full, so Brutal Swing must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Brutal Swing",
+				"replace": "Rock Smash"
+			},
+			"summary": "Farfetch’d-Galar forgot Rock Smash, learned Brutal Swing",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad, Houndour",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Skitty, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-11",
+					"mon-6",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Monferno, Spheal, Palpitoad, Pidgeotto, Skitty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 35)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad, Pidgeotto, Skitty",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Pidgeotto takes the lead — with Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-2",
+					"mon-10",
+					"mon-11",
+					"mon-6",
+					"mon-12"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Pidgeotto, Shroomish, Spheal, Palpitoad, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icy Wind",
+				"replace": "Rollout"
+			},
+			"summary": "Spheal forgot Rollout, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Icy Wind",
+				"replace": "Bubble"
+			},
+			"summary": "Palpitoad forgot Bubble, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Rock Smash",
+				"replace": "Sand Attack"
+			},
+			"summary": "Farfetch’d-Galar forgot Sand Attack, learned Rock Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-2",
+					"mon-10",
+					"mon-11",
+					"mon-12"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Gossifleur, Pidgeotto, Shroomish, Spheal, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Sailor Edmond",
+				"move": "Bubble Beam"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Sailor Edmond",
+				"move": "Air Cutter"
+			},
+			"summary": "Gossifleur fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Gossifleur, Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-12",
+					"mon-2",
+					"mon-7",
+					"mon-8",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Farfetch’d-Galar, Pidgeotto, Sizzlipede, Croagunk, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge",
+				"replace": "Vacuum Wave"
+			},
+			"summary": "Croagunk forgot Vacuum Wave, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 40)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 3,
+					"atk": 7,
+					"def": 18,
+					"spa": 17,
+					"spd": 15,
+					"spe": 2
+				},
+				"nature": "Sassy",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L8 to L17 and learned Leer, Twister; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-6",
+					"mon-12",
+					"mon-8",
+					"mon-7"
+				]
+			},
+			"summary": "Monferno takes the lead — with Phanpy, Palpitoad, Farfetch’d-Galar, Croagunk, Sizzlipede",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand",
+				"where": "Route 109"
+			},
+			"summary": "bag: Soft Sand x1 (Route 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Heart Scale",
+				"where": "Route 109"
+			},
+			"summary": "bag: Heart Scale x1 (Route 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tynamo",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 21,
+					"atk": 29,
+					"def": 16,
+					"spa": 10,
+					"spd": 15,
+					"spe": 16
+				},
+				"nature": "Quiet",
+				"ability": "Levitate"
+			},
+			"summary": "caught Tynamo at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L10 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-9",
+					"mon-8",
+					"mon-12",
+					"mon-14"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Monferno, Phanpy, Croagunk, Farfetch’d-Galar, Tynamo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Focus Punch",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Monferno forgot Flame Wheel, learned Focus Punch, for one Heart Scale",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-9",
+				"item": "Soft Sand"
+			},
+			"summary": "Phanpy is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-9",
+					"mon-8",
+					"mon-12",
+					"mon-14"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad, Phanpy, Croagunk, Farfetch’d-Galar, Tynamo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Tuber Hailey",
+				"move": "Force Palm"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Pluck"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Pluck"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Pluck"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Pluck"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Pluck"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Pluck"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-7",
+					"mon-8",
+					"mon-12",
+					"mon-2",
+					"mon-9"
+				]
+			},
+			"summary": "Monferno takes the lead — with Sizzlipede, Croagunk, Farfetch’d-Galar, Pidgeotto, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Sizzlipede fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Headbutt"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Camper Gavi",
+				"move": "Flame Wheel"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Camper Gavi",
+				"move": "Play Rough"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Mega Drain"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "skip",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "skipping Camper Gavi (#51)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-14",
+					"mon-1",
+					"mon-11",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Tynamo, Monferno, Spheal, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Wing Attack"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Water Pulse"
+			},
+			"summary": "Spheal fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Aqua Jet"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Monferno",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Gossifleur, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-12",
+					"mon-8",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Phanpy takes the lead — with Monferno, Farfetch’d-Galar, Croagunk, Pidgeotto, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Feint Attack",
+				"replace": "Feather Dance"
+			},
+			"summary": "Pidgeotto forgot Feather Dance, learned Feint Attack",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-9",
+					"mon-1",
+					"mon-8",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Phanpy, Monferno, Croagunk, Pidgeotto, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Team Aqua Grunt Museum #2",
+				"move": "Hex"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Monferno grew from L17 to L21; its moves are full, so Fire Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Fire Spin",
+				"replace": "Ember"
+			},
+			"summary": "Monferno forgot Ember, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Pidgeotto grew from L17 to L21; its moves are full, so Air Slash must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Air Slash",
+				"replace": "Tackle"
+			},
+			"summary": "Pidgeotto forgot Tackle, learned Air Slash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Palpitoad grew from L17 to L21; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Bubble Beam",
+				"replace": "Echoed Voice"
+			},
+			"summary": "Palpitoad forgot Echoed Voice, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L17 to L21; its moves are full, so Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Seismic Toss",
+				"replace": "Feint Attack"
+			},
+			"summary": "Croagunk forgot Feint Attack, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Phanpy grew from L17 to L21; its moves are full, so Charm must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Charm",
+				"replace": "Rock Throw"
+			},
+			"summary": "Phanpy forgot Rock Throw, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Farfetch’d-Galar grew from L17 to L21; its moves are full, so Focus Energy must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Focus Energy",
+				"replace": "Rock Smash"
+			},
+			"summary": "Farfetch’d-Galar forgot Rock Smash, learned Focus Energy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Houndour grew from L17 to L21; its moves are full, so Flame Burst must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Flame Burst",
+				"replace": "Ember"
+			},
+			"summary": "Houndour forgot Ember, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Skitty grew from L17 to L21; its moves are full, so Play Rough must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Play Rough",
+				"replace": "Double Slap"
+			},
+			"summary": "Skitty forgot Double Slap, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L17 to L21; its moves are full, so Leaf Tornado must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Leaf Tornado",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Gossifleur forgot Magical Leaf, learned Leaf Tornado",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Gossifleur evolved into Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Sizzlipede grew from L17 to L21; its moves are full, so Flame Wheel must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flame Wheel",
+				"replace": "Ember"
+			},
+			"summary": "Sizzlipede forgot Ember, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Shroomish grew from L17 to L21; its moves are full, so Fake Tears, Worry Seed must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Fake Tears",
+				"replace": "Mega Drain"
+			},
+			"summary": "Shroomish forgot Mega Drain, learned Fake Tears",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Worry Seed",
+				"replace": "Stun Spore"
+			},
+			"summary": "Shroomish forgot Stun Spore, learned Worry Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Spheal grew from L17 to L21; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Brine"
+			},
+			"summary": "Spheal forgot Brine, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-11"
+			},
+			"summary": "Spheal evolved into Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L17 to L21; its moves are full, so Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Clear Smog",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Horsea forgot Bubble Beam, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-14"
+			},
+			"summary": "Tynamo evolved into Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-14",
+					"mon-7",
+					"mon-8",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eelektrik, Sizzlipede, Croagunk, Eldegoss, Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Crunch"
+			},
+			"summary": "Eelektrik learned Crunch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Camper Gavi",
+				"move": "Venoshock"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (#51, skipped earlier — still at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb",
+				"where": "Route 110"
+			},
+			"summary": "bag: Poison Barb x1 (Route 110)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Rare Candy",
+				"where": "Route 110"
+			},
+			"summary": "bag: Rare Candy x1 (Route 110)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Mareep",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 19,
+					"atk": 4,
+					"def": 19,
+					"spa": 9,
+					"spd": 30,
+					"spe": 24
+				},
+				"nature": "Careful",
+				"ability": "Static"
+			},
+			"summary": "caught Mareep at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Remoraid",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 18,
+					"atk": 13,
+					"def": 13,
+					"spa": 3,
+					"spd": 23,
+					"spe": 20
+				},
+				"nature": "Impish",
+				"ability": "Hustle"
+			},
+			"summary": "caught Remoraid at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Mareep grew from L12 to L21; its moves are full, so Shock Wave, Headbutt must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Shock Wave",
+				"replace": "Thunder Shock"
+			},
+			"summary": "Mareep forgot Thunder Shock, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Headbutt",
+				"replace": "Shock Wave"
+			},
+			"summary": "Mareep forgot Shock Wave, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Mareep evolved into Flaaffy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Remoraid grew from L10 to L21 and learned Aurora Beam; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Water Gun"
+			},
+			"summary": "Remoraid forgot Water Gun, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-2",
+					"mon-9",
+					"mon-12",
+					"mon-14"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Pidgeotto, Phanpy, Farfetch’d-Galar, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Secret Power",
+				"replace": "Focus Energy"
+			},
+			"summary": "Farfetch’d-Galar forgot Focus Energy, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-2",
+				"item": "Poison Barb"
+			},
+			"summary": "Pidgeotto is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Battle Girl Laura",
+				"move": "Body Slam"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Battle Girl Laura",
+				"move": "Thrash"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-14",
+					"mon-2",
+					"mon-12",
+					"mon-9",
+					"mon-11"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eelektrik, Pidgeotto, Farfetch’d-Galar, Phanpy, Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Secret Power",
+				"replace": "Charm"
+			},
+			"summary": "Phanpy forgot Charm, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Sailor Brenden",
+				"move": "Quick Attack"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-2",
+				"to": "Sailor Brenden",
+				"move": "Rock Smash"
+			},
+			"summary": "Pidgeotto fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 65)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-14",
+					"mon-12",
+					"mon-8",
+					"mon-9",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eelektrik, Farfetch’d-Galar, Croagunk, Phanpy, Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Throw",
+				"replace": "Growl"
+			},
+			"summary": "Phanpy forgot Growl, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Flame Wheel",
+				"replace": "Low Sweep"
+			},
+			"summary": "Monferno forgot Low Sweep, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Mach Punch",
+				"replace": "Fire Spin"
+			},
+			"summary": "Monferno forgot Fire Spin, learned Mach Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Battle Girl Lilith",
+				"move": "Bullet Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-9",
+					"mon-13",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Phanpy, Seadra, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Smokescreen"
+			},
+			"summary": "Seadra forgot Smokescreen, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-13",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Seadra takes the lead — with Monferno, Eldegoss, Eelektrik, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Black Belt Cristian",
+				"move": "Vital Throw"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Black Belt Cristian",
+				"move": "Facade"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Black Belt Cristian",
+				"move": "Mach Punch"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-8",
+					"mon-2",
+					"mon-14",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Croagunk, Pidgeotto, Eelektrik, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Sludge",
+				"replace": "Thunder Wave"
+			},
+			"summary": "Eelektrik forgot Thunder Wave, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Rock Smash",
+				"replace": "Leer"
+			},
+			"summary": "Farfetch’d-Galar forgot Leer, learned Rock Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Vacuum Wave",
+				"replace": "Mud Shot"
+			},
+			"summary": "Croagunk forgot Mud Shot, learned Vacuum Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Black Belt Takao",
+				"move": "Drain Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Black Belt Takao",
+				"move": "Triple Axel"
+			},
+			"summary": "Croagunk fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Pidgeotto",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-13",
+					"mon-9",
+					"mon-14",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Seadra, Phanpy, Eelektrik, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Icy Wind",
+				"replace": "Clear Smog"
+			},
+			"summary": "Seadra forgot Clear Smog, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Headbutt",
+				"replace": "Shock Wave"
+			},
+			"summary": "Eelektrik forgot Shock Wave, learned Headbutt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Battle Girl Jocelyn",
+				"move": "Dizzy Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Battle Girl Jocelyn",
+				"move": "Drain Punch"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Battle Girl Jocelyn",
+				"move": "Take Down"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 76)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Hidden Power",
+				"replace": "Icy Wind"
+			},
+			"summary": "Seadra forgot Icy Wind, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Mega Punch"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Mega Punch"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Brick Break"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Monferno takes the lead — with Pidgeotto, Houndour, Skitty, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Monferno takes the lead — with Eldegoss, Eelektrik, Seadra, Phanpy, Farfetch’d-Galar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-5",
+					"mon-14",
+					"mon-13",
+					"mon-9"
+				]
+			},
+			"summary": "Farfetch’d-Galar takes the lead — with Monferno, Eldegoss, Eelektrik, Seadra, Phanpy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Farfetch’d-Galar fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Monferno fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-13",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Seadra fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Phanpy fainted; permadeath is off, so nothing changed",
+			"at": null
+		}
+	]
+}

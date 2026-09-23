@@ -1,0 +1,1020 @@
+{
+	"runs": [
+		{
+			"file": "acc-11.run.json",
+			"source": "ui-playthrough-out/report-acc-11.json",
+			"position": 235,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "42df07c99fb3804afa096e1bfad6a6d219a114517ba2cf553295d5581db41920"
+		},
+		{
+			"file": "acc-17.run.json",
+			"source": "ui-playthrough-out/report-acc-17.json",
+			"position": 190,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "49bf2a901fff80f8e55720dbc039810a2de7d15dc3e2e4706c25bd5f1082a593"
+		},
+		{
+			"file": "acc-26.run.json",
+			"source": "ui-playthrough-out/report-acc-26.json",
+			"position": 211,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "1e4444e664452981ed0d27250ca2a1f6356cbd7f42fab71f782c62fc469c8a5e"
+		},
+		{
+			"file": "br-1.run.json",
+			"source": "ui-playthrough-out/report-br-1.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ec105b6ca6cf6f243082c148421e4ae481488e85eb6c3aaee1197edb2e88e559"
+		},
+		{
+			"file": "br-10.run.json",
+			"source": "ui-playthrough-out/report-br-10.json",
+			"position": 161,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "64c05d1d9710d44c927676f9f34aaa97d13456b5f3790d24f1b2bbed2ab7cba6"
+		},
+		{
+			"file": "br-14.run.json",
+			"source": "ui-playthrough-out/report-br-14.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "4c3732a090eb68276cf36f5f9fb52666bb13a167175104ef6d2956c56b6140f9"
+		},
+		{
+			"file": "br-18.run.json",
+			"source": "ui-playthrough-out/report-br-18.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "5b272ea233a9af70650b97ac71b86f207189111b49cbfffd376a12ab19f6d04d"
+		},
+		{
+			"file": "br-19.run.json",
+			"source": "ui-playthrough-out/report-br-19.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "79a967ceddf9d7e0685aedcf00fae8ae11451083519716034e533c96cf30ca19"
+		},
+		{
+			"file": "br-20.run.json",
+			"source": "ui-playthrough-out/report-br-20.json",
+			"position": 156,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "917aaec478d4eff485867887f0e1e283fa0556eadda8585fe3535b30bf1111ac"
+		},
+		{
+			"file": "br-27.run.json",
+			"source": "ui-playthrough-out/report-br-27.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "e09cf8cc3d3ee3d35b34847affade0e4cd8580af0958acf411eeca1c61593cfe"
+		},
+		{
+			"file": "br-28.run.json",
+			"source": "ui-playthrough-out/report-br-28.json",
+			"position": 156,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "04a37de2ec29f15103f1e7a0b75e61f88a26ce7e0fd3c5297919d186393d1aaf"
+		},
+		{
+			"file": "br-4.run.json",
+			"source": "ui-playthrough-out/report-br-4.json",
+			"position": 152,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "971dfa01580b9e8f93e9801c4f4bb2f8f1d0dedb7392202b894647756b676a58"
+		},
+		{
+			"file": "br-5.run.json",
+			"source": "ui-playthrough-out/report-br-5.json",
+			"position": 148,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "7e202994298b77f185b113c34b50a86cffe5b43a7f9c75ff9b9d982e94afde2c"
+		},
+		{
+			"file": "br-6.run.json",
+			"source": "ui-playthrough-out/report-br-6.json",
+			"position": 142,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "92b77e99e6cb7ccba60480482eec13acf1942f34be4109aa8a7d217801262dcd"
+		},
+		{
+			"file": "br-9.run.json",
+			"source": "ui-playthrough-out/report-br-9.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "5d1677b1962296ce31a715320a92d286d39e7be6712b40ae089f3dd944e74577"
+		},
+		{
+			"file": "brbank1-A-1.run.json",
+			"source": "ui-playthrough-out/report-brbank1-A-1.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "5895d33f3c207348d3bb49247dcf28c32538ce0079d86021b3e74a47482a5165"
+		},
+		{
+			"file": "brbank1-A-2.run.json",
+			"source": "ui-playthrough-out/report-brbank1-A-2.json",
+			"position": 180,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "8374bbb2cfd9c017a9260f7d07938a8d6f0a6d75cde9551fbb86c509bceefbc9"
+		},
+		{
+			"file": "brbank1-A-6.run.json",
+			"source": "ui-playthrough-out/report-brbank1-A-6.json",
+			"position": 128,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "2c361b4eba883a6ea11f54bf449ae045ed6bd6cb2cafda68552dae5c30bca262"
+		},
+		{
+			"file": "brbank1-A-7.run.json",
+			"source": "ui-playthrough-out/report-brbank1-A-7.json",
+			"position": 142,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "4834c5f5aa4d8fdee609dbd26594bd6144617d2d93d27e752ad78ecf96e4762f"
+		},
+		{
+			"file": "brbank2-B-8.run.json",
+			"source": "ui-playthrough-out/report-brbank2-B-8.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "6ca1ad56860a5e015ae5a55c072c23bda0092370fa31ad03005924452c5924aa"
+		},
+		{
+			"file": "brheal1-B-2.run.json",
+			"source": "ui-playthrough-out/report-brheal1-B-2.json",
+			"position": 112,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "ac87ab4c25986e03c4b70ade3bf038540c9d40948a06119e35d9280bb54e9c5a"
+		},
+		{
+			"file": "brheal1-B-3.run.json",
+			"source": "ui-playthrough-out/report-brheal1-B-3.json",
+			"position": 112,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "f81c3646f2ee65a6c1b1110ca7dc54bb8be7c9cae4139fa5c748ecf520be4405"
+		},
+		{
+			"file": "brheal1-B-6.run.json",
+			"source": "ui-playthrough-out/report-brheal1-B-6.json",
+			"position": 114,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "b14cbfff933d1653855540e9ffbf6c9428ce58597af0ceeb0d59851dda81eb15"
+		},
+		{
+			"file": "brkeys1-A-2.run.json",
+			"source": "ui-playthrough-out/report-brkeys1-A-2.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "e0de5372ca4e1c4468c5852b4cbd55a75956c2f8b783dfaaa886e1395e7994bd"
+		},
+		{
+			"file": "brkeys1-B-1.run.json",
+			"source": "ui-playthrough-out/report-brkeys1-B-1.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "15e1b4f7d11e9db1016558d00e0262f3dad300ab90f99bc39b2a93d6c2ae0a5a"
+		},
+		{
+			"file": "brkeys2-A-1.run.json",
+			"source": "ui-playthrough-out/report-brkeys2-A-1.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "93fd043b2bc6585ed268896cd4a1dfa07877512c4dd263af0575476e6691eaa6"
+		},
+		{
+			"file": "brkeys2-A-2.run.json",
+			"source": "ui-playthrough-out/report-brkeys2-A-2.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "d03f1a83172c7f7b63053029d317f2bf61ec075a48c0270fdbcd499b720b6993"
+		},
+		{
+			"file": "brkeys2-B-1.run.json",
+			"source": "ui-playthrough-out/report-brkeys2-B-1.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "3d292c0f41f6bdbf9a63ff3e2684cd05f565543529dbf26cb1a2074d793da603"
+		},
+		{
+			"file": "brkeys3-A-3.run.json",
+			"source": "ui-playthrough-out/report-brkeys3-A-3.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "88296a3f9bad78ca5293df1523336673184079c10d727c45f13106ab24f4162c"
+		},
+		{
+			"file": "brkeys3-A-4.run.json",
+			"source": "ui-playthrough-out/report-brkeys3-A-4.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "94898b0cf6fb0707c557ab43e7bdce4a54c1f7ceb65e69836520d6cea245bb2b"
+		},
+		{
+			"file": "brkeys3-A-5.run.json",
+			"source": "ui-playthrough-out/report-brkeys3-A-5.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "44c469414f17b4a7c9e0c2cd6e3e93f73a15d67660891d861813acef5b241486"
+		},
+		{
+			"file": "brkeys3-B-3.run.json",
+			"source": "ui-playthrough-out/report-brkeys3-B-3.json",
+			"position": 102,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "395af5b0acde9b28baf1fd79f7cc38887c1d33c420a5876f4ae31abd35a63597"
+		},
+		{
+			"file": "brkeys3-B-4.run.json",
+			"source": "ui-playthrough-out/report-brkeys3-B-4.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "7e9b72eec7a69a6f173e7b4bcdb8885d285302c3aff8ef117e827018f04b1d61"
+		},
+		{
+			"file": "brkeys3b-A-1.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-A-1.json",
+			"position": 102,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "15677ff0fd59e13b2377d8aaa6a086ea14f1850201045d8149f542f43da876d9"
+		},
+		{
+			"file": "brkeys3b-A-3.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-A-3.json",
+			"position": 102,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "416f24e4f084d2907a912301cfa5b49ab11ecc446d1e3e3a2fddf834ffde4c9c"
+		},
+		{
+			"file": "brkeys3b-A-4.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-A-4.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "82efc1fc76c7459110e486549cf2034f3aa8455b5e7424febe4f0d39ab72440d"
+		},
+		{
+			"file": "brkeys3b-A-6.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-A-6.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "3f319d1f85b0da972b07fa50c98f468528c9096837b4670b6950cac34adb5f85"
+		},
+		{
+			"file": "brkeys3b-A-7.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-A-7.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "e9a3a72570123a6bd677e6c273239ed4ce098db8c717e018e97ea11d8a19f416"
+		},
+		{
+			"file": "brkeys3b-B-3.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-B-3.json",
+			"position": 102,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "3a6140d1d655f2113de755afab0c7dfeaf7c08199e426ce1f2c5293218a82861"
+		},
+		{
+			"file": "brkeys3b-B-4.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-B-4.json",
+			"position": 102,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "c08b6cd846f107adf3d420aee646fcc71fc7d8d9d776547fe6308440c4e45a43"
+		},
+		{
+			"file": "brkeys3b-B-8.run.json",
+			"source": "ui-playthrough-out/report-brkeys3b-B-8.json",
+			"position": 102,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "76a7993de10854284bd3b6e725643caa375f1a2797648a09fa55b2b4cfca16f7"
+		},
+		{
+			"file": "brsend1-A-5.run.json",
+			"source": "ui-playthrough-out/report-brsend1-A-5.json",
+			"position": 152,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "a87292e5d79cbe925cca62d36e5ebf7a98a950e7c42fd535d9dc32bc6584f1f0"
+		},
+		{
+			"file": "brsend1-B-4.run.json",
+			"source": "ui-playthrough-out/report-brsend1-B-4.json",
+			"position": 152,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "9ff49e186349bc4659688c1067fad3a62fd461803e7b39bdf2ac48e0bf9fc94d"
+		},
+		{
+			"file": "brsend1-B-6.run.json",
+			"source": "ui-playthrough-out/report-brsend1-B-6.json",
+			"position": 128,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "c612e5ecc4e13b29581ce3e31be715eefcef11dd8bdefbdc6199a80056fcc77f"
+		},
+		{
+			"file": "choice-brawly-max.run.json",
+			"source": "ui-playthrough-out/choice-brawly-max.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "b57fde90f7229ed78d91690c24dcf15034821fb6214eec9aa235893a8d3fd404"
+		},
+		{
+			"file": "choice-brawly.run.json",
+			"source": "ui-playthrough-out/choice-brawly.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "8e933b2f56662440e5887f19c911caa7cd709f14ef3cbbf619de30bdfc7d34d7"
+		},
+		{
+			"file": "choice-roxanne-max.run.json",
+			"source": "ui-playthrough-out/choice-roxanne-max.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "e23add772a7f4293aca3f519b5afe5d67bbb29a2a1bd0dcc420ceb01c082f00c"
+		},
+		{
+			"file": "choice-roxanne.run.json",
+			"source": "ui-playthrough-out/choice-roxanne.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "c72d0ee267b299bcf6938ce0a9e44d2ceb69b6a7c6fcf5545f179061337ef197"
+		},
+		{
+			"file": "choice-wattson-max.run.json",
+			"source": "ui-playthrough-out/choice-wattson-max.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "d7bc4f9a4b7316bdb4c88d6d49ad0caa41197e343b97be8e50c1a942fde04362"
+		},
+		{
+			"file": "choice-wattson.run.json",
+			"source": "ui-playthrough-out/choice-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "d5d7d5a6503b61f4d5f372c7822c79b33618e9bbc7975e7ce601eddea1b17978"
+		},
+		{
+			"file": "counterfactual-brawly-baseline.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-baseline.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "5895d33f3c207348d3bb49247dcf28c32538ce0079d86021b3e74a47482a5165"
+		},
+		{
+			"file": "counterfactual-brawly-key-box-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-key-box-max-ivs.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "df51c7a75fde25148da6a337c601413749c3d92246e9a07ded08fcd1d3a9189f"
+		},
+		{
+			"file": "counterfactual-brawly-key-box.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-key-box.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "0af7feedd28cfa9a0e7ae59a6247aee405fd0d8058dd1a3c1f949b5e427f3964"
+		},
+		{
+			"file": "counterfactual-brawly-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-max-ivs.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "3405e4cf6f0485e47d57dc650f35d717f233183ca3defcb679563e545fb704e0"
+		},
+		{
+			"file": "counterfactual-brawly-screens.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-screens.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "94b6406f40aba6e99ff4646919ba8dfcc00b33bb5e947e6a592794ce05b43a53"
+		},
+		{
+			"file": "counterfactual-brawly-slow.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-slow.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "f5cd512bc9701354db234a037940a32973328af35246a3accd4ffdb6e7b451a0"
+		},
+		{
+			"file": "counterfactual-brawly-starter-3iv.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-starter-3iv.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "eddfc22c17ef9319cb5fef2e3bd2f53940a9b7fa66ef84271f7e249b6318b709"
+		},
+		{
+			"file": "counterfactual-brawly-the-lot.run.json",
+			"source": "ui-playthrough-out/counterfactual-brawly-the-lot.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ac301a989e0deffc87e102a3c51128b226fb30706db640ba864bb0f3ce400c3a"
+		},
+		{
+			"file": "counterfactual-roxanne-baseline.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-baseline.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ec105b6ca6cf6f243082c148421e4ae481488e85eb6c3aaee1197edb2e88e559"
+		},
+		{
+			"file": "counterfactual-roxanne-key-box-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-key-box-max-ivs.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "2257131ec7ce90a27961f916fa08f975e646de08acc072e382c58488e18d0c1e"
+		},
+		{
+			"file": "counterfactual-roxanne-key-box.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-key-box.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "f37524c4b178ed3ac70d5286c1ff64f8620627a2946e9c7d9962dbbc974938d1"
+		},
+		{
+			"file": "counterfactual-roxanne-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-max-ivs.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "f7ddcd047b8289b9da4c08d8e7a62afe6e81a9c465383fc4e39cd8cc5580ec62"
+		},
+		{
+			"file": "counterfactual-roxanne-screens.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-screens.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ed0891bfdba93d13606fe8822be274ba07ecf0b52d444ae3f6c7378b625edcb3"
+		},
+		{
+			"file": "counterfactual-roxanne-slow.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-slow.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "da7e99dbcfcd50218a1f8fd2d7e3950883144274f6fd2787bdb151812861366c"
+		},
+		{
+			"file": "counterfactual-roxanne-starter-3iv.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-starter-3iv.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "8093fa415c4160280444154182a8b3eec028b3245649a54f19d9bf845a1e7090"
+		},
+		{
+			"file": "counterfactual-roxanne-the-lot.run.json",
+			"source": "ui-playthrough-out/counterfactual-roxanne-the-lot.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "9a757e222013fafcadcd14653f6ead7f1f72bc8e86303da8cd693028f5d902d3"
+		},
+		{
+			"file": "counterfactual-wattson-baseline.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-baseline.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "1c39c8b54a735a0b06e457cf5c5c218ae74a35b43214a2e561e656f1e7ce41b0"
+		},
+		{
+			"file": "counterfactual-wattson-key-box-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-key-box-max-ivs.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "c7eb928d687c91243ec5b488f93304c2c171efbe0f55156e4a9cc0259b820949"
+		},
+		{
+			"file": "counterfactual-wattson-key-box.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-key-box.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "7dd2c1250028b815f646f6a107d08de503f6e533e83a35559ed91c028ab57c95"
+		},
+		{
+			"file": "counterfactual-wattson-max-ivs.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-max-ivs.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "fbbc9c4302cf966682aa6481c7017f7d6cbd0a64bbd7b08376bb8b88271b9e69"
+		},
+		{
+			"file": "counterfactual-wattson-screens.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-screens.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "b78f0b6b66eaa7311d7226a28efa057a8880a6ddce82fee1be400ac7eea8c766"
+		},
+		{
+			"file": "counterfactual-wattson-slow.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-slow.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "e1e270f648e210e015ab8d0bd3f5c78b785cd04abc2bcf59e734fe9e6852de71"
+		},
+		{
+			"file": "counterfactual-wattson-starter-3iv.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-starter-3iv.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "e32fe41a25f3f4fc2a9a6b56797d4b552571537e9e433719d1d12d0b03f46092"
+		},
+		{
+			"file": "counterfactual-wattson-the-lot.run.json",
+			"source": "ui-playthrough-out/counterfactual-wattson-the-lot.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "4e426fc65a3af075d0aea68a2de43bb8d1d940289b9ec56f065430c19a114d58"
+		},
+		{
+			"file": "dose-roxanne-15.run.json",
+			"source": "ui-playthrough-out/dose-roxanne-15.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "a98b583b6deea55c48814709e4c7fae0a8ba3c6e777bf1fd77bc6cdde1cced3c"
+		},
+		{
+			"file": "dose-roxanne-28.run.json",
+			"source": "ui-playthrough-out/dose-roxanne-28.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "70cd61f408f005836f85a183d164eee6f0c230a3989ab1d7e19e53f8a723b466"
+		},
+		{
+			"file": "dose-roxanne-3.run.json",
+			"source": "ui-playthrough-out/dose-roxanne-3.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "be133f2d81108570c1056e7397e2c633372d552e7167ad1d7fcfbe26f84dbf36"
+		},
+		{
+			"file": "dose-roxanne-9.run.json",
+			"source": "ui-playthrough-out/dose-roxanne-9.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 16,
+			"sha256": "ce69c3cfa4586dd35d665fae46299456ec4f0119c1918e2121b6c9d74b4719cf"
+		},
+		{
+			"file": "dose-wattson-15.run.json",
+			"source": "ui-playthrough-out/dose-wattson-15.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "a66d8d6094c1b620ea2b6b07055e39169f5d82da26fbbd0241bc6cc01bd8cf32"
+		},
+		{
+			"file": "dose-wattson-28.run.json",
+			"source": "ui-playthrough-out/dose-wattson-28.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "c6a11ca30ba416e037ddbd6f5dec579dc58a51927f45b659d70387221d6deee1"
+		},
+		{
+			"file": "dose-wattson-3.run.json",
+			"source": "ui-playthrough-out/dose-wattson-3.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "64bf25001ce529dea5a97507ce614ae742012c67498877875a6227451082b2b4"
+		},
+		{
+			"file": "dose-wattson-9.run.json",
+			"source": "ui-playthrough-out/dose-wattson-9.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "3c6f376199474cbd32345adf59462ac1215331afbd56005883feceb0ef6fe2a2"
+		},
+		{
+			"file": "fin-3.run.json",
+			"source": "ui-playthrough-out/report-fin-3.json",
+			"position": 134,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "94d039f20ca293fff552955c4262e405377e0e4e666220f1e6bc176b3c741e4a"
+		},
+		{
+			"file": "flannery-3.run.json",
+			"source": "ui-playthrough-out/report-flannery-3.json",
+			"position": 287,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "3ac829f37d6e90aaaeadb7927b8111b7a725a64346a5effd35442ea65d6ca66a"
+		},
+		{
+			"file": "forecast-today-M-2.run.json",
+			"source": "ui-playthrough-out/report-forecast-today-M-2.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "be13026a1bc52327d505f722de91049144a37572e08e69857bb5ccc87eab5bfb"
+		},
+		{
+			"file": "forecast-today-M-6.run.json",
+			"source": "ui-playthrough-out/report-forecast-today-M-6.json",
+			"position": 173,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "dca845de1cf44eb9518e41475369a457341a7b70e4a31c80c0619f77c15cbcaf"
+		},
+		{
+			"file": "lead1-A-12.run.json",
+			"source": "ui-playthrough-out/report-lead1-A-12.json",
+			"position": 156,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "519dbbc11550d930fe1b5c9530e7edf776a1a5135b2e85c9734b1cb20bf010a9"
+		},
+		{
+			"file": "lead1-A-9.run.json",
+			"source": "ui-playthrough-out/report-lead1-A-9.json",
+			"position": 152,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "6cd4b1b4b1220334be89a8b4cc3c4ea2a01ae609b44e92e3364d940eccd10921"
+		},
+		{
+			"file": "lead1-B-1.run.json",
+			"source": "ui-playthrough-out/report-lead1-B-1.json",
+			"position": 142,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "559bfd92355ab1f54f7d259833c4fc63a09cd03cc0129a92c6f09f0510ae1b3a"
+		},
+		{
+			"file": "nab-12.run.json",
+			"source": "ui-playthrough-out/report-nab-12.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "92ad3ba8e0bb5a81190bf248b01353c89ad9d133d7640065a0a31dda7be1bcba"
+		},
+		{
+			"file": "nab-15.run.json",
+			"source": "ui-playthrough-out/report-nab-15.json",
+			"position": 180,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "8097afb0aab0e5e81d882f4cb6e0885104164dbce4c5a39d8d3cd7b6bbf63f85"
+		},
+		{
+			"file": "pf-2.run.json",
+			"source": "ui-playthrough-out/report-pf-2.json",
+			"position": 202,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "fcdc73debd51a35e05e502a00e3f5514d856f9f241015ce1aea2469a17db5490"
+		},
+		{
+			"file": "pf-5.run.json",
+			"source": "ui-playthrough-out/report-pf-5.json",
+			"position": 176,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "d6501854bec40f974c493a7265078839dd6a7767738c4f62094dbac55313f508"
+		},
+		{
+			"file": "rank5-A-1.run.json",
+			"source": "ui-playthrough-out/report-rank5-A-1.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "be011545786d44a445f625e7731dd5329a5f4680797f6f30fb22d889fc6dde8e"
+		},
+		{
+			"file": "rank5-A-15.run.json",
+			"source": "ui-playthrough-out/report-rank5-A-15.json",
+			"position": 161,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "ad527d6d1f380b9f5f35e3113505d5c68a00114c42a4a508cd3c6126fe288d2d"
+		},
+		{
+			"file": "rank5-B-5.run.json",
+			"source": "ui-playthrough-out/report-rank5-B-5.json",
+			"position": 148,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "19418ea70daacef01f46466d2e86839dbe9a923dfb5061326c96f39d9ad98f0e"
+		},
+		{
+			"file": "reteach-A-1.run.json",
+			"source": "ui-playthrough-out/report-reteach-A-1.json",
+			"position": 156,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "e954eb209373300fd089835280eb66b14803fabbb6db12e2a761f4433f4c84ea"
+		},
+		{
+			"file": "reteach-A-10.run.json",
+			"source": "ui-playthrough-out/report-reteach-A-10.json",
+			"position": 156,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "598253e6b9d2bb026cd7928f1629dd036ea3753ee130a37e006a5375634fb6bc"
+		},
+		{
+			"file": "reteach-B-5.run.json",
+			"source": "ui-playthrough-out/report-reteach-B-5.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "7c3dc2ce71e5e892aaee910a2c18a12510dcedc1b32d352989d1a7d9239e0efa"
+		},
+		{
+			"file": "reteach-B-8.run.json",
+			"source": "ui-playthrough-out/report-reteach-B-8.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "af9d0536c82a70c9d189bc8c0ce2e2bfa93c9cb5117bd8bcbe75107353b39ed1"
+		},
+		{
+			"file": "reteach2-A-10.run.json",
+			"source": "ui-playthrough-out/report-reteach2-A-10.json",
+			"position": 156,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "762b912d8fbc1149009410e465756bf3a40630bf8ee8ad7002ac1cfed7467d5b"
+		},
+		{
+			"file": "reteach2-B-11.run.json",
+			"source": "ui-playthrough-out/report-reteach2-B-11.json",
+			"position": 161,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "b81911011732824f1417f38f77d2a3fb34cffb7d135c3abc137be68c18ee029d"
+		},
+		{
+			"file": "reteach2-B-4.run.json",
+			"source": "ui-playthrough-out/report-reteach2-B-4.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "8d3e043712bc0724e306c925c9569d50c6dffa573e2b78b2497e7a7797dd9fd6"
+		},
+		{
+			"file": "sac-A-11.run.json",
+			"source": "ui-playthrough-out/report-sac-A-11.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "1c39c8b54a735a0b06e457cf5c5c218ae74a35b43214a2e561e656f1e7ce41b0"
+		},
+		{
+			"file": "sac-A-4.run.json",
+			"source": "ui-playthrough-out/report-sac-A-4.json",
+			"position": 255,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "44e2cce8bed3ecad3fbf33f22dd0ea804cd1d39bbc47026bbd01b94a2a59d299"
+		},
+		{
+			"file": "sac-A-6.run.json",
+			"source": "ui-playthrough-out/report-sac-A-6.json",
+			"position": 248,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "a80f4890989ba7e864364b9435d1b6bdb0e4bdbb61741d5989a3f168686b2e87"
+		},
+		{
+			"file": "skipwall4-A-7.run.json",
+			"source": "ui-playthrough-out/report-skipwall4-A-7.json",
+			"position": 118,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "939d9785ba5973cff525ff78308b630397db0cb51091ee25b1d384753c4ed7a4"
+		},
+		{
+			"file": "speed-plus23.run.json",
+			"source": "ui-playthrough-out/speed-plus23.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "e424bb45c5614f0f067102397659a52fbbc9134ea5aa0e58d901347e39f76f83"
+		},
+		{
+			"file": "speed-swap15.run.json",
+			"source": "ui-playthrough-out/speed-swap15.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "b282d7b9c0fd87d4fd450f8e2dfe1d32d8a4fd05b391d48636b8fcee8fa6919f"
+		},
+		{
+			"file": "speed-swap23.run.json",
+			"source": "ui-playthrough-out/speed-swap23.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "7d39acad5e1a9a4d11aac7a402f099570ed9a57c9c875bb0645238797126b5fe"
+		},
+		{
+			"file": "starteriv1-M-1.run.json",
+			"source": "ui-playthrough-out/report-starteriv1-M-1.json",
+			"position": 114,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "bb7aa35cd15f5122a21d72d41e10ebb6b1ff16a0b45d566c7ff490cdd7e7b050"
+		},
+		{
+			"file": "strat-developed-brawly.run.json",
+			"source": "ui-playthrough-out/strat-developed-brawly.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "75f50a509c7ce113e7851d0eab7e99868ca76bc53776746fb5bcc04de08fabf7"
+		},
+		{
+			"file": "strat-developed-roxanne.run.json",
+			"source": "ui-playthrough-out/strat-developed-roxanne.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "4014336cf5d4c037659410b314e15597461aeae991adf4d0b46b176064239a8c"
+		},
+		{
+			"file": "strat-developed-wattson.run.json",
+			"source": "ui-playthrough-out/strat-developed-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "92a82f49ee499649c323ef975f2b5db0f57229021fa17238fe494d2299957478"
+		},
+		{
+			"file": "strat-giantkiller-brawly.run.json",
+			"source": "ui-playthrough-out/strat-giantkiller-brawly.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "ed0745e6d0bb686602493341c5fa5f06286f482f727d927a65161a20eab36281"
+		},
+		{
+			"file": "strat-giantkiller-roxanne.run.json",
+			"source": "ui-playthrough-out/strat-giantkiller-roxanne.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "34fad54796cea82b185e31138f9d0a28134d95af66c8197959b778c3e175b22b"
+		},
+		{
+			"file": "strat-giantkiller-wattson.run.json",
+			"source": "ui-playthrough-out/strat-giantkiller-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "9924330228969067e923727490f5aa4de7cac3bd20efb2d2f38c6bdee5e2d78a"
+		},
+		{
+			"file": "strat-intimidate.run.json",
+			"source": "ui-playthrough-out/strat-intimidate.json",
+			"position": 76,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "241791792b18e582cea69b46ce6c9c12d0ee59bc6b241481d078beba0881056b"
+		},
+		{
+			"file": "strat-stones-dev-wattson.run.json",
+			"source": "ui-playthrough-out/strat-stones-dev-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "30d93069180f24c9b72b3092e65c22ab96300a3582b9f8b74fffac428c5230e0"
+		},
+		{
+			"file": "strat-stones-wattson.run.json",
+			"source": "ui-playthrough-out/strat-stones-wattson.json",
+			"position": 215,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 6,
+			"sha256": "4b3901f66701a6c7a42805547a1675560c6d99695d7142500f5138946043ff27"
+		},
+		{
+			"file": "sv-14.run.json",
+			"source": "ui-playthrough-out/report-sv-14.json",
+			"position": 225,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "6dda16162fe5fea3c78234786bd046796b646a3590a21a6ef1ba1f76e523cd5d"
+		},
+		{
+			"file": "sv-20.run.json",
+			"source": "ui-playthrough-out/report-sv-20.json",
+			"position": 211,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 25,
+			"sha256": "da933c9f258eee43a38e584a261d4ca29eba3f379f6aac7febb854b1e50617d2"
+		},
+		{
+			"file": "sv-26.run.json",
+			"source": "ui-playthrough-out/report-sv-26.json",
+			"position": 184,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 21,
+			"sha256": "3a4a5005261f239d63c389051927d4f34eebddc7ee9046af4d37a65f6bb3dc67"
+		},
+		{
+			"file": "sv-8.run.json",
+			"source": "ui-playthrough-out/report-sv-8.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "b5bb6448317ceec437e4ef40b8b169c7c76253cea8d5c4b058e8e868ee38b541"
+		},
+		{
+			"file": "tmsource-B-1.run.json",
+			"source": "ui-playthrough-out/report-tmsource-B-1.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "6bc2b4d2041c6481f0978d54373219dab2c28aff565760a92cbd8016a46cce9e"
+		},
+		{
+			"file": "tmsource-B-4.run.json",
+			"source": "ui-playthrough-out/report-tmsource-B-4.json",
+			"position": 138,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 18,
+			"sha256": "fcfe9c286fca114d5ec44148d54db8d7d2b3d1edd3b168b80cc21ee633bc1f86"
+		},
+		{
+			"file": "tmsource-B-9.run.json",
+			"source": "ui-playthrough-out/report-tmsource-B-9.json",
+			"position": 161,
+			"orderScale": "route103-wally-2026-08-28",
+			"box": 19,
+			"sha256": "5d965b9b6e01d346efd8b1672f3e8ff0308382d7f78bb039b7f9e649bbf04110"
+		}
+	]
+}

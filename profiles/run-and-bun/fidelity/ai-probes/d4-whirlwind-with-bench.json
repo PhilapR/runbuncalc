@@ -1,0 +1,598 @@
+{
+  "probe": "d4-whirlwind-with-bench",
+  "protocol": "two-turn",
+  "seed_cohort": "reference",
+  "description": "Control for d2: the same Whirlwind with a healthy teammate on the player's bench.",
+  "hypothesis": "Whirlwind 106/107 if d2 is the no-bench rule; 85 if always useless",
+  "player": {
+    "species": 143,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      0,
+      0
+    ]
+  },
+  "enemy": {
+    "species": 18,
+    "level": 50,
+    "moves": [
+      "Whirlwind",
+      "Wing Attack",
+      "Splash",
+      "Tackle"
+    ],
+    "stats": {
+      "hp": 200,
+      "atk": 90,
+      "def": 90,
+      "spa": 60,
+      "spd": 90,
+      "spe": 100
+    },
+    "ability": 50,
+    "types": [
+      0,
+      2
+    ]
+  },
+  "player_bench": {
+    "species": 195,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      11,
+      4
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Wing Attack": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      39,
+      40,
+      42,
+      43,
+      45,
+      46,
+      60
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 643,
+      "rng_after": "0x3eb72f86",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 60,
+      "damage_to_b": 0,
+      "hp_a_after": 340,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 770,
+      "rng_after": "0x810ac509",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 43,
+      "damage_to_b": 0,
+      "hp_a_after": 357,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0xa054ef9a",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 643,
+      "rng_after": "0x03a1e869",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 45,
+      "damage_to_b": 0,
+      "hp_a_after": 355,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0xa0599d8e",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 360,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 643,
+      "rng_after": "0x72447ccc",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 360,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 643,
+      "rng_after": "0xbe92342e",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 643,
+      "rng_after": "0x544f0950",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 45,
+      "damage_to_b": 0,
+      "hp_a_after": 355,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0xcbbbe7cb",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 643,
+      "rng_after": "0x609c9526",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 43,
+      "damage_to_b": 0,
+      "hp_a_after": 357,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0x1a5eb457",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 45,
+      "damage_to_b": 0,
+      "hp_a_after": 355,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0x5e855e12",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 42,
+      "damage_to_b": 0,
+      "hp_a_after": 358,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0xc9692203",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 42,
+      "damage_to_b": 0,
+      "hp_a_after": 358,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0xd18b039d",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 45,
+      "damage_to_b": 0,
+      "hp_a_after": 355,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0x1f1fe3ea",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 643,
+      "rng_after": "0x2a943003",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 42,
+      "damage_to_b": 0,
+      "hp_a_after": 358,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0xc90679b0",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 43,
+      "damage_to_b": 0,
+      "hp_a_after": 357,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0xceabff88",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 643,
+      "rng_after": "0xa2a0efb0",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Wing Attack",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 644,
+      "rng_after": "0x62a105bb",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Whirlwind": [
+      105
+    ],
+    "Wing Attack": [
+      106,
+      108
+    ],
+    "Splash": [
+      81
+    ],
+    "Tackle": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

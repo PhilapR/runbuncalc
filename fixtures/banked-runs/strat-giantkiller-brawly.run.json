@@ -1,0 +1,6149 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "2dadfcc7-0d89-4260-a4a5-58195e1072e9",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-28T04:06:55.505Z",
+	"updatedAt": "2026-08-28T04:06:55.505Z",
+	"position": 76,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Swampert"
+	},
+	"nextId": 17,
+	"box": [
+		{
+			"id": "probe-1",
+			"species": "Staravia",
+			"nickname": null,
+			"level": 21,
+			"nature": "Bashful",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Growl",
+				"Quick Attack",
+				"Aerial Ace",
+				"Endeavor"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 15,
+				"def": 15,
+				"spa": 15,
+				"spd": 15,
+				"spe": 15
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "probe-2",
+			"species": "Dwebble",
+			"nickname": null,
+			"level": 21,
+			"nature": "Bashful",
+			"ability": "Sturdy",
+			"item": null,
+			"moves": [
+				"Sand Attack",
+				"Feint Attack",
+				"Slash",
+				"Rock Tomb"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 15,
+				"def": 15,
+				"spa": 15,
+				"spd": 15,
+				"spe": 15
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "probe-3",
+			"species": "Hitmonchan",
+			"nickname": null,
+			"level": 21,
+			"nature": "Bashful",
+			"ability": "Inner Focus",
+			"item": null,
+			"moves": [
+				"Focus Punch",
+				"Pursuit",
+				"Comet Punch",
+				"Mach Punch"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 15,
+				"def": 15,
+				"spa": 15,
+				"spd": 15,
+				"spe": 15
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "probe-4",
+			"species": "Buizel",
+			"nickname": null,
+			"level": 21,
+			"nature": "Bashful",
+			"ability": "Swift Swim",
+			"item": null,
+			"moves": [
+				"Double Hit",
+				"Sonic Boom",
+				"Water Pulse",
+				"Fake Out"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 15,
+				"def": 15,
+				"spa": 15,
+				"spd": 15,
+				"spe": 15
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "probe-5",
+			"species": "Growlithe",
+			"nickname": null,
+			"level": 21,
+			"nature": "Bashful",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Covet",
+				"Odor Sleuth",
+				"Flame Wheel",
+				"Fire Fang"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 15,
+				"def": 15,
+				"spa": 15,
+				"spd": 15,
+				"spe": 15
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		},
+		{
+			"id": "probe-6",
+			"species": "Kadabra",
+			"nickname": null,
+			"level": 21,
+			"nature": "Bashful",
+			"ability": "Synchronize",
+			"item": null,
+			"moves": [
+				"Kinesis",
+				"Confusion",
+				"Disable"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 15,
+				"def": 15,
+				"spa": 15,
+				"spd": 15,
+				"spe": 15
+			},
+			"status": "party",
+			"origin": {
+				"kind": "counterfactual"
+			}
+		}
+	],
+	"party": [
+		"probe-1",
+		"probe-2",
+		"probe-3",
+		"probe-4",
+		"probe-5",
+		"probe-6"
+	],
+	"bag": {
+		"Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Turtwig",
+				"level": 5,
+				"ivs": {
+					"hp": 15,
+					"atk": 19,
+					"def": 10,
+					"spa": 31,
+					"spd": 3,
+					"spe": 24
+				},
+				"nature": "Docile",
+				"ability": "Overgrow"
+			},
+			"summary": "caught Turtwig at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Bunnelby",
+				"level": 3,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 26,
+					"atk": 0,
+					"def": 24,
+					"spa": 30,
+					"spd": 2,
+					"spe": 22
+				},
+				"nature": "Calm",
+				"ability": "Cheek Pouch"
+			},
+			"summary": "caught Bunnelby at level 3 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Fletchling",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 8,
+					"atk": 22,
+					"def": 6,
+					"spa": 10,
+					"spd": 0,
+					"spe": 3
+				},
+				"nature": "Careful",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Fletchling at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Budew",
+				"level": 3,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 6,
+					"atk": 10,
+					"def": 19,
+					"spa": 2,
+					"spd": 19,
+					"spe": 4
+				},
+				"nature": "Lax",
+				"ability": "Natural Cure"
+			},
+			"summary": "caught Budew at level 3 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Finneon",
+				"level": 3,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 25,
+					"atk": 2,
+					"def": 8,
+					"spa": 25,
+					"spd": 17,
+					"spe": 9
+				},
+				"nature": "Serious",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Finneon at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Growlithe",
+				"level": 3,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 29,
+					"atk": 2,
+					"def": 19,
+					"spa": 15,
+					"spd": 4,
+					"spe": 8
+				},
+				"nature": "Relaxed",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Growlithe at level 3 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L5 to L12 and learned Confide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L3 to L12 and learned Quick Attack, Double Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Fletchling grew from L5 to L12 and learned Quick Attack, Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Budew grew from L3 to L12 and learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L3 to L12 and learned Water Gun, Gust",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Growlithe grew from L3 to L12 and learned Covet, Odor Sleuth; its moves are full, so Flame Wheel must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Ember"
+			},
+			"summary": "Growlithe forgot Ember, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Bunnelby, Fletchling, Budew, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Fletchling, Budew, Turtwig, Finneon, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Blizzard"
+			},
+			"summary": "Finneon learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Turtwig is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-3",
+					"mon-4",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Growlithe, Fletchling, Budew, Turtwig, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-5",
+					"mon-4",
+					"mon-2",
+					"mon-1"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Fletchling, Finneon, Budew, Bunnelby, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-5",
+					"mon-4",
+					"mon-2",
+					"mon-1"
+				]
+			},
+			"summary": "Fletchling takes the lead — with Growlithe, Finneon, Budew, Bunnelby, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5",
+					"mon-4",
+					"mon-6",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Fletchling takes the lead — with Finneon, Budew, Growlithe, Turtwig, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-3",
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Budew takes the lead — with Fletchling, Finneon, Growlithe, Turtwig, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-5",
+					"mon-3",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Budew takes the lead — with Growlithe, Finneon, Fletchling, Turtwig, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-6",
+					"mon-3",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Finneon takes the lead — with Budew, Growlithe, Fletchling, Turtwig, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Turtwig, Finneon, Fletchling, Budew, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-6",
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Budew takes the lead — with Growlithe, Turtwig, Finneon, Fletchling, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Triathlete Mikey",
+				"move": "Sonic Boom"
+			},
+			"summary": "Budew fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Triathlete Mikey",
+				"move": "Sonic Boom"
+			},
+			"summary": "Growlithe fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Scatterbug",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 2,
+					"atk": 3,
+					"def": 22,
+					"spa": 11,
+					"spd": 4,
+					"spe": 19
+				},
+				"nature": "Quiet",
+				"ability": "Shield Dust"
+			},
+			"summary": "caught Scatterbug at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shellos",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 13,
+					"atk": 24,
+					"def": 0,
+					"spa": 3,
+					"spd": 2,
+					"spe": 1
+				},
+				"nature": "Relaxed",
+				"ability": "Sticky Hold"
+			},
+			"summary": "caught Shellos at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Scatterbug grew from L5 to L12",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Scatterbug evolved into Spewpa",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L5 to L12 and learned Water Pulse, Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Budew takes the lead — with Turtwig, Finneon, Fletchling, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-8",
+					"mon-5",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Budew, Shellos, Finneon, Fletchling, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Miracle Seed"
+			},
+			"summary": "Turtwig is holding Miracle Seed; Oran Berry went back to the bag",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-2",
+				"item": "Oran Berry"
+			},
+			"summary": "Bunnelby is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-3",
+					"mon-2"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Budew, Finneon, Fletchling, Bunnelby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Bunnelby, Fletchling, Budew, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Fletchling, Budew, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-8",
+					"mon-1",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Finneon takes the lead — with Budew, Shellos, Turtwig, Growlithe, Fletchling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Lady Cindy",
+				"move": "Swift"
+			},
+			"summary": "Finneon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Lady Cindy",
+				"move": "Stomp"
+			},
+			"summary": "Fletchling fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Cufant",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 30,
+					"atk": 4,
+					"def": 10,
+					"spa": 15,
+					"spd": 24,
+					"spe": 22
+				},
+				"nature": "Hardy",
+				"ability": "Sheer Force"
+			},
+			"summary": "caught Cufant at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Cufant grew from L8 to L12 and learned Rock Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-1",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Finneon takes the lead — with Budew, Turtwig, Growlithe, Fletchling",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Bunnelby, Fletchling, Budew, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Fletchling, Budew, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-1",
+					"mon-6",
+					"mon-4",
+					"mon-9",
+					"mon-7"
+				]
+			},
+			"summary": "Fletchling takes the lead — with Turtwig, Growlithe, Budew, Cufant, Spewpa",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Electroweb"
+			},
+			"summary": "Spewpa learned Electroweb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6",
+					"mon-4",
+					"mon-9",
+					"mon-7"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Fletchling, Growlithe, Budew, Cufant, Spewpa",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "Turtwig fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Aerial Ace"
+			},
+			"summary": "Fletchling fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Water Pulse"
+			},
+			"summary": "Growlithe fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Confusion"
+			},
+			"summary": "Cufant fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Team Aqua Grunt Petalburg Woods",
+				"move": "Poison Sting"
+			},
+			"summary": "Spewpa fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Bellsprout",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 6,
+					"atk": 2,
+					"def": 1,
+					"spa": 11,
+					"spd": 18,
+					"spe": 22
+				},
+				"nature": "Quiet",
+				"ability": "Chlorophyll"
+			},
+			"summary": "caught Bellsprout at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L12 to L17; its moves are full, so Razor Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Absorb"
+			},
+			"summary": "Turtwig forgot Absorb, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Turtwig evolved into Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Fletchling grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Fletchling evolved into Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Budew grew from L12 to L17 and learned Worry Seed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-4"
+			},
+			"summary": "Budew evolved into Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Growlithe grew from L12 to L17; its moves are full, so Fire Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Fang",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Growlithe forgot Flame Wheel, learned Fire Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Spewpa grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-7"
+			},
+			"summary": "Spewpa evolved into Vivillon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Cufant grew from L12 to L17; its moves are full, so Bulldoze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Tackle"
+			},
+			"summary": "Cufant forgot Tackle, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L12 to L17; its moves are full, so Mud-Slap, Mud Shot must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Mud-Slap",
+				"replace": "Tackle"
+			},
+			"summary": "Bunnelby forgot Tackle, learned Mud-Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Mud Shot",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Bunnelby forgot Mud-Slap, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L12 to L17; its moves are full, so Water Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Water Pulse",
+				"replace": "Pound"
+			},
+			"summary": "Finneon forgot Pound, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L12 to L17; its moves are full, so Hidden Power must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Hidden Power",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Shellos forgot Mud-Slap, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Bellsprout grew from L14 to L17; its moves are full, so Poison Powder must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Poison Powder",
+				"replace": "Wrap"
+			},
+			"summary": "Bellsprout forgot Wrap, learned Poison Powder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-6",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Fletchinder, Growlithe, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Fletchinder, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-7",
+					"mon-9",
+					"mon-10",
+					"mon-3"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia, Vivillon, Cufant, Bellsprout, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Mega Drain"
+			},
+			"summary": "Roselia learned Mega Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Air Cutter",
+				"replace": "Tackle"
+			},
+			"summary": "Vivillon forgot Tackle, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-7",
+					"mon-9",
+					"mon-10",
+					"mon-3"
+				]
+			},
+			"summary": "Roselia takes the lead — with Grotle, Vivillon, Cufant, Bellsprout, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Spheal",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 13,
+					"atk": 7,
+					"def": 7,
+					"spa": 25,
+					"spd": 9,
+					"spe": 15
+				},
+				"nature": "Docile",
+				"ability": "Thick Fat"
+			},
+			"summary": "caught Spheal at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Spheal grew from L8 to L17; its moves are full, so Ice Ball, Charm, Brine must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Ice Ball",
+				"replace": "Rollout"
+			},
+			"summary": "Spheal forgot Rollout, learned Ice Ball",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Charm",
+				"replace": "Ice Ball"
+			},
+			"summary": "Spheal forgot Ice Ball, learned Charm",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Brine",
+				"replace": "Water Gun"
+			},
+			"summary": "Spheal forgot Water Gun, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-3"
+				]
+			},
+			"summary": "Roselia takes the lead — with Grotle, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-5",
+					"mon-8",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Grotle takes the lead — with Growlithe, Finneon, Shellos, Roselia, Cufant",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Blast",
+				"replace": "Growl"
+			},
+			"summary": "Cufant forgot Growl, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Ember",
+				"replace": "Covet"
+			},
+			"summary": "Growlithe forgot Covet, learned Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Sand Tomb",
+				"replace": "Bite"
+			},
+			"summary": "Grotle forgot Bite, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-4",
+				"item": "Silk Scarf"
+			},
+			"summary": "Roselia is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-6",
+					"mon-8",
+					"mon-4",
+					"mon-9"
+				]
+			},
+			"summary": "Finneon takes the lead — with Grotle, Growlithe, Shellos, Roselia, Cufant",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Ruin Maniac Georgie",
+				"move": "Headbutt"
+			},
+			"summary": "Growlithe fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Ruin Maniac Georgie",
+				"move": "Headbutt"
+			},
+			"summary": "Shellos fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Ruin Maniac Georgie",
+				"move": "Headbutt"
+			},
+			"summary": "Cufant fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-6",
+					"mon-4"
+				]
+			},
+			"summary": "Finneon takes the lead — with Grotle, Growlithe, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Fletchinder, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-8",
+					"mon-9",
+					"mon-1",
+					"mon-5",
+					"mon-3"
+				]
+			},
+			"summary": "Growlithe takes the lead — with Shellos, Cufant, Grotle, Finneon, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Flame Charge",
+				"replace": "Growl"
+			},
+			"summary": "Fletchinder forgot Growl, learned Flame Charge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Bite",
+				"replace": "Growl"
+			},
+			"summary": "Grotle forgot Growl, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-8",
+					"mon-9",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe, Shellos, Cufant, Grotle, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Timburr",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 8,
+					"atk": 31,
+					"def": 14,
+					"spa": 3,
+					"spd": 31,
+					"spe": 30
+				},
+				"nature": "Mild",
+				"ability": "Guts"
+			},
+			"summary": "caught Timburr at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Timburr grew from L8 to L17; its moves are full, so Low Kick, Rock Throw must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Low Kick",
+				"replace": "Leer"
+			},
+			"summary": "Timburr forgot Leer, learned Low Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Rock Throw",
+				"replace": "Pound"
+			},
+			"summary": "Timburr forgot Pound, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe, Grotle, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-11",
+					"mon-8",
+					"mon-5",
+					"mon-9",
+					"mon-12",
+					"mon-3"
+				]
+			},
+			"summary": "Spheal takes the lead — with Shellos, Finneon, Cufant, Timburr, Fletchinder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-11",
+					"mon-8",
+					"mon-5",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Spheal, Shellos, Finneon, Cufant, Timburr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Tuber Lola",
+				"move": "Aerial Ace"
+			},
+			"summary": "Fletchinder fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Tuber Lola",
+				"move": "Headbutt"
+			},
+			"summary": "Spheal fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-8",
+				"to": "Tuber Lola",
+				"move": "Headbutt"
+			},
+			"summary": "Shellos fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Tuber Lola",
+				"move": "Flame Charge"
+			},
+			"summary": "Cufant fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-7",
+					"mon-5",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Roselia takes the lead — with Grotle, Vivillon, Finneon, Cufant, Timburr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-9",
+					"mon-12"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Roselia, Grotle, Finneon, Cufant, Timburr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Grotle, Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Roselia, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-3",
+					"mon-6",
+					"mon-12",
+					"mon-9",
+					"mon-4"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Fletchinder, Growlithe, Timburr, Cufant, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Horsea",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 11,
+					"atk": 27,
+					"def": 24,
+					"spa": 7,
+					"spd": 5,
+					"spe": 0
+				},
+				"nature": "Naughty",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Horsea at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L8 to L17 and learned Leer, Twister; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Bubble Beam",
+				"replace": "Bubble"
+			},
+			"summary": "Horsea forgot Bubble, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-4"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-12",
+					"mon-9",
+					"mon-6",
+					"mon-7"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia, Timburr, Cufant, Growlithe, Vivillon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-1",
+					"mon-4",
+					"mon-9",
+					"mon-6",
+					"mon-7"
+				]
+			},
+			"summary": "Timburr takes the lead — with Grotle, Roselia, Cufant, Growlithe, Vivillon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Tuber Ricky",
+				"move": "Double Kick"
+			},
+			"summary": "Cufant fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tirtouga",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 27,
+					"atk": 25,
+					"def": 10,
+					"spa": 10,
+					"spd": 11,
+					"spe": 17
+				},
+				"nature": "Timid",
+				"ability": "Solid Rock"
+			},
+			"summary": "caught Tirtouga at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L10 to L17; its moves are full, so Bite, Block must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bite",
+				"replace": "Whirlpool"
+			},
+			"summary": "Tirtouga forgot Whirlpool, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Block",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Tirtouga forgot Mud-Slap, learned Block",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-4",
+					"mon-1",
+					"mon-12",
+					"mon-6",
+					"mon-8"
+				]
+			},
+			"summary": "Cufant takes the lead — with Roselia, Grotle, Timburr, Growlithe, Shellos",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-9",
+				"item": "Soft Sand"
+			},
+			"summary": "Cufant is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Covet",
+				"replace": "Bite"
+			},
+			"summary": "Growlithe forgot Bite, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Tuber Hailey",
+				"move": "Shock Wave"
+			},
+			"summary": "Cufant fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Tuber Hailey",
+				"move": "Reversal"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-6"
+				]
+			},
+			"summary": "Roselia takes the lead — with Grotle, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Fletchinder, Roselia, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-6",
+					"mon-3",
+					"mon-4",
+					"mon-1",
+					"mon-7"
+				]
+			},
+			"summary": "Cufant takes the lead — with Growlithe, Fletchinder, Roselia, Grotle, Vivillon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-9",
+					"mon-6",
+					"mon-3",
+					"mon-4",
+					"mon-7"
+				]
+			},
+			"summary": "Grotle takes the lead — with Cufant, Growlithe, Fletchinder, Roselia, Vivillon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Camper Gavi",
+				"move": "Aqua Jet"
+			},
+			"summary": "Cufant fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Camper Gavi",
+				"move": "Double Kick"
+			},
+			"summary": "Growlithe fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Camper Gavi",
+				"move": "Sludge Bomb"
+			},
+			"summary": "Roselia fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tynamo",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 12,
+					"atk": 2,
+					"def": 23,
+					"spa": 27,
+					"spd": 7,
+					"spe": 30
+				},
+				"nature": "Adamant",
+				"ability": "Levitate"
+			},
+			"summary": "caught Tynamo at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Qwilfish",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 13,
+					"atk": 21,
+					"def": 15,
+					"spa": 20,
+					"spd": 13,
+					"spe": 26
+				},
+				"nature": "Mild",
+				"ability": "Intimidate"
+			},
+			"summary": "caught Qwilfish at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L12 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Qwilfish grew from L10 to L17; its moves are full, so Venoshock, Poison Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Venoshock",
+				"replace": "Poison Sting"
+			},
+			"summary": "Qwilfish forgot Poison Sting, learned Venoshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Poison Fang",
+				"replace": "Venoshock"
+			},
+			"summary": "Qwilfish forgot Venoshock, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-6",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Growlithe, Fletchinder, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-9",
+					"mon-4",
+					"mon-5",
+					"mon-8",
+					"mon-16"
+				]
+			},
+			"summary": "Tirtouga takes the lead — with Cufant, Roselia, Finneon, Shellos, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Rock Blast",
+				"replace": "Bite"
+			},
+			"summary": "Tirtouga forgot Bite, learned Rock Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-4",
+				"item": "Poison Barb"
+			},
+			"summary": "Roselia is holding Poison Barb; Silk Scarf went back to the bag",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Icy Wind",
+				"replace": "Hidden Power"
+			},
+			"summary": "Shellos forgot Hidden Power, learned Icy Wind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Silk Scarf"
+			},
+			"summary": "Finneon is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Team Aqua Grunt Museum #1",
+				"move": "Aqua Jet"
+			},
+			"summary": "Cufant fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Finneon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bunnelby, Fletchinder, Roselia, Finneon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-1",
+					"mon-7",
+					"mon-14",
+					"mon-12",
+					"mon-4"
+				]
+			},
+			"summary": "Cufant takes the lead — with Grotle, Vivillon, Tirtouga, Timburr, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Secret Power",
+				"replace": "Low Kick"
+			},
+			"summary": "Timburr forgot Low Kick, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Secret Power",
+				"replace": "Sand Tomb"
+			},
+			"summary": "Grotle forgot Sand Tomb, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hidden Power",
+				"replace": "Absorb"
+			},
+			"summary": "Roselia forgot Absorb, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Team Aqua Grunt Museum #2",
+				"move": "Hex"
+			},
+			"summary": "Cufant fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Grotle grew from L17 to L21; its moves are full, so Roar must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Roar",
+				"replace": "Bite"
+			},
+			"summary": "Grotle forgot Bite, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Roselia grew from L17 to L21; its moves are full, so Magical Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Hidden Power"
+			},
+			"summary": "Roselia forgot Hidden Power, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Vivillon grew from L17 to L21; its moves are full, so Draining Kiss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Draining Kiss",
+				"replace": "Electroweb"
+			},
+			"summary": "Vivillon forgot Electroweb, learned Draining Kiss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Cufant grew from L17 to L21; its moves are full, so Stomp must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Stomp",
+				"replace": "Rock Smash"
+			},
+			"summary": "Cufant forgot Rock Smash, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Timburr grew from L17 to L21; its moves are full, so Wake-Up Slap must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Wake-Up Slap",
+				"replace": "Rock Throw"
+			},
+			"summary": "Timburr forgot Rock Throw, learned Wake-Up Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L17 to L21; its moves are full, so Ancient Power, Brine must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ancient Power",
+				"replace": "Smack Down"
+			},
+			"summary": "Tirtouga forgot Smack Down, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Brine",
+				"replace": "Ancient Power"
+			},
+			"summary": "Tirtouga forgot Ancient Power, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Bunnelby grew from L17 to L21; its moves are full, so Take Down, Double Kick must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Take Down",
+				"replace": "Double Slap"
+			},
+			"summary": "Bunnelby forgot Double Slap, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Double Kick",
+				"replace": "Take Down"
+			},
+			"summary": "Bunnelby forgot Take Down, learned Double Kick",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Bunnelby evolved into Diggersby",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Fletchinder grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Finneon grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Finneon evolved into Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Growlithe grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Shellos grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Bellsprout grew from L17 to L21; its moves are full, so Stun Spore must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Stun Spore",
+				"replace": "Vine Whip"
+			},
+			"summary": "Bellsprout forgot Vine Whip, learned Stun Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-10"
+			},
+			"summary": "Bellsprout evolved into Weepinbell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Spheal grew from L17 to L21; its moves are full, so Aurora Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Aurora Beam",
+				"replace": "Brine"
+			},
+			"summary": "Spheal forgot Brine, learned Aurora Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-11"
+			},
+			"summary": "Spheal evolved into Sealeo",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Horsea grew from L17 to L21; its moves are full, so Clear Smog must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Clear Smog",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Horsea forgot Bubble Beam, learned Clear Smog",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-13"
+			},
+			"summary": "Horsea evolved into Seadra",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Tynamo grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Tynamo evolved into Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Qwilfish grew from L17 to L21; its moves are full, so Bubble Beam, Revenge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Poison Fang"
+			},
+			"summary": "Qwilfish forgot Poison Fang, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Revenge",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Qwilfish forgot Bubble Beam, learned Revenge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Fletchinder, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-1",
+					"mon-3",
+					"mon-5",
+					"mon-15",
+					"mon-12"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Grotle, Fletchinder, Lumineon, Eelektrik, Timburr",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Air Cutter",
+				"replace": "Water Pulse"
+			},
+			"summary": "Lumineon forgot Water Pulse, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Fletchinder, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-7",
+					"mon-6",
+					"mon-5",
+					"mon-16",
+					"mon-15"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Vivillon, Growlithe, Lumineon, Qwilfish, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Poison Fang",
+				"replace": "Bubble"
+			},
+			"summary": "Qwilfish forgot Bubble, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-3",
+					"mon-6",
+					"mon-5",
+					"mon-16",
+					"mon-15"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Fletchinder, Growlithe, Lumineon, Qwilfish, Eelektrik",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Sailor Brenden",
+				"move": "Pin Missile"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Growlithe, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Roselia, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-4",
+					"mon-7",
+					"mon-16",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Roselia, Vivillon, Qwilfish, Fletchinder, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-15",
+					"mon-4",
+					"mon-7",
+					"mon-16",
+					"mon-5"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Eelektrik, Roselia, Vivillon, Qwilfish, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Roselia, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Roselia, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-16",
+					"mon-10"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Roselia, Grotle, Lumineon, Qwilfish, Weepinbell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Revenge"
+			},
+			"summary": "Qwilfish forgot Revenge, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Secret Power",
+				"replace": "Stun Spore"
+			},
+			"summary": "Weepinbell forgot Stun Spore, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-7",
+					"mon-1",
+					"mon-5",
+					"mon-16",
+					"mon-10"
+				]
+			},
+			"summary": "Roselia takes the lead — with Vivillon, Grotle, Lumineon, Qwilfish, Weepinbell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Black Belt Cristian",
+				"move": "Rock Throw"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Black Belt Cristian",
+				"move": "Rock Throw"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Roselia takes the lead — with Grotle, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Fletchinder, Roselia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-12",
+					"mon-4",
+					"mon-16",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Vivillon takes the lead — with Timburr, Roselia, Qwilfish, Fletchinder, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Venoshock",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Qwilfish forgot Bubble Beam, learned Venoshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-7",
+					"mon-12",
+					"mon-4",
+					"mon-16",
+					"mon-1"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Vivillon, Timburr, Roselia, Qwilfish, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-3",
+				"to": "Black Belt Takao",
+				"move": "Wake-Up Slap"
+			},
+			"summary": "Fletchinder fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Fletchinder takes the lead — with Roselia, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Fletchinder, Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-12",
+					"mon-3",
+					"mon-1",
+					"mon-7",
+					"mon-16"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Timburr, Fletchinder, Grotle, Vivillon, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Bubble Beam",
+				"replace": "Venoshock"
+			},
+			"summary": "Qwilfish forgot Venoshock, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Water Pulse",
+				"replace": "Air Cutter"
+			},
+			"summary": "Lumineon forgot Air Cutter, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-12",
+				"move": "Rock Throw",
+				"replace": "Secret Power"
+			},
+			"summary": "Timburr forgot Secret Power, learned Rock Throw",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-12",
+					"mon-5",
+					"mon-3",
+					"mon-1",
+					"mon-7",
+					"mon-16"
+				]
+			},
+			"summary": "Timburr takes the lead — with Lumineon, Fletchinder, Grotle, Vivillon, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Battle Girl Jocelyn",
+				"move": "Drain Punch"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Battle Girl Jocelyn",
+				"move": "Dizzy Punch"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Fletchinder, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Air Cutter",
+				"replace": "Water Gun"
+			},
+			"summary": "Lumineon forgot Water Gun, learned Air Cutter",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hidden Power",
+				"replace": "Gust"
+			},
+			"summary": "Lumineon forgot Gust, learned Hidden Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Sand Tomb",
+				"replace": "Roar"
+			},
+			"summary": "Grotle forgot Roar, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Bubble Beam"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Thunder Punch"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Mach Punch"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Retaliate"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Lumineon takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Diggersby, Fletchinder, Roselia, Lumineon, Growlithe",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Lumineon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1",
+					"mon-16"
+				]
+			},
+			"summary": "Eelektrik takes the lead — with Vivillon, Timburr, Lumineon, Grotle, Qwilfish",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-16",
+					"mon-15",
+					"mon-7",
+					"mon-12",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Qwilfish takes the lead — with Eelektrik, Vivillon, Timburr, Lumineon, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-16",
+				"to": "Leader Brawly",
+				"move": "Zen Headbutt"
+			},
+			"summary": "Qwilfish fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Eelektrik fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-7",
+				"to": "Leader Brawly",
+				"move": "Incinerate"
+			},
+			"summary": "Vivillon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-12",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Timburr fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Lumineon fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

@@ -1,0 +1,575 @@
+{
+  "probe": "i1-ground-vs-flying",
+  "protocol": "two-turn",
+  "description": "Ground immunity: Marowak's STAB Earthquake and Bone Club (0x on Normal/Flying Pidgeot) vs neutral Horn Attack.",
+  "hypothesis": "k3 immunity score: Earthquake and Bone Club 80 (below Splash 81); Horn Attack 106/108",
+  "player": {
+    "species": 18,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      0,
+      2
+    ]
+  },
+  "enemy": {
+    "species": 105,
+    "level": 50,
+    "moves": [
+      "Earthquake",
+      "Splash",
+      "Bone Club",
+      "Horn Attack"
+    ],
+    "stats": {
+      "hp": 200,
+      "atk": 110,
+      "def": 110,
+      "spa": 50,
+      "spd": 90,
+      "spe": 50
+    },
+    "ability": 50,
+    "types": [
+      4,
+      4
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "n_seeds": 20,
+  "distribution": {
+    "Horn Attack": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      60
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 34,
+      "damage_to_b": 0,
+      "hp_a_after": 366,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x200756bc",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 38,
+      "damage_to_b": 0,
+      "hp_a_after": 362,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0xb642db09",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 38,
+      "damage_to_b": 0,
+      "hp_a_after": 362,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x48b4f956",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 35,
+      "damage_to_b": 0,
+      "hp_a_after": 365,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x4600a227",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 38,
+      "damage_to_b": 0,
+      "hp_a_after": 362,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x3d47a00a",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        108
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 37,
+      "damage_to_b": 0,
+      "hp_a_after": 363,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x9d267d12",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 34,
+      "damage_to_b": 0,
+      "hp_a_after": 366,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x48817124",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 38,
+      "damage_to_b": 0,
+      "hp_a_after": 362,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0xdb665cf6",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        108
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 35,
+      "damage_to_b": 0,
+      "hp_a_after": 365,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x7851fc77",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x1cca1b5c",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x5fd22843",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0xab52104e",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0xee0ba32f",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 40,
+      "damage_to_b": 0,
+      "hp_a_after": 360,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x925c9729",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 39,
+      "damage_to_b": 0,
+      "hp_a_after": 361,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x8a7308a6",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        108
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 60,
+      "damage_to_b": 0,
+      "hp_a_after": 340,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 734,
+      "rng_after": "0x51ee1e2f",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x559e560c",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 36,
+      "damage_to_b": 0,
+      "hp_a_after": 364,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x631a4e64",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 38,
+      "damage_to_b": 0,
+      "hp_a_after": 362,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0xf78f0456",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Horn Attack",
+      "enemy_slot": 3,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 41,
+      "damage_to_b": 0,
+      "hp_a_after": 359,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 607,
+      "rng_after": "0x0c3a5b67",
+      "resolved": true,
+      "ai_scores": [
+        80,
+        81,
+        80,
+        106
+      ],
+      "ai_chosen_slot_byte": 3,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Earthquake": [
+      80
+    ],
+    "Splash": [
+      81
+    ],
+    "Bone Club": [
+      80
+    ],
+    "Horn Attack": [
+      106,
+      108
+    ]
+  },
+  "scores_explain_all_choices": true
+}

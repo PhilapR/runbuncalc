@@ -55,7 +55,7 @@ move-resolution rules, volatile/timed effect lifecycle, source-aware accuracy an
 secondary-effect rolls, turn-local action gates (sleep, paralysis, freeze/thaw,
 flinch, confusion including calculator-backed self-hit damage, and consecutive protection), delayed Future Sight damage,
 Run & Bun order overrides (Paralysis, Gale Wings, and Quick Claw/Custap item priority), Magic Room/Generation IV+ Klutz held-item suppression including pre-Gen-IV behavior, weather ability residuals, G-Max side conditions, confusion/flinch volatile expiry, Toxic counters, and secondary sleep state, and immutable transition
-bookkeeping, Destiny Bond consumption, sleep re-entry reset, and permanent weather/terrain ability entry.
+bookkeeping, Destiny Bond consumption, sleep re-entry reset, and permanent weather/terrain ability entry. (Correction, 2026-09-22: these fixtures build their states by hand, already correct. On the path a run uses, a battle state is built with its leads standing, and no lead's entry ability fired at battle start until `8cc3ece` — 74 of 366 fights opened wrong. `tests/fidelity_openings.test.js` now opens every fight the way a run does.)
 The EV-removal fixture also covers the older-generation calculator default:
 serialized EV maps cannot change AI damage or raw-stat projections even in
 Generation II, where the inherited calculator otherwise supplies a nonzero
@@ -267,7 +267,7 @@ Costar fixtures cover absolute boost copying, modeled crit
 volatiles, live-ally selection, suppression, Singles, and pre-introduction
 boundaries. Intimidate entry fixtures cover
 the Gen III White Smoke/Hyper Cutter and Gen IX Clear Amulet blocker boundaries,
-plus Generation VII Adrenaline Orb activation, consumption, and suppression.
+plus Generation VII Adrenaline Orb activation, consumption, and suppression. (Correction, 2026-09-22: Oblivious, Own Tempo and Scrappy did not block, Rattled did not react, and White Herb turned the drop into +1 — fixed in `c381374`; see `ledger/findings.json`.)
 Imposter fixtures verify Generation V+ effective species/type/ability copying,
 including explicit No Ability targets, non-HP raw-stat and absolute-stage copying,
 five-PP move copying, Ability
@@ -892,13 +892,14 @@ North star: expand the serializable engine only where missing rules change
 legality, facts, scores, or transitions. Do not chase Pokémon Showdown parity.
 Tags: `engine` | `scoring` | `caller-owned` | `calc-overlay` | `product`.
 
-**Priority scheme (same everywhere):** **P0 / P1 / P2 / P3 / Park** — see
-[`docs/attic/PLAN.md`](docs/attic/PLAN.md) (retired — see `DECISIONS.json` and `INVENTORY.md`) §0 for the **master prioritized backlog** (UI + product +
-engine). Product phase map: [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`). UI rollout ranks:
+**Priority scheme (same everywhere):** **P0 / P1 / P2 / P3 / Park**. The ordered
+work now lives in [`PLAN.md`](PLAN.md), chosen from the map in
+[`WORKFLOW.md`](WORKFLOW.md) (2026-09-22); the old master backlog is
+[`docs/attic/PLAN.md`](docs/attic/PLAN.md) §0, retired. Product phase map: [`docs/attic/RUNBUN_UX.md`](docs/attic/RUNBUN_UX.md) (retired — see `INVENTORY.md`). UI rollout ranks:
 [`RUNBUN_UI_DESIGN.md`](RUNBUN_UI_DESIGN.md) §9.
 
-Every open row below must keep a Priority + ID that appears (or rolls up) in
-PLAN §0. Do not leave unranked “next” / “later” rows here.
+The rows below keep their Priority + ID for history. New engine work is
+tracked in `ledger/findings.json` and ordered in `PLAN.md`, not here.
 
 ### Done (closed engine P0 / product MVP)
 
@@ -917,7 +918,7 @@ PLAN §0. Do not leave unranked “next” / “later” rows here.
 | Fixture load + export current state | product | Done MVP under AI Debug |
 | Singles Battle turn viewer | product / caller-owned UI | Done MVP — `#runbun-battle` + `battle_turn_viewer.js`; same AI HTTP loop; modeled-slice labeling |
 
-**No open engine P0** items remain for decision-useful Run & Bun scope.
+**No open engine P0** items remained for decision-useful Run & Bun scope when this was written. (Correction, 2026-09-22: false by then — the lead-entry, Download, Intimidate-blocker and strong-weather defects were open and every tally ran on them. Open engine work is in `ledger/findings.json`; `WORKFLOW.md` rates the engine amber.)
 
 ### Open backlog (ranked — detail; master table in PLAN §0)
 

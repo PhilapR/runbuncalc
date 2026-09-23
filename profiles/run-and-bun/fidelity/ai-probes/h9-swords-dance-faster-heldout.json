@@ -1,0 +1,575 @@
+{
+  "probe": "h9-swords-dance-faster-heldout",
+  "protocol": "two-turn",
+  "seed_cohort": "heldout",
+  "description": "Setup while faster: Pinsir (spe 80 vs 40) faces a Chansey that cannot KO or 2HKO it.",
+  "hypothesis": "offensive setup => Swords Dance 106; X-Scissor 106/108; a mix",
+  "player": {
+    "species": 113,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      0,
+      0
+    ]
+  },
+  "enemy": {
+    "species": 127,
+    "level": 50,
+    "moves": [
+      "Swords Dance",
+      "Splash",
+      "X-Scissor",
+      "Metal Claw"
+    ],
+    "stats": {
+      "hp": 200,
+      "atk": 80,
+      "def": 120,
+      "spa": 40,
+      "spd": 90,
+      "spe": 80
+    },
+    "ability": 50,
+    "types": [
+      6,
+      6
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "n_seeds": 20,
+  "distribution": {
+    "X-Scissor": 10,
+    "Swords Dance": 10
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      0,
+      46,
+      48,
+      49,
+      51,
+      52,
+      79
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0x99340847",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 51,
+      "damage_to_b": 0,
+      "hp_a_after": 349,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 586,
+      "rng_after": "0xf33cc928",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x1fa06f79",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 79,
+      "damage_to_b": 0,
+      "hp_a_after": 321,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 713,
+      "rng_after": "0x7f3a6058",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x5ba78d9e",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0x44e0b556",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xe8970a14",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0xf424cd0c",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x3364513e",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 48,
+      "damage_to_b": 0,
+      "hp_a_after": 352,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 585,
+      "rng_after": "0xa70773b9",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x913a7e7f",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0x1ba29917",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x004bd1a5",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0xc9cc017d",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x3596dfda",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0xeb3fc412",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x23d0f56c",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0xbfa07564",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x92d01192",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 49,
+      "damage_to_b": 0,
+      "hp_a_after": 351,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 586,
+      "rng_after": "0xa6fd2daf",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        108,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x8ca12583",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0x594d1b9b",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xaa3320eb",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 46,
+      "damage_to_b": 0,
+      "hp_a_after": 354,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 585,
+      "rng_after": "0xc9921fe2",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        108,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0bead87c",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 49,
+      "damage_to_b": 0,
+      "hp_a_after": 351,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 586,
+      "rng_after": "0x7aff6c21",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        108,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x4c4b71ce",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0x0120e386",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x6c26be17",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 51,
+      "damage_to_b": 0,
+      "hp_a_after": 349,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 586,
+      "rng_after": "0x7898ed38",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc7647f45",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0x0dc75b1d",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x59139b63",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 49,
+      "damage_to_b": 0,
+      "hp_a_after": 351,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 586,
+      "rng_after": "0x3ab99df4",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        108,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x658225dc",
+      "enemy_move": "Swords Dance",
+      "enemy_slot": 0,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 0,
+      "damage_to_b": 0,
+      "hp_a_after": 400,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 855,
+      "rng_after": "0x1c3427d4",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 0,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x060f1d40",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 52,
+      "damage_to_b": 0,
+      "hp_a_after": 348,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 586,
+      "rng_after": "0x958148b5",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x514a9df3",
+      "enemy_move": "X-Scissor",
+      "enemy_slot": 2,
+      "turn1_enemy_slot": 1,
+      "turn1_contaminated": false,
+      "damage_to_a": 49,
+      "damage_to_b": 0,
+      "hp_a_after": 351,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 586,
+      "rng_after": "0xc967a5c4",
+      "resolved": true,
+      "ai_scores": [
+        106,
+        81,
+        106,
+        100
+      ],
+      "ai_chosen_slot_byte": 2,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Swords Dance": [
+      106
+    ],
+    "Splash": [
+      81
+    ],
+    "X-Scissor": [
+      106,
+      108
+    ],
+    "Metal Claw": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

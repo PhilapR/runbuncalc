@@ -1,0 +1,639 @@
+{
+	"schemaVersion": "runbun.move.dates/1.0.0",
+	"source": "item-workbook.json (tms, tutors), dated by scripts/build-item-locations.js",
+	"method": "RUN-MAP order. Read by oracle.moveItems() ONLY for a row availability.json leaves undated; a row dated there, by transcription or by a correction from play, stands.",
+	"entries": [
+		{
+			"move": "Aerial Ace",
+			"name": "TM19",
+			"kind": "tm",
+			"location": "Route 111. Sold at Lilycove Department Store.",
+			"opensAt": 392,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Aura Sphere",
+			"name": "TM14",
+			"kind": "tm",
+			"location": "Route 120.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Avalanche",
+			"name": null,
+			"kind": "tutor",
+			"location": "Shoal Cave, NPC in the ice room.",
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
+		},
+		{
+			"move": "Blizzard",
+			"name": null,
+			"kind": "tutor",
+			"location": "Weather Institute, NPC near the entrance after driving Team Aqua away.",
+			"opensAt": 683,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Body Press",
+			"name": "TM15",
+			"kind": "tm",
+			"location": "Route 115 by the Meteor Falls entrance (requires Surf and Waterfall).",
+			"opensAt": 1183,
+			"dating": "gated by Waterfall, which opens at 1183"
+		},
+		{
+			"move": "Breaking Swipe",
+			"name": "TM06",
+			"kind": "tm",
+			"location": "Shoal Cave, ice room.",
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
+		},
+		{
+			"move": "Brick Break",
+			"name": null,
+			"kind": "tutor",
+			"location": "Route 118, Black Belt NPC on the beach, access by the Mauville side.",
+			"opensAt": 618,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Bug Bite",
+			"name": null,
+			"kind": "tutor",
+			"location": "Petalburg Woods, by the south-east exit.",
+			"opensAt": 86,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Curse",
+			"name": "TM24",
+			"kind": "tm",
+			"location": "Route 121.",
+			"opensAt": 809,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Cut",
+			"name": "HM01",
+			"kind": "tm",
+			"location": "Given by an NPC in Rustboro City.",
+			"opensAt": 106,
+			"dating": "no trainer stands there: the map table's date for Rustboro City"
+		},
+		{
+			"move": "Dark Pulse",
+			"name": "TM03",
+			"kind": "tm",
+			"location": "Mt. Pyre.",
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Defog",
+			"name": "TM20",
+			"kind": "tm",
+			"location": "Given by Steven at Granite Cave.",
+			"opensAt": 1174,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Dive",
+			"name": "HM08",
+			"kind": "tm",
+			"location": "Given by Steven after the events at the Mossdeep Space Center.",
+			"opensAt": 1174,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Dragon Tail",
+			"name": "TM07",
+			"kind": "tm",
+			"location": "Route 114, given by the NPC with a Poochyena.",
+			"opensAt": 445,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Draining Kiss",
+			"name": "TM11",
+			"kind": "tm",
+			"location": "Abandoned Ship.",
+			"opensAt": 612,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Dual Wingbeat",
+			"name": "TM21",
+			"kind": "tm",
+			"location": "Given by an NPC past the desert at Route 111 (requires Mach Bike).",
+			"opensAt": 392,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Earth Power",
+			"name": "TM30",
+			"kind": "tm",
+			"location": "Given by an NPC at Fossil Maniac's house.",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"move": "Earthquake",
+			"name": "TM31",
+			"kind": "tm",
+			"location": "Victory Road.",
+			"opensAt": 1375,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Electroweb",
+			"name": "TM08",
+			"kind": "tm",
+			"location": "Route 117. Sold at Lilycove Department Store.",
+			"opensAt": 161,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Embargo",
+			"name": null,
+			"kind": "tutor",
+			"location": "Route 112, NPC inside the Old Lady's Rest Stop.",
+			"opensAt": 505,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Explosion",
+			"name": "TM34",
+			"kind": "tm",
+			"location": "Magma Hideout.",
+			"opensAt": 941,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Facade",
+			"name": "TM35",
+			"kind": "tm",
+			"location": "Given by Leader Norman after you defeat him.",
+			"opensAt": 342,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Fake Tears",
+			"name": null,
+			"kind": "tutor",
+			"location": "Mt. Pyre, first floor, NPC in the north-east corner.",
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Feint Attack",
+			"name": "TM04",
+			"kind": "tm",
+			"location": "Route 104, given by an NPC near Floral Shop. Sold at Lilycove Department Store.",
+			"opensAt": 93,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Fire Blast",
+			"name": null,
+			"kind": "tutor",
+			"location": "Weather Institute, NPC near the entrance after driving Team Aqua away.",
+			"opensAt": 683,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Fire Punch",
+			"name": null,
+			"kind": "tutor",
+			"location": "Route 118, Black Belt NPC on the beach, access by the Mauville side.",
+			"opensAt": 618,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Flamethrower",
+			"name": "TM17",
+			"kind": "tm",
+			"location": "Given by Leader Flannery after you defeat her.",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"move": "Flash",
+			"name": "HM05",
+			"kind": "tm",
+			"location": "Given by an NPC in Granite Cave.",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"move": "Flash Cannon",
+			"name": "TM47",
+			"kind": "tm",
+			"location": "Trade with NPC in Fallarbor Town for a Meteorite.",
+			"opensAt": 439,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Flatter",
+			"name": "TM05",
+			"kind": "tm",
+			"location": "Pacifidlog Town, given by an NPC inside one of the houses.",
+			"opensAt": 1312,
+			"dating": "no trainer stands there: the map table's date for Pacifidlog Town"
+		},
+		{
+			"move": "Fly",
+			"name": "HM02",
+			"kind": "tm",
+			"location": "Given by Rival Brendan/May after you defeat them at Route 119.",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Frost Breath",
+			"name": null,
+			"kind": "tutor",
+			"location": "Shoal Cave, NPC in the ice room.",
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
+		},
+		{
+			"move": "Heal Pulse",
+			"name": "TM41",
+			"kind": "tm",
+			"location": "Shoal Cave.",
+			"opensAt": 1183,
+			"dating": "no trainer stands there: the map table's date for Shoal Cave Low Tide Entrance Room"
+		},
+		{
+			"move": "Heavy Slam",
+			"name": "TM48",
+			"kind": "tm",
+			"location": "Petalburg City (requires Surf).",
+			"opensAt": 594,
+			"dating": "only its Surf gate is known"
+		},
+		{
+			"move": "Hidden Power",
+			"name": null,
+			"kind": "tutor",
+			"location": "Slateport City, NPC in the open market.",
+			"opensAt": 51,
+			"dating": "no trainer stands there: the map table's date for Slateport City"
+		},
+		{
+			"move": "Hurricane",
+			"name": null,
+			"kind": "tutor",
+			"location": "Fortree City, NPC in front of the Pokémon Center.",
+			"opensAt": 763,
+			"dating": "its mart's town, dated by Leader Winona"
+		},
+		{
+			"move": "Hydro Pump",
+			"name": null,
+			"kind": "tutor",
+			"location": "Weather Institute, NPC near the entrance after driving Team Aqua away.",
+			"opensAt": 683,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Hyper Voice",
+			"name": "TM36",
+			"kind": "tm",
+			"location": "Route 103 (requires a Bike).",
+			"opensAt": 287,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Ice Beam",
+			"name": "TM32",
+			"kind": "tm",
+			"location": "Given by Leader Juan after you defeat him.",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"move": "Ice Punch",
+			"name": null,
+			"kind": "tutor",
+			"location": "Route 118, Black Belt NPC on the beach, access by the Mauville side.",
+			"opensAt": 618,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Icy Wind",
+			"name": "TM33",
+			"kind": "tm",
+			"location": "Granite Cave (requires Mach Bike). Sold at Lilycove Department Store.",
+			"opensAt": 848,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Item",
+			"name": "Item",
+			"kind": "tm",
+			"location": "Location",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"move": "Life Dew",
+			"name": "TM50",
+			"kind": "tm",
+			"location": "Route 118 (requires Surf).",
+			"opensAt": 618,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Magical Leaf",
+			"name": "TM27",
+			"kind": "tm",
+			"location": "Petalburg Woods (requires Cut). Sold at Lilycove Department Store.",
+			"opensAt": 106,
+			"dating": "gated by Cut, which opens at 106"
+		},
+		{
+			"move": "Me First",
+			"name": "TM38",
+			"kind": "tm",
+			"location": "Aqua Hideout.",
+			"opensAt": 1020,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Misty Explosion",
+			"name": "TM12",
+			"kind": "tm",
+			"location": "Abandoned Ship (requires Dive).",
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
+		},
+		{
+			"move": "Natural Gift",
+			"name": null,
+			"kind": "tutor",
+			"location": "Route 120, NPC in the far south-west area of the route.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Night Shade",
+			"name": "TM25",
+			"kind": "tm",
+			"location": "Route 110 (requires a Bike). Sold at Lilycove Department Store.",
+			"opensAt": 235,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Play Rough",
+			"name": "TM13",
+			"kind": "tm",
+			"location": "Magma Hideout.",
+			"opensAt": 941,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Poison Jab",
+			"name": null,
+			"kind": "tutor",
+			"location": "Route 118, Black Belt NPC on the beach, access by the Mauville side.",
+			"opensAt": 618,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Psychic",
+			"name": "TM42",
+			"kind": "tm",
+			"location": "Given by Leaders Tate & Liza after you defeat them.",
+			"opensAt": 1131,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Psychic Fangs",
+			"name": "TM43",
+			"kind": "tm",
+			"location": "Route 124 (requires Dive).",
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
+		},
+		{
+			"move": "Psycho Shift",
+			"name": null,
+			"kind": "tutor",
+			"location": "Sootopolis City, NPC by the garden on the south-west corner.",
+			"opensAt": 1258,
+			"dating": "no trainer stands there: the map table's date for Sootopolis City"
+		},
+		{
+			"move": "Rock Blast",
+			"name": "TM45",
+			"kind": "tm",
+			"location": "Granite Cave.",
+			"opensAt": 28,
+			"dating": "no trainer stands there: the map table's date for Granite Cave Stevens Room"
+		},
+		{
+			"move": "Rock Smash",
+			"name": "HM06",
+			"kind": "tm",
+			"location": "Given by Leader Roxanne after you defeat her.",
+			"opensAt": 142,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Rock Tomb",
+			"name": "TM46",
+			"kind": "tm",
+			"location": "Given by an NPC in Rusturf Tunnel. Sold at Lilycove Department Store.",
+			"opensAt": 148,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Roost",
+			"name": "TM22",
+			"kind": "tm",
+			"location": "Given by Leader Winona after you defeat her.",
+			"opensAt": 763,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Secret Power",
+			"name": null,
+			"kind": "tutor",
+			"location": "Slateport City, NPC in the open market.",
+			"opensAt": 51,
+			"dating": "no trainer stands there: the map table's date for Slateport City"
+		},
+		{
+			"move": "Seismic Toss",
+			"name": "TM16",
+			"kind": "tm",
+			"location": "Given by Leader Brawly after you defeat him. Sold at Lilycove Department Store.",
+			"opensAt": 80,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Shadow Ball",
+			"name": "TM26",
+			"kind": "tm",
+			"location": "Mt. Pyre.",
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Shadow Punch",
+			"name": null,
+			"kind": "tutor",
+			"location": "Route 118, Black Belt NPC on the beach, access by the Mauville side.",
+			"opensAt": 618,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Shock Wave",
+			"name": "TM09",
+			"kind": "tm",
+			"location": "Given by Leader Wattson after you defeat him. Sold at Lilycove Department Store.",
+			"opensAt": 229,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Skill Swap",
+			"name": "TM44",
+			"kind": "tm",
+			"location": "Abandoned Ship (requires Dive).",
+			"opensAt": 1183,
+			"dating": "gated by Dive, which opens at 1183"
+		},
+		{
+			"move": "Sludge Bomb",
+			"name": "TM40",
+			"kind": "tm",
+			"location": "Given by an NPC inside Dewford Town Hall.",
+			"opensAt": 32,
+			"dating": "no trainer stands there: the map table's date for Dewford Town"
+		},
+		{
+			"move": "Smart Strike",
+			"name": "TM49",
+			"kind": "tm",
+			"location": "Mauville City. Sold at Lilycove Department Store.",
+			"opensAt": 209,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Solar Beam",
+			"name": "TM29",
+			"kind": "tm",
+			"location": "Fiery Path.",
+			"opensAt": 535,
+			"dating": "no trainer stands there: the map table's date for Fiery Path"
+		},
+		{
+			"move": "Solar Blade",
+			"name": "TM28",
+			"kind": "tm",
+			"location": "Fiery Path.",
+			"opensAt": 535,
+			"dating": "no trainer stands there: the map table's date for Fiery Path"
+		},
+		{
+			"move": "Strength",
+			"name": "HM04",
+			"kind": "tm",
+			"location": "Given by Wally's father after defeating Leader Norman.",
+			"opensAt": 342,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Struggle Bug",
+			"name": "TM01",
+			"kind": "tm",
+			"location": "Route 120.",
+			"opensAt": 769,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Surf",
+			"name": "HM03",
+			"kind": "tm",
+			"location": "Given at Seashore House by Mr. Sea after defeating all trainers inside.",
+			"opensAt": 582,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Swagger",
+			"name": "TM37",
+			"kind": "tm",
+			"location": "Given by Grunt NPC inside Slateport Museum.",
+			"opensAt": 56,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Tailwind",
+			"name": "TM23",
+			"kind": "tm",
+			"location": "Mt. Pyre.",
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Thunder",
+			"name": null,
+			"kind": "tutor",
+			"location": "Weather Institute, NPC near the entrance after driving Team Aqua away.",
+			"opensAt": 683,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Thunder Punch",
+			"name": null,
+			"kind": "tutor",
+			"location": "Route 118, Black Belt NPC on the beach, access by the Mauville side.",
+			"opensAt": 618,
+			"dating": "the first of the places it names"
+		},
+		{
+			"move": "Thunderbolt",
+			"name": "TM10",
+			"kind": "tm",
+			"location": "Given by Leader Wattson after you fix the generator at New Mauville.",
+			"opensAt": 229,
+			"dating": "the fight that guards it"
+		},
+		{
+			"move": "Waterfall",
+			"name": "HM07",
+			"kind": "tm",
+			"location": "Given by Wallace at Sootopolis.",
+			"opensAt": null,
+			"dating": "no trainer or known place in the text"
+		},
+		{
+			"move": "Weather Ball",
+			"name": "TM39",
+			"kind": "tm",
+			"location": "Route 119 (requires Surf).",
+			"opensAt": 707,
+			"dating": "the place it names"
+		},
+		{
+			"move": "Will-O-Wisp",
+			"name": "TM18",
+			"kind": "tm",
+			"location": "Mt. Pyre.",
+			"opensAt": 866,
+			"dating": "the place it names"
+		},
+		{
+			"move": "X-Scissor",
+			"name": "TM02",
+			"kind": "tm",
+			"location": "Route 112.",
+			"opensAt": 505,
+			"dating": "the place it names"
+		}
+	]
+}

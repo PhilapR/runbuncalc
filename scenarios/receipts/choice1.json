@@ -1,0 +1,87 @@
+{
+	"label": "choice1",
+	"manifest": "scenarios/choice.json",
+	"argv": [
+		"--manifest=scenarios/choice.json",
+		"--label=choice1"
+	],
+	"provenance": {
+		"revision": null,
+		"dirty": null,
+		"date": "2026-08-29T14:58:14.063Z"
+	},
+	"results": [
+		{
+			"name": "Leader Brawly · choice-team",
+			"trainer": "Leader Brawly",
+			"report": "choice-brawly.json",
+			"position": 76,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 569
+		},
+		{
+			"name": "Leader Brawly · choice-team-max-ivs",
+			"trainer": "Leader Brawly",
+			"report": "choice-brawly-max.json",
+			"position": 76,
+			"seeds": 30,
+			"wins": 1,
+			"losses": 29,
+			"stuck": 0,
+			"deaths": 178,
+			"turns": 688
+		},
+		{
+			"name": "Leader Roxanne · choice-team",
+			"trainer": "Leader Roxanne",
+			"report": "choice-roxanne.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 537
+		},
+		{
+			"name": "Leader Roxanne · choice-team-max-ivs",
+			"trainer": "Leader Roxanne",
+			"report": "choice-roxanne-max.json",
+			"position": 138,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 569
+		},
+		{
+			"name": "Leader Wattson · choice-team",
+			"trainer": "Leader Wattson",
+			"report": "choice-wattson.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 0,
+			"losses": 30,
+			"stuck": 0,
+			"deaths": 180,
+			"turns": 460
+		},
+		{
+			"name": "Leader Wattson · choice-team-max-ivs",
+			"trainer": "Leader Wattson",
+			"report": "choice-wattson-max.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 1,
+			"losses": 29,
+			"stuck": 0,
+			"deaths": 177,
+			"turns": 540
+		}
+	]
+}

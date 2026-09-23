@@ -1,0 +1,774 @@
+{
+	"comment": "Second held-out set, for retesting the KO-yield arms with power. Selected 2026-09-18 from the sweep2 archive sweep (control policy only, next 8 singles per report, 5 seeds), before any treatment ran on these fights, by a rule declared from counts alone: won 1-4 of 5; excluding the eight trainers whose flipped seeds were read to design --ko-yield-min-hp (Wattson, Jose, Edward, Miguel, Daisy, Lyle, Roxanne, Vivian) and every trainer in scenarios/heldout.json; excluding every (trainer, report) pair already in battery.json or heldout.json; one fight per (trainer, report); at most 10 fights per trainer, first by report name. The first rule (trainers absent from the battery) left 22 fights, too few for ~100 discordant seeds. Names carry trainerIndexOf fight numbers and the source report.",
+	"generator": null,
+	"measured": [
+		{
+			"label": "heldout2",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "plain policy, first batch on heldout2; 952/1480"
+		},
+		{
+			"label": "heldout2-pp",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "heldout2 with --pp-model=1; 956/1480"
+		},
+		{
+			"label": "heldout2-ko1",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 vs heldout2: 66 gained, 140 lost, p < 0.0001; harmful out of sample"
+		},
+		{
+			"label": "heldout2-ko1-pp",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 --pp-model=1 vs heldout2-pp: 65 gained, 145 lost, p < 0.0001"
+		},
+		{
+			"label": "heldout2-ko2",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--ko-respects-order=1 --ko-yield-min-hp=50 vs heldout2: 24 gained, 37 lost, p = 0.12"
+		},
+		{
+			"label": "heldout2-ko2-pp",
+			"measured_in": "17564df",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "koorder2 with --pp-model=1 vs heldout2-pp: 21 gained, 40 lost, p = 0.02; -17 of the -19 at School Kid Karen, roughly neutral elsewhere; fails the declared bar"
+		},
+		{
+			"label": "heldout2-sn",
+			"measured_in": "536a96a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--stall-clock=net vs heldout2; pooled held-out free PP 1 gained, 3 lost, p = 0.63"
+		},
+		{
+			"label": "heldout2-sn-pp",
+			"measured_in": "536a96a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--stall-clock=net --pp-model=1 vs heldout2-pp; pooled held-out real PP 0 gained, 2 lost, p = 0.5, clock held 633 times; fails the declared bar"
+		},
+		{
+			"label": "heldout2-rp",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 vs heldout2; pooled held-out free PP 345 gained, 181 lost, p < 0.0001"
+		},
+		{
+			"label": "heldout2-rp-pp",
+			"measured_in": "e6722f6",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--repick-party=1 --pp-model=1 vs heldout2-pp; pooled held-out real PP 339 gained, 183 lost, net +156, p < 0.0001; ten scenarios net -5 or worse (Lass Haley -16), so the declared veto fires"
+		},
+		{
+			"label": "heldout2-sp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 vs heldout2; primary (77 unread fights) fuel-free 237 gained, 143 lost"
+		},
+		{
+			"label": "heldout2-sp-pp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --pp-model=1 vs heldout2-pp; primary real PP 227 gained, 143 lost, net +84, p < 0.0001; seven scenarios net -5 or worse, so the declared veto fires"
+		},
+		{
+			"label": "heldout2-sprp",
+			"measured_in": "540165b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--switch-priced=1 --repick-party=1; all held-out fuel-free vs control 391 gained, 158 lost"
+		},
+		{
+			"label": "heldout2f-pp",
+			"measured_in": "a9ad493",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "the adopted baseline, real PP: 1141/1480 against heldout2-pp 956; the control for arms from here. Carries Burn Up refusals (113 poisoned wins across the adopted baselines): superseded by heldout2-d-pp"
+		},
+		{
+			"label": "heldout2-a",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-a-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-b",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-b-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-c",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-c-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-d",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the Burn-Up-fixed engine (7a93869), fuel-free; scored seed-paired excluding pairs with an engine refusal"
+		},
+		{
+			"label": "heldout2-d-pp",
+			"measured_in": "529a01a",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the Burn-Up-fixed engine (7a93869), real PP; scored seed-paired excluding pairs with an engine refusal; supersedes heldout2f-pp as the adopted baseline, which carried Burn Up refusals"
+		},
+		{
+			"label": "heldout2-a2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the engine with the three refusal fixes (7dc244e), fuel-free; one engine refusal (Breeder Isaac br-4 seed 12, U-turn pending replacement), excluded as one pair"
+		},
+		{
+			"label": "heldout2-a2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "old control (--switch-priced=0 --repick-party=0) on the engine with the three refusal fixes (7dc244e), real PP; one engine refusal (Breeder Isaac br-4 seed 12, U-turn pending replacement), excluded as one pair"
+		},
+		{
+			"label": "heldout2-b2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout2-b2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "priced switch only on the engine with the three refusal fixes (7dc244e), real PP"
+		},
+		{
+			"label": "heldout2-c2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout2-c2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "re-pick only on the engine with the three refusal fixes (7dc244e), real PP"
+		},
+		{
+			"label": "heldout2-d2",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the engine with the three refusal fixes (7dc244e), fuel-free"
+		},
+		{
+			"label": "heldout2-d2-pp",
+			"measured_in": "6a7ea8b",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "both, the adopted defaults on the engine with the three refusal fixes (7dc244e), real PP; the adopted baseline from here, superseding heldout2-d-pp"
+		},
+		{
+			"label": "pbp-ho2-s0",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, fuel-free, shard 0/4"
+		},
+		{
+			"label": "pbp-ho2-s0-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 0/4"
+		},
+		{
+			"label": "pbp-ho2-s1",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, fuel-free, shard 1/4"
+		},
+		{
+			"label": "pbp-ho2-s1-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 1/4"
+		},
+		{
+			"label": "pbp-ho2-s2",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, fuel-free, shard 2/4"
+		},
+		{
+			"label": "pbp-ho2-s2-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 2/4"
+		},
+		{
+			"label": "pbp-ho2-s3",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, fuel-free, shard 3/4"
+		},
+		{
+			"label": "pbp-ho2-s3-pp",
+			"measured_in": "2111544",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "pick-by-play 6 x 6 at 1449ccc, real PP, shard 3/4"
+		},
+		{
+			"label": "expo-ctl-ho2-s0-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP, shard 0/4"
+		},
+		{
+			"label": "expo-x05-ho2-s0-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP, shard 0/4"
+		},
+		{
+			"label": "expo-ctl-ho2-s1-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP, shard 1/4"
+		},
+		{
+			"label": "expo-x05-ho2-s1-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP, shard 1/4"
+		},
+		{
+			"label": "expo-ctl-ho2-s2-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP, shard 2/4"
+		},
+		{
+			"label": "expo-x05-ho2-s2-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP, shard 2/4"
+		},
+		{
+			"label": "expo-ctl-ho2-s3-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "control at 41d3c5c, --pick-by-play=0, real PP, shard 3/4"
+		},
+		{
+			"label": "expo-x05-ho2-s3-pp",
+			"measured_in": "4e41406",
+			"date": "2026-09-18",
+			"verdict": "recorded",
+			"note": "--set-exposure=0.5 at 41d3c5c, --pick-by-play=0, real PP, shard 3/4"
+		}
+	],
+	"scenarios": [
+		{
+			"name": "Trainer Rival Cycling Road Sceptile @75 [acc-11]",
+			"report": "fixtures/banked-runs/acc-11.run.json",
+			"trainer": "Trainer Rival Cycling Road Sceptile",
+			"seeds": 20
+		},
+		{
+			"name": "Guitarist Kirk @63 [acc-17]",
+			"report": "fixtures/banked-runs/acc-17.run.json",
+			"trainer": "Guitarist Kirk",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Anthony @70 [acc-26]",
+			"report": "fixtures/banked-runs/acc-26.run.json",
+			"trainer": "Triathlete Anthony",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [br-14]",
+			"report": "fixtures/banked-runs/br-14.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [br-18]",
+			"report": "fixtures/banked-runs/br-18.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [br-20]",
+			"report": "fixtures/banked-runs/br-20.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [br-27]",
+			"report": "fixtures/banked-runs/br-27.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [br-28]",
+			"report": "fixtures/banked-runs/br-28.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [br-4]",
+			"report": "fixtures/banked-runs/br-4.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [br-5]",
+			"report": "fixtures/banked-runs/br-5.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [br-5]",
+			"report": "fixtures/banked-runs/br-5.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [br-9]",
+			"report": "fixtures/banked-runs/br-9.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [brbank1-A-2]",
+			"report": "fixtures/banked-runs/brbank1-A-2.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Kindler Hayden @59 [brbank1-A-2]",
+			"report": "fixtures/banked-runs/brbank1-A-2.run.json",
+			"trainer": "Kindler Hayden",
+			"seeds": 20
+		},
+		{
+			"name": "Guitarist Kirk @63 [brbank1-A-2]",
+			"report": "fixtures/banked-runs/brbank1-A-2.run.json",
+			"trainer": "Guitarist Kirk",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [brbank1-A-6]",
+			"report": "fixtures/banked-runs/brbank1-A-6.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [brbank1-A-7]",
+			"report": "fixtures/banked-runs/brbank1-A-7.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [brbank2-B-8]",
+			"report": "fixtures/banked-runs/brbank2-B-8.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Devan @42 [brheal1-B-2]",
+			"report": "fixtures/banked-runs/brheal1-B-2.run.json",
+			"trainer": "Hiker Devan",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [brheal1-B-3]",
+			"report": "fixtures/banked-runs/brheal1-B-3.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys1-A-2]",
+			"report": "fixtures/banked-runs/brkeys1-A-2.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys1-B-1]",
+			"report": "fixtures/banked-runs/brkeys1-B-1.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys2-A-1]",
+			"report": "fixtures/banked-runs/brkeys2-A-1.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly @27 [brkeys2-A-2]",
+			"report": "fixtures/banked-runs/brkeys2-A-2.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys2-B-1]",
+			"report": "fixtures/banked-runs/brkeys2-B-1.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly @27 [brkeys3-A-3]",
+			"report": "fixtures/banked-runs/brkeys3-A-3.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys3-A-4]",
+			"report": "fixtures/banked-runs/brkeys3-A-4.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys3-A-5]",
+			"report": "fixtures/banked-runs/brkeys3-A-5.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [brkeys3-B-3]",
+			"report": "fixtures/banked-runs/brkeys3-B-3.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "Leader Brawly @27 [brkeys3-B-4]",
+			"report": "fixtures/banked-runs/brkeys3-B-4.run.json",
+			"trainer": "Leader Brawly",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys3-B-4]",
+			"report": "fixtures/banked-runs/brkeys3-B-4.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [brkeys3b-A-1]",
+			"report": "fixtures/banked-runs/brkeys3b-A-1.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "Rich Boy Dawson @36 [brkeys3b-A-3]",
+			"report": "fixtures/banked-runs/brkeys3b-A-3.run.json",
+			"trainer": "Rich Boy Dawson",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [brkeys3b-A-3]",
+			"report": "fixtures/banked-runs/brkeys3b-A-3.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys3b-A-4]",
+			"report": "fixtures/banked-runs/brkeys3b-A-4.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys3b-A-6]",
+			"report": "fixtures/banked-runs/brkeys3b-A-6.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "Lass Haley @33 [brkeys3b-A-7]",
+			"report": "fixtures/banked-runs/brkeys3b-A-7.run.json",
+			"trainer": "Lass Haley",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [brkeys3b-B-3]",
+			"report": "fixtures/banked-runs/brkeys3b-B-3.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [brkeys3b-B-4]",
+			"report": "fixtures/banked-runs/brkeys3b-B-4.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [brkeys3b-B-8]",
+			"report": "fixtures/banked-runs/brkeys3b-B-8.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [brsend1-A-5]",
+			"report": "fixtures/banked-runs/brsend1-A-5.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [brsend1-B-4]",
+			"report": "fixtures/banked-runs/brsend1-B-4.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [brsend1-B-4]",
+			"report": "fixtures/banked-runs/brsend1-B-4.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [brsend1-B-6]",
+			"report": "fixtures/banked-runs/brsend1-B-6.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Mike @47 [fin-3]",
+			"report": "fixtures/banked-runs/fin-3.run.json",
+			"trainer": "Hiker Mike",
+			"seeds": 20
+		},
+		{
+			"name": "Cool Trainer George @86 [flannery-3]",
+			"report": "fixtures/banked-runs/flannery-3.run.json",
+			"trainer": "Cool Trainer George",
+			"seeds": 20
+		},
+		{
+			"name": "Cool Trainer Alexia @87 [flannery-3]",
+			"report": "fixtures/banked-runs/flannery-3.run.json",
+			"trainer": "Cool Trainer Alexia",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [forecast-today-M-2]",
+			"report": "fixtures/banked-runs/forecast-today-M-2.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [lead1-A-12]",
+			"report": "fixtures/banked-runs/lead1-A-12.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [lead1-A-9]",
+			"report": "fixtures/banked-runs/lead1-A-9.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [lead1-B-1]",
+			"report": "fixtures/banked-runs/lead1-B-1.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Mike @47 [nab-12]",
+			"report": "fixtures/banked-runs/nab-12.run.json",
+			"trainer": "Hiker Mike",
+			"seeds": 20
+		},
+		{
+			"name": "Psychic Jaclyn @68 [pf-2]",
+			"report": "fixtures/banked-runs/pf-2.run.json",
+			"trainer": "Psychic Jaclyn",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [pf-5]",
+			"report": "fixtures/banked-runs/pf-5.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Lydia @48 [rank5-A-1]",
+			"report": "fixtures/banked-runs/rank5-A-1.run.json",
+			"trainer": "Breeder Lydia",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [rank5-A-15]",
+			"report": "fixtures/banked-runs/rank5-A-15.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [rank5-B-5]",
+			"report": "fixtures/banked-runs/rank5-B-5.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [reteach-A-1]",
+			"report": "fixtures/banked-runs/reteach-A-1.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [reteach-A-10]",
+			"report": "fixtures/banked-runs/reteach-A-10.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [reteach2-A-10]",
+			"report": "fixtures/banked-runs/reteach2-A-10.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		},
+		{
+			"name": "Trainer Chelle Daycare @56 [reteach2-B-11]",
+			"report": "fixtures/banked-runs/reteach2-B-11.run.json",
+			"trainer": "Trainer Chelle Daycare",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Mike @47 [reteach2-B-4]",
+			"report": "fixtures/banked-runs/reteach2-B-4.run.json",
+			"trainer": "Hiker Mike",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Alyssa @71 [sac-A-11]",
+			"report": "fixtures/banked-runs/sac-A-11.run.json",
+			"trainer": "Triathlete Alyssa",
+			"seeds": 20
+		},
+		{
+			"name": "Guitarist Brian @77 [sac-A-6]",
+			"report": "fixtures/banked-runs/sac-A-6.run.json",
+			"trainer": "Guitarist Brian",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [skipwall4-A-7]",
+			"report": "fixtures/banked-runs/skipwall4-A-7.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "School Kid Karen @40 [starteriv1-M-1]",
+			"report": "fixtures/banked-runs/starteriv1-M-1.run.json",
+			"trainer": "School Kid Karen",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Clark @41 [starteriv1-M-1]",
+			"report": "fixtures/banked-runs/starteriv1-M-1.run.json",
+			"trainer": "Hiker Clark",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Devan @42 [starteriv1-M-1]",
+			"report": "fixtures/banked-runs/starteriv1-M-1.run.json",
+			"trainer": "Hiker Devan",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Abigail @69 [sv-14]",
+			"report": "fixtures/banked-runs/sv-14.run.json",
+			"trainer": "Triathlete Abigail",
+			"seeds": 20
+		},
+		{
+			"name": "Triathlete Benjamin @72 [sv-14]",
+			"report": "fixtures/banked-runs/sv-14.run.json",
+			"trainer": "Triathlete Benjamin",
+			"seeds": 20
+		},
+		{
+			"name": "Guitarist Kirk @63 [sv-26]",
+			"report": "fixtures/banked-runs/sv-26.run.json",
+			"trainer": "Guitarist Kirk",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Mike @47 [tmsource-B-1]",
+			"report": "fixtures/banked-runs/tmsource-B-1.run.json",
+			"trainer": "Hiker Mike",
+			"seeds": 20
+		},
+		{
+			"name": "Hiker Mike @47 [tmsource-B-4]",
+			"report": "fixtures/banked-runs/tmsource-B-4.run.json",
+			"trainer": "Hiker Mike",
+			"seeds": 20
+		},
+		{
+			"name": "Breeder Isaac @54 [tmsource-B-9]",
+			"report": "fixtures/banked-runs/tmsource-B-9.run.json",
+			"trainer": "Breeder Isaac",
+			"seeds": 20
+		}
+	]
+}

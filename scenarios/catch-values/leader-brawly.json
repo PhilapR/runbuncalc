@@ -1,0 +1,380 @@
+{
+	"trainer": "Leader Brawly",
+	"manifest": "scenarios/brawly.json",
+	"seeds": 380,
+	"control": {
+		"wins": 30
+	},
+	"values": {
+		"MAP_DEWFORD_TOWN": {
+			"Tyrogue>Hitmonchan": {
+				"wins": 17,
+				"gain": -0.034210526315789476,
+				"gained": 3,
+				"lost": 16,
+				"p": 0.00443
+			},
+			"Tyrogue>Hitmonlee": {
+				"wins": 48,
+				"gain": 0.04736842105263158,
+				"gained": 31,
+				"lost": 13,
+				"p": 0.00956
+			},
+			"Tyrogue>Hitmontop": {
+				"wins": 79,
+				"gain": 0.12894736842105264,
+				"gained": 65,
+				"lost": 16,
+				"p": 3.64e-8
+			}
+		},
+		"MAP_GRANITE_CAVE_1F": {
+			"Phanpy": {
+				"wins": 30,
+				"gain": 0,
+				"gained": 2,
+				"lost": 2,
+				"p": 1
+			}
+		},
+		"MAP_OLDALE_TOWN": {
+			"Fletchling": {
+				"wins": 18,
+				"gain": -0.031578947368421054,
+				"gained": 2,
+				"lost": 14,
+				"p": 0.00418
+			}
+		},
+		"MAP_PETALBURG_CITY": {
+			"Tympole": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			}
+		},
+		"MAP_ROUTE101": {
+			"Lillipup": {
+				"wins": 24,
+				"gain": -0.015789473684210527,
+				"gained": 8,
+				"lost": 14,
+				"p": 0.286
+			},
+			"Pidgey": {
+				"wins": 16,
+				"gain": -0.03684210526315789,
+				"gained": 4,
+				"lost": 18,
+				"p": 0.00434
+			},
+			"Poochyena": {
+				"wins": 22,
+				"gain": -0.021052631578947368,
+				"gained": 8,
+				"lost": 16,
+				"p": 0.152
+			},
+			"Starly": {
+				"wins": 20,
+				"gain": -0.02631578947368421,
+				"gained": 6,
+				"lost": 16,
+				"p": 0.0525
+			}
+		},
+		"MAP_ROUTE107": {
+			"Horsea": {
+				"wins": 19,
+				"gain": -0.02894736842105263,
+				"gained": 8,
+				"lost": 19,
+				"p": 0.0522
+			}
+		},
+		"MAP_ROUTE110": {
+			"Shinx": {
+				"wins": 24,
+				"gain": -0.015789473684210527,
+				"gained": 6,
+				"lost": 12,
+				"p": 0.238
+			}
+		},
+		"MAP_SLATEPORT_CITY": {
+			"Qwilfish": {
+				"wins": 80,
+				"gain": 0.13157894736842105,
+				"gained": 60,
+				"lost": 10,
+				"p": 8e-10
+			}
+		},
+		"MAP_PETALBURG_WOODS": {
+			"Gossifleur": {
+				"wins": 36,
+				"gain": 0.015789473684210527,
+				"gained": 6,
+				"lost": 0,
+				"p": 0.0313
+			}
+		},
+		"MAP_ROUTE104": {
+			"Combee": {
+				"wins": 75,
+				"gain": 0.11842105263157894,
+				"gained": 60,
+				"lost": 15,
+				"p": 1.59e-7
+			},
+			"Salandit": {
+				"wins": 36,
+				"gain": 0.015789473684210527,
+				"gained": 9,
+				"lost": 3,
+				"p": 0.146
+			},
+			"Yanma": {
+				"wins": 30,
+				"gain": 0,
+				"gained": 16,
+				"lost": 16,
+				"p": 1
+			},
+			"Blipbug": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			},
+			"Buizel": {
+				"wins": 30,
+				"gain": 0,
+				"gained": 4,
+				"lost": 4,
+				"p": 1
+			},
+			"Clauncher": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			},
+			"Ekans": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			},
+			"Horsea": {
+				"wins": 40,
+				"gain": 0.02631578947368421,
+				"gained": 14,
+				"lost": 4,
+				"p": 0.0309
+			},
+			"Krabby": {
+				"wins": 34,
+				"gain": 0.010526315789473684,
+				"gained": 6,
+				"lost": 2,
+				"p": 0.289
+			},
+			"Ledyba": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			},
+			"Paras": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			},
+			"Remoraid": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			},
+			"Scatterbug": {
+				"wins": 35,
+				"gain": 0.013157894736842105,
+				"gained": 6,
+				"lost": 1,
+				"p": 0.125
+			},
+			"Sizzlipede": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			},
+			"Venipede": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 2,
+				"lost": 1,
+				"p": 1
+			},
+			"Weedle": {
+				"wins": 31,
+				"gain": 0.002631578947368421,
+				"gained": 12,
+				"lost": 11,
+				"p": 1
+			}
+		}
+	},
+	"screened": {
+		"MAP_DEWFORD_TOWN": {
+			"Carvanha": -0.484,
+			"Chewtle": -0.484,
+			"Croagunk": -0.484,
+			"Farfetch’d-Galar": -0.483,
+			"Horsea": -0.319,
+			"Makuhita": -0.484,
+			"Meditite": -0.425,
+			"Mienfoo": -0.419,
+			"Pancham": -0.062,
+			"Remoraid": -0.484,
+			"Shellder": -0.426,
+			"Spheal": -0.484,
+			"Staryu": -0.484,
+			"Stufful": -0.423,
+			"Timburr": -0.113
+		},
+		"MAP_GRANITE_CAVE_1F": {
+			"Aron": -0.022,
+			"Cufant": -0.022,
+			"Onix": -0.022,
+			"Rhyhorn": -0.022,
+			"Sandile": -0.022,
+			"Togedemaru": -0.022
+		},
+		"MAP_LITTLEROOT_TOWN": {
+			"Finneon": 0,
+			"Lotad": -0.006,
+			"Surskit": -0.006,
+			"Tympole": -0.003
+		},
+		"MAP_OLDALE_TOWN": {
+			"Growlithe": -0.009,
+			"Houndour": -0.009,
+			"Litleo": -0.009,
+			"Ponyta": -0.009,
+			"Salandit": -0.009,
+			"Sizzlipede": -0.009
+		},
+		"MAP_PETALBURG_CITY": {
+			"Croagunk": 0,
+			"Lotad": 0,
+			"Shellos": 0,
+			"Surskit": 0
+		},
+		"MAP_PETALBURG_WOODS": {
+			"Bellsprout": -0.019,
+			"Carnivine": 0,
+			"Chikorita": -0.019,
+			"Deerling": -0.019,
+			"Paras": -0.019,
+			"Shroomish": -0.019,
+			"Steenee": -0.019,
+			"Weepinbell": -0.019
+		},
+		"MAP_ROUTE101": {
+			"Buneary": -0.007,
+			"Bunnelby": -0.007,
+			"Deerling": -0.007,
+			"Litleo": -0.007,
+			"Skitty": -0.007,
+			"Zigzagoon-Galar": -0.007
+		},
+		"MAP_ROUTE102": {
+			"Abra": -0.016,
+			"Carvanha": -0.039,
+			"Fletchling": -0.02,
+			"Natu": -0.039,
+			"Pidgey": -0.016,
+			"Psyduck": -0.039,
+			"Ralts": -0.039,
+			"Remoraid": -0.039,
+			"Rookidee": -0.018,
+			"Starly": -0.034,
+			"Surskit": -0.039
+		},
+		"MAP_ROUTE103": {
+			"Bounsweet": -0.234,
+			"Budew": -0.148,
+			"Chinchou": -0.234,
+			"Deerling": -0.234,
+			"Exeggcute": -0.227,
+			"Gossifleur": -0.112,
+			"Lotad": -0.234,
+			"Seedot": -0.234,
+			"Skrelp": -0.234,
+			"Tentacool": -0.234
+		},
+		"MAP_ROUTE104": {
+			"Blipbug": -0.064,
+			"Buizel": -0.069,
+			"Clauncher": -0.069,
+			"Ekans": -0.069,
+			"Krabby": -0.067,
+			"Ledyba": -0.069,
+			"Paras": -0.069,
+			"Remoraid": -0.069,
+			"Salandit": -0.068,
+			"Scatterbug": -0.066,
+			"Sizzlipede": -0.069,
+			"Venipede": -0.069
+		},
+		"MAP_ROUTE106": {
+			"Chewtle": 0,
+			"Shellder": 0,
+			"Spheal": 0,
+			"Staryu": 0
+		},
+		"MAP_ROUTE107": {
+			"Carvanha": -0.122,
+			"Remoraid": -0.122
+		},
+		"MAP_ROUTE109": {
+			"Chewtle": -0.046,
+			"Clauncher": -0.046,
+			"Corphish": -0.046,
+			"Krabby": -0.036,
+			"Tentacool": -0.046,
+			"Tirtouga": -0.046,
+			"Tynamo": -0.046
+		},
+		"MAP_ROUTE110": {
+			"Chinchou": -0.176,
+			"Eelektrik": -0.176,
+			"Electrike": -0.176,
+			"Mareep": -0.082,
+			"Seadra": -0.017,
+			"Skrelp": -0.173,
+			"Tentacool": -0.176,
+			"Tynamo": -0.176,
+			"Yamper": -0.176
+		},
+		"MAP_SLATEPORT_CITY": {
+			"Buizel": -0.397,
+			"Horsea": -0.028,
+			"Remoraid": -0.397
+		}
+	},
+	"note": "gain is wins per seed over the control; a catch in `screened` and not in `values` was screened out by the ranker's set score and is ASSUMED worth 0"
+}

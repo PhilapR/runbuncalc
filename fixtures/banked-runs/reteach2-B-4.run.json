@@ -1,0 +1,8175 @@
+{
+	"version": 1,
+	"profileId": "run-and-bun",
+	"attemptId": "ba384c20-53d2-439f-86bf-5bc676f386ed",
+	"name": "UI playthrough",
+	"createdAt": "2026-08-25T21:33:57.198Z",
+	"updatedAt": "2026-08-25T21:33:57.198Z",
+	"position": 138,
+	"rules": {
+		"levelCap": "next-milestone-ace",
+		"permadeath": false,
+		"onePerRoute": true,
+		"routeUnit": "area",
+		"dupesClause": "line",
+		"shinyClause": true,
+		"rival": "Swampert"
+	},
+	"nextId": 19,
+	"box": [
+		{
+			"id": "mon-1",
+			"species": "Grotle",
+			"nickname": null,
+			"level": 25,
+			"nature": "Careful",
+			"ability": "Overgrow",
+			"item": "Miracle Seed",
+			"moves": [
+				"Mega Drain",
+				"Razor Leaf",
+				"Solar Beam",
+				"Earth Power"
+			],
+			"ivs": {
+				"hp": 9,
+				"atk": 18,
+				"def": 12,
+				"spa": 10,
+				"spd": 10,
+				"spe": 27
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "declared",
+				"map": null
+			}
+		},
+		{
+			"id": "mon-2",
+			"species": "Herdier",
+			"nickname": null,
+			"level": 25,
+			"nature": "Gentle",
+			"ability": "Intimidate",
+			"item": "Oran Berry",
+			"moves": [
+				"Strength",
+				"Take Down",
+				"Hyper Voice",
+				"Thunderbolt"
+			],
+			"ivs": {
+				"hp": 22,
+				"atk": 24,
+				"def": 28,
+				"spa": 18,
+				"spd": 5,
+				"spe": 28
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE101",
+				"mapName": "Route101"
+			}
+		},
+		{
+			"id": "mon-3",
+			"species": "Staravia",
+			"nickname": null,
+			"level": 25,
+			"nature": "Brave",
+			"ability": "Intimidate",
+			"item": null,
+			"moves": [
+				"Secret Power",
+				"Hurricane",
+				"Facade",
+				"Aerial Ace"
+			],
+			"ivs": {
+				"hp": 26,
+				"atk": 22,
+				"def": 12,
+				"spa": 1,
+				"spd": 24,
+				"spe": 26
+			},
+			"status": "boxed",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE102",
+				"mapName": "Route102"
+			}
+		},
+		{
+			"id": "mon-4",
+			"species": "Eldegoss",
+			"nickname": null,
+			"level": 25,
+			"nature": "Brave",
+			"ability": "Cotton Down",
+			"item": "Twisted Spoon",
+			"moves": [
+				"Leaf Tornado",
+				"Magical Leaf",
+				"Solar Beam",
+				"Cotton Spore"
+			],
+			"ivs": {
+				"hp": 21,
+				"atk": 26,
+				"def": 5,
+				"spa": 6,
+				"spd": 12,
+				"spe": 25
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_ROUTE103",
+				"mapName": "Route103"
+			}
+		},
+		{
+			"id": "mon-5",
+			"species": "Palpitoad",
+			"nickname": null,
+			"level": 25,
+			"nature": "Naive",
+			"ability": "Swift Swim",
+			"item": "Silk Scarf",
+			"moves": [
+				"Earth Power",
+				"Hydro Pump",
+				"Supersonic",
+				"Surf"
+			],
+			"ivs": {
+				"hp": 9,
+				"atk": 28,
+				"def": 0,
+				"spa": 26,
+				"spd": 13,
+				"spe": 12
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "fish",
+				"map": "MAP_LITTLEROOT_TOWN",
+				"mapName": "Littleroot Town",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-6",
+			"species": "Ponyta",
+			"nickname": null,
+			"level": 25,
+			"nature": "Quirky",
+			"ability": "Flame Body",
+			"item": null,
+			"moves": [
+				"Solar Blade",
+				"Fire Blast",
+				"Flamethrower",
+				"Will-O-Wisp"
+			],
+			"ivs": {
+				"hp": 26,
+				"atk": 9,
+				"def": 14,
+				"spa": 29,
+				"spd": 30,
+				"spe": 9
+			},
+			"status": "party",
+			"origin": {
+				"at": -1,
+				"method": "walk",
+				"map": "MAP_OLDALE_TOWN",
+				"mapName": "Oldale Town"
+			}
+		},
+		{
+			"id": "mon-7",
+			"species": "Salandit",
+			"nickname": null,
+			"level": 25,
+			"nature": "Mild",
+			"ability": "Corrosion",
+			"item": null,
+			"moves": [
+				"Sludge Bomb",
+				"Flamethrower",
+				"Flame Burst",
+				"Fire Blast"
+			],
+			"ivs": {
+				"hp": 25,
+				"atk": 11,
+				"def": 31,
+				"spa": 1,
+				"spd": 31,
+				"spe": 12
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "walk",
+				"map": "MAP_ROUTE104",
+				"mapName": "Route104"
+			}
+		},
+		{
+			"id": "mon-8",
+			"species": "Croagunk",
+			"nickname": null,
+			"level": 25,
+			"nature": "Naive",
+			"ability": "Poison Touch",
+			"item": null,
+			"moves": [
+				"Low Sweep",
+				"Sludge",
+				"Aura Sphere",
+				"Vacuum Wave"
+			],
+			"ivs": {
+				"hp": 1,
+				"atk": 22,
+				"def": 31,
+				"spa": 12,
+				"spd": 10,
+				"spe": 15
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 11,
+				"method": "fish",
+				"map": "MAP_PETALBURG_CITY",
+				"mapName": "Petalburg City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-9",
+			"species": "Rhyhorn",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lonely",
+			"ability": "Reckless",
+			"item": "Soft Sand",
+			"moves": [
+				"Earth Power",
+				"Earthquake",
+				"Bulldoze",
+				"Blizzard"
+			],
+			"ivs": {
+				"hp": 11,
+				"atk": 13,
+				"def": 30,
+				"spa": 30,
+				"spd": 11,
+				"spe": 6
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 16,
+				"method": "walk",
+				"map": "MAP_GRANITE_CAVE_1F",
+				"mapName": "Granite Cave 1f"
+			}
+		},
+		{
+			"id": "mon-10",
+			"species": "Bayleef",
+			"nickname": null,
+			"level": 25,
+			"nature": "Hardy",
+			"ability": "Overgrow",
+			"item": null,
+			"moves": [
+				"Razor Leaf",
+				"Synthesis",
+				"Solar Beam",
+				"Magical Leaf"
+			],
+			"ivs": {
+				"hp": 17,
+				"atk": 0,
+				"def": 23,
+				"spa": 16,
+				"spd": 5,
+				"spe": 10
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 19,
+				"method": "walk",
+				"map": "MAP_PETALBURG_WOODS",
+				"mapName": "Petalburg Woods"
+			}
+		},
+		{
+			"id": "mon-11",
+			"species": "Shellder",
+			"nickname": null,
+			"level": 25,
+			"nature": "Lonely",
+			"ability": "Shell Armor",
+			"item": "Poison Barb",
+			"moves": [
+				"Hydro Pump",
+				"Waterfall",
+				"Razor Shell",
+				"Surf"
+			],
+			"ivs": {
+				"hp": 29,
+				"atk": 31,
+				"def": 16,
+				"spa": 19,
+				"spd": 21,
+				"spe": 0
+			},
+			"status": "party",
+			"origin": {
+				"at": 22,
+				"method": "fish",
+				"map": "MAP_ROUTE106",
+				"mapName": "Route106",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-12",
+			"species": "Tyrogue",
+			"nickname": null,
+			"level": 25,
+			"nature": "Rash",
+			"ability": "Guts",
+			"item": null,
+			"moves": [
+				"Tackle",
+				"Helping Hand",
+				"Fake Out",
+				"Foresight"
+			],
+			"ivs": {
+				"hp": 23,
+				"atk": 19,
+				"def": 13,
+				"spa": 31,
+				"spd": 25,
+				"spe": 29
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 29,
+				"method": "walk",
+				"map": "MAP_DEWFORD_TOWN",
+				"mapName": "Dewford Town"
+			}
+		},
+		{
+			"id": "mon-13",
+			"species": "Carvanha",
+			"nickname": null,
+			"level": 25,
+			"nature": "Naughty",
+			"ability": "Rough Skin",
+			"item": null,
+			"moves": [
+				"Ice Fang",
+				"Bite",
+				"Poison Fang",
+				"Hydro Pump"
+			],
+			"ivs": {
+				"hp": 20,
+				"atk": 15,
+				"def": 19,
+				"spa": 30,
+				"spd": 20,
+				"spe": 13
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 37,
+				"method": "fish",
+				"map": "MAP_ROUTE107",
+				"mapName": "Route107",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-14",
+			"species": "Tirtouga",
+			"nickname": null,
+			"level": 25,
+			"nature": "Bold",
+			"ability": "Solid Rock",
+			"item": null,
+			"moves": [
+				"Earthquake",
+				"Waterfall",
+				"Surf",
+				"Hydro Pump"
+			],
+			"ivs": {
+				"hp": 0,
+				"atk": 3,
+				"def": 12,
+				"spa": 13,
+				"spd": 16,
+				"spe": 25
+			},
+			"status": "party",
+			"origin": {
+				"at": 42,
+				"method": "fish",
+				"map": "MAP_ROUTE109",
+				"mapName": "Route109",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-15",
+			"species": "Flaaffy",
+			"nickname": null,
+			"level": 25,
+			"nature": "Hasty",
+			"ability": "Static",
+			"item": null,
+			"moves": [
+				"Thunderbolt",
+				"Thunder",
+				"Brick Break",
+				"Cotton Spore"
+			],
+			"ivs": {
+				"hp": 9,
+				"atk": 30,
+				"def": 19,
+				"spa": 19,
+				"spd": 1,
+				"spe": 11
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 48,
+				"method": "walk",
+				"map": "MAP_ROUTE110",
+				"mapName": "Route110"
+			}
+		},
+		{
+			"id": "mon-16",
+			"species": "Buizel",
+			"nickname": null,
+			"level": 25,
+			"nature": "Jolly",
+			"ability": "Swift Swim",
+			"item": null,
+			"moves": [
+				"Brick Break",
+				"Growl",
+				"Water Sport",
+				"Double Hit"
+			],
+			"ivs": {
+				"hp": 28,
+				"atk": 13,
+				"def": 6,
+				"spa": 10,
+				"spd": 7,
+				"spe": 23
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 48,
+				"method": "fish",
+				"map": "MAP_SLATEPORT_CITY",
+				"mapName": "Slateport City",
+				"rod": "Super Rod"
+			}
+		},
+		{
+			"id": "mon-17",
+			"species": "Munna",
+			"nickname": null,
+			"level": 25,
+			"nature": "Mild",
+			"ability": "Synchronize",
+			"item": null,
+			"moves": [
+				"Psyshock",
+				"Psybeam",
+				"Psychic",
+				"Yawn"
+			],
+			"ivs": {
+				"hp": 15,
+				"atk": 5,
+				"def": 2,
+				"spa": 10,
+				"spd": 3,
+				"spe": 3
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_ROUTE116",
+				"mapName": "Route116"
+			}
+		},
+		{
+			"id": "mon-18",
+			"species": "Rockruff",
+			"nickname": null,
+			"level": 25,
+			"nature": "Naive",
+			"ability": "Keen Eye",
+			"item": null,
+			"moves": [
+				"Rock Tomb",
+				"Sand Attack",
+				"Rock Throw",
+				"Bite"
+			],
+			"ivs": {
+				"hp": 30,
+				"atk": 20,
+				"def": 8,
+				"spa": 10,
+				"spd": 20,
+				"spe": 26
+			},
+			"status": "boxed",
+			"origin": {
+				"at": 103,
+				"method": "walk",
+				"map": "MAP_RUSTBORO_CITY",
+				"mapName": "Rustboro City"
+			}
+		}
+	],
+	"party": [
+		"mon-5",
+		"mon-6",
+		"mon-1",
+		"mon-11",
+		"mon-4",
+		"mon-14"
+	],
+	"bag": {
+		"Potion": 1,
+		"Super Potion": 1
+	},
+	"holds": {},
+	"log": [
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Turtwig",
+				"level": 5,
+				"ivs": {
+					"hp": 9,
+					"atk": 18,
+					"def": 12,
+					"spa": 10,
+					"spd": 10,
+					"spe": 27
+				},
+				"nature": "Careful",
+				"ability": "Overgrow"
+			},
+			"summary": "caught Turtwig at level 5 — declared, no wild table",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Lillipup",
+				"level": 2,
+				"map": "Route101",
+				"method": "walk",
+				"ivs": {
+					"hp": 22,
+					"atk": 24,
+					"def": 28,
+					"spa": 18,
+					"spd": 5,
+					"spe": 28
+				},
+				"nature": "Gentle",
+				"ability": "Vital Spirit"
+			},
+			"summary": "caught Lillipup at level 2 on Route101",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Starly",
+				"level": 5,
+				"map": "Route102",
+				"method": "walk",
+				"ivs": {
+					"hp": 26,
+					"atk": 22,
+					"def": 12,
+					"spa": 1,
+					"spd": 24,
+					"spe": 26
+				},
+				"nature": "Brave",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Starly at level 5 on Route102",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Gossifleur",
+				"level": 2,
+				"map": "Route103",
+				"method": "walk",
+				"ivs": {
+					"hp": 21,
+					"atk": 26,
+					"def": 5,
+					"spa": 6,
+					"spd": 12,
+					"spe": 25
+				},
+				"nature": "Brave",
+				"ability": "Cotton Down"
+			},
+			"summary": "caught Gossifleur at level 2 on Route103",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tympole",
+				"level": 3,
+				"map": "Littleroot Town",
+				"method": "fish",
+				"ivs": {
+					"hp": 9,
+					"atk": 28,
+					"def": 0,
+					"spa": 26,
+					"spd": 13,
+					"spe": 12
+				},
+				"nature": "Naive",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Tympole at level 3 on Littleroot Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Ponyta",
+				"level": 2,
+				"map": "Oldale Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 26,
+					"atk": 9,
+					"def": 14,
+					"spa": 29,
+					"spd": 30,
+					"spe": 9
+				},
+				"nature": "Quirky",
+				"ability": "Flame Body"
+			},
+			"summary": "caught Ponyta at level 2 on Oldale Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Oran Berry"
+			},
+			"summary": "bag: Oran Berry x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Potion"
+			},
+			"summary": "bag: Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L5 to L12 and learned Confide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Lillipup grew from L2 to L12 and learned Odor Sleuth, Bite; its moves are full, so Baby-Doll Eyes must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Baby-Doll Eyes",
+				"replace": "Leer"
+			},
+			"summary": "Lillipup forgot Leer, learned Baby-Doll Eyes",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Starly grew from L5 to L12 and learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L2 to L12 and learned Rapid Spin, Sweet Scent; its moves are full, so Magical Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Leafage"
+			},
+			"summary": "Gossifleur forgot Leafage, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Tympole grew from L3 to L12 and learned Supersonic, Echoed Voice; its moves are full, so Mud-Slap must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud-Slap",
+				"replace": "Bubble"
+			},
+			"summary": "Tympole forgot Bubble, learned Mud-Slap",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L2 to L12 and learned Tail Whip, Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Lillipup, Starly, Gossifleur, Tympole, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-2",
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Starly takes the lead — with Ponyta, Lillipup, Turtwig, Gossifleur, Tympole",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Tympole forgot Mud-Slap, learned Bubble",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Hurricane",
+				"replace": "Growl"
+			},
+			"summary": "Starly forgot Growl, learned Hurricane",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Blast",
+				"replace": "Growl"
+			},
+			"summary": "Ponyta forgot Growl, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Voice",
+				"replace": "Baby-Doll Eyes"
+			},
+			"summary": "Lillipup forgot Baby-Doll Eyes, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hyper Voice",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Gossifleur forgot Sweet Scent, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hydro Pump",
+				"replace": "Growl"
+			},
+			"summary": "Tympole forgot Growl, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Oran Berry"
+			},
+			"summary": "Turtwig is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Calvin"
+			},
+			"summary": "beat Youngster Calvin (now at 0)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-5",
+					"mon-2",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Starly, Tympole, Lillipup, Gossifleur, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flamethrower",
+				"replace": "Tail Whip"
+			},
+			"summary": "Ponyta forgot Tail Whip, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Tackle"
+			},
+			"summary": "Starly forgot Tackle, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Surf",
+				"replace": "Echoed Voice"
+			},
+			"summary": "Tympole forgot Echoed Voice, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Rock Tomb",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Lillipup forgot Odor Sleuth, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Facade",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Gossifleur forgot Magical Leaf, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Rick"
+			},
+			"summary": "beat Bug Catcher Rick (now at 3)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-3",
+					"mon-2",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Tympole, Starly, Lillipup, Turtwig, Gossifleur",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Sing"
+			},
+			"summary": "Gossifleur forgot Sing, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Sludge Bomb",
+				"replace": "Bubble"
+			},
+			"summary": "Tympole forgot Bubble, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Facade",
+				"replace": "Quick Attack"
+			},
+			"summary": "Starly forgot Quick Attack, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Facade",
+				"replace": "Tackle"
+			},
+			"summary": "Lillipup forgot Tackle, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Solar Beam",
+				"replace": "Rapid Spin"
+			},
+			"summary": "Gossifleur forgot Rapid Spin, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Allen"
+			},
+			"summary": "beat Youngster Allen (now at 6)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Tympole, Lillipup, Starly, Gossifleur, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Secret Power",
+				"replace": "Bite"
+			},
+			"summary": "Lillipup forgot Bite, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Secret Power",
+				"replace": "Fly"
+			},
+			"summary": "Starly forgot Fly, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Tiana"
+			},
+			"summary": "beat Lass Tiana (now at 9)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-4",
+					"mon-3",
+					"mon-5",
+					"mon-2",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Gossifleur, Starly, Tympole, Lillipup, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Play Rough",
+				"replace": "Stomp"
+			},
+			"summary": "Ponyta forgot Stomp, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Secret Power"
+			},
+			"summary": "Starly forgot Secret Power, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Thunderbolt",
+				"replace": "Facade"
+			},
+			"summary": "Lillipup forgot Facade, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Triathlete Mikey"
+			},
+			"summary": "beat Triathlete Mikey (now at 11)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Salandit",
+				"level": 5,
+				"map": "Route104",
+				"method": "walk",
+				"ivs": {
+					"hp": 25,
+					"atk": 11,
+					"def": 31,
+					"spa": 1,
+					"spd": 31,
+					"spe": 12
+				},
+				"nature": "Mild",
+				"ability": "Corrosion"
+			},
+			"summary": "caught Salandit at level 5 on Route104",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Croagunk",
+				"level": 5,
+				"map": "Petalburg City",
+				"method": "fish",
+				"ivs": {
+					"hp": 1,
+					"atk": 22,
+					"def": 31,
+					"spa": 12,
+					"spd": 10,
+					"spe": 15
+				},
+				"nature": "Naive",
+				"ability": "Poison Touch"
+			},
+			"summary": "caught Croagunk at level 5 on Petalburg City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Miracle Seed"
+			},
+			"summary": "bag: Miracle Seed x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Salandit grew from L5 to L12 and learned Sweet Scent",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L5 to L12 and learned Fake Out, Vacuum Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Turtwig, Tympole, Lillipup, Starly, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-1",
+				"item": "Miracle Seed"
+			},
+			"summary": "Turtwig is holding Miracle Seed; Oran Berry went back to the bag",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leafage",
+				"replace": "Facade"
+			},
+			"summary": "Gossifleur forgot Facade, learned Leafage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Solar Beam",
+				"replace": "Growl"
+			},
+			"summary": "Turtwig forgot Growl, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Earth Power",
+				"replace": "Surf"
+			},
+			"summary": "Tympole forgot Surf, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Shock Wave",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Lillipup forgot Rock Tomb, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Secret Power",
+				"replace": "Fly"
+			},
+			"summary": "Starly forgot Fly, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Solar Blade",
+				"replace": "Ember"
+			},
+			"summary": "Ponyta forgot Ember, learned Solar Blade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-2",
+				"item": "Oran Berry"
+			},
+			"summary": "Lillipup is holding Oran Berry",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Darian"
+			},
+			"summary": "beat Fisherman Darian (now at 14)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5",
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Gossifleur takes the lead — with Turtwig, Tympole, Lillipup, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-2",
+					"mon-4",
+					"mon-7",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Tympole, Lillipup, Gossifleur, Salandit, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Surf",
+				"replace": "Earth Power"
+			},
+			"summary": "Tympole forgot Earth Power, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Facade",
+				"replace": "Shock Wave"
+			},
+			"summary": "Lillipup forgot Shock Wave, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Fire Blast",
+				"replace": "Sweet Scent"
+			},
+			"summary": "Salandit forgot Sweet Scent, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Cindy"
+			},
+			"summary": "beat Lady Cindy (now at 16)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Rhyhorn",
+				"level": 8,
+				"map": "Granite Cave 1f",
+				"method": "walk",
+				"ivs": {
+					"hp": 11,
+					"atk": 13,
+					"def": 30,
+					"spa": 30,
+					"spd": 11,
+					"spe": 6
+				},
+				"nature": "Lonely",
+				"ability": "Reckless"
+			},
+			"summary": "caught Rhyhorn at level 8 on Granite Cave 1f",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L8 to L12 and learned Sand Attack; its moves are full, so Smack Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Horn Attack"
+			},
+			"summary": "Rhyhorn forgot Horn Attack, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-2",
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Tympole, Lillipup, Gossifleur, Turtwig",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Lillipup, Starly, Gossifleur, Tympole, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Turtwig takes the lead — with Lillipup, Starly, Gossifleur, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-7",
+					"mon-3",
+					"mon-4",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Salandit, Starly, Gossifleur, Turtwig, Lillipup",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Bite",
+				"replace": "Secret Power"
+			},
+			"summary": "Lillipup forgot Secret Power, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Will-O-Wisp",
+				"replace": "Solar Blade"
+			},
+			"summary": "Ponyta forgot Solar Blade, learned Will-O-Wisp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flamethrower",
+				"replace": "Scratch"
+			},
+			"summary": "Salandit forgot Scratch, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Secret Power"
+			},
+			"summary": "Starly forgot Secret Power, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Facade",
+				"replace": "Leafage"
+			},
+			"summary": "Gossifleur forgot Leafage, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Psychic Fangs",
+				"replace": "Bite"
+			},
+			"summary": "Lillipup forgot Bite, learned Psychic Fangs",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Petalburg Woods"
+			},
+			"summary": "beat Team Aqua Grunt Petalburg Woods (now at 19)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Chikorita",
+				"level": 14,
+				"map": "Petalburg Woods",
+				"method": "walk",
+				"ivs": {
+					"hp": 17,
+					"atk": 0,
+					"def": 23,
+					"spa": 16,
+					"spd": 5,
+					"spe": 10
+				},
+				"nature": "Hardy",
+				"ability": "Overgrow"
+			},
+			"summary": "caught Chikorita at level 14 on Petalburg Woods",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Turtwig grew from L12 to L17; its moves are full, so Razor Leaf must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Bite"
+			},
+			"summary": "Turtwig forgot Bite, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-1"
+			},
+			"summary": "Turtwig evolved into Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Lillipup grew from L12 to L17; its moves are full, so Covet must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Covet",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Lillipup forgot Hyper Voice, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-2"
+			},
+			"summary": "Lillipup evolved into Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Starly grew from L12 to L17; its moves are full, so Endeavor must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Endeavor",
+				"replace": "Fly"
+			},
+			"summary": "Starly forgot Fly, learned Endeavor",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-3"
+			},
+			"summary": "Starly evolved into Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L12 to L17; its moves are full, so Round must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Round",
+				"replace": "Facade"
+			},
+			"summary": "Gossifleur forgot Facade, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L12 to L17; its moves are full, so Flame Wheel, Fire Spin must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Fire Blast"
+			},
+			"summary": "Ponyta forgot Fire Blast, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Spin",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Fire Spin",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Salandit grew from L12 to L17; its moves are full, so Venom Drench, Flame Burst must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Venom Drench",
+				"replace": "Flamethrower"
+			},
+			"summary": "Salandit forgot Flamethrower, learned Venom Drench",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flame Burst",
+				"replace": "Venom Drench"
+			},
+			"summary": "Salandit forgot Venom Drench, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Tympole grew from L12 to L17; its moves are full, so Mud Shot must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Sludge Bomb"
+			},
+			"summary": "Tympole forgot Sludge Bomb, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-5"
+			},
+			"summary": "Tympole evolved into Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L12 to L17; its moves are full, so Mud Shot, Sludge must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Mud Shot",
+				"replace": "Poison Sting"
+			},
+			"summary": "Croagunk forgot Poison Sting, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge",
+				"replace": "Mud Shot"
+			},
+			"summary": "Croagunk forgot Mud Shot, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L12 to L17; its moves are full, so Stomp must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Stomp",
+				"replace": "Smack Down"
+			},
+			"summary": "Rhyhorn forgot Smack Down, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Chikorita grew from L14 to L17; its moves are full, so Synthesis must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Synthesis",
+				"replace": "Growl"
+			},
+			"summary": "Chikorita forgot Growl, learned Synthesis",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-10"
+			},
+			"summary": "Chikorita evolved into Bayleef",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-4",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Staravia, Gossifleur, Grotle, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-10",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Bayleef, Herdier, Staravia, Gossifleur, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Solar Beam",
+				"replace": "Poison Powder"
+			},
+			"summary": "Bayleef forgot Poison Powder, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Voice",
+				"replace": "Covet"
+			},
+			"summary": "Herdier forgot Covet, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Secret Power",
+				"replace": "Endeavor"
+			},
+			"summary": "Staravia forgot Endeavor, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leafage",
+				"replace": "Round"
+			},
+			"summary": "Gossifleur forgot Round, learned Leafage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Blast",
+				"replace": "Fire Spin"
+			},
+			"summary": "Ponyta forgot Fire Spin, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Elliot"
+			},
+			"summary": "beat Fisherman Elliot (now at 22)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Shellder",
+				"level": 8,
+				"map": "Route106",
+				"method": "fish",
+				"ivs": {
+					"hp": 29,
+					"atk": 31,
+					"def": 16,
+					"spa": 19,
+					"spd": 21,
+					"spe": 0
+				},
+				"nature": "Lonely",
+				"ability": "Shell Armor"
+			},
+			"summary": "caught Shellder at level 8 on Route106",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Silk Scarf"
+			},
+			"summary": "bag: Silk Scarf x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Shellder grew from L8 to L17; its moves are full, so Icicle Spear, Confuse Ray must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Tackle"
+			},
+			"summary": "Shellder forgot Tackle, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Confuse Ray",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Confuse Ray",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-9",
+					"mon-6",
+					"mon-1",
+					"mon-10",
+					"mon-11"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Rhyhorn, Ponyta, Grotle, Bayleef, Shellder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Confuse Ray"
+			},
+			"summary": "Shellder forgot Confuse Ray, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Tail Whip"
+			},
+			"summary": "Rhyhorn forgot Tail Whip, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Sand Tomb",
+				"replace": "Solar Beam"
+			},
+			"summary": "Grotle forgot Solar Beam, learned Sand Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Earth Power",
+				"replace": "Mud Shot"
+			},
+			"summary": "Palpitoad forgot Mud Shot, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earthquake",
+				"replace": "Sand Attack"
+			},
+			"summary": "Rhyhorn forgot Sand Attack, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Play Rough"
+			},
+			"summary": "Ponyta forgot Play Rough, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Earth Power",
+				"replace": "Confide"
+			},
+			"summary": "Grotle forgot Confide, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-5",
+				"item": "Silk Scarf"
+			},
+			"summary": "Palpitoad is holding Silk Scarf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Ruin Maniac Georgie"
+			},
+			"summary": "beat Ruin Maniac Georgie (now at 25)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-6",
+					"mon-5",
+					"mon-2",
+					"mon-7",
+					"mon-11"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Ponyta, Palpitoad, Herdier, Salandit, Shellder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earth Power",
+				"replace": "Stomp"
+			},
+			"summary": "Rhyhorn forgot Stomp, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Strength",
+				"replace": "Psychic Fangs"
+			},
+			"summary": "Herdier forgot Psychic Fangs, learned Strength",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flamethrower",
+				"replace": "Smog"
+			},
+			"summary": "Salandit forgot Smog, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Clamp"
+			},
+			"summary": "Shellder forgot Clamp, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Chandler"
+			},
+			"summary": "beat Tuber Chandler (now at 29)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tyrogue",
+				"level": 8,
+				"map": "Dewford Town",
+				"method": "walk",
+				"ivs": {
+					"hp": 23,
+					"atk": 19,
+					"def": 13,
+					"spa": 31,
+					"spd": 25,
+					"spe": 29
+				},
+				"nature": "Rash",
+				"ability": "Guts"
+			},
+			"summary": "caught Tyrogue at level 8 on Dewford Town",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Soft Sand"
+			},
+			"summary": "bag: Soft Sand x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Tyrogue grew from L8 to L17",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-2"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Palpitoad, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Staravia, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-11",
+					"mon-5",
+					"mon-2",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Shellder, Palpitoad, Herdier, Ponyta, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-9",
+				"item": "Soft Sand"
+			},
+			"summary": "Rhyhorn is holding Soft Sand",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Water Gun"
+			},
+			"summary": "Shellder forgot Water Gun, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Rock Tomb",
+				"replace": "Earth Power"
+			},
+			"summary": "Rhyhorn forgot Earth Power, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Waterfall",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble",
+				"replace": "Earth Power"
+			},
+			"summary": "Palpitoad forgot Earth Power, learned Bubble",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Rock Tomb",
+				"replace": "Facade"
+			},
+			"summary": "Herdier forgot Facade, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Lola"
+			},
+			"summary": "beat Tuber Lola (now at 32)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-2",
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Herdier, Ponyta, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-10",
+					"mon-3",
+					"mon-5",
+					"mon-11"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Bayleef, Staravia, Palpitoad, Shellder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Supersonic"
+			},
+			"summary": "Shellder forgot Supersonic, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Bubble"
+			},
+			"summary": "Palpitoad forgot Bubble, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Solar Beam",
+				"replace": "Sand Tomb"
+			},
+			"summary": "Grotle forgot Sand Tomb, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Shock Wave",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Herdier forgot Rock Tomb, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Earth Power",
+				"replace": "Mud Shot"
+			},
+			"summary": "Palpitoad forgot Mud Shot, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Blizzard",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Edmond"
+			},
+			"summary": "beat Sailor Edmond (now at 34)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-7",
+					"mon-6",
+					"mon-3",
+					"mon-9",
+					"mon-11",
+					"mon-5"
+				]
+			},
+			"summary": "Salandit takes the lead — with Ponyta, Staravia, Rhyhorn, Shellder, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Blizzard"
+			},
+			"summary": "Shellder forgot Blizzard, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Sludge Bomb",
+				"replace": "Ember"
+			},
+			"summary": "Salandit forgot Ember, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Secret Power"
+			},
+			"summary": "Staravia forgot Secret Power, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Fire Blast",
+				"replace": "Earthquake"
+			},
+			"summary": "Rhyhorn forgot Earthquake, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Blizzard",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Hyper Voice",
+				"replace": "Earth Power"
+			},
+			"summary": "Palpitoad forgot Earth Power, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Bill"
+			},
+			"summary": "beat Fisherman Bill (now at 37)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Carvanha",
+				"level": 8,
+				"map": "Route107",
+				"method": "fish",
+				"ivs": {
+					"hp": 20,
+					"atk": 15,
+					"def": 19,
+					"spa": 30,
+					"spd": 20,
+					"spe": 13
+				},
+				"nature": "Naughty",
+				"ability": "Rough Skin"
+			},
+			"summary": "caught Carvanha at level 8 on Route107",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Carvanha grew from L8 to L17; its moves are full, so Aqua Jet, Water Pulse must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Aqua Jet",
+				"replace": "Leer"
+			},
+			"summary": "Carvanha forgot Leer, learned Aqua Jet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Water Pulse",
+				"replace": "Aqua Jet"
+			},
+			"summary": "Carvanha forgot Aqua Jet, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Staravia, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-9",
+					"mon-6",
+					"mon-1",
+					"mon-7",
+					"mon-11"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Rhyhorn, Ponyta, Grotle, Salandit, Shellder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Blizzard"
+			},
+			"summary": "Shellder forgot Blizzard, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Palpitoad forgot Hyper Voice, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Earth Power",
+				"replace": "Surf"
+			},
+			"summary": "Palpitoad forgot Surf, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earthquake",
+				"replace": "Smack Down"
+			},
+			"summary": "Rhyhorn forgot Smack Down, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Blizzard",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Ricky"
+			},
+			"summary": "beat Tuber Ricky (now at 42)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Tirtouga",
+				"level": 10,
+				"map": "Route109",
+				"method": "fish",
+				"ivs": {
+					"hp": 0,
+					"atk": 3,
+					"def": 12,
+					"spa": 13,
+					"spd": 16,
+					"spe": 25
+				},
+				"nature": "Bold",
+				"ability": "Solid Rock"
+			},
+			"summary": "caught Tirtouga at level 10 on Route109",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L10 to L17; its moves are full, so Bite, Block must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bite",
+				"replace": "Whirlpool"
+			},
+			"summary": "Tirtouga forgot Whirlpool, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Block",
+				"replace": "Bite"
+			},
+			"summary": "Tirtouga forgot Bite, learned Block",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-7",
+					"mon-2"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Palpitoad, Ponyta, Grotle, Salandit, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Covet",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Herdier forgot Hyper Voice, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earth Power",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Rhyhorn forgot Rock Tomb, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Psychic Fangs",
+				"replace": "Shock Wave"
+			},
+			"summary": "Herdier forgot Shock Wave, learned Psychic Fangs",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Tuber Hailey"
+			},
+			"summary": "beat Tuber Hailey (now at 45)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-2"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta, Grotle, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-7",
+					"mon-6",
+					"mon-2",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Salandit, Ponyta, Herdier, Staravia, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Poison Jab",
+				"replace": "Flame Burst"
+			},
+			"summary": "Salandit forgot Flame Burst, learned Poison Jab",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Voice",
+				"replace": "Covet"
+			},
+			"summary": "Herdier forgot Covet, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Secret Power",
+				"replace": "Fly"
+			},
+			"summary": "Staravia forgot Fly, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Camper Gavi"
+			},
+			"summary": "beat Camper Gavi (now at 48)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Mareep",
+				"level": 12,
+				"map": "Route110",
+				"method": "walk",
+				"ivs": {
+					"hp": 9,
+					"atk": 30,
+					"def": 19,
+					"spa": 19,
+					"spd": 1,
+					"spe": 11
+				},
+				"nature": "Hasty",
+				"ability": "Static"
+			},
+			"summary": "caught Mareep at level 12 on Route110",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Buizel",
+				"level": 10,
+				"map": "Slateport City",
+				"method": "fish",
+				"ivs": {
+					"hp": 28,
+					"atk": 13,
+					"def": 6,
+					"spa": 10,
+					"spd": 7,
+					"spe": 23
+				},
+				"nature": "Jolly",
+				"ability": "Swift Swim"
+			},
+			"summary": "caught Buizel at level 10 on Slateport City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Poison Barb"
+			},
+			"summary": "bag: Poison Barb x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Mareep grew from L12 to L17; its moves are full, so Shock Wave must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Shock Wave",
+				"replace": "Thunder Shock"
+			},
+			"summary": "Mareep forgot Thunder Shock, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-15"
+			},
+			"summary": "Mareep evolved into Flaaffy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Buizel grew from L10 to L17 and learned Double Hit; its moves are full, so Sonic Boom must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Sonic Boom",
+				"replace": "Aqua Jet"
+			},
+			"summary": "Buizel forgot Aqua Jet, learned Sonic Boom",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-2",
+					"mon-3",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Herdier, Staravia, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-15",
+					"mon-2",
+					"mon-11",
+					"mon-14",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Flaaffy, Herdier, Shellder, Tirtouga, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Covet",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Herdier forgot Hyper Voice, learned Covet",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Surf",
+				"replace": "Mud Shot"
+			},
+			"summary": "Palpitoad forgot Mud Shot, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder",
+				"replace": "Thunder Wave"
+			},
+			"summary": "Flaaffy forgot Thunder Wave, learned Thunder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Shock Wave",
+				"replace": "Covet"
+			},
+			"summary": "Herdier forgot Covet, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Block"
+			},
+			"summary": "Tirtouga forgot Block, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-11",
+				"item": "Poison Barb"
+			},
+			"summary": "Shellder is holding Poison Barb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #1"
+			},
+			"summary": "beat Team Aqua Grunt Museum #1 (now at 53)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-2",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Herdier, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Gossifleur, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Staravia, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-5",
+					"mon-6",
+					"mon-2",
+					"mon-3"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Salandit, Palpitoad, Ponyta, Herdier, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Bite",
+				"replace": "Shock Wave"
+			},
+			"summary": "Herdier forgot Shock Wave, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunderbolt",
+				"replace": "Growl"
+			},
+			"summary": "Flaaffy forgot Growl, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flame Burst",
+				"replace": "Poison Jab"
+			},
+			"summary": "Salandit forgot Poison Jab, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Surf"
+			},
+			"summary": "Palpitoad forgot Surf, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Shadow Ball",
+				"replace": "Bite"
+			},
+			"summary": "Herdier forgot Bite, learned Shadow Ball",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Secret Power"
+			},
+			"summary": "Staravia forgot Secret Power, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Team Aqua Grunt Museum #2"
+			},
+			"summary": "beat Team Aqua Grunt Museum #2 (now at 56)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Herdier grew from L17 to L21; its moves are full, so Take Down must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Take Down",
+				"replace": "Shadow Ball"
+			},
+			"summary": "Herdier forgot Shadow Ball, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Palpitoad grew from L17 to L21; its moves are full, so Bubble Beam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble Beam",
+				"replace": "Mud Shot"
+			},
+			"summary": "Palpitoad forgot Mud Shot, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L17 to L21; its moves are full, so Bounce must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Bounce",
+				"replace": "Fire Blast"
+			},
+			"summary": "Ponyta forgot Fire Blast, learned Bounce",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Salandit grew from L17 to L21; its moves are full, so Dragon Rage must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Dragon Rage",
+				"replace": "Flame Burst"
+			},
+			"summary": "Salandit forgot Flame Burst, learned Dragon Rage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Flaaffy grew from L17 to L21; its moves are full, so Thunder Punch must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Shock Wave"
+			},
+			"summary": "Flaaffy forgot Shock Wave, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Grotle grew from L17 to L21; its moves are full, so Roar must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Roar",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Grotle forgot Razor Leaf, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Gossifleur grew from L17 to L21; its moves are full, so Leaf Tornado must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leaf Tornado",
+				"replace": "Leafage"
+			},
+			"summary": "Gossifleur forgot Leafage, learned Leaf Tornado",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "evolve",
+				"id": "mon-4"
+			},
+			"summary": "Gossifleur evolved into Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L17 to L21; its moves are full, so Seismic Toss must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Seismic Toss",
+				"replace": "Sludge"
+			},
+			"summary": "Croagunk forgot Sludge, learned Seismic Toss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L17 to L21; its moves are full, so Bulldoze must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Earth Power"
+			},
+			"summary": "Rhyhorn forgot Earth Power, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Bayleef grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Shellder grew from L17 to L21; its moves are full, so Razor Shell must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Shellder forgot Hydro Pump, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Tyrogue grew from L17 to L21",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Carvanha grew from L17 to L21; its moves are full, so Poison Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Poison Fang",
+				"replace": "Water Pulse"
+			},
+			"summary": "Carvanha forgot Water Pulse, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L17 to L21; its moves are full, so Ancient Power, Brine must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ancient Power",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Tirtouga forgot Hydro Pump, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Brine",
+				"replace": "Ancient Power"
+			},
+			"summary": "Tirtouga forgot Ancient Power, learned Brine",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Buizel grew from L17 to L21; its moves are full, so Water Pulse, Fake Out must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Water Pulse",
+				"replace": "Sonic Boom"
+			},
+			"summary": "Buizel forgot Sonic Boom, learned Water Pulse",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Fake Out",
+				"replace": "Water Pulse"
+			},
+			"summary": "Buizel forgot Water Pulse, learned Fake Out",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-2",
+					"mon-3"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta, Herdier, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-3",
+					"mon-11",
+					"mon-15",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Staravia, Shellder, Flaaffy, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Razor Shell"
+			},
+			"summary": "Shellder forgot Razor Shell, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earth Power",
+				"replace": "Bulldoze"
+			},
+			"summary": "Rhyhorn forgot Bulldoze, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Dual Wingbeat",
+				"replace": "Facade"
+			},
+			"summary": "Staravia forgot Facade, learned Dual Wingbeat",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Surf",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Palpitoad forgot Bubble Beam, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Play Rough",
+				"replace": "Bounce"
+			},
+			"summary": "Ponyta forgot Bounce, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Laura"
+			},
+			"summary": "beat Battle Girl Laura (now at 59)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Staravia, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-7",
+					"mon-6",
+					"mon-9",
+					"mon-11",
+					"mon-2"
+				]
+			},
+			"summary": "Staravia takes the lead — with Salandit, Ponyta, Rhyhorn, Shellder, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Shellder forgot Hydro Pump, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flame Burst",
+				"replace": "Dragon Rage"
+			},
+			"summary": "Salandit forgot Dragon Rage, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Fire Blast",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Flamethrower",
+				"replace": "Earth Power"
+			},
+			"summary": "Rhyhorn forgot Earth Power, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Aerial Ace",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Herdier forgot Thunderbolt, learned Aerial Ace",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Sailor Brenden"
+			},
+			"summary": "beat Sailor Brenden (now at 62)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Staravia takes the lead — with Ponyta, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-15",
+					"mon-7",
+					"mon-11",
+					"mon-5"
+				]
+			},
+			"summary": "Staravia takes the lead — with Ponyta, Flaaffy, Salandit, Shellder, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Shellder forgot Hydro Pump, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Flamethrower"
+			},
+			"summary": "Ponyta forgot Flamethrower, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flamethrower",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Bubble Beam",
+				"replace": "Earth Power"
+			},
+			"summary": "Palpitoad forgot Earth Power, learned Bubble Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Lilith"
+			},
+			"summary": "beat Battle Girl Lilith (now at 64)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-5"
+				]
+			},
+			"summary": "Staravia takes the lead — with Ponyta, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-11",
+					"mon-6",
+					"mon-4",
+					"mon-15",
+					"mon-5"
+				]
+			},
+			"summary": "Staravia takes the lead — with Shellder, Ponyta, Eldegoss, Flaaffy, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Blizzard"
+			},
+			"summary": "Shellder forgot Blizzard, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Earth Power",
+				"replace": "Bubble Beam"
+			},
+			"summary": "Palpitoad forgot Bubble Beam, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Cristian"
+			},
+			"summary": "beat Black Belt Cristian (now at 67)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Staravia takes the lead — with Ponyta, Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Eldegoss, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-11",
+					"mon-6",
+					"mon-7",
+					"mon-4",
+					"mon-8"
+				]
+			},
+			"summary": "Staravia takes the lead — with Shellder, Ponyta, Salandit, Eldegoss, Croagunk",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Razor Shell"
+			},
+			"summary": "Shellder forgot Razor Shell, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Croagunk forgot Mud-Slap, learned Sludge",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Blizzard",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Poison Jab",
+				"replace": "Flame Burst"
+			},
+			"summary": "Salandit forgot Flame Burst, learned Poison Jab",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Sludge Bomb",
+				"replace": "Seismic Toss"
+			},
+			"summary": "Croagunk forgot Seismic Toss, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Black Belt Takao"
+			},
+			"summary": "beat Black Belt Takao (now at 70)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6",
+					"mon-4"
+				]
+			},
+			"summary": "Staravia takes the lead — with Ponyta, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-11",
+					"mon-9",
+					"mon-5",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Shellder, Rhyhorn, Palpitoad, Staravia, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Shellder forgot Hydro Pump, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earth Power",
+				"replace": "Flamethrower"
+			},
+			"summary": "Rhyhorn forgot Flamethrower, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Battle Girl Jocelyn"
+			},
+			"summary": "beat Battle Girl Jocelyn (now at 73)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Palpitoad, Staravia, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-9",
+					"mon-11",
+					"mon-4",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Rhyhorn, Shellder, Eldegoss, Palpitoad, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Roar"
+			},
+			"summary": "Grotle forgot Roar, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Thunder",
+				"replace": "Fire Blast"
+			},
+			"summary": "Rhyhorn forgot Fire Blast, learned Thunder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Flaaffy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Shellder fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Palpitoad, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-9",
+					"mon-11",
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Rhyhorn, Shellder, Eldegoss, Grotle, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Flaaffy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Shellder fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Grotle, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-9",
+					"mon-11",
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Rhyhorn, Shellder, Eldegoss, Grotle, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Sucker Punch"
+			},
+			"summary": "Flaaffy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Drain Punch"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Brawly",
+				"move": "Hidden Power Grass"
+			},
+			"summary": "Shellder fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Ice Beam"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Grotle, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-9",
+					"mon-11",
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Rhyhorn, Shellder, Eldegoss, Grotle, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-15",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Flaaffy fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Shellder fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Superpower"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Feint Attack"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Headbutt"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Grotle, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-9",
+					"mon-11",
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Rhyhorn, Shellder, Eldegoss, Grotle, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-9",
+				"to": "Leader Brawly",
+				"move": "Double Kick"
+			},
+			"summary": "Rhyhorn fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Brawly",
+				"move": "Rock Tomb"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Brawly",
+				"move": "Power-Up Punch"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Brawly",
+				"move": "Pursuit"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Leader Brawly"
+			},
+			"summary": "beat Leader Brawly (now at 77)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-1",
+				"to": "cap"
+			},
+			"summary": "Grotle grew from L21 to L25; its moves are full, so Mega Drain must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Mega Drain",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Grotle forgot Razor Leaf, learned Mega Drain",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-4",
+				"to": "cap"
+			},
+			"summary": "Eldegoss grew from L21 to L25; its moves are full, so Cotton Spore, Synthesis must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Cotton Spore",
+				"replace": "Leaf Tornado"
+			},
+			"summary": "Eldegoss forgot Leaf Tornado, learned Cotton Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Synthesis",
+				"replace": "Cotton Spore"
+			},
+			"summary": "Eldegoss forgot Cotton Spore, learned Synthesis",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-5",
+				"to": "cap"
+			},
+			"summary": "Palpitoad grew from L21 to L25; its moves are full, so Muddy Water must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Muddy Water",
+				"replace": "Surf"
+			},
+			"summary": "Palpitoad forgot Surf, learned Muddy Water",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-9",
+				"to": "cap"
+			},
+			"summary": "Rhyhorn grew from L21 to L25; its moves are full, so Chip Away must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Chip Away",
+				"replace": "Earth Power"
+			},
+			"summary": "Rhyhorn forgot Earth Power, learned Chip Away",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-11",
+				"to": "cap"
+			},
+			"summary": "Shellder grew from L21 to L25; its moves are full, so Whirlpool must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Whirlpool",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Shellder forgot Hydro Pump, learned Whirlpool",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-15",
+				"to": "cap"
+			},
+			"summary": "Flaaffy grew from L21 to L25; its moves are full, so Confuse Ray must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Confuse Ray",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Flaaffy forgot Thunder Punch, learned Confuse Ray",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-2",
+				"to": "cap"
+			},
+			"summary": "Herdier grew from L21 to L25; its moves are full, so Submission must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Submission",
+				"replace": "Take Down"
+			},
+			"summary": "Herdier forgot Take Down, learned Submission",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-3",
+				"to": "cap"
+			},
+			"summary": "Staravia grew from L21 to L25; its moves are full, so Whirlwind must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Whirlwind",
+				"replace": "Fly"
+			},
+			"summary": "Staravia forgot Fly, learned Whirlwind",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-6",
+				"to": "cap"
+			},
+			"summary": "Ponyta grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-7",
+				"to": "cap"
+			},
+			"summary": "Salandit grew from L21 to L25; its moves are full, so Toxic must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Toxic",
+				"replace": "Poison Jab"
+			},
+			"summary": "Salandit forgot Poison Jab, learned Toxic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-8",
+				"to": "cap"
+			},
+			"summary": "Croagunk grew from L21 to L25; its moves are full, so Low Sweep must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Low Sweep",
+				"replace": "Sludge Bomb"
+			},
+			"summary": "Croagunk forgot Sludge Bomb, learned Low Sweep",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-10",
+				"to": "cap"
+			},
+			"summary": "Bayleef grew from L21 to L25; its moves are full, so Body Slam must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Body Slam",
+				"replace": "Synthesis"
+			},
+			"summary": "Bayleef forgot Synthesis, learned Body Slam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-12",
+				"to": "cap"
+			},
+			"summary": "Tyrogue grew from L21 to L25",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-13",
+				"to": "cap"
+			},
+			"summary": "Carvanha grew from L21 to L25; its moves are full, so Assurance, Ice Fang must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Assurance",
+				"replace": "Poison Fang"
+			},
+			"summary": "Carvanha forgot Poison Fang, learned Assurance",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Ice Fang",
+				"replace": "Assurance"
+			},
+			"summary": "Carvanha forgot Assurance, learned Ice Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-14",
+				"to": "cap"
+			},
+			"summary": "Tirtouga grew from L21 to L25; its moves are full, so Rock Slide must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Rock Slide",
+				"replace": "Brine"
+			},
+			"summary": "Tirtouga forgot Brine, learned Rock Slide",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-16",
+				"to": "cap"
+			},
+			"summary": "Buizel grew from L21 to L25; its moves are full, so Brick Break must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-16",
+				"move": "Brick Break",
+				"replace": "Fake Out"
+			},
+			"summary": "Buizel forgot Fake Out, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Grotle, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-7",
+					"mon-3",
+					"mon-14",
+					"mon-11",
+					"mon-15"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Salandit, Staravia, Tirtouga, Shellder, Flaaffy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Whirlpool"
+			},
+			"summary": "Shellder forgot Whirlpool, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Play Rough"
+			},
+			"summary": "Ponyta forgot Play Rough, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flame Burst",
+				"replace": "Sludge Bomb"
+			},
+			"summary": "Salandit forgot Sludge Bomb, learned Flame Burst",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Fly",
+				"replace": "Whirlwind"
+			},
+			"summary": "Staravia forgot Whirlwind, learned Fly",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ancient Power",
+				"replace": "Mud-Slap"
+			},
+			"summary": "Tirtouga forgot Mud-Slap, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Fire Punch",
+				"replace": "Confuse Ray"
+			},
+			"summary": "Flaaffy forgot Confuse Ray, learned Fire Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Lyle"
+			},
+			"summary": "beat Bug Catcher Lyle (now at 83)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-3",
+					"mon-6"
+				]
+			},
+			"summary": "Staravia takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-11",
+					"mon-7",
+					"mon-3",
+					"mon-14",
+					"mon-13"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Shellder, Salandit, Staravia, Tirtouga, Carvanha",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Dragon Rage",
+				"replace": "Toxic"
+			},
+			"summary": "Salandit forgot Toxic, learned Dragon Rage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Poison Fang",
+				"replace": "Rage"
+			},
+			"summary": "Carvanha forgot Rage, learned Poison Fang",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Sludge Bomb",
+				"replace": "Dragon Rage"
+			},
+			"summary": "Salandit forgot Dragon Rage, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Hydro Pump",
+				"replace": "Aqua Jet"
+			},
+			"summary": "Tirtouga forgot Aqua Jet, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-13",
+				"move": "Hydro Pump",
+				"replace": "Focus Energy"
+			},
+			"summary": "Carvanha forgot Focus Energy, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Maniac James"
+			},
+			"summary": "beat Bug Maniac James (now at 86)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-3"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-9",
+					"mon-11",
+					"mon-15",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Tirtouga takes the lead — with Rhyhorn, Shellder, Flaaffy, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Surf",
+				"replace": "Smack Down"
+			},
+			"summary": "Tirtouga forgot Smack Down, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earth Power",
+				"replace": "Chip Away"
+			},
+			"summary": "Rhyhorn forgot Chip Away, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Blizzard"
+			},
+			"summary": "Shellder forgot Blizzard, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Brick Break",
+				"replace": "Fire Punch"
+			},
+			"summary": "Flaaffy forgot Fire Punch, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Play Rough",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Winston"
+			},
+			"summary": "beat Rich Boy Winston (now at 90)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Herdier takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-5",
+					"mon-4",
+					"mon-2",
+					"mon-11",
+					"mon-14"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Palpitoad, Eldegoss, Herdier, Shellder, Tirtouga",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Take Down",
+				"replace": "Aerial Ace"
+			},
+			"summary": "Herdier forgot Aerial Ace, learned Take Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leaf Tornado",
+				"replace": "Synthesis"
+			},
+			"summary": "Eldegoss forgot Synthesis, learned Leaf Tornado",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Brick Break"
+			},
+			"summary": "Flaaffy forgot Brick Break, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Muddy Water"
+			},
+			"summary": "Palpitoad forgot Muddy Water, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Leafage",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Eldegoss forgot Hyper Voice, learned Leafage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Thunderbolt",
+				"replace": "Submission"
+			},
+			"summary": "Herdier forgot Submission, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Life Dew",
+				"replace": "Razor Shell"
+			},
+			"summary": "Shellder forgot Razor Shell, learned Life Dew",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Earthquake",
+				"replace": "Surf"
+			},
+			"summary": "Tirtouga forgot Surf, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Fisherman Ivan"
+			},
+			"summary": "beat Fisherman Ivan (now at 92)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Eldegoss, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-2",
+					"mon-5",
+					"mon-6",
+					"mon-15",
+					"mon-14"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Herdier, Palpitoad, Ponyta, Flaaffy, Tirtouga",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Submission",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Herdier forgot Thunderbolt, learned Submission",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Bite",
+				"replace": "Ancient Power"
+			},
+			"summary": "Tirtouga forgot Ancient Power, learned Bite",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Thunder"
+			},
+			"summary": "Rhyhorn forgot Thunder, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Hyper Voice",
+				"replace": "Psychic Fangs"
+			},
+			"summary": "Herdier forgot Psychic Fangs, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Play Rough"
+			},
+			"summary": "Ponyta forgot Play Rough, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Fire Punch",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Flaaffy forgot Thunder Punch, learned Fire Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Earth Power",
+				"replace": "Bite"
+			},
+			"summary": "Tirtouga forgot Bite, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Twins Gina And Mia"
+			},
+			"summary": "beat Twins Gina And Mia (now at 95)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-3",
+					"mon-5"
+				]
+			},
+			"summary": "Herdier takes the lead — with Staravia, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-7",
+					"mon-5",
+					"mon-2",
+					"mon-3",
+					"mon-11"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Salandit, Palpitoad, Herdier, Staravia, Shellder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Life Dew"
+			},
+			"summary": "Shellder forgot Life Dew, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Dragon Rage",
+				"replace": "Flamethrower"
+			},
+			"summary": "Salandit forgot Flamethrower, learned Dragon Rage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Body Slam",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Flaaffy forgot Thunderbolt, learned Body Slam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunderbolt",
+				"replace": "Fire Punch"
+			},
+			"summary": "Flaaffy forgot Fire Punch, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flamethrower",
+				"replace": "Dragon Rage"
+			},
+			"summary": "Salandit forgot Dragon Rage, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Muddy Water",
+				"replace": "Mud Shot"
+			},
+			"summary": "Palpitoad forgot Mud Shot, learned Muddy Water",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Surf",
+				"replace": "Submission"
+			},
+			"summary": "Herdier forgot Submission, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Facade",
+				"replace": "Dual Wingbeat"
+			},
+			"summary": "Staravia forgot Dual Wingbeat, learned Facade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Haley"
+			},
+			"summary": "beat Lass Haley (now at 99)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-2",
+					"mon-3"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Herdier, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-8",
+					"mon-9",
+					"mon-6",
+					"mon-2",
+					"mon-11"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Croagunk, Rhyhorn, Ponyta, Herdier, Shellder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Submission",
+				"replace": "Surf"
+			},
+			"summary": "Herdier forgot Surf, learned Submission",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Razor Shell"
+			},
+			"summary": "Shellder forgot Razor Shell, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Smack Down",
+				"replace": "Scary Face"
+			},
+			"summary": "Rhyhorn forgot Scary Face, learned Smack Down",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Brick Break",
+				"replace": "Body Slam"
+			},
+			"summary": "Flaaffy forgot Body Slam, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-8",
+				"move": "Aura Sphere",
+				"replace": "Fake Out"
+			},
+			"summary": "Croagunk forgot Fake Out, learned Aura Sphere",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Blizzard",
+				"replace": "Bulldoze"
+			},
+			"summary": "Rhyhorn forgot Bulldoze, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Play Rough",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Play Rough",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Blizzard",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Joey"
+			},
+			"summary": "beat Youngster Joey (now at 103)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Munna",
+				"level": 14,
+				"map": "Route116",
+				"method": "walk",
+				"ivs": {
+					"hp": 15,
+					"atk": 5,
+					"def": 2,
+					"spa": 10,
+					"spd": 3,
+					"spe": 3
+				},
+				"nature": "Mild",
+				"ability": "Synchronize"
+			},
+			"summary": "caught Munna at level 14 on Route116",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "catch",
+				"species": "Rockruff",
+				"level": 14,
+				"map": "Rustboro City",
+				"method": "walk",
+				"ivs": {
+					"hp": 30,
+					"atk": 20,
+					"def": 8,
+					"spa": 10,
+					"spd": 20,
+					"spe": 26
+				},
+				"nature": "Naive",
+				"ability": "Keen Eye"
+			},
+			"summary": "caught Rockruff at level 14 on Rustboro City",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Super Potion"
+			},
+			"summary": "bag: Super Potion x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "acquire",
+				"item": "Twisted Spoon"
+			},
+			"summary": "bag: Twisted Spoon x1",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-17",
+				"to": "cap"
+			},
+			"summary": "Munna grew from L14 to L25; its moves are full, so Psybeam, Heal Bell, Draining Kiss, Hypnosis, Psyshock must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psybeam",
+				"replace": "Confusion"
+			},
+			"summary": "Munna forgot Confusion, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Heal Bell",
+				"replace": "Psybeam"
+			},
+			"summary": "Munna forgot Psybeam, learned Heal Bell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Draining Kiss",
+				"replace": "Heal Bell"
+			},
+			"summary": "Munna forgot Heal Bell, learned Draining Kiss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Hypnosis",
+				"replace": "Draining Kiss"
+			},
+			"summary": "Munna forgot Draining Kiss, learned Hypnosis",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psyshock",
+				"replace": "Hypnosis"
+			},
+			"summary": "Munna forgot Hypnosis, learned Psyshock",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "levelUp",
+				"id": "mon-18",
+				"to": "cap"
+			},
+			"summary": "Rockruff grew from L14 to L25; its moves are full, so Roar, Attract, Rock Tomb must be taught over something",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Roar",
+				"replace": "Odor Sleuth"
+			},
+			"summary": "Rockruff forgot Odor Sleuth, learned Roar",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Attract",
+				"replace": "Roar"
+			},
+			"summary": "Rockruff forgot Roar, learned Attract",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-18",
+				"move": "Rock Tomb",
+				"replace": "Attract"
+			},
+			"summary": "Rockruff forgot Attract, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-2"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Eldegoss, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-14",
+					"mon-15",
+					"mon-7",
+					"mon-6",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Tirtouga takes the lead — with Flaaffy, Salandit, Ponyta, Herdier, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Round",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Eldegoss forgot Magical Leaf, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Dragon Rage",
+				"replace": "Flamethrower"
+			},
+			"summary": "Salandit forgot Flamethrower, learned Dragon Rage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Ancient Power",
+				"replace": "Earth Power"
+			},
+			"summary": "Tirtouga forgot Earth Power, learned Ancient Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Brick Break"
+			},
+			"summary": "Flaaffy forgot Brick Break, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Poison Jab",
+				"replace": "Dragon Rage"
+			},
+			"summary": "Salandit forgot Dragon Rage, learned Poison Jab",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flame Wheel",
+				"replace": "Play Rough"
+			},
+			"summary": "Ponyta forgot Play Rough, learned Flame Wheel",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Thunderbolt",
+				"replace": "Submission"
+			},
+			"summary": "Herdier forgot Submission, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Cotton Spore",
+				"replace": "Leafage"
+			},
+			"summary": "Eldegoss forgot Leafage, learned Cotton Spore",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "give",
+				"id": "mon-4",
+				"item": "Twisted Spoon"
+			},
+			"summary": "Eldegoss is holding Twisted Spoon",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lass Janice"
+			},
+			"summary": "beat Lass Janice (now at 106)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Herdier, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-2",
+					"mon-4",
+					"mon-1",
+					"mon-10",
+					"mon-3"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Herdier, Eldegoss, Grotle, Bayleef, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Razor Leaf",
+				"replace": "Solar Beam"
+			},
+			"summary": "Grotle forgot Solar Beam, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Dual Wingbeat",
+				"replace": "Fly"
+			},
+			"summary": "Staravia forgot Fly, learned Dual Wingbeat",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Shock Wave",
+				"replace": "Strength"
+			},
+			"summary": "Herdier forgot Strength, learned Shock Wave",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hyper Voice",
+				"replace": "Round"
+			},
+			"summary": "Eldegoss forgot Round, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Synthesis",
+				"replace": "Razor Leaf"
+			},
+			"summary": "Bayleef forgot Razor Leaf, learned Synthesis",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-3",
+				"move": "Secret Power",
+				"replace": "Dual Wingbeat"
+			},
+			"summary": "Staravia forgot Dual Wingbeat, learned Secret Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Rich Boy Dawson"
+			},
+			"summary": "beat Rich Boy Dawson (now at 109)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-1",
+					"mon-3"
+				]
+			},
+			"summary": "Herdier takes the lead — with Eldegoss, Grotle, Staravia",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Herdier takes the lead — with Eldegoss, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-4",
+					"mon-15",
+					"mon-2",
+					"mon-11",
+					"mon-7"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Eldegoss, Flaaffy, Herdier, Shellder, Salandit",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Shellder forgot Hydro Pump, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Submission",
+				"replace": "Thunderbolt"
+			},
+			"summary": "Herdier forgot Thunderbolt, learned Submission",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Dragon Rage",
+				"replace": "Poison Jab"
+			},
+			"summary": "Salandit forgot Poison Jab, learned Dragon Rage",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Eldegoss forgot Hyper Voice, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Thunderbolt",
+				"replace": "Shock Wave"
+			},
+			"summary": "Herdier forgot Shock Wave, learned Thunderbolt",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Flamethrower",
+				"replace": "Dragon Rage"
+			},
+			"summary": "Salandit forgot Dragon Rage, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Jerry & Johnson"
+			},
+			"summary": "beat School Kid Jerry & Johnson (now at 111)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-4",
+					"mon-2"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Eldegoss, Herdier",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Ponyta takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-7",
+					"mon-14",
+					"mon-15",
+					"mon-11",
+					"mon-9"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Salandit, Tirtouga, Flaaffy, Shellder, Rhyhorn",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Waterfall"
+			},
+			"summary": "Shellder forgot Waterfall, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Ember",
+				"replace": "Sludge Bomb"
+			},
+			"summary": "Salandit forgot Sludge Bomb, learned Ember",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Rock Tomb",
+				"replace": "Earthquake"
+			},
+			"summary": "Tirtouga forgot Earthquake, learned Rock Tomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Fire Punch",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Flaaffy forgot Thunder Punch, learned Fire Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Waterfall",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Fire Blast",
+				"replace": "Earth Power"
+			},
+			"summary": "Rhyhorn forgot Earth Power, learned Fire Blast",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Bug Catcher Jose"
+			},
+			"summary": "beat Bug Catcher Jose (now at 115)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6"
+				]
+			},
+			"summary": "Ponyta takes the lead",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-7",
+					"mon-5",
+					"mon-15",
+					"mon-1",
+					"mon-14"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Salandit, Palpitoad, Flaaffy, Grotle, Tirtouga",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-7",
+				"move": "Sludge Bomb",
+				"replace": "Ember"
+			},
+			"summary": "Salandit forgot Ember, learned Sludge Bomb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Earthquake",
+				"replace": "Ancient Power"
+			},
+			"summary": "Tirtouga forgot Ancient Power, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Lady Sarah"
+			},
+			"summary": "beat Lady Sarah (now at 118)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Palpitoad, Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Eldegoss, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-15",
+					"mon-6",
+					"mon-1",
+					"mon-2",
+					"mon-4",
+					"mon-17"
+				]
+			},
+			"summary": "Flaaffy takes the lead — with Ponyta, Grotle, Herdier, Eldegoss, Munna",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psybeam",
+				"replace": "Telekinesis"
+			},
+			"summary": "Munna forgot Telekinesis, learned Psybeam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Stomp",
+				"replace": "Flamethrower"
+			},
+			"summary": "Ponyta forgot Flamethrower, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Round",
+				"replace": "Magical Leaf"
+			},
+			"summary": "Eldegoss forgot Magical Leaf, learned Round",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Fire Punch"
+			},
+			"summary": "Flaaffy forgot Fire Punch, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Flamethrower",
+				"replace": "Stomp"
+			},
+			"summary": "Ponyta forgot Stomp, learned Flamethrower",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-2",
+				"move": "Strength",
+				"replace": "Submission"
+			},
+			"summary": "Herdier forgot Submission, learned Strength",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Hyper Voice",
+				"replace": "Round"
+			},
+			"summary": "Eldegoss forgot Round, learned Hyper Voice",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-17",
+				"move": "Psychic",
+				"replace": "Lucky Chant"
+			},
+			"summary": "Munna forgot Lucky Chant, learned Psychic",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "School Kid Karen"
+			},
+			"summary": "beat School Kid Karen (now at 120)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-6",
+					"mon-1",
+					"mon-2",
+					"mon-4"
+				]
+			},
+			"summary": "Ponyta takes the lead — with Grotle, Herdier, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-11",
+					"mon-4",
+					"mon-10",
+					"mon-5",
+					"mon-14"
+				]
+			},
+			"summary": "Grotle takes the lead — with Shellder, Eldegoss, Bayleef, Palpitoad, Tirtouga",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Hydro Pump"
+			},
+			"summary": "Shellder forgot Hydro Pump, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Solar Beam",
+				"replace": "Absorb"
+			},
+			"summary": "Grotle forgot Absorb, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Hydro Pump",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Hydro Pump",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-4",
+				"move": "Magical Leaf",
+				"replace": "Hyper Voice"
+			},
+			"summary": "Eldegoss forgot Hyper Voice, learned Magical Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-10",
+				"move": "Razor Leaf",
+				"replace": "Body Slam"
+			},
+			"summary": "Bayleef forgot Body Slam, learned Razor Leaf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Surf",
+				"replace": "Earth Power"
+			},
+			"summary": "Palpitoad forgot Earth Power, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Surf",
+				"replace": "Rock Tomb"
+			},
+			"summary": "Tirtouga forgot Rock Tomb, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Clark"
+			},
+			"summary": "beat Hiker Clark (now at 123)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-11",
+					"mon-14",
+					"mon-4",
+					"mon-5",
+					"mon-15"
+				]
+			},
+			"summary": "Grotle takes the lead — with Shellder, Tirtouga, Eldegoss, Palpitoad, Flaaffy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Body Slam",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Flaaffy forgot Thunder Punch, learned Body Slam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Muddy Water"
+			},
+			"summary": "Palpitoad forgot Muddy Water, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Absorb",
+				"replace": "Earth Power"
+			},
+			"summary": "Grotle forgot Earth Power, learned Absorb",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Blizzard",
+				"replace": "Rock Slide"
+			},
+			"summary": "Tirtouga forgot Rock Slide, learned Blizzard",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Muddy Water",
+				"replace": "Mud Shot"
+			},
+			"summary": "Palpitoad forgot Mud Shot, learned Muddy Water",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Ice Punch",
+				"replace": "Body Slam"
+			},
+			"summary": "Flaaffy forgot Body Slam, learned Ice Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Devan"
+			},
+			"summary": "beat Hiker Devan (now at 125)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-5",
+					"mon-11",
+					"mon-14",
+					"mon-1",
+					"mon-15"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Palpitoad, Shellder, Tirtouga, Grotle, Flaaffy",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Mud Shot",
+				"replace": "Muddy Water"
+			},
+			"summary": "Palpitoad forgot Muddy Water, learned Mud Shot",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Surf"
+			},
+			"summary": "Shellder forgot Surf, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Earth Power",
+				"replace": "Fire Blast"
+			},
+			"summary": "Rhyhorn forgot Fire Blast, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Muddy Water",
+				"replace": "Mud Shot"
+			},
+			"summary": "Palpitoad forgot Mud Shot, learned Muddy Water",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Surf",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Surf",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Waterfall",
+				"replace": "Earthquake"
+			},
+			"summary": "Tirtouga forgot Earthquake, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Earth Power",
+				"replace": "Absorb"
+			},
+			"summary": "Grotle forgot Absorb, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Thunder Punch",
+				"replace": "Ice Punch"
+			},
+			"summary": "Flaaffy forgot Ice Punch, learned Thunder Punch",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Josh"
+			},
+			"summary": "beat Youngster Josh (now at 128)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-9",
+					"mon-4",
+					"mon-1",
+					"mon-10",
+					"mon-15",
+					"mon-11"
+				]
+			},
+			"summary": "Rhyhorn takes the lead — with Eldegoss, Grotle, Bayleef, Flaaffy, Shellder",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Waterfall"
+			},
+			"summary": "Shellder forgot Waterfall, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-9",
+				"move": "Bulldoze",
+				"replace": "Smack Down"
+			},
+			"summary": "Rhyhorn forgot Smack Down, learned Bulldoze",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-15",
+				"move": "Brick Break",
+				"replace": "Thunder Punch"
+			},
+			"summary": "Flaaffy forgot Thunder Punch, learned Brick Break",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Waterfall",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Waterfall",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Youngster Tommy"
+			},
+			"summary": "beat Youngster Tommy (now at 131)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-4",
+					"mon-1"
+				]
+			},
+			"summary": "Eldegoss takes the lead — with Grotle",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-11",
+					"mon-1",
+					"mon-14",
+					"mon-4",
+					"mon-10"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Shellder, Grotle, Tirtouga, Eldegoss, Bayleef",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-5",
+				"move": "Earth Power",
+				"replace": "Muddy Water"
+			},
+			"summary": "Palpitoad forgot Muddy Water, learned Earth Power",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Blizzard"
+			},
+			"summary": "Shellder forgot Blizzard, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-14",
+				"move": "Earthquake",
+				"replace": "Blizzard"
+			},
+			"summary": "Tirtouga forgot Blizzard, learned Earthquake",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "beat",
+				"trainer": "Hiker Marc"
+			},
+			"summary": "beat Hiker Marc (now at 135)",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Grotle, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-11",
+					"mon-4",
+					"mon-14"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta, Grotle, Shellder, Eldegoss, Tirtouga",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Razor Shell"
+			},
+			"summary": "Shellder forgot Razor Shell, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Rock Smash",
+				"replace": "Solar Beam"
+			},
+			"summary": "Grotle forgot Solar Beam, learned Rock Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Stomp",
+				"replace": "Flame Wheel"
+			},
+			"summary": "Ponyta forgot Flame Wheel, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Solar Blade",
+				"replace": "Stomp"
+			},
+			"summary": "Ponyta forgot Stomp, learned Solar Blade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Solar Beam",
+				"replace": "Rock Smash"
+			},
+			"summary": "Grotle forgot Rock Smash, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Roxanne",
+				"move": "Ancient Power"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Roxanne",
+				"move": "Dragon Claw"
+			},
+			"summary": "Ponyta fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Ancient Power"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Power Gem"
+			},
+			"summary": "Shellder fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Roxanne",
+				"move": "Discharge"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Earth Power"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-4"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta, Grotle, Eldegoss",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-2",
+					"mon-3",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Herdier, Staravia, Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-1",
+					"mon-4",
+					"mon-5",
+					"mon-6"
+				]
+			},
+			"summary": "Grotle takes the lead — with Eldegoss, Palpitoad, Ponyta",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "party",
+				"ids": [
+					"mon-5",
+					"mon-6",
+					"mon-1",
+					"mon-11",
+					"mon-4",
+					"mon-14"
+				]
+			},
+			"summary": "Palpitoad takes the lead — with Ponyta, Grotle, Shellder, Eldegoss, Tirtouga",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Icicle Spear",
+				"replace": "Razor Shell"
+			},
+			"summary": "Shellder forgot Razor Shell, learned Icicle Spear",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Rock Smash",
+				"replace": "Solar Beam"
+			},
+			"summary": "Grotle forgot Solar Beam, learned Rock Smash",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Stomp",
+				"replace": "Solar Blade"
+			},
+			"summary": "Ponyta forgot Solar Blade, learned Stomp",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-6",
+				"move": "Solar Blade",
+				"replace": "Stomp"
+			},
+			"summary": "Ponyta forgot Stomp, learned Solar Blade",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-1",
+				"move": "Solar Beam",
+				"replace": "Rock Smash"
+			},
+			"summary": "Grotle forgot Rock Smash, learned Solar Beam",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "teach",
+				"id": "mon-11",
+				"move": "Razor Shell",
+				"replace": "Icicle Spear"
+			},
+			"summary": "Shellder forgot Icicle Spear, learned Razor Shell",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-5",
+				"to": "Leader Roxanne",
+				"move": "Aqua Jet"
+			},
+			"summary": "Palpitoad fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-6",
+				"to": "Leader Roxanne",
+				"move": "Dragon Claw"
+			},
+			"summary": "Ponyta fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-1",
+				"to": "Leader Roxanne",
+				"move": "Aqua Jet"
+			},
+			"summary": "Grotle fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-11",
+				"to": "Leader Roxanne",
+				"move": "Power Gem"
+			},
+			"summary": "Shellder fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-4",
+				"to": "Leader Roxanne",
+				"move": "Body Slam"
+			},
+			"summary": "Eldegoss fainted; permadeath is off, so nothing changed",
+			"at": null
+		},
+		{
+			"command": {
+				"kind": "faint",
+				"id": "mon-14",
+				"to": "Leader Roxanne",
+				"move": "Discharge"
+			},
+			"summary": "Tirtouga fainted; permadeath is off, so nothing changed",
+			"at": null
+		}
+	],
+	"orderScale": "route103-wally-2026-08-28"
+}

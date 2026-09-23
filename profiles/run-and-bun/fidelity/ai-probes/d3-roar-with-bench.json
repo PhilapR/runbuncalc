@@ -1,0 +1,597 @@
+{
+  "probe": "d3-roar-with-bench",
+  "protocol": "two-turn",
+  "seed_cohort": "reference",
+  "description": "Control for d1: the same Roar with a healthy teammate on the player's bench, so Roar would succeed.",
+  "hypothesis": "Roar 106/107 if the 85 in d1 is the no-bench rule; 85 if Roar always scores as useless",
+  "player": {
+    "species": 143,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      0,
+      0
+    ]
+  },
+  "enemy": {
+    "species": 59,
+    "level": 50,
+    "moves": [
+      "Roar",
+      "Bite",
+      "Splash",
+      "Tackle"
+    ],
+    "stats": {
+      "hp": 200,
+      "atk": 90,
+      "def": 90,
+      "spa": 60,
+      "spd": 90,
+      "spe": 100
+    },
+    "ability": 50,
+    "types": [
+      10,
+      10
+    ]
+  },
+  "player_bench": {
+    "species": 195,
+    "level": 50,
+    "moves": [
+      "Splash",
+      "Tackle",
+      "Growl",
+      "Leer"
+    ],
+    "stats": {
+      "hp": 400,
+      "atk": 30,
+      "def": 80,
+      "spa": 30,
+      "spd": 80,
+      "spe": 40
+    },
+    "ability": 50,
+    "types": [
+      11,
+      4
+    ]
+  },
+  "our_clicked_move": "Splash",
+  "turn1_preselected_slot": 2,
+  "n_seeds": 20,
+  "distribution": {
+    "Bite": 20
+  },
+  "contaminated_rows": 0,
+  "seed_variance": {
+    "distinct_damage_to_a": [
+      26,
+      27,
+      28,
+      29,
+      30,
+      43
+    ],
+    "distinct_damage_to_b": [
+      0
+    ],
+    "distinct_sleep_turns": [
+      0
+    ]
+  },
+  "rows": [
+    {
+      "seed": "0xdeadbeef",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 27,
+      "damage_to_b": 0,
+      "hp_a_after": 373,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x3dc3fc76",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x12345678",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 26,
+      "damage_to_b": 0,
+      "hp_a_after": 374,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 345,
+      "rng_after": "0xa173b59f",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x00000001",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 28,
+      "damage_to_b": 0,
+      "hp_a_after": 372,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0xea81c720",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xcafebabe",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 29,
+      "damage_to_b": 0,
+      "hp_a_after": 371,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x7d3ab099",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xa5a5a5a5",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 26,
+      "damage_to_b": 0,
+      "hp_a_after": 374,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x532bf9f4",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0badf00d",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 43,
+      "damage_to_b": 0,
+      "hp_a_after": 357,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 472,
+      "rng_after": "0x23756546",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x13371337",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 30,
+      "damage_to_b": 0,
+      "hp_a_after": 370,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 345,
+      "rng_after": "0x55411522",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x87654321",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 26,
+      "damage_to_b": 0,
+      "hp_a_after": 374,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x7296bbc0",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xfeedface",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 30,
+      "damage_to_b": 0,
+      "hp_a_after": 370,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x16882769",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0f0f0f0f",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 29,
+      "damage_to_b": 0,
+      "hp_a_after": 371,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x1b817a16",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x55aa55aa",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 26,
+      "damage_to_b": 0,
+      "hp_a_after": 374,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x3f11ab15",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x99999999",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 26,
+      "damage_to_b": 0,
+      "hp_a_after": 374,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0xa0a374d8",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x31415926",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 29,
+      "damage_to_b": 0,
+      "hp_a_after": 371,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0xf104dae1",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x27182818",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 28,
+      "damage_to_b": 0,
+      "hp_a_after": 372,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x739eadeb",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x11111111",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 27,
+      "damage_to_b": 0,
+      "hp_a_after": 373,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 345,
+      "rng_after": "0xeebcb614",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xc0ffee00",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 29,
+      "damage_to_b": 0,
+      "hp_a_after": 371,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x243929b3",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x0000ffff",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 26,
+      "damage_to_b": 0,
+      "hp_a_after": 374,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 345,
+      "rng_after": "0xf952d0ca",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x77777777",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 30,
+      "damage_to_b": 0,
+      "hp_a_after": 370,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 567,
+      "rng_after": "0x7c20a65e",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        108,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0xabcdef01",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 26,
+      "damage_to_b": 0,
+      "hp_a_after": 374,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 345,
+      "rng_after": "0xc5f7f844",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    },
+    {
+      "seed": "0x600dcafe",
+      "enemy_move": "Bite",
+      "enemy_slot": 1,
+      "turn1_enemy_slot": 2,
+      "turn1_contaminated": false,
+      "damage_to_a": 26,
+      "damage_to_b": 0,
+      "hp_a_after": 374,
+      "hp_b_after": 200,
+      "sleep_turns_a": 0,
+      "frames": 345,
+      "rng_after": "0x4f38158d",
+      "resolved": true,
+      "ai_scores": [
+        105,
+        106,
+        81,
+        100
+      ],
+      "ai_chosen_slot_byte": 1,
+      "scores_explain_choice": true,
+      "chosen_byte_matches": true
+    }
+  ],
+  "score_distributions": {
+    "Roar": [
+      105
+    ],
+    "Bite": [
+      106,
+      108
+    ],
+    "Splash": [
+      81
+    ],
+    "Tackle": [
+      100
+    ]
+  },
+  "scores_explain_all_choices": true
+}

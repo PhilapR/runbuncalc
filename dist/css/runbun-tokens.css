@@ -22,6 +22,18 @@
 	--rb-brand-soft: #f3e0d4;
 	--rb-action: #0b7a78;
 	--rb-action-hover: #096664;
+	/* Ink for text ON the action fill (>=4.5:1 in both themes). */
+	--rb-action-ink: #ffffff;
+	/* Type scale — four sizes for the whole game surface. Label is the
+	   legibility floor: nothing player-facing renders smaller. */
+	--rb-text-label: 0.72rem;
+	--rb-text-section: 0.78rem;
+	--rb-text-body: 0.85rem;
+	--rb-text-note: 0.92rem;
+	/* Starter type identities — solid accents, decorative only. */
+	--rb-type-grass: #3d8b3d;
+	--rb-type-fire: #c2531f;
+	--rb-type-water: #2469b0;
 	--rb-warn: #a67c00;
 	--rb-warn-ink: #6b4f00;
 	--rb-warn-soft: #fff4d6;
@@ -64,6 +76,10 @@
 	--rb-brand-soft: #3a2418;
 	--rb-action: #2bb5b1;
 	--rb-action-hover: #3fccc8;
+	--rb-action-ink: #0d1114;
+	--rb-type-grass: #5db85d;
+	--rb-type-fire: #e8763d;
+	--rb-type-water: #4d94dd;
 	--rb-warn: #e0b84a;
 	--rb-warn-ink: #f0c96a;
 	--rb-warn-soft: #3a3014;

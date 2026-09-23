@@ -1,6 +1,12 @@
 import {ActionFacts, DamageFacts, MoveAction, MoveResolution} from './model';
 
-function pickRoll(facts: DamageFacts, random: () => number): number {
+function pickRoll(facts: DamageFacts, random: () => number, critical = false): number {
+  if (critical && facts.critRolls?.length) {
+    const critSample = random();
+    if (!Number.isFinite(critSample)) throw new Error('Damage sampler must return a finite number');
+    const critBounded = Math.max(0, Math.min(0.999999999999, critSample));
+    return facts.critRolls[Math.floor(critBounded * facts.critRolls.length)];
+  }
   if (!facts.rolls.length) return 0;
   const sample = random();
   if (!Number.isFinite(sample)) throw new Error('Damage sampler must return a finite number');
@@ -22,6 +28,8 @@ export function sampleDamageResolution(
   action: Extract<MoveAction, {kind: 'move'}>,
   facts: ActionFacts,
   random: () => number = Math.random,
+  criticalByTarget: Record<string, boolean[]> = {},
+  hitCountOverride?: number,
 ): MoveResolution {
   const damageByTarget: Record<string, number> = {};
   const damageRollsByTarget: Record<string, number> = {};
@@ -33,11 +41,20 @@ export function sampleDamageResolution(
     const targetFacts = damageFactsByTarget[targetId] ||
       (action.targetIds.length === 1 ? facts.damage : undefined);
     if (!targetFacts) continue;
-    const hitCount = targetFacts.hits || 1;
+    const hitCount = hitCountOverride ?? targetFacts.hits ?? 1;
+    // One flag per hit. A shared boolean made every hit of a multi-hit move
+    // crit together or not at all.
+    const criticalHits = criticalByTarget[targetId] || [];
+    // A split-hit move (Parental Bond) carries one roll list per hit, and a
+    // crit on a hit draws from that hit's crit band. Dropping the flag here
+    // announced a crit (criticalHitTargets, the trace note) and dealt the
+    // ordinary hit.
     const hits = targetFacts.hitRolls
-      ? targetFacts.hitRolls.map(rolls => pickRoll({rolls, min: 0, max: 0, targetHp: 0,
-        possibleKO: false, guaranteedKO: false}, random))
-      : Array.from({length: hitCount}, () => pickRoll(targetFacts, random));
+      ? targetFacts.hitRolls.map((rolls, index) => pickRoll({rolls, min: 0, max: 0, targetHp: 0,
+        possibleKO: false, guaranteedKO: false,
+        critRolls: targetFacts.critHitRolls?.[index]}, random, criticalHits[index] === true))
+      : Array.from({length: hitCount}, (unused, index) =>
+        pickRoll(targetFacts, random, criticalHits[index] === true));
     const damage = hits.reduce((total, hit) => total + hit, 0);
     damageByTarget[targetId] = damage;
     damageRollsByTarget[targetId] = damage;

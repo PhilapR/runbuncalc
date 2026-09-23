@@ -1,0 +1,16 @@
+{
+	"eras": [
+		{
+			"file": "seeded-provider-receipt.bf28a069.json",
+			"providerRevision": "bf28a069148903cc02315cc434f91e24816045e2",
+			"reason": "Provider re-pinned to bf28a069, which corrects 124 species whose abilities the engine carried as vanilla rather than Run & Bun's. Ponyta Run Away -> Flame Body, Aron Sturdy -> Heavy Metal, Diglett Sand Veil -> Arena Trap, plus Marill's declared base stats. Receipts change because the engine now builds Pokemon it previously refused outright, and because a corrected ability changes a damage roll where it is not inert.",
+			"shelvedBy": "refresh-pokemon-provider-fixtures"
+		},
+		{
+			"file": "seeded-provider-attribution-receipt.bf28a069.json",
+			"providerRevision": "bf28a069148903cc02315cc434f91e24816045e2",
+			"reason": "Provider re-pinned to bf28a069, which corrects 124 species whose abilities the engine carried as vanilla rather than Run & Bun's. Ponyta Run Away -> Flame Body, Aron Sturdy -> Heavy Metal, Diglett Sand Veil -> Arena Trap, plus Marill's declared base stats. Receipts change because the engine now builds Pokemon it previously refused outright, and because a corrected ability changes a damage roll where it is not inert.",
+			"shelvedBy": "refresh-pokemon-provider-fixtures"
+		}
+	]
+}

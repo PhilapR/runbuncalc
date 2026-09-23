@@ -1,0 +1,29 @@
+{
+	"label": "stones2",
+	"manifest": null,
+	"argv": [
+		"--report=ui-playthrough-out/strat-stones-dev-wattson.json",
+		"--trainer=Leader Wattson",
+		"--seeds=30",
+		"--label=stones2"
+	],
+	"provenance": {
+		"revision": null,
+		"dirty": null,
+		"date": "2026-08-29T21:07:16.916Z"
+	},
+	"results": [
+		{
+			"name": "Leader Wattson",
+			"trainer": "Leader Wattson",
+			"report": "strat-stones-dev-wattson.json",
+			"position": 215,
+			"seeds": 30,
+			"wins": 16,
+			"losses": 14,
+			"stuck": 0,
+			"deaths": 150,
+			"turns": 554
+		}
+	]
+}

@@ -119,7 +119,7 @@ the checked archive. Modeled deltas and actual participation remain separate;
 neither is labeled as historical carry.
 
 `runbuncalc` imports the browser-safe provider built from `pokemon-mono`
-revision `2ae1b7e5721a2d2ff3b9692df75f65329c891650`, verifies the artifact hash
+revision `bf28a069148903cc02315cc434f91e24816045e2`, verifies the artifact hash
 before building, resolves each filtered product label to the engine's unique
 canonical raw trainer order, and reproduces the recorded seed-1450 receipt in
 Chromium. The Plan surface combines that eight-seed whole-branch forecast with

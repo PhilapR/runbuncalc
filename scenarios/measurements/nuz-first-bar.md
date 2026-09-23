@@ -1,0 +1,53 @@
+# The strong hand on the first attempt, under permadeath: the bar, declared 2026-09-23 before the arm ran
+
+Control: nuz0923 at df1bd2ee (12 seeds, already played): the rehearsal spec
+(budget=4000, boss-retries=40, retries=40, double-retries=40, scale-ivs=1,
+search-after=2, search-rollouts=8, repick-after=3, plan-after=5) with nuzlocke=1.
+Median 13.5 fights won before every body was lost (range 8-17); 147 bodies lost.
+
+Treatment: nuzf0923 at f1d81af6, the same spec and seeds plus search-first=1,
+plan-first=1. (The revisions differ: f1d81af6 adds only the two knobs, off by
+default, and the one-definition preparation shape; no plan ran in any control
+run, so the shape change cannot have moved a control fight.)
+
+Primary: fights won before the wipe, paired by seed. The treatment passes if it
+wins more fights on at least 10 of the 12 seeds (one-sided sign test p < 0.02),
+ties counted against it.
+Reported, not in the verdict: bodies lost per fight won; winCost; where each
+run wiped; wall time.
+
+## Verdict, 2026-09-23: passes the bar
+
+Treatment nuzf0923 at f1d81af6, all 12 runs audit-valid. Fights won before the
+wipe, control -> treatment: 104770 8->17, 209499 15->17, 314228 16->19,
+418957 11->17, 511001 16->8, 523658 17->24, 600007 11->17, 700019 17->26,
+731001 13->23, 812345 14->26, 842113 13->24, 901234 11->17.
+Better on 11 of 12 seeds, one-sided sign test p = 0.0032. Median 13.5 -> 18.
+Bodies lost per fight won 0.91 -> 0.74. Two runs reached Leader Brawly; six
+wiped at Camper Gavi, the next lever (--delay-until).
+
+## Held-out confirmation, declared 2026-09-23 before it ran
+
+The verdict above is in-sample for the seeds, and delay-until was designed on
+the same twelve. Held-out: seeds 130001, 230002, 330003, 430004, 530005,
+630006, 730007, 830008, 930009, 140010, 240011, 340012 (never read before):
+nuz0923b (baseline spec at df1bd2ee), nuzf0923b (search-first spec at
+f1d81af6), nuzd0923b (delay spec at aaa26bb2, already queued). Confirmed if each
+step is better on more seeds than worse with one-sided sign test p < 0.05 over
+the non-tied seeds, the same rule as the later bars.
+
+## Held-out result, 2026-09-23: CONFIRMED
+
+```
+== baseline -> search-first
+paired 12: better 9, worse 2, tied 1 | one-sided sign test over the non-tied p = 0.0327  PASSES the primary
+median fights won 11.5 -> 17 | bodies lost per fight won 0.95 -> 0.81
+== search-first -> delay-until
+paired 12: better 6, worse 0, tied 6 | one-sided sign test over the non-tied p = 0.0156  PASSES the primary
+median fights won 17 -> 19.5 | bodies lost per fight won 0.81 -> 0.72
+== baseline -> delay-until
+paired 12: better 10, worse 2, tied 0 | one-sided sign test over the non-tied p = 0.0193  PASSES the primary
+median fights won 11.5 -> 19.5 | bodies lost per fight won 0.95 -> 0.72
+```
+
+Both steps hold on twelve seeds no design decision had read. All runs audit-valid.

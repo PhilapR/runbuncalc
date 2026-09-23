@@ -1,0 +1,113 @@
+/* eslint-env node, es6 */
+'use strict';
+
+/**
+ * Gates for scripts/battery-arms.js, the parallel arm runner.
+ *
+ * Its whole value is that a receipt it produces is exactly the receipt a
+ * lone battery run in a clean tree would have written: the right revision,
+ * dirty false, the arm's own flags and nothing else, and no worktree left
+ * behind. The parser has to refuse, before any worktree is built, every arm
+ * spec that would run something other than what it names.
+ */
+
+const assert = require('node:assert/strict');
+const childProcess = require('node:child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const test = require('node:test');
+
+const arms = require('../scripts/battery-arms.js');
+
+const ONE_FIGHT = '--report=fixtures/banked-runs/flannery-3.run.json,--trainer=Pokéfan Miguel,--seeds=1';
+
+test('an arm spec names a label, a manifest and flags, each flag its own argument', () => {
+	const parsed = arms.parseArms(['--arm=b9:battery:', '--arm=b9-pp:battery:--pp-model=1',
+		'--arm=one::' + ONE_FIGHT]);
+	assert.deepEqual(parsed[0], {label: 'b9', manifest: 'battery', flags: []});
+	assert.deepEqual(parsed[1].flags, ['--pp-model=1']);
+	assert.equal(parsed[2].manifest, '', 'empty manifest is single-scenario mode');
+	assert.deepEqual(parsed[2].flags, ['--report=fixtures/banked-runs/flannery-3.run.json',
+		'--trainer=Pokéfan Miguel', '--seeds=1'], 'a value may hold a space');
+
+	const refuse = (argv, pattern) => assert.throws(() => arms.parseArms(argv), pattern);
+	refuse([], /no arms/);
+	refuse(['--arm=only-a-label'], /LABEL:MANIFEST:FLAGS/);
+	refuse(['--arm=x:battery:', '--arm=x:heldout:'], /share the label x/);
+	refuse(['--arm=a b:battery:'], /not a receipt name/);
+	refuse(['--arm=heldout1-A:heldout:'], /not a receipt name/);
+	refuse(['--arm=g:heldout2:--ko-respects-order=1 --pp-model=1'], /glued/);
+	refuse(['--arm=h:battery:pp-model=1'], /one --name=value/);
+	refuse(['--arm=l:battery:--label=other'], /set by the runner/);
+});
+
+test('each arm runs from its own clean worktree and leaves only its receipt', async () => {
+	const out = fs.mkdtempSync(path.join(os.tmpdir(), 'arms-out-'));
+	const worktrees = fs.mkdtempSync(path.join(os.tmpdir(), 'arms-wt-'));
+	const head = childProcess.execFileSync('git', ['rev-parse', 'HEAD'],
+		{cwd: path.join(__dirname, '..'), encoding: 'utf8'}).trim();
+	// A pool and a runs folder of the test's own: on the machine's pool the two
+	// arms waited behind real runs for ever (the fast suite hung 28 minutes on
+	// 2026-09-23 with every slot held), and their status files landed beside
+	// the real runs.
+	const saved = {slots: process.env.RUNBUN_SLOTS_DIR, count: process.env.RUNBUN_SLOTS, runs: process.env.RUNBUN_RUNS_DIR};
+	process.env.RUNBUN_SLOTS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'arms-slots-'));
+	process.env.RUNBUN_SLOTS = '2';
+	process.env.RUNBUN_RUNS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'arms-runs-'));
+	let outcome;
+	try {
+		outcome = await arms.runArms({
+			arms: arms.parseArms(['--arm=gate-a::' + ONE_FIGHT, '--arm=gate-b::' + ONE_FIGHT + ',--pp-model=1']),
+			rev: 'HEAD', concurrency: 2, out, worktrees,
+		});
+	} finally {
+		for (const pair of [['slots', 'RUNBUN_SLOTS_DIR'], ['count', 'RUNBUN_SLOTS'], ['runs', 'RUNBUN_RUNS_DIR']]) {
+			if (saved[pair[0]] === undefined) delete process.env[pair[1]];
+			else process.env[pair[1]] = saved[pair[0]];
+		}
+	}
+	assert.equal(outcome.sha, head);
+	assert.deepEqual(outcome.results.map(result => [result.label, result.status, result.receipt]).sort(),
+		[['gate-a', 0, true], ['gate-b', 0, true]]);
+	for (const label of ['gate-a', 'gate-b']) {
+		const receipt = JSON.parse(fs.readFileSync(path.join(out, label + '.json'), 'utf8'));
+		assert.equal(receipt.provenance.revision, head, label + ' ran at the named revision');
+		assert.equal(receipt.provenance.dirty, false, label + ' ran from a clean tree');
+		assert.equal(receipt.label, label);
+	}
+	const b = JSON.parse(fs.readFileSync(path.join(out, 'gate-b.json'), 'utf8'));
+	assert.ok(b.argv.includes('--pp-model=1'), 'the arm\'s own flags, one argument each');
+	const listed = childProcess.execFileSync('git', ['worktree', 'list'],
+		{cwd: path.join(__dirname, '..'), encoding: 'utf8'});
+	assert.ok(!listed.includes(worktrees), 'no worktree is left behind');
+
+	await assert.rejects(arms.runArms({arms: arms.parseArms(['--arm=x:battery:']),
+		rev: 'no-such-revision-anywhere', concurrency: 1, out, worktrees}), /no commit named/);
+});
+
+test('a pinned worktree loads its own calc, not the main checkout\'s', () => {
+	// node_modules/@smogon/calc is a workspace link, `../../calc`. Linking the
+	// whole node_modules directory resolved it from the main checkout, so a
+	// worktree pinned to one revision played the main checkout's calc/dist.
+	const root = path.join(__dirname, '..');
+	const dir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'arms-calc-')), 'tree');
+	arms.makeWorktree(dir, 'HEAD');
+	try {
+		const real = fs.realpathSync(dir);
+		const resolve = (cwd, request) => childProcess.execFileSync(process.execPath,
+			['-e', 'process.stdout.write(require.resolve(process.argv[1]))', request],
+			{cwd, encoding: 'utf8'});
+		const calc = resolve(dir, '@smogon/calc');
+		assert.ok(calc.startsWith(path.join(real, 'calc') + path.sep),
+			'@smogon/calc from the worktree resolves to ' + calc);
+		const fromAi = resolve(path.join(dir, 'ai'), '@smogon/calc');
+		assert.ok(fromAi.startsWith(path.join(real, 'calc') + path.sep),
+			'@smogon/calc from the worktree\'s ai/ resolves to ' + fromAi);
+		// An ordinary package is still this checkout's copy, not a second install.
+		const dex = resolve(dir, '@pkmn/dex');
+		assert.ok(!dex.startsWith(real + path.sep), '@pkmn/dex is shared: ' + dex);
+	} finally {
+		childProcess.spawnSync('git', ['worktree', 'remove', '--force', dir], {cwd: root});
+	}
+});

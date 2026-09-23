@@ -226,3 +226,13 @@ test('every profile claim carries a provenance tag', () => {
 		);
 	}
 });
+
+test('the catch-rate table is registered for what it is: mainline data, transcribed', () => {
+	// ledger: catch-rates-is-registered-nowhere. Unregistered, it defaulted to
+	// `inferred`. It is a copy of the mainline dex that no Run & Bun source
+	// confirms, and it says so in its own header.
+	const rates = require('../profiles/run-and-bun/oracle/catch-rates.json');
+	assert.equal(profile.provenanceOf('oracle.catchRates'), 'transcribed');
+	assert.match(rates.source, /PokeAPI/);
+	assert.match(profile.sources.pokeapi, /pokemon_species\.csv/, 'the registry names where it was copied from');
+});

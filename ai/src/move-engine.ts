@@ -1,6 +1,6 @@
 import * as Calc from '@smogon/calc';
 import {getCalculatorAbility, getEffectiveAbility, getGenerationAbility, isAbilityActive, isAbilityAvailable} from './abilities';
-import {canEscapeTrappingEffect, getPokemon, isDisguiseActive, isGhostType, isRainWeather, isStrongWeather, isSunWeather, isSwitchBlockedByAbility, isWeatherSuppressed, sideForPokemon} from './actions';
+import {canEscapeTrappingEffect, chargeTargets, getPokemon, isDisguiseActive, isGhostType, isRainWeather, isStrongWeather, isSunWeather, isSwitchBlockedByAbility, isWeatherSuppressed, sideForPokemon} from './actions';
 import {calculateActionFacts} from './calc-adapter';
 import {getEffectiveMoveAccuracy, isMicleBerryReady} from './accuracy';
 import {
@@ -10,6 +10,8 @@ import {
   getEffectiveTypes,
   ignoresTargetAbility,
   isGrounded,
+  isPowderImmune,
+  isPowderProof,
   isPriorityBlocked,
 } from './eligibility';
 import {
@@ -30,12 +32,13 @@ import {
   RECHARGE_MOVE_MIN_GENERATION,
   PARTIAL_TRAPPING_MOVES,
   PROTECTION_MOVE_MIN_GENERATION,
-  SEMI_INVULNERABLE_BYPASS_MOVES,
   SEMI_INVULNERABLE_CHARGE_MOVES,
+  reachesSemiInvulnerable,
   UPROAR_MOVE_MIN_GENERATION,
 } from './move-metadata';
 import {getActionOrderFacts, getEffectivePokemonSpeed} from './order';
 import {sampleDamageFact, sampleDamageResolution} from './resolution';
+import {canUseSleepOnlyMove} from './sleep';
 import {getCalcSpeciesOverrides, getEffectiveSpecies, getRawStats} from './stat-transforms';
 import {isMimicryActive, mimicryTypeOverride} from './mimicry';
 import {hasPureAbilityEffect, PURE_ABILITY_MOVE_IDS} from './ability-legality';
@@ -203,6 +206,11 @@ const PROTECTIVE_MOVES = new Set([
   'maxguard',
 ]);
 const CONSECUTIVE_PROTECTIVE_MOVES = new Set(Array.from(PROTECTIVE_MOVES).concat('endure'));
+// Moves that thaw their own user before executing (Gen 8).
+const DEFROST_MOVES = new Set([
+  'flamewheel', 'sacredfire', 'flareblitz', 'scald', 'steameruption',
+  'burnup', 'pyroball', 'fusionflare', 'scorchingsands', 'matchagotcha',
+]);
 const FIRST_TURN_MOVE_MIN_GENERATION: Record<string, number> = {
   fakeout: 3,
   firstimpression: 7,
@@ -461,6 +469,26 @@ function activateTerrainSeeds(resolution: MoveResolution, state: BattleState, te
       addBoosts(resolution, state, pokemon.id, {[seed.stat]: 1});
       consumeItem(resolution, pokemon.id, pokemon.item!);
       resolution.trace!.notes!.push(`${pokemon.item} activated for ${pokemon.id} in ${terrain} Terrain`);
+    }
+  }
+}
+
+/**
+ * Room Service (Gen 8; Run & Bun's doc is silent, so the Gen 8 fallback):
+ * when Trick Room goes up, every active holder takes -1 Speed and the item
+ * is used up. Showdown data/items.ts roomservice, onAnyPseudoWeatherChange.
+ * The switch-in half lives in entry-hazards.ts.
+ */
+function activateRoomService(resolution: MoveResolution, state: BattleState) {
+  if (state.generation < 8) return;
+  for (const sideId of ['ai', 'player'] as const) {
+    for (const pokemonId of state.sides[sideId].activeIds) {
+      const pokemon = getPokemon(state, pokemonId);
+      if (!pokemon || pokemon.hp.current <= 0 || !heldItemEffectsActive(state, pokemon)) continue;
+      if (moveId(pokemon.item) !== 'roomservice') continue;
+      addBoosts(resolution, state, pokemon.id, {spe: -1});
+      consumeItem(resolution, pokemon.id, pokemon.item!);
+      resolution.trace!.notes!.push(`Room Service lowered ${pokemon.id}'s Speed under Trick Room`);
     }
   }
 }
@@ -873,34 +901,110 @@ function sampleActionRoll(random: () => number, label: string): number {
   return Math.max(0, Math.min(0.999999999999, roll));
 }
 
+type ActionGate = {failure?: ActionFailure; clearStatus?: boolean; sleepTurns?: number; wake?: boolean};
+
+/**
+ * Sleep and freeze: the first action gates, ahead of Truant and flinch.
+ * Showdown orders onBeforeMove by priority — slp/frz 10, truant 9, flinch 8
+ * (data/conditions.ts, data/abilities.ts). Recharge is the one gate ahead
+ * of them there (mustrecharge 11), and the caller keeps it there.
+ *
+ * A sleeper that stays asleep fails here and burns its counter on the
+ * attempt, flinched or loafing or not. A sleeper that wakes, or a frozen mon
+ * that thaws, falls through to the later gates with its status cleared.
+ */
+function statusActionGate(
+  state: BattleState,
+  actor: BattleState['sides'][SideId]['party'][number],
+  actionMoveId: string,
+  random: () => number,
+): ActionGate {
+  if (actor.status === 'slp') {
+    // Gen 8 sleep: the counter burns on each ACTION ATTEMPT — a 2-4 counter
+    // is always 1-3 missed turns, whoever moved first. The old boundary
+    // decrement handed a faster sleeper's target one extra missed turn.
+    const earlyBird = state.generation >= 3 && isAbilityActive(actor, state) &&
+      moveId(getEffectiveAbility(actor)) === 'earlybird';
+    const remaining = Math.max(0, (actor.statusTurns ?? 0) - (earlyBird ? 2 : 1));
+    if (remaining > 0) {
+      return ['sleeptalk', 'snore'].includes(actionMoveId) ?
+        {sleepTurns: remaining} : {failure: 'sleep', sleepTurns: remaining};
+    }
+    return {wake: true};
+  }
+  if (actor.status === 'frz') {
+    // Defrost-flag moves always thaw the user and execute — no roll. Sacking
+    // a "frozen solid" mon that could Scald its way out every time is the
+    // kind of misread that ends a nuzlocke.
+    if (DEFROST_MOVES.has(actionMoveId)) return {clearStatus: true};
+    if (sampleActionRoll(random, 'Freeze') >= 0.2) return {failure: 'freeze'};
+    return {clearStatus: true};
+  }
+  return {};
+}
+
+/** The gates after sleep, freeze and Truant; a wake or thaw carries through. */
 function actionFailure(
   state: BattleState,
   actor: BattleState['sides'][SideId]['party'][number],
   actionMoveId: string,
   random: () => number,
-): {failure?: ActionFailure; clearStatus?: boolean} {
-  if (actor.volatile?.flinch) return {failure: 'flinch'};
-  if (actor.status === 'slp' && actor.statusTurns !== 0 && !['sleeptalk', 'snore'].includes(actionMoveId)) {
-    return {failure: 'sleep'};
+  statusGate: ActionGate,
+): ActionGate {
+  if (statusGate.failure) return statusGate;
+  const failed = (failure: ActionFailure): ActionGate => ({...statusGate, failure});
+  if (actor.volatile?.flinch) return failed('flinch');
+  // Confusion is checked BEFORE paralysis: Showdown's onBeforeMovePriority
+  // and the pokeemerald lineage agree. With paralysis first, a mon that was
+  // both paralyzed and confused self-hit 25% of the time and was fully
+  // paralyzed 25%; the truth is 33% / 16.7%, and self-hit damage is real
+  // chip the misallocation moved.
+  //
+  // Gen 8 confusion: 33% chance to hit yourself (the cartridge is 33/100,
+  // which is also what the sibling predictor uses). Run & Bun's own doc
+  // lists no confusion change and mandates Gen 8 defaults for anything
+  // unlisted. The old `>= 1/3` (a 2/3 self-hit, wrong in EVERY generation)
+  // was copy-patterned from the Protect streak check below, where 2/3
+  // failure is genuinely correct.
+  if (actor.volatile?.confusion && sampleActionRoll(random, 'Confusion') < 0.33) {
+    return failed('confusion');
   }
-  if (actor.status === 'frz') {
-    if (sampleActionRoll(random, 'Freeze') >= 0.2) return {failure: 'freeze'};
-    return {clearStatus: true};
-  }
+  // Paralysis is checked BEFORE infatuation: the ROM (pokemon-mono P4,
+  // 2026-09-22, receipt 20260922T225743Z-gate-probe): a mon both paralysed
+  // and infatuated, 300 turns over 100 seeds — 78 full paralyses with no love
+  // message, 101 immobilised by love, 121 moved; a paralysis message never
+  // followed a love message. That is the pokeemerald order CONSTANTS-AUDIT
+  // D12 chose. The Gen 8 order (infatuation first) was ruled the same day
+  // from the doc's "assume Gen 8" fallback and is superseded by the ROM.
   if (actor.status === 'par' && sampleActionRoll(random, 'Paralysis') < 0.25) {
-    return {failure: 'paralysis'};
-  }
-  if (actor.volatile?.confusion && sampleActionRoll(random, 'Confusion') >= 1 / 3) {
-    return {failure: 'confusion'};
+    return failed('paralysis');
   }
   if (actor.volatile?.infatuated && sampleActionRoll(random, 'Infatuation') < 0.5) {
-    return {failure: 'infatuation'};
+    return failed('infatuation');
   }
   if (CONSECUTIVE_PROTECTIVE_MOVES.has(actionMoveId) &&
+    !['wideguard', 'quickguard'].includes(actionMoveId) &&
     CONSECUTIVE_PROTECTIVE_MOVES.has(moveId(state.moveStreakByPokemon?.[actor.id]?.moveName))) {
-    if (sampleActionRoll(random, 'Protect') >= 1 / 3) return {failure: 'protect'};
+    // Gen 8 stall: success is (1/3)^n with a 1/729 floor, not a flat 1/3
+    // forever. Wide/Quick Guard carry no stalling flag — they never take
+    // this roll, though their use keeps feeding the streak for what
+    // follows. Known simplification: the streak counter keys by exact
+    // move, so alternating Protect/Detect resets it where the cartridge
+    // stall counter would persist — strictly player-favorable, and rare.
+    const streak = state.moveStreakByPokemon?.[actor.id]?.count ?? 1;
+    const successChance = Math.max(1 / 729, Math.pow(1 / 3, streak));
+    if (sampleActionRoll(random, 'Protect') >= successChance) return failed('protect');
   }
-  return {};
+  return statusGate;
+}
+
+/** Record a wake or thaw that happened on an attempt the action then lost. */
+function applyStatusGateRelease(resolution: MoveResolution, actorId: string, gate: ActionGate) {
+  if (!gate.clearStatus && !gate.wake) return;
+  resolution.statusByPokemon = {...(resolution.statusByPokemon || {}), [actorId]: ''};
+  resolution.statusTurnsByPokemon = {...(resolution.statusTurnsByPokemon || {}), [actorId]: null};
+  resolution.toxicCounterByPokemon = {...(resolution.toxicCounterByPokemon || {}), [actorId]: 0};
+  resolution.trace!.notes!.push(gate.clearStatus ? 'actor thawed and cleared freeze' : 'actor woke on the attempt');
 }
 
 function addSubstituteHp(resolution: MoveResolution, pokemonId: string, hp: number) {
@@ -1047,6 +1151,9 @@ function targetMoveFailure(
   const targets = targetIds
     .map(targetId => getPokemon(state, targetId))
     .filter((target): target is PokemonState => !!target && target.hp.current > 0);
+  if (targets.length && targets.every(target => isPowderImmune(state, actor.id, target.id, id))) {
+    return 'The powder move had no effect because every target was immune to powder moves';
+  }
   if (id === 'teatime' && (state.generation !== 8 || !targets.some(target => isBerry(target.item)))) {
     return 'Teatime failed because no active target held a Berry';
   }
@@ -2006,6 +2113,15 @@ function sequentialDamageOutcome(
   return {directDamage, hitCount, fainted: hp <= 0};
 }
 
+/**
+ * Calculator facts arrive with Disguise/Ice Face hits already zeroed for
+ * scoring; the marker is the only remaining evidence that the hit landed and
+ * must still break the guard.
+ */
+function zeroedByGuardFor(facts: ActionFacts | undefined, targetId: string): 'disguise' | 'iceface' | undefined {
+  return (facts?.damageByTarget?.[targetId] ?? facts?.damage)?.zeroedByGuard;
+}
+
 function directDamageTotal(
   state: BattleState,
   resolution: MoveResolution,
@@ -2353,10 +2469,12 @@ function isDamageImmuneTarget(
   const target = getPokemon(state, targetId);
   const chargeMove = target?.volatile?.charge?.moveName;
   if (chargeMove && SEMI_INVULNERABLE_CHARGE_MOVES.has(moveId(chargeMove)) &&
-    !SEMI_INVULNERABLE_BYPASS_MOVES.has(moveId(action.moveName))) return true;
+    !reachesSemiInvulnerable(moveId(chargeMove), moveId(action.moveName))) return true;
+  if (isPowderImmune(state, action.actorId, targetId, action.moveName)) return true;
   if (!facts || facts.moveCategory === 'Status') return false;
   if (action.targetIds.length === 1) return facts.isImmune === true;
-  return facts.damageByTarget?.[targetId]?.max === 0;
+  const targetDamage = facts.damageByTarget?.[targetId];
+  return targetDamage?.max === 0 && !targetDamage.zeroedByGuard;
 }
 
 function eligibleTargetIds(
@@ -2389,9 +2507,17 @@ function resolveSecondaryEffects(
   const attacker = getPokemon(state, action.actorId);
   const suppressesSecondaries = facts.moveCategory !== 'Status' && !!attacker &&
     hasAbility(state, attacker, 'sheerforce');
-  const doublesSecondaryChance = !!attacker &&
-    (hasAbility(state, attacker, 'serenegrace') ||
-      (state.generation >= 5 && state.sides[sideForPokemon(state, attacker.id)].effects?.pledgeRainbow === true));
+  // Serene Grace and a Rainbow stack multiplicatively (x4, capped at 100) —
+  // EXCEPT on a flinch. Showdown's Water Pledge side condition skips the
+  // doubling for a flinch secondary when the user has Serene Grace
+  // (data/moves.ts, waterpledge.condition.onModifyMove), so a Serene Grace
+  // Iron Head behind its own Rainbow flinches 60%, not 100%.
+  const sereneGrace = !!attacker && hasAbility(state, attacker, 'serenegrace');
+  const rainbow = !!attacker && state.generation >= 5 &&
+    state.sides[sideForPokemon(state, attacker.id)].effects?.pledgeRainbow === true;
+  const secondaryChanceMultiplierFor = (effect: SecondaryEffect) =>
+    (sereneGrace ? 2 : 1) *
+    (rainbow && !(sereneGrace && effect.volatile?.name === 'flinch') ? 2 : 1);
   const secondaryRolls: Record<string, number> = {};
   const secondaryTargetIds = facts.isMultiHit
     ? Array.from(new Set([
@@ -2430,7 +2556,7 @@ function resolveSecondaryEffects(
           ? `${targetId}:${index}:hit${hitIndex + 1}`
           : `${targetId}:${index}`;
         secondaryRolls[rollKey] = roll;
-        const chance = doublesSecondaryChance ? Math.min(100, effect.chance * 2) : effect.chance;
+        const chance = Math.min(100, effect.chance * secondaryChanceMultiplierFor(effect));
         if (suppressesSecondaries || bounded >= chance / 100) continue;
 
         const recipientId = effect.target === 'self' ? action.actorId : targetId;
@@ -2723,7 +2849,7 @@ export function deriveMoveResolution(
     };
   }
   const chargeState = actor.volatile?.charge;
-  if (chargeState?.targetIds) action = {...action, targetIds: [...chargeState.targetIds]};
+  if (chargeState?.targetIds) action = {...action, targetIds: chargeTargets(state, chargeState.targetIds)};
   const moveState = actor.moves.find(move => move.name === action.moveName);
   const moveMetadata = moveState
     ? getEffectiveMoveMetadata(moveState, state.generation)
@@ -2735,8 +2861,24 @@ export function deriveMoveResolution(
   const secondaryEffects = options.secondaryEffects ?? options.facts?.secondaryEffects ?? moveMetadata.secondaryEffects;
   const moveType = options.facts?.moveType ?? moveMetadata.type;
   const moveCategory = options.facts?.moveCategory ?? moveMetadata.category;
-  if (isTruantActive(state, actor) && actor.volatile?.truant) {
+  // Recharge is the first gate (Showdown mustrecharge, onBeforeMovePriority
+  // 11), ahead of sleep, freeze and Truant, and it spends an owed loaf with
+  // it: a Truant mon after Hyper Beam loses one turn, not two. Not
+  // ROM-probed; the Gen 8 fallback and DECISIONS.json's declared gate order.
+  if (actor.volatile?.recharge && id === moveId(actor.volatile.recharge.moveName)) {
     return {
+      hit: false,
+      volatileByPokemon: {[actor.id]: actor.volatile.truant ? {recharge: null, truant: null} : {recharge: null}},
+      trace: {
+        source: 'battle-engine',
+        hit: false,
+        notes: [`${actor.id} spent the turn recharging after ${actor.volatile.recharge.moveName}`],
+      },
+    };
+  }
+  const statusGate = statusActionGate(state, actor, id, random);
+  if (!statusGate.failure && isTruantActive(state, actor) && actor.volatile?.truant) {
+    const loafed: MoveResolution = {
       hit: false,
       actionFailure: 'truant',
       volatileByPokemon: {[actor.id]: {truant: null}},
@@ -2747,19 +2889,12 @@ export function deriveMoveResolution(
         notes: [`${actor.id} loafed around because of Truant`],
       },
     };
+    // A Sleep Talk or Snore attempt still burned the counter before loafing.
+    if (statusGate.sleepTurns !== undefined) loafed.statusTurnsByPokemon = {[actor.id]: statusGate.sleepTurns};
+    applyStatusGateRelease(loafed, actor.id, statusGate);
+    return loafed;
   }
-  const gate = actionFailure(state, actor, id, random);
-  if (actor.volatile?.recharge && id === moveId(actor.volatile.recharge.moveName)) {
-    return {
-      hit: false,
-      volatileByPokemon: {[actor.id]: {recharge: null}},
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${actor.id} spent the turn recharging after ${actor.volatile.recharge.moveName}`],
-      },
-    };
-  }
+  const gate = actionFailure(state, actor, id, random, statusGate);
   if (gate.failure) {
     const resolution: MoveResolution = {
       hit: false,
@@ -2772,6 +2907,11 @@ export function deriveMoveResolution(
         notes: [`actor failed to act: ${gate.failure}`],
       },
     };
+    if (gate.sleepTurns !== undefined) {
+      resolution.statusTurnsByPokemon = {[actor.id]: gate.sleepTurns};
+      resolution.trace!.notes!.push('sleep counter burned on the attempt');
+    }
+    applyStatusGateRelease(resolution, actor.id, gate);
     if (gate.failure === 'confusion' && options.facts?.confusionDamage) {
       const damage = sampleDamageFact(options.facts.confusionDamage, random);
       if (damage > 0) addHpDelta(resolution, actor.id, -damage);
@@ -3053,7 +3193,7 @@ export function deriveMoveResolution(
       },
     };
   }
-  if (['sleeptalk', 'snore'].includes(id) && (actor.status !== 'slp' || actor.statusTurns === 0)) {
+  if (['sleeptalk', 'snore'].includes(id) && !canUseSleepOnlyMove(actor)) {
     return {
       hit: false,
       trace: {
@@ -3379,11 +3519,19 @@ export function deriveMoveResolution(
     resolution.trace!.notes!.push(`${action.moveName} consumed Lock-On/Mind Reader accuracy`);
   }
 
+  if (gate.sleepTurns !== undefined) {
+    resolution.statusTurnsByPokemon = {[actor.id]: gate.sleepTurns};
+  }
   if (gate.clearStatus) {
     resolution.statusByPokemon = {[actor.id]: ''};
     resolution.statusTurnsByPokemon = {[actor.id]: null};
     resolution.toxicCounterByPokemon = {[actor.id]: 0};
     resolution.trace!.notes!.push('actor thawed and cleared freeze');
+  } else if (gate.wake) {
+    resolution.statusByPokemon = {[actor.id]: ''};
+    resolution.statusTurnsByPokemon = {[actor.id]: null};
+    resolution.toxicCounterByPokemon = {[actor.id]: 0};
+    resolution.trace!.notes!.push('actor woke on the attempt and acted');
   } else if (actor.status === 'slp' && actor.statusTurns === 0) {
     resolution.statusByPokemon = {[actor.id]: ''};
     resolution.statusTurnsByPokemon = {[actor.id]: null};
@@ -3927,7 +4075,53 @@ export function deriveMoveResolution(
     };
     resolution.trace!.notes!.push(`${action.moveName} is waiting for ${pledgePartner!.id}'s paired Pledge move`);
   } else if (resolutionFacts) {
-    const sampled = sampleDamageResolution(actionForTargets, resolutionFacts, random);
+    // The crit event, sampled per target before its damage. Base 1/16 is
+    // the hack's own emulator-observed rate (profiles/run-and-bun: Gen 8
+    // mainline is 1/24); stage progression is the Gen 8 default, so
+    // stage 1 = 1/8, stage 2 = 1/2, stage 3+ = always. Facts carry the
+    // crit distribution; a move with no critRolls cannot crit.
+    // Gen 8 variable multi-hit: 35% two, 35% three, 15% four, 15% five.
+    // The calculator pins these at three for its damage display; a sampling
+    // engine must roll, or Rock Blast-class moves never deal their real
+    // spread (up to 67% more than predicted, 15% of the time).
+    let hitCountOverride: number | undefined;
+    const range = resolutionFacts.multiHitRange;
+    if (range && range[0] === 2 && range[1] === 5) {
+      const draw = sampleActionRoll(random, 'Multi-hit count');
+      hitCountOverride = draw < 0.35 ? 2 : draw < 0.7 ? 3 : draw < 0.85 ? 4 : 5;
+    }
+    // One crit decision PER HIT, not per target. Mainline calls getDamage
+    // inside hitStepMoveHitLoop, so a five-hit Rock Blast gets five 1/16
+    // draws: P(at least one crit) is 1-(15/16)^5 = 27.6%, spread across one
+    // to five critting hits. A single shared draw gives 6.25% all-five and
+    // 93.75% none — the mean survives, the distribution does not, and the
+    // tail this tool exists to plan against is the part that goes wrong.
+    const criticalByTarget: Record<string, boolean[]> = {};
+    const critStage = resolutionFacts.attackerCriticalHitStage ?? 0;
+    const critChance = critStage >= 3 ? 1 : critStage === 2 ? 0.5 : critStage === 1 ? 0.125 : 1 / 16;
+    const critGuaranteed = resolutionFacts.criticalHit === true ||
+      resolutionFacts.criticalHitGuaranteed === true;
+    for (const targetId of actionForTargets.targetIds) {
+      const targetFacts = resolutionFacts.damageByTarget?.[targetId] ||
+        (actionForTargets.targetIds.length === 1 ? resolutionFacts.damage : undefined);
+      if (!targetFacts) continue;
+      const hitCount = hitCountOverride ?? targetFacts.hits ?? 1;
+      if (critGuaranteed) {
+        // Laser Focus and the always-crit four. The calculator already
+        // returned crit damage as `rolls`, so there is nothing to draw and
+        // nothing to multiply — but the crit still HAPPENED, and both the
+        // log and Anger Point were blind to it because this path recorded
+        // nothing. No draw here keeps the seeded sequence unchanged.
+        criticalByTarget[targetId] = new Array(hitCount).fill(true);
+        continue;
+      }
+      if (!targetFacts.critRolls?.length) continue;
+      criticalByTarget[targetId] = Array.from({length: hitCount}, () =>
+        sampleActionRoll(random, 'Critical hit') < critChance);
+    }
+    const sampled = sampleDamageResolution(actionForTargets, resolutionFacts, random, criticalByTarget, hitCountOverride);
+    const criticalTargets = Object.keys(criticalByTarget)
+      .filter(targetId => criticalByTarget[targetId].some(Boolean));
     resolution.damageByTarget = sampled.damageByTarget;
     resolution.hitDamageByTarget = sampled.hitDamageByTarget;
     resolution.trace = {
@@ -3936,8 +4130,12 @@ export function deriveMoveResolution(
       hit: resolution.trace?.hit,
       damageRollsByTarget: sampled.trace?.damageRollsByTarget,
       hitDamageRollsByTarget: sampled.trace?.hitDamageRollsByTarget,
-      notes: [...(resolution.trace?.notes || []), 'sampled calculator damage'],
+      notes: [...(resolution.trace?.notes || []),
+        criticalTargets.length
+          ? `sampled calculator damage — critical hit on ${criticalTargets.join(', ')}`
+          : 'sampled calculator damage'],
     };
+    if (criticalTargets.length) resolution.criticalHitTargets = criticalTargets;
   }
 
   if (combinedPledge) {
@@ -4085,7 +4283,10 @@ export function deriveMoveResolution(
   if (id === 'uproar') {
     const previous = actor.volatile?.uproar;
     if (!previous) {
-      const turns = Math.floor(sampleActionRoll(random, `${action.moveName} duration`) * 4) + 2;
+      // Gen 5+ is a fixed 3; the 2-5 roll is the Gen 3/4 table.
+      const turns = state.generation >= 5
+        ? 3
+        : Math.floor(sampleActionRoll(random, `${action.moveName} duration`) * 4) + 2;
       addVolatile(resolution, [actor.id], 'uproar', {turns, moveName: action.moveName});
       clearMajorStatus(resolution, state, (['ai', 'player'] as const).flatMap(sideId =>
         state.sides[sideId].activeIds));
@@ -4188,9 +4389,14 @@ export function deriveMoveResolution(
         ? sequentialDamageOutcome(target, resolution.hitDamageByTarget?.[targetId],
           resolution.damageByTarget?.[targetId] || 0)
         : undefined;
-      if (target && !!damageOutcome?.directDamage &&
+      if (target &&
+        (!!damageOutcome?.directDamage || zeroedByGuardFor(resolutionFacts, targetId) === 'disguise') &&
         isDisguiseActive(state, target) && !ignoresTargetAbility(state, actor.id, targetId, moveCategory)) {
-        const blocked = resolution.hitDamageByTarget
+        // Per-target, not the whole record: a guarded (pre-zeroed) fact never
+        // carries a hit array for its own target, but another target of the
+        // same action can — and an all-zero hit array would make the adjust
+        // helper report no hit to block, silently skipping the break.
+        const blocked = resolution.hitDamageByTarget?.[targetId]
           ? adjustFirstDirectSequentialHit(resolution, target, targetId, () => 0)
           : (resolution.damageByTarget![targetId] = 0, true);
         if (!blocked) continue;
@@ -4281,13 +4487,14 @@ export function deriveMoveResolution(
       const damageOutcome = target
         ? sequentialDamageOutcome(target, resolution.hitDamageByTarget?.[targetId], damage)
         : undefined;
-      if (!target || target.id === actor.id || !damageOutcome?.directDamage ||
+      if (!target || target.id === actor.id ||
+        (!damageOutcome?.directDamage && zeroedByGuardFor(resolutionFacts, targetId) !== 'iceface') ||
         !isIceFaceActive(state, target) || ignoresTargetAbility(state, actor.id, targetId, moveCategory)) continue;
-      const adjusted = resolution.hitDamageByTarget
+      const adjusted = resolution.hitDamageByTarget?.[targetId]
         ? adjustFirstDirectSequentialHit(resolution, target, targetId, () => 0)
         : !resolutionFacts?.isMultiHit;
       if (!adjusted) continue;
-      if (!resolution.hitDamageByTarget) resolution.damageByTarget![targetId] = 0;
+      if (!resolution.hitDamageByTarget?.[targetId]) resolution.damageByTarget![targetId] = 0;
       setSpeciesOverride(resolution, target.id, 'Eiscue-Noice');
       resolution.trace!.notes!.push(`Ice Face blocked the first physical hit and changed ${target.id} to Noice Face`);
     }
@@ -4515,6 +4722,38 @@ export function deriveMoveResolution(
         clearVolatile(resolution, target.id, 'shellTrap');
         resolution.trace!.notes!.push(`Shell Trap from ${target.id} triggered on ${actor.id}`);
       }
+      // A held King's Rock / Razor Fang (or Stench) adds a 10% flinch to any
+      // damaging move that has no flinch secondary of its own — doubled by
+      // Serene Grace. Unmodeled before, so enemy flinch-denial chains never
+      // appeared in a prediction.
+      const flinchItemHeld = isItemEffectActive(state, actor) &&
+        ['kingsrock', 'razorfang'].includes(moveId(actor.item || ''));
+      const stench = hasAbility(state, actor, 'stench');
+      const carriesOwnFlinch = (options.facts?.secondaryEffects || []).some(
+        (effect: {volatile?: {name?: string}}) => effect.volatile?.name === 'flinch');
+      // In mainline the item pushes a REAL secondary (kingsrock.onModifyMove),
+      // so everything that suppresses the move's own flinch suppresses this
+      // one: Shield Dust filters it out, and a Substitute eats the hit it
+      // would ride on. This block asked about neither, and gated on aggregate
+      // damage — which counts damage a Substitute absorbed — so the item
+      // flinched through both.
+      //
+      // effectTargetIds is the set the engine ALREADY computed for "who
+      // receives this move's added effects"; it is where the Substitute
+      // filter lives. Reusing it keeps one source of truth instead of a
+      // second hand-kept copy of the rule.
+      const flinchOutcome = sequentialDamageOutcome(
+        target, resolution.hitDamageByTarget?.[targetId], targetDamage);
+      if ((flinchItemHeld || stench) && !carriesOwnFlinch && moveCategory !== 'Status' &&
+        flinchOutcome.directDamage > 0 && !target.volatile?.flinch &&
+        effectTargetIds.includes(targetId) && !blocksSecondaryEffects(state, targetId) &&
+        canApplyVolatile(state, targetId, 'flinch', actor.id, false, moveCategory)) {
+        const flinchChance = hasAbility(state, actor, 'serenegrace') ? 0.2 : 0.1;
+        if (sampleActionRoll(random, 'Held flinch item') < flinchChance) {
+          addVolatile(resolution, [targetId], 'flinch', {turns: 1});
+          resolution.trace!.notes!.push(`${actor.id} flinched ${targetId} with a held item effect`);
+        }
+      }
       const targetAbility = moveId(getEffectiveAbility(target));
       const targetAbilityIgnored = ignoresTargetAbility(state, actor.id, targetId, moveCategory);
       const damageOutcome = sequentialDamageOutcome(
@@ -4572,12 +4811,17 @@ export function deriveMoveResolution(
           break;
         }
       }
-      if (!targetAbilityIgnored && hasAbility(state, target, 'effectspore') && contactAttempts > 0) {
+      // Effect Spore is powder: a Grass, Overcoat or Safety Goggles attacker is
+      // immune from Generation VI, checked before any roll is taken.
+      if (!targetAbilityIgnored && hasAbility(state, target, 'effectspore') && contactAttempts > 0 &&
+        !isPowderProof(state, actor.id)) {
         for (let attempt = 0; attempt < contactAttempts; attempt += 1) {
           const effectSporeRoll = sampleActionRoll(random, 'Effect Spore contact chance');
-          const effectSporeStatus = effectSporeRoll < 0.1
+          // Gen 8 split: 9% psn / 10% par / 11% slp (the 10/10/10 was the
+          // Gen 3/4 table — sleep, the worst status, was underweighted).
+          const effectSporeStatus = effectSporeRoll < 0.09
             ? 'psn' as const
-            : effectSporeRoll < 0.2
+            : effectSporeRoll < 0.19
               ? 'par' as const
               : effectSporeRoll < 0.3
                 ? 'slp' as const
@@ -4652,9 +4896,20 @@ export function deriveMoveResolution(
       }
     }
   }
-  const criticalHit = resolutionFacts?.criticalHit === true || resolutionFacts?.criticalHitGuaranteed === true;
+  // Anger Point needs to know whether a crit ACTUALLY LANDED on this target.
+  // Reading only the facts made it blind to every sampled crit — the 1/16
+  // event the ability exists for — while still firing on the guaranteed
+  // ones. criticalHitTargets is the resolved answer and is now set on both
+  // paths; the facts stay as the fallback for callers that supply damage
+  // directly instead of sampling it.
+  const criticalTargetIds = new Set(resolution.criticalHitTargets || []);
+  const criticalHit = criticalTargetIds.size > 0 ||
+    resolutionFacts?.criticalHit === true || resolutionFacts?.criticalHitGuaranteed === true;
   if (criticalHit && resolution.hit !== false) {
     for (const targetId of targetIds) {
+      // With a resolved answer available, only the targets it names crit —
+      // a spread move can crit one side and not the other.
+      if (criticalTargetIds.size && !criticalTargetIds.has(targetId)) continue;
       const target = getPokemon(state, targetId);
       if (!target || target.id === actor.id || !hasAbility(state, target, 'angerpoint') ||
         ignoresTargetAbility(state, actor.id, target.id, moveCategory)) continue;
@@ -5343,8 +5598,10 @@ export function deriveMoveResolution(
   }
   if (id === 'trickroom' && state.generation >= 4) {
     addField(resolution, {trickRoom: !state.field.trickRoom});
-    if (!state.field.trickRoom) addFieldDuration(resolution, 'trickRoom', 5);
-    else resolution.fieldDurations = {...(resolution.fieldDurations || {}), trickRoom: null};
+    if (!state.field.trickRoom) {
+      addFieldDuration(resolution, 'trickRoom', 5);
+      activateRoomService(resolution, state);
+    } else resolution.fieldDurations = {...(resolution.fieldDurations || {}), trickRoom: null};
   }
   if (id === 'gravity' && state.generation >= 4) {
     addField(resolution, {gravity: true});
@@ -5748,8 +6005,18 @@ export function deriveMoveResolution(
   const selfStatChanges = SELF_STAT_CHANGES[id];
   if (selfStatChanges) addBoosts(resolution, state, effectActorId, selfStatChanges, effectActorId);
   if ((id === 'burnup' && state.generation >= 7) || (id === 'doubleshock' && state.generation >= 9)) {
-    setTypeOverride(resolution, effectActorId, []);
-    resolution.trace!.notes!.push(`${action.moveName} made ${effectActorId} typeless until switching`);
+    // The move burns off ITS type, not every type: a Fire/Bug Centiskorch is
+    // Bug after Burn Up, and only a pure Fire user is left typeless. Setting
+    // [] unconditionally made every dual-type user typeless, and damage into
+    // a typeless body came back null, so each foe move threw and the driver
+    // took the foe's turn away: Centiskorch soloed Roxanne 30/30 without
+    // being hit (113 poisoned wins in the adopted baselines, 2026-09-18).
+    const lost = id === 'burnup' ? 'fire' : 'electric';
+    const kept = getEffectiveTypes(state, effectActorId).filter(type => moveId(type) !== lost);
+    setTypeOverride(resolution, effectActorId, kept);
+    resolution.trace!.notes!.push(kept.length
+      ? `${action.moveName} removed ${effectActorId}'s ${lost === 'fire' ? 'Fire' : 'Electric'} type until switching`
+      : `${action.moveName} made ${effectActorId} typeless until switching`);
   }
   if (id === 'relicsong' && state.generation >= 5) {
     const effectiveSpecies = moveId(getEffectiveSpecies(effectActor));
@@ -5804,6 +6071,12 @@ export function deriveMoveResolution(
       }
     }
   }
+  // Taunt is 3 turns, which yields the correct three taunted actions for a
+  // target that has not yet moved. A target Taunted AFTER it acted gets only
+  // two, because this engine decrements at the turn boundary and the state
+  // model carries no already-moved signal to compensate with. Documented
+  // rather than guessed: inventing that signal from lastMoveByPokemon would
+  // misfire on any mon that moved on an earlier turn.
   if (id === 'taunt') addEligibleVolatile(resolution, state, effectTargetIds, 'taunt', {turns: 3}, effectActorId, true);
   if (id === 'embargo' && state.generation >= 4) {
     addEligibleVolatile(resolution, state, effectTargetIds, 'embargo', {turns: 5}, effectActorId, true);
@@ -5853,7 +6126,9 @@ export function deriveMoveResolution(
     const yawnTargets = effectTargetIds.filter(targetId =>
       !getPokemon(state, targetId)?.volatile?.yawn &&
       canApplyMajorStatus(state, effectActorId, targetId, 'slp', moveType, true));
-    addVolatile(resolution, yawnTargets, 'yawn', {turns: 1, sourceId: effectActorId});
+    // Duration 2: this turn is the grace turn Gen 8 gives the target to
+    // switch or act; the sleep lands at the end of the NEXT turn.
+    addVolatile(resolution, yawnTargets, 'yawn', {turns: 2, sourceId: effectActorId});
   }
   if (id === 'leechseed') {
     const seedTargets = effectTargetIds.filter(targetId =>

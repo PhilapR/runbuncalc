@@ -1,0 +1,295 @@
+/* eslint-env node, es6 */
+'use strict';
+
+/**
+ * Gate for the planner's HELD ITEMS (--plan-items, docs/PLAN.md 2.1).
+ *
+ * planByPlay proposed leads, closers and who makes room, and never an item:
+ * at Champion Wallace the Focus Sash on the lead Dhelmise that halved Primal
+ * Kyogre's cost was an operator's hand (--lead-for). These tests play the real
+ * planner on a banked document — the board, the scouting fights, the run's own
+ * give and take — not hand-made battle facts.
+ *
+ * A policy change ships off: with the knob off the planner must be exactly
+ * what it was, and with it on an item may move but never be made or lost, and
+ * the run's one Mega stays where it is.
+ */
+
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const test = require('node:test');
+
+const run = require('../lib/run.js');
+const headless = require('../scripts/headless-run.js');
+const battery = require('../scripts/scenario-battery.js');
+const policy = require('../scripts/ui-playthrough.js');
+
+const SIDNEY = path.join(__dirname, '..', 'fixtures', 'banked-runs', 'clear1-418957-sidney.run.json');
+const BRAWLY = path.join(__dirname, '..', 'fixtures', 'banked-runs', 'clear1-731001-brawly.run.json');
+
+/**
+ * Seed 418957's box at the Elite Four, fielding the six the planner itself
+ * takes against Champion Wallace from there (Dhelmise leading), with both
+ * Focus Sashes on the bench: Diggersby and Gengar hold them.
+ */
+function wallaceDoc() {
+	let doc = battery.loadDocument(SIDNEY);
+	const id = species => doc.box.find(mon => mon.species === species && mon.status !== 'dead').id;
+	doc = run.apply(doc, {kind: 'party', ids: ['Dhelmise', 'Donphan', 'Florges', 'Ampharos', 'Lopunny', 'Togekiss'].map(id)});
+	return doc;
+}
+
+function plan(doc, trainer, knobs) {
+	const tally = {};
+	const out = headless.withKnobs(Object.assign({planSeeds: 2}, knobs),
+		() => headless.planByPlay(policy, structuredClone(doc), {trainer}, tally));
+	return {out, tally, plan: tally.plans[0]};
+}
+
+/** Every item the run owns, bag and bodies, as name -> count. */
+function holdings(doc) {
+	const all = {};
+	for (const name of Object.keys(doc.bag || {})) all[name] = (all[name] || 0) + doc.bag[name];
+	for (const mon of doc.box) if (mon.item) all[mon.item] = (all[mon.item] || 0) + 1;
+	return Object.fromEntries(Object.entries(all).filter(entry => entry[1] > 0).sort());
+}
+
+function megaHolders(doc) {
+	const stones = require('../calc').MEGA_STONES;
+	return doc.box.filter(mon => mon.item && stones[mon.item]).map(mon => mon.id + '@' + mon.item).sort();
+}
+
+test('the knob is read from an arm and recorded as a knob, off unless named', () => {
+	assert.equal(headless.armFlags('--plan-items=1').knobs.planItems, true);
+	assert.equal(headless.armFlags('--plan-items=0').knobs.planItems, false);
+	assert.equal(headless.armFlags('--plan-seeds=2').knobs.planItems, undefined, 'an arm that does not name it inherits the default');
+});
+
+test('knob off: the planner is exactly what it was before items were planned', () => {
+	// When the knob landed (ad01a5f), a hash of the whole output matched the
+	// planner at 6d12a46 byte for byte. That pin could not outlive the engine:
+	// every fidelity fix since moves the fights it scores. What holds on any
+	// engine: no item record, the same six, and no item moved, made or lost.
+	const doc = wallaceDoc();
+	const planned = plan(doc, 'Champion Wallace', {});
+	const out = planned.out;
+	const taken = planned.plan;
+	assert.equal(taken.items, undefined, 'no item record when the knob is off');
+	assert.equal(taken.took, 'Dhelmise > Donphan > Florges > Ampharos > Lopunny > Togekiss');
+	assert.deepEqual(out.box.map(mon => [mon.id, mon.item || null]), doc.box.map(mon => [mon.id, mon.item || null]),
+		'every body holds what it held');
+	assert.deepEqual(out.bag, doc.bag, 'the bag is untouched');
+});
+
+/** The knob-on plan at Champion Wallace, played once and shared: it costs about a minute and a half. */
+let wallacePlanned = null;
+function wallacePlan() {
+	if (!wallacePlanned) {
+		const doc = wallaceDoc();
+		wallacePlanned = Object.assign({doc}, plan(doc, 'Champion Wallace', {planItems: true}));
+	}
+	return wallacePlanned;
+}
+
+test('knob on, at Champion Wallace: the planner proposes the Focus Sash lead and takes it by play', () => {
+	const planned = wallacePlan();
+	const doc = planned.doc;
+	const out = planned.out;
+	const taken = planned.plan;
+	assert.ok(taken.items.includes('Dhelmise@Focus Sash'), 'proposed: ' + JSON.stringify(taken));
+	// Deterministic on these seeds: the sash wins its scouting fights.
+	assert.deepEqual(taken.held, ['Dhelmise@Focus Sash'], JSON.stringify(taken));
+	assert.ok(taken.wins > taken.stood.wins || (taken.wins === taken.stood.wins && taken.left < taken.stood.left),
+		'taken only because play said it was better: ' + JSON.stringify(taken));
+	const lead = run.findMon(out, out.party[0]);
+	assert.equal(lead.species + '@' + lead.item, 'Dhelmise@Focus Sash', 'the document fights with it');
+	// No sash was in the bag: one came off a benched body, and nothing was made or lost.
+	assert.deepEqual(holdings(out), holdings(doc), 'items conserved');
+	assert.equal(out.box.filter(mon => mon.item === 'Focus Sash').length, 2);
+	assert.deepEqual(megaHolders(out), megaHolders(doc), 'every Mega Stone stays on its body');
+	assert.ok(out.log.length > doc.log.length && out.log.slice(doc.log.length).some(entry => entry.command.kind === 'take'),
+		'the move is on the run\'s own log, where the audit replays it');
+});
+
+test('knob on, on a small box: whatever the planner moves, items are conserved and the Mega untouched', () => {
+	const doc = battery.loadDocument(BRAWLY);
+	const planned = plan(doc, 'Leader Brawly', {planItems: true});
+	const out = planned.out;
+	const taken = planned.plan;
+	assert.ok(Array.isArray(taken.items) && Array.isArray(taken.held), JSON.stringify(taken));
+	assert.deepEqual(holdings(out), holdings(doc), 'items conserved');
+	assert.deepEqual(megaHolders(out), megaHolders(doc));
+	for (const label of taken.held) {
+		const species = label.split('@')[0];
+		const item = label.split('@')[1];
+		assert.ok(out.party.some(id => { const mon = run.findMon(out, id); return mon.species === species && mon.item === item; }), label);
+	}
+});
+
+test('an item change never touches a Mega body: a stone holder keeps its stone, and one whose stone is in the bag is left for giveMegaStone', () => {
+	const doc = wallaceDoc();
+	const lopunny = doc.box.find(mon => mon.species === 'Lopunny');
+	assert.ok(doc.party.includes(lopunny.id) && run.stoneInBag(doc, 'Lopunny'), 'the fixture: Lopunny in the six, Lopunnite in the bag');
+	assert.equal(headless.withKnobs({}, () => headless.withItem(doc, {kind: 'item', id: lopunny.id, item: 'Focus Sash'})), null,
+		'its stone in the bag: the stone is giveMegaStone\'s to hand');
+	const holding = run.apply(doc, {kind: 'give', id: lopunny.id, item: 'Lopunnite'});
+	assert.equal(headless.withKnobs({}, () => headless.withItem(holding, {kind: 'item', id: lopunny.id, item: 'Focus Sash'})), null,
+		'holding its stone: a give would swap the run\'s one Mega back into the bag');
+	const dhelmise = doc.party[0];
+	const moved = headless.withKnobs({}, () => headless.withItem(doc, {kind: 'item', id: dhelmise, item: 'Focus Sash'}));
+	assert.equal(run.findMon(moved, dhelmise).item, 'Focus Sash', 'a body with no Mega takes it — off the bench, no sash being in the bag');
+	assert.deepEqual(holdings(moved), holdings(doc), 'items conserved');
+});
+
+test('a held plan keeps its items: advice between attempts does not replace the planned Focus Sash', () => {
+	// planHolds kept the plan's six but not what it held: followAdvice ran again
+	// whenever the box or bag changed, and its "Colbur Berry over Focus Sash"
+	// undid the lead the planner had just taken by play.
+	const out = wallacePlan().out;
+	const tally = wallacePlan().tally;
+	const lead = out.party[0];
+	assert.equal(run.findMon(out, lead).item, 'Focus Sash', 'the fixture: the plan put the sash on the lead');
+	const keep = headless.plannedHolders(out, tally);
+	assert.deepEqual([...keep], [lead], 'the plan\'s held item names its holder');
+	const advised = headless.withKnobs({}, () => headless.followAdvice(out, headless.armFlags(''), {}, new Map(), keep));
+	assert.equal(run.findMon(advised, lead).species + '@' + run.findMon(advised, lead).item, 'Dhelmise@Focus Sash',
+		'the advice passed over the planned holder');
+	assert.deepEqual(headless.plannedHolders(out, {}), new Set(), 'no plan, nothing kept');
+});
+
+test('the battery plans a scenario the way a run does, and --plan-items reaches the planner', () => {
+	const withArgv = (extra, fn) => {
+		const saved = process.argv;
+		process.argv = ['node', 'battery'].concat(extra);
+		try {
+			return fn();
+		} finally {
+			process.argv = saved;
+		}
+	};
+	const scenario = {name: 'Brawly', trainer: 'Leader Brawly', report: BRAWLY, seeds: 1};
+	const base = ['--repick-party=0', '--plan-seeds=1'];
+	assert.throws(() => withArgv(['--repick-party=0', '--plan-items=1'], () => battery.runScenario(policy, scenario)),
+		/--plan-items is a planner knob; it needs --plan-by-play=1/);
+	const off = withArgv(base.concat(['--plan-by-play=1']), () => battery.runScenario(policy, scenario));
+	assert.equal(off.counters.planned, 1, JSON.stringify(off.plan));
+	assert.equal(off.plan.trainer, 'Leader Brawly');
+	assert.equal(off.plan.items, undefined, 'no item record with the knob off');
+	const on = withArgv(base.concat(['--plan-by-play=1', '--plan-items=1']), () => battery.runScenario(policy, scenario));
+	assert.ok(Array.isArray(on.plan.items), 'the knob reached the planner: ' + JSON.stringify(on.plan));
+	assert.equal(on.counters.itemsHeld, on.plan.held.length ? 1 : 0);
+	const control = withArgv(['--repick-party=0'], () => battery.runScenario(policy, scenario));
+	assert.equal(control.plan, undefined, 'a receipt without the flag carries no plan');
+});
+
+test('run as an arm runs it, the battery plans with a planner that can play its scouting fights', () => {
+	// In process the battery has finished loading before the planner asks for it;
+	// as the entry script it had not, and every scouting fight threw unseen.
+	const fs = require('node:fs');
+	const root = path.join(__dirname, '..');
+	const label = 'guard-plan-cli';
+	const receipt = path.join(root, 'scenarios', 'receipts', label + '.json');
+	const scratch = path.join(root, 'ui-playthrough-out', label + '-battery.json');
+	fs.mkdirSync(path.dirname(scratch), {recursive: true});
+	const result = require('node:child_process').spawnSync(process.execPath,
+		[path.join(root, 'scripts', 'scenario-battery.js'), '--report=' + path.relative(root, BRAWLY),
+			'--trainer=Leader Brawly', '--seeds=1', '--label=' + label, '--repick-party=0',
+			'--plan-by-play=1', '--plan-seeds=1'],
+		{cwd: root, encoding: 'utf8', env: Object.assign({}, process.env, {RUNBUN_SLOT_HELD: 'test',
+			RUNBUN_RUNS_DIR: fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'battery-watch-'))})});
+	const written = fs.existsSync(receipt) ? JSON.parse(fs.readFileSync(receipt, 'utf8')) : null;
+	fs.rmSync(receipt, {force: true});
+	fs.rmSync(scratch, {force: true});
+	assert.doesNotMatch(result.stderr, /circular dependency/, result.stderr.slice(0, 400));
+	assert.equal(result.status, 0, result.stderr.slice(-600));
+	assert.ok(written && written.results[0].plan && written.results[0].plan.of > 1, 'plans were scouted: ' +
+		JSON.stringify(written && written.results[0].plan));
+});
+
+test('--plan-keep ranks plans by bodies kept first, and by wins otherwise', () => {
+	// The measured case (frontier Cool Trainer Michelle, 2026-09-23): two sixes
+	// both win all four scouts, one keeping 1.75 bodies a fight and one 3.5.
+	// Playing it takes half an hour under load, so the comparison is gated here
+	// and the fight is the evidence in headless-run.js.
+	const oneAndThreeQuarters = {wins: 4, left: 0, kept: 1.75};
+	const threeAndAHalf = {wins: 4, left: 0, kept: 3.5};
+	assert.equal(headless.planBetter(threeAndAHalf, oneAndThreeQuarters, true), true);
+	assert.equal(headless.planBetter(oneAndThreeQuarters, threeAndAHalf, true), false);
+	assert.equal(headless.planBetter(threeAndAHalf, oneAndThreeQuarters, false), false, 'off, equal wins and left: not better');
+	// A plan that wins more but keeps fewer loses under --plan-keep, and wins without it.
+	const moreWinsFewerKept = {wins: 4, left: 0, kept: 1};
+	const fewerWinsMoreKept = {wins: 3, left: 1, kept: 2};
+	assert.equal(headless.planBetter(fewerWinsMoreKept, moreWinsFewerKept, true), true);
+	assert.equal(headless.planBetter(moreWinsFewerKept, fewerWinsMoreKept, false), true);
+	// Equal kept falls back to wins, then theirs left.
+	assert.equal(headless.planBetter({wins: 3, left: 2, kept: 1}, {wins: 2, left: 0, kept: 1}, true), true);
+	assert.equal(headless.planBetter({wins: 2, left: 1, kept: 1}, {wins: 2, left: 2, kept: 1}, true), true);
+});
+
+test('a body is valued by what the road ahead loses without it, and its understudy inherits that when it dies', () => {
+	const doc = battery.loadDocument(BRAWLY);
+	const values = headless.bodyValues(doc, 3);
+	const alive = doc.box.filter(mon => mon.status !== 'dead');
+	assert.equal(values.size, alive.length, 'every living body is valued');
+	assert.ok([...values.values()].every(value => value >= 0));
+	const ranked = [...values].sort((a, b) => b[1] - a[1]);
+	assert.ok(ranked[0][1] > 0, 'someone answers the fights ahead');
+	assert.ok(ranked.some(entry => entry[1] === 0), 'and some bodies are spares');
+	// The opportunity cost made concrete: take the most valuable body away, and
+	// the one that covers for it becomes the answer, so its value rises.
+	const without = run.apply(run.apply(structuredClone(doc), {kind: 'party', ids: alive.filter(mon => mon.id !== ranked[0][0]).slice(0, 6).map(mon => mon.id)}),
+		{kind: 'release', id: ranked[0][0]});
+	const after = headless.bodyValues(without, 3);
+	assert.equal(after.has(ranked[0][0]), false, 'the gone are not valued');
+	assert.ok([...after].some(entry => entry[1] > (values.get(entry[0]) || 0)), 'an understudy inherits the answer');
+	// Marginal, not absolute: where a second body answers a foe nearly as well,
+	// losing the best one costs only the gap. So over Brawly's columns the values
+	// sum to less than the best answers do whenever any column has a real second.
+	const matrix = run.boxMatrix(doc, 'Leader Brawly');
+	const table = run.answerTable(matrix);
+	let bestSum = 0;
+	let seconded = false;
+	matrix.grid.forEach((cell, e) => {
+		const scores = matrix.box.map((member, m) => table[m][e].withEntry).sort((a, b) => b - a);
+		if (scores[0] > 0) bestSum += scores[0];
+		if (scores[0] > 0 && scores[1] > 0) seconded = true;
+	});
+	const brawlyOnly = headless.bodyValues(doc, 1);
+	assert.ok(seconded, 'the fixture has a foe two bodies answer');
+	assert.ok([...brawlyOnly.values()].reduce((sum, value) => sum + value, 0) < bestSum - 1e-9,
+		'the cost of a loss is the gap to the next answer, not the answer');
+});
+
+test('value in parts: a control role only one body fills is worth one to it, and the weights are refused unless well formed', () => {
+	const doc = structuredClone(battery.loadDocument(BRAWLY));
+	const alive = doc.box.filter(mon => mon.status !== 'dead');
+	// Nobody else may hold Thunder Wave for the fixture to mean anything.
+	for (const mon of alive) mon.moves = (mon.moves || []).filter(move => move !== 'Thunder Wave' && move !== 'Tailwind' && move !== 'Icy Wind' &&
+		move !== 'Rock Tomb' && move !== 'Bulldoze' && move !== 'Electroweb' && move !== 'Glare' && move !== 'Stun Spore' && move !== 'Nuzzle');
+	alive[0].moves = alive[0].moves.slice(0, 3).concat(['Thunder Wave']);
+	const alone = headless.bodyValueParts(doc, 2);
+	assert.ok(alone.get(alive[0].id).unique >= 1, 'the only speed control in the box');
+	alive[1].moves = alive[1].moves.slice(0, 3).concat(['Thunder Wave']);
+	const shared = headless.bodyValueParts(doc, 2);
+	assert.equal(shared.get(alive[0].id).unique, alone.get(alive[0].id).unique - 1, 'shared with a second body, the role is no longer its alone');
+	for (const part of shared.values()) {
+		for (const name of ['current', 'future', 'spread', 'unique', 'ivs']) assert.ok(part[name] >= 0, name);
+		assert.ok(part.spread <= 1 && part.ivs <= 1);
+	}
+	assert.throws(() => headless.bodyValues(doc, 2, 'current=1,luck=2'), /not a part=weight pair/);
+	assert.throws(() => headless.bodyValues(doc, 2, 'current=-1'), /not a part=weight pair/);
+	const weighed = headless.bodyValues(doc, 2, 'unique=1');
+	assert.equal(weighed.get(alive[1].id), shared.get(alive[1].id).unique);
+});
+
+test('--rank-survival: a six that wins more by paying bodies ranks below one that keeps them', () => {
+	// On real boxes the two orders have matched so far (Michelle, Cranberry, Pablo):
+	// the comparison is gated here, where they part.
+	const six = (pWin, eDeaths, score) => ({adjudication: {pWin, eDeaths}, score});
+	const costlyWinner = six(0.92, 2.1, 1);
+	const cleanWinner = six(0.83, 1.0, 1);
+	assert.ok(run.playedOrder(costlyWinner, cleanWinner, false) < 0, 'by wins, the costly winner first');
+	assert.ok(run.playedOrder(cleanWinner, costlyWinner, true) < 0, 'by survival, the one that keeps its bodies first');
+	assert.ok(run.playedOrder(six(0.5, 2, 1), six(0.6, 2, 1), true) > 0, 'equal deaths fall back to wins');
+	assert.ok(run.playedOrder(six(0.5, 2, 2), six(0.5, 2, 1), true) < 0, 'then the grid score');
+});

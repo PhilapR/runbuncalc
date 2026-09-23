@@ -27,6 +27,7 @@ import {
 import {getEffectiveSpecies, getRawStats} from './stat-transforms';
 import {isMimicryActive, mimicryTypeOverride} from './mimicry';
 import {weatherFormSpeciesOverride} from './weather-forms';
+import {settleStrongWeather} from './strong-weather';
 
 function id(name: string | undefined): string {
   return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -415,8 +416,11 @@ function addIntimidateStatChange(
   target: PokemonState,
   allowMirrorArmor = true,
 ) {
+  // Gen 8 made Inner Focus, Oblivious, Own Tempo and Scrappy block Intimidate
+  // (Run & Bun: "assume Generation 8 mechanics"). Only Inner Focus was
+  // modelled until 2026-09-22, found by tests/fidelity_openings.test.js.
   if (target.hp.current <= 0 ||
-    (state.generation >= 8 && hasAbility(state, target, 'innerfocus')) ||
+    (state.generation >= 8 && hasAbility(state, target, 'innerfocus', 'oblivious', 'owntempo', 'scrappy')) ||
     hasAbility(state, target, 'clearbody', 'fullmetalbody', 'whitesmoke', 'hypercutter') ||
     (isItemEffectActive(state, target) && isItemAvailable(state, target.item) && id(target.item) === 'clearamulet')) return;
   if (state.generation >= 7 && isItemEffectActive(state, target) && id(target.item) === 'adrenalineorb') {
@@ -440,6 +444,10 @@ function addIntimidateStatChange(
   const drop = contrary ? 1 : simple ? -2 : -1;
   if (drop < 0 && hasFlowerVeilProtection(state, target)) return;
   const canTriggerResponse = drop < 0 && stageDelta(target, 'atk', [drop]) < 0;
+  // Gen 8 Rattled: an Intimidate drop also raises Speed a stage.
+  if (state.generation >= 8 && hasAbility(state, target, 'rattled') && canTriggerResponse) {
+    addBoost(resolution, target.id, 'spe', stageDelta(target, 'spe', [1]));
+  }
   if (state.generation >= 5 && hasAbility(state, target, 'defiant') && canTriggerResponse) {
     addBoost(resolution, target.id, 'atk', stageDelta(target, 'atk', [-1, 2]));
     return;
@@ -572,7 +580,33 @@ function applyEntryStatBoostAbilities(
   resolution: SwitchEntryResolution,
   pokemon: PokemonState,
 ) {
-  if (state.generation < 8 || pokemon.hp.current <= 0) return;
+  if (pokemon.hp.current <= 0) return;
+  // Download: +1 Attack when the foes' Defense is lower than their Special
+  // Defense, otherwise +1 Special Attack (a tie raises Special Attack) —
+  // summed over the active foes, at their current stages. ROM-observed
+  // (pokemon-mono P2, 2026-09-22: Def 200/SpD 50 -> SpA, Def 50/SpD 200 ->
+  // Atk, 100/100 -> SpA); implemented backwards on the same day. Not modelled until 2026-09-22; four trainers on the
+  // road lead with it (the fidelity sweep, tests/fidelity_openings.test.js).
+  if (state.generation >= 4 && hasAbility(state, pokemon, 'download')) {
+    const gen = Calc.Generations.get(state.generation);
+    const foeSide = sideForPokemon(state, pokemon.id) === 'ai' ? 'player' : 'ai';
+    const staged = (raw: number, stage: number) => Math.floor(raw * Math.max(2, 2 + stage) / Math.max(2, 2 - stage));
+    let def = 0;
+    let spd = 0;
+    for (const foeId of state.sides[foeSide].activeIds) {
+      const foe = getPokemon(state, foeId);
+      if (!foe || foe.hp.current <= 0) continue;
+      const raw = getRawStats(gen, foe);
+      def += staged(raw.def, foe.boosts?.def || 0);
+      spd += staged(raw.spd, foe.boosts?.spd || 0);
+    }
+    if (def + spd > 0) {
+      const stat = def < spd ? 'atk' : 'spa';
+      addBoost(resolution, pokemon.id, stat, stageDelta(pokemon, stat, [1]));
+      resolution.trace!.notes!.push(`Download raised ${pokemon.id}'s ${def < spd ? 'Special Attack' : 'Attack'}`);
+    }
+  }
+  if (state.generation < 8) return;
   if (hasAbility(state, pokemon, 'intrepidsword') && !pokemon.intrepidSwordTriggered) {
     addBoost(resolution, pokemon.id, 'atk', stageDelta(pokemon, 'atk', [1]));
     resolution.intrepidSwordTriggeredByPokemon = {[pokemon.id]: true};
@@ -596,15 +630,30 @@ function applyWhiteHerbEntry(
     if (!holder || holder.hp.current <= 0 || !isItemEffectActive(state, holder) || id(holder.item) !== 'whiteherb') continue;
     const additive = resolution.boostsByPokemon?.[holder.id] || {};
     const absolute = resolution.setBoostsByPokemon?.[holder.id];
-    const restoration: StatBoosts = {};
+    // The whole stage map after this entry, with each negative stage cleared.
+    // An absolute map replaces the holder's boosts outright when applied, so
+    // it must carry every stage, not only the cleared ones. It carried the
+    // negated drop instead, so a White Herb holder Intimidated at the
+    // opening ended at +1 Attack, not 0 (found 2026-09-22 by
+    // tests/fidelity_openings.test.js).
+    const restored: StatBoosts = {};
+    let cleared = false;
     for (const stat of ['atk', 'def', 'spa', 'spd', 'spe', 'acc', 'eva'] as const) {
       const base = absolute?.[stat] !== undefined ? absolute[stat]! : holder.boosts?.[stat] || 0;
-      const additiveAmount = additive[stat] || 0;
-      const finalStage = base + additiveAmount;
-      if (finalStage < 0) restoration[stat] = additiveAmount ? -additiveAmount : 0;
+      const finalStage = base + (additive[stat] || 0);
+      if (finalStage < 0) {
+        restored[stat] = 0;
+        cleared = true;
+      } else if (finalStage) {
+        restored[stat] = finalStage;
+      }
     }
-    if (!Object.keys(restoration).length) continue;
-    setBoosts(resolution, holder.id, restoration);
+    if (!cleared) continue;
+    if (resolution.boostsByPokemon?.[holder.id]) {
+      const {[holder.id]: _cleared, ...others} = resolution.boostsByPokemon;
+      resolution.boostsByPokemon = others;
+    }
+    setBoosts(resolution, holder.id, restored);
     consumeItem(resolution, holder.id, holder.item!);
     resolution.trace!.notes!.push(`White Herb cleared negative entry stages for ${holder.id}`);
   }
@@ -648,6 +697,13 @@ function entryFieldEffects(
   if (!isAbilityAvailable(state.generation, ability)) return {};
   if (ability === 'drought') return {weather: 'Sun'};
   if (ability === 'drizzle') return {weather: 'Rain'};
+  // The strong weathers. Missing until 2026-09-22, so Champion Wallace's
+  // Primal Kyogre fought in a dry sky: Origin Pulse unboosted, Thunder able
+  // to miss, Fire moves landing into it. They end when their holder leaves
+  // (settleStrongWeather in strong-weather.ts).
+  if (state.generation >= 6 && ability === 'primordialsea') return {weather: 'Heavy Rain'};
+  if (state.generation >= 6 && ability === 'desolateland') return {weather: 'Harsh Sunshine'};
+  if (state.generation >= 6 && ability === 'deltastream') return {weather: 'Strong Winds'};
   if (ability === 'sandstream') return {weather: 'Sand'};
   if (ability === 'snowwarning') return {weather: state.generation >= 9 ? 'Snow' : 'Hail'};
   if (state.generation >= 9 && ability === 'orichalcumpulse') return {weather: 'Sun'};
@@ -705,7 +761,13 @@ export function deriveSwitchEntryResolution(
     sides: {...state.sides, [sideId]: entrySide},
   };
   const fieldEffects = entryFieldEffects(entryRosterState, pokemon);
-  if (fieldEffects.weather && isStrongWeather(state.field.weather) && state.field.weather !== fieldEffects.weather) {
+  // The weather the replacement meets: a strong weather whose holder just
+  // left (or fainted) has already ended, so it blocks nothing. Primal Kyogre
+  // out, Drizzle Pelipper in is rain.
+  const standingWeather = settleStrongWeather(entryRosterState).field.weather;
+  // Only an ordinary setter is blocked: a strong weather replaces another.
+  if (fieldEffects.weather && !isStrongWeather(fieldEffects.weather) && isStrongWeather(standingWeather) &&
+    standingWeather !== fieldEffects.weather) {
     delete fieldEffects.weather;
     resolution.trace!.notes!.push('strong weather blocked the entry weather setter');
   }
@@ -717,7 +779,7 @@ export function deriveSwitchEntryResolution(
     };
     resolution.trace!.notes!.push('applied permanent entry weather/terrain ability');
   }
-  const entryWeather = fieldEffects.weather || state.field.weather;
+  const entryWeather = fieldEffects.weather || standingWeather;
   const entryState: BattleState = {
     ...entryRosterState,
     field: {
@@ -762,6 +824,17 @@ export function deriveSwitchEntryResolution(
     const activeIds = (['ai', 'player'] as const).flatMap(activeSide =>
       entryState.sides[activeSide].activeIds.filter(idValue => idValue !== action.actorId));
     activateTerrainSeeds(entryState, resolution, entryTerrain, [pokemon.id, ...activeIds]);
+  }
+  // Room Service on entry: a holder that switches in under Trick Room takes
+  // -1 Speed and uses the item up (Gen 8; Showdown roomservice onStart).
+  if (state.generation >= 8 && entryState.field.trickRoom && pokemon.hp.current > 0 &&
+    isItemEffectActive(entryState, pokemon) && id(pokemon.item) === 'roomservice') {
+    const amount = hasAbility(entryState, pokemon, 'contrary')
+      ? 1
+      : hasAbility(entryState, pokemon, 'simple') ? -2 : -1;
+    addBoost(resolution, pokemon.id, 'spe', stageDelta(pokemon, 'spe', [amount]));
+    consumeItem(resolution, pokemon.id, pokemon.item!);
+    resolution.trace!.notes!.push(`Room Service lowered ${pokemon.id}'s Speed on entry under Trick Room`);
   }
 
   if (entryState.generation >= 3 && hasAbility(entryState, pokemon, 'intimidate')) {

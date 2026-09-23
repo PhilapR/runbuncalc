@@ -96,6 +96,233 @@ function encountersOn(name) {
 }
 
 /** Every map a species can be caught on, with how. */
+const unavailableData = require('./oracle/unavailable.json');
+const sourcesData = require('./oracle/sources.json');
+
+/**
+ * Every non-wild way to get a Pokemon, flattened to species -> sources.
+ *
+ * Built once. A Game Corner tier is a RANDOM draw between its options, so
+ * each option carries the whole set and the odds rather than pretending the
+ * player picks — that is the same shape a wild table already uses.
+ */
+const NON_WILD = new Map();
+function addSource(species, entry) {
+	if (!species) return;
+	if (!NON_WILD.has(species)) NON_WILD.set(species, []);
+	NON_WILD.get(species).push(entry);
+}
+for (const tier of sourcesData.gameCorner.tiers) {
+	for (const species of tier.options) {
+		addSource(species, {
+			kind: 'game-corner', where: 'Game Corner', opensAt: tier.opensAt,
+			gate: tier.badge, after: tier.leader,
+			oneOf: tier.options,
+			chance: Math.round(100 / tier.options.length),
+		});
+	}
+}
+for (const trade of sourcesData.trades) {
+	for (const species of trade.gives) {
+		addSource(species, {
+			kind: 'trade', where: trade.where, opensAt: null,
+			costs: trade.wants,
+		});
+	}
+}
+for (const gift of sourcesData.gifts) {
+	if (gift.species) {
+		addSource(gift.species, {kind: 'gift', where: gift.where, opensAt: gift.opensAt,
+			note: gift.note});
+	}
+	for (const species of gift.options || []) {
+		addSource(species, {kind: 'gift', where: gift.where, opensAt: gift.opensAt,
+			oneOf: gift.options, what: gift.what, note: gift.note});
+	}
+}
+for (const species of sourcesData.roaming.species) {
+	addSource(species, {kind: 'roaming', where: null, opensAt: null,
+		after: sourcesData.roaming.after});
+}
+
+/**
+ * The Game Corner's prize tiers, `[{badge, leader, opensAt, options}]`.
+ * Ruling 2026-09-20 (the-game-corner-pays-once): ONE prize a run, from any
+ * tier whose gym is beaten, random within the tier.
+ */
+function prizeTiers() {
+	return sourcesData.gameCorner.tiers.map(tier => Object.assign({}, tier,
+		{options: tier.options.slice()}));
+}
+
+/**
+ * The story GIFTS, `[{species|null, options?, what?, where, opensAt, note}]`.
+ * Scripted events, not encounter-table rolls, so the run claims them by
+ * position rather than by rolling a route.
+ */
+function gifts() {
+	return sourcesData.gifts.map(gift => Object.assign({}, gift,
+		gift.options ? {options: gift.options.slice()} : {}));
+}
+
+/** Non-wild sources for a species, or an empty list. */
+function nonWildSources(species) {
+	return (NON_WILD.get(species) || []).slice();
+}
+
+/**
+ * Every species this hack REMOVED, flattened once.
+ *
+ * Generation IX is listed as "All of them." rather than enumerated, so it
+ * cannot join this set — availabilityOfSpecies reports it by generation
+ * instead. Enumerating it here would be inventing a list the source does
+ * not give.
+ */
+/**
+ * The removed-species list and the growth table spell some names differently,
+ * and the join dropped every one that disagreed.
+ *
+ * 38 of the 416 enumerated names were not keys of growth.json, so the set never
+ * contained them and `where Mewtwo` answered "a gap in the tool, NOT a
+ * statement that you cannot get one" about a species the hack removed — which
+ * is the exact two-answers-in-one-word failure this dataset exists to end.
+ *
+ * Three kinds of disagreement, none of them about the game:
+ *
+ *   - a trailing full stop caught by the transcription ("Mewtwo.", "Ho-Oh.",
+ *     "Arceus.", "Marowak-Alolan.", "Braviary-Hisuian.")
+ *   - a form suffix the growth table writes shorter (-Alolan against -Alola,
+ *     -Galarian against -Galar, -Hisuian against -Hisui) or differently
+ *     ("Type-Null" against "Type: Null", -Sandy-Cloak against -Sandy,
+ *     -Ice-Rider against -Ice)
+ *   - a straight apostrophe where the table uses a curly one (Farfetch'd)
+ *
+ * A candidate is only accepted when it is the ONE spelling that exists as a
+ * growth key, so this cannot invent a species or pick between two. 37 of the 38
+ * resolve that way. The one that does not is recorded rather than dropped:
+ * "Aegislash" is bare where the table carries Aegislash-Shield and
+ * Aegislash-Blade, and deciding whether the source meant both forms is a
+ * ruling about the game, not a spelling.
+ */
+function growthKeyFor(name) {
+	const growth = load('growth');
+	if (Object.prototype.hasOwnProperty.call(growth, name)) return name;
+	const base = name.replace(/\.$/, '');
+	const candidates = new Set([
+		base,
+		base.replace(/-Alolan$/, '-Alola')
+			.replace(/-Galarian$/, '-Galar')
+			.replace(/-Hisuian$/, '-Hisui'),
+		base.replace('Type-Null', 'Type: Null'),
+		base.replace(/'/g, '\u2019'),
+		base.replace(/-Sandy-Cloak$/, '-Sandy').replace(/-Trash-Cloak$/, '-Trash'),
+		base.replace(/-Eternal-Flower$/, '-Eternal'),
+		base.replace(/-Ice-Rider$/, '-Ice').replace(/-Shadow-Rider$/, '-Shadow'),
+	]);
+	const found = [...candidates].filter(candidate =>
+		Object.prototype.hasOwnProperty.call(growth, candidate));
+	return found.length === 1 ? found[0] : null;
+}
+
+const UNAVAILABLE = new Set();
+/** Enumerated names that no single growth key answers to. Named, not dropped. */
+const UNAVAILABLE_UNJOINED = [];
+for (const generation of Object.keys(unavailableData.generations)) {
+	for (const name of unavailableData.generations[generation].species) {
+		const key = growthKeyFor(name);
+		if (key === null) {
+			UNAVAILABLE_UNJOINED.push(name);
+			UNAVAILABLE.add(name);
+			continue;
+		}
+		UNAVAILABLE.add(key);
+		// The written spelling still has to answer, because callers ask with
+		// whatever the source gave them.
+		if (key !== name) UNAVAILABLE.add(name);
+	}
+}
+const UNAVAILABLE_WHOLE_GENERATIONS = Object.keys(unavailableData.generations)
+	.filter(generation => unavailableData.generations[generation].all);
+const CONTESTED = new Set(unavailableData.openQuestions.map(row => row.species));
+
+/**
+ * WHY a species cannot be found — the distinction the tool did not have.
+ *
+ * `unavailable` means the hack removed it and no amount of modelling will
+ * bring it back. `not-modelled` means it exists and we have not taught the
+ * tool that source yet: a gift, a trade, a Game Corner reward. Both used to
+ * answer "NOT FINDABLE", which told a nuzlocke player nothing about whether
+ * to keep looking.
+ *
+ * `contested` is the honest third answer for the two species where the
+ * author's workbook and the ROM tables disagree and neither has been shown
+ * wrong. Claiming either would be inventing certainty.
+ */
+function availabilityOfSpecies(species) {
+	// Not in this hack's species data at all. Generation IX is excluded
+	// wholesale — the source says "All of them." rather than naming any — so
+	// absence from the dex IS the answer, and enumerating that generation
+	// here would be inventing a list the source does not give.
+	if (!isKnownSpecies(species)) {
+		return {status: 'unavailable', reason: 'not in this hack\'s species data'};
+	}
+	// Every route in, wild and otherwise. A species can have BOTH: Larvitar
+	// is a Heat Badge reward AND stands in the grass, and reporting only the
+	// grass would hide a guaranteed one. An earlier version returned on the
+	// first wild table it found and lost the other half.
+	const other = nonWildSources(species);
+	const wild = whereToFind(species);
+
+	if (wild.length) {
+		if (CONTESTED.has(species)) {
+			const row = unavailableData.openQuestions.find(entry => entry.species === species);
+			return {status: 'contested', wild, sources: other,
+				question: row.question, wildSource: row.wildSource};
+		}
+		// A table in unreachable content is not a way to get one. Six species
+		// are listed unavailable AND carry wild tables for exactly this
+		// reason: the ROM keeps tables for areas the game does not open.
+		const reachable = wild.filter(entry => !!availabilityOf(entry.name));
+		if (!reachable.length) {
+			// ...unless something else hands one over, which changes the answer
+			// completely rather than merely adding to it.
+			if (other.length) return {status: 'obtainable', wild, sources: other};
+			return {
+				status: 'unreachable',
+				wild,
+				reason: 'every wild table for it stands in content nothing can date — ' +
+					'the ROM keeps tables for areas the game does not open',
+			};
+		}
+		return {status: 'wild', wild, reachable, ...(other.length ? {sources: other} : {})};
+	}
+	// A non-wild source is a real way to get one. This is the whole point of
+	// Phase 1: eight Game Corner tiers, three trades, the gifts, the fossils
+	// and seven roaming legendaries used to answer "not modelled".
+	if (other.length) return {status: 'obtainable', sources: other};
+	if (UNAVAILABLE.has(species)) {
+		return {status: 'unavailable', reason: 'named in the hack\'s Unavailable Pokemon list'};
+	}
+	// It exists in this hack and has no route we model, so it comes from a
+	// source we have not taught the tool. That is a different answer from
+	// "you cannot have it".
+	return {status: 'not-modelled', notModelled: NON_WILD_SOURCES_NOT_MODELLED};
+}
+
+/** Does this hack ship the species at all? */
+function isKnownSpecies(species) {
+	try {
+		return !!growthRateOf(species);
+	} catch (error) {
+		return false;
+	}
+}
+
+/** The sources that exist in the game and have no model yet. */
+const NON_WILD_SOURCES_NOT_MODELLED = Object.freeze([
+	'gift', 'trade', 'fossil', 'game-corner', 'egg', 'static',
+]);
+
 function whereToFind(species) {
 	const found = [];
 	for (const map of maps()) {
@@ -117,8 +344,21 @@ function whereToFind(species) {
 }
 
 /** What a species evolves into, and on what terms. Empty array if it does not. */
+/**
+ * Item names the decomp spells differently from the game's own item list,
+ * bridged on the way OUT so evolutions.json stays a verbatim transcription
+ * (the same contract build-item-locations.js keeps with NAME_FIXES).
+ *
+ * The decomp constant is ITEM_UP_GRADE; the fork's Item Locations sheet and
+ * its evolution doc both say "Upgrade", and that is what a mart sells and a
+ * bag holds. Unbridged, Porygon could never become Porygon2 — and Porygon2
+ * is what Leader Norman walls a run with.
+ */
+const ITEM_NAMES = {'Up-Grade': 'Upgrade'};
+
 function evolutionsOf(species) {
-	return load('evolutions')[species] || [];
+	return (load('evolutions')[species] || []).map(step => step.item && ITEM_NAMES[step.item] ?
+		Object.assign({}, step, {item: ITEM_NAMES[step.item]}) : step);
 }
 
 let preEvolutionIndex = null;
@@ -271,8 +511,10 @@ function growthRateOf(species) {
 
 /**
  * A species' catch rate — the one number the ball math runs on. Mainline dex
- * data (veekun import), not decomp data: the hack does not touch capture
- * rates. Keys are normalized to alphanumerics so naming styles meet.
+ * data (PokeAPI, scripts/import-catch-rates.js), not decomp data, and no Run &
+ * Bun source confirms the hack leaves capture rates alone: registered as
+ * `transcribed` in index.js. Keys are normalized to alphanumerics so naming
+ * styles meet.
  */
 function catchRateOf(species) {
 	const rates = load('catch-rates').rates;
@@ -354,9 +596,15 @@ function coverage() {
 const LIMITS = {
 	wildEncountersOnly: true,
 	staticAndGiftEncountersAbsent: true,
-	itemLocationsAbsent: true,
+	// Was `true` from the first oracle import and stayed true after the item
+	// data landed and falsified it. This block is served to clients on
+	// /run/maps, so a stale declaration here tells every consumer the layer
+	// cannot answer a question it has been answering for months: `fieldItems()`
+	// returns located, dated pickups and `api.where` reports them.
+	itemLocationsAbsent: false,
 	note: 'Route rolls cover wild encounters. Starters, gifts, static encounters, trades ' +
-		'and shop stock are scripted events, so add them without choosing a route.',
+		'and shop stock are scripted events, so add them without choosing a route. ' +
+		'Field items ARE located and dated; an undated one is withheld, not guessed.',
 };
 
 /**
@@ -416,9 +664,14 @@ function availabilityOf(name) {
  * their HMs. Reaching a route is not the same as being able to fish its
  * water dry — both gates have to hold before a slot is a real prospect.
  */
-function methodOpensAt(method) {
+function methodOpensAt(method, mapName) {
 	const gates = load('availability').methods || {};
-	return gates[method] !== undefined ? gates[method] : null;
+	const global = gates[method] !== undefined ? gates[method] : null;
+	// A route whose later section carries one method's table (Route 115's
+	// Level 90 grass sits past Leader Juan) gates that method on its own.
+	const own = mapName ? ((availabilityOf(mapName) || {}).methodOpens || {})[method] : undefined;
+	if (own === undefined) return global;
+	return global === null ? own : Math.max(global, own);
 }
 
 /**
@@ -428,13 +681,138 @@ function methodOpensAt(method) {
  * not hold yet — with where to go get it.
  */
 function itemsObtainableBy(order) {
-	const all = load('availability').items || [];
-	return all.filter(item => item.opensAt !== null && item.opensAt <= order);
+	// The SAME ledger the collect surface serves. This read only the 28
+	// curated availability rows while fieldItems() served those plus the
+	// dated item ledger, so a run collected a Sitrus Berry the advisor could
+	// not name and never priced Muscle Band, Wise Glasses, or the Cheri and
+	// Chesto Berries that answer Norman's Thunder Wave and Relic Song: by
+	// order 337, 28 of 32 holdable pickups were invisible to every advice row.
+	// One row per item NAME, its earliest dated place: the two ledgers both
+	// list an Oran Berry, and an advice row is a name, not a place.
+	const first = new Map();
+	for (const item of fieldItems()) {
+		if (item.kind === 'tm' || item.opensAt === null || item.opensAt === undefined ||
+			item.opensAt > order) continue;
+		const seen = first.get(item.name);
+		if (!seen || item.opensAt < seen.opensAt) first.set(item.name, item);
+	}
+	return [...first.values()];
 }
 
 /** The whole field-item ledger, location and all — the guided view's source. */
+/**
+ * The TM that teaches a move, or null: {name, repeatable, unlimitedFrom, opensAt}.
+ * `repeatable` says a TM is re-sold SOMEWHERE; `unlimitedFrom` says from when.
+ *
+ * A TM is a ONE-TIME item in this fork (the author's FAQ and the release
+ * thread) except the ten re-sold at the Lilycove Department Store; an HM is
+ * reusable wherever it is used. The sheet was never transcribed, so the run
+ * charged nothing for a TM move and taught one ten times over.
+ */
+/**
+ * The order of the fight that hands the player the Mega Ring: Leader Flannery,
+ * the fifth gym (operator ruling the-player-megas, 2026-09-21; the first Mega
+ * Stones in the item ledger are dated 594, just past her at 576).
+ */
+function megaRingOpensAt() {
+	try {
+		return require('../../lib/planner').getFight('Leader Flannery', 'run-and-bun').order;
+	} catch (error) {
+		return null;
+	}
+}
+
+/** The order at which the Lilycove Department Store can be shopped at. */
+function lilycoveOpens() {
+	const city = availabilityOf('Lilycove City');
+	return city && Number.isInteger(city.opensAt) ? city.opensAt : null;
+}
+
+function tmFor(move) {
+	if (!cache.tmByMove) {
+		cache.tmByMove = new Map();
+		for (const row of load('item-locations').entries || []) {
+			if (row.kind !== 'tm') continue;
+			const taught = String(row.name).replace(/^(?:TM|HM)\d+\s+/, '');
+			cache.tmByMove.set(taught, {name: row.name,
+				repeatable: /^HM/.test(row.name) || /Sold at /.test(row.location || ''),
+				// "Sold at Lilycove Department Store" makes a TM unlimited ONCE
+				// LILYCOVE IS OPEN, not from the day its first copy is handed
+				// over: Rock Tomb is given in Rusturf Tunnel at order 148 and
+				// was being taught without limit from there, 723 orders early.
+				unlimitedFrom: /^HM/.test(row.name) ? 0 :
+					/Sold at Lilycove/.test(row.location || '') ? lilycoveOpens() : null,
+				opensAt: row.opensAt === undefined ? null : row.opensAt});
+		}
+	}
+	return cache.tmByMove.get(move) || null;
+}
+
+/**
+ * The moves a tutor teaches, and where the tutor stands — a service, not an
+ * item, so it is read here rather than carried in the item ledger.
+ */
+function moveTutors() {
+	if (!cache.tutors) {
+		cache.tutors = (load('item-workbook').tutors || []).map(row => ({move: row.move, where: row.place}));
+	}
+	return cache.tutors;
+}
+
+/** Whether a tutor teaches this move — a Set, because learnable asks per move. */
+function tutorTeaches(move) {
+	if (!cache.tutorMoves) cache.tutorMoves = new Set(moveTutors().map(row => row.move));
+	return cache.tutorMoves.has(move);
+}
+
+/**
+ * When the tutor for this move can first be reached: an order, null when the
+ * place is known but not datable, undefined when no tutor teaches it. A tutor
+ * is free, but it is SOMEWHERE — Brick Break's stands on Route 118, which
+ * opens at 623, and the run taught it at Norman (337) because a service was
+ * never asked where it was.
+ */
+function tutorOpensAt(move) {
+	const rows = moveItems().filter(row => row.kind === 'tutor' && row.move === move);
+	if (!rows.length) return undefined;
+	const dated = rows.map(row => row.opensAt).filter(at => typeof at === 'number');
+	if (dated.length) return Math.min.apply(null, dated);
+	// Surf, Fly and Dive are handed over by a person (Mr. Sea, the rival, Steven),
+	// so the sheet lists them as tutors with no datable place — but they are the
+	// HM story spine, which IS dated (hmMoves). Without this, Surf could be
+	// taught at the start of the road.
+	const gate = (load('availability').hmMoves || {})[move];
+	return typeof gate === 'number' ? gate : null;
+}
+
 function fieldItems() {
-	return load('availability').items || [];
+	if (!cache.fieldItems) {
+		// The 28 curated availability rows, PLUS the item ledger's dated
+		// currencies. Seventeen treatment runs across two instruments spent
+		// zero Heart Scales while two sat on the corridor, because this
+		// answer never served the ledger — the advisor priced scale
+		// purchases a bag could not fund. Only dated rows: an undated place
+		// cannot say when its item is reachable, and the collect surface
+		// must never offer what the road cannot.
+		const ledger = load('item-locations').entries || [];
+		// Currencies, held items and berries — everything a route hands over.
+		// Sold-at rows are the SHOP's, not the road's, and 44 dated held rows
+		// sat here unserved, starving every Give-item advice row. Dedup
+		// against the curated availability rows by name+location prefix so
+		// one physical item never renders twice.
+		const curated = load('availability').items || [];
+		const taken = new Set(curated.map(row =>
+			row.name + '|' + String(row.location || '').slice(0, 12)));
+		const fromLedger = ledger
+			.filter(row => ['heart-scale', 'rare-candy', 'held', 'berry', 'evolution', 'mega-stone', 'tm'].includes(row.kind) &&
+				row.opensAt !== null && row.opensAt !== undefined &&
+				!/^Sold at /.test(row.location || '') &&
+				!taken.has(row.name + '|' + String(row.location || '').slice(0, 12)))
+			.map(row => ({name: row.name, kind: row.kind,
+				location: row.location, opensAt: row.opensAt}));
+		cache.fieldItems = curated.concat(fromLedger);
+	}
+	return cache.fieldItems;
 }
 
 /**
@@ -445,6 +823,18 @@ function fieldItems() {
  * scripts/import-fight-fields.js); a `note`-only entry (Route 129's erratic
  * weather) declares a condition that CANNOT be a static field.
  */
+/** Dated sold-at ledger rows: the marts the road has reached sell these. */
+function shopItems() {
+	if (!cache.shopItems) {
+		cache.shopItems = (load('item-locations').entries || [])
+			.filter(row => /^Sold at /.test(row.location || '') &&
+				row.opensAt !== null && row.opensAt !== undefined)
+			.map(row => ({name: row.name, kind: row.kind,
+				location: row.location, opensAt: row.opensAt}));
+	}
+	return cache.shopItems;
+}
+
 function fightFieldOf(trainer) {
 	if (!cache.fightFields) {
 		cache.fightFields = load('fight-fields').fields;
@@ -454,35 +844,152 @@ function fightFieldOf(trainer) {
 
 /**
  * The progression order an HM MOVE becomes teachable, or null for a move
- * with no known gate. Null means "not dated", which covers every TM — the
- * source dates only the HM story spine — so a null must be read as "assume
- * available", never "never obtainable".
+ * with no known gate. Null means "not dated" — 22 of the 78 TM and tutor rows
+ * have a known place and no proven unlock — so a null must be read as "timing
+ * unproven", never as "never obtainable" and never as "available now".
  */
 function moveObtainableAt(move) {
-	const gates = load('availability').hmMoves || {};
-	return gates[move] !== undefined ? gates[move] : null;
+	const data = load('availability');
+	const gates = data.hmMoves || {};
+	if (gates[move] !== undefined) return gates[move];
+	// The TM and tutor ledger, which this used to ignore. When it was written
+	// the source dated only the HM story spine, so "null covers every TM" was a
+	// true description; moveItems has since arrived with 56 dated rows and the
+	// function kept answering null for all of them. The advisor reads this to
+	// decide whether a teachable move is reachable yet, so every TM failed that
+	// test and was dropped — a party stood in front of Leader Brawly with Icy
+	// Wind, Rock Blast and Feint Attack all reachable and was offered Absorb.
+	//
+	// The EARLIEST dated row wins: a move sold in a late department store and
+	// also lying on an early route is available from the route.
+	let soonest = null;
+	for (const row of moveItems()) {
+		if (row.move !== move || typeof row.opensAt !== 'number') continue;
+		if (soonest === null || row.opensAt < soonest) soonest = row.opensAt;
+	}
+	return soonest;
+}
+
+/** The TM and tutor location ledger — rows with a prose location, and an
+ * `opensAt` in RUN MAP ORDER where the place could be dated (null = the place
+ * is known but its unlock is not; read as "location known, timing unproven").
+ *
+ * Run map order counts cumulative enemy POKEMON, not trainers. This comment
+ * said "trainer order" and that is a different number entirely: Leader Brawly
+ * is trainer 26 of 362 and order 77. TM16 settles which one the data uses —
+ * it is Brawly's own gym reward and carries opensAt 77, his order, not 26. The
+ * mislabel is the same one `lib/play.js` printed to players as "opens at fight
+ * #77" for a TM obtainable 51 trainers earlier than that reads. */
+/**
+ * Where a spent currency actually comes from.
+ *
+ * The run CHARGES a Rare Candy per level over the cap and a Heart Scale per
+ * relearned move, and for a long time it could not say where either is found:
+ * `fieldItems` models 28 items and neither currency, nor any evolution stone,
+ * is among them. The workbook has held the answer the whole time — 30 Heart
+ * Scale locations and 14 Rare Candy — and nothing read it.
+ *
+ * Places only, deliberately. Dating them would mean inferring an unlock from a
+ * place name, which is the inference `moveObtainableAt` refuses for TMs and
+ * which produced this repository's worst data bug. Telling a player WHERE is
+ * the whole of what the refusal was missing; WHEN is a separate question with
+ * a separate standard of proof.
+ */
+function currencySources(name) {
+	const sheet = name === 'Heart Scale' ? 'heartScales' :
+		name === 'Rare Candy' ? 'rareCandies' : null;
+	if (!sheet) return [];
+	const workbook = load('item-workbook');
+	return (workbook[sheet] || []).map(row => ({
+		place: row.place || null,
+		detail: row.detail || null,
+	}));
+}
+
+function moveItems() {
+	if (!cache.moveItemsDated) {
+		// The TM ledger's own dates stand — transcribed, or corrected from play.
+		// A row it leaves undated takes the date scripts/build-item-locations.js
+		// reads from the same prose with every hack-only signal it has
+		// (move-dates.json): 19 rows were undated for want of a parser, not of
+		// knowledge, and an undated tutor teaches at any point on the road.
+		const byMove = new Map();
+		for (const entry of load('move-dates').entries) byMove.set(entry.kind + '|' + entry.move, entry);
+		cache.moveItemsDated = (load('availability').moveItems || []).map(row => {
+			if (row.opensAt !== null) return row;
+			// Surf, Fly and Dive are handed over by a person, so no place dates them; the HM story spine does.
+			const spine = (load('availability').hmMoves || {})[row.move];
+			if (typeof spine === 'number') return Object.assign({}, row, {opensAt: spine, dating: 'the HM story spine', provenance: 'derived'});
+			const built = byMove.get(row.kind + '|' + row.move);
+			if (!built || built.opensAt === null) return row;
+			return Object.assign({}, row, {opensAt: built.opensAt, dating: 'item-builder: ' + built.dating, provenance: 'derived'});
+		});
+	}
+	return cache.moveItemsDated;
 }
 
 /**
  * Coverage statement for move unlocks shown in progression UI.
  *
- * Legal TM/tutor moves are imported, but their overworld locations and dates
- * are not. Only the HM story spine is dated. Consumers must preserve that
- * distinction instead of interpreting an absent date as proof of availability.
+ * TM and tutor locations are imported from the operator's Items Locations
+ * sheet (via pokemon-mono rab-tms-tutors); most rows carry a late-biased
+ * unlock date through LOCATION_UNLOCKS. Rows without a datable place keep
+ * opensAt null — consumers must present those as "location known, timing
+ * unproven", never as available-now.
  */
 function moveAvailability() {
+	const rows = moveItems();
+	if (!rows.length) {
+		return {
+			status: 'undated',
+			available: [],
+			note: 'TM and tutor moves are known, but their locations and unlock timing are not dated yet.',
+		};
+	}
+	const undated = rows.filter(row => row.opensAt === null).length;
 	return {
-		status: 'undated',
-		available: [],
-		note: 'TM and tutor moves are known, but their locations and unlock timing are not dated yet.',
+		status: 'dated',
+		available: rows,
+		note: rows.length + ' TM and tutor locations on file' +
+			(undated ? ', ' + undated + ' without a dated unlock' : ''),
 	};
 }
 
+/**
+ * Enumerated removed-species names that no single growth key answers to.
+ *
+ * Exported so the gap is checkable rather than folklore. One name is on it:
+ * "Aegislash", where the growth table carries Aegislash-Shield and
+ * Aegislash-Blade and choosing between them — or claiming both — is a ruling
+ * about what the source meant.
+ */
+function unavailableNamesWithoutGrowthKey() {
+	return UNAVAILABLE_UNJOINED.slice();
+}
+
+/**
+ * The precomputed fight dossier: threat metrics, tech flags and named
+ * answers, built offline by scripts/build-fight-dossiers.js so a runtime
+ * consumer pays a dictionary lookup. Null for a trainer the map does not
+ * know — a consumer treats that as "no dossier", never as an error.
+ */
+let DOSSIER_INDEX = null;
+function fightDossierOf(trainer) {
+	if (!DOSSIER_INDEX) {
+		const doc = require('./oracle/fight-dossiers.json');
+		DOSSIER_INDEX = new Map(doc.fights.map(row => [row.trainer, row]));
+	}
+	return DOSSIER_INDEX.get(trainer) || null;
+}
+
 module.exports = {
-	maps, getMap, encountersOn, whereToFind, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
-	moveAvailability,
-	fightFieldOf, itemsObtainableBy, fieldItems,
-	evolutionsOf, preEvolutionOf, lineageOf, familyOf,
+	fightDossierOf,
+	maps, getMap, encountersOn, whereToFind, availabilityOfSpecies, nonWildSources, prizeTiers, megaRingOpensAt, areaOf, availabilityOf, methodOpensAt, moveObtainableAt,
+	unavailableNamesWithoutGrowthKey,
+	moveAvailability, moveItems,
+	currencySources,
+	fightFieldOf, itemsObtainableBy, fieldItems, shopItems,
+	evolutionsOf, preEvolutionOf, lineageOf, familyOf, gifts, moveTutors, tutorTeaches, tutorOpensAt, tmFor,
 	levelUpMoves, teachableMoves, ownEggMoves, legalMoves, canLearn,
 	growthRateOf, expForLevel, levelFromExp, catchRateOf,
 	coverage, LIMITS,

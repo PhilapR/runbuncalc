@@ -344,6 +344,14 @@ active-ID-only state and are cleared when a slot switches.
   still record move bookkeeping/PP, while supported cleanup such as flinch
   removal is applied atomically. Sleep Talk and Snore bypass the sleep gate,
   and a successful freeze thaw clears the freeze before the move proceeds.
+  The gates run in this order: recharge, then sleep and freeze, then Truant,
+  then flinch, then confusion, paralysis and infatuation (Showdown's
+  onBeforeMovePriority and the pokeemerald canceller agree on sleep/freeze
+  before Truant and flinch; `b193e3f`, 2026-09-22). Paralysis before
+  infatuation is ROM-observed (pokemon-mono P4, 2026-09-22); a Gen 8 ruling
+  the same day (`4ecdf5e`) was superseded by it. A flinched or loafing
+  sleeper therefore spends its sleep turn, and a Pokémon that wakes still
+  meets the later gates that turn.
   Protective moves use the tracked consecutive-move state: a failed repeat
   does not create protection and resets that streak.
   `PokemonState.volatile.endure` is separate from `protected`: it applies a
@@ -393,7 +401,10 @@ active-ID-only state and are cleared when a slot switches.
 - `PokemonState.disguiseBroken` records the Run & Bun Disguise lifecycle. An
   intact Disguise converts the first positive direct or delayed move hit into
   zero damage and marks the effect broken; switching resets it for the next
-  entry. Calculator adapter facts apply the same protection before scoring.
+  entry. Calculator adapter facts apply the same protection before scoring,
+  and mark the guarded forecast with `DamageFacts.zeroedByGuard` (`'disguise'`
+  or `'iceface'`): the marker is what lets the move resolution tell a landed,
+  guard-breaking hit from a type immunity once the rolls are already zero.
 - `BattleState.delayedMoves` stores already-sampled Future Sight/Doom Desire
   damage and Wish healing fractions until their due turn boundary. The move
   resolution schedules the effect without applying it immediately;
