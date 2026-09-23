@@ -1,6 +1,11 @@
 {
 	"comment": "The frontier set: the fights the full runs stall on. Built by scripts/frontier-set.js by a fixed rule, from counts alone: a fight a stored run lost at least 3 times, one scenario per (run, fight), at most 3 runs per trainer (those that lost it most), played from the document the run fielded (the log up to that fight's beat, or the whole log when the run stopped there unbeaten, or just after the last fight won before it when the run skipped it). `lost` counts losses on that run's own engine and is a pointer, not a measurement. Doubles are included. Sources whose logs do not replay byte-identical under today's rules and order scale are left out and named in `refused`.",
-	"generator": "node scripts/frontier-set.js --min-losses=3 --per-trainer=3 --write",
+	"generator": "scripts/frontier-set.js",
+	"generatorArgs": [
+		"--min-losses=3",
+		"--per-trainer=3",
+		"--write"
+	],
 	"sources": [
 		{
 			"file": "fixtures/banked-runs/frontier/base0922-209499.run.json.gz",
@@ -107,6 +112,50 @@
 		{
 			"run": "logged1/run-314228",
 			"why": "replay differs from the stored document"
+		}
+	],
+	"measured": [
+		{
+			"label": "fpi-ctl-s0",
+			"measured_in": "a513355c",
+			"date": "2026-09-23",
+			"verdict": "recorded",
+			"note": "control at 94af7fb, --plan-by-play=1 --plan-seeds=4 --pick-by-play=0 --format=singles, real PP, shard 0/3"
+		},
+		{
+			"label": "fpi-ctl-s1",
+			"measured_in": "a513355c",
+			"date": "2026-09-23",
+			"verdict": "recorded",
+			"note": "control at 94af7fb, --plan-by-play=1 --plan-seeds=4 --pick-by-play=0 --format=singles, real PP, shard 1/3"
+		},
+		{
+			"label": "fpi-ctl-s2",
+			"measured_in": "a513355c",
+			"date": "2026-09-23",
+			"verdict": "recorded",
+			"note": "control at 94af7fb, --plan-by-play=1 --plan-seeds=4 --pick-by-play=0 --format=singles, real PP, shard 2/3"
+		},
+		{
+			"label": "fpi-items-s0",
+			"measured_in": "a513355c",
+			"date": "2026-09-23",
+			"verdict": "recorded",
+			"note": "--plan-items=1 at 94af7fb, --plan-by-play=1 --plan-seeds=4 --pick-by-play=0 --format=singles, real PP, shard 0/3"
+		},
+		{
+			"label": "fpi-items-s1",
+			"measured_in": "a513355c",
+			"date": "2026-09-23",
+			"verdict": "recorded",
+			"note": "--plan-items=1 at 94af7fb, --plan-by-play=1 --plan-seeds=4 --pick-by-play=0 --format=singles, real PP, shard 1/3"
+		},
+		{
+			"label": "fpi-items-s2",
+			"measured_in": "a513355c",
+			"date": "2026-09-23",
+			"verdict": "recorded",
+			"note": "--plan-items=1 at 94af7fb, --plan-by-play=1 --plan-seeds=4 --pick-by-play=0 --format=singles, real PP, shard 2/3"
 		}
 	],
 	"scenarios": [

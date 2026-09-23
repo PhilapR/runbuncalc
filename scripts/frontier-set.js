@@ -196,7 +196,8 @@ function write(built) {
 			'run skipped it). `lost` counts losses on that run\'s own engine and ' +
 			'is a pointer, not a measurement. Doubles are included. Sources whose logs do not replay byte-identical ' +
 			'under today\'s rules and order scale are left out and named in `refused`.',
-		generator: 'node scripts/frontier-set.js --min-losses=' + built.minLosses + ' --per-trainer=' + built.perTrainer + ' --write',
+		generator: 'scripts/frontier-set.js',
+		generatorArgs: ['--min-losses=' + built.minLosses, '--per-trainer=' + built.perTrainer, '--write'],
 		sources: built.sources.map(source => ({file: source.file, from: source.from, sha256: source.sha256, engine: source.engine})),
 		refused: built.refused,
 		scenarios: built.scenarios,
