@@ -25,3 +25,13 @@ wipe, control -> treatment: 104770 8->17, 209499 15->17, 314228 16->19,
 Better on 11 of 12 seeds, one-sided sign test p = 0.0032. Median 13.5 -> 18.
 Bodies lost per fight won 0.91 -> 0.74. Two runs reached Leader Brawly; six
 wiped at Camper Gavi, the next lever (--delay-until).
+
+## Held-out confirmation, declared 2026-09-23 before it ran
+
+The verdict above is in-sample for the seeds, and delay-until was designed on
+the same twelve. Held-out: seeds 130001, 230002, 330003, 430004, 530005,
+630006, 730007, 830008, 930009, 140010, 240011, 340012 (never read before):
+nuz0923b (baseline spec at df1bd2ee), nuzf0923b (search-first spec at
+f1d81af6), nuzd0923b (delay spec at aaa26bb2, already queued). Confirmed if each
+step is better on more seeds than worse with one-sided sign test p < 0.05 over
+the non-tied seeds, the same rule as the later bars.
