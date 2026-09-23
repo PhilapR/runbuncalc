@@ -1329,6 +1329,19 @@ function bestParty(doc, wants) {
 	}
 }
 
+/**
+ * Whether plan score a beats b. By wins, then fewest of theirs left; with
+ * --plan-keep, by our bodies kept per scouting fight first. At frontier Cool
+ * Trainer Michelle (2026-09-23, four plan seeds) both found sixes winning all
+ * four; by wins the planner took one keeping 1.75 bodies a fight, by bodies
+ * kept one keeping 3.5.
+ */
+function planBetter(a, b, byKept) {
+	const byWins = a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9);
+	if (!byKept) return byWins;
+	return a.kept > b.kept + 1e-9 || (Math.abs(a.kept - b.kept) <= 1e-9 && byWins);
+}
+
 /** Wins in N decide() fights in the run's head on probe seeds: no body is spent. */
 function scoutWins(policy, doc, trainer, n, tally) {
 	let wins = 0;
@@ -1708,10 +1721,7 @@ function planByPlay(policy, doc, next, tally, options) {
 		}
 		return {wins, left: left / knobs.planSeeds, kept: kept / knobs.planSeeds};
 	};
-	const better = (a, b) => knobs.planKeep ?
-		a.kept > b.kept + 1e-9 || (Math.abs(a.kept - b.kept) <= 1e-9 &&
-			(a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9))) :
-		a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9);
+	const better = (a, b) => planBetter(a, b, knobs.planKeep);
 	/** The plan in hand with one body put at one slot; someone makes room if it comes from the box. */
 	const changed = (planned, change) => {
 		if (change.kind === 'item') return withItem(planned, change);
@@ -2363,4 +2373,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {plannedHolders, pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};
+module.exports = {planBetter, plannedHolders, pinLead, withKnobs, planByPlay, withItem, claimGifts, playRun, startRun, nextFight, otherDoor, provenance, doublesPrep, retryCap, methodFor, answersAhead, spendScales, dice, armFlags, followAdvice, levelToCap, thresholdPrep, claimPrizes, sweepCatches, sweepItems, pickBerries, fillEmptySlots, giveMegaStone, relearn, evolveByItem, scaleOptions};

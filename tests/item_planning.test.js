@@ -206,12 +206,22 @@ test('run as an arm runs it, the battery plans with a planner that can play its 
 		JSON.stringify(written && written.results[0].plan));
 });
 
-test('--plan-keep chooses a plan for the bodies it keeps, and never one that keeps fewer than the six it started from', () => {
-	const doc = battery.loadDocument(BRAWLY);
-	const kept = plan(doc, 'Leader Brawly', {planKeep: true, planSeeds: 3}).plan;
-	assert.equal(typeof kept.kept, 'number', JSON.stringify(kept));
-	assert.equal(typeof kept.stood.kept, 'number');
-	assert.ok(kept.kept >= kept.stood.kept, 'taken only if it keeps at least as many: ' + JSON.stringify(kept));
-	const won = plan(doc, 'Leader Brawly', {planKeep: false, planSeeds: 3}).plan;
-	assert.ok(won.wins >= won.stood.wins, 'off, the plan is chosen for wins as before: ' + JSON.stringify(won));
+test('--plan-keep ranks plans by bodies kept first, and by wins otherwise', () => {
+	// The measured case (frontier Cool Trainer Michelle, 2026-09-23): two sixes
+	// both win all four scouts, one keeping 1.75 bodies a fight and one 3.5.
+	// Playing it takes half an hour under load, so the comparison is gated here
+	// and the fight is the evidence in headless-run.js.
+	const oneAndThreeQuarters = {wins: 4, left: 0, kept: 1.75};
+	const threeAndAHalf = {wins: 4, left: 0, kept: 3.5};
+	assert.equal(headless.planBetter(threeAndAHalf, oneAndThreeQuarters, true), true);
+	assert.equal(headless.planBetter(oneAndThreeQuarters, threeAndAHalf, true), false);
+	assert.equal(headless.planBetter(threeAndAHalf, oneAndThreeQuarters, false), false, 'off, equal wins and left: not better');
+	// A plan that wins more but keeps fewer loses under --plan-keep, and wins without it.
+	const moreWinsFewerKept = {wins: 4, left: 0, kept: 1};
+	const fewerWinsMoreKept = {wins: 3, left: 1, kept: 2};
+	assert.equal(headless.planBetter(fewerWinsMoreKept, moreWinsFewerKept, true), true);
+	assert.equal(headless.planBetter(moreWinsFewerKept, fewerWinsMoreKept, false), true);
+	// Equal kept falls back to wins, then theirs left.
+	assert.equal(headless.planBetter({wins: 3, left: 2, kept: 1}, {wins: 2, left: 0, kept: 1}, true), true);
+	assert.equal(headless.planBetter({wins: 2, left: 1, kept: 1}, {wins: 2, left: 2, kept: 1}, true), true);
 });
