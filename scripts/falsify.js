@@ -71,6 +71,13 @@ function main() {
 	const from = own('from', '');
 	const to = own('to', '');
 	const name = own('name', '');
+	// --runner=script: the test is a plain script run with `node` (the engine's
+	// ai/src/test fixtures are), judged by its exit and an AssertionError.
+	const runner = own('runner', 'node-test');
+	if (own('runner', 'node-test') === 'script' && own('name', '')) {
+		process.stderr.write('falsify: --name has no meaning with --runner=script (a plain script has no named tests)\n');
+		process.exit(2);
+	}
 	if (!file || !test || !from) {
 		process.stderr.write('usage: node scripts/falsify.js --file=SRC --test=TEST --from=TEXT [--to=TEXT] [--name=PATTERN]\n' +
 			'  --from is the exact text to replace; --to defaults to removing it.\n');
@@ -113,6 +120,12 @@ function main() {
 			return;
 		}
 		fs.writeFileSync(target, before.replace(from, to));
+		if (runner === 'script') {
+			const verdict = classifyScript(childProcess.spawnSync(process.execPath, [test], {cwd: tree, encoding: 'utf8'}), test);
+			process.stdout.write(verdict.text + '\n');
+			process.exitCode = verdict.code;
+			return;
+		}
 		const args = ['--test', '--test-reporter=tap'].concat(name ? ['--test-name-pattern=' + name] : [], [test]);
 		// Without the runner's marker: inside a test, a nested `node --test` skips its files.
 		const env = Object.assign({}, process.env);
@@ -124,6 +137,26 @@ function main() {
 	} finally {
 		childProcess.spawnSync('git', ['worktree', 'remove', '--force', tree], {cwd: ROOT});
 	}
+}
+
+/**
+ * A plain script's verdict. Exit 0 under the mutation: HOLLOW. An
+ * AssertionError: FALSIFIED. A load failure: BROKEN. Any other throw: the
+ * mutation made it fail, but not on an assertion (FALSIFIED-BY-ERROR).
+ */
+function classifyScript(run, test) {
+	const output = (run.stdout || '') + (run.stderr || '');
+	if (run.status === 0) {
+		return {code: 1, text: 'HOLLOW: ' + test + ' exited 0 with the source mutated — it is not testing what you think.'};
+	}
+	const assertion = /AssertionError[^\n]*(?:\n[^\n]*){0,2}/.exec(output);
+	if (assertion) return {code: 0, text: 'FALSIFIED: the guard failed under the mutation, as it must.\n  ' + assertion[0].split('\n')[0].slice(0, 200)};
+	if (/SyntaxError|Cannot find module|ERR_MODULE_NOT_FOUND/.test(output)) {
+		return {code: 2, text: 'BROKEN, not falsified: ' + test + ' did not load under the mutation, so the guard was never asked.\n  ' +
+			((/(SyntaxError|Error: Cannot find module)[^\n]*/.exec(output) || [''])[0]).slice(0, 200)};
+	}
+	return {code: 4, text: 'FALSIFIED-BY-ERROR: the script failed under the mutation, but on a thrown error, not an assertion.\n  ' +
+		((/\w*Error[^\n]*/.exec(output) || [''])[0]).slice(0, 200)};
 }
 
 /**
@@ -204,4 +237,4 @@ function classify(output, test, name) {
 
 if (require.main === module) main();
 
-module.exports = {main, classify, tapResults};
+module.exports = {main, classify, classifyScript, tapResults};
