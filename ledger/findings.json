@@ -2384,6 +2384,21 @@
 			"fixed_in": "5f128f3",
 			"falsified": 1,
 			"evidence": "pokemon-mono P2 receipt 20260922T232543Z-entry-probe: Def 200/SpD 50 -> SpA; Def 50/SpD 200 -> Atk; 100/100 -> SpA. Introduced in e6399d2, pinned by 6e5e22e. Guard: ai/src/test/lead-entries.test.ts, falsified by hand."
+		},
+		{
+			"id": "mid-turn-volatile-refusals",
+			"source": "measured/fpi-2026-09-23",
+			"raised_on": "2026-09-23",
+			"severity": "medium",
+			"area": "engine",
+			"file": "ai/src/actions.ts",
+			"claim": "canUseMove refuses a move mid-turn when a faster action applied Taunt, Heal Block, Torment, Imprison, Disable or Encore first; in the game the queued move is used and fails. The driver makes a refused turn up and the battery refuses the whole batch.",
+			"verdict": "confirmed",
+			"status": "open",
+			"fixed_in": null,
+			"falsified": 0,
+			"evidence": "Found for Throat Chop at frontier Archie (fpi-items-s0 seeds 2 and 7: Overqwil Throat Chop before Pyroar Hyper Voice), fixed for Throat Chop alone in d7f1f0cc because only it has a resolution-time block in move-engine.ts. The others have no such block, so letting them through mid-turn would make them succeed; each needs its block first. Not yet seen in a receipt.",
+			"enforcedBy": null
 		}
 	]
 }
