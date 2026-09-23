@@ -147,14 +147,14 @@ byte-for-byte would demand a follow-up commit forever. An old stamp is
 the reader's warning to verify before trusting.
 - `AGENTS.md` — 12701ed 2026-09-22
 - `README.md` — 1b6ba2a 2026-09-22
-- `docs/AI_DATA_MODEL.md` — 662249f 2026-09-22
-- `docs/CONSTANTS-AUDIT.md` — 662249f 2026-09-22
+- `docs/AI_DATA_MODEL.md` — 784dc61 2026-09-22
+- `docs/CONSTANTS-AUDIT.md` — 784dc61 2026-09-22
 - `docs/DATA-ACCESS.md` — c272bcd 2026-08-25
 - `docs/DEPLOY.md` — 98b4a50 2026-08-18
 - `docs/ECOSYSTEM_BRIDGE.md` — 5a255c0 2026-08-25
 - `docs/ENCOUNTER-ARCHITECTURE.md` — 29ffa9f 2026-09-20
 - `docs/ENGINE-CONTRACTS.md` — c4daad8 2026-08-29
-- `docs/ENGINE-HOMES.md` — 46698d9 2026-09-22
+- `docs/ENGINE-HOMES.md` — 784dc61 2026-09-22
 - `docs/EVALUATION.md` — 56f1c21 2026-09-22
 - `docs/FORK_MAP.md` — 202de90 2026-09-22
 - `docs/GEN9_AUDIT.md` — 98b4a50 2026-08-18
