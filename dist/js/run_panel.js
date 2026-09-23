@@ -854,8 +854,14 @@
 
 		var alive = payload.box.filter(function (mon) { return mon.status !== 'dead'; });
 		var lost = payload.box.filter(function (mon) { return mon.status === 'dead'; });
+		// A mon leaves the reserve only while it is in BOTH parties: committed
+		// and still staged. Reading the committed party alone lost a member the
+		// strip's × had just unstaged — on neither list, with no control to
+		// bring it back. A staged newcomer stays here, carrying its − toggle.
 		var party = state.party;
-		var reserve = alive.filter(function (mon) { return party.indexOf(mon.id) === -1; });
+		var reserve = alive.filter(function (mon) {
+			return party.indexOf(mon.id) === -1 || stagedParty.indexOf(mon.id) === -1;
+		});
 		// The box's IV picture beside its size. The MEDIAN is the honest
 		// summary — a mean moves with one lucky catch — and 186 travels with
 		// it so the number carries its own scale instead of needing one.

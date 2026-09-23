@@ -804,3 +804,46 @@ test('the worst-case cell is a control, and pressing it actually answers', {skip
 
 	await opened.context.close();
 });
+
+test('a member unstaged from the party returns to the PC list with its add control', {skip}, async () => {
+	// Found by playing a run. The PC list was built from the COMMITTED party
+	// while the strip draws the STAGED one, so the strip's × took a member
+	// off the screen entirely: the strip empty, the list still saying
+	// "Every living Pokémon is in the party.", and no control anywhere to
+	// bring it back short of committing a party nobody wanted, or reloading.
+	const opened = await open();
+	const page = opened.page;
+	await page.click('.runbun-run-starter[data-species="Piplup"]');
+	await page.click('#runbun-run-new');
+	await page.waitForSelector('#runbun-run-live:not([hidden])');
+	await openAllSections(page);
+
+	await page.click('.runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	await page.click('#runbun-run-set-party');
+	await page.waitForFunction(
+		() => JSON.parse(localStorage.getItem('runbun.run.v1')).party[0] === 'mon-1' &&
+			!document.querySelector('#runbun-run-box .runbun-run-mon[data-id="mon-1"]'),
+		null, {timeout: 10000});
+	assert.match(await page.textContent('#runbun-run-box'), /Every living Pokémon is in the party/);
+
+	// Unstage it. It must land somewhere a player can press.
+	await page.click('#runbun-run-party-strip .runbun-run-party-rm[data-id="mon-1"]');
+	assert.equal(await page.$$eval('#runbun-run-party-strip .runbun-run-party-slot[data-id]',
+		els => els.length), 0, 'the strip dropped it');
+	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon[data-id="mon-1"] .runbun-run-add',
+		els => els.length), 1, 'the unstaged member must be back in the PC list with an add control');
+	assert.doesNotMatch(await page.textContent('#runbun-run-box'), /Every living Pokémon is in the party/,
+		'the list must not claim the party holds a member the strip just dropped');
+	assert.match(await page.textContent('#runbun-run-box-counts'), /^1 reserve/);
+
+	// And the control works: pressing it restages, and the list gives it back.
+	await page.click('#runbun-run-box .runbun-run-mon[data-id="mon-1"] .runbun-run-add');
+	assert.equal(await page.$$eval('#runbun-run-party-strip .runbun-run-party-slot[data-id="mon-1"]',
+		els => els.length), 1);
+	assert.equal(await page.$$eval('#runbun-run-box .runbun-run-mon[data-id="mon-1"]',
+		els => els.length), 0, 'restaged as committed, it leaves the reserve again');
+	assert.equal(await page.isVisible('#runbun-run-set-party'), false,
+		'the staged six equals the committed one, so there is nothing to commit');
+
+	await opened.context.close();
+});
