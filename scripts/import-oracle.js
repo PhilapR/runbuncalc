@@ -44,6 +44,8 @@
  * than a regex that happened to match.
  */
 
+const childProcess = require('node:child_process');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -673,6 +675,64 @@ function importGrowth(decomp, problems) {
 	return rates;
 }
 
+// ------------------------------------------------------------------ provenance
+
+/** Every decomp file the importers read, relative to the decomp root. */
+const DECOMP_INPUTS = [
+	'locations/wild_encounters.json',
+	'species/base_stats.h',
+	'species/egg_moves.h',
+	'species/evolution.h',
+	'species/level_up_learnset_pointers.h',
+	'species/level_up_learnsets.h',
+	'species/teachable_learnset_pointers.h',
+	'species/teachable_learnsets.h',
+];
+
+/** The file the import stamps beside its outputs. */
+const STAMP = 'decomp-import.json';
+
+function sha256(file) {
+	return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+}
+
+/**
+ * WHICH decomp produced an import. `--decomp <path>` names a place, and a
+ * place holds different bytes on different days, so the four datasets it
+ * writes could not say what they were made from.
+ *
+ * Two identities are recorded, because a decomp can arrive as a clone or as a
+ * tarball: the git revision when the path is a git checkout (with whether it
+ * had uncommitted changes), and in every case the sha256 of each file the
+ * importers read — which names the input bytes however they were obtained.
+ */
+function decompSource(decomp) {
+	const git = args => childProcess.spawnSync('git', ['-C', decomp].concat(args), {encoding: 'utf8'});
+	const head = git(['rev-parse', 'HEAD']);
+	const revision = head.status === 0 ? head.stdout.trim() : null;
+	const inputs = {};
+	for (const rel of DECOMP_INPUTS) inputs[rel] = sha256(path.join(decomp, rel));
+	return {
+		revision,
+		dirty: revision === null ? null : git(['status', '--porcelain', '--', '.']).stdout.trim() !== '',
+		obtained: revision === null ? 'not a git checkout: the input hashes are the identity' : 'git checkout',
+		inputs,
+	};
+}
+
+/**
+ * Write the stamp: the decomp's identity and the sha256 of each output, so
+ * the committed data can be checked against the import that made it without
+ * the decomp on hand (tests/import_oracle.test.js).
+ */
+function stampImport(decomp, outDir, outputs) {
+	const hashes = {};
+	for (const name of outputs) hashes[name] = sha256(path.join(outDir, name));
+	const stamp = {importer: 'scripts/import-oracle.js', decomp: decompSource(decomp), outputs: hashes};
+	fs.writeFileSync(path.join(outDir, STAMP), JSON.stringify(stamp, null, '\t') + '\n');
+	return stamp;
+}
+
 // ------------------------------------------------------------------------ main
 
 function write(name, value, summary) {
@@ -714,6 +774,10 @@ function main(argv) {
 		`${Object.keys(learnsets.teachable).length} teachable, ` +
 		`${Object.keys(learnsets.egg).length} egg`);
 	write('growth.json', growth, `${Object.keys(growth).length} species rated`);
+	const stamp = stampImport(decomp, OUT_DIR,
+		['encounters.json', 'evolutions.json', 'learnsets.json', 'growth.json']);
+	console.log(`${STAMP.padEnd(20)} decomp ${stamp.decomp.revision || 'without a git revision'}` +
+		(stamp.decomp.dirty ? ' (DIRTY)' : ''));
 }
 
 if (require.main === module) {
@@ -726,4 +790,4 @@ if (require.main === module) {
 }
 
 module.exports = {resolveSpecies, resolveMove, resolveItem, importEncounters,
-	importEvolutions, importLearnsets, importGrowth};
+	importEvolutions, importLearnsets, importGrowth, decompSource, stampImport, DECOMP_INPUTS, STAMP};

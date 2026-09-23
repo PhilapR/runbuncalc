@@ -454,6 +454,23 @@ test('battery-tape refuses a stamped receipt from another engine, and warns on o
 	assert.match(refused.stderr, /REFUSING: the receipt was played on another engine/);
 });
 
+test('battery-tape tells two scenarios of one name apart by report, as battery-pair does', () => {
+	// dose2*.json plays "Leader Roxanne · 15 scales" from two reports; the tape
+	// took the first match, so a flip in the second replayed the first fight.
+	const tape = require('../scripts/battery-tape.js');
+	const name = 'Leader Roxanne · 15 scales';
+	const receipt = {results: [{name, report: 'a.json', rows: []}, {name, report: 'b.json', rows: []},
+		{name: 'Leader Brawly @26', report: 'a.json', rows: []}]};
+	assert.throws(() => tape.pickScenario(receipt, name), /2 scenarios named[\s\S]*\[b\.json\]/,
+		'a bare repeated name is refused, naming the keys that pick one');
+	assert.equal(tape.pickScenario(receipt, name + ' [b.json]').report, 'b.json');
+	assert.equal(tape.pickScenario(receipt, name + ' [a.json]').report, 'a.json');
+	assert.equal(tape.pickScenario(receipt, 'Leader Brawly @26').report, 'a.json', 'a unique name needs no report');
+	assert.throws(() => tape.pickScenario(receipt, name + ' [c.json]'), /no scenario/);
+	const twice = {results: [{name, report: 'a.json'}, {name, report: 'a.json'}]};
+	assert.throws(() => tape.pickScenario(twice, name + ' [a.json]'), /from one report/);
+});
+
 test('a run on two engines says so in the list and in its audit; a run from before legs says unknown', () => {
 	const runs = require('../scripts/runs.js');
 	const audit = require('../scripts/audit-run.js');

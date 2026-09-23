@@ -13,10 +13,10 @@
  * arm's tree dirty — the battery stamps `dirty` from `git status` when it
  * writes, and a shared tree read every receipt but the first as dirty.
  *
- * node_modules is symlinked and ai/dist + calc/dist are copied, the same
- * way ab.js prepares its worktree and for the same reasons: the modules are
- * the same versions, and a linked build would let a mid-batch rebuild leak
- * in. Receipts, logs and worktrees live under gitignored
+ * Each package in node_modules is symlinked (workspace links point at the
+ * worktree's own calc) and ai/dist + calc/dist are copied, the same way
+ * ab.js prepares its worktree and for the same reasons: the modules are the
+ * same versions, and a linked build would let a mid-batch rebuild leak in. Receipts, logs and worktrees live under gitignored
  * ui-playthrough-out/; which receipts to commit is a separate decision.
  *
  *   node scripts/battery-arms.js --rev=HEAD \
@@ -88,16 +88,54 @@ function parseArms(argv) {
 	return arms;
 }
 
+const MODULE_DIRS = ['node_modules', 'calc/node_modules', 'ai/node_modules'];
+
+/**
+ * Give a worktree this checkout's modules, but its OWN workspace packages.
+ *
+ * Linking a whole node_modules directory is not enough: @smogon/calc in it is
+ * a workspace link, `../../calc`, and it resolves from where the directory
+ * really is, which is the main checkout. A worktree pinned to one revision
+ * then played the main checkout's calc/dist, and a rebuild there mid-batch
+ * changed play under a pinned revision. So each module directory is a real
+ * directory here: every package is linked to this checkout's copy, and a
+ * relative (workspace) link is recreated as it is written, so it names the
+ * worktree's own calc and vendor packages.
+ */
+function linkModules(dir) {
+	for (const rel of MODULE_DIRS) {
+		if (fs.existsSync(path.join(ROOT, rel))) mirrorModules(path.join(ROOT, rel), path.join(dir, rel), true);
+	}
+}
+
+function mirrorModules(from, to, top) {
+	fs.mkdirSync(to, {recursive: true});
+	for (const name of fs.readdirSync(from)) {
+		const source = path.join(from, name);
+		const link = path.join(to, name);
+		const stat = fs.lstatSync(source);
+		const written = stat.isSymbolicLink() ? fs.readlinkSync(source) : null;
+		if (written !== null && !path.isAbsolute(written)) {
+			fs.symlinkSync(written, link);
+			// A relative link that names nothing in this tree (it left the
+			// checkout) keeps pointing where it pointed before.
+			if (fs.existsSync(link)) continue;
+			fs.unlinkSync(link);
+			fs.symlinkSync(source, link);
+		} else if (top && name.startsWith('@') && stat.isDirectory()) {
+			mirrorModules(source, link, false);
+		} else {
+			fs.symlinkSync(source, link);
+		}
+	}
+}
+
 /** A detached, clean worktree at rev, with the modules and build the battery needs. */
 function makeWorktree(dir, rev) {
 	git(['worktree', 'remove', '--force', dir]);
 	const added = git(['worktree', 'add', '--detach', dir, rev]);
 	if (added.status !== 0) throw new Error('worktree add failed: ' + added.stderr.trim());
-	for (const rel of ['node_modules', 'calc/node_modules', 'ai/node_modules']) {
-		if (fs.existsSync(path.join(ROOT, rel))) {
-			fs.symlinkSync(path.join(ROOT, rel), path.join(dir, rel), 'dir');
-		}
-	}
+	linkModules(dir);
 	for (const rel of ['ai/dist', 'calc/dist']) {
 		if (fs.existsSync(path.join(ROOT, rel))) {
 			fs.cpSync(path.join(ROOT, rel), path.join(dir, rel), {recursive: true});
@@ -217,4 +255,4 @@ function enginesOfResults(results) {
 		keys.length ? 'one engine: ' + keys[0] : 'no receipts'};
 }
 
-module.exports = {parseArms, runArms, makeWorktree, enginesOfResults};
+module.exports = {parseArms, runArms, makeWorktree, linkModules, enginesOfResults};

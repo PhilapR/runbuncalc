@@ -1173,11 +1173,7 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 	assert.ok(advice.body.upgrades.length <= 10, 'the shortlist stays a shortlist');
 	assert.ok(!advice.body.upgrades.some(upgrade => upgrade.detail === 'Bite'),
 		'Bite is learned by L12 and must not be sold as an upgrade');
-	// Whatever survives is still a properly shaped, priced change.
-	for (const upgrade of advice.body.upgrades) {
-		assert.equal(upgrade.id, 'mon-1');
-		assert.ok(upgrade.kind && upgrade.detail, 'every change names what it is');
-	}
+	// The shape of whatever IS offered is checked below, on a run offered some.
 	// The property is that a move whose timing is unknown is never OFFERED, and
 	// that the count of what was dropped is reported rather than swallowed.
 	//
@@ -1190,21 +1186,40 @@ test('the advisor answers over HTTP, and refuses with the reason', async () => {
 	// rather than a regression.
 	assert.equal(typeof advice.body.availability.undatedMovesExcluded, 'number',
 		'what the advisor dropped is counted, never swallowed');
+	// The SHAPE of an offered change is checked on a run that is offered some.
+	// These assertions used to loop over the Poochyena list above, which is
+	// empty, so none could fail — and two were already false: every delta
+	// carries statusAnswered (four keys, not three), and a status-only change
+	// (a Cheri Berry against Thunder Wave) is offered with damage and koGained
+	// both 0, on purpose (tests/run_advise.test.js, Lady Cindy).
+	let funded = await newRun();
+	for (const command of [RUN_CATCH, {kind: 'party', ids: ['mon-1']},
+		{kind: 'levelUp', id: 'mon-1', to: 'cap'}, {kind: 'acquire', item: 'Cheri Berry'}]) {
+		const step = await requestJson('/run/apply', {run: funded, command});
+		assert.equal(step.status, 200, JSON.stringify(step.body));
+		funded = step.body.run;
+	}
+	const offered = await requestJson('/run/advise', {run: funded, trainer: 'Lady Cindy'});
+	assert.equal(offered.status, 200);
+	const upgrades = offered.body.upgrades;
+	assert.ok(upgrades.length > 0, 'the shape checks below need a change to check');
 	const oracle = require('../profiles').getProfile('run-and-bun').oracle;
-	for (const upgrade of advice.body.upgrades) {
+	for (const upgrade of upgrades) {
+		assert.equal(upgrade.id, 'mon-1');
+		assert.ok(upgrade.kind && upgrade.detail, 'every change names what it is');
+		assert.deepEqual(Object.keys(upgrade.delta).sort(),
+			['damage', 'koConceded', 'koGained', 'statusAnswered']);
+		assert.ok(upgrade.delta.damage > 0 || upgrade.delta.koGained > 0 || upgrade.delta.statusAnswered > 0,
+			'a change is only offered if it moves the board or answers a status the fight carries');
 		if (upgrade.kind !== 'teach') continue;
 		assert.notEqual(oracle.moveObtainableAt(upgrade.detail), null,
 			`${upgrade.detail} has no proven unlock and must never be offered as ` +
 			'early-game access');
 	}
-	// Every change that IS offered carries the same three-part delta. Folded
-	// into the loop above, because there may now be none to lead with.
-	for (const upgrade of advice.body.upgrades) {
-		assert.deepEqual(Object.keys(upgrade.delta).sort(),
-			['damage', 'koConceded', 'koGained']);
-		assert.ok(upgrade.delta.damage > 0 || upgrade.delta.koGained > 0,
-			'a change is only offered if it moves the board');
-	}
+	const cheri = upgrades.find(upgrade => upgrade.detail === 'Cheri Berry');
+	assert.ok(cheri, 'the cure is offered against a team built on Thunder Wave');
+	assert.deepEqual([cheri.delta.damage, cheri.delta.koGained, cheri.delta.statusAnswered], [0, 0, 2],
+		'a status-only change is offered on the status it answers');
 
 	// A misnamed trainer keeps its near-misses, like every other run endpoint.
 	const unknown = await requestJson('/run/advise', {run, trainer: 'Brawly'});
