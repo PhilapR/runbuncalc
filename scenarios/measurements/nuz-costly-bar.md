@@ -20,3 +20,41 @@ test p < 0.05.
 Secondary, also required: bodies lost per fight won not higher than the control's.
 Reported, not in the verdict: fights scouted and planned per run; where each
 run wiped; wall time.
+
+## Verdict, 2026-09-23: does not pass the bar
+
+```
+104770  21 -> 20  -1
+130001  23 -> 26  +3
+140010  31 -> 24  -7
+209499  19 -> 22  +3
+230002  26 -> 26  0
+240011  15 -> 31  +16
+314228  24 -> 17  -7
+330003  7 -> 18  +11
+340012  26 -> 26  0
+418957  20 -> 26  +6
+430004  8 -> 26  +18
+511001  8 -> 26  +18
+523658  25 -> 24  -1
+530005  17 -> 8  -9
+600007  18 -> 19  +1
+630006  14 -> 11  -3
+700019  26 -> 32  +6
+730007  18 -> 26  +8
+731001  20 -> 18  -2
+812345  26 -> 26  0
+830008  24 -> 23  -1
+842113  26 -> 26  0
+901234  21 -> 18  -3
+930009  21 -> 15  -6
+paired 24: better 10, worse 10, tied 4 | one-sided sign test over the non-tied p = 0.5881  does not pass the primary
+median fights won 21 -> 24 | bodies lost per fight won 0.71 -> 0.66
+```
+
+The gains were large where they came (8->26 twice, 7->18, 15->31) and the losses moderate, but the
+sign test counts seeds, not fights, and it is 10 against 10. Many runs in both arms stop at exactly
+26 fights: Leader Brawly, where 17 runs arrived, probes and plans found no six that wins even a
+scouting fight (0/12, 0/13), and the 3 that won lost 4-5 bodies. Brawly is a box wall (docs/LEADER-KEYS.md:
+Hitmonchan, Vespiquen, Gligar, Salandit, Kadabra, Yanma), not a planning one. At Sailor Brenden the
+arm did what it was built for (planned, won first time losing 0-1), which the seed count cannot show.
