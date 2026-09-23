@@ -94,6 +94,16 @@ const KNOB_FLAGS = {
 	// box. 0 is off. A fight still unsafe when the caps run out is left owed,
 	// and the run stops there as it always has ("owed fights wait on a higher cap").
 	delayUntil: ['delay-until', '0', Number],
+	// A singles fight that is not a boss is PLANNED by play before its first
+	// attempt when eight scouting fights in the run's head win under this share:
+	// under permadeath a fight nobody is confident in is not walked into
+	// unprepared. Bosses have --plan-first. 0 is off.
+	planUnsafe: ['plan-when-unsafe', '0', Number],
+	// What a plan is chosen for. Off: most wins, then fewest of theirs left.
+	// On: most of OUR bodies kept per scouting fight (a win keeps whoever is
+	// standing, a loss keeps none), then wins, then theirs left — under
+	// permadeath a win bought with three bodies is not the plan to take.
+	planKeep: ['plan-keep', '0', value => value === '1'],
 	bossRetries: ['boss-retries', '20', Number],
 	budget: ['budget', '110', Number],
 	skipDoubles: ['skip-doubles', '0', value => value === '1'],
@@ -1319,6 +1329,18 @@ function bestParty(doc, wants) {
 	}
 }
 
+/** Wins in N decide() fights in the run's head on probe seeds: no body is spent. */
+function scoutWins(policy, doc, trainer, n, tally) {
+	let wins = 0;
+	for (let offset = 1; offset <= n; offset++) {
+		try {
+			if (battery.playScenario(policy, doc, trainer, PROBE_SEED_BASE + offset).result === 'win') wins++;
+		} catch (error) { /* a crashed scout is not a win */ }
+	}
+	if (tally) scouted(tally, 'probe', n);
+	return wins;
+}
+
 /**
  * What the preparation between attempts keys on: the box, the living, the bag
  * and the position. The living count is in it because under permadeath a death
@@ -1653,7 +1675,8 @@ function planByPlay(policy, doc, next, tally, options) {
 	const score = planned => {
 		let wins = 0;
 		let left = 0;
-		if (scoutingStopped) return {wins: -1, left: Infinity};
+		let kept = 0;
+		if (scoutingStopped) return {wins: -1, left: Infinity, kept: -1};
 		for (let offset = 1; offset <= knobs.planSeeds; offset++) {
 			let played;
 			const watched = job ? job.fight({trainer: next.trainer, order: next.order, position: planned.position,
@@ -1674,15 +1697,21 @@ function planByPlay(policy, doc, next, tally, options) {
 				if (job.stopRequested()) {
 					scoutingStopped = true;
 					tally.planStopped = true;
-					return {wins: -1, left: Infinity};
+					return {wins: -1, left: Infinity, kept: -1};
 				}
 			}
-			if (played.result === 'win') wins += 1;
+			if (played.result === 'win') {
+				wins += 1;
+				kept += Math.max(0, planned.party.length - (played.deaths || 0));
+			}
 			left += (played.foe && played.foe.alive) || 0;
 		}
-		return {wins, left: left / knobs.planSeeds};
+		return {wins, left: left / knobs.planSeeds, kept: kept / knobs.planSeeds};
 	};
-	const better = (a, b) => a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9);
+	const better = (a, b) => knobs.planKeep ?
+		a.kept > b.kept + 1e-9 || (Math.abs(a.kept - b.kept) <= 1e-9 &&
+			(a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9))) :
+		a.wins > b.wins || (a.wins === b.wins && a.left < b.left - 1e-9);
 	/** The plan in hand with one body put at one slot; someone makes room if it comes from the box. */
 	const changed = (planned, change) => {
 		if (change.kind === 'item') return withItem(planned, change);
@@ -1744,8 +1773,8 @@ function planByPlay(policy, doc, next, tally, options) {
 	tally.plans = (tally.plans || []).concat([Object.assign({trainer: next.trainer, of: tried, took: name(hand.doc),
 		// Who the board proposed, in the form it would fight in: what the plan chose among.
 		proposed: [...new Set(changes.map(change => { const mon = run.findMon(doc, change.id); const mega = run.megaFormOf(mon.species, mon.item) || (knobs.mega && run.stoneInBag(doc, mon.species) ? run.megaFormOf(mon.species, run.stoneInBag(doc, mon.species)) : null); return mega ? mega.species : mon.species; }))],
-		wins: hand.score.wins, left: Number(hand.score.left.toFixed(2)),
-		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2))}},
+		wins: hand.score.wins, left: Number(hand.score.left.toFixed(2)), kept: Number((hand.score.kept || 0).toFixed(2)),
+		stood: {wins: stood.wins, left: Number(stood.left.toFixed(2)), kept: Number((stood.kept || 0).toFixed(2))}},
 	// What the item planner proposed, and what the plan taken holds that the six did not.
 	knobs.planItems ? {items: itemsProposed, held: hand.doc.party.map(id => {
 		const now = run.findMon(hand.doc, id).item || null;
@@ -1983,13 +2012,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		if (knobs.delayUntil > 0 && attempts === 0 &&
 			(require('../profiles').getProfile(doc.profileId).delayableFights || []).includes(next.trainer)) {
 			const scouts = 8;
-			let wins = 0;
-			for (let offset = 1; offset <= scouts; offset++) {
-				try {
-					if (battery.playScenario(policy, doc, next.trainer, PROBE_SEED_BASE + offset).result === 'win') wins++;
-				} catch (error) { /* a crashed scout is not a win */ }
-			}
-			scouted(tally, 'probe', scouts);
+			const wins = scoutWins(policy, doc, next.trainer, scouts, tally);
 			tally.delayScouts = (tally.delayScouts || []).concat([{trainer: next.trainer, cap: capNow, wins, of: scouts}]);
 			if (wins / scouts < knobs.delayUntil) {
 				try {
@@ -2028,7 +2051,13 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		// been lost that many times, and again every ten losses after.
 		const planNow = knobs.planAfter > 0 && attempts >= knobs.planAfter && (attempts - knobs.planAfter) % 10 === 0;
 		const planFirst = knobs.planFirst && attempts === 0 && BOSS.test(next.trainer);
-		if ((planNow || planFirst) && !next.isDouble) {
+		let planUnsafe = false;
+		if (knobs.planUnsafe > 0 && attempts === 0 && !next.isDouble && !BOSS.test(next.trainer)) {
+			const wins = scoutWins(policy, doc, next.trainer, 8, tally);
+			planUnsafe = wins / 8 < knobs.planUnsafe;
+			tally.unsafeScouts = (tally.unsafeScouts || []).concat([{trainer: next.trainer, wins, of: 8, planned: planUnsafe}]);
+		}
+		if ((planNow || planFirst || planUnsafe) && !next.isDouble) {
 			doc = planByPlay(policy, doc, next, tally);
 			planHolds = true;
 			lastShape = shapeOf(doc);
@@ -2217,6 +2246,7 @@ function playRunWith(policy, starter, seed, treatment, options) {
 		stoneBuys: tally.stoneBuys, evolves: tally.evolves, gives: tally.gives, teaches: tally.teaches || 0, doublesTaught: tally.doublesTaught || 0, levelUps: tally.levelUps || 0, relearned: tally.relearned || 0, repicks: tally.repicks || 0, reprobes: tally.reprobes || 0, plans: tally.plans || [],
 		gifts: tally.gifts || 0, gifted: tally.gifted || [],
 		...(tally.delayScouts ? {delayScouts: tally.delayScouts} : {}),
+		...(tally.unsafeScouts ? {unsafeScouts: tally.unsafeScouts} : {}),
 		// Elite Four formats given up on for the member's other format: {from, to, after}.
 		formatsSwitched: tally.formatsSwitched || [],
 		megaPicks: tally.megaPicks || 0, megaMoved: tally.megaMoved || 0,

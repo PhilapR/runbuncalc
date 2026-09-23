@@ -1208,3 +1208,17 @@ test('--delay-until scouts a delayable fight in the run\'s head and puts it off 
 	assert.ok(row.skipped.some(entry => entry.trainer === 'Camper Gavi' && /put off/.test(entry.why)));
 	assert.equal(row.ledger.filter(entry => entry.trainer === 'Camper Gavi').length, 0, 'never learned by losing it');
 });
+
+test('--plan-when-unsafe plans a fight nobody is confident in before its first attempt', () => {
+	const policy = require('../scripts/ui-playthrough.js');
+	// At 1.0 every fight that loses even one of eight scouts is planned.
+	const row = headless.playRun(policy, {species: 'Chimchar', rival: 'Blaziken'}, 418957,
+		headless.armFlags('--nuzlocke=1 --stop-at=20 --plan-when-unsafe=1 --plan-seeds=1'));
+	assert.ok(row.unsafeScouts && row.unsafeScouts.length, 'every non-boss singles fight is scouted');
+	const unsafe = row.unsafeScouts.filter(scout => scout.planned);
+	assert.ok(unsafe.length, 'the fixture meets a fight it is not sure of: ' + JSON.stringify(row.unsafeScouts));
+	for (const scout of unsafe) {
+		assert.ok((row.plans || []).some(entry => entry.trainer === scout.trainer), scout.trainer + ' was planned');
+	}
+	assert.ok(row.unsafeScouts.every(scout => scout.planned === scout.wins < 8));
+});

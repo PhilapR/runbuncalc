@@ -205,3 +205,13 @@ test('run as an arm runs it, the battery plans with a planner that can play its 
 	assert.ok(written && written.results[0].plan && written.results[0].plan.of > 1, 'plans were scouted: ' +
 		JSON.stringify(written && written.results[0].plan));
 });
+
+test('--plan-keep chooses a plan for the bodies it keeps, and never one that keeps fewer than the six it started from', () => {
+	const doc = battery.loadDocument(BRAWLY);
+	const kept = plan(doc, 'Leader Brawly', {planKeep: true, planSeeds: 3}).plan;
+	assert.equal(typeof kept.kept, 'number', JSON.stringify(kept));
+	assert.equal(typeof kept.stood.kept, 'number');
+	assert.ok(kept.kept >= kept.stood.kept, 'taken only if it keeps at least as many: ' + JSON.stringify(kept));
+	const won = plan(doc, 'Leader Brawly', {planKeep: false, planSeeds: 3}).plan;
+	assert.ok(won.wins >= won.stood.wins, 'off, the plan is chosen for wins as before: ' + JSON.stringify(won));
+});
