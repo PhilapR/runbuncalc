@@ -533,18 +533,6 @@ function decrementVolatile(state: BattleState, pokemon: BattleState['sides'][Sid
   return {...pokemon, volatile: Object.keys(volatile).length ? volatile : undefined};
 }
 
-function decrementSleep(
-  state: BattleState,
-  pokemon: BattleState['sides'][SideId]['party'][number],
-  generation: BattleState['generation'],
-) {
-  // Sleep burns on the action attempt now (Gen 8 semantics, applied in the
-  // move engine's action gate). The boundary leaves the counter alone; this
-  // shim survives only so unrelated duration bookkeeping keeps its shape.
-  void state; void generation;
-  return pokemon;
-}
-
 function decrementSideDurations(state: BattleState, side: BattleState['sides'][SideId]) {
   const effects = {...(side.effects || {})};
   const durations = {...(side.effectDurations || {})};
@@ -567,7 +555,7 @@ function decrementSideDurations(state: BattleState, side: BattleState['sides'][S
   return {
     ...side,
     party: side.party.map(pokemon => side.activeIds.includes(pokemon.id)
-      ? decrementSleep(state, decrementVolatile(state, pokemon), state.generation)
+      ? decrementVolatile(state, pokemon)
       : pokemon),
     effects: Object.keys(effects).length ? effects : undefined,
     effectDurations: Object.keys(durations).length ? durations : undefined,
@@ -1275,7 +1263,12 @@ export function resolveMoveAction(
   // Truant mon therefore neither loafs nor re-arms: its flag stays as it was.
   const stoppedBeforeTruant = resolution.actionFailure === 'sleep' ||
     resolution.actionFailure === 'freeze';
-  if (truantLoafing && resolution.actionFailure !== 'truant' && !stoppedBeforeTruant) {
+  // Recharge gates ahead of all of them (mustrecharge 11) and spends an owed
+  // loaf with it: the recharge turn IS the loafing turn. The move engine's
+  // resolution clears both flags, on the failed-move path below.
+  const rechargeTurn = !!actor?.volatile?.recharge &&
+    moveId(action.moveName) === moveId(actor.volatile.recharge.moveName);
+  if (truantLoafing && resolution.actionFailure !== 'truant' && !stoppedBeforeTruant && !rechargeTurn) {
     throw new Error('Truant requires a truant action failure while loafing');
   }
   if (!truantLoafing && resolution.actionFailure === 'truant') {

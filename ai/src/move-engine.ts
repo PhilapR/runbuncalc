@@ -473,6 +473,26 @@ function activateTerrainSeeds(resolution: MoveResolution, state: BattleState, te
   }
 }
 
+/**
+ * Room Service (Gen 8; Run & Bun's doc is silent, so the Gen 8 fallback):
+ * when Trick Room goes up, every active holder takes -1 Speed and the item
+ * is used up. Showdown data/items.ts roomservice, onAnyPseudoWeatherChange.
+ * The switch-in half lives in entry-hazards.ts.
+ */
+function activateRoomService(resolution: MoveResolution, state: BattleState) {
+  if (state.generation < 8) return;
+  for (const sideId of ['ai', 'player'] as const) {
+    for (const pokemonId of state.sides[sideId].activeIds) {
+      const pokemon = getPokemon(state, pokemonId);
+      if (!pokemon || pokemon.hp.current <= 0 || !heldItemEffectsActive(state, pokemon)) continue;
+      if (moveId(pokemon.item) !== 'roomservice') continue;
+      addBoosts(resolution, state, pokemon.id, {spe: -1});
+      consumeItem(resolution, pokemon.id, pokemon.item!);
+      resolution.trace!.notes!.push(`Room Service lowered ${pokemon.id}'s Speed under Trick Room`);
+    }
+  }
+}
+
 function setSaltCure(resolution: MoveResolution, pokemonId: string, active: boolean | null) {
   resolution.isSaltCureByPokemon = {
     ...(resolution.isSaltCureByPokemon || {}),
@@ -2841,6 +2861,21 @@ export function deriveMoveResolution(
   const secondaryEffects = options.secondaryEffects ?? options.facts?.secondaryEffects ?? moveMetadata.secondaryEffects;
   const moveType = options.facts?.moveType ?? moveMetadata.type;
   const moveCategory = options.facts?.moveCategory ?? moveMetadata.category;
+  // Recharge is the first gate (Showdown mustrecharge, onBeforeMovePriority
+  // 11), ahead of sleep, freeze and Truant, and it spends an owed loaf with
+  // it: a Truant mon after Hyper Beam loses one turn, not two. Not
+  // ROM-probed; the Gen 8 fallback and DECISIONS.json's declared gate order.
+  if (actor.volatile?.recharge && id === moveId(actor.volatile.recharge.moveName)) {
+    return {
+      hit: false,
+      volatileByPokemon: {[actor.id]: actor.volatile.truant ? {recharge: null, truant: null} : {recharge: null}},
+      trace: {
+        source: 'battle-engine',
+        hit: false,
+        notes: [`${actor.id} spent the turn recharging after ${actor.volatile.recharge.moveName}`],
+      },
+    };
+  }
   const statusGate = statusActionGate(state, actor, id, random);
   if (!statusGate.failure && isTruantActive(state, actor) && actor.volatile?.truant) {
     const loafed: MoveResolution = {
@@ -2860,17 +2895,6 @@ export function deriveMoveResolution(
     return loafed;
   }
   const gate = actionFailure(state, actor, id, random, statusGate);
-  if (actor.volatile?.recharge && id === moveId(actor.volatile.recharge.moveName)) {
-    return {
-      hit: false,
-      volatileByPokemon: {[actor.id]: {recharge: null}},
-      trace: {
-        source: 'battle-engine',
-        hit: false,
-        notes: [`${actor.id} spent the turn recharging after ${actor.volatile.recharge.moveName}`],
-      },
-    };
-  }
   if (gate.failure) {
     const resolution: MoveResolution = {
       hit: false,
@@ -5574,8 +5598,10 @@ export function deriveMoveResolution(
   }
   if (id === 'trickroom' && state.generation >= 4) {
     addField(resolution, {trickRoom: !state.field.trickRoom});
-    if (!state.field.trickRoom) addFieldDuration(resolution, 'trickRoom', 5);
-    else resolution.fieldDurations = {...(resolution.fieldDurations || {}), trickRoom: null};
+    if (!state.field.trickRoom) {
+      addFieldDuration(resolution, 'trickRoom', 5);
+      activateRoomService(resolution, state);
+    } else resolution.fieldDurations = {...(resolution.fieldDurations || {}), trickRoom: null};
   }
   if (id === 'gravity' && state.generation >= 4) {
     addField(resolution, {gravity: true});

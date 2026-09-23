@@ -215,8 +215,25 @@ test('the advisor recommends field pickups, with where to go get them', () => {
 	const advice = run.adviseUpgrades(state, 'Fisherman Elliot');
 	const seed = advice.upgrades.find(u => u.kind === 'pickup' && /Miracle Seed/.test(u.detail));
 	assert.ok(seed, 'the Miracle Seed pickup must be offered against water');
-	assert.match(seed.detail, /Miracle Seed \(pickup @ Route 104\)/);
+	assert.match(seed.detail, /Miracle Seed \(pickup @ Route 104/);
 	assert.ok(seed.delta.damage > 0);
+	// The advice plans ahead of the button: at position -1 the Seed's guard
+	// fight is not beaten, so the row says when it can be taken, in the split
+	// sheet's words, and flags itself unreachable (finding
+	// pickup-upgrade-does-not-say-when-you-can-take-it).
+	const onSheet = run.splitPrep(state).pickups.find(p => p.name === 'Miracle Seed');
+	assert.equal(seed.reachable, onSheet.reachable, 'the row and the sheet agree on reachable');
+	assert.equal(seed.reachable, false);
+	assert.equal(seed.opensAt, onSheet.opensAt, 'and on the gate');
+	assert.equal(seed.detail, `Miracle Seed (pickup @ Route 104 · from #${onSheet.opensAt})`);
+	// Once the guard falls, the gate drops off the row.
+	const guard = run.upcoming(state, 40).filter(f => f.order >= seed.opensAt - 1)
+		.reduce((min, f) => !min || f.order < min.order ? f : min, null);
+	const past = run.apply(state, {kind: 'beat', trainer: guard.trainer});
+	const open = run.adviseUpgrades(past, 'Fisherman Elliot').upgrades
+		.find(u => u.kind === 'pickup' && /Miracle Seed/.test(u.detail));
+	assert.equal(open.reachable, true);
+	assert.match(open.detail, /Miracle Seed \(pickup @ Route 104\)/);
 
 	// Not before the overworld has handed it out: order 0 predates every
 	// type-boost pickup, so none may be offered there.

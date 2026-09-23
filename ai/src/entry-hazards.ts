@@ -825,6 +825,17 @@ export function deriveSwitchEntryResolution(
       entryState.sides[activeSide].activeIds.filter(idValue => idValue !== action.actorId));
     activateTerrainSeeds(entryState, resolution, entryTerrain, [pokemon.id, ...activeIds]);
   }
+  // Room Service on entry: a holder that switches in under Trick Room takes
+  // -1 Speed and uses the item up (Gen 8; Showdown roomservice onStart).
+  if (state.generation >= 8 && entryState.field.trickRoom && pokemon.hp.current > 0 &&
+    isItemEffectActive(entryState, pokemon) && id(pokemon.item) === 'roomservice') {
+    const amount = hasAbility(entryState, pokemon, 'contrary')
+      ? 1
+      : hasAbility(entryState, pokemon, 'simple') ? -2 : -1;
+    addBoost(resolution, pokemon.id, 'spe', stageDelta(pokemon, 'spe', [amount]));
+    consumeItem(resolution, pokemon.id, pokemon.item!);
+    resolution.trace!.notes!.push(`Room Service lowered ${pokemon.id}'s Speed on entry under Trick Room`);
+  }
 
   if (entryState.generation >= 3 && hasAbility(entryState, pokemon, 'intimidate')) {
     const opposingSide: 'ai' | 'player' = sideId === 'ai' ? 'player' : 'ai';
