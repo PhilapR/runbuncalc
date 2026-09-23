@@ -16,6 +16,9 @@
  *   node scripts/battery-tape.js --receipt=scenarios/receipts/koorder1-pp.json \
  *     --scenario="Bug Catcher Jose @37" --seed=4 [--json] [--engine-differs=intended]
  *
+ * A name the receipt repeats is named as battery-pair prints it:
+ * --scenario="Leader Roxanne · 15 scales [fixtures/banked-runs/x.run.json]".
+ *
  * The row check catches code that moved the row. It cannot catch code that
  * moved the fight and landed on the same row, so a receipt stamped with an
  * engine (lib/provenance.js) is replayed only on that engine: a different one
@@ -69,20 +72,43 @@ function engineCheck(receipt, here, intended) {
 		differs: compared.differs, warning};
 }
 
+/**
+ * The receipt's scenario for a name, or for "name [report]" as battery-pair
+ * prints a name the receipt repeats. dose2*.json plays "Leader Roxanne · 15
+ * scales" from two reports, and taking the first match replayed the wrong one
+ * for half the flips. A bare name that repeats is refused, naming the keys
+ * that would pick one; a name and report that both repeat is refused outright.
+ */
+function pickScenario(receipt, key, label) {
+	const results = receipt.results || [];
+	const where = label || 'the receipt';
+	const byName = results.filter(entry => entry.name === key);
+	if (byName.length === 1) return byName[0];
+	if (byName.length > 1) {
+		throw new Error(where + ' has ' + byName.length + ' scenarios named ' + JSON.stringify(key) +
+			'; name one with its report: ' + byName.map(entry => JSON.stringify(entry.name + ' [' + entry.report + ']')).join(', '));
+	}
+	const qualified = /^(.*) \[([^\]]+)\]$/.exec(key);
+	const hits = qualified ? results.filter(entry => entry.name === qualified[1] && entry.report === qualified[2]) : [];
+	if (hits.length === 1) return hits[0];
+	if (hits.length > 1) {
+		throw new Error(where + ' has two scenarios named ' + JSON.stringify(qualified[1]) +
+			' from one report (' + qualified[2] + '); no key can tell them apart');
+	}
+	throw new Error(where + ' has no scenario ' + JSON.stringify(key) +
+		'; it has: ' + results.map(entry => entry.name).join(', '));
+}
+
 function replay(receiptPath, scenarioName, seed, options) {
 	const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
 	const engine = engineCheck(receipt, provenance.currentStamp(), !!(options && options.engineDiffersIntended));
 	if (engine.warning) process.stderr.write(engine.warning + '\n');
-	const row = receipt.results.find(entry => entry.name === scenarioName);
-	if (!row) {
-		throw new Error(receiptPath + ' has no scenario ' + JSON.stringify(scenarioName) +
-			'; it has: ' + receipt.results.map(entry => entry.name).join(', '));
-	}
+	const row = pickScenario(receipt, scenarioName, receiptPath);
 	const recorded = (row.rows || []).find(entry => entry.seed === seed);
 	if (!recorded) throw new Error(scenarioName + ' has no row for seed ' + seed);
 	const scenario = receipt.manifest ?
 		JSON.parse(fs.readFileSync(receipt.manifest, 'utf8')).scenarios
-			.find(entry => entry.name === scenarioName) :
+			.find(entry => entry.name === row.name && (row.report === undefined || entry.report === row.report)) :
 		{report: argOf(receipt.argv, 'report'), trainer: argOf(receipt.argv, 'trainer')};
 	if (!scenario) throw new Error(receipt.manifest + ' no longer names ' + scenarioName);
 
@@ -169,4 +195,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {replay, engineCheck};
+module.exports = {replay, engineCheck, pickScenario};
