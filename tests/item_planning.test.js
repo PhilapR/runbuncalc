@@ -282,14 +282,14 @@ test('value in parts: a control role only one body fills is worth one to it, and
 	assert.equal(weighed.get(alive[1].id), shared.get(alive[1].id).unique);
 });
 
-test('--rank-survival: the ranker orders the sixes it played by expected bodies lost, and by wins without it', () => {
-	const doc = battery.loadDocument(BRAWLY);
-	const playedOf = ranked => (ranked.parties || []).filter(party => party.adjudication).map(party => party.adjudication);
-	const byWins = playedOf(run.rankParties(doc, 'Leader Brawly', {rollouts: 6}));
-	const bySurvival = playedOf(run.rankParties(doc, 'Leader Brawly', {rollouts: 6, survival: true}));
-	assert.ok(byWins.length >= 2 && bySurvival.length === byWins.length, 'several sixes were played');
-	for (let i = 1; i < bySurvival.length; i++) {
-		assert.ok(bySurvival[i - 1].eDeaths <= bySurvival[i].eDeaths, 'survival order: ' + JSON.stringify(bySurvival));
-		assert.ok(byWins[i - 1].pWin >= byWins[i].pWin, 'win order: ' + JSON.stringify(byWins));
-	}
+test('--rank-survival: a six that wins more by paying bodies ranks below one that keeps them', () => {
+	// On real boxes the two orders have matched so far (Michelle, Cranberry, Pablo):
+	// the comparison is gated here, where they part.
+	const six = (pWin, eDeaths, score) => ({adjudication: {pWin, eDeaths}, score});
+	const costlyWinner = six(0.92, 2.1, 1);
+	const cleanWinner = six(0.83, 1.0, 1);
+	assert.ok(run.playedOrder(costlyWinner, cleanWinner, false) < 0, 'by wins, the costly winner first');
+	assert.ok(run.playedOrder(cleanWinner, costlyWinner, true) < 0, 'by survival, the one that keeps its bodies first');
+	assert.ok(run.playedOrder(six(0.5, 2, 1), six(0.6, 2, 1), true) > 0, 'equal deaths fall back to wins');
+	assert.ok(run.playedOrder(six(0.5, 2, 2), six(0.5, 2, 1), true) < 0, 'then the grid score');
 });
