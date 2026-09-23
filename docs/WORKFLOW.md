@@ -22,7 +22,7 @@ clear predates the engine fix.
 | 4 | Planner | the six, order, Mega, plan-by-play | amber | Held items can be planned (`--plan-items`, off until measured on held-out walls); the matchup board now opens cells as the fight does. Plans vary only the first foe and the last two (2.3). The Mega is not a planned choice (2.2). The upgrade advisor prices a tenth of the movepool. |
 | 5 | Fight policy | decide, search, joint doubles search | green | Mostly measured and rejected, which is fine. Unbuilt: phazing set-up users, stall play. When search scores a loss, it ignores how many of our Pokémon survive. Which two lead in doubles is an assumption (`doubles-lead-order`). |
 | 6 | Harness and run control | slot pool, checkpoints, carry-on, fallbacks, jobs | green | Every leg of a run names its engine; batteries, A/B arms and plan-by-play are watchable jobs (`lib/watch.js`). Open: rab-workspace's planning worker needs its side of the job wiring (a change request exists); pinned worktrees load the main checkout's calc. |
-| 7 | Measurement | battery, held-out seeds, paired tests, `scripts/falsify.js` | green | Re-baselined on the corrected engine (`base0923-*` receipts, one engine stamp); `battery-pair` refuses cross-engine joins and reports McNemar. heldout3 is kept unspent as the confirmation set. |
+| 7 | Measurement | battery, held-out seeds, paired tests, `scripts/falsify.js` | green | Re-baselined on the corrected engine (`base0923-*` receipts, one engine stamp); `battery-pair` refuses cross-engine joins and reports McNemar. heldout3 is kept unspent as the confirmation set. **2026-09-23:** `scenarios/frontier.json` (`scripts/frontier-set.js`) is the first set past Norman: 77 fights the stored runs lost 3+ times, Gavi to Champion Wallace, doubles included, cut from each run's own log. Every earlier set stopped at Norman. |
 | 8 | Observability | watch page, insight MCP tools, fight view, wall view | green | The wall view (per foe, hazards, end-of-turn and recoil counted apart) and past attempts on the fight tab exist; doubles tapes are read. |
 | 9 | Performance | cost per decision | amber | `rankParties` about 8 s, twice that with a Mega. One searched decision 8–12 s. About 10 h a run, about 1 h for a wall at 40 attempts. |
 
@@ -48,26 +48,47 @@ action-gate order observed. Open: whether Primal weather outlives a fainted
 holder in the ROM (P3, needs a second party member), and a sweep for the
 turn loop (mid-fight rules a composed-pipeline test does not reach).
 
-## Where we are weakest
+## The flywheel
 
-1. **Trust in past numbers.** Every stored comparison needs re-running.
-2. **Fidelity had no guard.** The opening sweep closes one class. The same
-   idea is owed for the turn loop.
-3. **The planner cannot choose items.**
-4. **Document sprawl.** There were 28 docs. `docs/ROADMAP.md` and
-   `docs/TASKS.md` are retired to `docs/attic/` (2026-09-22); each one's
-   header says where every item went. Other old docs still contradict this
-   page; they are listed for review, not yet rewritten.
+The loop this repository turns: **a full run stalls at a wall → the wall
+becomes a scenario → an arm is measured on it → what passes its bar is
+adopted → the next run goes further.** It jammed at the second step: the
+scenario sets were picked once, from archives before 2026-09-18, and none
+reached past Norman, so walls the runs found (Matt, Shelly, Archie, Sidney,
+Glacia, Wallace) were studied by hand and never measured.
+`scripts/frontier-set.js` closes that step. Re-run it after each batch of
+full runs; the manifest records the rule, so the set grows by the same rule,
+not by choice.
+
+What still slows each turn:
+
+1. **Diagnosis is by hand.** A wall is read from tapes by a person or an
+   agent. The wall view (`insight`) says per foe what it costs; it does not
+   yet propose an arm.
+2. **Fidelity has a guard for openings only.** The same idea is owed for the
+   turn loop; the engine fixes of 2026-09-22 were found by hand, twice by
+   Philip from the hack's own `Mechanic Changes.txt`.
+3. **A pin of whole output breaks on every engine fix** (`item_planning`'s
+   hash, replaced 2026-09-23). A test pins what the change promised, not a
+   snapshot of play.
+4. **Full runs cost about 10 hours.** The battery is the fast loop; a run is
+   the confirmation, not the experiment.
+5. **The gate had an unnamed intermittent failure** (twice on 2026-09-22).
+   Its log was lost with a worktree; keep suite logs until a failure is named.
 
 ## Order of work, cheapest first
 
 1. ~~Fidelity check of opening states~~ — done, `e6399d2`.
-2. Re-run baselines on idle compute: one fresh pinned run, and the held-out
-   battery sets.
-3. Plan held items (about a day), measured on the held-out walls.
-4. Wall view (half a day).
+2. ~~Re-run baselines~~ — done, `base0923-*`.
+3. ~~Plan held items~~ — built, off (`--plan-items`); measure it on the
+   frontier set before adopting.
+4. ~~Wall view~~ — done.
 5. ~~Retire `docs/ROADMAP.md` and `docs/TASKS.md`~~ — done 2026-09-22, see
    `docs/attic/README.md`.
+6. Frontier baseline (`front0923-*`), then the arms that wait for it:
+   `--plan-items` (built, off) and the Mega as a planned choice
+   (`docs/PLAN.md` 2.2, not built).
+7. A turn-loop fidelity sweep against the ROM probes.
 
 Parked, each with no bar and so not ready to start:
 
