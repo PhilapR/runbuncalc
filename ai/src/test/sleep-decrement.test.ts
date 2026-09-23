@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {calculateActionFacts} from '../calc-adapter';
 import {deriveMoveResolution} from '../move-engine';
 import {BattleState} from '../model';
+import {beginNextTurn} from '../transition';
 
 // Gen 8 sleep decrements on each ACTION ATTEMPT, not at the turn boundary:
 // a 2-4 counter always yields 1-3 missed turns, regardless of whether the
@@ -72,6 +73,14 @@ const action = {kind: 'move' as const, actorId: 'ai-1', moveName: 'Tackle', targ
   });
   assert.equal(resolution.actionFailure, undefined);
   assert.equal(resolution.statusByPokemon?.['ai-1'], '');
+}
+
+// The turn boundary leaves the counter alone: the attempt owns it. A
+// boundary decrement on top would burn two points a turn.
+{
+  const next = beginNextTurn(state(3));
+  assert.equal(next.sides.ai.party[0].statusTurns, 3, 'the boundary does not touch the sleep counter');
+  assert.equal(next.sides.ai.party[0].status, 'slp');
 }
 
 console.log('sleep-decrement: ok');
