@@ -519,6 +519,28 @@ test('levels do not go down', () => {
 		/already level 40; levels do not go down/);
 });
 
+// Run & Bun, Mechanic Changes: "Items that get consumed or removed from your
+// Pokémon in any way during battle will not be restored." An Aron holding a
+// Chople Berry through Brawly kept it forever, so every later matchup priced
+// a resist that could never fire again. Only the player of the fight knows the
+// berry was eaten, so it is a recorded command, and a replay is exact.
+test('a held item used up in a fight is gone, not returned to the bag', () => {
+	let state = run.apply(fresh(), MARILL);
+	state = run.apply(state, {kind: 'acquire', item: 'Chople Berry'});
+	state = run.apply(state, {kind: 'give', id: 'mon-1', item: 'Chople Berry'});
+	const eaten = run.apply(state, {kind: 'consume', id: 'mon-1', item: 'Chople Berry', to: 'Leader Brawly'});
+	assert.equal(eaten.box[0].item, null, 'the holder holds nothing');
+	assert.deepEqual(eaten.bag, {}, 'and the bag did not get it back');
+	assert.match(eaten.log[eaten.log.length - 1].summary, /Chople Berry was used up/);
+	// A consume that names the wrong item refuses rather than eating another.
+	assert.throws(() => run.apply(state, {kind: 'consume', id: 'mon-1', item: 'Oran Berry'}),
+		/holding Chople Berry, not Oran Berry/);
+	assert.throws(() => run.apply(eaten, {kind: 'consume', id: 'mon-1', item: 'Chople Berry'}),
+		/holding nothing, not Chople Berry/);
+	// Undo replays the log without it: the berry is back on the holder.
+	assert.equal(run.undo(eaten).box[0].item, 'Chople Berry');
+});
+
 test('the bag conserves items across every move', () => {
 	let state = run.apply(fresh(), MARILL);
 	state = run.apply(state, {kind: 'acquire', item: 'Leftovers', count: 2});

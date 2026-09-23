@@ -41,6 +41,17 @@ test('a clean run passes every check but the unfinished road', () => {
 	}
 });
 
+// A fight's eaten berry is a recorded command (lib/run.js consume), so the
+// audit's replay reaches it through run.apply like any other and stays exact.
+test('a consumed held item replays', () => {
+	const row = cleanRow();
+	const run = require('../lib/run');
+	row.doc = run.apply(row.doc, {kind: 'consume', id: 'mon-2', item: 'Oran Berry', to: 'Leader Brawly'});
+	assert.equal(row.doc.box.find(mon => mon.id === 'mon-2').item, null);
+	const result = auditRun(row);
+	assert.equal(statusOf(result, 'replay'), 'PASS', JSON.stringify(result.checks));
+});
+
 test('each invalid result is caught by the check that names it', () => {
 	const tampered = (edit, name) => {
 		const row = cleanRow();
