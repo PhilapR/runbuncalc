@@ -57,11 +57,11 @@ const APPENDED = {
 
 const METHOD_TAIL = [
 	'',
-	'That order is VALIDATED, not assumed: across the 64 dated locations the',
-	'tracker covers, its position rank-correlates with opensAt at 0.85. A wrong',
+	'That order is VALIDATED, not assumed: across the 59 dated locations the',
+	'tracker covers, its position rank-correlates with opensAt at 0.82. A wrong',
 	'order could not do that.',
 	'',
-	'0.85 and not the 0.96 an exact-name subset reports. The difference is five',
+	'0.82 and not the 0.96 an exact-name subset reports. The difference is five',
 	'Meteor Falls rooms, placed here right after Route 114 and dated 1526 by',
 	'availability.json. That is not a mapping error — it is the two files',
 	'answering different questions. The tracker orders by the intended',

@@ -11,11 +11,16 @@
  * using two signals Philip proposed:
  *
  *   1. Wild level. A location whose walk table tops out at L7 is early; one
- *      that tops out at L90 is late. Measured on the 83 dated locations,
- *      max and median level rank-correlate with unlock order at 0.87.
- *      (Minimum level does NOT — 0.57 — because Kaizo-style tables put a
- *      low slot almost everywhere. Using it would have looked reasonable
- *      and been wrong.)
+ *      that tops out at L90 is late. Measured on the 62 dated locations
+ *      that have a walk table (only those have a level to rank, and they
+ *      are the rows crossValidate() scores), max and median level
+ *      rank-correlate with unlock order at 0.90 and 0.90 (Spearman, tied
+ *      ranks averaged; signalCorrelations(), 2026-09-22). (Minimum level
+ *      does NOT — 0.56 — because Kaizo-style tables put a low slot almost
+ *      everywhere. Using it would have looked reasonable and been wrong.)
+ *      An earlier version said "the 83 dated locations… 0.87": 83 counted
+ *      every transcribed date, including the 18 with no walk table to read
+ *      (9866a5a validated on the other 65).
  *
  *   2. Route number. Route 116 sits between Route 115 and Route 117 in the
  *      journey as well as the name, so an undated RouteNNN can be
@@ -59,6 +64,7 @@ function walkLevels(map) {
 	if (!walk || !walk.mons.length) return null;
 	const levels = walk.mons.flatMap(mon => [mon.minLevel, mon.maxLevel]).sort((a, b) => a - b);
 	return {
+		min: levels[0],
 		max: levels[levels.length - 1],
 		median: levels[Math.floor(levels.length / 2)],
 	};
@@ -140,8 +146,9 @@ tracker.order.forEach((name, position) => {
  * of its own, so a position only means something once it is interpolated
  * against the dated locations either side of it.
  *
- * Rank-correlation against the 64 dated locations it covers is 0.85 — very
- * slightly BELOW the wild-level signal's 0.87, not above it. (An exact-name
+ * Rank-correlation against the 59 dated locations it covers is 0.82 —
+ * BELOW the wild-level signal's 0.90, not above it (signalCorrelations(),
+ * 2026-09-22; it was 64 and 0.85 when first written). (An exact-name
  * subset shows 0.96, but that subset excludes Meteor Falls, which is exactly
  * where the two orderings disagree, so quoting it would be quoting the
  * flattering half of the measurement.)
@@ -299,6 +306,57 @@ function crossValidateTracker() {
 	return {errors, median: errors[Math.floor(errors.length / 2)].error, within, n: errors.length};
 }
 
+/** Spearman's rho, tied values given the mean of the ranks they span. */
+function spearman(xs, ys) {
+	const rank = values => {
+		const sorted = values.map((value, index) => [value, index]).sort((a, b) => a[0] - b[0]);
+		const ranks = new Array(values.length);
+		for (let start = 0; start < sorted.length;) {
+			let end = start;
+			while (end + 1 < sorted.length && sorted[end + 1][0] === sorted[start][0]) end += 1;
+			for (let at = start; at <= end; at += 1) ranks[sorted[at][1]] = (start + end) / 2;
+			start = end + 1;
+		}
+		return ranks;
+	};
+	const rx = rank(xs);
+	const ry = rank(ys);
+	const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+	const mx = mean(rx);
+	const my = mean(ry);
+	let numerator = 0;
+	let dx = 0;
+	let dy = 0;
+	for (let i = 0; i < rx.length; i += 1) {
+		numerator += (rx[i] - mx) * (ry[i] - my);
+		dx += (rx[i] - mx) ** 2;
+		dy += (ry[i] - my) ** 2;
+	}
+	return numerator / Math.sqrt(dx * dy);
+}
+
+/**
+ * The rank correlations the docstrings state, on the samples that give them:
+ * the level signal over the dated rows with a walk table (trainingRows), the
+ * tracker over the dated locations it places. tests/availability-estimate
+ * holds the prose to these numbers.
+ */
+function signalCorrelations() {
+	const orders = trainingRows.map(row => row.order);
+	const covered = maps
+		.filter(map => dateOf.has(map.map) && trackerPosition.get(normalizeName(map.name)) !== undefined)
+		.map(map => ({at: trackerPosition.get(normalizeName(map.name)), order: dateOf.get(map.map)}));
+	return {
+		level: {
+			n: trainingRows.length,
+			min: spearman(trainingRows.map(row => row.levels.min), orders),
+			max: spearman(trainingRows.map(row => row.levels.max), orders),
+			median: spearman(trainingRows.map(row => row.levels.median), orders),
+		},
+		tracker: {n: covered.length, rho: spearman(covered.map(row => row.at), covered.map(row => row.order))},
+	};
+}
+
 /** First non-null, in order of how much the evidence is worth. */
 function pick(candidates) {
 	for (const value of candidates) if (value !== null && value !== undefined) return value;
@@ -402,4 +460,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = {crossValidate, crossValidateTracker, predictFromLevel, predictFromTracker, predictFromRouteNumber, walkLevels, neighbourSpread, timeline, trackerPosition, normalizeName, snapToFight, fightOrders};
+module.exports = {crossValidate, crossValidateTracker, signalCorrelations, spearman, predictFromLevel, predictFromTracker, predictFromRouteNumber, walkLevels, neighbourSpread, timeline, trackerPosition, normalizeName, snapToFight, fightOrders};

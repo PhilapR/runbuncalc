@@ -26,8 +26,8 @@ function levelsFor(name) {
 test('the wild-level signal is measured before it is believed', () => {
 	// Philip's idea: a location's wild levels say roughly when it opens. It
 	// does — but only for the right statistic. MINIMUM level rank-correlates
-	// at 0.57 because Kaizo tables put a low slot almost everywhere; maximum
-	// and median reach 0.87. Picking min would have looked entirely
+	// at 0.56 because Kaizo tables put a low slot almost everywhere; maximum
+	// and median reach 0.90 (62 dated locations with a walk table). Picking min would have looked entirely
 	// reasonable and been close to useless, which is why this is pinned.
 	const validation = estimate.crossValidate();
 	assert.ok(validation.n >= 60, 'enough dated locations to validate against');
@@ -97,9 +97,9 @@ test('the R&B tracker order is validated against the dates, not assumed', () => 
 	// here said they were orphaned strings in sharedStrings.xml; they are
 	// not). What makes the ORDER safe to act on is still measured, not
 	// assumed: across every dated location the tracker covers, its position
-	// ranks with opensAt at 0.85. A wrong order could not do that.
+	// ranks with opensAt at 0.82. A wrong order could not do that.
 	//
-	// 0.85, not the 0.96 the exact-name subset shows. The gap is five Meteor
+	// 0.82, not the 0.96 the exact-name subset shows. The gap is five Meteor
 	// Falls rooms, which the tracker places right after Route 114 and
 	// availability.json dates at 1526 — you walk past Meteor Falls early and
 	// nobody stands there to fight until very late. Quoting the 0.96 would
@@ -199,4 +199,34 @@ test('an estimate is always a fight the run can actually be at', () => {
 	assert.equal(estimate.snapToFight(1304), 1306, 'and so does a late one');
 	assert.equal(estimate.snapToFight(19), 19, 'a value already on a boundary does not move');
 	assert.ok(estimate.snapToFight(0) === 0, 'the very first fight is reachable');
+});
+
+test('the stated correlations are the ones the data gives, on the sample that gives them', () => {
+	// data-integrity audit (the-correlation-was-measured-on-65-locations-not-83):
+	// the docstring said "Measured on the 83 dated locations… 0.87". Only a
+	// location with a walk table has a level to rank, so the sample is the
+	// rows crossValidate() scores; 83 was never it. Every number the two
+	// docstrings and the tracker's method state is held to the measurement,
+	// rounded as stated, so a change to the dates moves the prose with it.
+	const fs = require('node:fs');
+	const path = require('node:path');
+	const measured = estimate.signalCorrelations();
+	const two = value => value.toFixed(2);
+	assert.equal(measured.level.n, estimate.crossValidate().n, 'the level sample is the validated sample');
+	assert.equal(measured.tracker.n, estimate.crossValidateTracker().n, 'the tracker sample is the validated sample');
+
+	// The docstrings, as prose: comment line breaks folded to spaces.
+	const source = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'estimate-availability.js'), 'utf8')
+		.replace(/\n\s*\*\s*/g, ' ');
+	const level = source.match(/Measured on the (\d+) dated locations[\s\S]*?max and median level rank-correlate with unlock order at (0\.\d\d) and (0\.\d\d)[\s\S]*?Minimum level does NOT — (0\.\d\d)/);
+	assert.ok(level, 'the wild-level claim is stated in the form this test reads');
+	assert.deepEqual(level.slice(1), [String(measured.level.n), two(measured.level.max), two(measured.level.median), two(measured.level.min)]);
+	const tracker = source.match(/against the (\d+) dated locations it covers is (0\.\d\d)[\s\S]*?wild-level signal's (0\.\d\d)/);
+	assert.ok(tracker, 'the tracker claim is stated in the form this test reads');
+	assert.deepEqual(tracker.slice(1), [String(measured.tracker.n), two(measured.tracker.rho), two(measured.level.max)]);
+
+	const method = require('../profiles/run-and-bun/oracle/tracker-order.json').method.join(' ');
+	const stated = method.match(/across the (\d+) dated locations the tracker covers, its position rank-correlates with opensAt at (0\.\d\d)/);
+	assert.ok(stated, 'the tracker method states its correlation');
+	assert.deepEqual(stated.slice(1), [String(measured.tracker.n), two(measured.tracker.rho)]);
 });
