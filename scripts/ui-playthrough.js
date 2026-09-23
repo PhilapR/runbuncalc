@@ -1096,7 +1096,14 @@ async function markBeaten(page) {
 		button.click();
 		return true;
 	}, next));
-	return clicked ? next : null;
+	// `act` always returns an object, so `clicked` alone is always truthy. A
+	// refusal leaves the save as it was and speaks on the status line, and
+	// only `changed` tells the two apart; `moved` is true on a refusal too.
+	if (!clicked.changed) {
+		note('mark', next + ' refused — ' + (clicked.status || 'no reason given'));
+		return null;
+	}
+	return next;
 }
 
 async function levelAndEvolve(page) {
@@ -3414,6 +3421,9 @@ module.exports = {
 	isToolTeach: isToolTeach,
 	parsePinBox: parsePinBox,
 	pickReplace: pickReplace,
+	// The page-driving parts a fake panel can drive (tests/playthrough_panel.test.js).
+	markBeaten: markBeaten,
+	journal: () => journal,
 	decide: decide,
 	isSlowControl: isSlowControl,
 	raceOf: raceOf,
